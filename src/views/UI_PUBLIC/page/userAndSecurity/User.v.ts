@@ -3,7 +3,7 @@
  * @Date: 2024-06-17 17:21:22
  * @Description: 查看或更改用户
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 20:40:50
+ * @LastEditTime: 2024-07-09 20:47:20
  */
 import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
 import UserEditPop from './UserEditPop.vue'
@@ -50,9 +50,9 @@ export default defineComponent({
             // 是否打开编辑用户密码的弹窗
             isEditUserPassword: false,
             // 本地通道权限列表
-            localChannelIds: DEFAULT_LOCAL_CHANNEL_AUTH_LIST as { name: keyof UserPermissionChannelAuthList; label: string }[],
+            localChannelIds: DEFAULT_LOCAL_CHANNEL_AUTH_LIST,
             // 远程通道权限列表
-            remoteChannelIds: DEFAULT_REMOTE_CHANNEL_AUTH_LIST as { name: keyof UserPermissionChannelAuthList; label: string }[],
+            remoteChannelIds: DEFAULT_REMOTE_CHANNEL_AUTH_LIST,
         })
 
         /**

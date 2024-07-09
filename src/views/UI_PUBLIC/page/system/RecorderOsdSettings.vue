@@ -3,7 +3,7 @@
  * @Date: 2024-06-27 09:02:59
  * @Description: 录像机OSD配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-27 17:33:29
+ * @LastEditTime: 2024-07-09 20:38:08
 -->
 <template>
     <div class="OSDSetting">
@@ -21,7 +21,7 @@
                         v-for="item in pageData.options"
                         :key="item.value"
                         :value="item.value"
-                        :label="Translate(item.name)"
+                        :label="Translate(item.label)"
                     />
                 </el-select>
             </el-form-item>
@@ -31,7 +31,7 @@
                         v-for="item in pageData.options"
                         :key="item.value"
                         :value="item.value"
-                        :label="Translate(item.name)"
+                        :label="Translate(item.label)"
                     />
                 </el-select>
             </el-form-item>
@@ -44,7 +44,7 @@
                         v-for="item in pageData.options"
                         :key="item.value"
                         :value="item.value"
-                        :label="Translate(item.name)"
+                        :label="Translate(item.label)"
                     />
                 </el-select>
             </el-form-item>

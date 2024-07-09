@@ -3,9 +3,9 @@
  * @Date: 2024-07-09 13:43:11
  * @Description: 磁盘阵列重建弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-09 14:09:44
+ * @LastEditTime: 2024-07-09 20:30:58
  */
-import { DiskRaidList } from '@/types/apiType/disk'
+import { DiskRaidList, DiskRaidRebuildForm } from '@/types/apiType/disk'
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import { type UserCheckAuthForm } from '@/types/apiType/userAndSecurity'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -15,6 +15,9 @@ export default defineComponent({
         BaseCheckAuthPop,
     },
     props: {
+        /**
+         * @property 当前选中的阵列
+         */
         current: {
             type: Object as PropType<DiskRaidList>,
             required: true,
@@ -35,14 +38,14 @@ export default defineComponent({
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
 
         const pageData = ref({
+            // 物理磁盘列表
             physicalDiskList: [] as { id: string; slotIndex: string }[],
+            // 鉴权弹窗
             isCheckAuth: false,
         })
 
         const formRef = ref<FormInstance>()
-        const formData = ref({
-            diskId: '',
-        })
+        const formData = ref(new DiskRaidRebuildForm())
         const rules = ref<FormRules>({
             diskId: [
                 {
@@ -58,6 +61,9 @@ export default defineComponent({
             ],
         })
 
+        /**
+         * @description 获取物理磁盘数据
+         */
         const getPhysicalDiskData = async () => {
             openLoading(LoadingTarget.FullScreen)
 
@@ -78,6 +84,9 @@ export default defineComponent({
                 })
         }
 
+        /**
+         * @description 验证表单后，打开鉴权弹窗
+         */
         const rebuildRaid = () => {
             formRef.value!.validate((valid) => {
                 if (valid) {
@@ -86,6 +95,10 @@ export default defineComponent({
             })
         }
 
+        /**
+         * @description 确认重建阵列
+         * @param {UserCheckAuthForm} e
+         */
         const confirmRebuildRaid = async (e: UserCheckAuthForm) => {
             openLoading(LoadingTarget.FullScreen)
 
@@ -132,11 +145,17 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 关闭弹窗
+         */
         const close = () => {
             pageData.value.isCheckAuth = false
             ctx.emit('close')
         }
 
+        /**
+         * @description 打开弹窗时，重置表单
+         */
         const open = async () => {
             if (!pageData.value.physicalDiskList.length) {
                 await getPhysicalDiskData()

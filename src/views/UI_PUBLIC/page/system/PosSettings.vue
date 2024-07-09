@@ -3,7 +3,7 @@
  * @Date: 2024-07-02 09:08:21
  * @Description: POS配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-03 15:25:52
+ * @LastEditTime: 2024-07-09 20:37:48
 -->
 <template>
     <div class="PosSettings">
@@ -35,7 +35,7 @@
                                     :key="opt.value"
                                     @click="changeAllSwitch(opt.value)"
                                 >
-                                    {{ Translate(opt.name) }}
+                                    {{ Translate(opt.label) }}
                                 </el-dropdown-item>
                             </el-dropdown-menu>
                         </template>
@@ -46,7 +46,7 @@
                         <el-option
                             v-for="opt in pageData.switchOption"
                             :key="opt.value"
-                            :label="Translate(opt.name)"
+                            :label="Translate(opt.label)"
                             :value="opt.value"
                         />
                     </el-select>

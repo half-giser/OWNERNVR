@@ -18,7 +18,7 @@ export default defineComponent({
             default: () => new StorageModeDiskGroupList(),
         },
         /**
-         * @description 备份磁盘ID列表
+         * @property 备份磁盘ID列表
          */
         backupDiskId: {
             type: Array as PropType<string[]>,
@@ -92,7 +92,7 @@ export default defineComponent({
 
         /**
          * @description 更新选中的磁盘列表
-         * @param {Array} value 
+         * @param {Array} value
          */
         const changeSelection = (value: StorageModeDiskList[]) => {
             pageData.value.selection = value

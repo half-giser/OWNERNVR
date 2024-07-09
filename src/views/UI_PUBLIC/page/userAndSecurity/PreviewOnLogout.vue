@@ -3,7 +3,7 @@
  * @Date: 2024-06-18 18:43:21
  * @Description: 登出后预览
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-20 09:24:11
+ * @LastEditTime: 2024-07-09 20:40:34
 -->
 <template>
     <div class="PreviewOnLogout">
@@ -42,9 +42,9 @@
                         >
                             <el-option
                                 v-for="item in pageData.channelOptions"
-                                :key="item.name"
+                                :key="item.value"
                                 :value="item.value"
-                                :label="Translate(item.name)"
+                                :label="Translate(item.label)"
                             >
                             </el-option>
                         </el-select>
@@ -81,10 +81,10 @@
                                     <el-dropdown-menu>
                                         <el-dropdown-item
                                             v-for="opt in pageData.channelOptions"
-                                            :key="opt.name"
+                                            :key="opt.value"
                                             @click="changeAllChannel(opt.value)"
                                         >
-                                            {{ Translate(opt.name) }}
+                                            {{ Translate(opt.label) }}
                                         </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
@@ -97,8 +97,8 @@
                             >
                                 <el-option
                                     v-for="value in pageData.channelOptions"
-                                    :key="value.name"
-                                    :label="Translate(value.name)"
+                                    :key="value.value"
+                                    :label="Translate(value.label)"
                                     :value="value.value"
                                 />
                             </el-select>

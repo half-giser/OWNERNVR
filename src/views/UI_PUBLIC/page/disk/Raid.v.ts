@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 13:43:11
  * @Description: 磁盘阵列
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-09 14:10:14
+ * @LastEditTime: 2024-07-09 20:27:38
  */
 
 import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
@@ -25,6 +25,7 @@ export default defineComponent({
 
         let raidStatusTimer: NodeJS.Timeout | number = 0
 
+        // 状态值与显示文本的映射
         const STATE_MAPPING: Record<string, string> = {
             normal: Translate('IDCS_NORMAL'),
             rebuild: Translate('IDCS_REPAIR'),
@@ -36,15 +37,23 @@ export default defineComponent({
 
         const tableData = ref<DiskRaidList[]>([])
         const pageData = ref({
+            // 鉴权弹窗
             isCheckAuth: false,
+            // 当前选中的阵列
             activeIndex: -1,
+            // 磁盘阵列重建弹窗弹窗
             isRebuild: false,
         })
 
+        // 当前选中的阵列
         const current = computed(() => {
             return tableData.value[pageData.value.activeIndex] || new DiskRaidList()
         })
 
+        /**
+         * @description 刷新数据
+         * @returns
+         */
         const refreshData = async () => {
             const raidListHasRebuildArray = await getData()
             if (!raidListHasRebuildArray) return
@@ -56,6 +65,10 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 获取列表数据
+         * @returns {boolean}
+         */
         const getData = async () => {
             const result = await queryRaidDetailInfo()
             const $ = queryXml(result)
@@ -87,14 +100,29 @@ export default defineComponent({
             return hasRebuildArray
         }
 
+        /**
+         * @description 阵列状态文本
+         * @param {string} str
+         * @returns {string}
+         */
         const displayRaidState = (str: string) => {
             return STATE_MAPPING[str]
         }
 
+        /**
+         * @description 阵列类型文本
+         * @param {string} str
+         * @returns {string}
+         */
         const displayRaidType = (str: string) => {
             return Translate(`IDCS_${str.replace('_TYPE', '')}`)
         }
 
+        /**
+         * @description 删除阵列，打开鉴权弹窗
+         * @param {DiskRaidList} row
+         * @param {number} index
+         */
         const deleteRaid = (row: DiskRaidList, index: number) => {
             openMessageTipBox({
                 type: 'question',
@@ -106,6 +134,10 @@ export default defineComponent({
             })
         }
 
+        /**
+         * @description 鉴权弹窗通过后，确认删除阵列
+         * @param {UserCheckAuthForm} e
+         */
         const confirmDeleteRaid = async (e: UserCheckAuthForm) => {
             openLoading(LoadingTarget.FullScreen)
 
@@ -152,6 +184,10 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 获取阵列状态
+         * @returns {boolean}
+         */
         const getRaidStatus = async () => {
             const result = await queryRaidStatus()
             const $ = queryXml(result)
@@ -175,6 +211,9 @@ export default defineComponent({
             return hasRebuildArray
         }
 
+        /**
+         * @description 刷新阵列状态
+         */
         const startRefreshProgress = () => {
             stopRefreshProgress()
             raidStatusTimer = setTimeout(() => {
@@ -182,11 +221,19 @@ export default defineComponent({
             }, 60000)
         }
 
+        /**
+         * @description 停止刷新阵列状态
+         */
         const stopRefreshProgress = () => {
             clearTimeout(raidStatusTimer)
             raidStatusTimer = 0
         }
 
+        /**
+         * @description 打开重建阵列弹窗
+         * @param {DiskRaidList} row
+         * @param {number} index
+         */
         const rebuildRaid = (row: DiskRaidList, index: number) => {
             if (row.raidState !== 'downgrade') {
                 return

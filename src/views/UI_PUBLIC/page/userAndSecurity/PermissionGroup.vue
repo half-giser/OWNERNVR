@@ -3,7 +3,7 @@
  * @Date: 2024-06-17 20:26:14
  * @Description: 权限组列表
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 19:34:01
+ * @LastEditTime: 2024-07-09 20:43:43
 -->
 <template>
     <div class="Perm">
@@ -68,7 +68,7 @@
                                 :label="Translate(item.label)"
                             >
                                 <template #default="{ $index }">
-                                    <el-text>{{ displayChannelAuth(channelAuthList[$index][item.name]) }}</el-text>
+                                    <el-text>{{ displayChannelAuth(channelAuthList[$index][item.value]) }}</el-text>
                                 </template>
                             </el-table-column>
                         </el-table>
@@ -96,7 +96,7 @@
                                 :label="Translate(item.label)"
                             >
                                 <template #default="{ $index }">
-                                    <el-text>{{ displayChannelAuth(channelAuthList[$index][item.name]) }}</el-text>
+                                    <el-text>{{ displayChannelAuth(channelAuthList[$index][item.value]) }}</el-text>
                                 </template>
                             </el-table-column>
                         </el-table>

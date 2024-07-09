@@ -3,6 +3,7 @@
  * @Date: 2023-04-28 17:57:48
  * @Description: 常量定义
  */
+import { type UserPermissionChannelAuthList } from '@/types/apiType/userAndSecurity'
 
 // 当前环境模式
 export const ENV_MODE = import.meta.env.NODE_ENV
@@ -533,7 +534,7 @@ export const UiDir = {
 
 export const nameByteMaxLen = 64 - 1 //名字的最大字节长度（不包含结束字符）;
 
-export const DEFAULT_PASSWORD_STREMGTH_MAPPING = {
+export const DEFAULT_PASSWORD_STREMGTH_MAPPING: Record<string, number> = {
     none: 0,
     weak: 1,
     medium: 2,
@@ -569,13 +570,13 @@ export const DEFAULT_CHANNEL_AUTH_LIST: ('_lp' | '_spr' | '_bk' | '_ad' | '_ptz'
 /**
  * @description 默认开关选项
  */
-export const DEFAULT_SWITCH_OPTIONS = [
+export const DEFAULT_SWITCH_OPTIONS: SelectOption<string, string>[] = [
     {
-        name: 'IDCS_ON',
+        label: 'IDCS_ON',
         value: 'true',
     },
     {
-        name: 'IDCS_OFF',
+        label: 'IDCS_OFF',
         value: 'false',
     },
 ]
@@ -586,25 +587,25 @@ export const DEFAULT_CHANNEL_AUTH_TABS = ['IDCS_LOCAL_RIGHT', 'IDCS_REMOTE_RIGHT
 /**
  * @description 默认本地通道权限列表
  */
-export const DEFAULT_LOCAL_CHANNEL_AUTH_LIST = [
+export const DEFAULT_LOCAL_CHANNEL_AUTH_LIST: SelectOption<keyof UserPermissionChannelAuthList, string>[] = [
     {
-        name: '_lp',
+        value: '_lp',
         label: 'IDCS_PREVIEW',
     },
     {
-        name: '_spr',
+        value: '_spr',
         label: 'IDCS_SEARCH_AND_PLAYBACK',
     },
     {
-        name: '_bk',
+        value: '_bk',
         label: 'IDCS_SEARCH_AND_BACKUP',
     },
     {
-        name: '_ad',
+        value: '_ad',
         label: 'IDCS_AUDIO_FREQUENCY',
     },
     {
-        name: '_ptz',
+        value: '_ptz',
         label: 'IDCS_PTZ_CONTROL',
     },
 ]
@@ -612,25 +613,25 @@ export const DEFAULT_LOCAL_CHANNEL_AUTH_LIST = [
 /**
  * @description 默认远程通道权限列表
  */
-export const DEFAULT_REMOTE_CHANNEL_AUTH_LIST = [
+export const DEFAULT_REMOTE_CHANNEL_AUTH_LIST: SelectOption<keyof UserPermissionChannelAuthList, string>[] = [
     {
-        name: '@lp',
+        value: '@lp',
         label: 'IDCS_PREVIEW',
     },
     {
-        name: '@spr',
+        value: '@spr',
         label: 'IDCS_SEARCH_AND_PLAYBACK',
     },
     {
-        name: '@bk',
+        value: '@bk',
         label: 'IDCS_SEARCH_AND_BACKUP',
     },
     {
-        name: '@ad',
+        value: '@ad',
         label: 'IDCS_AUDIO_FREQUENCY',
     },
     {
-        name: '@ptz',
+        value: '@ptz',
         label: 'IDCS_PTZ_CONTROL',
     },
 ]

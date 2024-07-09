@@ -3,7 +3,7 @@
  * @Date: 2024-06-18 18:40:41
  * @Description: 密码安全
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 20:13:52
+ * @LastEditTime: 2024-07-09 20:35:59
 -->
 <template>
     <div class="PasswordSecurity">
@@ -19,9 +19,9 @@
                 <el-select v-model="formData.passwordStrength">
                     <el-option
                         v-for="item in pageData.passwordStrengthOptions"
-                        :key="item.id"
-                        :label="item.name"
-                        :value="item.id"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value"
                     />
                 </el-select>
             </el-form-item>
@@ -29,9 +29,9 @@
                 <el-select v-model="formData.expirationTime">
                     <el-option
                         v-for="item in pageData.expirationTimeOptions"
-                        :key="item.id"
-                        :label="item.name"
-                        :value="item.id"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value"
                     />
                 </el-select>
             </el-form-item>

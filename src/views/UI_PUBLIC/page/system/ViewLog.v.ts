@@ -3,7 +3,7 @@
  * @Date: 2024-07-01 11:01:12
  * @Description: 查看日志
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-08 20:14:19
+ * @LastEditTime: 2024-07-09 20:48:10
  */
 import { SystemLogForm, type SystemLogList } from '@/types/apiType/system'
 import dayjs from 'dayjs'
@@ -215,7 +215,7 @@ export default defineComponent({
         const pageData = ref({
             // 日志主类型选项
             typeOptions: ['LOG_ALL'].concat(Object.keys(LOG_TYPE_MAPPING)).map((item) => ({
-                name: Translate(TRANS_MAPPING[item]),
+                label: Translate(TRANS_MAPPING[item]),
                 value: item,
             })),
             // 每页显示条数选项
