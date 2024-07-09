@@ -1,0 +1,4 @@
+[submodule "plugin"]
+	path = plugin
+	url = http://192.168.15.55:8000/NVR/Web9000v2_Windows_Plugin.git
+	branch = master
