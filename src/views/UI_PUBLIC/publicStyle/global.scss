@@ -1,0 +1,109 @@
+/*
+ * @Author: tengxiang tengxiang@tvt.net.cn
+ * @Date: 2023-05-17 21:27:56
+ * @Description: 定义主题样式全局变量
+ */
+
+@import './common.scss';
+@import './element.scss';
+
+#n9web {
+    // 主题色
+    --primary--01: #e1fbff;
+    --primary--02: #00bada80;
+    --primary--03: #25cfe6;
+    --primary--04: #00bbdb;
+    --primary--05: #0092b3;
+
+    // 文本
+    --text-disabled: #c0c4cc;
+    --text-placeholder: #a8abb2;
+    --text-secondary: #909399;
+    --text-menu-01: #666;
+    --text-menu-02: #555;
+    --text-menu-03: #8d8d8d;
+    --text-menu-04: #3c3c3c;
+    --text-menu-05: #8f8f8f;
+    --text-nav: #454545;
+    --text-primary: #333;
+    --text-light: #676767;
+    --text-dark: #000;
+
+    // 边框
+    --border-color1: #666;
+    --border-color2: #999;
+    --border-color3: #aeaeae;
+    --border-color4: #8f8f8f;
+    --border-color5: #aaa;
+    --border-color6: #ddd;
+    --border-color7: #888;
+    --border-color8: #ccc;
+    --border-light: #e9efff;
+    --border-dark: #000;
+    --border-color-disabled: #aeabab;
+
+    // 界面默认背景色
+    --page-bg: #fff;
+
+    // 背景色
+    --bg-color: #fff;
+    --bg-color2: #8f8f8f;
+    --bg-color3: #aaa;
+    --bg-color4: #ccc;
+    --bg-color5: #eee;
+    --bg-color6: #787878;
+    --bg-color-opacity1: rgba(255, 255, 255, 0.3);
+    --bg-color-cfg-menu-active: #eee;
+    --bg-table: #f5f7fa;
+    --bg-table-thead: #e5e5e5;
+    --bg-color-disabled: #f0f0f0;
+
+    // 表格分割线
+    --table-split: #ebeef5;
+
+    // Success
+    --success--01: #edf9eb;
+    --success--02: #e4f2e1;
+    --success--03: #b6e6b1;
+    --success--05: #60cc5c;
+    --success--06: #37bf37;
+    --success--07: #259929;
+
+    // danger
+    --danger--01: #fff3f0;
+    --danger--02: #ffe2db;
+    --danger--03: #ffbfb3;
+    --danger--05: #ff7161;
+    --danger--06: #f44336;
+    --danger--07: #cf2923;
+
+    // Error
+    --error--01: red;
+
+    // 白色
+    --color-white: #ffffff;
+
+    // 透明色
+    --color-transparent: transparent;
+
+    // 在线，离线颜色
+    --color-online: green;
+    --color-offline: red;
+
+    // UI主题sprite图标
+    --sprite: url('@/views/UI_PUBLIC/publicStyle/img/sprite.png');
+
+    // 登录界面客户定制图标
+    --login-content: url('/LoginContent.png');
+    --logo: url('/appName.png');
+
+    --scrollbar-track-bg: #f7f7f7;
+    --scrollbar-track-border: #efefef;
+    --scrollbar-thumb-bg: #e6e6e6;
+    --scrollbar-thumb-border: #e0e0e0;
+    --scrollbar-thumb-bg-hover: #d9d9d9;
+    --scrollbar-thumb-bg-active: #c2c2c2
+}
+
+@media (prefers-color-scheme: dark) {
+}

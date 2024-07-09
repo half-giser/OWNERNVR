@@ -1,0 +1,171 @@
+<!--
+ * @Author: yejiahao yejiahao@tvt.net.cn
+ * @Date: 2024-06-18 18:43:21
+ * @Description: 登出后预览
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-06-20 09:24:11
+-->
+<template>
+    <div class="PreviewOnLogout">
+        <div class="main">
+            <div class="left">
+                <div class="player">
+                    <BaseVideoPlayer
+                        ref="playerRef"
+                        :split="1"
+                        @onready="onReady"
+                    />
+                </div>
+                <el-form
+                    class="form"
+                    label-position="left"
+                    label-width="100px"
+                >
+                    <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
+                        <el-select v-model="pageData.activeChannelIndex">
+                            <el-option
+                                v-for="(item, index) in channelList"
+                                :key="index"
+                                :value="index"
+                                :label="item.name"
+                            >
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item
+                        v-if="channelList[pageData.activeChannelIndex]"
+                        :label="Translate('IDCS_PREVIEW')"
+                    >
+                        <el-select
+                            v-model="channelList[pageData.activeChannelIndex].switch"
+                            @change="pageData.buttonDisabled = false"
+                        >
+                            <el-option
+                                v-for="item in pageData.channelOptions"
+                                :key="item.name"
+                                :value="item.value"
+                                :label="Translate(item.name)"
+                            >
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-form>
+            </div>
+            <div class="right">
+                <el-table
+                    :data="channelList"
+                    border
+                    stripe
+                    flexible
+                    :row-class-name="(item) => (item.rowIndex === pageData.activeChannelIndex ? 'active' : '')"
+                    @cell-click="handleChangeUser"
+                >
+                    <el-table-column :label="Translate('IDCS_CHANNEL_NAME')">
+                        <template #default="scope">
+                            <el-tooltip :content="scope.row.name">
+                                <div class="ellipsis">{{ scope.row.name }}</div>
+                            </el-tooltip>
+                        </template>
+                    </el-table-column>
+                    <el-table-column :label="Translate('IDCS_PREVIEW')">
+                        <template #header>
+                            <el-dropdown trigger="click">
+                                <span class="el-dropdown-link">
+                                    {{ Translate('IDCS_PREVIEW') }}
+                                    <BaseImgSprite
+                                        class="ddn"
+                                        file="ddn"
+                                    />
+                                </span>
+                                <template #dropdown>
+                                    <el-dropdown-menu>
+                                        <el-dropdown-item
+                                            v-for="opt in pageData.channelOptions"
+                                            :key="opt.name"
+                                            @click="changeAllChannel(opt.value)"
+                                        >
+                                            {{ Translate(opt.name) }}
+                                        </el-dropdown-item>
+                                    </el-dropdown-menu>
+                                </template>
+                            </el-dropdown>
+                        </template>
+                        <template #default="{ $index }">
+                            <el-select
+                                v-model="channelList[$index].switch"
+                                @change="pageData.buttonDisabled = false"
+                            >
+                                <el-option
+                                    v-for="value in pageData.channelOptions"
+                                    :key="value.name"
+                                    :label="Translate(value.name)"
+                                    :value="value.value"
+                                />
+                            </el-select>
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </div>
+        </div>
+        <div class="btns">
+            <el-button
+                :disabled="pageData.buttonDisabled"
+                @click="setData"
+                >{{ Translate('IDCS_APPLY') }}</el-button
+            >
+        </div>
+    </div>
+</template>
+
+<script lang="ts" src="./PreviewOnLogout.v.ts"></script>
+
+<style lang="scss" scoped>
+.PreviewOnLogout {
+    .main {
+        display: flex;
+        width: 100%;
+        height: 100%;
+    }
+    .left {
+        width: 400px;
+        flex-shrink: 0;
+        margin-right: 10px;
+
+        .form {
+            margin-top: 20px;
+
+            :deep(.el-form-item) {
+                margin-bottom: 0;
+                padding: 10px 0 10px 15px;
+
+                &:nth-child(even) {
+                    background-color: var(--bg-color5);
+                }
+            }
+
+            .el-select {
+                width: 200px;
+            }
+        }
+    }
+    .player {
+        width: 400px;
+        height: 300px;
+    }
+    .right {
+        width: 100%;
+        height: 100%;
+        margin-right: 10px;
+
+        :deep(.el-table) {
+            height: calc(100vh - 300px);
+        }
+    }
+    .btns {
+        margin-top: 10px;
+        display: flex;
+        justify-content: flex-end;
+        margin-right: 10px;
+    }
+}
+</style>

@@ -1,0 +1,42 @@
+/*
+ * @Author: yejiahao yejiahao@tvt.net.cn
+ * @Date: 2024-05-24 17:12:55
+ * @Description:
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-06-18 08:58:42
+ */
+
+/**
+ * 登录表单数据
+ */
+export class LoginForm {
+    userName = ''
+    password = ''
+    calendarType = ''
+}
+
+/**
+ * 登录请求数据类型
+ */
+export class LoginReqData {
+    userName = ''
+    password = ''
+    passwordMd5 = ''
+}
+
+/**
+ * 重置密码表单数据
+ */
+export class ChangePasswordForm {
+    currentPassword = ''
+    newPassword = ''
+    confirmNewPassword = ''
+}
+
+/**
+ * 重置密码请求数据类型
+ */
+export class ChangePasswordReqData {
+    oldPassword = ''
+    password = ''
+}

@@ -1,0 +1,264 @@
+/*
+ * @Author: linguifan linguifan@tvt.net.cn
+ * @Date: 2024-06-17 21:17:45
+ * @Description:
+ */
+import { ChlGroup } from '@/types/apiType/channel'
+import { DefaultPagerSizeOptions, DefaultPagerLayout } from '@/utils/constants'
+import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
+import ChannelGroupEditPop from './ChannelGroupEditPop.vue'
+import ChannelGroupAddChlPop from './ChannelGroupAddChlPop.vue'
+
+export default defineComponent({
+    components: {
+        BaseImgSprite,
+        ChannelGroupEditPop,
+        ChannelGroupAddChlPop,
+    },
+    setup() {
+        const router = useRouter()
+        const { Translate } = useLangStore()
+        const { LoadingTarget, openLoading, closeLoading } = useLoading()
+        const { openMessageTipBox } = useMessageBox()
+
+        const tableData = ref<ChlGroup[]>()
+        const pageIndex = ref(1)
+        const pageSize = ref(10)
+        const pageTotal = ref(0)
+        const editItem = ref<ChlGroup>()
+        const editItemForAddChl = ref<ChlGroup>()
+        const chlGroupEditPopVisiable = ref(false)
+        const chlGroupAddChlPopVisiable = ref(false)
+        let tmpExpendedRows: ChlGroup[] = []
+
+        const closeChlGroupEditPop = () => {
+            chlGroupEditPopVisiable.value = false
+        }
+
+        const closeChlGroupAddChlPop = (isRefresh: boolean) => {
+            chlGroupAddChlPopVisiable.value = false
+            if (isRefresh) {
+                handleExpandChange(editItemForAddChl.value!, tmpExpendedRows)
+            }
+        }
+
+        const setDataCallBack = (rowData: ChlGroup) => {
+            editItem.value!.name = rowData.name
+            editItem.value!.dwellTime = rowData.dwellTime
+        }
+
+        const handleToolBarEvent = function (toolBarEvent: ConfigToolBarEvent<ChannelToolBarEvent>) {
+            switch (toolBarEvent.type) {
+                case 'addChlGroup':
+                    router.push('add')
+                    break
+            }
+        }
+
+        const formatDwellTime = (value: number) => {
+            if (value >= 60) {
+                value = value / 60
+                return Translate('IDCS_STAY_TIME_D').formatForLang(value + ' ', value == 1 ? Translate('IDCS_MINUTE') : Translate('IDCS_MINUTES'))
+            } else {
+                return Translate('IDCS_STAY_TIME_D').formatForLang(value + ' ', Translate('IDCS_SECONDS'))
+            }
+        }
+
+        const handleEditChlGroup = (rowData: ChlGroup) => {
+            editItem.value = rowData
+            chlGroupEditPopVisiable.value = true
+        }
+
+        const handleDelChlGroup = (rowData: ChlGroup) => {
+            openMessageTipBox({
+                type: 'question',
+                title: Translate('IDCS_INFO_TIP'),
+                message: Translate('IDCS_DELETE_MP_GROUP_S').formatForLang(getShortString(rowData.name, 10)),
+            })
+                .then(() => {
+                    const data = `
+                        <condition>
+                            <chlGroupIds type='list'>
+                                <item id='${rowData.id}'></item>
+                            </chlGroupIds>
+                        </condition>`
+                    openLoading(LoadingTarget.FullScreen)
+                    delChlGroup(getXmlWrapData(data)).then((res: any) => {
+                        closeLoading(LoadingTarget.FullScreen)
+                        res = queryXml(res)
+                        if (res('status').text() == 'success') {
+                            openMessageTipBox({
+                                type: 'success',
+                                title: Translate('IDCS_SUCCESS_TIP'),
+                                message: Translate('IDCS_DELETE_SUCCESS'),
+                                showCancelButton: false,
+                            }).then(() => {
+                                pageIndex.value = 1
+                                getData()
+                            })
+                        } else {
+                            openMessageTipBox({
+                                type: 'info',
+                                title: Translate('IDCS_INFO_TIP'),
+                                message: Translate('IDCS_DELETE_FAIL'),
+                                showCancelButton: false,
+                            })
+                        }
+                    })
+                })
+                .catch(() => {})
+        }
+
+        const handleSizeChange = (val: number) => {
+            pageSize.value = val
+            getData()
+        }
+
+        const handleCurrentChange = (val: number) => {
+            pageIndex.value = val
+            getData()
+        }
+
+        const handleExpandChange = (row: ChlGroup, expandedRows: ChlGroup[]) => {
+            if (expandedRows.includes(row)) {
+                const data = `
+                <condition>
+                    <chlGroupId>${row.id}</chlGroupId>
+                </condition>`
+                openLoading(LoadingTarget.FullScreen)
+                queryChlGroup(getXmlWrapData(data)).then((res: any) => {
+                    closeLoading(LoadingTarget.FullScreen)
+                    res = queryXml(res)
+                    if (res('status').text() == 'success') {
+                        const chlList: Record<string, string | boolean>[] = []
+                        res('//content/chlList/item').forEach((ele: any) => {
+                            chlList.push({
+                                value: ele.attr('id'),
+                                text: ele.text(),
+                                showDelIcon: false,
+                            })
+                        })
+                        row.chls = chlList
+                        row.chlCount = chlList.length
+                    }
+                })
+            }
+            tmpExpendedRows = expandedRows
+        }
+
+        const getData = () => {
+            const data = `
+                <pageIndex>${pageIndex.value}</pageIndex>
+                <pageSize>${pageSize.value}</pageSize>
+                <requireField>
+                    <name/>
+                    <dwellTime/>
+                    <chlCount/>
+                </requireField>`
+            openLoading(LoadingTarget.FullScreen)
+            queryChlGroupList(getXmlWrapData(data)).then((res: any) => {
+                closeLoading(LoadingTarget.FullScreen)
+                res = queryXml(res)
+                if (res('status').text() == 'success') {
+                    tableData.value = []
+                    res('//content/item').forEach((ele: any) => {
+                        const eleXml = queryXml(ele.element)
+                        const newData = new ChlGroup()
+                        newData.id = ele.attr('id')
+                        newData.name = eleXml('name').text()
+                        newData.dwellTime = Number(eleXml('dwellTime').text())
+                        newData.chlCount = Number(eleXml('chlCount').text())
+                        tableData.value?.push(newData)
+                    })
+                    pageTotal.value = Number(res('content').attr('total'))
+                }
+            })
+        }
+
+        const handleAddChl = (rowData: ChlGroup) => {
+            editItemForAddChl.value = rowData
+            chlGroupAddChlPopVisiable.value = true
+        }
+        const handleDelChl = (rowData: ChlGroup, chlId: string) => {
+            if (rowData.chlCount <= 1) {
+                openMessageTipBox({
+                    type: 'info',
+                    title: Translate('IDCS_INFO_TIP'),
+                    message: Translate('IDCS_PROMPT_CHANNEL_GROUP_DELETE_CHANNEL_ERROR'),
+                    showCancelButton: false,
+                })
+                return
+            }
+            const data = `
+                <types>
+                    <actionType>
+                        <enum>add</enum>
+                        <enum>remove</enum>
+                    </actionType>
+                </types>
+                <content>
+                    <chlGroup>
+                        <action type='actionType'>remove</action>
+                        <id>${rowData.id}</id>
+                        <chls type='list'>
+                            <item id='${chlId}'></item>
+                        </chls>
+                    </chlGroup>
+                </content>`
+            openLoading(LoadingTarget.FullScreen)
+            editSetAndElementRelation(getXmlWrapData(data)).then((res: any) => {
+                closeLoading(LoadingTarget.FullScreen)
+                res = queryXml(res)
+                if (res('status').text() == 'success') {
+                    openMessageTipBox({
+                        type: 'success',
+                        title: Translate('IDCS_INFO_TIP'),
+                        message: Translate('IDCS_DELETE_SUCCESS'),
+                        showCancelButton: false,
+                    })
+                        .then(() => {
+                            rowData.chls = rowData.chls.filter((item) => item['value'] != chlId)
+                            rowData.chlCount = rowData.chls.length
+                        })
+                        .catch(() => {})
+                } else {
+                    openMessageTipBox({
+                        type: 'info',
+                        title: Translate('IDCS_INFO_TIP'),
+                        message: Translate('IDCS_DELETE_FAIL'),
+                        showCancelButton: false,
+                    })
+                }
+            })
+        }
+
+        onMounted(() => {
+            getData()
+        })
+
+        return {
+            tableData,
+            pageIndex,
+            pageSize,
+            pageTotal,
+            editItem,
+            editItemForAddChl,
+            chlGroupEditPopVisiable,
+            chlGroupAddChlPopVisiable,
+            closeChlGroupEditPop,
+            closeChlGroupAddChlPop,
+            setDataCallBack,
+            DefaultPagerSizeOptions,
+            DefaultPagerLayout,
+            handleToolBarEvent,
+            formatDwellTime,
+            handleEditChlGroup,
+            handleDelChlGroup,
+            handleSizeChange,
+            handleCurrentChange,
+            handleExpandChange,
+            handleAddChl,
+            handleDelChl,
+        }
+    },
+})

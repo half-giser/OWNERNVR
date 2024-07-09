@@ -1,0 +1,296 @@
+/*
+ * @Author: yejiahao yejiahao@tvt.net.cn
+ * @Date: 2024-06-21 18:15:30
+ * @Description: 系统
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-07-03 10:18:01
+ */
+
+/**
+ * @description 网络状态列表
+ */
+export class SystemNetStatusList {
+    i = 0 // 缩进数
+    k = '' // 属性名
+    v = '' // 属性值
+}
+
+/**
+ * @description 录像状态列表
+ */
+export class SystemRecordStatusList {
+    name = ''
+    resolution = ''
+    frameRate = ''
+    quality = ''
+    bitType = ''
+    level = ''
+    recStatus = ''
+    streamType = ''
+    recTypes: string[] = []
+}
+
+/**
+ * @description 通道状态列表
+ */
+export class SystemChannelStatusList {
+    name = ''
+    online = false
+    motionStatus = ''
+    intelligentStatus = ''
+    recStatus = ''
+}
+
+/**
+ * @description 磁盘状态列表
+ */
+export class SystemDiskStatusList {
+    id = ''
+    diskNum = ''
+    raidType = ''
+    size = 0
+    freeSpace = 0
+    combinedStatus = ''
+    diskStatus = ''
+    diskEncryptStatus = ''
+    type = ''
+    source = ''
+    recTime = ''
+    group = ''
+    detail = []
+    gridRowStatus = 'loading'
+    gridRowDisabled = true
+    gridRowStatusInitTooltip = ''
+    sortIndex = 0
+}
+
+export interface SystemAlarmStatusListData {
+    id: string
+    img?: string
+    rec: {
+        id: string
+        text: string
+    }[]
+    alarmTime: string
+    data: { key: string; value: string; span: number; hide?: boolean }[]
+}
+
+/**
+ * @description 报警状态列表
+ */
+export class SystemAlarmStatusList {
+    id = ''
+    type = ''
+    // status = 0
+    data = [] as SystemAlarmStatusListData[]
+    index = 0
+}
+
+/**
+ * @description 自动更新表单
+ */
+export class SystemAutoMaintenanceForm {
+    switch = false
+    interval = ''
+    time = new Date(2000, 1, 1, 0, 0)
+}
+
+/**
+ * @description 设备基本信息表单
+ */
+export class SystemBaseInfoForm {
+    name = ''
+    deviceNumber = ''
+    productModel = ''
+    videoType = ''
+    hardwareVersion = ''
+    mcuVersion = ''
+    kenerlVersion = ''
+    softwareVersion = ''
+    sn = ''
+    AndroidAppAddress = ''
+    IOSAppAddress = ''
+    PCBAV = ''
+    PN = ''
+    PCUI = ''
+    launchDate = ''
+    apiVersion = ''
+    onvifVersion = ''
+    onvifDevVersion = ''
+    ocxVersion = ''
+    showApp = false
+    showGDPR = false
+    qrCodeContent = ''
+    qrCodeContentIsEnabled = false
+}
+
+/**
+ * @description 恢复出厂设置表单
+ */
+export class SystemFactoryDefaultForm {
+    exceptNetworkConfigSwitch = 'false'
+}
+
+/**
+ * @description 全局配置表单
+ */
+export class SystemGeneralSettingForm {
+    deviceName = '' // 设备名称
+    deviceNumber = 0 // 设备编号
+    videoFormat = '' // 视频制式
+    outputAdapt = false // 固定显示分辨率
+    resolution: string[] = [] // 显示多路输出分辨率
+    outputConfig = '' //
+    enableGuide = false // 启用开机向导
+    mobileStreamAdaption = false // App现场自适应
+    enableAutoDwell = false // 自动轮询
+    waitTime = 0 // 等待时长
+    zeroOrAddIpc = false //
+    decoder: Record<number, Record<number, string>> = {}
+}
+
+/**
+ * @description 时间与日期表单
+ */
+export class SystemDateTimeForm {
+    systemTime = '' // new Date() // 系统时间
+    isSync = false //  和计算机时间同步
+    dateFormat = 'year-month-day' // 日期格式
+    timeFormat = '24' // 时间格式
+    syncType = '' // 同步方式
+    timeServer = '' // 时间服务器
+    timeZone = '' // 时区
+    enableDST = false // 夏令时
+}
+
+export class SystemOutputSettingAddViewForm {
+    name = ''
+}
+
+/**
+ * @description 录像机OSD提交表单
+ */
+export class SystemRecorderOSDSettingsForm {
+    nameEnable = 'false'
+    iconEnable = 'false'
+    addressEnable = 'false'
+}
+
+export class SystemUpgradeForm {
+    filePath = ''
+}
+
+export class SystemUpgradeBackUpForm {
+    filePath = ''
+}
+
+export class SystemRestoreForm {
+    filePath = ''
+}
+
+export class SystemBackUpForm {
+    filePath = ''
+    isIncludeNetworkConfig = false
+    isIncludeDataEncryptPwd = false
+}
+
+export class SystemLogForm {
+    type = ''
+    currentPage = 1
+    pageSize = 20
+    startTime = ''
+    endTime = ''
+    subType = [] as string[]
+}
+
+export class SystemLogList {
+    logType = ''
+    clientType = ''
+    time = ''
+    userName = ''
+    subType = ''
+    mainType = ''
+    content = ''
+    chl = { id: '', text: '' }
+    triggerRecChls = [] as { id: string; text: string }[]
+    index = 0
+}
+
+export interface SystemPosListStartEndChar {
+    startChar: string
+    endChar: string
+}
+
+export interface SystemPosListChls {
+    id: string
+    text: string
+    till?: string
+}
+
+export class SystemPostColorData {
+    chlId = ''
+    name = ''
+    colorList = [] as string[]
+    printMode = ''
+    previewDisplay = false
+}
+
+export class SystemPostDisplaySet {
+    xmin = 0
+    xmax = 0
+    ymin = 0
+    ymax = 0
+    wmin = 0
+    hmin = 0
+}
+
+export class SystemPosConnectionForm {
+    ip = ''
+    port = 0
+    switch = false
+}
+
+export class SystemPosDisplayPosition {
+    width = 320
+    height = 128
+    X = 0
+    Y = 0
+}
+
+export class SystemPosDisplaySetting {
+    common = {
+        startEndChar: [] as SystemPosListStartEndChar[],
+        lineBreak: [] as string[],
+        ignoreChar: [] as string[],
+        ignoreCase: false,
+        timeOut: 10,
+    }
+    displayPosition = new SystemPosDisplayPosition()
+}
+
+export class SystemPosList {
+    id = ''
+    name = ''
+    switch = 'false'
+    connectionType = ''
+    manufacturers = ''
+    connectionSetting = {
+        posIp: '',
+        filterDstIpSwitch: false,
+        dstIp: '',
+        filterPostPortSwitch: false,
+        posPort: 0,
+        filterDstPortSwitch: false,
+        dstPort: 0,
+    }
+    encodeFormat = ''
+    displaySetting = new SystemPosDisplaySetting()
+    triggerChl = {
+        switch: false,
+        chls: [] as SystemPosListChls[],
+    }
+    // tillMode = {
+    //     lastTillMode: false,
+    //     currentTillMode: false,
+    // }
+}

@@ -1,0 +1,241 @@
+<!--
+ * @Author: yejiahao yejiahao@tvt.net.cn
+ * @Date: 2024-06-04 10:26:32
+ * @Description: IPv4地址输入框
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-06-20 18:39:37
+-->
+<template>
+    <div
+        ref="$IpContainer"
+        class="IpInput"
+        :class="{ 'is-focus': isFocus, disabled: prop.disable }"
+    >
+        <template
+            v-for="(item, index) in address"
+            :key="index"
+        >
+            <input
+                :value="item"
+                type="text"
+                :disabled="prop.disable"
+                @keydown="handleKeyDown($event, index)"
+                @input="handleInput($event, index)"
+                @focus="handleFocus"
+                @blur="handleBlur"
+            />
+            <span v-if="index !== address.length - 1">.</span>
+        </template>
+    </div>
+</template>
+
+<script lang="ts" setup>
+type InvalidateMode = 'REPLACE' | 'PREVENT'
+
+const prop = withDefaults(
+    defineProps<{
+        disable?: boolean
+        invalidateMode?: InvalidateMode
+        value: string
+    }>(),
+    {
+        disable: false,
+        invalidateMode: 'PREVENT',
+    },
+)
+
+const emits = defineEmits<{
+    (e: 'change' | 'update:value', value: string): void
+}>()
+
+const MAX_VALUE = 255
+const MIN_VALUE = 0
+const IPV4_DFAULT_VALUE = Array(4).fill(0)
+
+const $IpContainer = ref<HTMLDivElement>()
+const isFocus = ref(0)
+
+const address = computed(() => {
+    const split = prop.value.split('.')
+    return IPV4_DFAULT_VALUE.map((item, index) => {
+        if (!split[index]) return item
+        else return Number(split[index])
+    })
+})
+
+/**
+ * @description 获取输入框元素
+ * @param {number} index （index < 4)
+ */
+const getInputElement = (index: number) => {
+    return $IpContainer.value!.querySelectorAll('input')[index]
+}
+
+/**
+ * @description 更新数据，生成真实的IP地址
+ * @param {number} value
+ * @param {number} index
+ */
+const updateValue = (value: number, index: number) => {
+    let current = value
+    if (prop.invalidateMode === 'PREVENT') {
+        if (current > MAX_VALUE || current < MIN_VALUE) {
+            current = address.value[index]
+        }
+    } else if (prop.invalidateMode === 'REPLACE') {
+        current = Math.min(MAX_VALUE, Math.max(MIN_VALUE, current))
+    }
+    const split = [...address.value]
+    split[index] = current
+    const join = split.join('.')
+    emits('update:value', join)
+    emits('change', join)
+    return current
+}
+
+/**
+ * @description 判断输入框的文本是否选中
+ * @param {HTMLInputElement} input
+ * @returns {boolean}
+ */
+const isTextSelected = (input: HTMLInputElement) => {
+    if (typeof input.selectionStart == 'number') {
+        return input.selectionStart === 0 && input.selectionEnd == input.value.length
+    } else return false
+}
+
+/**
+ * @description 处理键盘事件，并更改输入框的焦点、选中，校验输入数据的合法性
+ * @param {Event} e
+ * @param {number} index
+ */
+const handleKeyDown = (e: Event, index: number) => {
+    const keyCode = (e as KeyboardEvent).key
+    let isPreventDefault = true
+
+    switch (keyCode) {
+        // 选中下一个输入框
+        case 'ArrowRight':
+        case '.':
+            if (index < address.value.length - 1) {
+                const $nextInput = getInputElement(index + 1)
+                $nextInput.focus()
+                $nextInput.select()
+            }
+            break
+        // 选中上一个输入框
+        case 'ArrowLeft':
+            if (index > 0) {
+                const $prevInout = getInputElement(index - 1)
+                $prevInout.focus()
+                $prevInout.select()
+            }
+            break
+        // 数值增加
+        case 'ArrowUp':
+            updateValue(address.value[index] + 1, index)
+            break
+        // 数值减少
+        case 'ArrowDown':
+            updateValue(address.value[index] - 1, index)
+            break
+        // 删除数值
+        case 'Backspace':
+            isPreventDefault = false
+            break
+        // 校验输入的数字合法性，合法则执行输入事件
+        default:
+            if (/[0-9]/.test(keyCode)) {
+                if (address.value[index] < 100 || isTextSelected(e.target as HTMLInputElement)) {
+                    isPreventDefault = false
+                }
+            }
+            break
+    }
+
+    if (isPreventDefault) {
+        e.preventDefault()
+    }
+    return false
+}
+
+/**
+ * @description 处理输入事件，更新数据
+ * @param {Event} e
+ * @param {number} index
+ */
+const handleInput = (e: Event, index: number) => {
+    const current = Number((e.target as HTMLInputElement).value)
+    const value = updateValue(current, index)
+    ;(e.target as HTMLInputElement).value = String(value)
+}
+
+/**
+ * @description 处理焦点事件，选中输入框
+ */
+const handleFocus = (e: Event) => {
+    isFocus.value++
+    ;(e.target as HTMLInputElement).select()
+}
+
+/**
+ * @description 处理丧失焦点事件
+ */
+const handleBlur = () => {
+    isFocus.value--
+}
+</script>
+
+<style lang="scss" scoped>
+.IpInput {
+    align-items: center;
+    border: 1px solid var(--border-color2);
+    border-radius: var(--el-input-border-radius, var(--el-border-radius-base));
+    box-shadow: 0 0 0 1px var(--el-input-border-color, var(--el-border-color)) inset;
+    cursor: text;
+    display: inline-flex;
+    flex-grow: 1;
+    justify-content: center;
+    padding: 1px 11px;
+    transform: translateZ(0);
+    transition: var(--el-transition-box-shadow);
+    width: 100%;
+    font-size: var(--el-font-size-base);
+    line-height: var(--el-input-height);
+    width: var(--el-input-width);
+
+    &:hover,
+    &.is-focus {
+        box-shadow: 0 0 0 1px var(--el-input-hover-border-color) inset;
+        background: white;
+        border-color: var(--primary--04);
+
+        &.disabled {
+            background-color: var(--bg-color-disabled);
+            border-color: var(--border-color4);
+        }
+    }
+
+    &.disabled {
+        background-color: var(--bg-color-disabled);
+        border-color: var(--border-color4);
+    }
+
+    input {
+        --el-input-inner-height: calc(var(--el-input-height, 32px) - 2px);
+
+        height: 100%;
+        border: none;
+        max-width: 25%;
+        width: 20px;
+        font-size: inherit;
+        line-height: var(--el-input-inner-height);
+        height: var(--el-input-inner-height);
+        width: 25px;
+        border: none;
+        outline: 0;
+        text-align: center;
+        background: transparent;
+    }
+}
+</style>

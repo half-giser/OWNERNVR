@@ -1,0 +1,149 @@
+<!--
+ * @Author: yejiahao yejiahao@tvt.net.cn
+ * @Date: 2024-06-14 09:47:30
+ * @Description: 添加用户页面
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-06-18 18:00:59
+-->
+<template>
+    <div class="UserAdd">
+        <el-form
+            ref="formRef"
+            class="form"
+            label-position="left"
+            :rules
+            :model="formData"
+            hide-required-asterisk
+            label-width="150px"
+            inline-message
+        >
+            <el-form-item
+                prop="userName"
+                :label="Translate('IDCS_USERNAME')"
+            >
+                <el-input
+                    v-model.trim="formData.userName"
+                    type="text"
+                    :placeholder="Translate('IDCS_USERNAME')"
+                    :formatter="formatInputUserName"
+                    :parser="formatInputUserName"
+                    :maxlength="nameByteMaxLen"
+                    @paste.capture.prevent=""
+                />
+            </el-form-item>
+            <el-form-item
+                prop="password"
+                :label="Translate('IDCS_PASSWORD')"
+            >
+                <el-input
+                    v-model="formData.password"
+                    type="password"
+                    :placeholder="Translate('IDCS_PASSWORD')"
+                    @copy.capture.prevent=""
+                    @paste.capture.prevent=""
+                />
+            </el-form-item>
+            <BasePasswordStrength
+                :strength
+                class="strength"
+            />
+            <el-form-item
+                prop="confirmPassword"
+                :label="Translate('IDCS_CONFIRM_PASSWORD')"
+            >
+                <el-input
+                    v-model="formData.confirmPassword"
+                    type="password"
+                    :placeholder="Translate('IDCS_CONFIRM_PASSWORD')"
+                    @copy.capture.prevent=""
+                    @paste.capture.prevent=""
+                />
+            </el-form-item>
+            <el-form-item
+                prop="allowModifyPassword"
+                :label="Translate('IDCS_ALLOW_CHANGE_PWD')"
+            >
+                <el-checkbox v-model="formData.allowModifyPassword"></el-checkbox>
+            </el-form-item>
+            <el-form-item
+                prop="email"
+                :label="Translate('IDCS_EMAIL_ADDRESS')"
+            >
+                <BaseSensitiveEmailInput
+                    v-model="formData.email"
+                    :placeholder="Translate('IDCS_EMAIL_ADDRESS')"
+                />
+            </el-form-item>
+            <el-form-item
+                prop="authGroup"
+                :label="Translate('IDCS_RIGHT_GROUP')"
+            >
+                <el-select v-model="formData.authGroup">
+                    <el-option
+                        v-for="item in authGroupOptions"
+                        :key="item.id"
+                        :label="displayAuthGroup(item.name)"
+                        :value="item.id"
+                    />
+                </el-select>
+            </el-form-item>
+        </el-form>
+        <div class="notice">{{ noticeMsg }}</div>
+        <div class="btns">
+            <el-button
+                class="btn-ok"
+                @click="verify"
+                >{{ Translate('IDCS_ADD') }}</el-button
+            >
+            <el-button @click="goBack">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
+        <BaseCheckAuthPop
+            v-model="isAuthDialog"
+            @close="isAuthDialog = false"
+            @confirm="doCreateUser"
+        />
+    </div>
+</template>
+
+<script lang="ts" src="./UserAdd.v.ts"></script>
+
+<style lang="scss" scoped>
+.UserAdd {
+    .form {
+        :deep(.el-form-item) {
+            margin-bottom: 0;
+            padding: 10px 0 10px 15px;
+
+            &:nth-child(even) {
+                background-color: var(--bg-color5);
+            }
+        }
+
+        :deep(.el-form-item__content) {
+            // justify-content: flex-start;
+            flex-wrap: nowrap;
+        }
+
+        .el-input {
+            width: 340px;
+            flex-shrink: 0;
+        }
+        .el-select {
+            width: 340px;
+        }
+    }
+
+    .strength {
+        width: 510px;
+    }
+    .notice {
+        margin-top: 20px;
+    }
+    .btns {
+        width: 510px;
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+    }
+}
+</style>

@@ -1,0 +1,156 @@
+<!--
+ * @Author: yejiahao yejiahao@tvt.net.cn
+ * @Date: 2024-05-24 17:12:55
+ * @Description: 
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-07-04 15:37:47
+-->
+<template>
+    <div>
+        <el-config-provider :locale="langStore.elLocale">
+            <router-view v-slot="{ Component }">
+                <transition name="page-view">
+                    <component
+                        :is="Component"
+                        :key
+                    />
+                </transition>
+            </router-view>
+        </el-config-provider>
+        <transition name="intitial-view">
+            <div
+                v-show="!layoutStore.isInitial"
+                id="InitialView"
+            ></div>
+        </transition>
+    </div>
+</template>
+
+<script setup lang="ts">
+import { isMobile, watchResize } from '@bassist/utils'
+import { getXmlWrapData } from './api/api'
+import { queryActivationStatus, querySystemCaps } from './api/system'
+import { queryXml } from './utils/xmlParse'
+import { APP_TYPE } from './utils/constants'
+import usePlugin from './utils/ocx/ocxPlugin'
+import { useUserSessionStore } from './stores/userSession'
+import dayjs from 'dayjs'
+
+const route = useRoute()
+const router = useRouter()
+const key = computed(() => `${String(route.name || route.path)}-${new Date()}`)
+const layoutStore = useLayoutStore()
+const langStore = useLangStore()
+const session = useUserSessionStore()
+
+const Plugin = usePlugin()
+provide('Plugin', Plugin)
+
+watchResize(() => {
+    document.body.className = `platform-${isMobile() ? 'mobile' : 'desktop'}`
+})
+
+const hanedleActivationStatus = async (checkActivationStatus: boolean, isUserAuth: boolean) => {
+    try {
+        layoutStore.isInitial = true
+        const auInfo = session.auInfo_N9K
+        if (!checkActivationStatus) {
+            router.replace('/guide')
+        } else {
+            if (!auInfo) {
+                router.replace('/login')
+                return
+            } else if (isUserAuth && route.name === 'login') {
+                router.replace('/live')
+            }
+        }
+    } catch (e) {
+        console.error(e)
+    }
+}
+
+if (APP_TYPE === 'STANDARD') {
+    let isUserAuth = false
+
+    querySystemCaps(getXmlWrapData(''))
+        .then(() => {
+            isUserAuth = true
+        })
+        .finally(() => {
+            queryActivationStatus().then((result) => {
+                const checkActivationStatus = queryXml(result)('/response/content/activated').text() === 'true'
+                hanedleActivationStatus(checkActivationStatus, isUserAuth)
+            })
+        })
+}
+
+onMounted(() => {
+    Plugin.DisposePlugin()
+    Plugin.StartV2Process()
+})
+
+onBeforeUnmount(() => {
+    Plugin.DisposePlugin()
+})
+
+watch(
+    () => session.sessionId,
+    (val) => {
+        if (val === '') {
+            Plugin.DisposePlugin()
+        }
+    },
+)
+
+watch(
+    () => session.calendarType,
+    (val) => {
+        if (val === 'Persian') {
+            dayjs.calendar('jalali')
+            dayjs.locale('fa')
+        } else {
+            dayjs.calendar('gregory')
+            dayjs.locale('en')
+        }
+    },
+    {
+        immediate: true,
+    },
+)
+</script>
+
+<style lang="scss">
+body {
+    width: 100%;
+}
+
+#InitialView {
+    background: #fff center url(/initview.gif) no-repeat;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 10000;
+}
+
+.intitial-view-leave-active {
+    opacity: 0;
+    transition: opacity 0.5s ease 0.5s;
+}
+
+.page-view {
+    &-enter-from,
+    &-leave-to {
+        opacity: 0;
+    }
+
+    &-enter-active {
+        transition: opacity 0.4s linear 0.4s;
+    }
+
+    &-leave-active {
+        transition: opacity 0.4s linear;
+    }
+}
+</style>

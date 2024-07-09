@@ -1,0 +1,20 @@
+/*
+ * @Author: yejiahao yejiahao@tvt.net.cn
+ * @Date: 2024-05-29 13:48:55
+ * @Description: 
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-05-29 13:49:35
+ */
+
+// 以下变量仅为测试数据
+#n9web {
+    --primary--01: #aaa;
+    --primary--02: #555;
+    --primary--03: #444;
+    --primary--04: #222;
+    --primary--05: #333;
+
+    // 在线，离线颜色
+    --color-online: green;
+    --color-offline: red;
+}

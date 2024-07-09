@@ -1,0 +1,254 @@
+/*
+ * @Author: tengxiang tengxiang@tvt.net.cn
+ * @Date: 2023-05-18 13:48:43
+ * @Description: 覆盖公共Element UI 样式
+ */
+
+#n9web {
+    :root {
+        --el-color-primary: var(--primary--04);
+        --el-color-primary-light-3: var(--primary--03);
+    }
+
+    .el-menu {
+        --el-menu-text-color: var(--text-menu-01);
+        --el-menu-active-color: var(--primary--04);
+        --el-menu-hover-bg-color: var(--page-bg);
+        --el-menu-hover-text-color: var(--primary--04);
+    }
+
+    .el-input,
+    .el-radio,
+    .el-select,
+    .el-slider,
+    .el-popper,
+    .el-dialog,
+    .el-message-box,
+    .el-loading-spinner {
+        --el-color-primary: var(--primary--04);
+        --el-color-primary-light-3: var(--primary--03);
+    }
+
+    .el-button {
+        --el-button-border-color: var(--border-color4);
+        --el-button-bg-color: var(--bg-color2);
+        --el-button-text-color: var(--color-white);
+        --el-button-disabled-text-color: var(--color-white);
+        --el-button-disabled-bg-color: var(--bg-color4);
+        --el-button-disabled-border-color: var(--border-color6);
+        --el-button-hover-text-color: var(--color-white);
+        --el-button-hover-bg-color: var(--bg-color3);
+        --el-button-hover-border-color: var(--border-color5);
+        --el-button-active-text-color: var(--color-white);
+        --el-button-active-border-color: var(--border-color5);
+        --el-button-active-bg-color: var(--bg-color3);
+    }
+
+    .el-button--primary {
+        --el-button-border-color: var(--border-color4);
+        --el-button-bg-color: var(--bg-color2);
+        --el-button-text-color: var(--color-white);
+        --el-button-disabled-text-color: var(--color-white);
+        --el-button-disabled-bg-color: var(--bg-color4);
+        --el-button-disabled-border-color: var(--border-color6);
+        --el-button-hover-text-color: var(--color-white);
+        --el-button-hover-bg-color: var(--bg-color3);
+        --el-button-hover-border-color: var(--border-color5);
+        --el-button-active-text-color: var(--color-white);
+        --el-button-active-border-color: var(--border-color5);
+        --el-button-active-bg-color: var(--bg-color3);
+    }
+
+    .el-button--danger {
+        --el-button-text-color: var(--color-white);
+        --el-button-bg-color: var(--danger--06);
+        --el-button-border-color: var(--el-color-danger);
+        --el-button-outline-color: var(--el-color-danger-light-5);
+        --el-button-active-color: var(--el-color-danger-dark-2);
+        --el-button-hover-text-color: var(--color-white);
+        --el-button-hover-link-text-color: var(--el-color-danger-light-5);
+        --el-button-hover-bg-color: var(--danger--05);
+        --el-button-hover-border-color: var(--el-color-danger-light-3);
+        --el-button-active-bg-color: var(--danger--07);
+        --el-button-active-border-color: var(--el-color-danger-dark-2);
+        --el-button-disabled-text-color: var(--color-white);
+        --el-button-disabled-bg-color: var(--danger--03);
+        --el-button-disabled-border-color: var(--el-color-danger-light-5);
+    }
+
+    .el-input {
+        --el-input-text-color: var(--text-dark);
+        --el-input-border: var(--border-color7);
+        --el-input-border-color: var(--border-color7);
+        --el-input-hover-border: var(--primary--03);
+        --el-input-hover-border-color: var(--primary--03);
+        --el-input-clear-hover-color: var(--primary--03);
+        --el-disabled-border-color: var(--border-color-disabled);
+        --el-disabled-bg-color: var(--bg-color-disabled);
+    }
+
+    .el-select {
+        --el-border-color: var(--border-color7);
+        --el-border-color-hover: var(--primary--03);
+        --el-disabled-border-color: var(--border-color-disabled);
+        .el-select__wrapper {
+            &.is-disabled {
+                background-color: var(--bg-color-disabled);
+            }
+        }
+    }
+
+    .el-checkbox {
+        --el-checkbox-input-border: var(--el-border-width) var(--el-border-style) var(--border-color7);
+        --el-checkbox-input-border-color-hover: var(--primary--03);
+        --el-checkbox-checked-text-color: var(--primary--04);
+        --el-checkbox-checked-input-border-color: var(--primary--04);
+        --el-checkbox-checked-bg-color: var(--primary--04);
+        --el-checkbox-disabled-border-color: var(--border-color5);
+        --el-checkbox-disabled-checked-input-border-color: var(--border-color5);
+        --el-checkbox-disabled-input-fill: var(--bg-color-disabled);
+        --el-checkbox-disabled-checked-input-fill: var(--bg-color-disabled);
+        .el-checkbox__input {
+            &.is-disabled {
+                .el-checkbox__inner {
+                    box-shadow: 0 0 1px;
+                }
+            }
+        }
+    }
+
+    .el-radio {
+        --el-radio-checked-text-color: var(--primary--04);
+        --el-radio-input-border: var(--el-border-width) var(--el-border-style) var(--border-color7);
+        --el-radio-input-border-color-hover: var(--primary--03);
+    }
+
+    .el-overlay {
+        --el-overlay-color-lighter: var(--bg-color-opacity1);
+    }
+
+    .el-table {
+        --el-table-border-color: var(--border-color8);
+        --el-table-header-bg-color: var(--bg-table-thead);
+        --el-table-header-text-color: var(--text-dark);
+        --el-table-text-color: var(--text-dark);
+        .cell {
+            text-align: center;
+        }
+        .el-table__row.active {
+            --el-table-tr-bg-color: var(--primary--04);
+            --el-fill-color-lighter: var(--primary--04);
+            --el-table-row-hover-bg-color: var(--primary--04);
+        }
+        .el-table-column--selection {
+            .cell {
+                justify-content: center;
+            }
+        }
+    }
+
+    .el-icon {
+        width: 1.3em;
+        height: 1.3em;
+
+        svg {
+            width: 1.3em;
+            height: 1.3em;
+            fill: var(--text-primary);
+        }
+
+        &:hover {
+            svg {
+                fill: var(--primary--03);
+            }
+        }
+
+        &.disabled {
+            cursor: default;
+
+            svg {
+                fill: var(--text-disabled);
+            }
+        }
+    }
+
+    .table-icon-column {
+        .el-icon {
+            cursor: pointer;
+            margin: 0px 5px;
+            padding: 0px 10px;
+
+            &.disabled {
+                cursor: default;
+            }
+        }
+    }
+
+    .el-table__body {
+        & thead {
+            & .el-table__cell {
+                & .cell {
+                    display: inline-block;
+                }
+
+                &::after {
+                    content: '<span></span>';
+                    width: 1px;
+                    margin: 2px 0px 0px -1px;
+                    background-color: var(--table-split);
+                    float: right;
+                    line-height: 10px;
+                }
+
+                &:last-of-type::after {
+                    content: '';
+                }
+            }
+        }
+
+        .el-form-item__content {
+            display: flex;
+            align-items: center;
+        }
+    }
+
+    .ruleTable {
+        & tbody {
+            .el-table__cell {
+                padding: 0px;
+                .el-form-item {
+                    margin: 16px 0px 16px 0px;
+                }
+            }
+        }
+    }
+
+    .el-table__column-filter-trigger {
+        margin-left: 10px;
+    }
+
+    .el-form-item__label {
+        color: var(--text-menu-01);
+    }
+
+    .el-dropdown {
+        line-height: 23px;
+    }
+
+    .el-form-item__error {
+        width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-align: left;
+    }
+
+    .el-popper {
+        .highlight {
+            color: var(--danger--05);
+            &:hover {
+                color: var(--primary--04);
+            }
+        }
+    }
+}
