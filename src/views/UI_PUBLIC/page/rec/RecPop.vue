@@ -3,7 +3,7 @@
  * @Date: 2024-07-04 11:34:14
  * @Description: 回放弹窗（OCX+H5）
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 11:35:43
+ * @LastEditTime: 2024-07-09 20:05:39
 -->
 <template>
     <el-dialog
@@ -70,7 +70,8 @@
                         file="image_preview_pause"
                         :index="0"
                         :hover-index="1"
-                        :disabled-index="pageData.iconDisabled ? 3 : -1"
+                        :disabled-index="3"
+                        :disabled="pageData.iconDisabled"
                         :chunk="4"
                         @click="pause"
                     />
@@ -82,7 +83,8 @@
                         file="image_preview_play"
                         :index="0"
                         :hover-index="1"
-                        :disabled-index="pageData.iconDisabled ? 3 : -1"
+                        :disabled-index="3"
+                        :disabled="pageData.iconDisabled"
                         :chunk="4"
                         @click="play"
                     />
@@ -93,7 +95,8 @@
                         class="btn"
                         :index="0"
                         :hover-index="1"
-                        :disabled-index="pageData.iconDisabled ? 3 : -1"
+                        :disabled-index="3"
+                        :disabled="pageData.iconDisabled"
                         :chunk="4"
                         @click="stop"
                     />

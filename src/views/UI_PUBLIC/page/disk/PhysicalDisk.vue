@@ -3,7 +3,7 @@
  * @Date: 2024-07-08 15:30:50
  * @Description: 物理磁盘 
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-08 19:23:50
+ * @LastEditTime: 2024-07-09 20:08:38
 -->
 <template>
     <div class="PhysicalDisk">
@@ -48,7 +48,8 @@
                         :index="0"
                         :hover-index="2"
                         :chunk="4"
-                        :disabled-index="scope.row.type === 'array' ? 3 : -1"
+                        :disabled-index="3"
+                        :disabled="scope.row.type === 'array'"
                         @click="transformDisk(scope.row, scope.$index)"
                     />
                 </template>
