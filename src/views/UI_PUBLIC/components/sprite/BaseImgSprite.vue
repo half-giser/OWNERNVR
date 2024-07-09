@@ -3,7 +3,7 @@
  * @Date: 2024-06-05 09:27:20
  * @Description: 雪碧图组件
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-13 17:06:20
+ * @LastEditTime: 2024-07-09 20:03:40
 -->
 <template>
     <span
@@ -18,7 +18,7 @@
         }"
         :class="{
             hover: isHoverClass,
-            disabled: isDisabledClass,
+            disabled,
         }"
         @mouseenter="isHover = true"
         @mouseleave="isHover = false"
@@ -39,7 +39,8 @@ const prop = withDefaults(
         index?: number // 分块索引，下标从0开始
         hoverIndex?: number | string // :hover索引值, number时是hover的下标索引，string时是hover的文件
         activeIndex?: number | string // :active索引值, number时是active的下标索引，string时是active的文件
-        disabledIndex?: number | string // 禁用状态索引值. 值存在时即为禁用状态. number时是disabled的下标索引，string时是disabled的文件
+        disabledIndex?: number | string // 禁用状态索引值. number时是disabled的下标索引，string时是disabled的文件
+        disabled?: boolean // 是否禁用
     }>(),
     {
         scale: 1,
@@ -48,6 +49,7 @@ const prop = withDefaults(
         hoverIndex: -1,
         activeIndex: -1,
         disabledIndex: -1,
+        disabled: false,
     },
 )
 
@@ -55,25 +57,21 @@ const isHover = ref(false)
 const isMouseDown = ref(false)
 
 const currentIndex = computed(() => {
-    if (typeof prop.disabledIndex === 'number' && prop.disabledIndex !== -1) return prop.disabledIndex
+    if (typeof prop.disabledIndex === 'number' && prop.disabled && prop.disabledIndex > -1) return prop.disabledIndex
     if (isMouseDown.value && typeof prop.activeIndex === 'number' && prop.activeIndex !== -1) return prop.activeIndex
     if (isHover.value && typeof prop.hoverIndex === 'number' && prop.hoverIndex !== -1) return prop.hoverIndex
     return prop.index
 })
 
 const currentFile = computed(() => {
-    if (typeof prop.disabledIndex === 'string') return prop.disabledIndex
+    if (typeof prop.disabledIndex === 'string' && prop.disabled) return prop.disabledIndex
     if (isMouseDown.value && typeof prop.activeIndex === 'string') return prop.activeIndex
     if (isHover.value && typeof prop.hoverIndex === 'string') return prop.hoverIndex
     return prop.file
 })
 
-const isDisabledClass = computed(() => {
-    return (typeof prop.disabledIndex === 'number' && prop.disabledIndex > -1) || (typeof prop.disabledIndex === 'string' && prop.disabledIndex.length)
-})
-
 const isHoverClass = computed(() => {
-    return !isDisabledClass.value && ((typeof prop.hoverIndex === 'number' && prop.hoverIndex > -1) || (typeof prop.hoverIndex === 'string' && prop.hoverIndex.length))
+    return !prop.disabled && ((typeof prop.hoverIndex === 'number' && prop.hoverIndex > -1) || (typeof prop.hoverIndex === 'string' && prop.hoverIndex.length))
 })
 
 const item = computed(() => {
