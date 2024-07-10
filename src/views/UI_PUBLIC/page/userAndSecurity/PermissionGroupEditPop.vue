@@ -3,7 +3,7 @@
  * @Date: 2024-06-17 20:25:35
  * @Description: 编辑权限组弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 19:33:39
+ * @LastEditTime: 2024-07-09 20:46:49
 -->
 <template>
     <el-dialog
@@ -95,21 +95,21 @@
                                             <el-dropdown-menu>
                                                 <el-dropdown-item
                                                     v-for="opt in pageData.channelOption"
-                                                    :key="opt.name"
-                                                    @click="changeAllChannelAuth(item.name, opt.value)"
+                                                    :key="opt.value"
+                                                    @click="changeAllChannelAuth(item.value, opt.value)"
                                                 >
-                                                    {{ Translate(opt.name) }}
+                                                    {{ Translate(opt.label) }}
                                                 </el-dropdown-item>
                                             </el-dropdown-menu>
                                         </template>
                                     </el-dropdown>
                                 </template>
                                 <template #default="{ $index }">
-                                    <el-select v-model="channelAuthList[$index][item.name]">
+                                    <el-select v-model="channelAuthList[$index][item.value]">
                                         <el-option
                                             v-for="value in pageData.channelOption"
-                                            :key="value.name"
-                                            :label="Translate(value.name)"
+                                            :key="value.value"
+                                            :label="Translate(value.label)"
                                             :value="value.value"
                                         />
                                     </el-select>
@@ -152,21 +152,21 @@
                                             <el-dropdown-menu>
                                                 <el-dropdown-item
                                                     v-for="opt in pageData.channelOption"
-                                                    :key="opt.name"
-                                                    @click="changeAllChannelAuth(item.name, opt.value)"
+                                                    :key="opt.value"
+                                                    @click="changeAllChannelAuth(item.value, opt.value)"
                                                 >
-                                                    {{ Translate(opt.name) }}
+                                                    {{ Translate(opt.label) }}
                                                 </el-dropdown-item>
                                             </el-dropdown-menu>
                                         </template>
                                     </el-dropdown>
                                 </template>
                                 <template #default="{ $index }">
-                                    <el-select v-model="channelAuthList[$index][item.name]">
+                                    <el-select v-model="channelAuthList[$index][item.value]">
                                         <el-option
                                             v-for="value in pageData.channelOption"
-                                            :key="value.name"
-                                            :label="Translate(value.name)"
+                                            :key="value.value"
+                                            :label="Translate(value.label)"
                                             :value="value.value"
                                         />
                                     </el-select>

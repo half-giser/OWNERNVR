@@ -3,7 +3,7 @@
  * @Date: 2024-07-01 11:01:04
  * @Description: 查看日志
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-08 20:14:08
+ * @LastEditTime: 2024-07-09 20:48:24
 -->
 <template>
     <div class="ViewLog">
@@ -18,7 +18,7 @@
                         link
                         @click="changeMainType(item.value)"
                     >
-                        {{ item.name }}
+                        {{ item.label }}
                     </el-button>
                 </div>
             </div>

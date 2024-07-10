@@ -3,7 +3,7 @@
  * @Date: 2024-07-05 10:10:29
  * @Description: 存储模式配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-08 19:26:04
+ * @LastEditTime: 2024-07-09 20:07:15
 -->
 <template>
     <div class="StorageMode">
@@ -95,7 +95,8 @@
                         file="addItem"
                         :index="0"
                         :hover-index="0"
-                        :disabled-index="currentItem.diskList.length ? 1 : -1"
+                        :disabled-index="1"
+                        :disabled="!currentItem.diskList.length"
                         :chunk="2"
                         @click="addChl"
                     />

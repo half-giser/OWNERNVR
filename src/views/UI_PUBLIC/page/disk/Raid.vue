@@ -3,7 +3,7 @@
  * @Date: 2024-07-08 15:48:54
  * @Description: 磁盘阵列
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-09 14:10:41
+ * @LastEditTime: 2024-07-09 20:08:17
 -->
 
 <!-- TODO 此页面需要测试数据 -->
@@ -61,7 +61,8 @@
                         file="repair"
                         :index="0"
                         :hover-index="1"
-                        :disabled-index="scope.row.raidState === 'downgrade' ? -1 : 3"
+                        :disabled-index="3"
+                        :disabled="scope.row.raidState !== 'downgrade'"
                         :chunk="4"
                         @click="rebuildRaid(scope.row, scope.$index)"
                     />

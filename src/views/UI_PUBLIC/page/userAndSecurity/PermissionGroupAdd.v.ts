@@ -3,7 +3,7 @@
  * @Date: 2024-06-17 20:32:26
  * @Description: 添加权限组
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 20:35:57
+ * @LastEditTime: 2024-07-09 20:46:02
  */
 import { UserPermissionSystemAuthList, type UserPermissionChannelAuthList } from '@/types/apiType/userAndSecurity'
 import { UserPermissionGroupAddForm } from '@/types/apiType/userAndSecurity'
@@ -58,9 +58,9 @@ export default defineComponent({
             // 通道权限选项
             channelOption: DEFAULT_SWITCH_OPTIONS,
             // 本地通道权限列表
-            localChannelIds: DEFAULT_LOCAL_CHANNEL_AUTH_LIST as { name: keyof UserPermissionChannelAuthList; label: string }[],
+            localChannelIds: DEFAULT_LOCAL_CHANNEL_AUTH_LIST,
             // 远程通道权限列表
-            remoteChannelIds: DEFAULT_REMOTE_CHANNEL_AUTH_LIST as { name: keyof UserPermissionChannelAuthList; label: string }[],
+            remoteChannelIds: DEFAULT_REMOTE_CHANNEL_AUTH_LIST,
         })
 
         /**
