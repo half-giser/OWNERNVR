@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 14:07:36
  * @Description: 端口
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-09 19:44:31
+ * @LastEditTime: 2024-07-10 11:56:55
 -->
 <template>
     <div class="Port">
@@ -24,6 +24,7 @@
                     v-model="portFormData.httpPort"
                     :min="10"
                     :max="65535"
+                    :controls="false"
                 />
             </el-form-item>
             <el-form-item
@@ -34,6 +35,7 @@
                     v-model="portFormData.httpsPort"
                     :min="10"
                     :max="65535"
+                    :controls="false"
                 />
             </el-form-item>
             <el-form-item
@@ -44,6 +46,7 @@
                     v-model="portFormData.netPort"
                     :min="10"
                     :max="65535"
+                    :controls="false"
                 />
             </el-form-item>
             <el-form-item
@@ -55,6 +58,7 @@
                     v-model="portFormData.posPort"
                     :min="10"
                     :max="65535"
+                    :controls="false"
                 />
             </el-form-item>
             <el-form-item v-show="pageData.isVirtualPortEnabled">
@@ -136,6 +140,7 @@
                     :disabled="!rtspServerFormData.rtspServerSwitch"
                     :min="10"
                     :max="65535"
+                    :controls="false"
                 />
                 <el-checkbox
                     v-model="rtspServerFormData.anonymousAccess"
@@ -166,6 +171,10 @@
             width: 200px;
             flex-shrink: 0;
             margin-right: 10px;
+        }
+
+        .el-input-number:deep(.el-input__inner) {
+            text-align: left;
         }
     }
 

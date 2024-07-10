@@ -1,3 +1,11 @@
+/*
+ * @Author: yejiahao yejiahao@tvt.net.cn
+ * @Date: 2024-07-09 18:39:25
+ * @Description: 格式校验工具
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-07-10 16:27:06
+ */
+
 /**
  * @description: 校验ipv4地址是否合法
  * @param {string} str
@@ -17,6 +25,15 @@ export const checkIpV6 = (str: string) => {
     const reg =
         /^([\da-fA-F]{1,4}:){6}((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$|^::([\da-fA-F]{1,4}:){0,4}((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$|^([\da-fA-F]{1,4}:):([\da-fA-F]{1,4}:){0,3}((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$|^([\da-fA-F]{1,4}:){2}:([\da-fA-F]{1,4}:){0,2}((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$|^([\da-fA-F]{1,4}:){3}:([\da-fA-F]{1,4}:){0,1}((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$|^([\da-fA-F]{1,4}:){4}:((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$|^([\da-fA-F]{1,4}:){7}[\da-fA-F]{1,4}$|^:((:[\da-fA-F]{1,4}){1,6}|:)$|^[\da-fA-F]{1,4}:((:[\da-fA-F]{1,4}){1,5}|:)$|^([\da-fA-F]{1,4}:){2}((:[\da-fA-F]{1,4}){1,4}|:)$|^([\da-fA-F]{1,4}:){3}((:[\da-fA-F]{1,4}){1,3}|:)$|^([\da-fA-F]{1,4}:){4}((:[\da-fA-F]{1,4}){1,2}|:)$|^([\da-fA-F]{1,4}:){5}:([\da-fA-F]{1,4})?$|^([\da-fA-F]{1,4}:){6}:$/
     return reg.test(str)
+}
+
+/**
+ * @description 校验域名是否合法
+ * @param {string} str
+ * @returns {boolean}
+ */
+export const checkDomainName = (str: string) => {
+    return /[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+\.?/.test(str)
 }
 
 /**
@@ -79,7 +96,7 @@ export const checkPort = (str: string) => {
 /**
  * @description 检验RTSP地址
  * @param {string} str
- * @return {boolean}
+ * @returns {boolean}
  */
 export const checkRtspUrl = (str: string) => {
     /*
@@ -88,6 +105,17 @@ export const checkRtspUrl = (str: string) => {
     const rtspReg = /^rtsp:\/\/((?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]\d|[1-9])(?:\.(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}):(\d{1,5})\/([^&$|\\'<>]+)$/
     const result = str.match(rtspReg)
     return result != null
+}
+
+/**
+ * @description 校验STMP服务器合法性
+ * @param {string} str
+ * @returns {boolean}
+ */
+export const checkStmpServer = (str: string) => {
+    // //smtp服务器格式为 a.b.c.d ,多个点分割，可为数字字母或-，但-不能开头
+    const reg = /^(([A-Za-z0-9])+([A-Za-z0-9-]*))(\.([A-Za-z0-9])+([A-Za-z0-9-]*))*$/g
+    return reg.test(str)
 }
 
 /**
