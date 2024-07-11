@@ -3,7 +3,7 @@
  * @Date: 2024-05-04 12:58:39
  * @Description: 查看或更改用户
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 19:38:28
+ * @LastEditTime: 2024-07-09 20:47:36
 -->
 <template>
     <div class="User">
@@ -80,7 +80,7 @@
                                 :label="Translate(item.label)"
                             >
                                 <template #default="{ $index }">
-                                    <el-text>{{ displayChannelAuth(channelAuthList[$index][item.name]) }}</el-text>
+                                    <el-text>{{ displayChannelAuth(channelAuthList[$index][item.value]) }}</el-text>
                                 </template>
                             </el-table-column>
                         </el-table>
@@ -108,7 +108,7 @@
                                 :label="Translate(item.label)"
                             >
                                 <template #default="{ $index }">
-                                    <el-text>{{ displayChannelAuth(channelAuthList[$index][item.name]) }}</el-text>
+                                    <el-text>{{ displayChannelAuth(channelAuthList[$index][item.value]) }}</el-text>
                                 </template>
                             </el-table-column>
                         </el-table>

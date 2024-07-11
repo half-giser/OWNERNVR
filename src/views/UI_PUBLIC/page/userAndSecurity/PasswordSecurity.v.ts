@@ -31,16 +31,11 @@ export default defineComponent({
             180: 180 + Translate('IDCS_DAYS'),
         }
 
-        type PasswordSecurityOptions = {
-            id: string
-            name: string
-        }
-
         const pageData = ref({
             // 密码强度选项
-            passwordStrengthOptions: [] as PasswordSecurityOptions[],
+            passwordStrengthOptions: [] as SelectOption<string, string>[],
             // 过期时间选项
-            expirationTimeOptions: [] as PasswordSecurityOptions[],
+            expirationTimeOptions: [] as SelectOption<string, string>[],
         })
 
         /**
@@ -61,16 +56,16 @@ export default defineComponent({
                 pageData.value.passwordStrengthOptions = $('/response/types/userPasswordAllowLevel/enum').map((item) => {
                     const text = item.text()
                     return {
-                        id: text,
-                        name: PASSWORD_STRENGTH_MAPPING[text],
+                        value: text,
+                        label: PASSWORD_STRENGTH_MAPPING[text],
                     }
                 })
 
                 pageData.value.expirationTimeOptions = $('/response/types/userPasswordExpirationTime/enum').map((item) => {
                     const text = item.text()
                     return {
-                        id: text,
-                        name: EXPIRATION_TIME_MAPPING[text],
+                        value: text,
+                        label: EXPIRATION_TIME_MAPPING[text],
                     }
                 })
             }

@@ -30,3 +30,6 @@ lerna-debug.log*
 components.d.ts
 auto-import.d.ts
 .eslintrc-auto-import.json
+
+# vscode本地配置文件
+.vscode

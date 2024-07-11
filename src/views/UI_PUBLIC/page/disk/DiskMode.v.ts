@@ -3,7 +3,7 @@
  * @Date: 2024-07-04 16:41:45
  * @Description: 磁盘模式
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 16:41:57
+ * @LastEditTime: 2024-07-09 20:33:05
  */
 import { DiskModeForm } from '@/types/apiType/disk'
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
@@ -19,6 +19,7 @@ export default defineComponent({
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
 
         const pageData = ref({
+            // 鉴权弹窗
             isAuthDialog: false,
         })
         const formData = ref(new DiskModeForm())

@@ -182,8 +182,8 @@
                         :index="0"
                         :hover-index="1"
                         :active-index="1"
-                        :disabled-index="scope.row.upgradeDisabled ? 3 : -1"
-                        :class="{ disabled: scope.row.upgradeDisabled }"
+                        :disabled-index="3"
+                        :disabled="scope.row.upgradeDisabled"
                         @click="handleUpgradeIPC(scope.row)"
                     />
                     <BaseImgSprite
@@ -235,11 +235,6 @@
             :close="closeEditIPCPwdPop"
         >
         </ChannelEditIPCPwdPop>
-        <!-- <VoiceCtrl
-            v-model:volumn="volumn"
-            :mute="mute"
-            @update:mute="mute = $event"
-        /> -->
         <BaseLivePop ref="baseLivePopRef"></BaseLivePop>
         <BaseNotification v-model:notifications="notifications"></BaseNotification>
         <ChannelIPCUpgradePop ref="channelIPCUpgradePopRef"></ChannelIPCUpgradePop>

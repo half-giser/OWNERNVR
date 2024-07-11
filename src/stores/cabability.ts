@@ -3,7 +3,7 @@
  * @Date: 2023-05-09 16:45:59
  * @Description: 服务端能力集全局存储
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-01 11:50:07
+ * @LastEditTime: 2024-07-09 15:12:04
  */
 import { getXmlWrapData } from '@/api/api'
 import { querySystemCaps } from '@/api/system'
@@ -50,6 +50,7 @@ export const useCababilityStore = defineStore(
         const supportHdmiVgaSeparate = ref(false)
         const supportSHDB = ref(false)
         const supportAlarmServerConfig = ref(false)
+        const poeChlMaxCount = ref(0)
 
         const CustomerID = ref(0)
         const isInw48 = ref(false)
@@ -106,6 +107,7 @@ export const useCababilityStore = defineStore(
             switchableIpChlMaxCount.value = Number($(`content/switchableIpChlMaxCount`).text())
             supportSHDB.value = $(`content/supportSHDB`).text().toBoolean()
             supportAlarmServerConfig.value = $('content/supportAlarmServerConfig').text().toBoolean()
+            poeChlMaxCount.value = Number($(`content/poeChlMaxCount`).text())
 
             return $
         }
@@ -153,6 +155,7 @@ export const useCababilityStore = defineStore(
             updateCabability,
             CustomerID,
             isUseRaid,
+            poeChlMaxCount,
         }
     },
     {

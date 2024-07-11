@@ -3,7 +3,7 @@
  * @Date: 2024-06-17 20:32:14
  * @Description: 权限组列表
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 20:23:21
+ * @LastEditTime: 2024-07-09 20:45:45
  */
 import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
 import PermissionGroupEditPop from './PermissionGroupEditPop.vue'
@@ -42,9 +42,9 @@ export default defineComponent({
             // 编辑权限组的ID
             editAuthGroupID: '',
             // 本地通道权限列表
-            localChannelIds: DEFAULT_LOCAL_CHANNEL_AUTH_LIST as { name: keyof UserPermissionChannelAuthList; label: string }[],
+            localChannelIds: DEFAULT_LOCAL_CHANNEL_AUTH_LIST,
             // 远程通道权限列表
-            remoteChannelIds: DEFAULT_REMOTE_CHANNEL_AUTH_LIST as { name: keyof UserPermissionChannelAuthList; label: string }[],
+            remoteChannelIds: DEFAULT_REMOTE_CHANNEL_AUTH_LIST,
         })
 
         /**

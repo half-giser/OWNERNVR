@@ -3,7 +3,7 @@
  * @Date: 2023-04-28 14:36:40
  * @Description:解析xml下指定路径的标签文本和属性
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-25 16:43:31
+ * @LastEditTime: 2024-07-09 14:39:04
  */
 
 /*
@@ -20,6 +20,8 @@ export interface XmlResult extends Array<XmlElement> {
     text: () => string
     attr: (id: string, name?: string) => string
 }
+
+export type XMLQuery = ReturnType<typeof queryXml>
 
 /**
  * @description: xml文档解析
