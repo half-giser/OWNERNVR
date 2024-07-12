@@ -3,19 +3,23 @@
  * @Date: 2024-07-09 14:07:36
  * @Description: 端口
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-10 11:56:55
+ * @LastEditTime: 2024-07-12 14:20:29
 -->
 <template>
-    <div class="Port">
+    <div>
         <!-- 端口 -->
         <el-form
             ref="portFormRef"
-            class="form port"
             :model="portFormData"
             :rules="portFormRule"
+            :style="{
+                '--form-input-width': '200px',
+            }"
+            class="stripe"
             label-position="left"
+            inline-message
         >
-            <div class="title">{{ Translate('IDCS_PORT') }}</div>
+            <div class="base-subheading-box">{{ Translate('IDCS_PORT') }}</div>
             <el-form-item
                 :label="Translate('IDCS_HTTP_PORT')"
                 prop="httpPort"
@@ -68,10 +72,14 @@
         <!-- API SERVER -->
         <el-form
             v-show="!pageData.isUse44"
-            class="form api-server"
             label-position="left"
+            class="stripe"
+            :style="{
+                '--form-input-width': '200px',
+            }"
+            inline-message
         >
-            <div class="title">{{ Translate('IDCS_API_SERVER') }}</div>
+            <div class="base-subheading-box">{{ Translate('IDCS_API_SERVER') }}</div>
             <el-form-item>
                 <el-checkbox
                     v-model="apiServerFormData.apiserverSwitch"
@@ -96,14 +104,18 @@
         <!-- RTSP -->
         <el-form
             ref="rtspServerFormRef"
-            class="form rtsp"
             :model="rtspServerFormData"
             :rules="rtspServerFormRule"
+            class="stripe"
+            :style="{
+                '--form-input-width': '200px',
+            }"
             label-position="left"
+            inline-message
         >
             <div
                 v-show="!pageData.isUse44"
-                class="title"
+                class="base-subheading-box"
             >
                 {{ Translate('IDCS_RTSP') }}
             </div>
@@ -149,55 +161,11 @@
                     >{{ Translate('IDCS_RTSP_ANONYMOUS_ACCESS') }}</el-checkbox
                 >
             </el-form-item>
+            <div class="base-btn-box">
+                <el-button @click="setData">{{ Translate('IDCS_APPLY') }}</el-button>
+            </div>
         </el-form>
-        <div class="btns">
-            <el-button @click="setData">{{ Translate('IDCS_APPLY') }}</el-button>
-        </div>
     </div>
 </template>
 
 <script lang="ts" src="./Port.v.ts"></script>
-
-<style lang="scss" scoped>
-.Port {
-    .form {
-        :deep(.el-form-item__label) {
-            width: 150px;
-        }
-
-        .el-select,
-        .el-input,
-        .el-input-number {
-            width: 200px;
-            flex-shrink: 0;
-            margin-right: 10px;
-        }
-
-        .el-input-number:deep(.el-input__inner) {
-            text-align: left;
-        }
-    }
-
-    .title {
-        width: 100%;
-        height: 35px;
-        font-weight: bold;
-        padding: 0 15px;
-        margin-bottom: 15px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        line-height: 35px;
-        background-color: var(--bg-color4);
-        box-sizing: border-box;
-        flex-shrink: 0;
-    }
-
-    .btns {
-        margin-top: 15px;
-        width: 450px;
-        display: flex;
-        justify-content: center;
-    }
-}
-</style>

@@ -3,7 +3,7 @@
  * @Date: 2024-04-16 13:47:54
  * @Description: 项目入口
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 13:46:08
+ * @LastEditTime: 2024-07-11 20:04:04
  */
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
@@ -17,6 +17,7 @@ import typeEnhance from './plugin/typeEnhance'
 import loadingPlugin from './plugin/loading'
 import cssPlugin from './plugin/css'
 import datePlugin from './plugin/date'
+import componentPlugin from './plugin/components'
 import { regAllDirective } from './directives'
 
 export const app = createApp(App)
@@ -36,6 +37,8 @@ pinia.use(
     }),
 )
 app.use(pinia) // 启用Pinia
+
+app.use(componentPlugin)
 
 const lang = useLangStore()
 await lang.getLangTypes()

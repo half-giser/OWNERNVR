@@ -3,16 +3,19 @@
  * @Date: 2024-06-24 09:19:04
  * @Description: 基本配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-27 17:56:50
+ * @LastEditTime: 2024-07-12 13:58:27
 -->
 <template>
     <div class="Setting">
         <el-form
             ref="formRef"
-            class="form"
+            class="stripe"
             label-position="left"
             :rules
             :model="formData"
+            :style="{
+                '--form-input-width': '250px',
+            }"
             hide-required-asterisk
             inline-message
         >
@@ -38,6 +41,7 @@
                     class="mx-4"
                     :min="0"
                     :max="99999"
+                    :controls="false"
                     controls-position="right"
                 />
             </el-form-item>
@@ -153,58 +157,15 @@
             <el-form-item v-if="pageData.isZeroOrAddIpc">
                 <el-checkbox v-model="formData.zeroOrAddIpc">{{ Translate('IDCS_ZERO_OP_ADD_IPC') }}</el-checkbox>
             </el-form-item>
+            <div class="base-btn-box">
+                <el-button
+                    class="btn-ok"
+                    @click="verify"
+                    >{{ Translate('IDCS_APPLY') }}</el-button
+                >
+            </div>
         </el-form>
-        <div class="btns">
-            <el-button
-                class="btn-ok"
-                @click="verify"
-                >{{ Translate('IDCS_APPLY') }}</el-button
-            >
-        </div>
     </div>
 </template>
 
 <script lang="ts" src="./GeneralSettings.v.ts"></script>
-
-<style lang="scss" scoped>
-.Setting {
-    height: 100%;
-    overflow-y: auto;
-
-    .form {
-        :deep(.el-form-item__label) {
-            width: 200px;
-        }
-
-        & > * {
-            margin-bottom: 0;
-            padding: 10px 0 10px 15px;
-
-            &:nth-child(even) {
-                background-color: var(--bg-color5);
-            }
-        }
-
-        :deep(.el-form-item__content) {
-            flex-wrap: nowrap;
-        }
-
-        .el-select,
-        .el-input,
-        .el-input-number {
-            width: 250px;
-            flex-shrink: 0;
-        }
-
-        .el-input-number :deep(.el-input__inner) {
-            text-align: left;
-        }
-    }
-
-    .btns {
-        margin-top: 20px;
-        display: flex;
-        justify-content: center;
-    }
-}
-</style>

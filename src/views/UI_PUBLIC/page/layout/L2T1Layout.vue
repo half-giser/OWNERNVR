@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 二级类型1布局页--适用于所有配置页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-28 18:52:05
+ * @LastEditTime: 2024-07-12 15:47:45
 -->
 <template>
     <el-container id="layout2">
@@ -29,7 +29,7 @@
                 </div>
                 <div class="sub-menus">
                     <span
-                        v-for="(menu3, menu3Key) in groupMenuMap.get(menuGroup[0])"
+                        v-for="(menu3, menu3Key) in groupMenuMap[menuGroup[0]]"
                         :key="menu3Key"
                         @click="router.push(menu3.meta.fullPath)"
                         v-text="Translate(menu3.meta.lk)"
@@ -44,8 +44,12 @@
                         v-for="(navItem, key) in navList"
                         :key
                         :to="navItem.meta.fullPath"
-                        >{{ Translate(navItem.meta.lk) }}</router-link
-                    >
+                        >{{ Translate(navItem.meta.lk) }}
+                        <BaseImgSprite
+                            v-show="key !== navList.length - 1"
+                            file="nav"
+                        />
+                    </router-link>
                 </div>
                 <div id="layout2RightTopBarToolBar">
                     <router-view
@@ -191,12 +195,19 @@
     background-color: var(--page-bg);
 
     #layout2RightTopBar {
+        display: flex;
+        width: 100%;
         height: 35px;
         border-bottom: solid 1px var(--border-color2);
 
         #layout2RightTopBarNav {
-            padding: 6px 0px 0px 5px;
-            float: left;
+            display: flex;
+            height: 100%;
+            width: 50%;
+            align-items: center;
+            padding: 0 10px;
+            box-sizing: border-box;
+
             a {
                 font-size: 15px;
                 text-decoration: none;
@@ -208,20 +219,20 @@
                     color: var(--primary--04);
                 }
 
-                &:not(:last-of-type)::after {
-                    content: '';
-                    width: 7px;
-                    height: 9px;
-                    display: inline-block;
-                    background: no-repeat var(--sprite) 0 0;
-                    margin: 0px 0px 0px 8px;
+                span {
+                    margin-left: 5px;
                 }
             }
         }
 
         #layout2RightTopBarToolBar {
-            padding: 5px 5px 0px 0px;
-            float: right;
+            display: flex;
+            width: 50%;
+            height: 100%;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 10px;
+            box-sizing: border-box;
         }
     }
 

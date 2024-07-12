@@ -3,7 +3,7 @@
  * @Date: 2024-06-25 09:59:23
  * @Description: 输出配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 19:26:48
+ * @LastEditTime: 2024-07-11 19:39:42
  */
 import { type XmlResult } from '@/utils/xmlParse'
 import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
@@ -14,6 +14,8 @@ import { type UserCheckAuthForm } from '@/types/apiType/userAndSecurity'
 import ChannelGroupEditPop from '../channel/ChannelGroupEditPop.vue'
 import ChannelGroupAdd from '../channel/ChannelGroupAdd.vue'
 import { ChlGroup } from '@/types/apiType/channel'
+import BaseListBox from '../../components/display/BaseListBox.vue'
+import BaseListBoxItem from '../../components/display/BaseListBoxItem.vue'
 
 type ChlItem = {
     id: string
@@ -80,6 +82,8 @@ export default defineComponent({
         OutputAddViewPop,
         ChannelGroupEditPop,
         ChannelGroupAdd,
+        BaseListBox,
+        BaseListBoxItem,
     },
     setup() {
         const { Translate } = useLangStore()
@@ -1264,6 +1268,8 @@ export default defineComponent({
             // OutputAddViewPop,
             ChannelGroupEditPop,
             ChannelGroupAdd,
+            BaseListBox,
+            BaseListBoxItem,
         }
     },
 })

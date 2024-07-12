@@ -3,7 +3,7 @@
  * @Date: 2024-07-10 09:13:17
  * @Description: DDNS
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-10 14:57:32
+ * @LastEditTime: 2024-07-12 16:22:03
  */
 import { NetDDNSForm, NetDDNSServerTypeList } from '@/types/apiType/net'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -91,6 +91,7 @@ export default defineComponent({
             ],
         })
 
+        // 更新连接状态的定时器
         let timer: NodeJS.Timeout | number = 0
 
         const pageData = ref({
@@ -102,6 +103,9 @@ export default defineComponent({
             mac: '',
         })
 
+        /**
+         * @description 获取网络配置mac地址
+         */
         const getNetConfig = async () => {
             const result = await queryNetCfgV2()
             const $ = queryXml(result)
@@ -114,15 +118,24 @@ export default defineComponent({
             }
         }
 
+        // 当前DDNS类型
         const current = computed(() => {
             const find = pageData.value.serverTypeOptions.find((item) => item.serverType === formData.value.serverType)
             return find || new NetDDNSServerTypeList()
         })
 
+        /**
+         * @description 当前输入框是否非禁用状态
+         * @param {stirng} param 选项属性
+         * @returns {boolean}
+         */
         const isParamEnable = (param: string) => {
             return current.value.requireParam.includes(param) && !current.value.hideParam.includes(param)
         }
 
+        /**
+         * @description 获取表单数据
+         */
         const getData = async () => {
             const result = await queryDDNSCfg()
             commLoadResponseHandler(result, ($) => {
@@ -197,6 +210,9 @@ export default defineComponent({
             })
         }
 
+        /**
+         * @description 处理DDNS类型改变
+         */
         const changeServerType = () => {
             formRef.value!.clearValidate()
             formData.value.serverAddr = current.value.serverAddr || current.value.defaultServerAddr
@@ -206,6 +222,10 @@ export default defineComponent({
             formData.value.heartbeatTime = current.value.heartbeatTime || current.value.defaultHeartBeatTime
         }
 
+        /**
+         * @description 获取更新数据的XML字符串
+         * @returns {string}
+         */
         const getSetDataXml = () => {
             const password = AES_encrypt(formData.value.password, userSession.sesionKey)
             const enableXml = formData.value.switch
@@ -227,6 +247,9 @@ export default defineComponent({
             return sendXml
         }
 
+        /**
+         * @description 更新数据
+         */
         const setData = async () => {
             formRef.value!.validate(async (valid) => {
                 if (!valid) {
@@ -242,6 +265,9 @@ export default defineComponent({
             })
         }
 
+        /**
+         * @description 测试
+         */
         const test = async () => {
             formRef.value!.validate(async (valid) => {
                 if (!valid) {
@@ -271,11 +297,19 @@ export default defineComponent({
             })
         }
 
+        /**
+         * @description 获取连接状态
+         */
         const getConnectStatus = async () => {
             const result = await queryDDNSCfg()
             pageData.value.connectState = queryXml(result)('/response/content/connectState').text() === 'success' ? Translate('IDCS_SUCCESS') : Translate('IDCS_FAILED')
         }
 
+        /**
+         * @description 约束域名的输入
+         * @param {string} domainName
+         * @returns {string}
+         */
         const formatDomainName = (domainName: string) => {
             return domainName.replace(/[\u4E00-\u9FA5]/g, '')
         }

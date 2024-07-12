@@ -3,7 +3,7 @@
  * @Date: 2024-06-27 16:34:23
  * @Description: 系统升级-备份弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 19:29:24
+ * @LastEditTime: 2024-07-12 09:24:55
 -->
 <template>
     <el-dialog
@@ -14,30 +14,33 @@
         :show-close="false"
         @opened="opened"
     >
-        <div class="UpgradeBackUp">
-            <el-form
-                ref="formRef"
-                :rules
-                :model="formData"
+        <el-form
+            ref="formRef"
+            :rules
+            :model="formData"
+            :style="{
+                '--form-input-width': '250px',
+            }"
+            class="form"
+            label-position="left"
+        >
+            <el-form-item
+                :label="Translate('IDCS_PATH')"
+                prop="filePath"
             >
-                <el-form-item
-                    :label="Translate('IDCS_PATH')"
-                    prop="filePath"
-                >
-                    <el-input
-                        :model-value="formData.filePath"
-                        readonly
-                    ></el-input>
-                    <el-button @click="chooseFile">
-                        <BaseImgSprite
-                            file="filechooser"
-                            :index="1"
-                            :chunk="4"
-                        />
-                    </el-button>
-                </el-form-item>
-            </el-form>
-        </div>
+                <el-input
+                    :model-value="formData.filePath"
+                    readonly
+                ></el-input>
+                <el-button @click="chooseFile">
+                    <BaseImgSprite
+                        file="filechooser"
+                        :index="1"
+                        :chunk="4"
+                    />
+                </el-button>
+            </el-form-item>
+        </el-form>
         <template #footer>
             <el-row>
                 <el-col
@@ -52,11 +55,3 @@
 </template>
 
 <script lang="ts" src="./UpgradeBackUpPop.v.ts"></script>
-
-<style lang="scss" scoped>
-.UpgradeBackUp {
-    .el-input {
-        width: 250px;
-    }
-}
-</style>

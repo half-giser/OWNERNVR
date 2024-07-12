@@ -3,12 +3,12 @@
  * @Date: 2024-06-17 20:26:14
  * @Description: 权限组列表
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-09 20:43:43
+ * @LastEditTime: 2024-07-12 14:39:33
 -->
 <template>
     <div class="Perm">
         <div class="Perm-left">
-            <div class="Perm-title">{{ Translate('IDCS_GROUP') }}: {{ authGroupName }}</div>
+            <div class="base-subheading-box">{{ Translate('IDCS_GROUP') }}: {{ authGroupName }}</div>
             <div class="system">
                 <template
                     v-for="auth in systemAuthList"
@@ -45,7 +45,10 @@
                     </li>
                 </ul>
                 <div class="list">
-                    <div v-show="pageData.activeChannelTab === 'IDCS_LOCAL_RIGHT'">
+                    <div
+                        v-show="pageData.activeChannelTab === 'IDCS_LOCAL_RIGHT'"
+                        class="base-table-box"
+                    >
                         <el-table
                             :data="channelAuthList"
                             border
@@ -73,7 +76,10 @@
                             </el-table-column>
                         </el-table>
                     </div>
-                    <div v-show="pageData.activeChannelTab === 'IDCS_REMOTE_RIGHT'">
+                    <div
+                        v-show="pageData.activeChannelTab === 'IDCS_REMOTE_RIGHT'"
+                        class="base-table-box"
+                    >
                         <el-table
                             :data="channelAuthList"
                             border
@@ -179,22 +185,8 @@
 <style lang="scss" scoped>
 .Perm {
     width: 100%;
-    height: 100%;
+    height: var(--content-height);
     display: flex;
-
-    &-title {
-        width: 100%;
-        height: 35px;
-        font-weight: bold;
-        padding: 0 15px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        line-height: 35px;
-        background-color: var(--bg-color4);
-        box-sizing: border-box;
-        flex-shrink: 0;
-    }
 
     &-left {
         width: 550px;
@@ -280,8 +272,8 @@
             }
         }
 
-        :deep(.el-table) {
-            height: calc(100vh - 680px);
+        .list {
+            height: 100%;
         }
     }
 

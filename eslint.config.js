@@ -35,7 +35,7 @@ export default defineFlatConfig([
             'vue/no-static-inline-styles': [
                 'error',
                 {
-                    allowBinding: false,
+                    allowBinding: true,
                 },
             ],
             'arrow-body-style': 'off',

@@ -3,7 +3,7 @@
  * @Date: 2024-06-04 10:26:32
  * @Description: MAC地址输入框
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-20 18:40:40
+ * @LastEditTime: 2024-07-11 16:31:01
 -->
 <template>
     <div
@@ -199,23 +199,22 @@ const handleBlur = (index: number) => {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .MacInput {
     align-items: center;
-    border: 1px solid var(--border-color2);
+    border: 1px solid var(--border-color7);
     border-radius: var(--el-input-border-radius, var(--el-border-radius-base));
     box-shadow: 0 0 0 1px var(--el-input-border-color, var(--el-border-color)) inset;
     cursor: text;
     display: inline-flex;
-    flex-grow: 1;
     justify-content: center;
     padding: 1px 11px;
     transform: translateZ(0);
     transition: var(--el-transition-box-shadow);
-    width: 100%;
     font-size: var(--el-font-size-base);
     line-height: var(--el-input-height);
     width: var(--el-input-width);
+    box-sizing: border-box;
 
     &:hover,
     &.is-focus {
@@ -225,13 +224,13 @@ const handleBlur = (index: number) => {
 
         &.disabled {
             background-color: var(--bg-color-disabled);
-            border-color: var(--border-color4);
+            border-color: var(--border-color-disabled);
         }
     }
 
     &.disabled {
         background-color: var(--bg-color-disabled);
-        border-color: var(--border-color4);
+        border-color: var(--border-color-disabled);
     }
 
     input {

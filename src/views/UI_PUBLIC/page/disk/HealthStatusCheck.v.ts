@@ -3,15 +3,11 @@
  * @Date: 2024-07-04 16:47:11
  * @Description: 健康状态检测
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 18:31:05
+ * @LastEditTime: 2024-07-12 16:08:55
  */
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
 import { type DiskHealthInfoDiskList, type DiskHealthInfoDiskDetailList } from '@/types/apiType/disk'
 
 export default defineComponent({
-    components: {
-        BaseImgSprite,
-    },
     setup() {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
@@ -157,7 +153,6 @@ export default defineComponent({
             changeDiskCard,
             goBack,
             diskNum,
-            BaseImgSprite,
         }
     },
 })

@@ -3,21 +3,22 @@
  * @Date: 2024-07-05 17:32:00
  * @Description: 存储模式新增磁盘弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-08 19:28:07
+ * @LastEditTime: 2024-07-12 16:15:58
 -->
 <template>
     <el-dialog
         :title="Translate('IDCS_ADD_DISK')"
-        width="600"
+        width="600px"
         align-center
         draggable
         @open="open"
     >
-        <div class="StorageModeDisk">
+        <div>
             <el-table
                 :data="tableData"
                 border
                 stripe
+                height="400px"
                 @selection-change="changeSelection"
             >
                 <el-table-column
@@ -59,11 +60,3 @@
 </template>
 
 <script lang="ts" src="./StorageModeAddDiskPop.v.ts"></script>
-
-<style lang="scss" scoped>
-.StorageModeDisk {
-    :deep(.el-table) {
-        height: 400px;
-    }
-}
-</style>

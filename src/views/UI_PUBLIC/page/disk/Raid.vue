@@ -3,16 +3,17 @@
  * @Date: 2024-07-08 15:48:54
  * @Description: 磁盘阵列
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-09 20:08:17
+ * @LastEditTime: 2024-07-11 17:33:54
 -->
 
 <!-- TODO 此页面需要测试数据 -->
 <template>
-    <div class="Raid">
+    <div class="base-flex-box">
         <el-table
             :data="tableData"
             border
             stripe
+            height="100%"
         >
             <el-table-column
                 :label="Translate('IDCS_SERIAL_NUMBER')"
@@ -105,11 +106,3 @@
 </template>
 
 <script lang="ts" src="./Raid.v.ts"></script>
-
-<style lang="scss" scoped>
-.Raid {
-    :deep(.el-table) {
-        height: calc(100vh - 230px);
-    }
-}
-</style>
