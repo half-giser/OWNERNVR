@@ -3,13 +3,14 @@
  * @Date: 2024-06-21 18:46:16
  * @Description: 磁盘状态
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-27 17:32:03
+ * @LastEditTime: 2024-07-11 17:49:54
 -->
 <template>
-    <div class="DiskStatus">
+    <div class="base-flex-box">
         <el-table
             stripe
             border
+            height="100%"
             :data="tableData"
         >
             <el-table-column :label="Translate('IDCS_SERIAL_NUMBER')">
@@ -64,13 +65,7 @@
 <script lang="ts" src="./DiskStatus.v.ts"></script>
 
 <style lang="scss" scoped>
-.DiskStatus {
-    :deep(.el-table) {
-        height: calc(100vh - 250px);
-    }
-
-    .error {
-        color: var(--error--01);
-    }
+.error {
+    color: var(--error--01);
 }
 </style>

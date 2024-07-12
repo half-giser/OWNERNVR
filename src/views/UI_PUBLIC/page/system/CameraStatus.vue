@@ -3,14 +3,15 @@
  * @Date: 2024-06-21 14:31:21
  * @Description: 通道状态
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-21 18:28:15
+ * @LastEditTime: 2024-07-11 17:47:11
 -->
 <template>
-    <div class="CameraStatus">
+    <div class="base-flex-box">
         <el-table
             stripe
             border
             :data="tableData"
+            height="100%"
         >
             <el-table-column
                 :label="Translate('IDCS_CHANNEL_NAME')"
@@ -44,13 +45,7 @@
 <script lang="ts" src="./CameraStatus.v.ts"></script>
 
 <style lang="scss" scoped>
-.CameraStatus {
-    :deep(.el-table) {
-        height: calc(100vh - 250px);
-    }
-
-    .error {
-        color: var(--error--01);
-    }
+.error {
+    color: var(--error--01);
 }
 </style>

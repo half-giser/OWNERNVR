@@ -3,7 +3,7 @@
  * @Date: 2024-07-04 16:47:04
  * @Description: 健康状态检测
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-05 13:59:01
+ * @LastEditTime: 2024-07-11 17:26:50
 -->
 <template>
     <div class="HealthStatusCheck">
@@ -36,7 +36,7 @@
         </div>
         <div
             v-show="pageData.isDetail"
-            class="detail"
+            class="detail base-flex-box"
         >
             <div class="detail-top">
                 <span
@@ -58,32 +58,34 @@
                 <span class="detail-status">{{ healthStatus }}</span>
             </div>
             <div class="detail-table">
-                <el-table
-                    :data="tableData"
-                    stripe
-                    border
-                >
-                    <el-table-column
-                        :label="Translate('IDCS_ALARM_NAME')"
-                        prop="name"
+                <div class="base-table-box">
+                    <el-table
+                        :data="tableData"
+                        stripe
+                        border
                     >
-                    </el-table-column>
-                    <el-table-column
-                        :label="Translate('IDCS_STATE')"
-                        prop="status"
-                    >
-                    </el-table-column>
-                    <el-table-column
-                        :label="Translate('IDCS_DISK_SMART_VALUE')"
-                        prop="value"
-                    >
-                    </el-table-column>
-                    <el-table-column
-                        :label="Translate('IDCS_SUGGESTION')"
-                        prop="suggest"
-                    >
-                    </el-table-column>
-                </el-table>
+                        <el-table-column
+                            :label="Translate('IDCS_ALARM_NAME')"
+                            prop="name"
+                        >
+                        </el-table-column>
+                        <el-table-column
+                            :label="Translate('IDCS_STATE')"
+                            prop="status"
+                        >
+                        </el-table-column>
+                        <el-table-column
+                            :label="Translate('IDCS_DISK_SMART_VALUE')"
+                            prop="value"
+                        >
+                        </el-table-column>
+                        <el-table-column
+                            :label="Translate('IDCS_SUGGESTION')"
+                            prop="suggest"
+                        >
+                        </el-table-column>
+                    </el-table>
+                </div>
             </div>
         </div>
     </div>
@@ -169,6 +171,7 @@
             display: flex;
             justify-content: space-between;
             margin-bottom: 10px;
+            flex-shrink: 0;
         }
 
         &-back {
@@ -192,6 +195,7 @@
             height: 36px;
             line-height: 36px;
             margin-bottom: 10px;
+            flex-shrink: 0;
         }
 
         &-num {
@@ -218,10 +222,7 @@
             width: 100%;
             box-sizing: border-box;
             padding-left: 76px;
-        }
-
-        :deep(.el-table) {
-            height: calc(100vh - 330px);
+            height: 100%;
         }
     }
 }

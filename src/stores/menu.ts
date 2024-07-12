@@ -3,7 +3,7 @@
  * @Date: 2023-05-09 16:45:59
  * @Description: 导航全局存储
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-19 17:27:18
+ * @LastEditTime: 2024-07-12 15:43:49
  */
 
 import { type RouteRecordRaw, type RouteMeta } from 'vue-router'

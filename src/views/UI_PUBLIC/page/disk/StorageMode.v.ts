@@ -3,16 +3,14 @@
  * @Date: 2024-07-08 18:01:29
  * @Description: 存储模式配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-08 19:51:41
+ * @LastEditTime: 2024-07-12 16:12:49
  */
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
 import type { StorageModeDiskGroupListDatum, StorageModeDiskGroupList } from '@/types/apiType/disk'
 import StorageModeAddDiskPop from './StorageModeAddDiskPop.vue'
 import StorageModeAddChlPop from './StorageModeAddChlPop.vue'
 
 export default defineComponent({
     components: {
-        BaseImgSprite,
         StorageModeAddDiskPop,
         StorageModeAddChlPop,
     },
@@ -217,10 +215,7 @@ export default defineComponent({
 
             const sendXml = rawXml`
                 <types>
-                    <actionType>
-                        <enum>add</enum>
-                        <enum>remove</enum>
-                    </actionType>
+                    <actionType>${wrapEnums(['add', 'remove'])}</actionType>
                 </types>
                 <content>
                     ${chlXml}
@@ -284,8 +279,10 @@ export default defineComponent({
 
         onMounted(async () => {
             openLoading(LoadingTarget.FullScreen)
+
             await getDiskStatus()
             await getDiskGroupList()
+
             closeLoading(LoadingTarget.FullScreen)
         })
 
@@ -300,7 +297,6 @@ export default defineComponent({
             deleteDisk,
             changeDiskGroup,
             currentItem,
-            BaseImgSprite,
             StorageModeAddDiskPop,
             StorageModeAddChlPop,
         }

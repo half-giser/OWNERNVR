@@ -3,19 +3,19 @@
  * @Date: 2024-06-28 11:45:28
  * @Description: 报警状态
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-08 20:18:11
+ * @LastEditTime: 2024-07-11 20:05:37
  */
 import { type XmlResult } from '@/utils/xmlParse'
 import type { SystemAlarmStatusListData, SystemAlarmStatusList } from '@/types/apiType/system'
 import dayjs from 'dayjs'
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
+// import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
 import RecPop from '../rec/RecPop.vue'
 import type { TableInstance } from 'element-plus'
 import { type RecPlayList } from '@/types/apiType/rec'
 
 export default defineComponent({
     components: {
-        BaseImgSprite,
+        // BaseImgSprite,
         RecPop,
     },
     setup() {
@@ -1160,7 +1160,7 @@ export default defineComponent({
             getAlarmStatusActive,
             handleChangeRow,
             playRec,
-            BaseImgSprite,
+            // BaseImgSprite,
             RecPop,
         }
     },

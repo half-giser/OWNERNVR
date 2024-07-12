@@ -3,21 +3,22 @@
  * @Date: 2024-07-05 17:32:15
  * @Description: 存储模式新增通道弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-08 19:26:29
+ * @LastEditTime: 2024-07-12 16:15:26
 -->
 <template>
     <el-dialog
         :title="Translate('IDCS_ADD_CHANNEL')"
-        width="600"
+        width="600px"
         align-center
         draggable
         @open="open"
     >
-        <div class="StorageModeChl">
+        <div>
             <el-table
                 :data="tableData"
                 border
                 stripe
+                height="400px"
                 @selection-change="changeSelection"
             >
                 <el-table-column
@@ -71,11 +72,3 @@
 </template>
 
 <script lang="ts" src="./StorageModeAddChlPop.v.ts"></script>
-
-<style lang="scss" scoped>
-.StorageModeChl {
-    :deep(.el-table) {
-        height: 400px;
-    }
-}
-</style>

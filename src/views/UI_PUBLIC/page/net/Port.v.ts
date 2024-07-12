@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 18:47:07
  * @Description: 网络端口
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-09 19:48:02
+ * @LastEditTime: 2024-07-11 11:18:50
  */
 import { NetPortForm, NetPortUPnPDto, NetPortApiServerForm, NetPortRtspServerForm } from '@/types/apiType/net'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -268,7 +268,6 @@ export default defineComponent({
                 ['posPort', portFormData.value.posPort],
             ]
             const findSamePort = portValue.find((port) => port[1] === value && port[0] !== param)
-            console.log(findSamePort)
             if (findSamePort) {
                 const errorText = PORT_ERROR_MAPPING.find((item) => {
                     return (item[0] === findSamePort[0] && item[1] === param) || (item[0] === param && item[1] === findSamePort[0])

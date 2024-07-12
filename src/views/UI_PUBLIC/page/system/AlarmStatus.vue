@@ -3,13 +3,14 @@
  * @Date: 2024-06-28 11:45:24
  * @Description: 报警状态
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 13:33:40
+ * @LastEditTime: 2024-07-11 17:48:03
 -->
 <template>
-    <div class="AlarmStatus">
+    <div class="base-flex-box">
         <el-table
             ref="tableRef"
             :data="tableList"
+            height="100%"
             stripe
             :row-key="(item) => item.id"
             :current-row-key="pageData.activeIndex"
@@ -99,94 +100,92 @@
 <script lang="ts" src="./AlarmStatus.v.ts"></script>
 
 <style lang="scss" scoped>
-.AlarmStatus {
-    .type {
-        text-align: left;
-    }
+.type {
+    text-align: left;
+}
 
-    .status {
+.status {
+    display: flex;
+
+    & > div {
+        position: relative;
+        width: 20px;
+        height: 20px;
+        margin-right: 5px;
+
+        &.active {
+            span:last-child {
+                color: black;
+            }
+        }
+
+        span:last-child {
+            position: absolute;
+            top: 0;
+            left: 0;
+            text-align: center;
+            line-height: 25px;
+            color: white;
+            display: block;
+            width: 100%;
+            height: 100%;
+            font-size: 13px;
+        }
+    }
+}
+
+.expand {
+    width: 100%;
+    display: flex;
+    margin-bottom: 20px;
+
+    .left {
+        width: 80%;
         display: flex;
+        flex-wrap: wrap;
+        line-height: 20px;
 
         & > div {
-            position: relative;
-            width: 20px;
+            display: flex;
             height: 20px;
-            margin-right: 5px;
+            padding-left: 20px;
 
-            &.active {
-                span:last-child {
-                    color: black;
-                }
-            }
-
-            span:last-child {
-                position: absolute;
-                top: 0;
-                left: 0;
-                text-align: center;
-                line-height: 25px;
-                color: white;
-                display: block;
-                width: 100%;
-                height: 100%;
-                font-size: 13px;
-            }
-        }
-    }
-
-    .expand {
-        width: 100%;
-        display: flex;
-        margin-bottom: 20px;
-
-        .left {
-            width: 80%;
-            display: flex;
-            flex-wrap: wrap;
-            line-height: 20px;
-
-            & > div {
-                display: flex;
-                height: 20px;
+            span {
                 padding-left: 20px;
-
-                span {
-                    padding-left: 20px;
-                }
-            }
-
-            .span1 {
-                display: flex;
-                width: 50%;
-            }
-
-            .span2 {
-                display: flex;
-                width: 100%;
-            }
-
-            .hidden {
-                visibility: hidden;
             }
         }
 
-        .right {
-            width: 20%;
+        .span1 {
             display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            width: 50%;
+        }
 
-            img {
-                width: 100%;
-            }
+        .span2 {
+            display: flex;
+            width: 100%;
+        }
+
+        .hidden {
+            visibility: hidden;
         }
     }
 
-    .pagination {
-        width: 100%;
+    .right {
+        width: 20%;
         display: flex;
+        flex-direction: column;
         justify-content: center;
+        align-items: center;
+
+        img {
+            width: 100%;
+        }
     }
+}
+
+.pagination {
+    width: 100%;
+    display: flex;
+    justify-content: center;
 }
 </style>
