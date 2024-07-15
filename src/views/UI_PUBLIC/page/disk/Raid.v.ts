@@ -3,10 +3,9 @@
  * @Date: 2024-07-09 13:43:11
  * @Description: 磁盘阵列
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-09 20:27:38
+ * @LastEditTime: 2024-07-12 16:10:53
  */
 
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import { DiskRaidList } from '@/types/apiType/disk'
 import { type UserCheckAuthForm } from '@/types/apiType/userAndSecurity'
@@ -14,7 +13,6 @@ import RaidRebuildPop from './RaidRebuildPop.vue'
 
 export default defineComponent({
     components: {
-        BaseImgSprite,
         BaseCheckAuthPop,
         RaidRebuildPop,
     },
@@ -260,7 +258,6 @@ export default defineComponent({
             displayRaidState,
             displayRaidType,
             confirmDeleteRaid,
-            BaseImgSprite,
             BaseCheckAuthPop,
             RaidRebuildPop,
         }

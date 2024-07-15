@@ -3,19 +3,22 @@
  * @Date: 2024-06-24 15:08:21
  * @Description: 日期与时间
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-25 09:51:12
+ * @LastEditTime: 2024-07-12 17:17:48
 -->
 
 <template>
-    <div class="DateTime">
+    <div>
         <el-form
-            class="form"
+            class="stripe"
             label-position="left"
             :model="formData"
             hide-required-asterisk
             inline-message
+            :style="{
+                '--form-input-width': '250px',
+            }"
         >
-            <div class="title">{{ Translate('IDCS_DATE_AND_TIME') }}</div>
+            <div class="base-subheading-box">{{ Translate('IDCS_DATE_AND_TIME') }}</div>
             <el-form-item :label="Translate('IDCS_SYSTEM_TIME')">
                 <el-date-picker
                     v-model="formData.systemTime"
@@ -79,7 +82,7 @@
                     />
                 </el-select>
             </el-form-item>
-            <div class="title">{{ Translate('IDCS_TIMEZONE_DST') }}</div>
+            <div class="base-subheading-box">{{ Translate('IDCS_TIMEZONE_DST') }}</div>
             <el-form-item :label="Translate('IDCS_TIME_ZONE')">
                 <el-select v-model="formData.timeZone">
                     <el-option
@@ -97,67 +100,17 @@
                     >{{ Translate('IDCS_ENABLE') }}</el-checkbox
                 >
             </el-form-item>
+            <div class="base-btn-box">
+                <el-button @click="setData">{{ Translate('IDCS_APPLY') }}</el-button>
+            </div>
         </el-form>
-        <div class="btns">
-            <el-button @click="setData">{{ Translate('IDCS_APPLY') }}</el-button>
-        </div>
     </div>
 </template>
 
 <script lang="ts" src="./DateAndTime.v.ts"></script>
 
 <style lang="scss" scoped>
-.DateTime {
-    .form {
-        :deep(.el-form-item__label) {
-            width: 200px;
-        }
-
-        & > * {
-            margin-bottom: 0;
-            padding: 10px 0 10px 15px;
-
-            &:nth-child(even) {
-                background-color: var(--bg-color5);
-            }
-        }
-
-        :deep(.el-form-item__content) {
-            flex-wrap: nowrap;
-        }
-
-        :deep(.el-input) {
-            width: 250px;
-            flex-shrink: 0;
-        }
-
-        .el-select {
-            width: 250px;
-            flex-shrink: 0;
-        }
-    }
-
-    .is-sync {
-        margin-left: 10px;
-    }
-
-    .btns {
-        margin-top: 20px;
-        display: flex;
-        justify-content: center;
-    }
-
-    .title {
-        width: 100%;
-        height: 35px;
-        font-weight: bold;
-        padding: 0 15px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        line-height: 35px;
-        background-color: var(--bg-color4);
-        box-sizing: border-box;
-    }
+.is-sync {
+    margin-left: 10px;
 }
 </style>

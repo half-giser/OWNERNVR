@@ -3,14 +3,15 @@
  * @Date: 2024-06-21 14:31:21
  * @Description: 录像状态
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-21 18:21:56
+ * @LastEditTime: 2024-07-11 17:54:54
 -->
 <template>
-    <div class="RecordStatus">
+    <div class="base-flex-box">
         <el-table
             stripe
             border
             :data="tableData"
+            height="100%"
         >
             <el-table-column :label="Translate('IDCS_CHANNEL_NAME')">
                 <template #default="scope">
@@ -66,20 +67,14 @@
 <script lang="ts" src="./RecordStatus.v.ts"></script>
 
 <style lang="scss" scoped>
-.RecordStatus {
-    :deep(.el-table) {
-        height: calc(100vh - 250px);
-    }
+.error {
+    color: var(--error--01);
+}
 
-    .error {
-        color: var(--error--01);
-    }
-
-    .ellipsis {
-        width: 100%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
+.ellipsis {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 </style>

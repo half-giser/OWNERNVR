@@ -3,7 +3,7 @@
  * @Date: 2024-06-17 14:51:27
  * @Description: 编辑用户信息弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 19:37:48
+ * @LastEditTime: 2024-07-12 09:37:10
 -->
 <template>
     <el-dialog
@@ -15,22 +15,22 @@
     >
         <el-form
             ref="formRef"
-            class="form"
+            class="form stripe"
             label-position="left"
             :rules
             :model="formData"
+            :class="{
+                '--form-label-width': '150px',
+            }"
             hide-required-asterisk
-            label-width="150px"
             inline-message
         >
-            <el-form-item
-                prop="enabled"
-                :label="Translate('IDCS_ENABLE')"
-            >
+            <el-form-item prop="enabled">
                 <el-checkbox
                     v-model="formData.enabled"
                     :disabled="pageData.isEnableDisabled"
-                ></el-checkbox>
+                    >{{ Translate('IDCS_ENABLE') }}</el-checkbox
+                >
             </el-form-item>
             <el-form-item
                 prop=""
@@ -107,5 +107,3 @@
 </template>
 
 <script lang="ts" src="./UserEditPop.v.ts"></script>
-
-<style lang="scss" scoped></style>

@@ -3,17 +3,20 @@
  * @Date: 2024-07-10 09:13:08
  * @Description: DDNS
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-10 14:58:09
+ * @LastEditTime: 2024-07-12 11:47:47
 -->
 <template>
-    <div class="DDNS">
+    <div>
         <el-form
             ref="formRef"
             :model="formData"
             :rules="formRule"
             label-position="left"
             inline-message
-            class="form"
+            class="stripe"
+            :style="{
+                '--form-input-width': '340px',
+            }"
         >
             <el-form-item>
                 <el-checkbox v-model="formData.switch">{{ Translate('IDCS_ENABLE') }}</el-checkbox>
@@ -81,7 +84,6 @@
                     @copy.capture.prevent=""
                     @paste.capture.prevent=""
                 />
-                <!-- <el-checkbox></el-checkbox> -->
             </el-form-item>
             <el-form-item
                 v-if="!current.hideParam.includes('heartbeatTime')"
@@ -101,67 +103,21 @@
             <el-form-item :label="Translate('IDCS_CONNECTION_STATUS')">
                 <el-text>{{ pageData.connectState }}</el-text>
             </el-form-item>
+            <div class="base-btn-box">
+                <el-button
+                    v-show="current.isRegisterBtn"
+                    @click="test"
+                    >{{ Translate('IDCS_REGISTER') }}</el-button
+                >
+                <el-button
+                    v-show="current.isTestBtn"
+                    @click="test"
+                    >{{ Translate('IDCS_TEST') }}</el-button
+                >
+                <el-button @click="setData">{{ Translate('IDCS_APPLY') }}</el-button>
+            </div>
         </el-form>
-        <div class="btns">
-            <el-button
-                v-show="current.isRegisterBtn"
-                @click="test"
-                >{{ Translate('IDCS_REGISTER') }}</el-button
-            >
-            <el-button
-                v-show="current.isTestBtn"
-                @click="test"
-                >{{ Translate('IDCS_TEST') }}</el-button
-            >
-            <el-button @click="setData">{{ Translate('IDCS_APPLY') }}</el-button>
-        </div>
     </div>
 </template>
 
 <script lang="ts" src="./DDNS.v.ts"></script>
-
-<style lang="scss" scoped>
-.DDNS {
-    .form {
-        :deep(.el-form-item__label) {
-            width: 150px;
-        }
-
-        :deep(.el-form-item) {
-            margin-bottom: 0;
-            padding: 10px 0 10px 15px;
-
-            &:nth-child(even) {
-                background-color: var(--bg-color5);
-            }
-        }
-
-        :deep(.el-form-item__content) {
-            // justify-content: flex-start;
-            flex-wrap: nowrap;
-        }
-
-        .el-input,
-        .el-input-number {
-            width: 340px;
-            flex-shrink: 0;
-            margin-right: 10px;
-        }
-
-        .el-select {
-            width: 340px;
-        }
-
-        .el-input-number:deep(.el-input__inner) {
-            text-align: left;
-        }
-    }
-
-    .btns {
-        width: 510px;
-        display: flex;
-        justify-content: center;
-        margin-top: 20px;
-    }
-}
-</style>

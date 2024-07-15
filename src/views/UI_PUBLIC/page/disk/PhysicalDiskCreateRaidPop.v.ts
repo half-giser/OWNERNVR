@@ -3,7 +3,7 @@
  * @Date: 2024-07-08 18:01:16
  * @Description: 创建磁盘阵列弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-08 19:35:10
+ * @LastEditTime: 2024-07-12 16:10:07
  */
 import { type DiskPhysicalList, DiskCreateRaidForm } from '@/types/apiType/disk'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -242,8 +242,6 @@ export default defineComponent({
             const $ = queryXml(result)
             formData.value.space = Math.floor(Number($('/response/content/capacity').text()) / 1024) + ' GB'
         }
-
-        onMounted(() => {})
 
         return {
             verify,

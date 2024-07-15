@@ -3,11 +3,16 @@
  * @Date: 2024-06-27 11:48:58
  * @Description: 系统升级
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 19:47:03
+ * @LastEditTime: 2024-07-12 14:03:41
 -->
 <template>
-    <div class="Upgrade">
-        <el-form>
+    <div>
+        <el-form
+            label-position="left"
+            :style="{
+                '--form-input-width': '250px',
+            }"
+        >
             <el-form-item :label="Translate('IDCS_WEB_UPGRADE_S_1')">
                 <el-input
                     type="text"
@@ -93,61 +98,50 @@
 <script lang="ts" src="./Upgrade.v.ts"></script>
 
 <style lang="scss" scoped>
-.Upgrade {
-    position: relative;
+label {
+    display: inline-block;
 
-    label {
-        display: inline-block;
-
-        &.disabled {
-            cursor: not-allowed;
-        }
+    &.disabled {
+        cursor: not-allowed;
     }
+}
 
-    .el-input {
-        width: 250px;
-    }
+.system-info {
+    font-size: 15px;
+    margin-left: 15px;
+    display: flex;
 
-    :deep(.el-form-item__content) > *:not(:first-child) {
-        margin-left: 5px;
-    }
-
-    .system-info {
-        font-size: 15px;
+    & > div {
         display: flex;
+        align-items: center;
+        height: 35px;
+        line-height: 35px;
+        &:not(:first-child) {
+            margin-left: 30px;
+            position: relative;
 
-        & > div {
-            display: flex;
-            align-items: center;
-            height: 35px;
-            line-height: 35px;
-            &:not(:first-child) {
-                margin-left: 30px;
+            &:before {
+                content: '';
                 position: relative;
-
-                &:before {
-                    content: '';
-                    position: relative;
-                    height: 17px;
-                    width: 1px;
-                    left: -15px;
-                    border-left: 2px solid var(--border-color4);
-                }
-            }
-
-            &.active {
-                color: #23de1a;
-            }
-
-            span:not(:last-child) {
-                margin-right: 10px;
+                height: 17px;
+                width: 1px;
+                left: -15px;
+                border-left: 2px solid var(--border-color4);
             }
         }
-    }
 
-    .upgrade-note {
-        font-size: 15px;
-        margin: 10px 0px 0px 0px;
+        &.active {
+            color: #23de1a;
+        }
+
+        span:not(:last-child) {
+            margin-right: 10px;
+        }
     }
+}
+
+.upgrade-note {
+    font-size: 15px;
+    margin: 10px 0px 0px 15px;
 }
 </style>

@@ -3,7 +3,7 @@
  * @Date: 2024-07-08 18:24:54
  * @Description: 磁盘阵列重建弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-09 10:54:35
+ * @LastEditTime: 2024-07-12 16:11:32
 -->
 <template>
     <el-dialog
@@ -60,5 +60,3 @@
 </template>
 
 <script lang="ts" src="./RaidRebuildPop.v.ts"></script>
-
-<style lang="scss" scoped></style>

@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 14:47:05
  * @Description: 网络
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-10 18:04:31
+ * @LastEditTime: 2024-07-12 11:05:19
  */
 
 /**
@@ -100,4 +100,37 @@ export class NetEmailReceiverDto {
 export class NetEmailTestForm {
     address = ''
     password = ''
+}
+
+export class NetUPnPForm {
+    switch = false
+    mappingType = ''
+}
+
+export class NetUPnPPortDto {
+    portType = ''
+    externalPort = 0
+    externalIP = ''
+    localPort = ''
+    status = ''
+}
+
+export class Net8021xForm {
+    switch = false
+    protocal = ''
+    version = ''
+    userName = ''
+    password = ''
+}
+
+export class NetNatForm {
+    natSwitch = false
+    index = ''
+}
+
+export class NetUPnPReportForm {
+    switch = false
+    serverAddr = ''
+    port = 0
+    manId = ''
 }

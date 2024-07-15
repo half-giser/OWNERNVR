@@ -3,7 +3,7 @@
  * @Date: 2023-04-28 17:57:48
  * @Description: 工具方法
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 14:27:43
+ * @LastEditTime: 2024-07-11 11:02:49
  */
 
 import { useUserSessionStore } from '@/stores/userSession'
@@ -306,16 +306,29 @@ export const wrapCDATA = (str: string) => {
 }
 
 /**
+ * @description XML包裹ENUM值
+ * @returns {string}
+ */
+export const wrapEnums = (array: string[] | SelectOption<any, any>[]) => {
+    if (array.length && typeof array[0] === 'string') {
+        return array.map((item) => `<enum>${item}</enum>`).join('')
+    } else {
+        return array.map((item) => `<enum>${String((item as SelectOption<any, any>).value)}</enum>`).join('')
+    }
+}
+
+/**
  * @description 获取通道列表
  * @param options（options为过滤条件）
  * @returns {promise}
  */
 export const getChlList = (options: Partial<QueryNodeListDto>) => {
-    let data = `<types>
+    let data = rawXml`
+                <types>
                     <nodeType>
-                    <enum>chls</enum>
-                    <enum>sensors</enum>
-                    <enum>alarmOuts</enum>
+                        <enum>chls</enum>
+                        <enum>sensors</enum>
+                        <enum>alarmOuts</enum>
                     </nodeType>
                 </types>`
     if (options.pageIndex) data += `<pageIndex>${options.pageIndex}</pageIndex>`

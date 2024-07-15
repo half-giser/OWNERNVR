@@ -3,17 +3,15 @@
  * @Date: 2024-07-08 18:01:51
  * @Description: 存储模式新增通道弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-08 19:54:53
+ * @LastEditTime: 2024-07-12 16:14:05
  */
 import { type PropType } from 'vue'
 import BaseLivePop from '../../components/BaseLivePop.vue'
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
 import { StorageModeDiskGroupList, type StorageModeChlList } from '@/types/apiType/disk'
 
 export default defineComponent({
     components: {
         BaseLivePop,
-        BaseImgSprite,
     },
     props: {
         /**
@@ -185,7 +183,6 @@ export default defineComponent({
             close,
             changeSelection,
             BaseLivePop,
-            BaseImgSprite,
         }
     },
 })

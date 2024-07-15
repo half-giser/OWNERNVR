@@ -3,18 +3,21 @@
  * @Date: 2024-06-14 09:47:30
  * @Description: 添加用户页面
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-18 18:00:59
+ * @LastEditTime: 2024-07-12 14:18:10
 -->
 <template>
     <div class="UserAdd">
         <el-form
             ref="formRef"
-            class="form"
+            class="form stripe"
             label-position="left"
             :rules
             :model="formData"
+            :style="{
+                '--form-input-width': '340px',
+                '--form-label-width': '150px',
+            }"
             hide-required-asterisk
-            label-width="150px"
             inline-message
         >
             <el-form-item
@@ -87,16 +90,16 @@
                     />
                 </el-select>
             </el-form-item>
+            <div class="notice">{{ noticeMsg }}</div>
+            <div class="base-btn-box">
+                <el-button
+                    class="btn-ok"
+                    @click="verify"
+                    >{{ Translate('IDCS_ADD') }}</el-button
+                >
+                <el-button @click="goBack">{{ Translate('IDCS_CANCEL') }}</el-button>
+            </div>
         </el-form>
-        <div class="notice">{{ noticeMsg }}</div>
-        <div class="btns">
-            <el-button
-                class="btn-ok"
-                @click="verify"
-                >{{ Translate('IDCS_ADD') }}</el-button
-            >
-            <el-button @click="goBack">{{ Translate('IDCS_CANCEL') }}</el-button>
-        </div>
         <BaseCheckAuthPop
             v-model="isAuthDialog"
             @close="isAuthDialog = false"
@@ -108,42 +111,12 @@
 <script lang="ts" src="./UserAdd.v.ts"></script>
 
 <style lang="scss" scoped>
-.UserAdd {
-    .form {
-        :deep(.el-form-item) {
-            margin-bottom: 0;
-            padding: 10px 0 10px 15px;
+.strength {
+    width: calc(var(--form-input-width) + var(--form-label-width) + 15px);
+}
 
-            &:nth-child(even) {
-                background-color: var(--bg-color5);
-            }
-        }
-
-        :deep(.el-form-item__content) {
-            // justify-content: flex-start;
-            flex-wrap: nowrap;
-        }
-
-        .el-input {
-            width: 340px;
-            flex-shrink: 0;
-        }
-        .el-select {
-            width: 340px;
-        }
-    }
-
-    .strength {
-        width: 510px;
-    }
-    .notice {
-        margin-top: 20px;
-    }
-    .btns {
-        width: 510px;
-        display: flex;
-        justify-content: center;
-        margin-top: 20px;
-    }
+.notice {
+    margin: 15px 15px;
+    font-size: 15px;
 }
 </style>

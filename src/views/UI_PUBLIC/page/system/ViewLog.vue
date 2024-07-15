@@ -3,10 +3,10 @@
  * @Date: 2024-07-01 11:01:04
  * @Description: 查看日志
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-09 20:48:24
+ * @LastEditTime: 2024-07-11 17:58:14
 -->
 <template>
-    <div class="ViewLog">
+    <div class="ViewLog base-flex-box">
         <div class="form">
             <div class="form-item">
                 <label>{{ Translate('IDCS_MAIN_TYPE') }}</label>
@@ -47,89 +47,91 @@
                 <el-button @click="handleExport">{{ Translate('IDCS_EXPORT') }}</el-button>
             </div>
         </div>
-        <el-table
-            stripe
-            border
-            :data="tableList"
-            :current-row-key="pageData.activeTableIndex"
-            :row-class-name="(item) => (item.rowIndex === pageData.activeTableIndex ? 'active' : '')"
-            @cell-click="handleChangeRow"
-        >
-            <el-table-column
-                :label="Translate('IDCS_MAIN_TYPE')"
-                prop="mainType"
-            />
-            <el-table-column
-                :label="Translate('IDCS_LOG_TIME')"
-                prop="time"
-            />
-            <el-table-column :label="Translate('IDCS_CONTENT')">
-                <template #header>
-                    <el-popover
-                        trigger="click"
-                        popper-class="popper"
-                        width="fit-content"
-                    >
-                        <template #reference>
-                            <span class="el-dropdown-link">
-                                {{ Translate('IDCS_CONTENT') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
-                        </template>
-                        <div class="sub-types">
-                            <el-checkbox-group
-                                v-model="formData.subType"
-                                @change="changeSubType"
-                            >
-                                <el-checkbox
-                                    v-for="item in subTypeOptions"
-                                    :key="item.value"
-                                    :value="item.value"
+        <div class="base-table-box">
+            <el-table
+                stripe
+                border
+                :data="tableList"
+                :current-row-key="pageData.activeTableIndex"
+                :row-class-name="(item) => (item.rowIndex === pageData.activeTableIndex ? 'active' : '')"
+                @cell-click="handleChangeRow"
+            >
+                <el-table-column
+                    :label="Translate('IDCS_MAIN_TYPE')"
+                    prop="mainType"
+                />
+                <el-table-column
+                    :label="Translate('IDCS_LOG_TIME')"
+                    prop="time"
+                />
+                <el-table-column :label="Translate('IDCS_CONTENT')">
+                    <template #header>
+                        <el-popover
+                            trigger="click"
+                            popper-class="popper"
+                            width="fit-content"
+                        >
+                            <template #reference>
+                                <span class="el-dropdown-link">
+                                    {{ Translate('IDCS_CONTENT') }}
+                                    <BaseImgSprite
+                                        class="ddn"
+                                        file="ddn"
+                                    />
+                                </span>
+                            </template>
+                            <div class="sub-types">
+                                <el-checkbox-group
+                                    v-model="formData.subType"
+                                    @change="changeSubType"
                                 >
-                                    {{ item.name }}
-                                </el-checkbox>
-                            </el-checkbox-group>
+                                    <el-checkbox
+                                        v-for="item in subTypeOptions"
+                                        :key="item.value"
+                                        :value="item.value"
+                                    >
+                                        {{ item.name }}
+                                    </el-checkbox>
+                                </el-checkbox-group>
+                            </div>
+                        </el-popover>
+                    </template>
+                    <template #default="scope">
+                        <el-text>{{ scope.row.subType }}</el-text>
+                    </template>
+                </el-table-column>
+                <el-table-column :label="Translate('IDCS_DETAIL_INFO')">
+                    <template #default="scope">
+                        <div class="detail-info">
+                            <div>{{ scope.row.content }}</div>
+                            <BaseImgSprite
+                                file="detail"
+                                :index="0"
+                                :hover-index="1"
+                                :chunk="4"
+                                @click="showLogDetail(scope.row)"
+                            />
                         </div>
-                    </el-popover>
-                </template>
-                <template #default="scope">
-                    <el-text>{{ scope.row.subType }}</el-text>
-                </template>
-            </el-table-column>
-            <el-table-column :label="Translate('IDCS_DETAIL_INFO')">
-                <template #default="scope">
-                    <div class="detail-info">
-                        <div>{{ scope.row.content }}</div>
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    :label="Translate('IDCS_PLAY')"
+                    width="60px"
+                >
+                    <template #default="scope">
                         <BaseImgSprite
-                            file="detail"
+                            v-show="displayPlayIcon(scope.row)"
+                            file="play (3)"
                             :index="0"
                             :hover-index="1"
                             :chunk="4"
-                            @click="showLogDetail(scope.row)"
+                            @click="playRec(scope.row)"
                         />
-                    </div>
-                </template>
-            </el-table-column>
-            <el-table-column
-                :label="Translate('IDCS_PLAY')"
-                width="60px"
-            >
-                <template #default="scope">
-                    <BaseImgSprite
-                        v-show="displayPlayIcon(scope.row)"
-                        file="play (3)"
-                        :index="0"
-                        :hover-index="1"
-                        :chunk="4"
-                        @click="playRec(scope.row)"
-                    />
-                </template>
-            </el-table-column>
-        </el-table>
-        <div class="pagination">
+                    </template>
+                </el-table-column>
+            </el-table>
+        </div>
+        <div class="base-btn-box">
             <el-pagination
                 v-model:current-page="formData.currentPage"
                 v-model:page-size="formData.pageSize"
@@ -162,10 +164,6 @@
 
 <style lang="scss" scoped>
 .ViewLog {
-    :deep(.el-table) {
-        height: calc(100vh - 350px);
-    }
-
     :deep(.el-button) {
         &.is-link {
             color: var(--text-primary);
@@ -178,6 +176,10 @@
                 text-decoration: underline;
             }
         }
+    }
+
+    .form {
+        flex-shrink: 0;
     }
 
     .form-item {
@@ -216,13 +218,6 @@
         span {
             flex-shrink: 0;
         }
-    }
-
-    .pagination {
-        display: flex;
-        width: 100%;
-        justify-content: flex-end;
-        margin-top: 10px;
     }
 }
 

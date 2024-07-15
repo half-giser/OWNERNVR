@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 顶层布局页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-27 17:54:02
+ * @LastEditTime: 2024-07-11 14:31:09
 -->
 <template>
     <el-container id="layoutMain">
@@ -219,7 +219,7 @@
 
         &:hover {
             background-color: var(--page-bg);
-            color: var(--text-dark);
+            color: var(--text-primary);
             border-bottom: solid 6px var(--primary--01);
         }
 
@@ -263,7 +263,7 @@
     padding: 1px 0px 1px 0px;
     height: 18px;
     width: 100%;
-    color: var(--text-light);
+    color: var(--text-menu-01);
     background-color: var(--page-bg);
     border-top: 1px solid var(--border-color1);
     flex-shrink: 0;

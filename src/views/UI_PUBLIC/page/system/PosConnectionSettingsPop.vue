@@ -3,7 +3,7 @@
  * @Date: 2024-07-02 13:36:09
  * @Description: POS连接设置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-03 15:27:44
+ * @LastEditTime: 2024-07-12 13:59:31
 -->
 <template>
     <el-dialog
@@ -13,39 +13,42 @@
         center
         open="open"
     >
-        <div class="PosConnectionSettings">
-            <el-form
-                ref="formRef"
-                class="form"
-                :model="formData"
-                :rules="rules"
-                label-position="left"
-                inline-message
-                hide-required-asterisk
-                flexible
+        <el-form
+            ref="formRef"
+            class="stripe"
+            :model="formData"
+            :rules="rules"
+            :style="{
+                '--form-input-width': '200px',
+                '--form-label-width': '100px',
+            }"
+            label-position="left"
+            inline-message
+            hide-required-asterisk
+            flexible
+        >
+            <el-form-item
+                :label="Translate('IDCS_POS_IP')"
+                prop="ip"
             >
-                <el-form-item
-                    :label="Translate('IDCS_POS_IP')"
-                    prop="ip"
-                >
-                    <BaseIpInput v-model:value="formData.ip" />
-                </el-form-item>
-                <el-form-item v-if="data.connectionType === 'TCP-Listen'">
-                    <el-checkbox v-model="formData.switch">{{ Translate('IDCS_POS_PORT') }}</el-checkbox>
-                </el-form-item>
-                <el-form-item
-                    :label="Translate('IDCS_POS_PORT')"
-                    prop="port"
-                >
-                    <el-input-number
-                        v-model="formData.port"
-                        :disabled="data.connectionType === 'TCP-Listen' && !formData.switch"
-                        :min="0"
-                        :max="65535"
-                    />
-                </el-form-item>
-            </el-form>
-        </div>
+                <BaseIpInput v-model:value="formData.ip" />
+            </el-form-item>
+            <el-form-item v-if="data.connectionType === 'TCP-Listen'">
+                <el-checkbox v-model="formData.switch">{{ Translate('IDCS_POS_PORT') }}</el-checkbox>
+            </el-form-item>
+            <el-form-item
+                :label="Translate('IDCS_POS_PORT')"
+                prop="port"
+            >
+                <el-input-number
+                    v-model="formData.port"
+                    :disabled="data.connectionType === 'TCP-Listen' && !formData.switch"
+                    :min="0"
+                    :max="65535"
+                    :controls="false"
+                />
+            </el-form-item>
+        </el-form>
         <template #footer>
             <el-row>
                 <el-col
@@ -61,42 +64,3 @@
 </template>
 
 <script lang="ts" src="./PosConnectionSettingPop.v.ts"></script>
-
-<style lang="scss" scoped>
-.PosConnectionSettings {
-    .form {
-        :deep(.el-form-item) {
-            margin-bottom: 0;
-            padding: 10px 0 10px 15px;
-
-            &:nth-child(even) {
-                background-color: var(--bg-color5);
-            }
-        }
-
-        :deep(.el-form-item__label) {
-            width: 100px;
-        }
-
-        :deep(.el-form-item__content) {
-            flex-wrap: nowrap;
-        }
-
-        :deep(.IpInput) {
-            max-width: 200px;
-            width: 200px;
-            flex-shrink: 0;
-        }
-
-        .el-input-number {
-            width: 224px;
-            flex-shrink: 0;
-        }
-
-        // .el-input {
-        //     width: 340px;
-        //     flex-shrink: 0;
-        // }
-    }
-}
-</style>

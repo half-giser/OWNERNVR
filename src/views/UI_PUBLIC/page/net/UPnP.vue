@@ -1,0 +1,92 @@
+<!--
+ * @Author: yejiahao yejiahao@tvt.net.cn
+ * @Date: 2024-07-11 08:56:00
+ * @Description: UPnP配置
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-07-12 13:33:13
+-->
+<template>
+    <div class="base-flex-box">
+        <el-form
+            :model="formData"
+            label-position="left"
+            inline-message
+            class="stripe"
+            :style="{
+                '--form-input-width': '200px',
+            }"
+        >
+            <el-form-item>
+                <el-checkbox
+                    v-model="formData.switch"
+                    :disabled="pageData.wirelessSwitch || pageData.pppoeSwitch"
+                    >{{ Translate('IDCS_ENABLE') }}</el-checkbox
+                >
+            </el-form-item>
+            <el-form-item :label="Translate('IDCS_MAP_TYPE')">
+                <el-select v-model="formData.mappingType">
+                    <el-option
+                        v-for="item in pageData.mapTypeOptions"
+                        :key="item.value"
+                        :value="item.value"
+                        :label="item.label"
+                    />
+                </el-select>
+            </el-form-item>
+        </el-form>
+        <div class="base-table-box">
+            <el-table
+                :data="tableData"
+                border
+                stripe
+            >
+                <el-table-column :label="Translate('IDCS_PORT_TYPE')">
+                    <template #default="scope">
+                        <el-text>{{ displayPortType(scope.row.portType) }}</el-text>
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    :label="Translate('IDCS_EXT_PORT')"
+                    prop="externalPort"
+                >
+                    <template #default="scope">
+                        <el-input-number
+                            v-model="scope.row.externalPort"
+                            :min="10"
+                            :max="65535"
+                            :disabled="!formData.switch || formData.mappingType !== 'manually'"
+                            :controls="false"
+                        />
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    :label="Translate('IDCS_EXT_IP')"
+                    prop="externalIP"
+                />
+                <el-table-column
+                    :label="Translate('IDCS_PORT')"
+                    prop="localPort"
+                />
+
+                <el-table-column
+                    :label="Translate('IDCS_UPNP_STATUS')"
+                    prop="status"
+                />
+            </el-table>
+        </div>
+        <div class="base-btn-box">
+            <el-button
+                :disabled="pageData.wirelessSwitch || pageData.pppoeSwitch"
+                @click="setData"
+                >{{ Translate('IDCS_APPLY') }}</el-button
+            >
+            <el-button
+                :disabled="pageData.wirelessSwitch || pageData.pppoeSwitch || !formData.switch"
+                @click="getData"
+                >{{ Translate('IDCS_REFRESH') }}</el-button
+            >
+        </div>
+    </div>
+</template>
+
+<script lang="ts" src="./UPnP.v.ts"></script>

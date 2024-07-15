@@ -3,7 +3,7 @@
  * @Date: 2024-07-02 17:04:47
  * @Description: POS联动通道设置（Hayley）
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 11:18:07
+ * @LastEditTime: 2024-07-11 17:52:20
 -->
 <template>
     <el-dialog
@@ -49,11 +49,3 @@
 </template>
 
 <script lang="ts" src="./PosHayleyTriggerChannelPop.v.ts"></script>
-
-<style lang="scss" scoped>
-.PosHayleyTriggerChannel {
-    :deep(.el-table) {
-        height: 400px;
-    }
-}
-</style>

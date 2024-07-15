@@ -3,7 +3,7 @@
  * @Date: 2024-06-11 20:22:27
  * @Description:
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-10 15:34:47
+ * @LastEditTime: 2024-07-12 10:41:22
  */
 import http, { getXmlWrapData } from './api'
 
@@ -116,11 +116,30 @@ export const queryEmailCfg = () => http.fetch('queryEmailCfg', getXmlWrapData(''
  * @param {string} data
  * @returns
  */
-export const editEmailCfg = (data: string) => http.fetch('queryEmailCfg', getXmlWrapData(data))
+export const editEmailCfg = (data: string) => http.fetch('editEmailCfg', getXmlWrapData(data))
 
 /**
  * @description 测试Email配置
  * @param {string} data
  * @returns
  */
-export const testEmailCfg = (data: string) => http.fetch('queryEmailCfg', getXmlWrapData(data))
+export const testEmailCfg = (data: string) => http.fetch('testEmailCfg', getXmlWrapData(data))
+
+/**
+ * @description 获取802.1x配重
+ * @returns
+ */
+export const query802xCfg = () => http.fetch('query802xCfg', getXmlWrapData(''))
+
+/**
+ * @description 更新802.1x配置
+ * @param {string} data
+ * @returns
+ */
+export const edit802xCfg = (data: string) => http.fetch('edit802xCfg', getXmlWrapData(data))
+
+export const queryCloudUpgradeCfg = () => http.fetch('queryCloudUpgradeCfg', getXmlWrapData(''))
+
+export const queryP2PCfg = () => http.fetch('queryP2PCfg', getXmlWrapData(''))
+
+export const editP2PCfg = (data: string) => http.fetch('editP2PCfg', getXmlWrapData(data))

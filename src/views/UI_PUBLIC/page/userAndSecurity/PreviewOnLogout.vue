@@ -3,10 +3,10 @@
  * @Date: 2024-06-18 18:43:21
  * @Description: 登出后预览
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-09 20:40:34
+ * @LastEditTime: 2024-07-12 14:14:33
 -->
 <template>
-    <div class="PreviewOnLogout">
+    <div class="PreviewOnLogout base-flex-box">
         <div class="main">
             <div class="left">
                 <div class="player">
@@ -17,9 +17,12 @@
                     />
                 </div>
                 <el-form
-                    class="form"
+                    class="form stripe"
                     label-position="left"
                     label-width="100px"
+                    :class="{
+                        '--form-input-width': '200px',
+                    }"
                 >
                     <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
                         <el-select v-model="pageData.activeChannelIndex">
@@ -51,7 +54,7 @@
                     </el-form-item>
                 </el-form>
             </div>
-            <div class="right">
+            <div class="right base-table-box">
                 <el-table
                     :data="channelList"
                     border
@@ -62,7 +65,10 @@
                 >
                     <el-table-column :label="Translate('IDCS_CHANNEL_NAME')">
                         <template #default="scope">
-                            <el-tooltip :content="scope.row.name">
+                            <el-tooltip
+                                :content="scope.row.name"
+                                :show-after="500"
+                            >
                                 <div class="ellipsis">{{ scope.row.name }}</div>
                             </el-tooltip>
                         </template>
@@ -107,7 +113,7 @@
                 </el-table>
             </div>
         </div>
-        <div class="btns">
+        <div class="base-btn-box">
             <el-button
                 :disabled="pageData.buttonDisabled"
                 @click="setData"
@@ -120,52 +126,30 @@
 <script lang="ts" src="./PreviewOnLogout.v.ts"></script>
 
 <style lang="scss" scoped>
-.PreviewOnLogout {
-    .main {
-        display: flex;
-        width: 100%;
-        height: 100%;
-    }
-    .left {
-        width: 400px;
-        flex-shrink: 0;
-        margin-right: 10px;
+.main {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
 
-        .form {
-            margin-top: 20px;
+.left {
+    width: 400px;
+    flex-shrink: 0;
+    margin-right: 10px;
 
-            :deep(.el-form-item) {
-                margin-bottom: 0;
-                padding: 10px 0 10px 15px;
+    .form {
+        margin-top: 20px;
+    }
+}
 
-                &:nth-child(even) {
-                    background-color: var(--bg-color5);
-                }
-            }
+.player {
+    width: 400px;
+    height: 300px;
+}
 
-            .el-select {
-                width: 200px;
-            }
-        }
-    }
-    .player {
-        width: 400px;
-        height: 300px;
-    }
-    .right {
-        width: 100%;
-        height: 100%;
-        margin-right: 10px;
-
-        :deep(.el-table) {
-            height: calc(100vh - 300px);
-        }
-    }
-    .btns {
-        margin-top: 10px;
-        display: flex;
-        justify-content: flex-end;
-        margin-right: 10px;
-    }
+.right {
+    width: 100%;
+    height: 100%;
+    margin-right: 10px;
 }
 </style>
