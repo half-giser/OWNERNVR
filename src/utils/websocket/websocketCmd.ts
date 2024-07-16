@@ -3,7 +3,7 @@
  * @Date: 2024-05-30 10:25:04
  * @Description: websocket命令生成工具
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-28 11:55:33
+ * @LastEditTime: 2024-07-15 14:31:27
  */
 import { ENV_MODE, APP_SERVER_IP } from '../constants'
 import { useUserSessionStore } from '@/stores/userSession'
@@ -300,6 +300,8 @@ export interface CmdUploadFileOpenOption {
         token?: string
         upgrade_head_info?: string
         ipc_ids?: string[]
+        security_ver?: number
+        phrase?: string
     }
     checkversion?: boolean
 }

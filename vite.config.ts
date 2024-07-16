@@ -9,11 +9,12 @@ import Vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
 import { createHtmlPlugin } from 'vite-plugin-html'
 import { envDir, sourceDir, manualChunks, getSourceDir } from './scripts/build'
-import ElementPlus from 'unplugin-element-plus/vite'
+// import ElementPlus from 'unplugin-element-plus/vite'
 import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import GenerateSprite from './scripts/generateSprite'
 import MinifyXmlTemplateStrings from './scripts/minifyXmlTemplateStrings'
+import PostCssVariableCompress from 'postcss-variable-compress'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -64,6 +65,9 @@ export default defineConfig(({ mode }) => {
                     `,
                 },
             },
+            postcss: {
+                plugins: process.env.NODE_ENV === 'development' ? [] : [PostCssVariableCompress([(name: string) => !name.startsWith('--el')])],
+            },
         },
         plugins: [
             GenerateSprite({
@@ -73,7 +77,7 @@ export default defineConfig(({ mode }) => {
             MinifyXmlTemplateStrings(),
             Vue(),
             // 全局导入将会删除
-            ElementPlus({}),
+            // ElementPlus({}),
             /**
              * 自动导入 API ，不用每次都 import
              */
@@ -147,6 +151,7 @@ export default defineConfig(({ mode }) => {
         // components: [
         // ],
         build: {
+            assetsInlineLimit: 0,
             cssCodeSplit: false,
             minify: 'esbuild',
             target: 'esnext',

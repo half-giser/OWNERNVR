@@ -3,39 +3,38 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 二级类型1布局页--适用于所有配置页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 15:47:45
+ * @LastEditTime: 2024-07-16 20:22:46
 -->
 <template>
     <el-container id="layout2">
-        <!-- <div id="layout2LeftBorder"></div> -->
         <el-aside id="layout2Left">
             <div
                 v-for="(menuGroup, key) in sortedGroups"
                 :key
                 class="menu-group"
-                :class="{ 'is-active': route.meta.group === menuGroup[0] }"
+                :class="{
+                    'is-active': route.meta.group === menuGroup[0],
+                }"
+                @click="toDefault(menuGroup[0])"
             >
                 <div class="main-menu">
                     <BaseImgSprite
-                        :file="menuGroup[1].icon"
+                        :file="menuGroup[1].icon || ''"
                         :index="0"
                         :chunk="2"
                     />
-                    <span
-                        @click="toDefault(menuGroup[0])"
-                        v-text="Translate(menuGroup[1].lk || '')"
-                    >
-                    </span>
+                    <span v-text="Translate(menuGroup[1].lk || '')"> </span>
                 </div>
                 <div class="sub-menus">
                     <span
                         v-for="(menu3, menu3Key) in groupMenuMap[menuGroup[0]]"
                         :key="menu3Key"
-                        @click="router.push(menu3.meta.fullPath)"
-                        v-text="Translate(menu3.meta.lk)"
+                        @click.stop="router.push(menu3.meta.fullPath)"
+                        v-text="Translate(menu3.meta.lk || '')"
                     ></span>
                 </div>
             </div>
+            <div class="rest"></div>
         </el-aside>
         <el-main id="layout2Right">
             <div id="layout2RightTopBar">
@@ -44,7 +43,7 @@
                         v-for="(navItem, key) in navList"
                         :key
                         :to="navItem.meta.fullPath"
-                        >{{ Translate(navItem.meta.lk) }}
+                        >{{ Translate(navItem.meta.lk || '') }}
                         <BaseImgSprite
                             v-show="key !== navList.length - 1"
                             file="nav"
@@ -89,16 +88,6 @@
     position: relative;
 }
 
-// #layout2LeftBorder {
-//     background-color: var(--page-bg);
-//     border-right: solid 1px var(--border-color2);
-//     width: 236px;
-//     min-height: 100%;
-//     position: absolute;
-//     top: 0px;
-//     left: 0px;
-// }
-
 #layout2Left {
     width: 237px;
     min-height: 100%;
@@ -107,7 +96,9 @@
     left: 0px;
     margin: -1px 0px -1px -1px;
     overflow: hidden;
-    border-right: solid 1px var(--border-color2);
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .menu-group {
@@ -116,6 +107,7 @@
     padding: 20px;
     margin: 0px 0px -1px 0px;
     position: relative;
+    flex-shrink: 0;
 
     &.is-active {
         background-color: var(--bg-color-cfg-menu-active);
@@ -129,6 +121,12 @@
     &:last-of-type {
         margin: 0px 0px 0px 0px;
     }
+}
+
+.rest {
+    width: 237px;
+    border: solid 1px var(--border-color2);
+    height: 100%;
 }
 
 .main-menu {

@@ -491,6 +491,7 @@ input[type='number'] {
         .el-input,
         .el-input-number,
         .el-date-editor.el-input,
+        .el-textarea,
         .MacInput,
         .IpInput {
             width: var(--form-input-width);
@@ -535,13 +536,6 @@ input[type='number'] {
             // }
         }
 
-        &.narrow {
-            .el-form-item {
-                margin-bottom: 0;
-                padding: 5px 15px;
-            }
-        }
-
         // 斑马线样式
         &.stripe {
             .el-form-item__content {
@@ -565,6 +559,13 @@ input[type='number'] {
                 &:nth-child(even) {
                     background-color: unset;
                 }
+            }
+        }
+
+        &.narrow {
+            .el-form-item {
+                margin-bottom: 0;
+                padding: 5px 15px;
             }
         }
     }

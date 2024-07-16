@@ -140,13 +140,25 @@ body {
 }
 
 .page-view {
-    &-enter-from,
+    &-enter-from {
+        opacity: 0;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100vw;
+    }
+
     &-leave-to {
         opacity: 0;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        z-index: 1;
     }
 
     &-enter-active {
-        transition: opacity 0.4s linear 0.4s;
+        transition: opacity 0.4s linear;
     }
 
     &-leave-active {

@@ -7,21 +7,21 @@
  */
 
 import { type RouteRecordRaw } from 'vue-router'
+import { menu2Item, menu3Items, menu3Item, getMenuItem } from '@/router'
 
 export default defineComponent({
     setup() {
         const route = useRoute()
         const router = useRouter()
         const menu = useMenuStore()
-        const routeStore = useRouteStore()
         const chilComponent = ref()
 
         //排序后的菜单分组
         const sortedGroups = computed(() => {
-            if (!routeStore.menu2Item?.meta?.groups) {
+            if (!menu2Item.value?.meta?.groups) {
                 return []
             }
-            const groups = Object.entries(routeStore.menu2Item.meta.groups).sort((a, b) => {
+            const groups = Object.entries(menu2Item.value.meta.groups).sort((a, b) => {
                 return a[1].sort! - b[1].sort!
             })
             // 默认以group key作为icon类名
@@ -31,27 +31,30 @@ export default defineComponent({
             return groups
         })
 
-        const navList = ref([router.getRoutes().find((o) => o.name === 'functionPanel')] as any[])
+        const navList = ref<RouteRecordRawExtends[]>([])
 
         //生成面包屑导航条
         const getBreadCrumb = () => {
+            const routes = router.getRoutes()
+            navList.value.push(getMenuItem(routes.find((o) => o.name === 'functionPanel') as any as RouteRecordRawExtends))
+
             if (route.meta.navs) {
-                const routes = router.getRoutes()
                 ;(route.meta.navs as string[]).forEach((name: string) => {
                     const navRoute = routes.find((o) => o.name === name)
                     if (navRoute) {
-                        navList.value.push(navRoute)
+                        navList.value.push(getMenuItem(navRoute as any as RouteRecordRawExtends))
                     }
                 })
             }
-            navList.value.push(route)
+
+            navList.value.push(getMenuItem(route as any as RouteRecordRawExtends))
         }
 
         //将菜单按分组加入map -- 过滤掉 noMenu 为true的菜单项
         const groupMenuMap = ref<Record<string, RouteRecordRawExtends[]>>({})
 
         const getGroupMenuMap = () => {
-            ;(routeStore.menu3Items as RouteRecordRawExtends[]).forEach((value) => {
+            menu3Items.value.forEach((value) => {
                 const meta = value.meta
                 if (meta.noMenu) {
                     return
@@ -59,7 +62,7 @@ export default defineComponent({
                 if (!groupMenuMap.value[meta.group]) {
                     groupMenuMap.value[meta.group] = [] as RouteRecordRawExtends[]
                 }
-                groupMenuMap.value[meta.group].push(value) // .get(meta.group)!.push(value)
+                groupMenuMap.value[meta.group].push(value)
             })
         }
 
@@ -86,8 +89,8 @@ export default defineComponent({
         return {
             route,
             router,
-            menu3Item: routeStore.menu3Item,
-            menu3Items: routeStore.menu3Items as RouteRecordRawExtends[],
+            menu3Item,
+            menu3Items,
             sortedGroups,
             groupMenuMap,
             menu,

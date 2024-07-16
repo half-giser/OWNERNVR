@@ -27,53 +27,40 @@
 
 import featureTree from './featureTree'
 import type { RouteMeta, RouteRecordRaw } from 'vue-router'
-import { camel2Kebab } from '@/utils/tools'
+import { camel2Kebab } from '../../utils/tools'
 
 //视图集合
 const viewComponents: Record<string, any> = {}
-;(function () {
-    const puglicPages = import.meta.glob('@public/page/**/*.vue')
-    const uiPages = import.meta.glob('@ui/page/**/*.vue')
-    // const allUiPages = import.meta.glob('/src/views/**/page/**/*.vue')
-    // const path = `/src/views/${__UI__}/page/**/*.vue`
-    // let uiPages: Record<string, any> = {} // import.meta.glob(import.meta.env.VITE_UI)
-    // //新增UI后，需要在这里增加
-    // if (__UI_1__) {
-    //     uiPages = import.meta.glob('/src/views/UI1/page/**/*.vue')
-    // }
-    // if (__UI_2__) {
-    //     uiPages = import.meta.glob('/src/views/UI2/page/**/*.vue')
-    // }
-    // if (__UI_3__) {
-    //     uiPages = import.meta.glob('/src/views/UI3/page/**/*.vue')
-    // }
-    // console.log(uiPages)
+const puglicPages = import.meta.glob('@public/page/**/*.vue')
+const uiPages = import.meta.glob('@ui/page/**/*.vue')
 
-    // const uiPages: typeof allUiPages = {}
+// let uiPages: Record<string, any> = {} // import.meta.glob(import.meta.env.VITE_UI)
+// //新增UI后，需要在这里增加
+// if (__UI_1__) {
+//     uiPages = import.meta.glob('/src/views/UI1/page/**/*.vue')
+// }
+// if (__UI_2__) {
+//     uiPages = import.meta.glob('/src/views/UI2/page/**/*.vue')
+// }
+// if (__UI_3__) {
+//     uiPages = import.meta.glob('/src/views/UI3/page/**/*.vue')
+// }
 
-    // Object.entries(allUiPages).forEach((item) => {
-    //     const [key, cbk] = item
-    //     if (item[0].includes(`views/${import.meta.env.VITE_UI_TYPE}`)) {
-    //         uiPages[key] = cbk
-    //     }
-    // })
+const getItemName = (file: string) => {
+    const item = file.replace('/src/views/', '')
+    return item.substring(item.indexOf('/', item.indexOf('/') + 1) + 1)
+}
 
-    function getItemName(file: string) {
-        const item = file.replace('/src/views/', '')
-        return item.substring(item.indexOf('/', item.indexOf('/') + 1) + 1)
+Object.keys(uiPages).forEach((prop) => {
+    viewComponents[getItemName(prop)] = uiPages[prop]
+})
+
+Object.keys(puglicPages).forEach((prop) => {
+    const itemName = getItemName(prop)
+    if (!(itemName in viewComponents)) {
+        viewComponents[itemName] = puglicPages[prop]
     }
-
-    Object.keys(uiPages).forEach((prop) => {
-        viewComponents[getItemName(prop)] = uiPages[prop]
-    })
-
-    Object.keys(puglicPages).forEach((prop) => {
-        const itemName = getItemName(prop)
-        if (!(itemName in viewComponents)) {
-            viewComponents[itemName] = puglicPages[prop]
-        }
-    })
-})()
+})
 
 let root: RouteRecordRaw
 let config: RouteRecordRaw
@@ -125,6 +112,7 @@ function routeSortFun(a: RouteRecordRaw, b: RouteRecordRaw): number {
  */
 function setRouteAuth(_routes: RouteRecordRaw[]) {
     //TODO: 设置权限
+    console.log(_routes)
 }
 
 /**

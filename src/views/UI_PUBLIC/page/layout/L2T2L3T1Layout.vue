@@ -27,8 +27,8 @@
                         </template>
                         <template #title>
                             <span
-                                :title="Translate(menu3.meta.lk)"
-                                v-text="Translate(menu3.meta.lk)"
+                                :title="Translate(menu3.meta.lk || '')"
+                                v-text="Translate(menu3.meta.lk || '')"
                             ></span>
                         </template>
                     </el-menu-item>

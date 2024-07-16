@@ -3,38 +3,30 @@
  * @Date: 2024-04-20 16:18:25
  * @Description: 二级类型2布局页--适用于“搜索和备份”、“智能分析”、“业务应用”等
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 15:58:45
+ * @LastEditTime: 2024-07-15 09:15:49
  */
 
 import { type RouteRecordRaw } from 'vue-router'
+import { menu2Items, menu2Item, getMenu2 } from '@/router'
 
 export default defineComponent({
     setup() {
         const route = useRoute()
         const menu = useMenuStore()
-        const routeStore = useRouteStore()
 
         // 是否是焦点菜单
         const isMenu2Actice = (menu2: RouteRecordRawExtends) => {
             const item = menu2 as RouteRecordRaw
-            return Boolean(item && item.meta && routeStore.getMenu2(route)?.meta.fullPath === item.meta.fullPath)
+            return Boolean(item && item.meta && getMenu2(route)?.meta.fullPath === item.meta.fullPath)
         }
 
         const isSubMenuShow = (menuItem: RouteRecordRawExtends) => {
-            return menu.isSubMenuShow(menuItem as RouteRecordRaw)
+            return menu.isSubMenuShow(menuItem)
         }
 
         const isMenuItemShow = (menuItem: RouteRecordRawExtends) => {
-            return menu.isMenuItemShow(menuItem as RouteRecordRaw)
+            return menu.isMenuItemShow(menuItem)
         }
-
-        const menu2Item = computed(() => {
-            return routeStore.menu2Item
-        })
-
-        const menu2Items = computed(() => {
-            return routeStore.menu2Items as RouteRecordRawExtends[]
-        })
 
         return {
             route, // 当前进入的二级菜单项

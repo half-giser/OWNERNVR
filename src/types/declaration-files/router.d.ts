@@ -3,7 +3,7 @@
  * @Date: 2023-04-27 14:59:23
  * @Description: 路由相关全局类型定义
  */
-import { type RouteRecordRaw, type RouteRecordName } from 'vue-router'
+import { type RouteRecordName } from 'vue-router'
 
 export {}
 
@@ -108,10 +108,18 @@ declare global {
     //         icon: string
     //     }
     // }
-
-    type RouteRecordRawExtends = Omit<RouteRecordRaw, 'meta' | 'children'> & {
+    type RouteRecordRawExtends = {
+        path: string
         name: RouteRecordName
         meta: {
+            /** 权限访问回调 **/
+            auth?: (arg: any) => boolean
+            /** 是否没有权限访问，true不可访问，false可访问，如果undefined，则说明不受权限控制，可以访问 */
+            noAuth?: boolean
+            /** 路由组件缓存（开启 `true`、关闭 `false`）`可选` */
+            keepAlive?: boolean
+            /** 菜单翻译key或菜单名称，如果没有对应翻译项就直接显示lk的值 */
+            lk?: string
             fullPath: string
             icon: string
             lk: string
