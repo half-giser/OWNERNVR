@@ -24,7 +24,8 @@
     .el-popper,
     .el-dialog,
     .el-message-box,
-    .el-loading-spinner {
+    .el-loading-spinner,
+    .el-textarea {
         --el-color-primary: var(--primary--04);
         --el-color-primary-light-3: var(--primary--03);
     }
@@ -76,7 +77,8 @@
         --el-button-disabled-border-color: var(--el-color-danger-light-5);
     }
 
-    .el-input {
+    .el-input,
+    .el-textarea {
         --el-input-text-color: var(--text-primary);
         --el-input-border: var(--border-color7);
         --el-input-border-color: var(--border-color7);
@@ -135,6 +137,10 @@
 
         .cell {
             text-align: center;
+        }
+
+        thead.is-group th.el-table__cell {
+            background: var(--bg-table-thead);
         }
 
         .el-table__body tr.el-table__row.active {

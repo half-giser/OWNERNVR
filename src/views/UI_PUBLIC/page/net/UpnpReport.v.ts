@@ -3,7 +3,7 @@
  * @Date: 2024-07-12 10:52:55
  * @Description: UPnP上报
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 17:10:51
+ * @LastEditTime: 2024-07-15 10:29:32
  */
 import { type FormInstance, type FormRules } from 'element-plus'
 import { nameByteMaxLen } from '@/utils/constants'
@@ -62,7 +62,7 @@ export default defineComponent({
          */
         const setData = () => {
             // TODO 在未启用、serverAddr和manId为空的情况下点击确认，会返回fail无效参数（原项目也存在这个问题）
-            formRef.value!.validate(async (valid) => {
+            formRef.value!.validate(async (valid: boolean) => {
                 if (!valid) {
                     return
                 }

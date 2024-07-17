@@ -131,6 +131,7 @@
 
 #layoutMain {
     height: 100vh;
+    background-color: var(--page-bg);
 }
 
 #layoutMainHeader {
