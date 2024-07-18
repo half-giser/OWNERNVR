@@ -8,7 +8,7 @@
 
 import CanvasBase from './canvasBase'
 
-interface CanvasMaskMaskItem {
+export interface CanvasMaskMaskItem {
     X: number
     Y: number
     width: number
@@ -17,10 +17,10 @@ interface CanvasMaskMaskItem {
 
 interface CanvasMaskOption {
     el: HTMLCanvasElement
-    maxCount: number
-    fillStyle: string | CanvasGradient | CanvasPattern
-    maskList: CanvasMaskMaskItem[]
-    enable: boolean
+    maxCount?: number
+    fillStyle?: string | CanvasGradient | CanvasPattern
+    maskList?: CanvasMaskMaskItem[]
+    enable?: boolean
     onchange: (maskList: CanvasMaskMaskItem[]) => void
 }
 
@@ -29,6 +29,7 @@ export default class CanvasMask {
     private readonly DEFAULT_MAX = 4 // 绘制最大数量
     private readonly RELATIVE_WIDTH = 640 // 万分比宽度
     private readonly RELATIVE_HEIGHT = 480 // 万分比高度
+    private readonly DEFAULT_ENABLE = false
     private readonly ctx: CanvasBase
     private readonly canvas: HTMLCanvasElement
     private readonly cavWidth: number
@@ -44,7 +45,7 @@ export default class CanvasMask {
         this.maxCount = option.maxCount || this.DEFAULT_MAX
         this.fillStyle = option.fillStyle || this.DEFAULT_COLOR
         this.maskList = option.maskList || []
-        this.enable = option.enable
+        this.enable = option.enable || this.DEFAULT_ENABLE
         this.onchange = option.onchange
         this.ctx = new CanvasBase(option.el)
         this.canvas = this.ctx.getCanvas()
