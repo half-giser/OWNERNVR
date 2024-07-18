@@ -9,6 +9,7 @@
             v-for="moduleItem in configModules"
             :key="moduleItem.meta.fullPath"
             :class="['moduleItem', moduleItem.meta.plClass]"
+            @click="toDefault(moduleItem)"
         >
             <BaseImgSprite
                 :file="moduleItem.meta.icon"
@@ -17,17 +18,14 @@
             />
             <div class="menuContent">
                 <div class="mainMenu">
-                    <span
-                        @click="toDefault(moduleItem)"
-                        v-text="Translate(moduleItem.meta.lk)"
-                    ></span>
+                    <span v-text="Translate(moduleItem.meta.lk || '')"></span>
                 </div>
                 <div class="subMenus">
                     <span
                         v-for="subMenu in moduleItem.children"
                         :key="subMenu.meta.fullPath"
-                        @click="router.push(subMenu.meta.fullPath)"
-                        v-text="Translate(subMenu.meta.lk)"
+                        @click.stop="router.push(subMenu.meta.fullPath)"
+                        v-text="Translate(subMenu.meta.lk || '')"
                     ></span>
                 </div>
             </div>

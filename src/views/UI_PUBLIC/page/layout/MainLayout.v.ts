@@ -6,9 +6,10 @@
  * @LastEditTime: 2024-07-12 16:02:45
  */
 
-import { type RouteRecordRaw, type RouteLocationMatched } from 'vue-router'
+import { type RouteLocationMatched } from 'vue-router'
 import BaseChangePwdPop from '../../components/BaseChangePwdPop.vue'
 import { APP_TYPE } from '@/utils/constants'
+import { menu1Item, menu1Items as allMenu1Items, getMenu1 } from '@/router'
 
 export default defineComponent({
     components: {
@@ -18,7 +19,6 @@ export default defineComponent({
         const route = useRoute()
         const router = useRouter()
         const menu = useMenuStore()
-        const routeStore = useRouteStore()
         const userSession = useUserSessionStore()
         const systemCaps = useCababilityStore()
         const { openMessageTipBox } = useMessageBox()
@@ -56,15 +56,15 @@ export default defineComponent({
         }
 
         // 是否是焦点菜单
-        const isMenu1Active = (menu1: RouteRecordRaw) => {
-            const routeMenu1 = routeStore.getMenu1(route) as RouteLocationMatched
+        const isMenu1Active = (menu1: RouteRecordRawExtends) => {
+            const routeMenu1 = getMenu1(route) as RouteLocationMatched
             return (menu1.name === 'functionPanel' && routeMenu1.name === 'config') || ((menu1 && menu1.meta && routeMenu1.meta.fullPath === menu1.meta.fullPath) as boolean)
         }
 
         // 二级菜单列表（已过滤）
         const menu1Items = computed(() => {
-            const routeArr: RouteRecordRaw[] = []
-            routeStore.menu1Items.forEach((v) => {
+            const routeArr: RouteRecordRawExtends[] = []
+            allMenu1Items.value.forEach((v) => {
                 //根据能力集过滤
                 routeArr.push(v)
             })
@@ -277,10 +277,6 @@ export default defineComponent({
             const authInfo = userSession.getAuthInfo()
             if (authInfo) return authInfo[0]
             return ''
-        })
-
-        const menu1Item = computed(() => {
-            return routeStore.menu1Item
         })
 
         onMounted(async () => {

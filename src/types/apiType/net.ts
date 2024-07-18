@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 14:47:05
  * @Description: 网络
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 11:05:19
+ * @LastEditTime: 2024-07-16 18:12:49
  */
 
 /**
@@ -133,4 +133,60 @@ export class NetUPnPReportForm {
     serverAddr = ''
     port = 0
     manId = ''
+}
+
+export class NetHTTPSPrivateCertForm {
+    countryName = ''
+    commonName = ''
+    stateOrProvinceName = ''
+    localityName = ''
+    organizationName = ''
+    organizationalUnitName = ''
+    email = ''
+    validityPeriod = 0
+    password = ''
+}
+
+export class NetHTTPSCertPasswordForm {
+    password = ''
+    encryption = 'unencrypted'
+}
+
+export class NetFTPForm {
+    switch = false
+    serverAddr = ''
+    port = 0
+    userName = ''
+    anonymousSwitch = false
+    maxSize = 0
+    path = ''
+    disNetUpLoad = false
+    password = ''
+}
+
+export class NetFTPList {
+    id = ''
+    chlNum = ''
+    name = ''
+    streamType = ''
+    schedule = ''
+    motion = ''
+    inteligence = ''
+    sensor = ''
+    ftpSnapSwitch = 'false'
+    ftpAlarmInfoSwitch = 'false'
+}
+
+export class NetSNMPForm {
+    snmpv1Switch = false
+    snmpv2Switch = false
+    snmpPort = 0
+    readCommunity = ''
+    writeCommunity = ''
+    trapPort = 0
+    trapAddress = ''
+}
+
+export class NetCloudUpgradeForm {
+    upgradeType = 'close'
 }

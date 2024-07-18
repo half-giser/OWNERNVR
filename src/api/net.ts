@@ -3,7 +3,7 @@
  * @Date: 2024-06-11 20:22:27
  * @Description:
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 10:41:22
+ * @LastEditTime: 2024-07-16 19:33:53
  */
 import http, { getXmlWrapData } from './api'
 
@@ -138,8 +138,123 @@ export const query802xCfg = () => http.fetch('query802xCfg', getXmlWrapData(''))
  */
 export const edit802xCfg = (data: string) => http.fetch('edit802xCfg', getXmlWrapData(data))
 
+/**
+ * @description 获取云更新配置
+ * @returns
+ */
 export const queryCloudUpgradeCfg = () => http.fetch('queryCloudUpgradeCfg', getXmlWrapData(''))
 
+/**
+ * @description 获取云更新下载状态
+ * @returns
+ */
+export const getPackageDownloadStatus = () => http.fetch('getPackageDownloadStatus', getXmlWrapData(''))
+
+/**
+ * @description 编辑云更新配置
+ * @returns
+ */
+export const editCloudUpgradeCfg = (data: string) => http.fetch('editCloudUpgradeCfg', getXmlWrapData(data))
+
+/**
+ * @description 检查版本
+ * @returns
+ */
+export const checkVersion = (data: string) => http.fetch('checkVersion', getXmlWrapData(data))
+
+/**
+ * @description 检查版本
+ * @returns
+ */
+export const cloudUpgrade = (data: string) => http.fetch('cloudUpgrade', getXmlWrapData(data))
+
+/**
+ * @description 获取P2P配置
+ * @returns
+ */
 export const queryP2PCfg = () => http.fetch('queryP2PCfg', getXmlWrapData(''))
 
+/**
+ * @description 更新P2P配置
+ * @param {stirng} data
+ * @returns
+ */
 export const editP2PCfg = (data: string) => http.fetch('editP2PCfg', getXmlWrapData(data))
+
+/**
+ * @description 获取证书配置
+ * @returns
+ */
+export const queryCert = () => http.fetch('queryCert', getXmlWrapData(''))
+
+/**
+ * @description 删除证书
+ * @returns
+ */
+export const delCert = () => http.fetch('delCert', getXmlWrapData(''))
+
+/**
+ * @description 创建证书
+ * @param {string} data
+ * @returns
+ */
+export const createCert = (data: string) => http.fetch('createCert', getXmlWrapData(data))
+
+/**
+ * @description 获取证书请求
+ * @returns
+ */
+export const queryCertReq = () => http.fetch('queryCertReq', getXmlWrapData(''))
+
+/**
+ * @description 删除证书请求
+ * @returns
+ */
+export const delCertReq = () => http.fetch('delCertReq', getXmlWrapData(''))
+
+/**
+ * @description 创建证书请求
+ * @param {string} data
+ * @returns
+ */
+export const createCertReq = (data: string) => http.fetch('createCertReq', getXmlWrapData(data))
+
+/**
+ * @description 导入证书
+ * @returns
+ */
+export const importCert = () => http.fetch('importCert', getXmlWrapData(''))
+
+/**
+ * @description 获取FTP配置
+ * @returns
+ */
+export const queryFTPCfg = () => http.fetch('queryFTPCfg', getXmlWrapData(''))
+
+/**
+ * @description 测试FTP配置
+ * @param {string} data
+ * @returns
+ */
+export const testFTPCfg = (data: string) => http.fetch('testFTPCfg', getXmlWrapData(data))
+
+/**
+ * @description 更新FTP配置
+ * @param {string} data
+ * @returns
+ */
+export const editFTPCfg = (data: string) => http.fetch('editFTPCfg', getXmlWrapData(data))
+
+/**
+ * @description 获取SNMP配置
+ * @param
+ * @returns
+ */
+export const querySNMPCfg = () => http.fetch('querySNMPCfg', getXmlWrapData(''))
+
+/**
+ * @description 更新SNMP配置
+ * @param {string} data
+ * @returns
+ */
+export const editSNMPCfg = (data: string) => http.fetch('editSNMPCfg', getXmlWrapData(data))
