@@ -246,6 +246,8 @@ declare module 'vue' {
         BasePasswordStrength: (typeof import('@/views/UI_PUBLIC/components/form/BasePasswordStrength.vue'))['default']
         BaseSensitiveEmailInput: (typeof import('@/views/UI_PUBLIC/components/form/BaseSensitiveEmailInput.vue'))['default']
         BaseSensitiveTextInput: (typeof import('@/views/UI_PUBLIC/components/form/BaseSensitiveTextInput.vue'))['default']
+        BaseScheduleLine: (typeof import('@/components/BaseScheduleLine.vue'))['default']
+        BaseScheduleWeek: (typeof import('@/components/BaseScheduleWeek.vue'))['default']
     }
 }
 
