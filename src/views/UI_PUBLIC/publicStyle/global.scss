@@ -33,6 +33,7 @@
     --text-active: #fff; /* 表格、dropdown、options、tab、menu等被高亮选中时的文本颜色 */
     --text-dialog: #666; /* Dialog、MessageBox、Notification等弹出框的标题颜色 */
     --text-timeline-button: #6e83b3;
+    --table-text-disabled: #888;
 
     // 边框
     --border-color1: #666; /* 主Layout, 以及Dialog、MessageBox、Notification等弹出框的Border颜色 */
@@ -43,6 +44,10 @@
     --border-color6: #ddd;
     --border-color7: #888; /* 输入框、选择器等边框颜色 */
     --border-color8: #ccc; /* 表格、网格边框颜色 */
+    --border-color9: #006400;
+    --border-color10: #808080;
+    --border-color11: #dcdcdc;
+    --border-color12: #626262;
     --border-light: #e9efff;
     --border-dark: #000;
     --border-color-disabled: #aeabab;

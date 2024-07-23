@@ -5,7 +5,6 @@
  */
 
 import BaseVideoPlayer from '@/views/UI_PUBLIC/components/player/BaseVideoPlayer.vue'
-import { DefaultPagerSizeOptions, DefaultPagerLayout } from '@/utils/constants'
 import { type XmlResult } from '@/utils/xmlParse'
 import { ChannelInfoDto, ChannelOsd } from '@/types/apiType/channel'
 import { trim, cloneDeep } from 'lodash'
@@ -152,6 +151,10 @@ export default defineComponent({
                 if (!rowData.supportDateFormat) nameDisabled.value = true
             }
             tableRef.value.setCurrentRow(getRowById(selectedChlId.value))
+        }
+
+        const handleKeydownEnter = (event: any) => {
+            event.target.blur()
         }
 
         const handleChangeSwitch = (flag: boolean, chlId: string, type: 'displayName' | 'displayTime' | 'remarkSwitch') => {
@@ -403,7 +406,7 @@ export default defineComponent({
                         newData.chlIndex = eleXml('chlIndex').text()
                         newData.chlType = eleXml('chlType').text()
                         newData.status = 'loading'
-                        newData.statusInitToolTip = statusToolTip['loading']
+                        newData.statusTip = statusToolTip['loading']
                         rowData.push(newData)
                         nameMapping[rowData[rowData.length - 1].id] = rowData[rowData.length - 1].name
                     })
@@ -433,6 +436,8 @@ export default defineComponent({
                             })
                         })
                     }
+                } else {
+                    selectedChlId.value = ''
                 }
             })
         }
@@ -457,7 +462,7 @@ export default defineComponent({
         const sendData = (rowData: ChannelOsd) => {
             if (!rowData.name) {
                 rowData.status = 'error'
-                rowData.statusInitToolTip = Translate('IDCS_PROMPT_NAME_EMPTY')
+                rowData.statusTip = Translate('IDCS_PROMPT_NAME_EMPTY')
                 checkAllRqReturn()
                 return
             }
@@ -487,7 +492,7 @@ export default defineComponent({
                             }
                             nameMapping[rowData.id] = rowData.name
                             rowData.status = 'success'
-                            rowData.statusInitToolTip = statusToolTip['saveSuccess']
+                            rowData.statusTip = statusToolTip['saveSuccess']
                             if (rowData.chlType == 'recorder') return
 
                             let editIPChlORChlOSDXml = '<types>'
@@ -532,7 +537,7 @@ export default defineComponent({
                                             if (rowData.name == nameMapping[rowData.id]) {
                                                 checkAllRqReturn()
                                                 rowData.status = 'success'
-                                                rowData.statusInitToolTip = statusToolTip['saveSuccess']
+                                                rowData.statusTip = statusToolTip['saveSuccess']
                                             }
                                         } else {
                                             checkAllRqReturn()
@@ -541,7 +546,7 @@ export default defineComponent({
                                                 errorInfo = Translate('resourceNotExist').formatForLang(Translate('IDCS_CHANNEL'))
                                             }
                                             rowData.status = 'error'
-                                            rowData.statusInitToolTip = errorInfo
+                                            rowData.statusTip = errorInfo
                                         }
                                     })
                                     .catch(() => checkAllRqReturn())
@@ -555,7 +560,7 @@ export default defineComponent({
                                 errorInfo = Translate('IDCS_PROMPT_CHANNEL_NAME_EXIST')
                             }
                             rowData.status = 'error'
-                            rowData.statusInitToolTip = errorInfo
+                            rowData.statusTip = errorInfo
                         }
                     })
                     .catch(() => checkAllRqReturn)
@@ -565,7 +570,22 @@ export default defineComponent({
             }
         }
 
-        const setDateTime = () => {}
+        const setDateTime = () => {
+            let timeFormat = ''
+            let dateFormat = ''
+            tableData.value.forEach((ele) => {
+                if (ele.timeFormat) timeFormat = ele.timeFormat
+                if (ele.dateFormat) dateFormat = ele.dateFormat
+            })
+            const data = `
+                <content>
+                    <formatInfo>
+                        <date type='dateFormat'>${dateFormat}</date>
+                        <time type='timeFormat'>${timeFormat}</time>
+                    </formatInfo>
+                </content>`
+            editTimeCfg(getXmlWrapData(data))
+        }
 
         const save = () => {
             setData()
@@ -573,19 +593,11 @@ export default defineComponent({
         }
 
         const onReady = () => {
-            if (!Plugin.IsSupportH5() && !Plugin.IsInstallPlugin()) {
-                // todo
-                return
-            }
             if (!Plugin.IsSupportH5() && !Plugin.IsPluginAvailable()) {
                 pluginStore.showPluginNoResponse = true
                 Plugin.ShowPluginNoResponse()
             }
             if (!Plugin.IsSupportH5()) Plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
-            formData.value.remarkDisabled = false
-            formData.value.supportTimeFormat = true
-            formData.value.supportDateFormat = true
-            getDataList()
 
             if (playerRef.value?.mode === 'h5') {
                 osdDrawer = new CanvasOSD({
@@ -602,6 +614,7 @@ export default defineComponent({
                     playerRef.value?.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 }
             }
+            play()
         }
 
         const onTime = (winIndex: number, data: TVTPlayerWinDataListItem, timeStamp: number) => {
@@ -729,7 +742,21 @@ export default defineComponent({
 
         watch(selectedChlId, play)
 
-        onMounted(() => {})
+        onMounted(() => {
+            Plugin.SetPluginNotice('#layout2Content')
+            formData.value.remarkDisabled = false
+            formData.value.supportTimeFormat = true
+            formData.value.supportDateFormat = true
+            getDataList()
+        })
+
+        onBeforeUnmount(() => {
+            if (playerRef.value?.mode === 'ocx') {
+                Plugin.VideoPluginNotifyEmitter.removeListener(LiveNotify2Js)
+                const sendXML = OCX_XML_StopPreview('ALL')
+                playerRef.value?.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+            }
+        })
 
         return {
             playerRef,
@@ -761,6 +788,7 @@ export default defineComponent({
             handleRemarkNoteInput,
             handleRemarkNoteBlur,
             handleInputChange,
+            handleKeydownEnter,
             save,
             onReady,
             onTime,

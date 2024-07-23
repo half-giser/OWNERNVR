@@ -25,8 +25,8 @@
                         :class="{ 'is-active': isMenu2Actice(menu2) }"
                     >
                         <span
-                            :title="Translate(menu2.meta.lk)"
-                            v-text="Translate(menu2.meta.lk)"
+                            :title="Translate(menu2.meta.lk || '')"
+                            v-text="Translate(menu2.meta.lk || '')"
                         ></span>
                         <span class="menu-split"></span>
                     </el-menu-item>
@@ -37,8 +37,8 @@
                         :class="{ 'is-active': isMenu2Actice(menu2) }"
                     >
                         <span
-                            :title="Translate(menu2.meta.lk)"
-                            v-text="Translate(menu2.meta.lk)"
+                            :title="Translate(menu2.meta.lk || '')"
+                            v-text="Translate(menu2.meta.lk || '')"
                         ></span>
                         <span class="menu-split"></span>
                     </el-menu-item>

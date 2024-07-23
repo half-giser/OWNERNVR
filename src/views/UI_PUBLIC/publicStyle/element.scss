@@ -24,7 +24,8 @@
     .el-popper,
     .el-dialog,
     .el-message-box,
-    .el-loading-spinner {
+    .el-loading-spinner,
+    .el-textarea {
         --el-color-primary: var(--primary--04);
         --el-color-primary-light-3: var(--primary--03);
     }
@@ -76,7 +77,8 @@
         --el-button-disabled-border-color: var(--el-color-danger-light-5);
     }
 
-    .el-input {
+    .el-input,
+    .el-textarea {
         --el-input-text-color: var(--text-primary);
         --el-input-border: var(--border-color7);
         --el-input-border-color: var(--border-color7);
@@ -132,9 +134,14 @@
         --el-table-header-bg-color: var(--bg-table-thead);
         --el-table-header-text-color: var(--text-primary);
         --el-table-text-color: var(--text-primary);
+        --el-table-current-row-bg-color: var(--primary--04);
 
         .cell {
             text-align: center;
+        }
+
+        thead.is-group th.el-table__cell {
+            background: var(--bg-table-thead);
         }
 
         .el-table__body tr.el-table__row.active {
@@ -146,6 +153,29 @@
         .el-table-column--selection {
             .cell {
                 justify-content: center;
+            }
+        }
+        .el-table__row {
+            &.disabled {
+                color: var(--table-text-disabled);
+                .el-table__expand-icon {
+                    color: var(--table-text-disabled);
+                }
+            }
+            &.current-row {
+                color: var(--color-white);
+                &:hover {
+                    .el-table__cell {
+                        background-color: var(--primary--04);
+                    }
+                }
+            }
+            &.el-table__row--striped {
+                &.current-row {
+                    .el-table__cell {
+                        background-color: var(--primary--04);
+                    }
+                }
             }
         }
     }
@@ -261,5 +291,9 @@
                 color: var(--primary--04);
             }
         }
+    }
+    
+    .el-row {
+        align-items: center;
     }
 }
