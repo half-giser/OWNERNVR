@@ -134,6 +134,7 @@
         --el-table-header-bg-color: var(--bg-table-thead);
         --el-table-header-text-color: var(--text-primary);
         --el-table-text-color: var(--text-primary);
+        --el-table-current-row-bg-color: var(--primary--04);
 
         .cell {
             text-align: center;
@@ -152,6 +153,29 @@
         .el-table-column--selection {
             .cell {
                 justify-content: center;
+            }
+        }
+        .el-table__row {
+            &.disabled {
+                color: var(--table-text-disabled);
+                .el-table__expand-icon {
+                    color: var(--table-text-disabled);
+                }
+            }
+            &.current-row {
+                color: var(--color-white);
+                &:hover {
+                    .el-table__cell {
+                        background-color: var(--primary--04);
+                    }
+                }
+            }
+            &.el-table__row--striped {
+                &.current-row {
+                    .el-table__cell {
+                        background-color: var(--primary--04);
+                    }
+                }
             }
         }
     }
@@ -267,5 +291,9 @@
                 color: var(--primary--04);
             }
         }
+    }
+    
+    .el-row {
+        align-items: center;
     }
 }
