@@ -107,6 +107,7 @@
                     show-overflow-tooltip
                     empty-text=" "
                     highlight-current-row
+                    :row-class-name="(data) => (data.row.disabled ? 'disabled' : '')"
                     @row-click="handleRowClick"
                 >
                     <el-table-column
@@ -118,21 +119,21 @@
                             <div
                                 v-if="scope.row.status === 'loading'"
                                 class="table_status_col_loading"
-                                :title="scope.row.statusInitToolTip"
+                                :title="scope.row.statusTip"
                             ></div>
                             <BaseImgSprite
                                 v-else-if="scope.row.status === 'success'"
                                 file="success"
                                 :chunk="1"
                                 :index="0"
-                                :title="scope.row.statusInitToolTip"
+                                :title="scope.row.statusTip"
                             />
                             <BaseImgSprite
                                 v-else-if="scope.row.status === 'error'"
                                 file="error"
                                 :chunk="1"
                                 :index="0"
-                                :title="scope.row.statusInitToolTip"
+                                :title="scope.row.statusTip"
                             />
                         </template>
                     </el-table-column>
@@ -149,6 +150,7 @@
                                 @focus="tempName = scope.row.name"
                                 @blur="handleNameBlur(scope.row.id, scope.row.name)"
                                 @change="handleInputChange(scope.row.id)"
+                                @keydown.enter="handleKeydownEnter($event)"
                             />
                         </template>
                     </el-table-column>
@@ -333,6 +335,7 @@
                                 @input="handleRemarkNoteInput(scope.row)"
                                 @blur="handleRemarkNoteBlur(scope.row.remarkNote, scope.row.id)"
                                 @change="handleInputChange(scope.row.id)"
+                                @keydown.enter="handleKeydownEnter($event)"
                             />
                         </template>
                     </el-table-column>

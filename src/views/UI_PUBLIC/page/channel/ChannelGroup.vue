@@ -76,11 +76,12 @@
                 type="expand"
                 min-width="150px"
             >
-                <template #default="props">
+                <template #default="scope">
                     <div class="expandContent">
                         <div
-                            v-for="item in props.row.chls"
+                            v-for="item in scope.row.chls"
                             :key="item.value"
+                            :title="item.text"
                             class="subItem"
                             @mouseover="item.showDelIcon = true"
                             @mouseout="item.showDelIcon = false"
@@ -92,7 +93,7 @@
                                 file="delItem"
                                 :chunk="1"
                                 :index="0"
-                                @click="handleDelChl(props.row, item.value)"
+                                @click="handleDelChl(scope.row, item.value)"
                             />
                         </div>
                         <BaseImgSprite
@@ -100,7 +101,7 @@
                             file="addItem"
                             :chunk="2"
                             :index="0"
-                            @click="handleAddChl(props.row)"
+                            @click="handleAddChl(scope.row)"
                         />
                     </div>
                 </template>

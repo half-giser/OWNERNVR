@@ -115,7 +115,7 @@ export default {
         displaySet: {
             //图像参数配置
             path: 'settings/image',
-            component: 'channel/ChannelOsd.vue',
+            component: 'channel/ChannelImage.vue',
             meta: {
                 sort: 20,
                 lk: 'IDCS_IMAGE_PARAMETER_SETTING',
@@ -127,7 +127,7 @@ export default {
         videoMask: {
             //视频遮挡配置
             path: 'settings/mask',
-            component: 'channel/ChannelOsd.vue',
+            component: 'channel/ChannelMask.vue',
             meta: {
                 sort: 30,
                 lk: 'IDCS_VIDEO_MASK_SETTING',
@@ -177,7 +177,7 @@ export default {
         fishEye: {
             //鱼眼设置
             path: 'settings/fisheye',
-            component: 'channel/ChannelOsd.vue',
+            component: 'channel/ChannelFisheye.vue',
             meta: {
                 sort: 70,
                 lk: 'IDCS_FISHEYE_SET',
