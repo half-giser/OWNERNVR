@@ -3,7 +3,7 @@
  * @Date: 2024-05-30 18:07:24
  * @Description: 基于wasm的单帧图片渲染(串行处理，即一次只处理一张渲染)
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-20 18:24:09
+ * @LastEditTime: 2024-07-09 11:52:40
  */
 import WebGLPlayer from './webglPlayer'
 
@@ -52,7 +52,7 @@ export default class ImageRender {
      * @description 初始化解码线程
      */
     private initDecoder() {
-        this.decodeWorker = new Worker(new URL('@/utils/wasmPlayer/decoder.js', import.meta.url), {
+        this.decodeWorker = new Worker('/workers/decoder.js', {
             type: 'classic',
         })
         this.decodeWorker.onmessage = (e: any) => {

@@ -24,7 +24,8 @@
     .el-popper,
     .el-dialog,
     .el-message-box,
-    .el-loading-spinner {
+    .el-loading-spinner,
+    .el-textarea {
         --el-color-primary: var(--primary--04);
         --el-color-primary-light-3: var(--primary--03);
     }
@@ -32,14 +33,14 @@
     .el-button {
         --el-button-border-color: var(--border-color4);
         --el-button-bg-color: var(--bg-color2);
-        --el-button-text-color: var(--color-white);
-        --el-button-disabled-text-color: var(--color-white);
-        --el-button-disabled-bg-color: var(--bg-color4);
+        --el-button-text-color: var(--text-button);
+        --el-button-disabled-text-color: var(--text-button);
+        --el-button-disabled-bg-color: var(--bg-button-disabled);
         --el-button-disabled-border-color: var(--border-color6);
-        --el-button-hover-text-color: var(--color-white);
+        --el-button-hover-text-color: var(--text-button);
         --el-button-hover-bg-color: var(--bg-color3);
         --el-button-hover-border-color: var(--border-color5);
-        --el-button-active-text-color: var(--color-white);
+        --el-button-active-text-color: var(--text-button);
         --el-button-active-border-color: var(--border-color5);
         --el-button-active-bg-color: var(--bg-color3);
     }
@@ -47,37 +48,38 @@
     .el-button--primary {
         --el-button-border-color: var(--border-color4);
         --el-button-bg-color: var(--bg-color2);
-        --el-button-text-color: var(--color-white);
-        --el-button-disabled-text-color: var(--color-white);
-        --el-button-disabled-bg-color: var(--bg-color4);
+        --el-button-text-color: var(--text-button);
+        --el-button-disabled-text-color: var(--text-button);
+        --el-button-disabled-bg-color: var(--bg-button-disabled);
         --el-button-disabled-border-color: var(--border-color6);
-        --el-button-hover-text-color: var(--color-white);
+        --el-button-hover-text-color: var(--text-button);
         --el-button-hover-bg-color: var(--bg-color3);
         --el-button-hover-border-color: var(--border-color5);
-        --el-button-active-text-color: var(--color-white);
+        --el-button-active-text-color: var(--text-button);
         --el-button-active-border-color: var(--border-color5);
         --el-button-active-bg-color: var(--bg-color3);
     }
 
     .el-button--danger {
-        --el-button-text-color: var(--color-white);
+        --el-button-text-color: var(--text-button);
         --el-button-bg-color: var(--danger--06);
         --el-button-border-color: var(--el-color-danger);
         --el-button-outline-color: var(--el-color-danger-light-5);
         --el-button-active-color: var(--el-color-danger-dark-2);
-        --el-button-hover-text-color: var(--color-white);
+        --el-button-hover-text-color: var(--text-button);
         --el-button-hover-link-text-color: var(--el-color-danger-light-5);
         --el-button-hover-bg-color: var(--danger--05);
         --el-button-hover-border-color: var(--el-color-danger-light-3);
         --el-button-active-bg-color: var(--danger--07);
         --el-button-active-border-color: var(--el-color-danger-dark-2);
-        --el-button-disabled-text-color: var(--color-white);
+        --el-button-disabled-text-color: var(--text-button);
         --el-button-disabled-bg-color: var(--danger--03);
         --el-button-disabled-border-color: var(--el-color-danger-light-5);
     }
 
-    .el-input {
-        --el-input-text-color: var(--text-dark);
+    .el-input,
+    .el-textarea {
+        --el-input-text-color: var(--text-primary);
         --el-input-border: var(--border-color7);
         --el-input-border-color: var(--border-color7);
         --el-input-hover-border: var(--primary--03);
@@ -130,21 +132,60 @@
     .el-table {
         --el-table-border-color: var(--border-color8);
         --el-table-header-bg-color: var(--bg-table-thead);
-        --el-table-header-text-color: var(--text-dark);
-        --el-table-text-color: var(--text-dark);
+        --el-table-header-text-color: var(--text-primary);
+        --el-table-text-color: var(--text-primary);
+        --el-table-current-row-bg-color: var(--primary--04);
+
         .cell {
             text-align: center;
         }
-        .el-table__row.active {
-            --el-table-tr-bg-color: var(--primary--04);
-            --el-fill-color-lighter: var(--primary--04);
-            --el-table-row-hover-bg-color: var(--primary--04);
+
+        thead.is-group th.el-table__cell {
+            background: var(--bg-table-thead);
         }
+
+        .el-table__body tr.el-table__row.active {
+            &>td.el-table__cell {
+                background-color: var(--primary--04);
+            }
+        }
+
         .el-table-column--selection {
             .cell {
                 justify-content: center;
             }
         }
+        .el-table__row {
+            &.disabled {
+                color: var(--table-text-disabled);
+                .el-table__expand-icon {
+                    color: var(--table-text-disabled);
+                }
+            }
+            &.current-row {
+                color: var(--color-white);
+                &:hover {
+                    .el-table__cell {
+                        background-color: var(--primary--04);
+                    }
+                }
+            }
+            &.el-table__row--striped {
+                &.current-row {
+                    .el-table__cell {
+                        background-color: var(--primary--04);
+                    }
+                }
+            }
+        }
+    }
+
+    .el-table--striped .el-table__body tr.el-table__row--striped td.el-table__cell {
+        background: var(--bg-color5);
+    }
+
+    .el-table--enable-row-hover .el-table__body tr:hover>td.el-table__cell {
+        background-color: var(--bg-color-table-hover);
     }
 
     .el-icon {
@@ -228,7 +269,7 @@
     }
 
     .el-form-item__label {
-        color: var(--text-menu-01);
+        color: var(--text-primary);
     }
 
     .el-dropdown {
@@ -250,5 +291,9 @@
                 color: var(--primary--04);
             }
         }
+    }
+    
+    .el-row {
+        align-items: center;
     }
 }

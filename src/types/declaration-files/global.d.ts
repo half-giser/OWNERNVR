@@ -7,7 +7,6 @@
 import type { Action, MessageBoxState } from 'element-plus'
 import type usePlugin from '@/utils/ocx/ocxPlugin'
 import type TVTPlayer from '@/utils/wasmPlayer/tvtPlayer'
-// import dayjs from 'dayjs'
 
 export {}
 
@@ -236,6 +235,19 @@ declare global {
 declare module 'vue' {
     interface ComponentCustomProperties {
         Translate: (key: string) => string
+    }
+
+    interface GlobalComponents {
+        BaseImgSprite: (typeof import('@/views/UI_PUBLIC/components/sprite/BaseImgSprite.vue'))['default']
+        BaseVideoPlayer: (typeof import('@/views/UI_PUBLIC/components/player/BaseVideoPlayer.vue'))['default']
+        BasePluginPlayer: (typeof import('@/views/UI_PUBLIC/components/ocx/BasePluginPlayer.vue'))['default']
+        BaseIpInput: (typeof import('@/views/UI_PUBLIC/components/form/BaseIpInput.vue'))['default']
+        BaseMacInput: (typeof import('@/views/UI_PUBLIC/components/form/BaseMacInput.vue'))['default']
+        BasePasswordStrength: (typeof import('@/views/UI_PUBLIC/components/form/BasePasswordStrength.vue'))['default']
+        BaseSensitiveEmailInput: (typeof import('@/views/UI_PUBLIC/components/form/BaseSensitiveEmailInput.vue'))['default']
+        BaseSensitiveTextInput: (typeof import('@/views/UI_PUBLIC/components/form/BaseSensitiveTextInput.vue'))['default']
+        BaseScheduleLine: (typeof import('@/components/BaseScheduleLine.vue'))['default']
+        BaseScheduleWeek: (typeof import('@/components/BaseScheduleWeek.vue'))['default']
     }
 }
 

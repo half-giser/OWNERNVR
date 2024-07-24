@@ -16,28 +16,38 @@
     --primary--05: #0092b3;
 
     // 文本
-    --text-disabled: #c0c4cc;
-    --text-placeholder: #a8abb2;
+    --text-primary: #000; /* 文本主题色 */
+    --text-disabled: #888; /* 输入框、表格等禁用状态时的文本颜色 */
+    --text-placeholder: #a8abb2; /* placeholder颜色 */
     --text-secondary: #909399;
-    --text-menu-01: #666;
+    --text-menu-01: #666; /* 顶部菜单栏文本颜色 */
     --text-menu-02: #555;
     --text-menu-03: #8d8d8d;
     --text-menu-04: #3c3c3c;
-    --text-menu-05: #8f8f8f;
-    --text-nav: #454545;
-    --text-primary: #333;
+    --text-menu-05: #8f8f8f; /* 功能面板 子菜单的文本颜色 */
+    --text-nav: #454545; /* 面包屑颜色 */
     --text-light: #676767;
     --text-dark: #000;
+    --text-button: #fff; /* 按钮文本颜色 */
+    --text-button-disabled: #fff; /* 按钮禁用时的文本颜色 */
+    --text-active: #fff; /* 表格、dropdown、options、tab、menu等被高亮选中时的文本颜色 */
+    --text-dialog: #666; /* Dialog、MessageBox、Notification等弹出框的标题颜色 */
+    --text-timeline-button: #6e83b3;
+    --table-text-disabled: #888;
 
     // 边框
-    --border-color1: #666;
-    --border-color2: #999;
-    --border-color3: #aeaeae;
-    --border-color4: #8f8f8f;
+    --border-color1: #666; /* 主Layout, 以及Dialog、MessageBox、Notification等弹出框的Border颜色 */
+    --border-color2: #999; /* 页面上主要线框的颜色 */
+    --border-color3: #aeaeae; /* 功能面板 菜单的线框颜色 */
+    --border-color4: #8f8f8f; /* 按钮边框颜色 */
     --border-color5: #aaa;
     --border-color6: #ddd;
-    --border-color7: #888;
-    --border-color8: #ccc;
+    --border-color7: #888; /* 输入框、选择器等边框颜色 */
+    --border-color8: #ccc; /* 表格、网格边框颜色 */
+    --border-color9: #006400;
+    --border-color10: #808080;
+    --border-color11: #dcdcdc;
+    --border-color12: #626262;
     --border-light: #e9efff;
     --border-dark: #000;
     --border-color-disabled: #aeabab;
@@ -46,17 +56,19 @@
     --page-bg: #fff;
 
     // 背景色
-    --bg-color: #fff;
-    --bg-color2: #8f8f8f;
-    --bg-color3: #aaa;
-    --bg-color4: #ccc;
-    --bg-color5: #eee;
+    --bg-color: #fff; /* Dialog、MessageBox、Notification等弹出框的背景色 */
+    --bg-color2: #8f8f8f; /* 按钮背景色 */
+    --bg-color3: #aaa; /* 按钮hover的背景色 */
+    --bg-color4: #ccc; /* 子标题背景色 */
+    --bg-color5: #eee; /* 斑马线背景色（表单、表格） */
     --bg-color6: #787878;
     --bg-color-opacity1: rgba(255, 255, 255, 0.3);
     --bg-color-cfg-menu-active: #eee;
-    --bg-table: #f5f7fa;
-    --bg-table-thead: #e5e5e5;
-    --bg-color-disabled: #f0f0f0;
+    --bg-table: #f0f0f0; /* 表格行背景色 */
+    --bg-table-thead: #e5e5e5; /* 表格头背景色 */
+    --bg-button-disabled: #ccc; /* 按钮禁用的背景色 */
+    --bg-color-disabled: #f0f0f0; /*  */
+    --bg-color-table-hover: #f7f7f7; /* 表格行hover背景色 */
 
     // 表格分割线
     --table-split: #ebeef5;
@@ -91,18 +103,23 @@
     --color-offline: red;
 
     // UI主题sprite图标
-    --sprite: url('@/views/UI_PUBLIC/publicStyle/img/sprite.png');
+    // --sprite: url('@/views/UI_PUBLIC/publicStyle/img/sprite.png');
 
     // 登录界面客户定制图标
     --login-content: url('/LoginContent.png');
     --logo: url('/appName.png');
 
-    --scrollbar-track-bg: #f7f7f7;
-    --scrollbar-track-border: #efefef;
-    --scrollbar-thumb-bg: #e6e6e6;
-    --scrollbar-thumb-border: #e0e0e0;
-    --scrollbar-thumb-bg-hover: #d9d9d9;
-    --scrollbar-thumb-bg-active: #c2c2c2
+    // 滚动条
+    --scrollbar-track-bg: #f7f7f7; /* 滚动条轨道背景色 */
+    --scrollbar-track-border: #efefef; /* 滚动条轨道边框色 */
+    --scrollbar-thumb-bg: #e6e6e6; /* 滚动条thumb背景色 */
+    --scrollbar-thumb-border: #e0e0e0; /* 滚动条thumb边框色 */
+    --scrollbar-thumb-bg-hover: #d9d9d9; /* 滚动条thumb hover背景色 */
+    --scrollbar-thumb-bg-active: #c2c2c2; /* 滚动条thumb active背景色 */
+
+    --content-height: calc(100vh - 241px); /* 正文内容高度 */
+    --form-label-width: 150px; /* 表单label宽度变量 */
+    --form-input-width: 100%; /* 表单所有输入框宽度变量 */
 }
 
 @media (prefers-color-scheme: dark) {

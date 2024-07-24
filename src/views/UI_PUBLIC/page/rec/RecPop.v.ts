@@ -3,11 +3,13 @@
  * @Date: 2024-07-04 11:34:22
  * @Description: 回放弹窗（OCX+H5）
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-08 20:03:41
+ * @LastEditTime: 2024-07-11 19:57:04
  */
 import { type RecPlayList } from '@/types/apiType/rec'
 import BaseVideoPlayer from '../../components/player/BaseVideoPlayer.vue'
 import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
+import BaseListBox from '../../components/display/BaseListBox.vue'
+import BaseListBoxItem from '../../components/display/BaseListBoxItem.vue'
 import dayjs from 'dayjs'
 import { type TVTPlayerWinDataListItem } from '@/utils/wasmPlayer/tvtPlayer'
 import { type XmlResult } from '@/utils/xmlParse'
@@ -16,6 +18,8 @@ export default defineComponent({
     components: {
         BaseVideoPlayer,
         BaseImgSprite,
+        BaseListBox,
+        BaseListBoxItem,
     },
     props: {
         playList: {
@@ -448,6 +452,8 @@ export default defineComponent({
             handleSliderMouseUp,
             BaseVideoPlayer,
             BaseImgSprite,
+            BaseListBox,
+            BaseListBoxItem,
         }
     },
 })

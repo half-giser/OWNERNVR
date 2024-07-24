@@ -2,8 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-05 13:35:57
  * @Description: 多分屏WASM播放器控件
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 10:33:08
+ * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2024-07-18 10:46:32
 -->
 <template>
     <div
@@ -37,7 +37,7 @@
         >
             <!-- 视频丢失提示层
                 （VideoLossLogo.png存在时显示videoloss-wrap：Logo+错误码，
-                否则只显示error-tips-info：错误码） 
+                否则只显示error-tips-info：错误码）
             -->
             <div
                 v-if="isVideoLossWrap"
@@ -1633,6 +1633,7 @@ defineExpose({
             width: calc(100% - 2px);
             height: calc(100% - 2px);
             border: 1px solid #343434;
+            pointer-events: none;
         }
         // border: 1px solid #343434;
 

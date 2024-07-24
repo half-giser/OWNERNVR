@@ -3,14 +3,15 @@
  * @Date: 2024-06-18 18:42:24
  * @Description: 在线用户
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 20:11:17
+ * @LastEditTime: 2024-07-11 18:07:39
 -->
 <template>
-    <div class="OnlineUser">
+    <div class="base-flex-box">
         <el-table
             :data="tableData"
             border
             stripe
+            height="100%"
         >
             <el-table-column
                 prop="userName"
@@ -66,13 +67,3 @@
 </template>
 
 <script lang="ts" src="./OnlineUser.v.ts"></script>
-
-<style lang="scss" scoped>
-.OnlineUser {
-    height: 100%;
-
-    :deep(.el-table) {
-        height: 100%;
-    }
-}
-</style>

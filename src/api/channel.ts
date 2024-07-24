@@ -71,3 +71,17 @@ export const editIPChlORChlOSD = (data: string, config?: AxiosRequestConfig) => 
 export const queryChlWaterMark = (data: string, config?: AxiosRequestConfig) => http.fetch('queryChlWaterMark', data, config)
 // 编辑通道水印配置
 export const editChlWaterMark = (data: string, config?: AxiosRequestConfig) => http.fetch('editChlWaterMark', data, config)
+// 查询通道视频参数
+export const queryChlVideoParam = (data: string, config?: AxiosRequestConfig) => http.fetch('queryChlVideoParam', data, config)
+// 编辑通道视频参数
+export const editChlVideoParam = (data: string, config?: AxiosRequestConfig) => http.fetch('editChlVideoParam', data, config)
+// 查询通道镜头控制参数
+export const queryCameraLensCtrlParam = (data: string, config?: AxiosRequestConfig) => http.fetch('queryCameraLensCtrlParam', data, config)
+// 编辑通道镜头控制参数
+export const editCameraLensCtrlParam = (data: string, config?: AxiosRequestConfig) => http.fetch('editCameraLensCtrlParam', data, config)
+// 下发镜头控制命令
+export const cameraLensCtrlCall = (data: string, config?: AxiosRequestConfig) => http.fetch('cameraLensCtrlCall', data, config)
+// 查询通道遮挡配置
+export const queryPrivacyMask = (data: string, config?: AxiosRequestConfig) => http.fetch('queryPrivacyMask', data, config)
+// 编辑通道遮挡配置
+export const editPrivacyMask = (data: string, config?: AxiosRequestConfig) => http.fetch('editPrivacyMask', data, config)

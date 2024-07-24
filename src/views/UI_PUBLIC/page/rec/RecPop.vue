@@ -3,7 +3,7 @@
  * @Date: 2024-07-04 11:34:14
  * @Description: 回放弹窗（OCX+H5）
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 11:35:43
+ * @LastEditTime: 2024-07-12 14:33:29
 -->
 <template>
     <el-dialog
@@ -15,25 +15,24 @@
     >
         <div class="RecordPop">
             <div class="main">
-                <div
+                <BaseListBox
                     v-show="playList.length > 1"
                     class="chl"
+                    border
                 >
-                    <ul>
-                        <li
-                            v-for="(listItem, index) in playList"
-                            :key="index"
-                            @click="changeChannel(index)"
-                        >
-                            <BaseImgSprite
-                                file="chl_icon"
-                                :index="index === pageData.chlIndex ? 1 : 0"
-                                :chunk="4"
-                            />
-                            <span>{{ listItem.chlName }}</span>
-                        </li>
-                    </ul>
-                </div>
+                    <BaseListBoxItem
+                        v-for="(listItem, index) in playList"
+                        :key="index"
+                        @click="changeChannel(index)"
+                    >
+                        <BaseImgSprite
+                            file="chl_icon"
+                            :index="index === pageData.chlIndex ? 1 : 0"
+                            :chunk="4"
+                        />
+                        <span>{{ listItem.chlName }}</span>
+                    </BaseListBoxItem>
+                </BaseListBox>
                 <div class="player">
                     <BaseVideoPlayer
                         v-if="pageData.mounted"
@@ -70,7 +69,8 @@
                         file="image_preview_pause"
                         :index="0"
                         :hover-index="1"
-                        :disabled-index="pageData.iconDisabled ? 3 : -1"
+                        :disabled-index="3"
+                        :disabled="pageData.iconDisabled"
                         :chunk="4"
                         @click="pause"
                     />
@@ -82,7 +82,8 @@
                         file="image_preview_play"
                         :index="0"
                         :hover-index="1"
-                        :disabled-index="pageData.iconDisabled ? 3 : -1"
+                        :disabled-index="3"
+                        :disabled="pageData.iconDisabled"
                         :chunk="4"
                         @click="play"
                     />
@@ -93,7 +94,8 @@
                         class="btn"
                         :index="0"
                         :hover-index="1"
-                        :disabled-index="pageData.iconDisabled ? 3 : -1"
+                        :disabled-index="3"
+                        :disabled="pageData.iconDisabled"
                         :chunk="4"
                         @click="stop"
                     />
@@ -126,35 +128,7 @@
     .chl {
         width: 230px;
         height: 350px;
-        overflow-y: auto;
         border: 1px solid var(--border-color8);
-
-        ul {
-            margin: 0;
-            padding: 0;
-        }
-
-        li {
-            list-style: none;
-            padding: 5px;
-            border: 1px solid transparent;
-            cursor: pointer;
-            font-size: 13px;
-
-            span:last-child {
-                margin-left: 10px;
-            }
-
-            &:hover,
-            &.active {
-                border-color: var(--primary--04);
-            }
-
-            &.active {
-                background-color: var(--primary--04);
-                color: white;
-            }
-        }
     }
 
     .player {

@@ -3,7 +3,7 @@
  * @Date: 2024-06-17 20:25:35
  * @Description: 编辑权限组弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 19:33:39
+ * @LastEditTime: 2024-07-12 14:11:31
 -->
 <template>
     <el-dialog
@@ -15,9 +15,11 @@
     >
         <div class="PermGroupEdit">
             <el-form
-                class="form"
                 label-position="left"
                 :model="formData"
+                :style="{
+                    '--form-input-width': '340px',
+                }"
                 hide-required-asterisk
                 inline-message
             >
@@ -95,21 +97,21 @@
                                             <el-dropdown-menu>
                                                 <el-dropdown-item
                                                     v-for="opt in pageData.channelOption"
-                                                    :key="opt.name"
-                                                    @click="changeAllChannelAuth(item.name, opt.value)"
+                                                    :key="opt.value"
+                                                    @click="changeAllChannelAuth(item.value, opt.value)"
                                                 >
-                                                    {{ Translate(opt.name) }}
+                                                    {{ Translate(opt.label) }}
                                                 </el-dropdown-item>
                                             </el-dropdown-menu>
                                         </template>
                                     </el-dropdown>
                                 </template>
                                 <template #default="{ $index }">
-                                    <el-select v-model="channelAuthList[$index][item.name]">
+                                    <el-select v-model="channelAuthList[$index][item.value]">
                                         <el-option
                                             v-for="value in pageData.channelOption"
-                                            :key="value.name"
-                                            :label="Translate(value.name)"
+                                            :key="value.value"
+                                            :label="Translate(value.label)"
                                             :value="value.value"
                                         />
                                     </el-select>
@@ -152,21 +154,21 @@
                                             <el-dropdown-menu>
                                                 <el-dropdown-item
                                                     v-for="opt in pageData.channelOption"
-                                                    :key="opt.name"
-                                                    @click="changeAllChannelAuth(item.name, opt.value)"
+                                                    :key="opt.value"
+                                                    @click="changeAllChannelAuth(item.value, opt.value)"
                                                 >
-                                                    {{ Translate(opt.name) }}
+                                                    {{ Translate(opt.label) }}
                                                 </el-dropdown-item>
                                             </el-dropdown-menu>
                                         </template>
                                     </el-dropdown>
                                 </template>
                                 <template #default="{ $index }">
-                                    <el-select v-model="channelAuthList[$index][item.name]">
+                                    <el-select v-model="channelAuthList[$index][item.value]">
                                         <el-option
                                             v-for="value in pageData.channelOption"
-                                            :key="value.name"
-                                            :label="Translate(value.name)"
+                                            :key="value.value"
+                                            :label="Translate(value.label)"
                                             :value="value.value"
                                         />
                                     </el-select>
@@ -202,22 +204,6 @@
 
 <style lang="scss" scoped>
 .PermGroupEdit {
-    .form {
-        :deep(.el-form-item) {
-            margin-bottom: 0;
-            padding: 10px 0 10px 15px;
-        }
-
-        :deep(.el-form-item__content) {
-            flex-wrap: nowrap;
-        }
-
-        .el-input {
-            width: 340px;
-            flex-shrink: 0;
-        }
-    }
-
     .system {
         display: flex;
         width: 100%;
@@ -309,20 +295,6 @@
                     opacity: 1;
                     pointer-events: unset;
                 }
-            }
-        }
-    }
-
-    .footer {
-        // margin-top: 7px;
-        width: 100%;
-        display: flex;
-        justify-content: space-between;
-
-        & > div {
-            &:last-child {
-                display: flex;
-                justify-content: flex-end;
             }
         }
     }

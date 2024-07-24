@@ -1,13 +1,7 @@
-/*
- * @Author: yejiahao yejiahao@tvt.net.cn
- * @Date: 2024-06-03 11:27:10
- * @Description:
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-03 11:29:03
- */
-let ws: WebSocket | null
+/* eslint-disable */
+var ws = null
 
-function setWebsocket(url: string, cmdJSON: any) {
+function setWebsocket(url, cmdJSON) {
     ws = new WebSocket(url)
     ws.binaryType = 'arraybuffer'
     ws.onopen = function () {
@@ -15,15 +9,15 @@ function setWebsocket(url: string, cmdJSON: any) {
     }
     ws.onmessage = function (e) {
         try {
-            const res = JSON.parse(e.data)
-            const url = res.url
-            const resBasic = res.basic || {}
-            const resData = res.data || {}
-            const dataCode = resData.code
+            var res = JSON.parse(e.data)
+            var url = res.url
+            var resBasic = res.basic || {}
+            var resData = res.data || {}
+            var dataCode = resData.code
             if (url === '/device/create_connection#response' && dataCode === 0) {
-                ws && ws.send(cmdJSON)
+                ws.send(cmdJSON)
             }
-            const code = dataCode || resBasic.code
+            var code = dataCode || resBasic.code
             if (code && code !== 0) {
                 self.postMessage({
                     cmd: 'error',
@@ -55,7 +49,7 @@ function setWebsocket(url: string, cmdJSON: any) {
 // 处理start开启收流命令
 // 当websocket连接实例处于活动状态时,复用此连接直接发命令
 // 否则重新建链
-function handleStart(url: string, cmdJSON: any) {
+function handleStart(url, cmdJSON) {
     if (ws && ws.readyState === 1) {
         ws.send(cmdJSON)
     } else {
@@ -67,11 +61,11 @@ function handleStart(url: string, cmdJSON: any) {
  * 监听器
  */
 self.onmessage = function (e) {
-    const data = e.data
+    var data = e.data
     switch (data.cmd) {
         case 'start':
-            const url = data.data.url
-            const cmdJSON = data.data.params
+            var url = data.data.url
+            var cmdJSON = data.data.params
             handleStart(url, cmdJSON)
             break
         case 'stop':

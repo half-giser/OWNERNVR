@@ -3,7 +3,7 @@
  * @Date: 2024-06-04 10:26:32
  * @Description: IPv4地址输入框
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-20 18:39:37
+ * @LastEditTime: 2024-07-16 16:16:35
 -->
 <template>
     <div
@@ -186,48 +186,46 @@ const handleBlur = () => {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .IpInput {
-    align-items: center;
-    border: 1px solid var(--border-color2);
+    --el-input-inner-height: 28px;
+
+    align-items: left;
+    border: 1px solid var(--border-color7);
     border-radius: var(--el-input-border-radius, var(--el-border-radius-base));
     box-shadow: 0 0 0 1px var(--el-input-border-color, var(--el-border-color)) inset;
     cursor: text;
     display: inline-flex;
-    flex-grow: 1;
-    justify-content: center;
-    padding: 1px 11px;
+    justify-content: flex-start;
+    padding: 0 11px;
     transform: translateZ(0);
     transition: var(--el-transition-box-shadow);
-    width: 100%;
     font-size: var(--el-font-size-base);
-    line-height: var(--el-input-height);
+    line-height: var(--el-input-inner-height);
     width: var(--el-input-width);
+    box-sizing: border-box;
+    background: var(--el-input-bg-color, var(--el-fill-color-blank));
 
     &:hover,
     &.is-focus {
         box-shadow: 0 0 0 1px var(--el-input-hover-border-color) inset;
-        background: white;
         border-color: var(--primary--04);
 
         &.disabled {
             background-color: var(--bg-color-disabled);
-            border-color: var(--border-color4);
+            border-color: var(--border-color-disabled);
         }
     }
 
     &.disabled {
         background-color: var(--bg-color-disabled);
-        border-color: var(--border-color4);
+        border-color: var(--border-color-disabled);
     }
 
     input {
-        --el-input-inner-height: calc(var(--el-input-height, 32px) - 2px);
-
         height: 100%;
         border: none;
         max-width: 25%;
-        width: 20px;
         font-size: inherit;
         line-height: var(--el-input-inner-height);
         height: var(--el-input-inner-height);
@@ -236,6 +234,10 @@ const handleBlur = () => {
         outline: 0;
         text-align: center;
         background: transparent;
+
+        &:disabled {
+            color: var(--el-disabled-text-color);
+        }
     }
 }
 </style>

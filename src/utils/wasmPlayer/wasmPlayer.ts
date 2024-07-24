@@ -3,7 +3,7 @@
  * @Date: 2024-05-31 10:35:00
  * @Description: 基于webAssembly + canvas的视频播放器
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-21 16:13:11
+ * @LastEditTime: 2024-07-09 11:50:08
  */
 import WebGLPlayer from './webglPlayer'
 import PCMPlayer, { type PCMPlayerOptionEncoding } from './pcmPlayer'
@@ -441,7 +441,7 @@ export default class WasmPlayer {
      */
     private initDecoder() {
         this.wasmReady = false
-        this.decodeWorker = new Worker(new URL('@/utils/wasmPlayer/decoder.js', import.meta.url), {
+        this.decodeWorker = new Worker('/workers/decoder.js', {
             type: 'classic',
         })
         this.decodeWorker.onmessage = (e: any) => {
@@ -492,7 +492,7 @@ export default class WasmPlayer {
      * @description 初始化下载线程
      */
     private initDownloader() {
-        this.downloadWorker = new Worker(new URL('@/utils/wasmPlayer/downloader.js', import.meta.url), {
+        this.downloadWorker = new Worker('/workers/downloader.js', {
             type: 'classic',
         })
         this.downloadWorker.onmessage = (e: any) => {

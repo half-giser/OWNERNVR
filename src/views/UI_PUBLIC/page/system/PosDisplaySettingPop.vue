@@ -3,7 +3,7 @@
  * @Date: 2024-07-02 18:02:44
  * @Description: POS显示设置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-05 18:25:37
+ * @LastEditTime: 2024-07-12 09:23:14
 -->
 <template>
     <el-dialog
@@ -138,10 +138,12 @@
                         </div>
                     </div>
                     <el-form
-                        class="form"
+                        class="narrow"
                         label-width="150px"
                         label-position="left"
-                        inline-message
+                        :style="{
+                            '--form-input-width': '340px',
+                        }"
                     >
                         <el-form-item :label="Translate('IDCS_IGNORE_UPPER')">
                             <el-checkbox v-model="formData.upperCase"></el-checkbox>
@@ -151,6 +153,7 @@
                                 v-model="formData.timeOut"
                                 :min="5"
                                 :max="3600"
+                                :controls="false"
                             />
                             <span class="overtime">s</span>
                         </el-form-item>
@@ -204,8 +207,11 @@
                             />
                         </div>
                         <el-form
-                            class="form"
-                            inline-message
+                            class="narrow"
+                            label-position="left"
+                            :style="{
+                                '--form-input-width': '340px',
+                            }"
                         >
                             <el-form-item :label="Translate('IDCS_FONT_COLOR')">
                                 <BaseImgSprite
@@ -324,27 +330,6 @@
         margin-top: 10px;
         width: 400px;
         height: 300px;
-    }
-
-    .form {
-        :deep(.el-form-item) {
-            margin-bottom: 0;
-            padding: 5px 0 5px 15px;
-
-            // &:nth-child(even) {
-            //     background-color: var(--bg-color5);
-            // }
-        }
-
-        .el-input-number {
-            width: 224px;
-            flex-shrink: 0;
-        }
-
-        .el-input {
-            width: 340px;
-            flex-shrink: 0;
-        }
     }
 
     .color {

@@ -3,16 +3,19 @@
  * @Date: 2024-06-17 20:25:35
  * @Description: 添加权限组
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 19:35:16
+ * @LastEditTime: 2024-07-12 14:10:03
 -->
 <template>
-    <div class="PermGroupAdd">
+    <div class="base-flex-box">
         <el-form
             ref="formRef"
             class="form"
             label-position="left"
             :rules
             :model="formData"
+            :style="{
+                '--form-input-width': '340px',
+            }"
             hide-required-asterisk
             inline-message
         >
@@ -59,7 +62,10 @@
                 </li>
             </ul>
             <div class="list">
-                <div :class="{ active: pageData.activeChannelTab === 'IDCS_LOCAL_RIGHT' }">
+                <div
+                    class="base-table-box"
+                    :class="{ active: pageData.activeChannelTab === 'IDCS_LOCAL_RIGHT' }"
+                >
                     <el-table
                         :data="channelAuthList"
                         border
@@ -94,21 +100,21 @@
                                         <el-dropdown-menu>
                                             <el-dropdown-item
                                                 v-for="opt in pageData.channelOption"
-                                                :key="opt.name"
-                                                @click="changeAllChannelAuth(item.name, opt.value)"
+                                                :key="opt.value"
+                                                @click="changeAllChannelAuth(item.value, opt.value)"
                                             >
-                                                {{ Translate(opt.name) }}
+                                                {{ Translate(opt.label) }}
                                             </el-dropdown-item>
                                         </el-dropdown-menu>
                                     </template>
                                 </el-dropdown>
                             </template>
                             <template #default="{ $index }">
-                                <el-select v-model="channelAuthList[$index][item.name]">
+                                <el-select v-model="channelAuthList[$index][item.value]">
                                     <el-option
                                         v-for="value in pageData.channelOption"
-                                        :key="value.name"
-                                        :label="Translate(value.name)"
+                                        :key="value.value"
+                                        :label="Translate(value.label)"
                                         :value="value.value"
                                     />
                                 </el-select>
@@ -116,7 +122,10 @@
                         </el-table-column>
                     </el-table>
                 </div>
-                <div :class="{ active: pageData.activeChannelTab === 'IDCS_REMOTE_RIGHT' }">
+                <div
+                    class="base-table-box"
+                    :class="{ active: pageData.activeChannelTab === 'IDCS_REMOTE_RIGHT' }"
+                >
                     <el-table
                         :data="channelAuthList"
                         border
@@ -151,21 +160,21 @@
                                         <el-dropdown-menu>
                                             <el-dropdown-item
                                                 v-for="opt in pageData.channelOption"
-                                                :key="opt.name"
-                                                @click="changeAllChannelAuth(item.name, opt.value)"
+                                                :key="opt.value"
+                                                @click="changeAllChannelAuth(item.value, opt.value)"
                                             >
-                                                {{ Translate(opt.name) }}
+                                                {{ Translate(opt.label) }}
                                             </el-dropdown-item>
                                         </el-dropdown-menu>
                                     </template>
                                 </el-dropdown>
                             </template>
                             <template #default="{ $index }">
-                                <el-select v-model="channelAuthList[$index][item.name]">
+                                <el-select v-model="channelAuthList[$index][item.value]">
                                     <el-option
                                         v-for="value in pageData.channelOption"
-                                        :key="value.name"
-                                        :label="Translate(value.name)"
+                                        :key="value.value"
+                                        :label="Translate(value.label)"
                                         :value="value.value"
                                     />
                                 </el-select>
@@ -175,7 +184,10 @@
                 </div>
             </div>
         </div>
-        <div class="footer">
+        <div
+            class="base-btn-box"
+            span="2"
+        >
             <div>
                 <el-button @click="pageData.isShowInfo = true">{{ Translate('IDCS_DESCRIPTION') }}</el-button>
             </div>
@@ -191,127 +203,97 @@
 <script lang="ts" src="./PermissionGroupAdd.v.ts"></script>
 
 <style lang="scss" scoped>
-.PermGroupAdd {
-    .form {
-        :deep(.el-form-item) {
-            margin-bottom: 0;
-            padding: 10px 0 10px 15px;
-        }
+.system {
+    display: flex;
+    width: 100%;
+    flex-shrink: 0;
 
-        :deep(.el-form-item__content) {
-            flex-wrap: nowrap;
-        }
+    & > div {
+        width: 50%;
+    }
 
-        .el-input {
-            width: 340px;
-            flex-shrink: 0;
+    .title {
+        border-left: 3px solid var(--border-color2);
+        height: 30px;
+        line-height: 30px;
+        padding-left: 15px;
+        margin-left: 15px;
+    }
+
+    .list {
+        display: flex;
+        flex-wrap: wrap;
+        padding-left: 30px;
+        margin: 0;
+
+        & > li {
+            list-style: none;
+            width: 50%;
+        }
+    }
+}
+
+.channel {
+    height: 100%;
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+
+    .ddn {
+        margin-left: 5px;
+    }
+
+    ul {
+        display: flex;
+        justify-content: center;
+        margin: 0;
+        padding: 5px;
+        flex-shrink: 0;
+
+        li {
+            list-style: none;
+            cursor: pointer;
+            border: 1px solid var(--border-color7);
+            line-height: 20px;
+            font-size: 14px;
+            padding: 4px 15px;
+
+            &:hover {
+                background-color: var(--primary--01);
+            }
+
+            &.active {
+                background-color: var(--primary--04);
+                color: #fff;
+            }
+
+            & + li {
+                border-left: none;
+            }
         }
     }
 
-    .system {
-        display: flex;
+    :deep(.el-table) {
+        height: calc(100vh - 630px);
+    }
+
+    .list {
+        position: relative;
+        height: calc(100vh - 630px);
         width: 100%;
 
         & > div {
-            width: 50%;
-        }
-
-        .title {
-            border-left: 3px solid var(--border-color2);
-            height: 30px;
-            line-height: 30px;
-            padding-left: 15px;
-            margin-left: 15px;
-        }
-
-        .list {
-            display: flex;
-            flex-wrap: wrap;
-            padding-left: 30px;
-            margin: 0;
-
-            & > li {
-                list-style: none;
-                width: 50%;
-            }
-        }
-    }
-
-    .channel {
-        height: 100%;
-        margin-top: 10px;
-        display: flex;
-        flex-direction: column;
-
-        .ddn {
-            margin-left: 5px;
-        }
-
-        ul {
-            display: flex;
-            justify-content: center;
-            margin: 0;
-            padding: 5px;
-            flex-shrink: 0;
-
-            li {
-                list-style: none;
-                cursor: pointer;
-                border: 1px solid var(--border-color7);
-                line-height: 20px;
-                font-size: 14px;
-                padding: 4px 15px;
-
-                &:hover {
-                    background-color: var(--primary--01);
-                }
-
-                &.active {
-                    background-color: var(--primary--04);
-                    color: #fff;
-                }
-
-                & + li {
-                    border-left: none;
-                }
-            }
-        }
-
-        :deep(.el-table) {
-            height: calc(100vh - 630px);
-        }
-
-        .list {
-            position: relative;
-            height: calc(100vh - 630px);
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            pointer-events: none;
             width: 100%;
+            height: calc(100vh - 630px);
 
-            & > div {
-                position: absolute;
-                top: 0;
-                left: 0;
-                opacity: 0;
-                pointer-events: none;
-                width: 100%;
-                height: calc(100vh - 630px);
-
-                &.active {
-                    opacity: 1;
-                    pointer-events: unset;
-                }
-            }
-        }
-    }
-
-    .footer {
-        margin-top: 7px;
-        display: flex;
-        justify-content: space-between;
-
-        & > div {
-            &:last-child {
-                display: flex;
-                justify-content: flex-end;
+            &.active {
+                opacity: 1;
+                pointer-events: unset;
             }
         }
     }

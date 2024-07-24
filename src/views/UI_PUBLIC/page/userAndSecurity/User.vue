@@ -3,12 +3,12 @@
  * @Date: 2024-05-04 12:58:39
  * @Description: 查看或更改用户
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 19:38:28
+ * @LastEditTime: 2024-07-11 18:19:36
 -->
 <template>
     <div class="User">
         <div class="User-left">
-            <div class="User-title">{{ Translate('IDCS_USER') }}: {{ userName }}</div>
+            <div class="base-subheading-box">{{ Translate('IDCS_USER') }}: {{ userName }}</div>
             <div
                 v-show="!authEffective"
                 class="no-auth"
@@ -56,13 +56,14 @@
                         {{ Translate(key) }}
                     </li>
                 </ul>
-                <div class="list">
+                <div class="base-table-box">
                     <div v-show="pageData.activeChannelTab === 'IDCS_LOCAL_RIGHT'">
                         <el-table
                             :data="channelAuthList"
                             border
                             stripe
                             scrollbar-always-on
+                            class="fill"
                         >
                             <el-table-column
                                 prop="name"
@@ -80,7 +81,7 @@
                                 :label="Translate(item.label)"
                             >
                                 <template #default="{ $index }">
-                                    <el-text>{{ displayChannelAuth(channelAuthList[$index][item.name]) }}</el-text>
+                                    <el-text>{{ displayChannelAuth(channelAuthList[$index][item.value]) }}</el-text>
                                 </template>
                             </el-table-column>
                         </el-table>
@@ -91,6 +92,7 @@
                             border
                             stripe
                             scrollbar-always-on
+                            class="fill"
                         >
                             <el-table-column
                                 prop="name"
@@ -108,7 +110,7 @@
                                 :label="Translate(item.label)"
                             >
                                 <template #default="{ $index }">
-                                    <el-text>{{ displayChannelAuth(channelAuthList[$index][item.name]) }}</el-text>
+                                    <el-text>{{ displayChannelAuth(channelAuthList[$index][item.value]) }}</el-text>
                                 </template>
                             </el-table-column>
                         </el-table>
@@ -192,23 +194,8 @@
 <style lang="scss" scoped>
 .User {
     width: 100%;
-    height: 100%;
-    // height: calc(100vh - 200px);
+    height: var(--content-height);
     display: flex;
-
-    &-title {
-        width: 100%;
-        height: 35px;
-        font-weight: bold;
-        padding: 0 15px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        line-height: 35px;
-        background-color: var(--bg-color4);
-        box-sizing: border-box;
-        flex-shrink: 0;
-    }
 
     &-left {
         width: 550px;
@@ -295,9 +282,15 @@
             }
         }
 
+        .list {
+            height: 100%;
+            position: relative;
+        }
+
         :deep(.el-table) {
-            // height: 100%;
-            height: calc(100vh - 680px);
+            position: absolute;
+            width: 100%;
+            height: 100%;
         }
     }
 
@@ -313,6 +306,7 @@
 
         :deep(.el-table) {
             width: 100%;
+            height: var(--content-height);
 
             tbody {
                 cursor: pointer;

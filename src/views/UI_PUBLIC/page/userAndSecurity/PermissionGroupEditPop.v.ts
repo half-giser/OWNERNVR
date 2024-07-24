@@ -3,7 +3,7 @@
  * @Date: 2024-06-18 15:33:50
  * @Description: 编辑权限组弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 20:37:29
+ * @LastEditTime: 2024-07-09 20:46:32
  */
 import { type UserPermissionChannelAuthList, UserPermissionSystemAuthList, UserPermissionGroupAddForm } from '@/types/apiType/userAndSecurity'
 import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
@@ -50,9 +50,9 @@ export default defineComponent({
             // 通道权限选项
             channelOption: DEFAULT_SWITCH_OPTIONS,
             // 本地通道权限列表
-            localChannelIds: DEFAULT_LOCAL_CHANNEL_AUTH_LIST as { name: keyof UserPermissionChannelAuthList; label: string }[],
+            localChannelIds: DEFAULT_LOCAL_CHANNEL_AUTH_LIST,
             // 远程通道权限列表
-            remoteChannelIds: DEFAULT_REMOTE_CHANNEL_AUTH_LIST as { name: keyof UserPermissionChannelAuthList; label: string }[],
+            remoteChannelIds: DEFAULT_REMOTE_CHANNEL_AUTH_LIST,
         })
 
         /**

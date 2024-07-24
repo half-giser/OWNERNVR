@@ -71,12 +71,25 @@ li {
     background-color: var(--scrollbar-thumb-bg-active);
 }
 
+// 在谷歌下移除input[number]的上下箭头
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+    -webkit-appearance: none !important;
+    margin: 0;
+}
+
+// 在firefox下移除input[number]的上下箭头
+input[type='number'] {
+    -moz-appearance: textfield;
+}
+
 #app {
     height: 100%;
 }
 
 #n9web {
     height: 100%;
+
 
     .configBorder {
         width: 100%;
@@ -207,18 +220,6 @@ li {
         margin: 100px auto;
     }
 
-    // 在谷歌下移除input[number]的上下箭头
-    input[type='number']::-webkit-outer-spin-button,
-    input[type='number']::-webkit-inner-spin-button {
-        -webkit-appearance: none !important;
-        margin: 0;
-    }
-
-    // 在firefox下移除input[number]的上下箭头
-    input[type='number'] {
-        -moz-appearance: textfield;
-    }
-
     .custom-column-1 {
         .cell {
             display: flex;
@@ -279,7 +280,7 @@ li {
             .el-message-box__title {
                 font-size: 15px;
                 font-weight: bold;
-                color: var(--text-light);
+                color: var(--text-dialog);
             }
             .el-message-box__headerbtn {
                 position: unset;
@@ -335,7 +336,7 @@ li {
             .el-dialog__title {
                 font-size: 15px;
                 font-weight: bold;
-                color: var(--text-light);
+                color: var(--text-dialog);
             }
             .el-dialog__headerbtn {
                 position: unset;
@@ -383,13 +384,14 @@ li {
                         .el-icon {
                             cursor: pointer;
                             &:hover {
-                                color: var(--text-light);
+                                color: var(--text-primary);
                             }
                         }
                     }
                 }
             }
         }
+
         .el-table__row {
             &:has(> td.el-table-column--selection > .cell .el-checkbox.is-checked) {
                 color: var(--color-white);
@@ -467,17 +469,106 @@ li {
 
     // .el-form 公共样式
     .el-form {
+        flex-shrink: 0;
+        margin-bottom: 10px;
+        
         .el-form-item {
+            padding: 10px 15px;
+            margin-bottom: 0;
+
             .el-form-item__label {
+                width: var(--form-label-width);
+
                 .el-text.label {
-                    color: var(--text-dark);
+                    color: var(--form-input-width);
                     font-size: 15px;
                     cursor: text;
                 }
             }
         }
-    }
 
+        .el-select,
+        .el-input,
+        .el-input-number,
+        .el-date-editor.el-input,
+        .el-textarea,
+        .MacInput,
+        .IpInput {
+            width: var(--form-input-width);
+            flex-shrink: 0;
+            margin-right: 10px;
+        }
+
+        .el-checkbox,
+        .el-button {
+            margin-right: 10px;
+        }
+
+        .el-checkbox {
+            display: flex;
+            align-items: center;
+        }
+
+        .el-button {
+            margin-left: 0;
+        }
+
+        .el-input-number {
+            &.is-without-controls {
+                .el-input__inner {
+                    text-align: left;
+                }
+                .el-input__wrapper {
+                    padding-left: 11px;
+                    padding-right: 11px;
+                }
+            }
+        }
+
+        &.inline-message {
+            .el-form-item__content {
+                flex-wrap: nowrap;
+            }
+
+            // .el-form-item {
+            //     margin-bottom: 0;
+            //     padding: 10px 15px;
+            // }
+        }
+
+        // 斑马线样式
+        &.stripe {
+            .el-form-item__content {
+                flex-wrap: nowrap;
+            }
+
+            .el-form-item {
+                margin-bottom: 0;
+                padding: 10px 15px;
+
+                &:nth-child(even) {
+                    background-color: var(--bg-color5);
+                }
+            }
+
+            &.odd .el-form-item {
+                &:nth-child(odd) {
+                    background-color: var(--bg-color5);
+                }
+
+                &:nth-child(even) {
+                    background-color: unset;
+                }
+            }
+        }
+
+        &.narrow {
+            .el-form-item {
+                margin-bottom: 0;
+                padding: 5px 15px;
+            }
+        }
+    }
     // .el-menu 公共样式
     .el-menu {
         &.tab-style {
@@ -508,20 +599,86 @@ li {
             }
         }
     }
+}
 
-    .row_pagination {
-        padding: 5px;
-        border-style: none solid solid solid;
-        border-width: 1px;
-        border-color: var(--border-color8);
-        display: flex;
-        justify-content: flex-end;
+.row_pagination {
+    padding: 5px;
+    border-style: none solid solid solid;
+    border-width: 1px;
+    border-color: var(--border-color8);
+    display: flex;
+    justify-content: flex-end;
+}
+
+.table_status_col_loading {
+    width: 20px;
+    height: 20px;
+    background-image: url('@/views/UI_PUBLIC/publicStyle/img/loading.gif');
+    background-repeat: no-repeat;
+}
+
+// 将页面容器转换为flexbox
+.base-flex-box {
+    display: flex;
+    flex-direction: column;
+    height: var(--content-height);
+}
+
+// 将el-table放置在此容器下，以便el-table在flexbox的高度能有弹性
+.base-table-box {
+    position: relative;
+    height: 100%;
+
+    &>.el-table {
+        position: absolute;
+        // width: 100%;
+        height: 100%;
+    }
+}
+
+// 子标题
+.base-subheading-box {
+    font-size: 35px;
+    line-height: 35px;
+    width: 100%;
+    box-sizing: border-box;
+    padding-left: 15px;
+    font-size: 15px;
+    background-color: var(--bg-color4);
+    font-weight: bolder;
+    color: var(--text-primary);
+}
+
+// 放置按钮、页码等的容器
+.base-btn-box {
+    margin-top: 10px;
+    width: calc(var(--form-input-width) + var(--form-label-width) + 24px);
+    max-width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    flex-shrink: 0;
+
+    &[span='2'] {
+        justify-content: space-between;
+
+        & > div:first-child {
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        & > div:last-child {
+            display: flex;
+            justify-content: flex-end;
+        }
     }
 
-    .table_status_col_loading {
-        width: 20px;
-        height: 20px;
-        background-image: url('@/views/UI_PUBLIC/publicStyle/img/loading.gif');
-        background-repeat: no-repeat;
+    &[span='center'] {
+        justify-content: center;
+    }
+
+    &[span='start'] {
+        justify-content: flex-start;
+        padding-left: 15px;
+        box-sizing: border-box;
     }
 }

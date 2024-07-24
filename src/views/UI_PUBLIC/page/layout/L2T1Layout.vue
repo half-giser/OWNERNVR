@@ -3,39 +3,38 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 二级类型1布局页--适用于所有配置页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-28 18:52:05
+ * @LastEditTime: 2024-07-16 20:22:46
 -->
 <template>
     <el-container id="layout2">
-        <!-- <div id="layout2LeftBorder"></div> -->
         <el-aside id="layout2Left">
             <div
                 v-for="(menuGroup, key) in sortedGroups"
                 :key
                 class="menu-group"
-                :class="{ 'is-active': route.meta.group === menuGroup[0] }"
+                :class="{
+                    'is-active': route.meta.group === menuGroup[0],
+                }"
+                @click="toDefault(menuGroup[0])"
             >
                 <div class="main-menu">
                     <BaseImgSprite
-                        :file="menuGroup[1].icon"
+                        :file="menuGroup[1].icon || ''"
                         :index="0"
                         :chunk="2"
                     />
-                    <span
-                        @click="toDefault(menuGroup[0])"
-                        v-text="Translate(menuGroup[1].lk || '')"
-                    >
-                    </span>
+                    <span v-text="Translate(menuGroup[1].lk || '')"> </span>
                 </div>
                 <div class="sub-menus">
                     <span
-                        v-for="(menu3, menu3Key) in groupMenuMap.get(menuGroup[0])"
+                        v-for="(menu3, menu3Key) in groupMenuMap[menuGroup[0]]"
                         :key="menu3Key"
-                        @click="router.push(menu3.meta.fullPath)"
-                        v-text="Translate(menu3.meta.lk)"
+                        @click.stop="router.push(menu3.meta.fullPath)"
+                        v-text="Translate(menu3.meta.lk || '')"
                     ></span>
                 </div>
             </div>
+            <div class="rest"></div>
         </el-aside>
         <el-main id="layout2Right">
             <div id="layout2RightTopBar">
@@ -44,8 +43,12 @@
                         v-for="(navItem, key) in navList"
                         :key
                         :to="navItem.meta.fullPath"
-                        >{{ Translate(navItem.meta.lk) }}</router-link
-                    >
+                        >{{ Translate(navItem.meta.lk || '') }}
+                        <BaseImgSprite
+                            v-show="key !== navList.length - 1"
+                            file="nav"
+                        />
+                    </router-link>
                 </div>
                 <div id="layout2RightTopBarToolBar">
                     <router-view
@@ -85,16 +88,6 @@
     position: relative;
 }
 
-// #layout2LeftBorder {
-//     background-color: var(--page-bg);
-//     border-right: solid 1px var(--border-color2);
-//     width: 236px;
-//     min-height: 100%;
-//     position: absolute;
-//     top: 0px;
-//     left: 0px;
-// }
-
 #layout2Left {
     width: 237px;
     min-height: 100%;
@@ -103,7 +96,9 @@
     left: 0px;
     margin: -1px 0px -1px -1px;
     overflow: hidden;
-    border-right: solid 1px var(--border-color2);
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .menu-group {
@@ -112,6 +107,7 @@
     padding: 20px;
     margin: 0px 0px -1px 0px;
     position: relative;
+    flex-shrink: 0;
 
     &.is-active {
         background-color: var(--bg-color-cfg-menu-active);
@@ -125,6 +121,12 @@
     &:last-of-type {
         margin: 0px 0px 0px 0px;
     }
+}
+
+.rest {
+    width: 237px;
+    border: solid 1px var(--border-color2);
+    height: 100%;
 }
 
 .main-menu {
@@ -191,12 +193,19 @@
     background-color: var(--page-bg);
 
     #layout2RightTopBar {
+        display: flex;
+        width: 100%;
         height: 35px;
         border-bottom: solid 1px var(--border-color2);
 
         #layout2RightTopBarNav {
-            padding: 6px 0px 0px 5px;
-            float: left;
+            display: flex;
+            height: 100%;
+            width: 50%;
+            align-items: center;
+            padding: 0 10px;
+            box-sizing: border-box;
+
             a {
                 font-size: 15px;
                 text-decoration: none;
@@ -208,20 +217,20 @@
                     color: var(--primary--04);
                 }
 
-                &:not(:last-of-type)::after {
-                    content: '';
-                    width: 7px;
-                    height: 9px;
-                    display: inline-block;
-                    background: no-repeat var(--sprite) 0 0;
-                    margin: 0px 0px 0px 8px;
+                span {
+                    margin-left: 5px;
                 }
             }
         }
 
         #layout2RightTopBarToolBar {
-            padding: 5px 5px 0px 0px;
-            float: right;
+            display: flex;
+            width: 50%;
+            height: 100%;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 10px;
+            box-sizing: border-box;
         }
     }
 

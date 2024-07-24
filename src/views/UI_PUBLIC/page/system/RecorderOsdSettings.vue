@@ -3,16 +3,19 @@
  * @Date: 2024-06-27 09:02:59
  * @Description: 录像机OSD配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-27 17:33:29
+ * @LastEditTime: 2024-07-12 14:01:54
 -->
 <template>
     <div class="OSDSetting">
         <el-form
-            class="form"
+            class="stripe"
             label-position="left"
             :model="formData"
             hide-required-asterisk
             label-width="150px"
+            :style="{
+                '--form-input-width': '340px',
+            }"
             inline-message
         >
             <el-form-item :label="Translate('IDCS_NAME_ENABLE')">
@@ -21,7 +24,7 @@
                         v-for="item in pageData.options"
                         :key="item.value"
                         :value="item.value"
-                        :label="Translate(item.name)"
+                        :label="Translate(item.label)"
                     />
                 </el-select>
             </el-form-item>
@@ -31,7 +34,7 @@
                         v-for="item in pageData.options"
                         :key="item.value"
                         :value="item.value"
-                        :label="Translate(item.name)"
+                        :label="Translate(item.label)"
                     />
                 </el-select>
             </el-form-item>
@@ -44,46 +47,15 @@
                         v-for="item in pageData.options"
                         :key="item.value"
                         :value="item.value"
-                        :label="Translate(item.name)"
+                        :label="Translate(item.label)"
                     />
                 </el-select>
             </el-form-item>
+            <div class="base-btn-box">
+                <el-button @click="setData">{{ Translate('IDCS_APPLY') }}</el-button>
+            </div>
         </el-form>
-        <div class="btns">
-            <el-button @click="setData">{{ Translate('IDCS_APPLY') }}</el-button>
-        </div>
     </div>
 </template>
 
 <script lang="ts" src="./RecorderOsdSettings.v.ts"></script>
-
-<style lang="scss" scoped>
-.OSDSetting {
-    .form {
-        :deep(.el-form-item) {
-            margin-bottom: 0;
-            padding: 10px 0 10px 15px;
-
-            &:nth-child(even) {
-                background-color: var(--bg-color5);
-            }
-        }
-
-        :deep(.el-form-item__content) {
-            // justify-content: flex-start;
-            flex-wrap: nowrap;
-        }
-
-        .el-select {
-            width: 340px;
-        }
-    }
-
-    .btns {
-        width: 510px;
-        display: flex;
-        justify-content: center;
-        margin-top: 20px;
-    }
-}
-</style>

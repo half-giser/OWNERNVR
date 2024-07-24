@@ -3,7 +3,7 @@
  * @Date: 2023-05-09 16:45:59
  * @Description: 导航全局存储
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-19 17:27:18
+ * @LastEditTime: 2024-07-15 09:15:25
  */
 
 import { type RouteRecordRaw, type RouteMeta } from 'vue-router'
@@ -61,7 +61,7 @@ export const useMenuStore = defineStore(
          * @param {RouteRecordRaw} item
          * @return {*}
          */
-        const isMenuItemShow = (item: RouteRecordRaw, args?: any) => {
+        const isMenuItemShow = (item: RouteRecordRawExtends, args?: any) => {
             const auth = (<RouteMeta>item.meta).auth
             return typeof auth === 'undefined' || (auth as (args: any) => boolean)(args)
         }
@@ -71,7 +71,7 @@ export const useMenuStore = defineStore(
          * @param {RouteRecordRaw} item
          * @return {*}
          */
-        const isSubMenuShow = (item: RouteRecordRaw) => {
+        const isSubMenuShow = (item: RouteRecordRawExtends) => {
             return item.children && item.children.find(() => isMenuItemShow(item))
         }
 

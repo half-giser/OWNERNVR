@@ -3,7 +3,7 @@
  * @Date: 2024-06-25 09:59:16
  * @Description: 输出配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 19:26:58
+ * @LastEditTime: 2024-07-12 14:29:47
 -->
 <template>
     <div class="OutputSetting">
@@ -223,52 +223,50 @@
                     v-show="pageData.activeChlMenu === 0"
                     class="chl-wrap"
                 >
-                    <div class="chl-list">
-                        <ul>
-                            <li
-                                v-for="listItem in pageData.chlList"
-                                :key="listItem.id"
-                                draggable="true"
-                                @dragstart="handleDragChl(listItem.id)"
-                                @dblclick="setWinFromChl(listItem.id)"
-                                @mouseenter="pageData.activeChl = listItem.id"
-                                @mouseleave="pageData.activeChl = ''"
-                            >
-                                <BaseImgSprite
-                                    file="chl_icon"
-                                    :index="pageData.activeChl === listItem.id ? 1 : 0"
-                                    :chunk="4"
-                                />
-                                <span>{{ listItem.value }}</span>
-                            </li>
-                        </ul>
-                    </div>
+                    <BaseListBox>
+                        <BaseListBoxItem
+                            v-for="listItem in pageData.chlList"
+                            :key="listItem.id"
+                            draggable="true"
+                            icon="chl_icon"
+                            @dragstart="handleDragChl(listItem.id)"
+                            @dblclick="setWinFromChl(listItem.id)"
+                            @mouseenter="pageData.activeChl = listItem.id"
+                            @mouseleave="pageData.activeChl = ''"
+                        >
+                            <BaseImgSprite
+                                file="chl_icon"
+                                :index="pageData.activeChl === listItem.id ? 1 : 0"
+                                :chunk="4"
+                            />
+                            <span>{{ listItem.value }}</span>
+                        </BaseListBoxItem>
+                    </BaseListBox>
                 </div>
                 <!-- 通道组列表 -->
                 <div
                     v-show="pageData.activeChlMenu === 1"
                     class="chl-wrap"
                 >
-                    <div class="chl-list">
-                        <ul>
-                            <li
-                                v-for="groupItem in pageData.chlGroupList"
-                                :key="groupItem.id"
-                                :class="{ active: pageData.activeChlGroup === groupItem.id }"
-                                draggable="true"
-                                @click="getChlListOfGroup(groupItem.id)"
-                                @dblclick="setWinFromChlGroup(groupItem.id)"
-                                @dragstart="handleDragChlGroup(groupItem.id)"
-                            >
-                                <BaseImgSprite
-                                    file="chlGroup"
-                                    :index="pageData.activeChlGroup === groupItem.id ? 1 : 0"
-                                    :chunk="2"
-                                />
-                                <span>{{ groupItem.value }}</span>
-                            </li>
-                        </ul>
-                    </div>
+                    <BaseListBox>
+                        <BaseListBoxItem
+                            v-for="groupItem in pageData.chlGroupList"
+                            :key="groupItem.id"
+                            :class="{ active: pageData.activeChlGroup === groupItem.id }"
+                            draggable="true"
+                            icon="chlGroup"
+                            @click="getChlListOfGroup(groupItem.id)"
+                            @dblclick="setWinFromChlGroup(groupItem.id)"
+                            @dragstart="handleDragChlGroup(groupItem.id)"
+                        >
+                            <BaseImgSprite
+                                file="chlGroup"
+                                :index="pageData.activeChlGroup === groupItem.id ? 1 : 0"
+                                :chunk="2"
+                            />
+                            <span>{{ groupItem.value }}</span>
+                        </BaseListBoxItem>
+                    </BaseListBox>
                     <div class="chl-btns">
                         <el-button @click="addChlGroup">{{ Translate('IDCS_ADD') }}</el-button>
                         <el-button @click="editChlGroup">{{ Translate('IDCS_EDIT') }}</el-button>
@@ -290,7 +288,7 @@
                 </div>
             </div>
         </main>
-        <div class="btns">
+        <div class="base-btn-box">
             <el-button @click="setDwellData">{{ Translate('IDCS_APPLY') }}</el-button>
         </div>
         <BaseCheckAuthPop
@@ -640,12 +638,6 @@
                 }
             }
         }
-    }
-
-    .btns {
-        margin-top: 5px;
-        display: flex;
-        justify-content: flex-end;
     }
 }
 </style>

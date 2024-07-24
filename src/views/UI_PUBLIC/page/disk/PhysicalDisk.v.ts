@@ -3,9 +3,8 @@
  * @Date: 2024-07-08 18:01:02
  * @Description: 物理磁盘
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-08 19:23:58
+ * @LastEditTime: 2024-07-12 16:09:42
  */
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import { type UserCheckAuthForm } from '@/types/apiType/userAndSecurity'
 import { type DiskPhysicalList } from '@/types/apiType/disk'
@@ -13,7 +12,6 @@ import PhysicalDiskCreateRaidPop from './PhysicalDiskCreateRaidPop.vue'
 
 export default defineComponent({
     components: {
-        BaseImgSprite,
         BaseCheckAuthPop,
         PhysicalDiskCreateRaidPop,
     },
@@ -190,7 +188,6 @@ export default defineComponent({
             createRaid,
             confirmCreateRaid,
             confirmTransformDisk,
-            BaseImgSprite,
             BaseCheckAuthPop,
             PhysicalDiskCreateRaidPop,
         }

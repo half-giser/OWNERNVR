@@ -3,38 +3,26 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 顶层布局页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-27 11:15:53
+ * @LastEditTime: 2024-07-12 16:02:45
  */
 
-import { useMenuStore } from '@/stores/menu'
-import { useUserSessionStore } from '@/stores/userSession'
-import { useCababilityStore } from '@/stores/cabability'
-import { type RouteRecordRaw, type RouteLocationMatched } from 'vue-router'
-import router, { menu1Item, menu1Items as menu1ItemsAll, getMenu1 } from '@/router'
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
-import { Logout } from '@/api/user'
+import { type RouteLocationMatched } from 'vue-router'
 import BaseChangePwdPop from '../../components/BaseChangePwdPop.vue'
-import { queryBasicCfg } from '@/api/system'
-import { getXmlWrapData } from '@/api/api'
-import { queryXml } from '@/utils/xmlParse'
-import { APP_TYPE, DEFAULT_PASSWORD_STREMGTH_MAPPING } from '@/utils/constants'
-import { getUiAndTheme, getSystemInfo } from '@/utils/tools'
-import useMessageBox from '@/hooks/useMessageBox'
-import { queryDiskMode } from '@/api/disk'
-import { getPluginPath } from '@/utils/ocx/ocxUtil'
+import { APP_TYPE } from '@/utils/constants'
+import { menu1Item, menu1Items as allMenu1Items, getMenu1 } from '@/router'
 
 export default defineComponent({
     components: {
-        BaseImgSprite,
         BaseChangePwdPop,
     },
     setup() {
         const route = useRoute()
+        const router = useRouter()
         const menu = useMenuStore()
         const userSession = useUserSessionStore()
         const systemCaps = useCababilityStore()
         const { openMessageTipBox } = useMessageBox()
-        const { Translate } = inject('appGlobalProp') as appGlobalProp
+        const { Translate } = useLangStore()
         const Plugin = inject('Plugin') as PluginType
         const systemInfo = getSystemInfo()
 
@@ -68,15 +56,15 @@ export default defineComponent({
         }
 
         // 是否是焦点菜单
-        const isMenu1Active = (menu1: RouteRecordRaw) => {
+        const isMenu1Active = (menu1: RouteRecordRawExtends) => {
             const routeMenu1 = getMenu1(route) as RouteLocationMatched
             return (menu1.name === 'functionPanel' && routeMenu1.name === 'config') || ((menu1 && menu1.meta && routeMenu1.meta.fullPath === menu1.meta.fullPath) as boolean)
         }
 
         // 二级菜单列表（已过滤）
         const menu1Items = computed(() => {
-            const routeArr: RouteRecordRaw[] = []
-            menu1ItemsAll.value.forEach((v) => {
+            const routeArr: RouteRecordRawExtends[] = []
+            allMenu1Items.value.forEach((v) => {
                 //根据能力集过滤
                 routeArr.push(v)
             })
@@ -177,7 +165,7 @@ export default defineComponent({
         }
 
         // P2P 判断输入栏UI不是设备UI, 则跳转地址回设备UI
-        const judgeCurrUI = ($basicXml: XMLDocument) => {
+        const judgeCurrUI = ($basicXml: XMLDocument | Element) => {
             const devVersion = queryXml($basicXml)('/response/content/softwareVersion').text()
             const inputUI = getUiAndTheme().name.toLowerCase().replace(/i|-/g, '') // 输入栏UI
             let targetUI = '' // 设备UI
@@ -318,6 +306,7 @@ export default defineComponent({
             closeChangePwdPop,
             showChangePwdPop,
             handleDownloadPlugin,
+            BaseChangePwdPop,
         }
     },
 })

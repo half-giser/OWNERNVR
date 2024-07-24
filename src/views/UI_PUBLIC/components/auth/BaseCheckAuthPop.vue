@@ -3,7 +3,7 @@
  * @Date: 2024-06-07 15:00:44
  * @Description: 账号密码权限认证弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-05 13:39:15
+ * @LastEditTime: 2024-07-16 20:07:17
 -->
 <template>
     <el-dialog
@@ -46,7 +46,12 @@
                     @copy.capture.prevent=""
                 />
             </el-form-item>
-            <div class="unlockTip">{{ tip }}</div>
+            <div
+                v-show="tip"
+                class="unlockTip"
+            >
+                {{ tip }}
+            </div>
         </el-form>
         <template #footer>
             <el-row>

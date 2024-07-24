@@ -3,17 +3,15 @@
  * @Date: 2024-07-05 13:42:37
  * @Description: 磁盘管理
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-08 20:08:36
+ * @LastEditTime: 2024-07-12 16:06:11
  */
 import { type DiskManagememtList } from '@/types/apiType/disk'
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import BaseInputEncryptPwdPop from '../../components/auth/BaseInputEncryptPwdPop.vue'
 import { type UserCheckAuthForm, type UserInputEncryptPwdForm } from '@/types/apiType/userAndSecurity'
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
 
 export default defineComponent({
     components: {
-        BaseImgSprite,
         BaseCheckAuthPop,
         BaseInputEncryptPwdPop,
     },
@@ -87,16 +85,16 @@ export default defineComponent({
          */
         const getData = async () => {
             const storage = await queryStorageDevInfo()
-            const $storage = queryXml(storage)
+            const $storage = queryXml(queryXml(storage)('/response/content')[0].element)
 
             const result = await queryDiskStatus()
             const $ = queryXml(result)
 
             const rowData: DiskManagememtList[] = []
-            const raidSwitch = $storage('/response/content/storageSysInfo/raidSwitch').text().toBoolean()
-            const cycleRecord = $storage('/response/content/cycleRecord').text()
+            const raidSwitch = $storage('storageSysInfo/raidSwitch').text().toBoolean()
+            const cycleRecord = $storage('cycleRecord').text()
 
-            $storage('/response/content/diskList/item').forEach((item) => {
+            $storage('diskList/item').forEach((item) => {
                 const $item = queryXml(item.element)
                 const diskInterfaceType = $item('diskInterfaceType').text()
                 // 开启raid后只显示U盘和esata盘，miniSAS看做e-sata，不管是否开启raid，都会显示miniSAS
@@ -146,7 +144,7 @@ export default defineComponent({
             })
 
             if (raidSwitch) {
-                $storage('/response/content/raidList/item').forEach((item) => {
+                $storage('raidList/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     const logicDiskId = $item('logicDiskId').text()
 
@@ -311,8 +309,10 @@ export default defineComponent({
 
         onMounted(async () => {
             openLoading(LoadingTarget.FullScreen)
+
             await dateTime.getTimeConfig()
             await getData()
+
             closeLoading(LoadingTarget.FullScreen)
         })
 
@@ -324,7 +324,6 @@ export default defineComponent({
             confirmFormatDisk,
             handleUnlockDisk,
             confirmUnlockDisk,
-            BaseImgSprite,
             BaseCheckAuthPop,
             BaseInputEncryptPwdPop,
         }

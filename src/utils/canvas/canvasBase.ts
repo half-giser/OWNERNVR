@@ -2,8 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-05-31 14:08:32
  * @Description: Canvas基础类
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-03 15:08:52
+ * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2024-07-19 11:35:52
  */
 export interface CanvasBasePoint {
     X: number
@@ -62,7 +62,7 @@ export default class CanvasBase {
     }
 
     // 画直线 lineStyle: { lineWidth, strokeStyle }
-    Line(startX: number, startY: number, endX: number, endY: number, lineStyle: Partial<CanvasBaseLineStyleOption>) {
+    Line(startX: number, startY: number, endX: number, endY: number, lineStyle?: Partial<CanvasBaseLineStyleOption>) {
         const ctx = this.ctx
         ctx.beginPath()
         ctx.moveTo(startX, startY)
@@ -70,6 +70,9 @@ export default class CanvasBase {
         if (lineStyle) {
             ctx.lineWidth = lineStyle.lineWidth || 1
             ctx.strokeStyle = lineStyle.strokeStyle || '#000'
+        } else {
+            ctx.lineWidth = 1
+            ctx.strokeStyle = '#000'
         }
         ctx.stroke()
     }
@@ -115,7 +118,7 @@ export default class CanvasBase {
     FillRect(startX: number, startY: number, width: number, height: number, fillStyle: string | CanvasGradient | CanvasPattern) {
         const ctx = this.ctx
         ctx.beginPath()
-        ctx.fillStyle = fillStyle || '#000'
+        ctx.fillStyle = fillStyle || '#18C0DD'
         ctx.fillRect(startX, startY, width, height)
     }
 
@@ -360,5 +363,10 @@ export default class CanvasBase {
     // 获取画布对象
     getCanvas() {
         return this.el
+    }
+
+    // 获取画布对象
+    getContext() {
+        return this.ctx
     }
 }

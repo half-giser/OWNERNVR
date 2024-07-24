@@ -3,7 +3,7 @@
  * @Date: 2024-06-07 15:00:44
  * @Description: 用户更改密码弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 19:43:31
+ * @LastEditTime: 2024-07-10 09:19:08
 -->
 <template>
     <el-dialog
@@ -29,7 +29,6 @@
                     v-model="formData.currentPassword"
                     type="password"
                     :placeholder="Translate('IDCS_CURRENT_PASSWORD')"
-                    :title="Translate('IDCS_CURRENT_PASSWORD')"
                     @paste.capture.prevent=""
                     @copy.capture.prevent=""
                 />
@@ -42,7 +41,6 @@
                     v-model="formData.newPassword"
                     type="password"
                     :placeholder="Translate('IDCS_NEW_PASSWORD')"
-                    :title="Translate('IDCS_NEW_PASSWORD')"
                     @paste.capture.prevent=""
                     @copy.capture.prevent=""
                 />
@@ -56,7 +54,6 @@
                     v-model="formData.confirmNewPassword"
                     type="password"
                     :placeholder="Translate('IDCS_CONFIRM_NEW_PASSWORD')"
-                    :title="Translate('IDCS_CONFIRM_NEW_PASSWORD')"
                     @paste.capture.prevent=""
                     @copy.capture.prevent=""
                 />

@@ -3,11 +3,16 @@
  * @Date: 2024-07-05 10:10:29
  * @Description: 存储模式配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-08 19:26:04
+ * @LastEditTime: 2024-07-12 09:13:54
 -->
 <template>
     <div class="StorageMode">
-        <el-form>
+        <el-form
+            label-position="left"
+            :style="{
+                '--form-input-width': '340px',
+            }"
+        >
             <el-form-item :label="Translate('IDCS_STORAGE_MODE')">
                 <el-select
                     disabled
@@ -95,7 +100,8 @@
                         file="addItem"
                         :index="0"
                         :hover-index="0"
-                        :disabled-index="currentItem.diskList.length ? 1 : -1"
+                        :disabled-index="1"
+                        :disabled="!currentItem.diskList.length"
                         :chunk="2"
                         @click="addChl"
                     />
@@ -124,7 +130,7 @@
 <style lang="scss" scoped>
 .StorageMode {
     :deep(.el-form-item) {
-        margin-bottom: 0;
+        margin-bottom: 10px;
         padding: 10px 0 10px 15px;
         background-color: var(--bg-color4);
     }

@@ -3,12 +3,19 @@
  * @Date: 2024-06-27 11:50:00
  * @Description: 备份与恢复
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 19:41:53
+ * @LastEditTime: 2024-07-12 13:43:17
 -->
 <template>
     <div class="BackupAndRestore">
-        <div class="title">{{ Translate('IDCS_SYSTEM_LOADINCONFIG_LOG') }}</div>
-        <el-form>
+        <el-form
+            inline-message
+            label-position="left"
+            :style="{
+                '--form-input-width': '250px',
+                '--form-label-width': '100px',
+            }"
+        >
+            <div class="base-subheading-box">{{ Translate('IDCS_SYSTEM_LOADINCONFIG_LOG') }}</div>
             <el-form-item :label="Translate('IDCS_PATH')">
                 <el-input
                     type="text"
@@ -45,10 +52,13 @@
                     >{{ Translate('IDCS_IMPORT') }}</el-button
                 >
             </el-form-item>
+            <div class="note">{{ pageData.importNote }}</div>
         </el-form>
-        <div class="note"></div>
-        <div class="title">{{ Translate('IDCS_SYSTEM_BACKUPCONFIG_LOG') }}</div>
-        <el-form>
+        <el-form
+            class="form"
+            inline-message
+        >
+            <div class="base-subheading-box">{{ Translate('IDCS_SYSTEM_BACKUPCONFIG_LOG') }}</div>
             <el-form-item :label="isSupportH5 ? '' : Translate('IDCS_PATH')">
                 <el-input
                     v-show="!isSupportH5"
@@ -69,8 +79,8 @@
                 <el-checkbox v-model="exportFormData.isIncludeNetworkConfig">{{ Translate('IDCS_INCLUDE_NETWORK') }}</el-checkbox>
                 <el-checkbox v-model="exportFormData.isIncludeDataEncryptPwd">{{ Translate('IDCS_INCLUDE_DATA_ENCRYPT_PASSWORD') }}</el-checkbox>
             </el-form-item>
+            <div class="note">{{ pageData.exportNote }}</div>
         </el-form>
-        <div class="note"></div>
         <BasePluginNotice />
         <BaseNotification v-model:notifications="pageData.notifications" />
         <BaseCheckAuthPop
@@ -92,47 +102,17 @@
 <script lang="ts" src="./BackupAndRestore.v.ts"></script>
 
 <style lang="scss" scoped>
-.BackupAndRestore {
-    .title {
-        font-size: 35px;
-        line-height: 35px;
-        width: 100%;
-        box-sizing: border-box;
-        padding-left: 15px;
-        font-size: 15px;
-        margin-bottom: 15px;
-        background-color: var(--bg-color4);
-        font-weight: bolder;
-        color: var(--text-dark);
-    }
+label {
+    display: inline-block;
 
-    label {
-        display: inline-block;
-
-        &.disabled {
-            cursor: not-allowed;
-        }
+    &.disabled {
+        cursor: not-allowed;
     }
+}
 
-    .el-input {
-        width: 250px;
-    }
-
-    :deep(.el-checkbox) {
-        padding-left: 15px;
-        margin-right: 15px;
-        display: flex;
-        align-items: center;
-    }
-
-    :deep(.el-form-item__content) > *:not(:first-child) {
-        margin-left: 5px;
-    }
-
-    .note {
-        font-size: 15px;
-        margin: 10px 0px 0px 0px;
-        height: 35px;
-    }
+.note {
+    font-size: 15px;
+    margin: 10px 0px 0px 0px;
+    height: 35px;
 }
 </style>
