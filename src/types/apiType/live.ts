@@ -1,0 +1,168 @@
+/*
+ * @Author: yejiahao yejiahao@tvt.net.cn
+ * @Date: 2024-07-17 11:31:57
+ * @Description: 现场预览
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-07-29 18:28:09
+ */
+import { type WebsocketSnapOnSuccessSnap } from '@/utils/websocket/websocketSnap'
+
+export class LiveChannelList {
+    id = ''
+    value = ''
+    chlType = ''
+    protocolType = ''
+    supportPtz = false
+    supportPTZGroupTraceTask = false
+    supportAccessControl = false
+    supportTalkback = false
+}
+
+export class LiveChannelGroupList {
+    id = ''
+    value = ''
+    dwellTime = 0
+}
+
+export class LiveChlOfChannelGroupList {
+    id = ''
+    value = ''
+}
+
+export class LiveCustomViewChlList {
+    chlId = ''
+    chlIndex = 0
+}
+
+export class LiveCustomViewList {
+    chlArr = [] as LiveCustomViewChlList[]
+    historyPlay = ''
+    segNum = 0
+    value = ''
+    id = 0
+}
+
+export class LiveAlarmList {
+    id = ''
+    name = ''
+    switch = false
+    delay = 0
+}
+
+export class LiveUserAuth {
+    // 是否拥有全部权限
+    hasAll = false
+    // 通道能力和权限的映射，每种能力下的数据格式：key-通道ID, value-布尔值
+    accessControl = false
+    // 云台
+    ptz = {} as Record<string, boolean>
+    // 音频
+    audio = {} as Record<string, boolean>
+    // 搜索和回放
+    spr = {} as Record<string, boolean>
+    // 预览
+    lp = {} as Record<string, boolean>
+}
+
+export class LiveResolutionOptions {
+    value = ''
+    label = ''
+    maxFps = 0
+}
+
+export class LiveQualityOptions {
+    value = ''
+    enct = ''
+    res = ''
+    chlType = ''
+}
+
+export class LiveStreamForm {
+    resolution = ''
+    frameRate = 0
+    quality = ''
+}
+
+export class LiveLensForm {
+    focusType = ''
+    focusTime = 0
+    irchangeFocus = false
+}
+
+export class LiveSharedWinData {
+    PLAY_STATUS = 'stop' as 'play' | 'stop' | 'error'
+    winIndex = 0
+    seeking = false
+    original = false
+    audio = false
+    magnify3D = false
+    localRecording = false
+    isPolling = false
+    isDwellPlay = false
+    groupID = ''
+    timestamp = 0
+    showWatermark = false
+    showPos = false
+    chlID = ''
+    supportPtz = false
+    chlName = ''
+    streamType = 2
+    talk = false
+    supportAudio = true
+}
+
+export class LiveSnapFaceDatabaseList {
+    id = ''
+    groupId = ''
+    name = ''
+}
+
+export class LiveSnapRegisterForm {
+    name = ''
+    sex = ''
+    birthday = ''
+    nativePlace = ''
+    certificateType = 'idCard'
+    certificateNum = ''
+    mobile = undefined as number | undefined
+    number = undefined as number | undefined
+    note = ''
+    groupId = ''
+}
+
+export class LiveSnapData implements WebsocketSnapOnSuccessSnap {
+    type = ''
+    chlId = ''
+    chlName = ''
+    detect_time = 0
+    frame_time = 0
+    scene_pic = ''
+    snap_pic = ''
+    repo_pic = ''
+    info = {
+        similarity: '',
+        text_tip: '',
+        group_name: '',
+        remarks: '',
+        name: '',
+        compare_status: 0,
+        plate: '',
+        event_type: '',
+        target_type: '',
+        person_info: {},
+        car_info: {},
+        bike_info: {},
+        face_respo_id: '',
+        birth_date: '',
+        certificate_number: '',
+        mobile_phone_number: '',
+        repo_pic: '',
+        face_id: '',
+        point_left_top: '',
+        point_right_bottom: '',
+        ptWidth: 0,
+        ptHeight: 0,
+        serial_number: '',
+        gender: '',
+    }
+}
