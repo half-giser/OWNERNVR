@@ -39,6 +39,7 @@ export const useUserSessionStore = defineStore(
         const showPluginNoResponse = ref('')
         const cababilityStore = useCababilityStore()
         const sn = ref('')
+        const defaultStreamType = ref('')
 
         /**
          * 加密本地存储用户信息
@@ -208,6 +209,8 @@ export const useUserSessionStore = defineStore(
             updataByReqLogin,
             updateByLogin,
             sn,
+            authEffective,
+            defaultStreamType,
         }
     },
     {

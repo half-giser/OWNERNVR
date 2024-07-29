@@ -27,3 +27,7 @@ export const queryFacePersonnalInfoGroupList = () => http.fetch('queryFacePerson
 export const queryFacePersonnalInfoList = (data: string, config?: AxiosRequestConfig) => http.fetch('queryFacePersonnalInfoList', data, config)
 
 export const queryPlateLibrary = () => http.fetch('queryPlateLibrary', getXmlWrapData(''))
+
+export const createFacePersonnalInfoGroup = (data: string) => http.fetch('createFacePersonnalInfoGroup', getXmlWrapData(data), {}, false)
+
+export const createFacePersonnalInfo = (data: string) => http.fetch('createFacePersonnalInfo', getXmlWrapData(data), {}, false)

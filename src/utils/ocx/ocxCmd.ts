@@ -3,7 +3,7 @@
  * @Date: 2024-06-03 11:56:43
  * @Description: 插件命令集合
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 10:41:41
+ * @LastEditTime: 2024-07-26 15:57:32
  */
 import { compressXml, rawXml } from '../xmlParse'
 import { xmlHeader } from '@/api/api'
@@ -319,7 +319,7 @@ export const OCX_XML_SetSessionIdLogin_P2P = (sessionId: string, sn: string) => 
  * @param viewType
  * @returns {string}
  */
-export const OCX_XML_SetScreenMode = (screenNum: number, layoutType: number, viewType: string) => {
+export const OCX_XML_SetScreenMode = (screenNum: number, layoutType?: number, viewType?: string) => {
     return wrapXml(rawXml`
         <cmd type="SetScreenMode" ${viewType === util.TIMESLIDER_PLUGIN ? 'target="dateCtrl"' : ''} layoutType="${String(layoutType || 1)}">${String(screenNum)}</cmd>
     `)
@@ -364,6 +364,24 @@ export const OCX_XML_SetAllViewChannelId = (chlIds: string[], chlNames: string[]
                     return `<item id="${item}" chlIp="${chlPoe ? chlPoe[key]?.chlIp || ' ' : ''}"  poe="${chlPoe ? chlPoe[key]?.poeSwitch || false : false}">${chlNames[key]}</item>`
                 })
                 .join('')}
+        </cmd>
+    `)
+}
+
+/**
+ * @description 获取“设置通道组”的XML命令字符串
+ * @param {Array} chlIds
+ * @param {String} chlGroupId
+ * @param {Number} dwellTime
+ */
+export const OCX_XML_CallChlGroup = (chlIds: { id: string; value: string }[], chlGroupId: string, dwellTime: number) => {
+    return wrapXml(rawXml`
+        <cmd type="CallChlGroup">
+            <groupId>${chlGroupId}</groupId>
+            <switchTime>${dwellTime.toString()}</switchTime>
+            <chls>
+                ${chlIds.map((item) => `<item id="${item.id}">${item.value}</item>`).join('')}
+            </chls>
         </cmd>
     `)
 }
@@ -538,7 +556,7 @@ export const OCX_XML_OSDSwitch = (status: 'ON' | 'OFF') => {
  * @param mainResolution
  * @returns {string}
  */
-export const OCX_XML_SetStreamType = (winIndex: number | 'ALL' | 'CURRENT', streamIndex: number, mainResolution: number) => {
+export const OCX_XML_SetStreamType = (winIndex: number | 'ALL' | 'CURRENT', streamIndex: number, mainResolution?: string) => {
     return wrapXml(rawXml`
         <cmd type="SetStreamType">
             <win>${String(winIndex)}</win>

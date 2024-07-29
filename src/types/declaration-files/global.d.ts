@@ -138,7 +138,7 @@ declare global {
      */
     interface MessageTipBoxOption {
         type: 'success' | 'error' | 'info' | 'alarm' | 'question'
-        title: string
+        title?: string
         message: string
         dangerouslyUseHTMLString?: boolean
         draggable?: boolean
