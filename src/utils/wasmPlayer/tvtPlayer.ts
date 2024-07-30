@@ -3,10 +3,10 @@
  * @Date: 2024-06-05 14:16:36
  * @Description: 集成wasm-player和多分屏功能
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 11:09:05
+ * @LastEditTime: 2024-07-26 11:16:16
  */
 
-import { ErrorCode, ErrorCodeMapping } from '../constants'
+import { ErrorCode } from '../constants'
 import { useCababilityStore } from '@/stores/cabability'
 import { isHttpsLogin, getUiAndTheme, formatHttpsTips } from '../tools'
 import WasmPlayer, { type WasmPlayerVideoFrame } from './wasmPlayer'
@@ -51,6 +51,8 @@ export interface TVTPlayerOption {
         zoomIn: (winIndex: number) => void
         getItemSize: (winIndex: number) => { width: number; height: number }
         // setSize: (width: number, height: number) => void
+        setPollIndex: (winIndex: number) => void
+        getWinIndexByPosition: (positionIndex: number) => number
         fullscreen: () => void
         resize: () => void
         getOverlayCanvas: (winIndex: number) => HTMLCanvasElement
@@ -89,6 +91,7 @@ export interface TVTPlayerWinDataListItem {
         chlID: string
         supportPtz: boolean
         chlName: string
+        streamType: number
     }
     winIndex: number
     seeking: boolean
@@ -170,6 +173,15 @@ export default class TVTPlayer {
     private readonly onselect: TVTPlayerOption['onselect']
     private readonly onwinexchange: TVTPlayerOption['onwinexchange']
     private readonly ondblclickchange: TVTPlayerOption['ondblclickchange']
+    private readonly ERROR_CODE_MAP: Record<number, string> = {
+        536870961: 'playComplete', // 文件流完成(回放结束时出现)
+        536870942: 'noRecord', // 无录像数据
+        536870945: 'deviceBusy', // 设备忙，不能请求
+        536870982: 'deviceBusy', // 设备忙，设备资源限制
+        536870931: 'offline', // 网络断开，通道离线
+        536870935: 'offline', // 通道不在线
+        536870953: 'noPermission', // 无权限
+    }
 
     constructor(options: TVTPlayerOption) {
         const cababilityStore = useCababilityStore()
@@ -315,7 +327,7 @@ export default class TVTPlayer {
             this.handleHttpsPlay()
             return
         }
-        const winIndex = params.winIndex || params.winIndex === 0 ? params.winIndex : this.activeWinIndex
+        const winIndex = this.screen.getWinIndexByPosition(params.winIndex || params.winIndex === 0 ? params.winIndex : this.activeWinIndex)
         const isDblClickSplit = params.isDblClickSplit || false
         this.stop(winIndex)
         const videoCav = this.screen.getVideoCanvas(winIndex)
@@ -412,6 +424,7 @@ export default class TVTPlayer {
             chlID: params.chlID,
             supportPtz: params.supportPtz || false,
             chlName: params.chlName || '',
+            streamType: params.streamType || 2,
         }
         this.winDataList[winIndex].original = false
         this.winDataList[winIndex].localRecording = false
@@ -433,7 +446,7 @@ export default class TVTPlayer {
      **/
     getWinIndexByCav(canvas: HTMLCanvasElement) {
         if (!this.playerList) return -1
-        const findIndex = this.playerList.findIndex((item) => item!.isSameCanvas(canvas))
+        const findIndex = this.playerList.findIndex((item) => item?.isSameCanvas(canvas))
         return findIndex
     }
 
@@ -445,8 +458,8 @@ export default class TVTPlayer {
         if (!this.playerList[winIndex]) {
             return
         }
-        this.playerList[winIndex]!.stop()
-        this.playerList[winIndex]!.destroy()
+        this.playerList[winIndex].stop()
+        this.playerList[winIndex].destroy()
         this.screen.hideErrorTips(winIndex)
         this.playerList[winIndex] = null
     }
@@ -565,11 +578,11 @@ export default class TVTPlayer {
             // 打开通道ip信息
             this.screen.toggleChlIp(winIndex, true)
         }
-        this.winDataList[winIndex]['audio'] ? this.openAudio(winIndex) : this.closeAudio(winIndex)
+        this.winDataList[winIndex].audio ? this.openAudio(winIndex) : this.closeAudio(winIndex)
         this.screen.toggleWatermark(winIndex, this.winDataList[winIndex].showWatermark)
         this.screen.togglePos(winIndex, this.winDataList[winIndex].showPos)
         this.screen.hideErrorTips(winIndex)
-        this.winDataList[winIndex]['PLAY_STATUS'] = 'play'
+        this.winDataList[winIndex].PLAY_STATUS = 'play'
         typeof this.onsuccess === 'function' && this.onsuccess(winIndex, this.winDataList[winIndex])
         typeof this.onplayStatus === 'function' && this.onplayStatus(this.getPlayingChlList())
     }
@@ -627,7 +640,7 @@ export default class TVTPlayer {
             if (this.noRecordFlag && errorCode == ErrorCode.USER_ERROR_FILE_STREAM_COMPLETED) {
                 this.screen.showErrorTips('noRecord', winIndex, this.winDataList[winIndex])
             } else {
-                this.screen.showErrorTips(ErrorCodeMapping[errorCode], winIndex, this.winDataList[winIndex])
+                this.screen.showErrorTips(this.ERROR_CODE_MAP[errorCode], winIndex, this.winDataList[winIndex])
             }
         }
     }
@@ -760,7 +773,7 @@ export default class TVTPlayer {
      * @param {boolean} bool
      * @param {number} winIndex
      */
-    setPollingState(bool: boolean, winIndex: number) {
+    setPollingState(bool: boolean, winIndex?: number) {
         if (winIndex !== undefined) {
             this.winDataList[winIndex]['isPolling'] = bool
             return
@@ -957,6 +970,14 @@ export default class TVTPlayer {
      */
     getWinDataByWinIndex(winIndex: number) {
         return this.winDataList[winIndex]
+    }
+
+    /**
+     * @description 获取所有窗口数据
+     * @returns {TVTPlayerWinDataListItem[]}
+     */
+    getWinData() {
+        return this.winDataList
     }
 
     /**

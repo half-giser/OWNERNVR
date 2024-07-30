@@ -3,7 +3,7 @@
  * @Date: 2023-04-28 17:57:48
  * @Description: 工具方法
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-11 11:02:49
+ * @LastEditTime: 2024-07-29 10:25:50
  */
 
 import { useUserSessionStore } from '@/stores/userSession'
@@ -317,69 +317,70 @@ export const wrapEnums = (array: string[] | SelectOption<any, any>[]) => {
     }
 }
 
+export const ternary = (condition: boolean | number | string | undefined | null, trueResult = '', falseResult = '') => {
+    return condition ? trueResult : falseResult
+}
+
 /**
  * @description 获取通道列表
  * @param options（options为过滤条件）
  * @returns {promise}
  */
 export const getChlList = (options: Partial<QueryNodeListDto>) => {
-    let data = rawXml`
-                <types>
-                    <nodeType>
-                        <enum>chls</enum>
-                        <enum>sensors</enum>
-                        <enum>alarmOuts</enum>
-                    </nodeType>
-                </types>`
-    if (options.pageIndex) data += `<pageIndex>${options.pageIndex}</pageIndex>`
-    if (options.pageSize) data += `<pageSize>${options.pageSize}</pageSize>`
-    data += `<nodeType type='nodeType'>${options.nodeType || 'chls'}</nodeType>
-            <condition>`
-    if (options.chlName) data += `<name><![CDATA[${options.chlName}]]></name>`
-    if (options.isSupportPtz) data += '<supportPtz/>'
-    if (options.isSupportPtzGroupTraceTask) data += '<supportPTZGroupTraceTask/>'
-    if (options.isSupportTalkback) data += '<supportTalkback/>'
-    if (options.isSupportOsc) data += '<supportOsc/>'
-    if (options.isSupportSnap) data += '<supportSnap/>'
-    if (options.isSupportVfd) data += '<supportVfd/>'
-    if (options.isSupportBackEndVfd) data += '<supportBackEndVfd/>'
-    if (options.isSupportCpc) data += '<supportCpc/>'
-    if (options.isSupportCdd) data += '<supportCdd/>'
-    if (options.isSupportIpd) data += '<supportIpd/>'
-    if (options.isSupportAvd) data += '<supportAvd/>'
-    if (options.isSupportPea) data += '<supportPea/>'
-    if (options.isSupportTripwire) data += '<supportTripwire/>'
-    if (options.isSupportImageRotate) data += '<supportImageRotate/>'
-    if (options.isSupportFishEye) data += '<supportFishEye/>'
-    if (options.isSupportMotion) data += '<supportMotion/>'
-    if (options.isSupportOsd) data += '<supportOsd/>'
-    if (options.isSupportAudioSetting) data += '<supportAudioSetting/>'
-    if (options.isSupportMaskSetting) data += '<supportMaskSetting/>'
-    if (options.isSupportImageSetting) data += '<supportImageSetting/>'
-    if (options.isSupportWhiteLightAlarmOut) data += '<supportWhiteLightAlarmOut/>'
-    if (options.isSupportAudioAlarmOut) data += '<supportAudioAlarmOut/>'
-    if (options.isSupportAudioDev) data += '<supportAudioDev/>'
-    if (options.isSupportAOIEntry) data += '<supportAOIEntry/>'
-    if (options.isSupportAOILeave) data += '<supportAOILeave/>'
-    if (options.isSupportPassLine) data += '<supportPassLine/>'
-    if (options.isSupportVehiclePlate) data += '<supportVehiclePlate/>'
-    if (options.isSupportAutoTrack) data += '<supportAutoTrack/>'
-    if (options.isSupportAccessControl) data += '<supportAccessControl/>'
-    if (options.isContainsDeletedItem) data += '<containsDeletedItem/>'
-    if (options.authList) data += `<auth relation='or'>${options.authList}</auth>`
-    if (options.chlType) data += `<chlType type='chlType'>${options.chlType}</chlType>`
-    if (options.ignoreNdChl) data += '<ignoreNdChl/>'
-    data += `</condition>
-            <requireField>
-                <name/>
-                <chlIndex/>
-                <chlType/>`
-    if (options.requireField) {
-        options.requireField.forEach((ele: string) => {
-            data += `<${ele}/>`
-        })
-    }
-    data += '</requireField>'
+    const data = rawXml`
+        <types>
+            <nodeType>
+                <enum>chls</enum>
+                <enum>sensors</enum>
+                <enum>alarmOuts</enum>
+            </nodeType>
+        </types>
+        ${ternary(options.pageIndex, `<pageIndex>${options.pageIndex}</pageIndex>`)}
+        ${ternary(options.pageSize, `<pageSize>${options.pageSize}</pageSize>`)}
+        <nodeType type='nodeType'>${options.nodeType || 'chls'}</nodeType>
+        <condition>
+            ${ternary(options.chlName, `<name>${wrapCDATA(options.chlName!)}</name>`)}
+            ${ternary(options.isSupportPtz, `<supportPtz/>`)}
+            ${ternary(options.isSupportPtzGroupTraceTask, `<supportPTZGroupTraceTask/>`)}
+            ${ternary(options.isSupportTalkback, `<supportTalkback/>`)}
+            ${ternary(options.isSupportOsc, `<supportOsc/>`)}
+            ${ternary(options.isSupportSnap, '<supportSnap/>')}
+            ${ternary(options.isSupportVfd, '<supportVfd/>')}
+            ${ternary(options.isSupportBackEndVfd, '<supportBackEndVfd/>')}
+            ${ternary(options.isSupportCpc, '<supportCpc/>')}
+            ${ternary(options.isSupportCdd, '<supportCdd/>')}
+            ${ternary(options.isSupportIpd, '<supportIpd/>')}
+            ${ternary(options.isSupportAvd, '<supportAvd/>')}
+            ${ternary(options.isSupportPea, '<supportPea/>')}
+            ${ternary(options.isSupportTripwire, '<supportTripwire/>')}
+            ${ternary(options.isSupportImageRotate, '<supportImageRotate/>')}
+            ${ternary(options.isSupportFishEye, '<supportFishEye/>')}
+            ${ternary(options.isSupportMotion, '<supportMotion/>')}
+            ${ternary(options.isSupportOsd, '<supportOsd/>')}
+            ${ternary(options.isSupportAudioSetting, '<supportAudioSetting/>')}
+            ${ternary(options.isSupportMaskSetting, '<supportMaskSetting/>')}
+            ${ternary(options.isSupportImageSetting, '<supportImageSetting/>')}
+            ${ternary(options.isSupportWhiteLightAlarmOut, '<supportWhiteLightAlarmOut/>')}
+            ${ternary(options.isSupportAudioAlarmOut, '<supportAudioAlarmOut/>')}
+            ${ternary(options.isSupportAudioDev, '<supportAudioDev/>')}
+            ${ternary(options.isSupportAOIEntry, '<supportAOIEntry/>')}
+            ${ternary(options.isSupportAOILeave, '<supportAOILeave/>')}
+            ${ternary(options.isSupportPassLine, '<supportPassLine/>')}
+            ${ternary(options.isSupportVehiclePlate, '<supportVehiclePlate/>')}
+            ${ternary(options.isSupportAutoTrack, '<supportAutoTrack/>')}
+            ${ternary(options.isSupportAccessControl, '<supportAccessControl/>')}
+            ${ternary(options.isContainsDeletedItem, '<containsDeletedItem/>')}
+            ${ternary(options.authList, `<auth relation='or'>${options.authList}</auth>`)}
+            ${ternary(options.chlType, `<chlType type='chlType'>${options.chlType}</chlType>`)}
+            ${ternary(options.ignoreNdChl, '<ignoreNdChl/>')}
+        </condition>
+        <requireField>
+            <name/>
+            <chlIndex/>
+            <chlType/>
+            ${options.requireField ? options.requireField.map((ele) => `<${ele}/>`).join('') : ''}
+        </requireField>
+    `
     return queryNodeList(getXmlWrapData(data))
 }
 

@@ -3,7 +3,7 @@
  * @Date: 2023-05-09 16:45:59
  * @Description: 导航全局存储
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-15 09:15:25
+ * @LastEditTime: 2024-07-17 14:30:18
  */
 
 import { type RouteRecordRaw, type RouteMeta } from 'vue-router'
@@ -21,6 +21,10 @@ export const useMenuStore = defineStore(
         const sysType = ref('') as Ref<string>
         /** 左侧导航是否展开 */
         const leftNavExpand = ref(undefined) as Ref<boolean | undefined>
+        /** 上次现场预览的块数 */
+        const liveLastSegNum = ref(0)
+        /** 上次现场预览的通道 */
+        const liveLastPlayChlList = ref<string[]>([])
 
         /**
          * @description: 设置当前系统类型
@@ -113,6 +117,9 @@ export const useMenuStore = defineStore(
             goPath,
             isMenuItemShow,
             isSubMenuShow,
+
+            liveLastSegNum,
+            liveLastPlayChlList,
         }
     },
     {
