@@ -130,12 +130,15 @@ export default defineConfig(({ mode }) => {
                     './src/utils/ocx',
                     './src/utils/websocket',
                     './src/utils/canvas',
-                    './src/components',
+                    './src/components/*.vue',
+                    './src/components/**/*.vue',
                 ],
             }),
             Components({
                 resolvers: [ElementPlusResolver()],
                 dts: 'src/types/declaration-files/components.d.ts',
+                dirs: ['./src/components/'],
+                deep: true,
             }),
             createHtmlPlugin({
                 minify: true,

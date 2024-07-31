@@ -3,10 +3,14 @@
  * @Date: 2024-07-11 19:30:59
  * @Description: 列表项组件
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-11 19:51:52
+ * @LastEditTime: 2024-07-24 17:13:39
 -->
 <template>
-    <li :class="{ active }">
+    <li
+        :class="{ active }"
+        @click="handleClick"
+        @dblclick="handleDblClick"
+    >
         <slot></slot>
     </li>
 </template>
@@ -22,6 +26,25 @@ withDefaults(
         icon: '',
     },
 )
+
+const emits = defineEmits<{
+    (e: 'click'): void
+    (e: 'dblclick'): void
+}>()
+
+let timer: NodeJS.Timeout | number = 0
+
+const handleClick = () => {
+    clearTimeout(timer)
+    timer = setTimeout(() => {
+        emits('click')
+    }, 300)
+}
+
+const handleDblClick = () => {
+    clearTimeout(timer)
+    emits('dblclick')
+}
 </script>
 
 <style lang="scss" scoped>

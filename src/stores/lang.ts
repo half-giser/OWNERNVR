@@ -20,6 +20,8 @@ export const useLangStore = defineStore(
         const langTypes = ref<Record<string, string>>({})
         /** 语言列表 */
         const langItems = ref<Record<string, string>>({})
+        /** 需要文本右对齐的语言列表（如: 波斯语、阿拉伯语） */
+        const rtlLangList = ref<string[]>([])
 
         /**
          * @description: 从设备请求指定语言类型列表
@@ -36,24 +38,31 @@ export const useLangStore = defineStore(
                 langTypes.value = langTypesTemp
                 langId.value = sessionStorage.getItem(LocalCacheKey.langId) as string
                 if (!langId.value || langId.value === 'null') {
-                    const devLandId = queryXml(result)('/response/content').attr('currentLangType')
+                    const $ = queryXml(result)
+                    const devLandId = $('/response/content').attr('currentLangType')!
                     langType.value = navigator.language.toLowerCase()
                     langId.value = LANG_MAPPING[langType.value]
                     if (!langId.value) {
-                        //如果map中不存在，则尝试只比较前2位
+                        // 如果map中不存在，则尝试只比较前2位
                         langId.value = LANG_MAPPING[langType.value.substring(0, 2)] as string
                     }
                     if (!langId.value) {
-                        langId.value = devLandId as string
+                        langId.value = devLandId
                     }
                     if (!langTypes.value[langId.value]) {
-                        langId.value = devLandId as string
+                        langId.value = devLandId
                     }
                     for (const key in LANG_MAPPING) {
                         if (LANG_MAPPING[key].toLowerCase() == langId.value) {
                             langType.value = key
                             break
                         }
+                    }
+                    rtlLangList.value = $('/response/content/item[@alignRight="true"]').map((item) => {
+                        return item.attr('id')!
+                    })
+                    if (!rtlLangList.value.length) {
+                        rtlLangList.value = ['0x0429', '0x0c01']
                     }
                     localStorage.setItem(LocalCacheKey.langType, langType.value)
                     localStorage.setItem(LocalCacheKey.langId, langId.value)
@@ -70,7 +79,11 @@ export const useLangStore = defineStore(
          * @return {*}
          */
         const requestLangItems = () => {
-            const data = getXmlWrapData(`<condition><langType>${langIdLocal.value}</langType></condition>`)
+            const data = getXmlWrapData(rawXml`
+                <condition>
+                    <langType>${langIdLocal.value}</langType>
+                </condition>
+            `)
             return getLangContent(data).then((result) => {
                 const langNodes = queryXml(result)('/response/content/langItems/item')
                 const langItemsTemp: Record<string, string> = {}
@@ -155,6 +168,14 @@ export const useLangStore = defineStore(
             }
         })
 
+        /**
+         * @description 获取当前语言的书写模式
+         * @returns {string} rtl | ltr
+         */
+        const getTextDir = () => {
+            return rtlLangList.value.includes(langId.value) ? 'rtl' : 'ltr'
+        }
+
         return {
             langId,
             getLangId: langIdLocal,
@@ -166,6 +187,8 @@ export const useLangStore = defineStore(
             Translate,
             updateLangType,
             updateLangId,
+            rtlLangList,
+            getTextDir,
         }
     },
     {

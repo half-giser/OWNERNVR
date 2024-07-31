@@ -40,6 +40,7 @@ export const useUserSessionStore = defineStore(
         const cababilityStore = useCababilityStore()
         const sn = ref('')
         const advanceRecModeId = ref('')
+        const defaultStreamType = ref('')
 
         /**
          * 加密本地存储用户信息
@@ -210,6 +211,8 @@ export const useUserSessionStore = defineStore(
             updateByLogin,
             sn,
             advanceRecModeId,
+            authEffective,
+            defaultStreamType,
         }
     },
     {
