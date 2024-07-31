@@ -97,7 +97,7 @@ const props = withDefaults(defineProps<Props>(), {
     timeSpanColor: '#18C0DD',
     timeSpanSelectingColor: '#89E9F9',
     timeSpanBgColor: '#F2F2F3',
-    dragAction: 'add' | 'del',
+    dragAction: 'add',
 })
 
 const { Translate } = inject('appGlobalProp') as appGlobalProp

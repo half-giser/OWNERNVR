@@ -666,3 +666,13 @@ export const DEFAULT_MOMENT_MAPPING: Record<string, string> = {
 //     // "24": "HH:mm",
 //     // "12": "hh:mm tt"
 // }
+
+export const REC_MODE_TYPE = {
+    INTENSIVE: 'INTENSIVE',
+    EVENT: 'EVENT',
+    INTENSIVE_EVENT: 'INTENSIVE_EVENT',
+    MOTION: 'MOTION',
+    ALARM: 'ALARM',
+    INTELLIGENT: 'INTELLIGENT',
+    POS: 'POS',
+}

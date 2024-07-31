@@ -2,8 +2,8 @@
  * @Author: xujp xujp@tvt.net.cn
  * @Date: 2023-04-28 14:36:40
  * @Description:解析xml下指定路径的标签文本和属性
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-09 14:39:04
+ * @LastEditors: tengxiang tengxiang@tvt.net.cn
+ * @LastEditTime: 2024-07-26 14:08:04
  */
 
 /*
@@ -23,6 +23,8 @@ export interface XmlResult extends Array<XmlElement> {
 
 export type XMLQuery = ReturnType<typeof queryXml>
 
+const eva = new XPathEvaluator()
+
 /**
  * @description: xml文档解析
  * @param {string} path 遍历路径, 如'//content/langItems/item'
@@ -32,7 +34,6 @@ export type XMLQuery = ReturnType<typeof queryXml>
 export const xmlParse = (path: string, xmlDoc: XMLDocument | Element | null): XmlResult => {
     const xmlNodes: any = []
     if (xmlDoc === null) return xmlNodes
-    const eva = new XPathEvaluator()
     const xmlResult: XPathResult = eva.evaluate(path, <XMLDocument>xmlDoc, null, XPathResult.ANY_TYPE, null)
     let nodes: Node | null
     while ((nodes = xmlResult.iterateNext())) {
@@ -49,19 +50,7 @@ export const xmlParse = (path: string, xmlDoc: XMLDocument | Element | null): Xm
  * @return {(path: string) => XmlResult}
  */
 export const queryXml = (xmlDoc: XMLDocument | Element | null) => {
-    const eva = new XPathEvaluator()
-    return (path: string): XmlResult => {
-        const xmlNodes: any = []
-        if (xmlDoc === null) return xmlNodes
-        const xmlResult: XPathResult = eva.evaluate(path, <XMLDocument>xmlDoc, null, XPathResult.ANY_TYPE, null)
-        let nodes: Node | null
-        while ((nodes = xmlResult.iterateNext())) {
-            xmlNodes[xmlNodes.length] = new XmlElement(nodes)
-        }
-        xmlNodes.text = xmlNodes.length === 0 ? () => '' : () => xmlNodes[0].text()
-        xmlNodes.attr = xmlNodes.length === 0 ? () => '' : (a: string, b?: string) => xmlNodes[0].attr(a, b)
-        return xmlNodes
-    }
+    return (path: string): XmlResult => xmlParse(path, xmlDoc)
 }
 
 export const getElementText = (xmlObj: XmlElement | Element, eleName: string, defaultValue: string = '') => {
