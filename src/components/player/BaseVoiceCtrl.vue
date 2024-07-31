@@ -3,25 +3,32 @@
  * @Date: 2024-06-05 10:57:42
  * @Description: 音量控件
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-12 13:41:22
+ * @LastEditTime: 2024-07-24 11:51:29
 -->
 <template>
     <div class="VoiceCtrl">
-        <BaseImgSprite
-            class="icon"
-            :file="iconFile"
-            :index="0"
-            :hover-index="1"
-            :chunk="4"
-            @click="handleSwitchMute"
-        />
+        <el-tooltip
+            :content="mute ? Translate('IDCS_AUDIO_ON') : Translate('IDCS_AUDIO_OFF')"
+            :show-after="500"
+        >
+            <BaseImgSprite
+                class="icon"
+                :file="iconFile"
+                :index="mute ? 0 : 2"
+                :hover-index="1"
+                :disabled-index="3"
+                :disabled="disabled"
+                :chunk="4"
+                @click="handleSwitchMute"
+            />
+        </el-tooltip>
         <div class="bar">
             <el-slider
                 v-model="sliderValue"
                 :min="0"
                 :max="100"
-                :disabled="prop.mute"
-                @change="handleChangeVolumn($event as number)"
+                :disabled="prop.mute || disabled"
+                @change="handleChangevolume($event as number)"
             />
         </div>
     </div>
@@ -32,22 +39,24 @@ import BaseImgSprite from '@/views/UI_PUBLIC/components/sprite/BaseImgSprite.vue
 
 const prop = withDefaults(
     defineProps<{
-        volumn: number
+        volume: number
         mute: boolean
+        disabled?: boolean
     }>(),
     {
-        volumn: 50,
-        mute: false,
+        volume: 50,
+        mute: true,
+        disabled: false,
     },
 )
 
-const sliderValue = ref(prop.volumn)
+const sliderValue = ref(prop.volume)
 
 const emits = defineEmits<{
     /**
-     * @param {number} volumn 音量值
+     * @param {number} volume 音量值
      */
-    (e: 'update:volumn', volumn: number): void
+    (e: 'update:volume', volume: number): void
     /**
      * @param {boolean} mute true: 静音; false: 取消静音
      */
@@ -58,18 +67,20 @@ const iconFile = computed(() => {
     return prop.mute ? 'sound_close' : 'sound'
 })
 
-const handleChangeVolumn = (event: number) => {
-    emits('update:volumn', event)
+const handleChangevolume = (event: number) => {
+    emits('update:volume', event)
 }
 
 const handleSwitchMute = () => {
+    if (prop.disabled) {
+        return
+    }
     emits('update:mute', !prop.mute)
 }
 
 watch(
-    () => prop.volumn,
+    () => prop.volume,
     (value) => {
-        console.log('watch!', value)
         sliderValue.value = value
     },
 )

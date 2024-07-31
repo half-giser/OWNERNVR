@@ -3,7 +3,7 @@
  * @Date: 2024-06-11 20:22:27
  * @Description:
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-16 19:33:53
+ * @LastEditTime: 2024-07-17 09:32:02
  */
 import http, { getXmlWrapData } from './api'
 
@@ -258,3 +258,9 @@ export const querySNMPCfg = () => http.fetch('querySNMPCfg', getXmlWrapData(''))
  * @returns
  */
 export const editSNMPCfg = (data: string) => http.fetch('editSNMPCfg', getXmlWrapData(data))
+
+/**
+ * @description 获取网络节点编码信息
+ * @returns
+ */
+export const queryNetworkNodeEncodeInfo = (data: string) => http.fetch('queryNetworkNodeEncodeInfo', getXmlWrapData(data))

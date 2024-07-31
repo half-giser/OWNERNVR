@@ -3,15 +3,40 @@
  * @Date: 2024-05-30 15:59:38
  * @Description: websocket 订阅实时抓拍
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-05-31 09:30:30
+ * @LastEditTime: 2024-07-23 21:20:26
  */
 
 import WebsocketBase from './websocketBase'
 import { Uint8ArrayToStr, getPicBase64 } from '../tools'
 import { CMD_REALTIME_SNAP_SUBSCRIBE, CMD_REALTIME_SNAP_UNSUBSCRIBE } from './websocketCmd'
 
+type SnapDataConfig = {
+    channel_id: string
+    face_detect: {
+        info: boolean
+        detect_pic: boolean
+        scene_pic: boolean
+    }
+    face_verify: {
+        info: boolean
+        detect_pic: boolean
+        scene_pic: boolean
+        repo_pic: boolean
+    }
+    vehicle_plate: {
+        info: boolean
+        detect_pic: boolean
+        scene_pic: boolean
+    }
+    boundary: {
+        info: boolean
+        detect_pic: boolean
+        scene_pic: boolean
+    }
+}[]
+
 export interface WebsocketSnapOption {
-    config: string
+    config: SnapDataConfig
     onsuccess?: (param: WebsocketSnapOnSuccessParam[]) => void
 }
 
@@ -83,45 +108,76 @@ type SnapDataType = {
     [key in SnapDataKey]: SnapDataDatum[]
 }
 
-export type WebsocketSnapOnSuccessParam =
-    | {
-          type: string
-          chlId: string
-          chlName: string
-          detect_time: number
-          frame_time?: number
-          scene_pic: string | null
-          snap_pic: string | null
-          repo_pic?: string | null
-          info: string
-      }
-    | {
-          plateNum: string // 车牌号
-          master: string // 车主
-          phoneNum: string // 联系方式
-          groupName: string // 车牌组名称
-          restNum: string // 剩余车位
-          totalNum: string // 总车位
-          enterNum: string // 今日进入车辆数
-          exitNum: string // 今日离开车辆数
-          direction: string // 方向
-          isEnter: boolean // 是否有进场数据
-          enterImg: string | null // 进场原图
-          enterChlId: string // 进场通道ID
-          enterChl: string // 进场通道名称
-          enterTime: number | string // 进场时间（毫秒数）
-          enterframeTime: number | string // 进场时间（帧时间）
-          enterVehicleId: string // 进场车牌ID
-          enterType: string // 进场放行方式
-          isExit: boolean // 是否有出场数据
-          exitImg: string | null // 出场原图
-          exitChlId: string // 出场通道ID
-          exitChl: string // 出场通道名称
-          exitTime: number | string // 出场时间（毫秒数）
-          exitframeTime: number | string // 进场时间（帧时间）
-          exitVehicleId: string // 出场车牌ID
-          exitType: string // 出场放行方式
-      }
+type WebsocketSnapOnSuccessSnapInfo = {
+    similarity: string
+    text_tip?: string
+    group_name: string
+    remarks?: string
+    name: string
+    compare_status: number
+    plate?: string
+    event_type: string
+    target_type: string
+    person_info: Record<string | number, string | number>
+    car_info: Record<string, string | number>
+    bike_info: Record<string, string | number>
+    // plate: Record<string, string | number>
+    face_respo_id: string
+    birth_date: string
+    certificate_number: string
+    mobile_phone_number: string
+    owner?: string
+    repo_pic: string
+    face_id: string
+    point_left_top: string
+    point_right_bottom: string
+    ptWidth: number
+    ptHeight: number
+    serial_number: string
+    gender: string
+}
+
+export type WebsocketSnapOnSuccessSnap = {
+    type: string
+    chlId: string
+    chlName: string
+    detect_time: number
+    frame_time?: number
+    scene_pic: string | null
+    snap_pic: string | null
+    repo_pic?: string | null
+    info: WebsocketSnapOnSuccessSnapInfo
+}
+
+export type WebsocketSnapOnSuccessPlate = {
+    plateNum: string // 车牌号
+    master: string // 车主
+    phoneNum: string // 联系方式
+    groupName: string // 车牌组名称
+    restNum: string // 剩余车位
+    totalNum: string // 总车位
+    enterNum: string // 今日进入车辆数
+    exitNum: string // 今日离开车辆数
+    direction: string // 方向
+    isEnter: boolean // 是否有进场数据
+    enterImg: string | null // 进场原图
+    enterChlId: string // 进场通道ID
+    enterChl: string // 进场通道名称
+    enterTime: number | string // 进场时间（毫秒数）
+    enterframeTime: number | string // 进场时间（帧时间）
+    enterVehicleId: string // 进场车牌ID
+    enterType: string // 进场放行方式
+    isExit: boolean // 是否有出场数据
+    exitImg: string | null // 出场原图
+    exitChlId: string // 出场通道ID
+    exitChl: string // 出场通道名称
+    exitTime: number | string // 出场时间（毫秒数）
+    exitframeTime: number | string // 进场时间（帧时间）
+    exitVehicleId: string // 出场车牌ID
+    exitType: string // 出场放行方式
+}
+
+export type WebsocketSnapOnSuccessParam = WebsocketSnapOnSuccessSnap | WebsocketSnapOnSuccessPlate
 
 const PIC_KEY_MAP = {
     face_detect: {
@@ -152,7 +208,7 @@ const PIC_KEY_MAP = {
 
 export default class WebsocketSnap {
     private ws?: WebsocketBase
-    private config: string = ''
+    private config: SnapDataConfig
     private readonly onsuccess: WebsocketSnapOption['onsuccess']
 
     constructor(option: WebsocketSnapOption) {

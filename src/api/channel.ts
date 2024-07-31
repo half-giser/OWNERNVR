@@ -85,3 +85,157 @@ export const cameraLensCtrlCall = (data: string, config?: AxiosRequestConfig) =>
 export const queryPrivacyMask = (data: string, config?: AxiosRequestConfig) => http.fetch('queryPrivacyMask', data, config)
 // 编辑通道遮挡配置
 export const editPrivacyMask = (data: string, config?: AxiosRequestConfig) => http.fetch('editPrivacyMask', data, config)
+
+/**
+ * @description 查询预置点列表
+ * @param {string} data
+ * @returns
+ */
+export const queryChlPresetList = (data: string) => http.fetch('queryChlPresetList', getXmlWrapData(data))
+
+/**
+ * @description 下发云台移动
+ * @param {string} data
+ * @returns
+ */
+export const ptzMoveCall = (data: string) => http.fetch('ptzMoveCall', getXmlWrapData(data))
+
+/**
+ * @description 播放巡航线
+ * @param {string} data
+ * @returns
+ */
+export const runPtzCruise = (data: string) => http.fetch('runPtzCruise', getXmlWrapData(data))
+
+/**
+ * @description 停止播放巡航线
+ * @param {string} data
+ * @returns
+ */
+export const stopPtzCruise = (data: string) => http.fetch('stopPtzCruise', getXmlWrapData(data))
+
+/**
+ * @description 查询巡航线列表
+ * @param {string} data
+ * @returns
+ */
+export const queryChlCruiseList = (data: string) => http.fetch('queryChlCruiseList', getXmlWrapData(data))
+
+/**
+ * @description 删除巡航线
+ * @param {string} data
+ * @returns
+ */
+export const delChlCruise = (data: string) => http.fetch('delChlCruise', getXmlWrapData(data))
+
+/**
+ * @description 播放巡航线组
+ * @param {string} data
+ * @returns
+ */
+export const runChlPtzGroup = (data: string) => http.fetch('runChlPtzGroup', getXmlWrapData(data))
+
+/**
+ * @description 停止播放巡航线组
+ * @param {string} data
+ * @returns
+ */
+export const stopChlPtzGroup = (data: string) => http.fetch('stopChlPtzGroup', getXmlWrapData(data))
+
+/**
+ * @description 查询巡航线组列表
+ * @param {string} data
+ * @returns
+ */
+export const queryLocalChlPtzGroup = (data: string) => http.fetch('queryLocalChlPtzGroup', getXmlWrapData(data))
+
+/**
+ * @description 修改巡航线组
+ * @param {string} data
+ * @returns
+ */
+export const editChlPtzGroup = (data: string) => http.fetch('editChlPtzGroup', getXmlWrapData(data))
+
+/**
+ * @description 播放轨迹
+ * @param {string} data
+ * @returns
+ */
+export const runChlPtzTrace = (data: string) => http.fetch('runChlPtzTrace', getXmlWrapData(data))
+
+/**
+ * @description 停止播放轨迹
+ * @param {string} data
+ * @returns
+ */
+export const stopChlPtzTrace = (data: string) => http.fetch('stopChlPtzTrace', getXmlWrapData(data))
+
+/**
+ * @description 开始轨迹录像
+ * @param {string} data
+ * @returns
+ */
+export const startChlPtzTrace = (data: string) => http.fetch('startChlPtzTrace', getXmlWrapData(data))
+
+/**
+ * @description 保存轨迹录像
+ * @param {string} data
+ * @returns
+ */
+export const saveChlPtzTrace = (data: string) => http.fetch('saveChlPtzTrace', getXmlWrapData(data))
+
+/**
+ * @description 取消轨迹录像
+ * @param {string} data
+ * @returns
+ */
+export const cancelChlPtzTrace = (data: string) => http.fetch('cancelChlPtzTrace', getXmlWrapData(data))
+
+/**
+ * @description goto云台预置点
+ * @param {string} data
+ * @returns
+ */
+export const goToPtzPreset = (data: string) => http.fetch('goToPtzPreset', getXmlWrapData(data))
+
+/**
+ * @description 删除预置点
+ * @param {string} data
+ * @returns
+ */
+export const delChlPreset = (data: string) => http.fetch('delChlPreset', getXmlWrapData(data))
+
+/**
+ * @description 编辑预置点位置
+ * @param {string} data
+ * @returns
+ */
+export const editChlPresetPosition = (data: string) => http.fetch('editChlPresetPosition', getXmlWrapData(data))
+
+/**
+ * @description 获取轨迹列表
+ * @param {string} data
+ * @returns
+ */
+export const queryLocalChlPtzTraceList = (data: string) => http.fetch('queryLocalChlPtzTraceList', getXmlWrapData(data))
+
+/**
+ * @description 删除本地轨迹
+ * @param {string} data
+ * @returns
+ */
+export const delLocalChlPtzTrace = (data: string) => http.fetch('delLocalChlPtzTrace', getXmlWrapData(data))
+
+/**
+ * @description 删除轨迹
+ * @param {string} data
+ * @returns
+ */
+export const deleteChlPtzTrace = (data: string) => http.fetch('deleteChlPtzTrace', getXmlWrapData(data))
+
+/**
+ * @description 查询鱼眼信息
+ * @param {string} data
+ * @returns
+ */
+export const queryIPChlORChlFishEye = (data: string) => http.fetch('queryIPChlORChlFishEye', getXmlWrapData(data))

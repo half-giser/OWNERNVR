@@ -3,7 +3,7 @@
  * @Date: 2024-05-31 10:35:00
  * @Description: 基于webAssembly + canvas的视频播放器
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-09 11:50:08
+ * @LastEditTime: 2024-07-23 13:38:26
  */
 import WebGLPlayer from './webglPlayer'
 import PCMPlayer, { type PCMPlayerOptionEncoding } from './pcmPlayer'
@@ -134,6 +134,7 @@ export default class WasmPlayer {
     private readonly onwatermark: WasmPlayerOption['onwatermark']
     private readonly onrecordFile: WasmPlayerOption['onrecordFile']
     private readonly onpos: WasmPlayerOption['onpos']
+    private pageVisibleChangeHandle = () => {}
 
     constructor(options: WasmPlayerOption) {
         this.type = options.type || 'live'
@@ -416,9 +417,9 @@ export default class WasmPlayer {
     /**
      * @description 更新webPageVisible状态
      */
-    private pageVisibleChangeHandle() {
-        this.webPageVisible = !document.hidden
-    }
+    // private pageVisibleChangeHandle() {
+    //     this.webPageVisible = !document.hidden
+    // }
 
     /**
      * @description 初始化
@@ -427,6 +428,9 @@ export default class WasmPlayer {
         this.initDecoder()
         this.initDownloader()
         this.initWebGL()
+        this.pageVisibleChangeHandle = () => {
+            this.webPageVisible = !document.hidden
+        }
         // this.pageVisibleChangeHandle = () => {
         //     this.webPageVisible = !document.hidden
         // }
@@ -601,20 +605,20 @@ export default class WasmPlayer {
      * @description 销毁解码线程
      */
     private destroyDecoder() {
-        this.decodeWorker!.postMessage({
+        this.decodeWorker?.postMessage({
             cmd: 'destroy',
         })
-        this.decodeWorker!.terminate()
+        this.decodeWorker?.terminate()
     }
 
     /**
      * @description 销毁下载线程
      */
     private destroyDownloader() {
-        this.downloadWorker!.postMessage({
+        this.downloadWorker?.postMessage({
             cmd: 'destroy',
         })
-        this.downloadWorker!.terminate()
+        this.downloadWorker?.terminate()
     }
 
     /**

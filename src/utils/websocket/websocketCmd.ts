@@ -3,7 +3,7 @@
  * @Date: 2024-05-30 10:25:04
  * @Description: websocket命令生成工具
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-15 14:31:27
+ * @LastEditTime: 2024-07-19 15:07:11
  */
 import { ENV_MODE, APP_SERVER_IP } from '../constants'
 import { useUserSessionStore } from '@/stores/userSession'
@@ -389,7 +389,7 @@ export const CMD_DOWNLOAD_CONFIRM_STEP = (index: number) => ({
 /**
  * 智能图片流订阅
  */
-export const CMD_REALTIME_SNAP_SUBSCRIBE = (config: string) => ({
+export const CMD_REALTIME_SNAP_SUBSCRIBE = (config: any) => ({
     url: '/device/real_image/subscribe',
     basic: getBasic(),
     data: config,
@@ -410,7 +410,7 @@ export const CMD_REALTIME_SNAP_UNSUBSCRIBE = () => ({
 // TODO 参数类型待确认
 export interface CmdStateInfoSubscribeOption {
     channel_state_info?: boolean
-    alarm_state_info?: string
+    alarm_state_info?: boolean
     ipc_upgrade_state_info?: boolean
 }
 

@@ -3,7 +3,7 @@
  * @Date: 2024-06-25 09:59:23
  * @Description: 输出配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-11 19:39:42
+ * @LastEditTime: 2024-07-29 17:41:54
  */
 import { type XmlResult } from '@/utils/xmlParse'
 import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
@@ -14,8 +14,6 @@ import { type UserCheckAuthForm } from '@/types/apiType/userAndSecurity'
 import ChannelGroupEditPop from '../channel/ChannelGroupEditPop.vue'
 import ChannelGroupAdd from '../channel/ChannelGroupAdd.vue'
 import { ChlGroup } from '@/types/apiType/channel'
-import BaseListBox from '../../components/display/BaseListBox.vue'
-import BaseListBoxItem from '../../components/display/BaseListBoxItem.vue'
 
 type ChlItem = {
     id: string
@@ -82,8 +80,6 @@ export default defineComponent({
         OutputAddViewPop,
         ChannelGroupEditPop,
         ChannelGroupAdd,
-        BaseListBox,
-        BaseListBoxItem,
     },
     setup() {
         const { Translate } = useLangStore()
@@ -261,9 +257,11 @@ export default defineComponent({
          */
         const displayDwellTimeLabel = (value: number) => {
             if (value < 60) {
-                return value + Translate('IDCS_SECONDS')
+                return value + ' ' + Translate('IDCS_SECONDS')
+            } else if (value === 60) {
+                return value / 60 + ' ' + Translate('IDCS_MINUTE')
             } else {
-                return value / 60 + Translate('IDCS_MINUTE')
+                return value / 60 + ' ' + Translate('IDCS_MINUTES')
             }
         }
 
@@ -486,6 +484,9 @@ export default defineComponent({
             pageData.value.isAddChlGroup = true
         }
 
+        /**
+         * @description 关闭新增通道组弹窗
+         */
         const closeAddChlGroup = () => {
             pageData.value.isAddChlGroup = false
         }
@@ -589,7 +590,7 @@ export default defineComponent({
                     const $item = queryXml(item.element)
                     pageData.value.chlGroupList.push({
                         id: item.attr('id')!,
-                        value: replaceWithEntity($item('name').text()),
+                        value: $item('name').text(),
                         dwellTime: Number($item('dwellTime').text()),
                     })
                 })
@@ -1268,8 +1269,6 @@ export default defineComponent({
             // OutputAddViewPop,
             ChannelGroupEditPop,
             ChannelGroupAdd,
-            BaseListBox,
-            BaseListBoxItem,
         }
     },
 })

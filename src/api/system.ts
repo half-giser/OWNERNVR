@@ -3,7 +3,7 @@
  * @Date: 2023-06-02 11:57:11
  * @Description: 系统API
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-02 11:37:34
+ * @LastEditTime: 2024-07-17 15:14:01
  */
 import type { AxiosRequestConfig } from 'axios'
 import http, { getXmlWrapData } from './api'
@@ -128,6 +128,12 @@ export const editDwell = (data: string) => http.fetch('editDwell', getXmlWrapDat
  * @returns
  */
 export const addCustomerView = (data: string) => http.fetch('addCustomerView', getXmlWrapData(data))
+
+/**
+ * @description 获取自定义视图列表
+ * @returns
+ */
+export const queryCustomerView = () => http.fetch('queryCustomerView', getXmlWrapData(''))
 
 /**
  * @description 获取OSD输出配置

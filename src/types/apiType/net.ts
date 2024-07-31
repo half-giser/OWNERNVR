@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 14:47:05
  * @Description: 网络
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-16 18:12:49
+ * @LastEditTime: 2024-07-17 09:43:53
  */
 
 /**
@@ -189,4 +189,15 @@ export class NetSNMPForm {
 
 export class NetCloudUpgradeForm {
     upgradeType = 'close'
+}
+
+export class NetStreamChlList {
+    id = ''
+    addType = ''
+    chlType = ''
+    chlIndex = ''
+    name = ''
+    poeIndex = ''
+    productModel = ''
+    factoryName = ''
 }
