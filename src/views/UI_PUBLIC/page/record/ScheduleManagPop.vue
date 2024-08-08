@@ -85,6 +85,16 @@
             >
             </ScheduleEditPop>
         </Teleport>
+        <template #footer>
+            <el-row>
+                <el-col
+                    :span="24"
+                    class="el-col-flex-end"
+                >
+                    <el-button @click="$emit('close')">{{ Translate('IDCS_CLOSE') }}</el-button>
+                </el-col>
+            </el-row>
+        </template>
     </el-dialog>
 </template>
 
