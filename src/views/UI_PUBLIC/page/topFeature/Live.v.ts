@@ -279,7 +279,7 @@ const useRecType = (mode: Ref<string>) => {
      * @description 获取录像模式数据
      */
     const getData = async () => {
-        const result = await queryRecordDistributeInfo(getXmlWrapData(''))
+        const result = await queryRecordDistributeInfo()
         const $ = queryXml(result)
         recType.value = $('/response/content/recMode/mode').text()
     }

@@ -3,7 +3,7 @@ import { createDevList, queryDevDefaultPwd } from '@/api/channel'
 import { queryXml } from '../../../../utils/xmlParse'
 import { ChannelManualAddDto, DefaultPwdDto } from '@/types/apiType/channel'
 import { useCababilityStore } from '@/stores/cabability'
-import { queryLanFreeDeviceList, queryLanRecorderList, queryRecordDistributeInfo, queryRtspProtocolList } from '../../../../api/channel'
+import { queryLanFreeDeviceList, queryLanRecorderList, queryRtspProtocolList } from '../../../../api/channel'
 import { editBasicCfg, querySystemCaps } from '@/api/system'
 import { ChannelAddRecorderDto, ChannelQuickAddDto } from '../../../../types/apiType/channel'
 import { cutStringByByte, filterProperty } from '../../../../utils/tools'
@@ -94,7 +94,7 @@ export default defineComponent({
 
         const getSystemCaps = function () {
             openLoading(LoadingTarget.FullScreen)
-            queryRecordDistributeInfo(getXmlWrapData('')).then((res: any) => {
+            queryRecordDistributeInfo().then((res: any) => {
                 res = queryXml(res)
                 const mode = res('//content/recMode/mode').text()
                 querySystemCaps(getXmlWrapData('')).then((res: any) => {

@@ -39,6 +39,7 @@ export const useUserSessionStore = defineStore(
         const showPluginNoResponse = ref('')
         const cababilityStore = useCababilityStore()
         const sn = ref('')
+        const advanceRecModeId = ref('')
         const defaultStreamType = ref('')
 
         /**
@@ -209,6 +210,7 @@ export const useUserSessionStore = defineStore(
             updataByReqLogin,
             updateByLogin,
             sn,
+            advanceRecModeId,
             authEffective,
             defaultStreamType,
         }
