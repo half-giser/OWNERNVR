@@ -3,7 +3,7 @@
  * @Date: 2024-05-30 10:25:04
  * @Description: websocket命令生成工具
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-19 15:07:11
+ * @LastEditTime: 2024-08-06 16:56:44
  */
 import { ENV_MODE, APP_SERVER_IP } from '../constants'
 import { useUserSessionStore } from '@/stores/userSession'
@@ -13,7 +13,6 @@ import { getNonce } from '../encrypt'
  * 获取websocket握手url
  */
 export const getWebsocketOpenUrl = () => {
-    console.log('getWebsocketOpenUrl', APP_SERVER_IP)
     const host = window.location.host
     const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
     const userSession = useUserSessionStore()
@@ -166,7 +165,7 @@ export interface CmdPlaybackOpenOption {
     startTime: number
     endTime: number
     streamType: number
-    typeMask: string[]
+    typeMask?: string[]
     backupVideo: boolean
     backupAudio: boolean
 }

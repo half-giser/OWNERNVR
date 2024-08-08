@@ -3,9 +3,9 @@
  * @Date: 2024-07-29 15:43:32
  * @Description: 现场预览-镜头控制视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 15:50:32
+ * @LastEditTime: 2024-08-08 14:31:49
  */
-import { LiveLensForm, LiveSharedWinData } from '@/types/apiType/live'
+import { LiveLensForm, type LiveSharedWinData } from '@/types/apiType/live'
 
 export default defineComponent({
     props: {
@@ -15,7 +15,6 @@ export default defineComponent({
         winData: {
             type: Object as PropType<LiveSharedWinData>,
             required: true,
-            default: () => new LiveSharedWinData(),
         },
     },
     emits: {
@@ -25,8 +24,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        // const { openMessageTipBox } = useMessageBox()
-        // const { openLoading, closeLoading, LoadingTarget } = useLoading()
 
         const pageData = ref({
             // 焦点选项

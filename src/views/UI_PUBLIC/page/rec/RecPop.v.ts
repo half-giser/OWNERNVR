@@ -3,9 +3,9 @@
  * @Date: 2024-07-04 11:34:22
  * @Description: 回放弹窗（OCX+H5）
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 17:41:37
+ * @LastEditTime: 2024-07-30 09:29:15
  */
-import { type RecPlayList } from '@/types/apiType/rec'
+import { type RecPlayList } from '@/types/apiType/playback'
 import BaseVideoPlayer from '../../components/player/BaseVideoPlayer.vue'
 import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
 import dayjs from 'dayjs'

@@ -33,3 +33,6 @@ auto-import.d.ts
 
 # vscode本地配置文件
 .vscode
+
+# 第三方依赖license列表文件
+licenses.csv

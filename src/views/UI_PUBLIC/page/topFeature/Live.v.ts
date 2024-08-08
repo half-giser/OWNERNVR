@@ -3,10 +3,10 @@
  * @Date: 2024-07-29 18:07:29
  * @Description: 现场预览
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 18:08:02
+ * @LastEditTime: 2024-08-08 15:05:28
  */
 import { cloneDeep } from 'lodash-es'
-import { LiveUserAuth, type LiveChannelList, type LiveCustomViewChlList, LiveSharedWinData } from '@/types/apiType/live'
+import { type LiveChannelList, type LiveCustomViewChlList, LiveSharedWinData } from '@/types/apiType/live'
 import BaseNotification from '../../components/BaseNotification.vue'
 import { type TVTPlayerWinDataListItem, type TVTPlayerPosInfoItem } from '@/utils/wasmPlayer/tvtPlayer'
 import WebsocketState from '@/utils/websocket/websocketState'
@@ -20,54 +20,6 @@ import LiveAsidePanel from '../live/LiveAsidePanel.vue'
 import LivePtzPanel from '../live/LivePtzPanel.vue'
 import LiveSnapPanel from '../live/LiveSnapPanel.vue'
 import LiveFishEyePanel, { type FishEyePanelExpose } from '../live/LiveFishEyePanel.vue'
-
-/**
- * @description 用户权限hook
- * @param {Object} userSession
- */
-const useUserAuth = (userSession: ReturnType<typeof useUserSessionStore>) => {
-    const auth = ref(new LiveUserAuth())
-
-    /**
-     * @description 获取权限列表
-     */
-    const getAuth = async () => {
-        if (!userSession.authEffective) {
-            auth.value.hasAll = true
-        }
-        if (!userSession.authGroupId) {
-            auth.value.hasAll = true
-            return
-        }
-        const sendXml = rawXml`
-            <condition>
-                <authGroupId>${userSession.authGroupId}</authGroupId>
-            </condition>
-            <requireField>
-                <chlAuth/>
-                <systemAuth/>
-            </requireField>
-        `
-        const result = await queryAuthGroup(sendXml)
-        const $ = queryXml(result)
-
-        $('/response/content/chlAuth/item').forEach((item) => {
-            const $item = queryXml(item.element)
-            const id = item.attr('id')!
-            auth.value.ptz[id] = $item('auth').text().includes('@ptz')
-            auth.value.audio[id] = $item('auth').text().includes('@ad')
-            auth.value.spr[id] = $item('auth').text().includes('@spr')
-            auth.value.lp[id] = $item('auth').text().includes('@lp')
-        })
-        auth.value.accessControl = $('/response/content/systemAuth/AccessControlMgr').text().toBoolean()
-    }
-
-    onMounted(() => {
-        getAuth()
-    })
-
-    return auth
-}
 
 /**
  * @description 状态订阅模块（通道在线状态、录像事件、报警推送）
@@ -466,7 +418,7 @@ export default defineComponent({
             // 底部菜单栏图像状态
             allPreview: true,
             // 是否开启OSD
-            osd: false,
+            osd: true,
             // 是否开启远程录像
             remoteRecord: false,
             // 音量
@@ -492,7 +444,7 @@ export default defineComponent({
         })
 
         const recType = useRecType(mode)
-        const userAuth = useUserAuth(userSession)
+        const userAuth = useUserChlAuth()
         const stateSubscribe = useStateSubscribe(
             userSession,
             playerRef,
@@ -875,7 +827,7 @@ export default defineComponent({
                 } else {
                     sendXML = OCX_XML_StopPreview(index)
                 }
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin?.GetVideoPlugin()?.ExecuteCmd(sendXML)
             }
         }
 
@@ -1421,6 +1373,13 @@ export default defineComponent({
                     player.closeAudio(player.getSelectedWinIndex())
                 }
             } else if (mode.value === 'ocx') {
+                if (userAuth.value.audio[pageData.value.winData.chlID] === false) {
+                    openMessageTipBox({
+                        type: 'info',
+                        message: Translate('IDCS_NO_PERMISSION'),
+                    })
+                    return
+                }
                 if (bool) {
                     const sendXML = OCX_XML_SetVolume(0)
                     plugin.GetVideoPlugin().ExecuteCmd(sendXML)
@@ -1546,7 +1505,7 @@ export default defineComponent({
                 if ($('statenotify[@type="SetViewChannelId"]/status').text() !== 'success') {
                     const errorCode = Number($('statenotify[@type="SetViewChannelId"]/errorCode').text())
                     // 主码流预览失败超过上限，切换回子码流预览
-                    if (errorCode == 536870932) {
+                    if (errorCode == ErrorCode.USER_ERROR_CHANNEL_NO_OPEN_VIDEO) {
                         changeStreamType(2)
                         pageData.value.notification.push(Translate('IDCS_OPEN_STREAM_FAIL'))
                     }
@@ -1682,8 +1641,9 @@ export default defineComponent({
             layoutStore.liveLastChlList = [...pageData.value.playingList]
 
             stopPollingChlGroup()
+            console.log('live before unmounted')
 
-            if (plugin.IsPluginAvailable() && mode.value === 'ocx' && ready.value) {
+            if (plugin?.IsPluginAvailable() && mode.value === 'ocx' && ready.value) {
                 // 离开时切换为一分屏，防止safari上其余用到插件的地方出现多分屏
                 {
                     const sendXML = OCX_XML_SetScreenMode(1)
@@ -1691,6 +1651,8 @@ export default defineComponent({
                 }
 
                 plugin.VideoPluginNotifyEmitter.removeListener(notify)
+
+                console.log('live unmounted')
             }
         })
 
