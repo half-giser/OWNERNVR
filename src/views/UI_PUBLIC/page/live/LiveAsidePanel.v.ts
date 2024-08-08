@@ -3,9 +3,9 @@
  * @Date: 2024-07-26 16:38:37
  * @Description: 现场预览-右侧视图 Layout
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 15:34:58
+ * @LastEditTime: 2024-08-08 14:29:24
  */
-import { type LiveChannelList, LiveUserAuth, LiveSharedWinData } from '@/types/apiType/live'
+import { type LiveChannelList, type LiveSharedWinData } from '@/types/apiType/live'
 import { APP_TYPE } from '@/utils/constants'
 
 export default defineComponent({
@@ -16,7 +16,6 @@ export default defineComponent({
         mode: {
             type: String,
             required: true,
-            default: '',
         },
         /**
          * @property 当前窗口数据
@@ -24,15 +23,13 @@ export default defineComponent({
         winData: {
             type: Object as PropType<LiveSharedWinData>,
             required: true,
-            default: () => new LiveSharedWinData(),
         },
         /**
          * @property 用户权限
          */
         auth: {
-            type: Object as PropType<LiveUserAuth>,
+            type: Object as PropType<UserChlAuth>,
             required: true,
-            default: () => new LiveUserAuth(),
         },
         /**
          * @property 通道与能力的映射
@@ -40,7 +37,6 @@ export default defineComponent({
         chl: {
             type: Object as PropType<Record<string, LiveChannelList>>,
             required: true,
-            default: () => ({}),
         },
         /**
          * @property 支持镜头控制
@@ -48,7 +44,6 @@ export default defineComponent({
         supportAz: {
             type: Boolean,
             required: true,
-            default: false,
         },
         /**
          * @property 支持鱼眼
@@ -56,7 +51,6 @@ export default defineComponent({
         supportFishEye: {
             type: Boolean,
             required: true,
-            default: false,
         },
     },
     setup(prop) {

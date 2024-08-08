@@ -3,14 +3,14 @@
  * @Date: 2024-07-01 11:01:12
  * @Description: 查看日志
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-09 20:48:10
+ * @LastEditTime: 2024-07-30 14:54:41
  */
 import { SystemLogForm, type SystemLogList } from '@/types/apiType/system'
 import dayjs from 'dayjs'
 import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
 import ViewLogDetailPop from './ViewLogDetailPop.vue'
 import RecPop from '../rec/RecPop.vue'
-import { type RecPlayList } from '@/types/apiType/rec'
+import { type RecPlayList } from '@/types/apiType/playback'
 
 export default defineComponent({
     components: {
@@ -692,10 +692,10 @@ export default defineComponent({
             if (!systemCaps.supportAlarmServerConfig) {
                 filterLogType('LOG_EXCEPTION_ALARM_SERVER_OFFLINE')
             }
-            if (userSession.ipChlMaxCount <= 0) {
+            if (systemCaps.ipChlMaxCount <= 0) {
                 filterLogType('LOG_EXCEPTION_IPC_DISCONNECT')
             }
-            if (userSession.analogChlCount <= 0) {
+            if (systemCaps.analogChlCount <= 0) {
                 filterLogType('LOG_EXCEPTION_VIDEO_LOSS')
             }
 

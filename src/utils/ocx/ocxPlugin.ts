@@ -4,7 +4,7 @@
  * @Description: OCX插件模块
  * 原项目中MAC插件和TimeSliderPlugin相关逻辑不保留
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-05 18:34:16
+ * @LastEditTime: 2024-08-08 14:36:13
  */
 import WebsocketPlugin from '@/utils/websocket/websocketPlugin'
 import { usePluginStore } from '@/stores/plugin'
@@ -213,20 +213,19 @@ const usePlugin = () => {
      * @param {string} strXMLFormat
      */
     const VideoPluginNotify = async (strXMLFormat: string) => {
-        console.log('VideoPluginNotify', strXMLFormat)
         const $ = queryXml(XMLStr2XMLDoc(strXMLFormat))
         const funcName = Number($('/response').attr('reqId'))
 
-        if ($('/response').length > 0 && funcName) {
+        if ($('/response').length && funcName) {
             ;(getVideoPlugin() as WebsocketPlugin).queryInfoMap[funcName](strXMLFormat)
             return
         }
 
-        if ($('/statenotify[@target="dateCtrl"]').length > 0) {
+        if ($('/statenotify[@target="dateCtrl"]').length) {
             // TimeSliderPluginNotify(strXMLFormat)
             return
         }
-        if ($('/statenotify[@type="NVMS_NAT_CMD"]').length > 0) {
+        if ($('/statenotify[@type="NVMS_NAT_CMD"]').length) {
             const $response = $('/statenotify[@type="NVMS_NAT_CMD"]/response')
             const $res = queryXml(XMLStr2XMLDoc(CMD_QUEUE.currentCmd!.cmd))
             const $request = $res("//cmd[@type='NVMS_NAT_CMD']/request")
@@ -249,24 +248,24 @@ const usePlugin = () => {
             }
         }
         // 获取插件返回的sessionId，用于刷新无感知登录（授权码登录成功后，返回sessionId)
-        if ($("/statenotify[@type='sessionId']").length > 0) {
+        if ($("/statenotify[@type='sessionId']").length) {
             let sessionId = null
-            if ($('/statenotify[@type="sessionId"]/sessionId').length > 0) {
+            if ($('/statenotify[@type="sessionId"]/sessionId').length) {
                 sessionId = $('/statenotify[@type="sessionId"]/sessionId').text()
             }
             pluginStore.p2pSessionId = sessionId
             return
         }
         //OCX已创建好窗口，通知可以登录了
-        else if ($('/statenotify[@type="InitialComplete"]').length > 0) {
+        else if ($('/statenotify[@type="InitialComplete"]').length) {
             setVideoPluginStatus('InitialComplete')
             videoPluginLogin()
         }
         //连接成功
-        else if ($('/statenotify[@type="connectstate"]').length > 0) {
+        else if ($('/statenotify[@type="connectstate"]').length) {
             const $xmlNote = $('/statenotify[@type="connectstate"]')
             let status = ''
-            if ($('/statenotify[@type="connectstate"]/status').length > 0) {
+            if ($('/statenotify[@type="connectstate"]/status').length) {
                 status = $('/statenotify[@type="connectstate"]/status').text().trim()
             } else {
                 status = $xmlNote.text().trim()
@@ -363,7 +362,7 @@ const usePlugin = () => {
     let videoPluginLoadLang_timeoutId: NodeJS.Timeout | null = null
     // 初始化成功后，检测到语言包加载成功后，设置插件的语言内容
     const videoPluginLoadLang = () => {
-        if (Object.keys(langItems).length > 0) {
+        if (Object.keys(langItems).length) {
             if (videoPluginLoadLang_timeoutId !== null) {
                 clearTimeout(videoPluginLoadLang_timeoutId)
                 videoPluginLoadLang_timeoutId = null
@@ -682,8 +681,8 @@ const usePlugin = () => {
             onerror: () => {
                 pluginErrorHandle(startPluginError)
             },
+            onclose: () => {},
         })
-        // VideoPluginNotify.notify = CreateEvent('notify')
     }
 
     /**
@@ -733,6 +732,7 @@ const usePlugin = () => {
             },
             onclose: () => {
                 pluginStore.ready = false
+                pluginStore.currPluginMode = null
                 if (pluginStore.manuaClosePlugin) return
                 showPluginNoResponse()
             },
@@ -1122,7 +1122,7 @@ const usePlugin = () => {
             pluginStore.showPluginNoResponse = false
         }
         if (route.path.includes('authCodeLogin')) {
-            execLoginErrorCallback(536870929, 'The plugin is not responding, please log in again')
+            execLoginErrorCallback(ErrorCode.USER_ERROR_INVALID_POINT, 'The plugin is not responding, please log in again')
             return
         }
         if (getIsSupportH5() || !pluginStore.showPluginNoResponse) return
@@ -1249,7 +1249,7 @@ const usePlugin = () => {
      * @param {HTMLElement} pluginRefDiv 视频占位符元素
      * @param {Object} pluginObj 视频插件
      */
-    const setPluginSize = (pluginRefDiv: HTMLElement | null, pluginObj?: ReturnType<typeof getVideoPlugin>) => {
+    const setPluginSize = (pluginRefDiv: HTMLElement | null, pluginObj?: ReturnType<typeof getVideoPlugin>, shouldAdjust = false) => {
         // if (!context) context = document.body // $('body')
         if (!pluginObj) pluginObj = getVideoPlugin()
         // if (systemInfo.platform === 'mac' && APP_TYPE === 'P2P') {
@@ -1322,9 +1322,16 @@ const usePlugin = () => {
             winLeft = window.screenLeft * ratio + winLeft
             winTop = window.screenTop * ratio + winTop
         }
+        const adjust = (size: number) => {
+            if (size === 0) return size
+            if (shouldAdjust) {
+                return size + 1
+            }
+            return size
+        }
         const domWidth = ocxMode == 'relativeToDom' ? window.innerWidth * ratio : 0
         const domHeight = ocxMode == 'relativeToDom' ? window.innerHeight * ratio : 0
-        const sendXML = CMD.OCX_XML_SetPluginSize(winLeft, winTop, refW, refH, ocxMode, domWidth, domHeight)
+        const sendXML = CMD.OCX_XML_SetPluginSize(winLeft, winTop, adjust(refW), adjust(refH), ocxMode, domWidth, domHeight)
         pluginObj.ExecuteCmd(sendXML)
     }
 
@@ -1394,6 +1401,7 @@ const usePlugin = () => {
         browserMoveTimer: NodeJS.Timeout
         mutationObserver: MutationObserver
         resizeObserver: ResizeObserver
+        observerList: HTMLElement[]
     }
 
     const browserEventMap = new Map<HTMLElement, BrowserMoveEventObj>()
@@ -1447,14 +1455,18 @@ const usePlugin = () => {
         if (!pluginPlaceholderId) return null
         if (browserEventMap.has(pluginPlaceholderId)) {
             const browserMoveEventObj = browserEventMap.get(pluginPlaceholderId)!
+            document.getElementById('layoutMainContent')?.removeEventListener('scroll', browserMoveEventObj.browserScrollCallback)
             window.removeEventListener('scroll', browserMoveEventObj.browserScrollCallback)
             window.removeEventListener('resize', browserMoveEventObj.browserScrollCallback)
             clearInterval(browserMoveEventObj.browserMoveTimer)
             browserMoveEventObj.mutationObserver.disconnect()
             browserMoveEventObj.resizeObserver.disconnect()
             browserEventMap.delete(pluginPlaceholderId)
+            forcedHidden = false
         }
     }
+
+    let forcedHidden = false
 
     /**
      * @description 监听浏览器窗口的移动，控制插件随之一起移动
@@ -1503,15 +1515,53 @@ const usePlugin = () => {
 
         // 观察弹窗样式变化 重新设置插件大小
         const mutationObserver = new MutationObserver((mutationsList) => {
+            let flag = false
             for (const mutation of mutationsList) {
                 if (mutation.attributeName === 'style') {
-                    browserScrollCallback()
+                    if ((mutation.target as HTMLElement).querySelector('.PluginPlayer') === null) {
+                        flag = true
+                    } else {
+                        browserScrollCallback()
+                    }
+                }
+            }
+            if (flag) {
+                const data = browserEventMap.get(pluginPlaceholderId)
+                if (data) {
+                    const hasPop = data.observerList.some((item) => {
+                        return item.style.display !== 'none'
+                    })
+                    if (!hasPop && browserEventMap.size) {
+                        displayOCX(true)
+                        forcedHidden = false
+                    }
+                    if (hasPop) {
+                        displayOCX(false)
+                        forcedHidden = true
+                    }
                 }
             }
         })
+
+        const observerList: HTMLElement[] = []
+        const overlays = document.querySelectorAll('.el-overlay')
         const dialogs = document.querySelectorAll('.el-dialog')
+        const poppers = document.querySelectorAll('.el-popover')
         for (const dialog of dialogs) {
-            mutationObserver.observe(dialog, { attributes: true })
+            if (dialog.querySelector('.PluginPlayer') !== null) {
+                mutationObserver.observe(dialog, { attributes: true })
+            }
+        }
+        for (const overlay of overlays) {
+            mutationObserver.observe(overlay, { attributes: true })
+            observerList.push(overlay as HTMLElement)
+        }
+        for (const popper of poppers) {
+            if (popper.classList.contains('popper')) {
+                continue
+            }
+            mutationObserver.observe(popper, { attributes: true })
+            observerList.push(popper as HTMLElement)
         }
 
         // 观察容器大小变化 重新设置插件大小
@@ -1520,6 +1570,7 @@ const usePlugin = () => {
         })
         resizeObserver.observe(pluginPlaceholderId)
 
+        document.getElementById('layoutMainContent')?.addEventListener('scroll', browserScrollCallback)
         window.addEventListener('scroll', browserScrollCallback)
         window.addEventListener('resize', browserScrollCallback)
         browserEventMap.set(pluginPlaceholderId, {
@@ -1527,6 +1578,7 @@ const usePlugin = () => {
             browserScrollCallback: browserScrollCallback,
             mutationObserver: mutationObserver,
             resizeObserver: resizeObserver,
+            observerList: observerList,
         })
     }
 
@@ -1539,7 +1591,7 @@ const usePlugin = () => {
             displayOCX(false)
         } else {
             setTimeout(() => {
-                if (browserEventMap.size) displayOCX(true)
+                if (browserEventMap.size && !forcedHidden) displayOCX(true)
             }, 500)
         }
     }
@@ -1553,7 +1605,7 @@ const usePlugin = () => {
                 displayOCX(false)
             } else {
                 setTimeout(() => {
-                    if (browserEventMap.size) displayOCX(true)
+                    if (browserEventMap.size && !forcedHidden) displayOCX(true)
                 }, 500)
             }
         },

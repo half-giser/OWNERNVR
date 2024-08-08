@@ -21,7 +21,8 @@
     "mirror:rm": "npm config rm registry",
     "backup": "git add . && git commit -m \"chore: backup\" && git push",
     "up": "npx npm-check-updates -u",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "license": "node ./scripts/licenseChecker.js"
   },
   "dependencies": {
     "@bassist/progress": "^0.2.2",
@@ -53,6 +54,7 @@
     "eslint": "^8.56.0",
     "husky": "^8.0.3",
     "less": "^4.2.0",
+    "license-checker-rseidelsohn": "^4.3.0",
     "lint-staged": "^15.2.0",
     "parse-literals": "^1.2.1",
     "postcss": "^8.4.39",

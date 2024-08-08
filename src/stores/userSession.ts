@@ -29,9 +29,6 @@ export const useUserSessionStore = defineStore(
         const backChlId = ref('')
         const pwdSaftyStrength = ref(0)
         const pwdExpired = ref(false)
-        const analogChlCount = ref(0)
-        const ipChlMaxCount = ref(0)
-        const supportPOS = ref(false)
         const calendarType = ref('')
         const authEffective = ref(false)
         const authMask = ref(0)
@@ -199,9 +196,6 @@ export const useUserSessionStore = defineStore(
             backChlId,
             pwdSaftyStrength,
             pwdExpired,
-            analogChlCount,
-            ipChlMaxCount,
-            supportPOS,
             calendarType,
             csvDeviceName,
             showPluginNoResponse,
