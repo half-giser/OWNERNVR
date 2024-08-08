@@ -3,7 +3,7 @@
  * @Date: 2024-05-31 10:35:00
  * @Description: 基于webAssembly + canvas的视频播放器
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-23 13:38:26
+ * @LastEditTime: 2024-08-06 16:38:35
  */
 import WebGLPlayer from './webglPlayer'
 import PCMPlayer, { type PCMPlayerOptionEncoding } from './pcmPlayer'
@@ -228,7 +228,7 @@ export default class WasmPlayer {
      */
     seek(frameTimestamp: number) {
         this.stop()
-        ;(this.cmdParams as CmdPlaybackOpenOption).startTime = frameTimestamp | 0
+        ;(this.cmdParams as CmdPlaybackOpenOption).startTime = Math.floor(frameTimestamp)
         this.clearFrameList()
         setTimeout(() => {
             this.clearFrameList()

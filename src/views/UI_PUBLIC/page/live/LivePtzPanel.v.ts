@@ -3,9 +3,9 @@
  * @Date: 2024-07-29 16:07:26
  * @Description: 现场预览-云台视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 16:17:40
+ * @LastEditTime: 2024-08-08 14:32:14
  */
-import { LiveSharedWinData } from '@/types/apiType/live'
+import { type LiveSharedWinData } from '@/types/apiType/live'
 import LivePtzCruise from './LivePtzCruise.vue'
 import LivePtzGroup from './LivePtzGroup.vue'
 import LivePtzPreset from './LivePtzPreset.vue'
@@ -25,7 +25,6 @@ export default defineComponent({
         winData: {
             type: Object as PropType<LiveSharedWinData>,
             required: true,
-            default: () => new LiveSharedWinData(),
         },
     },
     setup(prop) {

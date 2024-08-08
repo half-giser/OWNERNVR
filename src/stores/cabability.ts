@@ -3,7 +3,7 @@
  * @Date: 2023-05-09 16:45:59
  * @Description: 服务端能力集全局存储
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-25 16:40:40
+ * @LastEditTime: 2024-08-07 10:04:35
  */
 import { getXmlWrapData } from '@/api/api'
 import { querySystemCaps } from '@/api/system'
@@ -58,6 +58,7 @@ export const useCababilityStore = defineStore(
         const supportPtzGroupAndTrace = ref(false)
         const supportTalk = ref(false)
         const fishEyeCap = ref<Record<string, string[]>>({})
+        const playbackMaxWin = ref(9)
 
         const CustomerID = ref(0)
         const isInw48 = ref(false)
@@ -120,6 +121,7 @@ export const useCababilityStore = defineStore(
             supportSHDB.value = $(`content/supportSHDB`).text().toBoolean()
             supportAlarmServerConfig.value = $('content/supportAlarmServerConfig').text().toBoolean()
             poeChlMaxCount.value = Number($(`content/poeChlMaxCount`).text())
+            playbackMaxWin.value = Number($('content/playbackMaxWin').text())
 
             $('content/FishEyeCaps/installType/enum').forEach((item) => {
                 const text = item.text()
@@ -180,6 +182,7 @@ export const useCababilityStore = defineStore(
             supportPtzGroupAndTrace,
             supportTalk,
             fishEyeCap,
+            playbackMaxWin,
         }
     },
     {

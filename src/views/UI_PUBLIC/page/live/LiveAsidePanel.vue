@@ -3,7 +3,7 @@
  * @Date: 2024-07-18 14:45:58
  * @Description: 现场预览-右侧视图 Layout
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 15:35:22
+ * @LastEditTime: 2024-07-30 17:46:17
 -->
 <template>
     <div class="right">
@@ -46,7 +46,7 @@
                 </div>
             </div>
             <div class="right-bottom">
-                <slot :index="menu[pageData.activeMenu]?.tab || -1"></slot>
+                <slot :index="menu[pageData.activeMenu]?.tab || 0"></slot>
             </div>
         </div>
         <div

@@ -3,7 +3,7 @@
  * @Date: 2024-07-04 09:40:06
  * @Description: 日期模块
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-05 10:35:59
+ * @LastEditTime: 2024-08-06 10:31:45
  */
 import dayjs from 'dayjs'
 
@@ -35,12 +35,7 @@ export const formatDate = (date: string | number | Date | dayjs.Dayjs, format: s
  * @returns {string}
  */
 export const formatSeconds = (seconds: number) => {
-    // const duration = dayjs.unix(seconds)
-    // const hours = duration.hours().toString().padStart(2, '0')
-    // const minutes = duration.minutes().toString().padStart(2, '0')
-    // const secs = duration.seconds().toString().padStart(2, '0')
-    // return `${hours}:${minutes}:${secs}`
-    return dayjs.unix(seconds).format('HH:mm:ss')
+    return dayjs.utc(seconds * 1000).format('HH:mm:ss')
 }
 
 /**
@@ -117,3 +112,16 @@ export const gregoryToPersian = (date: string, format: string) => {
 //     dateObj.setTime(utcTime)
 //     return dateObj
 // }
+
+/**
+ * @description 判断是否夏令时
+ * 夏令时: 夏令时开始时, 时间往前拨快一小时, 夏令时结束时, 则往回拨一小时（大约是每年3月份至10月份, 具体日期各个地区国家不一致）
+ * 此处用夏至日和冬至日的UTC偏移量做判断. 若夏至日和冬至日UTC偏移量相等，则此地区没有冬夏令时
+ */
+export const isDST = (str: string, format = 'YYYY-MM-DD hh:mm:ss') => {
+    const winterSolstice = dayjs('12-22', 'MM-DD').utcOffset()
+    const summerSolstice = dayjs('06-22', 'MM-DD').utcOffset()
+    if (winterSolstice === summerSolstice) return false
+    if (dayjs(str, format).utcOffset() === summerSolstice) return true
+    return false
+}

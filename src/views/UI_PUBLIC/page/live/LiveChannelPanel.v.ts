@@ -3,7 +3,7 @@
  * @Date: 2024-07-26 17:03:07
  * @Description: 现场预览-通道视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 17:40:19
+ * @LastEditTime: 2024-07-30 10:29:57
  */
 import ChannelGroupEditPop from '../channel/ChannelGroupEditPop.vue'
 import ChannelGroupAdd from '../channel/ChannelGroupAdd.vue'
@@ -147,9 +147,9 @@ export default defineComponent({
          */
         const changeChlMenu = (index: number) => {
             pageData.value.activeChlMenu = index
-            if (index === 1) {
+            if (index === 1 && !pageData.value.chlGroupList.length) {
                 getChlGroupList()
-            } else if (index === 2) {
+            } else if (index === 2 && !pageData.value.customViewList.length) {
                 getCustomView()
             }
         }

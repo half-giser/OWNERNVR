@@ -3,7 +3,7 @@
  * @Date: 2024-07-17 17:02:54
  * @Description: 录像与回放
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 18:24:19
+ * @LastEditTime: 2024-08-01 11:48:20
  */
 import http, { getXmlWrapData } from './api'
 
@@ -34,3 +34,36 @@ export const queryNodeEncodeInfo = (data: string) => http.fetch('queryNodeEncode
  * @returns
  */
 export const editNodeEncodeInfo = (data: string) => http.fetch('editNodeEncodeInfo', getXmlWrapData(data))
+
+/**
+ * @description 获取录像分段（录像日期）
+ * @param {string} data
+ * @returns
+ */
+export const queryRecSection = (data: string) => http.fetch('queryRecSection', getXmlWrapData(data))
+
+/**
+ * @description 获取备份列表
+ * @returns
+ */
+export const queryRecBackupTaskList = () => http.fetch('queryRecBackupTaskList', getXmlWrapData(''))
+
+/**
+ * @description 修改备份任务
+ * @returns
+ */
+export const ctrlRecBackupTask = (data: string) => http.fetch('ctrlRecBackupTask', getXmlWrapData(data))
+
+/**
+ * @description 查询通道录像日志列表
+ * @param data
+ * @returns
+ */
+export const queryChlRecLog = (data: string) => http.fetch('queryChlRecLog', getXmlWrapData(data))
+
+/**
+ * @description 创建远程备份任务
+ * @param data
+ * @returns
+ */
+export const createRecBackupTask = (data: string) => http.fetch('createRecBackupTask', getXmlWrapData(data))

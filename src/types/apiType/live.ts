@@ -49,21 +49,6 @@ export class LiveAlarmList {
     delay = 0
 }
 
-export class LiveUserAuth {
-    // 是否拥有全部权限
-    hasAll = false
-    // 通道能力和权限的映射，每种能力下的数据格式：key-通道ID, value-布尔值
-    accessControl = false
-    // 云台
-    ptz = {} as Record<string, boolean>
-    // 音频
-    audio = {} as Record<string, boolean>
-    // 搜索和回放
-    spr = {} as Record<string, boolean>
-    // 预览
-    lp = {} as Record<string, boolean>
-}
-
 export class LiveResolutionOptions {
     value = ''
     label = ''
