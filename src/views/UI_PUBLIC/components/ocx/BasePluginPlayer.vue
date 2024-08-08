@@ -3,7 +3,7 @@
  * @Date: 2024-06-12 15:40:03
  * @Description: 插件占位DIV
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-28 18:56:22
+ * @LastEditTime: 2024-08-08 13:59:07
 -->
 <template>
     <div
@@ -46,10 +46,12 @@ const handleReady = () => {
         }
         Plugin.DisplayOCX(true)
         Plugin.SetPluginSize($player.value!)
-        // 刚渲染好组件后可能无法获取宽高. 此处处理较脏
         setTimeout(() => {
-            Plugin.SetPluginSize($player.value!)
             emits('onready')
+        }, 200)
+        // bug：插件的宽高可能无法正确Resize，此处强制刷新宽高
+        setTimeout(() => {
+            Plugin.SetPluginSize($player.value!, undefined, true)
         }, 500)
     }
 }

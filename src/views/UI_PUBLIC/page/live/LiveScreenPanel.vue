@@ -3,7 +3,7 @@
  * @Date: 2024-07-17 16:16:59
  * @Description: 现场预览-底部菜单栏视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 16:48:31
+ * @LastEditTime: 2024-08-07 16:44:25
 -->
 <template>
     <div class="ctrl">
@@ -13,7 +13,7 @@
                 <BaseImgSprite
                     v-for="seg in pageData.wasmSeg"
                     :key="`${seg.type}_${seg.split}`"
-                    :file="`seg_${seg}`"
+                    :file="`seg_${seg.split}`"
                     :index="seg.split === split ? 2 : 0"
                     :hover-index="1"
                     :disabled-index="2"
@@ -25,8 +25,9 @@
                 <el-popover
                     placement="right-start"
                     trigger="hover"
-                    :width="pageData.ocxSeg.length * 46"
+                    :width="pageData.ocxSeg.length * 45 + 22"
                     :disabled="winData.isDwellPlay"
+                    popper-class="popper"
                 >
                     <template #reference>
                         <BaseImgSprite

@@ -3,7 +3,7 @@
  * @Date: 2024-06-05 14:16:36
  * @Description: 集成wasm-player和多分屏功能
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-26 11:16:16
+ * @LastEditTime: 2024-08-07 18:06:23
  */
 
 import { ErrorCode } from '../constants'
@@ -24,7 +24,7 @@ export interface TVTPlayerOption {
     screen: {
         getVideoCanvas: (windIndex: number) => HTMLCanvasElement
         toggleVideoLossLogo: (winIndex: number, bool: boolean, tip?: string) => void
-        showErrorTips: (type: string, winIndex: number, winData: TVTPlayerWinDataListItem) => void
+        showErrorTips: (type: string, winIndex: number, winData?: TVTPlayerWinDataListItem) => void
         setPosBaseSize: (param: { width: number; height: number }) => void
         toggleAudioIcon: (winIndex: number, bool: boolean) => void
         togglePtzIcon: (winIndex: number, bool: boolean) => void
@@ -71,13 +71,13 @@ export interface TVTPlayerOption {
     onerror: (winIndex: number, item: TVTPlayerWinDataListItem, reason?: string) => void
     onselect: (winIndex: number, item: TVTPlayerWinDataListItem) => void
     onwinexchange: (oldWinIndex: number, newWinIndex: number) => void
-    ondblclickchange: (winIndex: number, newSplit: number) => void
+    ondblclickchange: (winIndex: number, positionIndex: number) => void
 }
 
 export type TVTPlayerScreen = TVTPlayerOption['screen'] & {
     onselect: (winIndex: number) => void
     onwinexchange: (oldWinIndex: number, newWinIndex: number) => void
-    ondblclickchange: (winIndex: number, newSplit: number) => void
+    ondblclickchange: (winIndex: number, positionIndex: number) => void
     getZoomCallback: (winIndex: number) => { left: number; bottom: number; viewWidth: number; viewHeight: number }
     setZoomCallback: (winIndex: number, left: number, bottom: number, width: number, height: number) => void
     getVideoRealSize: (winIndex: number) => void
@@ -103,6 +103,7 @@ export interface TVTPlayerWinDataListItem {
     timestamp: number
     showWatermark: boolean
     showPos: boolean
+    position: number
 }
 
 interface TVTPlayerPlayParams {
@@ -122,6 +123,9 @@ interface TVTPlayerPlayParams {
     streamType: number
     startTime?: number // 时间戳 单位：秒
     endTime?: number // 时间戳 单位：秒
+    typeMask?: string[]
+    isPlayback?: boolean
+    isEndRec?: boolean
 }
 
 export interface TVTPlayerPosInfoItem {
@@ -306,6 +310,7 @@ export default class TVTPlayer {
                 timestamp: 0,
                 showWatermark: false,
                 showPos: false,
+                position: this.screen.getWinIndexByPosition(i),
             })
         }
     }
@@ -403,6 +408,7 @@ export default class TVTPlayer {
                     this.winDataList[winIndex].PLAY_STATUS = 'play'
                     this.onplayStatus && this.onplayStatus(this.getPlayingChlList())
                 }
+                // console.log()
             },
             onwatermark: (watermark: string) => {
                 const winIndex = this.getWinIndexByCav(videoCav)
@@ -436,6 +442,7 @@ export default class TVTPlayer {
         this.winDataList[winIndex].isPolling = params.isPolling || false
         if (params.isSelect !== false) {
             this.screen.selectWin(winIndex)
+            this.activeWinIndex = winIndex
         }
     }
 
@@ -544,12 +551,12 @@ export default class TVTPlayer {
      */
     handlePlaySuccess(winIndex: number) {
         if (this.type === 'record') {
-            this.winDataList[winIndex]['seeking'] = false
+            this.winDataList[winIndex].seeking = false
             this.showTimestamp = 0
             let seekingFlag = false
             for (let i = 0; i < this.split; i++) {
                 this.playerList[i]?.resetBasicTime()
-                if (this.winDataList[i]['seeking'] && this.playerList[i]) {
+                if (this.winDataList[i].seeking && this.playerList[i]) {
                     seekingFlag = true
                 }
             }
@@ -656,8 +663,8 @@ export default class TVTPlayer {
             if (this.seeking) return
             const timeArr = []
             for (let i = 0; i < this.split; i++) {
-                const statusI = this.winDataList[i]['PLAY_STATUS']
-                const timestampI = this.winDataList[i]['timestamp']
+                const statusI = this.winDataList[i].PLAY_STATUS
+                const timestampI = this.winDataList[i].timestamp
                 if (statusI === 'play' && timestampI >= this.showTimestamp) {
                     const timeGap = timestampI - this.showTimestamp
                     if (this.showTimestamp !== 0 && timeGap >= 2000 * this.speed) {
@@ -905,7 +912,7 @@ export default class TVTPlayer {
     getPlayingWinIndexList() {
         const list = []
         for (let i = 0; i < this.winDataList.length; i++) {
-            if (this.winDataList[i] && this.winDataList[i]['PLAY_STATUS'] === 'play') {
+            if (this.winDataList[i] && this.winDataList[i].PLAY_STATUS === 'play') {
                 list.push(i)
             }
         }
@@ -934,11 +941,15 @@ export default class TVTPlayer {
     getPlayingChlList() {
         const list = []
         for (let i = 0; i < this.winDataList.length; i++) {
-            if (this.winDataList[i] && this.winDataList[i]['PLAY_STATUS'] === 'play') {
+            if (this.winDataList[i] && this.winDataList[i].PLAY_STATUS === 'play') {
                 list.push(this.winDataList[i])
             }
         }
         return list
+    }
+
+    getChlList() {
+        return [...this.winDataList]
     }
 
     /**
@@ -948,7 +959,7 @@ export default class TVTPlayer {
     getFreeWinIndexes() {
         const list = []
         for (let i = 0; i < this.winDataList.length; i++) {
-            if (!(this.winDataList[i] && this.winDataList[i]['PLAY_STATUS'] === 'play')) {
+            if (!(this.winDataList[i] && this.winDataList[i].PLAY_STATUS === 'play')) {
                 list.push(i)
             }
         }
@@ -1231,6 +1242,11 @@ export default class TVTPlayer {
             </content>
         `
         http.fetch('ptzMoveCall', data)
+    }
+
+    exchangWin(newWinIndex: number, newWinPosition: number, oldWinIndex: number, oldWinPosition: number) {
+        this.winDataList[newWinIndex].position = newWinPosition
+        this.winDataList[oldWinIndex].position = oldWinPosition
     }
 
     /**

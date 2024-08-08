@@ -3,9 +3,9 @@
  * @Date: 2024-07-26 17:04:12
  * @Description: 现场预览-操作视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 18:29:25
+ * @LastEditTime: 2024-08-08 14:30:33
  */
-import { type LiveChannelList, LiveUserAuth, type LiveResolutionOptions, type LiveQualityOptions, LiveStreamForm, LiveSharedWinData } from '@/types/apiType/live'
+import { type LiveChannelList, type LiveResolutionOptions, type LiveQualityOptions, LiveStreamForm, type LiveSharedWinData } from '@/types/apiType/live'
 
 export default defineComponent({
     props: {
@@ -15,7 +15,6 @@ export default defineComponent({
         mode: {
             type: String,
             required: true,
-            default: '',
         },
         /**
          * @property 当前窗口数据
@@ -23,15 +22,13 @@ export default defineComponent({
         winData: {
             type: Object as PropType<LiveSharedWinData>,
             required: true,
-            default: () => new LiveSharedWinData(),
         },
         /**
          * @property 用户权限表
          */
         auth: {
-            type: Object as PropType<LiveUserAuth>,
+            type: Object as PropType<UserChlAuth>,
             required: true,
-            default: () => new LiveUserAuth(),
         },
         /**
          * @property 通道能力映射
@@ -39,7 +36,6 @@ export default defineComponent({
         chl: {
             type: Object as PropType<Record<string, LiveChannelList>>,
             required: true,
-            default: () => ({}),
         },
         /**
          * @property 是否远程录像
@@ -47,7 +43,6 @@ export default defineComponent({
         remote: {
             type: Boolean,
             required: true,
-            default: false,
         },
         /**
          * @property 分屏数

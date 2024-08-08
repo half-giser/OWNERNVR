@@ -237,3 +237,9 @@ export const deleteChlPtzTrace = (data: string) => http.fetch('deleteChlPtzTrace
  * @returns
  */
 export const queryIPChlORChlFishEye = (data: string) => http.fetch('queryIPChlORChlFishEye', getXmlWrapData(data))
+
+/**
+ * @description 查询有录像的通道列表
+ * @returns
+ */
+export const queryChlsExistRec = () => http.fetch('queryChlsExistRec', getXmlWrapData(''))
