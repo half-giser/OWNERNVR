@@ -5,7 +5,7 @@
 -->
 
 <template>
-    <div>
+    <div id="RecordModeView">
         <div class="base-subheading-box">{{ Translate('IDCS_RECORD_MODE') }}</div>
 
         <div class="subcontent-box">
@@ -17,7 +17,7 @@
                     <el-select
                         v-model="formData.mode"
                         size="small"
-                        @change="setData"
+                        @change="setData(false)"
                     >
                         <el-option
                             v-for="item in pageData.recModeTypeList"
@@ -34,7 +34,7 @@
                     <span v-text="Translate('IDCS_SCHEDULE_OF_RECORD_SET')"></span>
                     <el-button
                         size="small"
-                        @click="pageData.scheduleManagPropOpen = true"
+                        @click="pageData.scheduleManagPopOpen = true"
                         >{{ Translate('IDCS_SCHEDULE_MANAGE') }}</el-button
                     >
                 </div>
@@ -168,7 +168,10 @@
                     </el-table-column>
 
                     <!-- POS录像排程 -->
-                    <el-table-column width="210px">
+                    <el-table-column
+                        v-if="supportPOS"
+                        width="210px"
+                    >
                         <template #header>
                             <el-dropdown trigger="click">
                                 <span class="el-dropdown-link">
@@ -250,7 +253,6 @@
                 <el-radio-group
                     v-model="formData.autoModeId"
                     class="radio-group"
-                    @change="setData"
                 >
                     <el-radio
                         v-for="item in recAutoModeList"
@@ -292,7 +294,7 @@
         <div class="base-btn-box">
             <el-button
                 :disabled="pageData.applyDisabled"
-                @click="setData"
+                @click="setData(true)"
                 >{{ Translate('IDCS_APPLY') }}</el-button
             >
         </div>
@@ -310,9 +312,16 @@
             v-model="pageData.recModeStreamPopOpen"
             :advance-rec-mode-map="advanceRecModeMap"
             :auto-mode-id="formData.autoModeId"
-            @close="pageData.recModeStreamPopOpen = false"
+            @close="streamPopClose"
         >
         </RecordModeStreamPop>
+
+        <!-- 排程管理弹窗 -->
+        <ScheduleManagPop
+            v-model="pageData.scheduleManagPopOpen"
+            @close="pageData.scheduleManagPopOpen = false"
+        >
+        </ScheduleManagPop>
     </div>
 </template>
 
@@ -347,8 +356,10 @@
     margin-top: 10px;
     width: 100%;
     label {
+        box-sizing: border-box;
         width: 100%;
-        padding: 3px 0px 3px 30px;
+        height: 40px;
+        padding: 0px 0px 0px 30px;
     }
 
     label.el-radio:nth-child(odd) {

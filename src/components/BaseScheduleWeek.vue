@@ -130,6 +130,65 @@ const copyToOk = (index: number) => {
     })
     copyToClose(null)
 }
+
+/**
+ * @description: 获取周排程数据
+ * @return {*} 格式：[string,string][][]，第一层数组7个元素，代表天，0代表周日，第二层数组n个元素，代表一天的时间段，第三层数组代表单个时间段[startTime, endTime]
+ */
+const getValue = () => {
+    const value = scheduleLines.value?.map((item) => {
+        return item.getValue()
+    })
+    return value ? value : []
+}
+
+/**
+ * @description: 设置周排程数据
+ * @return {*} 格式同getValue的返回值
+ */
+const resetValue = (value: [string, string][][]) => {
+    for (let i = 0; i < scheduleLines.value!.length; i++) {
+        scheduleLines.value![i].resetValue(value[i])
+    }
+}
+
+/**
+ * @description: 设置周排程数据
+ * @return {*} 格式同getValue的返回值
+ */
+const resetSameValue = (value: [string, string][]) => {
+    for (let i = 0; i < scheduleLines.value!.length; i++) {
+        scheduleLines.value![i].resetValue(value)
+    }
+}
+/**
+ * @description: 给每天手动添加相同的时间段，支持  ['00:30','02:00'] 或 [30,120] 格式
+ * @return {*}
+ */
+const addTimeSpan = (timeSpan: [string, string] | [number, number], days: number[] = [0, 1, 2, 3, 4, 5, 6]) => {
+    days.forEach((day) => {
+        scheduleLines.value![day].addTimeSpan(timeSpan)
+    })
+}
+
+/**
+ * @description: 反选每天的排程数据
+ * @return {*}
+ */
+const invert = () => {
+    scheduleLines.value?.forEach((item) => {
+        item.invert()
+    })
+}
+
+defineExpose({
+    weekdayLang,
+    getValue,
+    resetValue,
+    resetSameValue,
+    addTimeSpan,
+    invert,
+})
 </script>
 
 <style lang="scss" scoped>

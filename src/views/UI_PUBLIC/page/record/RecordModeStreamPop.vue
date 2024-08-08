@@ -38,7 +38,7 @@
                     class="el-col-flex-end"
                 >
                     <el-button @click="setData">{{ Translate('IDCS_OK') }}</el-button>
-                    <el-button @click="$emit('close')">{{ Translate('IDCS_CANCEL') }}</el-button>
+                    <el-button @click="$emit('close', false)">{{ Translate('IDCS_CANCEL') }}</el-button>
                 </el-col>
             </el-row>
         </template>
