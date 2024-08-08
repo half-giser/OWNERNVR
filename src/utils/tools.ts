@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2023-04-28 17:57:48
  * @Description: 工具方法
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 10:25:50
+ * @LastEditors: tengxiang tengxiang@tvt.net.cn
+ * @LastEditTime: 2024-08-01 15:20:59
  */
 
 import { useUserSessionStore } from '@/stores/userSession'
@@ -11,7 +11,7 @@ import { checkPort } from './validates'
 import { useLangStore } from '@/stores/lang'
 import { type QueryNodeListDto } from '@/types/apiType/channel'
 import { queryNodeList } from '@/api/channel'
-import { getXmlWrapData } from '@/api/api'
+import { type ApiResult, getXmlWrapData } from '@/api/api'
 import { type XmlResult } from './xmlParse'
 import useMessageBox from '@/hooks/useMessageBox'
 import { APP_TYPE } from '@/utils/constants'
@@ -418,7 +418,7 @@ export const commLoadResponseHandler = ($response: any, successHandler?: (result
  * @param {Function} successHandler 成功回调
  * @param {Function} failedHandler 失败回调
  */
-export const commSaveResponseHadler = ($response: any, successHandler?: (result: (path: string) => XmlResult) => void, failedHandler?: (result: (path: string) => XmlResult) => void) => {
+export const commSaveResponseHadler = ($response: ApiResult, successHandler?: (result: (path: string) => XmlResult) => void, failedHandler?: (result: (path: string) => XmlResult) => void) => {
     return new Promise((resolve: ($: (path: string) => XmlResult) => void, reject: ($: (path: string) => XmlResult) => void) => {
         const Translate = useLangStore().Translate
         const openMessageTipBox = useMessageBox().openMessageTipBox
@@ -443,6 +443,76 @@ export const commSaveResponseHadler = ($response: any, successHandler?: (result:
             })
         }
     })
+}
+
+/**
+ * 通用的多个保存数据请求处理
+ * @param responseList 返回结果列表
+ * @param successHandler 成功回调
+ * @param failedHandler 失败回调
+ * @returns 结果的promise对象
+ */
+export const commMutiSaveResponseHadler = (
+    responseList: ApiResult[],
+    successHandler?: (result: ((path: string) => XmlResult)[]) => void,
+    failedHandler?: (result: ((path: string) => XmlResult)[]) => void,
+) => {
+    let allSuccess = true
+    const responseXmlList: ((path: string) => XmlResult)[] = []
+    responseList.forEach((item) => {
+        const resultXml = queryXml(item as ApiResult)
+        responseXmlList.push(resultXml)
+        if (resultXml('status').text() !== 'success') {
+            allSuccess = false
+            return
+        }
+    })
+    const Translate = useLangStore().Translate
+    const openMessageTipBox = useMessageBox().openMessageTipBox
+
+    return new Promise((resolve: (responseXmlList: ((path: string) => XmlResult)[]) => void, reject: (responseXmlList: ((path: string) => XmlResult)[]) => void) => {
+        if (allSuccess) {
+            openMessageTipBox({
+                type: 'success',
+                title: Translate('IDCS_SUCCESS_TIP'),
+                message: Translate('IDCS_SAVE_DATA_SUCCESS'),
+            }).then(() => {
+                successHandler && successHandler(responseXmlList)
+                resolve(responseXmlList)
+            })
+        } else {
+            openMessageTipBox({
+                type: 'info',
+                title: Translate('IDCS_INFO_TIP'),
+                message: Translate('IDCS_SAVE_DATA_FAIL'),
+            }).then(() => {
+                failedHandler && failedHandler(responseXmlList)
+                reject(responseXmlList)
+            })
+        }
+    })
+}
+
+/**
+ * 对比两个数组有差异的行
+ * @param arr1 对比数组1
+ * @param arr2 对比数组2
+ * @returns 返回 arr1 中相比 arr2 有差异的行
+ */
+export const getArrayDiffRows = (arr1: Record<string, any>[], arr2: Record<string, any>[]): Record<string, any>[] => {
+    const diffRows: Record<string, any>[] = []
+    for (let i = 0; i < arr1.length && i < arr2.length; i++) {
+        const item1 = arr1[i]
+        const item2 = arr2[i]
+
+        Object.keys(item1).forEach((key) => {
+            if (item1[key] !== item2[key]) {
+                diffRows.push(item1)
+                return
+            }
+        })
+    }
+    return diffRows
 }
 
 /**

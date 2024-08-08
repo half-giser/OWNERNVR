@@ -3,7 +3,7 @@
  * @Date: 2024-07-26 11:23:41
  * @Description: 录像模块API
  * @LastEditors: tengxiang tengxiang@tvt.net.cn
- * @LastEditTime: 2024-07-26 13:53:22
+ * @LastEditTime: 2024-08-03 09:37:49
  */
 import http from './api'
 
@@ -15,3 +15,6 @@ export const editRecordDistributeInfo = (data: string) => http.fetch('editRecord
 
 // 获取通道的录像排程配置
 export const queryRecordScheduleList = () => http.fetch('queryRecordScheduleList', getXmlWrapData(''))
+
+// 设置通道的录像排程配置
+export const editRecordScheduleList = (data: string) => http.fetch('editRecordScheduleList', getXmlWrapData(data))

@@ -5,7 +5,15 @@
  */
 
 // 排程-排程信息
+export class NameValueItem {
+    id = '' // id
+    name = '' // 名称
+}
+
+// 排程-排程信息
 export class ScheduleInfo {
-    scheduleId = '' // 排程id
-    scheduleName = '' // 排程名称
+    id = '' // id
+    name = '' // 名称
+    // 排程时间段，第一层数组7个元素，代表天，0代表周日，第二层数组n个元素，代表一天的时间段，第三层数组代表单个时间段[startTime, endTime]
+    timespan = [] as [string, string][][]
 }
