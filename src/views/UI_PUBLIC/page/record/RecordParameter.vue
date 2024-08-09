@@ -1,0 +1,277 @@
+<!--
+ * @Description: 录像——参数配置
+ * @Author: luoyiming luoyiming@tvt.net.cn
+ * @Date: 2024-08-02 16:12:01
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-08-09 11:33:25
+-->
+<template>
+    <div class="base-flex-box">
+        <el-form
+            ref="highRecord"
+            class="stripe"
+            :style="{
+                '--form-input-width': '215px',
+            }"
+            label-position="left"
+            inline-message
+        >
+            <div class="base-subheading-box">{{ Translate('IDCS_HIGH_RECORD_PARAM') }}</div>
+            <el-form-item
+                v-show="false"
+                :label="Translate('IDCS_MAIN_STREAM_RECORD_TIME')"
+            >
+                <el-input
+                    v-model="pageData.txtMSRecDuration"
+                    type="number"
+                    :min="1"
+                    :max="31"
+                />
+            </el-form-item>
+            <el-form-item>
+                <el-checkbox v-model="pageData.chkLoopRec">{{ Translate('IDCS_CYCLE_RECORD_TIP') }}</el-checkbox>
+            </el-form-item>
+            <el-form-item prop="popMsgDuration">
+                <el-select
+                    v-model="pageData.doubleStreamRecSwitch"
+                    placeholder=" "
+                >
+                    <el-option
+                        v-for="item in pageData.chkDoubleStreamRec"
+                        :key="item.value"
+                        :value="item.value"
+                        :label="item.label"
+                    >
+                    </el-option>
+                </el-select>
+            </el-form-item>
+        </el-form>
+        <div class="base-subheading-box msgbox">{{ Translate('IDCS_CHANNEL_RECORD_PARAM') }}</div>
+        <div class="base-table-box">
+            <el-table
+                ref="tableRef"
+                border
+                stripe
+                :data="tableData"
+                table-layout="fixed"
+                show-overflow-tooltip
+                empty-text=" "
+                highlight-current-row
+            >
+                <!-- 通道名称 -->
+                <el-table-column
+                    :label="Translate('IDCS_CHANNEL_NAME')"
+                    min-width="280px"
+                >
+                    <template #default="scope">
+                        <span>{{ scope.row.name }}</span>
+                    </template>
+                </el-table-column>
+                <!-- 预录像时间 -->
+                <el-table-column
+                    :label="Translate('IDCS_BEFOREHAND_RECORD_TIME')"
+                    min-width="180px"
+                >
+                    <template #header>
+                        <el-dropdown trigger="click">
+                            <span class="el-dropdown-link">
+                                {{ Translate('IDCS_BEFOREHAND_RECORD_TIME') }}
+                                <BaseImgSprite
+                                    class="ddn"
+                                    file="ddn"
+                                />
+                            </span>
+                            <template #dropdown>
+                                <el-dropdown-menu>
+                                    <el-dropdown-item
+                                        v-for="item in pageData.perList"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value"
+                                        @click="changeAllPerList(item.value)"
+                                    >
+                                        {{ item.label }}
+                                    </el-dropdown-item>
+                                </el-dropdown-menu>
+                            </template>
+                        </el-dropdown>
+                    </template>
+                    <template #default="scope">
+                        <el-select
+                            v-model="scope.row.per"
+                            placeholder=" "
+                        >
+                            <el-option
+                                v-for="item in pageData.perList"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value"
+                            />
+                        </el-select>
+                    </template>
+                </el-table-column>
+                <!-- 警后录像时间 -->
+                <el-table-column
+                    :label="Translate('IDCS_RECORD_TIME_DELAY')"
+                    min-width="180px"
+                >
+                    <template #header>
+                        <el-dropdown trigger="click">
+                            <span class="el-dropdown-link">
+                                {{ Translate('IDCS_RECORD_TIME_DELAY') }}
+                                <BaseImgSprite
+                                    class="ddn"
+                                    file="ddn"
+                                />
+                            </span>
+                            <template #dropdown>
+                                <el-dropdown-menu>
+                                    <el-dropdown-item
+                                        v-for="item in pageData.postList"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value"
+                                        @click="changeAllPostList(item.value)"
+                                    >
+                                        {{ item.label }}
+                                    </el-dropdown-item>
+                                </el-dropdown-menu>
+                            </template>
+                        </el-dropdown>
+                    </template>
+                    <template #default="scope">
+                        <el-select
+                            v-model="scope.row.post"
+                            placeholder=""
+                        >
+                            <el-option
+                                v-for="item in pageData.postList"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value"
+                            />
+                        </el-select>
+                    </template>
+                </el-table-column>
+                <!-- 断网补录 -->
+                <el-table-column
+                    v-if="supportANR"
+                    :label="Translate('IDCS_OFFLINE_RECORDING')"
+                    min-width="180px"
+                >
+                    <template #header>
+                        <el-dropdown trigger="click">
+                            <span class="el-dropdown-link">
+                                {{ Translate('IDCS_OFFLINE_RECORDING') }}
+                                <BaseImgSprite
+                                    class="ddn"
+                                    file="ddn"
+                                />
+                            </span>
+                            <template #dropdown>
+                                <el-dropdown-menu>
+                                    <el-dropdown-item
+                                        v-for="item in pageData.switchOption"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value"
+                                        @click="changeAllANRSwitchList(item.value)"
+                                    >
+                                        {{ item.label }}
+                                    </el-dropdown-item>
+                                </el-dropdown-menu>
+                            </template>
+                        </el-dropdown>
+                    </template>
+                    <template #default="scope">
+                        <el-select
+                            v-model="scope.row.ANRSwitch"
+                            :disabled="!scope.row.manufacturerEnable"
+                            :placeholder="Translate('IDCS_OFF')"
+                        >
+                            <el-option
+                                v-for="item in pageData.switchOption"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value"
+                            />
+                        </el-select>
+                    </template>
+                </el-table-column>
+                <!-- 过期时间 -->
+                <el-table-column
+                    :label="Translate('IDCS_EXPIRE_TIME')"
+                    min-width="180px"
+                >
+                    <template #header>
+                        <el-dropdown trigger="click">
+                            <span class="el-dropdown-link">
+                                {{ Translate('IDCS_EXPIRE_TIME') }}
+                                <BaseImgSprite
+                                    class="ddn"
+                                    file="ddn"
+                                />
+                            </span>
+                            <template #dropdown>
+                                <el-dropdown-menu>
+                                    <el-dropdown-item
+                                        v-for="item in pageData.expirationList"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value"
+                                        @click="changeAllExpirationList(item.value)"
+                                    >
+                                        {{ item.label }}
+                                    </el-dropdown-item>
+                                </el-dropdown-menu>
+                            </template>
+                        </el-dropdown>
+                    </template>
+                    <template #default="scope">
+                        <el-select
+                            v-model="scope.row.expirationDisplay"
+                            placeholder=" "
+                            @change="changeExpirationList(scope.row)"
+                        >
+                            <el-option
+                                v-for="item in pageData.expirationList"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value"
+                            />
+                        </el-select>
+                    </template>
+                </el-table-column>
+            </el-table>
+        </div>
+        <div class="base-btn-box">
+            <span
+                class="tips"
+                :hidden="!supportANR"
+                >{{ Translate('IDCS_OFFLINE_RECORDING_TIPS') }}</span
+            >
+            <el-button
+                class="btn-ok"
+                @click="setData"
+                >{{ Translate('IDCS_APPLY') }}</el-button
+            >
+        </div>
+        <RecParamCustomizationPop
+            v-model="pageData.isSetCustomization"
+            :expiration-pop-data="expirationPopData"
+            :handle-get-expiration-data="handleGetExpirationData"
+            @close="pageData.isSetCustomization = false"
+        />
+    </div>
+</template>
+
+<script lang="ts" src="./RecordParameter.v.ts"></script>
+
+<style scoped>
+.msgbox {
+    margin: 50px 0 10px 0;
+}
+.tips {
+    flex: 1;
+}
+</style>

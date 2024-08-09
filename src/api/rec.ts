@@ -3,7 +3,7 @@
  * @Date: 2024-07-17 17:02:54
  * @Description: 录像与回放
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-01 11:48:20
+ * @LastEditTime: 2024-07-29 18:24:19
  */
 import http, { getXmlWrapData } from './api'
 
