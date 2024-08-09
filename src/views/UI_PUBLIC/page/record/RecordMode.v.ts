@@ -2,7 +2,7 @@ import { type RecMode, RecordDistributeInfo, type RecordSchedule } from '@/types
 import { defineComponent } from 'vue'
 import RecordModeAdvancePop from './RecordModeAdvancePop.vue'
 import RecordModeStreamPop from './RecordModeStreamPop.vue'
-import ScheduleManagPop from './ScheduleManagPop.vue'
+import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import { type ApiResult } from '@/api/api'
 import { type XmlElement } from '@/utils/xmlParse'
 import { getArrayDiffRows } from '@/utils/tools'
