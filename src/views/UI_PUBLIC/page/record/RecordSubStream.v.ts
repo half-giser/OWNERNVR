@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-07-31 10:13:57
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-09 14:28:57
+ * @LastEditTime: 2024-08-09 17:33:01
  */
 
 import { type RecordSubStreamList, type ItemList, type rowNonExistent } from '@/types/apiType/record'
@@ -22,6 +22,7 @@ export default defineComponent({
         let poeModeNode = ''
 
         const dropdownRef = ref()
+        const resolutionTableRef = ref()
 
         const pageData = ref({
             isRowDisabled: [] as boolean[],
@@ -42,6 +43,7 @@ export default defineComponent({
             videoQualityList: [] as ItemList[],
             videoQualityItemList: [[] as ItemList[]],
             isVideoQualityDisabled: [] as boolean[],
+            expands: [] as string[],
         })
 
         const tableData = ref<RecordSubStreamList[]>([])
@@ -61,7 +63,7 @@ export default defineComponent({
         const videoEncodeTypeArr = ['h264s', 'h265s', 'h264p', 'h265p']
 
         const getDevRecParamCfgModule = async () => {
-            const result = await queryRecordDistributeInfo(getXmlWrapData(''))
+            const result = await queryRecordDistributeInfo()
             const $ = queryXml(result)
 
             pageData.value.doubleStreamRecSwitch = $('/response/content/doubleStreamRecSwitch').text() == 'true'
@@ -625,9 +627,35 @@ export default defineComponent({
             dropdownRef.value.handleClose()
         }
 
+        const handleExpandChange = function (
+            row: { res: string; resGroup: { value: string; label: string }[]; chls: { expand: boolean; data: { value: string; text: string }[] } },
+            expandedRows: string[],
+        ) {
+            if (expandedRows.includes(row.chls.data[0].value) && resolutionTableRef.value) {
+                resolutionTableRef.value.toggleRowExpansion(row, false)
+                row.chls.expand = false
+                pageData.value.expands.splice(pageData.value.expands.indexOf(row.chls.data[0].value), 1)
+            } else if (resolutionTableRef.value) {
+                resolutionTableRef.value.toggleRowExpansion(row, true)
+                row.chls.expand = true
+                pageData.value.expands.push(row.chls.data[0].value)
+            }
+        }
+
+        const getRowKey = (row: { res: string; resGroup: ItemList[]; chls: { expand: boolean; data: ItemList[] } }) => {
+            return row.chls.data[0].value
+        }
+
         // 在选择项时下拉框保持打开
-        const keepDropDownOpen = () => {
+        const keepDropDownOpen = function (row: { res: string; resGroup: ItemList[]; chls: { expand: boolean; data: ItemList[] } }) {
             dropdownRef.value.handleOpen()
+            if (row.chls.expand && resolutionTableRef.value) {
+                row.chls.expand = true
+                resolutionTableRef.value.toggleRowExpansion(row, true)
+            } else if (row.chls.expand == false && resolutionTableRef.value) {
+                row.chls.expand = false
+                resolutionTableRef.value.toggleRowExpansion(row, false)
+            }
         }
 
         const changeAllFrameRate = (value: string) => {
@@ -663,6 +691,7 @@ export default defineComponent({
 
         return {
             dropdownRef,
+            resolutionTableRef,
             STREAM_TYPE_MAPPING,
             RecordSubResAdaptive,
             pageData,
@@ -674,6 +703,8 @@ export default defineComponent({
             handleResolutionDropdownVisible,
             changeAllFrameRate,
             changeAllVideoQuality,
+            handleExpandChange,
+            getRowKey,
             keepDropDownOpen,
             disabledRow,
             apply,

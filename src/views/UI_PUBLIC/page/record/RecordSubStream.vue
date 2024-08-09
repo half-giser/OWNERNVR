@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-07-31 10:12:26
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-09 14:14:53
+ * @LastEditTime: 2024-08-09 17:24:33
 -->
 <template>
     <div class="base-flex-box">
@@ -117,26 +117,27 @@
                                     <template #default>
                                         <div id="resolutionContainer">
                                             <el-table
+                                                ref="resolutionTableRef"
                                                 :data="pageData.resolutionGroups"
                                                 :show-header="false"
+                                                :row-key="getRowKey"
+                                                :expand-row-keys="pageData.expands"
                                                 stripe
                                                 border
+                                                @expand-change="handleExpandChange($event, pageData.expands)"
                                             >
                                                 <el-table-column
                                                     prop="res"
                                                     width="220px"
                                                 >
                                                     <template #default="scope">
-                                                        <el-select
-                                                            v-model="scope.row.res"
-                                                            @change="keepDropDownOpen()"
-                                                        >
+                                                        <el-select v-model="scope.row.res">
                                                             <el-option
                                                                 v-for="item in scope.row.resGroup"
                                                                 :key="item"
                                                                 :label="item"
                                                                 :value="item"
-                                                                @click="keepDropDownOpen()"
+                                                                @click="keepDropDownOpen(scope.row)"
                                                             >
                                                             </el-option>
                                                         </el-select>

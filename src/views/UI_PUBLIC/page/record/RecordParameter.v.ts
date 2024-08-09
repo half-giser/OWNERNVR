@@ -61,7 +61,7 @@ export default defineComponent({
         const tableData = ref<ChlRecParamList[]>([])
 
         const getDevRecParamData = async () => {
-            const result = await queryRecordDistributeInfo(getXmlWrapData(''))
+            const result = await queryRecordDistributeInfo()
             const $dev = queryXml(result)
 
             commLoadResponseHandler(result, ($) => {
