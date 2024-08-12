@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-08-10 12:08:57
  * @Description: AI/事件
- * @LastEditors: tengxiang tengxiang@tvt.net.cn
- * @LastEditTime: 2024-08-12 11:22:36
+ * @LastEditors: lym a11593@tvt.net.cn
+ * @LastEditTime: 2024-08-12 18:03:07
  */
 const { Translate } = useLangStore()
 
@@ -27,4 +27,28 @@ export class AlarmOut {
     get serialNum() {
         return `${this.devDesc ? this.devDesc : Translate('IDCS_LOCAL')}-${this.index}`
     }
+}
+
+// 事件通知——显示——弹出视频
+export class PopVideoForm {
+    popVideoDuration = 0 // 弹出视频持续时间
+    popVideoOutputShow = false // 是否显示
+    popVideoOutput = '' // 弹出视频输出
+}
+
+// 事件通知——显示——弹出消息框
+export class PopMsgForm {
+    popMsgDuration = 0
+    popMsgShow = false
+}
+
+// 事件通知——蜂鸣器
+export class buzzerForm {
+    buzzerDuration = 0
+}
+
+// 事件通知——推送
+export class pushForm {
+    chkEnable = false // 是否启用
+    pushSchedule = ''
 }
