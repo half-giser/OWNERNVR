@@ -4,7 +4,7 @@
  * @Date: 2024-07-31 10:29:37
  * @Description: 录像码流通用表格组件
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-12 13:53:40
+ * @LastEditTime: 2024-08-12 14:02:57
 -->
 <template>
     <div>
@@ -545,7 +545,11 @@
                 :span="12"
                 class="colBandwidthDetail"
             >
-                <span id="txRecTime">{{ pageData.recTime }}</span>
+                <span
+                    v-if="pageData.PredictVisible"
+                    id="txRecTime"
+                    >{{ pageData.recTime }}</span
+                >
                 <span
                     id="txtBandwidth"
                     class="row_bandwidth"
@@ -677,8 +681,8 @@ const pageData = ref({
     audioInNum: -1, //支持的音频数量
     mainStreamLimitFps: 1, // 主码流帧率限制
 
-    PredictVisible: true, // 预计录像时间是否显示
-    CalculateVisible: true, // 计算按钮是否显示
+    PredictVisible: false, // 预计录像时间是否显示
+    CalculateVisible: false, // 计算按钮是否显示
     recordStreamVisible: false, // 录像码流是否显示
 
     isAllCBR: true, // 是否全为CBR
