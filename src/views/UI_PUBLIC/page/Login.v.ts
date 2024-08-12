@@ -3,7 +3,7 @@
  * @Date: 2024-04-23 11:52:48
  * @Description: 登录界面
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-05 08:59:11
+ * @LastEditTime: 2024-08-08 11:52:39
  */
 import { type FormRules, type FormInstance } from 'element-plus'
 import { LoginForm, LoginReqData } from '@/types/apiType/user'
@@ -107,10 +107,10 @@ export default defineComponent({
                         // doLogin后更新用户会话信息
                         await userSessionStore.updateByLogin('STANDARD', res, reqData, pageData.value)
                         loginBtnDisabled.value = false
-                        router.push('/live')
                         Plugin.DisposePlugin()
                         Plugin.TogglePageByPlugin()
                         Plugin.StartV2Process()
+                        router.push('/live')
                     } else if (xmlParse('status', res).text() == 'fail') {
                         loginBtnDisabled.value = false
                         pageData.value.password = ''

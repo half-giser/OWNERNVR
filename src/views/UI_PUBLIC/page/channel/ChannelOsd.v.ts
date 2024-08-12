@@ -13,6 +13,7 @@ import CanvasOSD, { type CanvasOSDOptionNameConfig, type CanvasOSDOptionTimeConf
 import { type TVTPlayerWinDataListItem } from '@/utils/wasmPlayer/tvtPlayer'
 import { type OcxXmlSetOSDInfo, type OcxXmlSetOsdListDatum } from '@/utils/ocx/ocxCmd'
 import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
+import { dateFormatOptions, dateFormatTip, tableRowStatusToolTip, timeFormatTip } from '@/utils/const/other'
 
 export default defineComponent({
     components: {
@@ -47,35 +48,6 @@ export default defineComponent({
         let osdDrawer: CanvasOSD | undefined = undefined
         const editRows = new Set<ChannelOsd>()
         let returnRqCount = 0
-
-        const statusToolTip = {
-            loading: Translate('IDCS_DEVC_REQUESTING_DATA'),
-            saveSuccess: Translate('IDCS_SAVE_DATA_SUCCESS'),
-            saveFailed: Translate('IDCS_SAVE_DATA_FAIL'),
-        }
-
-        const dateFormatTip: Record<string, string> = {
-            'yyyy-MM-dd': Translate('IDCS_DATE_FORMAT_YMD'),
-            'MM-dd-yyyy': Translate('IDCS_DATE_FORMAT_MDY'),
-            'dd-MM-yyyy': Translate('IDCS_DATE_FORMAT_DMY'),
-            'yyyy/MM/dd': Translate('IDCS_DATE_FORMAT_YMD'),
-            'MM/dd/yyyy': Translate('IDCS_DATE_FORMAT_MDY'),
-            'dd/MM/yyyy': Translate('IDCS_DATE_FORMAT_DMY'),
-            'year-month-day': Translate('IDCS_DATE_FORMAT_YMD'),
-            'month-day-year': Translate('IDCS_DATE_FORMAT_MDY'),
-            'day-month-year': Translate('IDCS_DATE_FORMAT_DMY'),
-        }
-
-        const dateFormatOptions: Record<string, string>[] = [
-            { value: 'year-month-day', text: Translate('IDCS_DATE_FORMAT_YMD') },
-            { value: 'month-day-year', text: Translate('IDCS_DATE_FORMAT_MDY') },
-            { value: 'day-month-year', text: Translate('IDCS_DATE_FORMAT_DMY') },
-        ]
-
-        const timeFormatTip: Record<string, string> = {
-            '24': Translate('IDCS_TIME_FORMAT_24'),
-            '12': Translate('IDCS_TIME_FORMAT_12'),
-        }
 
         const handleSizeChange = (val: number) => {
             pageSize.value = val
@@ -406,7 +378,7 @@ export default defineComponent({
                         newData.chlIndex = eleXml('chlIndex').text()
                         newData.chlType = eleXml('chlType').text()
                         newData.status = 'loading'
-                        newData.statusTip = statusToolTip['loading']
+                        newData.statusTip = tableRowStatusToolTip['loading']
                         rowData.push(newData)
                         nameMapping[rowData[rowData.length - 1].id] = rowData[rowData.length - 1].name
                     })
@@ -492,7 +464,7 @@ export default defineComponent({
                             }
                             nameMapping[rowData.id] = rowData.name
                             rowData.status = 'success'
-                            rowData.statusTip = statusToolTip['saveSuccess']
+                            rowData.statusTip = tableRowStatusToolTip['saveSuccess']
                             if (rowData.chlType == 'recorder') return
 
                             let editIPChlORChlOSDXml = '<types>'
@@ -537,11 +509,11 @@ export default defineComponent({
                                             if (rowData.name == nameMapping[rowData.id]) {
                                                 checkAllRqReturn()
                                                 rowData.status = 'success'
-                                                rowData.statusTip = statusToolTip['saveSuccess']
+                                                rowData.statusTip = tableRowStatusToolTip['saveSuccess']
                                             }
                                         } else {
                                             checkAllRqReturn()
-                                            let errorInfo = statusToolTip['saveFailed']
+                                            let errorInfo = tableRowStatusToolTip['saveFailed']
                                             if (Number(res('errorCode').text()) == errorCodeMap.resourceNotExist) {
                                                 errorInfo = Translate('resourceNotExist').formatForLang(Translate('IDCS_CHANNEL'))
                                             }
@@ -555,7 +527,7 @@ export default defineComponent({
                                 alert(error)
                             }
                         } else {
-                            let errorInfo = statusToolTip['saveFailed']
+                            let errorInfo = tableRowStatusToolTip['saveFailed']
                             if (Number(res('errorCode').text()) == errorCodeMap.nameExist) {
                                 errorInfo = Translate('IDCS_PROMPT_CHANNEL_NAME_EXIST')
                             }

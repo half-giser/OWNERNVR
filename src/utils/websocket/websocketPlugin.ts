@@ -3,7 +3,7 @@
  * @Date: 2023-05-26 17:27:29
  * @Description: websocket开启视频插件播放视频功能 插件2.0基础类
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-19 14:27:22
+ * @LastEditTime: 2024-08-06 16:56:15
  */
 import { xmlParse, XMLStr2XMLDoc, XMLDoc2XMLStr } from '../xmlParse'
 
@@ -120,7 +120,6 @@ export default class WebsocketPlugin {
 
     // 向插件发送指令
     ExecuteCmd(xmlData: string) {
-        console.log(this.ws.readyState, 'ExecuteCmd', xmlData)
         if (this.ws && this.ws.readyState === 1) this.ws.send(xmlData)
     }
 

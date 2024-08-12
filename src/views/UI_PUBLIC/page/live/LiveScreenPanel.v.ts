@@ -3,10 +3,10 @@
  * @Date: 2024-07-29 16:08:14
  * @Description: 现场预览-底部菜单栏视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 16:49:43
+ * @LastEditTime: 2024-08-08 14:32:44
  */
 import LiveScreenAlarmOut from './LiveScreenAlarmOut.vue'
-import { LiveSharedWinData } from '@/types/apiType/live'
+import { type LiveSharedWinData } from '@/types/apiType/live'
 
 export default defineComponent({
     components: {
@@ -19,7 +19,6 @@ export default defineComponent({
         winData: {
             type: Object as PropType<LiveSharedWinData>,
             required: true,
-            default: () => new LiveSharedWinData(),
         },
         /**
          * @description 播放模式

@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2023-05-04 22:08:40
  * @Description: HTTP请求工具类
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 15:34:49
+ * @LastEditors: tengxiang tengxiang@tvt.net.cn
+ * @LastEditTime: 2024-07-29 19:54:53
  */
 
 /* axios配置入口文件 */
@@ -24,6 +24,8 @@ export const xmlHeader = '<?xml version="1.0" encoding="UTF-8" ?>'
 let commonErrorLastTime = dayjs().valueOf()
 let userSessionStore: ReturnType<typeof useUserSessionStore>
 let isErrorMessageBox = false
+
+export type ApiResult = Element | XMLDocument
 
 /**
  * @description: 添加xml外层公共包装
@@ -100,7 +102,7 @@ class Request {
     }
 
     fetch(url: string, data: string, config?: AxiosRequestConfig, checkCommonErrorSwitch = true) {
-        return new Promise((resolve: (data: Element | XMLDocument) => void, reject: (error: any) => void) => {
+        return new Promise((resolve: (data: ApiResult) => void, reject: (error: any) => void) => {
             return axios({
                 ...this.config,
                 ...config,

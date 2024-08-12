@@ -3,10 +3,9 @@
  * @Date: 2024-07-29 16:10:28
  * @Description: 现场预览-目标检测视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 17:31:02
+ * @LastEditTime: 2024-08-08 14:33:42
  */
 import WebsocketSnap, { type WebsocketSnapOnSuccessSnap } from '@/utils/websocket/websocketSnap'
-import { LiveUserAuth } from '@/types/apiType/live'
 import LiveSnapFaceMatchItem from './LiveSnapFaceMatchItem.vue'
 import LiveSnapItem from './LiveSnapItem.vue'
 import LiveSnapStructItem from './LiveSnapStructItem.vue'
@@ -25,9 +24,8 @@ export default defineComponent({
     },
     props: {
         auth: {
-            type: Object as PropType<LiveUserAuth>,
+            type: Object as PropType<UserChlAuth>,
             required: true,
-            default: () => new LiveUserAuth(),
         },
     },
     setup(prop) {
@@ -173,8 +171,8 @@ export default defineComponent({
                 return
             }
             router.push({
-                name: 'record',
-                params: {
+                path: '/playback',
+                state: {
                     chlId: data.chlId,
                     chlName: data.chlName,
                     startTime: data.detect_time - 5000,
@@ -205,8 +203,8 @@ export default defineComponent({
                         content1: 'data:image/png;base64,' + data.repo_pic,
                     }
                     router.push({
-                        name: 'searchFace',
-                        params: searchInfo,
+                        path: 'search-and-backup/image-manage',
+                        state: searchInfo,
                     })
                 } else {
                     // 按左侧的抓拍图片搜索
@@ -217,8 +215,8 @@ export default defineComponent({
                         content: 'data:image/png;base64,' + data.snap_pic,
                     }
                     router.push({
-                        name: 'searchFace',
-                        params: searchInfo,
+                        path: 'search-and-backup/by-time-slice',
+                        state: searchInfo,
                     })
                 }
             } else if (data.type === 'boundary') {
@@ -227,8 +225,8 @@ export default defineComponent({
                     targetType: data.info.target_type,
                 }
                 router.push({
-                    name: 'searchBody',
-                    params: searchInfo,
+                    path: 'search-and-backup/by-event',
+                    state: searchInfo,
                 })
             } else if (data.type === 'vehicle_plate') {
                 let eventType = 'plateDetection'
@@ -241,8 +239,8 @@ export default defineComponent({
                     plateNum: data.info.plate,
                 }
                 router.push({
-                    name: 'searchVehicle',
-                    params: searchInfo,
+                    path: 'search-and-backup/image-manage',
+                    state: searchInfo,
                 })
             }
         }

@@ -1,7 +1,7 @@
 <!--
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-07-17 15:10:16
- * @Description: 排程单时间条
+ * @Description: 排程单时间条，初始化示例 resetValue([['00:30','02:00'],['05:18','18:30']]) 或 resetValue([[30,120],[318,1110]]) //分钟数
 -->
 <template>
     <div
@@ -16,6 +16,15 @@
                 height="20"
             ></canvas>
             <canvas
+                v-if="readonly"
+                ref="timeSelectorRef"
+                class="time-selector, readonly"
+                :width="canvasWidth"
+                height="20"
+                :style="{ backgroundColor: `${timeSpanBgColor}` }"
+            ></canvas>
+            <canvas
+                v-else
                 ref="timeSelectorRef"
                 class="time-selector"
                 :width="canvasWidth"
@@ -38,7 +47,10 @@
                 class="selectTip"
                 v-text="selectTip"
             ></div>
-            <div class="btn-panel">
+            <div
+                v-if="!readonly"
+                class="btn-panel"
+            >
                 <slot name="customerControlPanel"></slot>
                 <a
                     @click="manualTimeInputOpen"
@@ -62,7 +74,7 @@
                     @click.stop
                 >
                     <el-time-picker
-                        v-model="menaulTimeSpan"
+                        v-model="manualTimeSpan"
                         is-range
                         range-separator="-"
                         :clearable="false"
@@ -86,6 +98,7 @@ export interface Props {
     timeSpanColor?: string
     timeSpanSelectingColor?: string
     timeSpanBgColor?: string
+    readonly?: boolean
     dragAction?: 'add' | 'del'
 }
 
@@ -97,7 +110,8 @@ const props = withDefaults(defineProps<Props>(), {
     timeSpanColor: '#18C0DD',
     timeSpanSelectingColor: '#89E9F9',
     timeSpanBgColor: '#F2F2F3',
-    dragAction: 'add' | 'del',
+    readonly: false,
+    dragAction: 'add',
 })
 
 const { Translate } = inject('appGlobalProp') as appGlobalProp
@@ -134,7 +148,7 @@ let selectEndX = -1
 //鼠标拖选时实时显示选择时间段的TIP
 const selectTip = ref('')
 //手动选择时间段
-const menaulTimeSpan = ref<[Date, Date]>([new Date(2016, 9, 10, 0, 0), new Date(2016, 9, 10, 23, 59)])
+const manualTimeSpan = ref<[Date, Date]>([new Date(2016, 9, 10, 0, 0), new Date(2016, 9, 10, 23, 59)])
 //手动选择时间段面板显示状态
 const manualTimeInputShow = ref(false)
 
@@ -295,8 +309,8 @@ const dateToTimeNum = (time: Date) => {
     return time.getHours() * 60 + time.getMinutes()
 }
 
-const manualTimeInputClose = (event: Event | null) => {
-    if (event == null || event.target != manualTimeInputTarget) {
+const manualTimeInputClose = (event?: Event) => {
+    if (event == null || (event.target != manualTimeInputTarget && !(event.target as HTMLElement).closest('.el-popper'))) {
         manualTimeInputShow.value = false
         document.removeEventListener('click', manualTimeInputClose)
     }
@@ -307,7 +321,7 @@ const manualTimeInputClose = (event: Event | null) => {
  */
 let manualTimeInputTarget: EventTarget | null = null
 /**
- * 手动设置时间段确定事件
+ * 手动设置时间段面板打开
  */
 const manualTimeInputOpen = (event: Event) => {
     manualTimeInputTarget = event.target
@@ -319,10 +333,26 @@ const manualTimeInputOpen = (event: Event) => {
  * 手动设置时间段确定事件
  */
 const manualTimeInputOk = () => {
-    checkAndInsertTimeNumSpan([dateToTimeNum(menaulTimeSpan.value[0]), dateToTimeNum(menaulTimeSpan.value[1])])
+    addTimeSpan([dateToTimeNum(manualTimeSpan.value[0]), dateToTimeNum(manualTimeSpan.value[1])])
+}
+
+/**
+ *
+ * @param timeSpan 时间段，支持  ['00:30','02:00'] 或 [30,120] 格式
+ */
+const addTimeSpan = (timeSpan: [string, string] | [number, number]) => {
+    if (typeof timeSpan[0] === 'number') {
+        checkAndInsertTimeNumSpan(timeSpan as [number, number])
+    } else {
+        checkAndInsertTimeNumSpan(
+            timeSpan.map((item) => {
+                return timeStrToNum(item as string)
+            }) as [number, number],
+        )
+    }
     mergeAnddrawTimeSpan()
     manualTimeInputTarget = null
-    manualTimeInputClose(null)
+    manualTimeInputClose()
 }
 
 /**
@@ -509,6 +539,8 @@ const selectEnd = (event: MouseEvent) => {
 defineExpose({
     getValue,
     resetValue,
+    addTimeSpan,
+    invert,
 })
 </script>
 
@@ -522,12 +554,17 @@ defineExpose({
 
     .time-selector {
         cursor: text;
+
+        &.readonly {
+            cursor: default;
+        }
     }
 }
 
 .toolbar-border {
     display: flex;
     height: 22px;
+    line-height: 22px;
     // background-color: aquamarine;
 
     .valueShowText {
@@ -582,5 +619,6 @@ defineExpose({
     border-radius: 5px;
     border: solid 1px var(--border-color1);
     background-color: var(--bg-color5);
+    z-index: 1000;
 }
 </style>

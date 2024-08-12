@@ -3,7 +3,7 @@
  * @Date: 2024-06-03 11:56:43
  * @Description: 插件命令集合
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-26 15:57:32
+ * @LastEditTime: 2024-08-06 15:51:44
  */
 import { compressXml, rawXml } from '../xmlParse'
 import { xmlHeader } from '@/api/api'
@@ -453,7 +453,7 @@ export const OCX_XML_SearchRec = (
     taskId?: string,
 ) => {
     return wrapXml(rawXml`
-        <cmd type="${cmdType}" ${taskId ? `taskId="${taskId}` : ''} compatibilityMode='true'>
+        <cmd type="${cmdType}" ${taskId ? `taskId="${taskId}` : ''}" compatibilityMode='true'>
             ${startTime ? `<startTime>${startTime}</startTime>` : ''}
             ${endTime ? `<endTime>${endTime}</endTime>` : ''}
             ${startTimeEx ? `<startTimeEx timeZone='UTC'>${startTimeEx}</startTimeEx>` : ''}
@@ -662,7 +662,7 @@ export const OCX_XML_SetLang = (viewType: string = '') => {
  * @param winInfo
  * @returns {string}
  */
-export const OCX_XML_SetPlayStatus = (status: 'ON' | 'OFF' | 'STOP' | 'FORWARDS_PAUSE' | 'FORWARDS', winInfo: string | number = '') => {
+export const OCX_XML_SetPlayStatus = (status: 'ON' | 'OFF' | 'STOP' | 'FORWARDS_PAUSE' | 'FORWARDS' | 'BACKWARDS_PAUSE' | 'BACKWARDS', winInfo: string | number = '') => {
     return wrapXml(rawXml`
         <cmd type="RecPlayStatus">
             ${winInfo !== '' ? `<winInfo>${winInfo}</winInfo>` : ''}
@@ -1243,6 +1243,110 @@ export const OCX_XML_GetOcxDisplay = () => {
     return wrapXml(rawXml`<request type="GetOcxDisplay"/>`)
 }
 
+/**
+ * @description 获取水印开关的XML命令字符串
+ * @param {boolean} isSwitch
+ * @returns {string}
+ */
+export const OCX_XML_WaterMarkSwitch = (isSwitch: boolean) => {
+    return wrapXml(rawXml`<cmd type="WaterMarkSwitch">${isSwitch ? 'ON' : 'OFF'}</cmd>`)
+}
+
+interface OcxXmlSetRecList {
+    chlId: string
+    chlName: string
+    event: string
+    startTime: string
+    startTimeEx: string
+    endTime: string
+    endTimeEx: string
+    duration: string
+}
+/**
+ * @description 获取“设置回放列表”的XML命令字符串
+ * @param chlId
+ * @param winIndex
+ * @param list
+ * @param timeZone
+ * @returns
+ */
+export const OCX_XML_SetRecList = (chlId: string, winIndex: number, list: OcxXmlSetRecList[], timeZone = 'UTC') => {
+    return wrapXml(rawXml`
+        <cmd type='SetRecList' compatibilityMode='true'>
+            <status>success</status>
+            <chlId>${chlId}</chlId>
+            <winIndex>${winIndex.toString()}</winIndex>
+            <recList timeZone="${timeZone}">
+                ${list
+                    .map(
+                        (item) => rawXml`<item 
+                            chlId="${item.chlId}" 
+                            chlName="${item.chlName}"
+                            event="${item.event}"
+                            startTime="${item.startTime}"
+                            startTimeEx="${item.startTimeEx}"
+                            endTime="${item.endTime}"
+                            endTimeEx="${item.endTimeEx}"
+                            duration="${item.duration}" />`,
+                    )
+                    .join('')}
+            </recList>
+        </cmd>
+    `)
+}
+
+/**
+ * @description 清除回放列表
+ * @param {number} winIndex
+ * @returns
+ */
+export const OCX_XML_ClearRecList = (winIndex: number) => {
+    return wrapXml(rawXml`
+        <cmd type='SetRecList'>
+            <status>success</status>
+            <winIndex>${winIndex.toString()}</winIndex>
+            <recList></recList>
+        </cmd>
+    `)
+}
+
+interface OcxXmlBackUpRecList extends OcxXmlSetRecList {
+    chlIndex: number
+}
+
+/**
+ * @description 获取“设置备份列表”的XML命令字符串
+ * @param format
+ * @param path
+ * @param isMainStream
+ * @param list
+ */
+export const OCX_XML_BackUpRecList = (format: string, path: string, isMainStream: boolean, list: OcxXmlBackUpRecList[]) => {
+    return wrapXml(rawXml`
+        <cmd type='BackUpRecList'>
+            <format>${format}</format>
+            <path>${wrapCDATA(path)}</path>
+            <isMainStream>${isMainStream.toString()}</isMainStream>
+            <backupRecList groupby='chlId'>
+                ${list
+                    .map(
+                        (item) => rawXml`<item 
+                            chlId="${item.chlId}" 
+                            chlName="${item.chlName}"
+                            chlIndex="${item.chlIndex.toString()}"
+                            event="${item.event}"
+                            startTime="${item.startTime}"
+                            startTimeEx="${item.startTimeEx}"
+                            endTime="${item.endTime}"
+                            endTimeEx="${item.endTimeEx}"
+                            duration="${item.duration}" />`,
+                    )
+                    .join('')}
+            </backupRecList>
+        </cmd>
+    `)
+}
+
 /************************************************************************/
 /* MAC平台指令（新协议）
 /************************************************************************/
@@ -1306,16 +1410,16 @@ export interface OcxXmlSetOsdListDatum {
 export const OCX_XML_SetOSD = (edit: string, osdList: OcxXmlSetOsdListDatum[] = []) => {
     const osd = osdList
         .map(
-            (item) => `
+            (item) => rawXml`
                 <item
-                    winIndex="${item.winIndex}"
+                    winIndex="${item.winIndex.toString()}"
                     ${item.osd ? `osd="${item.osd}"` : `dateFormat="${item.dateFormat}" timeFormat="${item.timeFormat}" `}
-                    x="${item.x}"
-                    xMin="${item.xMin || 0}"
-                    xMax="${item.xMax || 1920}"
-                    y="${item.y}"
-                    yMin="${item.yMin || 0}"
-                    yMax="${item.yMax || 1080}"
+                    x="${item.x.toString()}"
+                    xMin="${String(item.xMin || 0)}"
+                    xMax="${String(item.xMax || 1920)}"
+                    y="${item.y.toString()}"
+                    yMin="${String(item.yMin || 0)}"
+                    yMax="${String(item.yMax || 1080)}"
                     status="${item.status || 'OFF'}" />
             `,
         )

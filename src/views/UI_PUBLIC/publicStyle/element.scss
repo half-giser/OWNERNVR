@@ -296,4 +296,90 @@
     .el-row {
         align-items: center;
     }
+
+    .el-calendar {
+        --el-calendar-border: 1px solid var(--border-calendar);
+        --el-calendar-cell-width: unset;
+        --el-calendar-selected-bg-color: var(--bg-color-table-hover); // var(--primary--04);
+
+        &__header {
+            background-color: var(--bg-calendar-header);
+            color: var(--text-menu-04);
+            padding: 0 5px;
+        }
+
+        &__body {
+            padding: 0;
+        }
+
+        &-table {
+            thead {
+                background-color: var(--bg-calender-thead);
+                font-size: 12px;
+                color: var(--text-menu-04);
+                th {
+                    padding: 3px 0;
+                }
+            }
+        }
+
+        &-table {
+            td.is-today {
+                color: var(--primary--05);
+                background-color: var(--primary--01);
+            }
+
+            // 日历为5行时
+            &:has(tr:nth-child(5)) {
+                .el-calendar-day {
+                    div {
+                        padding: 3px 0;
+                    }
+                }
+            }
+
+            // 日历为6行时
+            &:has(tr:nth-child(6)) {
+                .el-calendar-day {
+                    div {
+                        padding: 1px 0;
+                    }
+                }
+            }
+        }
+
+        &-day {
+            font-size: 12px;
+            padding: 0;
+            text-align: center;
+            position: relative;
+
+            div {
+                padding: 6px 0;
+                &.active {
+                    background-color: var(--primary--04);
+                    color: var(--color-white);
+                }
+                &.badge {
+                    &:after {
+                        position: absolute;
+                        width: 4px;
+                        height: 4px;
+                        border-radius: 100%;
+                        background-color: var(--error--01);
+                        content: '';
+                        top: 2px;
+                        right: 2px;
+                    }
+                }
+            }
+        }
+    }
+
+    .el-progress {
+        &__text {
+            font-size: 14px!important;
+            width: 50px;
+        }
+    }
 }

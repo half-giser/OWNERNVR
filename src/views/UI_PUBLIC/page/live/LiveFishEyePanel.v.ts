@@ -3,9 +3,9 @@
  * @Date: 2024-07-29 15:38:29
  * @Description: 现场预览-鱼眼视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 15:43:15
+ * @LastEditTime: 2024-08-08 14:30:49
  */
-import { LiveSharedWinData } from '@/types/apiType/live'
+import { type LiveSharedWinData } from '@/types/apiType/live'
 
 export interface FishEyePanelExpose {
     exitAdjust: (chlId: string) => void
@@ -19,7 +19,6 @@ export default defineComponent({
         winData: {
             type: Object as PropType<LiveSharedWinData>,
             required: true,
-            default: () => new LiveSharedWinData(),
         },
     },
     emits: {

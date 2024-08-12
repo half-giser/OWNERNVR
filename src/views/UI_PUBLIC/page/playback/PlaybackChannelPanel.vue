@@ -1,0 +1,444 @@
+<!--
+ * @Author: yejiahao yejiahao@tvt.net.cn
+ * @Date: 2024-07-30 09:32:36
+ * @Description: 回放-通道视图
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-08-07 17:39:02
+-->
+<template>
+    <div class="left">
+        <div
+            v-show="pageData.isOpen"
+            class="left-content"
+        >
+            <div
+                class="left-top"
+                @click="pageData.isOpen = false"
+            >
+                <div>
+                    {{ pageData.chlMenu[pageData.activeChlMenu].label }}
+                </div>
+                <i></i>
+            </div>
+            <div class="left-menu">
+                <div
+                    v-for="(item, index) in pageData.chlMenu"
+                    :key="item.tab"
+                    :class="{
+                        active: pageData.activeChlMenu === index,
+                    }"
+                    @click="changeChlMenu(index)"
+                    @dblclick="changeChlMenu(index)"
+                >
+                    <el-tooltip
+                        :content="item.label"
+                        :show-after="500"
+                    >
+                        <BaseImgSprite
+                            :file="item.file"
+                            :index="pageData.activeChlMenu === index ? 1 : 0"
+                            :hover-index="1"
+                            :disabled-index="3"
+                            :chunk="4"
+                        />
+                    </el-tooltip>
+                </div>
+            </div>
+            <slot></slot>
+            <div class="left-bottom">
+                <!-- 通道列表 -->
+                <div
+                    v-show="pageData.activeChlMenu === 0"
+                    class="left-chl"
+                >
+                    <div class="left-chl-form">
+                        <el-input
+                            v-model="pageData.chlKeyword"
+                            :placeholder="Translate('IDCS_SEARCH_CHANNEL')"
+                            @keydown.enter="searchChl"
+                        />
+                        <BaseImgSprite
+                            class="left-chl-search"
+                            file="toolbar_search"
+                            @click="searchChl"
+                        />
+                        <BaseImgSprite
+                            class="left-chl-search"
+                            file="toolbar_refresh"
+                            @click="refreshChl"
+                        />
+                    </div>
+                    <BaseListBox class="left-chl-box">
+                        <el-checkbox
+                            :model-value="isChlAll"
+                            @change="toggleAllChl"
+                            >{{ Translate('IDCS_ALL') }}</el-checkbox
+                        >
+                        <el-checkbox-group v-model="pageData.selectedChl">
+                            <el-checkbox
+                                v-for="item in pageData.cacheChlList"
+                                v-show="chlList.includes(item.id)"
+                                :key="item.id"
+                                :value="item.id"
+                            >
+                                <BaseImgSprite
+                                    file="chl_rec_icon"
+                                    :index="1"
+                                    :chunk="2"
+                                />
+                                <span>{{ item.value }}</span>
+                            </el-checkbox>
+                        </el-checkbox-group>
+                    </BaseListBox>
+                </div>
+                <!-- 通道组列表 -->
+                <div
+                    v-show="pageData.activeChlMenu === 1"
+                    ref="chlGroupElement"
+                    class="left-chlgroup"
+                >
+                    <div
+                        class="left-chlgroup-group"
+                        :style="{
+                            height: pageData.chlGroupHeight,
+                        }"
+                    >
+                        <BaseListBox>
+                            <BaseListBoxItem
+                                v-for="groupItem in pageData.chlGroupList"
+                                :key="groupItem.id"
+                                :class="{ active: pageData.activeChlGroup === groupItem.id }"
+                                icon="chlGroup"
+                                @click="getChlListOfGroup(groupItem.id)"
+                                @dblclick="setWinFromChlGroup(groupItem.id)"
+                            >
+                                <BaseImgSprite
+                                    file="chlGroup"
+                                    :index="pageData.activeChlGroup === groupItem.id ? 1 : 0"
+                                    :chunk="2"
+                                />
+                                <span>{{ groupItem.value }}</span>
+                            </BaseListBoxItem>
+                        </BaseListBox>
+                        <div class="left-chlgroup-btns">
+                            <el-button @click="addChlGroup">{{ Translate('IDCS_ADD') }}</el-button>
+                            <el-button @click="editChlGroup">{{ Translate('IDCS_EDIT') }}</el-button>
+                            <el-button @click="deleteChlGroup">{{ Translate('IDCS_DELETE') }}</el-button>
+                        </div>
+                    </div>
+                    <div
+                        class="left-chlgroup-thumb"
+                        @mousedown="mousedownChlGroupPosition"
+                    ></div>
+                    <BaseListBox>
+                        <BaseListBoxItem
+                            v-for="listItem in pageData.chlListOfGroup"
+                            :key="listItem.id"
+                            class="left-chlgroup-items"
+                        >
+                            <span>{{ listItem.value }}</span>
+                        </BaseListBoxItem>
+                    </BaseListBox>
+                </div>
+            </div>
+            <div class="left-btns">
+                <el-tooltip
+                    :content="Translate('IDCS_SEARCH')"
+                    :show-after="500"
+                >
+                    <div>
+                        <BaseImgSprite
+                            file="search"
+                            :index="0"
+                            :hover-index="2"
+                            :chunk="4"
+                            :disabled="!pageData.selectedChl.length"
+                            :disabled-index="3"
+                            @click="search"
+                        />
+                    </div>
+                </el-tooltip>
+                <el-tooltip
+                    :content="Translate('IDCS_PLAY')"
+                    :show-after="500"
+                >
+                    <div>
+                        <BaseImgSprite
+                            file="play (2)"
+                            :index="0"
+                            :hover-index="2"
+                            :chunk="4"
+                            :disabled="!pageData.selectedChl.length"
+                            :disabled-index="3"
+                            @click="play"
+                        />
+                    </div>
+                </el-tooltip>
+            </div>
+        </div>
+        <div
+            v-show="!pageData.isOpen"
+            class="left-hide"
+        >
+            <div
+                class="left-top"
+                @click="pageData.isOpen = true"
+            >
+                <div></div>
+                <i class="hide"></i>
+            </div>
+        </div>
+        <!-- 新增通道组 -->
+        <ChannelGroupEditPop
+            v-model="pageData.isEditChlGroup"
+            :edit-item="pageData.editChlGroup"
+            :close="closeEditChlGroup"
+            :call-back="getChlGroupList"
+        />
+        <!-- 编辑通道组 -->
+        <el-dialog
+            v-model="pageData.isAddChlGroup"
+            :title="Translate('IDCS_ADD_GROUP')"
+            width="800"
+            align-center
+            draggable
+        >
+            <ChannelGroupAdd
+                dialog
+                :close="closeAddChlGroup"
+                :call-back="getChlGroupList"
+            />
+        </el-dialog>
+    </div>
+</template>
+
+<script lang="ts" src="./PlaybackChannelPanel.v.ts"></script>
+
+<style lang="scss" scoped>
+.left {
+    height: 100%;
+    flex-shrink: 0;
+
+    &-content {
+        width: 260px;
+        height: 100%;
+    }
+
+    &-hide {
+        width: 16px;
+        height: 100%;
+    }
+
+    &-top {
+        display: flex;
+        width: 100%;
+        height: 50px;
+        align-items: center;
+        justify-content: space-between;
+        color: var(--text-dialog);
+
+        & > div {
+            margin-left: 10px;
+        }
+
+        i {
+            border-right: 8px solid #2c3039;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            border-left: 8px solid transparent;
+            font-size: 0;
+            width: 0;
+            height: 0;
+            line-height: 0;
+            cursor: pointer;
+            margin-right: 10px;
+            position: relative;
+
+            &:after {
+                content: '';
+                border-right: 4px solid var(--page-bg);
+                border-top: 4px solid transparent;
+                border-bottom: 4px solid transparent;
+                border-left: 4px solid transparent;
+                position: absolute;
+                width: 0;
+                height: 0;
+                left: 0;
+                top: -4px;
+            }
+
+            &.hide {
+                transform: rotate(180deg);
+                left: -5px;
+            }
+        }
+
+        &:hover i {
+            border-right-color: var(--primary--04);
+        }
+    }
+
+    &-menu {
+        height: 50px;
+        background-color: var(--bg-table);
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        flex-shrink: 0;
+
+        & > div {
+            background-color: transparent;
+            width: 42px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 10px;
+            border-top: 3px solid transparent;
+
+            &.active {
+                background-color: var(--bg-color-table-hover);
+                border-top-color: var(--primary--04);
+            }
+        }
+    }
+
+    &-bottom {
+        height: calc(100% - 250px);
+    }
+
+    &-chl {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        width: 100%;
+
+        &-form {
+            margin: 10px 10px;
+            display: flex;
+            flex-shrink: 0;
+            align-items: center;
+        }
+
+        &-search {
+            background-color: var(--bg-color2);
+            margin-left: 5px;
+            cursor: pointer;
+            flex-shrink: 0;
+
+            &:hover {
+                background-color: var(--bg-color3);
+            }
+        }
+
+        &-box {
+            height: 100%;
+        }
+
+        .el-checkbox {
+            margin-left: 10px;
+            display: flex;
+        }
+    }
+
+    &-chlgroup {
+        display: flex;
+        height: 100%;
+        width: 100%;
+        flex-direction: column;
+
+        &-btns {
+            display: flex;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 50px;
+            flex-shrink: 0;
+
+            :deep(.el-button) {
+                margin: 0 2px;
+            }
+        }
+
+        &-group {
+            height: 50%;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        &-thumb {
+            padding-top: 10px;
+            padding-bottom: 10px;
+            width: 90%;
+            height: 1px;
+            border-top: 1px solid var(--border-color8);
+            position: relative;
+            margin: 0 auto;
+            cursor: n-resize;
+
+            &:before {
+                content: '';
+                position: absolute;
+                top: -10px;
+                left: calc(50% - 15px);
+                width: 30px;
+                height: 1px;
+                border-top: 1px solid var(--border-color8);
+            }
+
+            &:after {
+                content: '';
+                position: absolute;
+                bottom: 10px;
+                left: calc(50% - 15px);
+                width: 30px;
+                height: 1px;
+                border-top: 1px solid var(--border-color8);
+            }
+        }
+    }
+
+    &-btns {
+        width: 100%;
+        justify-content: center;
+        display: flex;
+        margin-top: 10px;
+
+        & > div {
+            cursor: pointer;
+            width: 100px;
+            height: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            // border: 2px solid var(--border-color5);
+            margin: 0 4px;
+
+            span {
+                position: relative;
+                &:after {
+                    content: '';
+                    width: 100px;
+                    height: 25px;
+                    border: 2px solid var(--border-color5);
+                    position: absolute;
+                    right: -40px;
+                    top: -3px;
+                    border-radius: 3px;
+                }
+                &:hover:after {
+                    border-color: var(--primary--04);
+                }
+                &.disabled:after {
+                    border-color: var(--border-color8);
+                    &:hover {
+                        border-color: var(--border-color8);
+                    }
+                }
+            }
+        }
+    }
+}
+</style>

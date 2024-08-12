@@ -4,7 +4,7 @@
  * @Date: 2024-07-31 10:29:37
  * @Description: 录像码流通用表格组件
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-09 17:35:30
+ * @LastEditTime: 2024-08-12 13:53:40
 -->
 <template>
     <div>
@@ -580,7 +580,7 @@
 
 <script lang="ts" setup>
 import { ArrowDown } from '@element-plus/icons-vue'
-import { RecordStreamInfoDto } from '@/types/apiType/rec'
+import { RecordStreamInfoDto } from '@/types/apiType/record'
 // import { type FormInstance } from 'element-plus'
 import { queryRecordDistributeInfo, querySystemCaps, queryRemainRecTime } from '@/api/rec'
 import { getChlList } from '@/utils/tools'

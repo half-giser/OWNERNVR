@@ -19,8 +19,6 @@ export const queryDev = (data: string, config?: AxiosRequestConfig) => http.fetc
 export const queryIPChlInfo = (data: string, config?: AxiosRequestConfig) => http.fetch('queryIPChlInfo', data, config)
 // 查询在线通道列表
 export const queryOnlineChlList = () => http.fetch('queryOnlineChlList', getXmlWrapData(''))
-// 查询录像机分配信息
-export const queryRecordDistributeInfo = (data: string, config?: AxiosRequestConfig) => http.fetch('queryRecordDistributeInfo', data, config)
 // 删除通道
 export const delDevList = (data: string, config?: AxiosRequestConfig) => http.fetch('delDevList', data, config)
 // 查询通道端口
@@ -239,3 +237,9 @@ export const deleteChlPtzTrace = (data: string) => http.fetch('deleteChlPtzTrace
  * @returns
  */
 export const queryIPChlORChlFishEye = (data: string) => http.fetch('queryIPChlORChlFishEye', getXmlWrapData(data))
+
+/**
+ * @description 查询有录像的通道列表
+ * @returns
+ */
+export const queryChlsExistRec = () => http.fetch('queryChlsExistRec', getXmlWrapData(''))

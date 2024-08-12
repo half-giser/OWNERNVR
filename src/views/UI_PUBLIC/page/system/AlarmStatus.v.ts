@@ -11,7 +11,7 @@ import dayjs from 'dayjs'
 // import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
 import RecPop from '../rec/RecPop.vue'
 import type { TableInstance } from 'element-plus'
-import { type RecPlayList } from '@/types/apiType/rec'
+import { type RecPlayList } from '@/types/apiType/playback'
 
 export default defineComponent({
     components: {
