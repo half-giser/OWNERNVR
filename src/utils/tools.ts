@@ -3,7 +3,7 @@
  * @Date: 2023-04-28 17:57:48
  * @Description: 工具方法
  * @LastEditors: tengxiang tengxiang@tvt.net.cn
- * @LastEditTime: 2024-08-01 15:20:59
+ * @LastEditTime: 2024-08-12 10:25:49
  */
 
 import { useUserSessionStore } from '@/stores/userSession'
@@ -428,6 +428,7 @@ export const commSaveResponseHadler = ($response: ApiResult, successHandler?: (r
                 type: 'success',
                 title: Translate('IDCS_SUCCESS_TIP'),
                 message: Translate('IDCS_SAVE_DATA_SUCCESS'),
+                showCancelButton: false,
             }).then(() => {
                 successHandler && successHandler($)
                 resolve($)
@@ -437,6 +438,7 @@ export const commSaveResponseHadler = ($response: ApiResult, successHandler?: (r
                 type: 'info',
                 title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_SAVE_DATA_FAIL'),
+                showCancelButton: false,
             }).then(() => {
                 failedHandler && failedHandler($)
                 reject($)
@@ -499,13 +501,17 @@ export const commMutiSaveResponseHadler = (
  * @param arr2 对比数组2
  * @returns 返回 arr1 中相比 arr2 有差异的行
  */
-export const getArrayDiffRows = (arr1: Record<string, any>[], arr2: Record<string, any>[]): Record<string, any>[] => {
+export const getArrayDiffRows = (arr1: Record<string, any>[], arr2: Record<string, any>[], compareKeys?: string[]): Record<string, any>[] => {
     const diffRows: Record<string, any>[] = []
     for (let i = 0; i < arr1.length && i < arr2.length; i++) {
         const item1 = arr1[i]
         const item2 = arr2[i]
 
-        Object.keys(item1).forEach((key) => {
+        if (!compareKeys) {
+            compareKeys = Object.keys(item1)
+        }
+
+        compareKeys.forEach((key) => {
             if (item1[key] !== item2[key]) {
                 diffRows.push(item1)
                 return
@@ -715,4 +721,72 @@ const reconnectStandard = async (callback?: () => void) => {
                 reconnectStandard(callback)
             }, 5000)
         })
+}
+
+/**
+ * @description: 构建排程选择列表
+ * @return {*}
+ */
+export const buildScheduleList = async () => {
+    const Translate = useLangStore().Translate
+    const result = await queryScheduleList()
+    let scheduleList = [] as SelectOption<string, string>[]
+    commLoadResponseHandler(result, async ($) => {
+        scheduleList = $('/response/content/item').map((item) => {
+            return {
+                value: item.attr('id')!,
+                label: item.text(),
+            }
+        })
+        scheduleList.push(
+            {
+                value: '',
+                label: `<${Translate('IDCS_NULL')}>`,
+            },
+            {
+                value: 'scheduleMgr',
+                label: Translate('IDCS_SCHEDULE_MANAGE'),
+            },
+        )
+    })
+    return scheduleList
+}
+
+/**
+ * @description: 将分钟转换为 x小时x分 的翻译
+ * @param {number} value
+ * @return {*}
+ */
+export const getTranslateForMin = (value: number) => {
+    const Translate = useLangStore().Translate
+    return getTranslateForTime(value, Translate('IDCS_HOUR'), Translate('IDCS_HOURS'), Translate('IDCS_MINUTE'), Translate('IDCS_MINUTES'))
+}
+
+/**
+ * @description: 将秒转换为 x小时x分 的翻译
+ * @param {number} value
+ * @return {*}
+ */
+export const getTranslateForSecond = (value: number) => {
+    const Translate = useLangStore().Translate
+    return getTranslateForTime(value, Translate('IDCS_MINUTE'), Translate('IDCS_MINUTES'), Translate('IDCS_SECONDS'), Translate('IDCS_SECOND'))
+}
+
+/**
+ * @description: 获取时长翻译
+ * @param {number} value
+ * @return {*}
+ */
+const getTranslateForTime = (value: number, unit1: string, unit1s: string, unit2: string, unit2s: string) => {
+    const t1 = Math.floor(value / 60)
+    const t2 = value % 60
+
+    let label = ''
+    if (t1 > 0) {
+        label += `${t1} ${t1 === 1 ? unit1 : unit1s}`
+    }
+    if (t2 > 0) {
+        label += (t1 > 0 ? ' ' : '') + `${t2} ${t2 === 1 ? unit2 : unit2s}`
+    }
+    return label
 }
