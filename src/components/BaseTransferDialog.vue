@@ -12,6 +12,7 @@
         width="615px"
         :title="Translate(props.headerTitle)"
         @open="open"
+        @close="close"
     >
         <div class="PosTriggerChannel">
             <el-transfer
