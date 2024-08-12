@@ -2,8 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-17 17:02:54
  * @Description: 录像与回放
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 18:24:19
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-08-12 13:56:08
  */
 import http, { getXmlWrapData } from './api'
 
@@ -22,7 +22,7 @@ export const editManualRecord = (data: string) => http.fetch('editManualRecord',
 export const queryManualRecord = (data: string) => http.fetch('queryManualRecord', getXmlWrapData(data))
 
 /**
- * @description 获取节点码流信息
+ * @description 获取节点信息
  * @param {string} data
  * @returns
  */
@@ -67,3 +67,24 @@ export const queryChlRecLog = (data: string) => http.fetch('queryChlRecLog', get
  * @returns
  */
 export const createRecBackupTask = (data: string) => http.fetch('createRecBackupTask', getXmlWrapData(data))
+
+/**
+ * @description 获取录像分配信息
+ * @param
+ * @returns
+ */
+export const queryRecordDistributeInfo = () => http.fetch('queryRecordDistributeInfo', getXmlWrapData(''))
+
+/**
+ * @description 获取系统宽带容量
+ * @param
+ * @returns
+ * */
+export const querySystemCaps = () => http.fetch('querySystemCaps', getXmlWrapData(''))
+
+/**
+ * @description 获取录像剩余时间
+ * @param {string} data
+ * @returns
+ */
+export const queryRemainRecTime = (data: string) => http.fetch('queryRemainRecTime', getXmlWrapData(data))
