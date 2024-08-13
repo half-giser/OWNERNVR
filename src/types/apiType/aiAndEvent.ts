@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-08-10 12:08:57
  * @Description: AI/事件
- * @LastEditors: tengxiang tengxiang@tvt.net.cn
- * @LastEditTime: 2024-08-12 11:22:36
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-08-13 11:23:26
  */
 const { Translate } = useLangStore()
 
@@ -27,4 +27,17 @@ export class AlarmOut {
     get serialNum() {
         return `${this.devDesc ? this.devDesc : Translate('IDCS_LOCAL')}-${this.index}`
     }
+}
+
+/**
+ * @description: email接收人
+ * @return {*}
+ */
+export class EmailReceiver {
+    address = ''
+    addressShow = ''
+    schedule = ''
+    delDisabled = false
+    rowDisabled = false
+    rowClicked = false
 }
