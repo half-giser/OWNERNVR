@@ -14,3 +14,12 @@ export const queryAlarmOutParam = (data: string, config?: AxiosRequestConfig) =>
 
 // 编辑报警输出参数
 export const editAlarmOutParam = (data: string, config?: AxiosRequestConfig) => http.fetch('editAlarmOutParam', getXmlWrapData(data), config)
+
+// 获取事件通知相关参数
+export const queryEventNotifyParam = () => http.fetch('queryEventNotifyParam', getXmlWrapData(''))
+
+// 修改事件通知显示
+export const editEventNotifyParam = (data: string) => http.fetch('editEventNotifyParam', getXmlWrapData(data))
+
+// 修改事件通知显示
+export const testMobilePush = () => http.fetch('testMobilePush', getXmlWrapData(''))

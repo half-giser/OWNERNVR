@@ -3,7 +3,7 @@
  * @Date: 2024-08-10 12:08:57
  * @Description: AI/事件
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-13 11:23:26
+ * @LastEditTime: 2024-08-13 15:52:19
  */
 const { Translate } = useLangStore()
 
@@ -40,4 +40,27 @@ export class EmailReceiver {
     delDisabled = false
     rowDisabled = false
     rowClicked = false
+}
+// 事件通知——显示——弹出视频
+export class PopVideoForm {
+    popVideoDuration = 0 // 弹出视频持续时间
+    popVideoOutputShow = false // 是否显示
+    popVideoOutput = '' // 弹出视频输出
+}
+
+// 事件通知——显示——弹出消息框
+export class PopMsgForm {
+    popMsgDuration = 0
+    popMsgShow = false
+}
+
+// 事件通知——蜂鸣器
+export class buzzerForm {
+    buzzerDuration = 0
+}
+
+// 事件通知——推送
+export class pushForm {
+    chkEnable = false // 是否启用
+    pushSchedule = ''
 }
