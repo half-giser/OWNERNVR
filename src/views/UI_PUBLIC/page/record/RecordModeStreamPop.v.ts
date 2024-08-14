@@ -57,9 +57,14 @@ export default defineComponent({
         }
 
         const setData = () => {
-            ctx.emit('close')
+            ctx.emit('close', true)
         }
 
-        return { pageData, onOpen, tabSeleced, setData }
+        return {
+            pageData,
+            onOpen,
+            tabSeleced,
+            setData,
+        }
     },
 })
