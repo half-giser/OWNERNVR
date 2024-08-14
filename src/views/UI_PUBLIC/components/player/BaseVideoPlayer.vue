@@ -2,8 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-05 13:35:57
  * @Description: 多分屏WASM播放器控件
- * @LastEditors: Please set LastEditors
- * @LastEditTime: 2024-07-18 10:46:32
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-08-08 14:02:50
 -->
 <template>
     <div
@@ -37,7 +37,7 @@
         >
             <!-- 视频丢失提示层
                 （VideoLossLogo.png存在时显示videoloss-wrap：Logo+错误码，
-                否则只显示error-tips-info：错误码）
+                否则只显示error-tips-info：错误码） 
             -->
             <div
                 v-if="isVideoLossWrap"
@@ -87,7 +87,7 @@
                     />
                     <BaseImgSprite
                         class="osd-icon"
-                        file="ptz"
+                        file="ptz (2)"
                         :class="{
                             hide: !item.isPtzIcon,
                         }"
@@ -150,12 +150,13 @@
             <div
                 class="error"
                 :class="{
-                    hide: !item.isErrorTips,
+                    hide: !item.isErrorTips || (isVideoLossWrap && item.isVideolossWrapVisible),
+                    mask: item.errorTipsText === 'none',
                 }"
             >
                 <div class="error-chl-name">{{ item.errorTipsChlName }}</div>
                 <!-- 播放错误码提示层 -->
-                <div class="error-tips">{{ item.errorTipsText }}</div>
+                <div class="error-tips">{{ item.errorTipsText === 'none' ? '' : item.errorTipsText }}</div>
             </div>
         </div>
         <div
@@ -442,10 +443,10 @@ const handleMouseDown = (e: MouseEvent, winIndex: number) => {
                 startY: startY,
                 endX: endX,
                 endY: endY,
-                centerX: (startX + rectWidth / 2) | 0,
-                centerY: (startY + rectHeight / 2) | 0,
-                width: Math.abs(rectWidth) | 0,
-                height: Math.abs(rectHeight) | 0,
+                centerX: Math.floor(startX + rectWidth / 2),
+                centerY: Math.floor(startY + rectHeight / 2),
+                width: Math.floor(Math.abs(rectWidth)),
+                height: Math.floor(Math.abs(rectHeight)),
             }
             const location = get3DParam(winIndex, rect)
             player.screen.setMagnify3D(
@@ -559,6 +560,7 @@ const handleMouseWheel = (e: Event) => {
  * @param winIndex
  */
 const handleDoubleClick = (e: MouseEvent, winIndex: number) => {
+    console.log('double click', fullTarget.value, winIndex)
     if (pageData.value[winIndex].isZoom3D) {
         // 3D功能状态
         const rect = {
@@ -585,19 +587,21 @@ const handleDoubleClick = (e: MouseEvent, winIndex: number) => {
     }
     // 还原为原来的分屏显示
     else if (fullTarget.value === winIndex) {
+        // console.log('reset', fullTarget.value)
         fullTarget.value = -1
         dblclickToFull.value = false
-        splitValue.value = prop.split
-        setSplit(splitValue.value, true)
-        player.screen.ondblclickchange && player.screen.ondblclickchange(winIndex, splitValue.value)
+        // splitValue.value = prop.split
+        // setSplit(splitValue.value, true)
+        player.screen.ondblclickchange && player.screen.ondblclickchange(-1, -1)
     }
     // 双击的分屏单分屏显示
     else if (splitValue.value > 1) {
+        // console.log('fullscreen', fullTarget.value)
         fullTarget.value = winIndex
         dblclickToFull.value = true
-        splitValue.value = 1
-        setSplit(splitValue.value, true)
-        player.screen.ondblclickchange && player.screen.ondblclickchange(winIndex, splitValue.value)
+        // splitValue.value = 1
+        // setSplit(splitValue.value, true)
+        player.screen.ondblclickchange && player.screen.ondblclickchange(fullTarget.value, pageData.value[fullTarget.value].position)
     }
 }
 
@@ -638,6 +642,7 @@ const handleDrop = (newWinIndex: number) => {
     const newIndexPosition = pageData.value[newWinIndex].position
     pageData.value[oldDragIndex].position = newIndexPosition
     pageData.value[newWinIndex].position = oldIndexPosition
+    console.log(pageData.value)
 
     // TODO 测试时效果没问题
     // 元素互换位置由逻辑/DOM结构上互换，变更为仅UI坐标互换，逻辑排序不变
@@ -663,8 +668,10 @@ const handleDrop = (newWinIndex: number) => {
     // const newIndexZoom = zoomIndexMap[newWinIndex]
     // zoomIndexMap[oldWinIndex] = newIndexZoom
     // zoomIndexMap[newWinIndex] = oldIndexZoom
-
-    player.screen.onwinexchange(oldDragIndex, newWinIndex)
+    player.exchangWin(oldDragIndex, newIndexPosition, newWinIndex, oldIndexPosition)
+    nextTick(() => {
+        player.screen.onwinexchange(oldDragIndex, newWinIndex)
+    })
 }
 
 /**
@@ -674,6 +681,16 @@ const selectWin = (winIndex: number) => {
     selectedWinIndex.value = winIndex
     // $screen.value[children].
     // winIndex.mousedown().mouseup()
+}
+
+/**
+ * @description 根据位置Index获取窗口Index
+ * @param positionIndex
+ * @returns {number}
+ */
+const getWinIndexByPosition = (positionIndex: number) => {
+    const findIndex = pageData.value.findIndex((item) => item.position === positionIndex)
+    return findIndex
 }
 
 /**
@@ -709,10 +726,14 @@ const setPlayCavItemSize = (winIndex: number) => {
     const playCav = getVideoCanvas(winIndex)
     playCav.width = width
     playCav.height = height
+    playCav.style.width = width + 'px'
+    playCav.style.height = height + 'px'
 
     const drawCav = getOverlayCanvas(winIndex)
     drawCav.width = width
     drawCav.height = height
+    drawCav.style.width = width + 'px'
+    drawCav.style.height = height + 'px'
 
     if (!player.screen.getZoomCallback || !player.screen.getZoomCallback(winIndex)) return
     const zoom = zoomList[pageData.value[winIndex].zoomIndex]
@@ -726,13 +747,16 @@ const setPlayCavItemSize = (winIndex: number) => {
  * @param {number} split
  * @param {boolean} isDblClickSplit
  */
-const setSplit = (split: number, isDblClickSplit: boolean) => {
+const setSplit = (split: number) => {
     splitValue.value = split
 
-    if (!isDblClickSplit) {
+    if (dblclickToFull.value) {
         // 如果不是双击事件调用，则去掉双击事件绑定的类名
         dblclickToFull.value = false
+        fullTarget.value = -1
+        player.screen.ondblclickchange && player.screen.ondblclickchange(-1, -1)
     }
+
     if (split > 1) {
         for (let i = 0; i < split; i++) {
             if (pageData.value[i].zoomIndex === 0) {
@@ -745,7 +769,9 @@ const setSplit = (split: number, isDblClickSplit: boolean) => {
             item.draggable = false
         })
     }
-    resize()
+    nextTick(() => {
+        resize()
+    })
 }
 
 /**
@@ -777,7 +803,9 @@ const setVideoDivSize = (winIndex: number, width: number, height: number) => {
     const $item = getVideoWrapDiv(winIndex)
     $item.style.width = width + 'px'
     $item.style.height = height + 'px'
-    setPlayCavItemSize(winIndex)
+    nextTick(() => {
+        setPlayCavItemSize(winIndex)
+    })
 }
 
 /**
@@ -788,7 +816,9 @@ const resetVideoDivSize = (winIndex: number) => {
     const $item = getVideoWrapDiv(winIndex)
     $item.style.width = '100%'
     $item.style.height = '100%'
-    setPlayCavItemSize(winIndex)
+    nextTick(() => {
+        setPlayCavItemSize(winIndex)
+    })
 }
 
 /**
@@ -1133,6 +1163,11 @@ const fullscreen = () => {
     } else {
         alert("This browser doesn't supporter fullscreen")
     }
+
+    // safari全屏时不触发window.onresize事件，需要手动执行
+    setTimeout(() => {
+        player.resize()
+    }, 200)
 }
 
 // 退出全屏
@@ -1165,7 +1200,9 @@ const destroy = () => {
  * @param {number} winIndex
  */
 const hideErrorTips = (winIndex: number) => {
-    pageData.value[winIndex].isErrorTips = false
+    if (pageData.value[winIndex].isErrorTips) {
+        pageData.value[winIndex].isErrorTips = false
+    }
 }
 
 /**
@@ -1174,8 +1211,15 @@ const hideErrorTips = (winIndex: number) => {
  * @param {number} winIndex
  * @param {TVTPlayerWinDataListItem} winData
  */
-const showErrorTips = (type: string, winIndex: number, winData: TVTPlayerWinDataListItem) => {
+const showErrorTips = (type: string, winIndex: number, winData?: TVTPlayerWinDataListItem) => {
     if (!type) return
+    if (type === 'none') {
+        if (!pageData.value[winIndex].isErrorTips) {
+            pageData.value[winIndex].isErrorTips = true
+            pageData.value[winIndex].errorTipsText = 'none'
+        }
+        return
+    }
     pageData.value[winIndex].isErrorTips = true
 
     let tips = ''
@@ -1406,11 +1450,11 @@ const toggleVideoLossLogo = (winIndex: number, bool: boolean, tips?: string) => 
 /**
  * @description 设置当前轮询播放通道组的窗口
  */
-// const setPollIndex = (winIndex: number) => {
-//     if (pollIndex.indexOf(winIndex) == -1) {
-//         pollIndex.push(winIndex)
-//     }
-// }
+const setPollIndex = (winIndex: number) => {
+    if (pollIndex.indexOf(winIndex) == -1) {
+        pollIndex.push(winIndex)
+    }
+}
 
 interface Get3DParamRectParam {
     startX: number
@@ -1452,8 +1496,8 @@ const get3DParam = (winIndex: number, rectWrap: Get3DParamRectParam) => {
         realHeight = drawHeight
     }
     const drawPoint = {
-        centerX: (drawWidth / 2) | 0,
-        centerY: (drawHeight / 2) | 0,
+        centerX: Math.floor(drawWidth / 2),
+        centerY: Math.floor(drawHeight / 2),
     }
 
     const realP1X = (rectWrap.centerX * realWidth) / drawWidth
@@ -1520,6 +1564,7 @@ const createVideoPlayer = () => {
         ondblclickchange: (winIndex, newSplit) => emits('ondblclickchange', winIndex, newSplit),
         screen: {
             getVideoCanvas,
+            getWinIndexByPosition,
             toggleVideoLossLogo,
             showErrorTips,
             setPosBaseSize,
@@ -1546,6 +1591,7 @@ const createVideoPlayer = () => {
             toggleAlarmStatus,
             zoomIn,
             getItemSize,
+            setPollIndex,
             // setSize,
             fullscreen,
             resize,
@@ -1569,16 +1615,22 @@ const readyState = computed(() => {
     else return ready.value && pluginStore.ready
 })
 
+const resizeObserver = new ResizeObserver(() => {
+    resize()
+})
+
 onMounted(() => {
-    tryToGetVideoLossLogo(prop.showVideoLoss)
+    tryToGetVideoLossLogo(prop.type === 'live')
     splitValue.value = prop.split
     requestAnimationFrame(() => {
         setItemSize()
+        resizeObserver.observe($screen.value!)
         ready.value = true
     })
 })
 
 onBeforeUnmount(() => {
+    resizeObserver.disconnect()
     destroy()
     emits('ondestroy')
 })
@@ -1596,6 +1648,17 @@ watch(
     },
 )
 
+const stopWatchSplit = watch(
+    () => prop.split,
+    () => {
+        if (mode.value === 'h5') {
+            player.setSplit(prop.split)
+        } else {
+            stopWatchSplit()
+        }
+    },
+)
+
 defineExpose({
     player,
     plugin: Plugin,
@@ -1610,7 +1673,7 @@ defineExpose({
     height: 100%;
     overflow: hidden;
     position: relative;
-    background-color: #4c4c4b;
+    background-color: var(--bg-player);
 
     & > .ocx {
         position: absolute;
@@ -1623,7 +1686,7 @@ defineExpose({
     & > .item {
         position: absolute;
         overflow: hidden;
-        background-color: #4c4c4b;
+        background-color: var(--bg-player);
 
         &::after {
             content: '';
@@ -1632,16 +1695,14 @@ defineExpose({
             left: 0;
             width: calc(100% - 2px);
             height: calc(100% - 2px);
-            border: 1px solid #343434;
+            border: 1px solid var(--border-player-split);
             pointer-events: none;
         }
-        // border: 1px solid #343434;
 
         &.selected {
             &::after {
                 border-color: var(--primary--04);
             }
-            // border-color: var(--primary--04);
         }
 
         &[data-split='1'] {
@@ -1649,19 +1710,6 @@ defineExpose({
             height: 100%;
             top: 0;
             left: 0;
-            &.dblclick-to-full {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                opacity: 0;
-                z-index: 0;
-                &.full-target {
-                    opacity: 1;
-                    z-index: 1;
-                }
-            }
             &:not(:first-child) {
                 display: none;
             }
@@ -1689,13 +1737,24 @@ defineExpose({
             }
         }
 
+        &.full-target[data-split][data-position] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 1;
+            z-index: 1;
+        }
+
         .play {
             position: absolute;
             width: 100%;
             height: 100%;
-            top: 0;
-            left: 0;
+            top: 50%;
+            left: 50%;
             overflow: hidden;
+            transform: translate3d(-50%, -50%, 0);
 
             canvas {
                 position: absolute;
@@ -1731,6 +1790,10 @@ defineExpose({
                 top: 5px;
                 font-size: 14px;
             }
+
+            &.mask {
+                background-color: var(--bg-player);
+            }
         }
 
         .osd {
@@ -1759,10 +1822,11 @@ defineExpose({
 
         .draw {
             position: absolute;
-            top: 0;
-            left: 0;
+            top: 50%;
+            left: 50%;
             width: 100%;
             height: 100%;
+            transform: translate3d(-50%, -50%, 0);
         }
 
         .watermark {
@@ -1832,6 +1896,7 @@ defineExpose({
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-direction: column;
 
             &-logo {
                 width: 20%;
@@ -1839,6 +1904,7 @@ defineExpose({
 
             &-tips {
                 margin-top: 10px;
+                color: var(--color-white);
             }
         }
     }

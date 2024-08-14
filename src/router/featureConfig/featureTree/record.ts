@@ -65,7 +65,7 @@ export default {
         eventStream: {
             //事件录像码流
             path: 'stream/event',
-            component: 'record/RecordEventStream.vue',
+            component: 'record/RecordStream.vue',
             meta: {
                 sort: 10,
                 lk: 'IDCS_EVENT_RECORD_CODE_STREAM',
@@ -78,7 +78,7 @@ export default {
         timingStream: {
             //定时录像码流
             path: 'stream/timing',
-            component: 'record/RecordTimingStream.vue',
+            component: 'record/RecordStream.vue',
             meta: {
                 sort: 20,
                 lk: 'IDCS_TIME_RECORD_CODE_STREAM',

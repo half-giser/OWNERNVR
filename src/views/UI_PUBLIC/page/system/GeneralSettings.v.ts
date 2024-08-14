@@ -3,7 +3,7 @@
  * @Date: 2024-06-24 15:06:48
  * @Description: 基本配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 17:46:50
+ * @LastEditTime: 2024-07-19 16:06:04
  */
 import { type FormInstance, type FormRules } from 'element-plus'
 import { SystemGeneralSettingForm } from '@/types/apiType/system'
@@ -117,10 +117,13 @@ export default defineComponent({
          * @param {number} value 秒
          */
         const displayWaitTimeOption = (value: number) => {
-            if (value > 60) {
-                return value / 60 + Translate('IDCS_MINUTE')
+            if (value === 60) {
+                return value + ' ' + Translate('IDCS_MINUTE')
             }
-            return value + Translate('IDCS_SECONDS')
+            if (value > 60) {
+                return value / 60 + ' ' + Translate('IDCS_MINUTES')
+            }
+            return value + ' ' + Translate('IDCS_SECONDS')
         }
 
         /**

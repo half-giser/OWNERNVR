@@ -3,7 +3,7 @@
  * @Date: 2024-06-11 11:41:37
  * @Description: 磁盘API
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-09 10:42:26
+ * @LastEditTime: 2024-08-01 10:42:03
  */
 
 // import type { AxiosRequestConfig } from 'axios'
@@ -139,3 +139,9 @@ export const queryRaidStatus = () => http.fetch('queryRaidStatus', getXmlWrapDat
  * @returns
  */
 export const repairRaid = (data: string) => http.fetch('repairRaid', getXmlWrapData(data))
+
+/**
+ * @description 查询设备连接的U盘信息
+ * @returns
+ */
+export const queryExternalDisks = () => http.fetch('queryExternalDisks', getXmlWrapData(''))

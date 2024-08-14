@@ -3,7 +3,7 @@
  * @Date: 2024-05-07 17:12:45
  * @Description:
  */
-import { queryDevList, queryRtspProtocolList, delDevList, queryChlPort, queryIPChlInfo, queryOnlineChlList, queryRecordDistributeInfo } from '@/api/channel'
+import { queryDevList, queryRtspProtocolList, delDevList, queryChlPort, queryIPChlInfo, queryOnlineChlList } from '@/api/channel'
 import { getXmlWrapData } from '@/api/api'
 import { queryBasicCfg } from '@/api/system'
 import { queryXml } from '@/utils/xmlParse'
@@ -389,7 +389,7 @@ export default defineComponent({
 
         const getBandwidth = function () {
             openLoading(LoadingTarget.FullScreen)
-            queryRecordDistributeInfo(getXmlWrapData('')).then((res1: any) => {
+            queryRecordDistributeInfo().then((res1: any) => {
                 closeLoading(LoadingTarget.FullScreen)
                 res1 = queryXml(res1)
                 const mode = res1('//content/recMode/mode').text()

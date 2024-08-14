@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2023-04-28 17:57:48
  * @Description: 工具方法
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-11 11:02:49
+ * @LastEditors: tengxiang tengxiang@tvt.net.cn
+ * @LastEditTime: 2024-08-12 10:25:49
  */
 
 import { useUserSessionStore } from '@/stores/userSession'
@@ -11,7 +11,7 @@ import { checkPort } from './validates'
 import { useLangStore } from '@/stores/lang'
 import { type QueryNodeListDto } from '@/types/apiType/channel'
 import { queryNodeList } from '@/api/channel'
-import { getXmlWrapData } from '@/api/api'
+import { type ApiResult, getXmlWrapData } from '@/api/api'
 import { type XmlResult } from './xmlParse'
 import useMessageBox from '@/hooks/useMessageBox'
 import { APP_TYPE } from '@/utils/constants'
@@ -317,69 +317,70 @@ export const wrapEnums = (array: string[] | SelectOption<any, any>[]) => {
     }
 }
 
+export const ternary = (condition: boolean | number | string | undefined | null, trueResult = '', falseResult = '') => {
+    return condition ? trueResult : falseResult
+}
+
 /**
  * @description 获取通道列表
  * @param options（options为过滤条件）
  * @returns {promise}
  */
 export const getChlList = (options: Partial<QueryNodeListDto>) => {
-    let data = rawXml`
-                <types>
-                    <nodeType>
-                        <enum>chls</enum>
-                        <enum>sensors</enum>
-                        <enum>alarmOuts</enum>
-                    </nodeType>
-                </types>`
-    if (options.pageIndex) data += `<pageIndex>${options.pageIndex}</pageIndex>`
-    if (options.pageSize) data += `<pageSize>${options.pageSize}</pageSize>`
-    data += `<nodeType type='nodeType'>${options.nodeType || 'chls'}</nodeType>
-            <condition>`
-    if (options.chlName) data += `<name><![CDATA[${options.chlName}]]></name>`
-    if (options.isSupportPtz) data += '<supportPtz/>'
-    if (options.isSupportPtzGroupTraceTask) data += '<supportPTZGroupTraceTask/>'
-    if (options.isSupportTalkback) data += '<supportTalkback/>'
-    if (options.isSupportOsc) data += '<supportOsc/>'
-    if (options.isSupportSnap) data += '<supportSnap/>'
-    if (options.isSupportVfd) data += '<supportVfd/>'
-    if (options.isSupportBackEndVfd) data += '<supportBackEndVfd/>'
-    if (options.isSupportCpc) data += '<supportCpc/>'
-    if (options.isSupportCdd) data += '<supportCdd/>'
-    if (options.isSupportIpd) data += '<supportIpd/>'
-    if (options.isSupportAvd) data += '<supportAvd/>'
-    if (options.isSupportPea) data += '<supportPea/>'
-    if (options.isSupportTripwire) data += '<supportTripwire/>'
-    if (options.isSupportImageRotate) data += '<supportImageRotate/>'
-    if (options.isSupportFishEye) data += '<supportFishEye/>'
-    if (options.isSupportMotion) data += '<supportMotion/>'
-    if (options.isSupportOsd) data += '<supportOsd/>'
-    if (options.isSupportAudioSetting) data += '<supportAudioSetting/>'
-    if (options.isSupportMaskSetting) data += '<supportMaskSetting/>'
-    if (options.isSupportImageSetting) data += '<supportImageSetting/>'
-    if (options.isSupportWhiteLightAlarmOut) data += '<supportWhiteLightAlarmOut/>'
-    if (options.isSupportAudioAlarmOut) data += '<supportAudioAlarmOut/>'
-    if (options.isSupportAudioDev) data += '<supportAudioDev/>'
-    if (options.isSupportAOIEntry) data += '<supportAOIEntry/>'
-    if (options.isSupportAOILeave) data += '<supportAOILeave/>'
-    if (options.isSupportPassLine) data += '<supportPassLine/>'
-    if (options.isSupportVehiclePlate) data += '<supportVehiclePlate/>'
-    if (options.isSupportAutoTrack) data += '<supportAutoTrack/>'
-    if (options.isSupportAccessControl) data += '<supportAccessControl/>'
-    if (options.isContainsDeletedItem) data += '<containsDeletedItem/>'
-    if (options.authList) data += `<auth relation='or'>${options.authList}</auth>`
-    if (options.chlType) data += `<chlType type='chlType'>${options.chlType}</chlType>`
-    if (options.ignoreNdChl) data += '<ignoreNdChl/>'
-    data += `</condition>
-            <requireField>
-                <name/>
-                <chlIndex/>
-                <chlType/>`
-    if (options.requireField) {
-        options.requireField.forEach((ele: string) => {
-            data += `<${ele}/>`
-        })
-    }
-    data += '</requireField>'
+    const data = rawXml`
+        <types>
+            <nodeType>
+                <enum>chls</enum>
+                <enum>sensors</enum>
+                <enum>alarmOuts</enum>
+            </nodeType>
+        </types>
+        ${ternary(options.pageIndex, `<pageIndex>${options.pageIndex}</pageIndex>`)}
+        ${ternary(options.pageSize, `<pageSize>${options.pageSize}</pageSize>`)}
+        <nodeType type='nodeType'>${options.nodeType || 'chls'}</nodeType>
+        <condition>
+            ${ternary(options.chlName, `<name>${wrapCDATA(options.chlName!)}</name>`)}
+            ${ternary(options.isSupportPtz, `<supportPtz/>`)}
+            ${ternary(options.isSupportPtzGroupTraceTask, `<supportPTZGroupTraceTask/>`)}
+            ${ternary(options.isSupportTalkback, `<supportTalkback/>`)}
+            ${ternary(options.isSupportOsc, `<supportOsc/>`)}
+            ${ternary(options.isSupportSnap, '<supportSnap/>')}
+            ${ternary(options.isSupportVfd, '<supportVfd/>')}
+            ${ternary(options.isSupportBackEndVfd, '<supportBackEndVfd/>')}
+            ${ternary(options.isSupportCpc, '<supportCpc/>')}
+            ${ternary(options.isSupportCdd, '<supportCdd/>')}
+            ${ternary(options.isSupportIpd, '<supportIpd/>')}
+            ${ternary(options.isSupportAvd, '<supportAvd/>')}
+            ${ternary(options.isSupportPea, '<supportPea/>')}
+            ${ternary(options.isSupportTripwire, '<supportTripwire/>')}
+            ${ternary(options.isSupportImageRotate, '<supportImageRotate/>')}
+            ${ternary(options.isSupportFishEye, '<supportFishEye/>')}
+            ${ternary(options.isSupportMotion, '<supportMotion/>')}
+            ${ternary(options.isSupportOsd, '<supportOsd/>')}
+            ${ternary(options.isSupportAudioSetting, '<supportAudioSetting/>')}
+            ${ternary(options.isSupportMaskSetting, '<supportMaskSetting/>')}
+            ${ternary(options.isSupportImageSetting, '<supportImageSetting/>')}
+            ${ternary(options.isSupportWhiteLightAlarmOut, '<supportWhiteLightAlarmOut/>')}
+            ${ternary(options.isSupportAudioAlarmOut, '<supportAudioAlarmOut/>')}
+            ${ternary(options.isSupportAudioDev, '<supportAudioDev/>')}
+            ${ternary(options.isSupportAOIEntry, '<supportAOIEntry/>')}
+            ${ternary(options.isSupportAOILeave, '<supportAOILeave/>')}
+            ${ternary(options.isSupportPassLine, '<supportPassLine/>')}
+            ${ternary(options.isSupportVehiclePlate, '<supportVehiclePlate/>')}
+            ${ternary(options.isSupportAutoTrack, '<supportAutoTrack/>')}
+            ${ternary(options.isSupportAccessControl, '<supportAccessControl/>')}
+            ${ternary(options.isContainsDeletedItem, '<containsDeletedItem/>')}
+            ${ternary(options.authList, `<auth relation='or'>${options.authList}</auth>`)}
+            ${ternary(options.chlType, `<chlType type='chlType'>${options.chlType}</chlType>`)}
+            ${ternary(options.ignoreNdChl, '<ignoreNdChl/>')}
+        </condition>
+        <requireField>
+            <name/>
+            <chlIndex/>
+            <chlType/>
+            ${options.requireField ? options.requireField.map((ele) => `<${ele}/>`).join('') : ''}
+        </requireField>
+    `
     return queryNodeList(getXmlWrapData(data))
 }
 
@@ -417,7 +418,7 @@ export const commLoadResponseHandler = ($response: any, successHandler?: (result
  * @param {Function} successHandler 成功回调
  * @param {Function} failedHandler 失败回调
  */
-export const commSaveResponseHadler = ($response: any, successHandler?: (result: (path: string) => XmlResult) => void, failedHandler?: (result: (path: string) => XmlResult) => void) => {
+export const commSaveResponseHadler = ($response: ApiResult, successHandler?: (result: (path: string) => XmlResult) => void, failedHandler?: (result: (path: string) => XmlResult) => void) => {
     return new Promise((resolve: ($: (path: string) => XmlResult) => void, reject: ($: (path: string) => XmlResult) => void) => {
         const Translate = useLangStore().Translate
         const openMessageTipBox = useMessageBox().openMessageTipBox
@@ -427,6 +428,7 @@ export const commSaveResponseHadler = ($response: any, successHandler?: (result:
                 type: 'success',
                 title: Translate('IDCS_SUCCESS_TIP'),
                 message: Translate('IDCS_SAVE_DATA_SUCCESS'),
+                showCancelButton: false,
             }).then(() => {
                 successHandler && successHandler($)
                 resolve($)
@@ -436,12 +438,87 @@ export const commSaveResponseHadler = ($response: any, successHandler?: (result:
                 type: 'info',
                 title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_SAVE_DATA_FAIL'),
+                showCancelButton: false,
             }).then(() => {
                 failedHandler && failedHandler($)
                 reject($)
             })
         }
     })
+}
+
+/**
+ * 通用的多个保存数据请求处理
+ * @param responseList 返回结果列表
+ * @param successHandler 成功回调
+ * @param failedHandler 失败回调
+ * @returns 结果的promise对象
+ */
+export const commMutiSaveResponseHadler = (
+    responseList: ApiResult[],
+    successHandler?: (result: ((path: string) => XmlResult)[]) => void,
+    failedHandler?: (result: ((path: string) => XmlResult)[]) => void,
+) => {
+    let allSuccess = true
+    const responseXmlList: ((path: string) => XmlResult)[] = []
+    responseList.forEach((item) => {
+        const resultXml = queryXml(item as ApiResult)
+        responseXmlList.push(resultXml)
+        if (resultXml('status').text() !== 'success') {
+            allSuccess = false
+            return
+        }
+    })
+    const Translate = useLangStore().Translate
+    const openMessageTipBox = useMessageBox().openMessageTipBox
+
+    return new Promise((resolve: (responseXmlList: ((path: string) => XmlResult)[]) => void, reject: (responseXmlList: ((path: string) => XmlResult)[]) => void) => {
+        if (allSuccess) {
+            openMessageTipBox({
+                type: 'success',
+                title: Translate('IDCS_SUCCESS_TIP'),
+                message: Translate('IDCS_SAVE_DATA_SUCCESS'),
+            }).then(() => {
+                successHandler && successHandler(responseXmlList)
+                resolve(responseXmlList)
+            })
+        } else {
+            openMessageTipBox({
+                type: 'info',
+                title: Translate('IDCS_INFO_TIP'),
+                message: Translate('IDCS_SAVE_DATA_FAIL'),
+            }).then(() => {
+                failedHandler && failedHandler(responseXmlList)
+                reject(responseXmlList)
+            })
+        }
+    })
+}
+
+/**
+ * 对比两个数组有差异的行
+ * @param arr1 对比数组1
+ * @param arr2 对比数组2
+ * @returns 返回 arr1 中相比 arr2 有差异的行
+ */
+export const getArrayDiffRows = (arr1: Record<string, any>[], arr2: Record<string, any>[], compareKeys?: string[]): Record<string, any>[] => {
+    const diffRows: Record<string, any>[] = []
+    for (let i = 0; i < arr1.length && i < arr2.length; i++) {
+        const item1 = arr1[i]
+        const item2 = arr2[i]
+
+        if (!compareKeys) {
+            compareKeys = Object.keys(item1)
+        }
+
+        compareKeys.forEach((key) => {
+            if (item1[key] !== item2[key]) {
+                diffRows.push(item1)
+                return
+            }
+        })
+    }
+    return diffRows
 }
 
 /**
@@ -644,4 +721,72 @@ const reconnectStandard = async (callback?: () => void) => {
                 reconnectStandard(callback)
             }, 5000)
         })
+}
+
+/**
+ * @description: 构建排程选择列表
+ * @return {*}
+ */
+export const buildScheduleList = async () => {
+    const Translate = useLangStore().Translate
+    const result = await queryScheduleList()
+    let scheduleList = [] as SelectOption<string, string>[]
+    commLoadResponseHandler(result, async ($) => {
+        scheduleList = $('/response/content/item').map((item) => {
+            return {
+                value: item.attr('id')!,
+                label: item.text(),
+            }
+        })
+        scheduleList.push(
+            {
+                value: '',
+                label: `<${Translate('IDCS_NULL')}>`,
+            },
+            {
+                value: 'scheduleMgr',
+                label: Translate('IDCS_SCHEDULE_MANAGE'),
+            },
+        )
+    })
+    return scheduleList
+}
+
+/**
+ * @description: 将分钟转换为 x小时x分 的翻译
+ * @param {number} value
+ * @return {*}
+ */
+export const getTranslateForMin = (value: number) => {
+    const Translate = useLangStore().Translate
+    return getTranslateForTime(value, Translate('IDCS_HOUR'), Translate('IDCS_HOURS'), Translate('IDCS_MINUTE'), Translate('IDCS_MINUTES'))
+}
+
+/**
+ * @description: 将秒转换为 x小时x分 的翻译
+ * @param {number} value
+ * @return {*}
+ */
+export const getTranslateForSecond = (value: number) => {
+    const Translate = useLangStore().Translate
+    return getTranslateForTime(value, Translate('IDCS_MINUTE'), Translate('IDCS_MINUTES'), Translate('IDCS_SECONDS'), Translate('IDCS_SECOND'))
+}
+
+/**
+ * @description: 获取时长翻译
+ * @param {number} value
+ * @return {*}
+ */
+const getTranslateForTime = (value: number, unit1: string, unit1s: string, unit2: string, unit2s: string) => {
+    const t1 = Math.floor(value / 60)
+    const t2 = value % 60
+
+    let label = ''
+    if (t1 > 0) {
+        label += `${t1} ${t1 === 1 ? unit1 : unit1s}`
+    }
+    if (t2 > 0) {
+        label += (t1 > 0 ? ' ' : '') + `${t2} ${t2 === 1 ? unit2 : unit2s}`
+    }
+    return label
 }

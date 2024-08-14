@@ -7,6 +7,7 @@
 import type { Action, MessageBoxState } from 'element-plus'
 import type usePlugin from '@/utils/ocx/ocxPlugin'
 import type TVTPlayer from '@/utils/wasmPlayer/tvtPlayer'
+import type { UserChlAuth as _UserChlAuth } from '@/hooks/useUserChlAuth'
 
 export {}
 
@@ -138,7 +139,7 @@ declare global {
      */
     interface MessageTipBoxOption {
         type: 'success' | 'error' | 'info' | 'alarm' | 'question'
-        title: string
+        title?: string
         message: string
         dangerouslyUseHTMLString?: boolean
         draggable?: boolean
@@ -207,6 +208,37 @@ declare global {
         openLiveWin(chlId: string, chlName: string, chlIndex: string, chlType: string, isOnline?: boolean): void
     }
 
+    interface TimelineInstance {
+        updateChlList: (
+            chlList: { chlName: string; chlId: string; records: { startTime: number; endTime: number; event: string; [key?: string]: any }[] }[],
+            autoPointer: boolean,
+            pageType: 'live' | 'record',
+        ) => void
+        play: (step: number, speed: number) => void
+        stop: () => void
+        getTime: () => number
+        setTime: (time: number) => void
+        playForward: (second: number) => void
+        playBack: (second: number) => void
+        setDstDayTime: (currentDayStartTime: string) => void
+        setClipStart: (time?: number) => void
+        setClipEnd: (time?: number) => void
+        clearData: () => void
+        getMaxTime: () => number
+        setColorMap: (colorMap: { value: string; color: string; name: string; children: string[] }[]) => void
+        getTimeSplitList: () => { startTime: number; endTime: number }[]
+        getPointerTime: () => number
+        getTimeRangeMask: () => [number, number]
+        clearClipRange: () => void
+        getDST: () => {
+            hours: number
+            start: number
+            end: number
+        }
+    }
+
+    type UserChlAuth = _UserChlAuth
+
     /**
      * 通用的日期选择选项卡组件选中日期后的日期信息
      */
@@ -246,6 +278,8 @@ declare module 'vue' {
         BasePasswordStrength: (typeof import('@/views/UI_PUBLIC/components/form/BasePasswordStrength.vue'))['default']
         BaseSensitiveEmailInput: (typeof import('@/views/UI_PUBLIC/components/form/BaseSensitiveEmailInput.vue'))['default']
         BaseSensitiveTextInput: (typeof import('@/views/UI_PUBLIC/components/form/BaseSensitiveTextInput.vue'))['default']
+        BaseScheduleLine: (typeof import('@/components/BaseScheduleLine.vue'))['default']
+        BaseScheduleWeek: (typeof import('@/components/BaseScheduleWeek.vue'))['default']
     }
 }
 

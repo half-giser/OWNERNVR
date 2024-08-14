@@ -44,10 +44,10 @@
     border: 1px solid var(--border-color8);
     background-color: var(--page-bg);
     position: fixed;
-    bottom: 20px;
-    right: 20px;
+    bottom: 0;
+    right: 0;
     z-index: 9999;
-    width: 330px;
+    width: 300px;
     min-height: 90px;
     height: 272px;
 }
@@ -93,8 +93,8 @@
 }
 
 .position-right-bottom {
-    bottom: 20px;
-    right: 20px;
+    bottom: 0;
+    right: 0;
 }
 
 .position-right-top {

@@ -3,7 +3,7 @@
  * @Date: 2023-05-09 16:45:59
  * @Description: 服务端能力集全局存储
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-09 15:12:04
+ * @LastEditTime: 2024-08-07 10:04:35
  */
 import { getXmlWrapData } from '@/api/api'
 import { querySystemCaps } from '@/api/system'
@@ -51,6 +51,14 @@ export const useCababilityStore = defineStore(
         const supportSHDB = ref(false)
         const supportAlarmServerConfig = ref(false)
         const poeChlMaxCount = ref(0)
+        const supportOriginalDisplay = ref(false)
+        const supportImageRotate = ref(false)
+        const showVideoLossMessage = ref(false)
+        const audioInNum = ref(0)
+        const supportPtzGroupAndTrace = ref(false)
+        const supportTalk = ref(false)
+        const fishEyeCap = ref<Record<string, string[]>>({})
+        const playbackMaxWin = ref(9)
 
         const CustomerID = ref(0)
         const isInw48 = ref(false)
@@ -101,13 +109,24 @@ export const useCababilityStore = defineStore(
             supportLite.value = $(`content/supportLite`).text().toBoolean()
             supportZeroOprAdd.value = $(`content/supportZeroOprAdd`).text().toBoolean()
             supportHdmiVgaSeparate.value = $(`content/supportHdmiVgaSeparate`).text().toBoolean() // 是否支持VGA异源输出
-
+            supportOriginalDisplay.value = $('content/supportOriginalDisplay').text().toBoolean()
+            supportImageRotate.value = $('content/supportImageRotate').text().toBoolean()
+            showVideoLossMessage.value = $('content/showVideoLossMessage').text().toBoolean()
+            audioInNum.value = Number($('content/audioInNum').text())
+            supportPtzGroupAndTrace.value = $('content/supportPtzGroupAndTrace').text().toBoolean()
+            supportTalk.value = $('content/supportTalk').text().toBoolean()
             analogChlCount.value = Number($(`content/analogChlCount`).text())
             ipChlMaxCount.value = Number($(`content/ipChlMaxCount`).text())
             switchableIpChlMaxCount.value = Number($(`content/switchableIpChlMaxCount`).text())
             supportSHDB.value = $(`content/supportSHDB`).text().toBoolean()
             supportAlarmServerConfig.value = $('content/supportAlarmServerConfig').text().toBoolean()
             poeChlMaxCount.value = Number($(`content/poeChlMaxCount`).text())
+            playbackMaxWin.value = Number($('content/playbackMaxWin').text())
+
+            $('content/FishEyeCaps/installType/enum').forEach((item) => {
+                const text = item.text()
+                fishEyeCap.value[text] = $(`content/FishEyeCaps/fishEyeMode/group[contains(@installType,'${text}')]/enum`).map((chl) => chl.text())
+            })
 
             return $
         }
@@ -156,6 +175,14 @@ export const useCababilityStore = defineStore(
             CustomerID,
             isUseRaid,
             poeChlMaxCount,
+            supportOriginalDisplay,
+            supportImageRotate,
+            showVideoLossMessage,
+            audioInNum,
+            supportPtzGroupAndTrace,
+            supportTalk,
+            fishEyeCap,
+            playbackMaxWin,
         }
     },
     {
