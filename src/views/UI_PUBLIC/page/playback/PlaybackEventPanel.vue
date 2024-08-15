@@ -3,7 +3,7 @@
  * @Date: 2024-07-30 14:08:41
  * @Description: 回放-事件类型视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-06 20:13:56
+ * @LastEditTime: 2024-08-09 14:36:42
 -->
 <template>
     <fieldset>
@@ -33,7 +33,7 @@
                 placement="right"
                 width="420px"
                 trigger="click"
-                popper-class="playback-event"
+                popper-class="no-padding"
                 :hide-after="0"
                 :show-after="0"
             >
@@ -190,12 +190,5 @@ fieldset {
         margin-right: 10px;
         margin-left: 0;
     }
-}
-</style>
-
-<style>
-.playback-event {
-    padding: 0 !important;
-    padding-bottom: 10px !important;
 }
 </style>

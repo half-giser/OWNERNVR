@@ -3,10 +3,10 @@
  * @Date: 2023-05-23 17:57:48
  * @Description: 加解密相关方法
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-22 09:00:51
+ * @LastEditTime: 2024-08-13 20:36:13
  */
 
-// import MD5 from 'js-md5' // md5加密
+import MD5 from 'js-md5' // md5加密
 import CryptoJS from 'crypto-js' // AES加解密
 import JSEncrypt from 'jsencrypt' // RSA加解密
 import { encode as _base64Encode, decode as _base64Decode } from 'js-base64'
@@ -15,17 +15,17 @@ import { encode as _base64Encode, decode as _base64Decode } from 'js-base64'
  * MD5加密
  * @param {MD5.message} word 明文
  */
-// export const MD5_encrypt = (word: MD5.message) => {
-//     return MD5(word).toUpperCase()
-// }
+export const MD5_encrypt = (word: MD5.message) => {
+    return MD5(word).toUpperCase()
+}
 
 /**
  * MD5加密
  * @param {CryptoJS.lib.WordArray | string} word 明文
  */
-export const MD5_encrypt = (word: CryptoJS.lib.WordArray | string) => {
-    return CryptoJS.MD5(word).toString().toUpperCase()
-}
+// export const MD5_encrypt = (word: CryptoJS.lib.WordArray | string) => {
+//     return CryptoJS.MD5(word).toString().toUpperCase()
+// }
 
 /**
  * AES加密

@@ -1,17 +1,17 @@
 /*
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-06 20:36:26
- * @Description: 回放-备份弹窗
+ * @Description: 备份录像弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 15:32:23
+ * @LastEditTime: 2024-08-08 19:14:11
  */
-import PlaybackBackUpRemoteEncryptPop from './PlaybackBackUpRemoteEncryptPop.vue'
+import BackupRemoteEncryptPop from './BackupRemoteEncryptPop.vue'
 import type { PlaybackBackUpRecList } from '@/types/apiType/playback'
 import { type FormRules, type FormInstance } from 'element-plus'
 
 export default defineComponent({
     components: {
-        PlaybackBackUpRemoteEncryptPop,
+        BackupRemoteEncryptPop,
     },
     props: {
         mode: {
@@ -248,7 +248,7 @@ export default defineComponent({
             confirmCreateRecBackupTask,
             openFolder,
             formRule,
-            PlaybackBackUpRemoteEncryptPop,
+            BackupRemoteEncryptPop,
         }
     },
 })

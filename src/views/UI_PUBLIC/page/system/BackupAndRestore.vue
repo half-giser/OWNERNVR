@@ -3,7 +3,7 @@
  * @Date: 2024-06-27 11:50:00
  * @Description: 备份与恢复
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 13:43:17
+ * @LastEditTime: 2024-08-08 21:14:18
 -->
 <template>
     <div class="BackupAndRestore">
@@ -56,7 +56,11 @@
         </el-form>
         <el-form
             class="form"
-            inline-message
+            label-position="left"
+            :style="{
+                '--form-input-width': '250px',
+                '--form-label-width': '100px',
+            }"
         >
             <div class="base-subheading-box">{{ Translate('IDCS_SYSTEM_BACKUPCONFIG_LOG') }}</div>
             <el-form-item :label="isSupportH5 ? '' : Translate('IDCS_PATH')">

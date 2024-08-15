@@ -3,7 +3,7 @@
  * @Date: 2024-05-30 09:55:33
  * @Description: websocket基础类
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-27 19:28:50
+ * @LastEditTime: 2024-08-13 20:39:53
  */
 import { getWebsocketOpenUrl } from './websocketCmd'
 

@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2023-04-28 17:57:48
  * @Description: 工具方法
- * @LastEditors: tengxiang tengxiang@tvt.net.cn
- * @LastEditTime: 2024-08-12 10:25:49
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-08-14 14:33:21
  */
 
 import { useUserSessionStore } from '@/stores/userSession'
@@ -12,7 +12,7 @@ import { useLangStore } from '@/stores/lang'
 import { type QueryNodeListDto } from '@/types/apiType/channel'
 import { queryNodeList } from '@/api/channel'
 import { type ApiResult, getXmlWrapData } from '@/api/api'
-import { type XmlResult } from './xmlParse'
+import { type XMLQuery, type XmlResult } from './xmlParse'
 import useMessageBox from '@/hooks/useMessageBox'
 import { APP_TYPE } from '@/utils/constants'
 
@@ -789,4 +789,21 @@ const getTranslateForTime = (value: number, unit1: string, unit1s: string, unit2
         label += (t1 > 0 ? ' ' : '') + `${t2} ${t2 === 1 ? unit2 : unit2s}`
     }
     return label
+}
+
+/**
+ * @description 提示达到搜索最大数量
+ * @param $
+ */
+export const showMaxSearchLimitTips = ($: XMLQuery) => {
+    const isMaxSearchResultNum = $('/response/content/IsMaxSearchResultNum').text().toBoolean()
+    const { openMessageTipBox } = useMessageBox()
+    const { Translate } = useLangStore()
+
+    if (isMaxSearchResultNum) {
+        openMessageTipBox({
+            type: 'info',
+            message: Translate('IDCS_SEARCH_RESULT_LIMIT_TIPS'),
+        })
+    }
 }
