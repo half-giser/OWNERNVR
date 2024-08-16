@@ -3,7 +3,7 @@
  * @Date: 2024-06-28 11:45:24
  * @Description: 报警状态
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-14 17:40:07
+ * @LastEditTime: 2024-08-15 18:06:04
 -->
 <template>
     <div class="base-flex-box">
@@ -16,6 +16,7 @@
             :current-row-key="pageData.activeIndex"
             :expand-row-keys="pageData.activeRow"
             :row-class-name="(item) => (item.rowIndex === pageData.activeIndex ? 'active' : '')"
+            :show-header="false"
             @cell-click="handleChangeRow"
         >
             <el-table-column prop="type">
