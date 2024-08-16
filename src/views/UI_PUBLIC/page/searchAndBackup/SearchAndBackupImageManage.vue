@@ -3,7 +3,7 @@
  * @Date: 2024-08-09 15:02:25
  * @Description: 搜索与备份-图片管理
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-12 17:08:05
+ * @LastEditTime: 2024-08-15 19:51:32
 -->
 <template>
     <div class="img-mgr base-flex-box">
@@ -50,18 +50,56 @@
                     prop="index"
                 />
                 <el-table-column type="selection" />
-                <el-table-column
-                    :label="Translate('IDCS_CHANNEL_NAME')"
-                    prop="chlName"
-                />
-                <el-table-column
-                    :label="Translate('IDCS_CAPTURE_MODE')"
-                    prop="captureModeKey"
-                />
-                <el-table-column
-                    :label="Translate('IDCS_CAPTURE_TIME')"
-                    prop="captureTime"
-                >
+                <el-table-column prop="chlName">
+                    <template #header>
+                        <div
+                            class="sort-title"
+                            :class="{
+                                active: formData.sortField === 'chlName',
+                            }"
+                            @click="sort('chlName')"
+                        >
+                            <span>{{ Translate('IDCS_CHANNEL_NAME') }}</span>
+                            <BaseImgSprite
+                                :file="formData.sortType || 'asc'"
+                                class="sort-icon"
+                            />
+                        </div>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="captureModeKey">
+                    <template #header>
+                        <div
+                            class="sort-title"
+                            :class="{
+                                active: formData.sortField === 'captureModeKey',
+                            }"
+                            @click="sort('captureModeKey')"
+                        >
+                            <span>{{ Translate('IDCS_CAPTURE_MODE') }}</span>
+                            <BaseImgSprite
+                                :file="formData.sortType || 'asc'"
+                                class="sort-icon"
+                            />
+                        </div>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="captureTime">
+                    <template #header>
+                        <div
+                            class="sort-title"
+                            :class="{
+                                active: formData.sortField === 'captureTime',
+                            }"
+                            @click="sort('captureTime')"
+                        >
+                            <span>{{ Translate('IDCS_CAPTURE_TIME') }}</span>
+                            <BaseImgSprite
+                                :file="formData.sortType || 'asc'"
+                                class="sort-icon"
+                            />
+                        </div>
+                    </template>
                     <template #default="scope">
                         {{ displayDateTime(scope.row.captureTimeStamp) }}
                     </template>
@@ -254,6 +292,28 @@
 
     & > div:last-child {
         margin-left: 15px;
+    }
+}
+
+.sort {
+    &-title {
+        position: relative;
+        width: 100%;
+        cursor: pointer;
+
+        &:hover,
+        &.active {
+            .sort-icon {
+                opacity: 1;
+            }
+        }
+    }
+
+    &-icon {
+        position: absolute;
+        left: 50%;
+        top: 0;
+        opacity: 0;
     }
 }
 </style>
