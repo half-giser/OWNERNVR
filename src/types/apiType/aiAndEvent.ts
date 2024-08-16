@@ -3,7 +3,7 @@
  * @Date: 2024-08-10 12:08:57
  * @Description: AI/事件
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-14 15:15:45
+ * @LastEditTime: 2024-08-15 17:02:29
  */
 const { Translate } = useLangStore()
 
@@ -77,4 +77,10 @@ export class whiteLightInfo {
     durationTimeDisable = false
     frequencyTypeDisable = false
     status = '' //行状态: loading, success, error
+}
+
+// 事件通知——报警类型
+export class AlarmTypeInfo {
+    id = ''
+    value = ''
 }
