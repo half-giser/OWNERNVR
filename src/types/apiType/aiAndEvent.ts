@@ -3,7 +3,7 @@
  * @Date: 2024-08-10 12:08:57
  * @Description: AI/事件
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-13 15:52:19
+ * @LastEditTime: 2024-08-15 17:02:29
  */
 const { Translate } = useLangStore()
 
@@ -63,4 +63,24 @@ export class buzzerForm {
 export class pushForm {
     chkEnable = false // 是否启用
     pushSchedule = ''
+}
+
+// 事件通知——闪灯
+export class whiteLightInfo {
+    id = ''
+    name = ''
+    enable = ''
+    durationTime: number | null = null
+    frequencyType = ''
+    enableDisable = true
+    rowDisable = true
+    durationTimeDisable = false
+    frequencyTypeDisable = false
+    status = '' //行状态: loading, success, error
+}
+
+// 事件通知——报警类型
+export class AlarmTypeInfo {
+    id = ''
+    value = ''
 }
