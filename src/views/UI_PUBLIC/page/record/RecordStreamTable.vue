@@ -3,8 +3,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-07-31 10:29:37
  * @Description: 录像码流通用表格组件
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-12 14:02:57
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-08-14 14:36:17
 -->
 <template>
     <div>
@@ -586,7 +586,7 @@
 import { ArrowDown } from '@element-plus/icons-vue'
 import { RecordStreamInfoDto } from '@/types/apiType/record'
 // import { type FormInstance } from 'element-plus'
-import { queryRecordDistributeInfo, querySystemCaps, queryRemainRecTime } from '@/api/rec'
+// import { queryRecordDistributeInfo, querySystemCaps, queryRemainRecTime } from '@/api/rec'
 import { getChlList } from '@/utils/tools'
 // import { type ChannelInfoDto } from '@/types/apiType/channel'
 import { ElMessageBox } from 'element-plus'
@@ -718,7 +718,7 @@ const getDevRecParamCfgModule = function (callback: Function) {
 }
 // 获取系统宽带容量
 const getSystemCaps = function (callback?: Function) {
-    querySystemCaps().then((res: any) => {
+    querySystemCaps(getXmlWrapData('')).then((res: any) => {
         res = queryXml(res)
         if (res('status').text() === 'success') {
             const totalBandwidth = res('//content/totalBandwidth').text() * 1

@@ -3,7 +3,7 @@
  * @Date: 2024-07-01 11:01:04
  * @Description: 查看日志
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-11 17:58:14
+ * @LastEditTime: 2024-08-14 17:45:16
 -->
 <template>
     <div class="ViewLog base-flex-box">
@@ -152,7 +152,7 @@
             @close="closeLogDetail"
         />
         <!-- 回放弹窗 -->
-        <RecPop
+        <BasePlaybackPop
             v-model="pageData.isRecord"
             :play-list="pageData.recordPlayList"
             @close="pageData.isRecord = false"

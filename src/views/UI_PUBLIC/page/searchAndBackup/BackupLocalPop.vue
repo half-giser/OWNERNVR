@@ -1,15 +1,15 @@
 <!--
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-01 10:55:14
- * @Description: 回放-本地备份任务 进度弹窗
+ * @Description: 本地备份任务 进度弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-07 09:29:55
+ * @LastEditTime: 2024-08-14 17:30:46
 -->
 <template>
     <el-dialog
         :title="Translate('IDCS_EXPORT')"
         :show-close="false"
-        width="600"
+        :width="600"
         align-center
         draggable
         @open="open"
@@ -35,7 +35,7 @@
     </el-dialog>
 </template>
 
-<script lang="ts" src="./PlaybackBackUpLocalPop.v.ts"></script>
+<script lang="ts" src="./BackupLocalPop.v.ts"></script>
 
 <style lang="scss" scoped>
 .chunk {

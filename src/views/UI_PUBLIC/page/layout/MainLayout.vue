@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 顶层布局页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-11 14:31:09
+ * @LastEditTime: 2024-08-14 18:13:45
 -->
 <template>
     <el-container id="layoutMain">
@@ -105,6 +105,14 @@
         </el-header>
         <el-main id="layoutMainBody">
             <div id="layoutMainContent">
+                <!-- <router-view v-slot="{ Component }">
+                    <transition name="page-view">
+                        <component
+                            :is="Component"
+                            :key
+                        />
+                    </transition>
+                </router-view> -->
                 <router-view />
             </div>
         </el-main>
@@ -246,16 +254,18 @@
     // display: flex;
     // flex-direction: column;
     overflow-y: auto;
+}
 
-    #layoutMainContent {
-        padding: 25px 49px;
-        box-sizing: border-box;
-        height: 100%;
-        overflow-y: auto;
-        // height: auto;
-        flex-shrink: 1;
-        // min-height: calc(100% - 21px); //calc(100vh - 222px);
-    }
+#layoutMainContent {
+    position: relative;
+    padding: 25px 49px;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    // height: auto;
+    flex-shrink: 1;
+    // min-height: calc(100% - 21px); //calc(100vh - 222px);
 }
 
 #divCopyRight {
