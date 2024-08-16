@@ -3,7 +3,7 @@
  * @Date: 2024-07-30 09:32:36
  * @Description: 回放-通道视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-07 17:39:02
+ * @LastEditTime: 2024-08-09 15:27:54
 -->
 <template>
     <div class="left">
@@ -80,6 +80,7 @@
                                 v-show="chlList.includes(item.id)"
                                 :key="item.id"
                                 :value="item.id"
+                                :disabled="isChlAll && !pageData.selectedChl.includes(item.id)"
                             >
                                 <BaseImgSprite
                                     file="chl_rec_icon"
@@ -335,10 +336,10 @@
             height: 100%;
         }
 
-        .el-checkbox {
-            margin-left: 10px;
-            display: flex;
-        }
+        // .el-checkbox {
+        //     margin-left: 10px;
+        //     display: flex;
+        // }
     }
 
     &-chlgroup {

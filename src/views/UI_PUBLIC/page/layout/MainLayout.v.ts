@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 顶层布局页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 16:02:45
+ * @LastEditTime: 2024-08-14 17:57:03
  */
 
 import { type RouteLocationMatched } from 'vue-router'
@@ -25,6 +25,8 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const Plugin = inject('Plugin') as PluginType
         const systemInfo = getSystemInfo()
+
+        // const key = computed(() => `${String(route.name || route.path)}-${new Date()}`)
 
         const pageData = ref({
             logoShow: true,
@@ -290,6 +292,7 @@ export default defineComponent({
                 }
             })
             setPluginURL()
+            console.log('repeated mounted')
         })
 
         return {
@@ -307,6 +310,7 @@ export default defineComponent({
             showChangePwdPop,
             handleDownloadPlugin,
             BaseChangePwdPop,
+            // key,
         }
     },
 })

@@ -3,7 +3,7 @@
  * @Date: 2024-08-06 20:36:58
  * @Description: 回放-通道视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 10:54:52
+ * @LastEditTime: 2024-08-09 15:20:04
  */
 import ChannelGroupEditPop from '../channel/ChannelGroupEditPop.vue'
 import ChannelGroupAdd from '../channel/ChannelGroupAdd.vue'
@@ -51,6 +51,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const systemCaps = useCababilityStore()
 
         // 通道ID与通道名称的映射
         const chlMap = ref<Record<string, string>>({})
@@ -97,14 +98,13 @@ export default defineComponent({
             editChlGroup: new ChlGroup(),
             // 通道视图是否显示
             isOpen: true,
-            maxChl: 4,
         })
 
         const chlGroupElement = ref<HTMLDivElement>()
 
         // 最大通道数
         const maxChl = computed(() => {
-            return Math.min(pageData.value.cacheChlList.length, pageData.value.maxChl)
+            return Math.min(pageData.value.cacheChlList.length, prop.mode === 'ocx' ? systemCaps.playbackMaxWin : 4)
         })
 
         // 通道全选
@@ -251,7 +251,7 @@ export default defineComponent({
         const setWinFromChlGroup = async (id: string) => {
             await getChlListOfGroup(id)
             if (pageData.value.chlListOfGroup.length) {
-                ctx.emit('play', pageData.value.chlListOfGroup.slice(0, pageData.value.maxChl))
+                ctx.emit('play', pageData.value.chlListOfGroup.slice(0, prop.mode === 'ocx' ? systemCaps.playbackMaxWin : 4))
             }
         }
 

@@ -54,6 +54,7 @@
     --border-snap-history: #FFCC66;
     --border-calendar: #dedede;
     --border-player-split: #343434; /* 播放器分屏分割线颜色 */
+    --border-thumbnail-card: #ccc; /* 按时间切片缩略图边框颜色 */
 
     // 界面默认背景色
     --page-bg: #fff;
@@ -76,6 +77,7 @@
     --bg-calendar-header: #f5f5f5; /* 日历头背景色 */
     --bg-calender-thead: #d4d4d4; /* 日历表格头背景色 */
     --bg-player: #4c4c4b; /* 播放器背景色 */
+    --bg-thumbnail-card: #555; /* 按时间切片缩略图背景色 */
 
     // 表格分割线
     --table-split: #ebeef5;
@@ -128,7 +130,7 @@
     --form-label-width: 150px; /* 表单label宽度变量 */
     --form-input-width: 100%; /* 表单所有输入框宽度变量 */
 
-    // 时间轴组件的颜色
+    // 时间轴组件的默认颜色
     --timeline-bg-color: #555; // 画布背景色
     --timeline-scale-line-color: #ccc; // 刻度线颜色
     --timeline-scale-text-color: #eee; // 刻度字体线颜色
@@ -140,6 +142,20 @@
     --timeline-moving-time-text-color: #eee; // 鼠标跟随时间文本颜色
     --timeline-range-mask-color: rgba(0, 187, 219, .5); // 时间范围遮罩颜色
     --timeline-legend-bg-color: #666; // 图例背景色
+
+    // 回放页面的时间轴组件颜色
+    #layout2Main {
+        --timeline-bg-color: #fff;
+        --timeline-scale-line-color: #aaa;
+        --timeline-scale-text-color: #333;
+        --timeline-split-line-color: #ccc;
+        --timeline-pointer-color: #409eff;
+        --timeline-pointer-time-color: #333;
+        --timeline-moving-pointer-color: #ddd;
+        --timeline-moving-time-bg-color: rgba(0,0,0,.5);
+        --timeline-moving-time-text-color: #fff;
+        --timeline-range-mask-color: rgba(0, 187, 219, .5);
+    }
 }
 
 @media (prefers-color-scheme: dark) {

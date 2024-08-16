@@ -243,3 +243,9 @@ export const queryIPChlORChlFishEye = (data: string) => http.fetch('queryIPChlOR
  * @returns
  */
 export const queryChlsExistRec = () => http.fetch('queryChlsExistRec', getXmlWrapData(''))
+
+/**
+ * @description 查询POS信息
+ * @returns
+ */
+export const queryPosBillList = (data: string) => http.fetch('queryPosBillList', getXmlWrapData(data))

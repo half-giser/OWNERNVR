@@ -225,8 +225,10 @@ declare global {
         setClipEnd: (time?: number) => void
         clearData: () => void
         getMaxTime: () => number
+        getMinTime: () => number
         setColorMap: (colorMap: { value: string; color: string; name: string; children: string[] }[]) => void
         getTimeSplitList: () => { startTime: number; endTime: number }[]
+        getMinuteSplitList: () => { startTime: number; endTime: number }[]
         getPointerTime: () => number
         getTimeRangeMask: () => [number, number]
         clearClipRange: () => void
@@ -235,6 +237,9 @@ declare global {
             start: number
             end: number
         }
+        clearTimeRangeMask: () => void
+        drawTimeRangeMask: (startTime: number, endTime: number) => void
+        setMode: (modeConfig: { mode?: string; startDate?: string; monthNum?: number }, newPointerTime?: number) => void
     }
 
     type UserChlAuth = _UserChlAuth

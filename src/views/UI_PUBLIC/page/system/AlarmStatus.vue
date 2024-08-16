@@ -3,7 +3,7 @@
  * @Date: 2024-06-28 11:45:24
  * @Description: 报警状态
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-11 17:48:03
+ * @LastEditTime: 2024-08-14 17:40:07
 -->
 <template>
     <div class="base-flex-box">
@@ -89,7 +89,7 @@
             </el-table-column>
         </el-table>
         <!-- 回放弹窗 -->
-        <RecPop
+        <BasePlaybackPop
             v-model="pageData.isRecord"
             :play-list="pageData.recordPlayList"
             @close="pageData.isRecord = false"

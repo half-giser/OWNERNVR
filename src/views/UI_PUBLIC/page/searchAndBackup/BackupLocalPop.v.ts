@@ -1,23 +1,32 @@
 /*
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-06 20:35:59
- * @Description: 回放-本地备份任务 进度弹窗
+ * @Description: 本地备份任务 进度弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 13:56:50
+ * @LastEditTime: 2024-08-12 16:47:30
  */
 import type { PlaybackBackUpRecList } from '@/types/apiType/playback'
 import WebsocketRecordBackup, { type WebsocketRecordBackupOnMessageParam } from '@/utils/websocket/websocketRecordBackup'
 
 export default defineComponent({
     props: {
+        /**
+         * @property 用户通道权限
+         */
         auth: {
             type: Object as PropType<UserChlAuth>,
             required: true,
         },
+        /**
+         * @description 备份数据列表
+         */
         backupList: {
             type: Array as PropType<PlaybackBackUpRecList[]>,
             required: true,
         },
+        /**
+         * @description 最大单文件大小
+         */
         maxSingleSize: {
             type: Number,
             required: false,
