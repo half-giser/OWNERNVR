@@ -473,9 +473,6 @@ input[type='number'] {
         margin-bottom: 10px;
         
         .el-form-item {
-            padding: 10px 15px;
-            margin-bottom: 0;
-
             .el-form-item__label {
                 width: var(--form-label-width);
 
@@ -484,6 +481,20 @@ input[type='number'] {
                     font-size: 15px;
                     cursor: text;
                 }
+
+                .el-checkbox {
+                    margin-left: 5px;
+                }
+            }
+        }
+
+        &>.el-form-item {
+            padding: 10px 15px;
+            margin-bottom: 0;
+
+            .el-form-item {
+                width: 50%;
+                padding: 0;
             }
         }
 
@@ -546,7 +557,7 @@ input[type='number'] {
                 flex-wrap: nowrap;
             }
 
-            .el-form-item {
+            &>.el-form-item {
                 margin-bottom: 0;
                 padding: 10px 15px;
 
@@ -555,7 +566,7 @@ input[type='number'] {
                 }
             }
 
-            &.odd .el-form-item {
+            &.odd>.el-form-item {
                 &:nth-child(odd) {
                     background-color: var(--bg-color5);
                 }
@@ -571,7 +582,7 @@ input[type='number'] {
         }
 
         &.narrow {
-            .el-form-item {
+            &>.el-form-item {
                 margin-bottom: 0;
                 padding: 5px 15px;
             }

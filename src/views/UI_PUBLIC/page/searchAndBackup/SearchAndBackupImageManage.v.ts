@@ -3,7 +3,7 @@
  * @Date: 2024-08-12 13:47:57
  * @Description: 搜索与备份-图片管理
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-14 16:57:23
+ * @LastEditTime: 2024-08-15 19:54:30
  */
 import dayjs from 'dayjs'
 import BasePluginNotice from '../../components/ocx/BasePluginNotice.vue'
@@ -73,6 +73,23 @@ export default defineComponent({
             formData.value.startTime = pageData.value.startTime
             formData.value.endTime = pageData.value.endTime
             formData.value.pageIndex = 1
+            getData()
+        }
+
+        /**
+         * @description 更改排序方式
+         * @param {String} sortField
+         */
+        const sort = (sortField: string) => {
+            formData.value.pageIndex = 1
+            if (!formData.value.sortField) {
+                formData.value.sortField = sortField
+                formData.value.sortType = 'asc'
+            } else if (formData.value.sortField === sortField) {
+                formData.value.sortType = formData.value.sortType === 'asc' ? 'desc' : 'asc'
+            } else {
+                formData.value.sortField = sortField
+            }
             getData()
         }
 
@@ -398,6 +415,8 @@ export default defineComponent({
             pageData.value.startTime = dayjs(date).hour(0).minute(0).second(0).format(dateTime.dateTimeFormat.value)
             pageData.value.endTime = dayjs(date).hour(23).minute(59).second(59).format(dateTime.dateTimeFormat.value)
 
+            search()
+
             if (!sessionStorage.getItem('BackUpPictureTipNotAgain')) {
                 pageData.value.isBackUpTipPop = true
             }
@@ -416,6 +435,7 @@ export default defineComponent({
             dateTime,
             pageData,
             userAuth,
+            sort,
             search,
             tableRef,
             tableData,

@@ -3,7 +3,7 @@
  * @Date: 2023-04-28 17:57:48
  * @Description: 工具方法
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-14 14:33:21
+ * @LastEditTime: 2024-08-15 10:35:26
  */
 
 import { useUserSessionStore } from '@/stores/userSession'
@@ -806,4 +806,73 @@ export const showMaxSearchLimitTips = ($: XMLQuery) => {
             message: Translate('IDCS_SEARCH_RESULT_LIMIT_TIPS'),
         })
     }
+}
+
+type GetBitRateRangeOption = {
+    resolution:
+        | {
+              width: number
+              height: number
+          }
+        | string
+    level: string
+    fps: number
+    maxQoI: number
+    videoEncodeType: string
+}
+
+/**
+ * @description 获取比率范围
+ * @param options
+ * @returns
+ */
+export const getBitrateRange = (options: GetBitRateRangeOption) => {
+    // 计算分辨率对应参数
+    // const resolution = options.resolution
+    const videoEncodeType = options.videoEncodeType
+    let resolution = { width: 0, height: 0 }
+    if (typeof options.resolution == 'string') {
+        const resParts = options.resolution.split('x')
+        resolution = { width: Number(resParts[0]), height: Number(resParts[1]) }
+    } else {
+        resolution = options.resolution
+    }
+    const totalResolution = resolution.width * resolution.height
+    if (!totalResolution) {
+        return null
+    }
+    let resParam = Math.floor(totalResolution / (totalResolution >= 1920 * 1080 ? 200000 : 150000))
+    if (!resParam) {
+        resParam = 0.5
+    }
+
+    // 计算图像质量对应参数
+    const levelParamMapping: Record<string, number> = {
+        highest: 100,
+        higher: 67,
+        medium: 50,
+        lower: 34,
+        lowest: 25,
+    }
+    const levelParam = levelParamMapping[options.level]
+    if (!levelParam) {
+        return null
+    }
+    // 根据帧率使用不同公式计算下限和上限
+    const minBase = (768 * resParam * levelParam * (options.fps >= 10 ? options.fps : 10)) / 3000
+    let min = minBase - (options.fps >= 10 ? 0 : ((10 - options.fps) * minBase * 2) / 27)
+    const maxBase = (1280 * resParam * levelParam * (options.fps >= 10 ? options.fps : 10)) / 3000
+    let max = maxBase - (options.fps >= 10 ? 0 : ((10 - options.fps) * maxBase * 2) / 27)
+    min = options.maxQoI ? (options.maxQoI < min ? options.maxQoI : min) : min
+    max = videoEncodeType == 'h265' ? Math.floor(max * 0.55) : Math.floor(max)
+    if (videoEncodeType == 'h265' || videoEncodeType == 'h265p' || videoEncodeType == 'h265s') {
+        min = Math.floor(min * 0.55)
+    } else {
+        min = Math.floor(min)
+    }
+    if (!min || !max) {
+        return null
+    }
+
+    return { min: min, max: max }
 }

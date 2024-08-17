@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 16:07:59
  * @Description: 现场预览-底部视图-手动报警
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 16:43:07
+ * @LastEditTime: 2024-08-15 17:39:23
  */
 import { type LiveAlarmList } from '@/types/apiType/live'
 
@@ -11,7 +11,6 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const Plugin = inject('Plugin') as PluginType
 
         const theme = getUiAndTheme()
         const userSession = useUserSessionStore()
@@ -176,10 +175,8 @@ export default defineComponent({
             () => pageData.value.isAlarmPop,
             (val) => {
                 if (val) {
-                    Plugin.DisplayOCX(false)
                     getStatus()
                 } else {
-                    Plugin.DisplayOCX(true)
                     clearTimeout(timer)
                 }
             },
