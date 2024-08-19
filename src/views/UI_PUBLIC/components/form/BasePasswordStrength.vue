@@ -3,7 +3,7 @@
  * @Date: 2024-06-14 09:58:53
  * @Description: 密码强度指示器
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-14 10:11:32
+ * @LastEditTime: 2024-08-16 10:49:14
 -->
 <template>
     <ul class="Strength">
@@ -33,6 +33,7 @@ const strengthColors = ['grey', 'red', 'yellow', 'green', 'green']
     justify-content: flex-end;
     height: 10px;
     box-sizing: border-box;
+    padding-right: 15px;
     li {
         margin-left: 3px;
         width: 40px;

@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 18:39:25
  * @Description: 格式校验工具
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-10 16:27:06
+ * @LastEditTime: 2024-08-16 10:16:54
  */
 
 /**
@@ -145,6 +145,20 @@ export const checkEmail = (strEmail: string) => {
     } else {
         return false
     }
+}
+
+/**
+ * @description 检测字符串是否包含键盘上可见的符号
+ * @param str
+ * @returns {boolean}
+ */
+export const checkIllegalChar = (str: string) => {
+    // 键盘上的可见符号
+    const reg = /[`~!@#$%^&*()\-+=<>?:"{}|,.\/;'\\[\]·~！@#￥%……&*（）——\-+={}|《》？：“”【】、；‘'，。、]/g
+    if (reg.test(str)) {
+        return false
+    }
+    return true
 }
 
 /**
