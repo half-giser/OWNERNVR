@@ -3,7 +3,7 @@
  * @Date: 2024-06-04 20:56:11
  * @Description: 格式化工具模块
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 14:23:00
+ * @LastEditTime: 2024-08-16 17:57:00
  */
 
 /**
@@ -184,6 +184,18 @@ export const formatInputMaxLength = (value: string) => {
 export const formatInputUserName = (value: string) => {
     value = value.replace(/([`\^\[\]]|[^A-z\d!@#%(){}~_\\'./\-\s])/g, '')
     return formatInputMaxLength(value)
+}
+
+/**
+ * @description 处理输入框长数字串的输入,过滤掉非数字字符
+ * @param {string} value
+ * @returns {string}
+ */
+export const formatDigit = (value: string) => {
+    console.log(value, /\D/g.test(value))
+    value = value.replace(/[^0-9]/g, '')
+    console.log(value)
+    return value
 }
 
 /**

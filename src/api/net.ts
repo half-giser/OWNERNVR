@@ -3,7 +3,7 @@
  * @Date: 2024-06-11 20:22:27
  * @Description:
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-17 09:32:02
+ * @LastEditTime: 2024-08-16 15:40:31
  */
 import http, { getXmlWrapData } from './api'
 
@@ -247,7 +247,6 @@ export const editFTPCfg = (data: string) => http.fetch('editFTPCfg', getXmlWrapD
 
 /**
  * @description 获取SNMP配置
- * @param
  * @returns
  */
 export const querySNMPCfg = () => http.fetch('querySNMPCfg', getXmlWrapData(''))
@@ -261,6 +260,64 @@ export const editSNMPCfg = (data: string) => http.fetch('editSNMPCfg', getXmlWra
 
 /**
  * @description 获取网络节点编码信息
+ * @param {string} data
  * @returns
  */
 export const queryNetworkNodeEncodeInfo = (data: string) => http.fetch('queryNetworkNodeEncodeInfo', getXmlWrapData(data))
+
+/**
+ * @description 更新网络节点编码信息
+ * @param {string} data
+ * @returns
+ */
+export const editNetworkNodeEncodeInfo = (data: string) => http.fetch('editNetworkNodeEncodeInfo', getXmlWrapData(data))
+
+/**
+ * @description 获取OVNIF配置信息
+ * @returns
+ */
+export const queryOnvifCfg = () => http.fetch('editNetworkNodeEncodeInfo', getXmlWrapData(''))
+
+/**
+ * @description 修改OVNIF配置信息
+ * @returns
+ */
+export const editOnvifCfg = (data: string) => http.fetch('editOnvifCfg', getXmlWrapData(data))
+
+/**
+ * @description 获取OVNIF用户列表
+ * @returns
+ */
+export const queryOnvifUserList = () => http.fetch('queryOnvifUserList', getXmlWrapData(''))
+
+/**
+ * @description 创建OVNIF用户
+ * @returns
+ */
+export const createOnvifUser = (data: string) => http.fetch('createOnvifUser', getXmlWrapData(data))
+
+/**
+ * @description 编辑OVNIF用户
+ * @returns
+ */
+export const editOnvifUser = (data: string) => http.fetch('editOnvifUser', getXmlWrapData(data))
+
+/**
+ * @description 删除ONVIF用户
+ * @param {string} data
+ * @returns
+ */
+export const deleteOnivfUser = (data: string) => http.fetch('deleteOnivfUser', getXmlWrapData(data))
+
+/**
+ * @description 获取平台接入配置
+ * @returns
+ */
+export const queryPlatformCfg = () => http.fetch('queryPlatformCfg', getXmlWrapData(''))
+
+/**
+ * @description 编辑平台接入配置
+ * @param {String} data
+ * @returns
+ */
+export const editPlatformCfg = (data: string) => http.fetch('editPlatformCfg', getXmlWrapData(data), {}, false)

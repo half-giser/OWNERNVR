@@ -3,7 +3,7 @@
  * @Date: 2024-06-05 13:35:57
  * @Description: 多分屏WASM播放器控件
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 14:02:50
+ * @LastEditTime: 2024-08-13 19:27:18
 -->
 <template>
     <div
@@ -160,7 +160,7 @@
             </div>
         </div>
         <div
-            v-if="mode !== 'h5'"
+            v-if="!onlyWasm && mode !== 'h5'"
             class="ocx"
         >
             <BasePluginPlayer :is-update-pos="prop.ocxUpdatePos" />
@@ -183,6 +183,10 @@ const pluginStore = usePluginStore()
 const prop = withDefaults(
     defineProps<{
         /**
+         * @description 是否只显示WASM播放器
+         */
+        onlyWasm?: boolean
+        /**
          * @param 播放类型
          */
         type?: 'record' | 'live'
@@ -204,6 +208,7 @@ const prop = withDefaults(
         ocxUpdatePos?: boolean
     }>(),
     {
+        onlyWasm: false,
         type: 'live',
         split: 1,
         enablePos: false,
@@ -1607,7 +1612,7 @@ const createVideoPlayer = () => {
 const player: VideoPlayer = createVideoPlayer()
 const ready = ref(false)
 const mode = computed(() => {
-    return pluginStore.currPluginMode === 'h5' ? 'h5' : 'ocx'
+    return prop.onlyWasm ? 'h5' : pluginStore.currPluginMode === 'h5' ? 'h5' : 'ocx'
 })
 
 const readyState = computed(() => {

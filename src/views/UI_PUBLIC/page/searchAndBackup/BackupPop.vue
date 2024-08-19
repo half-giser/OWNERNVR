@@ -1,14 +1,14 @@
 <!--
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-01 10:23:43
- * @Description: 回放-备份弹窗
+ * @Description: 备份录像弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-07 17:42:54
+ * @LastEditTime: 2024-08-09 17:24:31
 -->
 <template>
     <el-dialog
         :title="Translate('IDCS_BACKUP')"
-        width="500"
+        :width="500"
         align-center
         draggable
         @open="open"
@@ -98,7 +98,7 @@
                 </el-select>
             </el-form-item>
         </el-form>
-        <PlaybackBackUpRemoteEncryptPop
+        <BackupRemoteEncryptPop
             v-model="pageData.isRemoteEncryptPop"
             :encrypt="formData.remoteFormat !== 'AVI'"
             @confirm="confirmCreateRecBackupTask"
@@ -118,7 +118,7 @@
     </el-dialog>
 </template>
 
-<script lang="ts" src="./PlaybackBackUpPop.v.ts"></script>
+<script lang="ts" src="./BackupPop.v.ts"></script>
 
 <style lang="scss" scoped>
 .tip {

@@ -1,0 +1,105 @@
+/*
+ * @Author: yejiahao yejiahao@tvt.net.cn
+ * @Date: 2024-08-12 16:25:16
+ * @Description: 按时间切片搜索
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-08-14 16:55:26
+ */
+import dayjs from 'dayjs'
+import TimeSliceTopPanel from './TimeSliceTopPanel.vue'
+import TimeSliceTimelinePanel from './TimeSliceTimelinePanel.vue'
+
+export default defineComponent({
+    components: {
+        TimeSliceTopPanel,
+        TimeSliceTimelinePanel,
+    },
+    setup() {
+        const pageData = ref({
+            // 面包屑
+            nav: ['chl', 'year', 'month', 'day'],
+            // 当前面包屑
+            mode: 'chl',
+            // 录像开始时间
+            startTime: 0,
+            // 通道的录像时间
+            chlTime: 0,
+            // 通道ID
+            chlId: '',
+            // 通道名称
+            chlName: '',
+        })
+
+        const dateTime = useDateTime()
+
+        // 面包屑索引值
+        const navIndex = computed(() => {
+            return pageData.value.nav.indexOf(pageData.value.mode)
+        })
+
+        // 格式化年月
+        const displayYearMonth = computed(() => {
+            const dateFormat = dateTime.dateFormat.value
+            const year = dateFormat.indexOf('Y')
+            const month = dateFormat.indexOf('M')
+            if (year > month) {
+                return formatDate(pageData.value.chlTime, 'MM/YYYY')
+            }
+            return formatDate(pageData.value.chlTime, 'YYYY/MM')
+        })
+
+        // 格式化日期
+        const displayDate = computed(() => {
+            return dayjs(pageData.value.chlTime).date()
+        })
+
+        /**
+         * @description 切换面包屑
+         * @param {String} mode
+         */
+        const changeMode = (mode: string) => {
+            pageData.value.mode = mode
+        }
+
+        /**
+         * @description 点击通道卡片，打开通道的时间切片详情
+         * @param {String} mode
+         * @param {String} chlId
+         * @param {String} chlName
+         * @param {Number} chlTime
+         */
+        const handleChlChange = (mode: string, chlId: string, chlName: string, chlTime: number) => {
+            pageData.value.mode = mode
+            pageData.value.chlId = chlId
+            pageData.value.chlName = chlName
+            pageData.value.chlTime = chlTime
+        }
+
+        /**
+         * @description 时间切片详情的年月日切换
+         * @param {String} mode
+         * @param {Number} chlTime
+         */
+        const handleSliceChange = (mode: string, chlTime: number) => {
+            pageData.value.mode = mode
+            pageData.value.chlTime = chlTime
+        }
+
+        onMounted(() => {
+            dateTime.getTimeConfig()
+        })
+
+        return {
+            dateTime,
+            pageData,
+            navIndex,
+            displayYearMonth,
+            displayDate,
+            handleChlChange,
+            handleSliceChange,
+            changeMode,
+            TimeSliceTopPanel,
+            TimeSliceTimelinePanel,
+        }
+    },
+})

@@ -4,7 +4,7 @@
  * @Description: OCX插件模块
  * 原项目中MAC插件和TimeSliderPlugin相关逻辑不保留
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 14:36:13
+ * @LastEditTime: 2024-08-08 18:04:07
  */
 import WebsocketPlugin from '@/utils/websocket/websocketPlugin'
 import { usePluginStore } from '@/stores/plugin'
@@ -82,6 +82,11 @@ const usePlugin = () => {
 
     const systemInfo = getSystemInfo()
     const browserInfo = getBrowserInfo()
+
+    const backupTask = useOcxBackUp((str) => {
+        getVideoPlugin().ExecuteCmd(str)
+    })
+    VideoPluginNotifyEmitter.addListener(backupTask.notify)
 
     const compareOcxVersion = (ver1: string, ver2: string) => {
         const var1Arr = ver1.split(',')
@@ -1686,6 +1691,7 @@ const usePlugin = () => {
         pluginNoticeHtml,
         pluginDownloadUrl,
         pluginNoticeContainer,
+        BackUpTask: backupTask,
     }
 }
 

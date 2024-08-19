@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 18:07:29
  * @Description: 现场预览
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 15:05:28
+ * @LastEditTime: 2024-08-14 17:58:56
  */
 import { cloneDeep } from 'lodash-es'
 import { type LiveChannelList, type LiveCustomViewChlList, LiveSharedWinData } from '@/types/apiType/live'
@@ -1641,7 +1641,6 @@ export default defineComponent({
             layoutStore.liveLastChlList = [...pageData.value.playingList]
 
             stopPollingChlGroup()
-            console.log('live before unmounted')
 
             if (plugin?.IsPluginAvailable() && mode.value === 'ocx' && ready.value) {
                 // 离开时切换为一分屏，防止safari上其余用到插件的地方出现多分屏

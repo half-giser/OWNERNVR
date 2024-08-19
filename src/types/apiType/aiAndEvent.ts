@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-08-10 12:08:57
  * @Description: AI/事件
- * @LastEditors: lym a11593@tvt.net.cn
- * @LastEditTime: 2024-08-12 18:03:07
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-08-15 17:02:29
  */
 const { Translate } = useLangStore()
 
@@ -29,6 +29,18 @@ export class AlarmOut {
     }
 }
 
+/**
+ * @description: email接收人
+ * @return {*}
+ */
+export class EmailReceiver {
+    address = ''
+    addressShow = ''
+    schedule = ''
+    delDisabled = false
+    rowDisabled = false
+    rowClicked = false
+}
 // 事件通知——显示——弹出视频
 export class PopVideoForm {
     popVideoDuration = 0 // 弹出视频持续时间
@@ -51,4 +63,24 @@ export class buzzerForm {
 export class pushForm {
     chkEnable = false // 是否启用
     pushSchedule = ''
+}
+
+// 事件通知——闪灯
+export class whiteLightInfo {
+    id = ''
+    name = ''
+    enable = ''
+    durationTime: number | null = null
+    frequencyType = ''
+    enableDisable = true
+    rowDisable = true
+    durationTimeDisable = false
+    frequencyTypeDisable = false
+    status = '' //行状态: loading, success, error
+}
+
+// 事件通知——报警类型
+export class AlarmTypeInfo {
+    id = ''
+    value = ''
 }

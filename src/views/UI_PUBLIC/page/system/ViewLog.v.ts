@@ -3,20 +3,16 @@
  * @Date: 2024-07-01 11:01:12
  * @Description: 查看日志
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-30 14:54:41
+ * @LastEditTime: 2024-08-14 17:44:41
  */
 import { SystemLogForm, type SystemLogList } from '@/types/apiType/system'
 import dayjs from 'dayjs'
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
 import ViewLogDetailPop from './ViewLogDetailPop.vue'
-import RecPop from '../rec/RecPop.vue'
-import { type RecPlayList } from '@/types/apiType/playback'
+import { type PlaybackPopList } from '@/types/apiType/playback'
 
 export default defineComponent({
     components: {
-        BaseImgSprite,
         ViewLogDetailPop,
-        RecPop,
     },
     setup() {
         const { Translate } = useLangStore()
@@ -234,7 +230,7 @@ export default defineComponent({
             isDetail: false,
             // 是否打开回放弹窗
             isRecord: false,
-            recordPlayList: [] as RecPlayList[],
+            recordPlayList: [] as PlaybackPopList[],
         })
 
         // 日志子类型选项
@@ -601,27 +597,12 @@ export default defineComponent({
          */
         const playRec = (row: SystemLogList) => {
             const eventList = ['MOTION', 'SCHEDULE', 'SENSOR', 'MANUAL', 'INTELLIGENT']
-            let time = row.time
-            if (userSession.calendarType === 'Persian') {
-                time = persianToGregory(time, dateTime.dateTimeFormat.value)
-            }
-            const startTime = dayjs(time, {
-                jalali: false,
-                format: dateTime.dateTimeFormat.value,
-            })
-                .subtract(preStartTime, 'millisecond')
-                .calendar('gregory')
-                .format('YYYY-MM-DD HH:mm:ss')
-            const endTime = dayjs(time, {
-                jalali: false,
-                format: dateTime.dateTimeFormat.value,
-            })
-                .add(recDuration, 'millisecond')
-                .subtract(preStartTime, 'millisecond')
-                .calendar('gregory')
-                .format('YYYY-MM-DD HH:mm:ss')
+            const time = row.time
 
-            let playList: RecPlayList[] = []
+            const startTime = dayjs(time, dateTime.dateTimeFormat.value).subtract(preStartTime, 'millisecond').valueOf()
+            const endTime = dayjs(time, dateTime.dateTimeFormat.value).add(recDuration, 'millisecond').subtract(preStartTime, 'millisecond').valueOf()
+
+            let playList: PlaybackPopList[] = []
             if (row.logType === 'LOG_ALARM_SENSOR' || row.logType === 'LOG_ALARM_COMBINED') {
                 playList = row.triggerRecChls
                     .filter((item) => item.id !== '{00000000-0000-0000-0000-000000000000}')
@@ -724,9 +705,7 @@ export default defineComponent({
             handleChangeRow,
             changeLogDetail,
             closeLogDetail,
-            BaseImgSprite,
             ViewLogDetailPop,
-            RecPop,
         }
     },
 })

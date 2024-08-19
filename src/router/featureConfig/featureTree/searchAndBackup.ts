@@ -27,7 +27,7 @@ export default {
             },
         },
         byTime: {
-            //按事件
+            //按时间
             component: 'searchAndBackup/SearchAndBackupByTime.vue',
             meta: {
                 sort: 30,
@@ -47,7 +47,7 @@ export default {
             component: 'searchAndBackup/SearchAndBackupState.vue',
             meta: {
                 sort: 50,
-                lk: 'IDCS_IMAGE_MANAGE',
+                lk: 'IDCS_BACKUP_STATE',
             },
         },
     },

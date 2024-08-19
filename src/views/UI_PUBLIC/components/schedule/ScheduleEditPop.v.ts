@@ -6,8 +6,11 @@ import { type FormInstance, type FormRules } from 'element-plus'
 export default defineComponent({
     components: { BaseScheduleWeek },
     props: {
-        scheduleDtail: ScheduleInfo,
-        dayEnum: [],
+        scheduleDtail: Object as PropType<ScheduleInfo>,
+        dayEnum: {
+            type: Array as PropType<string[]>,
+            required: true,
+        },
     },
     emits: ['close'],
     setup(props, ctx) {
@@ -137,7 +140,7 @@ export default defineComponent({
                             <mode>weekly</mode>
                             <start>${item[0]}</start>
                             <end>${item[1]}</end>
-                            <day>${props.dayEnum![index]}</day>
+                            <day>${props.dayEnum[index]}</day>
                         </item>`
                     })
                 })

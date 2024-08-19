@@ -3,12 +3,12 @@
  * @Date: 2024-08-01 10:55:38
  * @Description: 回放-远程备份任务 加密弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-06 20:43:23
+ * @LastEditTime: 2024-08-14 17:29:44
 -->
 <template>
     <el-dialog
         :title="Translate('IDCS_SELECT_ENCRYPTION')"
-        width="500"
+        :width="500"
         align-center
         draggable
         @opened="open"
@@ -70,4 +70,4 @@
     </el-dialog>
 </template>
 
-<script lang="ts" src="./PlaybackBackUpRemoteEncryptPop.v.ts"></script>
+<script lang="ts" src="./BackupRemoteEncryptPop.v.ts"></script>

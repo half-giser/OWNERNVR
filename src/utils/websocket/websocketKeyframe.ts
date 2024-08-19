@@ -3,7 +3,7 @@
  * @Date: 2024-05-30 18:00:36
  * @Description: websocket 请求通道关键帧
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-11 09:39:20
+ * @LastEditTime: 2024-08-14 17:31:52
  */
 import WebsocketBase from './websocketBase'
 import ImgRender from '../wasmPlayer/imageRender'
@@ -35,6 +35,7 @@ export default class WebsocketKeyframe {
     private readonly onmessage: WebsocketKeyframeOption['onmessage']
     private readonly onerror: WebsocketKeyframeOption['onerror']
     private readonly onclose: WebsocketKeyframeOption['onclose']
+    private ready = false
 
     constructor(option: WebsocketKeyframeOption) {
         this.onready = option.onready
@@ -51,7 +52,7 @@ export default class WebsocketKeyframe {
     init() {
         this.ws = new WebsocketBase({
             onopen: () => {
-                // this.ready = true
+                this.ready = true
                 this.onready && this.onready()
             },
             onmessage: (data: string | ArrayBuffer) => {
@@ -88,27 +89,31 @@ export default class WebsocketKeyframe {
                 }
             },
             onerror: () => {
-                // this.ready = false
+                this.ready = false
                 this.onerror && this.onerror()
             },
             onclose: () => {
-                // this.ready = false
+                this.ready = false
                 this.onclose && this.onclose()
             },
         })
     }
 
-    // 检查当前渲染任务是否执行完
-    // checkReady(cb) {
-    //     const timer = setTimeout(() => {
-    //         if (this.ready) {
-    //             cb()
-    //         } else {
-    //             this.checkReady(cb)
-    //             clearTimeout(timer)
-    //         }
-    //     }, 0)
-    // }
+    /**
+     * @description 检查当前渲染任务是否执行完
+     * @param {Function} cb
+     */
+    checkReady(cb: () => void) {
+        if (this.ready) {
+            cb()
+        } else {
+            setTimeout(() => {
+                // if (this.ws) {
+                this.checkReady(cb)
+                // }
+            }, 10)
+        }
+    }
 
     /**
      * @param {Object} json
@@ -170,7 +175,7 @@ export default class WebsocketKeyframe {
     }
 
     /**
-     * 发送请求
+     * @description 发送请求
      */
     execNextCmd() {
         this.stop()
@@ -179,7 +184,7 @@ export default class WebsocketKeyframe {
     }
 
     /**
-     * 停止请求
+     * @description 停止请求
      */
     stop() {
         if (!this.taskId) {
@@ -190,7 +195,7 @@ export default class WebsocketKeyframe {
     }
 
     /**
-     * 停止全部任务
+     * @description 停止全部任务
      */
     stopAll() {
         this.stop()

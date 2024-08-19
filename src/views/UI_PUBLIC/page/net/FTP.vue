@@ -3,7 +3,7 @@
  * @Date: 2024-07-12 18:20:28
  * @Description: FTP
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-16 19:55:57
+ * @LastEditTime: 2024-08-15 18:28:04
 -->
 <template>
     <div class="base-flex-box">
@@ -467,6 +467,7 @@
             >
             <el-button @click="verify">{{ Translate('IDCS_APPLY') }}</el-button>
         </div>
+        <ScheduleManagPop v-model="pageData.isSchedulePop" />
     </div>
 </template>
 
