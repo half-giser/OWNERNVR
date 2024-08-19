@@ -1,29 +1,26 @@
 <!--
- * @Author: yejiahao yejiahao@tvt.net.cn
- * @Date: 2024-07-02 15:55:47
- * @Description: POS联动通道设置
+ * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @Date: 2024-08-16 17:19:02
+ * @Description: 穿梭框弹窗
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-19 10:05:32
+ * @LastEditTime: 2024-08-19 10:12:28
 -->
 <template>
     <el-dialog
         draggable
         center
-        width="700px"
-        :title="Translate('IDCS_CHANNEL_TRGGER')"
-        @before-close="close"
-        @open="open"
+        width="615px"
+        :title="Translate(props.headerTitle)"
     >
         <div class="PosTriggerChannel">
             <el-transfer
-                v-model="value"
-                :data="chlList"
+                v-model="props.linkedList"
+                :data="props.sourceData"
                 :props="{
                     key: 'id',
                     label: 'text',
                 }"
-                :titles="[Translate('IDCS_CHANNEL'), Translate('IDCS_CHANNEL_TRGGER')]"
-                @change="change"
+                :titles="[Translate(props.sourceTitle), Translate(props.targetTitle)]"
             />
         </div>
         <template #footer>
@@ -40,4 +37,4 @@
     </el-dialog>
 </template>
 
-<script lang="ts" src="./PosTriggerChannelPop.v.ts"></script>
+<script lang="ts" src="./BaseTransferPop.v.ts"></script>
