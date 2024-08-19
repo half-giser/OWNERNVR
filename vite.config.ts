@@ -42,9 +42,11 @@ export default defineConfig(({ mode }) => {
                         proxy.on('proxyReq', (proxyReq, req) => {
                             // NVR 设备端会读取 Content-Length，必须是首字母大写的，而proxy转发后，会把header的key全部转为小写，
                             // 设备读取不到Content-Length，则不返回，dev server控制台打印错误： [vite] http proxy error: error: socket hang up
-                            const len = req.headers['content-length'] as string
-                            proxyReq.removeHeader('content-length')
-                            proxyReq.setHeader('Content-Length', len)
+                            if (req.headers['content-length']) {
+                                const len = req.headers['content-length'] as string
+                                proxyReq.removeHeader('content-length')
+                                proxyReq.setHeader('Content-Length', len)
+                            }
                         })
                     },
                 },

@@ -3,7 +3,7 @@
  * @Date: 2024-05-30 10:25:04
  * @Description: websocket命令生成工具
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-06 16:56:44
+ * @LastEditTime: 2024-08-13 20:33:11
  */
 import { ENV_MODE, APP_SERVER_IP } from '../constants'
 import { useUserSessionStore } from '@/stores/userSession'
@@ -16,7 +16,6 @@ export const getWebsocketOpenUrl = () => {
     const host = window.location.host
     const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
     const userSession = useUserSessionStore()
-    console.log(ENV_MODE === 'production')
     if (ENV_MODE === 'production') {
         // 正式环境
         return `${wsProtocol}://${host}/requestWebsocketConnection?sessionID=${userSession.sessionId}`

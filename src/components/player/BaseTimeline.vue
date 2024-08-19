@@ -1,9 +1,9 @@
 <!--
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-29 10:41:06
- * @Description: 录像与回放时间轴插件
+ * @Description: 录像与回放时间轴组件
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-06 19:51:59
+ * @LastEditTime: 2024-08-14 16:48:22
 -->
 <template>
     <div
@@ -74,9 +74,13 @@ const prop = withDefaults(
          */
         enableClip?: boolean
         /**
-         * @property 时间日期格式
+         * @property 时间日期格式 (year/month模式)
          */
         dateTimeFormat?: string
+        /**
+         * @propert 时间日期格式（day模式）
+         */
+        dayFormat?: string
         /**
          * @property 事件与颜色的映射表
          */
@@ -92,13 +96,14 @@ const prop = withDefaults(
         enableMask: false,
         enableClip: false,
         dateTimeFormat: 'YYYY-MM-DD HH:mm:ss',
+        dayFormat: 'HH:mm:ss',
     },
 )
 
 const emits = defineEmits<{
     (e: 'seek', pointerTime: number): void
     (e: 'dblclick', curTime: number, timeRange: [number, number], mode: string): void
-    (e: 'changeMask', mask: [string, string]): void
+    (e: 'changeMask', mask: [number, number]): void
     (e: 'clearMask'): void
     (e: 'setOffsetX', offsetX: number): void
     (e: 'setMaxCoordinateX', maxCoordinateX: number): void
@@ -113,17 +118,16 @@ const $container = ref<HTMLDivElement>()
 let ctx: CanvasRenderingContext2D
 let recordCtx: CanvasRenderingContext2D
 
-const style = getComputedStyle(document.body)
-const bgColor = style.getPropertyValue('--timeline-bg-color') // 画布背景色
-const scaleLineColor = style.getPropertyValue('--timeline-scale-line-color') // 刻度线颜色
-const scaleTextColor = style.getPropertyValue('--timeline-scale-text-color') // 刻度字体线颜色
-const splitLineColor = style.getPropertyValue('--timeline-split-line-color') // 通道间的分割线颜色
-const pointerColor = style.getPropertyValue('--timeline-pointer-color') // 指针颜色
-const pointerTimeColor = style.getPropertyValue('--timeline-pointer-time-color') // 指针显示的时间颜色
-const mousemovingPointerColor = style.getPropertyValue('--timeline-moving-pointer-color') // 鼠标跟随指针颜色
-const mousemovingTimeBgColor = style.getPropertyValue('--timeline-moving-time-bg-color') // 鼠标跟随时间背景色
-const mousemovingTimeTextColor = style.getPropertyValue('--timeline-moving-time-text-color') // 鼠标跟随时间文本颜色
-const timeRangeMaskColor = style.getPropertyValue('--timeline-range-mask-color') // 时间范围遮罩颜色
+let bgColor = '' // 画布背景色
+let scaleLineColor = '' // 刻度线颜色
+let scaleTextColor = '' // 刻度字体线颜色
+let splitLineColor = '' // 通道间的分割线颜色
+let pointerColor = '' // 指针颜色
+let pointerTimeColor = '' // 指针显示的时间颜色
+let mousemovingPointerColor = '' // 鼠标跟随指针颜色
+let mousemovingTimeBgColor = '' // 鼠标跟随时间背景色
+let mousemovingTimeTextColor = '' // 鼠标跟随时间文本颜色
+let timeRangeMaskColor = '' // 时间范围遮罩颜色
 
 // 通道列表
 let chlList: ChlList[] = []
@@ -193,6 +197,20 @@ let timeSplitList: TimeRange[] = []
 let canvasWidth = 0
 let canvasHeight = 40
 
+const initColor = () => {
+    const style = getComputedStyle($container.value!)
+    bgColor = style.getPropertyValue('--timeline-bg-color') // 画布背景色
+    scaleLineColor = style.getPropertyValue('--timeline-scale-line-color') // 刻度线颜色
+    scaleTextColor = style.getPropertyValue('--timeline-scale-text-color') // 刻度字体线颜色
+    splitLineColor = style.getPropertyValue('--timeline-split-line-color') // 通道间的分割线颜色
+    pointerColor = style.getPropertyValue('--timeline-pointer-color') // 指针颜色
+    pointerTimeColor = style.getPropertyValue('--timeline-pointer-time-color') // 指针显示的时间颜色
+    mousemovingPointerColor = style.getPropertyValue('--timeline-moving-pointer-color') // 鼠标跟随指针颜色
+    mousemovingTimeBgColor = style.getPropertyValue('--timeline-moving-time-bg-color') // 鼠标跟随时间背景色
+    mousemovingTimeTextColor = style.getPropertyValue('--timeline-moving-time-text-color') // 鼠标跟随时间文本颜色
+    timeRangeMaskColor = style.getPropertyValue('--timeline-range-mask-color') // 时间范围遮罩颜色
+}
+
 /**
  * @description 根据公历年月日获取对应月份的第一天年月日
  * @param {string} dateStr YYYY/MM/DD
@@ -200,7 +218,7 @@ let canvasHeight = 40
  */
 const getFirstDayByGreDate = (dateStr: string) => {
     const currentDate = dayjs(dateStr, 'YYYY/MM/DD')
-    return dayjs().year(currentDate.year()).month(currentDate.month()).date(1).format('YYYY-MM-DD HH:mm:ss')
+    return dayjs().year(currentDate.year()).month(currentDate.month()).date(1).hour(0).minute(0).second(0).format('YYYY-MM-DD HH:mm:ss')
 }
 
 /**
@@ -225,11 +243,11 @@ const getLastDateAfterNMonths = (dateStr: string, n: number) => {
 }
 
 /**
- * 根据秒时间戳获取日期字符串
+ * @description 根据秒时间戳获取日期字符串
  * @param {Number} 时间戳秒
  * @return {String} 'yyyy/mm/dd 00:00:00'
  */
-function getDateByTimestamp(timestamp: number) {
+const getDateByTimestamp = (timestamp: number) => {
     return formatDate(timestamp * 1000, 'YYYY/MM/DD HH:mm:ss')
 }
 
@@ -300,7 +318,7 @@ const setMode = (modeConfig: ModeConfig, newPointerTime?: number) => {
 /**
  * @description 初始化画布，每次重绘需执行一次该命令
  */
-const init = function () {
+const init = () => {
     clear()
     canvasWidth = $canvas.value!.width
     canvasHeight = 40
@@ -393,6 +411,7 @@ const handleMouseUp = (e: MouseEvent) => {
 
 /**
  * @description 鼠标移动事件:拖拽移动/不拖拽移动
+ * @param {MouseEvent} e
  */
 const handleMouseMove = (e: MouseEvent) => {
     if (isMouseDown) {
@@ -458,10 +477,13 @@ const handleDoubleClick = () => {
     emits('dblclick', curTime, timeRange, mode)
 }
 
-// 处理鼠标滚动事件，需要对火狐浏览器兼容处理， 具体差异如下：
-// 1、其他浏览器监听mousewheel；而Firefox监听DOMMouseScroll
-// 2、其它浏览器向上滚动为正值(+120) 、向下滚动为负值(-120) ；而Firefox向上滚动为负值(-5) ，向下滚动为正值(+5)
-// 3、其它浏览器保存在event对象中的wheelDelta属性；而Firefox对滚轮滚动的值保存在event对象中的detail属性里
+/**
+ * @description 处理鼠标滚动事件，需要对火狐浏览器兼容处理， 具体差异如下：
+ * 1、其他浏览器监听mousewheel；而Firefox监听DOMMouseScroll
+ * 2、其它浏览器向上滚动为正值(+120) 、向下滚动为负值(-120) ；而Firefox向上滚动为负值(-5) ，向下滚动为正值(+5)
+ * 3、其它浏览器保存在event对象中的wheelDelta属性；而Firefox对滚轮滚动的值保存在event对象中的detail属性里
+ * @param {WheelEvent} e
+ */
 const handleMouseWheel = (e: WheelEvent) => {
     if (!prop.disableZoom) {
         e.preventDefault()
@@ -477,14 +499,14 @@ const handleMouseWheel = (e: WheelEvent) => {
 }
 
 /**
- * 根据当前指针时间戳
+ * @description 根据当前指针时间戳
  */
 const getPointerTime = () => {
     return Math.floor(pointerTime)
 }
 
 /**
- * 根据当前指针时间戳获取时间范围
+ * @description 根据当前指针时间戳获取时间范围
  * 按天时：时间范围为当天起止时间戳（秒）
  * 按月时：时间范围为命中日期当天起止时间戳（秒）
  * 按年时：时间范围为命中月份起止时间戳（秒）
@@ -506,7 +528,9 @@ const getPointerTimeRange = () => {
 }
 
 /**
- * 根据秒时间戳范围, 绘制遮罩层
+ * @description 根据秒时间戳范围, 绘制遮罩层
+ * @param {number} startTime 秒
+ * @param {number} endTime 秒
  */
 const drawTimeRangeMask = (startTime: number, endTime: number) => {
     const startX = getXByTime(startTime)
@@ -515,25 +539,28 @@ const drawTimeRangeMask = (startTime: number, endTime: number) => {
     timeRangeMask = [Math.floor(startTime), Math.floor(endTime)]
 }
 
+/**
+ * @description 遮罩层绘制回调
+ */
 const handleMaskChange = () => {
-    const formatStart = formatTime(timeRangeMask[0], 'HH:mm:ss') // 格式化为"00:00:00"
-    const formatEnd = formatTime(timeRangeMask[1], 'HH:mm:ss')
-    emits('changeMask', [formatStart, formatEnd])
+    // const formatStart = formatTime(timeRangeMask[0], 'HH:mm:ss') // 格式化为"00:00:00"
+    // const formatEnd = formatTime(timeRangeMask[1], 'HH:mm:ss')
+    emits('changeMask', timeRangeMask)
     // this.onmaskchange(this.timeRangeMask, [formatStart, formatEnd])
 }
 
 /**
- * 清空遮罩层
+ * @description 清空遮罩层
  */
-const clearTimeRangeMask = function () {
+const clearTimeRangeMask = () => {
     timeRangeMask = [0, 0]
     init()
 }
 
 /**
- * 获取遮罩层起止时间
+ * @description 获取遮罩层起止时间
  */
-const getTimeRangeMask = function () {
+const getTimeRangeMask = () => {
     return timeRangeMask
 }
 
@@ -547,6 +574,7 @@ const getTimeRangeMask = function () {
 /**
  * @description 绘制剪切层, 形状如下：
  * start |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX| end
+ * @param {number} index
  */
 const drawClipRange = (index: number) => {
     if (!clipRange.value.length) {
@@ -583,7 +611,8 @@ const drawClipRange = (index: number) => {
 }
 
 /**
- * 设置剪切开始时间（秒）
+ * @description 设置剪切开始时间（秒）
+ * @param {number} time
  */
 const setClipStart = (time = getPointerTime()) => {
     if (clipRange.value.length === 2 && time >= clipRange.value[1]) {
@@ -595,7 +624,8 @@ const setClipStart = (time = getPointerTime()) => {
 }
 
 /**
- * 设置剪切结束时间（秒）
+ * @description 设置剪切结束时间（秒）
+ * @param {number} time
  */
 const setClipEnd = (time = getPointerTime()) => {
     if (clipRange.value.length === 0) {
@@ -619,14 +649,14 @@ const setClipEnd = (time = getPointerTime()) => {
 }
 
 /**
- * 获取剪切起止时间
+ * @description 获取剪切起止时间
  */
 const getClipRange = () => {
     return clipRange
 }
 
 /**
- * 清空剪切
+ * @description 清空剪切
  */
 const clearClipRange = () => {
     clipRange.value = []
@@ -641,14 +671,14 @@ const clearClipRange = () => {
 // }
 
 /**
- * 获取按刻度切割的时间列表
+ * @description 获取按刻度切割的时间列表
  */
 const getTimeSplitList = () => {
     return timeSplitList
 }
 
 /**
- * 根据当前指针命中的小时，获取按分钟切割的时间列表
+ * @description 根据当前指针命中的小时，获取按分钟切割的时间列表
  */
 const getMinuteSplitList = () => {
     const scaleIndex = Math.floor((pointerTime - minTime) / secondPerScale)
@@ -664,21 +694,21 @@ const getMinuteSplitList = () => {
 }
 
 /**
- * 获取时间轴最小时间
+ * @description 获取时间轴最小时间
  */
 const getMinTime = () => {
     return minTime
 }
 
 /**
- * 获取时间轴最大时间
+ * @description 获取时间轴最大时间
  */
 const getMaxTime = () => {
     return maxTime
 }
 
 /**
- * 根据画布父容器宽高重新设置画布大小
+ * @description 根据画布父容器宽高重新设置画布大小
  */
 const setCanvasSize = () => {
     const width = $container.value!.offsetWidth
@@ -689,7 +719,14 @@ const setCanvasSize = () => {
 }
 
 /**
- * 画直线
+ * @description 画直线
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {number} startX
+ * @param {number} startY
+ * @param {number} endX
+ * @param {number} endY
+ * @param {string} color
+ * @param {number} width
  */
 const drawLine = (ctx: CanvasRenderingContext2D, startX: number, startY: number, endX: number, endY: number, color = scaleLineColor, width = 1) => {
     ctx.beginPath()
@@ -701,7 +738,13 @@ const drawLine = (ctx: CanvasRenderingContext2D, startX: number, startY: number,
 }
 
 /**
- * 画矩形
+ * @description 画矩形
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {number} startX
+ * @param {number} startY
+ * @param {number} width
+ * @param {number} height
+ * @param {string} bgColor
  */
 const drawRect = (ctx: CanvasRenderingContext2D, startX: number, startY: number, width: number, height: number, bgColor: string) => {
     ctx.fillStyle = bgColor
@@ -709,7 +752,12 @@ const drawRect = (ctx: CanvasRenderingContext2D, startX: number, startY: number,
 }
 
 /**
- * 画文字
+ * @description 画文字
+ * @param {string} text
+ * @param {number} startX
+ * @param {number} startY
+ * @param {string} fillStyle
+ * @param {string} font
  */
 const drawText = (ctx: CanvasRenderingContext2D, text: string, startX: number, startY: number, fillStyle = '#fff', font = '12px') => {
     ctx.fillStyle = fillStyle
@@ -718,7 +766,7 @@ const drawText = (ctx: CanvasRenderingContext2D, text: string, startX: number, s
 }
 
 /**
- * 清除时间轴canvas画布
+ * @description 清除时间轴canvas画布
  */
 const clear = () => {
     ctx.clearRect(0, 0, canvasWidth, canvasHeight)
@@ -726,7 +774,9 @@ const clear = () => {
 }
 
 /**
- * 将秒转化成时间字符串，输出格式：'00:00'
+ * @description 将秒转化成时间字符串，输出格式：'00:00'
+ * @param {number} second
+ * @param {string} format
  */
 const formatTime = (second: number, format = 'HH:mm') => {
     if (minTime > 0) {
@@ -740,6 +790,7 @@ const formatTime = (second: number, format = 'HH:mm') => {
 
 /**
  * @description 根据时间计算x坐标
+ * @param {Number} time
  */
 const getXByTime = (time: number) => {
     if (time < startTime) return offsetWidth
@@ -749,20 +800,22 @@ const getXByTime = (time: number) => {
 
 /**
  * @description 根据x坐标计算时间
+ * @param {Number} x
  */
 const getTimeByX = (x: number) => {
     return (x - offsetWidth) * (secondPerScale / widthPerScale) + startTime
 }
 
 /**
- * 判断坐标是否在可视区
+ * @description 判断坐标是否在可视区
+ * @param {Number} x
  */
 const isPointerVisible = (x: number) => {
     return x >= offsetWidth && x <= canvasWidth - offsetWidth
 }
 
 /**
- * 绘制刻度
+ * @description 绘制刻度
  */
 const drawScale = () => {
     // 完整时间轴（包含放大后的超出部分）刻度数
@@ -790,6 +843,10 @@ const drawScale = () => {
     timeSplitList.pop()
 }
 
+/**
+ * @description 更新分割线列表
+ * @param {number} startTime
+ */
 const updateTimeSplitList = (startTime: number) => {
     timeSplitList.push({ startTime: startTime, endTime: 0 })
     const len = timeSplitList.length
@@ -798,7 +855,12 @@ const updateTimeSplitList = (startTime: number) => {
     }
 }
 
-// 按天绘制刻度线和时间
+/**
+ * @description 按天绘制刻度线和时间
+ * @param {number} startScaleX
+ * @param {number} startScaleTime
+ * @param {number} i
+ */
 const drawScaleByDay = (startScaleX: number, startScaleTime: number, i: number) => {
     let timeStr = ''
     if (oneDayHours == 24) {
@@ -855,7 +917,11 @@ const drawScaleByDay = (startScaleX: number, startScaleTime: number, i: number) 
     updateTimeSplitList(startScaleTime)
 }
 
-// 按月绘制刻度线和时间
+/**
+ * @description 按月绘制刻度线和时间
+ * @param {number} startScaleX
+ * @param {number} startScaleTime
+ */
 const drawScaleByMonth = (startScaleX: number, startScaleTime: number) => {
     drawLine(ctx, startScaleX + offsetWidth, 40, startScaleX + offsetWidth, 32)
     const dateStr = getDateByTimestamp(startScaleTime)
@@ -865,7 +931,11 @@ const drawScaleByMonth = (startScaleX: number, startScaleTime: number) => {
     updateTimeSplitList(startScaleTime)
 }
 
-// 按年绘制刻度线和时间
+/**
+ * @description 按年绘制刻度线和时间
+ * @param {number} startScaleX
+ * @param {number} startScaleTime
+ */
 const drawScaleByYear = (startScaleX: number, startScaleTime: number) => {
     const dateStr = getDateByTimestamp(startScaleTime)
     const arr = dateStr.split(' ')[0].split('/')
@@ -882,7 +952,7 @@ const drawScaleByYear = (startScaleX: number, startScaleTime: number) => {
 }
 
 /**
- * 绘制录像条
+ * @description 绘制录像条
  */
 const drawRecord = () => {
     if (!chlList.length) return
@@ -894,7 +964,7 @@ const drawRecord = () => {
         const color = item.color
         const key = item.value
         const children = item.children || []
-        chlList.forEach(function (chl, index) {
+        chlList.forEach((chl, index) => {
             if (!chl) return
             // 绘制录像段
             const records = chl.records
@@ -932,7 +1002,7 @@ const drawRecord = () => {
 }
 
 /**
- * 绘制指针
+ * @description 绘制指针
  */
 const drawPointer = () => {
     if (pointerTime >= startTime && pointerTime <= startTime + totalTimeOfView) {
@@ -944,16 +1014,16 @@ const drawPointer = () => {
         const startY = 12
         if (mode === 'day') {
             if (oneDayHours == 24) {
-                timeStr = formatTime(pointerTime, 'HH:mm:ss')
+                timeStr = formatTime(pointerTime, prop.dayFormat)
             } else {
                 if (oneDayHours == 23 && pointerTime >= 3600 * dstStartHour) {
                     // 夏令时开始当天
-                    timeStr = formatTime(pointerTime + 3600, 'HH:mm:ss')
+                    timeStr = formatTime(pointerTime + 3600, prop.dayFormat)
                 } else if (oneDayHours == 25 && pointerTime >= 3600 * dstEndHour) {
                     // 夏令时结束当天
-                    timeStr = formatTime(pointerTime - 3600, 'HH:mm:ss')
+                    timeStr = formatTime(pointerTime - 3600, prop.dayFormat)
                 } else {
-                    timeStr = formatTime(pointerTime, 'HH:mm:ss')
+                    timeStr = formatTime(pointerTime, prop.dayFormat)
                 }
             }
         } else {
@@ -967,7 +1037,7 @@ const drawPointer = () => {
 }
 
 /**
- * 绘制随鼠标运动的指针
+ * @description 绘制随鼠标运动的指针
  * @param {Number} x 画布中的横坐标位置
  */
 const drawMovingWithMousePointer = (x: number, y: number) => {
@@ -984,16 +1054,16 @@ const drawMovingWithMousePointer = (x: number, y: number) => {
     const rectH = 24
     if (mode === 'day') {
         if (oneDayHours == 24) {
-            timeStr = formatTime(time, 'HH:mm:ss')
+            timeStr = formatTime(time, prop.dayFormat)
         } else {
             if (oneDayHours == 23 && time >= 3600 * dstStartHour) {
                 // 夏令时开始当天
-                timeStr = formatTime(time + 3600, 'HH:mm:ss')
+                timeStr = formatTime(time + 3600, prop.dayFormat)
             } else if (oneDayHours == 25 && time >= 3600 * dstEndHour) {
                 // 夏令时结束当天
-                timeStr = formatTime(time - 3600, 'HH:mm:ss')
+                timeStr = formatTime(time - 3600, prop.dayFormat)
             } else {
-                timeStr = formatTime(time, 'HH:mm:ss')
+                timeStr = formatTime(time, prop.dayFormat)
             }
         }
     } else {
@@ -1041,7 +1111,8 @@ const stop = () => {
 }
 
 /**
- * 放大，以鼠标停留位置为中心
+ * @description 放大，以鼠标停留位置为中心
+ * @param {number} time 秒
  */
 const zoomOut = (time: number) => {
     if (zoomIndex === zoomList.length - 1) return
@@ -1054,7 +1125,8 @@ const zoomOut = (time: number) => {
 }
 
 /**
- * 缩小，以鼠标停留位置为中心
+ * @description 缩小，以鼠标停留位置为中心
+ * @param {number} time 秒
  */
 const zoomIn = (time: number) => {
     if (zoomIndex === 0 && startTime === minTime) return
@@ -1073,7 +1145,8 @@ const zoomIn = (time: number) => {
 }
 
 /**
- * 左右平移
+ * @description 左右平移
+ * @param offsetX 像素
  */
 const translateOnX = (offsetX: number) => {
     if (offsetX === 0) return
@@ -1103,6 +1176,7 @@ const translateOnX = (offsetX: number) => {
 
 /**
  * @description 设置播放时间点
+ * @param {number} time 秒
  */
 const setTime = (time: number) => {
     pointerTime = time
@@ -1119,7 +1193,7 @@ const getTime = () => {
 
 /**
  * @description 前进
- * @param {Number} second 前进时间
+ * @param {Number} second 前进时间 秒
  */
 const playForward = (second: number) => {
     const time = pointerTime + second >= maxTime ? maxTime : pointerTime + second
@@ -1128,7 +1202,7 @@ const playForward = (second: number) => {
 
 /**
  * @description 后退
- * @param {Number} second 后退时间
+ * @param {Number} second 后退时间 秒
  */
 const playBack = (second: number) => {
     const time = pointerTime - second <= 0 ? 0 : pointerTime - second
@@ -1193,7 +1267,7 @@ const setDstDayTime = (currentDayStartTime: string) => {
 }
 
 /**
- * 更新通道列表数据
+ * @description 更新通道列表数据
  * @param {Boolean} autoPointer 指针是否自动定位到最早的录像条位置
  */
 const updateChlList = (newChlList: ChlList[], newAutoPointer: boolean, pageType: 'live' | 'record') => {
@@ -1213,14 +1287,14 @@ const updateChlList = (newChlList: ChlList[], newAutoPointer: boolean, pageType:
 }
 
 /**
- * 获取通道列表数据
+ * @description 获取通道列表数据
  */
 const getChlList = () => {
     return chlList
 }
 
 /**
- * 重置画布，清空日志，指针归零
+ * @description 重置画布，清空日志，指针归零
  */
 const clearData = () => {
     // TODO chlList.splice(0, chlList.length)
@@ -1231,12 +1305,16 @@ const clearData = () => {
 }
 
 /**
- * 设置录像条事件-颜色映射
+ * @description 设置录像条事件-颜色映射
+ * @param {Array} newColorMap
  */
 const setColorMap = (newColorMap: ColorMap[]) => {
     colorMap = newColorMap
 }
 
+/**
+ * @description 获取冬夏令时切换日小时数
+ */
 const getDST = () => {
     return {
         hours: oneDayHours,
@@ -1246,7 +1324,7 @@ const getDST = () => {
 }
 
 /**
- * 重置画布大小，重绘当前状态
+ * @description 重置画布大小，重绘当前状态
  */
 const resize = new ResizeObserver(() => {
     setCanvasSize()
@@ -1254,6 +1332,8 @@ const resize = new ResizeObserver(() => {
 })
 
 onMounted(() => {
+    initColor()
+
     if (prop.chlsList) {
         chlList = prop.chlsList
     }
@@ -1302,6 +1382,8 @@ defineExpose({
     playBack,
     getClipRange,
     clearClipRange,
+    clearTimeRangeMask,
+    drawTimeRangeMask,
     setDstDayTime,
     setClipStart,
     setClipEnd,
@@ -1315,6 +1397,7 @@ defineExpose({
     getPointerTime,
     getTimeRangeMask,
     getDST,
+    setMode,
 })
 </script>
 

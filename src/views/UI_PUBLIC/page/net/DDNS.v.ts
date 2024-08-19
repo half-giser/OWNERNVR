@@ -3,7 +3,7 @@
  * @Date: 2024-07-10 09:13:17
  * @Description: DDNS
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 16:22:03
+ * @LastEditTime: 2024-08-15 18:30:40
  */
 import { NetDDNSForm, NetDDNSServerTypeList } from '@/types/apiType/net'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -144,7 +144,7 @@ export default defineComponent({
                 formData.value.userName = $('/response/content/userName').text()
                 formData.value.password = $('/response/content/password').text()
                 formData.value.domainName = $('/response/content/domainName').text()
-                formData.value.heartbeatTime = Number($('/response/content/heartbeatTime').text()) || null
+                formData.value.heartbeatTime = Number($('/response/content/heartbeatTime').text()) || undefined
                 formData.value.switch = $('/response/content/switch').text().toBoolean()
 
                 pageData.value.serverTypeOptions = $('/response/types/ddnsServerType/enum').map((item) => {
@@ -189,12 +189,12 @@ export default defineComponent({
                         userName: isSelected ? formData.value.userName : '',
                         password: isSelected ? formData.value.password : '',
                         domainName: isSelected ? formData.value.domainName : '',
-                        heartbeatTime: isSelected ? formData.value.heartbeatTime : null,
+                        heartbeatTime: isSelected ? formData.value.heartbeatTime : undefined,
                         suffix,
                         requireParam: item.attr('requireParam')!.split(','),
                         hideParam: hideParam,
                         defaultServerAddr,
-                        defaultHeartBeatTime: Number(item.attr('defaultHeartBeatTime')) || null,
+                        defaultHeartBeatTime: Number(item.attr('defaultHeartBeatTime')) || undefined,
                         defaultDomainName,
                         isRegisterBtn,
                         isTestBtn,

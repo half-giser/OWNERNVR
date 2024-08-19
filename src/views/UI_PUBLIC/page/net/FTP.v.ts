@@ -3,12 +3,16 @@
  * @Date: 2024-07-12 18:20:34
  * @Description: FTP配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-16 20:03:26
+ * @LastEditTime: 2024-08-15 18:26:14
  */
 import { NetFTPForm, type NetFTPList } from '@/types/apiType/net'
 import { type FormInstance, type FormRules } from 'element-plus'
+import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 
 export default defineComponent({
+    components: {
+        ScheduleManagPop,
+    },
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
@@ -377,6 +381,7 @@ export default defineComponent({
             formatServerAddress,
             formatDir,
             changeSwitch,
+            ScheduleManagPop,
         }
     },
 })

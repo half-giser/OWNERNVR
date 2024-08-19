@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-04-20 16:04:39
  * @Description: 二级类型2布局页--适用于“搜索和备份”、“智能分析”、“业务应用”等
- * @LastEditors: Please set LastEditors
- * @LastEditTime: 2024-06-13 16:41:26
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-08-14 18:04:39
 -->
 
 <template>
@@ -57,6 +57,7 @@
 #layout2 {
     border: solid 1px var(--border-color2);
     min-height: calc(100vh - 172px);
+    width: 100%;
 }
 
 #layout2Header {

@@ -473,9 +473,6 @@ input[type='number'] {
         margin-bottom: 10px;
         
         .el-form-item {
-            padding: 10px 15px;
-            margin-bottom: 0;
-
             .el-form-item__label {
                 width: var(--form-label-width);
 
@@ -484,6 +481,20 @@ input[type='number'] {
                     font-size: 15px;
                     cursor: text;
                 }
+
+                .el-checkbox {
+                    margin-left: 5px;
+                }
+            }
+        }
+
+        &>.el-form-item {
+            padding: 10px 15px;
+            margin-bottom: 0;
+
+            .el-form-item {
+                width: 50%;
+                padding: 0;
             }
         }
 
@@ -530,6 +541,10 @@ input[type='number'] {
                 flex-wrap: nowrap;
             }
 
+            .el-form-item__error {
+                padding-top: 0;
+            }
+
             // .el-form-item {
             //     margin-bottom: 0;
             //     padding: 10px 15px;
@@ -542,7 +557,7 @@ input[type='number'] {
                 flex-wrap: nowrap;
             }
 
-            .el-form-item {
+            &>.el-form-item {
                 margin-bottom: 0;
                 padding: 10px 15px;
 
@@ -551,7 +566,7 @@ input[type='number'] {
                 }
             }
 
-            &.odd .el-form-item {
+            &.odd>.el-form-item {
                 &:nth-child(odd) {
                     background-color: var(--bg-color5);
                 }
@@ -560,10 +575,14 @@ input[type='number'] {
                     background-color: unset;
                 }
             }
+
+            .el-form-item__error {
+                padding-top: 0;
+            }
         }
 
         &.narrow {
-            .el-form-item {
+            &>.el-form-item {
                 margin-bottom: 0;
                 padding: 5px 15px;
             }
@@ -619,6 +638,7 @@ input[type='number'] {
 
 // 将页面容器转换为flexbox
 .base-flex-box {
+    width: 100%;
     display: flex;
     flex-direction: column;
     height: var(--content-height);
@@ -664,11 +684,13 @@ input[type='number'] {
         & > div:first-child {
             display: flex;
             justify-content: flex-start;
+            align-items: center;
         }
 
         & > div:last-child {
             display: flex;
             justify-content: flex-end;
+            align-items: center;
         }
     }
 

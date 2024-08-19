@@ -3,26 +3,20 @@
  * @Date: 2024-06-28 11:45:28
  * @Description: 报警状态
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-11 20:05:37
+ * @LastEditTime: 2024-08-14 17:41:18
  */
 import { type XmlResult } from '@/utils/xmlParse'
 import type { SystemAlarmStatusListData, SystemAlarmStatusList } from '@/types/apiType/system'
 import dayjs from 'dayjs'
-// import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
-import RecPop from '../rec/RecPop.vue'
 import type { TableInstance } from 'element-plus'
-import { type RecPlayList } from '@/types/apiType/playback'
+import { type PlaybackPopList } from '@/types/apiType/playback'
 
 export default defineComponent({
-    components: {
-        // BaseImgSprite,
-        RecPop,
-    },
     setup() {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const systemCaps = useCababilityStore()
-        const userSession = useUserSessionStore()
+        // const userSession = useUserSessionStore()
         const dateTime = useDateTime()
 
         const NAME_MAPPING: Record<number, string> = {
@@ -92,7 +86,7 @@ export default defineComponent({
             activeRow: [] as string[],
             // 是否打开回放弹窗
             isRecord: false,
-            recordPlayList: [] as RecPlayList[],
+            recordPlayList: [] as PlaybackPopList[],
         })
 
         /**
@@ -1112,16 +1106,10 @@ export default defineComponent({
          * @param {SystemAlarmStatusListData} row
          */
         const playRec = (row: SystemAlarmStatusListData) => {
-            let alarmTime = row.alarmTime
-            if (userSession.calendarType === 'Persian') {
-                alarmTime = persianToGregory(alarmTime, dateTime.dateTimeFormat.value)
-            }
-            const startTime = dayjs(alarmTime, { format: dateTime.dateTimeFormat.value, jalali: false }).subtract(preTime, 'millisecond').calendar('gregory').format('YYYY-MM-DD HH:mm:ss')
-            const endTime = dayjs(alarmTime, { format: dateTime.dateTimeFormat.value, jalali: false })
-                .add(recDuration, 'millisecond')
-                .subtract(preTime, 'millisecond')
-                .calendar('gregory')
-                .format('YYYY-MM-DD HH:mm:ss')
+            const alarmTime = row.alarmTime
+            const startTime = dayjs(alarmTime, dateTime.dateTimeFormat.value).subtract(preTime, 'millisecond').valueOf()
+            const endTime = dayjs(alarmTime, dateTime.dateTimeFormat.value).add(recDuration, 'millisecond').subtract(preTime, 'millisecond').valueOf()
+
             const playList = row.rec.map((item) => {
                 return {
                     chlId: item.id,
@@ -1160,8 +1148,6 @@ export default defineComponent({
             getAlarmStatusActive,
             handleChangeRow,
             playRec,
-            // BaseImgSprite,
-            RecPop,
         }
     },
 })

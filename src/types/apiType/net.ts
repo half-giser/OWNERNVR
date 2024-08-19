@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 14:47:05
  * @Description: 网络
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-17 09:43:53
+ * @LastEditTime: 2024-08-16 14:43:47
  */
 
 /**
@@ -57,7 +57,7 @@ export class NetDDNSForm {
     userName = ''
     password = ''
     domainName = ''
-    heartbeatTime = null as number | null
+    heartbeatTime = undefined as number | undefined
     switch = false
 }
 
@@ -68,9 +68,9 @@ export class NetDDNSServerTypeList {
     userName = ''
     password = ''
     domainName = ''
-    heartbeatTime = null as number | null
+    heartbeatTime = undefined as number | undefined
     defaultServerAddr = ''
-    defaultHeartBeatTime = null as number | null
+    defaultHeartBeatTime = undefined as number | undefined
     suffix = ''
     requireParam = [] as string[]
     hideParam = [] as string[]
@@ -200,4 +200,101 @@ export class NetStreamChlList {
     poeIndex = ''
     productModel = ''
     factoryName = ''
+}
+
+export class NetSubStreamResList {
+    fps = 0
+    value = ''
+}
+
+export class NetSubStreamQualityCapsList {
+    enct = ''
+    res = ''
+    digitalDefault = 0
+    analogDefault = 0
+    value = [] as string[]
+}
+
+export class NetSubStreamListBitRange {
+    min = 0
+    max = 0
+}
+
+export class NetSubStreamList {
+    [key: string]: any
+    id = ''
+    name = ''
+    chlType = ''
+    subCaps = {
+        supEnct: [] as string[],
+        bitType: [] as string[],
+        res: [] as NetSubStreamResList[],
+    }
+    videoEncodeType = ''
+    subStreamQualityCaps = [] as NetSubStreamQualityCapsList[]
+    streamType = ''
+    GOP = 0
+    resolution = ''
+    frameRate = 0
+    bitType = ''
+    level = ''
+    videoQuality = 0
+    // bitRange = null as null | NetSubStreamListBitRange
+    // audio = ''
+}
+
+export class NetSubStreamResolutionList {
+    key = ''
+    value = ''
+    resolution = [] as NetSubStreamResList[]
+    chlsList = [] as { chlId: string; chlName: string; chlIndex: number }[]
+}
+
+export class NetOnvifForm {
+    switch = false
+}
+
+export class NetOnvifUserList {
+    id = ''
+    userName = ''
+    userLevel = ''
+    password = ''
+}
+
+export class NetOnvifUserForm {
+    userName = ''
+    userLevel = ''
+    password = ''
+    confirmPassword = ''
+}
+
+export class NetPlatformAccessForm {
+    accessType = ''
+    nwms5000Switch = false
+    serverAddr = ''
+    reportId = 0
+    port = 0
+    gb28181Switch = false
+    sipRelm = ''
+    sipAddr = ''
+    sipLocalPort = 0
+    sipPort = 0
+    sipDeviceId = ''
+    sipUserName = ''
+    sipPassword = '******'
+    sipExpireTime = 0
+    sipId = ''
+}
+
+export class NetPlatformSipList {
+    value = ''
+    type = ''
+    label = ''
+    list = [] as NetPlatformSipCodeList[]
+}
+
+export class NetPlatformSipCodeList {
+    id = ''
+    gbId = ''
+    text = ''
 }

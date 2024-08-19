@@ -2,8 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-10 15:00:10
  * @Description: E-mail发送
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 16:28:44
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-08-13 10:57:09
  */
 import { type FormInstance, type FormRules } from 'element-plus'
 import { NetEmailForm } from '@/types/apiType/net'
@@ -179,7 +179,7 @@ export default defineComponent({
                 return
             }
             router.push({
-                path: '/config/alarm/email/recipients',
+                path: '/config/alarm/email',
             })
         }
 
