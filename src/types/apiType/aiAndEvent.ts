@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-08-10 12:08:57
  * @Description: AI/事件
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-19 10:13:34
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-08-21 13:38:57
  */
 const { Translate } = useLangStore()
 
@@ -83,6 +83,73 @@ export class whiteLightInfo {
 export class AlarmTypeInfo {
     id = ''
     value = ''
+}
+
+export class MotionEventConfig {
+    id = ''
+    addType = ''
+    chlType = ''
+    poeIndex = ''
+    productModel = {
+        value: '',
+        factoryName: '',
+    }
+    status = '' //行状态: loading, success, error
+    name = ''
+    schedule = {
+        value: '',
+        label: '',
+    }
+    record = {
+        switch: false,
+        chls: [] as { value: string; label: string }[],
+    }
+    recordList = [] as string[]
+    snap = {
+        switch: false,
+        chls: [] as { value: string; label: string }[],
+    }
+    snapList = [] as string[]
+    sysAudio = ''
+    msgPush = ''
+    alarmOut = {
+        switch: false,
+        chls: [] as { value: string; label: string }[],
+    }
+    alarmOutList = [] as string[]
+    preset = {
+        switch: false,
+        presets: [] as { index: string; name: string; chl: { value: string; label: string } }[],
+    }
+    beeper = ''
+    videoPopup = ''
+    email = ''
+    oldSchedule = {
+        value: '',
+        label: '',
+    }
+
+    rowDisable = true
+}
+
+export class PresetItem {
+    index = ''
+    name = ''
+    chl = {
+        value: '',
+        label: '',
+    }
+}
+
+export class PresetList {
+    id = ''
+    name = ''
+    chlType = ''
+    preset = {
+        value: '',
+        label: '',
+    }
+    presetList = [] as SelectOption<string, string>[]
 }
 
 export class ipcAudioForm {
