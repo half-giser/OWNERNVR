@@ -506,23 +506,32 @@ input[type='number'] {
         .MacInput,
         .IpInput {
             width: var(--form-input-width);
-            flex-shrink: 0;
-            margin-right: 10px;
+            // flex-shrink: 0;
+            // margin-right: 10px;
+            & + * {
+                margin-left: 10px;
+            }
         }
 
-        .el-checkbox,
-        .el-button {
-            margin-right: 10px;
+        .el-checkbox {
+            & + * {
+                margin-left: 10px;
+            }
         }
+
+        // .el-checkbox,
+        // .el-button {
+        //     margin-right: 10px;
+        // }
 
         .el-checkbox {
             display: inline-flex;
             align-items: center;
         }
 
-        .el-button {
-            margin-left: 0;
-        }
+        // .el-button {
+        //     margin-left: 0;
+        // }
 
         .el-input-number {
             &.is-without-controls {

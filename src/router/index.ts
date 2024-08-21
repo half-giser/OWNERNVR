@@ -3,7 +3,7 @@
  * @Date: 2024-04-16 13:47:54
  * @Description: 路由构建入口文件
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-16 11:49:45
+ * @LastEditTime: 2024-08-19 20:58:49
  */
 import { createRouter, createWebHistory, type RouteLocationNormalized } from 'vue-router'
 import { buildRouter, setRouteAuth } from './featureConfig/RouteUtil'
@@ -13,7 +13,7 @@ import { root } from '@/router/featureConfig/RouteUtil'
 import { type RouteLocationMatched, type RouteLocationNormalizedLoaded } from 'vue-router'
 
 progress.configure({ showSpinner: false })
-progress.setColor('var(--c-brand)')
+progress.setColor('var(--primary--04)')
 
 //生成路由
 const routes = buildRouter()
