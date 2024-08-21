@@ -204,6 +204,20 @@ export const goToPtzPreset = (data: string) => http.fetch('goToPtzPreset', getXm
 export const delChlPreset = (data: string) => http.fetch('delChlPreset', getXmlWrapData(data))
 
 /**
+ * @description 编辑预置点
+ * @param {string} data
+ * @returns
+ */
+export const editChlPreset = (data: string) => http.fetch('editChlPreset', getXmlWrapData(data))
+
+/**
+ * @description 新增预置点
+ * @param {string} data
+ * @returns
+ */
+export const createChlPreset = (data: string) => http.fetch('createChlPreset', getXmlWrapData(data))
+
+/**
  * @description 编辑预置点位置
  * @param {string} data
  * @returns
@@ -230,6 +244,20 @@ export const delLocalChlPtzTrace = (data: string) => http.fetch('delLocalChlPtzT
  * @returns
  */
 export const deleteChlPtzTrace = (data: string) => http.fetch('deleteChlPtzTrace', getXmlWrapData(data))
+
+/**
+ * @description 编辑轨迹
+ * @param {string} data
+ * @returns
+ */
+export const editChlPtzTrace = (data: string) => http.fetch('editChlPtzTrace', getXmlWrapData(data))
+
+/**
+ * @description 创建轨迹
+ * @param {string} data
+ * @returns
+ */
+export const createChlPtzTrace = (data: string) => http.fetch('createChlPtzTrace', getXmlWrapData(data))
 
 /**
  * @description 查询鱼眼信息
