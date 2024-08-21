@@ -127,6 +127,27 @@ export const queryChlCruiseList = (data: string) => http.fetch('queryChlCruiseLi
 export const delChlCruise = (data: string) => http.fetch('delChlCruise', getXmlWrapData(data))
 
 /**
+ * @description 编辑巡航线
+ * @param {string} data
+ * @returns
+ */
+export const editChlCruise = (data: string) => http.fetch('editChlCruise', getXmlWrapData(data))
+
+/**
+ * @description 获取巡航先的预置点列表
+ * @param {string} data
+ * @returns
+ */
+export const queryChlCruise = (data: string) => http.fetch('queryChlCruise', getXmlWrapData(data))
+
+/**
+ * @description 创建巡航线
+ * @param {string} data
+ * @returns
+ */
+export const createChlCruise = (data: string) => http.fetch('createChlCruise', getXmlWrapData(data))
+
+/**
  * @description 播放巡航线组
  * @param {string} data
  * @returns
