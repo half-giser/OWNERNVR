@@ -3,7 +3,7 @@
  * @Date: 2024-08-10 16:25:58
  * @Description: AI/事件
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-15 11:44:45
+ * @LastEditTime: 2024-08-19 14:21:15
  */
 
 import { type AxiosRequestConfig } from 'axios'
@@ -38,3 +38,12 @@ export const testAlarmServerParam = (data: string) => http.fetch('testAlarmServe
 
 // 编辑报警服务器配置
 export const editAlarmServerParam = (data: string) => http.fetch('editAlarmServerParam', getXmlWrapData(data))
+
+// 查询移动侦测数据
+export const queryMotion = (data: string) => http.fetch('queryMotion', getXmlWrapData(data))
+
+// 查询音频列表
+export const queryAlarmAudioCfg = () => http.fetch('queryAlarmAudioCfg', getXmlWrapData(''))
+
+// 编辑移动侦测数据
+export const editMotion = (data: string) => http.fetch('editMotion', getXmlWrapData(data))

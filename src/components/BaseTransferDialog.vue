@@ -3,7 +3,7 @@
  * @Date: 2024-08-16 17:19:02
  * @Description: 穿梭框弹窗
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-19 10:12:28
+ * @LastEditTime: 2024-08-20 10:21:39
 -->
 <template>
     <el-dialog
@@ -11,16 +11,18 @@
         center
         width="615px"
         :title="Translate(props.headerTitle)"
+        @open="open"
     >
         <div class="PosTriggerChannel">
             <el-transfer
-                v-model="props.linkedList"
-                :data="props.sourceData"
+                v-model="chosedList"
+                :data="data"
                 :props="{
-                    key: 'id',
-                    label: 'text',
+                    key: 'value',
+                    label: 'label',
                 }"
                 :titles="[Translate(props.sourceTitle), Translate(props.targetTitle)]"
+                @change="change"
             />
         </div>
         <template #footer>
@@ -37,4 +39,4 @@
     </el-dialog>
 </template>
 
-<script lang="ts" src="./BaseTransferPop.v.ts"></script>
+<script lang="ts" src="./BaseTransferDialog.v.ts"></script>

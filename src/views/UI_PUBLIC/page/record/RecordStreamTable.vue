@@ -3,8 +3,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-07-31 10:29:37
  * @Description: 录像码流通用表格组件
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-14 14:36:17
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-08-19 16:18:20
 -->
 <template>
     <div>
@@ -498,6 +498,7 @@
                         ref="gopDropdownRef"
                         trigger="click"
                         :hide-on-click="false"
+                        placement="bottom-end"
                         class="gop_input"
                     >
                         <span class="el-dropdown-link">
