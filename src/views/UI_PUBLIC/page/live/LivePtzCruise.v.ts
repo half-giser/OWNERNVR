@@ -3,9 +3,15 @@
  * @Date: 2024-07-29 15:50:48
  * @Description: 现场预览-云台视图-巡航线
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 17:40:36
+ * @LastEditTime: 2024-08-21 18:12:05
  */
+import ChannelCruiseAddPop from '../channel/ChannelCruiseAddPop.vue'
+import { type ChannelPtzCruiseDto } from '@/types/apiType/channel'
+
 export default defineComponent({
+    components: {
+        ChannelCruiseAddPop,
+    },
     props: {
         /**
          * @property 通道ID
@@ -13,7 +19,6 @@ export default defineComponent({
         chlId: {
             type: String,
             required: true,
-            default: '',
         },
         /**
          * @property 通道名称
@@ -21,7 +26,6 @@ export default defineComponent({
         chlName: {
             type: String,
             required: true,
-            default: '',
         },
         /**
          * @property 是否可用
@@ -50,12 +54,14 @@ export default defineComponent({
         const pageData = ref({
             // 是否显示增加选航线弹窗
             isAddPop: false,
+            // 巡航线最大数量
+            maxCount: CRUISE_MAX_COUNT,
             // 当前选中的选航线项索引
             active: 0,
         })
 
         // 列表数据
-        const listData = ref<SelectOption<number, string>[]>([])
+        const listData = ref<ChannelPtzCruiseDto[]>([])
 
         /**
          * @description 获取列表数据
@@ -72,8 +78,8 @@ export default defineComponent({
             if ($('/response/status').text() === 'success' && chlId === prop.chlId) {
                 listData.value = $('/response/content/cruises/item').map((item) => {
                     return {
-                        label: item.text(),
-                        value: Number(item.attr('index')),
+                        name: item.text(),
+                        index: Number(item.attr('index')),
                     }
                 })
             }
@@ -164,9 +170,11 @@ export default defineComponent({
             }
             if (prop.chlId) {
                 const sendXml = rawXml`
-                    <chlId>${prop.chlId}</chlId>
-                    <index>${item.value.toString()}</index>
-                    <speed>${prop.speed.toString()}</speed>
+                    <content>
+                        <chlId>${prop.chlId}</chlId>
+                        <index>${item.index.toString()}</index>
+                        <speed>${prop.speed.toString()}</speed>
+                    </content>
                 `
                 runPtzCruise(sendXml)
             }
@@ -178,7 +186,9 @@ export default defineComponent({
         const stopCruise = () => {
             if (prop.chlId) {
                 const sendXml = rawXml`
-                    <chlId>${prop.chlId}</chlId>
+                    <content>
+                        <chlId>${prop.chlId}</chlId>
+                    </content>
                 `
                 stopPtzCruise(sendXml)
             }
@@ -205,6 +215,7 @@ export default defineComponent({
             addCruise,
             confirmAddCruise,
             playCurrentCruise,
+            ChannelCruiseAddPop,
         }
     },
 })
