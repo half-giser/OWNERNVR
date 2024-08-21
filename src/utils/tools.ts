@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2023-04-28 17:57:48
  * @Description: 工具方法
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-15 10:35:26
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-08-19 10:14:03
  */
 
 import { useUserSessionStore } from '@/stores/userSession'
@@ -875,4 +875,43 @@ export const getBitrateRange = (options: GetBitRateRangeOption) => {
     }
 
     return { min: min, max: max }
+}
+
+// 将IPC音频文件转换为base64-导入摄像机声音/本地音频使用
+export const fileToBase64 = (file: Blob, callback: Function) => {
+    const reader = new FileReader()
+    reader.onload = function (e) {
+        const data = (e.target?.result as string).split(',')
+        const base64 = data[1]
+        const base64Str = dataFormat(base64)
+        if (typeof callback === 'function') {
+            callback(base64Str)
+        }
+    }
+    reader.readAsDataURL(file)
+}
+
+// base64 每76位加一个换行
+export const dataFormat = (param: string) => {
+    let result = ''
+    for (let i = 0; i < param.length; i++) {
+        if (i != 0 && i % 76 == 0) {
+            result += '\r\n'
+        }
+        result += param[i]
+    }
+    return result
+}
+
+// 获取base64文件大小，返回MB数字
+export const base64FileSize = (base64url: string) => {
+    let str = base64url || ''
+    const equalIndex = str.indexOf('=')
+    if (str.indexOf('=') > 0) {
+        str = str.substring(0, equalIndex)
+    }
+    const strLength = str.length
+    const fileLength = strLength - (strLength / 8) * 2
+    // 返回单位为MB的大小
+    return (fileLength / (1024 * 1024)).toFixed(1)
 }
