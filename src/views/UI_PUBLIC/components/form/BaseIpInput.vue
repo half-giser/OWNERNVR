@@ -3,7 +3,7 @@
  * @Date: 2024-06-04 10:26:32
  * @Description: IPv4地址输入框
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-16 16:16:35
+ * @LastEditTime: 2024-08-20 09:44:16
 -->
 <template>
     <div
@@ -58,7 +58,7 @@ const isFocus = ref(0)
 const address = computed(() => {
     const split = prop.value.split('.')
     return IPV4_DFAULT_VALUE.map((item, index) => {
-        if (!split[index]) return item
+        if (!split[index]) return ''
         else return Number(split[index])
     })
 })
@@ -77,7 +77,7 @@ const getInputElement = (index: number) => {
  * @param {number} index
  */
 const updateValue = (value: number, index: number) => {
-    let current = value
+    let current: string | number = value
     if (prop.invalidateMode === 'PREVENT') {
         if (current > MAX_VALUE || current < MIN_VALUE) {
             current = address.value[index]
@@ -85,9 +85,22 @@ const updateValue = (value: number, index: number) => {
     } else if (prop.invalidateMode === 'REPLACE') {
         current = Math.min(MAX_VALUE, Math.max(MIN_VALUE, current))
     }
-    const split = [...address.value]
+
+    const split: (string | number)[] = [...address.value]
     split[index] = current
-    const join = split.join('.')
+
+    const filter = split.filter((i) => i === '')
+
+    let join = ''
+    if (filter.length < split.length) {
+        if (filter.length > 0) {
+            split.forEach((i, index) => {
+                if (i === '') split[index] = 0
+            })
+        }
+        join = split.join('.')
+    }
+
     emits('update:value', join)
     emits('change', join)
     return current
@@ -133,11 +146,11 @@ const handleKeyDown = (e: Event, index: number) => {
             break
         // 数值增加
         case 'ArrowUp':
-            updateValue(address.value[index] + 1, index)
+            updateValue(Number(address.value[index]) + 1, index)
             break
         // 数值减少
         case 'ArrowDown':
-            updateValue(address.value[index] - 1, index)
+            updateValue(Number(address.value[index]) - 1, index)
             break
         // 删除数值
         case 'Backspace':
@@ -146,7 +159,7 @@ const handleKeyDown = (e: Event, index: number) => {
         // 校验输入的数字合法性，合法则执行输入事件
         default:
             if (/[0-9]/.test(keyCode)) {
-                if (address.value[index] < 100 || isTextSelected(e.target as HTMLInputElement)) {
+                if (Number(address.value[index]) < 100 || isTextSelected(e.target as HTMLInputElement)) {
                     isPreventDefault = false
                 }
             }

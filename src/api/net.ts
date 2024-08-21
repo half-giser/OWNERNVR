@@ -3,7 +3,7 @@
  * @Date: 2024-06-11 20:22:27
  * @Description:
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-16 15:40:31
+ * @LastEditTime: 2024-08-19 19:25:06
  */
 import http, { getXmlWrapData } from './api'
 
@@ -13,8 +13,24 @@ import http, { getXmlWrapData } from './api'
  */
 export const queryNetStatus = () => http.fetch('queryNetStatus', getXmlWrapData(''))
 
-// queryNetCfgV2
+/**
+ * @description 获取网络配置
+ * @returns
+ */
 export const queryNetCfgV2 = () => http.fetch('queryNetCfgV2', getXmlWrapData(''))
+
+/**
+ * @description 获取网络配置
+ * @returns
+ */
+export const queryNetCfgV3 = () => http.fetch('queryNetCfgV3', getXmlWrapData(''))
+
+/**
+ * @description 更新网络配置
+ * @param {string} data
+ * @returns
+ */
+export const editNetCfgV3 = (data: string) => http.fetch('editNetCfgV3', getXmlWrapData(data))
 
 /**
  * @description 获取UPnP配置
@@ -152,24 +168,28 @@ export const getPackageDownloadStatus = () => http.fetch('getPackageDownloadStat
 
 /**
  * @description 编辑云更新配置
+ * @param {string} data
  * @returns
  */
 export const editCloudUpgradeCfg = (data: string) => http.fetch('editCloudUpgradeCfg', getXmlWrapData(data))
 
 /**
  * @description 检查版本
+ * @param {string} data
  * @returns
  */
 export const checkVersion = (data: string) => http.fetch('checkVersion', getXmlWrapData(data))
 
 /**
  * @description 检查版本
+ * @param {string} data
  * @returns
  */
 export const cloudUpgrade = (data: string) => http.fetch('cloudUpgrade', getXmlWrapData(data))
 
 /**
  * @description 获取P2P配置
+ * @param {string} data
  * @returns
  */
 export const queryP2PCfg = () => http.fetch('queryP2PCfg', getXmlWrapData(''))
@@ -183,6 +203,7 @@ export const editP2PCfg = (data: string) => http.fetch('editP2PCfg', getXmlWrapD
 
 /**
  * @description 获取证书配置
+ * @param {string} data
  * @returns
  */
 export const queryCert = () => http.fetch('queryCert', getXmlWrapData(''))
@@ -280,6 +301,7 @@ export const queryOnvifCfg = () => http.fetch('editNetworkNodeEncodeInfo', getXm
 
 /**
  * @description 修改OVNIF配置信息
+ * @param {string} data
  * @returns
  */
 export const editOnvifCfg = (data: string) => http.fetch('editOnvifCfg', getXmlWrapData(data))
@@ -292,12 +314,14 @@ export const queryOnvifUserList = () => http.fetch('queryOnvifUserList', getXmlW
 
 /**
  * @description 创建OVNIF用户
+ * @param {string} data
  * @returns
  */
 export const createOnvifUser = (data: string) => http.fetch('createOnvifUser', getXmlWrapData(data))
 
 /**
  * @description 编辑OVNIF用户
+ * @param {string} data
  * @returns
  */
 export const editOnvifUser = (data: string) => http.fetch('editOnvifUser', getXmlWrapData(data))

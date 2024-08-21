@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 13:43:11
  * @Description: 磁盘阵列
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 16:10:53
+ * @LastEditTime: 2024-08-19 20:49:32
  */
 
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
@@ -92,8 +92,6 @@ export default defineComponent({
                     task: '',
                 }
             })
-
-            tableData.value.push(new DiskRaidList())
 
             return hasRebuildArray
         }
