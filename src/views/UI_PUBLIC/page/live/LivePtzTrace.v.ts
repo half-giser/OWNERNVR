@@ -3,9 +3,15 @@
  * @Date: 2024-07-29 16:07:46
  * @Description: 现场预览-云台视图-轨迹
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 17:41:21
+ * @LastEditTime: 2024-08-21 11:44:02
  */
+import ChannelTraceAddPop from '../channel/ChannelTraceAddPop.vue'
+import { type ChannelPtzTraceDto } from '@/types/apiType/channel'
+
 export default defineComponent({
+    components: {
+        ChannelTraceAddPop,
+    },
     props: {
         /**
          * @property 通道ID
@@ -13,7 +19,13 @@ export default defineComponent({
         chlId: {
             type: String,
             required: true,
-            default: '',
+        },
+        /**
+         * @property 通道名称
+         */
+        chlName: {
+            type: String,
+            required: true,
         },
         /**
          * @property 是否可用
@@ -21,15 +33,13 @@ export default defineComponent({
         enabled: {
             type: Boolean,
             required: true,
-            default: false,
         },
         /**
-         * @property 当前选中的轨迹项索引
+         * @property 当前是否选中轨迹
          */
         active: {
             type: Boolean,
             required: true,
-            default: false,
         },
     },
     setup(prop) {
@@ -46,6 +56,7 @@ export default defineComponent({
         const pageData = ref({
             // 是否显示新增轨迹弹窗
             isAddPop: false,
+            maxCount: TRACE_MAX_COUNT,
             // 当前选中轨迹项索引
             active: 0,
             // 是否播放状态
@@ -61,7 +72,7 @@ export default defineComponent({
         let timer: NodeJS.Timeout | number = 0
 
         // 列表数据
-        const listData = ref<SelectOption<number, string>[]>([])
+        const listData = ref<ChannelPtzTraceDto[]>([])
 
         /**
          * @description 获取轨迹列表
@@ -76,10 +87,11 @@ export default defineComponent({
             const result = await queryLocalChlPtzTraceList(sendXml)
             const $ = queryXml(result)
             if ($('/response/status').text() === 'success' && chlId === prop.chlId) {
+                pageData.value.maxCount = Number($('/response/content/traces').attr('maxCount'))
                 listData.value = $('/response/content/traces/item').map((item) => {
                     return {
-                        label: item.text(),
-                        value: Number(item.attr('index')),
+                        name: item.text(),
+                        index: Number(item.attr('index')),
                     }
                 })
             }
@@ -92,7 +104,7 @@ export default defineComponent({
             if (!prop.enabled) {
                 return
             }
-            if (listData.value.length >= TRACE_MAX_COUNT) {
+            if (listData.value.length >= pageData.value.maxCount) {
                 openMessageTipBox({
                     type: 'info',
                     message: Translate('IDCS_OVER_MAX_NUMBER_LIMIT'),
@@ -133,8 +145,10 @@ export default defineComponent({
             }
             if (prop.chlId) {
                 const sendXml = rawXml`
-                    <chlId>${prop.chlId}</chlId>
-                    <index>${item.value.toString()}</index>
+                    <content>
+                        <chlId>${prop.chlId}</chlId>
+                        <index>${item.index.toString()}</index>
+                    </content>
                 `
                 await runChlPtzTrace(sendXml)
                 pageData.value.playStatus = true
@@ -147,7 +161,9 @@ export default defineComponent({
         const stopTrace = async () => {
             if (prop.chlId) {
                 const sendXml = rawXml`
-                    <chlId>${prop.chlId}</chlId>
+                    <content>
+                        <chlId>${prop.chlId}</chlId>
+                    </content>
                 `
                 await stopChlPtzTrace(sendXml)
                 pageData.value.playStatus = false
@@ -169,6 +185,7 @@ export default defineComponent({
                 message: Translate('IDCS_DELETE_MP_TRACE_S').formatForLang(Translate('IDCS_CHANNEL'), getShortString(name, 10)),
             }).then(async () => {
                 openLoading(LoadingTarget.FullScreen)
+                checkTraceRecord(prop.chlId)
 
                 const sendXml = rawXml`
                     <condition>
@@ -195,12 +212,12 @@ export default defineComponent({
                         openMessageTipBox({
                             type: 'success',
                             message: Translate('IDCS_DELETE_SUCCESS'),
-                        }).then(() => refresh())
+                        }).then(() => getList())
                     } else {
-                        refresh()
+                        getList()
                     }
                 } else {
-                    refresh()
+                    getList()
                 }
 
                 closeLoading(LoadingTarget.FullScreen)
@@ -215,14 +232,6 @@ export default defineComponent({
             pageData.value.recordTime = DEFAULT_RECORD_TIME
             clearInterval(timer)
             timer = 0
-        }
-
-        /**
-         * @description 刷新
-         */
-        const refresh = () => {
-            resetRecord()
-            getList()
         }
 
         /**
@@ -243,13 +252,16 @@ export default defineComponent({
                 return
             }
             if (prop.chlId) {
+                pageData.value.recordStatus = true
+
                 const sendXml = rawXml`
                     <content>
                         <chlId>${prop.chlId}</chlId>
-                        <index>${item.value.toString()}</index>
+                        <index>${item.index.toString()}</index>
                     </content>
                 `
                 await startChlPtzTrace(sendXml)
+
                 pageData.value.recordTime = DEFAULT_RECORD_TIME - 1
                 timer = setInterval(() => {
                     pageData.value.recordTime--
@@ -266,15 +278,15 @@ export default defineComponent({
          */
         const checkTraceRecord = async (chlId: string) => {
             const item = listData.value[pageData.value.active]
-            if (item && chlId) {
+            if (item && chlId && pageData.value.recordStatus) {
+                resetRecord()
                 const sendXml = rawXml`
                     <content>
                         <chlId>${prop.chlId}</chlId>
-                        <index>${item.value.toString()}</index>
+                        <index>${item.index.toString()}</index>
                     </content>
                 `
                 await cancelChlPtzTrace(sendXml)
-                resetRecord()
             }
         }
 
@@ -291,11 +303,13 @@ export default defineComponent({
             if (!item) {
                 return
             }
-            if (prop.chlId) {
+            if (prop.chlId && pageData.value.recordStatus) {
                 resetRecord()
                 const sendXml = rawXml`
-                    <chlId>${prop.chlId}</chlId>
-                    <index>${item.value.toString()}</index>
+                    <content>
+                        <chlId>${prop.chlId}</chlId>
+                        <index>${item.index.toString()}</index>
+                    </content>
                 `
                 await saveChlPtzTrace(sendXml)
             }
@@ -316,14 +330,14 @@ export default defineComponent({
             () => prop.chlId,
             (newVal, oldVal) => {
                 if (systemCaps.supportPtzGroupAndTrace) {
-                    if (newVal) {
-                        getList()
-                    }
                     if (pageData.value.recordTime !== DEFAULT_RECORD_TIME) {
                         // 切换通道时取消轨迹录制
                         if (oldVal) {
                             checkTraceRecord(oldVal)
                         }
+                    }
+                    if (newVal) {
+                        getList()
                     }
                 }
             },
@@ -344,6 +358,13 @@ export default defineComponent({
             },
         )
 
+        onBeforeUnmount(() => {
+            if (pageData.value.recordTime !== DEFAULT_RECORD_TIME) {
+                // 切换通道时取消轨迹录制
+                checkTraceRecord(prop.chlId)
+            }
+        })
+
         return {
             pageData,
             listData,
@@ -356,6 +377,7 @@ export default defineComponent({
             startRecord,
             stopRecord,
             changeActive,
+            ChannelTraceAddPop,
         }
     },
 })

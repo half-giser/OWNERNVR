@@ -285,6 +285,7 @@ declare module 'vue' {
         BaseSensitiveTextInput: (typeof import('@/views/UI_PUBLIC/components/form/BaseSensitiveTextInput.vue'))['default']
         BaseScheduleLine: (typeof import('@/components/BaseScheduleLine.vue'))['default']
         BaseScheduleWeek: (typeof import('@/components/BaseScheduleWeek.vue'))['default']
+        BaseNotification: (typeof import('@/components/BaseNotification.vue'))['default']
     }
 }
 

@@ -3,101 +3,123 @@
  * @Date: 2024-07-19 18:42:03
  * @Description: 现场预览-云台视图-轨迹
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 16:30:02
+ * @LastEditTime: 2024-08-21 11:47:27
 -->
 <template>
     <div class="ptz-trace">
-        <el-text v-show="pageData.recordTime < pageData.maxRecordTime && pageData.recordTime >= 0">{{ pageData.recordTime }} s</el-text>
         <BaseListBox class="ptz-trace-content">
             <BaseListBoxItem
                 v-for="(item, index) in listData"
-                :key="item.value"
+                :key="item.index"
                 :class="{
                     active: pageData.active === index,
                 }"
                 @click="changeActive(index)"
                 @dblclick="playCurrentTrace(index)"
             >
-                <span class="ptz-trace-text">{{ item.label }}</span>
-                <BaseImgSprite
-                    file="delete (2)"
-                    :index="1"
-                    :disabled-index="1"
-                    :chunk="2"
-                    :disabled="!enabled"
-                    @click.stop="deleteTrace(item.value, item.label)"
-                />
+                <span class="ptz-trace-text">{{ item.name }}</span>
+                <el-tooltip
+                    :content="Translate('IDCS_DELETE')"
+                    :show-after="500"
+                >
+                    <BaseImgSprite
+                        file="delete (2)"
+                        :index="0"
+                        :disabled-index="1"
+                        :chunk="2"
+                        :disabled="!enabled"
+                        @click.stop="deleteTrace(item.index, item.name)"
+                    />
+                </el-tooltip>
             </BaseListBoxItem>
         </BaseListBox>
         <div class="ptz-trace-btns">
-            <el-tooltip
-                :content="Translate('IDCS_ADD')"
-                :show-after="500"
-            >
-                <BaseImgSprite
-                    file="preset_Add"
-                    :index="0"
-                    :hover-index="1"
-                    :chunk="4"
-                />
-            </el-tooltip>
-            <el-tooltip
-                :content="Translate('IDCS_TRACK_PLAY')"
-                :show-after="500"
-            >
-                <BaseImgSprite
-                    v-show="!pageData.playStatus"
-                    file="start_cruise"
-                    :index="0"
-                    :hover-index="1"
-                    :chunk="4"
-                    @click="playTrace"
-                />
-            </el-tooltip>
-            <el-tooltip
-                :content="Translate('IDCS_TRACK_STOP')"
-                :show-after="500"
-            >
-                <BaseImgSprite
-                    v-show="pageData.playStatus"
-                    file="stop_cruise"
-                    :index="0"
-                    :hover-index="1"
-                    :chunk="4"
-                    @click="stopTrace"
-                />
-            </el-tooltip>
-            <el-tooltip
-                :content="Translate('IDCS_START_RECORD')"
-                :show-after="500"
-            >
-                <BaseImgSprite
-                    v-show="!pageData.recordStatus"
-                    file="noRecord"
-                    :index="0"
-                    :hover-index="1"
-                    :chunk="4"
-                    :disabled-index="0"
-                    :disabled="!enabled"
-                    @click="startRecord"
-                />
-            </el-tooltip>
-            <el-tooltip
-                :content="Translate('IDCS_STOP_RECORD')"
-                :show-after="500"
-            >
-                <BaseImgSprite
-                    v-show="pageData.recordStatus"
-                    file="record"
-                    :index="0"
-                    :hover-index="1"
-                    :chunk="4"
-                    :disabled-index="0"
-                    :disabled="!enabled"
-                    @click="stopRecord"
-                />
-            </el-tooltip>
+            <div>
+                <el-text
+                    v-show="pageData.recordTime < pageData.maxRecordTime && pageData.recordTime >= 0"
+                    class="seconds"
+                    >{{ pageData.recordTime }} s</el-text
+                >
+            </div>
+            <div>
+                <el-tooltip
+                    :content="Translate('IDCS_ADD')"
+                    :show-after="500"
+                >
+                    <BaseImgSprite
+                        file="preset_Add"
+                        :index="0"
+                        :hover-index="1"
+                        :chunk="4"
+                        @click="addTrace"
+                    />
+                </el-tooltip>
+                <el-tooltip
+                    :content="Translate('IDCS_TRACK_PLAY')"
+                    :show-after="500"
+                >
+                    <BaseImgSprite
+                        v-show="!pageData.playStatus"
+                        file="start_cruise"
+                        :index="0"
+                        :hover-index="1"
+                        :chunk="4"
+                        @click="playTrace"
+                    />
+                </el-tooltip>
+                <el-tooltip
+                    :content="Translate('IDCS_TRACK_STOP')"
+                    :show-after="500"
+                >
+                    <BaseImgSprite
+                        v-show="pageData.playStatus"
+                        file="stop_cruise"
+                        :index="0"
+                        :hover-index="1"
+                        :chunk="4"
+                        @click="stopTrace"
+                    />
+                </el-tooltip>
+                <el-tooltip
+                    :content="Translate('IDCS_START_RECORD')"
+                    :show-after="500"
+                >
+                    <BaseImgSprite
+                        v-show="!pageData.recordStatus"
+                        file="noRecord"
+                        :index="0"
+                        :hover-index="1"
+                        :chunk="4"
+                        :disabled-index="3"
+                        :disabled="!enabled"
+                        @click="startRecord"
+                    />
+                </el-tooltip>
+                <el-tooltip
+                    :content="Translate('IDCS_STOP_RECORD')"
+                    :show-after="500"
+                >
+                    <BaseImgSprite
+                        v-show="pageData.recordStatus"
+                        file="record"
+                        :index="0"
+                        :hover-index="1"
+                        :chunk="4"
+                        :disabled-index="3"
+                        :disabled="!enabled"
+                        @click="stopRecord(pageData.active)"
+                    />
+                </el-tooltip>
+            </div>
         </div>
+        <ChannelTraceAddPop
+            v-model="pageData.isAddPop"
+            :max="pageData.maxCount"
+            :trace="listData"
+            :chl-id="chlId"
+            @confirm="confirmAddTrace"
+            @close="pageData.isAddPop = false"
+        />
     </div>
 </template>
 
@@ -117,7 +139,7 @@
 
     &-btns {
         display: flex;
-        justify-content: flex-end;
+        justify-content: space-between;
         flex-shrink: 0;
         width: 90%;
         margin: 0 5%;
@@ -126,12 +148,19 @@
         span {
             margin-left: 5px;
         }
+        & > div:last-child {
+            display: flex;
+            justify-content: flex-end;
+        }
     }
 
     &-text {
-        width: 80%;
-        flex-shrink: 0;
+        width: 100%;
         height: 100%;
+    }
+
+    .seconds {
+        color: var(--primary--04);
     }
 }
 </style>

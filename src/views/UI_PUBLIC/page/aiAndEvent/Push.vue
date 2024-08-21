@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-12 15:28:05
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-12 17:10:18
+ * @LastEditTime: 2024-08-19 10:14:26
 -->
 <template>
     <el-form
@@ -51,8 +51,7 @@
     <ScheduleManagPop
         v-model="pageData.scheduleManagPopOpen"
         @close="pageData.scheduleManagPopOpen = false"
-    >
-    </ScheduleManagPop>
+    />
 </template>
 
 <script lang="ts" src="./Push.v.ts"></script>

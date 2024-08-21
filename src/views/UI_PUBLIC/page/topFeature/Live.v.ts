@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 18:07:29
  * @Description: 现场预览
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-14 17:58:56
+ * @LastEditTime: 2024-08-20 14:37:46
  */
 import { cloneDeep } from 'lodash-es'
 import { type LiveChannelList, type LiveCustomViewChlList, LiveSharedWinData } from '@/types/apiType/live'
@@ -1650,8 +1650,6 @@ export default defineComponent({
                 }
 
                 plugin.VideoPluginNotifyEmitter.removeListener(notify)
-
-                console.log('live unmounted')
             }
         })
 

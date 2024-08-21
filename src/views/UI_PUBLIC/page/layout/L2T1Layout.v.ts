@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 二级类型1布局页--适用于所有配置页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 17:05:11
+ * @LastEditTime: 2024-08-19 20:45:08
  */
 
 import { type RouteRecordRaw } from 'vue-router'
@@ -35,6 +35,8 @@ export default defineComponent({
 
         //生成面包屑导航条
         const getBreadCrumb = () => {
+            navList.value = []
+
             const routes = router.getRoutes()
             navList.value.push(getMenuItem(routes.find((o) => o.name === 'functionPanel') as any as RouteRecordRawExtends))
 
@@ -85,6 +87,13 @@ export default defineComponent({
         const handleToolBarEvent = (toolBarEvent: ConfigToolBarEvent<any>) => {
             chilComponent.value?.handleToolBarEvent(toolBarEvent)
         }
+
+        watch(
+            () => route.path,
+            () => {
+                getBreadCrumb()
+            },
+        )
 
         return {
             route,

@@ -151,3 +151,76 @@ export class PresetList {
     }
     presetList = [] as SelectOption<string, string>[]
 }
+
+export class ipcAudioForm {
+    ipcRadio = 'audioAlarm' // 摄像机选择项——语音播报/声音设备
+
+    // 语音播报
+    audioChl = '' // 通道
+    audioChecked = false // 声音是否启用
+    voice = '' // 语音
+    number = '' // 次数
+    volume = '' // 音量
+    language = '' // 语言
+
+    // 声音设备
+    deviceChl = '' // 通道
+    deviceEnable = false // 声音设备
+    deviceAudioInput = '' // 音频输入设备
+    micOrLinVolume = 0 // 音频输入音量
+    loudSpeaker = '' // 扬声器（内置）
+    deviceAudioOutput = '' // LOUT（外置）
+    outputVolume = 0 // 音频输出音量
+    audioEncode = '' // 音频输入编码
+}
+
+export class AudioAlarmOut {
+    successFlag = false
+    editFlag = false
+    id = ''
+    name = ''
+    audioTypeList = [] as SelectOption<string, string>[]
+    customeAudioNum = 0
+    langArr = [] as SelectOption<string, string>[]
+    audioSwitch = ''
+    audioType = ''
+    alarmTimes = ''
+    audioVolume = ''
+    languageType = ''
+    audioFormat = ''
+    sampleRate = ''
+    audioChannel = ''
+    audioDepth = ''
+    audioFileLimitSize = ''
+}
+
+export class AudioDevice {
+    successFlag = false
+    editFlag = false
+    id = ''
+    name = ''
+    audioEncodeType = [] as SelectOption<string, string>[]
+    audioInputType = [] as SelectOption<string, string>[]
+    audioOutputType = [] as SelectOption<string, string>[]
+    audioInSwitch = ''
+    audioEncode = ''
+    audioInput = ''
+    loudSpeaker = ''
+    audioOutput = ''
+    micInVolume = 0
+    linInVolume = 0
+    audioOutVolume = 0
+    micMaxValue = 100
+    linMaxValue = 100
+    audioOutMaxValue = 100
+    micOrLinEnabled = false
+    audioOutEnabled = false
+}
+
+export class LocalTableRow {
+    id = ''
+    index = ''
+    name = ''
+    originalName = ''
+    fileValid = ''
+}

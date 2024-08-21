@@ -3,7 +3,7 @@
  * @Date: 2024-08-10 16:25:58
  * @Description: AI/事件
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-19 14:21:15
+ * @LastEditTime: 2024-08-21 15:17:12
  */
 
 import { type AxiosRequestConfig } from 'axios'
@@ -42,8 +42,35 @@ export const editAlarmServerParam = (data: string) => http.fetch('editAlarmServe
 // 查询移动侦测数据
 export const queryMotion = (data: string) => http.fetch('queryMotion', getXmlWrapData(data))
 
-// 查询音频列表
-export const queryAlarmAudioCfg = () => http.fetch('queryAlarmAudioCfg', getXmlWrapData(''))
-
 // 编辑移动侦测数据
 export const editMotion = (data: string) => http.fetch('editMotion', getXmlWrapData(data))
+
+// 获取语音播报相关参数
+export const queryAudioAlarmOutCfg = (data: string) => http.fetch('queryAudioAlarmOutCfg', getXmlWrapData(data))
+
+// 添加语音播报语音信息
+export const addCustomizeAudioAlarm = (data: string) => http.fetch('addCustomizeAudioAlarm', getXmlWrapData(data))
+
+// 删除语音播报语音信息
+export const deleteCustomizeAudioAlarm = (data: string) => http.fetch('deleteCustomizeAudioAlarm', getXmlWrapData(data))
+
+// 语音播报语音试听
+export const auditionCustomizeAudioAlarm = (data: string) => http.fetch('auditionCustomizeAudioAlarm', getXmlWrapData(data))
+
+// 修改语音播报信息
+export const editAudioAlarmOutCfg = (data: string) => http.fetch('editAudioAlarmOutCfg', getXmlWrapData(data))
+
+// 获取声音设备相关参数
+export const queryAudioStreamConfig = (data: string) => http.fetch('queryAudioStreamConfig', getXmlWrapData(data))
+
+// 修改声音设备信息
+export const editAudioStreamConfig = (data: string) => http.fetch('editAudioStreamConfig', getXmlWrapData(data))
+
+// 获取本地声音报警的文件列表数据
+export const queryAlarmAudioCfg = () => http.fetch('queryAlarmAudioCfg', getXmlWrapData(''))
+
+// 添加本地声音报警文件
+export const addAlarmAudioCfg = (data: string) => http.fetch('addAlarmAudioCfg', getXmlWrapData(data))
+
+// 删除本地声音报警文件
+export const deleteAlarmAudio = (data: string) => http.fetch('deleteAlarmAudio', getXmlWrapData(data))

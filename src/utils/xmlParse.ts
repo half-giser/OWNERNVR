@@ -2,8 +2,8 @@
  * @Author: xujp xujp@tvt.net.cn
  * @Date: 2023-04-28 14:36:40
  * @Description:解析xml下指定路径的标签文本和属性
- * @LastEditors: tengxiang tengxiang@tvt.net.cn
- * @LastEditTime: 2024-07-26 14:08:04
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-08-19 19:47:37
  */
 
 /*
@@ -24,6 +24,7 @@ export interface XmlResult extends Array<XmlElement> {
 export type XMLQuery = ReturnType<typeof queryXml>
 
 const eva = new XPathEvaluator()
+const parser = new DOMParser()
 
 /**
  * @description: xml文档解析
@@ -151,8 +152,28 @@ export const compressXml = (xml: string) => {
 }
 
 /**
- * @description
+ * @description 检测XML字符串是否合法
+ * @param {string} xml
+ * @returns {Boolean}
+ */
+export const checkXml = (xml: string) => {
+    const xmlDoc = parser.parseFromString(xml, 'text/xml')
+    if (xmlDoc.getElementsByTagName('parsererror')) {
+        console.error(xmlDoc)
+        return false
+    }
+    return true
+}
+
+/**
+ * @description 模版字符串函数，用于标识XML模版字符串，可（1）检测XML字符串合法性；（2）编译时进行压缩
  * @param
  * @return {string}
  */
-export const rawXml = (strings: TemplateStringsArray, ...values: string[]) => String.raw({ raw: strings }, ...(values || []))
+export const rawXml = (strings: TemplateStringsArray, ...values: string[]) => {
+    // const result = String.raw({ raw: strings }, ...(values || []))
+    // if (import.meta.env.NODE_ENV === 'development') {
+    //     checkXml(result)
+    // }
+    return String.raw({ raw: strings }, ...(values || []))
+}

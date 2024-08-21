@@ -3,7 +3,7 @@
  * @Date: 2024-07-11 19:59:06
  * @Description: 配置全局组件
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 11:32:09
+ * @LastEditTime: 2024-08-20 14:24:08
  */
 
 import BaseImgSprite from '@/views/UI_PUBLIC/components/sprite/BaseImgSprite.vue'
@@ -14,6 +14,7 @@ import BaseMacInput from '@/views/UI_PUBLIC/components/form/BaseMacInput.vue'
 import BasePasswordStrength from '@/views/UI_PUBLIC/components/form/BasePasswordStrength.vue'
 import BaseSensitiveEmailInput from '@/views/UI_PUBLIC/components/form/BaseSensitiveEmailInput.vue'
 import BaseSensitiveTextInput from '@/views/UI_PUBLIC/components/form/BaseSensitiveTextInput.vue'
+import BaseNotification from '@/views/UI_PUBLIC/components/BaseNotification.vue'
 import type { App } from 'vue'
 
 export default {
@@ -26,5 +27,6 @@ export default {
         app.component('BasePasswordStrength', BasePasswordStrength)
         app.component('BaseSensitiveEmailInput', BaseSensitiveEmailInput)
         app.component('BaseSensitiveTextInput', BaseSensitiveTextInput)
+        app.component('BaseNotification', BaseNotification)
     },
 }
