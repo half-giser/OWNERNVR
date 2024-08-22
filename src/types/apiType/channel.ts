@@ -488,10 +488,8 @@ export class ChannelPtzCruiseChlDto {
 
 export class ChannelPtzCruiseDto extends ChannelPtzPresetDto {}
 
-export class ChannelPtzCruisePresetDto {
+export class ChannelPtzCruisePresetDto extends ChannelPtzPresetDto {
     id = 0
-    index = 0
-    name = ''
     speed = 5
     holdTime = 5
 }
@@ -500,4 +498,39 @@ export class ChannelPtzCruisePresetForm {
     name = ''
     speed = 5
     holdTime = 5
+}
+
+export class ChannelPtzCruiseGroupChlDto {
+    chlId = ''
+    chlName = ''
+    cruiseCount = 0
+    maxCount = Infinity
+    cruise = [] as ChannelPtzCruiseGroupCruiseDto[]
+}
+
+export class ChannelPtzCruiseGroupCruiseDto extends ChannelPtzPresetDto {
+    id = 0
+}
+
+export class ChannelPtzTaskChlDto {
+    chlId = ''
+    chlName = ''
+    taskItemCount = 0
+}
+
+export class ChannelPtzTaskDto {
+    index = 0
+    enable = ''
+    startTime = ''
+    endTime = ''
+    type = ''
+    name = ''
+    editIndex = ''
+}
+
+export class ChannelPtzTaskForm {
+    startTime = '00:00'
+    endTime = '00:00'
+    name = 'No'
+    type = 'NON'
 }

@@ -3,7 +3,7 @@
  * @Date: 2024-08-21 13:35:06
  * @Description: 云台-巡航线
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-21 17:51:03
+ * @LastEditTime: 2024-08-22 19:31:29
 -->
 <template>
     <div class="cruise">
@@ -215,30 +215,15 @@
                     </el-table-column>
                     <el-table-column type="expand">
                         <template #default="scope">
-                            <div class="expand">
-                                <div
+                            <ChannelPtzTableExpandPanel @add="addCruise(scope.$index)">
+                                <ChannelPtzTableExpandItem
                                     v-for="(item, index) in scope.row.cruise"
                                     :key="item.index"
-                                    class="expand-item"
-                                >
-                                    <BaseImgSprite file="cruise" />
-                                    <span>{{ item.index }}. {{ item.name }}</span>
-                                    <BaseImgSprite
-                                        file="delItem"
-                                        class="expand-del"
-                                        @click="deleteCruise(scope.$index, index)"
-                                    />
-                                </div>
-                                <BaseImgSprite
-                                    class="expand-add"
-                                    file="addItem"
-                                    :index="0"
-                                    :disabled-index="1"
-                                    :disabled="scope.row.cruise.length >= scope.row.maxCount"
-                                    :chunk="2"
-                                    @click="addCruise(scope.$index)"
+                                    :text="`${item.index}. ${item.name}`"
+                                    file="cruise"
+                                    @delete="deleteCruise(scope.$index, index)"
                                 />
-                            </div>
+                            </ChannelPtzTableExpandPanel>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -313,32 +298,5 @@
     width: 100%;
     height: 100%;
     margin-left: 10px;
-}
-
-.expand {
-    display: flex;
-    flex-wrap: wrap;
-    padding: 15px;
-
-    &-item {
-        width: 200px;
-        padding-bottom: 15px;
-
-        &:hover {
-            .expand-del {
-                opacity: 1;
-            }
-        }
-    }
-
-    &-del {
-        opacity: 0;
-        cursor: pointer;
-        margin-left: 5px;
-    }
-
-    &-add {
-        cursor: pointer;
-    }
 }
 </style>

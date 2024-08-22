@@ -3,17 +3,21 @@
  * @Date: 2024-08-21 17:50:00
  * @Description: 云台-巡航线
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-21 17:50:12
+ * @LastEditTime: 2024-08-22 19:28:56
  */
 import { type TableInstance } from 'element-plus'
 import { type ChannelPtzCruiseChlDto, ChannelPtzCruiseDto, type ChannelPtzCruisePresetDto } from '@/types/apiType/channel'
 import ChannelCruiseAddPop from './ChannelCruiseAddPop.vue'
 import ChannelCruiseEditPresetPop from './ChannelCruiseEditPresetPop.vue'
+import ChannelPtzTableExpandPanel from './ChannelPtzTableExpandPanel.vue'
+import ChannelPtzTableExpandItem from './ChannelPtzTableExpandItem.vue'
 
 export default defineComponent({
     components: {
         ChannelCruiseAddPop,
         ChannelCruiseEditPresetPop,
+        ChannelPtzTableExpandPanel,
+        ChannelPtzTableExpandItem,
     },
     setup() {
         const { Translate } = useLangStore()
@@ -21,7 +25,7 @@ export default defineComponent({
         const { openMessageTipBox } = useMessageBox()
         const playerRef = ref<PlayerInstance>()
         const pluginStore = usePluginStore()
-        const auth = useUserChlAuth()
+        const auth = useUserChlAuth(false)
 
         // 最大巡航线数量
         const CRUISE_MAX_COUNT = 8
@@ -353,10 +357,7 @@ export default defineComponent({
          */
         const confirmAddCruise = () => {
             pageData.value.isAddPop = false
-            const findIndex = tableData.value.findIndex((item) => item.chlId === pageData.value.addChlId)
-            if (findIndex > -1) {
-                getCruise(tableData.value[findIndex].chlId)
-            }
+            getCruise(pageData.value.addChlId)
         }
 
         /**
@@ -600,18 +601,14 @@ export default defineComponent({
             }
         })
 
-        const stopWatchAuth = watch(
-            auth,
-            async () => {
-                stopWatchAuth()
-                await getData()
+        onMounted(async () => {
+            await auth.value.update()
+            await getData()
+            if (tableData.value.length) {
                 tableRef.value?.setCurrentRow(tableData.value[pageData.value.tableIndex])
                 getCruise(tableData.value[pageData.value.tableIndex].chlId)
-            },
-            {
-                deep: true,
-            },
-        )
+            }
+        })
 
         onBeforeUnmount(() => {
             if (plugin?.IsPluginAvailable() && mode.value === 'ocx' && ready.value) {
@@ -651,6 +648,8 @@ export default defineComponent({
             formatInputMaxLength,
             ChannelCruiseAddPop,
             ChannelCruiseEditPresetPop,
+            ChannelPtzTableExpandPanel,
+            ChannelPtzTableExpandItem,
         }
     },
 })

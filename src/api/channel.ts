@@ -281,6 +281,27 @@ export const editChlPtzTrace = (data: string) => http.fetch('editChlPtzTrace', g
 export const createChlPtzTrace = (data: string) => http.fetch('createChlPtzTrace', getXmlWrapData(data))
 
 /**
+ * @description 获取云台任务列表
+ * @param {string} data
+ * @returns
+ */
+export const queryLocalChlPtzTask = (data: string) => http.fetch('queryLocalChlPtzTask', getXmlWrapData(data))
+
+/**
+ * @description 编辑云台任务列表
+ * @param {string} data
+ * @returns
+ */
+export const editChlPtzTask = (data: string) => http.fetch('editChlPtzTask', getXmlWrapData(data))
+
+/**
+ * @description 编辑云台任务状态
+ * @param {string} data
+ * @returns
+ */
+export const setChlPtzTaskStatus = (data: string) => http.fetch('setChlPtzTaskStatus', getXmlWrapData(data))
+
+/**
  * @description 查询鱼眼信息
  * @param {string} data
  * @returns
