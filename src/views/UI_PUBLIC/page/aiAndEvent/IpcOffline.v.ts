@@ -1,15 +1,14 @@
 /*
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @Date: 2024-08-16 18:13:56
- * @Description:
+ * @Date: 2024-08-21 15:34:24
+ * @Description: 前端掉线
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-22 12:04:07
+ * @LastEditTime: 2024-08-22 12:37:19
  */
 import { cloneDeep } from 'lodash'
 import { defineComponent } from 'vue'
 import { ArrowDown } from '@element-plus/icons-vue'
 import { useLangStore } from '@/stores/lang'
-// import useLoading from '@/hooks/useLoading'
 import { buildScheduleList } from '@/utils/tools'
 import { tableRowStatus, tableRowStatusToolTip } from '@/utils/const/other'
 import BaseTransferPop from '@/components/BaseTransferPop.vue'
@@ -17,7 +16,6 @@ import BaseTransferDialog from '@/components/BaseTransferDialog.vue'
 import { MotionEventConfig, type PresetItem } from '@/types/apiType/aiAndEvent'
 import { errorCodeMap } from '@/utils/constants'
 import SetPresetPop from './SetPresetPop.vue'
-// import { type ElDropdown } from 'element-plus'
 export default defineComponent({
     components: {
         ArrowDown,
@@ -29,22 +27,17 @@ export default defineComponent({
         const chosedList = ref<any[]>([])
         const { Translate } = useLangStore()
         const tableData = ref<MotionEventConfig[]>([])
-        const recordRef = ref()
         const snapRef = ref()
         const alarmOutRef = ref()
         const presetRef = ref()
 
         // ;(snapRef.value as InstanceType<typeof ElDropdown>).handleOpen()
         // ;(alarmOutRef.value as InstanceType<typeof ElDropdown>).handleOpen()
-        // ;(recordRef.value as InstanceType<typeof ElDropdown>).handleOpen()
         const { LoadingTarget, openLoading, closeLoading } = useLoading()
         const scheduleList = buildScheduleList()
         const systemCaps = useCababilityStore()
-        const userSession = useUserSessionStore()
-        const router = useRouter()
         const openMessageTipBox = useMessageBox().openMessageTipBox
         const pageData = ref({
-            initComplated: false,
             pageIndex: 1,
             pageSize: 10,
             totalCount: 0,
@@ -55,23 +48,12 @@ export default defineComponent({
             ],
             defaultAudioId: '{00000000-0000-0000-0000-000000000000}',
             supportAudio: false,
+            // TODO 未传值
+            supportFTP: false,
             scheduleList: [] as [] as SelectOption<string, string>[],
             audioList: [] as { value: string; label: string }[],
             // 打开穿梭框时选择行的索引
             triggerDialogIndex: 0,
-
-            // record穿梭框数据源
-            recordList: [] as { value: string; label: string }[],
-            recordHeaderTitle: 'IDCS_TRIGGER_CHANNEL_RECORD',
-            recordSourceTitle: 'IDCS_CHANNEL',
-            recordTargetTitle: 'IDCS_CHANNEL_TRGGER',
-            // 表头选中id
-            recordChosedIdsAll: [] as string[],
-            // 表头选中的数据
-            recordChosedListAll: [] as { value: string; label: string }[],
-            recordIsShowAll: false,
-            recordIsShow: false,
-            recordType: 'record',
 
             // snap穿梭框数据源
             snapList: [] as { value: string; label: string }[],
@@ -87,7 +69,7 @@ export default defineComponent({
             snapType: 'snap',
 
             // alarmOut穿梭框数据源
-            alarmOutList: [] as { value: string; label: string }[],
+            alarmOutList: [] as { value: string; label: string; device: { value: string; label: string } }[],
             alarmOutHeaderTitle: 'IDCS_TRIGGER_ALARM_OUT',
             alarmOutSourceTitle: 'IDCS_ALARM_OUT',
             alarmOutTargetTitle: 'IDCS_TRIGGER_ALARM_OUT',
@@ -99,28 +81,21 @@ export default defineComponent({
             alarmOutIsShow: false,
             alarmOutType: 'alarmOut',
 
-            // preset数据源
-            // presetList: [] as { index: string; name: string; chl: { value: string; label: string } }[],
             presetList: [] as any[],
             filterChlIds: [] as string[],
             isPresetPopOpen: false,
             presetChlId: '',
             presetLinkedList: [] as PresetItem[],
 
+            videoPopupList: [] as { value: string; label: string }[],
+
             // disable
             applyDisable: true,
             editRows: [] as MotionEventConfig[],
         })
-        const getScheduleList = async () => {
-            pageData.value.scheduleList = await buildScheduleList()
-            pageData.value.scheduleList.forEach((item) => {
-                if (item.value == '') {
-                    item.value = ' '
-                }
-            })
-        }
         const getAudioList = async () => {
             pageData.value.supportAudio = systemCaps.supportAlarmAudioConfig
+            // pageData.value.supportAudio = true
             if (pageData.value.supportAudio == true) {
                 queryAlarmAudioCfg().then(async (res: any) => {
                     pageData.value.audioList = []
@@ -137,23 +112,6 @@ export default defineComponent({
                     }
                 })
             }
-        }
-        const getRecordList = async () => {
-            getChlList({
-                nodeType: 'chls',
-                isSupportSnap: false,
-            }).then(async (res: any) => {
-                res = queryXml(res)
-                if (res('status').text() == 'success') {
-                    res('//content/item').forEach((item: any) => {
-                        const $item = queryXml(item.element)
-                        pageData.value.recordList.push({
-                            value: item.attr('id'),
-                            label: $item('name').text(),
-                        })
-                    })
-                }
-            })
         }
         const getSnapList = async () => {
             getChlList({
@@ -184,31 +142,74 @@ export default defineComponent({
                         pageData.value.alarmOutList.push({
                             value: item.attr('id'),
                             label: $item('name').text(),
+                            device: {
+                                value: $item('device').attr('id'),
+                                label: $item('device').text(),
+                            },
+                        })
+                    })
+                }
+            })
+        }
+        const getSnapListSingle = function (row: MotionEventConfig) {
+            return pageData.value.snapList.filter((item) => {
+                return item.value != row.id
+            })
+        }
+        const getAlarmOutListSingle = function (row: MotionEventConfig) {
+            return pageData.value.alarmOutList.filter((item) => {
+                return item.device.value != row.id
+            })
+        }
+        const getVideoPopupList = async () => {
+            pageData.value.videoPopupList.push({ value: ' ', label: Translate('IDCS_OFF') })
+            getChlList({
+                nodeType: 'chls',
+            }).then(async (res: any) => {
+                res = queryXml(res)
+                if (res('status').text() == 'success') {
+                    res('//content/item').forEach((item: any) => {
+                        const $item = queryXml(item.element)
+                        pageData.value.videoPopupList.push({
+                            value: item.attr('id'),
+                            label: $item('name').text(),
                         })
                     })
                 }
             })
         }
         const buildTableData = function () {
-            pageData.value.initComplated = false
             tableData.value.length = 0
             openLoading(LoadingTarget.FullScreen)
-            getChlList({
-                pageIndex: pageData.value.pageIndex,
-                pageSize: pageData.value.pageSize,
-                isSupportMotion: true,
-            }).then(async (res: any) => {
+            const xml = `<types>
+                            <nodeType>
+                                <enum>chls</enum>
+                                <enum>sensors</enum>
+                                <enum>alarmOuts</enum>
+                            </nodeType>
+                            <chlType>
+                                <enum>analog</enum>
+                                <enum>digital</enum>
+                                <enum>all</enum>
+                            </chlType>
+                        </types>
+                        <pageIndex>${pageData.value.pageIndex}</pageIndex>
+                        <pageSize>${pageData.value.pageSize}</pageSize>
+                        <nodeType type="nodeType">chls</nodeType>
+                        <requireField>
+                            <name/>
+                        </requireField>
+                        <condition>
+                            <chlType type="chlType">digital</chlType>
+                        </condition>`
+            queryNodeList(getXmlWrapData(xml)).then(async (res: any) => {
                 const $chl = queryXml(res)
                 pageData.value.totalCount = Number($chl('//content').attr('total'))
                 $chl('//content/item').forEach(async (item) => {
                     const $ele = queryXml(item.element)
                     const row = new MotionEventConfig()
                     row.id = item.attr('id')!
-                    row.addType = $ele('addType').text()
-                    row.chlType = $ele('chlType').text()
                     row.name = $ele('name').text()
-                    row.poeIndex = $ele('poeIndex').text()
-                    row.productModel = { value: $ele('productModel').text(), factoryName: $ele('productModel').attr('factoryName') }
                     row.status = tableRowStatus.loading
                     tableData.value.push(row)
                 })
@@ -217,34 +218,15 @@ export default defineComponent({
                     row.status = ''
                     const sendXml = `<condition>
                                         <chlId>${row.id}</chlId>
-                                    </condition>
-                                    <requireField>
-                                        <trigger/>
-                                    </requireField>`
-                    queryMotion(sendXml).then((res: any) => {
+                                    </condition>`
+                    queryFrontEndOfflineTrigger(sendXml).then((res: any) => {
                         res = queryXml(res)
                         if (res('status').text() == 'success') {
                             row.rowDisable = false
-                            row.schedule = {
-                                value: res('//content/chl/trigger/triggerSchedule/schedule').attr('id') == '' ? ' ' : res('//content/chl/trigger/triggerSchedule/schedule').attr('id'),
-                                label: res('//content/chl/trigger/triggerSchedule/schedule').text(),
-                            }
-                            row.oldSchedule = row.schedule
-                            row.record = {
-                                switch: res('//content/chl/trigger/sysRec/switch').text() == 'true' ? true : false,
-                                chls: res('//content/chl/trigger/sysRec/chls/item').map((item: any) => {
-                                    return {
-                                        value: item.attr('id'),
-                                        label: item.text(),
-                                    }
-                                }),
-                            }
-                            // 获取record中chls的value列表
-                            row.recordList = row.record.chls.map((item) => item.value)
-                            row.sysAudio = res('//content/chl/trigger/sysAudio').attr('id') || pageData.value.defaultAudioId
+                            row.sysAudio = res('//content/sysAudio').attr('id') || pageData.value.defaultAudioId
                             row.snap = {
-                                switch: res('//content/chl/trigger/sysSnap/switch').text() == 'true' ? true : false,
-                                chls: res('//content/chl/trigger/sysSnap/chls/item').map((item: any) => {
+                                switch: res('//content/sysSnap/switch').text() == 'true' ? true : false,
+                                chls: res('//content/sysSnap/chls/item').map((item: any) => {
                                     return {
                                         value: item.attr('id'),
                                         label: item.text(),
@@ -254,8 +236,8 @@ export default defineComponent({
                             // 获取snap中chls的value列表
                             row.snapList = row.snap.chls.map((item) => item.value)
                             row.alarmOut = {
-                                switch: res('//content/chl/trigger/alarmOut/switch').text() == 'true' ? true : false,
-                                chls: res('//content/chl/trigger/alarmOut/alarmOuts/item').map((item: any) => {
+                                switch: res('//content/alarmOut/switch').text() == 'true' ? true : false,
+                                chls: res('//content/alarmOut/alarmOuts/item').map((item: any) => {
                                     return {
                                         value: item.attr('id'),
                                         label: item.text(),
@@ -263,12 +245,23 @@ export default defineComponent({
                                 }),
                             }
                             row.alarmOutList = row.alarmOut.chls.map((item) => item.value)
-                            row.beeper = res('//content/chl/trigger/buzzerSwitch').text()
-                            row.email = res('//content/chl/trigger/emailSwitch').text()
-                            row.msgPush = res('//content/chl/trigger/msgPushSwitch').text()
-                            row.videoPopup = res('//content/chl/trigger/popVideoSwitch').text()
-                            row.preset.switch = res('//content/chl/trigger/preset/switch').text() == 'true' ? true : false
-                            res('//content/chl/trigger/preset/presets/item').forEach((item: any) => {
+                            row.beeper = res('//content/buzzerSwitch').text()
+                            row.email = res('//content/emailSwitch').text()
+                            row.msgPush = res('//content/msgPushSwitch').text()
+                            row.videoPopup = res('//content/popVideoSwitch').text()
+                            row.videoPopupInfo = {
+                                switch: res('//content/popVideo/switch').text() == 'true' ? true : false,
+                                chl: {
+                                    value: res('//content/popVideo/chl').attr('id') != '' ? res('//content/popVideo/chl').attr('id') : ' ',
+                                    label: res('//content/popVideo/chl').text(),
+                                },
+                            }
+                            row.videoPopupList = pageData.value.videoPopupList.filter((item) => {
+                                return item.value !== row.id
+                            })
+                            row.msgBoxPopup = res('//content/popMsgSwitch').text()
+                            row.preset.switch = res('//content/preset/switch').text() == 'true' ? true : false
+                            res('//content/preset/presets/item').forEach((item: any) => {
                                 const $item = queryXml(item.element)
                                 row.preset.presets.push({
                                     index: $item('index').text(),
@@ -313,70 +306,6 @@ export default defineComponent({
             })
         }
 
-        // 下列为record穿梭框相关
-        const recordDropdownOpen = () => {
-            recordRef.value.handleOpen()
-            pageData.value.recordIsShowAll = true
-        }
-        const recordConfirmAll = (e: any[]) => {
-            if (e.length !== 0) {
-                pageData.value.recordChosedListAll = cloneDeep(e)
-                pageData.value.recordChosedIdsAll = e.map((item) => item.value)
-                tableData.value.forEach((item) => {
-                    if (!item.rowDisable) {
-                        addEditRow(item)
-                        item.record.switch = true
-                        item.record.chls = pageData.value.recordChosedListAll
-                        item.recordList = pageData.value.recordChosedListAll.map((item) => item.value)
-                    }
-                })
-            } else {
-                tableData.value.forEach((item) => {
-                    if (!item.rowDisable) {
-                        addEditRow(item)
-                        item.record.switch = false
-                        item.record.chls = []
-                        item.recordList = []
-                    }
-                })
-            }
-            pageData.value.recordChosedListAll = []
-            pageData.value.recordChosedIdsAll = []
-            pageData.value.recordIsShowAll = false
-            recordRef.value.handleClose()
-        }
-        const recordCloseAll = () => {
-            pageData.value.recordChosedListAll = []
-            pageData.value.recordChosedIdsAll = []
-            pageData.value.recordIsShowAll = false
-            recordRef.value.handleClose()
-        }
-        const setRecord = function (index: number) {
-            pageData.value.recordIsShow = true
-            pageData.value.triggerDialogIndex = index
-        }
-        const recordConfirm = (e: { value: string; label: string }[]) => {
-            addEditRow(tableData.value[pageData.value.triggerDialogIndex])
-            if (e.length !== 0) {
-                tableData.value[pageData.value.triggerDialogIndex].record.chls = cloneDeep(e)
-                const chls = tableData.value[pageData.value.triggerDialogIndex].record.chls
-                tableData.value[pageData.value.triggerDialogIndex].recordList = chls.map((item) => item.value)
-            } else {
-                tableData.value[pageData.value.triggerDialogIndex].record.chls = []
-                tableData.value[pageData.value.triggerDialogIndex].recordList = []
-                tableData.value[pageData.value.triggerDialogIndex].record.switch = false
-            }
-            pageData.value.recordIsShow = false
-        }
-        const recordClose = () => {
-            if (!tableData.value[pageData.value.triggerDialogIndex].record.chls.length) {
-                tableData.value[pageData.value.triggerDialogIndex].record.switch = false
-                tableData.value[pageData.value.triggerDialogIndex].recordList = []
-                tableData.value[pageData.value.triggerDialogIndex].record.chls = []
-            }
-            pageData.value.recordIsShow = false
-        }
-
         // 下列为snap穿梭框相关
         const snapDropdownOpen = () => {
             snapRef.value.handleOpen()
@@ -390,8 +319,12 @@ export default defineComponent({
                     if (!item.rowDisable) {
                         addEditRow(item)
                         item.snap.switch = true
-                        item.snap.chls = pageData.value.snapChosedListAll
-                        item.snapList = pageData.value.snapChosedListAll.map((item) => item.value)
+                        pageData.value.snapChosedListAll.forEach((snap) => {
+                            if (getSnapListSingle(item).some((snapItem) => snapItem.value === snap.value)) {
+                                item.snap.chls.push(snap)
+                            }
+                        })
+                        item.snapList = item.snap.chls.map((item) => item.value)
                     }
                 })
             } else {
@@ -454,8 +387,12 @@ export default defineComponent({
                     if (!item.rowDisable) {
                         addEditRow(item)
                         item.alarmOut.switch = true
-                        item.alarmOut.chls = pageData.value.alarmOutChosedListAll
-                        item.alarmOutList = pageData.value.alarmOutChosedListAll.map((item) => item.value)
+                        pageData.value.alarmOutChosedListAll.forEach((alarmOut) => {
+                            if (getAlarmOutListSingle(item).some((alarmOutItem) => alarmOutItem.value === alarmOut.value)) {
+                                item.alarmOut.chls.push(alarmOut)
+                            }
+                        })
+                        item.alarmOutList = item.alarmOut.chls.map((item) => item.value)
                     }
                 })
             } else {
@@ -528,14 +465,7 @@ export default defineComponent({
                 }
             })
         }
-        // 四个按钮checkBox切换
-        const recordSwitchChange = function (row: MotionEventConfig) {
-            addEditRow(row)
-            if (row.record.switch === false) {
-                row.record.chls = []
-                row.recordList = []
-            }
-        }
+
         const snapSwitchChange = function (row: MotionEventConfig) {
             addEditRow(row)
             if (row.snap.switch === false) {
@@ -575,6 +505,15 @@ export default defineComponent({
                 }
             })
         }
+        // TODO 未传值
+        const handleFtpSnapChangeAll = function (ftpSnap: string) {
+            tableData.value.forEach((item) => {
+                if (!item.rowDisable) {
+                    addEditRow(item)
+                    item.ftpSnap = ftpSnap
+                }
+            })
+        }
         // 蜂鸣器
         const handleBeeperChangeAll = function (beeper: string) {
             tableData.value.forEach((item) => {
@@ -586,10 +525,27 @@ export default defineComponent({
         }
         // 视频弹出
         const handleVideoPopupChangeAll = function (videoPopup: string) {
+            tableData.value.forEach((row) => {
+                const values = row.videoPopupList.map((item) => item.value)
+                if (!row.rowDisable) {
+                    if (values.includes(videoPopup)) {
+                        addEditRow(row)
+                        row.videoPopupInfo.chl.value = videoPopup
+                        row.videoPopupInfo.chl.label = row.videoPopupList.find((item) => item.value === videoPopup)!.label
+                    } else {
+                        row.videoPopupInfo.chl.value = ' '
+                        row.videoPopupInfo.chl.label = Translate('IDCS_OFF')
+                    }
+                }
+            })
+            console.log(tableData.value)
+        }
+        // 消息框弹出
+        const handleMsgBoxPopupChangeAll = function (msgBoxPopup: string) {
             tableData.value.forEach((item) => {
                 if (!item.rowDisable) {
                     addEditRow(item)
-                    item.videoPopup = videoPopup
+                    item.msgBoxPopup = msgBoxPopup
                 }
             })
         }
@@ -603,19 +559,6 @@ export default defineComponent({
             })
         }
 
-        const handleMotionSetting = function () {
-            // 跳转到移动侦测设置页面
-            // router.push('/config/channel/settings/motion')
-            if (userSession.hasAuth('RemoteChlMgr')) {
-                router.push('/config/channel/settings/motion')
-            } else {
-                openMessageTipBox({
-                    type: 'question',
-                    title: Translate('IDCS_INFO_TIP'),
-                    message: Translate('IDCS_NO_AUTH'),
-                })
-            }
-        }
         const addEditRow = function (row: MotionEventConfig) {
             // 若该行不存在于编辑行中，则添加
             const isExist = pageData.value.editRows.some((item) => item.id === row.id)
@@ -625,27 +568,24 @@ export default defineComponent({
             pageData.value.applyDisable = false
         }
         const getSavaData = function (rowData: MotionEventConfig) {
-            const recordSwitch = rowData.record.switch
             const snapSwitch = rowData.snap.switch
             const alarmOutSwitch = rowData.alarmOut.switch
             const presetSwitch = rowData.preset.switch
-            let sendXml = `<content>
-                                <chl id="${rowData.id}">
-                                <trigger>`
-            sendXml += `<sysRec>
-                            <switch>${recordSwitch}</switch>
+            let sendXml = `<content id="${rowData.id}">`
+            sendXml += `<sysSnap>
+                            <switch>${snapSwitch}</switch>
                             <chls type="list">`
-            if (!recordSwitch) {
-                rowData.record = { switch: false, chls: [] }
+            if (!snapSwitch) {
+                rowData.snap = { switch: false, chls: [] }
             }
-            const recordChls = rowData.record.chls
-            recordChls.forEach((item: any) => {
+            const snapChls = rowData.snap.chls
+            snapChls.forEach((item: any) => {
                 sendXml += ` <item id="${item.value}">
                                 <![CDATA[${item.label}]]>
                             </item>`
             })
             sendXml += `</chls>
-                    </sysRec>`
+                    </sysSnap>`
             sendXml += `<alarmOut>
                             <switch>${alarmOutSwitch}</switch>
                             <alarmOuts type="list">`
@@ -685,33 +625,17 @@ export default defineComponent({
             })
             sendXml += `</presets>
                     </preset>`
-            sendXml += `<sysSnap>
-                            <switch>${snapSwitch}</switch>
-                            <chls type="list">`
-            if (!snapSwitch) {
-                rowData.snap = { switch: false, chls: [] }
-            }
-            const snapChls = rowData.snap.chls
-            snapChls.forEach((item: any) => {
-                sendXml += ` <item id="${item.value}">
-                                <![CDATA[${item.label}]]>
-                            </item>`
-            })
-            sendXml += `</chls>
-                    </sysSnap>`
-            const schedule = rowData.schedule.value == ' ' ? true : false
             sendXml += `
                         <buzzerSwitch>${rowData.beeper}</buzzerSwitch>
-                        <msgPushSwitch>${rowData.msgPush}</msgPushSwitch>
-                        <sysAudio id='${rowData.sysAudio}'></sysAudio>
-                        <triggerSchedule>
-                            <switch>${schedule}</switch>
-                            <schedule id="${rowData.schedule.value == ' ' ? '' : rowData.schedule.value}"></schedule>
-                        </triggerSchedule>
-                        <popVideoSwitch>${rowData.videoPopup}</popVideoSwitch>
+                        <popVideo>
+                            <switch>${rowData.videoPopupInfo.chl.value == ' ' ? 'false' : 'true'}</switch>
+                            <chl id="${rowData.videoPopupInfo.chl.value == ' ' ? '' : rowData.videoPopupInfo.chl.value}"></chl>
+                        </popVideo>
+                        <popMsgSwitch>${rowData.msgBoxPopup}</popMsgSwitch>
                         <emailSwitch>${rowData.email}</emailSwitch>
-                        </trigger>
-                    </chl>
+                        <msgPushSwitch>${rowData.msgPush}</msgPushSwitch>
+                        <ftpSnapSwitch>${rowData.ftpSnap}</ftpSnapSwitch>
+                        <sysAudio id='${rowData.sysAudio}'></sysAudio>
                 </content>`
             return sendXml
         }
@@ -719,7 +643,7 @@ export default defineComponent({
             openLoading(LoadingTarget.FullScreen)
             pageData.value.editRows.forEach((item: MotionEventConfig) => {
                 const sendXml = getSavaData(item)
-                editMotion(sendXml).then((res: any) => {
+                editFrontEndOfflineTrigger(sendXml).then((res: any) => {
                     res = queryXml(res)
                     if (res('status').text() == 'success') {
                         item.status = 'success'
@@ -741,9 +665,8 @@ export default defineComponent({
         }
 
         onMounted(async () => {
-            await getScheduleList()
+            await getVideoPopupList()
             await getAudioList()
-            await getRecordList()
             await getSnapList()
             await getAlarmOutList()
             buildTableData()
@@ -759,17 +682,12 @@ export default defineComponent({
             pageData,
             tableData,
             openMessageTipBox,
-            recordRef,
             snapRef,
             alarmOutRef,
             presetRef,
+            getAlarmOutListSingle,
+            getSnapListSingle,
             handleScheduleChangeAll,
-            recordDropdownOpen,
-            recordConfirmAll,
-            recordCloseAll,
-            setRecord,
-            recordConfirm,
-            recordClose,
             snapDropdownOpen,
             snapConfirmAll,
             snapCloseAll,
@@ -785,16 +703,16 @@ export default defineComponent({
             openPresetPop,
             handlePresetLinkedList,
             presetClose,
-            recordSwitchChange,
             snapSwitchChange,
             alarmOutSwitchChange,
             presetSwitchChange,
             handleSysAudioChangeAll,
             handleMsgPushChangeAll,
+            handleFtpSnapChangeAll,
             handleBeeperChangeAll,
             handleVideoPopupChangeAll,
+            handleMsgBoxPopupChangeAll,
             handleEmailChangeAll,
-            handleMotionSetting,
             setData,
             addEditRow,
         }

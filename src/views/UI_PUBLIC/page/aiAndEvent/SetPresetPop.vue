@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-20 17:19:44
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-21 11:28:44
+ * @LastEditTime: 2024-08-22 11:33:56
 -->
 <template>
     <el-dialog
@@ -13,6 +13,7 @@
         align-center
         draggable
         @open="open"
+        @close="close"
     >
         <el-table
             stripe

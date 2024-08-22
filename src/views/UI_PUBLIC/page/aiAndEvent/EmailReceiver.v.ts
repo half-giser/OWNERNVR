@@ -3,7 +3,7 @@
  * @Date: 2024-08-12 14:21:22
  * @Description:
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-14 14:07:49
+ * @LastEditTime: 2024-08-21 16:49:16
  */
 import { defineComponent } from 'vue'
 import { ArrowDown } from '@element-plus/icons-vue'
@@ -101,7 +101,6 @@ export default defineComponent({
         }
         const getData = function () {
             getScheduleList().then(() => {
-                // console.log('pageData.value.scheduleList', pageData.value.scheduleList)
                 // 将scheduleList中value为''的元素转换为' '
                 pageData.value.scheduleList.forEach((item) => {
                     if (item.value == '') {
@@ -126,7 +125,6 @@ export default defineComponent({
                                 emailReceiver.address = eleXml('address').text()
                                 emailReceiver.schedule = eleXml('schedule').attr('id') == '{00000000-0000-0000-0000-000000000000}' ? ' ' : eleXml('schedule').attr('id')
                                 emailReceiver.addressShow = hideEmailAddress(emailReceiver.address)
-                                // console.log('emailReceiver', emailReceiver)
                                 tableData.value.push(emailReceiver)
                             }
                         })

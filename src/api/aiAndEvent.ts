@@ -74,3 +74,9 @@ export const addAlarmAudioCfg = (data: string) => http.fetch('addAlarmAudioCfg',
 
 // 删除本地声音报警文件
 export const deleteAlarmAudio = (data: string) => http.fetch('deleteAlarmAudio', getXmlWrapData(data))
+
+// 获取前端掉线数据
+export const queryFrontEndOfflineTrigger = (data: string) => http.fetch('queryFrontEndOfflineTrigger', getXmlWrapData(data))
+
+// 修改前端掉线数据
+export const editFrontEndOfflineTrigger = (data: string) => http.fetch('editFrontEndOfflineTrigger', getXmlWrapData(data))

@@ -3,7 +3,7 @@
  * @Date: 2024-08-10 12:08:57
  * @Description: AI/事件
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-21 13:38:57
+ * @LastEditTime: 2024-08-22 10:27:55
  */
 const { Translate } = useLangStore()
 
@@ -112,6 +112,7 @@ export class MotionEventConfig {
     snapList = [] as string[]
     sysAudio = ''
     msgPush = ''
+    ftpSnap = '' //抓图到FTP，暂时无用
     alarmOut = {
         switch: false,
         chls: [] as { value: string; label: string }[],
@@ -123,6 +124,9 @@ export class MotionEventConfig {
     }
     beeper = ''
     videoPopup = ''
+    videoPopupInfo = { switch: false, chl: { value: '', label: '' } as { value: string; label: string } }
+    videoPopupList = [] as { value: string; label: string }[]
+    msgBoxPopup = ''
     email = ''
     oldSchedule = {
         value: '',
