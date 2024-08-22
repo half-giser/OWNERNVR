@@ -454,3 +454,50 @@ export class PrivacyMask {
     width = 0
     height = 0
 }
+
+export class ChannelPtzPresetChlDto {
+    chlId = ''
+    chlName = ''
+    presetCount = 0
+    maxCount = Infinity
+    presets = [] as ChannelPtzPresetDto[]
+}
+
+export class ChannelPtzPresetDto {
+    index = 0
+    name = ''
+}
+
+export class ChannelPtzTraceChlDto {
+    chlId = ''
+    chlName = ''
+    traceCount = 0
+    maxCount = Infinity
+    trace = [] as ChannelPtzTraceDto[]
+}
+
+export class ChannelPtzTraceDto extends ChannelPtzPresetDto {}
+
+export class ChannelPtzCruiseChlDto {
+    chlId = ''
+    chlName = ''
+    cruiseCount = 0
+    maxCount = Infinity
+    cruise = [] as ChannelPtzCruiseDto[]
+}
+
+export class ChannelPtzCruiseDto extends ChannelPtzPresetDto {}
+
+export class ChannelPtzCruisePresetDto {
+    id = 0
+    index = 0
+    name = ''
+    speed = 5
+    holdTime = 5
+}
+
+export class ChannelPtzCruisePresetForm {
+    name = ''
+    speed = 5
+    holdTime = 5
+}

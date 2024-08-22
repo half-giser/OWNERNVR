@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-07-31 16:36:16
  * @Description:
- * @LastEditors: tengxiang tengxiang@tvt.net.cn
- * @LastEditTime: 2024-08-08 20:13:06
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-08-19 09:34:21
  */
 import { defineComponent } from 'vue'
 import BaseScheduleWeek from '@/components/BaseScheduleWeek.vue'
@@ -13,6 +13,11 @@ import { type ElTable } from 'element-plus'
 
 export default defineComponent({
     components: { BaseScheduleWeek, ScheduleEditPop },
+    emits: {
+        close() {
+            return true
+        },
+    },
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()

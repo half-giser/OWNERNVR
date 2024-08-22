@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 18:07:29
  * @Description: 现场预览
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-14 17:58:56
+ * @LastEditTime: 2024-08-21 18:16:42
  */
 import { cloneDeep } from 'lodash-es'
 import { type LiveChannelList, type LiveCustomViewChlList, LiveSharedWinData } from '@/types/apiType/live'
@@ -564,7 +564,7 @@ export default defineComponent({
                     showPos: winData.showPos,
                     chlID: winData.CHANNEL_INFO?.chlID || '',
                     supportPtz: winData.CHANNEL_INFO?.supportPtz || false,
-                    chlName: winData.CHANNEL_INFO?.chlName || '',
+                    chlName: winData.CHANNEL_INFO?.chlID ? pageData.value.chlMap[winData.CHANNEL_INFO!.chlID]?.value || '' : '',
                     streamType: winData.CHANNEL_INFO?.streamType || 2,
                     talk: false,
                     isDwellPlay: false,
@@ -1650,8 +1650,6 @@ export default defineComponent({
                 }
 
                 plugin.VideoPluginNotifyEmitter.removeListener(notify)
-
-                console.log('live unmounted')
             }
         })
 

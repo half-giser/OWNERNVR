@@ -3,8 +3,97 @@
  * @Date: 2024-07-09 14:47:05
  * @Description: 网络
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-16 14:43:47
+ * @LastEditTime: 2024-08-20 10:34:10
  */
+
+export class NetTcpIpForm {
+    netConfig = {
+        defaultNic: '',
+        poeMode: 0,
+        supportNetworkFaultTolerance: false,
+        supportNetworkMultiAddrSetting: false,
+        toeEnable: false,
+        curWorkMode: '',
+    }
+    ipGroupSwitch = false
+    ipGroupMode = ''
+    ipDefaultBond = ''
+    bonds = [] as NetTcpIpBondsList[]
+    nicConfigs = [] as NetTcpIpNicConfigList[]
+}
+
+export class NetTcpIpDhcpList {
+    [key: string]: string | number | undefined | boolean
+    ip = ''
+    gateway = ''
+    mask = ''
+    ipV6 = ''
+    gatewayV6 = ''
+    subLengthV6 = 0
+    dns1 = ''
+    dns2 = ''
+    ipv6Dns1 = ''
+    ipv6Dns2 = ''
+}
+
+export class NetTcpIpBondsList extends NetTcpIpDhcpList {
+    index = 0
+    id = ''
+    dhcpSwitch = false
+    primaryNIC = ''
+    NICs = ''
+    // ip = ''
+    // gateway = ''
+    // mask = ''
+    mtu = 0
+    ipV6Switch = false
+    // ipV6 = ''
+    // gatewayV6 = ''
+    // subLengthV6 = ''
+    ipv4DnsDhcpSwitch = false
+    // dns1 = ''
+    // dns2 = ''
+    ipv6DnsDhcpSwitch = false
+    // ipv6Dns1 = ''
+    // ipv6Dns2 = ''
+    isPoe = false
+}
+
+export class NetTcpIpNicConfigList extends NetTcpIpDhcpList {
+    index = 0
+    id = ''
+    isPoe = false
+    isSupSecondIP = false
+    isSupMultiWorkMode = false
+    dhcpSwitch = false
+    // ip = ''
+    // gateway = ''
+    // mask = ''
+    mac = ''
+    mtu = 0
+    ipV6Switch = false
+    // ipV6 = ''
+    // gatewayV6 = ''
+    // subLengthV6 = ''
+    isOnline = false
+    ipv4DnsDhcpSwitch = false
+    // dns1 = ''
+    // dns2 = ''
+    ipv6DnsDhcpSwitch = false
+    // ipv6Dns1 = ''
+    // ipv6Dns2 = ''
+    secondIpSwitch = false
+    secondIp = ''
+    secondMask = ''
+}
+
+export class NetTcpIpAdvanceForm {
+    dhcpSwitch = false
+    secondIpSwitch = false
+    secondIp = ''
+    secondMask = ''
+    mtu = [] as number[]
+}
 
 /**
  * @description 端口表单

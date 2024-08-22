@@ -3,7 +3,7 @@
  * @Date: 2024-07-11 19:30:59
  * @Description: 列表项组件
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-24 17:13:39
+ * @LastEditTime: 2024-08-20 19:40:27
 -->
 <template>
     <li
@@ -54,6 +54,8 @@ li {
     border: 1px solid transparent;
     cursor: pointer;
     font-size: 13px;
+    display: flex;
+    align-items: center;
 
     :deep(span) {
         &:last-child {
