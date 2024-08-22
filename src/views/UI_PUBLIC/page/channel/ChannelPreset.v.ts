@@ -3,7 +3,7 @@
  * @Date: 2024-08-20 18:26:51
  * @Description: 云台-预置点
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-21 11:18:27
+ * @LastEditTime: 2024-08-21 15:43:53
  */
 import { type TableInstance } from 'element-plus'
 import ChannelPtzCtrlPanel from './ChannelPtzCtrlPanel.vue'
@@ -114,7 +114,7 @@ export default defineComponent({
         const getPreset = async (chlId: string) => {
             openLoading(LoadingTarget.FullScreen)
 
-            const index = pageData.value.tableIndex
+            const index = tableData.value.findIndex((item) => item.chlId === chlId)
             const sendXml = rawXml`
                 <condition>
                     <chlId>${chlId}</chlId>
@@ -413,9 +413,10 @@ export default defineComponent({
             pageData.value.speed = speed
         }
 
-        watch(
+        const stopWatchAuth = watch(
             auth,
             async () => {
+                stopWatchAuth()
                 await getData()
                 tableRef.value?.setCurrentRow(tableData.value[pageData.value.tableIndex])
                 getPreset(tableData.value[pageData.value.tableIndex].chlId)
@@ -449,6 +450,8 @@ export default defineComponent({
             savePosition,
             deletePreset,
             setSpeed,
+            nameByteMaxLen,
+            formatInputMaxLength,
         }
     },
 })

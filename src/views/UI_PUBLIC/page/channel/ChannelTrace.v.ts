@@ -3,7 +3,7 @@
  * @Date: 2024-08-20 19:43:51
  * @Description: 云台-轨迹
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-21 11:48:46
+ * @LastEditTime: 2024-08-21 15:50:27
  */
 import { type TableInstance } from 'element-plus'
 import ChannelPtzCtrlPanel from './ChannelPtzCtrlPanel.vue'
@@ -129,7 +129,7 @@ export default defineComponent({
         const getTrace = async (chlId: string) => {
             openLoading(LoadingTarget.FullScreen)
 
-            const index = pageData.value.tableIndex
+            const index = tableData.value.findIndex((item) => item.chlId === chlId)
             const sendXml = rawXml`
                 <condition>
                     <chlId>${chlId}</chlId>
@@ -150,8 +150,6 @@ export default defineComponent({
                 tableData.value[index].maxCount = Number($('/response/content/traces').attr('maxCount'))
                 tableData.value[index].traceCount = tableData.value[index].trace.length
             }
-
-            closeLoading(LoadingTarget.FullScreen)
         }
 
         /**
@@ -495,6 +493,9 @@ export default defineComponent({
          * @description 停止播放轨迹
          */
         const stopTrace = async () => {
+            if (!tableData.value.length) {
+                return
+            }
             const sendXml = rawXml`
                 <content>
                     <chlId>${tableData.value[pageData.value.tableIndex].chlId}</chlId>
@@ -503,9 +504,10 @@ export default defineComponent({
             await stopChlPtzTrace(sendXml)
         }
 
-        watch(
+        const stopWatchAuth = watch(
             auth,
             async () => {
+                stopWatchAuth()
                 await getData()
                 tableRef.value?.setCurrentRow(tableData.value[pageData.value.tableIndex])
                 getTrace(tableData.value[pageData.value.tableIndex].chlId)
@@ -543,6 +545,8 @@ export default defineComponent({
             stopRecord,
             playTrace,
             stopTrace,
+            formatInputMaxLength,
+            nameByteMaxLen,
             ChannelPtzCtrlPanel,
             ChannelTraceAddPop,
         }

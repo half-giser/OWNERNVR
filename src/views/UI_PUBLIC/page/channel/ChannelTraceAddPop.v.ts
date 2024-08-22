@@ -3,7 +3,7 @@
  * @Date: 2024-08-21 10:40:04
  * @Description: 新增轨迹弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-21 11:49:54
+ * @LastEditTime: 2024-08-21 16:30:34
  */
 import { type ChannelPtzTraceDto } from '@/types/apiType/channel'
 import type { FormInstance, FormRules } from 'element-plus'
@@ -11,14 +11,14 @@ import type { FormInstance, FormRules } from 'element-plus'
 export default defineComponent({
     props: {
         /**
-         * @property {Number} 最大预置点数
+         * @property {Number} 最大轨迹数
          */
         max: {
             type: Number,
             default: 128,
         },
         /**
-         * @property {Array} 预置点列表
+         * @property {Array} 轨迹列表
          */
         trace: {
             type: Array as PropType<ChannelPtzTraceDto[]>,
@@ -90,7 +90,7 @@ export default defineComponent({
         }
 
         /**
-         * @description 新增预置点保存数据
+         * @description 新增轨迹保存数据
          */
         const setData = async () => {
             openLoading(LoadingTarget.FullScreen)

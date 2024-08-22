@@ -477,3 +477,27 @@ export class ChannelPtzTraceChlDto {
 }
 
 export class ChannelPtzTraceDto extends ChannelPtzPresetDto {}
+
+export class ChannelPtzCruiseChlDto {
+    chlId = ''
+    chlName = ''
+    cruiseCount = 0
+    maxCount = Infinity
+    cruise = [] as ChannelPtzCruiseDto[]
+}
+
+export class ChannelPtzCruiseDto extends ChannelPtzPresetDto {}
+
+export class ChannelPtzCruisePresetDto {
+    id = 0
+    index = 0
+    name = ''
+    speed = 5
+    holdTime = 5
+}
+
+export class ChannelPtzCruisePresetForm {
+    name = ''
+    speed = 5
+    holdTime = 5
+}

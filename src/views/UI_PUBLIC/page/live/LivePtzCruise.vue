@@ -3,29 +3,34 @@
  * @Date: 2024-07-19 18:41:31
  * @Description: 现场预览-云台视图-巡航线
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 16:01:29
+ * @LastEditTime: 2024-08-21 18:07:28
 -->
 <template>
     <div class="ptz-cruise">
         <BaseListBox class="ptz-cruise-content">
             <BaseListBoxItem
                 v-for="(item, index) in listData"
-                :key="item.value"
+                :key="item.index"
                 :class="{
                     active: pageData.active === index,
                 }"
                 @click="pageData.active = index"
                 @dblclick="playCurrentCruise(index)"
             >
-                <span class="ptz-cruise-text text-ellipsis">{{ item.label }}</span>
-                <BaseImgSprite
-                    file="delete (2)"
-                    :index="1"
-                    :disabled-index="1"
-                    :chunk="2"
-                    :disabled="!enabled"
-                    @click.stop="deleteCruise(item.value, item.label)"
-                />
+                <span class="ptz-cruise-text text-ellipsis">{{ item.name }}</span>
+                <el-tooltip
+                    :content="Translate('IDCS_DELETE')"
+                    :show-after="500"
+                >
+                    <BaseImgSprite
+                        file="delete (2)"
+                        :index="0"
+                        :disabled-index="1"
+                        :chunk="2"
+                        :disabled="!enabled"
+                        @click.stop="deleteCruise(item.index, item.name)"
+                    />
+                </el-tooltip>
             </BaseListBoxItem>
         </BaseListBox>
         <div class="ptz-cruise-btns">
@@ -40,6 +45,7 @@
                     :disabled-index="0"
                     :disabled="!enabled"
                     :chunk="4"
+                    @click="addCruise"
                 />
             </el-tooltip>
             <el-tooltip
@@ -51,6 +57,7 @@
                     :index="0"
                     :hover-index="1"
                     :chunk="4"
+                    @click="playCruise"
                 />
             </el-tooltip>
             <el-tooltip
@@ -62,9 +69,18 @@
                     :index="0"
                     :hover-index="1"
                     :chunk="4"
+                    @click="stopCruise"
                 />
             </el-tooltip>
         </div>
+        <ChannelCruiseAddPop
+            v-model="pageData.isAddPop"
+            :max="pageData.maxCount"
+            :cruise="listData"
+            :chl-id="chlId"
+            @confirm="confirmAddCruise"
+            @close="pageData.isAddPop = false"
+        />
     </div>
 </template>
 
@@ -96,9 +112,8 @@
     }
 
     &-text {
-        width: 80%;
+        width: 100%;
         height: 100%;
-        flex-shrink: 0;
     }
 }
 </style>
