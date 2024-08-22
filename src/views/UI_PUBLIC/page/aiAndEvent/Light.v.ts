@@ -3,7 +3,7 @@
  * @Date: 2024-08-13 15:58:57
  * @Description:闪灯
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-14 16:44:14
+ * @LastEditTime: 2024-08-19 11:27:55
  */
 import { defineComponent } from 'vue'
 import { ArrowDown } from '@element-plus/icons-vue'
@@ -196,7 +196,7 @@ export default defineComponent({
         const handleEnabelChange = function (row: whiteLightInfo) {
             setRowDisable(row)
             addEditRows(row)
-            if (!row.rowDisable) pageData.value.applyDisable = false
+            pageData.value.applyDisable = false
         }
         const handleEnabelChangeAll = function (value: string) {
             tableData.value.forEach((row) => {
@@ -260,11 +260,16 @@ export default defineComponent({
         }
         const setRowDisable = function (rowData: whiteLightInfo) {
             const disabled = rowData['enable'] && rowData['enable'] == 'false' ? true : false
+            if (rowData['enable'] == null) {
+                rowData['rowDisable'] = true
+                rowData['durationTimeDisable'] = true
+                rowData['frequencyTypeDisable'] = true
+            }
             if (rowData['enable']) {
                 rowData['enableDisable'] = false
             }
             if (disabled) {
-                rowData['rowDisable'] = true
+                rowData['rowDisable'] = false
                 rowData['durationTimeDisable'] = true
                 rowData['frequencyTypeDisable'] = true
             } else {
