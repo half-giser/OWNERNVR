@@ -3,7 +3,7 @@
  * @Date: 2024-08-20 13:57:26
  * @Description: 巡航线组
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-22 19:31:17
+ * @LastEditTime: 2024-08-22 20:06:47
 -->
 <template>
     <div class="cruise-group">
@@ -95,7 +95,7 @@
                     ref="tableRef"
                     :show-header="false"
                     :data="tableData"
-                    :row-key="(row) => row.chlId"
+                    :row-key="getRowKey"
                     :expand-row-key="pageData.expandRowKey"
                     highlight-current-row
                     border
@@ -133,7 +133,7 @@
             @confirm="confirmAddCruise"
             @close="pageData.isAddPop = false"
         />
-        <BaseNotification v-model:notification="pageData.notification" />
+        <BaseNotification v-model:notifications="pageData.notification" />
     </div>
 </template>
 

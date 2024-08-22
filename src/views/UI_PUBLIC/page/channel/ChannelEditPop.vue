@@ -35,8 +35,8 @@
                     <el-form-item prop="ip">
                         <BaseIpInput
                             v-show="showIpInput"
-                            v-model:value="editItem.ip"
-                            :disable="ipDisabled"
+                            v-model="editItem.ip"
+                            :disabled="ipDisabled"
                         />
                         <el-input
                             v-show="!showIpInput"

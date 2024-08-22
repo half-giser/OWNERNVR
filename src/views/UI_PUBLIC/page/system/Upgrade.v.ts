@@ -6,7 +6,6 @@
  * @LastEditTime: 2024-06-28 18:54:15
  */
 import BasePluginNotice from '../../components/ocx/BasePluginNotice.vue'
-import BaseNotification from '../../components/BaseNotification.vue'
 import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import BaseInputEncryptPwdPop from '../../components/auth/BaseInputEncryptPwdPop.vue'
@@ -22,7 +21,6 @@ import { SystemUpgradeForm } from '@/types/apiType/system'
 export default defineComponent({
     components: {
         BasePluginNotice,
-        BaseNotification,
         BaseImgSprite,
         BaseCheckAuthPop,
         BaseInputEncryptPwdPop,
@@ -536,7 +534,6 @@ export default defineComponent({
             closeBackUpAndUpgrade,
             confirmOCXBackUp,
             BasePluginNotice,
-            BaseNotification,
             BaseImgSprite,
             BaseCheckAuthPop,
             BaseInputEncryptPwdPop,

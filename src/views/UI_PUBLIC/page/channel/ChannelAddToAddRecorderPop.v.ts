@@ -17,11 +17,9 @@ import { queryXml } from '@/utils/xmlParse'
 import { trim, cloneDeep } from 'lodash'
 import { useRouter } from 'vue-router'
 import { errorCodeMap } from '@/utils/constants'
-import BaseIpInput from '../../components/form/BaseIpInput.vue'
 import { editBasicCfg } from '@/api/system'
 
 export default defineComponent({
-    components: { BaseIpInput },
     props: {
         editItem: ChannelAddRecorderDto,
         mapping: Object,

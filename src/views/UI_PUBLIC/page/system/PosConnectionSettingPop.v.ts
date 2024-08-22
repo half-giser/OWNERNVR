@@ -6,13 +6,9 @@
  * @LastEditTime: 2024-07-03 15:27:14
  */
 import { type FormInstance, type FormRules } from 'element-plus'
-import BaseIpInput from '../../components/form/BaseIpInput.vue'
 import { SystemPosList, SystemPosConnectionForm } from '@/types/apiType/system'
 
 export default defineComponent({
-    components: {
-        BaseIpInput,
-    },
     props: {
         data: {
             type: Object as PropType<SystemPosList>,
@@ -113,7 +109,6 @@ export default defineComponent({
             verify,
             close,
             rules,
-            BaseIpInput,
         }
     },
 })

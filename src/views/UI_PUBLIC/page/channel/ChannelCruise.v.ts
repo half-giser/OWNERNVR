@@ -3,7 +3,7 @@
  * @Date: 2024-08-21 17:50:00
  * @Description: 云台-巡航线
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-22 19:28:56
+ * @LastEditTime: 2024-08-22 20:35:54
  */
 import { type TableInstance } from 'element-plus'
 import { type ChannelPtzCruiseChlDto, ChannelPtzCruiseDto, type ChannelPtzCruisePresetDto } from '@/types/apiType/channel'
@@ -263,6 +263,10 @@ export default defineComponent({
                     pageData.value.expandRowKey.splice(index, 1)
                 }
             }
+        }
+
+        const getRowKey = (row: ChannelPtzCruiseChlDto) => {
+            return row.chlId
         }
 
         // 首次加载成功 播放视频
@@ -640,6 +644,7 @@ export default defineComponent({
             changeChl,
             handleRowClick,
             handleExpandChange,
+            getRowKey,
             saveName,
             addCruise,
             confirmAddCruise,

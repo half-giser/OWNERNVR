@@ -3,7 +3,7 @@
  * @Date: 2024-08-22 15:15:52
  * @Description: 云台-任务
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-22 18:15:24
+ * @LastEditTime: 2024-08-22 20:08:19
  */
 import { cloneDeep } from 'lodash-es'
 import { ChannelPtzTaskDto, type ChannelPtzTaskChlDto, ChannelPtzTaskForm } from '@/types/apiType/channel'
@@ -649,6 +649,10 @@ export default defineComponent({
             }
         }
 
+        const getRowKey = (row: ChannelPtzTaskChlDto) => {
+            return row.chlId
+        }
+
         watch(
             () => pageData.value.tableIndex,
             () => {
@@ -689,6 +693,7 @@ export default defineComponent({
             changeType,
             handlePlayerReady,
             handleExpandChange,
+            getRowKey,
             handleRowClick,
             setTaskStatus,
             changeTaskStatus,

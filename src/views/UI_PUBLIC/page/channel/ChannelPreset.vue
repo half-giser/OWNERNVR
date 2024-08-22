@@ -3,7 +3,7 @@
  * @Date: 2024-08-20 13:57:01
  * @Description: 云台-预置点
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-22 19:24:50
+ * @LastEditTime: 2024-08-22 20:07:37
 -->
 <template>
     <div class="preset">
@@ -98,7 +98,7 @@
                     ref="tableRef"
                     :show-header="false"
                     :data="tableData"
-                    :row-key="(row) => row.chlId"
+                    :row-key="getRowKey"
                     :expand-row-key="pageData.expandRowKey"
                     highlight-current-row
                     border
@@ -136,7 +136,7 @@
             @confirm="confirmAddPreset"
             @close="pageData.isAddPop = false"
         />
-        <BaseNotification v-model:notification="pageData.notification" />
+        <BaseNotification v-model:notifications="pageData.notification" />
     </div>
 </template>
 

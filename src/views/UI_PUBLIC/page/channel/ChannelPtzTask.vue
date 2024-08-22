@@ -101,7 +101,7 @@
                     ref="tableRef"
                     :show-header="false"
                     :data="tableData"
-                    :row-key="(row) => row.chlId"
+                    :row-key="getRowKey"
                     :expand-row-key="pageData.expandRowKey"
                     highlight-current-row
                     border
@@ -213,7 +213,7 @@
             @confirm="confirmEditTask"
             @close="closeEditTask"
         />
-        <BaseNotification v-model:notification="pageData.notification" />
+        <BaseNotification v-model:notifications="pageData.notification" />
     </div>
 </template>
 

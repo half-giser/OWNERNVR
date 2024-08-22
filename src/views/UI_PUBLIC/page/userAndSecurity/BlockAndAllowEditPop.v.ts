@@ -3,18 +3,12 @@
  * @Date: 2024-06-20 10:38:53
  * @Description: 编辑黑白名单弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 19:51:38
+ * @LastEditTime: 2024-08-22 19:46:30
  */
-import BaseIpInput from '../../components/form/BaseIpInput.vue'
-import BaseMacInput from '../../components/form/BaseMacInput.vue'
 import { UserEditBlackAllowListForm } from '@/types/apiType/userAndSecurity'
 import { type FormInstance, type FormRules } from 'element-plus'
 
 export default defineComponent({
-    components: {
-        BaseIpInput,
-        BaseMacInput,
-    },
     props: {
         data: {
             type: Object as PropType<UserEditBlackAllowListForm>,
@@ -199,8 +193,6 @@ export default defineComponent({
             goBack,
             handleOpen,
             title,
-            BaseIpInput,
-            BaseMacInput,
         }
     },
 })

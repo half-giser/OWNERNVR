@@ -3,7 +3,7 @@
  * @Date: 2024-08-20 19:43:51
  * @Description: 云台-轨迹
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-22 19:26:25
+ * @LastEditTime: 2024-08-22 20:09:08
  */
 import { type TableInstance } from 'element-plus'
 import ChannelPtzCtrlPanel from './ChannelPtzCtrlPanel.vue'
@@ -234,6 +234,10 @@ export default defineComponent({
                     pageData.value.expandRowKey.splice(index, 1)
                 }
             }
+        }
+
+        const getRowKey = (row: ChannelPtzTraceChlDto) => {
+            return row.chlId
         }
 
         // 首次加载成功 播放视频
@@ -542,6 +546,7 @@ export default defineComponent({
             saveName,
             handleRowClick,
             handleExpandChange,
+            getRowKey,
             startRecord,
             stopRecord,
             playTrace,

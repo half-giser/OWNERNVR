@@ -3,7 +3,7 @@
  * @Date: 2024-08-16 18:56:00
  * @Description: TCP/IP配置页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-20 11:11:43
+ * @LastEditTime: 2024-08-22 19:45:42
 -->
 <template>
     <div class="tcp-ip">
@@ -93,17 +93,17 @@
                         <!-- IPv4地址 -->
                         <el-form-item :label="Translate('IDCS_IP_ADDRESS')">
                             <BaseIpInput
-                                :value="current.ip"
-                                :disable="current.dhcpSwitch || !poeEnabled"
-                                @update:value="changeData($event, 'ip')"
+                                :model-value="current.ip"
+                                :disabled="current.dhcpSwitch || !poeEnabled"
+                                @update:model-value="changeData($event, 'ip')"
                             />
                         </el-form-item>
                         <!-- IPv4子网掩码 -->
                         <el-form-item :label="Translate('IDCS_SUBNET_MASK')">
                             <BaseIpInput
-                                :value="current.mask"
-                                :disable="current.dhcpSwitch || !poeEnabled"
-                                @update:value="changeData($event, 'mask')"
+                                :model-value="current.mask"
+                                :disabled="current.dhcpSwitch || !poeEnabled"
+                                @update:model-value="changeData($event, 'mask')"
                             />
                         </el-form-item>
                         <!-- IPv4网关 -->
@@ -112,9 +112,9 @@
                             :label="Translate('IDCS_GATEWAY')"
                         >
                             <BaseIpInput
-                                :value="current.gateway"
-                                :disable="current.dhcpSwitch || !poeEnabled"
-                                @update:value="changeData($event, 'gateway')"
+                                :model-value="current.gateway"
+                                :disabled="current.dhcpSwitch || !poeEnabled"
+                                @update:model-value="changeData($event, 'gateway')"
                             />
                         </el-form-item>
                         <!-- IPv4 Poe模式 -->
@@ -147,17 +147,17 @@
                         <!-- IPv4首选DNS -->
                         <el-form-item :label="Translate('IDCS_FIRST_DNS')">
                             <BaseIpInput
-                                :value="current.dns1"
-                                :disable="current.ipv4DnsDhcpSwitch || !poeEnabled"
-                                @update:value="changeData($event, 'dns1')"
+                                :model-value="current.dns1"
+                                :disabled="current.ipv4DnsDhcpSwitch || !poeEnabled"
+                                @update:model-value="changeData($event, 'dns1')"
                             />
                         </el-form-item>
                         <!-- IPv4备选DNS -->
                         <el-form-item :label="Translate('IDCS_SECOND_DNS')">
                             <BaseIpInput
-                                :value="current.dns2"
-                                :disable="current.ipv4DnsDhcpSwitch || !poeEnabled"
-                                @update:value="changeData($event, 'dns2')"
+                                :model-value="current.dns2"
+                                :disabled="current.ipv4DnsDhcpSwitch || !poeEnabled"
+                                @update:model-value="changeData($event, 'dns2')"
                             />
                         </el-form-item>
                     </div>
@@ -264,8 +264,8 @@
                     <el-form-item :label="displayNicName(item)"></el-form-item>
                     <el-form-item :label="Translate('IDCS_MAC_ADDRESS')">
                         <BaseMacInput
-                            v-model:value="item.mac"
-                            disable
+                            v-model="item.mac"
+                            disabled
                         />
                     </el-form-item>
                 </div>

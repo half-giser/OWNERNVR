@@ -6,7 +6,6 @@
  * @LastEditTime: 2024-07-04 19:41:47
  */
 import BasePluginNotice from '../../components/ocx/BasePluginNotice.vue'
-import BaseNotification from '../../components/BaseNotification.vue'
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import BaseInputEncryptPwdPop from '../../components/auth/BaseInputEncryptPwdPop.vue'
 import { UserCheckAuthForm, UserInputEncryptPwdForm } from '@/types/apiType/userAndSecurity'
@@ -18,7 +17,6 @@ import { type XmlResult } from '@/utils/xmlParse'
 export default defineComponent({
     components: {
         BasePluginNotice,
-        BaseNotification,
         BaseCheckAuthPop,
         BaseInputEncryptPwdPop,
     },
@@ -451,7 +449,6 @@ export default defineComponent({
             handleBrowse,
             handleExport,
             BasePluginNotice,
-            BaseNotification,
             BaseCheckAuthPop,
             BaseInputEncryptPwdPop,
         }

@@ -3,17 +3,12 @@
  * @Date: 2024-08-15 20:09:41
  * @Description: OVNIF 新增/编辑用户弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-16 18:20:12
+ * @LastEditTime: 2024-08-22 19:56:06
  */
 import type { FormInstance, FormRules } from 'element-plus'
 import { NetOnvifUserForm, NetOnvifUserList } from '@/types/apiType/net'
-import BasePasswordStrength from '../../components/form/BasePasswordStrength.vue'
-import { type PropType } from 'vue'
 
 export default defineComponent({
-    components: {
-        BasePasswordStrength,
-    },
     props: {
         /**
          * @property {Enum} 弹窗类型 ‘add' | 'edit'
@@ -242,7 +237,6 @@ export default defineComponent({
             formData,
             formRule,
             pageData,
-            BasePasswordStrength,
             open,
             verify,
             close,

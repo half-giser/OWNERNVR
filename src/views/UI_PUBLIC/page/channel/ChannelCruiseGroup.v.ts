@@ -323,6 +323,10 @@ export default defineComponent({
             }
         }
 
+        const getRowKey = (row: ChannelPtzCruiseGroupChlDto) => {
+            return row.chlId
+        }
+
         /**
          * @description 点击巡航线表格项回调
          * @param {ChannelPtzCruiseGroupCruiseDto} row
@@ -380,6 +384,7 @@ export default defineComponent({
             handleRowClick,
             handleExpandChange,
             handleCruiseRowClick,
+            getRowKey,
             playCruiseGroup,
             stopCruiseGroup,
             ChannelCruiseGroupAddPop,
