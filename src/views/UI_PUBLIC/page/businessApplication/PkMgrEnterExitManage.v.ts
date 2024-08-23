@@ -5,16 +5,8 @@
  */
 
 import { ArrowDown } from '@element-plus/icons-vue'
-import { getXmlWrapData } from '@/api/api'
 import { type directionType, type screenType } from '@/types/apiType/business'
 import { PkMgrEnterExitManagePageData, PkMgrEnterExitManageItem } from '@/types/apiType/business'
-import { queryParkingLotConfig, editParkingLotConfig } from '@/api/business'
-import { queryOnlineChlList } from '@/api/channel'
-import { queryXml } from '@/utils/xmlParse'
-import { useLangStore } from '@/stores/lang'
-import { useCababilityStore } from '@/stores/cabability'
-import useLoading from '@/hooks/useLoading'
-import useMessageBox from '@/hooks/useMessageBox'
 
 export default defineComponent({
     components: {
@@ -36,22 +28,16 @@ export default defineComponent({
         let changeDataFlg = false
 
         // 获取数据-更新页面初始数据
-        function getPageData() {
-            return new Promise((resolve) => {
-                queryParkingLotConfig().then((result: any) => {
-                    resolve(result)
-                })
-            })
+        async function getPageData() {
+            const result = await queryParkingLotConfig()
+            return result
         }
 
         // 获取数据-更新在线通道数据
-        function getOnlineChlList() {
-            return new Promise((resolve) => {
-                queryOnlineChlList().then((result: any) => {
-                    StartRefreshChlStatus()
-                    resolve(result)
-                })
-            })
+        async function getOnlineChlList() {
+            const result = await queryOnlineChlList()
+            StartRefreshChlStatus()
+            return result
         }
         // 通道树状态刷新定时器
         let ChlStatusRefreshTimer: NodeJS.Timeout | null = null
@@ -61,10 +47,10 @@ export default defineComponent({
                 StopRefreshChlStatus()
             }
             ChlStatusRefreshTimer = setTimeout(() => {
-                getOnlineChlList().then((result: any) => {
+                getOnlineChlList().then((result) => {
                     const resultXml = queryXml(result)
                     if (resultXml('status').text() === 'success') {
-                        resultXml('//content/item').forEach((ele1: any) => {
+                        resultXml('//content/item').forEach((ele1) => {
                             pageData.tableDatas.forEach((ele2: PkMgrEnterExitManageItem) => {
                                 if (ele2.id === ele1.attr('id')) {
                                     ele2.ipcStatus = 'online'
@@ -91,10 +77,10 @@ export default defineComponent({
             if (result1Xml('status').text() === 'success' && result2Xml('status').text() === 'success') {
                 // 页面数据
                 pageData.tableDatas = []
-                result1Xml('//content/entryLeaveConfig/item').forEach((ele: any, idx) => {
+                result1Xml('//content/entryLeaveConfig/item').forEach((ele, idx) => {
                     const eleXml = queryXml(ele.element)
                     const pkMgrEnterExitManageItem = new PkMgrEnterExitManageItem()
-                    pkMgrEnterExitManageItem.id = ele.attr('id')
+                    pkMgrEnterExitManageItem.id = ele.attr('id')!
                     pkMgrEnterExitManageItem.serialNum = idx + 1
                     pkMgrEnterExitManageItem.channelName = eleXml('channelName').text()
                     pkMgrEnterExitManageItem.direction = eleXml('direction').text()
@@ -108,14 +94,14 @@ export default defineComponent({
                     pageData.tableDatas.push(pkMgrEnterExitManageItem)
                 })
                 pageData.screenList = []
-                result1Xml('//types/LEDScreenType/enum').forEach((ele: any) => {
+                result1Xml('//types/LEDScreenType/enum').forEach((ele) => {
                     const enterExitScreen = {} as SelectItem
                     enterExitScreen.value = ele.text() // LED屏-值
                     enterExitScreen.label = pageData.screenMap[ele.text() as screenType] // LED屏-展示文本
                     pageData.screenList.push(enterExitScreen)
                 })
                 pageData.directionList = []
-                result1Xml('//types/directionType/enum').forEach((ele: any) => {
+                result1Xml('//types/directionType/enum').forEach((ele) => {
                     const enterExitDirection = {} as SelectItem
                     enterExitDirection.value = ele.text()
                     enterExitDirection.label = pageData.directionMap[ele.text() as directionType]
@@ -124,7 +110,7 @@ export default defineComponent({
                 // 备份原始数据
                 originalPageData = JSON.parse(JSON.stringify(pageData))
                 // 在线通道数据
-                result2Xml('//content/item').forEach((ele1: any) => {
+                result2Xml('//content/item').forEach((ele1) => {
                     pageData.tableDatas.forEach((ele2: PkMgrEnterExitManageItem) => {
                         if (ele2.id === ele1.attr('id')) {
                             ele2.ipcStatus = 'online'
@@ -164,7 +150,7 @@ export default defineComponent({
                 sendXml += '</entryLeaveConfig></content>'
                 const data = getXmlWrapData(sendXml)
                 openLoading(LoadingTarget.FullScreen)
-                editParkingLotConfig(data).then((result: any) => {
+                editParkingLotConfig(data).then((result) => {
                     closeLoading(LoadingTarget.FullScreen)
                     // 更新原始数据
                     originalPageData = JSON.parse(JSON.stringify(pageData))
@@ -183,10 +169,8 @@ export default defineComponent({
         function handleSuccess() {
             openMessageTipBox({
                 type: 'success',
-                title: Translate('IDCS_SUCCESS_TIP'),
                 message: Translate('IDCS_SAVE_DATA_SUCCESS'),
-                showCancelButton: false,
-            }).catch(() => {})
+            })
         }
         // 处理错误码提示
         function handleError(errorCode: string) {
@@ -196,10 +180,8 @@ export default defineComponent({
             }
             openMessageTipBox({
                 type: 'info',
-                title: Translate('IDCS_INFO_TIP'),
                 message: errorMsg,
-                showCancelButton: false,
-            }).catch(() => {})
+            })
         }
 
         return {

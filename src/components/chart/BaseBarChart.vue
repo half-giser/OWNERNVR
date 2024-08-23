@@ -3,7 +3,7 @@
  * @Date: 2024-06-04 16:08:10
  * @Description: 条形图组件
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-06 09:53:47
+ * @LastEditTime: 2024-08-23 14:06:37
 -->
 <template>
     <div
@@ -51,8 +51,6 @@
 </template>
 
 <script lang="ts" setup>
-import BaseImgSprite from '@/views/UI_PUBLIC/components/sprite/BaseImgSprite.vue'
-
 interface BarChartToolTipOptionItem {
     color: string
     text: string

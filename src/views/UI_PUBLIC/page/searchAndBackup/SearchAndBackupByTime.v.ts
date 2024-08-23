@@ -3,10 +3,9 @@
  * @Date: 2024-08-12 13:48:10
  * @Description: 按时间搜索
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-12 17:06:16
+ * @LastEditTime: 2024-08-23 14:12:36
  */
 import dayjs from 'dayjs'
-import BasePluginNotice from '../../components/ocx/BasePluginNotice.vue'
 import { type PlaybackChlList } from '@/types/apiType/playback'
 import { type PlaybackBackUpRecList } from '@/types/apiType/playback'
 import BackupPop from '../searchAndBackup/BackupPop.vue'
@@ -14,7 +13,6 @@ import BackupLocalPop from '../searchAndBackup/BackupLocalPop.vue'
 
 export default defineComponent({
     components: {
-        BasePluginNotice,
         BackupPop,
         BackupLocalPop,
     },
@@ -220,7 +218,6 @@ export default defineComponent({
             backUp,
             toggleAllChl,
             isChlAll,
-            BasePluginNotice,
             BackupPop,
             BackupLocalPop,
         }

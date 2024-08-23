@@ -7,12 +7,8 @@
  */
 import { type PlaybackBackUpTaskList } from '@/types/apiType/playback'
 import dayjs from 'dayjs'
-import BasePluginNotice from '../../components/ocx/BasePluginNotice.vue'
 
 export default defineComponent({
-    components: {
-        BasePluginNotice,
-    },
     setup() {
         const Plugin = inject('Plugin') as PluginType
         const { Translate } = useLangStore()
@@ -236,7 +232,6 @@ export default defineComponent({
             resumeAllTask,
             deleteAllTask,
             displayDestination,
-            BasePluginNotice,
         }
     },
 })

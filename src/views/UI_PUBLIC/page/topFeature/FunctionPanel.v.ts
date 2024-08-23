@@ -3,18 +3,14 @@
  * @Date: 2024-05-07 20:42:33
  * @Description: 功能面板
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 19:19:37
+ * @LastEditTime: 2024-08-23 14:04:30
  */
 
 import { config } from '@/router/featureConfig/RouteUtil'
 import { getMenuItems } from '@/router'
 import { type RouteRecordRaw } from 'vue-router'
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
 
 export default defineComponent({
-    components: {
-        BaseImgSprite,
-    },
     setup() {
         const router = useRouter()
         //去掉在控制面板不需要显示的菜单项，并排序

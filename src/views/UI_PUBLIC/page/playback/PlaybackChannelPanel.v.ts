@@ -3,17 +3,17 @@
  * @Date: 2024-08-06 20:36:58
  * @Description: 回放-通道视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-09 15:20:04
+ * @LastEditTime: 2024-08-23 16:17:21
  */
 import ChannelGroupEditPop from '../channel/ChannelGroupEditPop.vue'
-import ChannelGroupAdd from '../channel/ChannelGroupAdd.vue'
+import ChannelGroupAddPop from '../channel/ChannelGroupAddPop.vue'
 import { ChlGroup } from '@/types/apiType/channel'
 import { type PlaybackChlList, type PlaybackChannelGroupList } from '@/types/apiType/playback'
 
 export default defineComponent({
     components: {
         ChannelGroupEditPop,
-        ChannelGroupAdd,
+        ChannelGroupAddPop,
     },
     props: {
         /**
@@ -324,7 +324,6 @@ export default defineComponent({
             if (findItem) {
                 openMessageTipBox({
                     type: 'question',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_DELETE_MP_GROUP_S').formatForLang(getShortString(findItem.value, 10)),
                 }).then(async () => {
                     openLoading(LoadingTarget.FullScreen)
@@ -341,7 +340,6 @@ export default defineComponent({
                     if ($('/response/status').text() === 'success') {
                         openMessageTipBox({
                             type: 'success',
-                            title: Translate('IDCS_SUCCESS_TIP'),
                             message: Translate('IDCS_DELETE_SUCCESS'),
                         }).then(() => {
                             getChlGroupList()
@@ -436,7 +434,7 @@ export default defineComponent({
             search,
             play,
             ChannelGroupEditPop,
-            ChannelGroupAdd,
+            ChannelGroupAddPop,
         }
     },
 })

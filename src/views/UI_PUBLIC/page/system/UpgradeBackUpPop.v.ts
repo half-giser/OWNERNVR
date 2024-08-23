@@ -6,13 +6,9 @@
  * @LastEditTime: 2024-06-27 19:56:21
  */
 import type { FormInstance, FormRules } from 'element-plus'
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
 import { SystemUpgradeBackUpForm } from '@/types/apiType/system'
 
 export default defineComponent({
-    components: {
-        BaseImgSprite,
-    },
     emits: {
         confirm(filePath: string) {
             return filePath.length
@@ -80,7 +76,6 @@ export default defineComponent({
             rules,
             verify,
             opened,
-            BaseImgSprite,
         }
     },
 })

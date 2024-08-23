@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 18:47:07
  * @Description: 网络端口
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-11 11:18:50
+ * @LastEditTime: 2024-08-23 17:08:03
  */
 import { NetPortForm, NetPortUPnPDto, NetPortApiServerForm, NetPortRtspServerForm } from '@/types/apiType/net'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -192,13 +192,11 @@ export default defineComponent({
             if (res1 && res2 && res3 && res4) {
                 openMessageTipBox({
                     type: 'success',
-                    title: Translate('IDCS_SUCCESS_TIP'),
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
             } else {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_SAVE_DATA_FAIL'),
                 })
             }
@@ -453,7 +451,6 @@ export default defineComponent({
             if (apiServerFormData.value.apiserverSwitch && !rtspServerFormData.value.rtspServerSwitch) {
                 openMessageTipBox({
                     type: 'question',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_ENABLE_API_AFTER_RTSP_TIP'),
                 }).then(() => {
                     rtspServerFormData.value.rtspServerSwitch = true
@@ -511,7 +508,6 @@ export default defineComponent({
             if (rtspServerFormData.value.rtspServerSwitch) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_RTSP_OR_FTP_ENABLE_REMIND'),
                 })
             }
@@ -524,7 +520,6 @@ export default defineComponent({
             if (rtspServerFormData.value.anonymousAccess) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_ANONYMOUS_LOGIN_REMIND'),
                 })
             }

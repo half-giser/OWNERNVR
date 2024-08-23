@@ -10,9 +10,13 @@
         ref="pkMgrFormRef"
         :rules="rules"
         :model="pageData"
-        :hide-required-asterisk="true"
-        label-width="170"
         label-position="left"
+        hide-required-asterisk
+        :style="{
+            '--form-input-width': '300px',
+            '--form-label-width': '150px',
+        }"
+        class="inline-message"
     >
         <div class="parkLimitTip">{{ Translate('IDCS_PARKING_LOT_MANAGE_TIPS').formatForLang(1) }}</div>
         <div class="title">
@@ -71,14 +75,14 @@
             />
         </el-form-item>
 
-        <el-form-item>
+        <div class="base-btn-box">
             <el-button
                 type="primary"
                 @click="apply(pkMgrFormRef)"
             >
                 {{ Translate('IDCS_APPLY') }}
             </el-button>
-        </el-form-item>
+        </div>
     </el-form>
 </template>
 
@@ -88,12 +92,14 @@
 #PkMgrBasicConfigView {
     display: flex;
     flex-direction: column;
+    padding: 25px 20px;
+
     .parkLimitTip {
         margin: 10px 0 20px 10px;
         font-size: 14px;
     }
     .title {
-        margin: 0 0 20px 30px;
+        margin: 10px 0 10px;
         display: flex;
         align-items: center;
         .lineIcon {
@@ -111,19 +117,6 @@
             color: var(--text-menu-03);
             font-size: 14px;
             margin-left: 40px;
-        }
-    }
-    :deep(.el-form-item) {
-        width: 520px;
-        margin-left: 30px;
-        align-items: center;
-        .el-form-item__label {
-            color: var(--text-dark);
-            font-size: 15px;
-        }
-        .el-form-item__content {
-            margin-left: 30px;
-            justify-content: flex-end;
         }
     }
 }

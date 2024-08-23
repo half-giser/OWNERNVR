@@ -3,11 +3,10 @@
  * @Date: 2024-07-12 18:19:55
  * @Description: HTTPS
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-22 20:28:12
+ * @LastEditTime: 2024-08-23 17:07:23
  */
 import WebsocketUpload from '@/utils/websocket/websocketUpload'
 import WebsocketDownload from '@/utils/websocket/websocketDownload'
-import BasePluginNotice from '../../components/ocx/BasePluginNotice.vue'
 import { type NetHTTPSCertPasswordForm } from '@/types/apiType/net'
 import HttpsCertPasswordPop from './HttpsCertPasswordPop.vue'
 import HttpsCreateCertPop from './HttpsCreateCertPop.vue'
@@ -15,7 +14,6 @@ import { type XMLQuery } from '@/utils/xmlParse'
 
 export default defineComponent({
     components: {
-        BasePluginNotice,
         HttpsCertPasswordPop,
         HttpsCreateCertPop,
     },
@@ -357,7 +355,6 @@ export default defineComponent({
 
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_FILE_NO_EXISTS'),
                     })
                 }
@@ -432,7 +429,6 @@ export default defineComponent({
                         pageData.value.isExportCertReqDisabled = false
                         openMessageTipBox({
                             type: 'info',
-                            title: Translate('IDCS_INFO_TIP'),
                             message: Translate('IDCS_EXPORT_FAIL'),
                         })
                     },
@@ -483,7 +479,6 @@ export default defineComponent({
             }
             openMessageTipBox({
                 type: 'info',
-                title: Translate('IDCS_INFO_TIP'),
                 message: errorInfo,
             })
         }
@@ -508,7 +503,6 @@ export default defineComponent({
                                 closeLoading(LoadingTarget.FullScreen)
                                 openMessageTipBox({
                                     type: 'info',
-                                    title: Translate('IDCS_INFO_TIP'),
                                     message: Translate('IDCS_IMPORT_FAIL'),
                                 })
                             }
@@ -587,7 +581,6 @@ export default defineComponent({
             preventH5Import,
             inputCertPassword,
             importCertFile,
-            BasePluginNotice,
             HttpsCertPasswordPop,
             HttpsCreateCertPop,
         }

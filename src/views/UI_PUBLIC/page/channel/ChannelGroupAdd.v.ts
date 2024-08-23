@@ -3,28 +3,28 @@
  * @Date: 2024-06-19 09:52:27
  * @Description:
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-26 18:26:55
+ * @LastEditTime: 2024-08-23 18:17:02
  */
 import { ChannelInfoDto, ChlGroup } from '@/types/apiType/channel'
-import { trim } from 'lodash'
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
-import BaseLivePop from '@/views/UI_PUBLIC/components/BaseLivePop.vue'
+import { type RuleItem } from 'async-validator'
 
 export default defineComponent({
-    components: {
-        BaseImgSprite,
-        BaseLivePop,
-    },
     props: {
         dialog: {
             type: Boolean,
             default: false,
             require: false,
         },
-        close: Function,
-        callBack: Function,
     },
-    setup(prop) {
+    emits: {
+        close() {
+            return true
+        },
+        callBack() {
+            return true
+        },
+    },
+    setup(prop, { emit }) {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const { openMessageTipBox } = useMessageBox()
@@ -33,7 +33,7 @@ export default defineComponent({
         const formRef = ref()
         const formData = ref(new ChlGroup())
         const tableRef = ref()
-        const baseLivePopRef = ref()
+        const baseLivePopRef = ref<LivePopInstance>()
         const tableData = ref<ChannelInfoDto[]>([])
         const selNum = ref(0)
         const total = ref(0)
@@ -59,12 +59,12 @@ export default defineComponent({
         }
 
         const handlePreview = (rowData: ChannelInfoDto) => {
-            baseLivePopRef.value.openLiveWin(rowData.id, rowData.name, rowData.chlIndex, rowData.chlType)
+            baseLivePopRef.value?.openLiveWin(rowData.id, rowData.name)
         }
 
-        const validate = {
-            validateName: (_rule: any, value: any, callback: any) => {
-                value = trim(value)
+        const validate: Record<string, RuleItem['validator']> = {
+            validateName: (_rule, value, callback) => {
+                value = value.trim()
                 if (value.length === 0) {
                     callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
                     return
@@ -91,18 +91,14 @@ export default defineComponent({
                 if (!selNum.value) {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_PROMPT_CHANNEL_GROUP_EMPTY'),
-                        showCancelButton: false,
                     })
                     return false
                 }
                 if (selNum.value > chlGroupCountLimit) {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_CHL_GROUP_CHL_OVER_TIPS').formatForLang(chlGroupCountLimit),
-                        showCancelButton: false,
                     })
                     return false
                 }
@@ -112,33 +108,31 @@ export default defineComponent({
 
         const save = async () => {
             if (!(await verification())) return
-            let data = `
+            let data = rawXml`
                 <content>
                     <name><![CDATA[${formData.value.name}]]></name>
-                    <dwellTime unit='s'>${formData.value.dwellTime}</dwellTime>
+                    <dwellTime unit='s'>${formData.value.dwellTime.toString()}</dwellTime>
                     <chlIdList type='list'>`
             tableRef.value.getSelectionRows().forEach((ele: ChannelInfoDto) => {
                 data += `<item>${ele.id}</item>`
             })
-            data += `
+            data += rawXml`
                     </chlIdList>
                 </content>`
             openLoading(LoadingTarget.FullScreen)
-            createChlGroup(getXmlWrapData(data)).then((res: any) => {
+            createChlGroup(getXmlWrapData(data)).then((res) => {
                 closeLoading(LoadingTarget.FullScreen)
-                res = queryXml(res)
-                if (res('status').text() == 'success') {
+                const $ = queryXml(res)
+                if ($('status').text() == 'success') {
                     openMessageTipBox({
                         type: 'success',
-                        title: Translate('IDCS_SUCCESS_TIP'),
                         message: Translate('IDCS_SAVE_DATA_SUCCESS'),
-                        showCancelButton: false,
                     }).then(() => {
-                        if (prop.callBack) prop.callBack()
+                        emit('callBack')
                         handleCancel()
                     })
                 } else {
-                    const errorCdoe = Number(res('errorCode').text())
+                    const errorCdoe = Number($('errorCode').text())
                     let msg = Translate('IDCS_SAVE_DATA_FAIL')
                     if (errorCdoe == errorCodeMap.nameExist) {
                         msg = Translate('IDCS_PROMPT_CHANNEL_GROUP_NAME_EXIST')
@@ -147,9 +141,7 @@ export default defineComponent({
                     }
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: msg,
-                        showCancelButton: false,
                     })
                 }
             })
@@ -157,14 +149,14 @@ export default defineComponent({
 
         const handleCancel = () => {
             if (prop.dialog) {
-                prop.close && prop.close()
+                emit('close')
             } else {
                 router.push('list')
             }
         }
 
         const getData = () => {
-            const data = `
+            const data = rawXml`
                 <requireField>
                     <name/>
                     <ip/>
@@ -172,15 +164,15 @@ export default defineComponent({
                     <chlType/>
                 </requireField>`
             openLoading(LoadingTarget.FullScreen)
-            queryDevList(getXmlWrapData(data)).then((res: any) => {
+            queryDevList(getXmlWrapData(data)).then((res) => {
                 closeLoading(LoadingTarget.FullScreen)
-                res = queryXml(res)
-                if (res('status').text() == 'success') {
+                const $ = queryXml(res)
+                if ($('status').text() == 'success') {
                     const chlList: ChannelInfoDto[] = []
-                    res('//content/item').forEach((ele: any) => {
+                    $('//content/item').forEach((ele) => {
                         const eleXml = queryXml(ele.element)
                         const newData = new ChannelInfoDto()
-                        newData.id = ele.attr('id')
+                        newData.id = ele.attr('id')!
                         newData.chlIndex = eleXml('chlIndex').text()
                         newData.chlType = eleXml('chlType').text()
                         newData.name = eleXml('name').text()

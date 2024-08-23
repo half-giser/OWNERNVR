@@ -3,11 +3,10 @@
  * @Date: 2024-07-04 16:41:45
  * @Description: 磁盘模式
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-09 20:33:05
+ * @LastEditTime: 2024-08-23 17:04:10
  */
 import { DiskModeForm } from '@/types/apiType/disk'
-import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import { type UserCheckAuthForm } from '@/types/apiType/userAndSecurity'
+import BaseCheckAuthPop, { type UserCheckAuthForm } from '../../components/auth/BaseCheckAuthPop.vue'
 
 export default defineComponent({
     components: {
@@ -30,7 +29,6 @@ export default defineComponent({
         const changeDiskMode = () => {
             openMessageTipBox({
                 type: 'question',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_CHANGE_RAID_USE_TIP'),
             })
                 .then(() => {
@@ -82,7 +80,6 @@ export default defineComponent({
                 if (errorInfo) {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: errorInfo,
                     })
                 }

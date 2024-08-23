@@ -33,12 +33,9 @@ export default defineComponent({
         let changeDataFlg = false
 
         // 获取数据-更新排程列表
-        function getPageScheduleList() {
-            return new Promise((resolve) => {
-                queryScheduleList().then((result: any) => {
-                    resolve(result)
-                })
-            })
+        async function getPageScheduleList() {
+            const result = await queryScheduleList()
+            return result
         }
         // 批量编辑排程
         function changeAllSchedule(groupSchedule: string) {
@@ -64,32 +61,26 @@ export default defineComponent({
         function manageSchedule() {
             openMessageTipBox({
                 type: 'info',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('管理排程'),
-                showCancelButton: false,
-            }).catch(() => {})
+            })
         }
 
         // 获取数据-更新页面初始数据
-        function getPageData() {
-            return new Promise((resolve) => {
-                queryParkingLotConfig().then((result: any) => {
-                    resolve(result)
-                })
-            })
+        async function getPageData() {
+            const result = await queryParkingLotConfig()
+            return result
         }
 
         // 查询-发起请求
         openLoading(LoadingTarget.FullScreen)
         Promise.all([getPageScheduleList(), getPageData()]).then((resultArr) => {
             closeLoading(LoadingTarget.FullScreen)
-            type XMLResult = Element | XMLDocument | null
-            const result1Xml = queryXml(resultArr[0] as XMLResult)
-            const result2Xml = queryXml(resultArr[1] as XMLResult)
+            const result1Xml = queryXml(resultArr[0])
+            const result2Xml = queryXml(resultArr[1])
             if (result1Xml('status').text() === 'success' && result2Xml('status').text() === 'success') {
                 // 排程列表数据
                 pageData.scheduleList = []
-                result1Xml('//content/item').forEach((ele: any) => {
+                result1Xml('//content/item').forEach((ele) => {
                     const scheduleInfo = {} as SelectItem
                     scheduleInfo.value = ele.attr('id')
                     scheduleInfo.label = ele.text()
@@ -102,10 +93,10 @@ export default defineComponent({
                 pageData.tableDatas = []
                 pageData.totalNum = Number(result2Xml('//content/basicInfo/totalVehicleNum').text())
                 pageData.remainTotalNum = Number(result2Xml('//content/basicInfo/remainSpaceNum').text())
-                result2Xml('//content/parkingSapce/item').forEach((ele: any, idx) => {
+                result2Xml('//content/parkingSapce/item').forEach((ele, idx) => {
                     const eleXml = queryXml(ele.element)
                     const pkMgrSpaceManageItem = new PkMgrSpaceManageItem()
-                    pkMgrSpaceManageItem.id = ele.attr('id')
+                    pkMgrSpaceManageItem.id = ele.attr('id')!
                     pkMgrSpaceManageItem.serialNum = idx + 1
                     pkMgrSpaceManageItem.groupName = eleXml('groupName').text()
                     pkMgrSpaceManageItem.parkingType = eleXml('parkingType').text()
@@ -167,50 +158,38 @@ export default defineComponent({
             if (isGroupTotalNull) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_GROUP_TOTAL_VEHICLE_NOT_CONFIG'),
-                    showCancelButton: false,
-                }).catch(() => {})
+                })
                 return false
             } else if (isGroupRemainNull) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_GROUP_REMAIN_VEHICLE_NOT_CONFIG'),
-                    showCancelButton: false,
-                }).catch(() => {})
+                })
                 return false
             } else if (isGroupRemainExceedGroupTotal) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_GROUP_REMAIN_VEHICLE_NUM_OVER_TIPS'),
-                    showCancelButton: false,
-                }).catch(() => {})
+                })
                 return false
             } else if (isEmailError) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_PROMPT_INVALID_EMAIL'),
-                    showCancelButton: false,
-                }).catch(() => {})
+                })
                 return false
             } else if (isGroupTotalExceedTotal) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_ALL_GROUP_VEHICLE_NUM_OVER_TIPS'),
-                    showCancelButton: false,
-                }).catch(() => {})
+                })
                 return false
             } else if (isGroupRemainExceedTotalRemain) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_GROUP_TOTAL_REMAIN_SPACE_OVER_TIPS'),
-                    showCancelButton: false,
-                }).catch(() => {})
+                })
                 return false
             }
             return true
@@ -241,11 +220,11 @@ export default defineComponent({
             if (changeDataFlg) {
                 let sendXml = '<content><parkingSapce>'
                 pageData.tableDatas.forEach((ele: PkMgrSpaceManageItem) => {
-                    sendXml += `<item id="${ele.id}">
+                    sendXml += rawXml`<item id="${ele.id}">
                         <groupName>${ele.groupName}</groupName>
                         <parkingType>${ele.parkingType}</parkingType>
-                        <groupTotalNum>${ele.groupTotalNum}</groupTotalNum>
-                        <groupRemainNum>${ele.groupRemainNum}</groupRemainNum>
+                        <groupTotalNum>${ele.groupTotalNum.toString()}</groupTotalNum>
+                        <groupRemainNum>${ele.groupRemainNum.toString()}</groupRemainNum>
                         <groupSchedule>${ele.groupSchedule}</groupSchedule>
                         <linkEmail><![CDATA[${ele.linkEmail}]]></linkEmail>
                     </item>`
@@ -253,7 +232,7 @@ export default defineComponent({
                 sendXml += '</parkingSapce></content>'
                 const data = getXmlWrapData(sendXml)
                 openLoading(LoadingTarget.FullScreen)
-                editParkingLotConfig(data).then((result: any) => {
+                editParkingLotConfig(data).then((result) => {
                     closeLoading(LoadingTarget.FullScreen)
                     // 更新原始数据
                     originalPageData = JSON.parse(JSON.stringify(pageData))
@@ -272,10 +251,8 @@ export default defineComponent({
         function handleSuccess() {
             openMessageTipBox({
                 type: 'success',
-                title: Translate('IDCS_SUCCESS_TIP'),
                 message: Translate('IDCS_SAVE_DATA_SUCCESS'),
-                showCancelButton: false,
-            }).catch(() => {})
+            })
         }
         // 处理错误码提示
         function handleError(errorCode: string) {
@@ -285,10 +262,8 @@ export default defineComponent({
             }
             openMessageTipBox({
                 type: 'info',
-                title: Translate('IDCS_INFO_TIP'),
                 message: errorMsg,
-                showCancelButton: false,
-            }).catch(() => {})
+            })
         }
 
         return {

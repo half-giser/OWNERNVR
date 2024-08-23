@@ -3,16 +3,14 @@
  * @Date: 2024-06-18 15:33:50
  * @Description: 编辑权限组弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-09 20:46:32
+ * @LastEditTime: 2024-08-23 14:06:14
  */
 import { type UserPermissionChannelAuthList, UserPermissionSystemAuthList, UserPermissionGroupAddForm } from '@/types/apiType/userAndSecurity'
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
 import type { XmlResult } from '@/utils/xmlParse'
 import PermissionGroupInfoPop from './PermissionGroupInfoPop.vue'
 
 export default defineComponent({
     components: {
-        BaseImgSprite,
         PermissionGroupInfoPop,
     },
     props: {
@@ -200,7 +198,6 @@ export default defineComponent({
                 }
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: errorInfo,
                 }).then(() => {
                     goBack()
@@ -243,7 +240,6 @@ export default defineComponent({
             changeAllChannelAuth,
             handleOpen,
             displayAuthGroup,
-            BaseImgSprite,
             PermissionGroupInfoPop,
         }
     },

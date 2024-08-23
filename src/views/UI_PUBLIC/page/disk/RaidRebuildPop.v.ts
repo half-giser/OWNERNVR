@@ -3,17 +3,13 @@
  * @Date: 2024-07-09 13:43:11
  * @Description: 磁盘阵列重建弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-09 20:30:58
+ * @LastEditTime: 2024-08-23 17:04:39
  */
 import { DiskRaidList, DiskRaidRebuildForm } from '@/types/apiType/disk'
-import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import { type UserCheckAuthForm } from '@/types/apiType/userAndSecurity'
+import BaseCheckAuthPop, { type UserCheckAuthForm } from '../../components/auth/BaseCheckAuthPop.vue'
 import { type FormInstance, type FormRules } from 'element-plus'
 
 export default defineComponent({
-    components: {
-        BaseCheckAuthPop,
-    },
     props: {
         /**
          * @property 当前选中的阵列
@@ -139,7 +135,6 @@ export default defineComponent({
 
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: errorInfo,
                 })
             }

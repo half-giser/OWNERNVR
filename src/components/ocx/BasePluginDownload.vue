@@ -3,7 +3,7 @@
  * @Date: 2024-06-07 10:40:47
  * @Description: 插件下载按钮
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-08 09:08:33
+ * @LastEditTime: 2024-08-23 14:00:41
 -->
 <template>
     <div
@@ -28,7 +28,6 @@
 <script lang="ts" setup>
 import { getSystemInfo } from '@/utils/tools'
 import { getPluginPath } from '@/utils/ocx/ocxUtil'
-import BaseImgSprite from '../sprite/BaseImgSprite.vue'
 import { APP_TYPE } from '@/utils/constants'
 
 const osType = getSystemInfo().platform

@@ -9,12 +9,10 @@ import { UserPermissionSystemAuthList, type UserPermissionChannelAuthList } from
 import { UserPermissionGroupAddForm } from '@/types/apiType/userAndSecurity'
 import { type FormInstance, type FormRules } from 'element-plus'
 import type { XmlResult } from '@/utils/xmlParse'
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
 import PermissionGroupInfoPop from './PermissionGroupInfoPop.vue'
 
 export default defineComponent({
     components: {
-        BaseImgSprite,
         PermissionGroupInfoPop,
     },
     setup() {
@@ -264,7 +262,6 @@ export default defineComponent({
                 }
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: errorInfo,
                 })
             }
@@ -296,7 +293,6 @@ export default defineComponent({
             goBack,
             verify,
             changeAllChannelAuth,
-            BaseImgSprite,
             PermissionGroupInfoPop,
         }
     },

@@ -7,12 +7,8 @@
 import { parsePersianCalendartoDate } from '@/utils/tools'
 import { useUserSessionStore } from '@/stores/userSession'
 import useMessageBox from '@/hooks/useMessageBox'
-import BaseImgSprite from '@/views/UI_PUBLIC/components/sprite/BaseImgSprite.vue'
 
 export default defineComponent({
-    components: {
-        BaseImgSprite,
-    },
     props: {
         // 系统日期格式
         dateTimeFormat: {

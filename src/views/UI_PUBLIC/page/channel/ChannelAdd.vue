@@ -357,33 +357,33 @@
     <ChannelAddActivateIPCPop
         v-model="activateIPCVisable"
         :activate-ipc-data="activateIpcData"
-        :close="closeActivateIPCPop"
-    ></ChannelAddActivateIPCPop>
+        @close="closeActivateIPCPop"
+    />
     <ChannelAddSetDefaultPwdPop
         v-model="setDefaultPwdPopVisiable"
-        :close="closeSetDefaultPwdPop"
+        @close="closeSetDefaultPwdPop"
         @change="handleUpdateMapping"
-    ></ChannelAddSetDefaultPwdPop>
+    />
     <ChannelAddEditIPCIpPop
         v-model="editIPCIpPopVisiable"
-        :close="closeEditIPCIpPop"
         :edit-item="quickAddEditRowData"
         :mapping="mapping"
-    ></ChannelAddEditIPCIpPop>
+        @close="closeEditIPCIpPop"
+    />
     <ChannelAddToAddRecorderPop
         v-model="toAddRecorderPopVisiable"
-        :close="closeToAddRecorderPopVisiable"
         :edit-item="recoderEditItem"
         :mapping="mapping"
         :chl-count-limit="chlCountLimit"
         :face-match-limit-max-chl-num="faceMatchLimitMaxChlNum"
-    ></ChannelAddToAddRecorderPop>
+        @close="closeToAddRecorderPopVisiable"
+    />
     <ChannelAddSetProtocolPop
         v-model="setProtocolPopVisiable"
         :manufacturer-list="nameList"
-        :close="closeSetProtocolPop"
-    ></ChannelAddSetProtocolPop>
-    <ChannelAddMultiChlIPCAdd ref="multiChlIPCAddRef"></ChannelAddMultiChlIPCAdd>
+        @close="closeSetProtocolPop"
+    />
+    <ChannelAddMultiChlIPCAdd ref="multiChlIPCAddRef" />
 </template>
 
 <script lang="ts" src="./ChannelAdd.v.ts"></script>

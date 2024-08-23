@@ -3,19 +3,13 @@
  * @Date: 2024-07-03 15:01:51
  * @Description: POS显示设置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-05 18:25:11
+ * @LastEditTime: 2024-08-23 17:10:08
  */
-import { cloneDeep } from 'lodash'
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
-import BaseVideoPlayer from '../../components/player/BaseVideoPlayer.vue'
+import { cloneDeep } from 'lodash-es'
 import { SystemPosDisplaySetting, SystemPosDisplayPosition, type SystemPosListStartEndChar, SystemPostDisplaySet, type SystemPostColorData } from '@/types/apiType/system'
 import CanvasPos from '@/utils/canvas/canvasPos'
 
 export default defineComponent({
-    components: {
-        BaseImgSprite,
-        BaseVideoPlayer,
-    },
     props: {
         data: {
             type: Object as PropType<SystemPosDisplaySetting>,
@@ -276,7 +270,6 @@ export default defineComponent({
                 if (drawingPosition.value.width < prop.limit.wmin || drawingPosition.value.height < prop.limit.hmin) {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_DISPLAY_SIZE_INVALID'),
                     }).finally(() => {
                         drawingPosition.value = { ...displayPosition.value }
@@ -380,7 +373,6 @@ export default defineComponent({
             if (!matchStartEndChar) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_START_END_NOT_MATCH'),
                 })
                 return
@@ -491,8 +483,6 @@ export default defineComponent({
             playerRef,
             div,
             toggleOCX,
-            BaseImgSprite,
-            BaseVideoPlayer,
         }
     },
 })

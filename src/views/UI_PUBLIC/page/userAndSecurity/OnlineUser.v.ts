@@ -5,13 +5,9 @@
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
  * @LastEditTime: 2024-07-08 20:06:22
  */
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
 import type { UserOnlineList } from '@/types/apiType/userAndSecurity'
 
 export default defineComponent({
-    components: {
-        BaseImgSprite,
-    },
     setup() {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
@@ -83,7 +79,6 @@ export default defineComponent({
             currentUser,
             handleShowDetailInfo,
             pageData,
-            BaseImgSprite,
         }
     },
 })

@@ -3,7 +3,7 @@
  * @Date: 2024-07-12 18:20:34
  * @Description: FTP配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-15 18:26:14
+ * @LastEditTime: 2024-08-23 17:07:03
  */
 import { NetFTPForm, type NetFTPList } from '@/types/apiType/net'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -186,7 +186,6 @@ export default defineComponent({
             if (formData.value.switch) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_RTSP_OR_FTP_ENABLE_REMIND'),
                 })
             }
@@ -297,13 +296,11 @@ export default defineComponent({
                 if ($('/response/status').text() === 'success') {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_FTP_TEST_SUCCESS'),
                     })
                 } else {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_FTP_TEST_FAIL'),
                     })
                 }

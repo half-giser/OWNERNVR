@@ -3,16 +3,14 @@
  * @Date: 2024-06-25 09:59:23
  * @Description: 输出配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 17:41:54
+ * @LastEditTime: 2024-08-23 16:16:13
  */
 import { type XmlResult } from '@/utils/xmlParse'
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
 import OutputSplitTemplate from './OutputSplitTemplate.vue'
 import OutputAddViewPop from './OutputAddViewPop.vue'
-import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import { type UserCheckAuthForm } from '@/types/apiType/userAndSecurity'
+import BaseCheckAuthPop, { type UserCheckAuthForm } from '../../components/auth/BaseCheckAuthPop.vue'
 import ChannelGroupEditPop from '../channel/ChannelGroupEditPop.vue'
-import ChannelGroupAdd from '../channel/ChannelGroupAdd.vue'
+import ChannelGroupAddPop from '../channel/ChannelGroupAddPop.vue'
 import { ChlGroup } from '@/types/apiType/channel'
 
 type ChlItem = {
@@ -75,11 +73,10 @@ interface DecoderCardMap {
 export default defineComponent({
     components: {
         BaseCheckAuthPop,
-        BaseImgSprite,
         OutputSplitTemplate,
         OutputAddViewPop,
         ChannelGroupEditPop,
-        ChannelGroupAdd,
+        ChannelGroupAddPop,
     },
     setup() {
         const { Translate } = useLangStore()
@@ -521,7 +518,6 @@ export default defineComponent({
             if (findItem) {
                 openMessageTipBox({
                     type: 'question',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_DELETE_MP_GROUP_S').formatForLang(getShortString(findItem.value, 10)),
                 }).then(async () => {
                     openLoading(LoadingTarget.FullScreen)
@@ -538,7 +534,6 @@ export default defineComponent({
                     if ($('/response/status').text() === 'success') {
                         openMessageTipBox({
                             type: 'success',
-                            title: Translate('IDCS_SUCCESS_TIP'),
                             message: Translate('IDCS_DELETE_SUCCESS'),
                         }).then(() => {
                             getChlGroupList()
@@ -907,7 +902,6 @@ export default defineComponent({
             pageData.value.configSwitch = !pageData.value.configSwitch
             openMessageTipBox({
                 type: 'question',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_OPEN_SUBOUTPUT_TIP'),
             }).then(() => {
                 pageData.value.isCheckAuth = true
@@ -962,7 +956,6 @@ export default defineComponent({
 
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: errorInfo,
                 })
             }
@@ -1264,11 +1257,10 @@ export default defineComponent({
             closeAddChlGroup,
 
             BaseCheckAuthPop,
-            BaseImgSprite,
             OutputSplitTemplate,
             // OutputAddViewPop,
             ChannelGroupEditPop,
-            ChannelGroupAdd,
+            ChannelGroupAddPop,
         }
     },
 })

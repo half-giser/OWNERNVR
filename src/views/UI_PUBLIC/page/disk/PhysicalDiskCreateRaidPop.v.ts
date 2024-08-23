@@ -3,12 +3,11 @@
  * @Date: 2024-07-08 18:01:16
  * @Description: 创建磁盘阵列弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 16:10:07
+ * @LastEditTime: 2024-08-23 17:04:27
  */
 import { type DiskPhysicalList, DiskCreateRaidForm } from '@/types/apiType/disk'
 import { type FormInstance, type FormRules } from 'element-plus'
-import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import { type UserCheckAuthForm } from '@/types/apiType/userAndSecurity'
+import BaseCheckAuthPop, { type UserCheckAuthForm } from '../../components/auth/BaseCheckAuthPop.vue'
 
 export default defineComponent({
     components: {
@@ -174,7 +173,6 @@ export default defineComponent({
             if ($('/response/status').text() === 'success') {
                 openMessageTipBox({
                     type: 'success',
-                    title: Translate('IDCS_SUCCESS_TIP'),
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 }).finally(() => {
                     ctx.emit('confirm')
@@ -202,7 +200,6 @@ export default defineComponent({
                 }
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: errorInfo,
                 })
             }

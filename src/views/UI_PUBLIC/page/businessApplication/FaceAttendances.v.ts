@@ -5,16 +5,8 @@
  */
 
 import { type CheckboxValueType } from 'element-plus'
-import { getChlList } from '@/utils/tools'
-import { getXmlWrapData } from '@/api/api'
 import { QueryNodeListDto } from '@/types/apiType/channel'
 import { FaceAttendancePageData, FaceGroupInfoItem, FacePersonnalInfoItem } from '@/types/apiType/business'
-import { queryFacePersonnalInfoGroupList, queryFacePersonnalInfoList } from '@/api/business'
-import { queryTimeCfg } from '@/api/system'
-import { queryXml } from '@/utils/xmlParse'
-import { useLangStore } from '@/stores/lang'
-import useLoading from '@/hooks/useLoading'
-import useMessageBox from '@/hooks/useMessageBox'
 import BaseTableSelectItemPop from '@/views/UI_PUBLIC/components/BaseTableSelectItemPop.vue'
 import BaseDateSelectTab from '@/views/UI_PUBLIC/components/BaseDateSelectTab.vue'
 import BaseDateSelectPreNextBtn from '@/views/UI_PUBLIC/components/BaseDateSelectPreNextBtn.vue'
@@ -49,7 +41,7 @@ export default defineComponent({
         }
         function getTimeCfg(callback: Function) {
             openLoading(LoadingTarget.FullScreen)
-            queryTimeCfg().then((result: any) => {
+            queryTimeCfg().then((result) => {
                 closeLoading(LoadingTarget.FullScreen)
                 const resultXml = queryXml(result)
                 if (resultXml('status').text() === 'success') {
@@ -85,13 +77,13 @@ export default defineComponent({
             queryNodeListDto.authList = '@spr,@bk'
             queryNodeListDto.isContainsDeletedItem = true
             openLoading(LoadingTarget.FullScreen)
-            getChlList(queryNodeListDto).then((result: any) => {
+            getChlList(queryNodeListDto).then((result) => {
                 closeLoading(LoadingTarget.FullScreen)
                 const resultXml = queryXml(result)
                 if (resultXml('status').text() === 'success') {
-                    resultXml('//content/item').forEach((ele: any) => {
+                    resultXml('//content/item').forEach((ele) => {
                         const eleXml = queryXml(ele.element)
-                        const chlId = ele.attr('id')
+                        const chlId = ele.attr('id')!
                         const chlName = eleXml('name').text()
                         const chlItem = {} as SelectItem
                         chlItem.value = chlId
@@ -145,15 +137,15 @@ export default defineComponent({
         // 获取数据-更新人脸分组列表数据
         function getFacePersonnalInfoGroupList() {
             openLoading(LoadingTarget.FullScreen)
-            queryFacePersonnalInfoGroupList().then((result: any) => {
+            queryFacePersonnalInfoGroupList().then((result) => {
                 closeLoading(LoadingTarget.FullScreen)
                 pageData.faceIdFacePersonnalInfoMap = {}
                 pageData.faceGroupIdFaceIdListMap = {}
                 const resultXml = queryXml(result)
                 if (resultXml('status').text() === 'success') {
-                    resultXml('//content/item').forEach((ele: any) => {
+                    resultXml('//content/item').forEach((ele) => {
                         const eleXml = queryXml(ele.element)
-                        const id = ele.attr('id')
+                        const id = ele.attr('id')!
                         const groupId = eleXml('groupId').text()
                         const groupName = eleXml('name').text()
                         const property = eleXml('property').text()
@@ -216,7 +208,7 @@ export default defineComponent({
         function getFacePersonnalInfoList(groudId: string, id: string) {
             let sendXml = '<condition>'
             if (groudId) {
-                sendXml += `
+                sendXml += rawXml`
                     <faceFeatureGroups type="list">
                         <item id="${groudId}"></item>
                     </faceFeatureGroups>
@@ -228,16 +220,16 @@ export default defineComponent({
             sendXml += '</condition>'
             const data: string = getXmlWrapData(sendXml)
             openLoading(LoadingTarget.FullScreen)
-            queryFacePersonnalInfoList(data).then((result: any) => {
+            queryFacePersonnalInfoList(data).then((result) => {
                 closeLoading(LoadingTarget.FullScreen)
                 const resultXml = queryXml(result)
                 if (resultXml('status').text() === 'success') {
-                    resultXml('//content/item').forEach((ele1: any) => {
+                    resultXml('//content/item').forEach((ele1) => {
                         const ele1Xml = queryXml(ele1.element)
-                        const faceId = ele1.attr('id')
+                        const faceId = ele1.attr('id')!
                         const faceName = ele1Xml('name').text()
                         const groups: Array<{ groupId: string; groupName: string }> = []
-                        ele1Xml('groups/item').forEach((ele2: any) => {
+                        ele1Xml('groups/item').forEach((ele2) => {
                             const ele2Xml = queryXml(ele2.element)
                             const groupId = ele2Xml('groupId').text()
                             const groupName = ele2Xml('name').text() || ''
@@ -309,10 +301,8 @@ export default defineComponent({
                 }
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_END_TIME_GREATER_THAN_START'),
-                    showCancelButton: false,
-                }).catch(() => {})
+                })
             }
             if (timeType === 'start') {
                 attendanceStartTimeBlur = time

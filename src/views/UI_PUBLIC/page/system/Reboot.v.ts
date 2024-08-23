@@ -3,10 +3,9 @@
  * @Date: 2024-06-20 15:59:54
  * @Description: 系统重启
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-20 17:21:02
+ * @LastEditTime: 2024-08-23 17:10:45
  */
-import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import { type UserCheckAuthForm } from '@/types/apiType/userAndSecurity'
+import BaseCheckAuthPop, { type UserCheckAuthForm } from '../../components/auth/BaseCheckAuthPop.vue'
 
 export default defineComponent({
     components: {
@@ -68,7 +67,6 @@ export default defineComponent({
                 }
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: errorInfo,
                 })
             }

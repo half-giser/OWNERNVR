@@ -169,13 +169,11 @@
 </template>
 
 <script lang="ts" setup>
-import BasePluginPlayer from '../ocx/BasePluginPlayer.vue'
 import VideoPlayer, { type TVTPlayerWinDataListItem, type TVTPlayerPosInfoItem } from '@/utils/wasmPlayer/tvtPlayer'
 import { downloadFromBase64, Uint8ArrayToStr } from '@/utils/tools'
 import { useLangStore } from '@/stores/lang'
 import type WebGLPlayer from '@/utils/wasmPlayer/webglPlayer'
 import { type WasmPlayerVideoFrame } from '@/utils/wasmPlayer/wasmPlayer'
-import BaseImgSprite from '../sprite/BaseImgSprite.vue'
 const Plugin = inject('Plugin') as PluginType
 
 const pluginStore = usePluginStore()

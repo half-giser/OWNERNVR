@@ -3,10 +3,10 @@
  * @Date: 2024-06-17 17:21:34
  * @Description: 更改其他用户密码的弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 20:43:01
+ * @LastEditTime: 2024-08-23 14:54:33
  */
-import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import { UserEditPasswordForm, type UserCheckAuthForm } from '@/types/apiType/userAndSecurity'
+import BaseCheckAuthPop, { type UserCheckAuthForm } from '../../components/auth/BaseCheckAuthPop.vue'
+import { UserEditPasswordForm } from '@/types/apiType/userAndSecurity'
 import { type FormInstance, type FormRules } from 'element-plus'
 
 export default defineComponent({
@@ -172,7 +172,6 @@ export default defineComponent({
                 }
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: errorText,
                 })
             }

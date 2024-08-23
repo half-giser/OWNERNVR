@@ -1,5 +1,6 @@
 import { ChlGroup } from '@/types/apiType/channel'
-import { trim, cloneDeep } from 'lodash'
+import { cloneDeep } from 'lodash-es'
+import { type RuleItem } from 'async-validator'
 
 /*
  * @Author: linguifan linguifan@tvt.net.cn
@@ -8,15 +9,20 @@ import { trim, cloneDeep } from 'lodash'
  */
 export default defineComponent({
     props: {
-        editItem: ChlGroup,
-        callBack: Function,
-        close: {
-            type: Function,
-            require: true,
-            default: () => {},
+        editItem: {
+            type: Object as PropType<ChlGroup>,
+            required: true,
         },
     },
-    setup(props: any) {
+    emits: {
+        close() {
+            return true
+        },
+        callBack(data: ChlGroup) {
+            return !!data
+        },
+    },
+    setup(props, { emit }) {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const { openMessageTipBox } = useMessageBox()
@@ -33,9 +39,9 @@ export default defineComponent({
             { text: '10 ' + Translate('IDCS_MINUTES'), value: 600 },
         ]
 
-        const validate = {
-            validateName: (_rule: any, value: any, callback: any) => {
-                value = trim(value)
+        const validate: Record<string, RuleItem['validator']> = {
+            validateName: (_rule, value, callback) => {
+                value = value.trim()
                 if (value.length === 0) {
                     callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
                     return
@@ -66,42 +72,34 @@ export default defineComponent({
 
         const save = async () => {
             if (!(await verification())) return
-            const data = `
+            const data = rawXml`
                 <content>
                     <id>${formData.value.id}</id>
                     <name><![CDATA[${formData.value.name}]]></name>
-                    <dwellTime unit='s'>${formData.value.dwellTime}</dwellTime>
+                    <dwellTime unit='s'>${formData.value.dwellTime.toString()}</dwellTime>
                 </content>`
             openLoading(LoadingTarget.FullScreen)
-            editChlGroup(getXmlWrapData(data)).then((res: any) => {
+            editChlGroup(getXmlWrapData(data)).then((res) => {
                 closeLoading(LoadingTarget.FullScreen)
-                res = queryXml(res)
-                if (res('status').text() == 'success') {
+                const $ = queryXml(res)
+                if ($('status').text() == 'success') {
                     openMessageTipBox({
                         type: 'success',
-                        title: Translate('IDCS_SUCCESS_TIP'),
                         message: Translate('IDCS_SAVE_DATA_SUCCESS'),
-                        showCancelButton: false,
+                    }).then(() => {
+                        emit('callBack', formData.value)
+                        emit('close')
                     })
-                        .then(() => {
-                            if (props.callBack) props.callBack(formData.value)
-                            props.close()
-                        })
-                        .catch(() => {})
                 } else {
-                    if (Number(res('errorCode').text()) == errorCodeMap.nameExist) {
+                    if (Number($('errorCode').text()) == errorCodeMap.nameExist) {
                         openMessageTipBox({
                             type: 'info',
-                            title: Translate('IDCS_INFO_TIP'),
                             message: Translate('IDCS_PROMPT_CHANNEL_GROUP_NAME_EXIST'),
-                            showCancelButton: false,
                         })
                     } else {
                         openMessageTipBox({
                             type: 'info',
-                            title: Translate('IDCS_INFO_TIP'),
                             message: Translate('IDCS_SAVE_DATA_FAIL'),
-                            showCancelButton: false,
                         })
                     }
                 }
