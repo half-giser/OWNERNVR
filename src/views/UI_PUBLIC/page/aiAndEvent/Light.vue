@@ -244,7 +244,7 @@
     #col_tips {
         margin-top: 5px;
         #tips {
-            color: gray;
+            color: #8d8d8d;
             font-size: 14px;
         }
     }

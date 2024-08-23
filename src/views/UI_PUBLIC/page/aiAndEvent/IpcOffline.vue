@@ -1,3 +1,10 @@
+<!--
+ * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @Date: 2024-08-21 15:34:24
+ * @Description: 前端掉线
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-08-22 10:41:48
+-->
 <template>
     <div>
         <BaseTransferDialog
