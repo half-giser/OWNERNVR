@@ -3,11 +3,10 @@
  * @Date: 2024-07-29 18:07:29
  * @Description: 现场预览
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-21 18:16:42
+ * @LastEditTime: 2024-08-22 20:28:51
  */
 import { cloneDeep } from 'lodash-es'
 import { type LiveChannelList, type LiveCustomViewChlList, LiveSharedWinData } from '@/types/apiType/live'
-import BaseNotification from '../../components/BaseNotification.vue'
 import { type TVTPlayerWinDataListItem, type TVTPlayerPosInfoItem } from '@/utils/wasmPlayer/tvtPlayer'
 import WebsocketState from '@/utils/websocket/websocketState'
 import { APP_TYPE } from '@/utils/constants'
@@ -377,7 +376,6 @@ export default defineComponent({
         LivePtzPanel,
         LiveSnapPanel,
         LiveFishEyePanel,
-        BaseNotification,
     },
     setup() {
         const { Translate } = useLangStore()
@@ -1705,7 +1703,6 @@ export default defineComponent({
             LivePtzPanel,
             LiveSnapPanel,
             LiveFishEyePanel,
-            BaseNotification,
         }
     },
 })

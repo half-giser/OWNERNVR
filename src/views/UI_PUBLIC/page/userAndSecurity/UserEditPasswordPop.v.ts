@@ -8,12 +8,10 @@
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import { UserEditPasswordForm, type UserCheckAuthForm } from '@/types/apiType/userAndSecurity'
 import { type FormInstance, type FormRules } from 'element-plus'
-import BasePasswordStrength from '../../components/form/BasePasswordStrength.vue'
 
 export default defineComponent({
     components: {
         BaseCheckAuthPop,
-        BasePasswordStrength,
     },
     props: {
         userId: {
@@ -212,7 +210,6 @@ export default defineComponent({
             isAuthDialog,
             doUpdateUserPassword,
             BaseCheckAuthPop,
-            BasePasswordStrength,
         }
     },
 })

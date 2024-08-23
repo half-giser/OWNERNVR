@@ -37,7 +37,67 @@
     </div>
 </template>
 
-<script lang="ts" src="./BaseNotification.v.ts" />
+<script lang="ts" setup>
+const props = withDefaults(
+    defineProps<{
+        notifications: string[]
+        duration?: number
+        position?: string
+    }>(),
+    {
+        // notifications: [] as string[],
+        duration: 100000,
+        position: 'right-bottom',
+    },
+)
+
+const emit = defineEmits<{
+    (e: 'update:notifications', notification: string[]): void
+}>()
+
+const notifications = computed(() => props.notifications)
+const notificationList = ref(notifications.value)
+const duration = ref(props.duration)
+const hiddenNotify = ref<boolean>(true)
+const selectedNotificationIndex = ref(0)
+let timer: NodeJS.Timeout | number = 0
+
+watch(
+    () => notifications,
+    (val) => {
+        notificationList.value = val.value
+        if (notificationList.value.length !== 0) {
+            nextTick(() => {
+                hiddenNotify.value = false
+                timeOutNotification()
+            })
+        }
+    },
+    {
+        deep: true,
+        immediate: true,
+    },
+)
+
+const containerClass = computed(() => `position-${props.position}`)
+
+const timeOutNotification = () => {
+    clearTimeout(timer)
+    timer = setTimeout(() => {
+        removeNotification()
+    }, duration.value)
+}
+
+const removeNotification = () => {
+    notificationList.value = []
+    hiddenNotify.value = true
+    emit('update:notifications', [])
+}
+
+onBeforeUnmount(() => {
+    clearTimeout(timer)
+})
+</script>
 
 <style lang="scss" scoped>
 .notification-container {

@@ -3,7 +3,7 @@
  * @Date: 2024-08-20 13:57:42
  * @Description: 云台-轨迹
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-21 14:14:28
+ * @LastEditTime: 2024-08-22 19:31:46
 -->
 <template>
     <div class="trace">
@@ -138,7 +138,7 @@
                     ref="tableRef"
                     :show-header="false"
                     :data="tableData"
-                    :row-key="(row) => row.chlId"
+                    :row-key="getRowKey"
                     :expand-row-key="pageData.expandRowKey"
                     highlight-current-row
                     border
@@ -154,29 +154,14 @@
                     </el-table-column>
                     <el-table-column type="expand">
                         <template #default="scope">
-                            <div class="expand">
-                                <div
+                            <ChannelPtzTableExpandPanel @add="addTrace(scope.$index)">
+                                <ChannelPtzTableExpandItem
                                     v-for="(item, index) in scope.row.trace"
                                     :key="item.index"
-                                    class="expand-item"
-                                >
-                                    <span>{{ item.index }}. {{ item.name }}</span>
-                                    <BaseImgSprite
-                                        file="delItem"
-                                        class="expand-del"
-                                        @click="deleteTrace(scope.$index, index)"
-                                    />
-                                </div>
-                                <BaseImgSprite
-                                    class="expand-add"
-                                    file="addItem"
-                                    :index="0"
-                                    :disabled-index="1"
-                                    :disabled="scope.row.trace.length >= scope.row.maxCount"
-                                    :chunk="2"
-                                    @click="addTrace(scope.$index)"
+                                    :text="`${item.index}. ${item.name}`"
+                                    @delete="deleteTrace(scope.$index, index)"
                                 />
-                            </div>
+                            </ChannelPtzTableExpandPanel>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -190,7 +175,7 @@
             @confirm="confirmAddTrace"
             @close="pageData.isAddPop = false"
         />
-        <BaseNotification v-model:notification="pageData.notification" />
+        <BaseNotification v-model:notifications="pageData.notification" />
     </div>
 </template>
 
@@ -249,33 +234,5 @@
     font-size: 22px;
     line-height: 32px;
     padding-right: 10px;
-    // font-size: ;
-}
-
-.expand {
-    display: flex;
-    flex-wrap: wrap;
-    padding: 15px;
-
-    &-item {
-        width: 200px;
-        padding-bottom: 15px;
-
-        &:hover {
-            .expand-del {
-                opacity: 1;
-            }
-        }
-    }
-
-    &-del {
-        opacity: 0;
-        cursor: pointer;
-        margin-left: 5px;
-    }
-
-    &-add {
-        cursor: pointer;
-    }
 }
 </style>

@@ -26,8 +26,8 @@
                     >
                         <BaseIpInput
                             v-show="!formData.chkDomain"
-                            v-model:value="formData.ip"
-                            :disable="eleIpDisabled"
+                            v-model="formData.ip"
+                            :disabled="eleIpDisabled"
                         />
                         <el-input
                             v-show="formData.chkDomain"

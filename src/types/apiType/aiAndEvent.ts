@@ -112,6 +112,7 @@ export class MotionEventConfig {
     snapList = [] as string[]
     sysAudio = ''
     msgPush = ''
+    ftpSnap = '' //抓图到FTP，暂时无用
     alarmOut = {
         switch: false,
         chls: [] as { value: string; label: string }[],
@@ -123,6 +124,9 @@ export class MotionEventConfig {
     }
     beeper = ''
     videoPopup = ''
+    videoPopupInfo = { switch: false, chl: { value: '', label: '' } as { value: string; label: string } }
+    videoPopupList = [] as { value: string; label: string }[]
+    msgBoxPopup = ''
     email = ''
     oldSchedule = {
         value: '',

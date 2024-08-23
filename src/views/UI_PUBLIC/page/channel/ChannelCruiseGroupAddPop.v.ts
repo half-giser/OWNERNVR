@@ -1,34 +1,34 @@
 /*
  * @Author: yejiahao yejiahao@tvt.net.cn
- * @Date: 2024-08-20 18:26:39
- * @Description: 新增预置点弹窗
+ * @Date: 2024-08-22 10:15:51
+ * @Description: 巡航线组 新增巡航线弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-22 16:48:58
+ * @LastEditTime: 2024-08-22 18:06:11
  */
-import { type ChannelPtzPresetDto } from '@/types/apiType/channel'
 import type { FormInstance, FormRules } from 'element-plus'
+import { type ChannelPtzCruiseDto } from '@/types/apiType/channel'
 
 export default defineComponent({
     props: {
         /**
-         * @property {Number} 最大预置点数
+         * @property {Number} 最大巡航线数
          */
         max: {
             type: Number,
-            default: 128,
-        },
-        /**
-         * @property {Array} 预置点列表
-         */
-        presets: {
-            type: Array as PropType<ChannelPtzPresetDto[]>,
-            required: true,
+            default: 8,
         },
         /**
          * @property {String} 通道ID
          */
         chlId: {
             type: String,
+            required: true,
+        },
+        /**
+         * @property {Array} 巡航线列表
+         */
+        cruise: {
+            type: Array as PropType<ChannelPtzCruiseDto[]>,
             required: true,
         },
     },
@@ -47,24 +47,19 @@ export default defineComponent({
 
         const pageData = ref({
             // 预置点选项
-            presetOptions: [] as number[],
+            cruiseOptions: [] as SelectOption<string, string>[],
         })
 
         const formRef = ref<FormInstance>()
         const formData = ref({
-            index: 0 as number | string,
-            name: '',
+            name: '' as string,
         })
         const formRule = ref<FormRules>({
             name: [
                 {
                     validator(rule, value: string, callback) {
-                        if (!value.trim()) {
+                        if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
-                            return
-                        }
-                        if (prop.presets.map((item) => item.name).includes(value.trim())) {
-                            callback(new Error(Translate('IDCS_PROMPT_PRESET_NAME_OR_INDEX_EXIST')))
                             return
                         }
                         callback()
@@ -75,28 +70,46 @@ export default defineComponent({
         })
 
         /**
+         * @description 获取巡航线列表
+         */
+        const getData = async () => {
+            const sendXml = rawXml`
+                <condition>
+                    <chlId>${prop.chlId}</chlId>
+                </condition>
+            `
+            const result = await queryChlCruiseList(sendXml)
+            const $ = queryXml(result)
+
+            if ($('/response/status').text() === 'success') {
+                pageData.value.cruiseOptions = $('/response/content/cruises/item').map((item) => {
+                    return {
+                        value: item.attr('index')!,
+                        label: item.text(),
+                    }
+                })
+                if (pageData.value.cruiseOptions.length) {
+                    formData.value.name = pageData.value.cruiseOptions[0].value
+                } else {
+                    formData.value.name = ''
+                }
+            }
+        }
+
+        /**
          * @description 打开弹窗时，重置表单和选项数据
          */
         const open = () => {
             formRef.value?.clearValidate()
-            formRef.value?.resetFields()
+            formData.value.name = ''
+            getData()
+        }
 
-            const presetsIndex = prop.presets.map((item) => item.index)
-            pageData.value.presetOptions = Array(prop.max)
-                .fill(0)
-                .map((item, index) => {
-                    return index + 1
-                })
-                .filter((item) => {
-                    return !presetsIndex.includes(item)
-                })
-            if (pageData.value.presetOptions.length) {
-                formData.value.index = pageData.value.presetOptions[0]
-                formData.value.name = 'preset' + formData.value.index
-            } else {
-                formData.value.index = ''
-                formData.value.name = ''
-            }
+        /**
+         * @description 关闭弹窗
+         */
+        const close = () => {
+            ctx.emit('close')
         }
 
         /**
@@ -105,14 +118,21 @@ export default defineComponent({
         const setData = async () => {
             openLoading(LoadingTarget.FullScreen)
 
+            let cruiseXml = prop.cruise.map((item) => `<item index="${item.index.toString()}"><name>${wrapCDATA(item.name)}</name></item>`).join('')
+            const find = pageData.value.cruiseOptions.find((item) => item.value === formData.value.name)
+            if (find) {
+                cruiseXml += `<item index="${formData.value.name}"><name>${wrapCDATA(find.label)}</name></item>`
+            }
+
             const sendXml = rawXml`
                 <content>
-                    <index>${formData.value.index.toString()}</index>
-                    <name>${wrapCDATA(formData.value.name)}</name>
-                    <chlId>${prop.chlId}</chlId>
+                    <chlId id="${prop.chlId}"></chlId>
+                    <index>1</index>
+                    <name>group1</name>
+                    <cruises type="list">${cruiseXml}</cruises>
                 </content>
             `
-            const result = await createChlPreset(sendXml)
+            const result = await editChlPtzGroup(sendXml)
             const $ = queryXml(result)
 
             closeLoading(LoadingTarget.FullScreen)
@@ -120,7 +140,7 @@ export default defineComponent({
             if ($('/response/status').text() === 'success') {
                 openMessageTipBox({
                     type: 'success',
-                    message: Translate('IDCS_SUCCESS_TIP'),
+                    message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 }).finally(() => {
                     ctx.emit('confirm')
                 })
@@ -129,13 +149,10 @@ export default defineComponent({
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_NAME_EXISTED:
-                        errorInfo = Translate('IDCS_PROMPT_PRESET_NAME_OR_INDEX_EXIST')
+                        errorInfo = Translate('IDCS_PROMPT_CRUISE_NAME_EXIST')
                         break
                     case ErrorCode.USER_ERROR_OVER_LIMIT:
-                        errorInfo = Translate('IDCS_PRESET_MAX_NUM')
-                        break
-                    case ErrorCode.USER_ERROR_NO_AUTH:
-                        errorInfo = Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_NO_PERMISSION')
+                        errorInfo = $('/response/errorDescription').text() === 'Cruise' ? Translate('IDCS_CRUISE_MAX_NUM').formatForLang(prop.max) : Translate('IDCS_SAVE_DATA_FAIL')
                         break
                     default:
                         errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
@@ -159,13 +176,6 @@ export default defineComponent({
             })
         }
 
-        /**
-         * @description 关闭弹窗
-         */
-        const close = () => {
-            ctx.emit('close')
-        }
-
         return {
             formRef,
             formData,
@@ -174,8 +184,6 @@ export default defineComponent({
             open,
             verify,
             close,
-            nameByteMaxLen,
-            formatInputMaxLength,
         }
     },
 })

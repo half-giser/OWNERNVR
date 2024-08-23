@@ -3,7 +3,7 @@
  * @Date: 2024-08-10 16:25:58
  * @Description: AI/事件
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-22 15:19:26
+ * @LastEditTime: 2024-08-23 10:41:10
  */
 
 import { type AxiosRequestConfig } from 'axios'
@@ -80,3 +80,9 @@ export const queryAlarmIn = (data: string) => http.fetch('queryAlarmIn', getXmlW
 
 // 修改传感器数据
 export const editAlarmIn = (data: string) => http.fetch('editAlarmIn', getXmlWrapData(data))
+
+// 获取前端掉线数据
+export const queryFrontEndOfflineTrigger = (data: string) => http.fetch('queryFrontEndOfflineTrigger', getXmlWrapData(data))
+
+// 修改前端掉线数据
+export const editFrontEndOfflineTrigger = (data: string) => http.fetch('editFrontEndOfflineTrigger', getXmlWrapData(data))

@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-20 17:19:56
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-22 11:24:34
+ * @LastEditTime: 2024-08-23 10:41:54
  */
 import { type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
 

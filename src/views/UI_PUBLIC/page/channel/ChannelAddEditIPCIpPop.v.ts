@@ -9,10 +9,8 @@ import { getXmlWrapData } from '@/api/api'
 import { queryXml } from '@/utils/xmlParse'
 import useLoading from '@/hooks/useLoading'
 import { useLangStore } from '@/stores/lang'
-import BaseIpInput from '../../components/form/BaseIpInput.vue'
 
 export default defineComponent({
-    components: { BaseIpInput },
     props: {
         editItem: ChannelQuickAddDto,
         mapping: Object,

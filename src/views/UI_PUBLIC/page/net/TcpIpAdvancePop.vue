@@ -3,7 +3,7 @@
  * @Date: 2024-08-16 18:58:43
  * @Description: TCP/IP高级配置弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-20 11:11:55
+ * @LastEditTime: 2024-08-22 19:45:53
 -->
 <template>
     <el-dialog
@@ -35,8 +35,8 @@
                 prop="secondIp"
             >
                 <BaseIpInput
-                    v-model:value="formData.secondIp"
-                    :disable="!formData.secondIpSwitch"
+                    v-model="formData.secondIp"
+                    :disabled="!formData.secondIpSwitch"
                 />
             </el-form-item>
             <el-form-item
@@ -45,8 +45,8 @@
                 prop="secondMask"
             >
                 <BaseIpInput
-                    v-model:value="formData.secondMask"
-                    :disable="!formData.secondIpSwitch"
+                    v-model="formData.secondMask"
+                    :disabled="!formData.secondIpSwitch"
                 />
             </el-form-item>
             <template

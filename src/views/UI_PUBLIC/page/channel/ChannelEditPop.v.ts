@@ -16,11 +16,9 @@ import { type SetupContext } from 'vue'
 import { AES_encrypt } from '@/utils/encrypt'
 import useMessageBox from '@/hooks/useMessageBox'
 import { useLangStore } from '@/stores/lang'
-import BaseIpInput from '../../components/form/BaseIpInput.vue'
 import useLoading from '@/hooks/useLoading'
 
 export default defineComponent({
-    components: { BaseIpInput },
     props: {
         rowData: ChannelInfoDto,
         protocolList: Array<String>,
@@ -317,8 +315,6 @@ export default defineComponent({
                             }
                         }
                     })
-                } else {
-                    return false
                 }
             })
         }
