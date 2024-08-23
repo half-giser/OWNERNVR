@@ -3,7 +3,7 @@
  * @Date: 2024-08-10 12:08:57
  * @Description: AI/事件
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-22 10:27:55
+ * @LastEditTime: 2024-08-22 17:16:46
  */
 const { Translate } = useLangStore()
 
@@ -85,6 +85,7 @@ export class AlarmTypeInfo {
     value = ''
 }
 
+// 移动侦测和前端掉线
 export class MotionEventConfig {
     id = ''
     addType = ''
@@ -227,4 +228,21 @@ export class LocalTableRow {
     name = ''
     originalName = ''
     fileValid = ''
+}
+
+export class ExceptionAlarmRow {
+    id = ''
+    eventType = ''
+    sysAudio = ''
+    msgPush = ''
+    alarmOut = {
+        switch: false,
+        alarmOuts: [] as { value: string; label: string }[],
+    }
+    alarmOutList = [] as string[]
+    beeper = ''
+    msgBoxPopup = ''
+    email = 'false'
+    rowDisable = true
+    emailDisable = true
 }
