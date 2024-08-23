@@ -20,7 +20,6 @@ import { LocalCacheKey, errorCodeMap, nameByteMaxLen } from '@/utils/constants'
 import { trim } from 'lodash'
 import ChannelAddMultiChlIPCAdd from './ChannelAddMultiChlIPCAdd.vue'
 import BaseImgSprite from '@/views/UI_PUBLIC/components/sprite/BaseImgSprite.vue'
-import BaseIpInput from '../../components/form/BaseIpInput.vue'
 
 export default defineComponent({
     components: {
@@ -31,7 +30,6 @@ export default defineComponent({
         ChannelAddSetProtocolPop,
         ChannelAddMultiChlIPCAdd,
         BaseImgSprite,
-        BaseIpInput,
     },
     setup() {
         const { Translate } = useLangStore()

@@ -3,21 +3,44 @@
  * @Date: 2024-07-01 13:46:55
  * @Description: 日期时间格式
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-01 13:47:10
+ * @LastEditTime: 2024-08-22 19:11:49
  */
 import dayjs from 'dayjs'
 
 export const useDateTime = () => {
     const userSession = useUserSessionStore()
 
+    const YMD_MAPPING: Record<string, string> = {
+        'year-month-day': 'YYYY/MM/DD',
+        'month-day-year': 'MM/DD/YYYY',
+        'day-month-year': 'DD/MM/YYYY',
+    }
+
+    const HMS_MAPPING: Record<string, string> = {
+        '24': 'HH:mm:ss',
+        '12': 'hh:mm:ss A',
+    }
+
+    const YM_MAPPING: Record<string, string> = {
+        'year-month-day': 'YYYY/MM',
+        'month-day-year': 'MM/YYYY',
+        'day-month-year': 'MM/YYYY',
+    }
+
+    const HM_MAPPIMG: Record<string, string> = {
+        '24': 'HH:mm',
+        '12': 'hh:mm A',
+    }
+
     // 日期格式
-    const dateFormat = ref('YYYY-MM-dd')
+    const dateFormat = ref('YYYY/MM/DD')
     // 时间格式
     const timeFormat = ref('HH:mm:ss')
     // 日期时间格式
-    const dateTimeFormat = computed(() => {
-        return dateFormat.value + ' ' + timeFormat.value
-    })
+    const dateTimeFormat = ref('YYYY/MM/DD HH:mm:ss')
+
+    const yearMonthFormat = ref('YYYY/MM')
+    const hourMinuteFormat = ref('HH:mm')
 
     /**
      * @description 获取时间格式化配置
@@ -25,8 +48,13 @@ export const useDateTime = () => {
     const getTimeConfig = async () => {
         const result = await queryTimeCfg()
         const $ = queryXml(result)
-        timeFormat.value = DEFAULT_MOMENT_MAPPING[$('/response/content/formatInfo/time').text()]
-        dateFormat.value = DEFAULT_MOMENT_MAPPING[$('/response/content/formatInfo/date').text()]
+        const time = $('/response/content/formatInfo/time').text()
+        const date = $('/response/content/formatInfo/date').text()
+        dateFormat.value = YMD_MAPPING[date]
+        yearMonthFormat.value = YM_MAPPING[date]
+        timeFormat.value = HMS_MAPPING[time]
+        hourMinuteFormat.value = HM_MAPPIMG[time]
+        dateTimeFormat.value = dateFormat.value + ' ' + timeFormat.value
         return $
     }
 
@@ -52,5 +80,7 @@ export const useDateTime = () => {
         dateTimeFormat,
         getTimeConfig,
         highlightWeekend,
+        yearMonthFormat,
+        hourMinuteFormat,
     }
 }

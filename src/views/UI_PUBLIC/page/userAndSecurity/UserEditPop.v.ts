@@ -3,16 +3,12 @@
  * @Date: 2024-06-17 17:21:49
  * @Description: 编辑用户信息弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-09 20:50:29
+ * @LastEditTime: 2024-08-22 19:58:28
  */
-import BaseSensitiveEmailInput from '../../components/form/BaseSensitiveEmailInput.vue'
 import { UserEditForm, type UserAuthGroupOption } from '@/types/apiType/userAndSecurity'
 import { type FormInstance, type FormRules } from 'element-plus'
 
 export default defineComponent({
-    components: {
-        BaseSensitiveEmailInput,
-    },
     props: {
         /**
          * @property 用户ID
@@ -258,7 +254,6 @@ export default defineComponent({
             rules,
             goBack,
             displayAuthGroup,
-            BaseSensitiveEmailInput,
         }
     },
 })

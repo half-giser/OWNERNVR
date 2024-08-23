@@ -3,7 +3,7 @@
  * @Date: 2024-06-18 18:41:44
  * @Description: 网络安全
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-11 18:05:45
+ * @LastEditTime: 2024-08-22 19:51:59
 -->
 <template>
     <div class="base-flex-box">
@@ -46,8 +46,8 @@
                 >
                     <template #default="scope">
                         <BaseMacInput
-                            v-model:value="tableData[scope.$index].getGatewayMac"
-                            :disable="!tableData[scope.$index].arpSwitch || tableData[scope.$index].autoGetGatewayMac"
+                            v-model="tableData[scope.$index].getGatewayMac"
+                            :disabled="!tableData[scope.$index].arpSwitch || tableData[scope.$index].autoGetGatewayMac"
                             @change="handleChangeMannualGatewayMac(scope.row, scope.$index)"
                         />
                     </template>

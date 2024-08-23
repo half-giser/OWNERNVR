@@ -3,27 +3,12 @@
  * @Date: 2024-05-07 17:12:45
  * @Description:
  */
-import { queryDevList, queryRtspProtocolList, delDevList, queryChlPort, queryIPChlInfo, queryOnlineChlList } from '@/api/channel'
-import { getXmlWrapData } from '@/api/api'
-import { queryBasicCfg } from '@/api/system'
-import { queryXml } from '@/utils/xmlParse'
 import { ChannelInfoDto } from '@/types/apiType/channel'
-import { LocalCacheKey } from '@/utils/constants'
-import { getUiAndTheme, isHttpsLogin } from '@/utils/tools'
-import { checkIpV6, filterProperty, formatHttpsTips, getShortString } from '../../../../utils/tools'
 import ChannelEditPop from './ChannelEditPop.vue'
-import { querySystemCaps } from '@/api/system'
-import { useUserSessionStore } from '@/stores/userSession'
-import { useCababilityStore } from '@/stores/cabability'
 import { ArrowDown } from '@element-plus/icons-vue'
-import { useRouter } from 'vue-router'
 import ChannelEditIPCPwdPop from './ChannelEditIPCPwdPop.vue'
-import useMessageBox from '@/hooks/useMessageBox'
-import { useLangStore } from '@/stores/lang'
-import useLoading from '@/hooks/useLoading'
 import BaseImgSprite from '@/views/UI_PUBLIC/components/sprite/BaseImgSprite.vue'
 import BaseLivePop from '@/views/UI_PUBLIC/components/BaseLivePop.vue'
-import BaseNotification from '@/views/UI_PUBLIC/components/BaseNotification.vue'
 import ChannelIPCUpgradePop from './ChannelIPCUpgradePop.vue'
 
 export default defineComponent({
@@ -33,7 +18,6 @@ export default defineComponent({
         ChannelEditIPCPwdPop,
         BaseImgSprite,
         BaseLivePop,
-        BaseNotification,
         ChannelIPCUpgradePop,
     },
     setup() {

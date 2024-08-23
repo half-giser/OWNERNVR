@@ -3,7 +3,7 @@
  * @Date: 2024-08-21 10:40:04
  * @Description: 新增轨迹弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-21 16:30:34
+ * @LastEditTime: 2024-08-22 16:48:30
  */
 import { type ChannelPtzTraceDto } from '@/types/apiType/channel'
 import type { FormInstance, FormRules } from 'element-plus'
@@ -42,6 +42,7 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
+        const { openMessageTipBox } = useMessageBox()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
 
         const formRef = ref<FormInstance>()
@@ -62,6 +63,7 @@ export default defineComponent({
                         }
                         callback()
                     },
+                    trigger: 'manual',
                 },
             ],
         })
@@ -103,12 +105,33 @@ export default defineComponent({
                 </content>
             `
             const result = await createChlPtzTrace(sendXml)
+            const $ = queryXml(result)
 
             closeLoading(LoadingTarget.FullScreen)
 
-            commSaveResponseHadler(result, () => {
-                ctx.emit('confirm')
-            })
+            if ($('/response/status').text() === 'success') {
+                openMessageTipBox({
+                    type: 'success',
+                    message: Translate('IDCS_SAVE_DATA_SUCCESS'),
+                }).finally(() => {
+                    ctx.emit('confirm')
+                })
+            } else {
+                const errorCode = Number($('/response/errorCode').text())
+                let errorInfo = ''
+                switch (errorCode) {
+                    case ErrorCode.USER_ERROR_NAME_EXISTED:
+                        errorInfo = Translate('IDCS_PROMPT_CRUISE_NAME_EXIST')
+                        break
+                    default:
+                        errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
+                        break
+                }
+                openMessageTipBox({
+                    type: 'info',
+                    message: errorInfo,
+                })
+            }
         }
 
         /**

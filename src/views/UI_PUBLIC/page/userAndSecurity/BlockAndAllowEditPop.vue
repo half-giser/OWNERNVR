@@ -3,7 +3,7 @@
  * @Date: 2024-06-20 10:38:40
  * @Description: 编辑黑白名单弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 09:25:58
+ * @LastEditTime: 2024-08-22 19:51:37
 -->
 <template>
     <el-dialog
@@ -40,28 +40,28 @@
                 prop="ip"
                 :label="Translate('IDCS_IP_ADDRESS')"
             >
-                <BaseIpInput v-model:value="formData.ip"></BaseIpInput>
+                <BaseIpInput v-model="formData.ip" />
             </el-form-item>
             <el-form-item
                 v-if="formData.addressType === 'iprange'"
                 prop="startIp"
                 :label="Translate('IDCS_IP_START')"
             >
-                <BaseIpInput v-model:value="formData.startIp"></BaseIpInput>
+                <BaseIpInput v-model="formData.startIp" />
             </el-form-item>
             <el-form-item
                 v-if="formData.addressType === 'iprange'"
                 prop="endIp"
                 :label="Translate('IDCS_IP_END')"
             >
-                <BaseIpInput v-model:value="formData.endIp"></BaseIpInput>
+                <BaseIpInput v-model="formData.endIp" />
             </el-form-item>
             <el-form-item
                 v-show="formData.addressType === 'mac'"
                 prop="mac"
                 :label="Translate('IDCS_MAC_ADDRESS')"
             >
-                <BaseMacInput v-model:value="formData.mac"></BaseMacInput>
+                <BaseMacInput v-model="formData.mac" />
             </el-form-item>
         </el-form>
         <template #footer>

@@ -3,18 +3,14 @@
  * @Date: 2024-06-14 09:47:42
  * @Description: 新增用户
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 20:42:28
+ * @LastEditTime: 2024-08-22 19:58:14
  */
-import BaseSensitiveEmailInput from '../../components/form/BaseSensitiveEmailInput.vue'
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import BasePasswordStrength from '../../components/form/BasePasswordStrength.vue'
 import { UserAddForm, type UserCheckAuthForm, type UserAuthGroupOption } from '@/types/apiType/userAndSecurity'
 import { type FormInstance, type FormRules } from 'element-plus'
 
 export default defineComponent({
     components: {
-        BaseSensitiveEmailInput,
-        BasePasswordStrength,
         BaseCheckAuthPop,
     },
     setup() {
@@ -268,8 +264,6 @@ export default defineComponent({
             formatInputMaxLength,
             formatInputUserName,
             displayAuthGroup,
-            BaseSensitiveEmailInput,
-            BasePasswordStrength,
             BaseCheckAuthPop,
         }
     },

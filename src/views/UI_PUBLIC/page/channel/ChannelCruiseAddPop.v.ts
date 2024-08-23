@@ -3,7 +3,7 @@
  * @Date: 2024-08-21 17:51:18
  * @Description: 云台-巡航线-新增弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-21 17:51:39
+ * @LastEditTime: 2024-08-22 16:48:17
  */
 import { type ChannelPtzCruiseDto, type ChannelPtzCruisePresetDto } from '@/types/apiType/channel'
 import type { FormInstance, FormRules, TableInstance } from 'element-plus'
@@ -75,11 +75,12 @@ export default defineComponent({
                             return
                         }
                         if (prop.cruise.map((item) => item.name).includes(value.trim())) {
-                            callback(new Error(Translate('IDCS_PROMPT_CUSTOME_VIEW_NAME_EXIST')))
+                            callback(new Error(Translate('IDCS_PROMPT_CRUISE_NAME_EXIST')))
                             return
                         }
                         callback()
                     },
+                    trigger: 'manual',
                 },
             ],
         })
@@ -136,9 +137,31 @@ export default defineComponent({
                 </content>
             `
             const result = await createChlCruise(sendXml)
-            commSaveResponseHadler(result, () => {
-                ctx.emit('confirm')
-            })
+            const $ = queryXml(result)
+
+            if ($('/response/status').text() === 'success') {
+                openMessageTipBox({
+                    type: 'success',
+                    message: Translate('IDCS_SAVE_DATA_SUCCESS'),
+                }).finally(() => {
+                    ctx.emit('confirm')
+                })
+            } else {
+                const errorCode = Number($('/response/errorCode').text())
+                let errorInfo = ''
+                switch (errorCode) {
+                    case ErrorCode.USER_ERROR_NAME_EXISTED:
+                        errorInfo = Translate('IDCS_PROMPT_CRUISE_NAME_EXIST')
+                        break
+                    default:
+                        errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
+                        break
+                }
+                openMessageTipBox({
+                    type: 'info',
+                    message: errorInfo,
+                })
+            }
 
             closeLoading(LoadingTarget.FullScreen)
         }

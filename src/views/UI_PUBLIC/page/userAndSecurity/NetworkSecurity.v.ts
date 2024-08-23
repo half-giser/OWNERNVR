@@ -5,13 +5,9 @@
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
  * @LastEditTime: 2024-07-04 19:56:56
  */
-import BaseMacInput from '../../components/form/BaseMacInput.vue'
 import { type UserNetworkSecurityForm } from '@/types/apiType/userAndSecurity'
 
 export default defineComponent({
-    components: {
-        BaseMacInput,
-    },
     setup() {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
@@ -154,7 +150,6 @@ export default defineComponent({
             formatNetworkCardName,
             handleChangeAutoGetGatewayMac,
             handleChangeMannualGatewayMac,
-            BaseMacInput,
         }
     },
 })

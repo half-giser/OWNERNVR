@@ -3,8 +3,9 @@
  * @Date: 2024-08-21 17:52:33
  * @Description: 云台-巡航线-新增/编辑预置点弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-21 18:08:47
+ * @LastEditTime: 2024-08-22 16:49:18
  */
+import type { FormInstance, FormRules } from 'element-plus'
 import { ChannelPtzCruisePresetDto, ChannelPtzCruisePresetForm } from '@/types/apiType/channel'
 
 export default defineComponent({
@@ -40,6 +41,8 @@ export default defineComponent({
         },
     },
     setup(prop, ctx) {
+        const { Translate } = useLangStore()
+
         const pageData = ref({
             // 持续时间选项
             timeOptions: [5, 10, 15, 20, 25, 30, 60, 120, 180],
@@ -49,13 +52,30 @@ export default defineComponent({
             nameOptions: [] as SelectOption<number, string>[],
         })
 
+        const formRef = ref<FormInstance>()
         const formData = ref(new ChannelPtzCruisePresetForm())
+        const formRule = ref<FormRules>({
+            name: [
+                {
+                    validator(rule, value: string, callback) {
+                        if (!value) {
+                            callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
+                            return
+                        }
+                        callback()
+                    },
+                    trigger: 'manual',
+                },
+            ],
+        })
 
         /**
          * @description 打开弹窗时重置表单
          */
         const open = () => {
+            formRef.value?.clearValidate()
             getList()
+
             if (prop.type === 'add') {
                 formData.value = new ChannelPtzCruisePresetForm()
             } else {
@@ -111,7 +131,9 @@ export default defineComponent({
 
         return {
             pageData,
+            formRef,
             formData,
+            formRule,
             open,
             getTranslateForSecond,
             confirm,

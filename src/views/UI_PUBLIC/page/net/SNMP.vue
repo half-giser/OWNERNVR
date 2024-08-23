@@ -3,7 +3,7 @@
  * @Date: 2024-07-12 18:21:02
  * @Description: SNMP配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-16 19:46:22
+ * @LastEditTime: 2024-08-22 19:44:35
 -->
 <template>
     <div>
@@ -62,8 +62,8 @@
                 prop="trapAddress"
             >
                 <BaseIpInput
-                    v-model:value="formData.trapAddress"
-                    :disable="disabled"
+                    v-model="formData.trapAddress"
+                    :disabled="disabled"
                     invalidate-mode="REPLACE"
                     @change="formRef?.validateField('trapAddress')"
                 />

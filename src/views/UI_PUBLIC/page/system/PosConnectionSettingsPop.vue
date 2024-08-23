@@ -3,7 +3,7 @@
  * @Date: 2024-07-02 13:36:09
  * @Description: POS连接设置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 13:59:31
+ * @LastEditTime: 2024-08-22 19:46:14
 -->
 <template>
     <el-dialog
@@ -31,7 +31,7 @@
                 :label="Translate('IDCS_POS_IP')"
                 prop="ip"
             >
-                <BaseIpInput v-model:value="formData.ip" />
+                <BaseIpInput v-model="formData.ip" />
             </el-form-item>
             <el-form-item v-if="data.connectionType === 'TCP-Listen'">
                 <el-checkbox v-model="formData.switch">{{ Translate('IDCS_POS_PORT') }}</el-checkbox>

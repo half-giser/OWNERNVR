@@ -3,7 +3,7 @@
  * @Date: 2024-08-07 09:15:58
  * @Description: 用户通道权限
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-07 09:21:19
+ * @LastEditTime: 2024-08-22 11:24:42
  */
 export class UserChlAuth {
     // 是否拥有全部权限
@@ -20,9 +20,11 @@ export class UserChlAuth {
     lp = {} as Record<string, boolean>
 
     bk = {} as Record<string, boolean>
+
+    update: () => Promise<void> = () => Promise.resolve()
 }
 
-export const useUserChlAuth = () => {
+export const useUserChlAuth = (immediate = true) => {
     const auth = ref(new UserChlAuth())
     const userSession = useUserSessionStore()
 
@@ -61,8 +63,12 @@ export const useUserChlAuth = () => {
         auth.value.accessControl = $('/response/content/systemAuth/AccessControlMgr').text().toBoolean()
     }
 
+    auth.value.update = getAuth
+
     onMounted(() => {
-        getAuth()
+        if (immediate) {
+            getAuth()
+        }
     })
 
     return auth

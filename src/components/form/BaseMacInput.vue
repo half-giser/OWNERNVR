@@ -3,13 +3,13 @@
  * @Date: 2024-06-04 10:26:32
  * @Description: MAC地址输入框
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-16 18:08:33
+ * @LastEditTime: 2024-08-22 20:02:33
 -->
 <template>
     <div
         ref="$MacContainer"
         class="MacInput"
-        :class="{ 'is-focus': isFocus, disabled: prop.disable }"
+        :class="{ 'is-focus': isFocus, disabled: prop.disabled }"
     >
         <template
             v-for="(item, index) in address"
@@ -18,7 +18,7 @@
             <input
                 :value="item"
                 type="text"
-                :disabled="prop.disable"
+                :disabled="prop.disabled"
                 @keydown="handleKeyDown($event, index)"
                 @input="handleInput($event, index)"
                 @focus="handleFocus"
@@ -37,20 +37,20 @@ type InputMode = 'IPv6' | 'MAC'
 
 const prop = withDefaults(
     defineProps<{
-        disable?: boolean
+        disabled?: boolean
         invalidateMode?: InvalidateMode
-        value: string
+        modelValue: string
         mode?: InputMode
     }>(),
     {
-        disable: false,
+        disabled: false,
         invalidateMode: 'PREVENT',
         mode: 'MAC',
     },
 )
 
 const emits = defineEmits<{
-    (e: 'change' | 'update:value', value: string): void
+    (e: 'change' | 'update:modelValue', value: string): void
 }>()
 
 const MAX_VALUE = 255
@@ -63,7 +63,7 @@ const isFocus = ref(0)
 
 const address = computed(() => {
     const arr = prop.mode === 'MAC' ? MAC_DEFAULT_VALUE : IPV6_DFAULT_VALUE
-    const split = prop.value.split(':')
+    const split = prop.modelValue.split(':')
     return arr.map((item, index) => {
         if (!split[index]) return item
         else return split[index]
@@ -96,7 +96,7 @@ const updateValue = (value: number, index: number) => {
     const hex = decToHex(current)
     split[index] = hex
     const join = split.join(':')
-    emits('update:value', join)
+    emits('update:modelValue', join)
     emits('change', join)
     return hex
 }
@@ -194,7 +194,7 @@ const handleBlur = (index: number) => {
         split[index] = '0' + split[index]
     }
     const join = split.join(':')
-    emits('update:value', join)
+    emits('update:modelValue', join)
     emits('change', join)
 }
 </script>
@@ -233,6 +233,8 @@ const handleBlur = (index: number) => {
     &.disabled {
         background-color: var(--bg-color-disabled);
         border-color: var(--border-color-disabled);
+        color: var(--el-disabled-text-color);
+        cursor: not-allowed;
     }
 
     input {
@@ -250,6 +252,7 @@ const handleBlur = (index: number) => {
 
         &:disabled {
             color: var(--el-disabled-text-color);
+            cursor: not-allowed;
         }
     }
 }
