@@ -2,8 +2,8 @@
  * @Description: 预置点名称配置
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-20 17:19:56
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-21 13:45:48
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-08-23 10:41:54
  */
 import { type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
 
@@ -23,15 +23,14 @@ export default defineComponent({
         },
     },
     emits: {
-        close() {
-            return true
+        close(id: string) {
+            return id
         },
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
 
-        const pageData = ref({})
         const MAX_TRIGGER_PRESET_COUNT = 16
         const tableData = ref<PresetList[]>([])
 
@@ -133,15 +132,14 @@ export default defineComponent({
                 })
             } else {
                 prop.handlePresetLinkedList!(prop.filterChlId, linkedList)
-                ctx.emit('close')
+                ctx.emit('close', prop.filterChlId as string)
             }
         }
 
         const close = () => {
-            ctx.emit('close')
+            ctx.emit('close', prop.filterChlId as string)
         }
         return {
-            pageData,
             tableData,
             open,
             save,

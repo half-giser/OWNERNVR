@@ -3,7 +3,7 @@
  * @Date: 2024-08-10 16:25:58
  * @Description: AI/事件
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-21 15:17:12
+ * @LastEditTime: 2024-08-23 16:36:10
  */
 
 import { type AxiosRequestConfig } from 'axios'
@@ -74,3 +74,24 @@ export const addAlarmAudioCfg = (data: string) => http.fetch('addAlarmAudioCfg',
 
 // 删除本地声音报警文件
 export const deleteAlarmAudio = (data: string) => http.fetch('deleteAlarmAudio', getXmlWrapData(data))
+
+// 获取传感器数据
+export const queryAlarmIn = (data: string) => http.fetch('queryAlarmIn', getXmlWrapData(data))
+
+// 修改传感器数据
+export const editAlarmIn = (data: string) => http.fetch('editAlarmIn', getXmlWrapData(data))
+
+// 获取前端掉线数据
+export const queryFrontEndOfflineTrigger = (data: string) => http.fetch('queryFrontEndOfflineTrigger', getXmlWrapData(data))
+
+// 修改前端掉线数据
+export const editFrontEndOfflineTrigger = (data: string) => http.fetch('editFrontEndOfflineTrigger', getXmlWrapData(data))
+
+// 获取异常报警数据
+export const queryAbnormalTrigger = () => http.fetch('queryAbnormalTrigger', getXmlWrapData(''))
+
+// 修改异常报警数据
+export const editAbnormalTrigger = (data: string) => http.fetch('editAbnormalTrigger', getXmlWrapData(data))
+
+// 获取系统撤防数据
+export const querySystemDisArmParam = () => http.fetch('querySystemDisArmParam', getXmlWrapData(''))

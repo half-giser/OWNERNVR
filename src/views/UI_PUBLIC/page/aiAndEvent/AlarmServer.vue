@@ -3,7 +3,7 @@
  * @Date: 2024-08-14 17:06:01
  * @Description: 
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-16 16:20:43
+ * @LastEditTime: 2024-08-23 14:43:51
 -->
 <template>
     <div>
@@ -239,14 +239,19 @@
         text-align: right;
     }
 }
-
+.el-form {
+    --el-form-label-font-size: 15px;
+    .el-checkbox {
+        color: black;
+        --el-checkbox-font-size: 15px;
+    }
+}
 .content_main {
     padding: 20px 0px 0px 0px;
     .form {
-        // 除开按钮为432px
         width: 600px;
-        // height: 300px;
         font-size: 15px;
+
         .el-form-item {
             font-size: 15px;
             .span {
@@ -255,7 +260,6 @@
             .btn {
                 height: 28px;
                 width: 80px;
-                // margin-left: 5px;
             }
         }
     }

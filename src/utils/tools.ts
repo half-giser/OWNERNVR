@@ -3,7 +3,7 @@
  * @Date: 2023-04-28 17:57:48
  * @Description: 工具方法
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-19 10:14:03
+ * @LastEditTime: 2024-08-22 15:25:29
  */
 
 import { useUserSessionStore } from '@/stores/userSession'
@@ -883,7 +883,7 @@ export const fileToBase64 = (file: Blob, callback: Function) => {
     reader.onload = function (e) {
         const data = (e.target?.result as string).split(',')
         const base64 = data[1]
-        const base64Str = dataFormat(base64)
+        const base64Str = formatBase64(base64)
         if (typeof callback === 'function') {
             callback(base64Str)
         }
@@ -892,7 +892,7 @@ export const fileToBase64 = (file: Blob, callback: Function) => {
 }
 
 // base64 每76位加一个换行
-export const dataFormat = (param: string) => {
+export const formatBase64 = (param: string) => {
     let result = ''
     for (let i = 0; i < param.length; i++) {
         if (i != 0 && i % 76 == 0) {

@@ -3,7 +3,7 @@
  * @Date: 2024-08-10 12:08:57
  * @Description: AI/事件
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-21 13:38:57
+ * @LastEditTime: 2024-08-23 16:36:49
  */
 const { Translate } = useLangStore()
 
@@ -85,6 +85,7 @@ export class AlarmTypeInfo {
     value = ''
 }
 
+// 移动侦测和前端掉线
 export class MotionEventConfig {
     id = ''
     addType = ''
@@ -112,6 +113,7 @@ export class MotionEventConfig {
     snapList = [] as string[]
     sysAudio = ''
     msgPush = ''
+    ftpSnap = '' //抓图到FTP，暂时无用
     alarmOut = {
         switch: false,
         chls: [] as { value: string; label: string }[],
@@ -123,6 +125,9 @@ export class MotionEventConfig {
     }
     beeper = ''
     videoPopup = ''
+    videoPopupInfo = { switch: false, chl: { value: '', label: '' } as { value: string; label: string } }
+    videoPopupList = [] as { value: string; label: string }[]
+    msgBoxPopup = ''
     email = ''
     oldSchedule = {
         value: '',
@@ -130,26 +135,6 @@ export class MotionEventConfig {
     }
 
     rowDisable = true
-}
-
-export class PresetItem {
-    index = ''
-    name = ''
-    chl = {
-        value: '',
-        label: '',
-    }
-}
-
-export class PresetList {
-    id = ''
-    name = ''
-    chlType = ''
-    preset = {
-        value: '',
-        label: '',
-    }
-    presetList = [] as SelectOption<string, string>[]
 }
 
 export class ipcAudioForm {
@@ -223,4 +208,117 @@ export class LocalTableRow {
     name = ''
     originalName = ''
     fileValid = ''
+}
+
+export class ExceptionAlarmRow {
+    id = ''
+    eventType = ''
+    sysAudio = ''
+    msgPush = ''
+    alarmOut = {
+        switch: false,
+        alarmOuts: [] as { value: string; label: string }[],
+    }
+    alarmOutList = [] as string[]
+    beeper = ''
+    msgBoxPopup = ''
+    email = 'false'
+    rowDisable = true
+    emailDisable = true
+}
+
+export class SystemDisarm {
+    chlName = ''
+    disarmItems = [] as { value: string; label: string }[]
+    disarmItemsStr = ''
+}
+
+// 传感器页面——通道列表
+export class ChlList {
+    id = ''
+    name = ''
+}
+
+// 传感器的table项
+export class SensorEvent {
+    id = ''
+    status = '' //行状态: loading, success, error
+    alarmInType = ''
+    nodeIndex = ''
+    disabled = true
+    isEditable = false
+    serialNum = '' // 序号
+    name = '' // 名称
+    originalName = ''
+    // 类型
+    type = ''
+    // 启用
+    switch = ''
+    holdTimeNote = ''
+    // 持续时间
+    holdTime = ''
+    // 排程
+    schedule = {
+        value: '',
+        label: '',
+    }
+    // 打开排程管理时将原本的排程填入
+    oldSchedule = ''
+    // record录像
+    sysRec = {
+        switch: false,
+        chls: [] as SelectOption<string, string>[],
+    }
+    recordList = [] as string[]
+    // audio声音
+    sysAudio = ''
+    // snap抓图
+    sysSnap = {
+        switch: false,
+        chls: [] as SelectOption<string, string>[],
+    }
+    snapList = [] as string[]
+    // 报警输出
+    alarmOut = {
+        switch: false,
+        alarmOuts: [] as SelectOption<string, string>[],
+    }
+    alarmOutList = [] as string[]
+    // 视频弹出
+    popVideo = {
+        switch: '',
+        chl: {
+            id: '',
+            innerText: '',
+        },
+    }
+    // 预置点名称
+    preset = {
+        switch: false,
+        presets: [] as PresetItem[],
+    }
+    msgPushSwitch = '' // 推送
+    buzzerSwitch = '' // 蜂鸣器
+    emailSwitch = '' // email
+    popMsgSwitch = '' // 消息框弹出
+}
+
+export class PresetItem {
+    index = ''
+    name = ''
+    chl = {
+        value: '',
+        label: '',
+    }
+}
+
+export class PresetList {
+    id = ''
+    name = ''
+    chlType = ''
+    preset = {
+        value: '',
+        label: '',
+    }
+    presetList = [] as SelectOption<string, string>[]
 }
