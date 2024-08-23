@@ -3,13 +3,13 @@
  * @Date: 2024-06-04 10:26:32
  * @Description: IPv4地址输入框
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-20 09:44:16
+ * @LastEditTime: 2024-08-22 20:03:00
 -->
 <template>
     <div
         ref="$IpContainer"
         class="IpInput"
-        :class="{ 'is-focus': isFocus, disabled: prop.disable }"
+        :class="{ 'is-focus': isFocus, disabled: prop.disabled }"
     >
         <template
             v-for="(item, index) in address"
@@ -18,7 +18,7 @@
             <input
                 :value="item"
                 type="text"
-                :disabled="prop.disable"
+                :disabled="prop.disabled"
                 @keydown="handleKeyDown($event, index)"
                 @input="handleInput($event, index)"
                 @focus="handleFocus"
@@ -34,18 +34,18 @@ type InvalidateMode = 'REPLACE' | 'PREVENT'
 
 const prop = withDefaults(
     defineProps<{
-        disable?: boolean
+        disabled?: boolean
         invalidateMode?: InvalidateMode
-        value: string
+        modelValue: string
     }>(),
     {
-        disable: false,
+        disabled: false,
         invalidateMode: 'PREVENT',
     },
 )
 
 const emits = defineEmits<{
-    (e: 'change' | 'update:value', value: string): void
+    (e: 'change' | 'update:modelValue', value: string): void
 }>()
 
 const MAX_VALUE = 255
@@ -56,7 +56,7 @@ const $IpContainer = ref<HTMLDivElement>()
 const isFocus = ref(0)
 
 const address = computed(() => {
-    const split = prop.value.split('.')
+    const split = prop.modelValue.split('.')
     return IPV4_DFAULT_VALUE.map((item, index) => {
         if (!split[index]) return ''
         else return Number(split[index])
@@ -101,7 +101,7 @@ const updateValue = (value: number, index: number) => {
         join = split.join('.')
     }
 
-    emits('update:value', join)
+    emits('update:modelValue', join)
     emits('change', join)
     return current
 }
@@ -233,6 +233,8 @@ const handleBlur = () => {
     &.disabled {
         background-color: var(--bg-color-disabled);
         border-color: var(--border-color-disabled);
+        cursor: not-allowed;
+        color: var(--el-disabled-text-color);
     }
 
     input {
@@ -250,6 +252,7 @@ const handleBlur = () => {
 
         &:disabled {
             color: var(--el-disabled-text-color);
+            cursor: not-allowed;
         }
     }
 }

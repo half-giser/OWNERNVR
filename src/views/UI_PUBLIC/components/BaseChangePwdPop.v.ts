@@ -1,20 +1,7 @@
 import { ChangePasswordForm } from '@/types/apiType/user'
-import { MD5_encrypt, AES_encrypt } from '@/utils/encrypt'
-import { getPwdSaftyStrength } from '@/utils/tools'
-import { Logout } from '@/api/user'
-import { queryXml } from '@/utils/xmlParse'
 import { type FormInstance, type FormRules } from 'element-plus'
-import { useUserSessionStore } from '@/stores/userSession'
-import useMessageBox from '@/hooks/useMessageBox'
-import { ErrorCode, DEFAULT_PASSWORD_STREMGTH_MAPPING } from '@/utils/constants'
-import { rawXml } from '@/utils/xmlParse'
-import { ElMessage } from 'element-plus'
-import BasePasswordStrength from './form/BasePasswordStrength.vue'
 
 export default defineComponent({
-    components: {
-        BasePasswordStrength,
-    },
     props: {
         title: {
             type: String,

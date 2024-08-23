@@ -3,9 +3,8 @@
  * @Date: 2024-08-05 16:00:46
  * @Description: 回放
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-12 15:01:00
+ * @LastEditTime: 2024-08-22 20:29:13
  */
-import BaseNotification from '../../components/BaseNotification.vue'
 import PlaybackChannelPanel from '../playback/PlaybackChannelPanel.vue'
 import PlaybackEventPanel from '../playback/PlaybackEventPanel.vue'
 import PlaybackAsidePanel from '../playback/PlaybackAsidePanel.vue'
@@ -141,7 +140,6 @@ const useOCXCacheWinMap = (maxWin: number) => {
 
 export default defineComponent({
     components: {
-        BaseNotification,
         PlaybackChannelPanel,
         PlaybackEventPanel,
         PlaybackAsidePanel,
@@ -1685,7 +1683,6 @@ export default defineComponent({
             updateTimeline,
             changeFishEyeMode,
             isFishEyePanel,
-            BaseNotification,
             PlaybackChannelPanel,
             PlaybackEventPanel,
             PlaybackAsidePanel,

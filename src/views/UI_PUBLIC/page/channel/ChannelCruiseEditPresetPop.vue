@@ -3,7 +3,7 @@
  * @Date: 2024-08-21 13:47:23
  * @Description: 云台-巡航线-新增/编辑预置点弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-21 17:52:52
+ * @LastEditTime: 2024-08-22 10:42:56
 -->
 <template>
     <el-dialog
@@ -13,8 +13,16 @@
         draggable
         @open="open"
     >
-        <el-form label-position="left">
-            <el-form-item :label="Translate('IDCS_PRESET_NAME')">
+        <el-form
+            ref="formRef"
+            :rules="formRule"
+            :model="formData"
+            label-position="left"
+        >
+            <el-form-item
+                :label="Translate('IDCS_PRESET_NAME')"
+                prop="name"
+            >
                 <el-select v-model="formData.name">
                     <el-option
                         v-for="item in pageData.nameOptions"

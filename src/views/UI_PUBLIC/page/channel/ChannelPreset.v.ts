@@ -3,17 +3,21 @@
  * @Date: 2024-08-20 18:26:51
  * @Description: 云台-预置点
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-21 15:43:53
+ * @LastEditTime: 2024-08-22 20:07:28
  */
 import { type TableInstance } from 'element-plus'
 import ChannelPtzCtrlPanel from './ChannelPtzCtrlPanel.vue'
 import ChannelPresetAddPop from './ChannelPresetAddPop.vue'
+import ChannelPtzTableExpandPanel from './ChannelPtzTableExpandPanel.vue'
+import ChannelPtzTableExpandItem from './ChannelPtzTableExpandItem.vue'
 import { type ChannelPtzPresetChlDto, ChannelPtzPresetDto } from '@/types/apiType/channel'
 
 export default defineComponent({
     components: {
         ChannelPtzCtrlPanel,
         ChannelPresetAddPop,
+        ChannelPtzTableExpandPanel,
+        ChannelPtzTableExpandItem,
     },
     setup() {
         const { Translate } = useLangStore()
@@ -21,7 +25,7 @@ export default defineComponent({
         const { openMessageTipBox } = useMessageBox()
         const playerRef = ref<PlayerInstance>()
         const pluginStore = usePluginStore()
-        const auth = useUserChlAuth()
+        const auth = useUserChlAuth(false)
 
         const pageData = ref({
             // 通知列表
@@ -215,6 +219,10 @@ export default defineComponent({
                     pageData.value.expandRowKey.splice(index, 1)
                 }
             }
+        }
+
+        const getRowKey = (row: ChannelPtzPresetChlDto) => {
+            return row.chlId
         }
 
         // 首次加载成功 播放视频
@@ -413,18 +421,14 @@ export default defineComponent({
             pageData.value.speed = speed
         }
 
-        const stopWatchAuth = watch(
-            auth,
-            async () => {
-                stopWatchAuth()
-                await getData()
+        onMounted(async () => {
+            await auth.value.update()
+            await getData()
+            if (tableData.value.length) {
                 tableRef.value?.setCurrentRow(tableData.value[pageData.value.tableIndex])
                 getPreset(tableData.value[pageData.value.tableIndex].chlId)
-            },
-            {
-                deep: true,
-            },
-        )
+            }
+        })
 
         onBeforeUnmount(() => {
             if (plugin?.IsPluginAvailable() && mode.value === 'ocx' && ready.value) {
@@ -444,6 +448,7 @@ export default defineComponent({
             handleRowClick,
             presetOptions,
             handleExpandChange,
+            getRowKey,
             addPreset,
             confirmAddPreset,
             saveName,
@@ -452,6 +457,10 @@ export default defineComponent({
             setSpeed,
             nameByteMaxLen,
             formatInputMaxLength,
+            ChannelPtzCtrlPanel,
+            ChannelPresetAddPop,
+            ChannelPtzTableExpandPanel,
+            ChannelPtzTableExpandItem,
         }
     },
 })

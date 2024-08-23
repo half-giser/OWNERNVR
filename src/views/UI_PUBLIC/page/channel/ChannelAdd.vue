@@ -164,7 +164,7 @@
                         >
                             <BaseIpInput
                                 v-show="scope.row.addrType == 'ip'"
-                                v-model:value="scope.row.ip"
+                                v-model="scope.row.ip"
                                 class="ipInput"
                                 @change="cellChange($event, scope.$index, scope.row, 'ip')"
                             />

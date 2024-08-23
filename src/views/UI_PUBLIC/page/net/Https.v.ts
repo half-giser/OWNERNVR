@@ -3,12 +3,11 @@
  * @Date: 2024-07-12 18:19:55
  * @Description: HTTPS
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-15 20:28:44
+ * @LastEditTime: 2024-08-22 20:28:12
  */
 import WebsocketUpload from '@/utils/websocket/websocketUpload'
 import WebsocketDownload from '@/utils/websocket/websocketDownload'
 import BasePluginNotice from '../../components/ocx/BasePluginNotice.vue'
-import BaseNotification from '../../components/BaseNotification.vue'
 import { type NetHTTPSCertPasswordForm } from '@/types/apiType/net'
 import HttpsCertPasswordPop from './HttpsCertPasswordPop.vue'
 import HttpsCreateCertPop from './HttpsCreateCertPop.vue'
@@ -17,7 +16,6 @@ import { type XMLQuery } from '@/utils/xmlParse'
 export default defineComponent({
     components: {
         BasePluginNotice,
-        BaseNotification,
         HttpsCertPasswordPop,
         HttpsCreateCertPop,
     },
@@ -590,7 +588,6 @@ export default defineComponent({
             inputCertPassword,
             importCertFile,
             BasePluginNotice,
-            BaseNotification,
             HttpsCertPasswordPop,
             HttpsCreateCertPop,
         }

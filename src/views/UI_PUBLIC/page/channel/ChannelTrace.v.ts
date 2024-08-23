@@ -3,23 +3,27 @@
  * @Date: 2024-08-20 19:43:51
  * @Description: 云台-轨迹
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-21 15:50:27
+ * @LastEditTime: 2024-08-22 20:09:08
  */
 import { type TableInstance } from 'element-plus'
 import ChannelPtzCtrlPanel from './ChannelPtzCtrlPanel.vue'
 import ChannelTraceAddPop from './ChannelTraceAddPop.vue'
+import ChannelPtzTableExpandPanel from './ChannelPtzTableExpandPanel.vue'
+import ChannelPtzTableExpandItem from './ChannelPtzTableExpandItem.vue'
 import { type ChannelPtzTraceChlDto, ChannelPtzTraceDto } from '@/types/apiType/channel'
 
 export default defineComponent({
     components: {
         ChannelPtzCtrlPanel,
         ChannelTraceAddPop,
+        ChannelPtzTableExpandPanel,
+        ChannelPtzTableExpandItem,
     },
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
-        const auth = useUserChlAuth()
+        const auth = useUserChlAuth(false)
         const playerRef = ref<PlayerInstance>()
         const pluginStore = usePluginStore()
 
@@ -125,6 +129,7 @@ export default defineComponent({
 
         /**
          * @description 获取轨迹数据
+         * @param {string} chlId
          */
         const getTrace = async (chlId: string) => {
             openLoading(LoadingTarget.FullScreen)
@@ -229,6 +234,10 @@ export default defineComponent({
                     pageData.value.expandRowKey.splice(index, 1)
                 }
             }
+        }
+
+        const getRowKey = (row: ChannelPtzTraceChlDto) => {
+            return row.chlId
         }
 
         // 首次加载成功 播放视频
@@ -504,18 +513,14 @@ export default defineComponent({
             await stopChlPtzTrace(sendXml)
         }
 
-        const stopWatchAuth = watch(
-            auth,
-            async () => {
-                stopWatchAuth()
-                await getData()
+        onMounted(async () => {
+            await auth.value.update()
+            await getData()
+            if (tableData.value.length) {
                 tableRef.value?.setCurrentRow(tableData.value[pageData.value.tableIndex])
                 getTrace(tableData.value[pageData.value.tableIndex].chlId)
-            },
-            {
-                deep: true,
-            },
-        )
+            }
+        })
 
         onBeforeUnmount(() => {
             resetRecord()
@@ -541,6 +546,7 @@ export default defineComponent({
             saveName,
             handleRowClick,
             handleExpandChange,
+            getRowKey,
             startRecord,
             stopRecord,
             playTrace,
@@ -549,6 +555,8 @@ export default defineComponent({
             nameByteMaxLen,
             ChannelPtzCtrlPanel,
             ChannelTraceAddPop,
+            ChannelPtzTableExpandPanel,
+            ChannelPtzTableExpandItem,
         }
     },
 })
