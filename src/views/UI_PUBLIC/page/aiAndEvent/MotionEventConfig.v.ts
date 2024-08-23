@@ -3,7 +3,7 @@
  * @Date: 2024-08-16 18:13:56
  * @Description:
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-22 12:04:07
+ * @LastEditTime: 2024-08-23 09:39:57
  */
 import { cloneDeep } from 'lodash'
 import { defineComponent } from 'vue'
@@ -87,7 +87,7 @@ export default defineComponent({
             snapType: 'snap',
 
             // alarmOut穿梭框数据源
-            alarmOutList: [] as { value: string; label: string }[],
+            alarmOutList: [] as { value: string; label: string; device: { value: string; label: string } }[],
             alarmOutHeaderTitle: 'IDCS_TRIGGER_ALARM_OUT',
             alarmOutSourceTitle: 'IDCS_ALARM_OUT',
             alarmOutTargetTitle: 'IDCS_TRIGGER_ALARM_OUT',
@@ -181,9 +181,17 @@ export default defineComponent({
                 if (res('status').text() == 'success') {
                     res('//content/item').forEach((item: any) => {
                         const $item = queryXml(item.element)
+                        let name = $item('name').text()
+                        if ($item('devDesc').text()) {
+                            name = $item('devDesc').text() + '-' + name
+                        }
                         pageData.value.alarmOutList.push({
                             value: item.attr('id'),
-                            label: $item('name').text(),
+                            label: name,
+                            device: {
+                                value: $item('device').attr('id'),
+                                label: $item('device').text(),
+                            },
                         })
                     })
                 }

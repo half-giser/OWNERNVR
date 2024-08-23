@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-08-10 12:08:57
  * @Description: AI/事件
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-22 15:28:23
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-08-23 16:36:49
  */
 const { Translate } = useLangStore()
 
@@ -85,6 +85,7 @@ export class AlarmTypeInfo {
     value = ''
 }
 
+// 移动侦测和前端掉线
 export class MotionEventConfig {
     id = ''
     addType = ''
@@ -207,6 +208,29 @@ export class LocalTableRow {
     name = ''
     originalName = ''
     fileValid = ''
+}
+
+export class ExceptionAlarmRow {
+    id = ''
+    eventType = ''
+    sysAudio = ''
+    msgPush = ''
+    alarmOut = {
+        switch: false,
+        alarmOuts: [] as { value: string; label: string }[],
+    }
+    alarmOutList = [] as string[]
+    beeper = ''
+    msgBoxPopup = ''
+    email = 'false'
+    rowDisable = true
+    emailDisable = true
+}
+
+export class SystemDisarm {
+    chlName = ''
+    disarmItems = [] as { value: string; label: string }[]
+    disarmItemsStr = ''
 }
 
 // 传感器页面——通道列表

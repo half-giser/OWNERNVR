@@ -3,13 +3,12 @@
  * @Date: 2024-08-21 15:34:24
  * @Description: 前端掉线
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-22 12:37:19
+ * @LastEditTime: 2024-08-23 10:40:48
  */
 import { cloneDeep } from 'lodash'
 import { defineComponent } from 'vue'
 import { ArrowDown } from '@element-plus/icons-vue'
 import { useLangStore } from '@/stores/lang'
-import { buildScheduleList } from '@/utils/tools'
 import { tableRowStatus, tableRowStatusToolTip } from '@/utils/const/other'
 import BaseTransferPop from '@/components/BaseTransferPop.vue'
 import BaseTransferDialog from '@/components/BaseTransferDialog.vue'
@@ -34,7 +33,6 @@ export default defineComponent({
         // ;(snapRef.value as InstanceType<typeof ElDropdown>).handleOpen()
         // ;(alarmOutRef.value as InstanceType<typeof ElDropdown>).handleOpen()
         const { LoadingTarget, openLoading, closeLoading } = useLoading()
-        const scheduleList = buildScheduleList()
         const systemCaps = useCababilityStore()
         const openMessageTipBox = useMessageBox().openMessageTipBox
         const pageData = ref({
@@ -50,7 +48,6 @@ export default defineComponent({
             supportAudio: false,
             // TODO 未传值
             supportFTP: false,
-            scheduleList: [] as [] as SelectOption<string, string>[],
             audioList: [] as { value: string; label: string }[],
             // 打开穿梭框时选择行的索引
             triggerDialogIndex: 0,
@@ -139,9 +136,13 @@ export default defineComponent({
                 if (res('status').text() == 'success') {
                     res('//content/item').forEach((item: any) => {
                         const $item = queryXml(item.element)
+                        let name = $item('name').text()
+                        if ($item('devDesc').text()) {
+                            name = $item('devDesc').text() + '-' + name
+                        }
                         pageData.value.alarmOutList.push({
                             value: item.attr('id'),
-                            label: $item('name').text(),
+                            label: name,
                             device: {
                                 value: $item('device').attr('id'),
                                 label: $item('device').text(),
@@ -157,9 +158,10 @@ export default defineComponent({
             })
         }
         const getAlarmOutListSingle = function (row: MotionEventConfig) {
-            return pageData.value.alarmOutList.filter((item) => {
+            const alarmOutlist = pageData.value.alarmOutList.filter((item) => {
                 return item.device.value != row.id
             })
+            return alarmOutlist
         }
         const getVideoPopupList = async () => {
             pageData.value.videoPopupList.push({ value: ' ', label: Translate('IDCS_OFF') })
@@ -297,14 +299,6 @@ export default defineComponent({
             }
             buildTableData()
         }
-        const handleScheduleChangeAll = function (schedule: { value: string; label: string }) {
-            tableData.value.forEach((item) => {
-                if (!item.rowDisable) {
-                    item.schedule = schedule
-                    addEditRow(item)
-                }
-            })
-        }
 
         // 下列为snap穿梭框相关
         const snapDropdownOpen = () => {
@@ -317,6 +311,7 @@ export default defineComponent({
                 pageData.value.snapChosedIdsAll = e.map((item) => item.value)
                 tableData.value.forEach((item) => {
                     if (!item.rowDisable) {
+                        item.snap.chls = []
                         addEditRow(item)
                         item.snap.switch = true
                         pageData.value.snapChosedListAll.forEach((snap) => {
@@ -385,10 +380,12 @@ export default defineComponent({
                 pageData.value.alarmOutChosedIdsAll = e.map((item) => item.value)
                 tableData.value.forEach((item) => {
                     if (!item.rowDisable) {
+                        item.alarmOut.chls = []
                         addEditRow(item)
                         item.alarmOut.switch = true
+                        const availableids = getAlarmOutListSingle(item).map((ele) => ele.value)
                         pageData.value.alarmOutChosedListAll.forEach((alarmOut) => {
-                            if (getAlarmOutListSingle(item).some((alarmOutItem) => alarmOutItem.value === alarmOut.value)) {
+                            if (availableids.includes(alarmOut.value)) {
                                 item.alarmOut.chls.push(alarmOut)
                             }
                         })
@@ -538,7 +535,6 @@ export default defineComponent({
                     }
                 }
             })
-            console.log(tableData.value)
         }
         // 消息框弹出
         const handleMsgBoxPopupChangeAll = function (msgBoxPopup: string) {
@@ -656,7 +652,6 @@ export default defineComponent({
                             item.status = 'error'
                         }
                     }
-                    // buildTableData()
                 })
             })
             closeLoading(LoadingTarget.FullScreen)
@@ -675,7 +670,6 @@ export default defineComponent({
             changePagination,
             changePaginationSize,
             Translate,
-            scheduleList,
             tableRowStatus,
             tableRowStatusToolTip,
             chosedList,
@@ -687,7 +681,6 @@ export default defineComponent({
             presetRef,
             getAlarmOutListSingle,
             getSnapListSingle,
-            handleScheduleChangeAll,
             snapDropdownOpen,
             snapConfirmAll,
             snapCloseAll,

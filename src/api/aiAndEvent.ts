@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-08-10 16:25:58
  * @Description: AI/事件
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-23 10:41:10
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-08-23 16:36:10
  */
 
 import { type AxiosRequestConfig } from 'axios'
@@ -86,3 +86,12 @@ export const queryFrontEndOfflineTrigger = (data: string) => http.fetch('queryFr
 
 // 修改前端掉线数据
 export const editFrontEndOfflineTrigger = (data: string) => http.fetch('editFrontEndOfflineTrigger', getXmlWrapData(data))
+
+// 获取异常报警数据
+export const queryAbnormalTrigger = () => http.fetch('queryAbnormalTrigger', getXmlWrapData(''))
+
+// 修改异常报警数据
+export const editAbnormalTrigger = (data: string) => http.fetch('editAbnormalTrigger', getXmlWrapData(data))
+
+// 获取系统撤防数据
+export const querySystemDisArmParam = () => http.fetch('querySystemDisArmParam', getXmlWrapData(''))
