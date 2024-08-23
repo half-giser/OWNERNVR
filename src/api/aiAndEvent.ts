@@ -3,7 +3,7 @@
  * @Date: 2024-08-10 16:25:58
  * @Description: AI/事件
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-22 16:00:56
+ * @LastEditTime: 2024-08-23 16:36:10
  */
 
 import { type AxiosRequestConfig } from 'axios'
@@ -74,6 +74,12 @@ export const addAlarmAudioCfg = (data: string) => http.fetch('addAlarmAudioCfg',
 
 // 删除本地声音报警文件
 export const deleteAlarmAudio = (data: string) => http.fetch('deleteAlarmAudio', getXmlWrapData(data))
+
+// 获取传感器数据
+export const queryAlarmIn = (data: string) => http.fetch('queryAlarmIn', getXmlWrapData(data))
+
+// 修改传感器数据
+export const editAlarmIn = (data: string) => http.fetch('editAlarmIn', getXmlWrapData(data))
 
 // 获取前端掉线数据
 export const queryFrontEndOfflineTrigger = (data: string) => http.fetch('queryFrontEndOfflineTrigger', getXmlWrapData(data))
