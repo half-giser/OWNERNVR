@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-20 17:19:56
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-21 13:45:48
+ * @LastEditTime: 2024-08-22 11:34:14
  */
 import { type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
 
@@ -23,8 +23,8 @@ export default defineComponent({
         },
     },
     emits: {
-        close() {
-            return true
+        close(id: string) {
+            return id
         },
     },
     setup(prop, ctx) {
@@ -133,12 +133,12 @@ export default defineComponent({
                 })
             } else {
                 prop.handlePresetLinkedList!(prop.filterChlId, linkedList)
-                ctx.emit('close')
+                ctx.emit('close', prop.filterChlId as string)
             }
         }
 
         const close = () => {
-            ctx.emit('close')
+            ctx.emit('close', prop.filterChlId as string)
         }
         return {
             pageData,
