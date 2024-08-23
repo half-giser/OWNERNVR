@@ -2,8 +2,8 @@
  * @Description: 预置点名称配置
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-20 17:19:44
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-22 11:33:56
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-08-21 11:04:22
 -->
 <template>
     <el-dialog

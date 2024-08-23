@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-08-10 12:08:57
  * @Description: AI/事件
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-22 10:27:55
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-08-22 15:28:23
  */
 const { Translate } = useLangStore()
 
@@ -136,26 +136,6 @@ export class MotionEventConfig {
     rowDisable = true
 }
 
-export class PresetItem {
-    index = ''
-    name = ''
-    chl = {
-        value: '',
-        label: '',
-    }
-}
-
-export class PresetList {
-    id = ''
-    name = ''
-    chlType = ''
-    preset = {
-        value: '',
-        label: '',
-    }
-    presetList = [] as SelectOption<string, string>[]
-}
-
 export class ipcAudioForm {
     ipcRadio = 'audioAlarm' // 摄像机选择项——语音播报/声音设备
 
@@ -227,4 +207,94 @@ export class LocalTableRow {
     name = ''
     originalName = ''
     fileValid = ''
+}
+
+// 传感器页面——通道列表
+export class ChlList {
+    id = ''
+    name = ''
+}
+
+// 传感器的table项
+export class SensorEvent {
+    id = ''
+    status = '' //行状态: loading, success, error
+    alarmInType = ''
+    nodeIndex = ''
+    disabled = true
+    isEditable = false
+    serialNum = '' // 序号
+    name = '' // 名称
+    originalName = ''
+    // 类型
+    type = ''
+    // 启用
+    switch = ''
+    holdTimeNote = ''
+    // 持续时间
+    holdTime = ''
+    // 排程
+    schedule = {
+        value: '',
+        label: '',
+    }
+    // 打开排程管理时将原本的排程填入
+    oldSchedule = ''
+    // record录像
+    sysRec = {
+        switch: false,
+        chls: [] as SelectOption<string, string>[],
+    }
+    recordList = [] as string[]
+    // audio声音
+    sysAudio = ''
+    // snap抓图
+    sysSnap = {
+        switch: false,
+        chls: [] as SelectOption<string, string>[],
+    }
+    snapList = [] as string[]
+    // 报警输出
+    alarmOut = {
+        switch: false,
+        alarmOuts: [] as SelectOption<string, string>[],
+    }
+    alarmOutList = [] as string[]
+    // 视频弹出
+    popVideo = {
+        switch: '',
+        chl: {
+            id: '',
+            innerText: '',
+        },
+    }
+    // 预置点名称
+    preset = {
+        switch: false,
+        presets: [] as PresetItem[],
+    }
+    msgPushSwitch = '' // 推送
+    buzzerSwitch = '' // 蜂鸣器
+    emailSwitch = '' // email
+    popMsgSwitch = '' // 消息框弹出
+}
+
+export class PresetItem {
+    index = ''
+    name = ''
+    chl = {
+        value: '',
+        label: '',
+    }
+}
+
+export class PresetList {
+    id = ''
+    name = ''
+    chlType = ''
+    preset = {
+        value: '',
+        label: '',
+    }
+    presetList = [] as SelectOption<string, string>[]
 }

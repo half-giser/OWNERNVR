@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-13 09:23:25
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-19 10:00:57
+ * @LastEditTime: 2024-08-22 15:25:43
  */
 import { ipcAudioForm, type AudioAlarmOut, type AudioDevice, type LocalTableRow } from '@/types/apiType/aiAndEvent'
 import { QueryNodeListDto } from '@/types/apiType/channel'
@@ -351,7 +351,6 @@ export default defineComponent({
             pageData.value.btnApplyDisabled = false
         }
 
-        // 有声音设备的数据，记得填上
         const blurVolume = () => {
             audioAlarmOutData[ipcAudioFormData.value.audioChl].audioVolume = ipcAudioFormData.value.volume
             if (audioDeviceData[ipcAudioFormData.value.audioChl] && audioDeviceData[ipcAudioFormData.value.audioChl].audioOutEnabled) {
@@ -440,7 +439,6 @@ export default defineComponent({
             `
             const result = await auditionCustomizeAudioAlarm(sendXml)
             const $ = queryXml(result)
-            console.log(result)
 
             if ($('/response/status').text() != 'success') {
                 const errorCode = $('/response/errorCode').text()
@@ -719,7 +717,6 @@ export default defineComponent({
                 </content>
                 `
                 const result = await editAudioStreamConfig(sendXml)
-                console.log(result)
                 commSaveResponseHadler(result)
                 closeLoading(LoadingTarget.FullScreen)
                 audioDeviceData[ipcAudioFormData.value.deviceChl].editFlag = false
