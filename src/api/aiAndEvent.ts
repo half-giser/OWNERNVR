@@ -86,3 +86,6 @@ export const queryAbnormalTrigger = () => http.fetch('queryAbnormalTrigger', get
 
 // 修改异常报警数据
 export const editAbnormalTrigger = (data: string) => http.fetch('editAbnormalTrigger', getXmlWrapData(data))
+
+// 获取系统撤防数据
+export const querySystemDisArmParam = () => http.fetch('querySystemDisArmParam', getXmlWrapData(''))

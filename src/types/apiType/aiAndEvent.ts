@@ -3,7 +3,7 @@
  * @Date: 2024-08-10 12:08:57
  * @Description: AI/事件
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-22 17:16:46
+ * @LastEditTime: 2024-08-23 14:36:17
  */
 const { Translate } = useLangStore()
 
@@ -245,4 +245,10 @@ export class ExceptionAlarmRow {
     email = 'false'
     rowDisable = true
     emailDisable = true
+}
+
+export class SystemDisarm {
+    chlName = ''
+    disarmItems = [] as { value: string; label: string }[]
+    disarmItemsStr = ''
 }
