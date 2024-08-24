@@ -3,7 +3,7 @@
  * @Date: 2024-07-10 09:13:17
  * @Description: DDNS
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-15 18:30:40
+ * @LastEditTime: 2024-08-23 17:06:46
  */
 import { NetDDNSForm, NetDDNSServerTypeList } from '@/types/apiType/net'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -282,13 +282,11 @@ export default defineComponent({
                 if ($('/response/status').text() === 'success') {
                     openMessageTipBox({
                         type: 'success',
-                        title: Translate('IDCS_SUCCESS_TIP'),
                         message: current.value.isRegisterBtn ? Translate('IDCS_REGISTER_SUCCESS') : Translate('IDCS_TEST_SUCCESS'),
                     })
                 } else {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate($('/response/errorDescription').text()),
                     })
                 }

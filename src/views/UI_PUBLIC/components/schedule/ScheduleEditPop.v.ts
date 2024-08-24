@@ -54,7 +54,6 @@ export default defineComponent({
                             callback(new Error(''))
                             openMessageTipBox({
                                 type: 'info',
-                                title: Translate('IDCS_INFO_TIP'),
                                 message: Translate('IDCS_PROMPT_SCHEDULE_PERIOD_EMPTY'),
                             })
                             return

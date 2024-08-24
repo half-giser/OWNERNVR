@@ -9,9 +9,12 @@
         id="actConfigView"
         ref="actFormRef"
         :model="pageData"
-        :hide-required-asterisk="true"
-        label-width="170"
         label-position="left"
+        :style="{
+            '--form-input-width': '300px',
+            '--form-label-width': '150px',
+        }"
+        class="inline-message narrow"
     >
         <el-form-item>
             <template #label>
@@ -239,19 +242,18 @@
                 />
             </el-select>
         </el-form-item>
-
-        <el-form-item class="apply">
+        <div class="base-btn-box">
             <el-button
                 type="primary"
                 @click="apply()"
             >
                 {{ Translate('IDCS_APPLY') }}
             </el-button>
-        </el-form-item>
+        </div>
     </el-form>
 </template>
 
-<script lang="ts" src="./actConfig.v.ts"></script>
+<script lang="ts" src="./ActConfigs.v.ts"></script>
 
 <style lang="scss" scoped>
 #actConfigView {
@@ -261,10 +263,10 @@
     .title {
         display: flex;
         align-items: center;
-        margin: 10px 0 20px 0;
-        &:nth-of-type(2) {
-            margin-bottom: 10px;
-        }
+        margin: 10px 0 10px 0;
+        // &:nth-of-type(2) {
+        //     margin-bottom: 10px;
+        // }
         .lineIcon {
             width: 5px;
             height: 23px;
@@ -282,26 +284,26 @@
             margin-left: 40px;
         }
     }
-    :deep(.el-form-item) {
-        width: 450px;
-        margin-left: 10px;
-        align-items: center;
-        &.sliderItem {
-            width: 520px;
-        }
-        .el-form-item__label {
-            color: var(--text-dark);
-            font-size: 15px;
-        }
-        .el-form-item__content {
-            margin-left: 30px;
-            justify-content: flex-start;
-        }
-        &.apply {
-            .el-form-item__content {
-                justify-content: flex-end;
-            }
-        }
-    }
+    // :deep(.el-form-item) {
+    //     width: 450px;
+    //     margin-left: 10px;
+    //     align-items: center;
+    //     &.sliderItem {
+    //         width: 520px;
+    //     }
+    //     .el-form-item__label {
+    //         color: var(--text-dark);
+    //         font-size: 15px;
+    //     }
+    //     .el-form-item__content {
+    //         margin-left: 30px;
+    //         justify-content: flex-start;
+    //     }
+    //     &.apply {
+    //         .el-form-item__content {
+    //             justify-content: flex-end;
+    //         }
+    //     }
+    // }
 }
 </style>

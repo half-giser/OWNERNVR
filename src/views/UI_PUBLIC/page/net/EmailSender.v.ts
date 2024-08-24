@@ -173,7 +173,6 @@ export default defineComponent({
             if (!userSession.hasAuth('alarmMgr')) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_NO_AUTH'),
                 })
                 return
@@ -202,7 +201,6 @@ export default defineComponent({
             if (formData.value.ssl === 'NO') {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_MAIL_ARENOT_ENCRYPTED_WITHOUT_SSL'),
                 })
             }

@@ -3,7 +3,7 @@
  * @Date: 2024-07-08 18:02:05
  * @Description: 存储模式新增磁盘弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-08 20:00:21
+ * @LastEditTime: 2024-08-23 17:05:08
  */
 import { StorageModeDiskGroupList, type StorageModeDiskList } from '@/types/apiType/disk'
 
@@ -112,14 +112,12 @@ export default defineComponent({
             if (!pageData.value.selection.length) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_PLEASE_SELECT_DISK'),
                 })
                 return
             }
             openMessageTipBox({
                 type: 'question',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_HD_CHANGE_GROUP_WARNING'),
             }).then(async () => {
                 openLoading(LoadingTarget.FullScreen)

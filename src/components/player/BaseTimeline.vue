@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 10:41:06
  * @Description: 录像与回放时间轴组件
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-14 16:48:22
+ * @LastEditTime: 2024-08-23 15:03:50
 -->
 <template>
     <div
@@ -651,9 +651,9 @@ const setClipEnd = (time = getPointerTime()) => {
 /**
  * @description 获取剪切起止时间
  */
-const getClipRange = () => {
-    return clipRange
-}
+// const getClipRange = () => {
+//     return clipRange.value
+// }
 
 /**
  * @description 清空剪切
@@ -1289,9 +1289,9 @@ const updateChlList = (newChlList: ChlList[], newAutoPointer: boolean, pageType:
 /**
  * @description 获取通道列表数据
  */
-const getChlList = () => {
-    return chlList
-}
+// const getChlList = () => {
+//     return chlList
+// }
 
 /**
  * @description 重置画布，清空日志，指针归零
@@ -1372,7 +1372,7 @@ watch(
     },
 )
 
-defineExpose({
+defineExpose<TimelineInstance>({
     updateChlList,
     play,
     stop,
@@ -1380,7 +1380,7 @@ defineExpose({
     setTime,
     playForward,
     playBack,
-    getClipRange,
+    // getClipRange,
     clearClipRange,
     clearTimeRangeMask,
     drawTimeRangeMask,
@@ -1393,7 +1393,7 @@ defineExpose({
     getMaxTime,
     setColorMap,
     getTimeSplitList,
-    getChlList,
+    // getChlList,
     getPointerTime,
     getTimeRangeMask,
     getDST,

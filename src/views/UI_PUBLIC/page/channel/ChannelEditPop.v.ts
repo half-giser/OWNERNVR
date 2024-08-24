@@ -4,36 +4,41 @@
  * @Description:
  */
 import { type FormInstance } from 'element-plus'
+import { type RuleItem } from 'async-validator'
 import { ChannelInfoDto } from '@/types/apiType/channel'
-import { getXmlWrapData } from '../../../../api/api'
-import { editDev, queryDev } from '../../../../api/channel'
-import { queryXml } from '../../../../utils/xmlParse'
-import { checkChlName, checkIpV4, checkIpV6, cutStringByByte, filterProperty, getSecurityVer } from '../../../../utils/tools'
-import { errorCodeMap, nameByteMaxLen } from '../../../../utils/constants'
-import { trim } from 'lodash'
-import { useUserSessionStore } from '@/stores/userSession'
-import { type SetupContext } from 'vue'
-import { AES_encrypt } from '@/utils/encrypt'
-import useMessageBox from '@/hooks/useMessageBox'
-import { useLangStore } from '@/stores/lang'
-import useLoading from '@/hooks/useLoading'
 
 export default defineComponent({
     props: {
-        rowData: ChannelInfoDto,
-        protocolList: Array<String>,
-        manufacturerMap: Object,
-        close: {
-            type: Function,
-            require: true,
-            default: () => {},
+        rowData: {
+            type: Object as PropType<ChannelInfoDto>,
+            required: true,
         },
-        nameMapping: Object,
-        setDataCallBack: Function,
+        protocolList: {
+            type: Array as PropType<Record<string, string>[]>,
+            required: true,
+        },
+        manufacturerMap: {
+            type: Object as PropType<Record<string, string>>,
+            default: () => ({}),
+        },
+        nameMapping: {
+            type: Object as PropType<Record<string, string>>,
+            default: () => ({}),
+        },
     },
-    emits: ['updateNameMapping'],
-    setup(props: any, { emit }: SetupContext) {
-        const userSessionStore: any = useUserSessionStore()
+    emits: {
+        updateNameMapping(id: string, name: string) {
+            return typeof id === 'string' && typeof name === 'string'
+        },
+        close(isRefresh = false) {
+            return typeof isRefresh === 'boolean'
+        },
+        setDataCallBack(item: ChannelInfoDto) {
+            return !!item
+        },
+    },
+    setup(props, { emit }) {
+        const userSessionStore = useUserSessionStore()
         const { Translate } = useLangStore()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const { openMessageTipBox } = useMessageBox()
@@ -55,17 +60,17 @@ export default defineComponent({
         const getData = function () {
             const data = getXmlWrapData(`<condition><id>${props.rowData.id}</id></condition>`)
             openLoading(LoadingTarget.FullScreen)
-            queryDev(data).then((res: any) => {
+            queryDev(data).then((res) => {
                 closeLoading(LoadingTarget.FullScreen)
-                res = queryXml(res)
-                if (res('status').text() == 'success') {
+                const $ = queryXml(res)
+                if ($('status').text() == 'success') {
                     editItem.value = new ChannelInfoDto()
-                    editItem.value.name = res('//content/name').text()
-                    editItem.value.port = res('//content/port').text()
+                    editItem.value.name = $('//content/name').text()
+                    editItem.value.port = $('//content/port').text()
                     // editItem.value.manufacturer = res('//content/manufacturer').text()
                     const filterPropertyList = filterProperty(props.protocolList, 'index')
-                    const factoryName = res('//content/productModel').attr('factoryName')
-                    const manufacturer = res('//content/manufacturer').text()
+                    const factoryName = $('//content/productModel').attr('factoryName')!
+                    const manufacturer = $('//content/manufacturer').text()
                     if (factoryName) {
                         editItem.value.manufacturer = factoryName
                     } else if (manufacturer.indexOf('RTSP') != -1) {
@@ -73,21 +78,21 @@ export default defineComponent({
                     } else {
                         editItem.value.manufacturer = props.manufacturerMap[manufacturer]
                     }
-                    editItem.value.productModel.innerText = res('//content/productModel').text()
-                    editItem.value.userName = res('//content/userName').text()
+                    editItem.value.productModel.innerText = $('//content/productModel').text()
+                    editItem.value.userName = $('//content/userName').text()
 
-                    if (res('//content/ip').length == 0 || res('//content/ip').text() == '') {
+                    if ($('//content/ip').length == 0 || $('//content/ip').text() == '') {
                         isAnolog.value = true
                         inputDisabled.value = true
                         ipDisabled.value = true
                         portDisabled.value = true
                     } else {
-                        const ipdomain = res('//content/ip').text()
+                        const ipdomain = $('//content/ip').text()
                         isIp = checkIpV4(ipdomain)
                         isIpv6 = checkIpV6(ipdomain)
                         isDomain = !isIp && !isIpv6
 
-                        if (res('//content/protocolType').text() == 'RTSP') {
+                        if ($('//content/protocolType').text() == 'RTSP') {
                             portDisabled.value = true
                             editItem.value.port = ''
                         }
@@ -106,7 +111,7 @@ export default defineComponent({
                         }
                         editItem.value.ip = ipdomain
 
-                        if (res('//content/addType').text() == 'poe') {
+                        if ($('//content/addType').text() === 'poe') {
                             ipDisabled.value = true
                             portDisabled.value = true
                         }
@@ -119,29 +124,26 @@ export default defineComponent({
                     }
                 } else {
                     let errorInfo = Translate('IDCS_QUERY_DATA_FAIL')
-                    const isNotExit = res('errorCode').text() * 1 == errorCodeMap.resourceNotExist
+                    const isNotExit = Number($('errorCode').text()) === errorCodeMap.resourceNotExist
                     if (isNotExit) errorInfo = Translate('IDCS_RESOURCE_NOT_EXIST').formatForLang(Translate('IDCS_CHANNEL'))
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: errorInfo,
                         showCancelButton: false,
+                    }).then(() => {
+                        if (isNotExit) {
+                            emit('close', true)
+                        } else {
+                            emit('close')
+                        }
                     })
-                        .then(() => {
-                            if (isNotExit) {
-                                props.close(true)
-                            } else {
-                                props.close()
-                            }
-                        })
-                        .catch(() => {})
                 }
             })
         }
 
-        const validate = {
-            validateName: (_rule: any, value: any, callback: any) => {
-                value = trim(value)
+        const validate: Record<string, RuleItem['validator']> = {
+            validateName: (_rule, value, callback) => {
+                value = value.trim()
                 if (value.length === 0) {
                     callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
                     return
@@ -156,31 +158,26 @@ export default defineComponent({
                 if (!checkChlName(value.replace(' ', ''))) {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS'),
-                        showCancelButton: false,
                     })
                     return
                 }
                 if (!notCheckNameFlag && checkIsNameExit(value, props.rowData.id)) {
                     openMessageTipBox({
                         type: 'question',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_NAME_EXISTED'),
                         confirmButtonText: Translate('IDCS_KEEP'),
                         cancelButtonText: Translate('IDCS_EDIT'),
+                    }).then(() => {
+                        save(true)
                     })
-                        .then(() => {
-                            save(true)
-                        })
-                        .catch(() => {})
                     return
                 }
                 callback()
             },
-            validateIp: (_rule: any, value: any, callback: any) => {
+            validateIp: (_rule, value, callback) => {
                 if (!isAnolog.value) {
-                    value = trim(value)
+                    value = value.trim()
                     if (isIp && (value.length == 0 || !checkIpV4(value))) {
                         callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_EMPTY')))
                         return
@@ -204,9 +201,9 @@ export default defineComponent({
                 }
                 callback()
             },
-            validateUserName: (_rule: any, value: any, callback: any) => {
+            validateUserName: (_rule, value, callback) => {
                 if (!isAnolog.value) {
-                    value = trim(value)
+                    value = value.trim()
                     if (props.rowData.protocolType != 'RTSP' && value.length == 0) {
                         callback(new Error(Translate('IDCS_PROMPT_USERNAME_EMPTY')))
                         return
@@ -235,7 +232,7 @@ export default defineComponent({
                         editItem.value.manufacturer +
                         '</manufacturer>' +
                         '<name><![CDATA[' +
-                        trim(editItem.value.name) +
+                        editItem.value.name.trim() +
                         ']]></name>'
                     if (!isAnolog.value) {
                         if (!portDisabled.value) {
@@ -252,65 +249,48 @@ export default defineComponent({
                         data += '<userName>' + editItem.value.userName + '</userName>' + (editPwdSwitch.value ? psdXml : '')
                     }
                     data += '</content>'
-                    editDev(getXmlWrapData(data)).then((res: any) => {
-                        res = queryXml(res)
-                        if (res('status').text() == 'success') {
+                    editDev(getXmlWrapData(data)).then((res) => {
+                        const $ = queryXml(res)
+                        if ($('status').text() == 'success') {
                             emit('updateNameMapping', props.rowData.id, editItem.value.name)
                             openMessageTipBox({
                                 type: 'success',
-                                title: Translate('IDCS_SUCCESS_TIP'),
                                 message: Translate('IDCS_SAVE_DATA_SUCCESS'),
-                                showCancelButton: false,
+                            }).then(() => {
+                                if (editItem.value.ip == '0.0.0.0') {
+                                    editItem.value.ip = ''
+                                }
+                                emit('setDataCallBack', editItem.value)
+                                emit('close')
                             })
-                                .then(() => {
-                                    if (props.setDataCallBack) {
-                                        if (editItem.value.ip == '0.0.0.0') {
-                                            editItem.value.ip = ''
-                                        }
-                                        props.setDataCallBack(editItem.value)
-                                    }
-                                    props.close()
-                                })
-                                .catch(() => {})
                         } else {
-                            if (res('errorCode').text() * 1 == errorCodeMap.nameExist) {
+                            const errorCode = Number($('errorCode').text())
+                            if (errorCode === errorCodeMap.nameExist) {
                                 openMessageTipBox({
                                     type: 'info',
-                                    title: Translate('IDCS_INFO_TIP'),
                                     message: Translate('IDCS_PROMPT_CHANNEL_NAME_EXIST'),
-                                    showCancelButton: false,
                                 })
-                            } else if (res('errorCode').text() * 1 == errorCodeMap.resourceNotExist) {
+                            } else if (errorCode === errorCodeMap.resourceNotExist) {
                                 openMessageTipBox({
                                     type: 'info',
-                                    title: Translate('IDCS_INFO_TIP'),
                                     message: Translate('IDCS_RESOURCE_NOT_EXIST').formatForLang(Translate('IDCS_CHANNEL')),
-                                    showCancelButton: false,
+                                }).then(() => {
+                                    emit('close', true)
                                 })
-                                    .then(() => {
-                                        props.close(true)
-                                    })
-                                    .catch(() => {})
-                            } else if (res('errorCode').text() * 1 == errorCodeMap.nodeExist) {
+                            } else if (errorCode === errorCodeMap.nodeExist) {
                                 openMessageTipBox({
                                     type: 'info',
-                                    title: Translate('IDCS_INFO_TIP'),
                                     message: Translate('IDCS_PROMPT_CHANNEL_EXIST'),
-                                    showCancelButton: false,
                                 })
-                            } else if (res('errorCode').text() * 1 == errorCodeMap.ipError) {
+                            } else if (errorCode === errorCodeMap.ipError) {
                                 openMessageTipBox({
                                     type: 'info',
-                                    title: Translate('IDCS_INFO_TIP'),
                                     message: Translate('IDCS_ERROR_IP_ROUTE_INVALID'),
-                                    showCancelButton: false,
                                 })
                             } else {
                                 openMessageTipBox({
                                     type: 'info',
-                                    title: Translate('IDCS_INFO_TIP'),
                                     message: Translate('IDCS_SAVE_DATA_FAIL'),
-                                    showCancelButton: false,
                                 })
                             }
                         }

@@ -4,16 +4,9 @@
  * @Description: 业务应用-门禁管理-门禁配置
  */
 
-import { getChlList } from '@/utils/tools'
-import { getXmlWrapData } from '@/api/api'
 import { QueryNodeListDto } from '@/types/apiType/channel'
 import { ActConfigPageData, type AccessLockData, AccessLockDataItem } from '@/types/apiType/business'
-import { queryOnlineChlList } from '@/api/channel'
-import { queryAccessControlCfg, editAccessControlCfg, queryAccessDataComCfg, editAccessDataComCfg } from '@/api/business'
-import { queryXml } from '@/utils/xmlParse'
-import { useLangStore } from '@/stores/lang'
-import useLoading from '@/hooks/useLoading'
-import useMessageBox from '@/hooks/useMessageBox'
+import { type XMLQuery } from '@/utils/xmlParse'
 
 export default defineComponent({
     setup() {
@@ -41,7 +34,7 @@ export default defineComponent({
                     const queryNodeListDto = new QueryNodeListDto()
                     queryNodeListDto.nodeType = 'chls'
                     queryNodeListDto.isSupportAccessControl = true
-                    getChlList(queryNodeListDto).then((result: any) => {
+                    getChlList(queryNodeListDto).then((result) => {
                         resolve(result)
                     })
                 })
@@ -49,7 +42,7 @@ export default defineComponent({
             // 在线通道
             const getOnlineChlList = () => {
                 return new Promise((resolve) => {
-                    queryOnlineChlList().then((result: any) => {
+                    queryOnlineChlList().then((result) => {
                         resolve(result)
                     })
                 })
@@ -63,8 +56,8 @@ export default defineComponent({
                 const result1Xml = queryXml(resultArr[0] as XMLResult)
                 const result2Xml = queryXml(resultArr[1] as XMLResult)
                 if (result1Xml('status').text() === 'success' && result2Xml('status').text() === 'success') {
-                    result1Xml('//content/item').forEach((ele1: any) => {
-                        result2Xml('//content/item').forEach((ele2: any) => {
+                    result1Xml('//content/item').forEach((ele1) => {
+                        result2Xml('//content/item').forEach((ele2) => {
                             if (ele1.attr('id') === ele2.attr('id')) {
                                 const ele1Xml = queryXml(ele1.element)
                                 pageData.chlList.push({
@@ -92,7 +85,7 @@ export default defineComponent({
                         </condition>
                     `
                     const data = getXmlWrapData(sendXml)
-                    queryAccessControlCfg(data).then((result: any) => {
+                    queryAccessControlCfg(data).then((result) => {
                         resolve(result)
                     })
                 })
@@ -106,7 +99,7 @@ export default defineComponent({
                         </condition>
                     `
                     const data = getXmlWrapData(sendXml)
-                    queryAccessDataComCfg(data).then((result: any) => {
+                    queryAccessDataComCfg(data).then((result) => {
                         resolve(result)
                     })
                 })
@@ -134,7 +127,7 @@ export default defineComponent({
                     const accessLockData = {} as AccessLockData
                     // 门锁枚举
                     const accessLockIndexList = [] as SelectItem[]
-                    result1Xml('//content/chl/doorLock/item').forEach((ele: any) => {
+                    result1Xml('//content/chl/doorLock/item').forEach((ele) => {
                         const eleXml = queryXml(ele.element)
                         const lockIndex = Number(eleXml('id').text())
                         // 开门延时时间
@@ -178,7 +171,7 @@ export default defineComponent({
             })
         }
         // 获取枚举列表
-        function getEnum(resultXml: any, enumKey: string) {
+        function getEnum(resultXml: XMLQuery, enumKey: string) {
             type enumType = 'doorLockTypeEnum' | 'doorLockActionEnum' | 'accessListTypeEnum' | 'wiegandIOTypeEnum' | 'wiegandModeEnum'
             const doorLockTypeMap = {
                 Auto: Translate('IDCS_AUTO'), // 自动
@@ -216,7 +209,7 @@ export default defineComponent({
                 wiegandIOType: wiegandIOTypeMap,
                 wiegandMode: wiegandModeMap,
             }
-            resultXml(`//types/${enumKey}/enum`).forEach((ele: any) => {
+            resultXml(`//types/${enumKey}/enum`).forEach((ele) => {
                 const selectItem = {} as SelectItem
                 selectItem.value = ele.text() // 值
                 selectItem.label = typeMap[enumKey][ele.text()] // 展示文本
@@ -261,7 +254,7 @@ export default defineComponent({
         // 门锁
         function editAccessControl() {
             return new Promise((resolve) => {
-                let sendXml = `<content><chl id="${pageData.chlId}">
+                let sendXml = rawXml`<content><chl id="${pageData.chlId}">
                     ${pageData.wearMaskOpen ? '<wearmaskOpen>' + pageData.wearMaskOpen + '</wearmaskOpen>' : ''}
                     ${pageData.accessListType ? '<accessListType type="accessListType">' + pageData.accessListType + '</accessListType>' : ''}
                 `
@@ -269,11 +262,11 @@ export default defineComponent({
                 if (lockDataLength > 0) {
                     sendXml += `<doorLock type="list" count="${lockDataLength}">`
                     for (const [key, lockData] of Object.entries(pageData.accessLockData)) {
-                        sendXml += `
+                        sendXml += rawXml`
                             <item>
                                 <id type="uint32">${key}</id>
-                                <OpenDelayTime type="uint8" min="${lockData.delayTimeMin}" max="${lockData.delayTimeMax}" default="${lockData.delayTimeDefaultValue}">${lockData.delayTimeValue}</OpenDelayTime>
-                                <OpenHoldTime type="uint8" min="${lockData.openHoldTimeMin}" max="${lockData.openHoldTimeMax}" default="${lockData.openHoldTimeDefaultValue}">${lockData.openHoldTimeValue}</OpenHoldTime>
+                                <OpenDelayTime type="uint8" min="${lockData.delayTimeMin.toString()}" max="${lockData.delayTimeMax.toString()}" default="${lockData.delayTimeDefaultValue.toString()}">${lockData.delayTimeValue.toString()}</OpenDelayTime>
+                                <OpenHoldTime type="uint8" min="${lockData.openHoldTimeMin.toString()}" max="${lockData.openHoldTimeMax.toString()}" default="${lockData.openHoldTimeDefaultValue.toString()}">${lockData.openHoldTimeValue.toString()}</OpenHoldTime>
                                 ${lockData.doorLockConfig ? '<doorLockConfig type="doorLockType">' + lockData.doorLockConfig + '</doorLockConfig>' : ''}
                                 ${lockData.alarmAction ? '<alarmAction type="doorLockAction">' + lockData.alarmAction + '</alarmAction>' : ''}
                             </item>
@@ -283,7 +276,7 @@ export default defineComponent({
                 }
                 sendXml += `</chl></content>`
                 const data = getXmlWrapData(sendXml)
-                editAccessControlCfg(data).then((result: any) => {
+                editAccessControlCfg(data).then((result) => {
                     resolve(result)
                 })
             })
@@ -291,7 +284,7 @@ export default defineComponent({
         // 韦根
         function editAccessDataCom() {
             return new Promise((resolve) => {
-                const sendXml = `
+                const sendXml = rawXml`
                     <content>
                         <chl id="${pageData.chlId}">
                             <accessDataComDev>
@@ -304,7 +297,7 @@ export default defineComponent({
                     </content>
                 `
                 const data = getXmlWrapData(sendXml)
-                editAccessDataComCfg(data).then((result: any) => {
+                editAccessDataComCfg(data).then((result) => {
                     resolve(result)
                 })
             })
@@ -369,10 +362,8 @@ export default defineComponent({
         function handleSuccess() {
             openMessageTipBox({
                 type: 'success',
-                title: Translate('IDCS_SUCCESS_TIP'),
                 message: Translate('IDCS_SAVE_DATA_SUCCESS'),
-                showCancelButton: false,
-            }).catch(() => {})
+            })
         }
         // 处理错误码提示
         function handleError(errorCode: string) {
@@ -382,10 +373,8 @@ export default defineComponent({
             }
             openMessageTipBox({
                 type: 'info',
-                title: Translate('IDCS_INFO_TIP'),
                 message: errorMsg,
-                showCancelButton: false,
-            }).catch(() => {})
+            })
         }
 
         return {

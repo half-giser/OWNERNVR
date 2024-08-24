@@ -3,16 +3,13 @@
  * @Date: 2024-06-27 11:49:04
  * @Description: 系统升级
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-28 18:54:15
+ * @LastEditTime: 2024-08-23 17:10:52
  */
-import BasePluginNotice from '../../components/ocx/BasePluginNotice.vue'
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
-import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import BaseInputEncryptPwdPop from '../../components/auth/BaseInputEncryptPwdPop.vue'
+import BaseCheckAuthPop, { UserCheckAuthForm } from '../../components/auth/BaseCheckAuthPop.vue'
+import BaseInputEncryptPwdPop, { UserInputEncryptPwdForm } from '../../components/auth/BaseInputEncryptPwdPop.vue'
 import UpgradeBackUpPop from './UpgradeBackUpPop.vue'
 import { type XmlResult } from '@/utils/xmlParse'
 import type WebsocketPlugin from '@/utils/websocket/websocketPlugin'
-import { UserCheckAuthForm, UserInputEncryptPwdForm } from '@/types/apiType/userAndSecurity'
 import WebsocketUpload from '@/utils/websocket/websocketUpload'
 import WebsocketDownload from '@/utils/websocket/websocketDownload'
 import { type CmdUploadFileOpenOption } from '@/utils/websocket/websocketCmd'
@@ -20,8 +17,6 @@ import { SystemUpgradeForm } from '@/types/apiType/system'
 
 export default defineComponent({
     components: {
-        BasePluginNotice,
-        BaseImgSprite,
         BaseCheckAuthPop,
         BaseInputEncryptPwdPop,
         UpgradeBackUpPop,
@@ -208,7 +203,6 @@ export default defineComponent({
                     if (name.indexOf('.pkg') === -1) {
                         openMessageTipBox({
                             type: 'info',
-                            title: Translate('IDCS_INFO_TIP'),
                             message: Translate('IDCS_NO_CHOOSE_TDB_FILE').formatForLang('.pkg'),
                         })
                         return
@@ -218,7 +212,6 @@ export default defineComponent({
                     if (name.indexOf('.fls') === -1) {
                         openMessageTipBox({
                             type: 'info',
-                            title: Translate('IDCS_INFO_TIP'),
                             message: Translate('IDCS_NO_CHOOSE_TDB_FILE').formatForLang('.fls'),
                         })
                         return
@@ -410,7 +403,6 @@ export default defineComponent({
         const showMessage = (message: string) => {
             openMessageTipBox({
                 type: 'info',
-                title: Translate('IDCS_INFO_TIP'),
                 message,
             })
         }
@@ -456,7 +448,6 @@ export default defineComponent({
                 case ErrorCode.USER_ERROR_SERVER_NO_EXISTS:
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_LOGIN_OVERTIME'),
                     }).finally(() => {
                         Logout()
@@ -467,7 +458,6 @@ export default defineComponent({
                 //     // 校验升级包是低版本
                 //     openMessageTipBox({
                 //         type: 'question',
-                //         title: Translate('IDCS_INFO_TIP'),
                 //         message: Translate('IDCS_UPGRADE_INCOMPATIBLE_VERSION_CONFIRM'),
                 //     }).then(() => {
                 //         upgrade(true)
@@ -533,8 +523,6 @@ export default defineComponent({
             confirmBackUpAndUpgrade,
             closeBackUpAndUpgrade,
             confirmOCXBackUp,
-            BasePluginNotice,
-            BaseImgSprite,
             BaseCheckAuthPop,
             BaseInputEncryptPwdPop,
             UpgradeBackUpPop,

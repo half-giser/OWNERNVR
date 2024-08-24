@@ -3,7 +3,7 @@
  * @Date: 2024-07-08 18:01:29
  * @Description: 存储模式配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 16:12:49
+ * @LastEditTime: 2024-08-23 17:04:53
  */
 import type { StorageModeDiskGroupListDatum, StorageModeDiskGroupList } from '@/types/apiType/disk'
 import StorageModeAddDiskPop from './StorageModeAddDiskPop.vue'
@@ -185,7 +185,6 @@ export default defineComponent({
         const deleteDisk = (id: string) => {
             openMessageTipBox({
                 type: 'question',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_HD_CHANGE_GROUP_WARNING'),
             }).then(() => {
                 editRelation('disks', id)
@@ -237,7 +236,6 @@ export default defineComponent({
             if ($('/response/status').text() === 'success') {
                 openMessageTipBox({
                     type: 'success',
-                    title: Translate('IDCS_SUCCESS_TIP'),
                     message: Translate('IDCS_DELETE_SUCCESS'),
                 }).finally(() => {
                     getDiskGroupList()
@@ -245,7 +243,6 @@ export default defineComponent({
             } else {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_DELETE_FAIL'),
                 })
             }

@@ -3,10 +3,10 @@
  * @Date: 2024-07-26 17:03:07
  * @Description: 现场预览-通道视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-30 10:29:57
+ * @LastEditTime: 2024-08-23 17:05:33
  */
 import ChannelGroupEditPop from '../channel/ChannelGroupEditPop.vue'
-import ChannelGroupAdd from '../channel/ChannelGroupAdd.vue'
+import ChannelGroupAddPop from '../channel/ChannelGroupAddPop.vue'
 import { type LiveChannelList, type LiveChannelGroupList, type LiveChlOfChannelGroupList, type LiveCustomViewList, type LiveCustomViewChlList } from '@/types/apiType/live'
 import { ChlGroup } from '@/types/apiType/channel'
 
@@ -20,7 +20,7 @@ export interface ChannelPanelExpose {
 export default defineComponent({
     components: {
         ChannelGroupEditPop,
-        ChannelGroupAdd,
+        ChannelGroupAddPop,
     },
     props: {
         /**
@@ -398,7 +398,6 @@ export default defineComponent({
             if (findItem) {
                 openMessageTipBox({
                     type: 'question',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_DELETE_MP_GROUP_S').formatForLang(getShortString(findItem.value, 10)),
                 }).then(async () => {
                     openLoading(LoadingTarget.FullScreen)
@@ -415,7 +414,6 @@ export default defineComponent({
                     if ($('/response/status').text() === 'success') {
                         openMessageTipBox({
                             type: 'success',
-                            title: Translate('IDCS_SUCCESS_TIP'),
                             message: Translate('IDCS_DELETE_SUCCESS'),
                         }).then(() => {
                             getChlGroupList()
@@ -558,7 +556,7 @@ export default defineComponent({
             chlGroupElement,
             mousedownChlGroupPosition,
             ChannelGroupEditPop,
-            ChannelGroupAdd,
+            ChannelGroupAddPop,
         }
     },
 })

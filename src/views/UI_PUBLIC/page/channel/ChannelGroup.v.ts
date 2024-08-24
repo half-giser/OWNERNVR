@@ -5,13 +5,11 @@
  */
 import { ChlGroup } from '@/types/apiType/channel'
 import { DefaultPagerSizeOptions, DefaultPagerLayout } from '@/utils/constants'
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
 import ChannelGroupEditPop from './ChannelGroupEditPop.vue'
 import ChannelGroupAddChlPop from './ChannelGroupAddChlPop.vue'
 
 export default defineComponent({
     components: {
-        BaseImgSprite,
         ChannelGroupEditPop,
         ChannelGroupAddChlPop,
     },
@@ -25,8 +23,8 @@ export default defineComponent({
         const pageIndex = ref(1)
         const pageSize = ref(10)
         const pageTotal = ref(0)
-        const editItem = ref<ChlGroup>()
-        const editItemForAddChl = ref<ChlGroup>()
+        const editItem = ref(new ChlGroup())
+        const editItemForAddChl = ref(new ChlGroup())
         const chlGroupEditPopVisiable = ref(false)
         const chlGroupAddChlPopVisiable = ref(false)
         let tmpExpendedRows: ChlGroup[] = []
@@ -35,7 +33,7 @@ export default defineComponent({
             chlGroupEditPopVisiable.value = false
         }
 
-        const closeChlGroupAddChlPop = (isRefresh: boolean) => {
+        const closeChlGroupAddChlPop = (isRefresh = false) => {
             chlGroupAddChlPopVisiable.value = false
             if (isRefresh) {
                 handleExpandChange(editItemForAddChl.value!, tmpExpendedRows)
@@ -74,39 +72,33 @@ export default defineComponent({
                 type: 'question',
                 title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_DELETE_MP_GROUP_S').formatForLang(getShortString(rowData.name, 10)),
-            })
-                .then(() => {
-                    const data = `
+            }).then(() => {
+                const data = rawXml`
                         <condition>
                             <chlGroupIds type='list'>
                                 <item id='${rowData.id}'></item>
                             </chlGroupIds>
                         </condition>`
-                    openLoading(LoadingTarget.FullScreen)
-                    delChlGroup(getXmlWrapData(data)).then((res: any) => {
-                        closeLoading(LoadingTarget.FullScreen)
-                        res = queryXml(res)
-                        if (res('status').text() == 'success') {
-                            openMessageTipBox({
-                                type: 'success',
-                                title: Translate('IDCS_SUCCESS_TIP'),
-                                message: Translate('IDCS_DELETE_SUCCESS'),
-                                showCancelButton: false,
-                            }).then(() => {
-                                pageIndex.value = 1
-                                getData()
-                            })
-                        } else {
-                            openMessageTipBox({
-                                type: 'info',
-                                title: Translate('IDCS_INFO_TIP'),
-                                message: Translate('IDCS_DELETE_FAIL'),
-                                showCancelButton: false,
-                            })
-                        }
-                    })
+                openLoading(LoadingTarget.FullScreen)
+                delChlGroup(getXmlWrapData(data)).then((res) => {
+                    closeLoading(LoadingTarget.FullScreen)
+                    const $ = queryXml(res)
+                    if ($('status').text() == 'success') {
+                        openMessageTipBox({
+                            type: 'success',
+                            message: Translate('IDCS_DELETE_SUCCESS'),
+                        }).then(() => {
+                            pageIndex.value = 1
+                            getData()
+                        })
+                    } else {
+                        openMessageTipBox({
+                            type: 'info',
+                            message: Translate('IDCS_DELETE_FAIL'),
+                        })
+                    }
                 })
-                .catch(() => {})
+            })
         }
 
         const handleSizeChange = (val: number) => {
@@ -121,19 +113,19 @@ export default defineComponent({
 
         const handleExpandChange = (row: ChlGroup, expandedRows: ChlGroup[]) => {
             if (expandedRows.includes(row)) {
-                const data = `
+                const data = rawXml`
                 <condition>
                     <chlGroupId>${row.id}</chlGroupId>
                 </condition>`
                 openLoading(LoadingTarget.FullScreen)
-                queryChlGroup(getXmlWrapData(data)).then((res: any) => {
+                queryChlGroup(getXmlWrapData(data)).then((res) => {
                     closeLoading(LoadingTarget.FullScreen)
-                    res = queryXml(res)
-                    if (res('status').text() == 'success') {
+                    const $ = queryXml(res)
+                    if ($('status').text() == 'success') {
                         const chlList: Record<string, string | boolean>[] = []
-                        res('//content/chlList/item').forEach((ele: any) => {
+                        $('//content/chlList/item').forEach((ele) => {
                             chlList.push({
-                                value: ele.attr('id'),
+                                value: ele.attr('id')!,
                                 text: ele.text(),
                                 showDelIcon: false,
                             })
@@ -147,30 +139,30 @@ export default defineComponent({
         }
 
         const getData = () => {
-            const data = `
-                <pageIndex>${pageIndex.value}</pageIndex>
-                <pageSize>${pageSize.value}</pageSize>
+            const data = rawXml`
+                <pageIndex>${pageIndex.value.toString()}</pageIndex>
+                <pageSize>${pageSize.value.toString()}</pageSize>
                 <requireField>
                     <name/>
                     <dwellTime/>
                     <chlCount/>
                 </requireField>`
             openLoading(LoadingTarget.FullScreen)
-            queryChlGroupList(getXmlWrapData(data)).then((res: any) => {
+            queryChlGroupList(getXmlWrapData(data)).then((res) => {
                 closeLoading(LoadingTarget.FullScreen)
-                res = queryXml(res)
-                if (res('status').text() == 'success') {
+                const $ = queryXml(res)
+                if ($('status').text() == 'success') {
                     tableData.value = []
-                    res('//content/item').forEach((ele: any) => {
+                    $('//content/item').forEach((ele) => {
                         const eleXml = queryXml(ele.element)
                         const newData = new ChlGroup()
-                        newData.id = ele.attr('id')
+                        newData.id = ele.attr('id')!
                         newData.name = eleXml('name').text()
                         newData.dwellTime = Number(eleXml('dwellTime').text())
                         newData.chlCount = Number(eleXml('chlCount').text())
                         tableData.value?.push(newData)
                     })
-                    pageTotal.value = Number(res('content').attr('total'))
+                    pageTotal.value = Number($('content').attr('total'))
                 }
             })
         }
@@ -183,13 +175,11 @@ export default defineComponent({
             if (rowData.chlCount <= 1) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_PROMPT_CHANNEL_GROUP_DELETE_CHANNEL_ERROR'),
-                    showCancelButton: false,
                 })
                 return
             }
-            const data = `
+            const data = rawXml`
                 <types>
                     <actionType>
                         <enum>add</enum>
@@ -206,27 +196,21 @@ export default defineComponent({
                     </chlGroup>
                 </content>`
             openLoading(LoadingTarget.FullScreen)
-            editSetAndElementRelation(getXmlWrapData(data)).then((res: any) => {
+            editSetAndElementRelation(getXmlWrapData(data)).then((res) => {
                 closeLoading(LoadingTarget.FullScreen)
-                res = queryXml(res)
-                if (res('status').text() == 'success') {
+                const $ = queryXml(res)
+                if ($('status').text() == 'success') {
                     openMessageTipBox({
                         type: 'success',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_DELETE_SUCCESS'),
-                        showCancelButton: false,
+                    }).then(() => {
+                        rowData.chls = rowData.chls.filter((item) => item['value'] != chlId)
+                        rowData.chlCount = rowData.chls.length
                     })
-                        .then(() => {
-                            rowData.chls = rowData.chls.filter((item) => item['value'] != chlId)
-                            rowData.chlCount = rowData.chls.length
-                        })
-                        .catch(() => {})
                 } else {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_DELETE_FAIL'),
-                        showCancelButton: false,
                     })
                 }
             })
@@ -259,6 +243,8 @@ export default defineComponent({
             handleExpandChange,
             handleAddChl,
             handleDelChl,
+            ChannelGroupEditPop,
+            ChannelGroupAddChlPop,
         }
     },
 })

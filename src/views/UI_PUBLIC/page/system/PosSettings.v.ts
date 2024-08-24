@@ -3,12 +3,11 @@
  * @Date: 2024-07-02 09:08:32
  * @Description: POS配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-03 15:24:59
+ * @LastEditTime: 2024-08-23 17:10:27
  */
-import { cloneDeep } from 'lodash'
+import { cloneDeep } from 'lodash-es'
 import type { SystemPosList, SystemPosListChls, SystemPostColorData, SystemPosConnectionForm, SystemPosDisplaySetting } from '@/types/apiType/system'
 import { SystemPostDisplaySet } from '@/types/apiType/system'
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
 import PosConnectionSettingsPop from './PosConnectionSettingsPop.vue'
 import PosTriggerChannelPop from './PosTriggerChannelPop.vue'
 import PosHayleyTriggerChannelPop from './PosHayleyTriggerChannelPop.vue'
@@ -20,7 +19,6 @@ export default defineComponent({
         PosTriggerChannelPop,
         PosHayleyTriggerChannelPop,
         PosDisplaySettingPop,
-        BaseImgSprite,
     },
     setup() {
         const { Translate } = useLangStore()
@@ -302,13 +300,11 @@ export default defineComponent({
             if ($('/response/status').text() === 'success') {
                 openMessageTipBox({
                     type: 'success',
-                    title: Translate('IDCS_SUCCESS_TIP'),
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
             } else {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_SAVE_DATA_FAIL'),
                 })
             }
@@ -337,7 +333,6 @@ export default defineComponent({
             if (!isValidAddress) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_PROMPT_IPADDRESS_INVALID'),
                 })
                 return false
@@ -354,7 +349,6 @@ export default defineComponent({
             if (!isNoEmptyIp) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_POS_IP_EMPTY'),
                 })
                 return false
@@ -373,7 +367,6 @@ export default defineComponent({
             if (!isNoEmptyPort) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_POS_PORT_EMPTY'),
                 })
                 return false
@@ -396,7 +389,6 @@ export default defineComponent({
             if (isSameIPAndPort) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_POS_IP_SAME'),
                 })
                 return false
@@ -595,7 +587,6 @@ export default defineComponent({
             PosTriggerChannelPop,
             PosHayleyTriggerChannelPop,
             PosDisplaySettingPop,
-            BaseImgSprite,
         }
     },
 })

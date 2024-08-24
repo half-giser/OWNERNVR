@@ -4,7 +4,7 @@
  * @Description: OCX插件模块
  * 原项目中MAC插件和TimeSliderPlugin相关逻辑不保留
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 18:04:07
+ * @LastEditTime: 2024-08-23 16:47:25
  */
 import WebsocketPlugin from '@/utils/websocket/websocketPlugin'
 import { usePluginStore } from '@/stores/plugin'
@@ -1136,7 +1136,6 @@ const usePlugin = () => {
         isPluginNoResponse = true
         openMessageTipBox({
             type: 'info',
-            title: Translate('IDCS_INFO_TIP'),
             message: Translate('IDCS_PLUGIN_NO_RESPONSE_TIPS'),
         })
             .then(() => {
@@ -1624,7 +1623,6 @@ const usePlugin = () => {
                 setReconnCallBack(() => {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_LOGIN_OVERTIME'),
                     }).then(() => {
                         closeLoading(LoadingTarget.FullScreen)

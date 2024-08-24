@@ -124,7 +124,6 @@ export default defineComponent({
                 }
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: errorText,
                 }).then(() => {
                     ctx.emit('close')
@@ -210,7 +209,6 @@ export default defineComponent({
                 }
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: errorText,
                 }).then(() => {
                     ctx.emit('close')

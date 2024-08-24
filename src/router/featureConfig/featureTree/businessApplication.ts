@@ -68,7 +68,7 @@ export default {
                     // 门禁配置
                     name: 'accessControlConfig',
                     path: 'config',
-                    component: 'businessApplication/actConfig.vue',
+                    component: 'businessApplication/ActConfigs.vue',
                     meta: {
                         sort: 10,
                         lk: 'IDCS_ACCESS_CONTROL_CONFIG',
@@ -79,7 +79,7 @@ export default {
         },
         faceAttendance: {
             // 人脸考勤
-            component: 'businessApplication/faceAttendance.vue',
+            component: 'businessApplication/FaceAttendances.vue',
             meta: {
                 sort: 30,
                 lk: 'IDCS_FACE_ATTENDANCE',
@@ -87,7 +87,7 @@ export default {
         },
         faceCheck: {
             // 人脸签到
-            component: 'businessApplication/faceCheck.vue',
+            component: 'businessApplication/FaceCheck.vue',
             meta: {
                 sort: 40,
                 lk: 'IDCS_FACE_CHECK',

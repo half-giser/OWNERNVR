@@ -3,7 +3,7 @@
  * @Date: 2024-06-05 08:54:10
  * @Description: 生成雪碧图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-11 09:10:35
+ * @LastEditTime: 2024-08-23 18:23:29
  */
 import { type Plugin } from 'vite'
 
@@ -21,9 +21,14 @@ interface GenerateSpriteOption {
 
 function generateSprite(option: GenerateSpriteOption) {
     return new Promise((resolve, reject) => {
-        const sprites = glob.glob.sync(option.src, {
+        let sprites = glob.glob.sync(option.src, {
             ignore: '**/img.png',
         })
+        if (!sprites.length) {
+            sprites = glob.glob.sync('sprite/UI-Public-sprite/sprite/*.png', {
+                ignore: '**/img.png',
+            })
+        }
         SpriteSmith.run({ src: sprites }, async (err, result) => {
             if (err) {
                 console.log(Chalk.red.bold('ERROR'), Chalk.white(`GenerateSprite Error: ${err}`))

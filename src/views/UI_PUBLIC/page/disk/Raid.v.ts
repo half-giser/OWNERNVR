@@ -3,12 +3,10 @@
  * @Date: 2024-07-09 13:43:11
  * @Description: 磁盘阵列
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-19 20:49:32
+ * @LastEditTime: 2024-08-23 14:51:53
  */
-
-import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
+import BaseCheckAuthPop, { type UserCheckAuthForm } from '../../components/auth/BaseCheckAuthPop.vue'
 import { DiskRaidList } from '@/types/apiType/disk'
-import { type UserCheckAuthForm } from '@/types/apiType/userAndSecurity'
 import RaidRebuildPop from './RaidRebuildPop.vue'
 
 export default defineComponent({
@@ -122,7 +120,6 @@ export default defineComponent({
         const deleteRaid = (row: DiskRaidList, index: number) => {
             openMessageTipBox({
                 type: 'question',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_NOTE_DELETE_RAID').formatForLang(row.name),
             }).then(async () => {
                 pageData.value.isCheckAuth = true
@@ -174,7 +171,6 @@ export default defineComponent({
 
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: errorInfo,
                 })
             }

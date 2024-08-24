@@ -3,12 +3,11 @@
  * @Date: 2024-07-05 13:42:37
  * @Description: 磁盘管理
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 16:06:11
+ * @LastEditTime: 2024-08-23 14:50:21
  */
 import { type DiskManagememtList } from '@/types/apiType/disk'
-import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import BaseInputEncryptPwdPop from '../../components/auth/BaseInputEncryptPwdPop.vue'
-import { type UserCheckAuthForm, type UserInputEncryptPwdForm } from '@/types/apiType/userAndSecurity'
+import BaseCheckAuthPop, { type UserCheckAuthForm } from '../../components/auth/BaseCheckAuthPop.vue'
+import BaseInputEncryptPwdPop, { type UserInputEncryptPwdForm } from '../../components/auth/BaseInputEncryptPwdPop.vue'
 
 export default defineComponent({
     components: {

@@ -124,13 +124,13 @@
     <ChannelGroupEditPop
         v-model="chlGroupEditPopVisiable"
         :edit-item="editItem"
-        :call-back="setDataCallBack"
-        :close="closeChlGroupEditPop"
+        @call-back="setDataCallBack"
+        @close="closeChlGroupEditPop"
     />
     <ChannelGroupAddChlPop
         :pop-visiable="chlGroupAddChlPopVisiable"
         :edit-item="editItemForAddChl"
-        :close="closeChlGroupAddChlPop"
+        @close="closeChlGroupAddChlPop"
     />
 </template>
 

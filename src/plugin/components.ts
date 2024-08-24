@@ -6,15 +6,8 @@
  * @LastEditTime: 2024-08-22 19:50:08
  */
 
-import BaseImgSprite from '@/views/UI_PUBLIC/components/sprite/BaseImgSprite.vue'
-import BaseVideoPlayer from '@/views/UI_PUBLIC/components/player/BaseVideoPlayer.vue'
-import BasePluginPlayer from '@/views/UI_PUBLIC/components/ocx/BasePluginPlayer.vue'
-import type { App } from 'vue'
+// import type { App } from 'vue'
 
 export default {
-    install: (app: App<Element>) => {
-        app.component('BaseImgSprite', BaseImgSprite)
-        app.component('BaseVideoPlayer', BaseVideoPlayer)
-        app.component('BasePluginPlayer', BasePluginPlayer)
-    },
+    install: () => {},
 }

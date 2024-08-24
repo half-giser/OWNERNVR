@@ -1,7 +1,5 @@
-import { ChannelInfoDto, ChlGroup } from '@/types/apiType/channel'
-import { cloneDeep } from 'lodash'
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
-import BaseLivePop from '@/views/UI_PUBLIC/components/BaseLivePop.vue'
+import { ChannelInfoDto, type ChlGroup } from '@/types/apiType/channel'
+import { cloneDeep } from 'lodash-es'
 
 /*
  * @Author: linguifan linguifan@tvt.net.cn
@@ -9,20 +7,19 @@ import BaseLivePop from '@/views/UI_PUBLIC/components/BaseLivePop.vue'
  * @Description:
  */
 export default defineComponent({
-    components: {
-        BaseImgSprite,
-        BaseLivePop,
-    },
     props: {
         popVisiable: Boolean,
-        editItem: ChlGroup,
-        close: {
-            type: Function,
-            require: true,
-            default: () => {},
+        editItem: {
+            type: Object as PropType<ChlGroup>,
+            required: true,
         },
     },
-    setup(props: any) {
+    emits: {
+        close(isRefresh = false) {
+            return typeof isRefresh === 'boolean'
+        },
+    },
+    setup(props, { emit }) {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const { openMessageTipBox } = useMessageBox()
@@ -53,7 +50,7 @@ export default defineComponent({
         }
 
         const getData = () => {
-            const data = `
+            const data = rawXml`
                 <requireField>
                     <name/>
                     <ip/>
@@ -61,17 +58,17 @@ export default defineComponent({
                     <chlType/>
                 </requireField>`
             openLoading(LoadingTarget.FullScreen)
-            queryDevList(getXmlWrapData(data)).then((res: any) => {
+            queryDevList(getXmlWrapData(data)).then((res) => {
                 closeLoading(LoadingTarget.FullScreen)
-                res = queryXml(res)
-                if (res('status').text() == 'success') {
+                const $ = queryXml(res)
+                if ($('status').text() == 'success') {
                     const chlList: ChannelInfoDto[] = []
                     const addedChlList: string[] = tmpEditItem.chls.map((ele: Record<string, string | boolean>) => {
                         return ele['value'] as string
                     })
-                    res('//content/item').forEach((ele: any) => {
+                    $('//content/item').forEach((ele) => {
                         const eleXml = queryXml(ele.element)
-                        const id = ele.attr('id')
+                        const id = ele.attr('id')!
                         if (!addedChlList.includes(id)) {
                             const newData = new ChannelInfoDto()
                             newData.id = id
@@ -93,9 +90,7 @@ export default defineComponent({
             if (!selNum.value) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_PROMPT_CHANNEL_GROUP_EMPTY'),
-                    showCancelButton: false,
                 })
                 return false
             }
@@ -104,7 +99,7 @@ export default defineComponent({
 
         const save = () => {
             if (!verification()) return
-            let data = `
+            let data = rawXml`
                 <types>
                     <actionType>
                         <enum>add</enum>
@@ -119,15 +114,15 @@ export default defineComponent({
             tableRef.value.getSelectionRows().forEach((ele: ChannelInfoDto) => {
                 data += `<item id='${ele.id}'></item>`
             })
-            data += `
+            data += rawXml`
                         </chls>
                     </chlGroup>
                 </content>`
             openLoading(LoadingTarget.FullScreen)
-            editSetAndElementRelation(getXmlWrapData(data)).then((res: any) => {
+            editSetAndElementRelation(getXmlWrapData(data)).then((res) => {
                 closeLoading(LoadingTarget.FullScreen)
-                res = queryXml(res)
-                if (res('status').text() == 'success') {
+                const $ = queryXml(res)
+                if ($('status').text() == 'success') {
                     tableRef.value.getSelectionRows().forEach((ele: ChannelInfoDto) => {
                         tmpEditItem.chls.push({
                             value: ele.id,
@@ -135,22 +130,18 @@ export default defineComponent({
                             showDelIcon: false,
                         })
                     })
-                    props.close(true)
+                    emit('close', true)
                 } else {
-                    const errorCdoe = res('errorCode').text()
+                    const errorCdoe = $('errorCode').text()
                     if (Number(errorCdoe) == errorCodeMap.outOfRange) {
                         openMessageTipBox({
                             type: 'info',
-                            title: Translate('IDCS_INFO_TIP'),
                             message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT'),
-                            showCancelButton: false,
                         })
                     } else {
                         openMessageTipBox({
                             type: 'info',
-                            title: Translate('IDCS_INFO_TIP'),
                             message: Translate('IDCS_SAVE_DATA_FAIL'),
-                            showCancelButton: false,
                         })
                     }
                 }

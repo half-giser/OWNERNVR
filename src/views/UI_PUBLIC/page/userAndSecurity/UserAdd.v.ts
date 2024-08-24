@@ -5,8 +5,8 @@
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
  * @LastEditTime: 2024-08-22 19:58:14
  */
-import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import { UserAddForm, type UserCheckAuthForm, type UserAuthGroupOption } from '@/types/apiType/userAndSecurity'
+import BaseCheckAuthPop, { type UserCheckAuthForm } from '../../components/auth/BaseCheckAuthPop.vue'
+import { UserAddForm, type UserAuthGroupOption } from '@/types/apiType/userAndSecurity'
 import { type FormInstance, type FormRules } from 'element-plus'
 
 export default defineComponent({
@@ -231,7 +231,6 @@ export default defineComponent({
                 }
                 openMessageTipBox({
                     type: 'error',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: errorInfo,
                 })
             }

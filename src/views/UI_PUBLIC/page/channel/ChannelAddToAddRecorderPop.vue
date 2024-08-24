@@ -169,7 +169,7 @@
                         >{{ Translate('IDCS_TEST') }}</el-button
                     >
                     <el-button @click="save">{{ Translate('IDCS_OK') }}</el-button>
-                    <el-button @click="close()">{{ Translate('IDCS_CANCEL') }}</el-button>
+                    <el-button @click="$emit('close')">{{ Translate('IDCS_CANCEL') }}</el-button>
                 </el-col>
             </el-row>
         </template>

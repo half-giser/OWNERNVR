@@ -19,10 +19,7 @@
 </template>
 
 <script lang="ts">
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
-
 export default defineComponent({
-    components: { BaseImgSprite },
     emits: ['toolBarEvent'],
     setup(_props, ctx) {
         const { name: uiName } = getUiAndTheme()
