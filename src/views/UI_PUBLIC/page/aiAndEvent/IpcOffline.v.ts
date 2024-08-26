@@ -3,7 +3,7 @@
  * @Date: 2024-08-21 15:34:24
  * @Description: 前端掉线
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-23 10:40:48
+ * @LastEditTime: 2024-08-26 10:54:24
  */
 import { cloneDeep } from 'lodash'
 import { defineComponent } from 'vue'
@@ -182,7 +182,6 @@ export default defineComponent({
         }
         const buildTableData = function () {
             tableData.value.length = 0
-            openLoading(LoadingTarget.FullScreen)
             const xml = `<types>
                             <nodeType>
                                 <enum>chls</enum>
@@ -221,72 +220,70 @@ export default defineComponent({
                     const sendXml = `<condition>
                                         <chlId>${row.id}</chlId>
                                     </condition>`
-                    queryFrontEndOfflineTrigger(sendXml).then((res: any) => {
-                        res = queryXml(res)
-                        if (res('status').text() == 'success') {
-                            row.rowDisable = false
-                            row.sysAudio = res('//content/sysAudio').attr('id') || pageData.value.defaultAudioId
-                            row.snap = {
-                                switch: res('//content/sysSnap/switch').text() == 'true' ? true : false,
-                                chls: res('//content/sysSnap/chls/item').map((item: any) => {
-                                    return {
-                                        value: item.attr('id'),
-                                        label: item.text(),
-                                    }
-                                }),
-                            }
-                            // 获取snap中chls的value列表
-                            row.snapList = row.snap.chls.map((item) => item.value)
-                            row.alarmOut = {
-                                switch: res('//content/alarmOut/switch').text() == 'true' ? true : false,
-                                chls: res('//content/alarmOut/alarmOuts/item').map((item: any) => {
-                                    return {
-                                        value: item.attr('id'),
-                                        label: item.text(),
-                                    }
-                                }),
-                            }
-                            row.alarmOutList = row.alarmOut.chls.map((item) => item.value)
-                            row.beeper = res('//content/buzzerSwitch').text()
-                            row.email = res('//content/emailSwitch').text()
-                            row.msgPush = res('//content/msgPushSwitch').text()
-                            row.videoPopup = res('//content/popVideoSwitch').text()
-                            row.videoPopupInfo = {
-                                switch: res('//content/popVideo/switch').text() == 'true' ? true : false,
-                                chl: {
-                                    value: res('//content/popVideo/chl').attr('id') != '' ? res('//content/popVideo/chl').attr('id') : ' ',
-                                    label: res('//content/popVideo/chl').text(),
-                                },
-                            }
-                            row.videoPopupList = pageData.value.videoPopupList.filter((item) => {
-                                return item.value !== row.id
-                            })
-                            row.msgBoxPopup = res('//content/popMsgSwitch').text()
-                            row.preset.switch = res('//content/preset/switch').text() == 'true' ? true : false
-                            res('//content/preset/presets/item').forEach((item: any) => {
-                                const $item = queryXml(item.element)
-                                row.preset.presets.push({
-                                    index: $item('index').text(),
-                                    name: $item('name').text(),
-                                    chl: {
-                                        value: $item('chl').attr('id'),
-                                        label: $item('chl').text(),
-                                    },
-                                })
-                            })
-                            // 设置的声音文件被删除时，显示为none
-                            const AudioData = pageData.value.audioList.filter((element: { value: string; label: string }) => {
-                                return element.value === row.sysAudio
-                            })
-                            if (AudioData.length === 0) {
-                                row.sysAudio = pageData.value.defaultAudioId
-                            }
-                        } else {
-                            row.rowDisable = true
+                    const offLine = await queryFrontEndOfflineTrigger(sendXml)
+                    const res = queryXml(offLine)
+                    if (res('status').text() == 'success') {
+                        row.rowDisable = false
+                        row.sysAudio = res('//content/sysAudio').attr('id') || pageData.value.defaultAudioId
+                        row.snap = {
+                            switch: res('//content/sysSnap/switch').text() == 'true' ? true : false,
+                            chls: res('//content/sysSnap/chls/item').map((item: any) => {
+                                return {
+                                    value: item.attr('id'),
+                                    label: item.text(),
+                                }
+                            }),
                         }
-                    })
+                        // 获取snap中chls的value列表
+                        row.snapList = row.snap.chls.map((item) => item.value)
+                        row.alarmOut = {
+                            switch: res('//content/alarmOut/switch').text() == 'true' ? true : false,
+                            chls: res('//content/alarmOut/alarmOuts/item').map((item: any) => {
+                                return {
+                                    value: item.attr('id'),
+                                    label: item.text(),
+                                }
+                            }),
+                        }
+                        row.alarmOutList = row.alarmOut.chls.map((item) => item.value)
+                        row.beeper = res('//content/buzzerSwitch').text()
+                        row.email = res('//content/emailSwitch').text()
+                        row.msgPush = res('//content/msgPushSwitch').text()
+                        row.videoPopup = res('//content/popVideoSwitch').text()
+                        row.videoPopupInfo = {
+                            switch: res('//content/popVideo/switch').text() == 'true' ? true : false,
+                            chl: {
+                                value: res('//content/popVideo/chl').attr('id') != '' ? res('//content/popVideo/chl').attr('id') : ' ',
+                                label: res('//content/popVideo/chl').text(),
+                            },
+                        }
+                        row.videoPopupList = pageData.value.videoPopupList.filter((item) => {
+                            return item.value !== row.id
+                        })
+                        row.msgBoxPopup = res('//content/popMsgSwitch').text()
+                        row.preset.switch = res('//content/preset/switch').text() == 'true' ? true : false
+                        res('//content/preset/presets/item').forEach((item: any) => {
+                            const $item = queryXml(item.element)
+                            row.preset.presets.push({
+                                index: $item('index').text(),
+                                name: $item('name').text(),
+                                chl: {
+                                    value: $item('chl').attr('id'),
+                                    label: $item('chl').text(),
+                                },
+                            })
+                        })
+                        // 设置的声音文件被删除时，显示为none
+                        const AudioData = pageData.value.audioList.filter((element: { value: string; label: string }) => {
+                            return element.value === row.sysAudio
+                        })
+                        if (AudioData.length === 0) {
+                            row.sysAudio = pageData.value.defaultAudioId
+                        }
+                    } else {
+                        row.rowDisable = true
+                    }
                 }
-                closeLoading(LoadingTarget.FullScreen)
             })
         }
         const changePagination = () => {
