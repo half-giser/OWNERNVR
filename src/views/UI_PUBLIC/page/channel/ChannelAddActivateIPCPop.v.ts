@@ -4,25 +4,22 @@
  * @Description:
  */
 import { type FormInstance } from 'element-plus'
-import { type ChannelQuickAddDto } from '../../../../types/apiType/channel'
-import { getSecurityVer } from '../../../../utils/tools'
-import { AES_encrypt } from '../../../../utils/encrypt'
-import { useUserSessionStore } from '@/stores/userSession'
-import { activateIPC } from '../../../../api/channel'
-import { getXmlWrapData } from '../../../../api/api'
-import useLoading from '@/hooks/useLoading'
-import { useLangStore } from '@/stores/lang'
+import { type RuleItem } from 'async-validator'
+import { type ChannelQuickAddDto } from '@/types/apiType/channel'
 
 export default defineComponent({
     props: {
-        activateIpcData: Array<ChannelQuickAddDto>,
-        close: {
-            type: Function,
-            require: true,
-            default: () => {},
+        activateIpcData: {
+            type: Array as PropType<ChannelQuickAddDto[]>,
+            required: true,
         },
     },
-    setup(props: any) {
+    emits: {
+        close() {
+            return true
+        },
+    },
+    setup(props, { emit }) {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const userSessionStore = useUserSessionStore()
@@ -30,8 +27,8 @@ export default defineComponent({
         const formData = ref({} as Record<string, string>)
         const useDefaultPwdSwitch = ref(false)
 
-        const validate = {
-            validatePassword: (_rule: any, value: any, callback: any) => {
+        const validate: Record<string, RuleItem['validator']> = {
+            validatePassword: (_rule, value, callback) => {
                 if (!useDefaultPwdSwitch.value) {
                     if (!value) {
                         callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
@@ -40,7 +37,7 @@ export default defineComponent({
                 }
                 callback()
             },
-            validateConfirmPassword: (_rule: any, value: any, callback: any) => {
+            validateConfirmPassword: (_rule, value, callback) => {
                 if (!useDefaultPwdSwitch.value) {
                     if (!value) {
                         callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
@@ -72,7 +69,7 @@ export default defineComponent({
                 if (valid) {
                     let data = '<content>'
                     props.activateIpcData.forEach((ele: ChannelQuickAddDto) => {
-                        data += `<item>
+                        data += rawXml`<item>
                                     <userPassword>
                                         <password type='string' encryptType='md5' maxLen='63'${getSecurityVer()}><![CDATA[${useDefaultPwdSwitch.value ? '' : AES_encrypt(formData.value.password, userSessionStore.sesionKey)}]]></password>
                                     </userPassword>
@@ -88,7 +85,7 @@ export default defineComponent({
                     activateIPC(getXmlWrapData(data)).then(() => {
                         closeLoading(LoadingTarget.FullScreen)
                         // 激活后成功或失败不做提示处理
-                        props.close()
+                        emit('close')
                     })
                 }
             })

@@ -139,7 +139,6 @@ export default defineComponent({
             if (isHasSamePort) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: isHasSamePort,
                 })
                 return

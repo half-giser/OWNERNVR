@@ -3,7 +3,7 @@
  * @Date: 2024-06-17 20:19:12
  * @Description: 权限列表板块右上方工具栏
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-17 20:32:40
+ * @LastEditTime: 2024-08-23 14:06:24
 -->
 <template>
     <BaseImgSprite
@@ -14,12 +14,7 @@
 </template>
 
 <script lang="ts">
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
-
 export default defineComponent({
-    components: {
-        BaseImgSprite,
-    },
     emits: ['toolBarEvent'],
     setup() {
         const router = useRouter()

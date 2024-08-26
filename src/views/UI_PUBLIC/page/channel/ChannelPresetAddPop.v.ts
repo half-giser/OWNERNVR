@@ -3,7 +3,7 @@
  * @Date: 2024-08-20 18:26:39
  * @Description: 新增预置点弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-22 16:48:58
+ * @LastEditTime: 2024-08-23 17:15:49
  */
 import { type ChannelPtzPresetDto } from '@/types/apiType/channel'
 import type { FormInstance, FormRules } from 'element-plus'
@@ -120,7 +120,7 @@ export default defineComponent({
             if ($('/response/status').text() === 'success') {
                 openMessageTipBox({
                     type: 'success',
-                    message: Translate('IDCS_SUCCESS_TIP'),
+                    message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 }).finally(() => {
                     ctx.emit('confirm')
                 })

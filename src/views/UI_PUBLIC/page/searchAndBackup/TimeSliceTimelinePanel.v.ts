@@ -3,7 +3,7 @@
  * @Date: 2024-08-14 16:50:21
  * @Description: 时间切片-时间线界面
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-14 17:26:47
+ * @LastEditTime: 2024-08-23 14:13:12
  */
 import dayjs from 'dayjs'
 import TimeSliceChlCard from './TimeSliceChlCard.vue'
@@ -13,7 +13,6 @@ import { type PlaybackChlTimeSliceList, type PlaybackRecList, type PlaybackBackU
 import BackupPop from '../searchAndBackup/BackupPop.vue'
 import BackupLocalPop from '../searchAndBackup/BackupLocalPop.vue'
 import { type TVTPlayerWinDataListItem } from '@/utils/wasmPlayer/tvtPlayer'
-import BasePluginNotice from '../../components/ocx/BasePluginNotice.vue'
 import TimeSliceTimeRangePop from './TimeSliceTimeRangePop.vue'
 
 export default defineComponent({
@@ -22,7 +21,6 @@ export default defineComponent({
         TimeSliceTimeRangePop,
         BackupPop,
         BackupLocalPop,
-        BasePluginNotice,
     },
     props: {
         /**
@@ -947,7 +945,6 @@ export default defineComponent({
             TimeSliceTimeRangePop,
             BackupPop,
             BackupLocalPop,
-            BasePluginNotice,
         }
     },
 })

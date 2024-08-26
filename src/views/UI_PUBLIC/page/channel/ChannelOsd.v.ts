@@ -4,22 +4,18 @@
  * @Description:
  */
 
-import BaseVideoPlayer from '@/views/UI_PUBLIC/components/player/BaseVideoPlayer.vue'
 import { type XmlResult } from '@/utils/xmlParse'
 import { ChannelInfoDto, ChannelOsd } from '@/types/apiType/channel'
-import { trim, cloneDeep } from 'lodash'
+import { cloneDeep } from 'lodash-es'
 import { ArrowDown } from '@element-plus/icons-vue'
 import CanvasOSD, { type CanvasOSDOptionNameConfig, type CanvasOSDOptionTimeConfig } from '@/utils/canvas/canvasOsd'
 import { type TVTPlayerWinDataListItem } from '@/utils/wasmPlayer/tvtPlayer'
 import { type OcxXmlSetOSDInfo, type OcxXmlSetOsdListDatum } from '@/utils/ocx/ocxCmd'
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
 import { dateFormatOptions, dateFormatTip, tableRowStatusToolTip, timeFormatTip } from '@/utils/const/other'
 
 export default defineComponent({
     components: {
-        BaseVideoPlayer,
         ArrowDown,
-        BaseImgSprite,
     },
     setup() {
         const { Translate } = useLangStore()
@@ -71,13 +67,11 @@ export default defineComponent({
 
         const handleNameBlur = (chlId: string, chlName: string) => {
             const rowData = getRowById(chlId)
-            const name = trim(chlName)
+            const name = chlName.trim()
             if (!checkChlName(name)) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS'),
-                    showCancelButton: false,
                 })
                 rowData!.name = tempName.value
                 formData.value = cloneDeep(rowData)
@@ -87,7 +81,6 @@ export default defineComponent({
                 if (checkIsNameExit(name, rowData.id)) {
                     openMessageTipBox({
                         type: 'question',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_NAME_EXISTED'),
                         confirmButtonText: Translate('IDCS_KEEP'),
                         cancelButtonText: Translate('IDCS_EDIT'),
@@ -125,8 +118,8 @@ export default defineComponent({
             tableRef.value.setCurrentRow(getRowById(selectedChlId.value))
         }
 
-        const handleKeydownEnter = (event: any) => {
-            event.target.blur()
+        const handleKeydownEnter = (event: Event) => {
+            ;(event.target as HTMLElement).blur()
         }
 
         const handleChangeSwitch = (flag: boolean, chlId: string, type: 'displayName' | 'displayTime' | 'remarkSwitch') => {
@@ -240,15 +233,15 @@ export default defineComponent({
 
         const getTimeEnabledData = (callback?: Function) => {
             openLoading(LoadingTarget.FullScreen)
-            queryDevList(getXmlWrapData('')).then((res: any) => {
+            queryDevList(getXmlWrapData('')).then((res) => {
                 closeLoading(LoadingTarget.FullScreen)
-                res = queryXml(res)
-                if (res('status').text() == 'success') {
+                const $ = queryXml(res)
+                if ($('status').text() == 'success') {
                     const rowData: ChannelInfoDto[] = []
-                    res('content/item').forEach((ele: any) => {
+                    $('content/item').forEach((ele) => {
                         const eleXml = queryXml(ele.element)
                         const newData = new ChannelInfoDto()
-                        newData.id = ele.attr('id')
+                        newData.id = ele.attr('id')!
                         newData.manufacturer = eleXml('manufacturer').text()
                         rowData.push(newData)
                     })
@@ -262,71 +255,71 @@ export default defineComponent({
         }
 
         const getChlWaterMark = (chlId: string, callback?: Function) => {
-            const data = `
+            const data = rawXml`
                 <condition>
                     <chlId>${chlId}</chlId>
                 </condition>`
-            queryChlWaterMark(getXmlWrapData(data)).then((res: any) => {
-                res = queryXml(res)
+            queryChlWaterMark(getXmlWrapData(data)).then((res) => {
+                const $ = queryXml(res)
                 let flag = false
-                if (res('status').text() == 'success') {
+                if ($('status').text() == 'success') {
                     flag = true
                     const channelOsd = getRowById(chlId)
-                    channelOsd!.remarkSwitch = res('content/chl/watermark/switch').text().toBoolean()
-                    channelOsd!.remarkNote = res('content/chl/watermark/value').text()
+                    channelOsd.remarkSwitch = $('content/chl/watermark/switch').text().toBoolean()
+                    channelOsd.remarkNote = $('content/chl/watermark/value').text()
                 }
                 if (callback) callback(flag)
             })
         }
 
         const getData = (chlId: string) => {
-            const data = `
+            const data = rawXml`
                 <condition>
                     <chlId>${chlId}</chlId>
                 </condition>`
-            queryIPChlORChlOSD(getXmlWrapData(data)).then((res: any) => {
-                res = queryXml(res)
-                if (res('status').text() == 'success') {
+            queryIPChlORChlOSD(getXmlWrapData(data)).then((res) => {
+                const $ = queryXml(res)
+                if ($('status').text() == 'success') {
                     let isSpeco = false
                     // 时间枚举值
                     const timeEnum: string[] = []
-                    res('types/timeFormat/enum').forEach((ele: any) => {
+                    $('types/timeFormat/enum').forEach((ele) => {
                         timeEnum.push(ele.text())
                     })
                     // 日期枚举值
                     const dateEnum: string[] = []
-                    res('types/dateFormat/enum').forEach((ele: any) => {
+                    $('types/dateFormat/enum').forEach((ele) => {
                         dateEnum.push(ele.text())
                     })
                     const channelOsd = getRowById(chlId)
-                    channelOsd!.dateEnum = dateEnum
-                    channelOsd!.timeEnum = timeEnum
-                    channelOsd!.supportDateFormat = dateEnum.length > 0
-                    channelOsd!.supportTimeFormat = dateEnum.length > 0
+                    channelOsd.dateEnum = dateEnum
+                    channelOsd.timeEnum = timeEnum
+                    channelOsd.supportDateFormat = dateEnum.length > 0
+                    channelOsd.supportTimeFormat = dateEnum.length > 0
 
-                    channelOsd!.displayName = res('content/chl/chlName/switch').text().toBoolean()
-                    channelOsd!.displayTime = res('content/chl/time/switch').text().toBoolean()
-                    channelOsd!.dateFormat = res('content/chl/time/dateFormat').text()
-                    channelOsd!.timeFormat = res('content/chl/time/timeFormat').text()
+                    channelOsd.displayName = $('content/chl/chlName/switch').text().toBoolean()
+                    channelOsd.displayTime = $('content/chl/time/switch').text().toBoolean()
+                    channelOsd.dateFormat = $('content/chl/time/dateFormat').text()
+                    channelOsd.timeFormat = $('content/chl/time/timeFormat').text()
 
-                    channelOsd!.status = ''
-                    if (res('content/chl').length == 0 || chlId !== res('content/chl').attr('id')) isSpeco = true
-                    channelOsd!.isSpeco = isSpeco
+                    channelOsd.status = ''
+                    if ($('content/chl').length == 0 || chlId !== $('content/chl').attr('id')) isSpeco = true
+                    channelOsd.isSpeco = isSpeco
 
-                    channelOsd!.timeX = res('content/chl/time/X').text()
-                    channelOsd!.timeXMinValue = res('content/chl/time/X').attr('min')
-                    channelOsd!.timeXMaxValue = res('content/chl/time/X').attr('max')
-                    channelOsd!.timeY = res('content/chl/time/Y').text()
-                    channelOsd!.timeYMinValue = res('content/chl/time/Y').attr('min')
-                    channelOsd!.timeYMaxValue = res('content/chl/time/Y').attr('max')
-                    channelOsd!.nameX = res('content/chl/chlName/X').text()
-                    channelOsd!.nameXMinValue = res('content/chl/chlName/X').attr('min')
-                    channelOsd!.nameXMaxValue = res('content/chl/chlName/X').attr('max')
-                    channelOsd!.nameY = res('content/chl/chlName/Y').text()
-                    channelOsd!.nameYMinValue = res('content/chl/chlName/Y').attr('min')
-                    channelOsd!.nameYMaxValue = res('content/chl/chlName/Y').attr('max')
+                    channelOsd.timeX = Number($('content/chl/time/X').text())
+                    channelOsd.timeXMinValue = Number($('content/chl/time/X').attr('min')!)
+                    channelOsd.timeXMaxValue = Number($('content/chl/time/X').attr('max')!)
+                    channelOsd.timeY = Number($('content/chl/time/Y').text())
+                    channelOsd.timeYMinValue = Number($('content/chl/time/Y').attr('min')!)
+                    channelOsd.timeYMaxValue = Number($('content/chl/time/Y').attr('max')!)
+                    channelOsd.nameX = Number($('content/chl/chlName/X').text())
+                    channelOsd.nameXMinValue = Number($('content/chl/chlName/X').attr('min')!)
+                    channelOsd.nameXMaxValue = Number($('content/chl/chlName/X').attr('max')!)
+                    channelOsd.nameY = Number($('content/chl/chlName/Y').text())
+                    channelOsd.nameYMinValue = Number($('content/chl/chlName/Y').attr('min')!)
+                    channelOsd.nameYMaxValue = Number($('content/chl/chlName/Y').attr('max')!)
 
-                    channelOsd!.disabled = isSpeco
+                    channelOsd.disabled = isSpeco
 
                     if (chlId == selectedChlId.value) {
                         nameDisabled.value = channelOsd!.disabled
@@ -362,17 +355,17 @@ export default defineComponent({
                 pageSize: pageSize.value,
                 isSupportOsd: true,
                 requireField: ['ip'],
-            }).then((res: any) => {
+            }).then((res) => {
                 closeLoading(LoadingTarget.FullScreen)
-                res = queryXml(res)
-                if (res('status').text() == 'success') {
+                const $ = queryXml(res)
+                if ($('status').text() == 'success') {
                     editRows.clear()
                     const rowData: ChannelOsd[] = []
                     nameMapping = {}
-                    res('content/item').forEach((ele: any) => {
+                    $('content/item').forEach((ele) => {
                         const eleXml = queryXml(ele.element)
                         const newData = new ChannelOsd()
-                        newData.id = ele.attr('id')
+                        newData.id = ele.attr('id')!
                         newData.name = eleXml('name').text()
                         newData.ip = eleXml('ip').text()
                         newData.chlIndex = eleXml('chlIndex').text()
@@ -382,7 +375,7 @@ export default defineComponent({
                         rowData.push(newData)
                         nameMapping[rowData[rowData.length - 1].id] = rowData[rowData.length - 1].name
                     })
-                    pageTotal.value = Number(res('content').attr('total'))
+                    pageTotal.value = Number($('content').attr('total')!)
                     tableData.value = rowData
                     if (rowData.length) {
                         selectedChlId.value = rowData[0].id
@@ -439,24 +432,24 @@ export default defineComponent({
                 return
             }
 
-            const data = `
+            const data = rawXml`
                 <content>
                     <id>${rowData.id}</id>
                     <name><![CDATA[${rowData.name}]]></name>
                 </content>`
             try {
                 editDev(getXmlWrapData(data))
-                    .then((res: any) => {
+                    .then((res) => {
                         checkAllRqReturn()
-                        res = queryXml(res)
-                        if (res('status').text() == 'success') {
+                        const $ = queryXml(res)
+                        if ($('status').text() == 'success') {
                             if (rowData.manufacturer == 'TVT') {
-                                const watermarkXml = `
+                                const watermarkXml = rawXml`
                                 <content>
                                     <chl id='${rowData.id}'>
                                         <watermark>
                                             <value>${rowData.remarkNote}</value>
-                                            <switch>${rowData.remarkSwitch}</switch>
+                                            <switch>${rowData.remarkSwitch.toString()}</switch>
                                         </watermark>
                                     </chl>
                                 </content>`
@@ -482,30 +475,30 @@ export default defineComponent({
                                 })
                                 editIPChlORChlOSDXml += '</timeFormat>'
                             }
-                            editIPChlORChlOSDXml += `
+                            editIPChlORChlOSDXml += rawXml`
                             </types>
                             <content>
                                 <chl id='${rowData.id}'>
                                     <time>
-                                        <switch>${rowData.displayTime}</switch>
-                                        <X>${rowData.timeX}</X>
-                                        <Y>${rowData.timeY}</Y>
+                                        <switch>${rowData.displayTime.toString()}</switch>
+                                        <X>${rowData.timeX.toString()}</X>
+                                        <Y>${rowData.timeY.toString()}</Y>
                                         ${rowData.supportDateFormat ? '<dateFormat type="dateFormat">' + rowData.dateFormat + '</dateFormat>' : ''}
                                         ${rowData.supportTimeFormat ? '<timeFormat type="timeFormat">' + rowData.timeFormat + '</timeFormat>' : ''}
                                     </time>
                                     <chlName>
-                                        <switch>${rowData.displayName}</switch>
-                                        <X>${rowData.nameX}</X>
-                                        <Y>${rowData.nameY}</Y>
+                                        <switch>${rowData.displayName.toString()}</switch>
+                                        <X>${rowData.nameX.toString()}</X>
+                                        <Y>${rowData.nameY.toString()}</Y>
                                         <name>${rowData.name}</name>
                                     </chlName>
                                 </chl>
                             </content>`
                             try {
                                 editIPChlORChlOSD(getXmlWrapData(editIPChlORChlOSDXml))
-                                    .then((res: any) => {
-                                        res = queryXml(res)
-                                        if (res('status').text() == 'success') {
+                                    .then((res) => {
+                                        const $ = queryXml(res)
+                                        if ($('status').text() == 'success') {
                                             if (rowData.name == nameMapping[rowData.id]) {
                                                 checkAllRqReturn()
                                                 rowData.status = 'success'
@@ -514,7 +507,7 @@ export default defineComponent({
                                         } else {
                                             checkAllRqReturn()
                                             let errorInfo = tableRowStatusToolTip['saveFailed']
-                                            if (Number(res('errorCode').text()) == errorCodeMap.resourceNotExist) {
+                                            if (Number($('errorCode').text()) == errorCodeMap.resourceNotExist) {
                                                 errorInfo = Translate('resourceNotExist').formatForLang(Translate('IDCS_CHANNEL'))
                                             }
                                             rowData.status = 'error'
@@ -528,7 +521,7 @@ export default defineComponent({
                             }
                         } else {
                             let errorInfo = tableRowStatusToolTip['saveFailed']
-                            if (Number(res('errorCode').text()) == errorCodeMap.nameExist) {
+                            if (Number($('errorCode').text()) == errorCodeMap.nameExist) {
                                 errorInfo = Translate('IDCS_PROMPT_CHANNEL_NAME_EXIST')
                             }
                             rowData.status = 'error'

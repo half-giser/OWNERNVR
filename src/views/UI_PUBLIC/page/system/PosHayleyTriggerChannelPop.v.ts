@@ -3,7 +3,7 @@
  * @Date: 2024-07-02 17:13:17
  * @Description: POS联动通道设置（Hayley）
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-03 15:24:15
+ * @LastEditTime: 2024-08-23 17:10:16
  */
 import { type SystemPosListChls } from '@/types/apiType/system'
 
@@ -114,7 +114,6 @@ export default defineComponent({
             if (!isValid) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_POS_TILL_RANGE').formatForLang(1, prop.max),
                 })
                 return
@@ -126,7 +125,6 @@ export default defineComponent({
             if (!isNoSameTillNumber) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_POS_TILL_SAME_ERROR'),
                 })
                 return

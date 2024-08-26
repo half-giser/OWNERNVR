@@ -5,13 +5,11 @@
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
  * @LastEditTime: 2024-07-04 19:55:29
  */
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
 import BlockAndAllowEditPop from './BlockAndAllowEditPop.vue'
 import { UserBlackAllowListForm, UserEditBlackAllowListForm } from '@/types/apiType/userAndSecurity'
 
 export default defineComponent({
     components: {
-        BaseImgSprite,
         BlockAndAllowEditPop,
     },
     setup() {
@@ -54,7 +52,6 @@ export default defineComponent({
         const handleDelete = (index: number) => {
             openMessageTipBox({
                 type: 'question',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_DELETE_MP_S'),
             }).then(() => {
                 tableData.value.splice(index, 1)
@@ -233,7 +230,6 @@ export default defineComponent({
             formatIpMacAddress,
             setData,
             handleCloseEdit,
-            BaseImgSprite,
             BlockAndAllowEditPop,
         }
     },

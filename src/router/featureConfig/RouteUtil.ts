@@ -27,7 +27,22 @@
 
 import featureTree from './featureTree'
 import type { RouteMeta, RouteRecordRaw } from 'vue-router'
-import { camel2Kebab } from '../../utils/tools'
+// import { camel2Kebab } from '../../utils/tools'
+
+export const camel2Kebab = (name: string) => {
+    const arr = name.split('')
+    // 使用循环遍历字符串
+    const nameArr = arr.map((item) => {
+        if (item.toUpperCase() === item) {
+            // 使用toUpperCase()方法检测当前字符是否为大写
+            return '-' + item.toLowerCase()
+            // 大写就在前面加上-，并用toLowerCase()将当前字符转为小写
+        } else {
+            return item
+        }
+    })
+    return nameArr.join('')
+}
 
 //视图集合
 const viewComponents: Record<string, any> = {}

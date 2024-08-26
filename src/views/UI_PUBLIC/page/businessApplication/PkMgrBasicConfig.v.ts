@@ -5,6 +5,7 @@
  */
 
 import { type FormRules, type FormInstance } from 'element-plus'
+import { type RuleItem } from 'async-validator'
 import { getXmlWrapData } from '@/api/api'
 import { PkMgrBasicConfigPageData } from '@/types/apiType/business'
 import { queryParkingLotConfig, editParkingLotConfig } from '@/api/business'
@@ -30,7 +31,7 @@ export default defineComponent({
         // 获取数据-更新页面初始数据
         function getPageData() {
             openLoading(LoadingTarget.FullScreen)
-            queryParkingLotConfig().then((result: any) => {
+            queryParkingLotConfig().then((result) => {
                 closeLoading(LoadingTarget.FullScreen)
                 const resultXml = queryXml(result)
                 if (resultXml('status').text() === 'success') {
@@ -54,12 +55,8 @@ export default defineComponent({
 
         // 校验数据合法性
         const pkMgrFormRef = ref<FormInstance>()
-        const rules = reactive<FormRules>({
-            parkName: [{ required: true, message: Translate('IDCS_PARKING_LOT_NAME_EMPTY_TIPS'), trigger: 'blur' }],
-            totalNum: [{ required: true, validator: validateTotalNum, trigger: 'manual' }],
-            remainTotalNum: [{ required: true, validator: validateRemainTotalNum, trigger: 'manual' }],
-        })
-        function validateTotalNum(_rule: any, _value: any, callback: any) {
+
+        const validateTotalNum: RuleItem['validator'] = (_rule, _value, callback) => {
             if (!pageData.totalNum) {
                 callback(new Error(Translate('IDCS_TOTAL_VEHICLE_NOT_CONFIG')))
                 return
@@ -70,7 +67,8 @@ export default defineComponent({
             }
             callback()
         }
-        function validateRemainTotalNum(_rule: any, _value: any, callback: any) {
+
+        const validateRemainTotalNum: RuleItem['validator'] = (_rule, _value, callback) => {
             if (pageData.remainTotalNum > pageData.totalNum) {
                 callback(new Error(Translate('IDCS_REMAIN_VEHICLE_NUM_OVER_TIPS')))
                 return
@@ -81,6 +79,13 @@ export default defineComponent({
             }
             callback()
         }
+
+        const rules = reactive<FormRules>({
+            parkName: [{ required: true, message: Translate('IDCS_PARKING_LOT_NAME_EMPTY_TIPS'), trigger: 'blur' }],
+            totalNum: [{ required: true, validator: validateTotalNum, trigger: 'manual' }],
+            remainTotalNum: [{ required: true, validator: validateRemainTotalNum, trigger: 'manual' }],
+        })
+
         // 校验数据是否被修改
         function compareDataChange(pageData: PkMgrBasicConfigPageData, originalPageData: PkMgrBasicConfigPageData) {
             changeDataFlg = false
@@ -105,7 +110,7 @@ export default defineComponent({
                         </content>`,
                     )
                     openLoading(LoadingTarget.FullScreen)
-                    editParkingLotConfig(data).then((result: any) => {
+                    editParkingLotConfig(data).then((result) => {
                         closeLoading(LoadingTarget.FullScreen)
                         // 更新原始数据
                         originalPageData = JSON.parse(JSON.stringify(pageData))
@@ -125,10 +130,8 @@ export default defineComponent({
         function handleSuccess() {
             openMessageTipBox({
                 type: 'success',
-                title: Translate('IDCS_SUCCESS_TIP'),
                 message: Translate('IDCS_SAVE_DATA_SUCCESS'),
-                showCancelButton: false,
-            }).catch(() => {})
+            })
         }
         // 处理错误码提示
         function handleError(errorCode: string) {
@@ -140,10 +143,8 @@ export default defineComponent({
             }
             openMessageTipBox({
                 type: 'info',
-                title: Translate('IDCS_INFO_TIP'),
                 message: errorMsg,
-                showCancelButton: false,
-            }).catch(() => {})
+            })
         }
 
         return {

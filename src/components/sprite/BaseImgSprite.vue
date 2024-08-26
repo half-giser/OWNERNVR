@@ -3,7 +3,7 @@
  * @Date: 2024-06-05 09:27:20
  * @Description: 雪碧图组件
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-09 20:03:40
+ * @LastEditTime: 2024-08-23 18:27:04
 -->
 <template>
     <span
@@ -125,7 +125,7 @@ const height = computed(() => {
 <style lang="scss" scoped>
 .Sprite {
     display: inline-block;
-    background-image: url('@/views/UI_PUBLIC/components/sprite/sprites.png');
+    background-image: url('@/components/sprite/sprites.png');
     background-repeat: no-repeat;
     vertical-align: middle;
 

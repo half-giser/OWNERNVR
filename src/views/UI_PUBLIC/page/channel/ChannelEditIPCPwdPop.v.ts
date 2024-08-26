@@ -5,27 +5,25 @@
  */
 import { type ChannelInfoDto } from '@/types/apiType/channel'
 import { type FormInstance } from 'element-plus'
-import { getSecurityVer } from '../../../../utils/tools'
-import { AES_encrypt } from '../../../../utils/encrypt'
-import { useUserSessionStore } from '@/stores/userSession'
-import { getXmlWrapData } from '../../../../api/api'
-import { editIPChlPassword } from '../../../../api/channel'
-import { queryXml } from '../../../../utils/xmlParse'
-import useMessageBox from '@/hooks/useMessageBox'
-import useLoading from '@/hooks/useLoading'
-import { useLangStore } from '@/stores/lang'
+import { type RuleItem } from 'async-validator'
 
 export default defineComponent({
     props: {
-        editData: Array<ChannelInfoDto>,
-        nameMapping: Object,
-        close: {
-            type: Function,
-            require: true,
-            default: () => {},
+        editData: {
+            type: Array as PropType<ChannelInfoDto[]>,
+            required: true,
+        },
+        nameMapping: {
+            type: Object as PropType<Record<string, string>>,
+            default: () => ({}),
         },
     },
-    setup(props: any) {
+    emits: {
+        close() {
+            return true
+        },
+    },
+    setup(props, { emit }) {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const userSessionStore = useUserSessionStore()
@@ -35,15 +33,15 @@ export default defineComponent({
         const formRef = ref<FormInstance>()
         const formData = ref({} as Record<string, string>)
 
-        const validate = {
-            validatePassword: (_rule: any, value: any, callback: any) => {
+        const validate: Record<string, RuleItem['validator']> = {
+            validatePassword: (_rule, value, callback) => {
                 if (!value) {
                     callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                     return
                 }
                 callback()
             },
-            validateConfirmPassword: (_rule: any, value: any, callback: any) => {
+            validateConfirmPassword: (_rule, value, callback) => {
                 if (formData.value.password != value) {
                     callback(new Error(Translate('IDCS_PWD_MISMATCH_TIPS')))
                     return
@@ -97,12 +95,12 @@ export default defineComponent({
                     if (rows.length == 0) return
 
                     const sendData = (ele: ChannelInfoDto) => {
-                        const data = `<content>
+                        const data = rawXml`<content>
                             <chl id='${ele.id}'>
                                 <password${getSecurityVer()}><![CDATA[${AES_encrypt(formData.value.password, userSessionStore.sesionKey)}]]></password>
                             </chl>
                         </content>`
-                        editIPChlPassword(getXmlWrapData(data)).then((res: any) => {
+                        editIPChlPassword(getXmlWrapData(data)).then((res) => {
                             count++
                             if (queryXml(res)('status').text() == 'success') {
                                 successCount++
@@ -111,20 +109,16 @@ export default defineComponent({
                             }
                             if (count == total) {
                                 closeLoading(LoadingTarget.FullScreen)
-                                props.close()
+                                emit('close')
                                 if (successCount == total) {
                                     openMessageTipBox({
                                         type: 'success',
-                                        title: Translate('IDCS_SUCCESS_TIP'),
                                         message: Translate('IDCS_SAVE_DATA_SUCCESS'),
-                                        showCancelButton: false,
                                     })
                                 } else {
                                     openMessageTipBox({
                                         type: 'info',
-                                        title: Translate('IDCS_INFO_TIP'),
                                         message: saveFailIpc + Translate('IDCS_SAVE_DATA_FAIL'),
-                                        showCancelButton: false,
                                     })
                                 }
                             }

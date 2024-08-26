@@ -72,7 +72,6 @@ export default defineComponent({
             if (value.value.length > MAX_TRIGGER_COUNT) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_ALARMOUT_LIMIT'),
                 })
                 value.value.splice(MAX_TRIGGER_COUNT, value.value.length - 1)

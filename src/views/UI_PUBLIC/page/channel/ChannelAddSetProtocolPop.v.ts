@@ -1,28 +1,24 @@
 /*
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-06-05 17:19:32
- * @Description: 
-import { queryRtspProtocolList } from '@/api/channel'
+ * @Description:
  */
-import useLoading from '@/hooks/useLoading'
-import { useLangStore } from '@/stores/lang'
-import useMessageBox from '@/hooks/useMessageBox'
-import { queryXml } from '../../../../utils/xmlParse'
-import { getXmlWrapData } from '@/api/api'
-import { editRtspProtocolList, queryRtspProtocolList } from '@/api/channel'
+import { type RuleItem } from 'async-validator'
 import { ProtocolManageDto, ResourcesPathDto } from '@/types/apiType/channel'
-import { trim } from 'lodash'
 
 export default defineComponent({
     props: {
-        manufacturerList: Array<Object>,
-        close: {
-            type: Function,
-            require: true,
-            default: () => {},
+        manufacturerList: {
+            type: Array as PropType<Record<string, string>[]>,
+            required: true,
         },
     },
-    setup(props: any) {
+    emits: {
+        close(isRefresh = false) {
+            return typeof isRefresh === 'boolean'
+        },
+    },
+    setup(props, { emit }) {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const { openMessageTipBox } = useMessageBox()
@@ -46,18 +42,18 @@ export default defineComponent({
 
         const getData = () => {
             openLoading(LoadingTarget.FullScreen)
-            queryRtspProtocolList(getXmlWrapData('')).then((res: any) => {
+            queryRtspProtocolList(getXmlWrapData('')).then((res) => {
                 closeLoading(LoadingTarget.FullScreen)
-                res = queryXml(res)
-                if (res('status').text() == 'success') {
+                const $ = queryXml(res)
+                if ($('status').text() == 'success') {
                     protocolManageList.value = []
-                    res('//content/item').forEach((ele: any) => {
+                    $('//content/item').forEach((ele) => {
                         let eleXml = queryXml(ele.element)
                         const newData = new ProtocolManageDto()
-                        newData.id = ele.attr('id')
+                        newData.id = ele.attr('id')!
                         newData.enabled = eleXml('enabled').text() == 'true'
                         newData.displayName = eleXml('displayName').text()
-                        eleXml('resourcesPath/item').forEach((ele: any) => {
+                        eleXml('resourcesPath/item').forEach((ele) => {
                             eleXml = queryXml(ele.element)
                             const resourcesPath = new ResourcesPathDto()
                             resourcesPath.streamType = eleXml('streamType').text()
@@ -75,8 +71,8 @@ export default defineComponent({
             })
         }
 
-        const validate = {
-            validateDisplayName: (_rule: any, value: any, callback: any) => {
+        const validate: Record<string, RuleItem['validator']> = {
+            validateDisplayName: (_rule, value, callback) => {
                 // if (formData.value.chkDomain) {
                 //     let domain = trim(formData.value.domain)
                 //     if (!domain.length) {
@@ -90,7 +86,7 @@ export default defineComponent({
                 //         return
                 //     }
                 // }
-                value = trim(value)
+                value = value.trim()
                 if (!value) {
                     callback(new Error(Translate('IDCS_SHOW_NAME_EMPTY')))
                     currentProtocolLogo.value = tempProtocolLogo
@@ -117,14 +113,12 @@ export default defineComponent({
             if (!formRef) return false
             const valid = await formRef.value.validate()
             if (valid) {
-                const mainPath = trim(formData.value.resourcesPath[0].path)
-                const subPath = trim(formData.value.resourcesPath[1].path)
+                const mainPath = formData.value.resourcesPath[0].path.trim()
+                const subPath = formData.value.resourcesPath[1].path.trim()
                 if (!mainPath) {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_MAIN_RESOURCE_PATH_EMPTY'),
-                        showCancelButton: false,
                     })
                     currentProtocolLogo.value = tempProtocolLogo
                     return false
@@ -132,9 +126,7 @@ export default defineComponent({
                 if (!subPath) {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_SUB_RESOURCE_PATH_EMPTY'),
-                        showCancelButton: false,
                     })
                     currentProtocolLogo.value = tempProtocolLogo
                     return false
@@ -143,9 +135,7 @@ export default defineComponent({
                 if (reg.test(mainPath)) {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_MAIN_RESOURCE_PATH_ILLEGAL'),
-                        showCancelButton: false,
                     })
                     currentProtocolLogo.value = tempProtocolLogo
                     return false
@@ -153,9 +143,7 @@ export default defineComponent({
                 if (reg.test(subPath)) {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_SUB_RESOURCE_PATH_ILLEGAL'),
-                        showCancelButton: false,
                     })
                     currentProtocolLogo.value = tempProtocolLogo
                     return false
@@ -169,13 +157,13 @@ export default defineComponent({
                 if (!(await verification())) return
             }
             openLoading(LoadingTarget.FullScreen)
-            editRtspProtocolList(getSaveData()).then((res: any) => {
+            editRtspProtocolList(getSaveData()).then((res) => {
                 closeLoading(LoadingTarget.FullScreen)
-                res = queryXml(res)
-                if (res('status').text() == 'success') {
-                    props.close(true)
+                const $ = queryXml(res)
+                if ($('status').text() == 'success') {
+                    emit('close', true)
                 } else {
-                    const errorCdoe = res('errorCode').text()
+                    const errorCdoe = $('errorCode').text()
                     let msg = ''
                     if (errorCdoe == '536870953') {
                         msg = Translate('IDCS_NO_AUTH')
@@ -184,14 +172,10 @@ export default defineComponent({
                     }
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: msg,
-                        showCancelButton: false,
+                    }).then(() => {
+                        emit('close', true)
                     })
-                        .then(() => {
-                            props.close(true)
-                        })
-                        .catch(() => {})
                 }
             })
         }
@@ -199,13 +183,13 @@ export default defineComponent({
         const getSaveData = () => {
             let data = `<content type='list'>`
             protocolManageList.value.forEach((ele: ProtocolManageDto) => {
-                data += `
+                data += rawXml`
                     <item id='${ele.id}'>
-                        <enabled>${ele.enabled}</enabled>
+                        <enabled>${ele.enabled.toString()}</enabled>
                         <displayName><![CDATA[${ele.displayName}]]></displayName>
                         <resourcesPath>`
                 ele.resourcesPath.forEach((ele: ResourcesPathDto) => {
-                    data += `
+                    data += rawXml`
                         <item>
                             <streamType>${ele.streamType}</streamType>
                             <protocol>${ele.protocol}</protocol>

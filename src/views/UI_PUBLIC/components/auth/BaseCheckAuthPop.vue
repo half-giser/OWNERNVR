@@ -3,7 +3,7 @@
  * @Date: 2024-06-07 15:00:44
  * @Description: 账号密码权限认证弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-16 20:07:17
+ * @LastEditTime: 2024-08-23 14:47:40
 -->
 <template>
     <el-dialog
@@ -69,7 +69,6 @@
 
 <script lang="ts" setup>
 import { type FormInstance, type FormRules } from 'element-plus'
-import { UserCheckAuthForm } from '@/types/apiType/userAndSecurity'
 
 const prop = withDefaults(
     defineProps<{
@@ -137,6 +136,14 @@ const verify = () => {
  */
 const close = () => {
     emits('close')
+}
+</script>
+
+<script lang="ts">
+export class UserCheckAuthForm {
+    userName = ''
+    password = '' // 明文密码用于与插件的鉴权交互
+    hexHash = '' // 密文密码
 }
 </script>
 

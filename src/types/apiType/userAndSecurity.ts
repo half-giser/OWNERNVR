@@ -21,18 +21,18 @@ export class UserAddForm {
 /**
  * @description 鉴权弹窗表单
  */
-export class UserCheckAuthForm {
-    userName = ''
-    password = '' // 明文密码用于与插件的鉴权交互
-    hexHash = '' // 密文密码
-}
+// export class UserCheckAuthForm {
+//     userName = ''
+//     password = '' // 明文密码用于与插件的鉴权交互
+//     hexHash = '' // 密文密码
+// }
 
 /**
  * @description 加密密码弹窗表单
  */
-export class UserInputEncryptPwdForm {
-    password = ''
-}
+// export class UserInputEncryptPwdForm {
+//     password = ''
+// }
 
 /**
  * @description 编辑用户请求表单

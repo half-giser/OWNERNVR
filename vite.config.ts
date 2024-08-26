@@ -73,8 +73,8 @@ export default defineConfig(({ mode }) => {
         },
         plugins: [
             GenerateSprite({
-                src: `sprite/${VITE_UI_TYPE === 'UI1-A' ? 'UI-Public' : VITE_UI_TYPE}-sprite/sprite/*.png`,
-                dist: path.resolve(__dirname, 'src/views/UI_PUBLIC/components/sprite/'),
+                src: `sprite/${VITE_UI_TYPE}-sprite/sprite/*.png`,
+                dist: path.resolve(__dirname, 'src/components/sprite/'),
             }),
             MinifyXmlTemplateStrings(),
             Vue(),

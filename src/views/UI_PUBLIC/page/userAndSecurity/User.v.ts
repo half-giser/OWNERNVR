@@ -3,9 +3,8 @@
  * @Date: 2024-06-17 17:21:22
  * @Description: 查看或更改用户
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-09 20:47:20
+ * @LastEditTime: 2024-08-23 14:05:23
  */
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
 import UserEditPop from './UserEditPop.vue'
 import UserEditPasswordPop from './UserEditPasswordPop.vue'
 import { type XmlResult } from '@/utils/xmlParse'
@@ -13,7 +12,6 @@ import { type UserList, type UserPermissionChannelAuthList, UserPermissionSystem
 
 export default defineComponent({
     components: {
-        BaseImgSprite,
         UserEditPop,
         UserEditPasswordPop,
     },
@@ -237,7 +235,6 @@ export default defineComponent({
         const handleDeleteUser = (row: UserList) => {
             openMessageTipBox({
                 type: 'question',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_USER_DELETE_USER_S').formatForLang(row.userName),
             }).then(async () => {
                 openLoading(LoadingTarget.FullScreen)
@@ -344,7 +341,6 @@ export default defineComponent({
             handleCloseEditUser,
             handleEditUserPassword,
             handleCloseEditUserPassword,
-            BaseImgSprite,
             UserEditPop,
             UserEditPasswordPop,
         }

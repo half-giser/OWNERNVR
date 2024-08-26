@@ -84,7 +84,6 @@ export default defineComponent({
         const hanelChangeVideoFormat = () => {
             openMessageTipBox({
                 type: 'question',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_VIDEO_FORMAT_EDIT_AFTER_REBOOT'),
             })
                 .then(() => {
@@ -101,7 +100,6 @@ export default defineComponent({
         const handleChangeOutputConfig = () => {
             openMessageTipBox({
                 type: 'question',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_EDIT_AFTER_REBOOT').formatForLang(Translate('IDCS_OUTPUT_CONFIG')),
             })
                 .then(() => {

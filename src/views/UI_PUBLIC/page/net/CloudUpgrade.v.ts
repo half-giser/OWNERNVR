@@ -3,10 +3,9 @@
  * @Date: 2024-07-16 16:18:21
  * @Description: 云升级
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-16 20:11:10
+ * @LastEditTime: 2024-08-23 17:06:11
  */
-import { type UserCheckAuthForm } from '@/types/apiType/userAndSecurity'
-import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
+import BaseCheckAuthPop, { type UserCheckAuthForm } from '../../components/auth/BaseCheckAuthPop.vue'
 import { NetCloudUpgradeForm } from '@/types/apiType/net'
 
 export default defineComponent({
@@ -80,7 +79,6 @@ export default defineComponent({
             if (pageData.value.isLatest) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_ONLINE_UPGRADE_TIP_LATEST'),
                 })
                 return
@@ -130,7 +128,6 @@ export default defineComponent({
 
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: errorInfo,
                 })
             }
@@ -197,7 +194,6 @@ export default defineComponent({
                     else if (!pageData.value.firstReq && !isRuningTask && errorCode !== 0) {
                         openMessageTipBox({
                             type: 'info',
-                            title: Translate('IDCS_INFO_TIP'),
                             message: Translate('IDCS_CLOUD_UPGRADE_FAIL'),
                         }).finally(() => getData())
                         clearCheckDownloadTimer()
@@ -218,7 +214,6 @@ export default defineComponent({
                     // 请求失败提示网络断开
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_OCX_NET_DISCONNECT'),
                     }).finally(() => Logout())
                 }
@@ -227,7 +222,6 @@ export default defineComponent({
                 // 请求失败提示网络断开
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_OCX_NET_DISCONNECT'),
                 }).finally(() => Logout())
             }
@@ -267,13 +261,11 @@ export default defineComponent({
 
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_CHECK_FINISH'),
                 })
             } else {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_ONLINE_UPGRADE_TIP_CHECK_FAILED'),
                 })
             }
@@ -311,7 +303,6 @@ export default defineComponent({
                 if (!status) {
                     openMessageTipBox({
                         type: 'question',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_OPEN_CLOUD_UPGRADE_QUESTION'),
                     }).then(() => {
                         confirmSetData()
@@ -373,13 +364,11 @@ export default defineComponent({
             } else if (state === 'downloadNetException') {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_CLOUD_UPGRADE_CONNECT_FAIL'),
                 })
             } else if (state === 'taskTerminate') {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_TASK_TERMINATION'),
                 })
             }
