@@ -3,7 +3,7 @@
  * @Date: 2024-08-13 15:58:57
  * @Description:闪灯
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-19 11:27:55
+ * @LastEditTime: 2024-08-26 10:50:04
  */
 import { defineComponent } from 'vue'
 import { ArrowDown } from '@element-plus/icons-vue'
@@ -44,6 +44,8 @@ export default defineComponent({
             editRows: [] as whiteLightInfo[],
         })
         const buildTableData = function () {
+            pageData.value.initComplated = false
+            tableData.value.length = 0
             getChlList({
                 pageIndex: pageData.value.pageIndex,
                 pageSize: pageData.value.pageSize,
@@ -62,33 +64,33 @@ export default defineComponent({
                 let completeCount = 0
                 for (let i = 0; i < tableData.value.length; i++) {
                     const row = tableData.value[i]
-                    row.status = ''
                     const sendXml = `<condition>
                                         <chlId>${row.id}</chlId>
                                     </condition>
                                     <requireField>
                                         <param></param>
                                     </requireField>`
-                    queryWhiteLightAlarmOutCfg(sendXml).then((res: any) => {
-                        res = queryXml(res)
-                        if (res('status').text() == 'success') {
-                            if (pageData.value.lightFrequencyList.length === 0) {
-                                res('//types/lightFrequency/enum').forEach((item: any) => {
-                                    pageData.value.lightFrequencyList.push({
-                                        value: item.text(),
-                                        label: getLightFrequencyLang(item.text()),
-                                    })
+                    const whiteLightInfo = await queryWhiteLightAlarmOutCfg(sendXml)
+                    const res = queryXml(whiteLightInfo)
+                    row.status = ''
+                    if (res('status').text() == 'success') {
+                        if (pageData.value.lightFrequencyList.length === 0) {
+                            res('//types/lightFrequency/enum').forEach((item: any) => {
+                                pageData.value.lightFrequencyList.push({
+                                    value: item.text(),
+                                    label: getLightFrequencyLang(item.text()),
                                 })
-                            }
-                            row.enable = res('//content/chl/param/lightSwitch').text()
-                            row.durationTime = res('//content/chl/param/durationTime').text()
-                            row.frequencyType = res('//content/chl/param/frequencyType').text()
-                            setRowDisable(row)
-                        } else {
-                            row.enableDisable = true
-                            row.rowDisable = true
+                            })
                         }
-                    })
+                        row.enable = res('//content/chl/param/lightSwitch').text()
+                        row.durationTime = Number(res('//content/chl/param/durationTime').text())
+                        row.frequencyType = res('//content/chl/param/frequencyType').text()
+                        setRowDisable(row)
+                    } else {
+                        row.enableDisable = true
+                        row.rowDisable = true
+                    }
+
                     completeCount++
                     if (completeCount >= tableData.value.length) {
                         nextTick(() => {
