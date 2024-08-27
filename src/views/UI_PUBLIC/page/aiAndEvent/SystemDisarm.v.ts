@@ -1,17 +1,15 @@
 /*
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-23 10:59:14
- * @Description: 报警服务器
+ * @Description: 系统撤防
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-26 18:09:44
+ * @LastEditTime: 2024-08-27 09:58:33
  */
 import { defineComponent } from 'vue'
 import { ArrowDown } from '@element-plus/icons-vue'
 import { useLangStore } from '@/stores/lang'
 import { SystemDisarm } from '@/types/apiType/aiAndEvent'
 import { type ElDropdown } from 'element-plus'
-// import useLoading from '@/hooks/useLoading'
-// import { type SystemDisarm } from '@/types/apiType/aiAndEvent'
 
 export default defineComponent({
     components: {
@@ -258,8 +256,6 @@ export default defineComponent({
                         tableData.value.push(row)
                     })
                     filterChlsSource()
-                    // console.log('pageData.value.filterChlsSourceList', pageData.value.filterChlsSourceList)
-                    // console.log('tableData', tableData.value)
                 }
             })
         }
@@ -401,7 +397,6 @@ export default defineComponent({
                         tableData.value.splice(flagIdx, 1)
                         setData()
                         filterChlsSource()
-                        // console.log(pageData.value.filterChlsSourceList)
                     })
                 } else {
                     setData()
@@ -459,7 +454,6 @@ export default defineComponent({
                     row.disarmItemsStr = disarmItemsStr
                     row.disarmItems = ipcDefenseParamList
                     tableData.value.push(row)
-                    // console.log(pageData.value.filterChlsSourceList)
                 })
             }
             pageData.value.showAddDialog = false
@@ -530,7 +524,6 @@ export default defineComponent({
         }
         // 删除单个撤防项
         const deleteItem = (row: SystemDisarm) => {
-            // console.log(pageData.value.filterChlsSourceList)
             openMessageTipBox({
                 type: 'question',
                 title: Translate('IDCS_INFO_TIP'),
@@ -541,14 +534,12 @@ export default defineComponent({
                         tableData.value.splice(tableData.value.indexOf(item), 1)
                     }
                 })
-                // console.log(pageData.value.filterChlsSourceList)
             })
             filterChlsSource()
             pageData.value.applyDisable = false
         }
         // 删除所有撤防项
         const deleteItemAll = () => {
-            // console.log(pageData.value.filterChlsSourceList)
             openMessageTipBox({
                 type: 'question',
                 title: Translate('IDCS_INFO_TIP'),
@@ -556,7 +547,6 @@ export default defineComponent({
             }).then(() => {
                 tableData.value = []
                 pageData.value.filterChlsSourceList = pageData.value.chlAndsensorSourceList
-                // console.log(pageData.value.filterChlsSourceList)
             })
             // filterChlsSource()
             pageData.value.applyDisable = false
@@ -597,9 +587,6 @@ export default defineComponent({
             await getChlListAll()
             await getSensorSourceList()
             buildData()
-            // console.log('pageData.value.onlineChlList', pageData.value.onlineChlList)
-            // console.log('pageData.value.sensorSourcelist', pageData.value.sensorSourcelist)
-            // console.log('pageData.value.chlAndsensorSourceList', pageData.value.chlAndsensorSourceList)
         })
         return {
             Translate,

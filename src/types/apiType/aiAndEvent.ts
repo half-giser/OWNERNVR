@@ -85,7 +85,7 @@ export class AlarmTypeInfo {
     value = ''
 }
 
-// 移动侦测和前端掉线
+// 移动侦测、前端掉线、视频丢失的通用表格数据类型
 export class MotionEventConfig {
     id = ''
     addType = ''

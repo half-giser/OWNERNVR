@@ -3,7 +3,7 @@
  * @Date: 2024-08-10 16:25:58
  * @Description: AI/事件
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-23 16:36:10
+ * @LastEditTime: 2024-08-27 11:33:03
  */
 
 import { type AxiosRequestConfig } from 'axios'
@@ -98,3 +98,9 @@ export const querySystemDisArmParam = () => http.fetch('querySystemDisArmParam',
 
 // 修改系统撤防数据
 export const editSystemDisArmParam = (data: string) => http.fetch('editSystemDisArmParam', getXmlWrapData(data))
+
+// 获取视频丢失数据
+export const queryVideoLossTrigger = (data: string) => http.fetch('queryVideoLossTrigger', getXmlWrapData(data))
+
+// 修改视频丢失数据
+export const editVideoLossTrigger = (data: string) => http.fetch('editVideoLossTrigger', getXmlWrapData(data))

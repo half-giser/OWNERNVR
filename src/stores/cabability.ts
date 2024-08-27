@@ -53,6 +53,7 @@ export const useCababilityStore = defineStore(
         const poeChlMaxCount = ref(0)
         const supportOriginalDisplay = ref(false)
         const supportImageRotate = ref(false)
+        const supportFTP = ref(false)
         const showVideoLossMessage = ref(false)
         const audioInNum = ref(0)
         const supportPtzGroupAndTrace = ref(false)
@@ -111,6 +112,7 @@ export const useCababilityStore = defineStore(
             supportHdmiVgaSeparate.value = $(`content/supportHdmiVgaSeparate`).text().toBoolean() // 是否支持VGA异源输出
             supportOriginalDisplay.value = $('content/supportOriginalDisplay').text().toBoolean()
             supportImageRotate.value = $('content/supportImageRotate').text().toBoolean()
+            supportFTP.value = $('content/supportFTP').text().toBoolean()
             showVideoLossMessage.value = $('content/showVideoLossMessage').text().toBoolean()
             audioInNum.value = Number($('content/audioInNum').text())
             supportPtzGroupAndTrace.value = $('content/supportPtzGroupAndTrace').text().toBoolean()
@@ -177,6 +179,7 @@ export const useCababilityStore = defineStore(
             poeChlMaxCount,
             supportOriginalDisplay,
             supportImageRotate,
+            supportFTP,
             showVideoLossMessage,
             audioInNum,
             supportPtzGroupAndTrace,
