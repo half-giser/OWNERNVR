@@ -5,7 +5,7 @@
 -->
 
 <template>
-    <div class="base-flex-box PkMgrSpaceManageView">
+    <div class="base-flex-box manage">
         <div class="base-table-box">
             <el-table
                 ref="tableRef"
@@ -20,41 +20,17 @@
                 <el-table-column
                     prop="serialNum"
                     width="70"
-                >
-                    <template #header>
-                        <el-text
-                            class="label"
-                            :title="Translate('IDCS_SERIAL_NUMBER')"
-                            truncated
-                        >
-                            {{ Translate('IDCS_SERIAL_NUMBER') }}
-                        </el-text>
-                    </template>
-                </el-table-column>
+                    :label="Translate('IDCS_SERIAL_NUMBER')"
+                />
                 <el-table-column
                     prop="groupName"
                     min-width="200"
+                    :label="Translate('IDCS_PARKING_GROUP_NAME')"
+                />
+                <el-table-column
+                    min-width="200"
+                    :label="Translate('IDCS_PARKING_TYPE')"
                 >
-                    <template #header>
-                        <el-text
-                            class="label"
-                            :title="Translate('IDCS_PARKING_GROUP_NAME')"
-                            truncated
-                        >
-                            {{ Translate('IDCS_PARKING_GROUP_NAME') }}
-                        </el-text>
-                    </template>
-                </el-table-column>
-                <el-table-column min-width="200">
-                    <template #header>
-                        <el-text
-                            class="label"
-                            :title="Translate('IDCS_PARKING_TYPE')"
-                            truncated
-                        >
-                            {{ Translate('IDCS_PARKING_TYPE') }}
-                        </el-text>
-                    </template>
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.parkingType"
@@ -70,39 +46,33 @@
                         </el-select>
                     </template>
                 </el-table-column>
-                <el-table-column width="200">
-                    <template #header>
-                        <el-text
-                            class="label"
-                            :title="Translate('IDCS_TOTAL_VEHICLE_NUM')"
-                            truncated
-                        >
-                            {{ Translate('IDCS_TOTAL_VEHICLE_NUM') }}
-                        </el-text>
-                    </template>
+                <el-table-column
+                    width="200"
+                    :label="Translate('IDCS_TOTAL_VEHICLE_NUM')"
+                >
                     <template #default="scope">
-                        <el-input
-                            v-model.number="scope.row.groupTotalNum"
-                            v-numericalRange:[scope.row].groupTotalNum="[1, 10000]"
+                        <el-input-number
+                            v-model="scope.row.groupTotalNum"
+                            :min="1"
+                            :max="10000"
+                            :controls="false"
+                            value-on-clear="min"
                             :disabled="scope.row.parkingType !== 'usingGroup'"
                             size="small"
                         />
                     </template>
                 </el-table-column>
-                <el-table-column width="200">
-                    <template #header>
-                        <el-text
-                            class="label"
-                            :title="Translate('IDCS_REMAIN_VEHICLE_NUM')"
-                            truncated
-                        >
-                            {{ Translate('IDCS_REMAIN_VEHICLE_NUM') }}
-                        </el-text>
-                    </template>
+                <el-table-column
+                    width="200"
+                    :label="Translate('IDCS_REMAIN_VEHICLE_NUM')"
+                >
                     <template #default="scope">
-                        <el-input
-                            v-model.number="scope.row.groupRemainNum"
-                            v-numericalRange:[scope.row].groupRemainNum="[0, 10000]"
+                        <el-input-number
+                            v-model="scope.row.groupRemainNum"
+                            :min="0"
+                            :max="10000"
+                            :controls="false"
+                            value-on-clear="min"
                             :disabled="scope.row.parkingType !== 'usingGroup'"
                             size="small"
                         />
@@ -111,13 +81,13 @@
                 <el-table-column min-width="200">
                     <template #header>
                         <el-dropdown trigger="click">
-                            <el-text
-                                class="label el-dropdown-link"
-                                :title="Translate('IDCS_SCHEDULE')"
-                                truncated
-                            >
-                                {{ Translate('IDCS_SCHEDULE') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
-                            </el-text>
+                            <span class="el-dropdown-link">
+                                {{ Translate('IDCS_SCHEDULE') }}
+                                <BaseImgSprite
+                                    class="ddn"
+                                    file="ddn"
+                                />
+                            </span>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -147,16 +117,10 @@
                         </el-select>
                     </template>
                 </el-table-column>
-                <el-table-column min-width="200">
-                    <template #header>
-                        <el-text
-                            class="label"
-                            :title="Translate('IDCS_EMAIL')"
-                            truncated
-                        >
-                            {{ Translate('IDCS_EMAIL') }}
-                        </el-text>
-                    </template>
+                <el-table-column
+                    min-width="200"
+                    :label="Translate('IDCS_EMAIL')"
+                >
                     <template #default="scope">
                         <el-input
                             v-model="scope.row.linkEmail"
@@ -195,7 +159,7 @@
 <script lang="ts" src="./PkMgrSpaceManage.v.ts"></script>
 
 <style lang="scss" scoped>
-.PkMgrSpaceManageView {
+.manage {
     width: 100%;
     height: calc(var(--content-height) + 10px);
 }

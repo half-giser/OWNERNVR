@@ -66,7 +66,7 @@ export default defineComponent({
                 if ($('status').text() == 'success') {
                     editItem.value = new ChannelInfoDto()
                     editItem.value.name = $('//content/name').text()
-                    editItem.value.port = $('//content/port').text()
+                    editItem.value.port = Number($('//content/port').text())
                     // editItem.value.manufacturer = res('//content/manufacturer').text()
                     const filterPropertyList = filterProperty(props.protocolList, 'index')
                     const factoryName = $('//content/productModel').attr('factoryName')!
@@ -94,7 +94,7 @@ export default defineComponent({
 
                         if ($('//content/protocolType').text() == 'RTSP') {
                             portDisabled.value = true
-                            editItem.value.port = ''
+                            editItem.value.port = 0
                         }
 
                         if (isIp) {

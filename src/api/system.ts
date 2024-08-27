@@ -3,10 +3,10 @@
  * @Date: 2023-06-02 11:57:11
  * @Description: 系统API
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-17 15:14:01
+ * @LastEditTime: 2024-08-27 19:35:09
  */
 import type { AxiosRequestConfig } from 'axios'
-import http, { getXmlWrapData } from './api'
+import http from './api'
 
 /**
  * @description 获取服务端能力集

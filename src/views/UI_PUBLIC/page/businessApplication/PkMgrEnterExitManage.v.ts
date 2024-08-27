@@ -3,15 +3,10 @@
  * @Date: 2024-05-29 21:21:34
  * @Description: 业务应用-停车场管理-出入口
  */
-
-import { ArrowDown } from '@element-plus/icons-vue'
 import { type directionType, type screenType } from '@/types/apiType/business'
 import { PkMgrEnterExitManagePageData, PkMgrEnterExitManageItem } from '@/types/apiType/business'
 
 export default defineComponent({
-    components: {
-        ArrowDown,
-    },
     setup() {
         // 多语言翻译方法
         const { Translate } = useLangStore()
@@ -139,7 +134,7 @@ export default defineComponent({
             if (changeDataFlg) {
                 let sendXml = '<content><entryLeaveConfig>'
                 pageData.tableDatas.forEach((ele: PkMgrEnterExitManageItem) => {
-                    sendXml += `<item id="${ele.id}">
+                    sendXml += rawXml`<item id="${ele.id}">
                         <channelName>${ele.channelName}</channelName>
                         <direction>${ele.direction}</direction>
                         <ip>${ele.ip}</ip>
@@ -148,9 +143,8 @@ export default defineComponent({
                     </item>`
                 })
                 sendXml += '</entryLeaveConfig></content>'
-                const data = getXmlWrapData(sendXml)
                 openLoading(LoadingTarget.FullScreen)
-                editParkingLotConfig(data).then((result) => {
+                editParkingLotConfig(sendXml).then((result) => {
                     closeLoading(LoadingTarget.FullScreen)
                     // 更新原始数据
                     originalPageData = JSON.parse(JSON.stringify(pageData))
@@ -158,7 +152,7 @@ export default defineComponent({
                     if (resultXml('status').text() === 'success') {
                         handleSuccess()
                     } else {
-                        const errorCode = resultXml('errorCode').text()
+                        const errorCode = Number(resultXml('errorCode').text())
                         handleError(errorCode)
                     }
                 })
@@ -172,10 +166,11 @@ export default defineComponent({
                 message: Translate('IDCS_SAVE_DATA_SUCCESS'),
             })
         }
+
         // 处理错误码提示
-        function handleError(errorCode: string) {
+        function handleError(errorCode: number) {
             let errorMsg = Translate('IDCS_SAVE_DATA_FAIL')
-            if (errorCode === '536870953') {
+            if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
                 errorMsg = Translate('IDCS_NO_PERMISSION')
             }
             openMessageTipBox({

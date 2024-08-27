@@ -6,8 +6,7 @@
  * @LastEditTime: 2024-08-01 10:42:03
  */
 
-// import type { AxiosRequestConfig } from 'axios'
-import http, { getXmlWrapData } from './api'
+import http from './api'
 
 /**
  * @description 查询磁盘模式

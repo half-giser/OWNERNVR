@@ -1,11 +1,11 @@
 /*
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-11 20:22:27
- * @Description:
+ * @Description: 网络相关API
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-19 19:25:06
+ * @LastEditTime: 2024-08-27 19:34:29
  */
-import http, { getXmlWrapData } from './api'
+import http from './api'
 
 /**
  * @description 获取网络状态

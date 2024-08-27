@@ -5,13 +5,11 @@
  */
 import { ChannelInfoDto } from '@/types/apiType/channel'
 import ChannelEditPop from './ChannelEditPop.vue'
-import { ArrowDown } from '@element-plus/icons-vue'
 import ChannelEditIPCPwdPop from './ChannelEditIPCPwdPop.vue'
 import ChannelIPCUpgradePop from './ChannelIPCUpgradePop.vue'
 
 export default defineComponent({
     components: {
-        ArrowDown,
         ChannelEditPop,
         ChannelEditIPCPwdPop,
         ChannelIPCUpgradePop,
@@ -231,7 +229,7 @@ export default defineComponent({
                             channelInfo.name = eleXml('name').text()
                             channelInfo.devID = eleXml('devID').text()
                             channelInfo.ip = eleXml('ip').text()
-                            channelInfo.port = eleXml('port').text()
+                            channelInfo.port = Number(eleXml('port').text())
                             channelInfo.poePort = eleXml('poePort').text()
                             channelInfo.userName = eleXml('userName').text()
                             channelInfo.password = eleXml('password').text()
@@ -256,7 +254,7 @@ export default defineComponent({
                             //模拟通道，端口和状态置为空
                             if (!ele.ip) {
                                 ele.chlStatus = ''
-                                ele.port = ''
+                                ele.port = 0
                             } else {
                                 ele.chlStatus = Translate('IDCS_OFFLINE')
                             }

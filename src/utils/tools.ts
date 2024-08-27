@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2023-04-28 17:57:48
  * @Description: 工具方法
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-22 15:25:29
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-08-27 14:00:50
  */
 
 import { useUserSessionStore } from '@/stores/userSession'
@@ -270,6 +270,52 @@ export const downloadFromBase64 = (imgBase64: string, fileName: string) => {
     link.click()
     setTimeout(() => {
         document.body.removeChild(link)
+    }, 1000)
+}
+
+type XlsDesc = {
+    colspan: number | string
+    content: number | string
+}
+
+const createExcelTemplate = (titleArr: string[], contentArr: string[][], xlsDesc?: XlsDesc) => {
+    const content = contentArr
+        .map((tr) => {
+            return `<tr>${tr.map((td) => `<td style='vnd.ms-excel.numberformat:@'>${td}</td>`).join('')}</tr>`
+        })
+        .join('')
+    return rawXml`
+        <table cellspacing='0' cellpadding='0' border='1' style='display:none' class="excelTable">
+            <thead>
+                ${ternary(!!xlsDesc, `<tr><th colspan='${xlsDesc?.colspan}'>${xlsDesc?.content}</th></tr>`, '')}
+                <tr>${titleArr.map((item) => item).join('')}</tr>
+            </thead>
+            <tbody>${content}</tbody>
+        </table>
+    `
+}
+
+export const downloadExcel = (titleArr: string[], contentArr: string[][], fileName?: string, xlsDesc?: XlsDesc) => {
+    // 替换table数据和worksheet名字
+    const table = createExcelTemplate(titleArr, contentArr, xlsDesc)
+    const template =
+        "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:x='urn:schemas-microsoft-com:office:excel'" +
+        "xmlns='http://www.w3.org/TR/REC-html40'><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>" +
+        `<x:Name>${fileName || 'Worksheet'}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets>` +
+        '</x:ExcelWorkbook></xml><![endif]-->' +
+        "<style type='text/css'>table td, table th {height: 50px;text-align: center;font-size: 18px;}</style>" +
+        `</head><body>${table}</body></html>`
+    const blob = new Blob([template], { type: 'text/csv' })
+    const link = document.createElement('a')
+    const url = window.URL.createObjectURL(blob)
+    link.setAttribute('href', url)
+    link.setAttribute('download', fileName || 'Worksheet.xls')
+    link.style.display = 'none'
+    document.body.appendChild(link)
+    link.click()
+    setTimeout(() => {
+        document.body.removeChild(link)
+        window.URL.revokeObjectURL(url)
     }, 1000)
 }
 
@@ -914,4 +960,22 @@ export const base64FileSize = (base64url: string) => {
     const fileLength = strLength - (strLength / 8) * 2
     // 返回单位为MB的大小
     return (fileLength / (1024 * 1024)).toFixed(1)
+}
+
+/**
+ * @description 填充通道id,获取guid
+ * @param {string} id
+ * @returns Pstring
+ */
+export const getChlGuid16 = (id: string) => {
+    try {
+        while (id.length < 8) {
+            id = '0' + id
+        }
+        const arr = [id, '0000', '0000', '0000', '000000000000']
+        const guid = '{' + arr.join('-') + '}'
+        return guid
+    } catch (e) {
+        return '{00000001-0000-0000-0000-000000000000}'
+    }
 }

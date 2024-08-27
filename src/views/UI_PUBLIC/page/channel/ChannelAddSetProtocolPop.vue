@@ -129,9 +129,12 @@
                 width="130px"
             >
                 <template #default="scope">
-                    <el-input
+                    <el-input-number
                         v-model="scope.row.port"
-                        v-numericalRange:[formData].port="[1, 65535]"
+                        :min="10"
+                        :max="65535"
+                        value-on-clear="min"
+                        :controls="false"
                         size="small"
                         :disabled="!formData.enabled"
                     />

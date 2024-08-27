@@ -5,7 +5,7 @@
 -->
 
 <template>
-    <div class="base-flex-box PkMgrEnterExitManageView">
+    <div class="base-flex-box manager">
         <div class="base-table-box">
             <el-table
                 ref="tableRef"
@@ -20,41 +20,17 @@
                 <el-table-column
                     prop="serialNum"
                     width="70"
-                >
-                    <template #header>
-                        <el-text
-                            class="label"
-                            :title="Translate('IDCS_SERIAL_NUMBER')"
-                            truncated
-                        >
-                            {{ Translate('IDCS_SERIAL_NUMBER') }}
-                        </el-text>
-                    </template>
-                </el-table-column>
+                    :label="Translate('IDCS_SERIAL_NUMBER')"
+                />
                 <el-table-column
                     prop="channelName"
                     min-width="200"
+                    :label="Translate('IDCS_ENTRY_AND_EXIT_LANE_NAME')"
+                />
+                <el-table-column
+                    min-width="200"
+                    :label="Translate('IDCS_DIRECTION')"
                 >
-                    <template #header>
-                        <el-text
-                            class="label"
-                            :title="Translate('IDCS_ENTRY_AND_EXIT_LANE_NAME')"
-                            truncated
-                        >
-                            {{ Translate('IDCS_ENTRY_AND_EXIT_LANE_NAME') }}
-                        </el-text>
-                    </template>
-                </el-table-column>
-                <el-table-column min-width="200">
-                    <template #header>
-                        <el-text
-                            class="label"
-                            :title="Translate('IDCS_DIRECTION')"
-                            truncated
-                        >
-                            {{ Translate('IDCS_DIRECTION') }}
-                        </el-text>
-                    </template>
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.direction"
@@ -73,41 +49,20 @@
                 <el-table-column
                     prop="ipc"
                     width="400"
+                    :label="Translate('IPC')"
+                />
+                <el-table-column
+                    width="150"
+                    :label="Translate('IDCS_COMMON_STATE')"
                 >
-                    <template #header>
-                        <el-text
-                            class="label"
-                            :title="Translate('IPC')"
-                            truncated
-                        >
-                            {{ Translate('IPC') }}
-                        </el-text>
-                    </template>
-                </el-table-column>
-                <el-table-column width="150">
-                    <template #header>
-                        <el-text
-                            class="label"
-                            :title="Translate('IDCS_COMMON_STATE')"
-                            truncated
-                        >
-                            {{ Translate('IDCS_COMMON_STATE') }}
-                        </el-text>
-                    </template>
                     <template #default="scope">
                         <span :class="[scope.row.ipcStatus]">{{ scope.row.ipcStatus === 'online' ? Translate('IDCS_ONLINE') : Translate('IDCS_OFFLINE') }}</span>
                     </template>
                 </el-table-column>
-                <el-table-column min-width="200">
-                    <template #header>
-                        <el-text
-                            class="label"
-                            :title="Translate('IDCS_ENABLE_LED_SCREEN')"
-                            truncated
-                        >
-                            {{ Translate('IDCS_ENABLE_LED_SCREEN') }}
-                        </el-text>
-                    </template>
+                <el-table-column
+                    min-width="200"
+                    :label="Translate('IDCS_ENABLE_LED_SCREEN')"
+                >
                     <template #default="scope">
                         <el-checkbox
                             v-model="scope.row.enableLEDScreen"
@@ -116,16 +71,10 @@
                         />
                     </template>
                 </el-table-column>
-                <el-table-column min-width="200">
-                    <template #header>
-                        <el-text
-                            class="label"
-                            :title="Translate('IDCS_RELATION_LED_SCREEN')"
-                            truncated
-                        >
-                            {{ Translate('IDCS_RELATION_LED_SCREEN') }}
-                        </el-text>
-                    </template>
+                <el-table-column
+                    min-width="200"
+                    :label="Translate('IDCS_RELATION_LED_SCREEN')"
+                >
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.LEDScreenType"
@@ -146,12 +95,7 @@
             </el-table>
         </div>
         <div class="base-btn-box">
-            <el-button
-                type="primary"
-                @click="apply()"
-            >
-                {{ Translate('IDCS_APPLY') }}
-            </el-button>
+            <el-button @click="apply()">{{ Translate('IDCS_APPLY') }}</el-button>
         </div>
     </div>
 </template>
@@ -159,7 +103,7 @@
 <script lang="ts" src="./PkMgrEnterExitManage.v.ts"></script>
 
 <style lang="scss" scoped>
-.PkMgrEnterExitManageView {
+.manager {
     width: 100%;
     height: calc(var(--content-height) + 10px);
 }
