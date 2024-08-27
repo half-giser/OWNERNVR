@@ -3,7 +3,7 @@
  * @Date: 2024-08-16 18:13:56
  * @Description:
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-23 09:39:57
+ * @LastEditTime: 2024-08-26 10:52:52
  */
 import { cloneDeep } from 'lodash'
 import { defineComponent } from 'vue'
@@ -200,7 +200,6 @@ export default defineComponent({
         const buildTableData = function () {
             pageData.value.initComplated = false
             tableData.value.length = 0
-            openLoading(LoadingTarget.FullScreen)
             getChlList({
                 pageIndex: pageData.value.pageIndex,
                 pageSize: pageData.value.pageSize,
@@ -222,84 +221,83 @@ export default defineComponent({
                 })
                 for (let i = 0; i < tableData.value.length; i++) {
                     const row = tableData.value[i]
-                    row.status = ''
                     const sendXml = `<condition>
                                         <chlId>${row.id}</chlId>
                                     </condition>
                                     <requireField>
                                         <trigger/>
                                     </requireField>`
-                    queryMotion(sendXml).then((res: any) => {
-                        res = queryXml(res)
-                        if (res('status').text() == 'success') {
-                            row.rowDisable = false
-                            row.schedule = {
-                                value: res('//content/chl/trigger/triggerSchedule/schedule').attr('id') == '' ? ' ' : res('//content/chl/trigger/triggerSchedule/schedule').attr('id'),
-                                label: res('//content/chl/trigger/triggerSchedule/schedule').text(),
-                            }
-                            row.oldSchedule = row.schedule
-                            row.record = {
-                                switch: res('//content/chl/trigger/sysRec/switch').text() == 'true' ? true : false,
-                                chls: res('//content/chl/trigger/sysRec/chls/item').map((item: any) => {
-                                    return {
-                                        value: item.attr('id'),
-                                        label: item.text(),
-                                    }
-                                }),
-                            }
-                            // 获取record中chls的value列表
-                            row.recordList = row.record.chls.map((item) => item.value)
-                            row.sysAudio = res('//content/chl/trigger/sysAudio').attr('id') || pageData.value.defaultAudioId
-                            row.snap = {
-                                switch: res('//content/chl/trigger/sysSnap/switch').text() == 'true' ? true : false,
-                                chls: res('//content/chl/trigger/sysSnap/chls/item').map((item: any) => {
-                                    return {
-                                        value: item.attr('id'),
-                                        label: item.text(),
-                                    }
-                                }),
-                            }
-                            // 获取snap中chls的value列表
-                            row.snapList = row.snap.chls.map((item) => item.value)
-                            row.alarmOut = {
-                                switch: res('//content/chl/trigger/alarmOut/switch').text() == 'true' ? true : false,
-                                chls: res('//content/chl/trigger/alarmOut/alarmOuts/item').map((item: any) => {
-                                    return {
-                                        value: item.attr('id'),
-                                        label: item.text(),
-                                    }
-                                }),
-                            }
-                            row.alarmOutList = row.alarmOut.chls.map((item) => item.value)
-                            row.beeper = res('//content/chl/trigger/buzzerSwitch').text()
-                            row.email = res('//content/chl/trigger/emailSwitch').text()
-                            row.msgPush = res('//content/chl/trigger/msgPushSwitch').text()
-                            row.videoPopup = res('//content/chl/trigger/popVideoSwitch').text()
-                            row.preset.switch = res('//content/chl/trigger/preset/switch').text() == 'true' ? true : false
-                            res('//content/chl/trigger/preset/presets/item').forEach((item: any) => {
-                                const $item = queryXml(item.element)
-                                row.preset.presets.push({
-                                    index: $item('index').text(),
-                                    name: $item('name').text(),
-                                    chl: {
-                                        value: $item('chl').attr('id'),
-                                        label: $item('chl').text(),
-                                    },
-                                })
-                            })
-                            // 设置的声音文件被删除时，显示为none
-                            const AudioData = pageData.value.audioList.filter((element: { value: string; label: string }) => {
-                                return element.value === row.sysAudio
-                            })
-                            if (AudioData.length === 0) {
-                                row.sysAudio = pageData.value.defaultAudioId
-                            }
-                        } else {
-                            row.rowDisable = true
+                    const motion = await queryMotion(sendXml)
+                    res = queryXml(motion)
+                    row.status = ''
+
+                    if (res('status').text() == 'success') {
+                        row.rowDisable = false
+                        row.schedule = {
+                            value: res('//content/chl/trigger/triggerSchedule/schedule').attr('id') == '' ? ' ' : res('//content/chl/trigger/triggerSchedule/schedule').attr('id'),
+                            label: res('//content/chl/trigger/triggerSchedule/schedule').text(),
                         }
-                    })
+                        row.oldSchedule = row.schedule
+                        row.record = {
+                            switch: res('//content/chl/trigger/sysRec/switch').text() == 'true' ? true : false,
+                            chls: res('//content/chl/trigger/sysRec/chls/item').map((item: any) => {
+                                return {
+                                    value: item.attr('id'),
+                                    label: item.text(),
+                                }
+                            }),
+                        }
+                        // 获取record中chls的value列表
+                        row.recordList = row.record.chls.map((item) => item.value)
+                        row.sysAudio = res('//content/chl/trigger/sysAudio').attr('id') || pageData.value.defaultAudioId
+                        row.snap = {
+                            switch: res('//content/chl/trigger/sysSnap/switch').text() == 'true' ? true : false,
+                            chls: res('//content/chl/trigger/sysSnap/chls/item').map((item: any) => {
+                                return {
+                                    value: item.attr('id'),
+                                    label: item.text(),
+                                }
+                            }),
+                        }
+                        // 获取snap中chls的value列表
+                        row.snapList = row.snap.chls.map((item) => item.value)
+                        row.alarmOut = {
+                            switch: res('//content/chl/trigger/alarmOut/switch').text() == 'true' ? true : false,
+                            chls: res('//content/chl/trigger/alarmOut/alarmOuts/item').map((item: any) => {
+                                return {
+                                    value: item.attr('id'),
+                                    label: item.text(),
+                                }
+                            }),
+                        }
+                        row.alarmOutList = row.alarmOut.chls.map((item) => item.value)
+                        row.beeper = res('//content/chl/trigger/buzzerSwitch').text()
+                        row.email = res('//content/chl/trigger/emailSwitch').text()
+                        row.msgPush = res('//content/chl/trigger/msgPushSwitch').text()
+                        row.videoPopup = res('//content/chl/trigger/popVideoSwitch').text()
+                        row.preset.switch = res('//content/chl/trigger/preset/switch').text() == 'true' ? true : false
+                        res('//content/chl/trigger/preset/presets/item').forEach((item: any) => {
+                            const $item = queryXml(item.element)
+                            row.preset.presets.push({
+                                index: $item('index').text(),
+                                name: $item('name').text(),
+                                chl: {
+                                    value: $item('chl').attr('id'),
+                                    label: $item('chl').text(),
+                                },
+                            })
+                        })
+                        // 设置的声音文件被删除时，显示为none
+                        const AudioData = pageData.value.audioList.filter((element: { value: string; label: string }) => {
+                            return element.value === row.sysAudio
+                        })
+                        if (AudioData.length === 0) {
+                            row.sysAudio = pageData.value.defaultAudioId
+                        }
+                    } else {
+                        row.rowDisable = true
+                    }
                 }
-                closeLoading(LoadingTarget.FullScreen)
             })
         }
         const changePagination = () => {

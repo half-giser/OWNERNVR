@@ -1,9 +1,9 @@
 /*
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-21 15:34:24
- * @Description: 前端掉线
+ * @Description: 视频丢失配置
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-27 11:22:44
+ * @LastEditTime: 2024-08-27 11:52:08
  */
 import { cloneDeep } from 'lodash'
 import { defineComponent } from 'vue'
@@ -13,7 +13,7 @@ import { tableRowStatus, tableRowStatusToolTip } from '@/utils/const/other'
 import BaseTransferPop from '@/components/BaseTransferPop.vue'
 import BaseTransferDialog from '@/components/BaseTransferDialog.vue'
 import { MotionEventConfig, type PresetItem } from '@/types/apiType/aiAndEvent'
-import { errorCodeMap } from '@/utils/constants'
+import { errorCodeMap, ErrorCodeMapping } from '@/utils/constants'
 import SetPresetPop from './SetPresetPop.vue'
 export default defineComponent({
     components: {
@@ -30,10 +30,7 @@ export default defineComponent({
         const alarmOutRef = ref()
         const presetRef = ref()
 
-        // ;(snapRef.value as InstanceType<typeof ElDropdown>).handleOpen()
-        // ;(alarmOutRef.value as InstanceType<typeof ElDropdown>).handleOpen()
         const { LoadingTarget, openLoading, closeLoading } = useLoading()
-        const systemCaps = useCababilityStore()
         const openMessageTipBox = useMessageBox().openMessageTipBox
         const pageData = ref({
             pageIndex: 1,
@@ -44,8 +41,6 @@ export default defineComponent({
                 { value: 'true', label: Translate('IDCS_ON') },
                 { value: 'false', label: Translate('IDCS_OFF') },
             ],
-            defaultAudioId: '{00000000-0000-0000-0000-000000000000}',
-            supportAudio: false,
             // TODO 未传值
             // supportFTP: false,
             audioList: [] as { value: string; label: string }[],
@@ -90,26 +85,6 @@ export default defineComponent({
             applyDisable: true,
             editRows: [] as MotionEventConfig[],
         })
-        const getAudioList = async () => {
-            pageData.value.supportAudio = systemCaps.supportAlarmAudioConfig
-            // pageData.value.supportAudio = true
-            if (pageData.value.supportAudio == true) {
-                queryAlarmAudioCfg().then(async (res: any) => {
-                    pageData.value.audioList = []
-                    res = queryXml(res)
-                    if (res('status').text() == 'success') {
-                        res('//content/audioList/item').forEach((item: any) => {
-                            const $item = queryXml(item.element)
-                            pageData.value.audioList.push({
-                                value: item.attr('id'),
-                                label: $item('name').text(),
-                            })
-                        })
-                        pageData.value.audioList.push({ value: pageData.value.defaultAudioId, label: '<' + Translate('IDCS_NULL') + '>' })
-                    }
-                })
-            }
-        }
         const getSnapList = async () => {
             getChlList({
                 nodeType: 'chls',
@@ -201,7 +176,7 @@ export default defineComponent({
                             <name/>
                         </requireField>
                         <condition>
-                            <chlType type="chlType">digital</chlType>
+                            <chlType type="chlType">analog</chlType>
                         </condition>`
             queryNodeList(getXmlWrapData(xml)).then(async (res: any) => {
                 const $chl = queryXml(res)
@@ -220,11 +195,10 @@ export default defineComponent({
                     const sendXml = `<condition>
                                         <chlId>${row.id}</chlId>
                                     </condition>`
-                    const offLine = await queryFrontEndOfflineTrigger(sendXml)
-                    const res = queryXml(offLine)
+                    const videoLoss = await queryVideoLossTrigger(sendXml)
+                    const res = queryXml(videoLoss)
                     if (res('status').text() == 'success') {
                         row.rowDisable = false
-                        row.sysAudio = res('//content/sysAudio').attr('id') || pageData.value.defaultAudioId
                         row.snap = {
                             switch: res('//content/sysSnap/switch').text() == 'true' ? true : false,
                             chls: res('//content/sysSnap/chls/item').map((item: any) => {
@@ -273,13 +247,6 @@ export default defineComponent({
                                 },
                             })
                         })
-                        // 设置的声音文件被删除时，显示为none
-                        const AudioData = pageData.value.audioList.filter((element: { value: string; label: string }) => {
-                            return element.value === row.sysAudio
-                        })
-                        if (AudioData.length === 0) {
-                            row.sysAudio = pageData.value.defaultAudioId
-                        }
                     } else {
                         row.rowDisable = true
                     }
@@ -508,7 +475,6 @@ export default defineComponent({
         //         }
         //     })
         // }
-
         // 蜂鸣器
         const handleBeeperChangeAll = function (beeper: string) {
             tableData.value.forEach((item) => {
@@ -620,6 +586,7 @@ export default defineComponent({
             sendXml += `</presets>
                     </preset>`
             sendXml += `
+                        <msgPushSwitch>${rowData.msgPush}</msgPushSwitch>
                         <buzzerSwitch>${rowData.beeper}</buzzerSwitch>
                         <popVideo>
                             <switch>${rowData.videoPopupInfo.chl.value == ' ' ? 'false' : 'true'}</switch>
@@ -627,8 +594,6 @@ export default defineComponent({
                         </popVideo>
                         <popMsgSwitch>${rowData.msgBoxPopup}</popMsgSwitch>
                         <emailSwitch>${rowData.email}</emailSwitch>
-                        <msgPushSwitch>${rowData.msgPush}</msgPushSwitch>
-                        <sysAudio id='${rowData.sysAudio}'></sysAudio>
                 </content>`
             // ftpSnap无效
             // sendXml += `
@@ -649,13 +614,14 @@ export default defineComponent({
             openLoading(LoadingTarget.FullScreen)
             pageData.value.editRows.forEach((item: MotionEventConfig) => {
                 const sendXml = getSavaData(item)
-                editFrontEndOfflineTrigger(sendXml).then((res: any) => {
+                editVideoLossTrigger(sendXml).then((res: any) => {
                     res = queryXml(res)
                     if (res('status').text() == 'success') {
                         item.status = 'success'
                     } else {
                         item.status = 'error'
                         const errorCode = Number(res('errorCode').text())
+                        console.log(Translate(ErrorCodeMapping[errorCode]))
                         if (errorCode === errorCodeMap.noConfigData) {
                             item.status = 'success'
                         } else {
@@ -671,7 +637,6 @@ export default defineComponent({
 
         onMounted(async () => {
             await getVideoPopupList()
-            await getAudioList()
             await getSnapList()
             await getAlarmOutList()
             buildTableData()

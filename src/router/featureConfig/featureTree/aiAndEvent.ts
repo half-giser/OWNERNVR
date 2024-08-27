@@ -280,7 +280,7 @@ export default {
         alarmsStatus: {
             //报警状态
             path: 'status',
-            component: 'aiAndEvent/AlarmStatus.vue',
+            component: 'system/AlarmStatus.vue',
             meta: {
                 sort: 10,
                 lk: 'IDCS_ALARM_STATE',

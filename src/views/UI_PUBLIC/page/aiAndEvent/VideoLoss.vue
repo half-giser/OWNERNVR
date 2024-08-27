@@ -1,9 +1,9 @@
 <!--
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-21 15:34:24
- * @Description: 前端掉线
+ * @Description: 视频丢失配置
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-27 11:24:10
+ * @LastEditTime: 2024-08-27 11:59:47
 -->
 <template>
     <div>
@@ -142,51 +142,6 @@
                         </el-col>
                         <el-col :span="4"></el-col>
                     </el-row>
-                </template>
-            </el-table-column>
-            <!-- 音频   -->
-            <el-table-column
-                v-if="pageData.supportAudio"
-                prop="sysAudio"
-                width="145px"
-            >
-                <template #header>
-                    <el-dropdown trigger="click">
-                        <span class="el-dropdown-link">
-                            {{ Translate('IDCS_AUDIO') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
-                        </span>
-                        <template #dropdown>
-                            <el-dropdown-menu>
-                                <el-dropdown-item
-                                    v-for="item in pageData.audioList"
-                                    :key="item.value"
-                                    :value="item.value"
-                                    :label="item.label"
-                                    @click="handleSysAudioChangeAll(item.value)"
-                                >
-                                    {{ item.label }}
-                                </el-dropdown-item>
-                            </el-dropdown-menu>
-                        </template>
-                    </el-dropdown>
-                </template>
-                <template #default="scope">
-                    <el-select
-                        v-model="scope.row.sysAudio"
-                        prop="sysAudio"
-                        value-key="value"
-                        :disabled="scope.row.rowDisable"
-                        :options="pageData.audioList"
-                        @change="addEditRow(scope.row)"
-                    >
-                        <el-option
-                            v-for="item in pageData.audioList"
-                            :key="item.value"
-                            :value="item.value"
-                            :label="item.label"
-                        >
-                        </el-option>
-                    </el-select>
                 </template>
             </el-table-column>
             <!-- 消息推送   -->
@@ -571,7 +526,7 @@
     </div>
 </template>
 
-<script lang="ts" src="./IpcOffline.v.ts"></script>
+<script lang="ts" src="./VideoLoss.v.ts"></script>
 
 <style lang="scss" scoped>
 .table_btn {
