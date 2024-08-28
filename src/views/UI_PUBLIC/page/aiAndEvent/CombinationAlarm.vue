@@ -1,9 +1,9 @@
 <!--
- * @Description: 普通事件——传感器
+ * @Description: 普通事件——组合报警
  * @Author: luoyiming luoyiming@tvt.net.cn
- * @Date: 2024-08-23 10:58:27
+ * @Date: 2024-08-22 16:04:47
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-23 11:06:46
+ * @LastEditTime: 2024-08-28 11:38:37
 -->
 <template>
     <div class="base-flex-box">
@@ -11,7 +11,9 @@
             <el-table
                 stripe
                 border
+                highlight-current-row
                 :data="tableData"
+                @current-change="changeCombinedALarmInfo"
             >
                 <!-- 状态列 -->
                 <el-table-column
@@ -42,17 +44,9 @@
                     </template>
                 </el-table-column>
 
-                <!-- 序号 -->
-                <el-table-column
-                    :label="Translate('IDCS_SERIAL_NUMBER')"
-                    prop="serialNum"
-                    width="120px"
-                >
-                </el-table-column>
-
                 <!-- 名称 -->
                 <el-table-column
-                    width="120px"
+                    width="160px"
                     :label="Translate('IDCS_NAME')"
                 >
                     <template #default="scope">
@@ -67,162 +61,29 @@
                     </template>
                 </el-table-column>
 
-                <!-- 排程 -->
-                <el-table-column width="100px">
-                    <template #header>
-                        <el-dropdown trigger="click">
-                            <span class="el-dropdown-link">
-                                {{ Translate('IDCS_SCHEDULE') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
-                            <template #dropdown>
-                                <el-dropdown-menu>
-                                    <el-dropdown-item
-                                        v-for="item in pageData.scheduleList"
-                                        :key="item.value"
-                                        @click="changeScheduleAll(item.value)"
-                                        >{{ item.label }}
-                                    </el-dropdown-item>
-                                </el-dropdown-menu>
-                            </template>
-                        </el-dropdown>
-                    </template>
+                <!-- 组合报警 -->
+                <el-table-column
+                    :label="Translate('IDCS_COMBINATION_ALARM')"
+                    width="140px"
+                >
                     <template #default="scope">
-                        <el-select
-                            v-model="scope.row.schedule.value"
-                            size="small"
-                            :empty-values="[undefined, null]"
-                            @change="changeSchedule(scope.row)"
-                        >
-                            <el-option
-                                v-for="item in pageData.scheduleList"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                            />
-                        </el-select>
-                    </template>
-                </el-table-column>
-
-                <!-- 类型 -->
-                <el-table-column width="90px">
-                    <template #header>
-                        <el-dropdown trigger="click">
-                            <span class="el-dropdown-link">
-                                {{ Translate('IDCS_TYPE') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
-                            <template #dropdown>
-                                <el-dropdown-menu>
-                                    <el-dropdown-item
-                                        v-for="item in pageData.typeList"
-                                        :key="item.value"
-                                        @click="changeAllValue(item.value, 'type')"
-                                    >
-                                        {{ item.label }}
-                                    </el-dropdown-item>
-                                </el-dropdown-menu>
-                            </template>
-                        </el-dropdown>
-                    </template>
-                    <template #default="scope">
-                        <el-select
-                            v-model="scope.row.type"
-                            :disabled="!scope.row.type || scope.row.alarmInType === 'virtual' || !scope.row.isEditable"
-                            size="small"
-                        >
-                            <el-option
-                                v-for="item in pageData.typeList"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                            />
-                        </el-select>
-                    </template>
-                </el-table-column>
-
-                <!-- 启用 -->
-                <el-table-column width="80px">
-                    <template #header>
-                        <el-dropdown trigger="click">
-                            <span class="el-dropdown-link">
-                                {{ Translate('IDCS_ENABLE') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
-                            <template #dropdown>
-                                <el-dropdown-menu>
-                                    <el-dropdown-item
-                                        v-for="item in pageData.switchList"
-                                        :key="item.value"
-                                        @click="changeAllValue(item.value, 'switch')"
-                                    >
-                                        {{ item.label }}
-                                    </el-dropdown-item>
-                                </el-dropdown-menu>
-                            </template>
-                        </el-dropdown>
-                    </template>
-                    <template #default="scope">
-                        <el-select
-                            v-model="scope.row.switch"
-                            :disabled="!scope.row.switch || !scope.row.isEditable"
-                            size="small"
-                        >
-                            <el-option
-                                v-for="item in pageData.switchList"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                            />
-                        </el-select>
-                    </template>
-                </el-table-column>
-
-                <!-- 持续时间 -->
-                <el-table-column width="100px">
-                    <template #header>
-                        <el-dropdown trigger="click">
-                            <span class="el-dropdown-link">
-                                {{ Translate('IDCS_DURATION') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
-                            <template #dropdown>
-                                <el-dropdown-menu>
-                                    <el-dropdown-item
-                                        v-for="item in pageData.durationList"
-                                        :key="item.value"
-                                        @click="changeAllValue(item.value, 'holdTime')"
-                                        >{{ item.label }}
-                                    </el-dropdown-item>
-                                </el-dropdown-menu>
-                            </template>
-                        </el-dropdown>
-                    </template>
-                    <template #default="scope">
-                        <el-select
-                            v-model="scope.row.holdTime"
-                            :disabled="!scope.row.holdTime || !scope.row.isEditable"
-                            size="small"
-                        >
-                            <el-option
-                                v-for="item in pageData.durationList"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                            />
-                        </el-select>
+                        <el-row>
+                            <el-col :span="6">
+                                <el-checkbox
+                                    v-model="scope.row.combinedAlarm.switch"
+                                    @change="combinedAlarmCheckChange(scope.row)"
+                                ></el-checkbox>
+                            </el-col>
+                            <el-col :span="18">
+                                <el-button
+                                    :disabled="!scope.row.combinedAlarm.switch"
+                                    class="table_btn"
+                                    @click="openCombinedAlarmPop(scope.row)"
+                                >
+                                    {{ Translate('IDCS_CONFIG') }}
+                                </el-button>
+                            </el-col>
+                        </el-row>
                     </template>
                 </el-table-column>
 
@@ -350,7 +211,7 @@
                 <!-- 声音，supportAudio -->
                 <el-table-column
                     v-if="pageData.supportAudio"
-                    width="190px"
+                    width="150px"
                 >
                     <template #header>
                         <el-dropdown trigger="click">
@@ -390,7 +251,7 @@
                 </el-table-column>
 
                 <!-- 推送 -->
-                <el-table-column width="100px">
+                <el-table-column width="150px">
                     <template #header>
                         <el-dropdown trigger="click">
                             <span class="el-dropdown-link">
@@ -415,7 +276,7 @@
                     </template>
                     <template #default="scope">
                         <el-select
-                            v-model="scope.row.msgPushSwitch"
+                            v-model="scope.row.msgPush"
                             size="small"
                         >
                             <el-option
@@ -539,7 +400,7 @@
                     </template>
                     <template #default="scope">
                         <el-select
-                            v-model="scope.row.buzzerSwitch"
+                            v-model="scope.row.beeper"
                             size="small"
                         >
                             <el-option
@@ -581,7 +442,7 @@
                     </template>
                     <template #default="scope">
                         <el-select
-                            v-model="scope.row.popVideo.chl.id"
+                            v-model="scope.row.popVideo.chl.value"
                             size="small"
                             :empty-values="[undefined, null]"
                         >
@@ -621,7 +482,7 @@
                     </template>
                     <template #default="scope">
                         <el-select
-                            v-model="scope.row.popMsgSwitch"
+                            v-model="scope.row.msgBoxPopup"
                             size="small"
                         >
                             <el-option
@@ -660,7 +521,7 @@
                     </template>
                     <template #default="scope">
                         <el-select
-                            v-model="scope.row.emailSwitch"
+                            v-model="scope.row.email"
                             size="small"
                         >
                             <el-option
@@ -675,18 +536,7 @@
             </el-table>
         </div>
         <div class="base-btn-box">
-            <el-pagination
-                v-model:current-page="pageData.pageIndex"
-                v-model:page-size="pageData.pageSize"
-                :page-sizes="[10, 20, 30]"
-                layout="prev, pager, next, sizes, total, jumper"
-                :total="pageData.totalCount"
-                size="small"
-                @size-change="changePaginationSize"
-                @current-change="changePagination"
-            />
-        </div>
-        <div class="base-btn-box">
+            <span class="tips">{{ pageData.CombinedALarmInfo }}</span>
             <el-button
                 :disabled="pageData.applyDisabled"
                 @click="setData()"
@@ -737,14 +587,21 @@
             :handle-preset-linked-list="handlePresetLinkedList"
             @close="presetClose"
         />
-        <!-- 排程管理弹窗 -->
-        <ScheduleManagPop
-            v-model="pageData.scheduleManagePopOpen"
-            @close="pageData.scheduleManagePopOpen = false"
+        <CombinationAlarmPop
+            v-model="pageData.isCombinedAlarmPopOpen"
+            :linked-id="pageData.combinedAlarmLinkedId"
+            :linked-list="pageData.combinedAlarmLinkedList"
+            :curr-row-face-obj="pageData.currRowFaceObj"
+            :handle-linked-list="handleCombinedAlarmLinkedList"
+            @close="combinedAlarmClose"
         />
     </div>
 </template>
 
-<script lang="ts" src="./SensorEventConfig.v.ts"></script>
+<script lang="ts" src="./CombinationAlarm.v.ts"></script>
 
-<style scoped></style>
+<style scoped>
+.tips {
+    flex: 1;
+}
+</style>

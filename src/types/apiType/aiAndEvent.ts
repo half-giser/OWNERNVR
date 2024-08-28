@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-08-10 12:08:57
  * @Description: AI/事件
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-26 14:15:17
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-08-28 11:56:00
  */
 const { Translate } = useLangStore()
 
@@ -326,4 +326,64 @@ export class PresetList {
         label: '',
     }
     presetList = [] as SelectOption<string, string>[]
+}
+
+export class CombinedAlarm {
+    id = ''
+    name = ''
+    status = '' //行状态: loading, success, error
+    combinedAlarm = {
+        switch: false,
+        item: [] as CombinedAlarmItem[],
+    }
+    sysRec = {
+        switch: false,
+        chls: [] as SelectOption<string, string>[],
+    }
+    recordList = [] as string[]
+    sysSnap = {
+        switch: false,
+        chls: [] as SelectOption<string, string>[],
+    }
+    snapList = [] as string[]
+    alarmOut = {
+        switch: false,
+        alarmOuts: [] as SelectOption<string, string>[],
+    }
+    alarmOutList = [] as string[]
+    popVideo = {
+        switch: '',
+        chl: {
+            value: '',
+            label: '',
+        },
+    }
+    preset = {
+        switch: false,
+        presets: [] as PresetItem[],
+    }
+    sysAudio = ''
+    msgPush = ''
+    beeper = ''
+    email = ''
+    msgBoxPopup = ''
+    videoPopup = ''
+}
+
+export class CombinedAlarmItem {
+    alarmSourceType = ''
+    alarmSourceEntity = {
+        value: '',
+        label: '',
+    }
+}
+
+export class faceMatchObj {
+    rule = ''
+    duration = 5
+    delay = 5
+    groupId = [] as string[]
+    noShowDisplay = 'false'
+    displayText = ''
+    faceDataBase = [] as string[]
 }

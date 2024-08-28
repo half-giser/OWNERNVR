@@ -1,30 +1,24 @@
-/*
- * @Description: 普通事件——传感器
- * @Author: luoyiming luoyiming@tvt.net.cn
- * @Date: 2024-08-23 10:58:27
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-27 17:45:05
- */
-import { type PresetItem, SensorEvent, type ChlList } from '@/types/apiType/aiAndEvent'
-import { QueryNodeListDto } from '@/types/apiType/channel'
-import { tableRowStatus, tableRowStatusToolTip } from '@/utils/const/other'
+import { type CombinedAlarm, type CombinedAlarmItem, type faceMatchObj, type PresetItem } from '@/types/apiType/aiAndEvent'
+// tableRowStatus
+import { tableRowStatusToolTip } from '@/utils/const/other'
 import { cloneDeep, isEqual } from 'lodash'
 import BaseTransferPop from '@/components/BaseTransferPop.vue'
 import BaseTransferDialog from '@/components/BaseTransferDialog.vue'
 import SetPresetPop from './SetPresetPop.vue'
-import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
+import CombinationAlarmPop from './CombinationAlarmPop.vue'
 
 export default defineComponent({
     components: {
         BaseTransferPop,
         BaseTransferDialog,
         SetPresetPop,
-        ScheduleManagPop,
+        CombinationAlarmPop,
     },
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const systemCaps = useCababilityStore()
 
         const recordRef = ref()
         const snapRef = ref()
@@ -32,14 +26,15 @@ export default defineComponent({
         const tempName = ref('')
         const defaultAudioId = '{00000000-0000-0000-0000-000000000000}'
 
+        const COMBINED_ALARM_TYPES_MAPPING: Record<string, string> = {
+            Motion: Translate('IDCS_MOTION_DETECTION'), //移动侦测
+            Sensor: Translate('IDCS_SENSOR'), //传感器
+            FaceMatch: Translate('IDCS_FACE_MATCH'), //人脸识别
+            InvadeDetect: Translate('IDCS_INVADE_DETECTION'), //区域入侵
+            Tripwire: Translate('IDCS_BEYOND_DETECTION'), //越界
+        }
+
         const pageData = ref({
-            // 分页有关变量
-            pageIndex: 1,
-            pageSize: 10,
-            totalCount: 0,
-            // 排程列表
-            scheduleList: [] as SelectOption<string, string>[],
-            scheduleManagePopOpen: false,
             // 类型
             typeList: [
                 { value: 'NO', label: Translate('IDCS_ALWAYS_OPEN') },
@@ -63,10 +58,9 @@ export default defineComponent({
 
             // 初始化时只请求一次相关列表数据
             initData: false,
-
+            totalCount: 0,
             initComplated: false,
-
-            chls: [] as ChlList[],
+            CombinedALarmInfo: '',
 
             // record穿梭框数据源
             recordList: [] as { value: string; label: string }[],
@@ -114,33 +108,27 @@ export default defineComponent({
             isPresetPopOpen: false,
             presetChlId: '',
             presetLinkedList: [] as PresetItem[],
+
+            isCombinedAlarmPopOpen: false,
+            combinedAlarmLinkedId: '',
+            combinedAlarmLinkedList: [] as CombinedAlarmItem[],
+            currRowFaceObj: {} as Record<string, Record<string, faceMatchObj>>,
+
+            // 人脸对象，层级依次为combinedID，chlID，obj
+            faceObj: {} as Record<string, Record<string, Record<string, faceMatchObj>>>,
         })
 
         // 表格数据
-        const tableData = ref<SensorEvent[]>([])
+        const tableData = ref<CombinedAlarm[]>([])
         // 缓存表格初始数据，保存时对比变化了的行
-        let tableDataInit = [] as SensorEvent[]
-
-        // 改变页码，刷新数据
-        const changePagination = () => {
-            getData()
-        }
-
-        //  改变每页显示条数，刷新数据
-        const changePaginationSize = () => {
-            const totalPage = Math.ceil(pageData.value.totalCount / pageData.value.pageSize)
-            if (pageData.value.pageIndex > totalPage) {
-                pageData.value.pageIndex = totalPage
-            }
-            getData()
-        }
+        let tableDataInit = [] as CombinedAlarm[]
 
         // 获取系统配置和基本信息，部分系统配置可用项
         const getSystemCaps = async () => {
-            const result = await querySystemCaps(getXmlWrapData(''))
-            const $ = queryXml(result)
-
-            pageData.value.supportAudio = $('/response/content/supportAlarmAudioConfig').text() == 'true'
+            pageData.value.supportAudio = systemCaps.supportAlarmAudioConfig
+            if (pageData.value.supportAudio) {
+                await getAudioData()
+            }
         }
 
         // 获取声音数据
@@ -161,52 +149,73 @@ export default defineComponent({
             })
         }
 
-        // 获取chl通道数据
-        const getChlData = async (type: string) => {
-            const queryNodeListDto = new QueryNodeListDto()
-            queryNodeListDto.nodeType = 'chls'
-            queryNodeListDto.isSupportSnap = type == 'snap'
-
-            getChlList(queryNodeListDto).then((result: any) => {
+        const getChlData = async () => {
+            getChlList({ requireField: ['protocolType'] }).then((result) => {
                 commLoadResponseHandler(result, ($) => {
+                    // 视频弹出数据
+                    pageData.value.videoPopupChlList.push({
+                        value: '',
+                        label: Translate('IDCS_OFF'),
+                    })
                     $('/response/content/item').forEach((item) => {
                         const $item = queryXml(item.element)
-                        pageData.value.chls.push({
-                            id: item.attr('id')!,
-                            name: $item('name').text(),
+                        const protocolType = $item('protocolType').text()
+                        if (protocolType == 'RTSP') return
+                        pageData.value.videoPopupChlList.push({
+                            value: item.attr('id')!,
+                            label: $item('name').text(),
                         })
                     })
-                    if (type == 'snap') {
-                        // 在获取到通道数据后处理有关页面数据列表
-                        pageData.value.snapList = pageData.value.chls.map((item) => {
-                            return {
-                                value: item.id,
-                                label: item.name,
-                            }
-                        })
-                    } else {
-                        // 在获取到通道数据后处理有关页面数据列表
-                        pageData.value.recordList = pageData.value.chls.map((item) => {
-                            return {
-                                value: item.id,
-                                label: item.name,
-                            }
-                        })
-                        // 视频弹出数据
-                        pageData.value.videoPopupChlList.push({
-                            value: '',
-                            label: Translate('IDCS_OFF'),
-                        })
-                        pageData.value.chls.forEach((item) => {
-                            pageData.value.videoPopupChlList.push({
-                                value: item.id,
-                                label: item.name,
-                            })
-                        })
-                    }
-                    pageData.value.chls = []
                 })
             })
+        }
+        const getRecordList = async () => {
+            getChlList({
+                nodeType: 'chls',
+                isSupportSnap: false,
+            }).then((result) => {
+                commLoadResponseHandler(result, ($) => {
+                    $('content/item').forEach((item) => {
+                        const $item = queryXml(item.element)
+                        pageData.value.recordList.push({
+                            value: item.attr('id')!,
+                            label: $item('name').text(),
+                        })
+                    })
+                })
+            })
+        }
+        const getSnapList = async () => {
+            getChlList({
+                nodeType: 'chls',
+                isSupportSnap: true,
+            }).then((result) => {
+                commLoadResponseHandler(result, ($) => {
+                    $('content/item').forEach((item) => {
+                        const $item = queryXml(item.element)
+                        pageData.value.snapList.push({
+                            value: item.attr('id')!,
+                            label: $item('name').text(),
+                        })
+                    })
+                })
+            })
+        }
+
+        // 获取人脸库列表
+        const getFaceGroupData = async () => {
+            const result = await queryFacePersonnalInfoGroupList()
+            const $ = queryXml(result)
+
+            return $
+        }
+
+        // 获取已配置的人脸库分组
+        const getFaceMatchData = async () => {
+            const result = await queryCombinedAlarmFaceMatch()
+            const $ = queryXml(result)
+
+            return $
         }
 
         const getAlarmOutData = async () => {
@@ -249,172 +258,157 @@ export default defineComponent({
         }
 
         const getData = async () => {
-            pageData.value.scheduleList = await buildScheduleList()
-
-            // 初始化、改变页码、改变单页行数进行数据清空和btn禁用
-            tableData.value.length = 0
-            tableDataInit = []
             pageData.value.initComplated = false
-            pageData.value.applyDisabled = true
+            const $faceGroup = await getFaceGroupData()
+            const $faceMatch = await getFaceMatchData()
 
-            // 获取列表数据
-            getChlList({
-                pageIndex: pageData.value.pageIndex,
-                pageSize: pageData.value.pageSize,
-                nodeType: 'sensors',
-            }).then((result: any) => {
-                commLoadResponseHandler(result, ($) => {
-                    pageData.value.totalCount = Number($('/response/content').attr('total'))
-                    $('/response/content/item').forEach(async (item) => {
-                        const row = new SensorEvent()
-                        row.id = item.attr('id')!
-                        row.alarmInType = item.attr('alarmInType')!
-                        row.nodeIndex = item.attr('index')!
-                        row.status = tableRowStatus.loading
-                        tableData.value.push(row)
-                    })
-                    tableData.value.forEach(async (item) => {
-                        await getDataById(item)
-                        if (tableDataInit.length == pageData.value.pageSize) {
-                            // 数据获取完成，用于打开对tabledata的监听，判断applyBtn是否可用
-                            pageData.value.initComplated = true
-                        }
-                    })
-                })
-            })
-        }
-
-        const getDataById = async (rowData: SensorEvent) => {
-            const sendXml = rawXml`
-                    <condition>
-                        <alarmInId>${rowData.id}</alarmInId>
-                    </condition>
-                    `
-            const result = await queryAlarmIn(sendXml)
-            rowData.status = '' // 请求完成，取消loading状态
+            const result = await queryCombinedAlarm()
             commLoadResponseHandler(result, ($) => {
-                rowData.disabled = false
-                if (!pageData.value.initData && $('/response/content/param/holdTimeNote').length > 0) {
-                    $('/response/content/param/holdTimeNote')
-                        .text()
-                        .split(',')
-                        .forEach((item) => {
-                            const itemNum = Number(item)
-                            pageData.value.durationList.push({
-                                value: item,
-                                label:
-                                    itemNum == 60
-                                        ? '1 ' + Translate('IDCS_MINUTE')
-                                        : itemNum > 60
-                                          ? itemNum / 60 + ' ' + Translate('IDCS_MINUTES')
-                                          : itemNum == 1
-                                            ? itemNum + ' ' + Translate('IDCS_SECOND')
-                                            : itemNum + ' ' + Translate('IDCS_SECONDS'),
-                            })
-                        })
-                    pageData.value.initData = true
-                }
-
-                const content = $('/response/content')[0]
-                const $content = queryXml(content.element)
-
-                const index = Number($content('param/index').text()) - 0 + 1
-                const devDescTemp = $content('param/devDesc').text()
-                const isEditable = $content('param/devDesc').attr('isEditable') == 'false' ? false : true
-                let serialNum = ''
-                if (rowData.alarmInType === 'local') {
-                    serialNum = Translate('IDCS_LOCAL') + '-' + rowData.nodeIndex
-                } else if (rowData.alarmInType === 'virtual') {
-                    serialNum = Translate('IDCS_VIRTUAL') + '-' + rowData.nodeIndex
-                } else {
-                    serialNum = devDescTemp + '-' + index
-                }
-
-                rowData.isEditable = isEditable
-                rowData.serialNum = serialNum
-                rowData.name = $content('param/name').text()
-                rowData.originalName = $content('param/name').text()
-                rowData.type = $content('param/voltage').text()
-                rowData.switch = $content('param/switch').text()
-                rowData.holdTimeNote = $content('param/holdTimeNote').text()
-                rowData.holdTime = $content('param/holdTime').text()
-                rowData.schedule = {
-                    value: $content('trigger/triggerSchedule/schedule').attr('id'),
-                    label: $content('trigger/triggerSchedule/schedule').text(),
-                }
-                rowData.oldSchedule = $content('trigger/triggerSchedule/schedule').attr('id')
-                rowData.sysRec = {
-                    switch: $content('trigger/sysRec/switch').text() == 'true',
-                    chls: [],
-                }
-                rowData.sysAudio = $content('trigger/sysAudio').attr('id') || defaultAudioId
-                rowData.sysSnap = {
-                    switch: $content('trigger/sysSnap/switch').text() == 'true',
-                    chls: [],
-                }
-                rowData.alarmOut = {
-                    switch: $content('trigger/alarmOut/switch').text() == 'true',
-                    alarmOuts: [],
-                }
-                rowData.popVideo = {
-                    switch: $content('trigger/popVideo/switch').text(),
-                    chl: {
-                        id: $content('trigger/popVideo/chl').attr('id'),
-                        innerText: $content('trigger/popVideo/chl').text(),
-                    },
-                }
-                rowData.preset = {
-                    switch: $content('trigger/preset/switch').text() == 'true',
-                    presets: [],
-                }
-                rowData.msgPushSwitch = $content('trigger/msgPushSwitch').text()
-                rowData.buzzerSwitch = $content('trigger/buzzerSwitch').text()
-                rowData.emailSwitch = $content('trigger/emailSwitch').text()
-                rowData.popMsgSwitch = $content('trigger/popMsgSwitch').text()
-
-                const audioData = pageData.value.audioList.filter((item) => {
-                    item.value == rowData.sysAudio
-                })
-                if (audioData.length == 0) {
-                    rowData.sysAudio = defaultAudioId
-                }
-
-                $content('trigger/sysRec/chls/item').forEach((item) => {
-                    rowData.sysRec.chls.push({
-                        value: item.attr('id')!,
-                        label: item.text(),
-                    })
-                })
-                rowData.recordList = rowData.sysRec.chls.map((item) => item.value)
-
-                $content('trigger/sysSnap/chls/item').forEach((item) => {
-                    rowData.sysSnap.chls.push({
-                        value: item.attr('id')!,
-                        label: item.text(),
-                    })
-                })
-                rowData.snapList = rowData.sysSnap.chls.map((item) => item.value)
-
-                $content('trigger/alarmOut/alarmOuts/item').forEach((item) => {
-                    rowData.alarmOut.alarmOuts.push({
-                        value: item.attr('id')!,
-                        label: item.text(),
-                    })
-                })
-                rowData.alarmOutList = rowData.alarmOut.alarmOuts.map((item) => item.value)
-
-                $content('trigger/preset/presets/item').forEach((item) => {
+                pageData.value.totalCount = $('/response/content/item').length
+                $('/response/content/item').forEach((item) => {
                     const $item = queryXml(item.element)
-                    rowData.preset.presets.push({
-                        index: $item('index').text(),
-                        name: $item('name').text(),
-                        chl: {
-                            value: $item('chl').attr('id'),
-                            label: $item('chl').text(),
+                    const trigger = $item('trigger')
+                    const $trigger = queryXml(trigger[0].element)
+
+                    const row = {
+                        id: item.attr('id'),
+                        name: $item('param/name').text(),
+                        status: '',
+                        combinedAlarm: {
+                            switch: $item('param/switch').text() == 'true',
+                            item: [],
                         },
+                        sysRec: {
+                            switch: $trigger('sysRec/switch').text() == 'true',
+                            chls: [],
+                        },
+                        recordList: [],
+                        sysSnap: {
+                            switch: $trigger('sysSnap/switch').text() == 'true',
+                            chls: [],
+                        },
+                        snapList: [],
+                        alarmOut: {
+                            switch: $trigger('alarmOut/switch').text() == 'true',
+                            alarmOuts: [],
+                        },
+                        alarmOutList: [],
+                        popVideo: {
+                            switch: $trigger('popVideo/switch').text(),
+                            chl: {
+                                value: $trigger('popVideo/chl').attr('id'),
+                                label: $trigger('popVideo/chl').text(),
+                            },
+                        },
+                        preset: {
+                            switch: $trigger('preset/switch').text() == 'true',
+                            presets: [],
+                        },
+                        sysAudio: $trigger('sysAudio').attr('id') || defaultAudioId,
+                        msgPush: $trigger('msgPushSwitch').text(),
+                        beeper: $trigger('buzzerSwitch').text(),
+                        email: $trigger('emailSwitch').text(),
+                        msgBoxPopup: $trigger('popMsgSwitch').text(),
+                        videoPopup: $trigger('popVideo/switch').text() == 'false' ? '' : $trigger('popVideo/chl').attr('id'),
+                    } as CombinedAlarm
+
+                    const audioData = pageData.value.audioList.filter((item) => {
+                        item.value == row.sysAudio
                     })
+                    if (audioData.length == 0) {
+                        row.sysAudio = defaultAudioId
+                    }
+
+                    const currCombinedId = item.attr('id')!
+                    $item('param/alarmSource/item').forEach(async (ele) => {
+                        const $ele = queryXml(ele.element)
+                        const APISource = $ele('alarmSourceType').text() // 接口返回报警类型
+                        const APIChlId = $ele('alarmSourceEntity').attr('id') // 接口返回报警源
+                        let realSource = ''
+
+                        if (APISource == 'Motion') {
+                            // 已配置的FaceMatch数组
+                            $faceMatch('content/item').forEach((faceItem) => {
+                                const $faceItem = queryXml(faceItem.element)
+                                // FaceMatch数组XML包含了组合报警Id和通道chlId,若匹配上，证明已配置，是FaceMatch类型
+                                if (faceItem.attr('id') == currCombinedId && $faceItem('chlID').attr('id') == APIChlId) {
+                                    const alarmSourceType = faceItem.attr('alarmSourceType')
+                                    realSource = alarmSourceType ? alarmSourceType : 'Motion'
+
+                                    if (alarmSourceType == 'FaceMatch') {
+                                        const chlIdMapFaceName = {} as Record<string, string>
+                                        const groupId = [] as string[]
+                                        const faceDataBase = [] as string[]
+                                        $faceGroup('content/item').forEach((ele2) => {
+                                            const $ele2 = queryXml(ele2.element)
+                                            chlIdMapFaceName[ele2.attr('id')!] = $ele2('name').text()
+                                        })
+                                        $faceItem('groupId/item').forEach((ele3) => {
+                                            groupId.push(ele3.attr('id')!)
+                                            faceDataBase.push(chlIdMapFaceName[ele3.attr('id')!])
+                                        })
+                                        pageData.value.faceObj[currCombinedId] = {}
+                                        pageData.value.faceObj[currCombinedId][APIChlId] = {}
+                                        pageData.value.faceObj[currCombinedId][APIChlId]['obj'] = {
+                                            duration: parseInt($faceItem('startTime').text()),
+                                            delay: parseInt($faceItem('endTime').text()),
+                                            faceDataBase: faceDataBase,
+                                            groupId: groupId,
+                                            rule: $faceItem('matchRule').text(),
+                                            noShowDisplay: $faceItem('noShowDisplay').text(),
+                                            displayText: $faceItem('displayText').text(),
+                                        }
+                                    }
+                                }
+                            })
+                        }
+                        row.combinedAlarm.item.push({
+                            alarmSourceType: realSource || $ele('alarmSourceType').text(),
+                            alarmSourceEntity: {
+                                value: APIChlId || $ele('alarmSourceEntity').attr('id'),
+                                label: $ele('alarmSourceEntity').text(),
+                            },
+                        })
+                    })
+
+                    $trigger('sysRec/chls/item').forEach((element) => {
+                        row.sysRec.chls.push({
+                            value: element.attr('id')!,
+                            label: element.text(),
+                        })
+                    })
+                    row.recordList = row.sysRec.chls.map((item) => item.value)
+
+                    $trigger('sysSnap/chls/item').forEach((element) => {
+                        row.sysSnap.chls.push({
+                            value: element.attr('id')!,
+                            label: element.text(),
+                        })
+                    })
+                    row.snapList = row.sysSnap.chls.map((item) => item.value)
+
+                    $trigger('alarmOut/alarmOuts/item').forEach((element) => {
+                        row.alarmOut.alarmOuts.push({
+                            value: element.attr('id')!,
+                            label: element.text(),
+                        })
+                    })
+                    row.alarmOutList = row.alarmOut.alarmOuts.map((item) => item.value)
+
+                    $trigger('preset/presets/item').forEach((element) => {
+                        const $element = queryXml(element.element)
+                        row.preset.presets.push({
+                            index: $element('index').text(),
+                            name: $element('name').text(),
+                            chl: {
+                                value: $element('chl').attr('id'),
+                                label: $element('chl').text(),
+                            },
+                        })
+                    })
+                    tableData.value.push(row)
+                    tableDataInit.push(cloneDeep(row))
                 })
-                tableDataInit.push(cloneDeep(rowData))
             })
         }
 
@@ -423,7 +417,7 @@ export default defineComponent({
             tempName.value = name
         }
 
-        const nameBlur = (row: SensorEvent) => {
+        const nameBlur = (row: CombinedAlarm) => {
             const name = row.name
             if (!checkChlName(name)) {
                 openMessageTipBox({
@@ -462,6 +456,43 @@ export default defineComponent({
             event.target.blur()
         }
 
+        // 组合报警弹窗打开
+        const openCombinedAlarmPop = (row: CombinedAlarm) => {
+            pageData.value.combinedAlarmLinkedId = row.id
+            pageData.value.combinedAlarmLinkedList = row.combinedAlarm.item
+            pageData.value.currRowFaceObj = pageData.value.faceObj[row.id]
+            pageData.value.isCombinedAlarmPopOpen = true
+        }
+        const handleCombinedAlarmLinkedList = (currId: string, combinedAlarmItems: CombinedAlarmItem[], entity: string, obj: faceMatchObj) => {
+            tableData.value.some((item) => {
+                if (item.id == currId) {
+                    item.combinedAlarm.item = combinedAlarmItems
+                    if (entity) {
+                        pageData.value.faceObj[currId] = {}
+                        pageData.value.faceObj[currId][entity] = {}
+                        pageData.value.faceObj[currId][entity]['obj'] = obj
+                    }
+                }
+            })
+        }
+        const combinedAlarmClose = (id: string) => {
+            pageData.value.isCombinedAlarmPopOpen = false
+            tableData.value.forEach((item) => {
+                if (item.id == id) {
+                    changeCombinedALarmInfo(item)
+                    if (item.combinedAlarm.item.length == 0) item.combinedAlarm.switch = false
+                }
+            })
+        }
+        const combinedAlarmCheckChange = (row: CombinedAlarm) => {
+            if (row.combinedAlarm.switch) {
+                openCombinedAlarmPop(row)
+            } else {
+                row.combinedAlarm.item = []
+            }
+            changeCombinedALarmInfo(row)
+        }
+
         // 录像配置相关处理
         const recordDropdownOpen = () => {
             recordRef.value.handleOpen()
@@ -473,11 +504,9 @@ export default defineComponent({
                 pageData.value.recordChosedListAll = cloneDeep(e)
                 pageData.value.recordChosedIdsAll = e.map((item) => item.value)
                 tableData.value.forEach((item) => {
-                    if (!item.disabled) {
-                        item.sysRec.switch = true
-                        item.sysRec.chls = pageData.value.recordChosedListAll
-                        item.recordList = pageData.value.recordChosedListAll.map((item) => item.value)
-                    }
+                    item.sysRec.switch = true
+                    item.sysRec.chls = pageData.value.recordChosedListAll
+                    item.recordList = pageData.value.recordChosedListAll.map((item) => item.value)
                 })
             }
             pageData.value.recordChosedListAll = []
@@ -528,11 +557,9 @@ export default defineComponent({
                 pageData.value.snapChosedListAll = cloneDeep(e)
                 pageData.value.snapChosedIdsAll = e.map((item) => item.value)
                 tableData.value.forEach((item) => {
-                    if (!item.disabled) {
-                        item.sysSnap.switch = true
-                        item.sysSnap.chls = pageData.value.snapChosedListAll
-                        item.snapList = e.map((item) => item.value)
-                    }
+                    item.sysSnap.switch = true
+                    item.sysSnap.chls = pageData.value.snapChosedListAll
+                    item.snapList = e.map((item) => item.value)
                 })
             }
             pageData.value.snapChosedListAll = []
@@ -583,11 +610,9 @@ export default defineComponent({
                 pageData.value.alarmOutChosedListAll = cloneDeep(e)
                 pageData.value.alarmOutChosedIdsAll = e.map((item) => item.value)
                 tableData.value.forEach((item) => {
-                    if (!item.disabled) {
-                        item.alarmOut.switch = true
-                        item.alarmOut.alarmOuts = pageData.value.alarmOutChosedListAll
-                        item.alarmOutList = e.map((item) => item.value)
-                    }
+                    item.alarmOut.switch = true
+                    item.alarmOut.alarmOuts = pageData.value.alarmOutChosedListAll
+                    item.alarmOutList = e.map((item) => item.value)
                 })
             }
             pageData.value.alarmOutChosedListAll = []
@@ -628,7 +653,7 @@ export default defineComponent({
         }
 
         // 预置点名称配置处理
-        const openPresetPop = (row: SensorEvent) => {
+        const openPresetPop = (row: CombinedAlarm) => {
             pageData.value.presetChlId = row.id
             pageData.value.presetLinkedList = row.preset.presets
             pageData.value.isPresetPopOpen = true
@@ -651,7 +676,7 @@ export default defineComponent({
             })
         }
 
-        const presetCheckChange = (row: SensorEvent) => {
+        const presetCheckChange = (row: CombinedAlarm) => {
             if (row.preset.switch) {
                 openPresetPop(row)
             } else {
@@ -687,24 +712,18 @@ export default defineComponent({
             }
         }
 
-        const changeScheduleAll = (value: string) => {
-            if (value == 'scheduleMgr') {
-                pageData.value.scheduleManagePopOpen = true
-            } else {
-                tableData.value.forEach((item) => {
-                    item.schedule.value = value
-                    item.oldSchedule = value
-                })
+        const changeCombinedALarmInfo = (row: CombinedAlarm) => {
+            let info = ''
+            row.combinedAlarm.item.forEach((item, index) => {
+                if (index == 0) {
+                    info += row.name + ': '
+                }
+                info += item.alarmSourceEntity.label + '  ' + COMBINED_ALARM_TYPES_MAPPING[item.alarmSourceType] + ' & '
+            })
+            if (info) {
+                info = info.substring(0, info.length - 3)
             }
-        }
-
-        const changeSchedule = (row: SensorEvent) => {
-            if (row.schedule.value == 'scheduleMgr') {
-                pageData.value.scheduleManagePopOpen = true
-                row.schedule.value = row.oldSchedule
-            } else {
-                row.oldSchedule = row.schedule.value
-            }
+            pageData.value.CombinedALarmInfo = info
         }
 
         /**
@@ -716,7 +735,7 @@ export default defineComponent({
         const changeAllValue = (value: any, field: string) => {
             tableData.value.forEach((item) => {
                 if (field == 'videoPopUp') {
-                    item.popVideo.chl.id = value
+                    item.popVideo.chl.value = value
                     if (value != '') item.popVideo.switch = 'true'
                 } else {
                     ;(item as any)[field] = value
@@ -724,8 +743,8 @@ export default defineComponent({
             })
         }
 
-        const getEditedRows = (table: SensorEvent[], tableInit: SensorEvent[]) => {
-            const editedRows = [] as SensorEvent[]
+        const getEditedRows = (table: CombinedAlarm[], tableInit: CombinedAlarm[]) => {
+            const editedRows = [] as CombinedAlarm[]
             table.forEach((item, index) => {
                 if (!isEqual(item, tableInit[index])) {
                     editedRows.push(item)
@@ -734,32 +753,33 @@ export default defineComponent({
             return editedRows
         }
 
-        const getSavaData = (row: SensorEvent) => {
+        const getSavaData = (row: CombinedAlarm) => {
             let sendXml = rawXml`
-                <types>
-                    <alarmInVoltage>
-                        <enum>NO</enum>
-                        <enum>NC</enum>
-                    </alarmInVoltage>
-                </types>
-                <content id='${row.id}'>
-                    <param>
-                        <name><![CDATA[${row.name}]]></name>
-                        <voltage type='alarmInVoltage'>${row.type}</voltage>
-                        <switch>${row.switch}</switch>
-                        <holdTime unit='s'>${row.holdTime}</holdTime>
-                    </param>
+            <content type='list'>
+                <item id='${row.id}'>
+                    <param><name><![CDATA[${row.name}]]></name>
+                    <switch>${String(row.combinedAlarm.switch)}</switch>
+                    <alarmSource>
+            `
+            // 组合报警
+            row.combinedAlarm.item.forEach((item) => {
+                sendXml += rawXml`
+                <item>
+                    <alarmSourceType>${item.alarmSourceType}</alarmSourceType>
+                        <alarmSourceEntity id='${item.alarmSourceEntity.value}'><![CDATA[${item.alarmSourceEntity.label}]]></alarmSourceEntity>
+                </item>
                 `
+            })
+            sendXml += rawXml`</alarmSource></param>`
             //sysRec通道遍历
             sendXml += rawXml`
                     <trigger>
                         <sysRec>
                             <switch>${String(row.sysRec.switch)}</switch>
-                            <chls type='list'>
-                `
+                            <chls>
+            `
             row.sysRec.chls.forEach((item) => {
-                sendXml += `<item id='${item.value}'>
-                    <![CDATA[${item.label}]]></item>
+                sendXml += rawXml`<item id='${item.value}'>${item.label}</item>
                 `
             })
             //sysSnap通道遍历
@@ -767,11 +787,10 @@ export default defineComponent({
                 </sysRec>
                 <sysSnap>
                     <switch>${String(row.sysSnap.switch)}</switch>
-                    <chls type='list'>
-                `
+                    <chls>
+            `
             row.sysSnap.chls.forEach((item) => {
-                sendXml += `<item id='${item.value}'>
-                    <![CDATA[${item.label}]]></item>
+                sendXml += rawXml`<item id='${item.value}'>${item.label}</item>
                 `
             })
             //alarmOut通道遍历
@@ -779,43 +798,41 @@ export default defineComponent({
                 </sysSnap>
                 <alarmOut>
                     <switch>${String(row.alarmOut.switch)}</switch>
-                        <alarmOuts type='list'>
-                `
+                        <alarmOuts>
+            `
             row.alarmOut.alarmOuts.forEach((item) => {
-                sendXml += rawXml`<item id='${item.value}'>
-                    <![CDATA[${item.label}]]></item>
+                sendXml += rawXml`<item id='${item.value}'>${item.label}</item>
                 `
             })
             sendXml += rawXml`</alarmOuts>
                 </alarmOut>
+                <popVideo>
+                    <switch>${row.popVideo.switch}</switch>
+                    <chl id='${row.popVideo.chl.value}'></chl>
+                </popVideo>
                     <preset>
                         <switch>${String(row.preset.switch)}</switch>
-                        <presets type='list'>
-                `
+                        <presets>
+            `
             row.preset.presets.forEach((item) => {
                 sendXml += rawXml`<item>
                     <index>${item.index}</index>
                         <name><![CDATA[${item.index}]]></name>
-                        <chl id='${item.chl.value}'>
-                        <![CDATA[${item.chl.label}]]></chl>
+                        <chl id='${item.chl.value}'>${item.chl.label}</chl>
                     </item>
                 `
             })
-            sendXml += rawXml`</presets>
+            sendXml += `</presets>
                 </preset>
-                <buzzerSwitch>${row.buzzerSwitch}</buzzerSwitch>
-                <popVideo>
-                    <switch>${row.popVideo.switch}</switch>
-                    <chl id='${row.popVideo.chl.id}'></chl>
-                </popVideo>
-                <popMsgSwitch>${row.popMsgSwitch}</popMsgSwitch>
+                <msgPushSwitch>${row.msgPush}</msgPushSwitch>
+                <buzzerSwitch>${row.beeper}</buzzerSwitch>
+                <popMsgSwitch>${row.msgBoxPopup}</popMsgSwitch>
+                <emailSwitch>${row.email}</emailSwitch>
                 <sysAudio id='${row.sysAudio}'></sysAudio>
-                <triggerSchedule><switch>${row.schedule ? 'true' : 'flase'}</switch><schedule id='${row.schedule.value}'></schedule></triggerSchedule>
-                <emailSwitch>${row.emailSwitch}</emailSwitch>
-                <msgPushSwitch>${row.msgPushSwitch}</msgPushSwitch>
             </trigger>
+            </item>
             </content>
-                `
+            `
             return sendXml
         }
 
@@ -826,7 +843,7 @@ export default defineComponent({
                 openLoading(LoadingTarget.FullScreen)
                 editedRows.forEach(async (item) => {
                     const sendXml = getSavaData(item)
-                    const result = await editAlarmIn(sendXml)
+                    const result = await editCombinedAlarm(sendXml)
                     const $ = queryXml(result)
                     const isSuccess = $('/response/status').text() === 'success'
                     item.status = isSuccess ? 'success' : 'error'
@@ -840,18 +857,95 @@ export default defineComponent({
                     }
                 })
             }
+            const sendXml1 = getSaveFaceData()
+            const result1 = await editCombinedAlarmFaceMatch(sendXml1)
+            // const $1 = queryXml(result1)
+            console.log(result1)
+        }
+
+        const getSaveFaceData = () => {
+            const combinedId = [] as string[]
+            const groupId = [] as string[]
+            const peaCombinedId = [] as string[]
+            const peaGroupId = [] as string[]
+            const tripwireCombinedId = [] as string[]
+            const tripwireGroupId = [] as string[]
+            tableData.value.forEach((item) => {
+                if (item.combinedAlarm.switch) {
+                    item.combinedAlarm.item.forEach((ele) => {
+                        if (ele.alarmSourceType == 'FaceMatch') {
+                            combinedId.push(item.id)
+                            groupId.push(ele.alarmSourceEntity.value)
+                        } else if (ele.alarmSourceType == 'InvadeDetect') {
+                            peaCombinedId.push(item.id)
+                            peaGroupId.push(ele.alarmSourceEntity.value)
+                        } else if (ele.alarmSourceType == 'Tripwire') {
+                            tripwireCombinedId.push(item.id)
+                            tripwireGroupId.push(ele.alarmSourceEntity.value)
+                        }
+                    })
+                }
+            })
+            let sendXml = rawXml`<content>`
+
+            combinedId.forEach((item, index) => {
+                let obj = pageData.value.faceObj[item] && pageData.value.faceObj[item][groupId[index]] && pageData.value.faceObj[item][groupId[index]]['obj']
+                if (!obj) {
+                    obj = {
+                        rule: '1',
+                        duration: -5,
+                        delay: 5,
+                        noShowDisplay: 'false',
+                        displayText: '',
+                        groupId: [],
+                        faceDataBase: [],
+                    }
+                }
+                sendXml += rawXml`<item id='${item}' alarmSourceType='FaceMatch'>`
+                sendXml += rawXml`<chlID id='${groupId[index]}'></chlID>
+                        <matchRule>${obj.rule}</matchRule>
+                        <startTime>${String(obj.duration)}</startTime>
+                        <endTime>${String(obj.delay)}</endTime>
+                        <noShowDisplay>${obj.noShowDisplay}</noShowDisplay>
+                        <displayText>${obj.displayText}</displayText>
+                        <groupId>`
+                obj.groupId.forEach((element) => {
+                    sendXml += rawXml`'<item id='${element}'></item>`
+                })
+                sendXml += rawXml`</groupId></item>`
+            })
+
+            // 区域入侵xml
+            peaCombinedId.forEach((item, index) => {
+                sendXml += rawXml`'<item id='${item}' alarmSourceType='InvadeDetect'>`
+                sendXml += rawXml`<chlID id='${peaGroupId[index]}'></chlID>`
+                sendXml += rawXml`</item>`
+            })
+            // 越界
+            tripwireCombinedId.forEach((item, index) => {
+                sendXml += rawXml`<item id='${item}' alarmSourceType='Tripwire'>`
+                sendXml += rawXml`<chlID id='${tripwireGroupId[index]}'></chlID>`
+                sendXml += rawXml`</item>`
+            })
+
+            sendXml += `</content>`
+            return sendXml
         }
 
         onMounted(async () => {
             // 相关请求，获取前置数据
             await getSystemCaps() // 系统配置
-            await getAudioData() // 声音数据
-            await getChlData('initCtrl') // 通道数据
-            // await getChlData('record')  在类型上只判断是否为snap，record请求数据合并在initCtrl中处理
-            await getChlData('snap')
+            await getChlData() // 通道数据
+            await getRecordList()
+            await getSnapList()
             await getAlarmOutData() // 报警输出
 
             await getData()
+
+            // 在tabledata初始化完成后开始监听tabledata的数据变化
+            if (tableData.value.length == pageData.value.totalCount) {
+                pageData.value.initComplated = true
+            }
         })
 
         watch(
@@ -867,22 +961,28 @@ export default defineComponent({
         )
 
         return {
+            BaseTransferPop,
+            BaseTransferDialog,
+            SetPresetPop,
+            CombinationAlarmPop,
             recordRef,
             snapRef,
             alarmOutRef,
             tableRowStatusToolTip,
             pageData,
             tableData,
-            changePaginationSize,
-            changePagination,
+            // 组合报警提示
+            changeCombinedALarmInfo,
             // 名称修改
             nameFocus,
             nameBlur,
             enterBlur,
             checkChange,
-            // 排程
-            changeScheduleAll,
-            changeSchedule,
+            // 组合报警
+            openCombinedAlarmPop,
+            handleCombinedAlarmLinkedList,
+            combinedAlarmClose,
+            combinedAlarmCheckChange,
             // 录像
             recordDropdownOpen,
             recordConfirmAll,

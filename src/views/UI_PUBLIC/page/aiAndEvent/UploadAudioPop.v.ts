@@ -1,3 +1,10 @@
+/*
+ * @Description: 事件通知——声音——ipc/local添加语音文件弹窗
+ * @Author: luoyiming luoyiming@tvt.net.cn
+ * @Date: 2024-08-14 15:48:05
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-08-23 15:08:15
+ */
 import { type AudioAlarmOut } from '@/types/apiType/aiAndEvent'
 import { type UploadFile } from 'element-plus'
 
