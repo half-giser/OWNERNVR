@@ -382,6 +382,24 @@ export default class CanvasPolygon {
         return flag
     }
 
+    // 判断画点多边形区域是否可闭合（通过判断区域中的第一个点和最后一个点的连线是否与其他线相交）- true:可闭合; false:不可闭合
+    judgeAreaCanBeClosed(pointList: CanvasBasePoint[]) {
+        let flag = true
+        const startPoint = pointList[0]
+        const lastPoint = pointList[pointList.length - 1]
+        for (let i = 0; i < pointList.length; i++) {
+            if (i < pointList.length - 1) {
+                const item = pointList[i]
+                const itemNext = pointList[i + 1]
+                if (this.ctx.IsIntersect(item, itemNext, startPoint, lastPoint)) {
+                    flag = false
+                    break
+                }
+            }
+        }
+        return flag
+    }
+
     // 强制闭合当前绘制点时，判断是否有线段相交
     isCurrentIntersect() {
         return this.judgeIntersect(this.pointList[this.pointList.length - 1], true)

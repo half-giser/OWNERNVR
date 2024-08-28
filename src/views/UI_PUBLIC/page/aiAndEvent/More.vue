@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-10 17:50:24
  * @Description: 更多功能页面的框架
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-12 13:45:27
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-09-13 10:32:03
 -->
 <template>
     <div class="content">
@@ -34,6 +34,7 @@
         </div>
         <div class="content_main">
             <el-tabs
+                :key="pageData.tabKey"
                 v-model="pageData.chosenFunction"
                 type="border-card"
                 class="demo-tabs"
@@ -155,6 +156,15 @@
                             }"
                             >{{ Translate('IDCS_TEMPERATURE_DETECTION') }}</span
                         >
+                    </template>
+                    <template #default>
+                        <TemperatureDetection
+                            v-if="pageData.chosenFunction === 'temperatureDetection'"
+                            :curr-chl-id="pageData.currChlId"
+                            :chl-data="pageData.chlData"
+                            :voice-list="pageData.voiceList"
+                            :online-channel-list="pageData.onlineChannelList"
+                        ></TemperatureDetection>
                     </template>
                 </el-tab-pane>
 
@@ -280,8 +290,7 @@
     }
     .content_main {
         .demo-tabs {
-            width: 1562px;
-            min-height: 627px;
+            height: calc(100vh - 300px);
             margin-top: 10px;
             .notSupportBox {
                 display: flex;

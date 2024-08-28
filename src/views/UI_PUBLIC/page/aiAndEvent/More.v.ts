@@ -2,15 +2,17 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-10 17:50:35
  * @Description: 更多功能页面的框架
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-11 16:23:07
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-09-13 16:38:26
  */
 import { type chlCaps } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
 import fireDetection from './fireDetection.vue'
+import TemperatureDetection from './TemperatureDetection.vue'
 export default defineComponent({
     components: {
         fireDetection,
+        TemperatureDetection,
     },
     setup() {
         // const { LoadingTarget, openLoading, closeLoading } = useLoading()
@@ -72,10 +74,12 @@ export default defineComponent({
             boundaryChlCapsObj: [],
             // 保存所有支持更多分类的通道
             moreChlCapsObj: [],
+            tabKey: 0,
         })
         // 切换通道
         const handleChangeChannel = async () => {
             pageData.value.chlData = pageData.value.chlCaps[pageData.value.currChlId]
+            pageData.value.tabKey += 1
             initPage()
             // TODO 刷新对应页面的数据
         }
@@ -341,6 +345,11 @@ export default defineComponent({
             await getVoiceList()
             initPage()
         })
-        return { pageData, handleChangeChannel, handleTabClick }
+        return {
+            TemperatureDetection,
+            pageData,
+            handleChangeChannel,
+            handleTabClick,
+        }
     },
 })
