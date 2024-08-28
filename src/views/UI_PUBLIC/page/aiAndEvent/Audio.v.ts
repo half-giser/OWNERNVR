@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-13 09:23:25
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-22 15:25:43
+ * @LastEditTime: 2024-08-28 11:47:59
  */
 import { ipcAudioForm, type AudioAlarmOut, type AudioDevice, type LocalTableRow } from '@/types/apiType/aiAndEvent'
 import { QueryNodeListDto } from '@/types/apiType/channel'
@@ -704,13 +704,13 @@ export default defineComponent({
                 if (ipcAudioFormData.value.loudSpeaker) sendXml += `<loudSpeaker>${String(ipcAudioFormData.value.loudSpeaker)}</loudSpeaker>`
                 if (ipcAudioFormData.value.audioEncode) sendXml += `<audioEncode>${String(ipcAudioFormData.value.audioEncode)}</audioEncode>`
 
-                sendXml += `<volume>`
+                sendXml += rawXml`<volume>`
 
                 if (audioDeviceData[ipcAudioFormData.value.deviceChl].micInVolume >= 0) sendXml += `<micInVolume>${String(audioDeviceData[ipcAudioFormData.value.deviceChl].micInVolume)}</micInVolume>`
                 if (audioDeviceData[ipcAudioFormData.value.deviceChl].linInVolume >= 0) sendXml += `<linInVolume>${String(audioDeviceData[ipcAudioFormData.value.deviceChl].linInVolume)}</linInVolume>`
                 if (ipcAudioFormData.value.outputVolume >= 0) sendXml += `<audioOutVolume>${String(ipcAudioFormData.value.outputVolume)}</audioOutVolume>`
 
-                sendXml += `
+                sendXml += rawXml`
                       </volume>
                     </param>
                     </chl>
@@ -803,9 +803,9 @@ export default defineComponent({
 
             let sendXml = rawXml`<content>`
             selectedId.forEach((item: string) => {
-                sendXml += `<item id='${item}'></item>`
+                sendXml += rawXml`<item id='${item}'></item>`
             })
-            sendXml += `</content>`
+            sendXml += rawXml`</content>`
 
             const result = await deleteAlarmAudio(sendXml)
             commSaveResponseHadler(result)
@@ -834,6 +834,8 @@ export default defineComponent({
         })
 
         return {
+            UploadAudioPop,
+            ScheduleManagPop,
             localTableRef,
             pageTabs,
             ipcAudioFormData,

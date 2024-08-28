@@ -1,9 +1,9 @@
 <!--
- * @Description: 
+ * @Description: 事件通知——声音——ipc/local添加语音文件弹窗
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-14 15:48:05
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-15 16:33:09
+ * @LastEditTime: 2024-08-23 15:07:53
 -->
 <template>
     <el-dialog
