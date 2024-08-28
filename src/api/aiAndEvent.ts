@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-08-10 16:25:58
  * @Description: AI/事件
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-27 11:33:03
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-08-28 11:55:44
  */
 
 import { type AxiosRequestConfig } from 'axios'
@@ -104,3 +104,24 @@ export const queryVideoLossTrigger = (data: string) => http.fetch('queryVideoLos
 
 // 修改视频丢失数据
 export const editVideoLossTrigger = (data: string) => http.fetch('editVideoLossTrigger', getXmlWrapData(data))
+
+// 获取组合报警数据
+export const queryCombinedAlarm = () => http.fetch('queryCombinedAlarm', getXmlWrapData(''))
+
+// 获取已配置的人脸库分组
+export const queryCombinedAlarmFaceMatch = () => http.fetch('queryCombinedAlarmFaceMatch', getXmlWrapData(''))
+
+// 获取区域入侵参数
+export const queryIntelAreaConfig = (data: string) => http.fetch('queryIntelAreaConfig', getXmlWrapData(data))
+
+// 人脸比对中请求后侦测开关
+export const queryBackFaceMatch = () => http.fetch('queryBackFaceMatch', getXmlWrapData(''))
+
+//获取越界参数
+export const queryTripwire = (data: string) => http.fetch('queryTripwire', getXmlWrapData(data))
+
+// 修改组合报警数据
+export const editCombinedAlarm = (data: string) => http.fetch('editCombinedAlarm', getXmlWrapData(data))
+
+// 修改组合报警人脸匹配数据
+export const editCombinedAlarmFaceMatch = (data: string) => http.fetch('editCombinedAlarmFaceMatch', getXmlWrapData(data))
