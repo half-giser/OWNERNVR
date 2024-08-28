@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-12 15:28:16
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-12 17:14:36
+ * @LastEditTime: 2024-08-30 11:35:38
  */
 import { pushForm } from '@/types/apiType/aiAndEvent'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
@@ -30,7 +30,7 @@ export default defineComponent({
             commLoadResponseHandler(result, ($) => {
                 pageData.value.scheduleOption = $('/response/content/item').map((item) => {
                     return {
-                        value: item.attr('id') as string,
+                        value: item.attr('id')!,
                         label: item.text(),
                     }
                 })

@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-13 09:23:15
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-19 09:44:37
+ * @LastEditTime: 2024-08-29 09:22:39
 -->
 <template>
     <el-tabs
@@ -384,12 +384,12 @@
 
     /* 鼠标选中时样式 */
     :deep(.el-tabs__item.is-active) {
-        color: #00bbdb;
+        color: var(--primary--04);
         opacity: 1;
     }
     /* 鼠标悬浮时样式 */
     :deep(.el-tabs__item:hover) {
-        color: #00bbdb;
+        color: var(--primary--04);
         cursor: pointer;
         opacity: 1;
     }
@@ -397,17 +397,17 @@
 
 .ipcRadio {
     :deep(.el-radio-button.is-active) {
-        --el-radio-button-checked-bg-color: #00bbdb;
-        --el-radio-button-checked-border-color: #00bbdb;
+        --el-radio-button-checked-bg-color: var(--primary--04);
+        --el-radio-button-checked-border-color: var(--primary--04);
     }
 
     :deep(.el-radio-button__inner:hover) {
-        background-color: #e1fbff;
+        background-color: var(--primary--01);
         color: var(--text-primary);
     }
 
     :deep(.el-radio-button.is-active .el-radio-button__inner:hover) {
-        background-color: #00bbdb;
+        background-color: var(--primary--04);
         color: #ffffff;
     }
 }
