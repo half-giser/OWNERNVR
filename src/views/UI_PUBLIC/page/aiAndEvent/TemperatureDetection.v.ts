@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-13 09:18:41
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-14 17:03:45
+ * @LastEditTime: 2024-09-18 15:34:09
  */
 import { cloneDeep } from 'lodash'
 import { type BoundaryTableDataItem, type chlCaps, type PresetList, TempDetection } from '@/types/apiType/aiAndEvent'
@@ -29,10 +29,6 @@ export default defineComponent({
         },
         voiceList: {
             type: Array as PropType<{ value: string; label: string }[]>,
-            required: true,
-        },
-        onlineChannelList: {
-            type: Array as PropType<{ id: string; ip: string; name: string; accessType: string }[]>,
             required: true,
         },
     },
@@ -394,7 +390,6 @@ export default defineComponent({
                             isClosed: true,
                         }
                     })
-                    console.log($item('alarmRule').text())
                     boundaryData.push({
                         id: $item('ruleId').text(),
                         ruleId: Number($item('ruleId').text()),
@@ -490,11 +485,13 @@ export default defineComponent({
                 normalParamList.value.push({ value: 'triggerWhiteLight', label: 'IPC_' + Translate('IDCS_LIGHT') })
                 if (tempDetectionData.value.triggerWhiteLight == 'true') normalParamCheckList.value.push('triggerWhiteLight')
             }
-            if (tempDetectionData.value.catchSnapSwitch) normalParamCheckList.value.push('catchSnapSwitch')
+            // 在数据中有此项，在原页面中没有对于组件
+            // if (tempDetectionData.value.catchSnapSwitch) normalParamCheckList.value.push('catchSnapSwitch')
             if (tempDetectionData.value.msgPushSwitch) normalParamCheckList.value.push('msgPushSwitch')
             if (tempDetectionData.value.buzzerSwitch) normalParamCheckList.value.push('buzzerSwitch')
             if (tempDetectionData.value.popVideoSwitch) normalParamCheckList.value.push('popVideoSwitch')
             if (tempDetectionData.value.emailSwitch) normalParamCheckList.value.push('emailSwitch')
+            if (tempDetectionData.value.popMsgSwitch) normalParamCheckList.value.push('popMsgSwitch')
             if (normalParamCheckList.value.length == normalParamList.value.length) {
                 normalParamCheckAll.value = true
             }
@@ -802,6 +799,13 @@ export default defineComponent({
                 tempDetectionData.value.popVideoSwitch = true
                 tempDetectionData.value.emailSwitch = true
                 tempDetectionData.value.popMsgSwitch = true
+                normalParamList.value.forEach((item) => {
+                    if (item.value == 'triggerAudio') {
+                        tempDetectionData.value.triggerAudio = 'true'
+                    } else if (item.value == 'triggerWhiteLight') {
+                        tempDetectionData.value.triggerWhiteLight = 'true'
+                    }
+                })
             }
         }
         const handleNormalParamCheck = (value: CheckboxValueType[]) => {
@@ -811,6 +815,13 @@ export default defineComponent({
             tempDetectionData.value.popVideoSwitch = value.includes('popVideoSwitch')
             tempDetectionData.value.emailSwitch = value.includes('emailSwitch')
             tempDetectionData.value.popMsgSwitch = value.includes('popMsgSwitch')
+            normalParamList.value.forEach((item) => {
+                if (item.value == 'triggerAudio') {
+                    tempDetectionData.value.triggerAudio = value.includes('triggerAudio') ? 'true' : 'false'
+                } else if (item.value == 'triggerWhiteLight') {
+                    tempDetectionData.value.triggerWhiteLight = value.includes('triggerWhiteLight') ? 'true' : 'false'
+                }
+            })
         }
 
         // 录像配置相关处理
@@ -1078,6 +1089,20 @@ export default defineComponent({
             await getTemperatureDetectionData()
             await getPresetData()
         })
+
+        onBeforeUnmount(() => {
+            if (plugin?.IsPluginAvailable() && mode.value === 'ocx' && ready.value) {
+                // 切到其他AI事件页面时清除一下插件显示的（线条/点/矩形/多边形）数据
+                const sendMinXML = OCX_XML_SetOscAreaAction('NONE')
+                plugin.GetVideoPlugin().ExecuteCmd(sendMinXML)
+                const sendXMLAll = OCX_XML_SetAllArea({ detectAreaInfo: [] }, 'IrregularPolygon', 'TYPE_WATCH_DETECTION', '', false)
+                plugin.GetVideoPlugin().ExecuteCmd(sendXMLAll!)
+                const sendXML = OCX_XML_StopPreview('ALL')
+                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+            }
+            tempDrawer.destroy()
+        })
+
         watch(
             tempDetectionData,
             () => {

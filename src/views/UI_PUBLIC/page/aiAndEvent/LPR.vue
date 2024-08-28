@@ -561,9 +561,15 @@
                     border: 1px solid var(--border-color4) !important;
                 }
             }
+            :deep(.el-radio-button.is-active) {
+                .el-radio-button__inner {
+                    color: #fff;
+                }
+            }
             .configured_area {
                 :deep(.el-radio-button__inner) {
                     border: 1px solid #00bbdb !important;
+                    color: #00bbdb;
                 }
             }
         }

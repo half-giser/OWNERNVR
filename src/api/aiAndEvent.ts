@@ -3,7 +3,7 @@
  * @Date: 2024-08-10 16:25:58
  * @Description: AI/事件
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-14 17:30:48
+ * @LastEditTime: 2024-09-18 10:34:31
  */
 
 import { type AxiosRequestConfig } from 'axios'
@@ -194,3 +194,9 @@ export const queryTemperatureAlarmConfig = (data: string) => http.fetch('queryTe
 
 // 修改温度检测数据
 export const editTemperatureAlarmConfig = (data: string) => http.fetch('editTemperatureAlarmConfig', getXmlWrapData(data))
+
+// 获取物品遗留与看护数据
+export const queryOsc = (data: string) => http.fetch('queryOsc', getXmlWrapData(data))
+
+// 修改物品遗留与看护数据
+export const editOsc = (data: string) => http.fetch('editOsc', getXmlWrapData(data))
