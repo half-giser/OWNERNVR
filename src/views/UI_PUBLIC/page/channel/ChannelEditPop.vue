@@ -51,9 +51,12 @@
                 <el-col :span="8">{{ Translate('IDCS_PORT') }}</el-col>
                 <el-col :span="16">
                     <el-form-item prop="port">
-                        <el-input
+                        <el-input-number
                             v-model="editItem.port"
-                            v-numericalRange:[editItem].port="[10, 65535]"
+                            :min="10"
+                            :max="65535"
+                            :controls="false"
+                            value-on-clear="min"
                             :disabled="portDisabled"
                         />
                     </el-form-item>

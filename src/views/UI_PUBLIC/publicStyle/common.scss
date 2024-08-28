@@ -492,7 +492,7 @@ input[type='number'] {
             padding: 10px 15px;
             margin-bottom: 0;
 
-            .el-form-item {
+            &>.el-form-item__content>.el-form-item {
                 width: 50%;
                 padding: 0;
             }
@@ -514,7 +514,8 @@ input[type='number'] {
             }
         }
 
-        .el-checkbox {
+        .el-checkbox,
+        .el-button {
             & + * {
                 margin-left: 10px;
             }

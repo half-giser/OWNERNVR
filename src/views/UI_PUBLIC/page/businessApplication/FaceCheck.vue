@@ -1,7 +1,9 @@
 <!--
- * @Author: zhangdongming zhangdongming@tvt.net.cn
- * @Date: 2024-06-05 18:18:24
- * @Description: 业务应用-人脸考勤
+ * @Author: yejiahao yejiahao@tvt.net.cn
+ * @Date: 2024-08-27 14:24:19
+ * @Description: 业务应用-人脸签到
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-08-27 16:29:28
 -->
 <template>
     <div class="base-flex-box face">
@@ -63,16 +65,6 @@
                     </el-form-item>
                 </el-form-item>
                 <el-form-item>
-                    <el-form-item :label="Translate('IDCS_ATTENDANCE_WEEK')">
-                        <el-checkbox-group v-model="formData.weekdays">
-                            <el-checkbox
-                                v-for="item in pageData.weekdayOptions"
-                                :key="item.value"
-                                :value="item.value"
-                                :label="item.label"
-                            />
-                        </el-checkbox-group>
-                    </el-form-item>
                     <el-form-item>
                         <el-form-item :label="Translate('IDCS_START_TIME')">
                             <el-time-picker
@@ -100,6 +92,7 @@
                             />
                         </el-form-item>
                     </el-form-item>
+                    <el-form-item></el-form-item>
                 </el-form-item>
                 <el-form-item>
                     <template #label>
@@ -157,51 +150,16 @@
                     :label="Translate('IDCS_FACE_LIBRARY')"
                     prop="groupName"
                 />
-                <el-table-column
-                    :label="Translate('IDCS_NORMAL')"
-                    prop="normal"
-                >
+                <el-table-column :label="Translate('IDCS_ATTENDANCE_CHECKED')">
                     <template #default="scope">
-                        {{ displayStatus(scope.row.normal) }}
+                        {{ displayStatus(scope.row.checked) }}
                     </template>
                 </el-table-column>
-
-                <el-table-column
-                    :label="Translate('IDCS_LATE')"
-                    prop="late"
-                >
+                <el-table-column :label="Translate('IDCS_ATTENDANCE_UNCHECK')">
                     <template #default="scope">
-                        {{ displayStatus(scope.row.late) }}
+                        <span class="error">{{ displayStatus(scope.row.unchecked) }}</span>
                     </template>
                 </el-table-column>
-
-                <el-table-column
-                    :label="Translate('IDCS_LEFT_EARLY')"
-                    prop="leaveEarly"
-                >
-                    <template #default="scope">
-                        <span class="error">{{ displayStatus(scope.row.leftEarly) }}</span>
-                    </template>
-                </el-table-column>
-
-                <el-table-column
-                    :label="Translate('IDCS_ATTENDANCE_NONE')"
-                    prop="absenteeism"
-                >
-                    <template #default="scope">
-                        <span class="error">{{ displayStatus(scope.row.absenteeism) }}</span>
-                    </template>
-                </el-table-column>
-
-                <el-table-column
-                    :label="Translate('IDCS_ABNORMAL')"
-                    prop="abnormal"
-                >
-                    <template #default="scope">
-                        {{ displayStatus(scope.row.abnormal) }}
-                    </template>
-                </el-table-column>
-
                 <el-table-column
                     :label="Translate('IDCS_DETAIL')"
                     prop="detail"
@@ -255,7 +213,7 @@
     </div>
 </template>
 
-<script lang="ts" src="./FaceAttendances.v.ts"></script>
+<script lang="ts" src="./FaceCheck.v.ts"></script>
 
 <style lang="scss" scoped>
 .form {

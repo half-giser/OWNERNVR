@@ -205,3 +205,50 @@ export class FaceAttendancePageData {
     faceIdFacePersonnalInfoMap = {} as FacePersonnalInfoMap // 人脸信息Map-{人脸id: 该人脸相关信息}
     faceGroupIdFaceIdListMap = {} as FaceGroupIdFaceIdListMap // 人脸分组id映射人脸分组中的人脸id列表Map-{人脸分组id: [人脸id1, 人脸id2,...]}
 }
+
+export class BusinessFaceGroupList {
+    id = ''
+    name = ''
+    property = ''
+    groupId = ''
+    members = [] as { id: string; name: string }[]
+}
+
+export class BusinessFaceResultList {
+    faceFeatureId = ''
+    timestamp = 0
+    timeNS = ''
+    imgId = 0
+    chlId = ''
+    chlName = ''
+}
+
+export class BusinessFaceDetailList {
+    date = ''
+    day = ''
+    type = ''
+    alarm = false
+    detail = [] as BusinessFaceResultList[]
+}
+
+export class BusinessFaceList {
+    id = ''
+    name = ''
+    groupId = ''
+    groupName = ''
+    searchData = {} as Record<string, BusinessFaceResultList[]>
+    detail = [] as BusinessFaceDetailList[]
+}
+
+export class BusinessFaceAttendanceList extends BusinessFaceList {
+    normal = 0
+    late = 0
+    leftEarly = 0
+    absenteeism = 0
+    abnormal = 0
+}
+
+export class BusinessFaceCheckList extends BusinessFaceList {
+    checked = 0
+    unchecked = 0
+}

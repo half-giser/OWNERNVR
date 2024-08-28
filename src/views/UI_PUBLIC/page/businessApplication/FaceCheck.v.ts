@@ -1,11 +1,13 @@
 /*
- * @Author: zhangdongming zhangdongming@tvt.net.cn
- * @Date: 2024-06-05 18:18:35
- * @Description: 业务应用-人脸考勤
+ * @Author: yejiahao yejiahao@tvt.net.cn
+ * @Date: 2024-08-27 14:27:13
+ * @Description: 业务应用-人脸签到
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-08-27 16:50:11
  */
 import { cloneDeep } from 'lodash-es'
 import dayjs from 'dayjs'
-import { type BusinessFaceGroupList, BusinessFaceAttendanceList } from '@/types/apiType/business'
+import { type BusinessFaceGroupList, BusinessFaceCheckList } from '@/types/apiType/business'
 import FaceDetailPop from './FaceDetailPop.vue'
 
 export default defineComponent({
@@ -31,58 +33,15 @@ export default defineComponent({
         }
 
         const pageData = ref({
-            // 周选项
-            weekdayOptions: [
-                {
-                    label: Translate('IDCS_CALENDAR_SUNDAY'),
-                    value: 0,
-                },
-                {
-                    label: Translate('IDCS_CALENDAR_MONDAY'),
-                    value: 1,
-                },
-                {
-                    label: Translate('IDCS_CALENDAR_TUESDAY'),
-                    value: 2,
-                },
-                {
-                    label: Translate('IDCS_CALENDAR_WEDNESDAY'),
-                    value: 3,
-                },
-                {
-                    label: Translate('IDCS_CALENDAR_THURSDAY'),
-                    value: 4,
-                },
-                {
-                    label: Translate('IDCS_CALENDAR_FRIDAY'),
-                    value: 5,
-                },
-                {
-                    label: Translate('IDCS_CALENDAR_SATURDAY'),
-                    value: 6,
-                },
-            ],
             // 类型选项
             typeOptions: [
                 {
-                    label: Translate('IDCS_NORMAL'),
-                    value: 'normal',
+                    label: Translate('IDCS_ATTENDANCE_CHECKED'),
+                    value: 'checked',
                 },
                 {
-                    label: Translate('IDCS_LATE'),
-                    value: 'late',
-                },
-                {
-                    label: Translate('IDCS_LEFT_EARLY'),
-                    value: 'leftEarly',
-                },
-                {
-                    label: Translate('IDCS_ATTENDANCE_NONE'),
-                    value: 'absenteeism',
-                },
-                {
-                    label: Translate('IDCS_ABNORMAL'),
-                    value: 'abnormal',
+                    label: Translate('IDCS_ATTENDANCE_UNCHECK'),
+                    value: 'unchecked',
                 },
             ],
             // 日期范围类型
@@ -102,7 +61,7 @@ export default defineComponent({
             // 是否显示详情弹窗
             isDetailPop: false,
             // 详情数据
-            detail: new BusinessFaceAttendanceList(),
+            detail: new BusinessFaceCheckList(),
         })
 
         const formData = ref({
@@ -113,7 +72,6 @@ export default defineComponent({
             endTime: '18:00:00',
             chls: [] as SelectOption<string, string>[],
             faceGroup: [] as BusinessFaceGroupList[],
-            weekdays: [1, 2, 3, 4, 5] as number[],
             advanced: false,
             isName: false,
             name: '',
@@ -121,7 +79,7 @@ export default defineComponent({
             type: [] as string[],
         })
 
-        const tableData = ref<BusinessFaceAttendanceList[]>([])
+        const tableData = ref<BusinessFaceCheckList[]>([])
 
         const chlMap: Record<string, string> = {}
 
@@ -341,17 +299,15 @@ export default defineComponent({
          */
         const getAllDates = () => {
             const startTime = dayjs(formData.value.dateRange[0])
-            const date: { day: string; date: string; format: string }[] = []
+            const date: { date: string; day: string; format: string }[] = []
             for (let i = 0; i < daysInRange.value; i++) {
                 const current = startTime.add(i, 'day')
                 const day = current.day()
-                if (formData.value.weekdays.includes(day)) {
-                    date.push({
-                        day: WEEK_DAY_MAPPING[day],
-                        date: formatDate(current, 'YYYY-MM-DD'),
-                        format: formatDate(current, dateTime.dateFormat.value),
-                    })
-                }
+                date.push({
+                    day: WEEK_DAY_MAPPING[day],
+                    date: formatDate(current, 'YYYY-MM-DD'),
+                    format: formatDate(current, dateTime.dateFormat.value),
+                })
             }
 
             return date
@@ -461,7 +417,7 @@ export default defineComponent({
             const result = await searchImageByImageV2(sendXml)
             const $ = queryXml(result)
 
-            const tableRecord: Record<string, BusinessFaceAttendanceList> = {}
+            const tableRecord: Record<string, BusinessFaceCheckList> = {}
             formData.value.faceGroup.forEach((item) => {
                 item.members.forEach((member) => {
                     tableRecord[member.id] = {
@@ -469,11 +425,8 @@ export default defineComponent({
                         name: member.name,
                         groupId: item.groupId,
                         groupName: item.name,
-                        normal: 0,
-                        late: 0,
-                        leftEarly: 0,
-                        absenteeism: 0,
-                        abnormal: 0,
+                        checked: 0,
+                        unchecked: 0,
                         searchData: {},
                         detail: [],
                     }
@@ -492,22 +445,6 @@ export default defineComponent({
                         chlId,
                         chlName: chlMap[chlId],
                     }
-                    // obj.faceFeatureId = parseInt(textArr[0], 16)
-                    // obj.calTimeS = parseInt(textArr[1], 16) * 1000
-                    // obj.calTimeNS = ('0000000' + parseInt(textArr[2], 16)).slice(-7)
-                    // obj.calTime = '' + obj.calTimeS + obj.calTimeNS
-                    // obj.imgId = parseInt(textArr[3], 16)
-                    // obj.chlId = getChlGuid16(textArr[4]).toUpperCase()
-                    // obj.similarity = parseInt(textArr[5], 16)
-                    // const randomNum = Math.round(Math.random() * $('/response/content/i').length)
-                    // const random = ('000000000' + randomNum).slice(-10)
-                    // const sim = ('000' + obj.similarity).slice(-3)
-                    // obj.random = sim + obj.calTime + random
-                    // obj.randomTime = obj.calTime + random
-                    // const d1 = new Date(obj.calTimeS)
-                    // const time1 = formatDate(d1, 'YYYY-MM-DD HH:mm:ss A')
-                    // obj.frameTime = time1 + ':' + obj.calTimeNS
-                    // obj.showTime = time1
                 })
                 .toSorted((a, b) => a.timestamp - b.timestamp)
                 .forEach((item) => {
@@ -523,45 +460,34 @@ export default defineComponent({
             const allDates = getAllDates()
             const tableList = Object.values(tableRecord)
 
+            console.log(allDates, tableList)
+
             allDates.forEach((date) => {
                 tableList.forEach((item, index) => {
                     if (!item.searchData[date.date]) {
-                        tableList[index].absenteeism++
+                        tableList[index].unchecked++
                         tableList[index].detail.push({
                             date: date.date,
                             day: date.day,
-                            type: Translate('IDCS_ATTENDANCE_NONE'),
                             alarm: true,
+                            type: Translate('IDCS_ATTENDANCE_UNCHECK'),
                             detail: [],
                         })
                         return
                     }
-                    if (item.searchData[date.date].length === 1) {
-                        tableList[index].abnormal++
-                        tableList[index].detail.push({
-                            type: Translate('IDCS_ABNORMAL'),
-                            date: date.date,
-                            day: date.day,
-                            alarm: false,
-                            detail: [item.searchData[date.date][0]], // formatDate(item.searchData[date.date][0].timestamp, dateTime.timeFormat.value),
-                        })
-                        return
-                    }
-                    const types: string[] = []
+
                     const onTime = dayjs(date + ' ' + formData.value.startTime, 'YYYY-MM-DD HH:mm:ss').valueOf()
                     const offTime = dayjs(date + ' ' + formData.value.endTime, 'YYYY-MM-DD HH:mm:ss').valueOf()
-                    if (item.searchData[date.date][0].timestamp > onTime) {
-                        types.push(Translate('IDCS_LATE'))
-                    }
-                    if (item.searchData[date.date][item.searchData[date.date].length - 1].timestamp < offTime) {
-                        types.push(Translate('IDCS_LEFT_EARLY'))
-                    }
+                    const find = item.searchData[date.date].find((data) => {
+                        return data.timestamp > onTime && data.timestamp < offTime
+                    })
+
                     tableList[index].detail.push({
                         date: date.format,
                         day: date.day,
-                        type: !types.length ? Translate('IDCS_NORMAL') : types.join(', '),
-                        alarm: types.includes(Translate('IDCS_LEFT_EARLY')),
-                        detail: [item.searchData[date.date][0], item.searchData[date.date][date.date.length - 1]],
+                        type: find ? Translate('IDCS_ATTENDANCE_CHECK') : Translate('IDCS_ATTENDANCE_UNCHECK'),
+                        alarm: !!find,
+                        detail: find ? [find] : [],
                     })
                 })
             })
@@ -584,15 +510,9 @@ export default defineComponent({
                 if (formData.value.isType) {
                     if (!formData.value.type.length) {
                         typeFlag = true
-                    } else if (formData.value.type.includes('normal') && item.normal) {
+                    } else if (formData.value.type.includes('checked') && item.checked) {
                         typeFlag = true
-                    } else if (formData.value.type.includes('abnormal') && item.abnormal) {
-                        typeFlag = true
-                    } else if (formData.value.type.includes('leftEarly') && item.leftEarly) {
-                        typeFlag = true
-                    } else if (formData.value.type.includes('late') && item.late) {
-                        typeFlag = true
-                    } else if (formData.value.type.includes('absenteeism') && item.absenteeism) {
+                    } else if (formData.value.type.includes('unchecked') && item.unchecked) {
                         typeFlag = true
                     } else {
                         typeFlag = false

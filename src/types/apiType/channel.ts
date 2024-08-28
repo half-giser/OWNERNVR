@@ -10,7 +10,7 @@ export class ChannelInfoDto {
     name = ''
     devID = ''
     ip = ''
-    port = ''
+    port = 0
     poePort = ''
     userName = ''
     password = ''
@@ -70,7 +70,7 @@ export class ChannelManualAddDto {
     name = ''
     ip = ''
     domain = ''
-    port = ''
+    port = 10
     userName = ''
     password = ''
     index = 0
@@ -82,13 +82,13 @@ export class ChannelManualAddDto {
 
 export class ChannelAddRecorderDto {
     ip = ''
-    port = ''
+    port = 0
     version = ''
     name = ''
     serialNum = ''
-    chlTotalCount = ''
-    httpPort = ''
-    chlAddedCount = ''
+    chlTotalCount = 0
+    httpPort = 0
+    chlAddedCount = 0
     productModel = ''
     displayName = ''
 }
@@ -114,9 +114,9 @@ export class RecorderAddDto {
     ip = ''
     domain = ''
     chkDomain = false
-    servePort = ''
-    httpPort = ''
-    channelCount = ''
+    servePort = 6036
+    httpPort = 80
+    channelCount = 8
     userName = ''
     password = ''
     useDefaultPwd = true

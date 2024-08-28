@@ -30,7 +30,11 @@
                 <template #header>
                     <el-dropdown trigger="click">
                         <span class="el-dropdown-link">
-                            {{ Translate('IDCS_ANALOG_IP') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
+                            {{ Translate('IDCS_ANALOG_IP') }}
+                            <BaseImgSprite
+                                class="ddn"
+                                file="ddn"
+                            />
                         </span>
                         <template #dropdown>
                             <el-dropdown-menu>
@@ -64,7 +68,11 @@
                 <template #header>
                     <el-dropdown trigger="click">
                         <span class="el-dropdown-link">
-                            {{ Translate('IDCS_SIGNAL') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
+                            {{ Translate('IDCS_SIGNAL') }}
+                            <BaseImgSprite
+                                class="ddn"
+                                file="ddn"
+                            />
                         </span>
                         <template #dropdown>
                             <el-dropdown-menu>
@@ -105,7 +113,11 @@
                 <template #header>
                     <el-dropdown trigger="click">
                         <span class="el-dropdown-link">
-                            {{ Translate('IDCS_SUPPORT_LITE') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
+                            {{ Translate('IDCS_SUPPORT_LITE') }}
+                            <BaseImgSprite
+                                class="ddn"
+                                file="ddn"
+                            />
                         </span>
                         <template #dropdown>
                             <el-dropdown-menu>

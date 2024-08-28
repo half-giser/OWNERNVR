@@ -5,119 +5,94 @@
 -->
 
 <template>
-    <el-form
-        id="PkMgrBasicConfigView"
-        ref="pkMgrFormRef"
-        :rules="rules"
-        :model="pageData"
-        label-position="left"
-        hide-required-asterisk
-        :style="{
-            '--form-input-width': '300px',
-            '--form-label-width': '150px',
-        }"
-        class="inline-message"
-    >
-        <div class="parkLimitTip">{{ Translate('IDCS_PARKING_LOT_MANAGE_TIPS').formatForLang(1) }}</div>
-        <div class="title">
-            <div class="lineIcon"></div>
-            <div class="titleText">{{ Translate('IDCS_PARKING_LOT_NAME') }}</div>
-        </div>
-        <el-form-item prop="parkName">
-            <template #label>
-                <el-text
-                    class="label"
-                    :title="Translate('IDCS_NAME')"
-                    truncated
-                >
-                    {{ Translate('IDCS_NAME') }}
-                </el-text>
-            </template>
-            <el-input
-                v-model="pageData.parkName"
-                maxlength="256"
-            />
-        </el-form-item>
-
-        <div class="title">
-            <div class="lineIcon"></div>
-            <div class="titleText">{{ Translate('IDCS_VEHICLE_NUM') }}</div>
-            <div class="titleTip">{{ Translate('IDCS_VEHICLE_NUM_TIPS') }}</div>
-        </div>
-        <el-form-item prop="totalNum">
-            <template #label>
-                <el-text
-                    class="label"
-                    :title="Translate('IDCS_TOTAL_VEHICLE_NUM')"
-                    truncated
-                >
-                    {{ Translate('IDCS_TOTAL_VEHICLE_NUM') }}
-                </el-text>
-            </template>
-            <el-input
-                v-model.number="pageData.totalNum"
-                v-numericalRange:[pageData].totalNum="[1, 10000]"
-            />
-        </el-form-item>
-        <el-form-item prop="remainTotalNum">
-            <template #label>
-                <el-text
-                    class="label"
-                    :title="Translate('IDCS_REMAIN_VEHICLE_NUM')"
-                    truncated
-                >
-                    {{ Translate('IDCS_REMAIN_VEHICLE_NUM') }}
-                </el-text>
-            </template>
-            <el-input
-                v-model.number="pageData.remainTotalNum"
-                v-numericalRange:[pageData].remainTotalNum="[0, 10000]"
-            />
-        </el-form-item>
-
-        <div class="base-btn-box">
-            <el-button
-                type="primary"
-                @click="apply(pkMgrFormRef)"
+    <div class="manage">
+        <el-form
+            ref="pkMgrFormRef"
+            :rules="rules"
+            :model="pageData"
+            label-position="left"
+            hide-required-asterisk
+            :style="{
+                '--form-input-width': '300px',
+                '--form-label-width': '150px',
+            }"
+            class="inline-message"
+        >
+            <div class="limit">{{ Translate('IDCS_PARKING_LOT_MANAGE_TIPS').formatForLang(1) }}</div>
+            <div class="title">{{ Translate('IDCS_PARKING_LOT_NAME') }}</div>
+            <el-form-item
+                prop="parkName"
+                :label="Translate('IDCS_NAME')"
             >
-                {{ Translate('IDCS_APPLY') }}
-            </el-button>
-        </div>
-    </el-form>
+                <el-input
+                    v-model="pageData.parkName"
+                    maxlength="256"
+                />
+            </el-form-item>
+
+            <div class="title">
+                <span>{{ Translate('IDCS_VEHICLE_NUM') }}</span>
+                <span class="title-tip">{{ Translate('IDCS_VEHICLE_NUM_TIPS') }}</span>
+            </div>
+            <el-form-item
+                prop="totalNum"
+                :label="Translate('IDCS_TOTAL_VEHICLE_NUM')"
+            >
+                <el-input-number
+                    v-model="pageData.totalNum"
+                    :min="1"
+                    :max="10000"
+                    value-on-clear="min"
+                    :controls="false"
+                />
+            </el-form-item>
+            <el-form-item
+                prop="remainTotalNum"
+                :label="Translate('IDCS_REMAIN_VEHICLE_NUM')"
+            >
+                <el-input-number
+                    v-model="pageData.remainTotalNum"
+                    :min="0"
+                    :max="10000"
+                    value-on-clear="min"
+                    :controls="false"
+                />
+            </el-form-item>
+            <div class="base-btn-box">
+                <el-button @click="apply()">{{ Translate('IDCS_APPLY') }}</el-button>
+            </div>
+        </el-form>
+    </div>
 </template>
 
 <script lang="ts" src="./PkMgrBasicConfig.v.ts"></script>
 
 <style lang="scss" scoped>
-#PkMgrBasicConfigView {
-    display: flex;
-    flex-direction: column;
+.manage {
     padding: 25px 20px;
+}
 
-    .parkLimitTip {
-        margin: 10px 0 20px 10px;
+.limit {
+    margin: 10px 0 20px 10px;
+    font-size: 14px;
+}
+
+.title {
+    margin: 10px 0 10px;
+    display: flex;
+    align-items: center;
+    height: 23px;
+    border-left: 2px solid var(--text-dark);
+    color: var(--text-dark);
+    font-size: 16px;
+    font-weight: bold;
+    padding-left: 10px;
+
+    &-tip {
+        color: var(--text-menu-03);
         font-size: 14px;
-    }
-    .title {
-        margin: 10px 0 10px;
-        display: flex;
-        align-items: center;
-        .lineIcon {
-            width: 5px;
-            height: 23px;
-            border-left: 2px solid var(--text-dark);
-        }
-        .titleText {
-            color: var(--text-dark);
-            font-size: 16px;
-            font-weight: bold;
-            margin-left: 4px;
-        }
-        .titleTip {
-            color: var(--text-menu-03);
-            font-size: 14px;
-            margin-left: 40px;
-        }
+        margin-left: 40px;
+        font-weight: normal;
     }
 }
 </style>

@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 16:10:28
  * @Description: 现场预览-目标检测视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 14:33:42
+ * @LastEditTime: 2024-08-27 17:58:38
  */
 import WebsocketSnap, { type WebsocketSnapOnSuccessSnap } from '@/utils/websocket/websocketSnap'
 import LiveSnapFaceMatchItem from './LiveSnapFaceMatchItem.vue'
@@ -31,8 +31,6 @@ export default defineComponent({
     setup(prop) {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        // const { openLoading, closeLoading, LoadingTarget } = useLoading()
-        // const systemCaps = useCababilityStore()
         const router = useRouter()
         const dateTime = useDateTime()
 
@@ -203,7 +201,7 @@ export default defineComponent({
                         content1: 'data:image/png;base64,' + data.repo_pic,
                     }
                     router.push({
-                        path: 'search-and-backup/image-manage',
+                        path: 'intelligent-analysis/search/search-face',
                         state: searchInfo,
                     })
                 } else {
@@ -215,7 +213,7 @@ export default defineComponent({
                         content: 'data:image/png;base64,' + data.snap_pic,
                     }
                     router.push({
-                        path: 'search-and-backup/by-time-slice',
+                        path: 'intelligent-analysis/search/search-body',
                         state: searchInfo,
                     })
                 }
@@ -225,7 +223,7 @@ export default defineComponent({
                     targetType: data.info.target_type,
                 }
                 router.push({
-                    path: 'search-and-backup/by-event',
+                    path: 'intelligent-analysis/search/search-combine',
                     state: searchInfo,
                 })
             } else if (data.type === 'vehicle_plate') {
@@ -239,7 +237,7 @@ export default defineComponent({
                     plateNum: data.info.plate,
                 }
                 router.push({
-                    path: 'search-and-backup/image-manage',
+                    path: 'intelligent-analysis/search/search-vehicle',
                     state: searchInfo,
                 })
             }
@@ -277,7 +275,6 @@ export default defineComponent({
         const showFaceDetail = (index: number) => {
             const faceId = currentSnapList.value[index].info.face_id
             pageData.value.faceList = pageData.value.snapListQueue.slice(0, pageData.value.menu[pageData.value.activeMenu].maxlength).filter((item) => item.type === 'face_verify')
-            console.log(pageData.value.faceList.length)
             pageData.value.faceIndex = pageData.value.faceList.findIndex((item) => {
                 return item.info.face_id === faceId
             })

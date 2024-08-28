@@ -162,7 +162,7 @@ export default defineComponent({
                     <manufacturer>${element.manufacturer}</manufacturer>
                     ${ipXmlStr}
                     ${domainXmlStr}
-                    <port>${element.port}</port>
+                    <port>${element.port.toString()}</port>
                     <userName><![CDATA[${cutStringByByte(element.userName, nameByteMaxLen)}]]></userName>
                     ${element.password == '******' ? '' : '<password' + getSecurityVer() + '><![CDATA[' + AES_encrypt(element.password, userSessionStore.sesionKey) + ']]></password>'}
                 </content>`
@@ -200,7 +200,7 @@ export default defineComponent({
                         channelInfo.name = eleXml('name').text()
                         channelInfo.devID = eleXml('devID').text()
                         channelInfo.ip = eleXml('ip').text()
-                        channelInfo.port = eleXml('port').text()
+                        channelInfo.port = Number(eleXml('port').text())
                         channelInfo.poePort = eleXml('poePort').text()
                         channelInfo.userName = eleXml('userName').text()
                         channelInfo.password = eleXml('password').text()
@@ -303,7 +303,7 @@ export default defineComponent({
                         <name><![CDATA[${name}]]></name>
                         ${ipXmlStr}
                         ${domainXmlStr}
-                        <port>${element.port}</port>
+                        <port>${element.port.toString()}</port>
                         <userName><![CDATA[${cutStringByByte(element.userName, nameByteMaxLen)}]]></userName>
                         ${element.password == '******' ? '' : '<password' + getSecurityVer() + '><![CDATA[' + AES_encrypt(element.password, userSessionStore.sesionKey) + ']]></password>'}
                         <index>0</index>
