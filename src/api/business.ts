@@ -96,3 +96,31 @@ export const createFacePersonnalInfo = (data: string) => http.fetch('createFaceP
  * @returns
  */
 export const requestFacePersonnalInfoImage = (data: string) => http.fetch('requestFacePersonnalInfoImage', getXmlWrapData(data))
+
+/**
+ * @description 获取个人脸照
+ * @param {string} data
+ * @returns
+ */
+export const searchGateSnap = (data: string) => http.fetch('searchGateSnap', getXmlWrapData(data))
+
+/**
+ * @description 开门放闸
+ * @param {string} data
+ * @returns
+ */
+export const openGate = (data: string) => http.fetch('openGate', getXmlWrapData(data))
+
+/**
+ * @description 获取智能目标抓拍图
+ * @param {string} data
+ * @returns
+ */
+export const requestSmartTargetSnapImage = (data: string) => http.fetch('requestSmartTargetSnapImage', getXmlWrapData(data))
+
+/**
+ * @description 搜索开闸事件关联数据
+ * @param {string} data
+ * @returns
+ */
+export const searchOpenGateEventRelevanceData = (data: string) => http.fetch('searchOpenGateEventRelevanceData', getXmlWrapData(data))
