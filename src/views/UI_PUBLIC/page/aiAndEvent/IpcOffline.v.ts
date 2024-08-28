@@ -3,13 +3,12 @@
  * @Date: 2024-08-21 15:34:24
  * @Description: 前端掉线
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-22 12:37:19
+ * @LastEditTime: 2024-08-27 11:22:44
  */
 import { cloneDeep } from 'lodash'
 import { defineComponent } from 'vue'
 import { ArrowDown } from '@element-plus/icons-vue'
 import { useLangStore } from '@/stores/lang'
-import { buildScheduleList } from '@/utils/tools'
 import { tableRowStatus, tableRowStatusToolTip } from '@/utils/const/other'
 import BaseTransferPop from '@/components/BaseTransferPop.vue'
 import BaseTransferDialog from '@/components/BaseTransferDialog.vue'
@@ -34,7 +33,6 @@ export default defineComponent({
         // ;(snapRef.value as InstanceType<typeof ElDropdown>).handleOpen()
         // ;(alarmOutRef.value as InstanceType<typeof ElDropdown>).handleOpen()
         const { LoadingTarget, openLoading, closeLoading } = useLoading()
-        const scheduleList = buildScheduleList()
         const systemCaps = useCababilityStore()
         const openMessageTipBox = useMessageBox().openMessageTipBox
         const pageData = ref({
@@ -49,8 +47,7 @@ export default defineComponent({
             defaultAudioId: '{00000000-0000-0000-0000-000000000000}',
             supportAudio: false,
             // TODO 未传值
-            supportFTP: false,
-            scheduleList: [] as [] as SelectOption<string, string>[],
+            // supportFTP: false,
             audioList: [] as { value: string; label: string }[],
             // 打开穿梭框时选择行的索引
             triggerDialogIndex: 0,
@@ -139,9 +136,13 @@ export default defineComponent({
                 if (res('status').text() == 'success') {
                     res('//content/item').forEach((item: any) => {
                         const $item = queryXml(item.element)
+                        let name = $item('name').text()
+                        if ($item('devDesc').text()) {
+                            name = $item('devDesc').text() + '-' + name
+                        }
                         pageData.value.alarmOutList.push({
                             value: item.attr('id'),
-                            label: $item('name').text(),
+                            label: name,
                             device: {
                                 value: $item('device').attr('id'),
                                 label: $item('device').text(),
@@ -157,9 +158,10 @@ export default defineComponent({
             })
         }
         const getAlarmOutListSingle = function (row: MotionEventConfig) {
-            return pageData.value.alarmOutList.filter((item) => {
+            const alarmOutlist = pageData.value.alarmOutList.filter((item) => {
                 return item.device.value != row.id
             })
+            return alarmOutlist
         }
         const getVideoPopupList = async () => {
             pageData.value.videoPopupList.push({ value: ' ', label: Translate('IDCS_OFF') })
@@ -180,7 +182,6 @@ export default defineComponent({
         }
         const buildTableData = function () {
             tableData.value.length = 0
-            openLoading(LoadingTarget.FullScreen)
             const xml = `<types>
                             <nodeType>
                                 <enum>chls</enum>
@@ -219,72 +220,70 @@ export default defineComponent({
                     const sendXml = `<condition>
                                         <chlId>${row.id}</chlId>
                                     </condition>`
-                    queryFrontEndOfflineTrigger(sendXml).then((res: any) => {
-                        res = queryXml(res)
-                        if (res('status').text() == 'success') {
-                            row.rowDisable = false
-                            row.sysAudio = res('//content/sysAudio').attr('id') || pageData.value.defaultAudioId
-                            row.snap = {
-                                switch: res('//content/sysSnap/switch').text() == 'true' ? true : false,
-                                chls: res('//content/sysSnap/chls/item').map((item: any) => {
-                                    return {
-                                        value: item.attr('id'),
-                                        label: item.text(),
-                                    }
-                                }),
-                            }
-                            // 获取snap中chls的value列表
-                            row.snapList = row.snap.chls.map((item) => item.value)
-                            row.alarmOut = {
-                                switch: res('//content/alarmOut/switch').text() == 'true' ? true : false,
-                                chls: res('//content/alarmOut/alarmOuts/item').map((item: any) => {
-                                    return {
-                                        value: item.attr('id'),
-                                        label: item.text(),
-                                    }
-                                }),
-                            }
-                            row.alarmOutList = row.alarmOut.chls.map((item) => item.value)
-                            row.beeper = res('//content/buzzerSwitch').text()
-                            row.email = res('//content/emailSwitch').text()
-                            row.msgPush = res('//content/msgPushSwitch').text()
-                            row.videoPopup = res('//content/popVideoSwitch').text()
-                            row.videoPopupInfo = {
-                                switch: res('//content/popVideo/switch').text() == 'true' ? true : false,
-                                chl: {
-                                    value: res('//content/popVideo/chl').attr('id') != '' ? res('//content/popVideo/chl').attr('id') : ' ',
-                                    label: res('//content/popVideo/chl').text(),
-                                },
-                            }
-                            row.videoPopupList = pageData.value.videoPopupList.filter((item) => {
-                                return item.value !== row.id
-                            })
-                            row.msgBoxPopup = res('//content/popMsgSwitch').text()
-                            row.preset.switch = res('//content/preset/switch').text() == 'true' ? true : false
-                            res('//content/preset/presets/item').forEach((item: any) => {
-                                const $item = queryXml(item.element)
-                                row.preset.presets.push({
-                                    index: $item('index').text(),
-                                    name: $item('name').text(),
-                                    chl: {
-                                        value: $item('chl').attr('id'),
-                                        label: $item('chl').text(),
-                                    },
-                                })
-                            })
-                            // 设置的声音文件被删除时，显示为none
-                            const AudioData = pageData.value.audioList.filter((element: { value: string; label: string }) => {
-                                return element.value === row.sysAudio
-                            })
-                            if (AudioData.length === 0) {
-                                row.sysAudio = pageData.value.defaultAudioId
-                            }
-                        } else {
-                            row.rowDisable = true
+                    const offLine = await queryFrontEndOfflineTrigger(sendXml)
+                    const res = queryXml(offLine)
+                    if (res('status').text() == 'success') {
+                        row.rowDisable = false
+                        row.sysAudio = res('//content/sysAudio').attr('id') || pageData.value.defaultAudioId
+                        row.snap = {
+                            switch: res('//content/sysSnap/switch').text() == 'true' ? true : false,
+                            chls: res('//content/sysSnap/chls/item').map((item: any) => {
+                                return {
+                                    value: item.attr('id'),
+                                    label: item.text(),
+                                }
+                            }),
                         }
-                    })
+                        // 获取snap中chls的value列表
+                        row.snapList = row.snap.chls.map((item) => item.value)
+                        row.alarmOut = {
+                            switch: res('//content/alarmOut/switch').text() == 'true' ? true : false,
+                            chls: res('//content/alarmOut/alarmOuts/item').map((item: any) => {
+                                return {
+                                    value: item.attr('id'),
+                                    label: item.text(),
+                                }
+                            }),
+                        }
+                        row.alarmOutList = row.alarmOut.chls.map((item) => item.value)
+                        row.beeper = res('//content/buzzerSwitch').text()
+                        row.email = res('//content/emailSwitch').text()
+                        row.msgPush = res('//content/msgPushSwitch').text()
+                        row.videoPopup = res('//content/popVideoSwitch').text()
+                        row.videoPopupInfo = {
+                            switch: res('//content/popVideo/switch').text() == 'true' ? true : false,
+                            chl: {
+                                value: res('//content/popVideo/chl').attr('id') != '' ? res('//content/popVideo/chl').attr('id') : ' ',
+                                label: res('//content/popVideo/chl').text(),
+                            },
+                        }
+                        row.videoPopupList = pageData.value.videoPopupList.filter((item) => {
+                            return item.value !== row.id
+                        })
+                        row.msgBoxPopup = res('//content/popMsgSwitch').text()
+                        row.preset.switch = res('//content/preset/switch').text() == 'true' ? true : false
+                        res('//content/preset/presets/item').forEach((item: any) => {
+                            const $item = queryXml(item.element)
+                            row.preset.presets.push({
+                                index: $item('index').text(),
+                                name: $item('name').text(),
+                                chl: {
+                                    value: $item('chl').attr('id'),
+                                    label: $item('chl').text(),
+                                },
+                            })
+                        })
+                        // 设置的声音文件被删除时，显示为none
+                        const AudioData = pageData.value.audioList.filter((element: { value: string; label: string }) => {
+                            return element.value === row.sysAudio
+                        })
+                        if (AudioData.length === 0) {
+                            row.sysAudio = pageData.value.defaultAudioId
+                        }
+                    } else {
+                        row.rowDisable = true
+                    }
                 }
-                closeLoading(LoadingTarget.FullScreen)
             })
         }
         const changePagination = () => {
@@ -296,14 +295,6 @@ export default defineComponent({
                 pageData.value.pageIndex = totalPage
             }
             buildTableData()
-        }
-        const handleScheduleChangeAll = function (schedule: { value: string; label: string }) {
-            tableData.value.forEach((item) => {
-                if (!item.rowDisable) {
-                    item.schedule = schedule
-                    addEditRow(item)
-                }
-            })
         }
 
         // 下列为snap穿梭框相关
@@ -317,6 +308,7 @@ export default defineComponent({
                 pageData.value.snapChosedIdsAll = e.map((item) => item.value)
                 tableData.value.forEach((item) => {
                     if (!item.rowDisable) {
+                        item.snap.chls = []
                         addEditRow(item)
                         item.snap.switch = true
                         pageData.value.snapChosedListAll.forEach((snap) => {
@@ -385,10 +377,12 @@ export default defineComponent({
                 pageData.value.alarmOutChosedIdsAll = e.map((item) => item.value)
                 tableData.value.forEach((item) => {
                     if (!item.rowDisable) {
+                        item.alarmOut.chls = []
                         addEditRow(item)
                         item.alarmOut.switch = true
+                        const availableids = getAlarmOutListSingle(item).map((ele) => ele.value)
                         pageData.value.alarmOutChosedListAll.forEach((alarmOut) => {
-                            if (getAlarmOutListSingle(item).some((alarmOutItem) => alarmOutItem.value === alarmOut.value)) {
+                            if (availableids.includes(alarmOut.value)) {
                                 item.alarmOut.chls.push(alarmOut)
                             }
                         })
@@ -505,15 +499,16 @@ export default defineComponent({
                 }
             })
         }
-        // TODO 未传值
-        const handleFtpSnapChangeAll = function (ftpSnap: string) {
-            tableData.value.forEach((item) => {
-                if (!item.rowDisable) {
-                    addEditRow(item)
-                    item.ftpSnap = ftpSnap
-                }
-            })
-        }
+        // ftpSnap 未传值
+        // const handleFtpSnapChangeAll = function (ftpSnap: string) {
+        //     tableData.value.forEach((item) => {
+        //         if (!item.rowDisable) {
+        //             addEditRow(item)
+        //             item.ftpSnap = ftpSnap
+        //         }
+        //     })
+        // }
+
         // 蜂鸣器
         const handleBeeperChangeAll = function (beeper: string) {
             tableData.value.forEach((item) => {
@@ -538,7 +533,6 @@ export default defineComponent({
                     }
                 }
             })
-            console.log(tableData.value)
         }
         // 消息框弹出
         const handleMsgBoxPopupChangeAll = function (msgBoxPopup: string) {
@@ -634,9 +628,21 @@ export default defineComponent({
                         <popMsgSwitch>${rowData.msgBoxPopup}</popMsgSwitch>
                         <emailSwitch>${rowData.email}</emailSwitch>
                         <msgPushSwitch>${rowData.msgPush}</msgPushSwitch>
-                        <ftpSnapSwitch>${rowData.ftpSnap}</ftpSnapSwitch>
                         <sysAudio id='${rowData.sysAudio}'></sysAudio>
                 </content>`
+            // ftpSnap无效
+            // sendXml += `
+            //             <buzzerSwitch>${rowData.beeper}</buzzerSwitch>
+            //             <popVideo>
+            //                 <switch>${rowData.videoPopupInfo.chl.value == ' ' ? 'false' : 'true'}</switch>
+            //                 <chl id="${rowData.videoPopupInfo.chl.value == ' ' ? '' : rowData.videoPopupInfo.chl.value}"></chl>
+            //             </popVideo>
+            //             <popMsgSwitch>${rowData.msgBoxPopup}</popMsgSwitch>
+            //             <emailSwitch>${rowData.email}</emailSwitch>
+            //             <msgPushSwitch>${rowData.msgPush}</msgPushSwitch>
+            //             <ftpSnapSwitch>${rowData.ftpSnap}</ftpSnapSwitch>
+            //             <sysAudio id='${rowData.sysAudio}'></sysAudio>
+            //     </content>`
             return sendXml
         }
         const setData = function () {
@@ -656,7 +662,6 @@ export default defineComponent({
                             item.status = 'error'
                         }
                     }
-                    // buildTableData()
                 })
             })
             closeLoading(LoadingTarget.FullScreen)
@@ -675,7 +680,6 @@ export default defineComponent({
             changePagination,
             changePaginationSize,
             Translate,
-            scheduleList,
             tableRowStatus,
             tableRowStatusToolTip,
             chosedList,
@@ -687,7 +691,6 @@ export default defineComponent({
             presetRef,
             getAlarmOutListSingle,
             getSnapListSingle,
-            handleScheduleChangeAll,
             snapDropdownOpen,
             snapConfirmAll,
             snapCloseAll,
@@ -708,7 +711,6 @@ export default defineComponent({
             presetSwitchChange,
             handleSysAudioChangeAll,
             handleMsgPushChangeAll,
-            handleFtpSnapChangeAll,
             handleBeeperChangeAll,
             handleVideoPopupChangeAll,
             handleMsgBoxPopupChangeAll,

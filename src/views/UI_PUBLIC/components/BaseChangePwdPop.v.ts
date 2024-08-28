@@ -125,7 +125,6 @@ export default defineComponent({
                 userSession.pwdExpired = false
                 openMessageTipBox({
                     type: 'success',
-                    title: Translate('IDCS_SUCCESS_TIP'),
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 }).then(() => {
                     ctx.emit('close')
@@ -135,20 +134,19 @@ export default defineComponent({
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_PWD_ERR:
                         ElMessage({
-                            type: 'error',
+                            type: 'info',
                             message: Translate('IDCS_PASSWORD_NOT_CORRENT'),
                         })
                         break
                     case ErrorCode.USER_ERROR_NO_AUTH:
                         ElMessage({
-                            type: 'error',
+                            type: 'info',
                             message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_NO_PERMISSION'),
                         })
                         break
                     case ErrorCode.USER_ERROR_NO_USER:
                         openMessageTipBox({
-                            type: 'error',
-                            title: Translate('IDCS_INFO_TIP'),
+                            type: 'info',
                             message: Translate('IDCS_DEVICE_USER_NOTEXIST'),
                         }).then(() => {
                             Logout()
@@ -156,7 +154,7 @@ export default defineComponent({
                         break
                     default:
                         ElMessage({
-                            type: 'error',
+                            type: 'info',
                             message: Translate('IDCS_SAVE_DATA_FAIL'),
                         })
                         break
@@ -177,7 +175,6 @@ export default defineComponent({
             if (prop.forced) {
                 openMessageTipBox({
                     type: 'question',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_PWD_STRONG_ERROR_TIPS'),
                 }).then(() => {
                     Logout()

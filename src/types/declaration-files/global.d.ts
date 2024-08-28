@@ -205,7 +205,7 @@ declare global {
     }
 
     interface LivePopInstance {
-        openLiveWin(chlId: string, chlName: string, chlIndex: string, chlType: string, isOnline?: boolean): void
+        openLiveWin(chlId: string, chlName: string, isOnline?: boolean): void
     }
 
     interface TimelineInstance {
@@ -274,11 +274,7 @@ declare module 'vue' {
         Translate: (key: string) => string
     }
 
-    interface GlobalComponents {
-        BaseImgSprite: (typeof import('@/views/UI_PUBLIC/components/sprite/BaseImgSprite.vue'))['default']
-        BaseVideoPlayer: (typeof import('@/views/UI_PUBLIC/components/player/BaseVideoPlayer.vue'))['default']
-        BasePluginPlayer: (typeof import('@/views/UI_PUBLIC/components/ocx/BasePluginPlayer.vue'))['default']
-    }
+    interface GlobalComponents {}
 }
 
 /**

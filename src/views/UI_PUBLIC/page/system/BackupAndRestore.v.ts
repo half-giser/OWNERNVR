@@ -3,12 +3,10 @@
  * @Date: 2024-06-27 11:50:06
  * @Description: 备份与恢复
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 19:41:47
+ * @LastEditTime: 2024-08-23 14:52:44
  */
-import BasePluginNotice from '../../components/ocx/BasePluginNotice.vue'
-import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import BaseInputEncryptPwdPop from '../../components/auth/BaseInputEncryptPwdPop.vue'
-import { UserCheckAuthForm, UserInputEncryptPwdForm } from '@/types/apiType/userAndSecurity'
+import BaseCheckAuthPop, { UserCheckAuthForm } from '../../components/auth/BaseCheckAuthPop.vue'
+import BaseInputEncryptPwdPop, { UserInputEncryptPwdForm } from '../../components/auth/BaseInputEncryptPwdPop.vue'
 import WebsocketUpload from '@/utils/websocket/websocketUpload'
 import WebsocketDownload from '@/utils/websocket/websocketDownload'
 import { SystemRestoreForm, SystemBackUpForm } from '@/types/apiType/system'
@@ -16,7 +14,6 @@ import { type XmlResult } from '@/utils/xmlParse'
 
 export default defineComponent({
     components: {
-        BasePluginNotice,
         BaseCheckAuthPop,
         BaseInputEncryptPwdPop,
     },
@@ -298,7 +295,6 @@ export default defineComponent({
         const showMsg = (message: string) => {
             openMessageTipBox({
                 type: 'info',
-                title: Translate('IDCS_INFO_TIP'),
                 message,
             })
         }
@@ -332,7 +328,6 @@ export default defineComponent({
                 case ErrorCode.USER_ERROR_SERVER_NO_EXISTS:
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_LOGIN_OVERTIME'),
                     }).finally(() => {
                         Logout()
@@ -448,7 +443,6 @@ export default defineComponent({
             confirmInputEncryptPwd,
             handleBrowse,
             handleExport,
-            BasePluginNotice,
             BaseCheckAuthPop,
             BaseInputEncryptPwdPop,
         }

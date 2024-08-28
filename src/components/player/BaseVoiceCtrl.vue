@@ -3,7 +3,7 @@
  * @Date: 2024-06-05 10:57:42
  * @Description: 音量控件
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-24 11:51:29
+ * @LastEditTime: 2024-08-23 13:57:17
 -->
 <template>
     <div class="VoiceCtrl">
@@ -35,8 +35,6 @@
 </template>
 
 <script lang="ts" setup>
-import BaseImgSprite from '@/views/UI_PUBLIC/components/sprite/BaseImgSprite.vue'
-
 const prop = withDefaults(
     defineProps<{
         volume: number

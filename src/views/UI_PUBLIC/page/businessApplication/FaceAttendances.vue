@@ -232,7 +232,7 @@
     />
 </template>
 
-<script lang="ts" src="./faceAttendance.v.ts"></script>
+<script lang="ts" src="./FaceAttendances.v.ts"></script>
 
 <style lang="scss" scoped>
 #faceAttendanceView {

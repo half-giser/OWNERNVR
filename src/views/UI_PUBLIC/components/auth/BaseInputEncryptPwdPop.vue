@@ -3,7 +3,7 @@
  * @Date: 2024-06-07 15:00:44
  * @Description: 加密密码弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-05 13:47:25
+ * @LastEditTime: 2024-08-23 14:49:05
 -->
 <template>
     <el-dialog
@@ -61,7 +61,6 @@
 
 <script lang="ts" setup>
 import { type FormInstance, type FormRules } from 'element-plus'
-import { UserInputEncryptPwdForm } from '@/types/apiType/userAndSecurity'
 
 const prop = withDefaults(
     defineProps<{
@@ -132,5 +131,11 @@ const verify = () => {
  */
 const close = () => {
     emits('close')
+}
+</script>
+
+<script lang="ts">
+export class UserInputEncryptPwdForm {
+    password = ''
 }
 </script>

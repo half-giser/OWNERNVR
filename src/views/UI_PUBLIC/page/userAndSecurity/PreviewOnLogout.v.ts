@@ -3,17 +3,11 @@
  * @Date: 2024-06-18 18:43:27
  * @Description: 登出后预览
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 20:33:25
+ * @LastEditTime: 2024-08-23 17:11:53
  */
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
-import BaseVideoPlayer from '../../components/player/BaseVideoPlayer.vue'
 import { type UserPreviewOnLogoutChannelList } from '@/types/apiType/userAndSecurity'
 
 export default defineComponent({
-    components: {
-        BaseVideoPlayer,
-        BaseImgSprite,
-    },
     setup() {
         const { openMessageTipBox } = useMessageBox()
         const { closeLoading, LoadingTarget, openLoading } = useLoading()
@@ -116,13 +110,11 @@ export default defineComponent({
             if ($('/response/status').text() === 'success') {
                 openMessageTipBox({
                     type: 'success',
-                    title: Translate('IDCS_SUCCESS_TIP'),
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
             } else {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_SAVE_DATA_FAIL'),
                 })
             }
@@ -170,8 +162,6 @@ export default defineComponent({
             changeAllChannel,
             setData,
             handleChangeUser,
-            BaseVideoPlayer,
-            BaseImgSprite,
         }
     },
 })

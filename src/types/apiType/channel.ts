@@ -534,3 +534,28 @@ export class ChannelPtzTaskForm {
     name = 'No'
     type = 'NON'
 }
+
+export class ChannelPtzSmartTrackDto {
+    [key: string]: boolean | string | number
+    chlId = ''
+    chlName = ''
+    autoBackSwitch = false
+    autoBackTime = 0
+    ptzControlMode = 'manual'
+    status = 'loading'
+}
+
+export class ChannelPtzProtocolDto {
+    [key: string]: any
+    chlId = ''
+    chlName = ''
+    baudRate = ''
+    protocol = ''
+    baudRateOptions = [] as SelectOption<string, string>[]
+    protocolOptions = [] as SelectOption<string, string>[]
+    status = 'loading'
+    address = 1
+    addressMin = 1
+    addressMax = 1
+    ptz = false
+}

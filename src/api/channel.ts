@@ -319,3 +319,31 @@ export const queryChlsExistRec = () => http.fetch('queryChlsExistRec', getXmlWra
  * @returns
  */
 export const queryPosBillList = (data: string) => http.fetch('queryPosBillList', getXmlWrapData(data))
+
+/**
+ * @description 获取云台智能追踪配置
+ * @param {string} data
+ * @returns
+ */
+export const queryBallIPCATCfg = (data: string) => http.fetch('queryBallIPCATCfg', getXmlWrapData(data))
+
+/**
+ * @description 编辑云台智能追踪配置
+ * @param {string} data
+ * @returns
+ */
+export const editBallIPCATCfg = (data: string) => http.fetch('editBallIPCATCfg', getXmlWrapData(data))
+
+/**
+ * @description 获取云台协议配置
+ * @param {string} data
+ * @returns
+ */
+export const queryPtzProtocol = (data: string) => http.fetch('queryPtzProtocol', getXmlWrapData(data))
+
+/**
+ * @description 编辑云台协议配置
+ * @param {string} data
+ * @returns
+ */
+export const editPtzProtocol = (data: string) => http.fetch('editPtzProtocol', getXmlWrapData(data))

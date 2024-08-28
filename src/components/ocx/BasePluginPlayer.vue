@@ -3,7 +3,7 @@
  * @Date: 2024-06-12 15:40:03
  * @Description: 插件占位DIV
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 13:59:07
+ * @LastEditTime: 2024-08-23 14:11:40
 -->
 <template>
     <div
@@ -15,8 +15,6 @@
 </template>
 
 <script lang="ts" setup>
-import BasePluginNotice from './BasePluginNotice.vue'
-
 const pluginStore = usePluginStore()
 
 const prop = withDefaults(

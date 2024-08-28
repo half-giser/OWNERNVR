@@ -26,21 +26,21 @@
                             <div
                                 v-if="scope.row.status === 'loading'"
                                 class="table_status_col_loading"
-                                :title="tableRowStatusToolTip[scope.row.status]"
+                                :title="tableRowStatusToolTip[scope.row.statusTip]"
                             ></div>
                             <BaseImgSprite
                                 v-else-if="scope.row.status === 'success'"
                                 file="success"
                                 :chunk="1"
                                 :index="0"
-                                :title="tableRowStatusToolTip[scope.row.status]"
+                                :title="tableRowStatusToolTip[scope.row.statusTip]"
                             />
                             <BaseImgSprite
                                 v-else-if="scope.row.status === 'error'"
                                 file="error"
                                 :chunk="1"
                                 :index="0"
-                                :title="tableRowStatusToolTip[scope.row.status]"
+                                :title="tableRowStatusToolTip[scope.row.statusTip]"
                             />
                         </template>
                     </el-table-column>
@@ -244,7 +244,7 @@
     #col_tips {
         margin-top: 5px;
         #tips {
-            color: gray;
+            color: #8d8d8d;
             font-size: 14px;
         }
     }

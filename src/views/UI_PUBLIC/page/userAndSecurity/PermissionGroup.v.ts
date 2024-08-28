@@ -3,16 +3,14 @@
  * @Date: 2024-06-17 20:32:14
  * @Description: 权限组列表
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-09 20:45:45
+ * @LastEditTime: 2024-08-23 14:05:49
  */
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
 import PermissionGroupEditPop from './PermissionGroupEditPop.vue'
 import { delAuthGroup } from '@/api/userAndSecurity'
 import { type UserAuthGroupList, type UserPermissionChannelAuthList, UserPermissionSystemAuthList } from '@/types/apiType/userAndSecurity'
 
 export default defineComponent({
     components: {
-        BaseImgSprite,
         PermissionGroupEditPop,
     },
     setup() {
@@ -198,7 +196,6 @@ export default defineComponent({
         const handleDeleteAuthGroup = (row: UserAuthGroupList) => {
             openMessageTipBox({
                 type: 'question',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_USER_DELETE_USERGROUP_S').formatForLang(replaceWithEntity(row.name)),
             }).then(async () => {
                 openLoading(LoadingTarget.FullScreen)
@@ -218,7 +215,6 @@ export default defineComponent({
                 if ($('/response/status').text() === 'success') {
                     openMessageTipBox({
                         type: 'success',
-                        title: Translate('IDCS_SUCCESS_TIP'),
                         message: Translate('IDCS_DELETE_SUCCESS'),
                     })
                     getAuthGroup()
@@ -235,7 +231,6 @@ export default defineComponent({
                     }
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: errorInfo,
                     })
                 }
@@ -309,7 +304,6 @@ export default defineComponent({
             handleDeleteAuthGroup,
             handleCloseEditAuthGroup,
             handleSaveAsAuthGroup,
-            BaseImgSprite,
             PermissionGroupEditPop,
         }
     },

@@ -117,12 +117,10 @@
         <template #footer>
             <div class="dialog-footer">
                 <el-button @click="save(false)">{{ Translate('IDCS_OK') }}</el-button>
-                <el-button @click="close(false)">{{ Translate('IDCS_CANCEL') }}</el-button>
+                <el-button @click="$emit('close')">{{ Translate('IDCS_CANCEL') }}</el-button>
             </div>
         </template>
     </el-dialog>
 </template>
 
 <script lang="ts" src="./ChannelEditPop.v.ts"></script>
-
-<style lang="scss" scoped></style>

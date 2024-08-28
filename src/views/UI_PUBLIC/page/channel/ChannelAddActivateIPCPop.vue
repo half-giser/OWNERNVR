@@ -64,12 +64,10 @@
                 class="el-col-flex-end"
             >
                 <el-button @click="save">{{ Translate('IDCS_OK') }}</el-button>
-                <el-button @click="close(false)">{{ Translate('IDCS_CANCEL') }}</el-button>
+                <el-button @click="$emit('close')">{{ Translate('IDCS_CANCEL') }}</el-button>
             </el-col>
         </el-row>
     </el-dialog>
 </template>
 
 <script lang="ts" src="./ChannelAddActivateIPCPop.v.ts"></script>
-
-<style scoped lang="scss"></style>

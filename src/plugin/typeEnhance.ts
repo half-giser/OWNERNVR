@@ -3,8 +3,6 @@
  * @Date: 2023-05-09 15:10:50
  * @Description: 改写原型方法
  */
-
-import { lowerCase } from 'lodash'
 import { parseDateToPersianCalendar } from '@/utils/tools'
 import { useUserSessionStore } from '@/stores/userSession'
 
@@ -47,7 +45,7 @@ export default {
         }
 
         String.prototype.toBoolean = function (): boolean {
-            return lowerCase(<string>this) === 'true'
+            return (<string>this).toLowerCase() === 'true'
         }
 
         Boolean.prototype.toString = function (): string {

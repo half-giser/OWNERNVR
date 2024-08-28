@@ -195,7 +195,6 @@ export default defineComponent({
                 if ($('/response/status').text() == 'success') {
                     openMessageTipBox({
                         type: 'success',
-                        title: Translate('IDCS_SUCCESS_TIP'),
                         message: Translate('IDCS_TEST_SUCCESS'),
                     }).finally(() => {
                         close()
@@ -203,7 +202,6 @@ export default defineComponent({
                 } else {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_TEST_FAIL'),
                     })
                 }

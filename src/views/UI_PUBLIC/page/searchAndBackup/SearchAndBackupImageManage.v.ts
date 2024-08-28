@@ -3,10 +3,9 @@
  * @Date: 2024-08-12 13:47:57
  * @Description: 搜索与备份-图片管理
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-15 19:54:30
+ * @LastEditTime: 2024-08-23 14:12:49
  */
 import dayjs from 'dayjs'
-import BasePluginNotice from '../../components/ocx/BasePluginNotice.vue'
 import { type PlaybackChlList, type PlaybackRecLogList, PlaybackSearchImgForm, PlaybackSearchImgList } from '@/types/apiType/playback'
 import { DefaultPagerLayout } from '@/utils/constants'
 import { type TableInstance } from 'element-plus'
@@ -15,7 +14,6 @@ import BackupImgPlayerPop from './BackupImgPlayerPop.vue'
 
 export default defineComponent({
     components: {
-        BasePluginNotice,
         BackupImgPop,
         BackupImgPlayerPop,
     },
@@ -457,7 +455,6 @@ export default defineComponent({
             handlePlayerNext,
             changePageIndex,
             changePageSize,
-            BasePluginNotice,
             BackupImgPop,
             BackupImgPlayerPop,
         }

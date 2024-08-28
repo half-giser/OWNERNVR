@@ -1,26 +1,23 @@
 import { type FormInstance } from 'element-plus'
-import { useUserSessionStore } from '@/stores/userSession'
-import useMessageBox from '@/hooks/useMessageBox'
-import { ChannelAddEditIPCIpDto, ChannelQuickAddDto } from '@/types/apiType/channel'
-import { checkIpV4, getSecurityVer } from '@/utils/tools'
-import { AES_encrypt } from '@/utils/encrypt'
-import { editDevNetworkList } from '@/api/channel'
-import { getXmlWrapData } from '@/api/api'
-import { queryXml } from '@/utils/xmlParse'
-import useLoading from '@/hooks/useLoading'
-import { useLangStore } from '@/stores/lang'
+import { ChannelAddEditIPCIpDto, type ChannelQuickAddDto, type DefaultPwdDto } from '@/types/apiType/channel'
 
 export default defineComponent({
     props: {
-        editItem: ChannelQuickAddDto,
-        mapping: Object,
-        close: {
-            type: Function,
-            require: true,
-            default: () => {},
+        editItem: {
+            type: Object as PropType<ChannelQuickAddDto>,
+            required: true,
+        },
+        mapping: {
+            type: Object as PropType<Record<string, DefaultPwdDto>>,
+            required: true,
         },
     },
-    setup(props: any) {
+    emits: {
+        close() {
+            return true
+        },
+    },
+    setup(props, { emit }) {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const userSessionStore = useUserSessionStore()
@@ -47,7 +44,7 @@ export default defineComponent({
                 showMsg(Translate('IDCS_PROMPT_PASSWORD_EMPTY'))
                 return
             }
-            const data = `<content>
+            const data = rawXml`<content>
                             <device>
                                 <item id='1'>
                                     <oldIP>${props.editItem.ip}</oldIP>
@@ -60,13 +57,13 @@ export default defineComponent({
                             </device>
                         </content>`
             openLoading(LoadingTarget.FullScreen)
-            editDevNetworkList(getXmlWrapData(data)).then((res: any) => {
+            editDevNetworkList(getXmlWrapData(data)).then((res) => {
                 closeLoading(LoadingTarget.FullScreen)
-                res = queryXml(res)
-                if (res('status').text() == 'success') {
-                    const errorCode = res('//content/item/errorCode').text()
+                const $ = queryXml(res)
+                if ($('status').text() == 'success') {
+                    const errorCode = $('//content/item/errorCode').text()
                     if (errorCode == '0') {
-                        props.close()
+                        emit('close')
                     } else {
                         if (errorCode == '536871063') {
                             showMsg(Translate('IDCS_PROMPT_CHANNEL_IPADDRESS_AND_PORT_EXIST'))
@@ -78,7 +75,7 @@ export default defineComponent({
                             showMsg(Translate('IDCS_ERROR_DIFFERENT_SEGMENT'))
                         } else {
                             // 其他错误码不提示直接刷新通道列表，与设备一致
-                            props.close()
+                            emit('close')
                         }
                     }
                 } else {
@@ -90,9 +87,7 @@ export default defineComponent({
         const showMsg = (msg: string) => {
             openMessageTipBox({
                 type: 'info',
-                title: Translate('IDCS_INFO_TIP'),
                 message: msg,
-                showCancelButton: false,
             })
         }
 

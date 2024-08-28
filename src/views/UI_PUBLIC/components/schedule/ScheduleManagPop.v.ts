@@ -170,7 +170,6 @@ export default defineComponent({
         const deleteSchedule = async (row: NameValueItem) => {
             openMessageTipBox({
                 type: 'question',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_DELETE_MP_SCHEDULE_S').formatForLang(replaceWithEntity(getShortString(row.name, 10))),
             }).then(async () => {
                 openLoading(LoadingTarget.FullScreen)

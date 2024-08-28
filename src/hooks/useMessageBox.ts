@@ -3,11 +3,10 @@
  * @Date: 2024-05-23 15:30:05
  * @Description: 消息提示弹框
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-17 08:55:19
+ * @LastEditTime: 2024-08-23 13:59:33
  */
 
-import BaseImgSprite from '@/views/UI_PUBLIC/components/sprite/BaseImgSprite.vue'
-import { useLangStore } from '@/stores/lang'
+import BaseImgSprite from '@/components/sprite/BaseImgSprite.vue'
 
 export default () => {
     const { Translate } = useLangStore()
@@ -19,6 +18,13 @@ export default () => {
         info: 2,
         alarm: 3,
         question: 4,
+    }
+    const CancelBtnMap: Record<MessageTipBoxOption['type'], boolean> = {
+        success: false,
+        error: false,
+        info: false,
+        alarm: false,
+        question: true,
     }
     const TitleMap: Record<MessageTipBoxOption['type'], string> = {
         success: Translate('IDCS_SUCCESS_TIP'),
@@ -38,7 +44,7 @@ export default () => {
             closeOnClickModal: false, // 是否可通过点击遮罩层关闭MessageBox
             closeOnPressEscape: false, // 是否可通过按下ESC键关闭MessageBox
             showConfirmButton: true, // 是否显示确定按钮
-            showCancelButton: true, // 是否显示取消按钮
+            showCancelButton: typeof option.showCancelButton === 'boolean' ? option.showCancelButton : CancelBtnMap[option.type], // 是否显示取消按钮
             confirmButtonText: Translate('IDCS_OK'), // 确定按钮的文本内容
             cancelButtonText: Translate('IDCS_CANCEL'), // 取消按钮的文本内容
             ...option,

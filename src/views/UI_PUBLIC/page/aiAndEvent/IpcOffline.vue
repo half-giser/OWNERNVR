@@ -1,3 +1,10 @@
+<!--
+ * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @Date: 2024-08-21 15:34:24
+ * @Description: 前端掉线
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-08-27 11:24:10
+-->
 <template>
     <div>
         <BaseTransferDialog
@@ -317,7 +324,7 @@
                 </template>
             </el-table-column>
             <!-- FTPSnap   -->
-            <el-table-column
+            <!-- <el-table-column
                 v-if="pageData.supportFTP"
                 prop="ftpSnap"
                 width="175px"
@@ -360,7 +367,7 @@
                         </el-option>
                     </el-select>
                 </template>
-            </el-table-column>
+            </el-table-column> -->
             <!-- 蜂鸣器   -->
             <el-table-column
                 prop="beeper"

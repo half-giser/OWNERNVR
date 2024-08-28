@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-08-10 12:08:57
  * @Description: AI/事件
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-22 15:28:23
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-08-26 14:15:17
  */
 const { Translate } = useLangStore()
 
@@ -85,6 +85,7 @@ export class AlarmTypeInfo {
     value = ''
 }
 
+// 移动侦测、前端掉线、视频丢失的通用表格数据类型
 export class MotionEventConfig {
     id = ''
     addType = ''
@@ -207,6 +208,34 @@ export class LocalTableRow {
     name = ''
     originalName = ''
     fileValid = ''
+}
+
+export class ExceptionAlarmRow {
+    id = ''
+    eventType = ''
+    sysAudio = ''
+    msgPush = ''
+    alarmOut = {
+        switch: false,
+        alarmOuts: [] as { value: string; label: string }[],
+    }
+    alarmOutList = [] as string[]
+    beeper = ''
+    msgBoxPopup = ''
+    email = 'false'
+    rowDisable = true
+    emailDisable = true
+}
+
+export class SystemDisarm {
+    id = ''
+    chlName = ''
+    // 已选择的撤防联动项列表
+    disarmItemsList = [] as { id: string; value: string }[]
+    // 可选择的撤防联动项列表
+    disarmItems = [] as { id: string; value: string }[]
+    disarmItemsStr = ''
+    nodeType = ''
 }
 
 // 传感器页面——通道列表

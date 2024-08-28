@@ -3,7 +3,7 @@
  * @Date: 2024-08-06 20:35:59
  * @Description: 本地备份任务 进度弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-12 16:47:30
+ * @LastEditTime: 2024-08-23 17:09:17
  */
 import type { PlaybackBackUpRecList } from '@/types/apiType/playback'
 import WebsocketRecordBackup, { type WebsocketRecordBackupOnMessageParam } from '@/utils/websocket/websocketRecordBackup'
@@ -104,7 +104,6 @@ export default defineComponent({
             }
             openMessageTipBox({
                 type: 'success',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_BACKUP_SUCCESS'),
             }).finally(() => {
                 close()

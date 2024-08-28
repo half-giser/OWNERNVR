@@ -19,7 +19,6 @@ export default defineComponent({
         const { openMessageTipBox } = useMessageBox()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const systemCaps = useCababilityStore()
-        const userSession = useUserSessionStore()
         const lang = useLangStore()
         const dateTime = useDateTime()
 
@@ -197,12 +196,6 @@ export default defineComponent({
         // const totalCount = 0
         // 导出的最大条数
         const exportMaxCount = 2000
-        // const lang = $.webSession("lang_type");// 语言类型
-
-        // 日期格式
-        // const dateTimeFormat = ref('YYYY-MM-dd HH:mm:ss')
-        // 时间格式
-        // const timeFormat = ref('HH:mm:ss')
 
         const formData = ref(new SystemLogForm())
 
@@ -483,7 +476,6 @@ export default defineComponent({
             if (dayjs(value, dateTime.dateTimeFormat.value).isAfter(dayjs(pageData.value.endTime, dateTime.dateTimeFormat.value))) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_END_TIME_GREATER_THAN_START'),
                 })
                 pageData.value.startTime = formData.value.startTime
@@ -501,7 +493,6 @@ export default defineComponent({
             if (dayjs(value, dateTime.dateTimeFormat.value).isBefore(dayjs(pageData.value.startTime, dateTime.dateTimeFormat.value))) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_END_TIME_GREATER_THAN_START'),
                 })
                 pageData.value.endTime = formData.value.endTime
@@ -512,21 +503,6 @@ export default defineComponent({
         }
 
         /**
-         * @description 日历周末高亮
-         * @param {Date} date
-         */
-        const handleCalendarCellHighLight = (date: Date) => {
-            if (userSession.calendarType === 'Persian') {
-                return ''
-            }
-            const day = dayjs(date).day()
-            if (day === 0 || day === 6) {
-                return 'highlight'
-            }
-            return ''
-        }
-
-        /**
          * @description 导出数据
          */
         const handleExport = async () => {
@@ -534,7 +510,6 @@ export default defineComponent({
             // if (!Plugin.IsSupportH5() && !Plugin.IsInstallPlugin()) {
             //     openMessageTipBox({
             //         type: 'info',
-            //         title: Translate('IDCS_INFO_TIP'),
             //         message: Plugin.pluginNoticeHtml.value,
             //     })
             //     return
@@ -555,13 +530,11 @@ export default defineComponent({
 
                 openMessageTipBox({
                     type: 'success',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_EXPORT_SUCCESS') + `(${Translate('IDCS_EXPORT_LOG_OVER_LIMIT_TIP')})`,
                 })
             } catch (e) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_EXPORT_FAIL'),
                 })
             }
@@ -627,7 +600,6 @@ export default defineComponent({
             if (!playList.length) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_NO_ASSOCIATE_CHANNEL_RECORD'),
                 })
                 return
@@ -697,7 +669,6 @@ export default defineComponent({
             changePagination,
             changePaginationSize,
             handleExport,
-            handleCalendarCellHighLight,
             changeStartTime,
             changeEndTime,
             playRec,

@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 顶层布局页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-14 17:57:03
+ * @LastEditTime: 2024-08-23 17:05:19
  */
 
 import { type RouteLocationMatched } from 'vue-router'
@@ -198,7 +198,6 @@ export default defineComponent({
             if (diskNum == 0) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_NO_DISK'),
                 })
                 return
@@ -214,7 +213,6 @@ export default defineComponent({
             if (diskDamage) {
                 openMessageTipBox({
                     type: 'question',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_QUESTION_JUMP_DISK_MANAGEMENT'),
                 }).then(() => {
                     if (userSession.hasAuth('diskMgr')) {
@@ -232,7 +230,6 @@ export default defineComponent({
                     } else {
                         openMessageTipBox({
                             type: 'question',
-                            title: Translate('IDCS_INFO_TIP'),
                             message: Translate('IDCS_NO_PERMISSION'),
                         })
                     }

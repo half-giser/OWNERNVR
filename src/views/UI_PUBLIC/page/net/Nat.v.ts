@@ -144,7 +144,6 @@ export default defineComponent({
             if (!formData.value.natSwitch && pageData.value.cloudSwitch && systemCaps.showCloudUpgrade) {
                 openMessageTipBox({
                     type: 'question',
-                    title: Translate('IDCS_QUESTION'),
                     message: Translate('IDCS_CLOSE_NAT2_TIP'),
                 })
                     .then(() => {
@@ -159,7 +158,6 @@ export default defineComponent({
             if (formData.value.index === '0' && formData.value.natSwitch && pageData.value.cloudSwitch && systemCaps.showCloudUpgrade) {
                 openMessageTipBox({
                     type: 'question',
-                    title: Translate('IDCS_QUESTION'),
                     message: Translate('IDCS_NAT2_CLOSE_TIP'),
                 })
                     .then(() => {

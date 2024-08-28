@@ -3,16 +3,12 @@
  * @Date: 2024-04-23 11:52:48
  * @Description: 登录界面
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 11:52:39
+ * @LastEditTime: 2024-08-23 14:11:10
  */
 import { type FormRules, type FormInstance } from 'element-plus'
 import { LoginForm, LoginReqData } from '@/types/apiType/user'
-import BasePluginDownload from '@/views/UI_PUBLIC/components/ocx/BasePluginDownload.vue'
 
 export default defineComponent({
-    components: {
-        BasePluginDownload,
-    },
     setup() {
         const { Translate } = useLangStore()
         const langStore = useLangStore()
@@ -222,7 +218,6 @@ export default defineComponent({
             isPrivacy,
             isAllowPrivacy,
             closePrivacy,
-            BasePluginDownload,
         }
     },
 })
