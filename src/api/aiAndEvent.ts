@@ -136,13 +136,19 @@ export const queryCombinedAlarm = () => http.fetch('queryCombinedAlarm', getXmlW
 export const queryCombinedAlarmFaceMatch = () => http.fetch('queryCombinedAlarmFaceMatch', getXmlWrapData(''))
 
 // 人脸比对中请求后侦测开关
-export const queryBackFaceMatch = () => http.fetch('queryBackFaceMatch', getXmlWrapData(''))
+export const queryBackFaceMatch = (data?: string) => http.fetch('queryBackFaceMatch', getXmlWrapData(data || ''))
 
 // 修改组合报警数据
 export const editCombinedAlarm = (data: string) => http.fetch('editCombinedAlarm', getXmlWrapData(data))
 
 // 修改组合报警人脸匹配数据
 export const editCombinedAlarmFaceMatch = (data: string) => http.fetch('editCombinedAlarmFaceMatch', getXmlWrapData(data))
+
+// 获取火点检测数据
+export const querySmartFireConfig = (data: string) => http.fetch('querySmartFireConfig', getXmlWrapData(data))
+
+// 修改火点检测数据
+export const editSmartFireConfig = (data: string) => http.fetch('editSmartFireConfig', getXmlWrapData(data))
 
 // 获取人脸侦测数据
 export const queryVfd = (data: string) => http.fetch('queryVfd', getXmlWrapData(data))
@@ -168,8 +174,17 @@ export const editFaceMatchAlarmParam = (data: string) => http.fetch('editFaceMat
 // 删除人脸匹配报警参数
 export const deleteFaceMatchAlarmParam = (data: string) => http.fetch('deleteFaceMatchAlarmParam', getXmlWrapData(data))
 
-// 获取火点检测数据
-export const querySmartFireConfig = (data: string) => http.fetch('querySmartFireConfig', getXmlWrapData(data))
+// 获取车辆识别参数
+export const queryVehicleConfig = (data: string) => http.fetch('queryVehicleConfig', getXmlWrapData(data))
 
-// 修改火点检测数据
-export const editSmartFireConfig = (data: string) => http.fetch('editSmartFireConfig', getXmlWrapData(data))
+// 获取车牌匹配报警参数
+export const queryVehicleMatchAlarm = (data: string) => http.fetch('queryVehicleMatchAlarm', getXmlWrapData(data))
+
+// 修改车牌匹配报警参数
+export const editVehicleMatchAlarm = (data: string) => http.fetch('editVehicleMatchAlarm', getXmlWrapData(data))
+
+// 删除车牌匹配报警参数
+export const deleteVehicleMatchAlarm = (data: string) => http.fetch('deleteVehicleMatchAlarm', getXmlWrapData(data))
+
+// 修改车辆侦测数据
+export const editVehicleConfig = (data: string) => http.fetch('editVehicleConfig', getXmlWrapData(data))

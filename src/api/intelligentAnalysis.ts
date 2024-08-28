@@ -28,12 +28,6 @@ export const setAlarmOutStatus = (data: string) => http.fetch('setAlarmOutStatus
 export const manualUnlocking = (data: string) => http.fetch('manualUnlocking', getXmlWrapData(data))
 
 /**
- * @description 获取AI资源细节
- * @returns
- */
-export const queryAIResourceDetail = () => http.fetch('queryAIResourceDetail', getXmlWrapData(''))
-
-/**
  * @description 获取人脸组数据
  * @returns
  */
