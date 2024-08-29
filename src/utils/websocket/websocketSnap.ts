@@ -3,14 +3,13 @@
  * @Date: 2024-05-30 15:59:38
  * @Description: websocket 订阅实时抓拍
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-23 21:20:26
+ * @LastEditTime: 2024-08-28 11:14:24
  */
 
 import WebsocketBase from './websocketBase'
-import { Uint8ArrayToStr, getPicBase64 } from '../tools'
 import { CMD_REALTIME_SNAP_SUBSCRIBE, CMD_REALTIME_SNAP_UNSUBSCRIBE } from './websocketCmd'
 
-type SnapDataConfig = {
+type SnapDataConfig = Partial<{
     channel_id: string
     face_detect: {
         info: boolean
@@ -33,7 +32,10 @@ type SnapDataConfig = {
         detect_pic: boolean
         scene_pic: boolean
     }
-}[]
+    parking_lot: {
+        info: boolean
+    }
+}>[]
 
 export interface WebsocketSnapOption {
     config: SnapDataConfig

@@ -34,6 +34,7 @@
     --text-dialog: #666; /* Dialog、MessageBox、Notification等弹出框的标题颜色 */
     --text-timeline-button: #6e83b3;
     --table-text-disabled: #888;
+    --text-parklog-label: #8d8d8d;
 
     // 边框
     --border-color1: #666; /* 主Layout, 以及Dialog、MessageBox、Notification等弹出框的Border颜色 */
@@ -80,6 +81,9 @@
     --bg-calender-thead: #d4d4d4; /* 日历表格头背景色 */
     --bg-player: #4c4c4b; /* 播放器背景色 */
     --bg-thumbnail-card: #555; /* 按时间切片缩略图背景色 */
+    --bg-parklog: #f0f2f3; /* 停车场页面背景色 */
+    --bg-parklog-box: #d9d9d9; /* 停车场BOX背景色 */
+    --bg-parklog-title: #cbcbcb;
 
     // 表格分割线
     --table-split: #ebeef5;

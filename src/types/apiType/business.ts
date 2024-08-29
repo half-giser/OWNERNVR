@@ -252,3 +252,45 @@ export class BusinessFaceCheckList extends BusinessFaceList {
     checked = 0
     unchecked = 0
 }
+
+export class BusinessParkingLotList {
+    plateNum = ''
+    eventType = ''
+    master = ''
+    phoneNum = ''
+    // groupName = ''
+    isEnter = false
+    enterChlId = ''
+    enterChl = ''
+    enterTime = 0
+    enterFrameTime = ''
+    enterVehicleId = ''
+    enterType = ''
+    enterImg = ''
+    isExit = false
+    exitChlId = ''
+    exitChl = ''
+    exitTime = 0
+    exitFrameTime = ''
+    exitVehicleId = ''
+    exitType = ''
+    exitImg = ''
+    direction = ''
+    isHistory = false
+    type = ''
+    abnormal = false
+    isRelative = false
+}
+
+export class BusinessParkingLotRelevantList {
+    eventTypeID = ''
+    panoramaContent = ''
+    chlName = ''
+    openType = ''
+    plateNumber = ''
+    owner = ''
+    ownerPhone = ''
+    isRelative = true
+    direction = ''
+    frameTime = ''
+}
