@@ -18,7 +18,7 @@ export const useUserSessionStore = defineStore(
         const auInfo_N9K = ref('')
         const sesionKey = ref('')
         const securityVer = ref('')
-        const facePersonnalInfoMgr = ref('')
+        const facePersonnalInfoMgr = ref(false)
         const authGroupId = ref('')
         const allowModifyPassword = ref('')
         const userType = ref('')
@@ -134,7 +134,7 @@ export const useUserSessionStore = defineStore(
                 sesionKey.value = plaintext
                 securityVer.value = $('content/securityVer').text()
                 userId.value = $('content/userId').text()
-                facePersonnalInfoMgr.value = $('content/systemAuth/facePersonnalInfoMgr').text()
+                facePersonnalInfoMgr.value = $('content/systemAuth/facePersonnalInfoMgr').text().toBoolean()
                 authGroupId.value = $('content/authGroupId').text()
                 allowModifyPassword.value = $('content/modifyPassword').text()
                 userType.value = $('content/userType').text()
@@ -166,6 +166,8 @@ export const useUserSessionStore = defineStore(
                 //CustomerID为100代表inw48客户,要求隐藏智能侦测,包括人脸报警
                 cababilityStore.isInw48 = CustomerID == '100'
                 cababilityStore.CustomerID = Number(CustomerID)
+
+                cababilityStore.AISwitch = $('content/AISwitch').text().toBoolean()
             })
 
             // 从磁盘信息获取Raid
