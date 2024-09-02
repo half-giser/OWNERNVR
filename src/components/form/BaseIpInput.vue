@@ -34,8 +34,17 @@ type InvalidateMode = 'REPLACE' | 'PREVENT'
 
 const prop = withDefaults(
     defineProps<{
+        /**
+         * @property 是否禁用输入框
+         */
         disabled?: boolean
+        /**
+         * @property 无效值处理方式
+         */
         invalidateMode?: InvalidateMode
+        /**
+         * @property IP地址值
+         */
         modelValue: string
     }>(),
     {
@@ -55,6 +64,7 @@ const IPV4_DFAULT_VALUE = Array(4).fill(0)
 const $IpContainer = ref<HTMLDivElement>()
 const isFocus = ref(0)
 
+// IP地址数组
 const address = computed(() => {
     const split = prop.modelValue.split('.')
     return IPV4_DFAULT_VALUE.map((item, index) => {

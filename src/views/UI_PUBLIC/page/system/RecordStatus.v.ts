@@ -5,7 +5,6 @@
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
  * @LastEditTime: 2024-06-21 18:40:51
  */
-import { queryRecStatus } from '@/api/system'
 import { type SystemRecordStatusList } from '@/types/apiType/system'
 
 export default defineComponent({

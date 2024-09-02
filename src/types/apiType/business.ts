@@ -254,6 +254,7 @@ export class BusinessFaceCheckList extends BusinessFaceList {
 }
 
 export class BusinessParkingLotList {
+    index = 0
     plateNum = ''
     eventType = ''
     master = ''

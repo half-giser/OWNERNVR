@@ -28,7 +28,7 @@ export const camel2Kebab = (name: string) => {
 
 /**
  * @description 用实体替换特殊字符
- * @param str
+ * @param {string} str
  * @returns {string}
  */
 export const replaceWithEntity = (str: string) => {
@@ -45,6 +45,11 @@ export const replaceWithEntity = (str: string) => {
     return str
 }
 
+/**
+ * @description 字符串转换为实体
+ * @param {String} str
+ * @returns {String}
+ */
 export const convertToTextEntities = (str: string) => {
     str = '' + str
     const entityList: { ch: string; entity: string }[] = [
@@ -62,7 +67,7 @@ export const convertToTextEntities = (str: string) => {
 
 /**
  * @description 16进制转10进制数字
- * @param str
+ * @param {string} str
  * @return {number}
  */
 export const hexToDec = (str: string) => {
@@ -72,7 +77,7 @@ export const hexToDec = (str: string) => {
 
 /**
  * @description 10进制转16进制字符串
- * @param num
+ * @param {number} num
  * @return {string}
  */
 export const decToHex = (num: number) => {
@@ -81,8 +86,8 @@ export const decToHex = (num: number) => {
 
 /**
  * @description 获取指定字节长度字符串
- * @param str 源字符串
- * @param limit 指定字节长度
+ * @param {string} str 源字符串
+ * @param {number} limit 指定字节长度
  * @returns {string} 指定字节长度字符串
  */
 export const getLimitStr = (str: string, limit: number) => {
@@ -110,9 +115,9 @@ export const getLimitStr = (str: string, limit: number) => {
 }
 
 /**
- * @description
- * @param str
- * @param len
+ * @description 截取字符串
+ * @param {string} str
+ * @param {number} len
  * @returns {string}
  */
 export const getShortString = (str: string, len: number) => {
@@ -120,9 +125,9 @@ export const getShortString = (str: string, len: number) => {
 }
 
 /**
- * @description
- * @param $sourcestr
- * @param $cutlength
+ * @description 按照字节长度来截取字符串
+ * @param {string} $sourcestr
+ * @param {number} $cutlength
  * @returns {string}
  */
 export const cutStringByByte = ($sourcestr: string, $cutlength: number) => {
@@ -200,7 +205,8 @@ export const formatDigit = (value: string) => {
 
 /**
  * @description 处理邮箱的输入
- * @param value
+ * @param {string} email
+ * @returns {string}
  */
 export const hideEmailAddress = (email: string) => {
     if (email) {
@@ -225,7 +231,7 @@ export const hideEmailAddress = (email: string) => {
 /**
  * @description 敏感信息脱敏变换
  * @param {string} value
- * @param {string} level
+ * @param {enum} level 'low' | 'high' | 'medium' | 'tail'
  * @param {string} type
  * @returns {string}
  */

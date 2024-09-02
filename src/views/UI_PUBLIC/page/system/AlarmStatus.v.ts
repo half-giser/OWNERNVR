@@ -9,7 +9,7 @@ import { type XmlResult } from '@/utils/xmlParse'
 import type { SystemAlarmStatusListData, SystemAlarmStatusList } from '@/types/apiType/system'
 import dayjs from 'dayjs'
 import type { TableInstance } from 'element-plus'
-import { type PlaybackPopList } from '@/types/apiType/playback'
+import { type PlaybackPopList } from '@/components/player/BasePlaybackPop.vue'
 
 export default defineComponent({
     setup() {

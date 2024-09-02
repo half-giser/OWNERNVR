@@ -492,8 +492,13 @@ input[type='number'] {
             padding: 10px 15px;
             margin-bottom: 0;
 
+            :has(.el-form-item) {
+                flex-wrap: nowrap;
+                justify-content: space-between;
+            }
+
             &>.el-form-item__content>.el-form-item {
-                width: 50%;
+                width: 49%;
                 padding: 0;
             }
         }
@@ -688,6 +693,12 @@ input[type='number'] {
     display: flex;
     justify-content: flex-end;
     flex-shrink: 0;
+
+    &.padding {
+        box-sizing: border-box;
+        width: 100%;
+        padding-inline: 10px;
+    }
 
     &[span='2'] {
         justify-content: space-between;

@@ -3,7 +3,7 @@
  * @Date: 2024-08-27 14:27:13
  * @Description: 业务应用-人脸签到
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-27 16:50:11
+ * @LastEditTime: 2024-08-30 13:48:41
  */
 import { cloneDeep } from 'lodash-es'
 import dayjs from 'dayjs'
@@ -459,8 +459,6 @@ export default defineComponent({
 
             const allDates = getAllDates()
             const tableList = Object.values(tableRecord)
-
-            console.log(allDates, tableList)
 
             allDates.forEach((date) => {
                 tableList.forEach((item, index) => {

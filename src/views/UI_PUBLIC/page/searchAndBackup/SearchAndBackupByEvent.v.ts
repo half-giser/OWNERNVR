@@ -6,19 +6,17 @@
  * @LastEditTime: 2024-08-23 14:12:11
  */
 import dayjs from 'dayjs'
-import { type PlaybackChlList, type PlaybackBackUpRecList, PlaybackRecLogList, type PlaybackPopList } from '@/types/apiType/playback'
+import { type PlaybackChlList, type PlaybackBackUpRecList, PlaybackRecLogList } from '@/types/apiType/playback'
 import BackupPop from '../searchAndBackup/BackupPop.vue'
 import BackupLocalPop from '../searchAndBackup/BackupLocalPop.vue'
-import { DefaultPagerLayout } from '@/utils/constants'
 import { type TableInstance } from 'element-plus'
-import BasePlaybackPop from '@/components/player/BasePlaybackPop.vue'
+import { type PlaybackPopList } from '@/components/player/BasePlaybackPop.vue'
 import BackupPosInfoPop from './BackupPosInfoPop.vue'
 
 export default defineComponent({
     components: {
         BackupPop,
         BackupLocalPop,
-        BasePlaybackPop,
         BackupPosInfoPop,
     },
     setup() {
@@ -575,7 +573,6 @@ export default defineComponent({
             showPosInfo,
             BackupPop,
             BackupLocalPop,
-            BasePlaybackPop,
             BackupPosInfoPop,
         }
     },

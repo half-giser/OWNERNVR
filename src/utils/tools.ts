@@ -3,7 +3,7 @@
  * @Date: 2023-04-28 17:57:48
  * @Description: 工具方法
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-27 14:00:50
+ * @LastEditTime: 2024-08-29 20:55:17
  */
 
 import { useUserSessionStore } from '@/stores/userSession'
@@ -15,6 +15,7 @@ import { type ApiResult, getXmlWrapData } from '@/api/api'
 import { type XMLQuery, type XmlResult } from './xmlParse'
 import useMessageBox from '@/hooks/useMessageBox'
 import { APP_TYPE } from '@/utils/constants'
+import JSZip from 'jszip'
 
 export * from './transformers'
 export * from './validates'
@@ -319,6 +320,57 @@ export const downloadExcel = (titleArr: string[], contentArr: string[][], fileNa
     }, 1000)
 }
 
+type DownloadZipOptions = {
+    zipName: string
+    files: { name: string; content: string; folder: string }[]
+}
+
+export const downloadZip = (options: DownloadZipOptions) => {
+    return new Promise((resolve) => {
+        const zipName = options.zipName || 'demo'
+        const files = options.files || []
+
+        if (!files.length) {
+            resolve(void 0)
+            return
+        }
+
+        const zip = new JSZip()
+        const folders: Record<string, JSZip | null> = {}
+
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i]
+            const name = file.name
+            const content = file.content
+            const folder = file.folder
+            if (folder && !folders[folder]) {
+                folders[folder] = zip.folder(folder)
+            }
+            const obj = folders[folder] || zip
+            // 判断是否为图片文件
+            const isImg = /\.(png|jpe?g|gif|svg)(\?.*)?$/.test(name)
+            if (isImg) {
+                obj.file(name, content.replace(/data:image\/(png|jpg);base64,/, ''), { base64: true })
+            } else {
+                if (content.length == 0) {
+                    // 跳过空录像文件
+                    files.splice(i, 1)
+                    i--
+                    continue
+                }
+                obj.file(name, content)
+            }
+        }
+
+        zip.generateAsync({ type: 'blob' }).then((content) => {
+            download(content, zipName + '.zip')
+            // see FileSaver.js
+            // saveAs(content, zipName + ".zip")
+            resolve(void 0)
+        })
+    })
+}
+
 /**
  * @description
  * @param arrayObject
@@ -428,6 +480,102 @@ export const getChlList = (options: Partial<QueryNodeListDto>) => {
         </requireField>
     `
     return queryNodeList(getXmlWrapData(data))
+}
+
+/**
+ * @description 传入当前页的路由 检测通道能力集
+ * @param {string} route
+ * @returns {Promise<Boolean>}
+ */
+export const checkChlListCaps = async (route: string) => {
+    const { openLoading, closeLoading, LoadingTarget } = useLoading()
+    const systemCaps = useCababilityStore()
+
+    if (route.includes('faceRecognition') || route.includes('vehicleRecognition') || route.includes('boundary') || route.includes('more')) {
+    } else {
+        return false
+    }
+
+    // 通过能力集判断设备是否支持人脸后侦测
+    const localFaceDectEnabled = systemCaps.localFaceDectMaxCount !== 0
+    const localTargetDectEnabled = systemCaps.localTargetDectMaxCount !== 0
+
+    openLoading(LoadingTarget.FullScreen)
+
+    const resultOnline = await queryOnlineChlList()
+    const $online = queryXml(resultOnline)
+    const onlineList = $online('//content/item').map((item) => item.attr('id')!)
+
+    const result = await getChlList({
+        requireField: [
+            'supportVfd',
+            'supportVehiclePlate',
+            'supportAOIEntry',
+            'supportAOILeave',
+            'supportTripwire',
+            'supportPea',
+            'supportPeaTrigger',
+            'supportAvd',
+            'supportCdd',
+            'supportOsc',
+            'supportPassLine',
+            'supportPassLine',
+            'protocolType',
+        ],
+    })
+    const $ = queryXml(result)
+
+    closeLoading(LoadingTarget.FullScreen)
+
+    const supportFlag = $('//content/item').some((item) => {
+        const $item = queryXml(item.element)
+        const protocolType = $('protocolType').text()
+        const factoryName = $('productModel').attr('factoryName')!
+        if (factoryName === 'Recorder') {
+            return false
+        }
+        const chlId = item.attr('id')!
+        if (protocolType !== 'RTSP' && onlineList.includes(chlId)) {
+            const supportOsc = $item('supportOsc').text().toBoolean()
+            const supportCdd = $item('supportCdd').text().toBoolean()
+            const supportVfd = $item('supportVfd').text().toBoolean()
+            const supportAvd = $item('supportAvd').text().toBoolean()
+            const supportPea = $item('supportPea').text().toBoolean()
+            const supportPeaTrigger = $item('supportPeaTrigger').text().toBoolean()
+            const supportTripwire = $item('supportTripwire').text().toBoolean()
+            const supportAOIEntry = $item('supportAOIEntry').text().toBoolean()
+            const supportAOILeave = $item('supportAOILeave').text().toBoolean()
+            const supportVehiclePlate = $item('supportVehiclePlate').text().toBoolean()
+            const supportPassLine = $item('supportPassLine').text().toBoolean()
+            const supportCpc = $item('supportCpc').text().toBoolean()
+            let supportBackVfd = false
+            if (localFaceDectEnabled && !supportVfd) {
+                supportBackVfd = true
+            }
+
+            if (
+                supportBackVfd ||
+                supportVfd ||
+                supportVehiclePlate ||
+                supportTripwire ||
+                supportPea ||
+                supportPeaTrigger ||
+                supportAOIEntry ||
+                supportAOILeave ||
+                localTargetDectEnabled ||
+                supportOsc ||
+                supportCdd ||
+                supportPassLine ||
+                supportAvd ||
+                supportCpc
+            ) {
+                return true
+            }
+            return false
+        }
+    })
+
+    return supportFlag
 }
 
 /**

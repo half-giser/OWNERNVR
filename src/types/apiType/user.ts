@@ -7,7 +7,7 @@
  */
 
 /**
- * 登录表单数据
+ * @description 登录表单数据
  */
 export class LoginForm {
     userName = ''
@@ -16,7 +16,7 @@ export class LoginForm {
 }
 
 /**
- * 登录请求数据类型
+ * @description 登录请求数据类型
  */
 export class LoginReqData {
     userName = ''
@@ -25,7 +25,7 @@ export class LoginReqData {
 }
 
 /**
- * 重置密码表单数据
+ * @description 重置密码表单数据
  */
 export class ChangePasswordForm {
     currentPassword = ''
@@ -34,7 +34,7 @@ export class ChangePasswordForm {
 }
 
 /**
- * 重置密码请求数据类型
+ * @description 重置密码请求数据类型
  */
 export class ChangePasswordReqData {
     oldPassword = ''

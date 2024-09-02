@@ -51,6 +51,11 @@ export default class WebsocketUpload {
         })
     }
 
+    /**
+     * @description
+     * @param {ArrayBuffer} file
+     * @returns {Promise<ArrayBuffer>}
+     */
     private readFileInfo(file: Blob) {
         return new Promise((resolve: (buffer: ArrayBuffer) => void) => {
             const reader = new FileReader()
@@ -106,7 +111,10 @@ export default class WebsocketUpload {
         this.ws!.send(JSON.stringify(cmd))
     }
 
-    // 裁剪文件成多份
+    /**
+     * @description 裁剪文件成多份
+     * @param {ArrayBuffer} buffer
+     */
     cutPackage(buffer: ArrayBuffer) {
         const cutNumber = Math.ceil(buffer.byteLength / this.maxSingleSize)
         for (let i = 0; i < cutNumber; i++) {
@@ -119,7 +127,9 @@ export default class WebsocketUpload {
         if (this.packageArr.length > 0) this.batchSend()
     }
 
-    // 分批上传
+    /**
+     * @description 分批上传
+     */
     batchSend() {
         // 当上传队列不超过最大缓存分片 和 上传下标不超过分片数 时, 执行上传
         while (this.uploadArr.length < this.oneUploadNum && this.uploadIndex < this.packageArr.length) {
@@ -133,7 +143,11 @@ export default class WebsocketUpload {
         }
     }
 
-    // 传输给服务端
+    /**
+     * @description 传输给服务端
+     * @param {Object} json
+     * @param {ArrayBuffer} bufferSlice
+     */
     sendPackage(json: ReturnType<typeof CMD_UPLOAD_FILE_HEADER>, bufferSlice: ArrayBuffer) {
         dataToBuffer(JSON.stringify(json)).then((jsonBuffer) => {
             // 包头buffer + jsonbuffer + 文件buffer
@@ -144,7 +158,9 @@ export default class WebsocketUpload {
         })
     }
 
-    // 中断上传
+    /**
+     * @description 中断上传
+     */
     cancel() {
         // this.breakUpload = true
         const cmd = CMD_UPLOAD_FILE_CLOSE({
@@ -153,7 +169,9 @@ export default class WebsocketUpload {
         this.ws!.send(JSON.stringify(cmd))
     }
 
-    // 结束上传
+    /**
+     * @description 结束上传
+     */
     endUpload() {
         const cmd = CMD_UPLOAD_FILE_CLOSE({
             reason: 'finished',

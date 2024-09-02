@@ -7,8 +7,6 @@
  */
 import { NetDDNSForm, NetDDNSServerTypeList } from '@/types/apiType/net'
 import { type FormInstance, type FormRules } from 'element-plus'
-import { formatInputUserName } from '@/utils/tools'
-import { nameByteMaxLen } from '@/utils/constants'
 
 export default defineComponent({
     setup() {

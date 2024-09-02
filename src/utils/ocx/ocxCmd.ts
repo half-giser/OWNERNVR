@@ -87,7 +87,6 @@ export const OCX_XML_GetLangNode = () => {
         'IDCS_MAINTENSIGN_ITEM_OTHERSYS',
         'IDCS_REMOTE_USER_LOCKED',
     ]
-    // TODO: TEST
     const { langItems } = useLangStore()
     return Object.keys(langItems!)
         .map((item) => {

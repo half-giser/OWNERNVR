@@ -37,8 +37,17 @@
 <script lang="ts" setup>
 const prop = withDefaults(
     defineProps<{
+        /**
+         * @property 音量值 范围: [0, 100]
+         */
         volume: number
+        /**
+         * @property 是否静音
+         */
         mute: boolean
+        /**
+         * @property 是否禁用
+         */
         disabled?: boolean
     }>(),
     {
@@ -61,14 +70,21 @@ const emits = defineEmits<{
     (e: 'update:mute', mute: boolean): void
 }>()
 
+// ICON图标
 const iconFile = computed(() => {
     return prop.mute ? 'sound_close' : 'sound'
 })
 
+/**
+ * @description 更改音量回调
+ */
 const handleChangevolume = (event: number) => {
     emits('update:volume', event)
 }
 
+/**
+ * @description 开关静音回调
+ */
 const handleSwitchMute = () => {
     if (prop.disabled) {
         return

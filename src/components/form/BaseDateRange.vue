@@ -71,45 +71,66 @@ const emits = defineEmits<{
 const { openMessageTipBox } = useMessageBox()
 const { Translate } = useLangStore()
 
+/**
+ * @description 上一个日期
+ */
 const handlePrev = () => {
     const oldValue = [...props.modelValue]
     let current: [number, number] = [0, 0]
 
-    if (props.type === 'date') {
-        current = [dayjs(oldValue[0]).subtract(1, 'day').valueOf(), dayjs(oldValue[1]).subtract(1, 'day').valueOf()]
-    } else if (props.type === 'month') {
-        const lastMonth = dayjs(oldValue[0]).subtract(1, 'month')
-        const days = lastMonth.daysInMonth()
-        console.log(days)
-        current = [lastMonth.date(1).hour(0).minute(0).second(0).valueOf(), lastMonth.date(days).hour(23).minute(59).second(59).valueOf()]
-    } else if (props.type === 'week') {
-        current = [dayjs(oldValue[0]).subtract(7, 'day').valueOf(), dayjs(oldValue[1]).subtract(7, 'day').valueOf()]
-    } else {
-        const diff = dayjs(oldValue[1]).diff(oldValue[0], 'day')
-        current = [dayjs(oldValue[0]).subtract(diff, 'day').valueOf(), dayjs(oldValue[1]).subtract(diff, 'day').valueOf()]
+    switch (props.type) {
+        case 'date':
+            current = [dayjs(oldValue[0]).subtract(1, 'day').valueOf(), dayjs(oldValue[1]).subtract(1, 'day').valueOf()]
+            break
+        case 'month':
+            const lastMonth = dayjs(oldValue[0]).subtract(1, 'month')
+            const days = lastMonth.daysInMonth()
+            current = [lastMonth.date(1).hour(0).minute(0).second(0).valueOf(), lastMonth.date(days).hour(23).minute(59).second(59).valueOf()]
+            break
+        case 'season':
+            // TODO
+            break
+        case 'week':
+            current = [dayjs(oldValue[0]).subtract(7, 'day').valueOf(), dayjs(oldValue[1]).subtract(7, 'day').valueOf()]
+            break
+        default:
+            const diff = dayjs(oldValue[1]).diff(oldValue[0], 'day')
+            current = [dayjs(oldValue[0]).subtract(diff, 'day').valueOf(), dayjs(oldValue[1]).subtract(diff, 'day').valueOf()]
+            break
     }
-    console.log(formatDate(current[0]), formatDate(current[1]))
+
     emits('update:modelValue', current)
     emits('change', current, props.type)
 }
 
+/**
+ * @description 下一个日期
+ */
 const handleNext = () => {
     const oldValue = [...props.modelValue]
     let current: [number, number] = [0, 0]
 
-    if (props.type === 'date') {
-        current = [dayjs(oldValue[0]).add(1, 'day').valueOf(), dayjs(oldValue[1]).add(1, 'day').valueOf()]
-    } else if (props.type === 'month') {
-        const nextMonth = dayjs(oldValue[0]).add(1, 'month')
-        const days = nextMonth.daysInMonth()
-        current = [nextMonth.date(1).hour(0).minute(0).second(0).valueOf(), nextMonth.date(days).hour(23).minute(59).second(59).valueOf()]
-        console.log(nextMonth.date(1).hour(0).minute(0).second(0), nextMonth.date(days).hour(23).minute(59).second(59))
-    } else if (props.type === 'week') {
-        current = [dayjs(oldValue[0]).add(7, 'day').valueOf(), dayjs(oldValue[1]).add(7, 'day').valueOf()]
-    } else {
-        const diff = dayjs(oldValue[1]).diff(oldValue[0], 'day')
-        current = [dayjs(oldValue[0]).add(diff, 'day').valueOf(), dayjs(oldValue[1]).subtract(diff, 'day').valueOf()]
+    switch (props.type) {
+        case 'date':
+            current = [dayjs(oldValue[0]).add(1, 'day').valueOf(), dayjs(oldValue[1]).add(1, 'day').valueOf()]
+            break
+        case 'month':
+            const nextMonth = dayjs(oldValue[0]).add(1, 'month')
+            const days = nextMonth.daysInMonth()
+            current = [nextMonth.date(1).hour(0).minute(0).second(0).valueOf(), nextMonth.date(days).hour(23).minute(59).second(59).valueOf()]
+            break
+        case 'season':
+            // TODO
+            break
+        case 'week':
+            current = [dayjs(oldValue[0]).add(7, 'day').valueOf(), dayjs(oldValue[1]).add(7, 'day').valueOf()]
+            break
+        default:
+            const diff = dayjs(oldValue[1]).diff(oldValue[0], 'day')
+            current = [dayjs(oldValue[0]).add(diff, 'day').valueOf(), dayjs(oldValue[1]).subtract(diff, 'day').valueOf()]
+            break
     }
+
     if (current[0] > dayjs().hour(23).minute(59).second(59).valueOf()) {
         openMessageTipBox({
             type: 'info',
@@ -117,11 +138,14 @@ const handleNext = () => {
         })
         return
     }
-    console.log(formatDate(current[0]), formatDate(current[1]))
     emits('update:modelValue', current)
     emits('change', current, props.type)
 }
 
+/**
+ * @description 日期的格式化显示
+ * @param {Number} timestamp 毫秒
+ */
 const displayDateValue = (timestamp: number) => {
     if (props.type === 'date') {
         if (dayjs().isSame(timestamp, 'day')) {

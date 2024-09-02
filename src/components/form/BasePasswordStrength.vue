@@ -19,6 +19,9 @@
 
 <script lang="ts" setup>
 const prop = defineProps<{
+    /**
+     * @description 强度值 取值范围：[0, 4]
+     */
     strength: number
 }>()
 

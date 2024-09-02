@@ -6,18 +6,26 @@
  * @LastEditTime: 2024-08-16 18:10:18
  */
 import { type FormInstance, type FormRules } from 'element-plus'
-import { formatDigit } from '@/utils/formats'
 
 export default defineComponent({
     props: {
+        /**
+         * @property 编码ID列表
+         */
         codeList: {
             type: Array as PropType<string[]>,
             default: () => [],
         },
+        /**
+         * @property 名称
+         */
         name: {
             type: String,
             default: '',
         },
+        /**
+         * @property Code
+         */
         code: {
             type: String,
             default: '',
@@ -59,6 +67,9 @@ export default defineComponent({
             ],
         })
 
+        /**
+         * @description 打开弹窗时重置表单
+         */
         const open = () => {
             formRef.value?.clearValidate()
             formRef.value?.resetFields()
@@ -66,10 +77,16 @@ export default defineComponent({
             formData.value.code = prop.code
         }
 
+        /**
+         * @description 关闭弹窗
+         */
         const close = () => {
             ctx.emit('close')
         }
 
+        /**
+         * @description 校验表单
+         */
         const verify = () => {
             formRef.value!.validate((valid) => {
                 if (valid) {
