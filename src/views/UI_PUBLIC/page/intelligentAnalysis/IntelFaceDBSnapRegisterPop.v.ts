@@ -3,15 +3,15 @@
  * @Date: 2024-07-29 16:10:39
  * @Description: 抓拍注册弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 17:51:40
+ * @LastEditTime: 2024-09-02 19:45:41
  */
-import { type LiveSnapFaceDatabaseList, LiveSnapRegisterForm } from '@/types/apiType/live'
 import type { FormInstance, FormRules } from 'element-plus'
-import LiveSnapAddFaceGroupPop from './LiveSnapAddFaceGroupPop.vue'
+import IntelFaceDBEditPop from './IntelFaceDBEditPop.vue'
+import { type IntelFaceDBGroupDto, IntelFaceDBSnapRegisterForm } from '@/types/apiType/intelligentAnalysis'
 
 export default defineComponent({
     components: {
-        LiveSnapAddFaceGroupPop,
+        IntelFaceDBEditPop,
     },
     props: {
         pic: {
@@ -42,7 +42,7 @@ export default defineComponent({
 
         const pageData = ref({
             // 人脸数据库选项
-            faceDatabaseList: [] as LiveSnapFaceDatabaseList[],
+            faceDatabaseList: [] as IntelFaceDBGroupDto[],
             // 性别选项
             genderOptions: [
                 {
@@ -72,7 +72,7 @@ export default defineComponent({
         })
 
         const formRef = ref<FormInstance>()
-        const formData = ref(new LiveSnapRegisterForm())
+        const formData = ref(new IntelFaceDBSnapRegisterForm())
         const formRule = ref<FormRules>({
             name: [
                 {
@@ -111,7 +111,7 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            pageData.value.faceDatabaseList = $('/response/content/item').map((item) => {
+            pageData.value.faceDatabaseList = $('//content/item').map((item) => {
                 const $item = queryXml(item.element)
                 return {
                     id: item.attr('id')!,
@@ -287,7 +287,7 @@ export default defineComponent({
             displayBase64Img,
             confirmAddGroup,
             verify,
-            LiveSnapAddFaceGroupPop,
+            IntelFaceDBEditPop,
         }
     },
 })

@@ -3,7 +3,7 @@
  * @Date: 2024-07-22 16:34:10
  * @Description: 抓拍注册弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 17:55:20
+ * @LastEditTime: 2024-09-02 19:38:03
 -->
 <template>
     <el-dialog
@@ -106,8 +106,9 @@
                     <el-button @click="addGroup">{{ Translate('IDCS_ADD_GROUP') }}</el-button>
                 </el-form-item>
             </el-form>
-            <LiveSnapAddFaceGroupPop
+            <IntelFaceDBEditPop
                 v-model="pageData.isAddGroupPop"
+                type="add"
                 @close="pageData.isAddGroupPop = false"
                 @confirm="confirmAddGroup"
             />
@@ -126,7 +127,7 @@
     </el-dialog>
 </template>
 
-<script lang="ts" src="./LiveSnapRegisterPop.v.ts"></script>
+<script lang="ts" src="./IntelFaceDBSnapRegisterPop.v.ts"></script>
 
 <style lang="scss" scoped>
 .title {

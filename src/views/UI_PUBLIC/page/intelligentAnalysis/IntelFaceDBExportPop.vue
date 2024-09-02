@@ -1,0 +1,38 @@
+<!--
+ * @Author: yejiahao yejiahao@tvt.net.cn
+ * @Date: 2024-08-29 17:18:39
+ * @Description: 导出人脸库弹窗
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-02 16:49:51
+-->
+<template>
+    <el-dialog
+        :title="Translate('IDCS_EXPORT')"
+        :show-close="false"
+        :width="600"
+        align-center
+        draggable
+        @open="open"
+    >
+        <div>
+            <el-progress
+                :percentage="progress"
+                :stroke-width="14"
+            />
+            <div class="chunk">{{ progress }} %</div>
+            <p class="tip">{{ Translate('IDCS_DOWNLOADING') }}</p>
+        </div>
+    </el-dialog>
+</template>
+
+<script lang="ts" src="./IntelFaceDBExportPop.v.ts"></script>
+
+<style lang="scss" scoped>
+.chunk {
+    margin-top: 10px;
+}
+
+.tip {
+    text-align: center;
+}
+</style>

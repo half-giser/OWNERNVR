@@ -3,7 +3,7 @@
  * @Date: 2024-08-29 09:13:28
  * @Description: 智能分析
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-02 14:54:51
+ * @LastEditTime: 2024-09-02 19:45:24
  */
 
 export class EngineConfigForm {
@@ -15,11 +15,14 @@ export class EngineConfigList {
     eventType = ''
 }
 
-export class IntelFaceDBGroupList {
+export class IntelFaceDBGroupDto {
     id = ''
     name = ''
-    property = ''
     groupId = ''
+}
+
+export class IntelFaceDBGroupList extends IntelFaceDBGroupDto {
+    property = ''
     enableAlarmSwitch = false
     count = 0
 }
@@ -38,6 +41,19 @@ export class IntelFaceDBFaceInfo {
     // createTime = ''
     faceImgCount = 0
     pic = [] as string[]
+}
+
+export class IntelFaceDBSnapRegisterForm {
+    name = ''
+    sex = ''
+    birthday = ''
+    nativePlace = ''
+    certificateType = 'idCard'
+    certificateNum = ''
+    mobile = undefined as number | undefined
+    number = undefined as number | undefined
+    note = ''
+    groupId = ''
 }
 
 export class IntelFaceDBFaceForm {
