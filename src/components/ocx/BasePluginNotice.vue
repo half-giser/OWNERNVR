@@ -25,7 +25,6 @@
 </template>
 
 <script lang="ts" setup>
-import { OCX_Plugin_Load_Lang, OCX_Plugin_Notice_Map } from '@/utils/ocx/ocxUtil'
 const lang = useLangStore()
 const pluginStore = usePluginStore()
 const Plugin = inject('Plugin') as PluginType

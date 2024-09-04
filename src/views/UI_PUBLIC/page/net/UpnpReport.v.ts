@@ -6,8 +6,6 @@
  * @LastEditTime: 2024-07-15 10:29:32
  */
 import { type FormInstance, type FormRules } from 'element-plus'
-import { nameByteMaxLen } from '@/utils/constants'
-import { formatInputMaxLength } from '@/utils/tools'
 import { NetUPnPReportForm } from '@/types/apiType/net'
 
 export default defineComponent({

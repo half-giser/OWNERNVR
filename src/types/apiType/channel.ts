@@ -512,12 +512,18 @@ export class ChannelPtzCruiseGroupCruiseDto extends ChannelPtzPresetDto {
     id = 0
 }
 
+/**
+ * @description 云台 任务 通道列表项
+ */
 export class ChannelPtzTaskChlDto {
     chlId = ''
     chlName = ''
     taskItemCount = 0
 }
 
+/**
+ * @description 云台 任务列表项
+ */
 export class ChannelPtzTaskDto {
     index = 0
     enable = ''
@@ -528,6 +534,9 @@ export class ChannelPtzTaskDto {
     editIndex = ''
 }
 
+/**
+ * @description 云台 任务 表单
+ */
 export class ChannelPtzTaskForm {
     startTime = '00:00'
     endTime = '00:00'
@@ -535,6 +544,9 @@ export class ChannelPtzTaskForm {
     type = 'NON'
 }
 
+/**
+ * @description 云台 智能跟踪 通道列表项
+ */
 export class ChannelPtzSmartTrackDto {
     [key: string]: boolean | string | number
     chlId = ''
@@ -545,6 +557,9 @@ export class ChannelPtzSmartTrackDto {
     status = 'loading'
 }
 
+/**
+ * @description 云台协议 通道列表项
+ */
 export class ChannelPtzProtocolDto {
     [key: string]: any
     chlId = ''

@@ -26,17 +26,20 @@
 
 <script lang="ts" setup>
 const userSessionStore = useUserSessionStore()
-// const osType = getSystemInfo().platform
 
 const playerRef = ref<PlayerInstance>()
 const dialogOpened = ref(false)
 
 let chlId: string
 let chlName: string
-// let chlIndex: string
-// let chlType: string
 let isOnline: boolean
 
+/**
+ * @description 打开直播弹窗 并播放
+ * @param {String} _chlId
+ * @param {string} _chlName
+ * @param {Boolean} _isOnline
+ */
 const openLiveWin = (_chlId: string, _chlName: string, _isOnline = true) => {
     chlId = _chlId
     chlName = _chlName
@@ -46,6 +49,9 @@ const openLiveWin = (_chlId: string, _chlName: string, _isOnline = true) => {
     dialogOpened.value = true
 }
 
+/**
+ * @description 播放
+ */
 const play = () => {
     if (!playerRef.value || !playerRef.value.ready) return
     if (playerRef.value.mode === 'ocx') {
@@ -79,14 +85,23 @@ const play = () => {
     }
 }
 
+/**
+ * @description 打开弹窗
+ */
 const opened = () => {
     dialogOpened.value = true
 }
 
+/**
+ * @description 关闭弹窗
+ */
 const close = () => {
     dialogOpened.value = false
 }
 
+/**
+ * @description 播放器Ready时回调
+ */
 const ready = () => {
     play()
 }

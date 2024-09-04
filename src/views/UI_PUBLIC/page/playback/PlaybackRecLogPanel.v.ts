@@ -10,41 +10,65 @@ import dayjs from 'dayjs'
 
 export default defineComponent({
     props: {
+        /**
+         * @property {Number} 开始时间 毫秒
+         */
         startTime: {
             type: Number,
             required: true,
             default: 0,
         },
+        /**
+         * @property {Number} 结束时间 毫秒
+         */
         endTime: {
             type: Number,
             required: true,
             default: 0,
         },
+        /**
+         * @property {Enum} 模式 modeOne | modeTwo
+         */
         modeType: {
             type: String,
             required: true,
             default: 'modeOne',
         },
+        /**
+         * @property {Array} 事件列表
+         */
         eventList: {
             type: Array as PropType<string[]>,
             required: true,
             default: () => [],
         },
+        /**
+         * @property {Array} 通道列表
+         */
         chls: {
             type: Array as PropType<PlaybackChlList[]>,
             required: true,
             default: () => [],
         },
+        /**
+         * @property 当前通道
+         */
         chl: {
             type: String,
             required: true,
             default: '',
         },
+        /**
+         * @property 时间日期格式
+         */
         dateTimeFormat: {
             type: String,
             required: true,
             default: 'YYYY-MM-DD hh:mm:ss',
         },
+        /**
+         * @property 播放状态
+         */
         playStatus: {
             type: String,
             required: true,

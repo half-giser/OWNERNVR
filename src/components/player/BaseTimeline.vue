@@ -197,6 +197,9 @@ let timeSplitList: TimeRange[] = []
 let canvasWidth = 0
 let canvasHeight = 40
 
+/**
+ * @description 初始化颜色值
+ */
 const initColor = () => {
     const style = getComputedStyle($container.value!)
     bgColor = style.getPropertyValue('--timeline-bg-color') // 画布背景色

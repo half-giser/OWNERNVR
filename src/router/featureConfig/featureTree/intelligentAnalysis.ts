@@ -15,7 +15,7 @@ export default {
     children: {
         egineCfg: {
             //引擎配置
-            component: 'intelligentAnalysis/ItAlysEgineCfg.vue',
+            component: 'intelligentAnalysis/IntelEngineCfg.vue',
             meta: {
                 sort: 10,
                 lk: 'IDCS_ENGINE_CONFIG',
@@ -32,7 +32,7 @@ export default {
                 face: {
                     //人脸
                     name: 'searchFace',
-                    component: 'intelligentAnalysis/ItAlysFaceSch.vue',
+                    component: 'intelligentAnalysis/IntelFaceSearch.vue',
                     meta: {
                         sort: 10,
                         lk: 'IDCS_FACE',
@@ -42,7 +42,7 @@ export default {
                 body: {
                     //人体
                     name: 'searchBody',
-                    component: 'intelligentAnalysis/ItAlysBodySch.vue',
+                    component: 'intelligentAnalysis/IntelBodySearch.vue',
                     meta: {
                         sort: 20,
                         lk: 'IDCS_FIGURE',
@@ -52,7 +52,7 @@ export default {
                 vehicle: {
                     //车辆
                     name: 'searchVehicle',
-                    component: 'intelligentAnalysis/ItAlysVehicleSch.vue',
+                    component: 'intelligentAnalysis/IntelVehicleSearch.vue',
                     meta: {
                         sort: 30,
                         lk: 'IDCS_VEHICLE',
@@ -62,7 +62,7 @@ export default {
                 combine: {
                     //组合
                     name: 'searchCombine',
-                    component: 'intelligentAnalysis/ItAlysCombineSch.vue',
+                    component: 'intelligentAnalysis/IntelCombineSearch.vue',
                     meta: {
                         sort: 40,
                         lk: 'IDCS_COMBINE_SEARCH',
@@ -82,7 +82,7 @@ export default {
                 person: {
                     //人员
                     name: 'statisticsPerson',
-                    component: 'intelligentAnalysis/ItAlysPersonSts.vue',
+                    component: 'intelligentAnalysis/IntelPersonStats.vue',
                     meta: {
                         sort: 10,
                         lk: 'IDCS_PERSON_STATISTICS',
@@ -92,7 +92,7 @@ export default {
                 vehicle: {
                     //车辆
                     name: 'statisticsVehicle',
-                    component: 'intelligentAnalysis/ItAlysVehicleSts.vue',
+                    component: 'intelligentAnalysis/IntelVehicleStats.vue',
                     meta: {
                         sort: 30,
                         lk: 'IDCS_VEHICLE',
@@ -102,7 +102,7 @@ export default {
                 combine: {
                     //组合
                     name: 'statisticsCombine',
-                    component: 'intelligentAnalysis/ItAlysCombineSts.vue',
+                    component: 'intelligentAnalysis/IntelCombineStats.vue',
                     meta: {
                         sort: 40,
                         lk: 'IDCS_COMBINE_SEARCH',
@@ -122,7 +122,7 @@ export default {
                 face: {
                     //人脸
                     name: 'sampleDataBaseFace',
-                    component: 'intelligentAnalysis/ItAlysFaceDb.vue',
+                    component: 'intelligentAnalysis/IntelFaceDB.vue',
                     meta: {
                         sort: 10,
                         lk: 'IDCS_FACE',
@@ -132,7 +132,7 @@ export default {
                 licencePlate: {
                     //车牌
                     name: 'sampleDataBaseLicencePlate',
-                    component: 'intelligentAnalysis/ItAlysLicencePlateDb.vue',
+                    component: 'intelligentAnalysis/IntelLicencePlateDB.vue',
                     meta: {
                         sort: 30,
                         lk: 'IDCS_LICENSE_PLATE',

@@ -3,7 +3,7 @@
  * @Date: 2023-06-02 11:57:11
  * @Description: 系统API
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-27 19:35:09
+ * @LastEditTime: 2024-08-30 13:56:54
  */
 import type { AxiosRequestConfig } from 'axios'
 import http from './api'
@@ -193,13 +193,6 @@ export const queryLog = (data: string) => http.fetch('queryLog', getXmlWrapData(
  * @returns
  */
 export const exportLog = (data: string) => http.fetch('exportLog', getXmlWrapData(data))
-
-/**
- * @description 获取通道捕捉人脸图像
- * @param {string} data
- * @returns
- */
-export const requestChSnapFaceImage = (data: string) => http.fetch('requestChSnapFaceImage', getXmlWrapData(data), {}, false)
 
 /**
  * @description 获取POS列表数据

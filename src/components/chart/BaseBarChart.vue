@@ -67,24 +67,78 @@ type BarChartXValueOption = BarChartXValueOptionItem[]
 
 const prop = withDefaults(
     defineProps<{
-        width: number // canvas的宽度
-        height: number // canvas的高度
-        lineSpacing: number // y坐标文字的间距
-        xLength: number // X轴的宽度
-        ox: number // 柱状图起点
-        oy: number // 柱状图起点
-        writeY: number // y坐标起始文字
-        writeYSpacing: number // y坐标显示文字的间距值
-        unit: string // X坐标显示文字的间距值
+        /**
+         * @property canvas的宽度
+         */
+        width: number
+        /**
+         * @property canvas的高度
+         */
+        height: number
+        /**
+         * @property y坐标文字的间距
+         */
+        lineSpacing: number
+        /**
+         * @property X轴的宽度
+         */
+        xLength: number
+        /**
+         * @property 柱状图起点
+         */
+        ox: number
+        /**
+         * @property 柱状图起点
+         */
+        oy: number
+        /**
+         * @property y坐标起始文字
+         */
+        writeY: number
+        /**
+         * @property y坐标显示文字的间距值
+         */
+        writeYSpacing: number
+        /**
+         * @property X坐标显示文字的间距值
+         */
+        unit: string
+        /**
+         * @property 图例
+         */
         tooltip: BarChartToolTipOption
-        color: string[] // 柱子的颜色
-        lineColor: string // 坐标线的颜色
-        proportion: number // 柱状间的间隙和柱状宽的比例
-        yValue: number[] | number[][] // 柱状图的值
-        xValue: BarChartXValueOption // 柱状图的值
-        unitNum: number // 单元格内的柱子数量
-        maxColNums: number // 最大显示32根柱子，超出则分页
-        textColor: string // 文本颜色
+        /**
+         * @property 柱子的颜色
+         */
+        color: string[]
+        /**
+         * @property 坐标线的颜色
+         */
+        lineColor: string
+        /**
+         * @property 柱状间的间隙和柱状宽的比例
+         */
+        proportion: number
+        /**
+         * @property 柱状图的值
+         */
+        yValue: number[] | number[][]
+        /**
+         * @property 柱状图的值
+         */
+        xValue: BarChartXValueOption
+        /**
+         * @property 单元格内的柱子数量
+         */
+        unitNum: number
+        /**
+         * @property 最大显示32根柱子，超出则分页
+         */
+        maxColNums: number
+        /**
+         * @property 文本颜色
+         */
+        textColor: string
     }>(),
     {
         width: 1200,
@@ -112,20 +166,28 @@ const $canvas = ref<HTMLCanvasElement>()
 let context: CanvasRenderingContext2D
 const pageIndex = ref(0)
 
+// 是否需要分页
 const needPagination = computed(() => {
     return prop.yValue.length * prop.unitNum > prop.maxColNums
 })
 
+// 页数
 const pageSize = computed(() => {
     return Math.ceil(prop.yValue.length / prop.unitNum)
 })
 
+/**
+ * @description 上一页
+ */
 const prevPage = () => {
     if (pageIndex.value <= 0) return
     pageIndex.value--
     render()
 }
 
+/**
+ * @description 下一页
+ */
 const nextPage = () => {
     if (pageIndex.value >= pageSize.value - 1) {
         return
@@ -134,6 +196,14 @@ const nextPage = () => {
     render()
 }
 
+/**
+ * @description 绘制线
+ * @param {Number} aX
+ * @param {Number} aY
+ * @param {Number} bX
+ * @param {Number} bY
+ * @param {String} lineColor
+ */
 const drawLine = (aX: number, aY: number, bX: number, bY: number, lineColor?: string) => {
     context.beginPath()
     context.moveTo(aX, aY)
@@ -144,6 +214,12 @@ const drawLine = (aX: number, aY: number, bX: number, bY: number, lineColor?: st
     context.stroke()
 }
 
+/**
+ * @description 绘制文本
+ * @param {String} start
+ * @param {Number} ox
+ * @param {Number} oy
+ */
 const drawText = (start: string, ox: number, oy: number) => {
     context.beginPath()
     context.fillStyle = prop.textColor
@@ -151,6 +227,14 @@ const drawText = (start: string, ox: number, oy: number) => {
     context.closePath()
 }
 
+/**
+ * @description 绘制矩形
+ * @param {Number} x
+ * @param {Number} y
+ * @param {Number} width
+ * @param {Number} height
+ * @param {String} color
+ */
 const drawRect = (x: number, y: number, width: number, height: number, color: string) => {
     context.beginPath()
     context.fillStyle = color
@@ -159,6 +243,9 @@ const drawRect = (x: number, y: number, width: number, height: number, color: st
     context.closePath()
 }
 
+/**
+ * @description 绘制条形
+ */
 const drawBars = () => {
     const sliceStart = pageIndex.value * pageSize.value
     const sliceEnd = sliceStart + pageIndex.value
@@ -200,6 +287,9 @@ const drawBars = () => {
     }
 }
 
+/**
+ * @description 渲染
+ */
 const render = () => {
     context.clearRect(0, 0, prop.width, prop.xLength)
     const yLength = prop.lineSpacing * (prop.writeY / prop.writeYSpacing)

@@ -6,8 +6,6 @@
  * @LastEditTime: 2024-06-11 09:39:06
  */
 import WebsocketBase from './websocketBase'
-import { CMD_PLATELIB_IMPORT_START, CMD_PLATELIB_IMPORT_STOP, CMD_PLATELIB_IMPORT_DATA } from './websocketCmd'
-import { appendBuffer, dataToBuffer, buildHeader } from '../tools'
 
 export interface WebsocketImportPlateLibOption {
     // onopen?: () => void
@@ -88,7 +86,10 @@ export default class WebsocketImportPlateLib {
         })
     }
 
-    // 裁剪JSON数据成多份
+    /**
+     * @description 裁剪JSON数据成多份
+     * @param {number} importIdx
+     */
     private cutPackage(importIdx: number) {
         const startIdx = importIdx * this.limitNum
         const endIdx = (importIdx + 1) * this.limitNum
@@ -99,7 +100,10 @@ export default class WebsocketImportPlateLib {
         }
     }
 
-    // 传输给服务端
+    /**
+     * @description 传输给服务端
+     * @param {Object} json
+     */
     private sendJsonBuffer(json: any) {
         dataToBuffer(JSON.stringify(json)).then((jsonBuffer) => {
             // 包头buffer + jsonbuffer (数据包含在jsonbuffer里)

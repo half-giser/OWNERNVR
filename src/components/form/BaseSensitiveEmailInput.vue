@@ -52,6 +52,9 @@ const emits = defineEmits<{
 
 const value = ref('')
 
+/**
+ * @description 失去焦点时脱敏处理
+ */
 const handleBlur = () => {
     if (!prop.showValue) {
         handleHideSensitiveInfo()
@@ -59,19 +62,31 @@ const handleBlur = () => {
     emits('blur')
 }
 
+/**
+ * @description 获取焦点时显示原值
+ */
 const handleFocus = () => {
     handleShowSensitiveInfo()
     emits('focus')
 }
 
+/**
+ * @description 脱敏
+ */
 const handleHideSensitiveInfo = () => {
     value.value = hideEmailAddress(prop.modelValue)
 }
 
+/**
+ * @description 显示原值
+ */
 const handleShowSensitiveInfo = () => {
     value.value = prop.modelValue
 }
 
+/**
+ * @description 输入
+ */
 const handleInput = (e: string) => {
     emits('update:modelValue', e)
 }

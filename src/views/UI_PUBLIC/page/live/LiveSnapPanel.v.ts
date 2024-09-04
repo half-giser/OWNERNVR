@@ -3,14 +3,14 @@
  * @Date: 2024-07-29 16:10:28
  * @Description: 现场预览-目标检测视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-27 17:58:38
+ * @LastEditTime: 2024-09-02 19:35:11
  */
 import WebsocketSnap, { type WebsocketSnapOnSuccessSnap } from '@/utils/websocket/websocketSnap'
 import LiveSnapFaceMatchItem from './LiveSnapFaceMatchItem.vue'
 import LiveSnapItem from './LiveSnapItem.vue'
 import LiveSnapStructItem from './LiveSnapStructItem.vue'
 import LiveSnapInfoPop from './LiveSnapInfoPop.vue'
-import LiveSnapRegisterPop from './LiveSnapRegisterPop.vue'
+import IntelFaceDBSnapRegisterPop from '../intelligentAnalysis/IntelFaceDBSnapRegisterPop.vue'
 import LiveSnapFaceMatchPop from './LiveSnapFaceMatchPop.vue'
 
 export default defineComponent({
@@ -19,7 +19,7 @@ export default defineComponent({
         LiveSnapItem,
         LiveSnapStructItem,
         LiveSnapInfoPop,
-        LiveSnapRegisterPop,
+        IntelFaceDBSnapRegisterPop,
         LiveSnapFaceMatchPop,
     },
     props: {
@@ -305,7 +305,7 @@ export default defineComponent({
             LiveSnapItem,
             LiveSnapStructItem,
             LiveSnapInfoPop,
-            LiveSnapRegisterPop,
+            IntelFaceDBSnapRegisterPop,
             LiveSnapFaceMatchPop,
         }
     },

@@ -3,7 +3,7 @@
  * @Date: 2024-07-17 11:31:57
  * @Description: 现场预览
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 18:28:09
+ * @LastEditTime: 2024-09-02 19:45:03
  */
 import { type WebsocketSnapOnSuccessSnap } from '@/utils/websocket/websocketSnap'
 
@@ -94,25 +94,6 @@ export class LiveSharedWinData {
     streamType = 2
     talk = false
     supportAudio = true
-}
-
-export class LiveSnapFaceDatabaseList {
-    id = ''
-    groupId = ''
-    name = ''
-}
-
-export class LiveSnapRegisterForm {
-    name = ''
-    sex = ''
-    birthday = ''
-    nativePlace = ''
-    certificateType = 'idCard'
-    certificateNum = ''
-    mobile = undefined as number | undefined
-    number = undefined as number | undefined
-    note = ''
-    groupId = ''
 }
 
 export class LiveSnapData implements WebsocketSnapOnSuccessSnap {

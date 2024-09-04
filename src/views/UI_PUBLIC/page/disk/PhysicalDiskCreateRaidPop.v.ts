@@ -20,7 +20,6 @@ export default defineComponent({
         list: {
             type: Array as PropType<DiskPhysicalList[]>,
             required: true,
-            default: () => [],
         },
         /**
          * @property 阵列类型选项
@@ -28,7 +27,6 @@ export default defineComponent({
         raidType: {
             type: Array as PropType<SelectOption<string, string>[]>,
             required: true,
-            default: () => [],
         },
     },
     emits: {

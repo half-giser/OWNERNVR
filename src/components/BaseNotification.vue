@@ -5,11 +5,11 @@
 -->
 <template>
     <div
-        v-show="!hiddenNotify"
-        class="notification-container"
+        v-show="notifications.length"
+        class="notification"
         :class="containerClass"
     >
-        <div id="title">
+        <div class="notification-title">
             <div>{{ Translate('IDCS_INFO_TIP') }}</div>
             <BaseImgSprite
                 file="close"
@@ -21,14 +21,14 @@
                 @click="removeNotification"
             />
         </div>
-        <div id="content">
+        <div class="notification-content">
             <el-scrollbar height="calc(100% - 30px)">
                 <div
-                    v-for="(notification, index) in notificationList"
+                    v-for="(notification, index) in notifications"
                     :key="index"
-                    class="notification"
-                    :class="{ selected: selectedNotificationIndex === index }"
-                    @click="selectedNotificationIndex = index"
+                    class="notification-item"
+                    :class="{ selected: selectedIndex === index }"
+                    @click="selectedIndex = index"
                 >
                     {{ notification }}
                 </div>
@@ -40,12 +40,20 @@
 <script lang="ts" setup>
 const props = withDefaults(
     defineProps<{
+        /**
+         * @property 通知文本
+         */
         notifications: string[]
+        /**
+         * @property 弹窗持续时间
+         */
         duration?: number
+        /**
+         * @property 弹窗位置
+         */
         position?: string
     }>(),
     {
-        // notifications: [] as string[],
         duration: 100000,
         position: 'right-bottom',
     },
@@ -55,22 +63,15 @@ const emit = defineEmits<{
     (e: 'update:notifications', notification: string[]): void
 }>()
 
-const notifications = computed(() => props.notifications)
-const notificationList = ref(notifications.value)
-const duration = ref(props.duration)
-const hiddenNotify = ref<boolean>(true)
-const selectedNotificationIndex = ref(0)
+const selectedIndex = ref(0)
 let timer: NodeJS.Timeout | number = 0
 
 watch(
-    () => notifications,
+    () => props.notifications,
     (val) => {
-        notificationList.value = val.value
-        if (notificationList.value.length !== 0) {
-            nextTick(() => {
-                hiddenNotify.value = false
-                timeOutNotification()
-            })
+        clearTimeout(timer)
+        if (val.length) {
+            hideNotification()
         }
     },
     {
@@ -81,16 +82,21 @@ watch(
 
 const containerClass = computed(() => `position-${props.position}`)
 
-const timeOutNotification = () => {
+/**
+ * @description 定时关闭弹窗
+ */
+const hideNotification = () => {
     clearTimeout(timer)
     timer = setTimeout(() => {
         removeNotification()
-    }, duration.value)
+        selectedIndex.value = 0
+    }, props.duration)
 }
 
+/**
+ * @description 移除通知 关闭弹窗
+ */
 const removeNotification = () => {
-    notificationList.value = []
-    hiddenNotify.value = true
     emit('update:notifications', [])
 }
 
@@ -100,7 +106,7 @@ onBeforeUnmount(() => {
 </script>
 
 <style lang="scss" scoped>
-.notification-container {
+.notification {
     border: 1px solid var(--border-color8);
     background-color: var(--page-bg);
     position: fixed;
@@ -110,36 +116,36 @@ onBeforeUnmount(() => {
     width: 300px;
     min-height: 90px;
     height: 272px;
-}
 
-.notification {
-    padding: 3px 8px;
-    font-size: 13px;
-    word-wrap: break-word;
-    &:hover {
-        background-color: var(--primary--01);
+    &-item {
+        padding: 3px 8px;
+        font-size: 13px;
+        word-wrap: break-word;
+        &:hover {
+            background-color: var(--primary--01);
+        }
+        &.selected {
+            background-color: var(--primary--04);
+        }
     }
-    &.selected {
-        background-color: var(--primary--04);
+
+    &-title {
+        display: flex;
+        justify-content: space-between;
+        font-size: 16px;
+        line-height: 24px;
+        padding: 8px 8px 8px 13px;
+        color: var(--text-menu-01);
+        border-bottom: 1px solid var(--border-color8);
     }
-}
 
-#title {
-    display: flex;
-    justify-content: space-between;
-    font-size: 16px;
-    line-height: 24px;
-    padding: 8px 8px 8px 13px;
-    color: var(--text-menu-01);
-    border-bottom: 1px solid var(--border-color8);
-}
-
-#content {
-    height: 230px;
-    min-height: 70px;
-    overflow-y: hidden;
-    overflow-x: hidden;
-    padding: 15px;
+    &-content {
+        height: 230px;
+        min-height: 70px;
+        overflow-y: hidden;
+        overflow-x: hidden;
+        padding: 15px;
+    }
 }
 
 .position-left-bottom {

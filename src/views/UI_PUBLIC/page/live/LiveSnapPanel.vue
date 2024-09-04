@@ -3,7 +3,7 @@
  * @Date: 2024-07-19 13:37:26
  * @Description: 现场预览-目标检测视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-26 17:20:25
+ * @LastEditTime: 2024-09-02 19:35:24
 -->
 <template>
     <div class="snap">
@@ -70,7 +70,7 @@
             @search="search"
             @close="pageData.isInfoPop = false"
         />
-        <LiveSnapRegisterPop
+        <IntelFaceDBSnapRegisterPop
             v-model="pageData.isRegisterPop"
             :pic="pageData.registerPic"
             :date-format="dateTime.dateFormat.value"

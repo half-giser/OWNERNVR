@@ -14,10 +14,16 @@ export default defineComponent({
         BackupRemoteEncryptPop,
     },
     props: {
+        /**
+         * @property {Enum} 播放器模式
+         */
         mode: {
             type: String,
             required: true,
         },
+        /**
+         * @property {Array} 回放列表
+         */
         backupList: {
             type: Array as PropType<PlaybackBackUpRecList[]>,
             required: true,

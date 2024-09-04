@@ -3,7 +3,7 @@
  * @Date: 2024-08-26 10:56:10
  * @Description: 日期切换按钮
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-26 14:35:15
+ * @LastEditTime: 2024-09-02 09:42:08
 -->
 <template>
     <div class="date-tab">
@@ -11,17 +11,19 @@
             :model-value="currentType"
             @update:model-value="changeType"
         >
-            <el-radio-button value="date">{{ Translate('IDCS_DAY_ALL') }}</el-radio-button>
-            <el-radio-button value="week">{{ Translate('IDCS_WEEK') }}</el-radio-button>
-            <el-radio-button value="month">{{ Translate('IDCS_MONTH_ALL') }}</el-radio-button>
-            <el-radio-button value="custom">{{ Translate('IDCS_REPLAY_CUSTOMIZE') }}</el-radio-button>
-            <el-radio-button value="today">{{ Translate('IDCS_CALENDAR_TODAY') }} {{ today }}</el-radio-button>
+            <el-radio-button
+                v-for="item in filterBtns"
+                :key="item.value"
+                :value="item.value"
+                >{{ item.value === 'today' ? `${item.label} ${today}` : item.label }}</el-radio-button
+            >
         </el-radio-group>
         <el-dialog
             v-model="pageData.isCustomPop"
             :title="Translate('IDCS_TIME_CUSTOMIZE')"
             width="500"
             :show-close="false"
+            append-to-body
         >
             <el-form
                 label-position="left"
@@ -81,6 +83,13 @@ const props = withDefaults(
          * @property 年月格式
          */
         highlight?: Function
+        /**
+         * @property 可选的按钮 排序：day week month season custom today
+         */
+        layout?: string[]
+        /**
+         * @property 起止日期时间戳
+         */
         modelValue: [number, number]
     }>(),
     {
@@ -88,6 +97,7 @@ const props = withDefaults(
         dateFormat: 'YYYY-MM-DD',
         dateTimeFormat: 'YYYY-MM-DD HH:mm:ss',
         // ymFormat: 'YYYY-MM',
+        layout: () => ['date', 'week', 'month', 'custom', 'today'],
         highlight: () => {},
     },
 )
@@ -101,18 +111,49 @@ const { openMessageTipBox } = useMessageBox()
 const { Translate } = useLangStore()
 
 const pageData = ref({
+    // 是否弹出自定义弹窗
     isCustomPop: false,
+    // 按钮选项
+    buttons: [
+        {
+            label: Translate('IDCS_DAY_ALL'),
+            value: 'date',
+        },
+        {
+            label: Translate('IDCS_WEEK'),
+            value: 'week',
+        },
+        {
+            label: Translate('IDCS_MONTH_ALL'),
+            value: 'month',
+        },
+        {
+            label: Translate('IDCS_REPLAY_CUSTOMIZE'),
+            value: 'custom',
+        },
+        {
+            label: Translate('IDCS_CALENDAR_TODAY'),
+            value: 'today',
+        },
+    ],
+})
+
+const filterBtns = computed(() => {
+    return pageData.value.buttons.filter((item) => props.layout.includes(item.value))
 })
 
 const lastType = ref('today')
 const currentType = ref('today')
 
+// 当天日期的格式化显示
 const today = computed(() => {
     return formatDate(Date.now(), props.dateFormat)
 })
 
 const formData = ref({
+    // 自定义开始时间
     startTime: '',
+    // 自定义结束时间
     endTime: '',
 })
 
@@ -141,12 +182,18 @@ const verifyCustomPop = () => {
     emits('change', [startTime, endTime], currentType.value)
 }
 
+/**
+ * @description 取消自定义日期
+ */
 const cancelCustomPop = () => {
     pageData.value.isCustomPop = false
 
     currentType.value = lastType.value
 }
 
+/**
+ * @description 更改日期类型
+ */
 const changeType = (type: string | number | boolean | undefined) => {
     if (typeof type !== 'string') {
         return
@@ -162,16 +209,21 @@ const changeType = (type: string | number | boolean | undefined) => {
         pageData.value.isCustomPop = true
     } else {
         const date = dayjs(props.modelValue[0])
-        if (type === 'date') {
-            current = [date.hour(0).minute(0).second(0).valueOf(), date.hour(23).minute(59).second(59).valueOf()]
-        } else if (type === 'month') {
-            const days = date.daysInMonth()
-            current = [date.date(1).hour(0).minute(0).second(0).valueOf(), date.date(days).hour(23).minute(59).second(59).valueOf()]
-        } else if (type === 'week') {
-            current = [date.day(0).hour(0).minute(0).second(0).valueOf(), date.day(6).hour(23).minute(59).second(59).valueOf()]
-        } else {
-            // today
-            current = [dayjs().hour(0).minute(0).second(0).valueOf(), dayjs().hour(23).minute(59).second(59).valueOf()]
+        switch (type) {
+            case 'date':
+                current = [date.hour(0).minute(0).second(0).valueOf(), date.hour(23).minute(59).second(59).valueOf()]
+                break
+            case 'month':
+                const days = date.daysInMonth()
+                current = [date.date(1).hour(0).minute(0).second(0).valueOf(), date.date(days).hour(23).minute(59).second(59).valueOf()]
+                break
+            case 'week':
+                current = [date.day(0).hour(0).minute(0).second(0).valueOf(), date.day(6).hour(23).minute(59).second(59).valueOf()]
+                break
+            case 'today':
+            default:
+                current = [dayjs().hour(0).minute(0).second(0).valueOf(), dayjs().hour(23).minute(59).second(59).valueOf()]
+                break
         }
         emits('update:modelValue', current)
         emits('change', current, currentType.value)
@@ -193,8 +245,3 @@ watch(
     },
 )
 </script>
-
-<style lang="scss" scoped>
-.date-tab {
-}
-</style>

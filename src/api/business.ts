@@ -51,51 +51,11 @@ export const queryAccessDataComCfg = (data: string) => http.fetch('queryAccessDa
 export const editAccessDataComCfg = (data: string) => http.fetch('editAccessDataComCfg', getXmlWrapData(data))
 
 /**
- * @description 获取人脸考勤-人脸分组列表数据
- * @returns
- */
-export const queryFacePersonnalInfoGroupList = () => http.fetch('queryFacePersonnalInfoGroupList', getXmlWrapData(''))
-
-/**
- * @description 获取人脸考勤-人脸分组中的人脸数据
- * @param {string} data
- * @returns
- */
-export const queryFacePersonnalInfoList = (data: string) => http.fetch('queryFacePersonnalInfoList', getXmlWrapData(data))
-
-/**
  * @description 搜索抓拍图像
  * @param {string} data
  * @returns
  */
 export const searchImageByImageV2 = (data: string) => http.fetch('searchImageByImageV2', getXmlWrapData(data))
-
-/**
- * @description 查询车牌库
- * @returns
- */
-export const queryPlateLibrary = () => http.fetch('queryPlateLibrary', getXmlWrapData(''))
-
-/**
- * @description 创建人脸组
- * @param {string} data
- * @returns
- */
-export const createFacePersonnalInfoGroup = (data: string) => http.fetch('createFacePersonnalInfoGroup', getXmlWrapData(data), {}, false)
-
-/**
- * @description 创建人脸信息
- * @param {string} data
- * @returns
- */
-export const createFacePersonnalInfo = (data: string) => http.fetch('createFacePersonnalInfo', getXmlWrapData(data), {}, false)
-
-/**
- * @description 获取个人脸照
- * @param {string} data
- * @returns
- */
-export const requestFacePersonnalInfoImage = (data: string) => http.fetch('requestFacePersonnalInfoImage', getXmlWrapData(data))
 
 /**
  * @description 获取个人脸照

@@ -150,7 +150,7 @@ export class SystemGeneralSettingForm {
 }
 
 /**
- * @description 时间与日期表单
+ * @description 时间与日期配置表单
  */
 export class SystemDateTimeForm {
     systemTime = '' // new Date() // 系统时间
@@ -163,6 +163,9 @@ export class SystemDateTimeForm {
     enableDST = false // 夏令时
 }
 
+/**
+ * @description 输出配置 自定义视图表单
+ */
 export class SystemOutputSettingAddViewForm {
     name = ''
 }
@@ -176,24 +179,34 @@ export class SystemRecorderOSDSettingsForm {
     addressEnable = 'false'
 }
 
+/**
+ * @description 系统升级表单
+ */
 export class SystemUpgradeForm {
     filePath = ''
 }
 
-export class SystemUpgradeBackUpForm {
-    filePath = ''
-}
+/**
+ * @description 系统升级备份表单
+ */
+export class SystemUpgradeBackUpForm extends SystemUpgradeForm {}
 
-export class SystemRestoreForm {
-    filePath = ''
-}
+/**
+ * @description 系统恢复表单
+ */
+export class SystemRestoreForm extends SystemUpgradeForm {}
 
-export class SystemBackUpForm {
-    filePath = ''
+/**
+ * @description 系统备份表单
+ */
+export class SystemBackUpForm extends SystemUpgradeForm {
     isIncludeNetworkConfig = false
     isIncludeDataEncryptPwd = false
 }
 
+/**
+ * @description 系统日志 表单
+ */
 export class SystemLogForm {
     type = ''
     currentPage = 1
@@ -203,6 +216,9 @@ export class SystemLogForm {
     subType = [] as string[]
 }
 
+/**
+ * @description 系统日志列表项
+ */
 export class SystemLogList {
     logType = ''
     clientType = ''
@@ -216,17 +232,26 @@ export class SystemLogList {
     index = 0
 }
 
+/**
+ * @description POS 开始结束字符 列表项
+ */
 export interface SystemPosListStartEndChar {
     startChar: string
     endChar: string
 }
 
+/**
+ * @description POS 通道列表
+ */
 export interface SystemPosListChls {
     id: string
     text: string
     till?: string
 }
 
+/**
+ * @description POS 通道色彩选项
+ */
 export class SystemPostColorData {
     chlId = ''
     name = ''
@@ -235,6 +260,9 @@ export class SystemPostColorData {
     previewDisplay = false
 }
 
+/**
+ * @description POS Display Set
+ */
 export class SystemPostDisplaySet {
     xmin = 0
     xmax = 0
@@ -244,12 +272,18 @@ export class SystemPostDisplaySet {
     hmin = 0
 }
 
+/**
+ * @description POS连接配置表单
+ */
 export class SystemPosConnectionForm {
     ip = ''
     port = 0
     switch = false
 }
 
+/**
+ * @description POS显示BOX坐标
+ */
 export class SystemPosDisplayPosition {
     width = 320
     height = 128
@@ -257,6 +291,9 @@ export class SystemPosDisplayPosition {
     Y = 0
 }
 
+/**
+ * @description POP显示配置
+ */
 export class SystemPosDisplaySetting {
     common = {
         startEndChar: [] as SystemPosListStartEndChar[],
@@ -268,6 +305,9 @@ export class SystemPosDisplaySetting {
     displayPosition = new SystemPosDisplayPosition()
 }
 
+/**
+ * @description POS列表项
+ */
 export class SystemPosList {
     id = ''
     name = ''

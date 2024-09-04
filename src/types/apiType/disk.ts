@@ -6,10 +6,16 @@
  * @LastEditTime: 2024-07-09 20:29:10
  */
 
+/**
+ * @description 磁盘模式配置表单
+ */
 export class DiskModeForm {
     enable = false
 }
 
+/**
+ * @description S.M.A.R.T信息磁盘列表项
+ */
 export class DiskSmartInfoDiskList {
     id = ''
     diskNum = ''
@@ -17,6 +23,9 @@ export class DiskSmartInfoDiskList {
     model = ''
 }
 
+/**
+ * @description S.M.A.R.T信息列表项
+ */
 export class DiskSmartInfoList {
     id = ''
     attribute = ''
@@ -27,6 +36,9 @@ export class DiskSmartInfoList {
     smartStatus = ''
 }
 
+/**
+ * @description 磁盘健康磁盘列表项
+ */
 export class DiskHealthInfoDiskList {
     id = ''
     name = ''
@@ -36,6 +48,9 @@ export class DiskHealthInfoDiskList {
     diskInterfaceType = ''
 }
 
+/**
+ * @description 磁盘健康磁盘详情列表项
+ */
 export class DiskHealthInfoDiskDetailList {
     id = ''
     name = ''
@@ -44,6 +59,9 @@ export class DiskHealthInfoDiskDetailList {
     suggest = ''
 }
 
+/**
+ * @description 磁盘管理 磁盘列表项
+ */
 export class DiskManagememtList {
     id = ''
     cycleRecord = ''
@@ -61,11 +79,17 @@ export class DiskManagememtList {
     sizeAndFreeSpace = ''
 }
 
+/**
+ * @description 存储模式 磁盘组的磁盘列表项
+ */
 export class StorageModeDiskGroupListDatum {
     id = ''
     text = ''
 }
 
+/**
+ * @description 存储模式 磁盘组列表项
+ */
 export class StorageModeDiskGroupList {
     id = ''
     diskList = [] as StorageModeDiskGroupListDatum[]
@@ -74,12 +98,18 @@ export class StorageModeDiskGroupList {
     totalSize = ''
 }
 
+/**
+ * @description 磁盘模式 磁盘列表项
+ */
 export class StorageModeDiskList {
     id = ''
     name = ''
     size = 0
 }
 
+/**
+ * @description 磁盘模式 通道列表项
+ */
 export class StorageModeChlList {
     id = ''
     name = ''
@@ -88,6 +118,9 @@ export class StorageModeChlList {
     ip = ''
 }
 
+/**
+ * @description 物理磁盘列表项
+ */
 export class DiskPhysicalList {
     id = ''
     slotIndex = ''
@@ -99,6 +132,9 @@ export class DiskPhysicalList {
     switch = false
 }
 
+/**
+ * @description 创建RAID表单
+ */
 export class DiskCreateRaidForm {
     name = ''
     type = 'RAID_TYPE_5' // 同步设备端，默认选择raid5
@@ -106,6 +142,9 @@ export class DiskCreateRaidForm {
     diskId = [] as string[]
 }
 
+/**
+ * @description RAID列表项
+ */
 export class DiskRaidList {
     id = ''
     logicDiskId = ''
@@ -118,6 +157,9 @@ export class DiskRaidList {
     task = ''
 }
 
+/**
+ * @description 重建RAID表单
+ */
 export class DiskRaidRebuildForm {
     diskId = ''
 }

@@ -37,8 +37,17 @@ type InputMode = 'IPv6' | 'MAC'
 
 const prop = withDefaults(
     defineProps<{
+        /**
+         * @property 是否禁用输入框
+         */
         disabled?: boolean
+        /**
+         * @property 无效值处理方式
+         */
         invalidateMode?: InvalidateMode
+        /**
+         * @property MAC地址值
+         */
         modelValue: string
         mode?: InputMode
     }>(),
