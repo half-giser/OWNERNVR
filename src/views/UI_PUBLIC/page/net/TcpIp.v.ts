@@ -3,7 +3,7 @@
  * @Date: 2024-08-16 18:56:58
  * @Description: TCP/IP配置页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-20 11:11:03
+ * @LastEditTime: 2024-09-05 16:05:58
  */
 import { NetTcpIpForm, NetTcpIpDhcpList, NetTcpIpBondsList, type NetTcpIpNicConfigList, type NetTcpIpAdvanceForm } from '@/types/apiType/net'
 import { type CheckboxValueType } from 'element-plus'
@@ -111,7 +111,7 @@ export default defineComponent({
             } else {
                 formData.value.bonds.forEach((bond) => {
                     const data = { ...DEFAULT_DATA }
-                    const item = $(`/response/content/bonds/item[@id="${bond.id}"]`)
+                    const item = $(`//content/bonds/item[@id="${bond.id}"]`)
                     if (!item.length) {
                         return
                     }
@@ -143,7 +143,7 @@ export default defineComponent({
                     return
                 }
                 const data = { ...DEFAULT_DATA }
-                const item = $(`/response/content/nic/item[@id="${config.id}"]`)
+                const item = $(`//content/nic/item[@id="${config.id}"]`)
                 if (!item.length) {
                     return
                 }
@@ -176,7 +176,7 @@ export default defineComponent({
         const getNetConfigV3 = async () => {
             const result = await queryNetCfgV3()
             const $ = queryXml(result)
-            const $content = queryXml($('/response/content')[0].element)
+            const $content = queryXml($('//content')[0].element)
             formData.value.netConfig.defaultNic = $content('defaultNic').text()
             formData.value.netConfig.poeMode = Number($content('poeMode').text())
             formData.value.netConfig.supportNetworkFaultTolerance = $content('supportNetworkFaultTolerance').text().toBoolean()
@@ -370,7 +370,7 @@ export default defineComponent({
         const getPPPoeSwitch = async () => {
             const result = await queryPPPoECfg()
             const $ = queryXml(result)
-            pageData.value.pppoeSwitch = $('/response/content/switch').text().toBoolean()
+            pageData.value.pppoeSwitch = $('//content/switch').text().toBoolean()
         }
 
         /**
@@ -724,10 +724,10 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 commSaveResponseHadler(result)
             } else {
-                const errorCode = Number($('/response/errorCode').text())
+                const errorCode = Number($('//errorCode').text())
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_INVALID_IP:

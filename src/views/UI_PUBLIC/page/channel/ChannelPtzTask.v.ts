@@ -3,7 +3,7 @@
  * @Date: 2024-08-22 15:15:52
  * @Description: 云台-任务
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-22 20:08:19
+ * @LastEditTime: 2024-09-05 11:54:06
  */
 import { cloneDeep } from 'lodash-es'
 import { ChannelPtzTaskDto, type ChannelPtzTaskChlDto, ChannelPtzTaskForm } from '@/types/apiType/channel'
@@ -22,7 +22,7 @@ export default defineComponent({
         const playerRef = ref<PlayerInstance>()
         const pluginStore = usePluginStore()
         const auth = useUserChlAuth(false)
-        const dateTime = useDateTime()
+        const dateTime = useDateTimeStore()
 
         // 任务数最大值
         const TASK_LIMIT = 8
@@ -211,7 +211,7 @@ export default defineComponent({
             const result = await queryChlPresetList(sendXml)
             const $ = queryXml(result)
 
-            pageData.value.nameOptions = $('/response/content/presets/item').map((item) => {
+            pageData.value.nameOptions = $('//content/presets/item').map((item) => {
                 return {
                     value: item.attr('index')!,
                     label: item.text(),
@@ -231,7 +231,7 @@ export default defineComponent({
             `
             const result = await queryChlCruiseList(sendXml)
             const $ = queryXml(result)
-            pageData.value.nameOptions = $('/response/content/cruises/item').map((item) => {
+            pageData.value.nameOptions = $('//content/cruises/item').map((item) => {
                 return {
                     value: item.attr('index')!,
                     label: item.text(),
@@ -251,7 +251,7 @@ export default defineComponent({
             `
             const result = await queryLocalChlPtzTraceList(sendXml)
             const $ = queryXml(result)
-            pageData.value.nameOptions = $('/response/content/traces/item').map((item) => {
+            pageData.value.nameOptions = $('//content/traces/item').map((item) => {
                 return {
                     value: item.attr('index')!,
                     label: item.text(),
@@ -293,9 +293,9 @@ export default defineComponent({
             const result = await queryLocalChlPtzTask(sendData)
             const $ = queryXml(result)
 
-            if ($('/response/status').text() === 'success') {
-                const status = $('/response/content/tasks').attr('status')!.toBoolean()
-                const data = $('/response/content/tasks/item').map((item, index) => {
+            if ($('//status').text() === 'success') {
+                const status = $('//content/tasks').attr('status')!.toBoolean()
+                const data = $('//content/tasks/item').map((item, index) => {
                     const $item = queryXml(item.element)
                     return {
                         index: index + 1,
@@ -489,8 +489,8 @@ export default defineComponent({
                 isSupportPtzGroupTraceTask: true,
             })
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
-                tableData.value = $('/response/content/item')
+            if ($('//status').text() === 'success') {
+                tableData.value = $('//content/item')
                     .filter((item) => {
                         const $item = queryXml(item.element)
                         return (auth.value.hasAll || auth.value.ptz[item.attr('id')!]) && $item('chlType').text() !== 'recorder'
@@ -538,7 +538,7 @@ export default defineComponent({
          * @param {String} time
          */
         const displayTime = (time: string) => {
-            return formatDate(time, dateTime.hourMinuteFormat.value, 'HH:mm')
+            return formatDate(time, dateTime.hourMinuteFormat, 'HH:mm')
         }
 
         /**
@@ -662,7 +662,6 @@ export default defineComponent({
         onMounted(async () => {
             openLoading(LoadingTarget.FullScreen)
             await auth.value.update()
-            await dateTime.getTimeConfig()
             await getData()
             if (tableData.value.length) {
                 tableRef.value?.setCurrentRow(tableData.value[pageData.value.tableIndex])

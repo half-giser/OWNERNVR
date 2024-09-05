@@ -3,7 +3,7 @@
  * @Date: 2024-06-18 18:43:27
  * @Description: 登出后预览
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-23 17:11:53
+ * @LastEditTime: 2024-09-05 13:44:50
  */
 import { type UserPreviewOnLogoutChannelList } from '@/types/apiType/userAndSecurity'
 
@@ -48,9 +48,9 @@ export default defineComponent({
         const getData = async () => {
             const result = await queryLogoutChlPreviewAuth()
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 channelList.value = []
-                $('/response/content/item').forEach((item) => {
+                $('//content/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     channelList.value.push({
                         id: item.attr('id') as string,
@@ -107,7 +107,7 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 openMessageTipBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),

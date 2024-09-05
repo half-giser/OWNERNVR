@@ -3,7 +3,7 @@
  * @Date: 2024-06-18 18:42:53
  * @Description: 黑白名单
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 09:32:47
+ * @LastEditTime: 2024-09-05 14:02:09
 -->
 <template>
     <div class="base-flex-box">
@@ -88,11 +88,12 @@
             >
         </div>
         <BlockAndAllowEditPop
-            v-model="pageData.isEditDialog"
+            v-model="pageData.isEditPop"
             :index="pageData.editIndex"
             :table-data="tableData"
             :data="pageData.editData"
-            @close="handleCloseEdit"
+            @confirm="handleConfirmEdit"
+            @close="pageData.isEditPop = false"
         />
     </div>
 </template>

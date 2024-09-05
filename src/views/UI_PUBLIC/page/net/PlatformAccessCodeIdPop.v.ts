@@ -3,7 +3,7 @@
  * @Date: 2024-08-16 14:52:59
  * @Description: 平台接入 设置Code ID弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-16 18:10:18
+ * @LastEditTime: 2024-09-05 16:02:31
  */
 import { type FormInstance, type FormRules } from 'element-plus'
 
@@ -72,7 +72,6 @@ export default defineComponent({
          */
         const open = () => {
             formRef.value?.clearValidate()
-            formRef.value?.resetFields()
             formData.value.name = prop.name
             formData.value.code = prop.code
         }

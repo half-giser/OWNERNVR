@@ -3,7 +3,7 @@
  * @Date: 2024-07-17 17:02:54
  * @Description: 智能分析
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-02 16:20:55
+ * @LastEditTime: 2024-09-03 17:14:14
  */
 import http from './api'
 
@@ -142,3 +142,24 @@ export const deletePlateLibrary = (data: string) => http.fetch('deletePlateLibra
  * @returns
  */
 export const deletePlateNumber = (data: string) => http.fetch('deletePlateNumber', getXmlWrapData(data))
+
+/**
+ * @description 新增车牌
+ * @param {string} data
+ * @returns
+ */
+export const addPlateNumber = (data: string) => http.fetch('addPlateNumber', getXmlWrapData(data))
+
+/**
+ * @description 编辑车牌
+ * @param {string} data
+ * @returns
+ */
+export const editPlateNumber = (data: string) => http.fetch('editPlateNumber', getXmlWrapData(data))
+
+/**
+ * @description 人脸图像统计
+ * @param {string} data
+ * @returns
+ */
+export const faceImgStatistic_v2 = (data: string) => http.fetch('faceImgStatistic_v2', getXmlWrapData(data))

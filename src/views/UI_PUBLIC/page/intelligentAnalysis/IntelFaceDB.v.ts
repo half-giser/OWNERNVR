@@ -3,7 +3,7 @@
  * @Date: 2024-08-30 18:46:48
  * @Description: 人脸库
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-02 18:24:55
+ * @LastEditTime: 2024-09-04 18:30:09
  */
 import { cloneDeep } from 'lodash-es'
 import { IntelFaceDBGroupList, IntelFaceDBFaceInfo } from '@/types/apiType/intelligentAnalysis'
@@ -28,7 +28,7 @@ export default defineComponent({
         const { openMessageTipBox } = useMessageBox()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const userSession = useUserSessionStore()
-        const dateTime = useDateTime()
+        const dateTime = useDateTimeStore()
         const router = useRouter()
 
         const CERTIFICATE_TYPE_MAPPING: Record<string, string> = {
@@ -121,7 +121,7 @@ export default defineComponent({
          * @returns {boolean}
          */
         const checkPermission = () => {
-            if (userSession.facePersonnalInfoMgr) {
+            if (!userSession.facePersonnalInfoMgr) {
                 openMessageTipBox({
                     type: 'info',
                     message: Translate('IDCS_NO_PERMISSION'),
@@ -454,7 +454,7 @@ export default defineComponent({
                 number: $item('number').text(),
                 name: $item('name').text(),
                 sex: $item('sex').text(),
-                birthday: formatDate($item('birthday').text(), dateTime.dateFormat.value, 'YYYY-MM-DD'),
+                birthday: formatDate($item('birthday').text(), dateTime.dateFormat, 'YYYY-MM-DD'),
                 nativePlace: $item('nativePlace').text(),
                 certificateType: $item('certificateType').text(),
                 certificateNum: $item('certificateNum').text(),
@@ -770,7 +770,6 @@ export default defineComponent({
         }
 
         onMounted(async () => {
-            await dateTime.getTimeConfig()
             await getGroupList()
             for (let i = 0; i < tableData.value.length; i++) {
                 const item = tableData.value[i]
@@ -779,7 +778,6 @@ export default defineComponent({
         })
 
         return {
-            dateTime,
             pageData,
             tableData,
             tableRef,
@@ -809,6 +807,11 @@ export default defineComponent({
             hideSensitiveInfo,
             editFace,
             confirmEditFace,
+            IntelFaceItem,
+            IntelFaceDBEditPop,
+            IntelFaceDBExportPop,
+            IntelFaceDBAddFacePop,
+            IntelFaceDBEditFacePop,
         }
     },
 })

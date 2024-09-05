@@ -46,18 +46,12 @@
                         <BaseDateRange
                             :model-value="formData.dateRange"
                             :type="pageData.dateRangeType"
-                            :date-format="dateTime.dateFormat.value"
-                            :date-time-format="dateTime.dateTimeFormat.value"
-                            :ym-format="dateTime.yearMonthFormat.value"
                             @change="changeDateRange"
                         />
                     </el-form-item>
                     <el-form-item>
                         <BaseDateTab
                             :model-value="formData.dateRange"
-                            :date-format="dateTime.dateFormat.value"
-                            :date-time-format="dateTime.dateTimeFormat.value"
-                            :highlight="dateTime.highlightWeekend"
                             @change="changeDateRange"
                         />
                     </el-form-item>
@@ -79,9 +73,9 @@
                                 v-model="formData.startTime"
                                 format="HH:mm:ss"
                                 value-format="HH:mm:ss"
-                                :disabled-hours="disabledStartTimeHours"
-                                :disabled-minutes="disabledStartTimeMinutes"
-                                :disabled-seconds="disabledStartTimeSeconds"
+                                :disabled-hours="pickerRange.disabledStartTimeHours"
+                                :disabled-minutes="pickerRange.disabledStartTimeMinutes"
+                                :disabled-seconds="pickerRange.disabledStartTimeSeconds"
                                 :clearable="false"
                             />
                         </el-form-item>
@@ -93,9 +87,9 @@
                                 v-model="formData.endTime"
                                 format="HH:mm:ss"
                                 value-format="HH:mm:ss"
-                                :disabled-hours="disabledEndTimeHours"
-                                :disabled-minutes="disabledEndTimeMinutes"
-                                :disabled-seconds="disabledEndTimeSeconds"
+                                :disabled-hours="pickerRange.disabledEndTimeHours"
+                                :disabled-minutes="pickerRange.disabledEndTimeMinutes"
+                                :disabled-seconds="pickerRange.disabledEndTimeSeconds"
                                 :clearable="false"
                             />
                         </el-form-item>
@@ -248,8 +242,6 @@
         <FaceDetailPop
             v-model="pageData.isDetailPop"
             :data="pageData.detail"
-            :time-format="dateTime.timeFormat.value"
-            :date-format="dateTime.dateFormat.value"
             @close="pageData.isDetailPop = false"
         />
     </div>

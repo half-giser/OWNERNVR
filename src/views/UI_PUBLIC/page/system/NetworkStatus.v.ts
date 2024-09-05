@@ -3,7 +3,7 @@
  * @Date: 2024-06-21 16:31:50
  * @Description: 网络状态
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-27 19:41:49
+ * @LastEditTime: 2024-09-05 14:50:33
  */
 import { type SystemNetStatusList } from '@/types/apiType/system'
 
@@ -45,14 +45,14 @@ export default defineComponent({
             const array: SystemNetStatusList[] = []
 
             const supportPOS = systemCaps.supportPOS
-            const netStatusContentNicPoe = $('/response/content/nic').attr('poe')
+            const netStatusContentNicPoe = $('//content/nic').attr('poe')
             const poeCount = netStatusContentNicPoe ? 1 : 0
-            const ipGroupSwitch = $('/response/content/ipGroup/switch').text() === 'true'
+            const ipGroupSwitch = $('//content/ipGroup/switch').text() === 'true'
             const toleranceAndPoe = ipGroupSwitch && netStatusContentNicPoe // 3535A:即支持网络容错又存在poe网卡
 
             if (ipGroupSwitch) {
                 // TODO ipGroup未有真实数据测试
-                $('/response/content/ipGroup/bonds/item').forEach((item) => {
+                $('//content/ipGroup/bonds/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     array.push({
                         i: 0,
@@ -142,7 +142,7 @@ export default defineComponent({
                             },
                         )
                     }
-                    $('/response/content/nic/item').forEach((nicItem, index) => {
+                    $('//content/nic/item').forEach((nicItem, index) => {
                         if (nicItem.attr('id') === $('primaryNIC').text()) {
                             array.push({
                                 i: 1,
@@ -153,8 +153,8 @@ export default defineComponent({
                     })
                 })
             }
-            if ($('/response/content/nic/item').text()) {
-                $('/response/content/nic/item').forEach((item, index) => {
+            if ($('//content/nic/item').text()) {
+                $('//content/nic/item').forEach((item, index) => {
                     const $item = queryXml(item.element)
                     array.push({
                         i: 0,
@@ -271,7 +271,7 @@ export default defineComponent({
                 })
             }
 
-            const pppoeStatus = $('/response/content/pppoe/pppoeStatus').text()
+            const pppoeStatus = $('//content/pppoe/pppoeStatus').text()
             array.push({
                 i: 0,
                 k: Translate('IDCS_PPPOE_STATE'),
@@ -282,17 +282,17 @@ export default defineComponent({
                 array.push({
                     i: 0,
                     k: Translate('IDCS_PPOE_ADDRESS'),
-                    v: $('/response/content/pppoe/ip').text(),
+                    v: $('//content/pppoe/ip').text(),
                 })
                 array.push({
                     i: 0,
                     k: Translate('IDCS_PPOE_SUBNET_MASK'),
-                    v: $('/response/content/pppoe/mask').text(),
+                    v: $('//content/pppoe/mask').text(),
                 })
                 array.push({
                     i: 0,
                     k: Translate('IDCS_PPOE_GATEWAY'),
-                    v: $('/response/content/pppoe/gateway').text(),
+                    v: $('//content/pppoe/gateway').text(),
                 })
             }
 
@@ -304,82 +304,82 @@ export default defineComponent({
             array.push({
                 i: 1,
                 k: Translate('IDCS_HTTP_PORT'),
-                v: $port('/response/content/httpPort').text(),
+                v: $port('//content/httpPort').text(),
             })
             array.push({
                 i: 1,
                 k: Translate('IDCS_HTTPS_PORT'),
-                v: $port('/response/content/httpsPort').text(),
+                v: $port('//content/httpsPort').text(),
             })
             array.push({
                 i: 1,
                 k: Translate('IDCS_SERVE_PORT'),
-                v: $port('/response/content/netPort').text(),
+                v: $port('//content/netPort').text(),
             })
             array.push({
                 i: 1,
                 k: Translate('IDCS_RTSP_PORT'),
-                v: $port('/response/content/rtspPort').text(),
+                v: $port('//content/rtspPort').text(),
             })
 
             if (supportPOS) {
                 array.push({
                     i: 1,
                     k: Translate('IDCS_POS_PORT'),
-                    v: $port('/response/content/posPort').text(),
+                    v: $port('//content/posPort').text(),
                 })
             }
 
-            if ($('/response/content/bandwidth/totalBandwidth').text()) {
+            if ($('//content/bandwidth/totalBandwidth').text()) {
                 array.push({
                     i: 0,
                     k: Translate('IDCS_TOTAL_BANDWIDTH'),
-                    v: $('/response/content/bandwidth/totalBandwidth').text() + 'Mb',
+                    v: $('//content/bandwidth/totalBandwidth').text() + 'Mb',
                 })
                 array.push({
                     i: 0,
                     k: Translate('IDCS_REMAIN_BANDWIDTH'),
-                    v: $('/response/content/bandwidth/remainBandwidth').text() + 'Mb',
+                    v: $('//content/bandwidth/remainBandwidth').text() + 'Mb',
                 })
                 array.push({
                     i: 0,
                     k: Translate('IDCS_SEND_TOTAL_BANDWIDTH'),
-                    v: $('/response/content/bandwidth/sendTotalBandwidth').text() + 'Mb',
+                    v: $('//content/bandwidth/sendTotalBandwidth').text() + 'Mb',
                 })
                 array.push({
                     i: 0,
                     k: Translate('IDCS_SEND_REMAIN_BANDWIDTH'),
-                    v: $('/response/content/bandwidth/sendRemainBandwidth').text() + 'Mb',
+                    v: $('//content/bandwidth/sendRemainBandwidth').text() + 'Mb',
                 })
             }
 
             array.push({
                 i: 0,
                 k: Translate('IDCS_NAT_STATUS'),
-                v: $('/response/content/natStatus').text().toBoolean() ? Translate('IDCS_ENABLE') : Translate('IDCS_DISABLE'),
+                v: $('//content/natStatus').text().toBoolean() ? Translate('IDCS_ENABLE') : Translate('IDCS_DISABLE'),
             })
-            if ($('/response/content/reportStatus').text()) {
+            if ($('//content/reportStatus').text()) {
                 array.push({
                     i: 0,
                     k: Translate('IDCS_AUTO_REPORT_STATUS'),
-                    v: Translate(DEFAULT_LANG_MAPPING[$('/response/content/reportStatus').text()]),
+                    v: Translate(DEFAULT_LANG_MAPPING[$('//content/reportStatus').text()]),
                 })
             }
 
-            if ($('/response/content/threeOrFourG').text()) {
+            if ($('//content/threeOrFourG').text()) {
                 array.push({
                     i: 0,
                     k: Translate('IDCS_WIRELESS_3G4G_STATE'),
-                    v: Translate(DEFAULT_PHONE_LANG_MAPPING[$('/response/content/threeOrFourG/threeOrFourGStatus').text()]),
+                    v: Translate(DEFAULT_PHONE_LANG_MAPPING[$('//content/threeOrFourG/threeOrFourGStatus').text()]),
                 })
                 array.push({
                     i: 0,
                     k: Translate('IDCS_WIRELESS_3G4G_IP'),
-                    v: $('/response/content/threeOrFourG/ip').text(),
+                    v: $('//content/threeOrFourG/ip').text(),
                 })
             }
 
-            if ($('/response/content/nic/item').length - poeCount > 1) {
+            if ($('//content/nic/item').length - poeCount > 1) {
                 if (ipGroupSwitch) {
                     array.shift()
                 }

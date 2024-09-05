@@ -3,7 +3,7 @@
  * @Date: 2023-04-28 17:57:48
  * @Description: 工具方法
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-29 20:55:17
+ * @LastEditTime: 2024-09-05 16:20:37
  */
 
 import { useUserSessionStore } from '@/stores/userSession'
@@ -288,8 +288,8 @@ const createExcelTemplate = (titleArr: string[], contentArr: string[][], xlsDesc
     return rawXml`
         <table cellspacing='0' cellpadding='0' border='1' style='display:none' class="excelTable">
             <thead>
-                ${ternary(!!xlsDesc, `<tr><th colspan='${xlsDesc?.colspan}'>${xlsDesc?.content}</th></tr>`, '')}
-                <tr>${titleArr.map((item) => item).join('')}</tr>
+                ${ternary(!!xlsDesc, `<tr><th colspan="${xlsDesc?.colspan}">${xlsDesc?.content}</th></tr>`, '')}
+                <tr>${titleArr.map((item) => `<th>${item}</th>`).join('')}</tr>
             </thead>
             <tbody>${content}</tbody>
         </table>
@@ -617,7 +617,7 @@ export const commSaveResponseHadler = ($response: ApiResult, successHandler?: (r
         const Translate = useLangStore().Translate
         const openMessageTipBox = useMessageBox().openMessageTipBox
         const $ = queryXml($response)
-        if ($('/response/status').text() == 'success') {
+        if ($('//status').text() == 'success') {
             openMessageTipBox({
                 type: 'success',
                 title: Translate('IDCS_SUCCESS_TIP'),
@@ -926,7 +926,7 @@ export const buildScheduleList = async () => {
     const result = await queryScheduleList()
     let scheduleList = [] as SelectOption<string, string>[]
     commLoadResponseHandler(result, async ($) => {
-        scheduleList = $('/response/content/item').map((item) => {
+        scheduleList = $('//content/item').map((item) => {
             return {
                 value: item.attr('id')!,
                 label: item.text(),
@@ -990,7 +990,7 @@ const getTranslateForTime = (value: number, unit1: string, unit1s: string, unit2
  * @param $
  */
 export const showMaxSearchLimitTips = ($: XMLQuery) => {
-    const isMaxSearchResultNum = $('/response/content/IsMaxSearchResultNum').text().toBoolean()
+    const isMaxSearchResultNum = $('//content/IsMaxSearchResultNum').text().toBoolean()
     const { openMessageTipBox } = useMessageBox()
     const { Translate } = useLangStore()
 

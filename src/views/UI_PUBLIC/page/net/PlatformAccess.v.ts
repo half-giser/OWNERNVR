@@ -3,7 +3,7 @@
  * @Date: 2024-08-15 18:19:00
  * @Description: 平台接入
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-16 18:24:57
+ * @LastEditTime: 2024-09-05 16:01:54
  */
 import { NetPlatformAccessForm, type NetPlatformSipList, NetPlatformSipCodeList } from '@/types/apiType/net'
 import PlatformAccessCodeIdPop from './PlatformAccessCodeIdPop.vue'
@@ -249,14 +249,14 @@ export default defineComponent({
             closeLoading(LoadingTarget.FullScreen)
 
             commLoadResponseHandler(reulst, ($) => {
-                formData.value.accessType = $('/resonse/content').attr('current')
+                formData.value.accessType = $('//content').attr('current')
 
                 // 老版本升级之后可能会找不到current属性,默认为"NVMS5000"
                 if (!formData.value.accessType) {
                     formData.value.accessType = 'NVMS5000'
                 }
 
-                $('/response/content/item').forEach((item) => {
+                $('//content/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     if (item.attr('id') === 'NVMS5000') {
                         formData.value.nwms5000Switch = $item('switch').text().toBoolean()
@@ -274,9 +274,9 @@ export default defineComponent({
                         formData.value.sipId = $item('sipServerInfo').attr('id')!
                     }
                 })
-                $('/response/types/platformType/enum').forEach((item) => {
+                $('//types/platformType/enum').forEach((item) => {
                     if (item.text() === 'GB28181') {
-                        if ($('/response/content/item[@id="GB28181"]').length) {
+                        if ($('//content/item[@id="GB28181"]').length) {
                             pageData.value.platformTypeList.push({
                                 label: ACCESS_TYPE_MAPPING.GB28181,
                                 value: item.text(),
@@ -290,12 +290,12 @@ export default defineComponent({
                     }
                 })
 
-                if ($('/response/content/item/sipChl').length) {
+                if ($('//content/item/sipChl').length) {
                     tableData.value.push({
                         value: 'chl',
-                        type: $('/response/content/item/sipChl').attr('type')!,
+                        type: $('//content/item/sipChl').attr('type')!,
                         label: Translate('IDCS_CHANNEL'),
-                        list: $('/response/content/item/sipChl/item').map((item) => {
+                        list: $('//content/item/sipChl/item').map((item) => {
                             return {
                                 id: item.attr('id')!,
                                 gbId: item.attr('gbId')!,
@@ -306,9 +306,9 @@ export default defineComponent({
 
                     tableData.value.push({
                         value: 'alarm',
-                        type: $('/response/content/item/sipSensor').attr('type')!,
+                        type: $('//content/item/sipSensor').attr('type')!,
                         label: Translate('IDCS_ALARM_IN'),
-                        list: $('/response/content/item/sipSensor/item').map((item) => {
+                        list: $('//content/item/sipSensor/item').map((item) => {
                             return {
                                 id: item.attr('id')!,
                                 gbId: item.attr('gbId')!,
@@ -318,7 +318,7 @@ export default defineComponent({
                     })
                 }
 
-                const reservedPort = $('/response/content').attr('reservedPort')
+                const reservedPort = $('//content').attr('reservedPort')
                 if (reservedPort) {
                     pageData.value.reservedPort = reservedPort
                         .split(',')

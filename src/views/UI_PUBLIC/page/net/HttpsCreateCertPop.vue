@@ -93,5 +93,3 @@
 </template>
 
 <script lang="ts" src="./HttpsCreateCertPop.v.ts"></script>
-
-<style lang="scss" scoped></style>

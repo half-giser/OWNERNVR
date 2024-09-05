@@ -3,7 +3,7 @@
  * @Date: 2024-06-17 20:32:14
  * @Description: 权限组列表
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-23 14:05:49
+ * @LastEditTime: 2024-09-05 13:41:33
  */
 import PermissionGroupEditPop from './PermissionGroupEditPop.vue'
 import { delAuthGroup } from '@/api/userAndSecurity'
@@ -55,7 +55,7 @@ export default defineComponent({
 
             commLoadResponseHandler(result, ($) => {
                 authGroupList.value = []
-                $('/response/content/item').forEach((item) => {
+                $('//content/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     const arrayItem: UserAuthGroupList = {
                         id: item.attr('id') as string,
@@ -178,15 +178,11 @@ export default defineComponent({
         }
 
         /**
-         * @description 关闭编辑用户弹窗
-         * @param {boolean} e 是否刷新页面数据
+         * @description 确认编辑用户弹窗
          */
-        const handleCloseEditAuthGroup = (e: boolean) => {
+        const handleConfirmEditAuthGroup = () => {
             pageData.value.isEditAuthGroup = false
-
-            if (e) {
-                getAuthGroup()
-            }
+            getAuthGroup()
         }
 
         /**
@@ -212,14 +208,14 @@ export default defineComponent({
 
                 closeLoading(LoadingTarget.FullScreen)
 
-                if ($('/response/status').text() === 'success') {
+                if ($('//status').text() === 'success') {
                     openMessageTipBox({
                         type: 'success',
                         message: Translate('IDCS_DELETE_SUCCESS'),
                     })
                     getAuthGroup()
                 } else {
-                    const errorCode = Number($('response/errorCode').text())
+                    const errorCode = Number($('//errorCode').text())
                     let errorInfo = ''
                     switch (errorCode) {
                         case ErrorCode.USER_ERROR_EXISTED_CHILD_NODE:
@@ -244,7 +240,7 @@ export default defineComponent({
         const handleSaveAsAuthGroup = (row: UserAuthGroupList) => {
             router.push({
                 path: '/config/security/auth_group/add',
-                query: {
+                state: {
                     group_id: row.id,
                 },
             })
@@ -302,7 +298,7 @@ export default defineComponent({
             handleChangeAuthGroup,
             handleEditAuthGroup,
             handleDeleteAuthGroup,
-            handleCloseEditAuthGroup,
+            handleConfirmEditAuthGroup,
             handleSaveAsAuthGroup,
             PermissionGroupEditPop,
         }

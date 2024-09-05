@@ -3,7 +3,7 @@
  * @Date: 2024-08-26 10:02:29
  * @Description: 日期范围
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-26 14:25:02
+ * @LastEditTime: 2024-09-04 17:04:54
 -->
 <template>
     <div class="date-range">
@@ -16,7 +16,7 @@
         />
         <div class="date-range-box">
             <span>{{ displayDateValue(props.modelValue[0]) }}</span>
-            <span v-show="type === 'custom' || type === 'week'"> -- {{ displayDateValue(props.modelValue[1]) }}</span>
+            <span v-show="type === 'custom' || type === 'week' || type === 'quarter'"> -- {{ displayDateValue(props.modelValue[1]) }}</span>
         </div>
         <BaseImgSprite
             file="datePicker"
@@ -38,27 +38,12 @@ const props = withDefaults(
          */
         type: string
         /**
-         * @property 日期格式
-         */
-        dateFormat?: string
-        /**
-         * @property 日期时间格式
-         */
-        dateTimeFormat?: string
-        /**
-         * @property 年月格式
-         */
-        ymFormat?: string
-        /**
          * @property 当前时间 毫秒
          */
         modelValue?: [number, number]
     }>(),
     {
         type: 'date',
-        dateFormat: 'YYYY-MM-DD',
-        dateTimeFormat: 'YYYY-MM-DD HH:mm:ss',
-        ymFormat: 'YYYY-MM',
         modelValue: () => [Date.now(), Date.now()],
     },
 )
@@ -70,6 +55,7 @@ const emits = defineEmits<{
 
 const { openMessageTipBox } = useMessageBox()
 const { Translate } = useLangStore()
+const dateTime = useDateTimeStore()
 
 /**
  * @description 上一个日期
@@ -87,8 +73,9 @@ const handlePrev = () => {
             const days = lastMonth.daysInMonth()
             current = [lastMonth.date(1).hour(0).minute(0).second(0).valueOf(), lastMonth.date(days).hour(23).minute(59).second(59).valueOf()]
             break
-        case 'season':
-            // TODO
+        case 'quarter':
+            const daysInLastMonth = dayjs(oldValue[1]).subtract(3, 'month').daysInMonth()
+            current = [dayjs(oldValue[0]).subtract(3, 'month').valueOf(), dayjs(oldValue[1]).subtract(3, 'month').date(daysInLastMonth).hour(23).minute(59).second(59).valueOf()]
             break
         case 'week':
             current = [dayjs(oldValue[0]).subtract(7, 'day').valueOf(), dayjs(oldValue[1]).subtract(7, 'day').valueOf()]
@@ -119,8 +106,9 @@ const handleNext = () => {
             const days = nextMonth.daysInMonth()
             current = [nextMonth.date(1).hour(0).minute(0).second(0).valueOf(), nextMonth.date(days).hour(23).minute(59).second(59).valueOf()]
             break
-        case 'season':
-            // TODO
+        case 'quarter':
+            const daysInLastMonth = dayjs(oldValue[1]).add(3, 'month').daysInMonth()
+            current = [dayjs(oldValue[0]).add(3, 'month').valueOf(), dayjs(oldValue[1]).add(3, 'month').date(daysInLastMonth).hour(23).minute(59).second(59).valueOf()]
             break
         case 'week':
             current = [dayjs(oldValue[0]).add(7, 'day').valueOf(), dayjs(oldValue[1]).add(7, 'day').valueOf()]
@@ -154,15 +142,15 @@ const displayDateValue = (timestamp: number) => {
         if (dayjs().subtract(1, 'day').isSame(timestamp, 'day')) {
             return Translate('IDCS_CALENDAR_YESTERDAY')
         }
-        return formatDate(timestamp, props.dateFormat)
+        return formatDate(timestamp, dateTime.dateFormat)
     }
-    if (props.type === 'month') {
-        return formatDate(timestamp, props.ymFormat)
+    if (props.type === 'month' || props.type === 'quarter') {
+        return formatDate(timestamp, dateTime.yearMonthFormat)
     }
     if (props.type === 'week') {
-        return formatDate(timestamp, props.dateFormat)
+        return formatDate(timestamp, dateTime.dateFormat)
     }
-    return formatDate(timestamp, props.dateTimeFormat)
+    return formatDate(timestamp, dateTime.dateTimeFormat)
 }
 </script>
 

@@ -72,8 +72,8 @@ export default defineComponent({
             const result = await queryRecBackupTaskList()
             const $ = queryXml(result)
 
-            if ($('/response/status').text() === 'success') {
-                remoteTableData.value = $('/response/content/item').map((item) => {
+            if ($('//status').text() === 'success') {
+                remoteTableData.value = $('//content/item').map((item) => {
                     const $item = queryXml(item.element)
                     const startTime = $item('startTime').text()
                     const endTime = $item('endTime').text()

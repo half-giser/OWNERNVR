@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 16:10:39
  * @Description: 抓拍注册弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-02 19:45:41
+ * @LastEditTime: 2024-09-05 16:22:35
  */
 import type { FormInstance, FormRules } from 'element-plus'
 import IntelFaceDBEditPop from './IntelFaceDBEditPop.vue'
@@ -17,17 +17,6 @@ export default defineComponent({
         pic: {
             type: String,
             required: true,
-            default: '',
-        },
-        dateFormat: {
-            type: String,
-            required: true,
-            default: 'YYYY-MM-DD',
-        },
-        highlight: {
-            type: Function,
-            required: true,
-            default: () => () => '',
         },
     },
     emits: {
@@ -39,6 +28,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const dateTime = useDateTimeStore()
 
         const pageData = ref({
             // 人脸数据库选项
@@ -163,7 +153,7 @@ export default defineComponent({
                     ${ternary(pageData.value.forceCreate, `<force>true</force>`)}
                     <name>${formData.value.name}</name>
                     <sex>${formData.value.sex}</sex>
-                    <birthday>${formatDate(formData.value.birthday, prop.dateFormat, 'YYYY-MM-DD')}</birthday>
+                    <birthday>${formatDate(formData.value.birthday, dateTime.dateFormat, 'YYYY-MM-DD')}</birthday>
                     <nativePlace></nativePlace>
                     <certificateType type="certificateType">${formData.value.certificateType}</certificateType>
                     <mobile>${formData.value.mobile?.toString() || ''}</mobile>
@@ -187,7 +177,7 @@ export default defineComponent({
             closeLoading(LoadingTarget.FullScreen)
             pageData.value.forceCreate = false
 
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 openMessageTipBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
@@ -195,7 +185,7 @@ export default defineComponent({
                     close()
                 })
             } else {
-                const errorCode = Number($('/response/errorCode').text())
+                const errorCode = Number($('//errorCode').text())
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_WALL_HAVEDECODER:
@@ -220,8 +210,8 @@ export default defineComponent({
                         errorInfo = Translate('IDCS_INVALID_PARAMETER')
                         break
                     case ErrorCode.USER_ERROR_NODE_ID_EXISTS:
-                        const name = $('/response/content/name').text()
-                        const similarity = $('/response/content/similarity').text() + '%'
+                        const name = $('//content/name').text()
+                        const similarity = $('//content/similarity').text() + '%'
                         openMessageTipBox({
                             type: 'question',
                             message: Translate('IDCS_TARGET_LIBRARY_FACE_HAS_EXIST').formatForLang(name, similarity),
@@ -271,11 +261,12 @@ export default defineComponent({
             if (!pageData.value.faceDatabaseList.length) {
                 await getFaceDatabaseList()
             }
-            formData.value.birthday = formatDate(new Date(), prop.dateFormat)
+            formData.value.birthday = formatDate(new Date(), dateTime.dateFormat)
             loadImg()
         }
 
         return {
+            dateTime,
             pageData,
             open,
             close,
@@ -287,6 +278,7 @@ export default defineComponent({
             displayBase64Img,
             confirmAddGroup,
             verify,
+            highlightWeekend,
             IntelFaceDBEditPop,
         }
     },

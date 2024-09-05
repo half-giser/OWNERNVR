@@ -3,15 +3,16 @@
  * @Date: 2024-07-29 16:10:28
  * @Description: 现场预览-目标检测视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-02 19:35:11
+ * @LastEditTime: 2024-09-05 16:13:23
  */
 import WebsocketSnap, { type WebsocketSnapOnSuccessSnap } from '@/utils/websocket/websocketSnap'
 import LiveSnapFaceMatchItem from './LiveSnapFaceMatchItem.vue'
 import LiveSnapItem from './LiveSnapItem.vue'
 import LiveSnapStructItem from './LiveSnapStructItem.vue'
 import LiveSnapInfoPop from './LiveSnapInfoPop.vue'
-import IntelFaceDBSnapRegisterPop from '../intelligentAnalysis/IntelFaceDBSnapRegisterPop.vue'
 import LiveSnapFaceMatchPop from './LiveSnapFaceMatchPop.vue'
+import IntelFaceDBSnapRegisterPop from '../intelligentAnalysis/IntelFaceDBSnapRegisterPop.vue'
+import IntelLicencePlateDBAddPlatePop from '../intelligentAnalysis/IntelLicencePlateDBAddPlatePop.vue'
 
 export default defineComponent({
     components: {
@@ -19,8 +20,9 @@ export default defineComponent({
         LiveSnapItem,
         LiveSnapStructItem,
         LiveSnapInfoPop,
-        IntelFaceDBSnapRegisterPop,
         LiveSnapFaceMatchPop,
+        IntelFaceDBSnapRegisterPop,
+        IntelLicencePlateDBAddPlatePop,
     },
     props: {
         auth: {
@@ -32,7 +34,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
         const router = useRouter()
-        const dateTime = useDateTime()
+        const dateTime = useDateTimeStore()
 
         // 获取历史抓拍图片数量
         const SNAP_LIST_LENGTH = 40
@@ -116,7 +118,7 @@ export default defineComponent({
                 authList: '@lp',
             })
             const $ = queryXml(result)
-            const chlIdList = $('/response/content/item').map((item) => ({
+            const chlIdList = $('//content/item').map((item) => ({
                 channel_id: item.attr('id')!,
                 face_detect: {
                     info: true,
@@ -264,7 +266,6 @@ export default defineComponent({
             } else if (value.type === 'vehicle_plate') {
                 pageData.value.addPlateNum = value.info.plate!
                 pageData.value.isAddPlatePop = true
-                // TODO: 新增车牌弹窗
             }
         }
 
@@ -282,7 +283,6 @@ export default defineComponent({
         }
 
         onMounted(async () => {
-            await dateTime.getTimeConfig()
             getSnapData()
         })
 
@@ -306,6 +306,7 @@ export default defineComponent({
             LiveSnapStructItem,
             LiveSnapInfoPop,
             IntelFaceDBSnapRegisterPop,
+            IntelLicencePlateDBAddPlatePop,
             LiveSnapFaceMatchPop,
         }
     },

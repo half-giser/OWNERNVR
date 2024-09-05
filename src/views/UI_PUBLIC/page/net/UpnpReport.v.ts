@@ -46,12 +46,12 @@ export default defineComponent({
         const getData = async () => {
             const result = await queryUPnPCfg()
             const $ = queryXml(result)
-            if ($('/response/content/reportPorts').length) {
-                pageData.value.upnpSwitch = $('/response/content/switch').text().toBoolean()
-                formData.value.switch = $('/response/content/reportPorts/switch').text().toBoolean()
-                formData.value.serverAddr = $('/response/content/reportPorts/serverAddr').text()
-                formData.value.port = Number($('/response/content/reportPorts/port').text())
-                formData.value.manId = $('/response/content/reportPorts/manId').text()
+            if ($('//content/reportPorts').length) {
+                pageData.value.upnpSwitch = $('//content/switch').text().toBoolean()
+                formData.value.switch = $('//content/reportPorts/switch').text().toBoolean()
+                formData.value.serverAddr = $('//content/reportPorts/serverAddr').text()
+                formData.value.port = Number($('//content/reportPorts/port').text())
+                formData.value.manId = $('//content/reportPorts/manId').text()
             }
         }
 

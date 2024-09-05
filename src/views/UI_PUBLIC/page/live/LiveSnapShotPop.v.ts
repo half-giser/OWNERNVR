@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 16:10:50
  * @Description: 查看原图弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 17:53:34
+ * @LastEditTime: 2024-09-05 16:13:50
  */
 import CanvasBase from '@/utils/canvas/canvasBase'
 
@@ -12,27 +12,22 @@ export default defineComponent({
         pic: {
             type: String,
             required: true,
-            default: '',
         },
         width: {
             type: Number,
             required: true,
-            default: 10000,
         },
         height: {
             type: Number,
             required: true,
-            default: 10000,
         },
         leftTop: {
             type: String,
             required: true,
-            default: '(0,0)',
         },
         rightBottom: {
             type: String,
             required: true,
-            default: '(0,0)',
         },
     },
     setup(prop) {

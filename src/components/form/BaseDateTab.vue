@@ -3,7 +3,7 @@
  * @Date: 2024-08-26 10:56:10
  * @Description: 日期切换按钮
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-02 09:42:08
+ * @LastEditTime: 2024-09-04 17:05:01
 -->
 <template>
     <div class="date-tab">
@@ -35,9 +35,9 @@
                 <el-form-item :label="Translate('IDCS_START_TIME')">
                     <el-date-picker
                         v-model="formData.startTime"
-                        :value-format="dateTimeFormat"
-                        :format="dateTimeFormat"
-                        :cell-class-name="highlight"
+                        :value-format="dateTime.dateTimeFormat"
+                        :format="dateTime.dateTimeFormat"
+                        :cell-class-name="highlightWeekend"
                         clear-icon=""
                         type="datetime"
                     />
@@ -45,9 +45,9 @@
                 <el-form-item :label="Translate('IDCS_END_TIME')">
                     <el-date-picker
                         v-model="formData.endTime"
-                        :value-format="dateTimeFormat"
-                        :format="dateTimeFormat"
-                        :cell-class-name="highlight"
+                        :value-format="dateTime.dateTimeFormat"
+                        :format="dateTime.dateTimeFormat"
+                        :cell-class-name="highlightWeekend"
                         clear-icon=""
                         type="datetime"
                     />
@@ -68,21 +68,10 @@
 
 <script lang="ts" setup>
 import dayjs from 'dayjs'
+import { highlightWeekend } from '@/utils/date'
 
 const props = withDefaults(
     defineProps<{
-        /**
-         * @property 日期格式
-         */
-        dateFormat?: string
-        /**
-         * @property 日期时间格式
-         */
-        dateTimeFormat?: string
-        /**
-         * @property 年月格式
-         */
-        highlight?: Function
         /**
          * @property 可选的按钮 排序：day week month season custom today
          */
@@ -93,12 +82,7 @@ const props = withDefaults(
         modelValue: [number, number]
     }>(),
     {
-        // type: 'date',
-        dateFormat: 'YYYY-MM-DD',
-        dateTimeFormat: 'YYYY-MM-DD HH:mm:ss',
-        // ymFormat: 'YYYY-MM',
         layout: () => ['date', 'week', 'month', 'custom', 'today'],
-        highlight: () => {},
     },
 )
 
@@ -109,6 +93,7 @@ const emits = defineEmits<{
 
 const { openMessageTipBox } = useMessageBox()
 const { Translate } = useLangStore()
+const dateTime = useDateTimeStore()
 
 const pageData = ref({
     // 是否弹出自定义弹窗
@@ -126,6 +111,10 @@ const pageData = ref({
         {
             label: Translate('IDCS_MONTH_ALL'),
             value: 'month',
+        },
+        {
+            label: Translate('IDCS_QUARTER'),
+            value: 'quarter',
         },
         {
             label: Translate('IDCS_REPLAY_CUSTOMIZE'),
@@ -147,7 +136,7 @@ const currentType = ref('today')
 
 // 当天日期的格式化显示
 const today = computed(() => {
-    return formatDate(Date.now(), props.dateFormat)
+    return formatDate(Date.now(), dateTime.dateFormat)
 })
 
 const formData = ref({
@@ -161,8 +150,8 @@ const formData = ref({
  * @description 验证自定义弹窗 通过后更新数据
  */
 const verifyCustomPop = () => {
-    const startTime = dayjs(formData.value.startTime, props.dateTimeFormat).valueOf()
-    const endTime = dayjs(formData.value.endTime, props.dateTimeFormat).valueOf()
+    const startTime = dayjs(formData.value.startTime, dateTime.dateTimeFormat).valueOf()
+    const endTime = dayjs(formData.value.endTime, dateTime.dateTimeFormat).valueOf()
     if (startTime > endTime) {
         openMessageTipBox({
             type: 'info',
@@ -203,8 +192,8 @@ const changeType = (type: string | number | boolean | undefined) => {
     currentType.value = type
     if (type === 'custom') {
         if (!formData.value.startTime) {
-            formData.value.startTime = dayjs().hour(0).minute(0).second(0).format(props.dateTimeFormat)
-            formData.value.endTime = dayjs().hour(23).minute(59).second(59).format(props.dateTimeFormat)
+            formData.value.startTime = dayjs().hour(0).minute(0).second(0).format(dateTime.dateTimeFormat)
+            formData.value.endTime = dayjs().hour(23).minute(59).second(59).format(dateTime.dateTimeFormat)
         }
         pageData.value.isCustomPop = true
     } else {
@@ -219,6 +208,26 @@ const changeType = (type: string | number | boolean | undefined) => {
                 break
             case 'week':
                 current = [date.day(0).hour(0).minute(0).second(0).valueOf(), date.day(6).hour(23).minute(59).second(59).valueOf()]
+                break
+            case 'quarter':
+                const quarter = Math.floor(date.month() / 4)
+                const daysInLastMonth = date.month(quarter * 3 + 2).daysInMonth()
+                current = [
+                    date
+                        .month(quarter * 3)
+                        .date(1)
+                        .hour(0)
+                        .minute(0)
+                        .second(0)
+                        .valueOf(),
+                    date
+                        .month(quarter * 3 + 2)
+                        .date(daysInLastMonth)
+                        .hour(23)
+                        .minute(59)
+                        .second(59)
+                        .valueOf(),
+                ]
                 break
             case 'today':
             default:

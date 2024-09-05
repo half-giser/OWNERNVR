@@ -3,7 +3,7 @@
  * @Date: 2024-07-12 18:20:34
  * @Description: FTP配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-23 17:07:03
+ * @LastEditTime: 2024-09-05 15:42:40
  */
 import { NetFTPForm, type NetFTPList } from '@/types/apiType/net'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -45,8 +45,7 @@ export default defineComponent({
             isSchedulePop: false,
         })
 
-        const formRef1 = ref<FormInstance>()
-        const formRef2 = ref<FormInstance>()
+        const formRef = ref<FormInstance>()
         const formData = ref(new NetFTPForm())
         const formRule = ref<FormRules>({
             serverAddr: [
@@ -165,8 +164,8 @@ export default defineComponent({
             const result = await queryScheduleList()
             const $ = queryXml(result)
 
-            if ($('/response/status').text() === 'success') {
-                pageData.value.scheduleOptions = $('/response/content/item').map((item) => {
+            if ($('//status').text() === 'success') {
+                pageData.value.scheduleOptions = $('//content/item').map((item) => {
                     return {
                         label: item.text(),
                         value: item.attr('id')!,
@@ -208,7 +207,7 @@ export default defineComponent({
         const getData = async () => {
             const result = await queryFTPCfg()
             commLoadResponseHandler(result, ($) => {
-                const $content = queryXml($('/response/content')[0].element)
+                const $content = queryXml($('//content')[0].element)
                 formData.value.switch = $content('switch').text().toBoolean()
                 formData.value.serverAddr = $content('serverAddr').text()
                 formData.value.port = Number($content('port').text())
@@ -284,7 +283,7 @@ export default defineComponent({
          * @description 测试
          */
         const test = () => {
-            formRef1.value!.validate(async (valid) => {
+            formRef.value!.validate(async (valid) => {
                 if (!valid) {
                     return
                 }
@@ -293,7 +292,7 @@ export default defineComponent({
                 const result = await testFTPCfg(getXmlData(true))
                 const $ = queryXml(result)
 
-                if ($('/response/status').text() === 'success') {
+                if ($('//status').text() === 'success') {
                     openMessageTipBox({
                         type: 'info',
                         message: Translate('IDCS_FTP_TEST_SUCCESS'),
@@ -327,7 +326,7 @@ export default defineComponent({
         const verify = async () => {
             // TODO: 未启用情况下 如果一些表单项为空，提交会报错. 原项目也是如此
             if (formData.value.switch) {
-                formRef1.value!.validate((valid) => {
+                formRef.value!.validate((valid) => {
                     if (!valid) {
                         return
                     }
@@ -364,8 +363,7 @@ export default defineComponent({
         })
 
         return {
-            formRef1,
-            formRef2,
+            formRef,
             formData,
             formRule,
             pageData,

@@ -3,7 +3,7 @@
  * @Date: 2024-08-12 14:52:28
  * @Description: POS信息
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-12 14:53:04
+ * @LastEditTime: 2024-09-05 16:19:54
  */
 import { type TVTPlayerPosInfoItem } from '@/utils/wasmPlayer/tvtPlayer'
 
@@ -21,13 +21,13 @@ export const usePosInfo = (mode: Ref<string>) => {
     const getData = async () => {
         const result = await queryPosList()
         const $ = queryXml(result)
-        if ($('/response/status').text() !== 'success') return
-        const $systemX = $('/response/content/itemType/coordinateSystem/X')
-        const $systemY = $('/response/content/itemType/coordinateSystem/Y')
+        if ($('//status').text() !== 'success') return
+        const $systemX = $('//content/itemType/coordinateSystem/X')
+        const $systemY = $('//content/itemType/coordinateSystem/Y')
         const width = Number($systemX.attr('max')) - Number($systemX.attr('min'))
         const height = Number($systemY.attr('max')) - Number($systemY.attr('min'))
 
-        $('/response/channel/chl').forEach((ele) => {
+        $('//channel/chl').forEach((ele) => {
             const chlId = ele.attr('id') as string
             const $ele = queryXml(ele.element)
             const previewDisplay = $ele('previewDisplay').text() === 'true'
@@ -45,7 +45,7 @@ export const usePosInfo = (mode: Ref<string>) => {
                 timeout: 10, // pos超时隐藏时间，默认10秒
             }
         })
-        $('/response/content/item').forEach((ele) => {
+        $('//content/item').forEach((ele) => {
             const $ele = queryXml(ele.element)
             const $position = `param/displaySetting/displayPosition/`
             const $triggerChls = $ele('trigger/triggerChl/chls/item')

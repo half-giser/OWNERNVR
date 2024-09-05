@@ -3,7 +3,7 @@
  * @Date: 2024-08-30 09:26:20
  * @Description: 人脸库 - 编辑人脸弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-02 13:39:29
+ * @LastEditTime: 2024-09-04 17:48:07
 -->
 <template>
     <el-dialog
@@ -42,9 +42,9 @@
                 <el-form-item :label="Translate('IDCS_BIRTHDAY')">
                     <el-date-picker
                         v-model="formData.birthday"
-                        :value-format="dateFormat"
-                        :format="dateFormat"
-                        :cell-class-name="highlight"
+                        :value-format="dateTime.dateFormat"
+                        :format="dateTime.dateFormat"
+                        :cell-class-name="highlightWeekend"
                         clear-icon=""
                         type="date"
                         :placeholder="Translate('IDCS_BIRTHDAY')"

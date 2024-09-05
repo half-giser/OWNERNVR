@@ -3,7 +3,7 @@
  * @Date: 2024-07-08 18:01:51
  * @Description: 存储模式新增通道弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-23 17:05:01
+ * @LastEditTime: 2024-09-05 12:00:23
  */
 import { StorageModeDiskGroupList, type StorageModeChlList } from '@/types/apiType/disk'
 
@@ -61,9 +61,9 @@ export default defineComponent({
             const result = await queryDevList(getXmlWrapData(sendXml))
             const $ = queryXml(result)
 
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 const chlList = prop.current.chlList.map((item) => item.id)
-                tableData.value = $('/response/content/item')
+                tableData.value = $('//content/item')
                     .filter((item) => !chlList.includes(item.attr('id')!))
                     .map((item) => {
                         const $item = queryXml(item.element)
@@ -145,7 +145,7 @@ export default defineComponent({
             const result = await editSetAndElementRelation(getXmlWrapData(sendXml))
             const $ = queryXml(result)
 
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 ctx.emit('confirm')
             }
 

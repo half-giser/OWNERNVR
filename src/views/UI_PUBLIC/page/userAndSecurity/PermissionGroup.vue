@@ -3,7 +3,7 @@
  * @Date: 2024-06-17 20:26:14
  * @Description: 权限组列表
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 14:39:33
+ * @LastEditTime: 2024-09-05 14:08:41
 -->
 <template>
     <div class="Perm">
@@ -175,7 +175,8 @@
         <PermissionGroupEditPop
             v-model="pageData.isEditAuthGroup"
             :group-id="pageData.editAuthGroupID"
-            @close="handleCloseEditAuthGroup"
+            @confirm="handleConfirmEditAuthGroup"
+            @close="pageData.isEditAuthGroup = false"
         />
     </div>
 </template>

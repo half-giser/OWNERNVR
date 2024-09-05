@@ -3,7 +3,7 @@
  * @Date: 2024-06-24 15:09:06
  * @Description: 日期与时间
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-08 20:22:34
+ * @LastEditTime: 2024-09-05 14:27:47
  */
 import { SystemDateTimeForm } from '@/types/apiType/system'
 import dayjs from 'dayjs'
@@ -13,13 +13,9 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const userSession = useUserSessionStore()
+        const dateTime = useDateTimeStore()
 
         let interval: NodeJS.Timeout | number = 0
-
-        type Option = {
-            name: string
-            value: string
-        }
 
         // 时区及是否支持夏令时
         const TIME_ZONE = [
@@ -108,13 +104,13 @@ export default defineComponent({
 
         const pageData = ref({
             // 同步类型选项
-            syncTypeOptions: [] as Option[],
+            syncTypeOptions: [] as SelectOption<string, string>[],
             // 日期格式选项
-            dateFormatOptions: [] as Option[],
+            dateFormatOptions: [] as SelectOption<string, string>[],
             // 时间格式选项
-            timeFormatOptions: [] as Option[],
+            timeFormatOptions: [] as SelectOption<string, string>[],
             // 时间服务器选项
-            timeServerOptions: [] as Option[],
+            timeServerOptions: [] as SelectOption<string, string>[],
             // 时区选项
             timeZoneOption: TIME_ZONE,
             // 系统时间最小值
@@ -180,43 +176,43 @@ export default defineComponent({
             const result = await queryTimeCfg()
             const $ = queryXml(result)
 
-            pageData.value.syncTypeOptions = $('/response/types/synchronizeType/enum').map((item) => {
+            pageData.value.syncTypeOptions = $('//types/synchronizeType/enum').map((item) => {
                 return {
                     value: item.text(),
-                    name: SYNC_TYPE_MAPPING[item.text()],
+                    label: SYNC_TYPE_MAPPING[item.text()],
                 }
             })
 
-            formData.value.dateFormat = $('/response/content/formatInfo/date').text()
-            pageData.value.dateFormatOptions = $('/response/types/dateFormat/enum').map((item) => {
+            formData.value.dateFormat = $('//content/formatInfo/date').text()
+            pageData.value.dateFormatOptions = $('//types/dateFormat/enum').map((item) => {
                 return {
                     value: item.text(),
-                    name: DATE_FORMAT_MAPPING[item.text()],
+                    label: DATE_FORMAT_MAPPING[item.text()],
                 }
             })
 
-            formData.value.timeFormat = $('/response/content/formatInfo/time').text()
-            pageData.value.timeFormatOptions = $('/response/types/timeFormat/enum').map((item) => {
+            formData.value.timeFormat = $('//content/formatInfo/time').text()
+            pageData.value.timeFormatOptions = $('//types/timeFormat/enum').map((item) => {
                 return {
                     value: item.text(),
-                    name: TIME_FORMAT_MAPPING[item.text()],
+                    label: TIME_FORMAT_MAPPING[item.text()],
                 }
             })
 
-            formData.value.syncType = $('/response/content/synchronizeInfo/type').text()
+            formData.value.syncType = $('//content/synchronizeInfo/type').text()
 
-            formData.value.timeServer = $('/response/content/synchronizeInfo/ntpServer').text().trim()
-            pageData.value.timeServerOptions = $('/response/types/ntpServerType/enum').map((item) => {
+            formData.value.timeServer = $('//content/synchronizeInfo/ntpServer').text().trim()
+            pageData.value.timeServerOptions = $('//types/ntpServerType/enum').map((item) => {
                 return {
                     value: item.text(),
-                    name: item.text(),
+                    label: item.text(),
                 }
             })
 
-            formData.value.timeZone = $('/response/content/timezoneInfo/timeZone').text()
-            formData.value.enableDST = $('/response/content/timezoneInfo/daylightSwitch').text().toBoolean()
+            formData.value.timeZone = $('//content/timezoneInfo/timeZone').text()
+            formData.value.enableDST = $('//content/timezoneInfo/daylightSwitch').text().toBoolean()
 
-            let currentDate = dayjs($('/response/content/synchronizeInfo/currentTime').text().trim(), formatSystemTime.value).toDate()
+            let currentDate = dayjs($('//content/synchronizeInfo/currentTime').text().trim(), formatSystemTime.value).toDate()
             if (currentDate < pageData.value.serverTimeStart) {
                 currentDate = pageData.value.serverTimeStart
             } else if (currentDate > pageData.value.serverTimeEnd) {
@@ -273,6 +269,7 @@ export default defineComponent({
 
             pageData.value.submitDisabled = false
             pageData.value.isSystemTimeChanged = false
+            dateTime.getTimeConfig(true)
             getData()
             commSaveResponseHadler(result)
         }

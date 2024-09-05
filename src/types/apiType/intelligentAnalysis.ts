@@ -3,7 +3,7 @@
  * @Date: 2024-08-29 09:13:28
  * @Description: 智能分析
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-02 19:45:24
+ * @LastEditTime: 2024-09-05 10:37:28
  */
 
 export class EngineConfigForm {
@@ -117,4 +117,90 @@ export class IntelPlateDBPlateInfo {
     ownerPhone = ''
     vehicleType = ''
     ownerFaceId = ''
+}
+
+export class IntelPlateDBAddPlateForm {
+    plateNumber = ''
+    groupId = ''
+    owner = ''
+    ownerPhone = ''
+    vehicleType = ''
+}
+
+export class IntelPersonStatsChlList {
+    chlId = ''
+    imageNum = 0
+    personIn = 0
+    personOut = 0
+}
+
+// export class IntelPersonStatsGroupList {
+//     groupId = ''
+//     name = ''
+//     imageNum = 0
+// }
+
+export class IntelPersonStatsList {
+    imageTotalNum = 0
+    imageTotalInNum = 0
+    imageTotalOutNum = 0
+    chl = [] as IntelPersonStatsChlList[]
+    // groups = [] as IntelPersonStatsGroupList[]
+}
+
+export class IntelPersonStatsForm {
+    chl = [] as string[]
+    event = [] as string[]
+    dateRange = [0, 0] as [number, number]
+}
+
+export class IntelVehicleStatsChlList {
+    chlId = ''
+    imageNum = 0
+    vehicleIn = 0
+    vehicleOut = 0
+    nonVehicleIn = 0
+    nonVehicleOut = 0
+}
+
+export class IntelVehicleStatsList {
+    imageTotalNum = 0
+    imageTotalInNum = 0
+    imageTotalOutNum = 0
+    chl = [] as IntelVehicleStatsChlList[]
+}
+
+export class IntelVehicleStatsForm {
+    chl = [] as string[]
+    event = [] as string[]
+    dateRange = [0, 0] as [number, number]
+    attribute = [] as string[]
+    deduplicate = false
+}
+
+export class IntelCombineStatsChlList {
+    chlId = ''
+    imageNum = 0
+    personIn = 0
+    personOut = 0
+    vehicleIn = 0
+    vehicleOut = 0
+    nonVehicleIn = 0
+    nonVehicleOut = 0
+}
+
+export class IntelCombineStatsList {
+    imageTotalNum = 0
+    imageTotalInNum = 0
+    imageTotalOutNum = 0
+    chl = [] as IntelCombineStatsChlList[]
+}
+
+export class IntelCombineStatsForm {
+    chl = [] as string[]
+    event = [] as string[]
+    dateRange = [0, 0] as [number, number]
+    vehicleAttribute = [] as string[]
+    personAttribute = [] as string[]
+    deduplicate = false
 }

@@ -3,7 +3,7 @@
  * @Date: 2024-07-02 18:02:44
  * @Description: POS显示设置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 09:23:14
+ * @LastEditTime: 2024-09-05 15:10:43
 -->
 <template>
     <el-dialog
@@ -232,7 +232,7 @@
                                     <el-option
                                         v-for="item in pageData.printOption"
                                         :key="item.value"
-                                        :label="item.name"
+                                        :label="item.label"
                                         :value="item.value"
                                     />
                                 </el-select>

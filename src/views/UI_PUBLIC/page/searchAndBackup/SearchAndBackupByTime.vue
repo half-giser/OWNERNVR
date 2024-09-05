@@ -3,7 +3,7 @@
  * @Date: 2024-08-08 19:25:53
  * @Description: 按时间搜索
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-12 17:04:57
+ * @LastEditTime: 2024-09-04 18:02:59
 -->
 <template>
     <div class="by-time">
@@ -12,9 +12,9 @@
                 <el-form-item :label="Translate('IDCS_START_TIME')">
                     <el-date-picker
                         v-model="formData.startTime"
-                        :value-format="dateTime.dateTimeFormat.value"
-                        :format="dateTime.dateTimeFormat.value"
-                        :cell-class-name="dateTime.highlightWeekend"
+                        :value-format="dateTime.dateTimeFormat"
+                        :format="dateTime.dateTimeFormat"
+                        :cell-class-name="highlightWeekend"
                         clear-icon=""
                         type="datetime"
                         :placeholder="Translate('IDCS_START_TIME')"
@@ -23,9 +23,9 @@
                 <el-form-item :label="Translate('IDCS_END_TIME')">
                     <el-date-picker
                         v-model="formData.endTime"
-                        :value-format="dateTime.dateTimeFormat.value"
-                        :format="dateTime.dateTimeFormat.value"
-                        :cell-class-name="dateTime.highlightWeekend"
+                        :value-format="dateTime.dateTimeFormat"
+                        :format="dateTime.dateTimeFormat"
+                        :cell-class-name="highlightWeekend"
                         clear-icon=""
                         type="datetime"
                         :placeholder="Translate('IDCS_END_TIME')"

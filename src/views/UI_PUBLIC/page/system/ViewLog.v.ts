@@ -3,7 +3,7 @@
  * @Date: 2024-07-01 11:01:12
  * @Description: 查看日志
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-14 17:44:41
+ * @LastEditTime: 2024-09-05 15:30:26
  */
 import { SystemLogForm, type SystemLogList } from '@/types/apiType/system'
 import dayjs from 'dayjs'
@@ -20,7 +20,7 @@ export default defineComponent({
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const systemCaps = useCababilityStore()
         const lang = useLangStore()
-        const dateTime = useDateTime()
+        const dateTime = useDateTimeStore()
 
         // 类型和语言资源映射
         const TRANS_MAPPING: Record<string, string> = {
@@ -275,14 +275,12 @@ export default defineComponent({
          * @description 获取时间格式化配置
          */
         const getTimeConfig = async () => {
-            await dateTime.getTimeConfig()
-
             formData.value.startTime = dayjs(new Date().setHours(-48, 0, 0, 0))
                 .calendar('gregory')
-                .format(dateTime.dateTimeFormat.value)
+                .format(dateTime.dateTimeFormat)
             formData.value.endTime = dayjs(new Date().setHours(23, 59, 59, 0))
                 .calendar('gregory')
-                .format(dateTime.dateTimeFormat.value)
+                .format(dateTime.dateTimeFormat)
 
             pageData.value.startTime = formData.value.startTime
             pageData.value.endTime = formData.value.endTime
@@ -379,8 +377,8 @@ export default defineComponent({
                         <itemType type="logType" />
                         ${formData.value.subType.length ? subType : mainType}
                     </logType>
-                    <startTime>${wrapCDATA(localToUtc(formData.value.startTime, dateTime.dateTimeFormat.value))}</startTime>
-                    <endTime>${wrapCDATA(localToUtc(formData.value.endTime, dateTime.dateTimeFormat.value))}</endTime>
+                    <startTime>${wrapCDATA(localToUtc(formData.value.startTime, dateTime.dateTimeFormat))}</startTime>
+                    <endTime>${wrapCDATA(localToUtc(formData.value.endTime, dateTime.dateTimeFormat))}</endTime>
                     <langId>${wrapCDATA(lang.langId)}</langId>
                     ${isExport ? `<exportMaxCount>${exportMaxCount}</exportMaxCount>` : ''}
                 </condition>
@@ -404,9 +402,9 @@ export default defineComponent({
             closeLoading(LoadingTarget.FullScreen)
 
             commLoadResponseHandler(result, ($) => {
-                pageData.value.totalCount = Number($('/response/content').attr('total'))
+                pageData.value.totalCount = Number($('//content').attr('total'))
 
-                const data = $('/response/content/item').map((item, index) => {
+                const data = $('//content/item').map((item, index) => {
                     const $item = queryXml(item.element)
                     const clientType = $item('clientType').text()
                     const logType = $item('logType').text()
@@ -414,7 +412,7 @@ export default defineComponent({
                         index: formData.value.pageSize * formData.value.currentPage + (index + 1),
                         logType,
                         clientType,
-                        time: utcToLocal($item('time').text(), dateTime.dateTimeFormat.value),
+                        time: utcToLocal($item('time').text(), dateTime.dateTimeFormat),
                         userName: $item('userName').text(),
                         subType: clientType + Translate(TRANS_MAPPING[logType]),
                         mainType: Translate(TRANS_MAPPING[SUB_MAIN_TYPE_MAPPING[logType]]),
@@ -473,7 +471,7 @@ export default defineComponent({
          * @param {string} value
          */
         const changeStartTime = (value: string) => {
-            if (dayjs(value, dateTime.dateTimeFormat.value).isAfter(dayjs(pageData.value.endTime, dateTime.dateTimeFormat.value))) {
+            if (dayjs(value, dateTime.dateTimeFormat).isAfter(dayjs(pageData.value.endTime, dateTime.dateTimeFormat))) {
                 openMessageTipBox({
                     type: 'info',
                     message: Translate('IDCS_END_TIME_GREATER_THAN_START'),
@@ -490,7 +488,7 @@ export default defineComponent({
          * @param {string} value
          */
         const changeEndTime = (value: string) => {
-            if (dayjs(value, dateTime.dateTimeFormat.value).isBefore(dayjs(pageData.value.startTime, dateTime.dateTimeFormat.value))) {
+            if (dayjs(value, dateTime.dateTimeFormat).isBefore(dayjs(pageData.value.startTime, dateTime.dateTimeFormat))) {
                 openMessageTipBox({
                     type: 'info',
                     message: Translate('IDCS_END_TIME_GREATER_THAN_START'),
@@ -523,7 +521,7 @@ export default defineComponent({
             try {
                 const result = await exportLog(sendXML)
                 const $ = queryXml(result)
-                const content = $('/response/content').text()
+                const content = $('//content').text()
 
                 download(new Blob([content]), 'log_' + dayjs(new Date()).format('YYYYMMDDHHmmss') + '.txt')
                 closeLoading(LoadingTarget.FullScreen)
@@ -572,8 +570,8 @@ export default defineComponent({
             const eventList = ['MOTION', 'SCHEDULE', 'SENSOR', 'MANUAL', 'INTELLIGENT']
             const time = row.time
 
-            const startTime = dayjs(time, dateTime.dateTimeFormat.value).subtract(preStartTime, 'millisecond').valueOf()
-            const endTime = dayjs(time, dateTime.dateTimeFormat.value).add(recDuration, 'millisecond').subtract(preStartTime, 'millisecond').valueOf()
+            const startTime = dayjs(time, dateTime.dateTimeFormat).subtract(preStartTime, 'millisecond').valueOf()
+            const endTime = dayjs(time, dateTime.dateTimeFormat).add(recDuration, 'millisecond').subtract(preStartTime, 'millisecond').valueOf()
 
             let playList: PlaybackPopList[] = []
             if (row.logType === 'LOG_ALARM_SENSOR' || row.logType === 'LOG_ALARM_COMBINED') {
@@ -630,9 +628,8 @@ export default defineComponent({
             return false
         }
 
-        onMounted(async () => {
-            await systemCaps.updateCabability()
-            await getTimeConfig()
+        onMounted(() => {
+            getTimeConfig()
 
             if (!systemCaps.supportFaceMatch) {
                 filterLogType('LOG_ALARM_FACE_MATCH')
@@ -658,6 +655,7 @@ export default defineComponent({
 
         return {
             dateTime,
+            highlightWeekend,
             formData,
             tableList,
             pageData,

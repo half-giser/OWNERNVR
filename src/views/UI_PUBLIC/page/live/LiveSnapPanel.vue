@@ -3,7 +3,7 @@
  * @Date: 2024-07-19 13:37:26
  * @Description: 现场预览-目标检测视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-02 19:35:24
+ * @LastEditTime: 2024-09-04 17:57:37
 -->
 <template>
     <div class="snap">
@@ -14,7 +14,6 @@
                     v-if="item.type === 'face_verify'"
                     :key="`face_verify${item.detect_time}`"
                     :data="item"
-                    :time-format="dateTime.timeFormat.value"
                     :border="pageData.activeMenu"
                     @add="register(item)"
                     @detail="showDetail(index)"
@@ -27,7 +26,6 @@
                     v-else-if="item.type === 'boundary' && (item.info.person_info || item.info.bike_info || item.info.car_info)"
                     :key="`boundary${item.detect_time}`"
                     :data="item"
-                    :time-format="dateTime.timeFormat.value"
                     :border="pageData.activeMenu"
                     @add="register(item)"
                     @detail="showDetail(index)"
@@ -39,7 +37,6 @@
                     v-else
                     :key="`snap${item.detect_time}`"
                     :data="item"
-                    :time-format="dateTime.timeFormat.value"
                     :border="pageData.activeMenu"
                     @add="register(item)"
                     @detail="showDetail(index)"
@@ -64,7 +61,6 @@
             v-model="pageData.isInfoPop"
             :list="pageData.infoList"
             :index="pageData.infoIndex"
-            :date-time-format="dateTime.dateTimeFormat.value"
             @play-rec="playRec"
             @add="register"
             @search="search"
@@ -73,16 +69,20 @@
         <IntelFaceDBSnapRegisterPop
             v-model="pageData.isRegisterPop"
             :pic="pageData.registerPic"
-            :date-format="dateTime.dateFormat.value"
-            :highlight="dateTime.highlightWeekend"
             @close="pageData.isRegisterPop = false"
+        />
+        <IntelLicencePlateDBAddPlatePop
+            v-model="pageData.isAddPlatePop"
+            type="register"
+            :data="{
+                plateNumber: pageData.addPlateNum,
+            }"
+            @close="pageData.isAddPlatePop = false"
         />
         <LiveSnapFaceMatchPop
             v-model="pageData.isFacePop"
             :list="pageData.faceList"
             :index="pageData.faceIndex"
-            :date-format="dateTime.dateFormat.value"
-            :date-time-format="dateTime.dateTimeFormat.value"
             @play-rec="playRec"
             @search="search"
             @close="pageData.isFacePop = false"

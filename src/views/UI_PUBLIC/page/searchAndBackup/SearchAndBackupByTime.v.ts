@@ -3,7 +3,7 @@
  * @Date: 2024-08-12 13:48:10
  * @Description: 按时间搜索
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-23 14:12:36
+ * @LastEditTime: 2024-09-04 18:02:38
  */
 import dayjs from 'dayjs'
 import { type PlaybackChlList } from '@/types/apiType/playback'
@@ -39,7 +39,7 @@ export default defineComponent({
         // 通道ID与通道名称的映射
         const chlMap = ref<Record<string, string>>({})
 
-        const dateTime = useDateTime()
+        const dateTime = useDateTimeStore()
         const userAuth = useUserChlAuth()
 
         const pageData = ref({
@@ -83,8 +83,8 @@ export default defineComponent({
 
             chlMap.value = {}
 
-            if ($('/response/status').text() === 'success') {
-                pageData.value.chlList = $('/response/content/item').map((item) => {
+            if ($('//status').text() === 'success') {
+                pageData.value.chlList = $('//content/item').map((item) => {
                     const id = item.attr('id')!
 
                     // 新获取的通道列表若没有已选中的通道，移除该选中的通道
@@ -111,8 +111,8 @@ export default defineComponent({
                 return
             }
 
-            const startTime = dayjs(formData.value.startTime, dateTime.dateTimeFormat.value).valueOf()
-            const endTime = dayjs(formData.value.endTime, dateTime.dateTimeFormat.value).valueOf()
+            const startTime = dayjs(formData.value.startTime, dateTime.dateTimeFormat).valueOf()
+            const endTime = dayjs(formData.value.endTime, dateTime.dateTimeFormat).valueOf()
             if (endTime <= startTime) {
                 openMessageTipBox({
                     type: 'info',
@@ -193,12 +193,11 @@ export default defineComponent({
 
         onMounted(async () => {
             Plugin.SetPluginNotice('#layout2Main')
-            await dateTime.getTimeConfig()
             getChlsList()
 
             const date = new Date()
-            formData.value.startTime = dayjs(date).hour(0).minute(0).second(0).format(dateTime.dateTimeFormat.value)
-            formData.value.endTime = dayjs(date).hour(23).minute(59).second(59).format(dateTime.dateTimeFormat.value)
+            formData.value.startTime = dayjs(date).hour(0).minute(0).second(0).format(dateTime.dateTimeFormat)
+            formData.value.endTime = dayjs(date).hour(23).minute(59).second(59).format(dateTime.dateTimeFormat)
         })
 
         onBeforeUnmount(() => {
@@ -212,6 +211,7 @@ export default defineComponent({
             mode,
             formData,
             dateTime,
+            highlightWeekend,
             pageData,
             userAuth,
             confirmBackUp,

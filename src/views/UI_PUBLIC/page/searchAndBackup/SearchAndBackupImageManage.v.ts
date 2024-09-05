@@ -3,7 +3,7 @@
  * @Date: 2024-08-12 13:47:57
  * @Description: 搜索与备份-图片管理
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-23 14:12:49
+ * @LastEditTime: 2024-09-04 18:09:47
  */
 import dayjs from 'dayjs'
 import { type PlaybackChlList, type PlaybackRecLogList, PlaybackSearchImgForm, PlaybackSearchImgList } from '@/types/apiType/playback'
@@ -31,7 +31,7 @@ export default defineComponent({
             return Plugin.IsSupportH5() ? 'h5' : 'ocx'
         })
 
-        const dateTime = useDateTime()
+        const dateTime = useDateTimeStore()
         const userAuth = useUserChlAuth()
 
         const pageData = ref({
@@ -95,8 +95,8 @@ export default defineComponent({
          * @description 获取列表数据
          */
         const getData = async () => {
-            const startTime = dayjs(formData.value.startTime, dateTime.dateTimeFormat.value).valueOf()
-            const endTime = dayjs(formData.value.endTime, dateTime.dateTimeFormat.value).valueOf()
+            const startTime = dayjs(formData.value.startTime, dateTime.dateTimeFormat).valueOf()
+            const endTime = dayjs(formData.value.endTime, dateTime.dateTimeFormat).valueOf()
             if (endTime <= startTime) {
                 openMessageTipBox({
                     type: 'info',
@@ -129,9 +129,9 @@ export default defineComponent({
             closeLoading(LoadingTarget.FullScreen)
 
             showMaxSearchLimitTips($)
-            pageData.value.totalCount = Number($('/response/content').attr('total')!)
+            pageData.value.totalCount = Number($('//content').attr('total')!)
 
-            tableData.value = $('/response/content/item').map((item, index) => {
+            tableData.value = $('//content/item').map((item, index) => {
                 const $item = queryXml(item.element)
                 return {
                     index: (formData.value.pageIndex - 1) * formData.value.pageSize + index + 1,
@@ -152,7 +152,7 @@ export default defineComponent({
          * @returns {String}
          */
         const displayDateTime = (timestamp: number) => {
-            return formatDate(timestamp, dateTime.dateTimeFormat.value)
+            return formatDate(timestamp, dateTime.dateTimeFormat)
         }
 
         /**
@@ -237,7 +237,7 @@ export default defineComponent({
                 `
                 const result = await delPictures(sendXml)
                 const $ = queryXml(result)
-                if ($('/response/status').text() === 'success') {
+                if ($('//status').text() === 'success') {
                     if (tableData.value.length === 1 && formData.value.pageIndex > 1) {
                         formData.value.pageIndex--
                     }
@@ -284,7 +284,7 @@ export default defineComponent({
                 `
                 const result = await delPictures(sendXml)
                 const $ = queryXml(result)
-                if ($('/response/status').text() === 'success') {
+                if ($('//status').text() === 'success') {
                     formData.value.pageIndex = 1
                     getData()
                 }
@@ -407,11 +407,10 @@ export default defineComponent({
 
         onMounted(async () => {
             Plugin.SetPluginNotice('#layout2Main')
-            await dateTime.getTimeConfig()
 
             const date = new Date()
-            pageData.value.startTime = dayjs(date).hour(0).minute(0).second(0).format(dateTime.dateTimeFormat.value)
-            pageData.value.endTime = dayjs(date).hour(23).minute(59).second(59).format(dateTime.dateTimeFormat.value)
+            pageData.value.startTime = dayjs(date).hour(0).minute(0).second(0).format(dateTime.dateTimeFormat)
+            pageData.value.endTime = dayjs(date).hour(23).minute(59).second(59).format(dateTime.dateTimeFormat)
 
             search()
 
@@ -431,6 +430,7 @@ export default defineComponent({
             mode,
             formData,
             dateTime,
+            highlightWeekend,
             pageData,
             userAuth,
             sort,

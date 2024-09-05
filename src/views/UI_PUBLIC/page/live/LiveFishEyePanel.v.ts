@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 15:38:29
  * @Description: 现场预览-鱼眼视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 14:30:49
+ * @LastEditTime: 2024-09-05 16:09:14
  */
 import { type LiveSharedWinData } from '@/types/apiType/live'
 
@@ -218,11 +218,11 @@ export default defineComponent({
                 `
                 const result = await queryIPChlORChlFishEye(sendXml)
                 const $ = queryXml(result)
-                const supportMode = $('/response/content/chl').attr('supportMode')
+                const supportMode = $('//content/chl').attr('supportMode')
 
                 fishEyeMap.value[chlId] = {
                     supportMode: supportMode === 'support' || supportMode === 'manualSupport',
-                    installType: $('/response/content/chl/installType').text() || 'Top',
+                    installType: $('//content/chl/installType').text() || 'Top',
                     fishEyeMode: NO_ADJUST_VALUE,
                 }
             }

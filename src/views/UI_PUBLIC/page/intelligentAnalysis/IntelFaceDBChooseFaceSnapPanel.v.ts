@@ -3,7 +3,7 @@
  * @Date: 2024-08-30 18:47:52
  * @Description: 人脸库 - 选择人脸 - 从抓拍库选择
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-02 18:08:35
+ * @LastEditTime: 2024-09-04 18:30:57
  */
 import { cloneDeep } from 'lodash-es'
 import { type IntelFaceDBSnapFaceList } from '@/types/apiType/intelligentAnalysis'
@@ -20,7 +20,7 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
-        const dateTime = useDateTime()
+        const dateTime = useDateTimeStore()
 
         const chlMap: Record<string, string> = {}
         let cachePic: Record<string, { pic: string; featureStatus: boolean }> = {}
@@ -222,11 +222,10 @@ export default defineComponent({
          * @returns {string}
          */
         const displayDateTime = (timestamp: number) => {
-            return formatDate(timestamp, dateTime.dateTimeFormat.value)
+            return formatDate(timestamp, dateTime.dateTimeFormat)
         }
 
         onMounted(() => {
-            dateTime.getTimeConfig()
             getChannelList()
         })
 
@@ -236,7 +235,6 @@ export default defineComponent({
 
         return {
             pageData,
-            dateTime,
             formData,
             changeDateRange,
             changeChl,
@@ -249,6 +247,7 @@ export default defineComponent({
             displayDateTime,
             listData,
             filterListData,
+            IntelFaceItem,
         }
     },
 })

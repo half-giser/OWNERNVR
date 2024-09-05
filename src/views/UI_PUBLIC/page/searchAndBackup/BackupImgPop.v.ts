@@ -3,7 +3,7 @@
  * @Date: 2024-08-12 13:46:24
  * @Description: 备份图像弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-12 16:46:33
+ * @LastEditTime: 2024-09-05 16:23:02
  */
 import { type FormInstance } from 'element-plus'
 import { type PlaybackSearchImgList } from '@/types/apiType/playback'
@@ -58,7 +58,7 @@ export default defineComponent({
         const getExternalDisk = async () => {
             const result = await queryExternalDisks()
             const $ = queryXml(result)
-            pageData.value.remoteDeviceOptions = $('/response/content/item').map((item) => {
+            pageData.value.remoteDeviceOptions = $('//content/item').map((item) => {
                 const $item = queryXml(item.element)
                 return {
                     name: item.attr('name')!,
@@ -110,7 +110,7 @@ export default defineComponent({
             `
             const result = await backupPicture(sendXml)
             const $ = queryXml(result)
-            if ($('/response/status').text() !== 'success') {
+            if ($('//status').text() !== 'success') {
                 openMessageTipBox({
                     type: 'info',
                     message: Translate('IDCS_SAVE_FAIL'),

@@ -3,16 +3,14 @@
  * @Date: 2024-06-24 15:08:21
  * @Description: 日期与时间
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 17:17:48
+ * @LastEditTime: 2024-09-05 14:29:31
 -->
-
 <template>
     <div>
         <el-form
             class="stripe"
             label-position="left"
             :model="formData"
-            hide-required-asterisk
             inline-message
             :style="{
                 '--form-input-width': '250px',
@@ -44,7 +42,7 @@
                     <el-option
                         v-for="item in pageData.dateFormatOptions"
                         :key="item.value"
-                        :label="item.name"
+                        :label="item.label"
                         :value="item.value"
                     />
                 </el-select>
@@ -54,7 +52,7 @@
                     <el-option
                         v-for="item in pageData.timeFormatOptions"
                         :key="item.value"
-                        :label="item.name"
+                        :label="item.label"
                         :value="item.value"
                     />
                 </el-select>
@@ -64,7 +62,7 @@
                     <el-option
                         v-for="item in pageData.syncTypeOptions"
                         :key="item.value"
-                        :label="item.name"
+                        :label="item.label"
                         :value="item.value"
                     />
                 </el-select>
@@ -77,7 +75,7 @@
                     <el-option
                         v-for="item in pageData.timeServerOptions"
                         :key="item.value"
-                        :label="item.name"
+                        :label="item.label"
                         :value="item.value"
                     />
                 </el-select>
