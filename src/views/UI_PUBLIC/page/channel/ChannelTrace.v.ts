@@ -3,7 +3,7 @@
  * @Date: 2024-08-20 19:43:51
  * @Description: 云台-轨迹
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-22 20:09:08
+ * @LastEditTime: 2024-09-05 11:55:20
  */
 import { type TableInstance } from 'element-plus'
 import ChannelPtzCtrlPanel from './ChannelPtzCtrlPanel.vue'
@@ -145,14 +145,14 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            if ($('/response/status').text() === 'success') {
-                tableData.value[index].trace = $('/response/content/traces/item').map((item) => {
+            if ($('//status').text() === 'success') {
+                tableData.value[index].trace = $('//content/traces/item').map((item) => {
                     return {
                         index: Number(item.attr('index')!),
                         name: item.text(),
                     }
                 })
-                tableData.value[index].maxCount = Number($('/response/content/traces').attr('maxCount'))
+                tableData.value[index].maxCount = Number($('//content/traces').attr('maxCount'))
                 tableData.value[index].traceCount = tableData.value[index].trace.length
             }
         }
@@ -173,8 +173,8 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            if ($('/response/status').text() === 'success') {
-                tableData.value = $('/response/content/item')
+            if ($('//status').text() === 'success') {
+                tableData.value = $('//content/item')
                     .filter((item) => {
                         const $item = queryXml(item.element)
                         return (auth.value.hasAll || auth.value.ptz[item.attr('id')!]) && $item('chlType').text() !== 'recorder'
@@ -342,7 +342,7 @@ export default defineComponent({
                 const result = await delLocalChlPtzTrace(sendXml)
                 const $ = queryXml(result)
 
-                if ($('/response/status').text() === 'success') {
+                if ($('//status').text() === 'success') {
                     const sendXml = rawXml`
                        <content>
                             <chlId>${chlId}</chlId>
@@ -352,7 +352,7 @@ export default defineComponent({
                     const result = await deleteChlPtzTrace(sendXml)
                     const $ = queryXml(result)
 
-                    if ($('/response/status').text() === 'success') {
+                    if ($('//status').text() === 'success') {
                         openMessageTipBox({
                             type: 'success',
                             message: Translate('IDCS_DELETE_SUCCESS'),
@@ -388,7 +388,7 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 openMessageTipBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
@@ -396,7 +396,7 @@ export default defineComponent({
                     tableData.value[pageData.value.tableIndex].trace[formData.value.traceIndex as number].name = formData.value.name
                 })
             } else {
-                const errorCode = Number($('/response/errorCode').text())
+                const errorCode = Number($('//errorCode').text())
                 if (errorCode === ErrorCode.USER_ERROR_NAME_EXISTED) {
                     openMessageTipBox({
                         type: 'info',

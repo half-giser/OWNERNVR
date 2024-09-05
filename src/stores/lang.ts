@@ -30,7 +30,7 @@ export const useLangStore = defineStore(
         const requestLangTypes = () => {
             const data: string = getXmlWrapData('')
             return getSupportLangList(data).then((result) => {
-                const langNodes = queryXml(result)('/response/content/item')
+                const langNodes = queryXml(result)('//content/item')
                 const langTypesTemp: Record<string, string> = {}
                 langNodes.forEach((item) => {
                     langTypesTemp[item.attr('id') as string] = queryXml(item.element)('name').text()
@@ -39,7 +39,7 @@ export const useLangStore = defineStore(
                 langId.value = sessionStorage.getItem(LocalCacheKey.langId) as string
                 if (!langId.value || langId.value === 'null') {
                     const $ = queryXml(result)
-                    const devLandId = $('/response/content').attr('currentLangType')!
+                    const devLandId = $('//content').attr('currentLangType')!
                     langType.value = navigator.language.toLowerCase()
                     langId.value = LANG_MAPPING[langType.value]
                     if (!langId.value) {
@@ -58,7 +58,7 @@ export const useLangStore = defineStore(
                             break
                         }
                     }
-                    rtlLangList.value = $('/response/content/item[@alignRight="true"]').map((item) => {
+                    rtlLangList.value = $('//content/item[@alignRight="true"]').map((item) => {
                         return item.attr('id')!
                     })
                     if (!rtlLangList.value.length) {
@@ -85,7 +85,7 @@ export const useLangStore = defineStore(
                 </condition>
             `)
             return getLangContent(data).then((result) => {
-                const langNodes = queryXml(result)('/response/content/langItems/item')
+                const langNodes = queryXml(result)('//content/langItems/item')
                 const langItemsTemp: Record<string, string> = {}
                 langNodes.forEach((item) => {
                     langItemsTemp[item.attr('id') as string] = item.text()

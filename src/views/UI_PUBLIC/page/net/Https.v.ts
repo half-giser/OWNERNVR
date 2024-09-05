@@ -3,7 +3,7 @@
  * @Date: 2024-07-12 18:19:55
  * @Description: HTTPS
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-23 17:07:23
+ * @LastEditTime: 2024-09-05 15:53:03
  */
 import WebsocketUpload from '@/utils/websocket/websocketUpload'
 import WebsocketDownload from '@/utils/websocket/websocketDownload'
@@ -109,8 +109,8 @@ export default defineComponent({
         const getNetPortConfig = async () => {
             const result = await queryNetPortCfg()
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
-                formData.value.httpsSwitch = $('/response/content/httpsSwitch').text().toBoolean()
+            if ($('//status').text() === 'success') {
+                formData.value.httpsSwitch = $('//content/httpsSwitch').text().toBoolean()
                 pageData.value.cacheHttpsSwitch = formData.value.httpsSwitch
                 pageData.value.isDeleteCertDisabled = formData.value.httpsSwitch ? true : false
             }
@@ -130,7 +130,7 @@ export default defineComponent({
             const result = await editNetPortCfg(sendXml)
             const $ = queryXml(result)
 
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 pageData.value.isDeleteCertDisabled = formData.value.httpsSwitch ? true : false
                 if (formData.value.httpsSwitch !== pageData.value.cacheHttpsSwitch) {
                     Logout()
@@ -144,17 +144,17 @@ export default defineComponent({
         const getCertificate = async () => {
             const result = await queryCert()
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 formData.value.cert = 0
 
                 pageData.value.hasCert = true
                 pageData.value.httpSwitchDisabled = false
 
-                certFormData.value.countryName = 'C=' + $('/response/content/DN/countryName').text()
+                certFormData.value.countryName = 'C=' + $('//content/DN/countryName').text()
                 certFormData.value.content = [
-                    [Translate('IDCS_ISSUED_TO'), $('/response/content/DN/commonName').text()],
-                    [Translate('IDCS_ISSUER'), $('/response/content/DN/issuerCommonName').text()],
-                    [Translate('IDCS_VALIDITY_PERIOD') + ': ', $('/response/content/startDate').text() + '~' + $('/response/content/endDate').text()],
+                    [Translate('IDCS_ISSUED_TO'), $('//content/DN/commonName').text()],
+                    [Translate('IDCS_ISSUER'), $('//content/DN/issuerCommonName').text()],
+                    [Translate('IDCS_VALIDITY_PERIOD') + ': ', $('//content/startDate').text() + '~' + $('//content/endDate').text()],
                 ]
                     .map((item) => {
                         return `${item[0]}${item[1]}`
@@ -174,7 +174,7 @@ export default defineComponent({
 
             const result = await delCert()
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 formData.value.cert = pageData.value.certOptions[0].value
 
                 pageData.value.hasCert = false
@@ -212,9 +212,9 @@ export default defineComponent({
         const getCertificateRequest = async () => {
             const result = await queryCertReq()
             const $ = queryXml(result)
-            const countryName = $('/response/content/DN/countryName').text()
-            if ($('/response/status').text() === 'success' && countryName) {
-                if ($('/response/content/DN/commonName').text()) {
+            const countryName = $('//content/DN/countryName').text()
+            if ($('//status').text() === 'success' && countryName) {
+                if ($('//content/DN/commonName').text()) {
                     formData.value.cert = pageData.value.certOptions[2].value
 
                     pageData.value.hasCert = true
@@ -256,7 +256,7 @@ export default defineComponent({
 
             const result = await delCertReq()
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 pageData.value.isCreateCertReqDisabled = false
                 pageData.value.isExportCertReqDisabled = true
                 pageData.value.isDeleteCertReqDisabled = true
@@ -496,7 +496,7 @@ export default defineComponent({
                     if (action == 'ImportCert') {
                         importCert().then((result) => {
                             const $res = queryXml(result)
-                            if ($res('/response/status').text() === 'success') {
+                            if ($res('//status').text() === 'success') {
                                 commSaveResponseHadler(result)
                                 getCertificate()
                             } else {

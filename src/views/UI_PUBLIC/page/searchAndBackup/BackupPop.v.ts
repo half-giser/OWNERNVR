@@ -3,7 +3,7 @@
  * @Date: 2024-08-06 20:36:26
  * @Description: 备份录像弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 19:14:11
+ * @LastEditTime: 2024-09-05 16:23:13
  */
 import BackupRemoteEncryptPop from './BackupRemoteEncryptPop.vue'
 import type { PlaybackBackUpRecList } from '@/types/apiType/playback'
@@ -118,7 +118,7 @@ export default defineComponent({
         const getExternalDisk = async () => {
             const result = await queryExternalDisks()
             const $ = queryXml(result)
-            pageData.value.remoteDeviceOptions = $('/response/content/item').map((item) => {
+            pageData.value.remoteDeviceOptions = $('//content/item').map((item) => {
                 const $item = queryXml(item.element)
                 return {
                     name: item.attr('name')!,
@@ -137,7 +137,7 @@ export default defineComponent({
             try {
                 Plugin.AsynQueryInfo(Plugin.GetVideoPlugin(), OCX_XML_GetLocalCfg(), (result) => {
                     const $ = queryXml(XMLStr2XMLDoc(result))
-                    formData.value.localPath = $('/response/recBackUpPath').text()
+                    formData.value.localPath = $('//recBackUpPath').text()
                 })
             } catch {
                 openMessageTipBox({
@@ -197,10 +197,10 @@ export default defineComponent({
             `
             const result = await createRecBackupTask(sendXml)
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 ctx.emit('confirm', 'remote', formData.value.remoteDeviceName, formData.value.remoteFormat)
             } else {
-                const errorCode = Number($('/response/errorCode').text())
+                const errorCode = Number($('//errorCode').text())
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_DISK_SPACE_NO_ENOUGH:
@@ -210,7 +210,7 @@ export default defineComponent({
                         errorInfo = Translate('IDCS_NO_PERMISSION')
                         break
                     case 536871004:
-                        const num = $('/response/errorDescription').text()
+                        const num = $('//errorDescription').text()
                         errorInfo = Translate('IDCS_BACKUP_TASK_NUM_LIMIT').formatForLang(num)
                         break
                     default:

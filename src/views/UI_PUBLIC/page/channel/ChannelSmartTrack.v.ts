@@ -3,7 +3,7 @@
  * @Date: 2024-08-23 09:01:11
  * @Description: 云台-智能追踪
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-23 11:53:19
+ * @LastEditTime: 2024-09-05 11:54:53
  */
 import { cloneDeep } from 'lodash-es'
 import { type TableInstance } from 'element-plus'
@@ -128,10 +128,10 @@ export default defineComponent({
             `
             const result = await queryBallIPCATCfg(sendXml)
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
-                tableData.value[index].autoBackSwitch = $('/response/content/chl/param/backTime/switch').text().toBoolean()
-                tableData.value[index].autoBackTime = Number($('/response/content/chl/param/backTime/timeValue').text())
-                tableData.value[index].ptzControlMode = $('/response/content/chl/param/ptzControlMode').text()
+            if ($('//status').text() === 'success') {
+                tableData.value[index].autoBackSwitch = $('//content/chl/param/backTime/switch').text().toBoolean()
+                tableData.value[index].autoBackTime = Number($('//content/chl/param/backTime/timeValue').text())
+                tableData.value[index].ptzControlMode = $('//content/chl/param/ptzControlMode').text()
                 tableData.value[index].status = 'success'
             } else {
                 tableData.value[index].status = 'fail'
@@ -200,8 +200,8 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            if ($('/response/status').text() === 'success') {
-                tableData.value = $('/response/content/item').map((item) => {
+            if ($('//status').text() === 'success') {
+                tableData.value = $('//content/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
                         chlId: item.attr('id')!,

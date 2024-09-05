@@ -3,7 +3,7 @@
  * @Date: 2024-08-30 11:57:52
  * @Description: 人脸库 - 选择人脸 - 从抓拍库选择
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-02 18:06:01
+ * @LastEditTime: 2024-09-04 17:34:22
 -->
 <template>
     <div class="snap">
@@ -15,18 +15,12 @@
                 <BaseDateRange
                     :model-value="formData.dateRange"
                     :type="pageData.dateRangeType"
-                    :date-format="dateTime.dateFormat.value"
-                    :date-time-format="dateTime.dateTimeFormat.value"
-                    :ym-format="dateTime.yearMonthFormat.value"
                     @change="changeDateRange"
                 />
             </div>
             <div>
                 <BaseDateTab
                     :model-value="formData.dateRange"
-                    :date-format="dateTime.dateFormat.value"
-                    :date-time-format="dateTime.dateTimeFormat.value"
-                    :highlight="dateTime.highlightWeekend"
                     @change="changeDateRange"
                 />
             </div>

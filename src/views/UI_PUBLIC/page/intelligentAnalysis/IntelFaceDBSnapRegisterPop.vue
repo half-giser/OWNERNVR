@@ -49,9 +49,9 @@
                 <el-form-item :label="Translate('IDCS_BIRTHDAY')">
                     <el-date-picker
                         v-model="formData.birthday"
-                        :value-format="dateFormat"
-                        :format="dateFormat"
-                        :cell-class-name="highlight"
+                        :value-format="dateTime.dateFormat"
+                        :format="dateTime.dateFormat"
+                        :cell-class-name="highlightWeekend"
                         clear-icon=""
                         type="date"
                         :placeholder="Translate('IDCS_BIRTHDAY')"

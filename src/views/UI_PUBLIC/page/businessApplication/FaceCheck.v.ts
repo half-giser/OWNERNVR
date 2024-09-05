@@ -3,11 +3,11 @@
  * @Date: 2024-08-27 14:27:13
  * @Description: 业务应用-人脸签到
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-30 13:48:41
+ * @LastEditTime: 2024-09-05 11:50:03
  */
 import { cloneDeep } from 'lodash-es'
 import dayjs from 'dayjs'
-import { type BusinessFaceGroupList, BusinessFaceCheckList } from '@/types/apiType/business'
+import { type BusinessFaceGroupList, BusinessFaceCheckList, BusinessFaceCheckForm } from '@/types/apiType/business'
 import FaceDetailPop from './FaceDetailPop.vue'
 
 export default defineComponent({
@@ -18,8 +18,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
-
-        const dateTime = useDateTime()
+        const dateTime = useDateTimeStore()
 
         // 周与文本的映射
         const WEEK_DAY_MAPPING: Record<number, string> = {
@@ -64,118 +63,19 @@ export default defineComponent({
             detail: new BusinessFaceCheckList(),
         })
 
-        const formData = ref({
-            dateRange: [0, 0] as [number, number],
-            pageSize: 100,
-            currentPage: 1,
-            startTime: '09:00:00',
-            endTime: '18:00:00',
-            chls: [] as SelectOption<string, string>[],
-            faceGroup: [] as BusinessFaceGroupList[],
-            advanced: false,
-            isName: false,
-            name: '',
-            isType: false,
-            type: [] as string[],
-        })
+        const formData = ref(new BusinessFaceCheckForm())
 
         const tableData = ref<BusinessFaceCheckList[]>([])
+
+        const startTime = computed(() => formData.value.startTime)
+        const endTime = computed(() => formData.value.endTime)
+        const pickerRange = useTimePickerRange(startTime, endTime)
 
         const chlMap: Record<string, string> = {}
 
         const sliceTableData = computed(() => {
             return tableData.value.slice(formData.value.currentPage - 1, formData.value.currentPage * formData.value.pageSize)
         })
-
-        /**
-         * @description 禁止开始时间选择部分小时选项
-         */
-        const disabledStartTimeHours = () => {
-            const endTime = dayjs(formData.value.endTime, 'HH:mm:ss')
-            const hours = []
-            for (let i = endTime.hour() + 1; i <= 23; i++) {
-                hours.push(i)
-            }
-            return hours
-        }
-
-        /**
-         * @description 禁止开始时间选择部分分钟选项
-         * @param {Number} hour
-         */
-        const disabledStartTimeMinutes = (hour: number) => {
-            const endTime = dayjs(formData.value.endTime, 'HH:mm:ss')
-            if (hour < endTime.hour()) {
-                return []
-            }
-            const minutes = []
-            for (let i = endTime.minute() + 1; i <= 59; i++) {
-                minutes.push(i)
-            }
-            return minutes
-        }
-
-        /**
-         * @description 禁止开始时间选择部分秒选项
-         * @param {Number} hour
-         * @param {Number} minute
-         */
-        const disabledStartTimeSeconds = (hour: number, minute: number) => {
-            const endTime = dayjs(formData.value.endTime, 'HH:mm:ss')
-            if (hour === endTime.hour() && minute === endTime.minute()) {
-                const seconds = []
-                for (let i = endTime.second(); i <= 59; i++) {
-                    seconds.push(i)
-                }
-                return seconds
-            }
-            return []
-        }
-
-        /**
-         * @description 禁止结束时间选择部分小时选项
-         */
-        const disabledEndTimeHours = () => {
-            const startTime = dayjs(formData.value.startTime, 'HH:mm:ss')
-            const hours = []
-            for (let i = 0; i < startTime.hour(); i++) {
-                hours.push(i)
-            }
-            return hours
-        }
-
-        /**
-         * @description 禁止结束时间选择部分分钟选项
-         * @param {Number} hour
-         */
-        const disabledEndTimeMinutes = (hour: number) => {
-            const startTime = dayjs(formData.value.startTime, 'HH:mm:ss')
-            const minutes = []
-            if (hour > startTime.hour()) {
-                return []
-            }
-            for (let i = 0; i < startTime.minute(); i++) {
-                minutes.push(i)
-            }
-            return minutes
-        }
-
-        /**
-         * @description 禁止结束时间选择部分秒选项
-         * @param {Number} hour
-         * @param {Number} minute
-         */
-        const disabledEndTimeSeconds = (hour: number, minute: number) => {
-            const startTime = dayjs(formData.value.startTime, 'HH:mm:ss')
-            const seconds = []
-            if (hour === startTime.hour() && minute === startTime.minute()) {
-                for (let i = 0; i <= startTime.second(); i++) {
-                    seconds.push(i)
-                }
-                return seconds
-            }
-            return []
-        }
 
         /**
          * @description 更改时间范围类型
@@ -306,7 +206,7 @@ export default defineComponent({
                 date.push({
                     day: WEEK_DAY_MAPPING[day],
                     date: formatDate(current, 'YYYY-MM-DD'),
-                    format: formatDate(current, dateTime.dateFormat.value),
+                    format: formatDate(current, dateTime.dateFormat),
                 })
             }
 
@@ -433,7 +333,7 @@ export default defineComponent({
                 })
             })
 
-            $('/response/content/i')
+            $('//content/i')
                 .map((item) => {
                     const textArr = item.text().split(',')
                     const chlId = getChlGuid16(textArr[4]).toUpperCase()
@@ -532,7 +432,7 @@ export default defineComponent({
             const body: string[][] = tableData.value
                 .map((item) => {
                     return item.detail.map((detail) => {
-                        return [item.name, detail.date, detail.day, detail.type, detail.detail.map((item) => formatDate(item.timestamp, dateTime.timeFormat.value)).join('')]
+                        return [item.name, detail.date, detail.day, detail.type, detail.detail.map((item) => formatDate(item.timestamp, dateTime.timeFormat)).join('')]
                     })
                 })
                 .flat()
@@ -542,7 +442,6 @@ export default defineComponent({
 
         onMounted(async () => {
             openLoading(LoadingTarget.FullScreen)
-            await dateTime.getTimeConfig()
             await getChannelList()
             await getFaceGroupList()
             for (let i = 0; i < pageData.value.faceGroupList.length; i++) {
@@ -556,17 +455,11 @@ export default defineComponent({
         return {
             pageData,
             formData,
-            dateTime,
             changeDateRange,
             daysInRange,
+            pickerRange,
             displayIndex,
             DefaultPagerLayout,
-            disabledStartTimeHours,
-            disabledStartTimeMinutes,
-            disabledStartTimeSeconds,
-            disabledEndTimeHours,
-            disabledEndTimeMinutes,
-            disabledEndTimeSeconds,
             displayStatus,
             tableData,
             searchData,

@@ -68,7 +68,7 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            pageData.value.physicalDiskList = $('/response/content/physicalDisk/item')
+            pageData.value.physicalDiskList = $('//content/physicalDisk/item')
                 .filter((item) => {
                     return queryXml(item.element)('type').text() === 'normal'
                 })
@@ -117,8 +117,8 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            if ($('/response/status').text() === 'success') {
-                const errorCode = Number($('/response/errorCode').text())
+            if ($('//status').text() === 'success') {
+                const errorCode = Number($('//errorCode').text())
                 let errorInfo = ''
 
                 switch (errorCode) {

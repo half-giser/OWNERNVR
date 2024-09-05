@@ -3,7 +3,7 @@
  * @Date: 2024-07-04 11:34:14
  * @Description: 回放弹窗（OCX+H5）
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-14 17:53:54
+ * @LastEditTime: 2024-09-05 16:18:42
 -->
 <template>
     <el-dialog
@@ -135,7 +135,7 @@ const emit = defineEmits<{
 
 const systemCaps = useCababilityStore()
 const userSession = useUserSessionStore()
-const dateTime = useDateTime()
+const dateTime = useDateTimeStore()
 
 // 通道ID与通道类型映射列表
 const chlMapping: Record<
@@ -198,17 +198,17 @@ const current = computed(() => {
 
 // 开始时间 （format）
 const startTime = computed(() => {
-    return dayjs(current.value.startTime).format(dateTime.timeFormat.value)
+    return dayjs(current.value.startTime).format(dateTime.timeFormat)
 })
 
 // 结束时间 （format）
 const endTime = computed(() => {
-    return dayjs(current.value.endTime).format(dateTime.timeFormat.value)
+    return dayjs(current.value.endTime).format(dateTime.timeFormat)
 })
 
 // 当前时间 （format）
 const currentTime = computed(() => {
-    return dayjs(pageData.value.progress * 1000).format(dateTime.dateTimeFormat.value)
+    return dayjs(pageData.value.progress * 1000).format(dateTime.dateTimeFormat)
 })
 
 // 开始时间的时间戳（s）
@@ -462,7 +462,7 @@ const changeChannel = (index: number) => {
 const getChannelList = async () => {
     getChlList({}).then((result) => {
         commLoadResponseHandler(result, ($) => {
-            $('/response/content/item').forEach((item) => {
+            $('//content/item').forEach((item) => {
                 const $item = queryXml(item.element)
                 chlMapping[item.attr('id')!] = {
                     chlType: $item('chlType').text(),
@@ -527,7 +527,6 @@ const ocxNotify = ($: XMLQuery) => {
 }
 
 onMounted(() => {
-    dateTime.getTimeConfig()
     getChannelList()
 })
 </script>

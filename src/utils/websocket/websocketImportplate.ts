@@ -3,9 +3,10 @@
  * @Date: 2024-05-30 14:08:47
  * @Description: websocket 导入车牌库
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-11 09:39:06
+ * @LastEditTime: 2024-09-03 11:21:01
  */
 import WebsocketBase from './websocketBase'
+import { type CmdPlateLibImportDataList } from './websocketCmd'
 
 export interface WebsocketImportPlateLibOption {
     // onopen?: () => void
@@ -13,13 +14,13 @@ export interface WebsocketImportPlateLibOption {
     onprogress?: (param: number) => void
     onerror?: (param?: number) => void
     onclose?: () => void
-    plateDataList: string[]
-    limitNum: number
+    plateDataList: CmdPlateLibImportDataList[]
+    limitNum?: number
 }
 
 export default class WebsocketImportPlateLib {
     private ws: WebsocketBase | null = null
-    private plateDataList: string[] = []
+    private plateDataList: CmdPlateLibImportDataList[] = []
     private totalNum = 0
     private limitNum = 300
     private importIdx = 0

@@ -5,18 +5,15 @@ export default defineComponent({
     props: {
         title: {
             type: String,
-            require: true,
-            default: '',
+            required: true,
         },
         forced: {
             type: Boolean,
-            require: false,
             default: false,
         },
         passwordStrength: {
             type: String,
-            require: true,
-            default: 'weak',
+            required: true,
         },
     },
     emits: {
@@ -119,7 +116,7 @@ export default defineComponent({
             `
             const result = await editUserPassword(xml)
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 userSession.defaultPwd = false
                 userSession.isChangedPwd = true
                 userSession.pwdExpired = false
@@ -130,7 +127,7 @@ export default defineComponent({
                     ctx.emit('close')
                 })
             } else {
-                const errorCode = Number($('/response/errorCode').text())
+                const errorCode = Number($('//errorCode').text())
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_PWD_ERR:
                         ElMessage({

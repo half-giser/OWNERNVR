@@ -3,7 +3,7 @@
  * @Date: 2024-08-15 20:09:41
  * @Description: OVNIF 新增/编辑用户弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-22 19:56:06
+ * @LastEditTime: 2024-09-05 16:00:51
  */
 import type { FormInstance, FormRules } from 'element-plus'
 import { NetOnvifUserForm, NetOnvifUserList } from '@/types/apiType/net'
@@ -166,7 +166,7 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 openMessageTipBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
@@ -174,7 +174,7 @@ export default defineComponent({
                     ctx.emit('confirm')
                 })
             } else {
-                handleError(Number($('/response/errorCode').text()))
+                handleError(Number($('//errorCode').text()))
             }
         }
 
@@ -197,7 +197,7 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 openMessageTipBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
@@ -205,7 +205,7 @@ export default defineComponent({
                     ctx.emit('confirm')
                 })
             } else {
-                handleError(Number($('/response/errorCode').text()))
+                handleError(Number($('//errorCode').text()))
             }
         }
 

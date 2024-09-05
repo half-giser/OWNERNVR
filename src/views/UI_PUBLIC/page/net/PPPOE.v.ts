@@ -56,8 +56,8 @@ export default defineComponent({
         const getData = async () => {
             const result = await queryPPPoECfg()
             commLoadResponseHandler(result, ($) => {
-                formData.value.switch = $('/response/content/switch').text().toBoolean()
-                formData.value.userName = $('/response/content/userName').text().trim()
+                formData.value.switch = $('//content/switch').text().toBoolean()
+                formData.value.userName = $('//content/userName').text().trim()
 
                 if (!formData.value.userName) {
                     pageData.value.passwordSwitch = true
@@ -97,7 +97,7 @@ export default defineComponent({
         const getWirelessNetworkData = async () => {
             const result = await queryWirelessNetworkCfg()
             const $ = queryXml(result)
-            pageData.value.wirelessSwitch = $('/response/content/switch').text().toBoolean()
+            pageData.value.wirelessSwitch = $('//content/switch').text().toBoolean()
         }
 
         onMounted(async () => {

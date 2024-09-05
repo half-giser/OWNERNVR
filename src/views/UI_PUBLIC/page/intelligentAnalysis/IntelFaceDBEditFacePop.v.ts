@@ -3,7 +3,7 @@
  * @Date: 2024-08-30 18:48:06
  * @Description: 人脸库 - 编辑人脸弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-02 19:44:29
+ * @LastEditTime: 2024-09-04 17:47:42
  */
 import { IntelFaceDBFaceForm, type IntelFaceDBGroupDto, type IntelFaceDBSnapFaceList, type IntelFaceDBFaceInfo } from '@/types/apiType/intelligentAnalysis'
 import { type FormInstance } from 'element-plus'
@@ -22,22 +22,6 @@ export default defineComponent({
         list: {
             type: Array as PropType<IntelFaceDBFaceInfo[]>,
             required: true,
-        },
-        /**
-         * @property 日期格式
-         */
-        dateFormat: {
-            type: String,
-            required: true,
-            default: 'YYYY-MM-DD',
-        },
-        /**
-         * @property 日期高亮函数
-         */
-        highlight: {
-            type: Function,
-            required: true,
-            default: () => () => '',
         },
         /**
          * @property 分组ID
@@ -59,6 +43,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const dateTime = useDateTimeStore()
 
         const formRef = ref<FormInstance>()
 
@@ -273,7 +258,7 @@ export default defineComponent({
                     <id>${id}</id>
                     <name>${item.name}</name>
                     <sex type="sex">${item.sex}</sex>
-                    <birthday>${formatDate(item.birthday, 'YYYY-MM-DD', prop.dateFormat)}</birthday>
+                    <birthday>${formatDate(item.birthday, 'YYYY-MM-DD', dateTime.dateFormat)}</birthday>
                     <nativePlace>${item.nativePlace}</nativePlace>
                     <certificateType type="certificateType">${item.certificateType}</certificateType>
                     <certificateNum>${item.certificateNum}</certificateNum>
@@ -302,6 +287,7 @@ export default defineComponent({
         }
 
         return {
+            dateTime,
             disabled,
             formRef,
             formData,
@@ -311,6 +297,9 @@ export default defineComponent({
             confirmChooseFace,
             verify,
             close,
+            highlightWeekend,
+            IntelFaceDBChooseFacePop,
+            IntelFaceItem,
         }
     },
 })

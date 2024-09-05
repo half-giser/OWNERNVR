@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 18:39:25
  * @Description: 实时过车记录
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-28 17:31:04
+ * @LastEditTime: 2024-09-04 17:14:25
 -->
 <template>
     <div class="lot">
@@ -207,7 +207,6 @@
             v-model="pageData.isDetailPop"
             :list="tableData"
             :index="pageData.detailIndex"
-            :date-time-format="dateTime.dateTimeFormat.value"
             @update-plate="handleUpdatePlate"
             @close="pageData.isDetailPop = false"
         />

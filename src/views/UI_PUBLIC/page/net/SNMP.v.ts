@@ -3,7 +3,7 @@
  * @Date: 2024-07-12 18:21:09
  * @Description: SNMP配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-16 20:05:10
+ * @LastEditTime: 2024-09-05 16:05:31
  */
 import { NetSNMPForm } from '@/types/apiType/net'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -90,7 +90,7 @@ export default defineComponent({
         const getData = async () => {
             const result = await querySNMPCfg()
             commLoadResponseHandler(result, ($) => {
-                const $content = queryXml($('/response/content')[0].element)
+                const $content = queryXml($('//content')[0].element)
                 formData.value.snmpv1Switch = $content('snmpv1Switch').text().toBoolean()
                 formData.value.snmpv2Switch = $content('snmpv2Switch').text().toBoolean()
                 formData.value.snmpPort = Number($content('snmpPort').text())

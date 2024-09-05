@@ -3,7 +3,7 @@
  * @Date: 2024-05-30 10:25:04
  * @Description: websocket命令生成工具
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-13 20:33:11
+ * @LastEditTime: 2024-09-03 11:20:36
  */
 import { ENV_MODE, APP_SERVER_IP } from '../constants'
 
@@ -492,12 +492,20 @@ export const CMD_PLATELIB_IMPORT_START = () => ({
     },
 })
 
+export interface CmdPlateLibImportDataList {
+    vehicle_plate_group_id: string
+    plate_number: string
+    owner: string
+    owner_phone: string
+    vehicle_type: string
+}
+
 /**
  * @description 启动样本库-车牌库导入数据
  * @param {string} task_id
  * @param {string[]} plate_data
  */
-export const CMD_PLATELIB_IMPORT_DATA = (task_id: string, plate_data: string[]) => ({
+export const CMD_PLATELIB_IMPORT_DATA = (task_id: string, plate_data: CmdPlateLibImportDataList[]) => ({
     url: '/device/platelib/import/data',
     basic: getBasic(),
     data: {

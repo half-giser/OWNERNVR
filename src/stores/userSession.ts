@@ -9,6 +9,9 @@ import { type LoginForm, type LoginReqData } from '@/types/apiType/user'
 export const useUserSessionStore = defineStore(
     'userSession',
     () => {
+        const cababilityStore = useCababilityStore()
+        const dateTime = useDateTimeStore()
+
         const sessionId = ref('')
         const token = ref('')
         const nonce = ref('')
@@ -34,7 +37,6 @@ export const useUserSessionStore = defineStore(
         const authMask = ref(0)
         const csvDeviceName = ref('')
         const showPluginNoResponse = ref('')
-        const cababilityStore = useCababilityStore()
         const sn = ref('')
         const advanceRecModeId = ref('')
         const defaultStreamType = ref('')
@@ -175,6 +177,8 @@ export const useUserSessionStore = defineStore(
                 const $ = queryXml(result)
                 cababilityStore.isUseRaid = $('content/diskMode/isUseRaid').text().toBoolean()
             })
+
+            await dateTime.getTimeConfig(true)
         }
 
         return {

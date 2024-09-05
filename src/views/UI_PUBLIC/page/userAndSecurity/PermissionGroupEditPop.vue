@@ -3,7 +3,7 @@
  * @Date: 2024-06-17 20:25:35
  * @Description: 编辑权限组弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 14:11:31
+ * @LastEditTime: 2024-09-05 14:07:17
 -->
 <template>
     <el-dialog
@@ -193,7 +193,7 @@
                     class="el-col-flex-end"
                 >
                     <el-button @click="doEditAuthGroup">{{ Translate('IDCS_ADD') }}</el-button>
-                    <el-button @click="goBack(false)">{{ Translate('IDCS_CANCEL') }}</el-button>
+                    <el-button @click="goBack">{{ Translate('IDCS_CANCEL') }}</el-button>
                 </el-col>
             </el-row>
         </template>

@@ -3,7 +3,7 @@
  * @Date: 2024-08-29 10:06:12
  * @Description: 人脸库
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-02 17:27:10
+ * @LastEditTime: 2024-09-04 17:21:40
 -->
 <template>
     <div class="base-flex-box">
@@ -228,16 +228,12 @@
         />
         <IntelFaceDBAddFacePop
             v-model="pageData.isAddFacePop"
-            :date-format="dateTime.dateFormat.value"
-            :highlight="dateTime.highlightWeekend"
             :group-id="pageData.addFaceGroupId"
         />
         <IntelFaceDBEditFacePop
             v-model="pageData.isEditFacePop"
             :list="pageData.editFaceData"
             :group-id="pageData.editFaceGroupId"
-            :date-format="dateTime.dateFormat.value"
-            :highlight="dateTime.highlightWeekend"
             @confirm="confirmEditFace"
             @close="pageData.isEditFacePop = false"
         />

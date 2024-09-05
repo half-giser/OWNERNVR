@@ -3,12 +3,16 @@
  * @Date: 2024-08-28 14:12:55
  * @Description: 实时过车记录 - 详情弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-28 17:29:45
+ * @LastEditTime: 2024-09-04 17:15:20
  */
 import { BusinessParkingLotList, type BusinessParkingLotRelevantList } from '@/types/apiType/business'
 import dayjs from 'dayjs'
+import IntelLicencePlateDBAddPlatePop from '../intelligentAnalysis/IntelLicencePlateDBAddPlatePop.vue'
 
 export default defineComponent({
+    components: {
+        IntelLicencePlateDBAddPlatePop,
+    },
     props: {
         /**
          * @property {Array} 实时过车记录列表
@@ -24,13 +28,6 @@ export default defineComponent({
             type: Number,
             required: true,
         },
-        /**
-         * @property {String} 时间日期格式
-         */
-        dateTimeFormat: {
-            type: String,
-            default: 'YYYY-MM-DD HH:mm:ss',
-        },
     },
     emits: {
         updatePlate(index: number, plate: string) {
@@ -43,6 +40,7 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
+        const dateTime = useDateTimeStore()
 
         let listIndex = 0
 
@@ -248,7 +246,7 @@ export default defineComponent({
          */
         const displayDateTime = (time: number) => {
             if (!time) return '--'
-            return formatDate(time, prop.dateTimeFormat)
+            return formatDate(time, dateTime.dateTimeFormat)
         }
 
         /**
@@ -378,7 +376,6 @@ export default defineComponent({
          * @description 新增车牌
          */
         const addPlate = () => {
-            // TODO: 新增车牌弹窗
             pageData.value.plateNum = current.value.plateNum
             pageData.value.isAddPlatePop = true
         }
@@ -399,6 +396,7 @@ export default defineComponent({
             addPlate,
             close,
             open,
+            IntelLicencePlateDBAddPlatePop,
         }
     },
 })

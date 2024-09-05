@@ -3,7 +3,7 @@
  * @Date: 2024-07-31 16:36:16
  * @Description:
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-19 09:34:21
+ * @LastEditTime: 2024-09-05 16:25:04
  */
 import { defineComponent } from 'vue'
 import BaseScheduleWeek from '@/components/BaseScheduleWeek.vue'
@@ -69,9 +69,9 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            if ($('/response/status').text() !== 'success') return
+            if ($('//status').text() !== 'success') return
 
-            pageData.value.scheduleList = $('/response/content/item').map((item) => {
+            pageData.value.scheduleList = $('//content/item').map((item) => {
                 return {
                     id: item.attr('id')!,
                     name: item.text(),
@@ -126,13 +126,13 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 pageData.value.currentScheduleInfo = new ScheduleInfo()
-                pageData.value.currentScheduleInfo.id = $('/response/content/id').text()
-                pageData.value.currentScheduleInfo.name = $('/response/content/name').text()
+                pageData.value.currentScheduleInfo.id = $('//content/id').text()
+                pageData.value.currentScheduleInfo.name = $('//content/name').text()
 
                 pageData.value.dayEnum.forEach((day, index) => {
-                    pageData.value.currentScheduleInfo!.timespan[index] = $('/response/content/period/item')
+                    pageData.value.currentScheduleInfo!.timespan[index] = $('//content/period/item')
                         .filter((item) => {
                             return xmlParse('./day', item.element).text() === day
                         })

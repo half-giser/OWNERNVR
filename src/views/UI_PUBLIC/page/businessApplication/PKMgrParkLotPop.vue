@@ -3,7 +3,7 @@
  * @Date: 2024-08-28 14:12:40
  * @Description:  实时过车记录 - 详情弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-28 17:29:38
+ * @LastEditTime: 2024-09-03 20:05:47
 -->
 <template>
     <el-dialog
@@ -93,6 +93,14 @@
                 </div>
             </div>
         </div>
+        <IntelLicencePlateDBAddPlatePop
+            v-model="pageData.isAddPlatePop"
+            type="register"
+            :data="{
+                plateNumber: pageData.plateNum,
+            }"
+            append-to-body
+        />
         <template #footer>
             <el-row>
                 <el-col

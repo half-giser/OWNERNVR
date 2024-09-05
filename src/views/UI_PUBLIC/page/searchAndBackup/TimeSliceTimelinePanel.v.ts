@@ -3,7 +3,7 @@
  * @Date: 2024-08-14 16:50:21
  * @Description: 时间切片-时间线界面
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-23 14:13:12
+ * @LastEditTime: 2024-09-05 16:24:05
  */
 import dayjs from 'dayjs'
 import TimeSliceChlCard from './TimeSliceChlCard.vue'
@@ -58,27 +58,6 @@ export default defineComponent({
             type: Number,
             required: true,
         },
-        /**
-         * @property 日期格式
-         */
-        dateFormat: {
-            type: String,
-            required: true,
-        },
-        /**
-         * @property 日期时间格式
-         */
-        dateTimeFormat: {
-            type: String,
-            required: true,
-        },
-        /**
-         * @property 时间格式
-         */
-        timeFormat: {
-            type: String,
-            required: true,
-        },
     },
     emits: {
         change(mode: string, timestamp: number) {
@@ -93,6 +72,7 @@ export default defineComponent({
         const router = useRouter()
         const systemCaps = useCababilityStore()
         const userAuth = useUserChlAuth()
+        const dateTime = useDateTimeStore()
 
         const pageData = ref({
             // 模式选项
@@ -244,7 +224,7 @@ export default defineComponent({
          * @returns {String}
          */
         const displayDateTime = (timestamp: number) => {
-            return formatDate(timestamp, prop.dateTimeFormat)
+            return formatDate(timestamp, dateTime.dateTimeFormat)
         }
 
         /**
@@ -253,7 +233,7 @@ export default defineComponent({
          * @returns {String}
          */
         const displayTime = (timestamp: number) => {
-            return formatDate(timestamp, prop.timeFormat)
+            return formatDate(timestamp, dateTime.timeFormat)
         }
 
         // 时长
@@ -327,9 +307,9 @@ export default defineComponent({
             `
             const result = await queryRecDataSize(sendXml)
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 if (formData.value.startTime === startTime && formData.value.endTime === endTime) {
-                    const size = Number($('/response/content/dataSize').text())
+                    const size = Number($('//content/dataSize').text())
                     formData.value.size = size
                 }
             } else {
@@ -356,18 +336,12 @@ export default defineComponent({
          */
         const displayThumbnailTime = (time: number) => {
             if (pageData.value.mode === 'year') {
-                const year = prop.dateTimeFormat.indexOf('Y')
-                const month = prop.dateTimeFormat.indexOf('M')
-                if (year > month) {
-                    return formatDate(time, 'MM/YYYY')
-                } else {
-                    return formatDate(time, 'YYYY/MM')
-                }
+                return formatDate(time, dateTime.yearMonthFormat)
             }
             if (pageData.value.mode === 'month') {
-                return formatDate(time, prop.dateFormat)
+                return formatDate(time, dateTime.dateFormat)
             }
-            return formatDate(time, prop.timeFormat)
+            return formatDate(time, dateTime.timeFormat)
         }
 
         /**
@@ -713,13 +687,13 @@ export default defineComponent({
             `
             const result = await queryChlRecLog(sendXml)
             const $ = queryXml(result)
-            if ($('/response/status').text() !== 'success') {
+            if ($('//status').text() !== 'success') {
                 return
             }
             if (startTime !== timelineRef.value!.getMinTime() * 1000) {
                 return
             }
-            pageData.value.recList = $('/response/content/chl/item').map((item) => {
+            pageData.value.recList = $('//content/chl/item').map((item) => {
                 const $item = queryXml(item.element)
                 return {
                     chlId: item.attr('id')!,
@@ -912,6 +886,7 @@ export default defineComponent({
         })
 
         return {
+            dateTime,
             pageData,
             playerData,
             formData,

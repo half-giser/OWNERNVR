@@ -3,7 +3,7 @@
  * @Date: 2024-08-23 10:36:12
  * @Description: 云台-协议
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-27 09:11:19
+ * @LastEditTime: 2024-09-05 11:53:24
  */
 import { cloneDeep } from 'lodash-es'
 import { type TableInstance } from 'element-plus'
@@ -117,20 +117,20 @@ export default defineComponent({
             `
             const result = await queryPtzProtocol(sendXml)
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
-                tableData.value[index].baudRate = $('/response/content/chl/baudRate').text()
-                tableData.value[index].protocol = $('/response/content/chl/protocol').text()
-                tableData.value[index].address = Number($('/response/content/chl/address').text())
-                tableData.value[index].addressMin = Number($('/response/content/chl/address').attr('min')!)
-                tableData.value[index].addressMax = Number($('/response/content/chl/address').attr('max')!)
-                tableData.value[index].ptz = $('/response/content/chl/ptz').text().toBoolean()
-                tableData.value[index].baudRateOptions = $('/response/types/baudRate/enum').map((item) => {
+            if ($('//status').text() === 'success') {
+                tableData.value[index].baudRate = $('//content/chl/baudRate').text()
+                tableData.value[index].protocol = $('//content/chl/protocol').text()
+                tableData.value[index].address = Number($('//content/chl/address').text())
+                tableData.value[index].addressMin = Number($('//content/chl/address').attr('min')!)
+                tableData.value[index].addressMax = Number($('//content/chl/address').attr('max')!)
+                tableData.value[index].ptz = $('//content/chl/ptz').text().toBoolean()
+                tableData.value[index].baudRateOptions = $('//types/baudRate/enum').map((item) => {
                     return {
                         value: item.text(),
                         label: item.text(),
                     }
                 })
-                tableData.value[index].protocolOptions = $('/response/types/protocol/enum').map((item) => {
+                tableData.value[index].protocolOptions = $('//types/protocol/enum').map((item) => {
                     return {
                         value: item.text(),
                         label: item.text(),
@@ -205,8 +205,8 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            if ($('/response/status').text() === 'success') {
-                tableData.value = $('/response/content/item').map((item) => {
+            if ($('//status').text() === 'success') {
+                tableData.value = $('//content/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
                         chlId: item.attr('id')!,

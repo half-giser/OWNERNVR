@@ -3,7 +3,7 @@
  * @Date: 2024-08-30 18:47:04
  * @Description: 人脸库 - 添加人脸
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-02 17:51:53
+ * @LastEditTime: 2024-09-04 18:30:19
  */
 import { IntelFaceDBFaceForm, type IntelFaceDBGroupDto, type IntelFaceDBSnapFaceList, type IntelFaceDBImportFaceDto } from '@/types/apiType/intelligentAnalysis'
 import { type FormInstance } from 'element-plus'
@@ -16,22 +16,6 @@ export default defineComponent({
         IntelFaceItem,
     },
     props: {
-        /**
-         * @property 日期格式
-         */
-        dateFormat: {
-            type: String,
-            required: true,
-            default: 'YYYY-MM-DD',
-        },
-        /**
-         * @property 日期高亮函数
-         */
-        highlight: {
-            type: Function,
-            required: true,
-            default: () => () => '',
-        },
         /**
          * @property 分组ID
          */
@@ -52,6 +36,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const dateTime = useDateTimeStore()
 
         // 错误码与显示文本的映射
         const ERROR_TIP_MAPPING: Record<number, string> = {
@@ -153,7 +138,7 @@ export default defineComponent({
          */
         const renderFormData = () => {
             const data = new IntelFaceDBFaceForm()
-            data.birthday = formatDate(new Date(), prop.dateFormat)
+            data.birthday = formatDate(new Date(), dateTime.dateFormat)
             if (pageData.value.groupList.length) {
                 if (prop.groupId) {
                     data.groupId = prop.groupId
@@ -171,7 +156,7 @@ export default defineComponent({
             snapData = []
             importData = []
             formData.value = [new IntelFaceDBFaceForm()]
-            formData.value[0].birthday = formatDate(new Date(), prop.dateFormat)
+            formData.value[0].birthday = formatDate(new Date(), dateTime.dateFormat)
             await getFaceGroup()
             pageData.value.formIndex = 0
             pageData.value.formType = 'choose'
@@ -247,7 +232,7 @@ export default defineComponent({
             formData.value = e.map((item) => {
                 console.log(item)
                 const data = renderFormData()
-                data.birthday = formatDate(item.birthday, prop.dateFormat, 'YYYY/MM/DD')
+                data.birthday = formatDate(item.birthday, dateTime.dateFormat, 'YYYY/MM/DD')
                 console.log(data.birthday)
                 if (item.number) {
                     data.number = Number(item.number)
@@ -302,7 +287,7 @@ export default defineComponent({
                     <force>${force.toString()}</force>
                     <name>${item.name}</name>
                     <sex>${item.sex}</sex>
-                    <birthday>${formatDate(item.birthday, 'YYYY-MM-DD', prop.dateFormat)}</birthday>
+                    <birthday>${formatDate(item.birthday, 'YYYY-MM-DD', dateTime.dateFormat)}</birthday>
                     <nativePlace>${item.nativePlace}</nativePlace>
                     <certificateType>${item.certificateType}</certificateType>
                     <certificateNum>${item.certificateNum}</certificateNum>
@@ -385,7 +370,7 @@ export default defineComponent({
                     ${ternary(force, `<force>true</force>`, '')}
                     <name>${item.name}</name>
                     <sex type="sex">${item.sex}</sex>
-                    <birthday>${formatDate(item.birthday, 'YYYY-MM-DD', prop.dateFormat)}</birthday>
+                    <birthday>${formatDate(item.birthday, 'YYYY-MM-DD', dateTime.dateFormat)}</birthday>
                     <nativePlace>${item.nativePlace}</nativePlace>
                     <certificateType type="certificateType">${item.certificateType}</certificateType>
                     <certificateNum>${item.certificateNum}</certificateNum>
@@ -479,10 +464,10 @@ export default defineComponent({
         }
 
         return {
+            dateTime,
             formRef,
             formData,
             pageData,
-            IntelFaceItem,
             open,
             handlePrev,
             handleNext,
@@ -498,6 +483,9 @@ export default defineComponent({
             successCount,
             picList,
             swiperSize,
+            highlightWeekend,
+            IntelFaceDBChooseFacePop,
+            IntelFaceItem,
         }
     },
 })

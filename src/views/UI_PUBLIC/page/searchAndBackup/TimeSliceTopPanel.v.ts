@@ -3,7 +3,7 @@
  * @Date: 2024-08-14 16:59:30
  * @Description: 时间切片-概览界面(按通道/按时间)
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-14 17:07:10
+ * @LastEditTime: 2024-09-05 16:23:40
  */
 import dayjs from 'dayjs'
 import { type PlaybackTimeSliceChlList, type PlaybackTimeSliceList } from '@/types/apiType/playback'
@@ -13,22 +13,6 @@ import WebsocketKeyframe, { type WebsocketKeyframeOnMessageParam } from '@/utils
 export default defineComponent({
     components: {
         TimeSliceChlCard,
-    },
-    props: {
-        /**
-         * @property 日期格式
-         */
-        dateFormat: {
-            type: String,
-            required: true,
-        },
-        /**
-         * @property 时间格式
-         */
-        timeFormat: {
-            type: String,
-            required: true,
-        },
     },
     emits: {
         startTime(time: number) {
@@ -40,6 +24,7 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
+        const dateTime = useDateTimeStore()
 
         // 允许显示缩略图的最大数量64
         const MAX_THUMBNAIL_SHOW_COUNTS = 64
@@ -114,8 +99,8 @@ export default defineComponent({
 
             chlMap.value = {}
 
-            if ($('/response/status').text() === 'success') {
-                pageData.value.chlList = $('/response/content/item').map((item) => {
+            if ($('//status').text() === 'success') {
+                pageData.value.chlList = $('//content/item').map((item) => {
                     const id = item.attr('id')!
 
                     chlMap.value[id] = item.text()
@@ -154,8 +139,8 @@ export default defineComponent({
             `
             const result = await queryRecSection(sendXml)
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
-                pageData.value.recTimeList = $('/response/content/item').map((item) => {
+            if ($('//status').text() === 'success') {
+                pageData.value.recTimeList = $('//content/item').map((item) => {
                     const index = Number(item.text())
                     const utcTime = startTime.add(index, 'day')
                     return utcTime.valueOf()
@@ -177,8 +162,8 @@ export default defineComponent({
             const sendXml = `<condition>${items}</condition>`
             const result = await queryDateListRecChl(sendXml)
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
-                pageData.value.chlTimeSliceList = $('/response/content/item')
+            if ($('//status').text() === 'success') {
+                pageData.value.chlTimeSliceList = $('//content/item')
                     .map((item, index) => {
                         const startTime = Number(item.attr('start')!) * 1000
                         const endTime = Number(item.attr('end')!) * 1000
@@ -210,7 +195,7 @@ export default defineComponent({
                     })
                     .toReversed()
 
-                pageData.value.timesliceCount = $('/response/content/item/chl/item').length
+                pageData.value.timesliceCount = $('//content/item/chl/item').length
             }
         }
 
@@ -219,7 +204,7 @@ export default defineComponent({
          * @param {Number} timestamp 毫秒 时间戳
          */
         const displayDate = (timestamp: number) => {
-            return formatDate(timestamp, prop.dateFormat)
+            return formatDate(timestamp, dateTime.dateFormat)
         }
 
         /**
@@ -287,8 +272,8 @@ export default defineComponent({
                 try {
                     const result = await snapChlPicture(sendXml)
                     const $ = queryXml(result)
-                    if ($('/response/status').text() === 'success') {
-                        const imgUrl = 'data:image/png;base64,' + $('/response/content/item').text()
+                    if ($('//status').text() === 'success') {
+                        const imgUrl = 'data:image/png;base64,' + $('//content/item').text()
                         pageData.value.chlList[i].imgUrl = imgUrl
                     }
                 } catch {}
@@ -303,7 +288,7 @@ export default defineComponent({
             if (!timestamp) {
                 return ''
             }
-            return formatDate(timestamp, prop.timeFormat)
+            return formatDate(timestamp, dateTime.timeFormat)
         }
 
         /**

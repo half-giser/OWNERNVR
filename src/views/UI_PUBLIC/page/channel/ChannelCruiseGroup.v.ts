@@ -3,7 +3,7 @@
  * @Date: 2024-08-22 10:15:06
  * @Description: 巡航线组
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-22 19:32:20
+ * @LastEditTime: 2024-09-05 11:51:37
  */
 import { type TableInstance } from 'element-plus'
 import { type ChannelPtzCruiseGroupChlDto, ChannelPtzCruiseGroupCruiseDto } from '@/types/apiType/channel'
@@ -128,8 +128,8 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            if ($('/response/status').text() === 'success') {
-                tableData.value[index].cruise = $('/response/content/cruises/item').map((item) => {
+            if ($('//status').text() === 'success') {
+                tableData.value[index].cruise = $('//content/cruises/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
                         id: ++cruiseId,
@@ -137,7 +137,7 @@ export default defineComponent({
                         name: $item('name').text(),
                     }
                 })
-                // tableData.value[index].maxCount = Number($('/response/content/cruises').attr('maxCount'))
+                // tableData.value[index].maxCount = Number($('//content/cruises').attr('maxCount'))
                 tableData.value[index].cruiseCount = tableData.value[index].cruise.length
             }
         }
@@ -158,8 +158,8 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            if ($('/response/status').text() === 'success') {
-                tableData.value = $('/response/content/item')
+            if ($('//status').text() === 'success') {
+                tableData.value = $('//content/item')
                     .filter((item) => {
                         const $item = queryXml(item.element)
                         return (auth.value.hasAll || auth.value.ptz[item.attr('id')!]) && $item('chlType').text() !== 'recorder'

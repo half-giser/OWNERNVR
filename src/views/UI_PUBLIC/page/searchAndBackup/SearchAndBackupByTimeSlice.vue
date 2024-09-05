@@ -3,7 +3,7 @@
  * @Date: 2024-08-12 16:25:05
  * @Description: 按时间切片搜索
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-14 16:51:41
+ * @LastEditTime: 2024-09-04 18:04:45
 -->
 <template>
     <div class="time-slice">
@@ -32,18 +32,12 @@
         <div class="main">
             <TimeSliceTopPanel
                 v-show="pageData.mode === 'chl'"
-                :date-format="dateTime.dateFormat.value"
-                :date-time-format="dateTime.dateTimeFormat.value"
-                :time-format="dateTime.timeFormat.value"
                 @start-time="pageData.startTime = $event"
                 @change="handleChlChange"
             />
             <TimeSliceTimelinePanel
                 v-show="pageData.mode !== 'chl'"
                 :mode="pageData.mode"
-                :date-format="dateTime.dateFormat.value"
-                :date-time-format="dateTime.dateTimeFormat.value"
-                :time-format="dateTime.timeFormat.value"
                 :chl-id="pageData.chlId"
                 :chl-name="pageData.chlName"
                 :rec-start-time="pageData.startTime"

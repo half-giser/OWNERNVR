@@ -3,7 +3,7 @@
  * @Date: 2023-06-02 11:57:11
  * @Description: 系统API
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-30 13:56:54
+ * @LastEditTime: 2024-09-05 09:59:48
  */
 import type { AxiosRequestConfig } from 'axios'
 import http from './api'
@@ -42,7 +42,7 @@ export const queryActivationStatus = (config?: AxiosRequestConfig) => http.fetch
  * @description 获取时间配置
  * @returns
  */
-export const queryTimeCfg = () => http.fetch('queryTimeCfg', getXmlWrapData(''))
+export const queryTimeCfg = (state = true) => http.fetch('queryTimeCfg', getXmlWrapData(''), {}, state)
 
 /**
  * @description 编辑时间

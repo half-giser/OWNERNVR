@@ -3,7 +3,7 @@
  * @Date: 2024-08-27 14:25:04
  * @Description: 业务应用-人脸考勤-详情弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-27 17:45:24
+ * @LastEditTime: 2024-09-04 17:12:57
  */
 import { type BusinessFaceList, BusinessFaceDetailList, BusinessFaceResultList } from '@/types/apiType/business'
 import { type TableInstance } from 'element-plus'
@@ -17,20 +17,6 @@ export default defineComponent({
             type: Object as PropType<BusinessFaceList>,
             required: true,
         },
-        /**
-         * @property 时间格式
-         */
-        timeFormat: {
-            type: String,
-            default: 'HH:mm:ss',
-        },
-        /**
-         * @property 日期格式
-         */
-        dateFormat: {
-            type: String,
-            default: 'YYYY-MM-DD',
-        },
     },
     emits: {
         close() {
@@ -39,6 +25,7 @@ export default defineComponent({
     },
     setup(prop) {
         const router = useRouter()
+        const dateTime = useDateTimeStore()
 
         const tableRef = ref<TableInstance>()
 
@@ -123,7 +110,7 @@ export default defineComponent({
          * @returns {String}
          */
         const displayTime = (timestamp: number) => {
-            return formatDate(timestamp, prop.timeFormat)
+            return formatDate(timestamp, dateTime.timeFormat)
         }
 
         /**
@@ -188,7 +175,7 @@ export default defineComponent({
             data.content1 = await getFacePersonalImage(data.id)
             const searchInfo = {
                 data: [data],
-                date: formatDate(current.value.date, prop.dateFormat, 'YYYY-MM-DD'),
+                date: formatDate(current.value.date, dateTime.dateFormat, 'YYYY-MM-DD'),
             }
             router.push({
                 path: 'smartAnalysis',

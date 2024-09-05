@@ -3,7 +3,7 @@
  * @Date: 2024-07-15 17:12:18
  * @Description: 创建私有证书弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-15 20:06:25
+ * @LastEditTime: 2024-09-05 15:58:10
  */
 import { type FormInstance, type FormRules } from 'element-plus'
 import { NetHTTPSPrivateCertForm } from '@/types/apiType/net'
@@ -16,7 +16,6 @@ export default defineComponent({
         type: {
             type: Number,
             required: true,
-            default: 0,
         },
     },
     emits: {

@@ -18,7 +18,6 @@ export default defineComponent({
         list: {
             type: Array as PropType<WebsocketSnapOnSuccessSnap[]>,
             required: true,
-            default: () => [],
         },
         /**
          * @description
@@ -26,12 +25,6 @@ export default defineComponent({
         index: {
             type: Number,
             required: true,
-            default: 0,
-        },
-        dateTimeFormat: {
-            type: String,
-            required: false,
-            default: 'YYYY-MM-DD hh:mm:ss',
         },
     },
     emits: {
@@ -51,6 +44,7 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
+        const dateTime = useDateTimeStore()
 
         // 事件类型与文本映射
         const EVENT_TYPE_MAPPING: Record<string, string> = {
@@ -133,7 +127,7 @@ export default defineComponent({
          * @returns {String}
          */
         const displayTime = (time: number) => {
-            return formatDate(time, prop.dateTimeFormat)
+            return formatDate(time, dateTime.dateTimeFormat)
         }
 
         // 显示事件类型

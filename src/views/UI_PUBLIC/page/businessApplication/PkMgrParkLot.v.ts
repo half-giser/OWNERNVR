@@ -3,7 +3,7 @@
  * @Date: 2024-08-27 18:22:21
  * @Description: 实时过车记录
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-28 17:30:03
+ * @LastEditTime: 2024-09-04 17:14:07
  */
 import WebsocketSnap, { type WebsocketSnapOnSuccessPlate } from '@/utils/websocket/websocketSnap'
 import { dayjs } from 'element-plus'
@@ -48,7 +48,7 @@ export default defineComponent({
         }
 
         const router = useRouter()
-        const dateTime = useDateTime()
+        const dateTime = useDateTimeStore()
 
         const DATA_LIMIT = 5 // 最大数量限制
 
@@ -143,7 +143,7 @@ export default defineComponent({
          */
         const displayDateTime = (time: number) => {
             if (!time) return '--'
-            return formatDate(time, dateTime.dateTimeFormat.value)
+            return formatDate(time, dateTime.dateTimeFormat)
         }
 
         /**
@@ -481,14 +481,13 @@ export default defineComponent({
             clearTimeout(timer)
             const date = dayjs()
             const ms = date.millisecond()
-            pageData.value.currentTime = date.format(dateTime.dateTimeFormat.value)
+            pageData.value.currentTime = date.format(dateTime.dateTimeFormat)
             timer = setTimeout(() => {
                 getCurrentTime()
             }, 1050 - ms)
         }
 
         onMounted(async () => {
-            await dateTime.getTimeConfig()
             getCurrentTime()
             await getParkingLotConfig()
             await getParkSnapConfig()
@@ -535,7 +534,6 @@ export default defineComponent({
             handleOpenGate,
             handleUpdatePlate,
             formData,
-            dateTime,
             PKMgrParkLotPop,
         }
     },

@@ -3,10 +3,10 @@
  * @Date: 2024-07-10 16:50:11
  * @Description: Email测试发送弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 16:31:59
+ * @LastEditTime: 2024-09-05 15:41:32
  */
 import { type FormInstance, type FormRules } from 'element-plus'
-import { NetEmailForm, NetEmailTestForm, type NetEmailReceiverDto } from '@/types/apiType/net'
+import { type NetEmailForm, NetEmailTestForm, type NetEmailReceiverDto } from '@/types/apiType/net'
 
 export default defineComponent({
     props: {
@@ -16,7 +16,6 @@ export default defineComponent({
         form: {
             type: Object as PropType<NetEmailForm>,
             required: true,
-            default: () => new NetEmailForm(),
         },
     },
     emits: {
@@ -77,7 +76,7 @@ export default defineComponent({
         const getData = async () => {
             const result = await queryEmailCfg()
             const $ = queryXml(result)
-            pageData.value.list = $('/response/content/receiver/item').map((item) => {
+            pageData.value.list = $('//content/receiver/item').map((item) => {
                 const $item = queryXml(item.element)
                 pageData.value.cacheAddress.push($item('address').text())
                 return {
@@ -104,7 +103,7 @@ export default defineComponent({
                 const result = await queryScheduleList()
                 commLoadResponseHandler(result, async ($) => {
                     let schedule = ''
-                    const find = $('/response/content/item').find((item) => item.text() === '24x7')
+                    const find = $('//content/item').find((item) => item.text() === '24x7')
                     if (find) {
                         schedule = find.attr('id')!
                     }
@@ -192,7 +191,7 @@ export default defineComponent({
                 const result = await testEmailCfg(sendXml)
                 const $ = queryXml(result)
 
-                if ($('/response/status').text() == 'success') {
+                if ($('//status').text() == 'success') {
                     openMessageTipBox({
                         type: 'success',
                         message: Translate('IDCS_TEST_SUCCESS'),
@@ -216,8 +215,6 @@ export default defineComponent({
         const close = () => {
             ctx.emit('close')
         }
-
-        onMounted(() => {})
 
         return {
             addReceiver,

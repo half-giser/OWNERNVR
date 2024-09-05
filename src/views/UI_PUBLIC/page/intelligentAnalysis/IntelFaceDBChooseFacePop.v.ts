@@ -3,7 +3,7 @@
  * @Date: 2024-08-30 18:47:36
  * @Description: 人脸库 - 选择人脸
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-02 18:05:03
+ * @LastEditTime: 2024-09-04 18:30:43
  */
 import IntelFaceDBChooseFaceSnapPanel from './IntelFaceDBChooseFaceSnapPanel.vue'
 import IntelFaceDBChooseFaceImportPanel from './IntelFaceDBChooseFaceImportPanel.vue'
@@ -132,6 +132,8 @@ export default defineComponent({
             chooseSnap,
             confirmSnap,
             importImg,
+            IntelFaceDBChooseFaceSnapPanel,
+            IntelFaceDBChooseFaceImportPanel,
         }
     },
 })

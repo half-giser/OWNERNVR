@@ -3,7 +3,7 @@
  * @Date: 2024-08-05 16:00:46
  * @Description: 回放
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-22 20:29:13
+ * @LastEditTime: 2024-09-04 18:19:25
  */
 import PlaybackChannelPanel from '../playback/PlaybackChannelPanel.vue'
 import PlaybackEventPanel from '../playback/PlaybackEventPanel.vue'
@@ -253,8 +253,8 @@ export default defineComponent({
             `
             const result = await queryRecSection(sendXml)
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
-                pageData.value.recTimeList = $('/response/content/item').map((item) => {
+            if ($('//status').text() === 'success') {
+                pageData.value.recTimeList = $('//content/item').map((item) => {
                     const index = Number(item.text())
                     const utcTime = startTime.add(index, 'day')
                     return utcTime.valueOf()
@@ -275,7 +275,6 @@ export default defineComponent({
             return playerRef.value?.ready || false
         })
 
-        const dateTime = useDateTime()
         const calendar = useCalendar()
         const userAuth = useUserChlAuth()
         const pos = usePosInfo(mode)
@@ -1493,10 +1492,6 @@ export default defineComponent({
             }
         }
 
-        onMounted(() => {
-            dateTime.getTimeConfig()
-        })
-
         onBeforeUnmount(() => {
             if (plugin?.IsPluginAvailable() && mode.value === 'ocx' && ready.value) {
                 // 离开时切换为一分屏，防止safari上其余用到插件的地方出现多分屏
@@ -1635,7 +1630,6 @@ export default defineComponent({
             handlePlayerReady,
             playerRef,
             timelineRef,
-            dateTime,
             calendar,
             snap,
             closeImg,

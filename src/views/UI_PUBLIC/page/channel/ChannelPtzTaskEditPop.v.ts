@@ -3,7 +3,7 @@
  * @Date: 2024-08-22 15:16:17
  * @Description: 云台-任务-编辑弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-22 19:10:07
+ * @LastEditTime: 2024-09-05 11:54:23
  */
 import { type ChannelPtzTaskDto, ChannelPtzTaskForm } from '@/types/apiType/channel'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -127,7 +127,7 @@ export default defineComponent({
             const result = await queryChlPresetList(sendXml)
             const $ = queryXml(result)
 
-            pageData.value.nameOptions = $('/response/content/presets/item').map((item) => {
+            pageData.value.nameOptions = $('//content/presets/item').map((item) => {
                 return {
                     value: item.attr('index')!,
                     label: item.text(),
@@ -147,7 +147,7 @@ export default defineComponent({
             `
             const result = await queryChlCruiseList(sendXml)
             const $ = queryXml(result)
-            pageData.value.nameOptions = $('/response/content/cruises/item').map((item) => {
+            pageData.value.nameOptions = $('//content/cruises/item').map((item) => {
                 return {
                     value: item.attr('index')!,
                     label: item.text(),
@@ -167,7 +167,7 @@ export default defineComponent({
             `
             const result = await queryLocalChlPtzTraceList(sendXml)
             const $ = queryXml(result)
-            pageData.value.nameOptions = $('/response/content/traces/item').map((item) => {
+            pageData.value.nameOptions = $('//content/traces/item').map((item) => {
                 return {
                     value: item.attr('index')!,
                     label: item.text(),

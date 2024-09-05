@@ -240,6 +240,22 @@ export class BusinessFaceList {
     detail = [] as BusinessFaceDetailList[]
 }
 
+export class BusinessFaceForm {
+    dateRange = [0, 0] as [number, number]
+    pageSize = 100
+    currentPage = 1
+    startTime = '09:00:00'
+    endTime = '18:00:00'
+    chls = [] as SelectOption<string, string>[]
+    faceGroup = [] as BusinessFaceGroupList[]
+    // weekdays = [1, 2, 3, 4, 5]
+    advanced = false
+    isName = false
+    name = ''
+    isType = false
+    type = [] as string[]
+}
+
 export class BusinessFaceAttendanceList extends BusinessFaceList {
     normal = 0
     late = 0
@@ -248,10 +264,16 @@ export class BusinessFaceAttendanceList extends BusinessFaceList {
     abnormal = 0
 }
 
+export class BusinessFaceAttendanceForm extends BusinessFaceForm {
+    weekdays = [1, 2, 3, 4, 5]
+}
+
 export class BusinessFaceCheckList extends BusinessFaceList {
     checked = 0
     unchecked = 0
 }
+
+export class BusinessFaceCheckForm extends BusinessFaceForm {}
 
 export class BusinessParkingLotList {
     index = 0

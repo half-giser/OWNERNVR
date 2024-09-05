@@ -3,7 +3,7 @@
  * @Date: 2024-08-12 13:46:14
  * @Description: 图片浏览器
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-12 16:44:11
+ * @LastEditTime: 2024-09-04 17:59:29
  */
 import { type PlaybackSearchImgList } from '@/types/apiType/playback'
 
@@ -21,13 +21,6 @@ export default defineComponent({
          */
         total: {
             type: Number,
-            required: true,
-        },
-        /**
-         * @description 时间日期格式
-         */
-        dateTimeFormat: {
-            type: String,
             required: true,
         },
     },
@@ -49,6 +42,8 @@ export default defineComponent({
         },
     },
     setup(prop, ctx) {
+        const dateTime = useDateTimeStore()
+
         const pageData = ref({
             visible: false,
             paused: true,
@@ -120,7 +115,7 @@ export default defineComponent({
          */
         const displayDateTime = (timestamp: number) => {
             if (!timestamp) return ''
-            return formatDate(timestamp, prop.dateTimeFormat)
+            return formatDate(timestamp, dateTime.dateTimeFormat)
         }
 
         onBeforeUnmount(() => {

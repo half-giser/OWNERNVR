@@ -3,7 +3,7 @@
  * @Date: 2024-08-15 18:17:14
  * @Description: 网络码流设置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-15 18:18:00
+ * @LastEditTime: 2024-09-05 16:00:08
  */
 import { type NetSubStreamList, type NetSubStreamResolutionList } from '@/types/apiType/net'
 import { cloneDeep } from 'lodash-es'
@@ -192,7 +192,7 @@ export default defineComponent({
         // const getChannelList = async () => {
         //     const result = await getChlList({})
         //     commLoadResponseHandler(result, ($) => {
-        //         pageData.value.chlList = $('/response/content/item').map((item) => {
+        //         pageData.value.chlList = $('//content/item').map((item) => {
         //             const $item = queryXml(item.element)
         //             return {
         //                 id: item.attr('id')!,
@@ -434,7 +434,7 @@ export default defineComponent({
             commLoadResponseHandler(result, ($) => {
                 const resolutionMap: Record<string, NetSubStreamResolutionList> = {}
 
-                tableData.value = $('/response/content/item').map((item, index) => {
+                tableData.value = $('//content/item').map((item, index) => {
                     const $item = queryXml(item.element)
 
                     const chlId = item.attr('id')!
@@ -611,7 +611,7 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 openMessageTipBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),

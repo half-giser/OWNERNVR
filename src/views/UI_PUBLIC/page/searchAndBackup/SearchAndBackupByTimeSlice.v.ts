@@ -3,7 +3,7 @@
  * @Date: 2024-08-12 16:25:16
  * @Description: 按时间切片搜索
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-14 16:55:26
+ * @LastEditTime: 2024-09-04 18:21:30
  */
 import dayjs from 'dayjs'
 import TimeSliceTopPanel from './TimeSliceTopPanel.vue'
@@ -30,7 +30,7 @@ export default defineComponent({
             chlName: '',
         })
 
-        const dateTime = useDateTime()
+        const dateTime = useDateTimeStore()
 
         // 面包屑索引值
         const navIndex = computed(() => {
@@ -39,13 +39,7 @@ export default defineComponent({
 
         // 格式化年月
         const displayYearMonth = computed(() => {
-            const dateFormat = dateTime.dateFormat.value
-            const year = dateFormat.indexOf('Y')
-            const month = dateFormat.indexOf('M')
-            if (year > month) {
-                return formatDate(pageData.value.chlTime, 'MM/YYYY')
-            }
-            return formatDate(pageData.value.chlTime, 'YYYY/MM')
+            return formatDate(pageData.value.chlTime, dateTime.yearMonthFormat)
         })
 
         // 格式化日期
@@ -84,10 +78,6 @@ export default defineComponent({
             pageData.value.mode = mode
             pageData.value.chlTime = chlTime
         }
-
-        onMounted(() => {
-            dateTime.getTimeConfig()
-        })
 
         return {
             dateTime,

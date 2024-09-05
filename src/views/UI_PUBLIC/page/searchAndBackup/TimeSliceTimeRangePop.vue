@@ -3,7 +3,7 @@
  * @Date: 2024-08-14 09:41:57
  * @Description: 设置时间范围弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-14 17:30:23
+ * @LastEditTime: 2024-09-05 11:48:02
 -->
 <template>
     <el-dialog
@@ -17,22 +17,22 @@
             <el-form-item :label="Translate('IDCS_START_TIME')">
                 <el-time-picker
                     v-model="formData.startTime"
-                    :format="timeFormat"
-                    :value-format="timeFormat"
-                    :disabled-hours="disabledStartTimeHours"
-                    :disabled-minutes="disabledStartTimeMinutes"
-                    :disabled-seconds="disabledStartTimeSeconds"
+                    :format="dateTime.timeFormat"
+                    :value-format="dateTime.timeFormat"
+                    :disabled-hours="pickerRange.disabledStartTimeHours"
+                    :disabled-minutes="pickerRange.disabledStartTimeMinutes"
+                    :disabled-seconds="pickerRange.disabledStartTimeSeconds"
                     :clearable="false"
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_END_TIME')">
                 <el-time-picker
                     v-model="formData.endTime"
-                    :format="timeFormat"
-                    :value-format="timeFormat"
-                    :disabled-hours="disabledEndTimeHours"
-                    :disabled-minutes="disabledEndTimeMinutes"
-                    :disabled-seconds="disabledEndTimeSeconds"
+                    :format="dateTime.timeFormat"
+                    :value-format="dateTime.timeFormat"
+                    :disabled-hours="pickerRange.disabledEndTimeHours"
+                    :disabled-minutes="pickerRange.disabledEndTimeMinutes"
+                    :disabled-seconds="pickerRange.disabledEndTimeSeconds"
                     :clearable="false"
                 />
             </el-form-item>

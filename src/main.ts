@@ -3,15 +3,15 @@
  * @Date: 2024-04-16 13:47:54
  * @Description: 项目入口
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-11 20:04:04
+ * @LastEditTime: 2024-09-05 10:00:27
  */
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import App from '@/App.vue'
 import router from '@/router'
 import { createPersistedState } from 'pinia-plugin-persistedstate'
-import { getBrowserInfo } from './utils/tools'
-import { useLangStore } from './stores/lang'
+// import { getBrowserInfo } from './utils/tools'
+// import { useLangStore } from './stores/lang'
 import i18nPlugin from './plugin/i18n'
 import typeEnhance from './plugin/typeEnhance'
 import loadingPlugin from './plugin/loading'
@@ -43,6 +43,9 @@ app.use(componentPlugin)
 const lang = useLangStore()
 await lang.getLangTypes()
 await lang.getLangItems()
+
+const dateTime = useDateTimeStore()
+await dateTime.getTimeConfig(false)
 
 app.use(i18nPlugin, lang)
 app.use(loadingPlugin)
