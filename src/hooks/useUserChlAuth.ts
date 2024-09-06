@@ -3,7 +3,7 @@
  * @Date: 2024-08-07 09:15:58
  * @Description: 用户通道权限
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-22 11:24:42
+ * @LastEditTime: 2024-09-05 16:20:13
  */
 export class UserChlAuth {
     // 是否拥有全部权限
@@ -51,7 +51,7 @@ export const useUserChlAuth = (immediate = true) => {
         const result = await queryAuthGroup(sendXml)
         const $ = queryXml(result)
 
-        $('/response/content/chlAuth/item').forEach((item) => {
+        $('//content/chlAuth/item').forEach((item) => {
             const $item = queryXml(item.element)
             const id = item.attr('id')!
             auth.value.ptz[id] = $item('auth').text().includes('@ptz')
@@ -60,7 +60,7 @@ export const useUserChlAuth = (immediate = true) => {
             auth.value.bk[id] = $item('auth').text().includes('@bk')
             auth.value.lp[id] = $item('auth').text().includes('@lp')
         })
-        auth.value.accessControl = $('/response/content/systemAuth/AccessControlMgr').text().toBoolean()
+        auth.value.accessControl = $('//content/systemAuth/AccessControlMgr').text().toBoolean()
     }
 
     auth.value.update = getAuth

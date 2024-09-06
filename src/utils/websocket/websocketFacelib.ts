@@ -6,17 +6,14 @@
  * @LastEditTime: 2024-05-31 09:09:38
  */
 import WebsocketBase from './websocketBase'
-import { Uint8ArrayToStr, getPicBase64 } from '../tools'
-import { ErrorCode } from '../constants'
-import { CMD_FACELIB_EXPORT_START, CMD_FACELIB_EXPORT_REFRESH_INDEX, CMD_FACELIB_EXPORT_STOP } from './websocketCmd'
 
 export interface WebsocketFaceLibOption {
-    onsuccess?: (param: number | FaceDataDatum[]) => void
+    onsuccess?: (param: number | WebsocketFaceLibFaceDataDatum[]) => void
     onerror?: (code?: number) => void
     onclose?: () => void
 }
 
-type FaceDataDatum = {
+export type WebsocketFaceLibFaceDataDatum = {
     name: string
     sex: string
     birthday: string
@@ -93,7 +90,10 @@ export default class WebsocketFaceLib {
     }
 
     /**
-     * 从响应json报文的data字段信息中读取人脸库数据
+     * @description 从响应json报文的data字段信息中读取人脸库数据
+     * @param {WebsocketFaceLibFaceDataDatum[]} data
+     * @param {number} jsonEndPosition
+     * @param {ArrayBuffer} buffer
      * @return {Array} faceDataList
      * faceDataList: [ // 参考协议queryFacePersonnalInfoList的返回字段
      *  {
@@ -115,9 +115,9 @@ export default class WebsocketFaceLib {
      * ]
      *
      */
-    private getFaceData(data: FaceDataDatum[], jsonEndPosition: number, buffer: ArrayBuffer) {
+    private getFaceData(data: WebsocketFaceLibFaceDataDatum[], jsonEndPosition: number, buffer: ArrayBuffer) {
         try {
-            const faceDataList: FaceDataDatum[] = data.map((item) => ({
+            const faceDataList: WebsocketFaceLibFaceDataDatum[] = data.map((item) => ({
                 ...item,
                 faceImg: getPicBase64(buffer, item.faceImg, jsonEndPosition) as string,
             }))
@@ -139,6 +139,10 @@ export default class WebsocketFaceLib {
         this.ws!.send(JSON.stringify(cmd))
     }
 
+    /**
+     * @description
+     * @param {number} index
+     */
     private refreshIndex(index: number) {
         const cmd = CMD_FACELIB_EXPORT_REFRESH_INDEX(index, this.taskId as string)
         this.ws!.send(JSON.stringify(cmd))

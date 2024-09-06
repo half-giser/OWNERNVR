@@ -3,7 +3,7 @@
  * @Date: 2024-08-22 09:23:51
  * @Description: 云台 表格展开通用列表项
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-22 19:19:35
+ * @LastEditTime: 2024-08-27 09:12:47
 -->
 <template>
     <div class="expand-item">
@@ -20,25 +20,7 @@
     </div>
 </template>
 
-<script lang="ts">
-export default defineComponent({
-    props: {
-        file: {
-            type: String,
-            required: false,
-        },
-        text: {
-            type: String,
-            default: '',
-        },
-    },
-    emits: {
-        delete() {
-            return true
-        },
-    },
-})
-</script>
+<script lang="ts" src="./ChannelPtzTableExpandItem.v.ts"></script>
 
 <style lang="scss" scoped>
 .expand-item {

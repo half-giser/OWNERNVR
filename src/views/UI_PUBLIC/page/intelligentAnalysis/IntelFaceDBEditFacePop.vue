@@ -1,43 +1,36 @@
 <!--
  * @Author: yejiahao yejiahao@tvt.net.cn
- * @Date: 2024-07-22 16:34:10
- * @Description: 抓拍注册弹窗
+ * @Date: 2024-08-30 09:26:20
+ * @Description: 人脸库 - 编辑人脸弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 17:55:20
+ * @LastEditTime: 2024-09-04 17:48:07
 -->
 <template>
     <el-dialog
-        :title="Translate('IDCS_REGISTER')"
-        width="750"
+        :title="Translate('IDCS_EDIT')"
+        width="800"
         align-center
         draggable
         @open="open"
     >
-        <div>
-            <div class="title">{{ Translate('IDCS_SNAP_PICTURE') }}</div>
-            <img
-                class="snap-img"
-                :src="displayBase64Img(pic)"
-            />
+        <div class="edit">
             <el-form
                 ref="formRef"
-                :rules="formRule"
-                :model="formData"
-                class="stripe narrow"
                 label-position="left"
-                inline-message
-                :style="{
-                    '--form-input-width': '340px',
-                }"
+                class="stripe narrow"
             >
-                <el-form-item
-                    :label="Translate('IDCS_NAME_PERSON')"
-                    prop="name"
-                >
-                    <el-input v-model="formData.name" />
+                <el-form-item :label="Translate('IDCS_NAME_PERSON')">
+                    <el-input
+                        v-model="formData.name"
+                        maxlength="31"
+                        :disabled
+                    />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_SEX')">
-                    <el-select v-model="formData.sex">
+                    <el-select
+                        v-model="formData.sex"
+                        :disabled
+                    >
                         <el-option
                             v-for="item in pageData.genderOptions"
                             :key="item.value"
@@ -49,16 +42,20 @@
                 <el-form-item :label="Translate('IDCS_BIRTHDAY')">
                     <el-date-picker
                         v-model="formData.birthday"
-                        :value-format="dateFormat"
-                        :format="dateFormat"
-                        :cell-class-name="highlight"
+                        :value-format="dateTime.dateFormat"
+                        :format="dateTime.dateFormat"
+                        :cell-class-name="highlightWeekend"
                         clear-icon=""
                         type="date"
                         :placeholder="Translate('IDCS_BIRTHDAY')"
+                        :disabled
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_ID_TYPE')">
-                    <el-select v-model="formData.certificateType">
+                    <el-select
+                        v-model="formData.certificateType"
+                        :disabled
+                    >
                         <el-option
                             v-for="item in pageData.idTypeOptions"
                             :key="item.value"
@@ -71,6 +68,7 @@
                     <el-input
                         v-model="formData.certificateNum"
                         maxlength="31"
+                        :disabled
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_PHONE_NUMBER')">
@@ -80,6 +78,7 @@
                         :max="999999999999999"
                         :controls="false"
                         :value-on-clear="null"
+                        :disabled
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_NUMBER')">
@@ -89,27 +88,47 @@
                         :max="999999999999999"
                         :controls="false"
                         :value-on-clear="null"
+                        :disabled
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_REMARK')">
-                    <el-input v-model="formData.note" />
+                    <el-input
+                        v-model="formData.note"
+                        :disabled
+                    />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_ADD_FACE_GROUP')">
                     <el-select v-model="formData.groupId">
                         <el-option
-                            v-for="item in pageData.faceDatabaseList"
+                            v-for="item in pageData.groupList"
                             :key="item.groupId"
                             :label="item.name"
                             :value="item.groupId"
                         />
                     </el-select>
-                    <el-button @click="addGroup">{{ Translate('IDCS_ADD_GROUP') }}</el-button>
                 </el-form-item>
             </el-form>
-            <LiveSnapAddFaceGroupPop
-                v-model="pageData.isAddGroupPop"
-                @close="pageData.isAddGroupPop = false"
-                @confirm="confirmAddGroup"
+            <div class="pics">
+                <div class="pics-list">
+                    <IntelFaceItem
+                        v-show="!disabled"
+                        type="status"
+                        :src="formData.pic"
+                        :icon="formData.success ? 'success' : formData.error ? 'error' : ''"
+                    />
+                </div>
+                <div class="base-btn-box">
+                    <el-button
+                        :disabled="disabled"
+                        @click="chooseFace"
+                        >{{ Translate('IDCS_ADD') }}</el-button
+                    >
+                </div>
+            </div>
+            <IntelFaceDBChooseFacePop
+                v-model="pageData.isChooseFacePop"
+                type="snap"
+                @choose="confirmChooseFace"
             />
         </div>
         <template #footer>
@@ -119,27 +138,31 @@
                     class="el-col-flex-end"
                 >
                     <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
-                    <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
+                    <el-button @click="close()">{{ Translate('IDCS_CANCEL') }}</el-button>
                 </el-col>
             </el-row>
         </template>
     </el-dialog>
 </template>
 
-<script lang="ts" src="./LiveSnapRegisterPop.v.ts"></script>
+<script lang="ts" src="./IntelFaceDBEditFacePop.v.ts"></script>
 
 <style lang="scss" scoped>
-.title {
-    border-left: 3px solid var(--border-color2);
-    height: 30px;
-    line-height: 30px;
-    padding-left: 15px;
-    margin-bottom: 10px;
-}
+.edit {
+    display: flex;
 
-.snap-img {
-    width: 185px;
-    height: 215px;
-    margin-bottom: 10px;
+    .el-form {
+        width: 50%;
+        flex-shrink: 0;
+    }
+
+    .pics {
+        margin-left: 10px;
+        width: 100%;
+        height: 100%;
+        border: 1px solid var(--border-color8);
+        padding: 10px;
+        box-sizing: border-box;
+    }
 }
 </style>

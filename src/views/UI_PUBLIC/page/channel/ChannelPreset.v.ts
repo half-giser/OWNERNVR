@@ -3,7 +3,7 @@
  * @Date: 2024-08-20 18:26:51
  * @Description: 云台-预置点
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-22 20:07:28
+ * @LastEditTime: 2024-09-05 11:52:32
  */
 import { type TableInstance } from 'element-plus'
 import ChannelPtzCtrlPanel from './ChannelPtzCtrlPanel.vue'
@@ -129,8 +129,8 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            if ($('/response/status').text() === 'success') {
-                tableData.value[index].presets = $('/response/content/presets/item').map((item) => {
+            if ($('//status').text() === 'success') {
+                tableData.value[index].presets = $('//content/presets/item').map((item) => {
                     // const $item = queryXml(item.element)
                     return {
                         index: Number(item.attr('index')!),
@@ -138,7 +138,7 @@ export default defineComponent({
                     }
                 })
                 tableData.value[index].presetCount = tableData.value[index].presets.length
-                tableData.value[index].maxCount = Number($('/response/content/presets').attr('maxCount'))
+                tableData.value[index].maxCount = Number($('//content/presets').attr('maxCount'))
             }
         }
 
@@ -158,8 +158,8 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            if ($('/response/status').text() === 'success') {
-                tableData.value = $('/response/content/item')
+            if ($('//status').text() === 'success') {
+                tableData.value = $('//content/item')
                     .filter((item) => {
                         const $item = queryXml(item.element)
                         return (auth.value.hasAll || auth.value.ptz[item.attr('id')!]) && $item('chlType').text() !== 'recorder'
@@ -353,7 +353,7 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 openMessageTipBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
@@ -361,7 +361,7 @@ export default defineComponent({
                     tableData.value[pageData.value.tableIndex].presets[formData.value.presetIndex as number].name = formData.value.name
                 })
             } else {
-                const errorCode = Number($('/response/errorCode').text())
+                const errorCode = Number($('//errorCode').text())
                 if (errorCode === ErrorCode.USER_ERROR_NAME_EXISTED) {
                     openMessageTipBox({
                         type: 'info',

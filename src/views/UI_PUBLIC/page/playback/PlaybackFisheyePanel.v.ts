@@ -3,9 +3,9 @@
  * @Date: 2024-08-06 20:37:40
  * @Description: 回放-鱼眼视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 11:10:34
+ * @LastEditTime: 2024-09-05 15:34:40
  */
-import { LiveSharedWinData } from '@/types/apiType/live'
+import { type LiveSharedWinData } from '@/types/apiType/live'
 
 export interface FishEyePanelExpose {
     exitAdjust: (chlId: string) => void
@@ -19,7 +19,6 @@ export default defineComponent({
         winData: {
             type: Object as PropType<LiveSharedWinData>,
             required: true,
-            default: () => new LiveSharedWinData(),
         },
         /**
          * @property 安装类型
@@ -27,7 +26,6 @@ export default defineComponent({
         installType: {
             type: String,
             required: true,
-            default: '',
         },
     },
     emits: {

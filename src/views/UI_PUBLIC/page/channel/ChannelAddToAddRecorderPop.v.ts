@@ -58,9 +58,9 @@ export default defineComponent({
         let editItemBak: ChannelAddRecorderDto | undefined
         const defaultRecorderData = new RecorderAddDto()
         defaultRecorderData.ip = '0.0.0.0'
-        defaultRecorderData.servePort = '6036'
-        defaultRecorderData.httpPort = '80'
-        defaultRecorderData.channelCount = '8'
+        defaultRecorderData.servePort = 6036
+        defaultRecorderData.httpPort = 80
+        defaultRecorderData.channelCount = 8
 
         const errorMap: Record<string, Record<string, string>> = {
             '536870947': {
@@ -99,9 +99,9 @@ export default defineComponent({
             if ((props.mapping as Record<string, DefaultPwdDto>)['RECORDER']) {
                 const data = rawXml`<condition>
                                 ${formData.value.chkDomain ? '<domain><![CDATA[' + formData.value.domain + ']]></domain>' : '<ip>' + formData.value.ip + '</ip>'}
-                                <port>${formData.value.servePort}</port>
+                                <port>${formData.value.servePort.toString()}</port>
                                 <version>${editItemBak?.version || ''}</version>
-                                <httpPort>${formData.value.httpPort}</httpPort>
+                                <httpPort>${formData.value.httpPort.toString()}</httpPort>
                                 <userName>${formData.value.userName}</userName>
                                 ${formData.value.useDefaultPwd ? '' : '<password' + getSecurityVer() + '><![CDATA[' + AES_encrypt(formData.value.password, userSessionStore.sesionKey) + ']]></password>'}
                             </condition>`
@@ -123,9 +123,9 @@ export default defineComponent({
                             formData.value.chkDomain = !isIp
                             formData.value.domain = isIp ? '' : $('//content/domain').text()
                         }
-                        formData.value.servePort = $('//content/port').text()
-                        const chlCount = $('//content/chlList').attr('total')
-                        if (Number(chlCount) > 0) {
+                        formData.value.servePort = Number($('//content/port').text())
+                        const chlCount = Number($('//content/chlList').attr('total')!)
+                        if (chlCount > 0) {
                             formData.value.channelCount = chlCount
                         } else {
                             eleChlCountDisabled.value = false
@@ -371,7 +371,7 @@ export default defineComponent({
                     data += `<ip>${formData.value.ip}</ip>`
                 }
                 data += rawXml`
-                    <port>${formData.value.servePort}</port>
+                    <port>${formData.value.servePort.toString()}</port>
                     <userName>${formData.value.userName}</userName>`
                 if (editItemBak) {
                     if (!formData.value.useDefaultPwd) {

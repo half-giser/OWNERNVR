@@ -37,6 +37,9 @@ auto-import.d.ts
 # 第三方依赖license列表文件
 licenses.csv
 
+# 开发模式生成的可视化文件
+stats.html
+
 # 雪碧图自动生成文件
 src/components/sprite/sprites.png
 src/components/sprite/sprites.ts

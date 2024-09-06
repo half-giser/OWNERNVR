@@ -133,15 +133,15 @@ export default defineComponent({
             `
             const result = await queryCameraLensCtrlParam(getXmlWrapData(sendXml))
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'fail' || !$('/response/content/chl').length) {
+            if ($('//status').text() === 'fail' || !$('//content/chl').length) {
                 ctx.emit('updateSupportAz', false)
             } else {
                 ctx.emit('updateSupportAz', true)
 
-                const focusType = $('/response/types/focusType').text()
+                const focusType = $('//types/focusType').text()
                 renderFocusTypeOptions(focusType)
 
-                pageData.value.timeIntervalOptions = $('/response/content/chl/timeIntervalNote')
+                pageData.value.timeIntervalOptions = $('//content/chl/timeIntervalNote')
                     .text()
                     .split(',')
                     .map((item) => {
@@ -152,11 +152,11 @@ export default defineComponent({
                         }
                     })
 
-                formData.value.focusType = $('/response/content/focusType').text() !== 'auto' ? 'manual' : 'auto'
+                formData.value.focusType = $('//content/focusType').text() !== 'auto' ? 'manual' : 'auto'
                 if (formData.value.focusType === 'auto') {
-                    formData.value.focusTime = Number($('/response/content/timeInterval').text())
+                    formData.value.focusTime = Number($('//content/timeInterval').text())
                 }
-                formData.value.irchangeFocus = $('/response/content/IrchangeFocus').text().toBoolean()
+                formData.value.irchangeFocus = $('//content/IrchangeFocus').text().toBoolean()
             }
         }
 
@@ -179,9 +179,9 @@ export default defineComponent({
                 `
                 const result = await editCameraLensCtrlParam(sendXml)
                 const $ = queryXml(result)
-                if ($('/response/status').text() === 'success') {
+                if ($('//status').text() === 'success') {
                     ElMessage.success(Translate('IDCS_SAVE_DATA_SUCCESS'))
-                } else if ($('/response/errorCode').text() === '0') {
+                } else if ($('//errorCode').text() === '0') {
                     ElMessage.success(Translate('IDCS_SAVE_DATA_SUCCESS'))
                 } else {
                     ElMessage.error(Translate('IDCS_SAVE_DATA_FAIL'))

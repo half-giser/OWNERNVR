@@ -3,7 +3,7 @@
  * @Date: 2024-07-12 09:40:19
  * @Description: Nat配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 16:36:51
+ * @LastEditTime: 2024-09-05 15:59:33
  */
 import QRCode from 'qrcode'
 import { type QRCodeToDataURLOptions } from 'qrcode'
@@ -49,7 +49,7 @@ export default defineComponent({
         const getCloudUpgradeConfig = async () => {
             const result = await queryCloudUpgradeCfg()
             const $ = queryXml(result)
-            pageData.value.cloudSwitch = $('/response/content/cloudUpgrade/nvrItem/upgradeType').text() !== 'close'
+            pageData.value.cloudSwitch = $('//content/cloudUpgrade/nvrItem/upgradeType').text() !== 'close'
         }
 
         /**
@@ -77,8 +77,8 @@ export default defineComponent({
         const getBasicConfig = async () => {
             const result = await queryBasicCfg(getXmlWrapData(''))
             const $ = queryXml(result)
-            pageData.value.snCode = await makeQRCode($('/response/content/qrCodeContent').text())
-            pageData.value.snText = $('/response/content/sn').text()
+            pageData.value.snCode = await makeQRCode($('//content/qrCodeContent').text())
+            pageData.value.snText = $('//content/sn').text()
         }
 
         /**
@@ -87,7 +87,7 @@ export default defineComponent({
         const getP2pStatus = async () => {
             const result = await queryP2PCfg()
             const $ = queryXml(result)
-            pageData.value.natServerState = STATUS_MAPPING[$('/response/content/natServerState').text()]
+            pageData.value.natServerState = STATUS_MAPPING[$('//content/natServerState').text()]
         }
 
         /**
@@ -96,7 +96,7 @@ export default defineComponent({
         const getData = async () => {
             const result = await queryP2PCfg()
             const $ = queryXml(result)
-            pageData.value.natServerTypeOptions = $('/response/types/natServerType/enum').map((item) => {
+            pageData.value.natServerTypeOptions = $('//types/natServerType/enum').map((item) => {
                 pageData.value.visitAddress = item.attr('visitAddress')!
                 const index = item.attr('index')!
                 const defaultLabel = index === '0' ? Translate('IDCIDCS_NATS_TAG_P2P1') : Translate('IDCS_NAT')
@@ -105,10 +105,10 @@ export default defineComponent({
                     label: systemCaps.showNatServerAddress ? `${Translate('IDCS_NAT')}(${item.text()})` : defaultLabel,
                 }
             })
-            formData.value.natSwitch = $('/response/content/switch').text().toBoolean()
-            formData.value.index = $('/response/content/switch').attr('index')
-            pageData.value.isBindUser = $('/response/content/mode').text() === 'user'
-            pageData.value.natServerState = STATUS_MAPPING[$('/response/content/natServerState').text()]
+            formData.value.natSwitch = $('//content/switch').text().toBoolean()
+            formData.value.index = $('//content/switch').attr('index')
+            pageData.value.isBindUser = $('//content/mode').text() === 'user'
+            pageData.value.natServerState = STATUS_MAPPING[$('//content/natServerState').text()]
         }
 
         /**

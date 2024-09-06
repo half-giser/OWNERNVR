@@ -3,22 +3,20 @@
  * @Date: 2024-08-12 13:48:22
  * @Description: 按事件搜索
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-23 14:12:11
+ * @LastEditTime: 2024-09-04 18:00:49
  */
 import dayjs from 'dayjs'
-import { type PlaybackChlList, type PlaybackBackUpRecList, PlaybackRecLogList, type PlaybackPopList } from '@/types/apiType/playback'
+import { type PlaybackChlList, type PlaybackBackUpRecList, PlaybackRecLogList } from '@/types/apiType/playback'
 import BackupPop from '../searchAndBackup/BackupPop.vue'
 import BackupLocalPop from '../searchAndBackup/BackupLocalPop.vue'
-import { DefaultPagerLayout } from '@/utils/constants'
 import { type TableInstance } from 'element-plus'
-import BasePlaybackPop from '@/components/player/BasePlaybackPop.vue'
+import { type PlaybackPopList } from '@/components/player/BasePlaybackPop.vue'
 import BackupPosInfoPop from './BackupPosInfoPop.vue'
 
 export default defineComponent({
     components: {
         BackupPop,
         BackupLocalPop,
-        BasePlaybackPop,
         BackupPosInfoPop,
     },
     setup() {
@@ -50,7 +48,7 @@ export default defineComponent({
         // 通道ID与通道名称的映射
         const chlMap = ref<Record<string, string>>({})
 
-        const dateTime = useDateTime()
+        const dateTime = useDateTimeStore()
         const userAuth = useUserChlAuth()
 
         const pageData = ref({
@@ -231,7 +229,7 @@ export default defineComponent({
          * @returns {String}
          */
         const displayDateTime = (timestamp: number) => {
-            return formatDate(timestamp, dateTime.dateTimeFormat.value)
+            return formatDate(timestamp, dateTime.dateTimeFormat)
         }
 
         /**
@@ -243,8 +241,8 @@ export default defineComponent({
 
             chlMap.value = {}
 
-            if ($('/response/status').text() === 'success') {
-                pageData.value.chlList = $('/response/content/item').map((item) => {
+            if ($('//status').text() === 'success') {
+                pageData.value.chlList = $('//content/item').map((item) => {
                     const id = item.attr('id')!
 
                     // 新获取的通道列表若没有已选中的通道，移除该选中的通道
@@ -352,8 +350,8 @@ export default defineComponent({
          * @description 搜索
          */
         const search = async () => {
-            const startTime = dayjs(formData.value.startTime, dateTime.dateTimeFormat.value).valueOf()
-            const endTime = dayjs(formData.value.endTime, dateTime.dateTimeFormat.value).valueOf()
+            const startTime = dayjs(formData.value.startTime, dateTime.dateTimeFormat).valueOf()
+            const endTime = dayjs(formData.value.endTime, dateTime.dateTimeFormat).valueOf()
             if (endTime <= startTime) {
                 openMessageTipBox({
                     type: 'info',
@@ -433,7 +431,7 @@ export default defineComponent({
 
             showMaxSearchLimitTips($)
 
-            $('/response/content/chl/item').forEach((item) => {
+            $('//content/chl/item').forEach((item) => {
                 const $item = queryXml(item.element)
                 const chlId = item.attr('id')!
                 const chlName = $item('name').text()
@@ -531,12 +529,11 @@ export default defineComponent({
 
         onMounted(async () => {
             Plugin.SetPluginNotice('#layout2Main')
-            await dateTime.getTimeConfig()
             getChlsList()
 
             const date = new Date()
-            formData.value.startTime = dayjs(date).hour(0).minute(0).second(0).format(dateTime.dateTimeFormat.value)
-            formData.value.endTime = dayjs(date).hour(23).minute(59).second(59).format(dateTime.dateTimeFormat.value)
+            formData.value.startTime = dayjs(date).hour(0).minute(0).second(0).format(dateTime.dateTimeFormat)
+            formData.value.endTime = dayjs(date).hour(23).minute(59).second(59).format(dateTime.dateTimeFormat)
         })
 
         onBeforeUnmount(() => {
@@ -550,6 +547,7 @@ export default defineComponent({
             mode,
             formData,
             dateTime,
+            highlightWeekend,
             pageData,
             userAuth,
             confirmBackUp,
@@ -575,7 +573,6 @@ export default defineComponent({
             showPosInfo,
             BackupPop,
             BackupLocalPop,
-            BasePlaybackPop,
             BackupPosInfoPop,
         }
     },

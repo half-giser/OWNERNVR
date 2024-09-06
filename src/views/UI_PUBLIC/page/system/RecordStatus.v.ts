@@ -3,9 +3,8 @@
  * @Date: 2024-06-21 15:12:48
  * @Description: 录像状态
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-21 18:40:51
+ * @LastEditTime: 2024-09-05 15:24:33
  */
-import { queryRecStatus } from '@/api/system'
 import { type SystemRecordStatusList } from '@/types/apiType/system'
 
 export default defineComponent({
@@ -65,7 +64,7 @@ export default defineComponent({
             const result = await queryRecStatus()
             commLoadResponseHandler(result, ($) => {
                 tableData.value = []
-                $('/response/content/item').forEach((item) => {
+                $('//content/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     const recType: string[] = []
                     $item('recTypes/item').forEach((recTypeItem) => {

@@ -3,7 +3,7 @@
  * @Date: 2024-06-20 15:59:48
  * @Description: 系统重启
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 14:35:43
+ * @LastEditTime: 2024-09-05 15:23:34
 -->
 <template>
     <div
@@ -18,7 +18,7 @@
     </div>
     <p class="tip">{{ Translate('IDCS_REBOOT_NOTE') }}</p>
     <BaseCheckAuthPop
-        v-model="pageData.isAuthDialog"
+        v-model="pageData.isAuthPop"
         :tip="Translate('IDCS_REBOOT_CONFIRM')"
         @confirm="confirm"
     />

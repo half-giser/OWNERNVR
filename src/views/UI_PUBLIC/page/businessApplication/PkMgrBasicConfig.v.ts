@@ -6,13 +6,7 @@
 
 import { type FormRules, type FormInstance } from 'element-plus'
 import { type RuleItem } from 'async-validator'
-import { getXmlWrapData } from '@/api/api'
 import { PkMgrBasicConfigPageData } from '@/types/apiType/business'
-import { queryParkingLotConfig, editParkingLotConfig } from '@/api/business'
-import { queryXml } from '@/utils/xmlParse'
-import { useLangStore } from '@/stores/lang'
-import useLoading from '@/hooks/useLoading'
-import useMessageBox from '@/hooks/useMessageBox'
 
 export default defineComponent({
     setup() {
@@ -24,7 +18,7 @@ export default defineComponent({
         const { openMessageTipBox } = useMessageBox()
 
         // 页面初始数据
-        const pageData = reactive<PkMgrBasicConfigPageData>(new PkMgrBasicConfigPageData())
+        const pageData = reactive(new PkMgrBasicConfigPageData())
         let originalPageData = new PkMgrBasicConfigPageData()
         let changeDataFlg = false
 
@@ -95,20 +89,18 @@ export default defineComponent({
         }
 
         // 编辑-下发编辑协议
-        function apply(formRef: FormInstance | undefined) {
-            if (!formRef) return
+        function apply() {
+            if (!pkMgrFormRef.value) return
             compareDataChange(pageData, originalPageData)
-            formRef.validate((valid) => {
+            pkMgrFormRef.value.validate((valid) => {
                 if (valid && changeDataFlg) {
-                    const data = getXmlWrapData(
-                        `<content>
-                            <basicInfo>
-                                <name><![CDATA[${pageData.parkName}]]></name>
-                                <totalVehicleNum>${pageData.totalNum}</totalVehicleNum>
-                                <remainSpaceNum>${pageData.remainTotalNum}</remainSpaceNum>
-                            </basicInfo>
-                        </content>`,
-                    )
+                    const data = rawXml`<content>
+                        <basicInfo>
+                            <name><![CDATA[${pageData.parkName}]]></name>
+                            <totalVehicleNum>${pageData.totalNum.toString()}</totalVehicleNum>
+                            <remainSpaceNum>${pageData.remainTotalNum.toString()}</remainSpaceNum>
+                        </basicInfo>
+                    </content>`
                     openLoading(LoadingTarget.FullScreen)
                     editParkingLotConfig(data).then((result) => {
                         closeLoading(LoadingTarget.FullScreen)
@@ -118,7 +110,7 @@ export default defineComponent({
                         if (resultXml('status').text() === 'success') {
                             handleSuccess()
                         } else {
-                            const errorCode = resultXml('errorCode').text()
+                            const errorCode = Number(resultXml('errorCode').text())
                             handleError(errorCode)
                         }
                     })
@@ -134,11 +126,11 @@ export default defineComponent({
             })
         }
         // 处理错误码提示
-        function handleError(errorCode: string) {
+        function handleError(errorCode: number) {
             let errorMsg = Translate('IDCS_SAVE_DATA_FAIL')
-            if (errorCode === '536870943') {
+            if (errorCode === ErrorCode.USER_ERROR_INVALID_PARAM) {
                 errorMsg = Translate('IDCS_FTP_ERROR_INVALID_PARAM')
-            } else if (errorCode === '536870953') {
+            } else if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
                 errorMsg = Translate('IDCS_NO_PERMISSION')
             }
             openMessageTipBox({

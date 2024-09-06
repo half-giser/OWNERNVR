@@ -6,10 +6,7 @@
 
 import type { AxiosRequestConfig } from 'axios'
 import http from './api'
-import { getXmlWrapData } from '@/api/api'
 import router from '../router'
-import { delCookie } from '@/utils/cookie'
-import { LocalCacheKey } from '@/utils/constants'
 
 /**
  * @description 预登录

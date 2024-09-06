@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 16:09:59
  * @Description: 人脸比对弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 17:12:14
+ * @LastEditTime: 2024-09-05 16:12:50
  */
 import { type WebsocketSnapOnSuccessSnap } from '@/utils/websocket/websocketSnap'
 import { LiveSnapData } from '@/types/apiType/live'
@@ -15,28 +15,11 @@ export default defineComponent({
     },
     props: {
         /**
-         * @property 日期时间格式
-         */
-        dateTimeFormat: {
-            type: String,
-            required: true,
-            default: 'YYYY-MM-DD hh:mm:ss',
-        },
-        /**
-         * @property 日期格式
-         */
-        dateFormat: {
-            type: String,
-            required: true,
-            default: 'YYYY-MM-DD',
-        },
-        /**
          * @description 抓拍数据列表
          */
         list: {
             type: Array as PropType<WebsocketSnapOnSuccessSnap[]>,
             required: true,
-            default: () => [],
         },
         /**
          * @description 抓拍数据当前索引
@@ -44,7 +27,6 @@ export default defineComponent({
         index: {
             type: Number,
             required: true,
-            default: 0,
         },
     },
     emits: {
@@ -63,6 +45,7 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
+        const dateTime = useDateTimeStore()
 
         const pageData = ref({
             // 当前抓拍数据索引
@@ -123,7 +106,7 @@ export default defineComponent({
          * @returns {String}
          */
         const displayDateTime = (time: number) => {
-            return formatDate(time, prop.dateTimeFormat)
+            return formatDate(time, dateTime.dateTimeFormat)
         }
 
         /**
@@ -132,7 +115,7 @@ export default defineComponent({
          * @returns {String}
          */
         const displayDate = (time: string) => {
-            return formatDate(time, prop.dateFormat, 'YYYY-MM-DD')
+            return formatDate(time, dateTime.dateFormat, 'YYYY-MM-DD')
         }
 
         /**

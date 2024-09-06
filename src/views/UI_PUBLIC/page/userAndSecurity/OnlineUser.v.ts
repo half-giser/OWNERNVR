@@ -3,7 +3,7 @@
  * @Date: 2024-06-18 18:42:30
  * @Description: 在线用户
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-08 20:06:22
+ * @LastEditTime: 2024-09-04 18:20:32
  */
 import type { UserOnlineList } from '@/types/apiType/userAndSecurity'
 
@@ -11,7 +11,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
-        const dateTime = useDateTime()
+        const dateTime = useDateTimeStore()
 
         const pageData = ref({
             // 是否打开的详情
@@ -35,18 +35,17 @@ export default defineComponent({
         const getData = async () => {
             openLoading(LoadingTarget.FullScreen)
 
-            await dateTime.getTimeConfig()
             const result = await queryOnlineUserInfo()
 
             closeLoading(LoadingTarget.FullScreen)
             commLoadResponseHandler(result, async ($) => {
-                tableData.value = $('/response/content/item').map((item) => {
+                tableData.value = $('//content/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
                         userName: $item('userName').text(),
                         loginType: LOGIN_TYPE_MAPPING[$item('loginType').text()],
                         ip: $item('ip').text(),
-                        time: utcToLocal($item('time').text(), dateTime.dateTimeFormat.value),
+                        time: utcToLocal($item('time').text(), dateTime.dateTimeFormat),
                         previewChlCount: $item('previewChlCount').text(),
                         playbackChlCount: $item('playbackChlCount').text(),
                     }

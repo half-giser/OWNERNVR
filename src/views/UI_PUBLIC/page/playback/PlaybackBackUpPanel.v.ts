@@ -3,15 +3,21 @@
  * @Date: 2024-08-06 20:36:12
  * @Description: 回放-备份任务列表
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 18:17:27
+ * @LastEditTime: 2024-09-05 15:37:22
  */
 import { type PlaybackBackUpTaskList } from '@/types/apiType/playback'
 import dayjs from 'dayjs'
 
 export default defineComponent({
     props: {
-        visible: Boolean,
-        mode: String,
+        visible: {
+            type: Boolean,
+            required: true,
+        },
+        mode: {
+            type: String,
+            required: true,
+        },
     },
     emits: {
         'update:visible'(bool: Boolean) {
@@ -80,8 +86,8 @@ export default defineComponent({
             const result = await queryRecBackupTaskList()
             const $ = queryXml(result)
 
-            if ($('/response/status').text() === 'success') {
-                remoteTableData.value = $('/response/content/item').map((item) => {
+            if ($('//status').text() === 'success') {
+                remoteTableData.value = $('//content/item').map((item) => {
                     const $item = queryXml(item.element)
                     const startTime = $item('startTime').text()
                     const endTime = $item('endTime').text()

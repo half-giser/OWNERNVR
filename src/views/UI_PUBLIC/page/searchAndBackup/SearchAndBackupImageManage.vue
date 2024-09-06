@@ -3,7 +3,7 @@
  * @Date: 2024-08-09 15:02:25
  * @Description: 搜索与备份-图片管理
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-15 19:51:32
+ * @LastEditTime: 2024-09-04 18:10:33
 -->
 <template>
     <div class="img-mgr base-flex-box">
@@ -12,18 +12,18 @@
                 <label>{{ Translate('IDCS_START_TIME') }}</label>
                 <el-date-picker
                     v-model="pageData.startTime"
-                    :value-format="dateTime.dateTimeFormat.value"
-                    :format="dateTime.dateTimeFormat.value"
-                    :cell-class-name="dateTime.highlightWeekend"
+                    :value-format="dateTime.dateTimeFormat"
+                    :format="dateTime.dateTimeFormat"
+                    :cell-class-name="highlightWeekend"
                     clear-icon=""
                     type="datetime"
                 ></el-date-picker>
                 <label>{{ Translate('IDCS_END_TIME') }}</label>
                 <el-date-picker
                     v-model="pageData.endTime"
-                    :value-format="dateTime.dateTimeFormat.value"
-                    :format="dateTime.dateTimeFormat.value"
-                    :cell-class-name="dateTime.highlightWeekend"
+                    :value-format="dateTime.dateTimeFormat"
+                    :format="dateTime.dateTimeFormat"
+                    :cell-class-name="highlightWeekend"
                     clear-icon=""
                     type="datetime"
                 ></el-date-picker>
@@ -207,7 +207,6 @@
             v-model="pageData.isBackupPlayerPop"
             :item="picItem"
             :total="pageData.totalCount"
-            :date-time-format="dateTime.dateTimeFormat.value"
             @delete="handlePlayerDelete"
             @export="handlePlayerExport"
             @next="handlePlayerNext"

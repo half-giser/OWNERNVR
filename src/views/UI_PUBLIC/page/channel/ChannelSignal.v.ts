@@ -1,5 +1,4 @@
 import { type ChlSignal } from '@/types/apiType/channel'
-import { ArrowDown } from '@element-plus/icons-vue'
 
 /*
  * @Author: linguifan linguifan@tvt.net.cn
@@ -7,9 +6,6 @@ import { ArrowDown } from '@element-plus/icons-vue'
  * @Description:
  */
 export default defineComponent({
-    components: {
-        ArrowDown,
-    },
     setup() {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()

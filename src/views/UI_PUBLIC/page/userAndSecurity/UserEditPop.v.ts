@@ -3,7 +3,7 @@
  * @Date: 2024-06-17 17:21:49
  * @Description: 编辑用户信息弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-22 19:58:28
+ * @LastEditTime: 2024-09-05 16:29:05
  */
 import { UserEditForm, type UserAuthGroupOption } from '@/types/apiType/userAndSecurity'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -15,8 +15,7 @@ export default defineComponent({
          */
         userId: {
             type: String,
-            require: true,
-            default: '',
+            required: true,
         },
     },
     emits: {
@@ -77,18 +76,18 @@ export default defineComponent({
             `
             const result = await queryUser(sendXml)
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
-                formData.value.enabled = $('/response/content/enabled').text().toBoolean()
-                formData.value.userName = $('/response/content/userName').text()
-                formData.value.email = $('/response/content/email').text()
-                formData.value.authGroup = $('/response/content/authGroup').attr('id') as string
-                formData.value.allowModifyPassword = $('/response/content/modifyPassword').text().toBoolean()
-                formData.value.authEffective = $('/response/content/authEffective').text().toBoolean()
+            if ($('//status').text() === 'success') {
+                formData.value.enabled = $('//content/enabled').text().toBoolean()
+                formData.value.userName = $('//content/userName').text()
+                formData.value.email = $('//content/email').text()
+                formData.value.authGroup = $('//content/authGroup').attr('id') as string
+                formData.value.allowModifyPassword = $('//content/modifyPassword').text().toBoolean()
+                formData.value.authEffective = $('//content/authEffective').text().toBoolean()
 
                 const authInfo = userSession.getAuthInfo()
                 const currentUserName = authInfo ? authInfo[0] : ''
                 const editUserName = formData.value.userName
-                const editUserType = $('/response/content/userType').text()
+                const editUserType = $('//content/userType').text()
                 pageData.value.isAuthGroup = USER_TYPE_DEFAULT_ADMIN !== editUserType
                 pageData.value.isEnableDisabled = false
 
@@ -113,7 +112,7 @@ export default defineComponent({
                     pageData.value.isChangePasswordBtn = true
                 }
             } else {
-                const errorCode = Number($('/response/errorCode').text())
+                const errorCode = Number($('//errorCode').text())
                 let errorText = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR__CANNOT_FIND_NODE_ERROR:
@@ -125,8 +124,6 @@ export default defineComponent({
                 openMessageTipBox({
                     type: 'info',
                     message: errorText,
-                }).then(() => {
-                    ctx.emit('close')
                 })
             }
         }
@@ -161,7 +158,7 @@ export default defineComponent({
             const result = await queryAuthGroupList(sendXml)
 
             commLoadResponseHandler(result, ($) => {
-                authGroupOptions.value = $('/response/content/item').map((item) => {
+                authGroupOptions.value = $('//content/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
                         id: item.attr('id')!,
@@ -183,11 +180,11 @@ export default defineComponent({
                     <userName>${wrapCDATA(formData.value.userName)}</userName>
                     <authGroup id="${formData.value.authGroup}"></authGroup>
                     <bindMacSwitch>false</bindMacSwitch>
-                    <modifyPassword>${String(formData.value.allowModifyPassword)}</modifyPassword>
+                    <modifyPassword>${formData.value.allowModifyPassword.toString()}</modifyPassword>
                     <mac>${wrapCDATA('00:00:00:00:00:00')}</mac>
                     <email>${wrapCDATA(formData.value.email)}</email>
-                    <enabled>${String(formData.value.enabled)}</enabled>
-                    <authEffective>${String(formData.value.authEffective)}</authEffective>
+                    <enabled>${formData.value.enabled.toString()}</enabled>
+                    <authEffective>${formData.value.authEffective.toString()}</authEffective>
                 </content>
             `
             const result = await editUser(sendXml)
@@ -195,10 +192,10 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 ctx.emit('close')
             } else {
-                const errorCode = Number($('/response/errorCode').text())
+                const errorCode = Number($('//errorCode').text())
                 let errorText = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR__CANNOT_FIND_NODE_ERROR:
@@ -210,8 +207,6 @@ export default defineComponent({
                 openMessageTipBox({
                     type: 'info',
                     message: errorText,
-                }).then(() => {
-                    ctx.emit('close')
                 })
             }
         }
@@ -220,6 +215,8 @@ export default defineComponent({
          * @description 打开弹窗时的数据请求
          */
         const handleOpen = async () => {
+            formRef.value?.clearValidate()
+            formData.value = new UserEditForm()
             await getAuthGroup()
             await getUser()
         }

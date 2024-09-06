@@ -3,7 +3,7 @@
  * @Date: 2024-07-01 19:23:38
  * @Description: 查看日志详情
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-09 20:49:16
+ * @LastEditTime: 2024-09-05 15:30:53
  */
 import { SystemLogList } from '@/types/apiType/system'
 
@@ -14,16 +14,14 @@ export default defineComponent({
          */
         data: {
             type: Array as PropType<SystemLogList[]>,
-            require: true,
-            default: () => [],
+            required: true,
         },
         /**
          * @property 当前日志索引
          */
         activeIndex: {
             type: Number,
-            require: true,
-            default: 0,
+            required: true,
         },
     },
     emits: {

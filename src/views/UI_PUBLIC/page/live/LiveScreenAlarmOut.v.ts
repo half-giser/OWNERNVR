@@ -47,8 +47,8 @@ export default defineComponent({
             const result = await getAlarmOutStatus()
             const $ = queryXml(result)
 
-            if ($('/response/content/item').length && pageData.value.delayList.length <= 1) {
-                const $temp = queryXml($('/response/content/item')[0].element)
+            if ($('//content/item').length && pageData.value.delayList.length <= 1) {
+                const $temp = queryXml($('//content/item')[0].element)
                 pageData.value.delayList = $temp('delay/enum').map((item) => {
                     const text = item.text().toLocaleLowerCase()
                     let value = 0
@@ -69,7 +69,7 @@ export default defineComponent({
                 delayMap[item.id] = item.delay
             })
 
-            tableData.value = $('/response/content/item')
+            tableData.value = $('//content/item')
                 .filter((item) => queryXml(item.element)('onlineStatus').text().toBoolean())
                 .map((item) => {
                     const $item = queryXml(item.element)
@@ -135,7 +135,7 @@ export default defineComponent({
             const result = await setAlarmOutStatus(sendXml)
             const $ = queryXml(result)
 
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 if (ids.length === 1) {
                     console.log(index, tableData.value[index])
                     tableData.value[index].switch = status
@@ -151,7 +151,7 @@ export default defineComponent({
                     })
                 }
             } else {
-                const errorCode = Number($('/response/errorCode').text())
+                const errorCode = Number($('//errorCode').text())
                 if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
                     openMessageTipBox({
                         type: 'info',

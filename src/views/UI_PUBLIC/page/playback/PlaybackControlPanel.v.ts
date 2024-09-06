@@ -3,9 +3,9 @@
  * @Date: 2024-08-06 20:37:13
  * @Description: 回放-操作视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 10:56:04
+ * @LastEditTime: 2024-09-05 15:33:46
  */
-import { LiveSharedWinData } from '@/types/apiType/live'
+import { type LiveSharedWinData } from '@/types/apiType/live'
 
 export default defineComponent({
     props: {
@@ -15,7 +15,6 @@ export default defineComponent({
         mode: {
             type: String,
             required: true,
-            default: '',
         },
         /**
          * @property 当前窗口数据
@@ -23,7 +22,6 @@ export default defineComponent({
         winData: {
             type: Object as PropType<LiveSharedWinData>,
             required: true,
-            default: () => new LiveSharedWinData(),
         },
         /**
          * @property 分屏数
@@ -31,7 +29,6 @@ export default defineComponent({
         split: {
             type: Number,
             required: true,
-            default: 1,
         },
         /**
          * @property 音量
@@ -39,7 +36,6 @@ export default defineComponent({
         volume: {
             type: Number,
             required: true,
-            default: 50,
         },
     },
     emits: {

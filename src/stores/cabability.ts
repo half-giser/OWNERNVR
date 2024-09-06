@@ -3,7 +3,7 @@
  * @Date: 2023-05-09 16:45:59
  * @Description: 服务端能力集全局存储
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-07 10:04:35
+ * @LastEditTime: 2024-08-29 11:16:39
  */
 import { getXmlWrapData } from '@/api/api'
 import { querySystemCaps } from '@/api/system'
@@ -63,6 +63,7 @@ export const useCababilityStore = defineStore(
 
         const CustomerID = ref(0)
         const isInw48 = ref(false)
+        const AISwitch = ref(false)
 
         const isUseRaid = ref(false)
 
@@ -186,6 +187,7 @@ export const useCababilityStore = defineStore(
             supportTalk,
             fishEyeCap,
             playbackMaxWin,
+            AISwitch,
         }
     },
     {

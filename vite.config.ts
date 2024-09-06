@@ -4,7 +4,7 @@
  * @Description:
  */
 import path from 'node:path'
-import { defineConfig, loadEnv } from 'vite'
+import { defineConfig, loadEnv, type PluginOption } from 'vite'
 import Vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
 import { createHtmlPlugin } from 'vite-plugin-html'
@@ -15,6 +15,7 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import GenerateSprite from './scripts/generateSprite'
 import MinifyXmlTemplateStrings from './scripts/minifyXmlTemplateStrings'
 import PostCssVariableCompress from 'postcss-variable-compress'
+import { visualizer } from 'rollup-plugin-visualizer'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -24,6 +25,16 @@ export default defineConfig(({ mode }) => {
     console.log(process.env.NODE_ENV)
 
     const { VITE_APP_IP, VITE_UI_TYPE } = env
+
+    const devPlugin: PluginOption[] = [
+        visualizer({
+            open: false,
+            gzipSize: true,
+            brotliSize: true,
+        }),
+    ]
+
+    const buildPlugin: PluginOption[] = []
 
     return {
         envDir,
@@ -152,7 +163,7 @@ export default defineConfig(({ mode }) => {
                     },
                 },
             }),
-        ],
+        ].concat(mode === 'dev' ? devPlugin : buildPlugin),
         // components: [
         // ],
         build: {

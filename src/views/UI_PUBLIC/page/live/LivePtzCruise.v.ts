@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 15:50:48
  * @Description: 现场预览-云台视图-巡航线
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-21 18:12:05
+ * @LastEditTime: 2024-09-05 16:10:18
  */
 import ChannelCruiseAddPop from '../channel/ChannelCruiseAddPop.vue'
 import { type ChannelPtzCruiseDto } from '@/types/apiType/channel'
@@ -33,7 +33,6 @@ export default defineComponent({
         enabled: {
             type: Boolean,
             required: true,
-            default: false,
         },
         /**
          * @property 速度值
@@ -41,7 +40,6 @@ export default defineComponent({
         speed: {
             type: Number,
             required: true,
-            default: 4,
         },
     },
     setup(prop) {
@@ -75,8 +73,8 @@ export default defineComponent({
             `
             const result = await queryChlCruiseList(sendXml)
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success' && chlId === prop.chlId) {
-                listData.value = $('/response/content/cruises/item').map((item) => {
+            if ($('//status').text() === 'success' && chlId === prop.chlId) {
+                listData.value = $('//content/cruises/item').map((item) => {
                     return {
                         name: item.text(),
                         index: Number(item.attr('index')),
@@ -114,7 +112,7 @@ export default defineComponent({
 
                 closeLoading(LoadingTarget.FullScreen)
 
-                if ($('/response/status').text() === 'success') {
+                if ($('//status').text() === 'success') {
                     openMessageTipBox({
                         type: 'success',
                         message: Translate('IDCS_DELETE_SUCCESS'),

@@ -3,7 +3,7 @@
  * @Date: 2024-06-17 17:21:34
  * @Description: 更改其他用户密码的弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-23 14:54:33
+ * @LastEditTime: 2024-09-05 14:11:25
  */
 import BaseCheckAuthPop, { type UserCheckAuthForm } from '../../components/auth/BaseCheckAuthPop.vue'
 import { UserEditPasswordForm } from '@/types/apiType/userAndSecurity'
@@ -14,10 +14,16 @@ export default defineComponent({
         BaseCheckAuthPop,
     },
     props: {
+        /**
+         * @property 用户ID
+         */
         userId: {
             type: String,
             required: true,
         },
+        /**
+         * @property 用户名
+         */
         userName: {
             type: String,
             required: true,
@@ -87,8 +93,8 @@ export default defineComponent({
             const isInw48 = systemCaps.supportPwdSecurityConfig // TODO: 原项目是这个值
             const result = await queryPasswordSecurity()
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
-                strength = ($('/response/content/pwdSecureSetting/pwdSecLevel').text() as keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING & null) ?? 'weak'
+            if ($('//status').text() === 'success') {
+                strength = ($('//content/pwdSecureSetting/pwdSecLevel').text() as keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING & null) ?? 'weak'
                 if (isInw48) {
                     strength = 'strong'
                 }
@@ -152,11 +158,11 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 isAuthDialog.value = false
                 ctx.emit('close')
             } else {
-                const errorCode = Number($('/response/errorCode').text())
+                const errorCode = Number($('//errorCode').text())
                 let errorText = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_PWD_ERR:
@@ -181,8 +187,8 @@ export default defineComponent({
          * @description 打开弹窗时清空信息
          */
         const opened = () => {
-            formData.value = new UserEditPasswordForm()
             formRef.value?.clearValidate()
+            formData.value = new UserEditPasswordForm()
         }
 
         /**

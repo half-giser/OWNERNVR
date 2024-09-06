@@ -5,8 +5,6 @@
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
  * @LastEditTime: 2024-08-13 20:39:53
  */
-import { getWebsocketOpenUrl } from './websocketCmd'
-
 export interface WebsocketBaseOption {
     onopen?: (param: string) => void
     onmessage?: (param: string | BinaryType) => void
@@ -38,7 +36,9 @@ export default class WebsocketBase {
         this.init()
     }
 
-    // 初始化建立连接，连接url由getWebsocketOpenUrl函数提供
+    /**
+     * @description 初始化建立连接，连接url由getWebsocketOpenUrl函数提供
+     */
     private init() {
         this.ws = new WebSocket(getWebsocketOpenUrl())
         this.ws.binaryType = this.binaryType
@@ -74,7 +74,9 @@ export default class WebsocketBase {
         }
     }
 
-    // 开启心跳检测
+    /**
+     * @description 开启心跳检测
+     */
     private openHeartBeat() {
         this.heartBeatTimer = setInterval(() => {
             if (this.ws!.readyState === 1) {
@@ -86,13 +88,17 @@ export default class WebsocketBase {
         }, this.HEART_BEAT_TIME)
     }
 
-    // 关闭心跳
+    /**
+     * @description 关闭心跳
+     */
     private closeHeartBeat() {
         clearInterval(this.heartBeatTimer)
         this.heartBeatTimer = 0
     }
 
-    // 开启重试定时器
+    /**
+     * @description 开启重试定时器
+     */
     private openRetryTimer() {
         if (this.retryTimer) {
             this.closeRetryTimer()
@@ -112,21 +118,28 @@ export default class WebsocketBase {
         }, this.RETRY_TIME)
     }
 
-    // 清除重试定时器
+    /**
+     * @description 清除重试定时器
+     */
     private closeRetryTimer() {
         this.retryCount = 0
         clearInterval(this.retryTimer)
         this.retryTimer = 0
     }
 
-    // 发送数据
+    /**
+     * @description 发送数据
+     * @param { string | ArrayBufferLike | Blob | ArrayBufferView } data
+     */
     send(data: string | ArrayBufferLike | Blob | ArrayBufferView) {
         if (this.ws?.readyState === 1) {
             this.ws.send(data)
         }
     }
 
-    // 关闭连接
+    /**
+     * @description 关闭连接
+     */
     close() {
         this.ws?.close()
         this.closeHeartBeat()

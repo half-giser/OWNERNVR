@@ -3,7 +3,7 @@
  * @Date: 2024-06-21 10:57:06
  * @Description: 设备基本信息
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-21 18:34:33
+ * @LastEditTime: 2024-09-05 14:26:53
  */
 import QRCode from 'qrcode'
 import { type QRCodeToDataURLOptions } from 'qrcode'
@@ -32,29 +32,29 @@ export default defineComponent({
         const getData = async () => {
             const result = await queryBasicCfg(getXmlWrapData(''))
             const $ = queryXml(result)
-            formData.value.name = $('/response/content/name').text()
-            formData.value.deviceNumber = $('/response/content/deviceNumber').text()
-            formData.value.productModel = $('/response/content/productModel').text()
-            formData.value.videoType = $('/response/content/videoType').text()
-            formData.value.hardwareVersion = $('/response/content/hardwareVersion').text()
-            formData.value.mcuVersion = $('/response/content/mcuVersion').text()
-            formData.value.kenerlVersion = $('/response/content/kenerlVersion').text()
-            formData.value.softwareVersion = $('/response/content/softwareVersion').text()
-            formData.value.sn = $('/response/content/sn').text()
-            formData.value.AndroidAppAddress = $('/response/content/AndroidAppAddress').text()
-            formData.value.IOSAppAddress = $('/response/content/IOSAppAddress').text()
-            formData.value.qrCodeContent = $('/response/content/qrCodeContent').text()
-            formData.value.qrCodeContentIsEnabled = ($('/response/content/qrCodeContent').attr('isEnable') as string).toBoolean()
-            formData.value.showApp = $('/response/content/showApp').text().toBoolean()
-            formData.value.showGDPR = $('/response/content/showGDPR').text().toBoolean()
-            formData.value.PCBAV = $('/response/content/PCBAV').text()
-            formData.value.PN = $('/response/content/PN').text()
-            formData.value.PCUI = $('/response/content/PCUI').text()
-            formData.value.launchDate = $('/response/content/launchDate').text()
-            formData.value.apiVersion = $('/response/content/apiVersion').text()
-            formData.value.onvifVersion = $('/response/content/onvifVersion').text()
-            formData.value.onvifDevVersion = $('/response/content/onvifDevVersion').text()
-            formData.value.ocxVersion = $('/response/content/ocxVersion').text()
+            formData.value.name = $('//content/name').text()
+            formData.value.deviceNumber = $('//content/deviceNumber').text()
+            formData.value.productModel = $('//content/productModel').text()
+            formData.value.videoType = $('//content/videoType').text()
+            formData.value.hardwareVersion = $('//content/hardwareVersion').text()
+            formData.value.mcuVersion = $('//content/mcuVersion').text()
+            formData.value.kenerlVersion = $('//content/kenerlVersion').text()
+            formData.value.softwareVersion = $('//content/softwareVersion').text()
+            formData.value.sn = $('//content/sn').text()
+            formData.value.AndroidAppAddress = $('//content/AndroidAppAddress').text()
+            formData.value.IOSAppAddress = $('//content/IOSAppAddress').text()
+            formData.value.qrCodeContent = $('//content/qrCodeContent').text()
+            formData.value.qrCodeContentIsEnabled = ($('//content/qrCodeContent').attr('isEnable') as string).toBoolean()
+            formData.value.showApp = $('//content/showApp').text().toBoolean()
+            formData.value.showGDPR = $('//content/showGDPR').text().toBoolean()
+            formData.value.PCBAV = $('//content/PCBAV').text()
+            formData.value.PN = $('//content/PN').text()
+            formData.value.PCUI = $('//content/PCUI').text()
+            formData.value.launchDate = $('//content/launchDate').text()
+            formData.value.apiVersion = $('//content/apiVersion').text()
+            formData.value.onvifVersion = $('//content/onvifVersion').text()
+            formData.value.onvifDevVersion = $('//content/onvifDevVersion').text()
+            formData.value.ocxVersion = $('//content/ocxVersion').text()
             showQRCode()
         }
 

@@ -3,7 +3,7 @@
  * @Date: 2024-07-01 11:01:04
  * @Description: 查看日志
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-14 17:45:16
+ * @LastEditTime: 2024-09-04 18:18:58
 -->
 <template>
     <div class="ViewLog base-flex-box">
@@ -26,9 +26,9 @@
                 <label>{{ Translate('IDCS_START_TIME') }}</label>
                 <el-date-picker
                     v-model="pageData.startTime"
-                    :value-format="dateTime.dateTimeFormat.value"
-                    :format="dateTime.dateTimeFormat.value"
-                    :cell-class-name="dateTime.highlightWeekend"
+                    :value-format="dateTime.dateTimeFormat"
+                    :format="dateTime.dateTimeFormat"
+                    :cell-class-name="highlightWeekend"
                     clear-icon=""
                     type="datetime"
                     @change="changeStartTime"
@@ -36,9 +36,9 @@
                 <label>{{ Translate('IDCS_END_TIME') }}</label>
                 <el-date-picker
                     v-model="pageData.endTime"
-                    :value-format="dateTime.dateTimeFormat.value"
-                    :format="dateTime.dateTimeFormat.value"
-                    :cell-class-name="dateTime.highlightWeekend"
+                    :value-format="dateTime.dateTimeFormat"
+                    :format="dateTime.dateTimeFormat"
+                    :cell-class-name="highlightWeekend"
                     clear-icon=""
                     type="datetime"
                     @change="changeEndTime"

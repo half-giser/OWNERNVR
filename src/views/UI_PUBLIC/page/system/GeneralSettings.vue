@@ -3,7 +3,7 @@
  * @Date: 2024-06-24 09:19:04
  * @Description: 基本配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 13:58:27
+ * @LastEditTime: 2024-09-05 14:45:55
 -->
 <template>
     <div class="Setting">
@@ -124,7 +124,7 @@
                         v-for="item in pageData.outputConfigOption"
                         :key="item.value"
                         :value="item.value"
-                        :label="item.name"
+                        :label="item.label"
                     ></el-option>
                 </el-select>
             </el-form-item>

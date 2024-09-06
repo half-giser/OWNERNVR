@@ -5,7 +5,11 @@
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
  * @LastEditTime: 2024-08-23 16:15:00
  */
+import ChannelGroupAdd from './ChannelGroupAdd.vue'
 export default defineComponent({
+    components: {
+        ChannelGroupAdd,
+    },
     emits: {
         close() {
             return true
@@ -13,5 +17,10 @@ export default defineComponent({
         callBack() {
             return true
         },
+    },
+    setup() {
+        return {
+            ChannelGroupAdd,
+        }
     },
 })

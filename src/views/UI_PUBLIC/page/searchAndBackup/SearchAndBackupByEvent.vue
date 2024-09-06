@@ -3,7 +3,7 @@
  * @Date: 2024-08-09 09:37:10
  * @Description: 按事件搜索
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-12 16:52:35
+ * @LastEditTime: 2024-09-04 18:01:20
 -->
 <template>
     <div class="by-event">
@@ -67,9 +67,9 @@
                 <el-form-item :label="Translate('IDCS_START_TIME')">
                     <el-date-picker
                         v-model="formData.startTime"
-                        :value-format="dateTime.dateTimeFormat.value"
-                        :format="dateTime.dateTimeFormat.value"
-                        :cell-class-name="dateTime.highlightWeekend"
+                        :value-format="dateTime.dateTimeFormat"
+                        :format="dateTime.dateTimeFormat"
+                        :cell-class-name="highlightWeekend"
                         clear-icon=""
                         type="datetime"
                         :placeholder="Translate('IDCS_START_TIME')"
@@ -78,9 +78,9 @@
                 <el-form-item :label="Translate('IDCS_END_TIME')">
                     <el-date-picker
                         v-model="formData.endTime"
-                        :value-format="dateTime.dateTimeFormat.value"
-                        :format="dateTime.dateTimeFormat.value"
-                        :cell-class-name="dateTime.highlightWeekend"
+                        :value-format="dateTime.dateTimeFormat"
+                        :format="dateTime.dateTimeFormat"
+                        :cell-class-name="highlightWeekend"
                         clear-icon=""
                         type="datetime"
                         :placeholder="Translate('IDCS_END_TIME')"
@@ -247,7 +247,6 @@
         <BackupPosInfoPop
             v-model="pageData.isPosInfoPop"
             :item="pageData.posInfo"
-            :date-time-format="dateTime.dateTimeFormat.value"
             :keyword="formData.pos"
             @close="pageData.isPosInfoPop = false"
         />

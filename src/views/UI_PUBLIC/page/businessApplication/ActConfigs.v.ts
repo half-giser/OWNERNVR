@@ -30,31 +30,24 @@ export default defineComponent({
         function getPageChlList() {
             // 所有通道
             const getAccessControlChlList = () => {
-                return new Promise((resolve) => {
-                    const queryNodeListDto = new QueryNodeListDto()
-                    queryNodeListDto.nodeType = 'chls'
-                    queryNodeListDto.isSupportAccessControl = true
-                    getChlList(queryNodeListDto).then((result) => {
-                        resolve(result)
-                    })
-                })
+                const queryNodeListDto = new QueryNodeListDto()
+                queryNodeListDto.nodeType = 'chls'
+                queryNodeListDto.isSupportAccessControl = true
+                return getChlList(queryNodeListDto)
             }
+
             // 在线通道
             const getOnlineChlList = () => {
-                return new Promise((resolve) => {
-                    queryOnlineChlList().then((result) => {
-                        resolve(result)
-                    })
-                })
+                return queryOnlineChlList()
             }
+
             // 查询-发起请求
             pageData.chlList = []
             openLoading(LoadingTarget.FullScreen)
             Promise.all([getAccessControlChlList(), getOnlineChlList()]).then((resultArr) => {
                 closeLoading(LoadingTarget.FullScreen)
-                type XMLResult = Element | XMLDocument | null
-                const result1Xml = queryXml(resultArr[0] as XMLResult)
-                const result2Xml = queryXml(resultArr[1] as XMLResult)
+                const result1Xml = queryXml(resultArr[0])
+                const result2Xml = queryXml(resultArr[1])
                 if (result1Xml('status').text() === 'success' && result2Xml('status').text() === 'success') {
                     result1Xml('//content/item').forEach((ele1) => {
                         result2Xml('//content/item').forEach((ele2) => {
@@ -78,39 +71,30 @@ export default defineComponent({
         function getPageData(chlId: string) {
             // 门锁配置
             const getAccessControlCfg = () => {
-                return new Promise((resolve) => {
-                    const sendXml = `
-                        <condition>
-                            <chlId>${chlId}</chlId>
-                        </condition>
-                    `
-                    const data = getXmlWrapData(sendXml)
-                    queryAccessControlCfg(data).then((result) => {
-                        resolve(result)
-                    })
-                })
+                const sendXml = rawXml`
+                    <condition>
+                        <chlId>${chlId}</chlId>
+                    </condition>
+                `
+                return queryAccessControlCfg(sendXml)
             }
+
             // 韦根配置
             const getAccessDataComCfg = () => {
-                return new Promise((resolve) => {
-                    const sendXml = `
-                        <condition>
-                            <chlId>${chlId}</chlId>
-                        </condition>
-                    `
-                    const data = getXmlWrapData(sendXml)
-                    queryAccessDataComCfg(data).then((result) => {
-                        resolve(result)
-                    })
-                })
+                const sendXml = rawXml`
+                    <condition>
+                        <chlId>${chlId}</chlId>
+                    </condition>
+                `
+                return queryAccessDataComCfg(sendXml)
             }
+
             // 查询-发起请求
             openLoading(LoadingTarget.FullScreen)
             Promise.all([getAccessControlCfg(), getAccessDataComCfg()]).then((resultArr) => {
                 closeLoading(LoadingTarget.FullScreen)
-                type XMLResult = Element | XMLDocument | null
-                const result1Xml = queryXml(resultArr[0] as XMLResult)
-                const result2Xml = queryXml(resultArr[1] as XMLResult)
+                const result1Xml = queryXml(resultArr[0])
+                const result2Xml = queryXml(resultArr[1])
                 if (result1Xml('status').text() === 'success' && result2Xml('status').text() === 'success') {
                     pageData.chlId = chlId
                     // 门锁
@@ -170,6 +154,7 @@ export default defineComponent({
                 }
             })
         }
+
         // 获取枚举列表
         function getEnum(resultXml: XMLQuery, enumKey: string) {
             type enumType = 'doorLockTypeEnum' | 'doorLockActionEnum' | 'accessListTypeEnum' | 'wiegandIOTypeEnum' | 'wiegandModeEnum'
@@ -219,6 +204,7 @@ export default defineComponent({
 
         // 查询-发起请求
         getPageChlList()
+
         // 切换通道-查询选中通道的数据
         function handleChlChange(chlId: string) {
             getPageData(chlId)
@@ -253,55 +239,49 @@ export default defineComponent({
 
         // 门锁
         function editAccessControl() {
-            return new Promise((resolve) => {
-                let sendXml = rawXml`<content><chl id="${pageData.chlId}">
-                    ${pageData.wearMaskOpen ? '<wearmaskOpen>' + pageData.wearMaskOpen + '</wearmaskOpen>' : ''}
-                    ${pageData.accessListType ? '<accessListType type="accessListType">' + pageData.accessListType + '</accessListType>' : ''}
-                `
-                const lockDataLength = Object.keys(pageData.accessLockData).length
-                if (lockDataLength > 0) {
-                    sendXml += `<doorLock type="list" count="${lockDataLength}">`
-                    for (const [key, lockData] of Object.entries(pageData.accessLockData)) {
-                        sendXml += rawXml`
-                            <item>
-                                <id type="uint32">${key}</id>
-                                <OpenDelayTime type="uint8" min="${lockData.delayTimeMin.toString()}" max="${lockData.delayTimeMax.toString()}" default="${lockData.delayTimeDefaultValue.toString()}">${lockData.delayTimeValue.toString()}</OpenDelayTime>
-                                <OpenHoldTime type="uint8" min="${lockData.openHoldTimeMin.toString()}" max="${lockData.openHoldTimeMax.toString()}" default="${lockData.openHoldTimeDefaultValue.toString()}">${lockData.openHoldTimeValue.toString()}</OpenHoldTime>
-                                ${lockData.doorLockConfig ? '<doorLockConfig type="doorLockType">' + lockData.doorLockConfig + '</doorLockConfig>' : ''}
-                                ${lockData.alarmAction ? '<alarmAction type="doorLockAction">' + lockData.alarmAction + '</alarmAction>' : ''}
-                            </item>
-                        `
-                    }
-                    sendXml += '</doorLock>'
-                }
-                sendXml += `</chl></content>`
-                const data = getXmlWrapData(sendXml)
-                editAccessControlCfg(data).then((result) => {
-                    resolve(result)
+            const lockDataLength = Object.keys(pageData.accessLockData).length
+            const accessLockData = Object.entries(pageData.accessLockData)
+                .map(([key, lockData]) => {
+                    return rawXml`
+                        <item>
+                            <id type="uint32">${key}</id>
+                            <OpenDelayTime type="uint8" min="${lockData.delayTimeMin.toString()}" max="${lockData.delayTimeMax.toString()}" default="${lockData.delayTimeDefaultValue.toString()}">${lockData.delayTimeValue.toString()}</OpenDelayTime>
+                            <OpenHoldTime type="uint8" min="${lockData.openHoldTimeMin.toString()}" max="${lockData.openHoldTimeMax.toString()}" default="${lockData.openHoldTimeDefaultValue.toString()}">${lockData.openHoldTimeValue.toString()}</OpenHoldTime>
+                            ${lockData.doorLockConfig ? '<doorLockConfig type="doorLockType">' + lockData.doorLockConfig + '</doorLockConfig>' : ''}
+                            ${lockData.alarmAction ? '<alarmAction type="doorLockAction">' + lockData.alarmAction + '</alarmAction>' : ''}
+                        </item>
+                    `
                 })
-            })
+                .join('')
+            const sendXml = rawXml`
+                <content>
+                    <chl id="${pageData.chlId}">
+                        ${ternary(pageData.wearMaskOpen, `<wearmaskOpen>true</wearmaskOpen>`)}
+                        ${ternary(!!pageData.accessListType, `<accessListType type="accessListType">${pageData.accessListType}</accessListType>`)}
+                        ${ternary(!!lockDataLength, `<doorLock type="list" count="${lockDataLength}">${accessLockData}</doorLock>`)}
+                    </chl>
+                </content>
+            `
+            return editAccessControlCfg(sendXml)
         }
+
         // 韦根
         function editAccessDataCom() {
-            return new Promise((resolve) => {
-                const sendXml = rawXml`
-                    <content>
-                        <chl id="${pageData.chlId}">
-                            <accessDataComDev>
-                                <wiegand>
-                                    <IOType>${pageData.wiegandIOType}</IOType>
-                                    <mode>${pageData.wiegandMode}</mode>
-                                </wiegand>
-                            </accessDataComDev>
-                        </chl>
-                    </content>
-                `
-                const data = getXmlWrapData(sendXml)
-                editAccessDataComCfg(data).then((result) => {
-                    resolve(result)
-                })
-            })
+            const sendXml = rawXml`
+                <content>
+                    <chl id="${pageData.chlId}">
+                        <accessDataComDev>
+                            <wiegand>
+                                <IOType>${pageData.wiegandIOType}</IOType>
+                                <mode>${pageData.wiegandMode}</mode>
+                            </wiegand>
+                        </accessDataComDev>
+                    </chl>
+                </content>
+            `
+            return editAccessDataComCfg(sendXml)
         }
+
         // 编辑-下发编辑协议
         function apply() {
             compareDataChange(pageData, originalPageData)
@@ -312,15 +292,14 @@ export default defineComponent({
                     closeLoading(LoadingTarget.FullScreen)
                     // 更新原始数据
                     originalPageData = JSON.parse(JSON.stringify(pageData))
-                    type XMLResult = Element | XMLDocument | null
-                    const result1Xml = queryXml(resultArr[0] as XMLResult)
-                    const result2Xml = queryXml(resultArr[1] as XMLResult)
+                    const result1Xml = queryXml(resultArr[0])
+                    const result2Xml = queryXml(resultArr[1])
                     if (result1Xml('status').text() === 'success' && result2Xml('status').text() === 'success') {
                         handleSuccess()
                     } else {
-                        const errorCode1 = result1Xml('errorCode').text()
-                        const errorCode2 = result2Xml('errorCode').text()
-                        if (errorCode1 === '536870953' || errorCode2 === '536870953') {
+                        const errorCode1 = Number(result1Xml('errorCode').text())
+                        const errorCode2 = Number(result2Xml('errorCode').text())
+                        if (errorCode1 === ErrorCode.USER_ERROR_NO_AUTH || errorCode2 === ErrorCode.USER_ERROR_NO_AUTH) {
                             handleError(errorCode1)
                         }
                     }
@@ -336,7 +315,7 @@ export default defineComponent({
                     if (resultXml('status').text() === 'success') {
                         handleSuccess()
                     } else {
-                        const errorCode = resultXml('errorCode').text()
+                        const errorCode = Number(resultXml('errorCode').text())
                         handleError(errorCode)
                     }
                 })
@@ -346,12 +325,11 @@ export default defineComponent({
                     closeLoading(LoadingTarget.FullScreen)
                     // 更新原始数据
                     originalPageData = JSON.parse(JSON.stringify(pageData))
-                    type XMLResult = Element | XMLDocument | null
-                    const resultXml = queryXml(resultArr[0] as XMLResult)
+                    const resultXml = queryXml(resultArr[0])
                     if (resultXml('status').text() === 'success') {
                         handleSuccess()
                     } else {
-                        const errorCode = resultXml('errorCode').text()
+                        const errorCode = Number(resultXml('errorCode').text())
                         handleError(errorCode)
                     }
                 })
@@ -366,9 +344,9 @@ export default defineComponent({
             })
         }
         // 处理错误码提示
-        function handleError(errorCode: string) {
+        function handleError(errorCode: number) {
             let errorMsg = Translate('IDCS_SAVE_DATA_FAIL')
-            if (errorCode === '536870953') {
+            if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
                 errorMsg = Translate('IDCS_NO_PERMISSION')
             }
             openMessageTipBox({

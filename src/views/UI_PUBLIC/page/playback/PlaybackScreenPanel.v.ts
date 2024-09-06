@@ -3,9 +3,9 @@
  * @Date: 2024-08-06 20:38:08
  * @Description: 回放-底部控制视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-07 14:16:09
+ * @LastEditTime: 2024-09-05 15:35:30
  */
-import { LiveSharedWinData } from '@/types/apiType/live'
+import { type LiveSharedWinData } from '@/types/apiType/live'
 
 export default defineComponent({
     props: {
@@ -15,7 +15,6 @@ export default defineComponent({
         winData: {
             type: Object as PropType<LiveSharedWinData>,
             required: true,
-            default: () => new LiveSharedWinData(),
         },
         /**
          * @property 播放模式
@@ -23,7 +22,6 @@ export default defineComponent({
         mode: {
             type: String,
             required: true,
-            default: '',
         },
         /**
          * @property 当前分屏数
@@ -31,7 +29,6 @@ export default defineComponent({
         split: {
             type: Number,
             required: true,
-            default: 0,
         },
         /**
          * @property 是否开启OSD状态
@@ -39,7 +36,6 @@ export default defineComponent({
         osd: {
             type: Boolean,
             required: true,
-            default: false,
         },
         /**
          * @property 是否开启POS状态
@@ -47,7 +43,6 @@ export default defineComponent({
         pos: {
             type: Boolean,
             required: true,
-            default: false,
         },
         /**
          * @property 是否开启水印状态
@@ -55,7 +50,6 @@ export default defineComponent({
         watermark: {
             type: Boolean,
             required: true,
-            default: false,
         },
         /**
          * @property 剪切范围
@@ -63,7 +57,6 @@ export default defineComponent({
         clipRange: {
             type: Array as PropType<number[]>,
             required: true,
-            default: () => [],
         },
         /**
          * @property 播放通道列表
@@ -71,7 +64,6 @@ export default defineComponent({
         playingList: {
             type: Number,
             required: true,
-            default: 0,
         },
         /**
          * @property 播放状态
@@ -79,7 +71,6 @@ export default defineComponent({
         playStatus: {
             type: String,
             required: true,
-            default: 'stop',
         },
     },
     emits: {

@@ -3,7 +3,7 @@
  * @Date: 2024-08-13 09:09:24
  * @Description: 时间切片-时间线界面
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-14 16:42:32
+ * @LastEditTime: 2024-09-05 11:26:39
 -->
 <template>
     <div class="content">
@@ -77,11 +77,11 @@
                     <div class="right-timeline-view">
                         <BaseTimeline
                             ref="timelineRef"
-                            :date-time-format="dateTimeFormat"
-                            :day-format="dateTimeFormat"
+                            :day-format="dateTime.dateTimeFormat"
                             :colors-map="pageData.legend"
                             :disable-zoom="true"
                             :disable-drag="true"
+                            :color-set="2"
                             :enable-mask="pageData.timelineEnableMask"
                             @seek="handleTimelineSeek"
                             @dblclick="handleTimelineDblclick"
@@ -186,7 +186,6 @@
         />
         <TimeSliceTimeRangePop
             v-model="pageData.isTimeRangePop"
-            :time-format="timeFormat"
             :date="chlStartTime"
             @confirm="confirmTimeRange"
             @close="pageData.isTimeRangePop = false"

@@ -3,7 +3,7 @@
  * @Date: 2024-06-21 14:31:40
  * @Description: 通道状态
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-21 18:31:49
+ * @LastEditTime: 2024-09-05 14:27:25
  */
 import { type SystemChannelStatusList } from '@/types/apiType/system'
 
@@ -44,7 +44,7 @@ export default defineComponent({
             const result = await queryChlStatus()
             commLoadResponseHandler(result, ($) => {
                 tableData.value = []
-                $('/response/content/item').forEach((item) => {
+                $('//content/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     tableData.value.push({
                         name: $item('chl').text(),

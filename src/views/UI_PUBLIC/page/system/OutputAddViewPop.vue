@@ -3,7 +3,7 @@
  * @Date: 2024-06-25 20:56:15
  * @Description: 收藏视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 19:29:41
+ * @LastEditTime: 2024-09-05 14:58:54
 -->
 <template>
     <el-dialog
@@ -11,6 +11,7 @@
         width="600"
         align-center
         draggable
+        @open="open"
     >
         <el-form
             ref="formRef"

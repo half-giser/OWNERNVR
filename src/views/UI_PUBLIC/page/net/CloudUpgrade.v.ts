@@ -3,7 +3,7 @@
  * @Date: 2024-07-16 16:18:21
  * @Description: 云升级
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-23 17:06:11
+ * @LastEditTime: 2024-09-05 15:38:36
  */
 import BaseCheckAuthPop, { type UserCheckAuthForm } from '../../components/auth/BaseCheckAuthPop.vue'
 import { NetCloudUpgradeForm } from '@/types/apiType/net'
@@ -96,7 +96,7 @@ export default defineComponent({
             const result = await cloudUpgrade(sendXml)
             const $ = queryXml(result)
 
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 pageData.value.isCheckAuthPop = false
 
                 // 鉴权成功以后才显示下载进度
@@ -106,7 +106,7 @@ export default defineComponent({
             } else {
                 clearCheckDownloadTimer()
 
-                const errorCode = Number($('/response/errorCode').text())
+                const errorCode = Number($('//errorCode').text())
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_PWD_ERR:
@@ -139,7 +139,7 @@ export default defineComponent({
          */
         const getData = async (isInterval = false) => {
             const result = await queryCloudUpgradeCfg()
-            const $content = queryXml(queryXml(result)('/response/content')[0].element)
+            const $content = queryXml(queryXml(result)('//content')[0].element)
 
             if (!isInterval) {
                 formData.value.upgradeType = $content('cloudUpgrade/nvrItem/upgradeType').text()
@@ -168,7 +168,7 @@ export default defineComponent({
          */
         const getNat2Switch = async () => {
             const result = await queryP2PCfg()
-            return queryXml(result)('/response/content/switch[@index="1"]').text().toBoolean()
+            return queryXml(result)('//content/switch[@index="1"]').text().toBoolean()
         }
 
         /**
@@ -178,8 +178,8 @@ export default defineComponent({
             try {
                 const result = await getPackageDownloadStatus()
                 const $ = queryXml(result)
-                if ($('/response/status').text() === 'success') {
-                    const $content = queryXml($('/response/content')[0].element)
+                if ($('//status').text() === 'success') {
+                    const $content = queryXml($('//content')[0].element)
                     const state = $content('state').text()
                     const downloadLen = Number($content('downloadLen').text())
                     const fileLen = Number($content('fileLen').text())
@@ -217,7 +217,7 @@ export default defineComponent({
                         message: Translate('IDCS_OCX_NET_DISCONNECT'),
                     }).finally(() => Logout())
                 }
-                return $('/response/content/state').text()
+                return $('//content/state').text()
             } catch (e) {
                 // 请求失败提示网络断开
                 openMessageTipBox({
@@ -244,8 +244,8 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            if ($('/response/status').text() === 'success') {
-                const $content = queryXml($('/response/content')[0].element)
+            if ($('//status').text() === 'success') {
+                const $content = queryXml($('//content')[0].element)
 
                 pageData.value.isLatest = $content('isLatest').text().toBoolean()
 

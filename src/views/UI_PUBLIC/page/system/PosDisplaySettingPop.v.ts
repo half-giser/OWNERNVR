@@ -3,25 +3,34 @@
  * @Date: 2024-07-03 15:01:51
  * @Description: POS显示设置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-23 17:10:08
+ * @LastEditTime: 2024-09-05 15:09:05
  */
 import { cloneDeep } from 'lodash-es'
-import { SystemPosDisplaySetting, SystemPosDisplayPosition, type SystemPosListStartEndChar, SystemPostDisplaySet, type SystemPostColorData } from '@/types/apiType/system'
+import { type SystemPosDisplaySetting, SystemPosDisplayPosition, type SystemPosListStartEndChar, type SystemPostDisplaySet, type SystemPostColorData } from '@/types/apiType/system'
 import CanvasPos from '@/utils/canvas/canvasPos'
 
 export default defineComponent({
     props: {
+        /**
+         * @property POS显示设置数据
+         */
         data: {
             type: Object as PropType<SystemPosDisplaySetting>,
-            default: () => new SystemPosDisplaySetting(),
+            required: true,
         },
+        /**
+         * @property Display Set设置数据
+         */
         limit: {
             type: Object as PropType<SystemPostDisplaySet>,
-            default: () => new SystemPostDisplaySet(),
+            required: true,
         },
+        /**
+         * @property 颜色设置数据
+         */
         colorData: {
             type: Array as PropType<SystemPostColorData[]>,
-            default: () => [],
+            required: true,
         },
     },
     emits: {
@@ -44,11 +53,11 @@ export default defineComponent({
             // 打印方式选项
             printOption: [
                 {
-                    name: Translate('IDCS_TURN_PAGE'),
+                    label: Translate('IDCS_TURN_PAGE'),
                     value: 'page',
                 },
                 {
-                    name: Translate('IDCS_SCROLL'),
+                    label: Translate('IDCS_SCROLL'),
                     value: 'scroll',
                 },
             ],

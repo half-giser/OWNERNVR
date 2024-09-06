@@ -34,6 +34,7 @@
     --text-dialog: #666; /* Dialog、MessageBox、Notification等弹出框的标题颜色 */
     --text-timeline-button: #6e83b3;
     --table-text-disabled: #888;
+    --text-parklog-label: #8d8d8d;
 
     // 边框
     --border-color1: #666; /* 主Layout, 以及Dialog、MessageBox、Notification等弹出框的Border颜色 */
@@ -80,6 +81,11 @@
     --bg-calender-thead: #d4d4d4; /* 日历表格头背景色 */
     --bg-player: #4c4c4b; /* 播放器背景色 */
     --bg-thumbnail-card: #555; /* 按时间切片缩略图背景色 */
+    --bg-parklog: #f0f2f3; /* 停车场页面背景色 */
+    --bg-parklog-box: #d9d9d9; /* 停车场BOX背景色 */
+    --bg-parklog-title: #cbcbcb;
+    --bg-upload: #ccc;
+    --bg-upload-hover: #ddd;
 
     // 表格分割线
     --table-split: #ebeef5;
@@ -132,32 +138,38 @@
     --form-label-width: 150px; /* 表单label宽度变量 */
     --form-input-width: 100%; /* 表单所有输入框宽度变量 */
 
-    // 时间轴组件的默认颜色
-    --timeline-bg-color: #555; // 画布背景色
-    --timeline-scale-line-color: #ccc; // 刻度线颜色
-    --timeline-scale-text-color: #eee; // 刻度字体线颜色
-    --timeline-split-line-color: #666; // 通道间的分割线颜色
-    --timeline-pointer-color: #409eff; // 指针颜色
-    --timeline-pointer-time-color: #59f957; // 指针显示的时间颜色
-    --timeline-moving-pointer-color: #888; // 鼠标跟随指针颜色
-    --timeline-moving-time-bg-color: rgba(0,0,0,.5); // 鼠标跟随时间背景色
-    --timeline-moving-time-text-color: #eee; // 鼠标跟随时间文本颜色
-    --timeline-range-mask-color: rgba(0, 187, 219, .5); // 时间范围遮罩颜色
+    // 时间轴组件
     --timeline-legend-bg-color: #666; // 图例背景色
 
-    // 回放页面的时间轴组件颜色
-    #layout2Main {
-        --timeline-bg-color: #fff;
-        --timeline-scale-line-color: #aaa;
-        --timeline-scale-text-color: #333;
-        --timeline-split-line-color: #ccc;
-        --timeline-pointer-color: #409eff;
-        --timeline-pointer-time-color: #333;
-        --timeline-moving-pointer-color: #ddd;
-        --timeline-moving-time-bg-color: rgba(0,0,0,.5);
-        --timeline-moving-time-text-color: #fff;
-        --timeline-range-mask-color: rgba(0, 187, 219, .5);
-    }
+    // 时间轴组件颜色集1 （默认颜色集）
+    --timeline-bg-color-01: #555; // 画布背景色
+    --timeline-scale-line-color-01: #ccc; // 刻度线颜色
+    --timeline-scale-text-color-01: #eee; // 刻度字体线颜色
+    --timeline-split-line-color-01: #666; // 通道间的分割线颜色
+    --timeline-pointer-color-01: #409eff; // 指针颜色
+    --timeline-pointer-time-color-01: #59f957; // 指针显示的时间颜色
+    --timeline-moving-pointer-color-01: #888; // 鼠标跟随指针颜色
+    --timeline-moving-time-bg-color-01: rgba(0,0,0,.5); // 鼠标跟随时间背景色
+    --timeline-moving-time-text-color-01: #eee; // 鼠标跟随时间文本颜色
+    --timeline-range-mask-color-01: rgba(0, 187, 219, .5); // 时间范围遮罩颜色
+    
+    // 时间轴组件颜色集2 （搜索与备份页面的时间轴颜色）
+    --timeline-bg-color-02: #fff;
+    --timeline-scale-line-color-02: #aaa;
+    --timeline-scale-text-color-02: #333;
+    --timeline-split-line-color-02: #ccc;
+    --timeline-pointer-color-02: #409eff;
+    --timeline-pointer-time-color-02: #333;
+    --timeline-moving-pointer-color-02: #ddd;
+    --timeline-moving-time-bg-color-02: rgba(0,0,0,.5);
+    --timeline-moving-time-text-color-02: #fff;
+    --timeline-range-mask-color-02: rgba(0, 187, 219, .5);
+
+    // 条形图组件
+    --barchart-text-color: black; // 条形图字体颜色
+    --barchart-line-color: #ac7e7e; // 条形图线条颜色
+    --barchart-color-01: #c94049; // 条形图矩形可选颜色1
+    --barchart-color-02: #10df63; // 条形图矩形可选颜色2
 }
 
 @media (prefers-color-scheme: dark) {

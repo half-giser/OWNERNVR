@@ -3,12 +3,12 @@
  * @Date: 2024-08-07 15:12:23
  * @Description: 生成license列表文件
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-07 16:13:10
+ * @LastEditTime: 2024-09-02 09:03:11
  */
-import checker from 'license-checker-rseidelsohn'
-import fs from 'node:fs'
+import * as checker from 'license-checker-rseidelsohn'
+import * as fs from 'node:fs'
 
-const MAIN_DEPENDENCY = {
+const MAIN_DEPENDENCY: Record<string, { licensePath: string; target: string }> = {
     vue: {
         licensePath: 'https://github.com/vuejs/core/blob/main/LICENSE',
         target: 'UI框架',
@@ -65,6 +65,10 @@ const MAIN_DEPENDENCY = {
         licensePath: 'https://github.com/alibaba-aero/jalaliday/blob/master/LICENSE',
         target: '用于公历与波斯日历的转换',
     },
+    jszip: {
+        licensePath: '',
+        target: '用于压缩与解压ZIP文件',
+    },
 }
 
 checker.init(
@@ -104,7 +108,7 @@ checker.init(
             const text = `序号,第三方组件名称,版本,使用说明,下载地址,licence地址,许可证类型\n${result}`
             fs.writeFile('./licenses.csv', text, 'utf8', (err) => {
                 if (err) {
-                    console.err(err)
+                    console.error(err)
                 }
             })
         }
