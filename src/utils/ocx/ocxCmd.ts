@@ -2,8 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-03 11:56:43
  * @Description: 插件命令集合
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-09 14:45:29
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-09-03 18:06:18
  */
 import { compressXml, rawXml } from '../xmlParse'
 import { xmlHeader } from '@/api/api'
@@ -1630,7 +1630,7 @@ export const OCX_XML_GetOscArea = () => {
  * @param type
  * @returns {string}
  */
-export const OCX_XML_SetVfdAreaActio = (action: 'EDIT_ON' | 'EDIT_OFF' | 'NONE', type?: 'vfdArea' | 'faceMax' | 'faceMin') => {
+export const OCX_XML_SetVfdAreaAction = (action: 'EDIT_ON' | 'EDIT_OFF' | 'NONE', type?: 'vfdArea' | 'faceMax' | 'faceMin') => {
     return wrapXml(rawXml`
         <cmd type="SetVfdAreaAction">
             <action ${action === 'NONE' ? `type="${type}"` : ''}>${action}</action>
