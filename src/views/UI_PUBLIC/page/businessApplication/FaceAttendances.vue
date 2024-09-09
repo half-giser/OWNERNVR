@@ -174,7 +174,7 @@
                     prop="leaveEarly"
                 >
                     <template #default="scope">
-                        <span class="error">{{ displayStatus(scope.row.leftEarly) }}</span>
+                        <span class="text-error">{{ displayStatus(scope.row.leftEarly) }}</span>
                     </template>
                 </el-table-column>
 
@@ -183,7 +183,7 @@
                     prop="absenteeism"
                 >
                     <template #default="scope">
-                        <span class="error">{{ displayStatus(scope.row.absenteeism) }}</span>
+                        <span class="text-error">{{ displayStatus(scope.row.absenteeism) }}</span>
                     </template>
                 </el-table-column>
 
@@ -289,9 +289,5 @@
 
 .end-time {
     padding-left: 15px;
-}
-
-.error {
-    color: var(--error--01);
 }
 </style>

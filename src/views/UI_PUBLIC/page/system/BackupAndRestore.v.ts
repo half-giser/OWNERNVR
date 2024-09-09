@@ -23,7 +23,6 @@ export default defineComponent({
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const userSession = useUserSessionStore()
         const Plugin = inject('Plugin') as PluginType
-        const pluginStore = usePluginStore()
         const browserInfo = getBrowserInfo()
 
         let file: File
@@ -395,7 +394,7 @@ export default defineComponent({
             isSupportH5,
             (newVal) => {
                 if (!newVal && !Plugin.IsPluginAvailable) {
-                    pluginStore.showPluginNoResponse = true
+                    Plugin.SetPluginNoResponse()
                     Plugin.ShowPluginNoResponse()
                 }
 

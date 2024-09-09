@@ -18,6 +18,9 @@
 // if (__UI_3__) {
 //     uiCss = import.meta.glob(`/src/views/UI3/theme/*/*.scss?url`, { eager: true })
 // }
+import '@/views/UI_PUBLIC/publicStyle/common.scss'
+import '@/views/UI_PUBLIC/publicStyle/element.scss'
+import '@/views/UI_PUBLIC/publicStyle/global.scss'
 
 export default {
     install: () => {
@@ -46,8 +49,11 @@ export default {
         //         // console.log("--load ui css:" + `../views/${options['ui']}/theme/${options['theme']}/${fileName}.scss`);
         //     }
         // }
-        import('@/views/UI_PUBLIC/publicStyle/global.scss')
-        import(`@/views/${getUiAndTheme().name}/publicStyle/global.scss`)
+        // import('@/views/UI_PUBLIC/publicStyle/common.scss')
+        // import('@/views/UI_PUBLIC/publicStyle/element.scss')
+        // import('@/views/UI_PUBLIC/publicStyle/global.scss')
+
+        import(`@/views/${import.meta.env.VITE_UI_TYPE}/publicStyle/global.scss`)
         // @import "@/views/UI_PUBLIC/publicStyle/global.scss";
         // @import "@/views/#{$GLOBAL_UI_TYPE}/publicStyle/global.scss";
     },

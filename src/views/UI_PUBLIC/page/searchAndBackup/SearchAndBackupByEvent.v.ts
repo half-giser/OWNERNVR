@@ -3,7 +3,7 @@
  * @Date: 2024-08-12 13:48:22
  * @Description: 按事件搜索
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-04 18:00:49
+ * @LastEditTime: 2024-09-09 11:43:32
  */
 import dayjs from 'dayjs'
 import { type PlaybackChlList, type PlaybackBackUpRecList, PlaybackRecLogList } from '@/types/apiType/playback'
@@ -24,7 +24,6 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
-        const pluginStore = usePluginStore()
         const router = useRouter()
         const systemCaps = useCababilityStore()
 
@@ -159,7 +158,7 @@ export default defineComponent({
 
         // 当前页的表格数据
         const filterTableData = computed(() => {
-            return tableData.value.slice((pageData.value.currentPage - 1) * pageData.value.pageSize, pageData.value.currentPage * pageData.value.pageSize - 1)
+            return tableData.value.slice((pageData.value.currentPage - 1) * pageData.value.pageSize, pageData.value.currentPage * pageData.value.pageSize)
         })
 
         // 可显示的事件选项
@@ -514,7 +513,7 @@ export default defineComponent({
             mode,
             (newVal) => {
                 if (newVal !== 'h5' && !Plugin.IsPluginAvailable) {
-                    pluginStore.showPluginNoResponse = true
+                    Plugin.SetPluginNoResponse()
                     Plugin.ShowPluginNoResponse()
                 }
                 if (newVal === 'ocx') {

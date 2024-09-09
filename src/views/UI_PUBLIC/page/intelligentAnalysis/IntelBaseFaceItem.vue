@@ -1,9 +1,9 @@
 <!--
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-29 14:26:53
- * @Description: 人脸脸照选项框
+ * @Description: 智能分析 - 人脸脸照选项框
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-02 10:15:54
+ * @LastEditTime: 2024-09-06 16:41:41
 -->
 <template>
     <div class="avatar">
@@ -37,7 +37,7 @@
     </div>
 </template>
 
-<script lang="ts" src="./IntelFaceItem.v.ts"></script>
+<script lang="ts" src="./IntelBaseFaceItem.v.ts"></script>
 
 <style lang="scss" scoped>
 .avatar {

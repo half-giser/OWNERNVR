@@ -3,7 +3,7 @@
  * @Date: 2024-06-27 11:48:58
  * @Description: 系统升级
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 14:03:41
+ * @LastEditTime: 2024-09-06 18:06:29
 -->
 <template>
     <div>
@@ -25,25 +25,14 @@
                     @click="handleOCXUpload"
                     >{{ Translate('IDCS_BROWSE') }}</el-button
                 >
-                <input
-                    id="h5BrowerImport"
-                    type="file"
-                    hidden
-                    :disabled="pageData.isUploadDisabled"
-                    :accept="pageData.accept"
-                    @change="handleH5Upload"
-                />
-                <el-button
+                <label
                     v-show="isSupportH5"
-                    :disabled="pageData.isUploadDisabled"
+                    class="el-button"
+                    for="h5BrowerImport"
+                    :class="{ 'is-disabled': pageData.isUploadDisabled }"
                 >
-                    <label
-                        for="h5BrowerImport"
-                        :class="{ disabled: pageData.isUploadDisabled }"
-                    >
-                        {{ Translate('IDCS_BROWSE') }}
-                    </label>
-                </el-button>
+                    {{ Translate('IDCS_BROWSE') }}
+                </label>
                 <el-button
                     :disabled="pageData.isUpgradeDisabled"
                     @click="handleUpgrade"
@@ -54,6 +43,14 @@
                     @click="handleBackupAndUpgrade"
                     >{{ Translate('IDCS_BACKUP_AND_UPGRADE') }}</el-button
                 >
+                <input
+                    id="h5BrowerImport"
+                    type="file"
+                    hidden
+                    :disabled="pageData.isUploadDisabled"
+                    :accept="pageData.accept"
+                    @change="handleH5Upload"
+                />
             </el-form-item>
         </el-form>
         <div class="system-info">
@@ -98,13 +95,13 @@
 <script lang="ts" src="./Upgrade.v.ts"></script>
 
 <style lang="scss" scoped>
-label {
-    display: inline-block;
+// label {
+//     display: inline-block;
 
-    &.disabled {
-        cursor: not-allowed;
-    }
-}
+//     &.disabled {
+//         cursor: not-allowed;
+//     }
+// }
 
 .system-info {
     font-size: 15px;
