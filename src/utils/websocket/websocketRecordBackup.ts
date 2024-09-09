@@ -7,8 +7,7 @@
  */
 import WebsocketBase from './websocketBase'
 import RecordBuilder from '../wasmPlayer/recordBuilder'
-import { ErrorCode } from '../constants'
-import { CMD_PLAYBACK_REFRESH_FRAME_INDEX, CMD_PLAYBACK_CLOSE, CMD_PLAYBACK_OPEN, type CmdPlaybackOpenOption } from './websocketCmd'
+import { type CmdPlaybackOpenOption } from './websocketCmd'
 
 export interface WebsocketRecordBackupOption {
     onready?: () => void
@@ -114,7 +113,10 @@ export default class WebsocketRecordBackup {
         })
     }
 
-    // 检查当前渲染任务是否执行完
+    /**
+     * @description 检查当前渲染任务是否执行完
+     * @param {Function} cb
+     */
     checkReady(cb: () => void) {
         const timer = setTimeout(() => {
             if (this.ready) {
@@ -126,7 +128,12 @@ export default class WebsocketRecordBackup {
         }, 0)
     }
 
-    // 处理错误码
+    /**
+     * @description 处理错误码
+     * @param {number} errorCode
+     * @param {string} taskId
+     * @param {string} url
+     */
     handleErrorCode(errorCode: number, taskId: string, url: string) {
         console.log(`record:${taskId} end, errorCode: ${errorCode}, URL:${url}, last frameIndex: ${this.frameIndex}`)
 
@@ -163,8 +170,8 @@ export default class WebsocketRecordBackup {
     }
 
     /**
-     * 开启一个任务
-     * @param {Array<Object>} recordList 成员字段见startOneTask
+     * @description 开启一个任务
+     * @param {Array<CmdPlaybackOpenOption>} recordList 成员字段见startOneTask
      */
     start(recordList: CmdPlaybackOpenOption[]) {
         if (!(recordList && recordList.length)) {
@@ -180,14 +187,9 @@ export default class WebsocketRecordBackup {
     }
 
     /**
-     * 开启一个录像任务
-     * @param {Object} record
-     *      @property {String} chlID: 通道id
-     *      @property {Number} startTime: 开始时间戳（秒）
-     *      @property {Number} endTime: 结束时间戳（秒）
-     *      @property {Boolean} backupVideo 备份视频
-     *      @property {Boolean} backupAudio 备份音频
-     * @param {Object} taskIndex 任务索引
+     * @description 开启一个录像任务
+     * @param {CmdPlaybackOpenOption} record
+     * @param {number} taskIndex 任务索引
      */
     startOneTask(record: CmdPlaybackOpenOption, taskIndex: number) {
         const cmd = CMD_PLAYBACK_OPEN(record)
@@ -225,7 +227,7 @@ export default class WebsocketRecordBackup {
     }
 
     /**
-     * 停止请求录像回放
+     * @description 停止请求录像回放
      */
     stop() {
         if (!this.taskId) {
@@ -236,16 +238,16 @@ export default class WebsocketRecordBackup {
     }
 
     /**
-     * 停止全部任务
+     * @description 停止全部任务
      */
-
     stopAll() {
         this.stop()
         this.cmdQueue = []
     }
 
     /**
-     * 刷新帧索引
+     * @description 刷新帧索引
+     * @param {number} frameIndex
      */
     refreshFrameIndex(frameIndex: number) {
         const cmd = CMD_PLAYBACK_REFRESH_FRAME_INDEX(this.taskId as string, frameIndex)
@@ -253,7 +255,7 @@ export default class WebsocketRecordBackup {
     }
 
     /**
-     * 发送请求
+     * @description 发送请求
      */
     execCmd() {
         const cmdItem = this.cmdQueue[0]
@@ -267,7 +269,7 @@ export default class WebsocketRecordBackup {
     }
 
     /**
-     * 发送下一个请求
+     * @description 发送下一个请求
      */
     execNextCmd() {
         this.stop()

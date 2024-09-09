@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 18:47:07
  * @Description: 网络端口
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-11 11:18:50
+ * @LastEditTime: 2024-09-05 16:04:24
  */
 import { NetPortForm, NetPortUPnPDto, NetPortApiServerForm, NetPortRtspServerForm } from '@/types/apiType/net'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -112,9 +112,9 @@ export default defineComponent({
             // P2P 无线
             wirelessSwitch: false,
             // 是否显示Pos端口选项
-            isPosPort: true,
+            isPosPort: systemCaps.supportPOS,
             // 是否显示启用虚拟主机选项
-            isVirtualPortEnabled: true,
+            isVirtualPortEnabled: systemCaps.poeChlMaxCount > 0,
             // 端口表单发生改变
             isPortFormChanged: false,
             // API服务表单发生改变
@@ -192,13 +192,11 @@ export default defineComponent({
             if (res1 && res2 && res3 && res4) {
                 openMessageTipBox({
                     type: 'success',
-                    title: Translate('IDCS_SUCCESS_TIP'),
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
             } else {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_SAVE_DATA_FAIL'),
                 })
             }
@@ -217,14 +215,14 @@ export default defineComponent({
         const getPortData = async () => {
             const result = await queryNetPortCfg()
             commLoadResponseHandler(result, ($) => {
-                portFormData.value.httpPort = Number($('/response/content/httpPort').text())
-                portFormData.value.httpsPort = Number($('/response/content/httpsPort').text())
-                portFormData.value.netPort = Number($('/response/content/netPort').text())
-                portFormData.value.posPort = Number($('/response/content/posPort').text())
-                // portFormData.value.rtspPort = Number($("/response/content/rtspPort").text())
-                portFormData.value.virtualHostEnabled = $('/response/content/virtualHostEnabled').text().toBoolean()
+                portFormData.value.httpPort = Number($('//content/httpPort').text())
+                portFormData.value.httpsPort = Number($('//content/httpsPort').text())
+                portFormData.value.netPort = Number($('//content/netPort').text())
+                portFormData.value.posPort = Number($('//content/posPort').text())
+                // portFormData.value.rtspPort = Number($("//content/rtspPort").text())
+                portFormData.value.virtualHostEnabled = $('//content/virtualHostEnabled').text().toBoolean()
 
-                const reservedPort = $('/response/content/reservedPort').text().split(',')
+                const reservedPort = $('//content/reservedPort').text().split(',')
                 pageData.value.reservedPort = []
                 pageData.value.reservedPortRange = []
                 reservedPort.forEach((item) => {
@@ -306,7 +304,7 @@ export default defineComponent({
             const result = await editNetPortCfg(sendXml)
             const $ = queryXml(result)
 
-            return $('/response/status').text() === 'success'
+            return $('//status').text() === 'success'
         }
 
         /**
@@ -316,7 +314,7 @@ export default defineComponent({
             if (APP_TYPE === 'P2P') {
                 const result = await queryWirelessNetworkCfg()
                 const $ = queryXml(result)
-                pageData.value.wirelessSwitch = $('/response/content/switch').text().toBoolean()
+                pageData.value.wirelessSwitch = $('//content/switch').text().toBoolean()
             }
         }
 
@@ -327,10 +325,10 @@ export default defineComponent({
             const result = await queryUPnPCfg()
             const $ = queryXml(result)
             pageData.value.upnp = {
-                switch: $('/response/content/switch').text(),
-                mappingType: $('/response/content/mappingType').text(),
-                portsType: $('/response/content/ports').attr('type')!,
-                ports: $('/response/content/ports/item').map((item) => {
+                switch: $('//content/switch').text(),
+                mappingType: $('//content/mappingType').text(),
+                portsType: $('//content/ports').attr('type')!,
+                ports: $('//content/ports/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
                         portType: $item('portType').text(),
@@ -404,7 +402,7 @@ export default defineComponent({
             const result = await editUPnPCfg(sendXml)
             const $ = queryXml(result)
 
-            return $('/response/status').text() === 'success'
+            return $('//status').text() === 'success'
         }
 
         /**
@@ -414,15 +412,15 @@ export default defineComponent({
             const result = await queryApiServer()
             const $ = queryXml(result)
 
-            if ($('/response/status').text() === 'success') {
-                pageData.value.apiVerificationOptions = $('/response/types/authenticationType/enum').map((item) => {
+            if ($('//status').text() === 'success') {
+                pageData.value.apiVerificationOptions = $('//types/authenticationType/enum').map((item) => {
                     return {
                         value: item.text(),
                         label: VERIFICATION_MAPPING[item.text()],
                     }
                 })
-                apiServerFormData.value.apiserverSwitch = $('/response/content/apiserverSwitch').text().toBoolean()
-                apiServerFormData.value.authenticationType = $('/response/content/authenticationType').text()
+                apiServerFormData.value.apiserverSwitch = $('//content/apiserverSwitch').text().toBoolean()
+                apiServerFormData.value.authenticationType = $('//content/authenticationType').text()
             }
         }
 
@@ -443,7 +441,7 @@ export default defineComponent({
             const result = await editApiServer(sendXml)
             const $ = queryXml(result)
 
-            return $('/response/status').text() === 'success'
+            return $('//status').text() === 'success'
         }
 
         /**
@@ -453,7 +451,6 @@ export default defineComponent({
             if (apiServerFormData.value.apiserverSwitch && !rtspServerFormData.value.rtspServerSwitch) {
                 openMessageTipBox({
                     type: 'question',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_ENABLE_API_AFTER_RTSP_TIP'),
                 }).then(() => {
                     rtspServerFormData.value.rtspServerSwitch = true
@@ -468,17 +465,17 @@ export default defineComponent({
             const result = await queryRTSPServer()
             const $ = queryXml(result)
 
-            if ($('/response/status').text() === 'success') {
-                pageData.value.rtspAuthenticationOptions = $('/response/types/authenticationType/enum').map((item) => {
+            if ($('//status').text() === 'success') {
+                pageData.value.rtspAuthenticationOptions = $('//types/authenticationType/enum').map((item) => {
                     return {
                         value: item.text(),
                         label: VERIFICATION_MAPPING[item.text()],
                     }
                 })
-                rtspServerFormData.value.rtspServerSwitch = $('/response/content/rtspServerSwitch').text().toBoolean()
-                rtspServerFormData.value.rtspAuthType = $('/response/content/rtspAuthType').text()
-                rtspServerFormData.value.rtspPort = Number($('/response/content/rtspPort').text())
-                rtspServerFormData.value.anonymousAccess = $('/response/content/anonymousAccess').text().toBoolean()
+                rtspServerFormData.value.rtspServerSwitch = $('//content/rtspServerSwitch').text().toBoolean()
+                rtspServerFormData.value.rtspAuthType = $('//content/rtspAuthType').text()
+                rtspServerFormData.value.rtspPort = Number($('//content/rtspPort').text())
+                rtspServerFormData.value.anonymousAccess = $('//content/anonymousAccess').text().toBoolean()
             }
         }
 
@@ -501,7 +498,7 @@ export default defineComponent({
             const result = await editRTSPServer(sendXml)
             const $ = queryXml(result)
 
-            return $('/response/status').text() === 'success'
+            return $('//status').text() === 'success'
         }
 
         /**
@@ -511,7 +508,6 @@ export default defineComponent({
             if (rtspServerFormData.value.rtspServerSwitch) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_RTSP_OR_FTP_ENABLE_REMIND'),
                 })
             }
@@ -524,7 +520,6 @@ export default defineComponent({
             if (rtspServerFormData.value.anonymousAccess) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_ANONYMOUS_LOGIN_REMIND'),
                 })
             }
@@ -567,9 +562,6 @@ export default defineComponent({
         )
 
         onMounted(async () => {
-            await systemCaps.updateCabability()
-            pageData.value.isPosPort = systemCaps.supportPOS
-            pageData.value.isVirtualPortEnabled = systemCaps.poeChlMaxCount > 0
             getData()
         })
 

@@ -205,7 +205,7 @@ declare global {
     }
 
     interface LivePopInstance {
-        openLiveWin(chlId: string, chlName: string, chlIndex: string, chlType: string, isOnline?: boolean): void
+        openLiveWin(chlId: string, chlName: string, isOnline?: boolean): void
     }
 
     interface TimelineInstance {
@@ -225,8 +225,10 @@ declare global {
         setClipEnd: (time?: number) => void
         clearData: () => void
         getMaxTime: () => number
+        getMinTime: () => number
         setColorMap: (colorMap: { value: string; color: string; name: string; children: string[] }[]) => void
         getTimeSplitList: () => { startTime: number; endTime: number }[]
+        getMinuteSplitList: () => { startTime: number; endTime: number }[]
         getPointerTime: () => number
         getTimeRangeMask: () => [number, number]
         clearClipRange: () => void
@@ -235,6 +237,9 @@ declare global {
             start: number
             end: number
         }
+        clearTimeRangeMask: () => void
+        drawTimeRangeMask: (startTime: number, endTime: number) => void
+        setMode: (modeConfig: { mode?: string; startDate?: string; monthNum?: number }, newPointerTime?: number) => void
     }
 
     type UserChlAuth = _UserChlAuth
@@ -269,18 +274,7 @@ declare module 'vue' {
         Translate: (key: string) => string
     }
 
-    interface GlobalComponents {
-        BaseImgSprite: (typeof import('@/views/UI_PUBLIC/components/sprite/BaseImgSprite.vue'))['default']
-        BaseVideoPlayer: (typeof import('@/views/UI_PUBLIC/components/player/BaseVideoPlayer.vue'))['default']
-        BasePluginPlayer: (typeof import('@/views/UI_PUBLIC/components/ocx/BasePluginPlayer.vue'))['default']
-        BaseIpInput: (typeof import('@/views/UI_PUBLIC/components/form/BaseIpInput.vue'))['default']
-        BaseMacInput: (typeof import('@/views/UI_PUBLIC/components/form/BaseMacInput.vue'))['default']
-        BasePasswordStrength: (typeof import('@/views/UI_PUBLIC/components/form/BasePasswordStrength.vue'))['default']
-        BaseSensitiveEmailInput: (typeof import('@/views/UI_PUBLIC/components/form/BaseSensitiveEmailInput.vue'))['default']
-        BaseSensitiveTextInput: (typeof import('@/views/UI_PUBLIC/components/form/BaseSensitiveTextInput.vue'))['default']
-        BaseScheduleLine: (typeof import('@/components/BaseScheduleLine.vue'))['default']
-        BaseScheduleWeek: (typeof import('@/components/BaseScheduleWeek.vue'))['default']
-    }
+    interface GlobalComponents {}
 }
 
 /**

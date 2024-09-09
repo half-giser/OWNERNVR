@@ -3,15 +3,11 @@
  * @Date: 2024-06-18 18:41:51
  * @Description: 网络安全
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 19:56:56
+ * @LastEditTime: 2024-09-05 13:42:25
  */
-import BaseMacInput from '../../components/form/BaseMacInput.vue'
 import { type UserNetworkSecurityForm } from '@/types/apiType/userAndSecurity'
 
 export default defineComponent({
-    components: {
-        BaseMacInput,
-    },
     setup() {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
@@ -34,7 +30,7 @@ export default defineComponent({
             closeLoading(LoadingTarget.FullScreen)
             commLoadResponseHandler(result, ($) => {
                 tableData.value = []
-                $('/response/content/nicConfigs/item').forEach((item) => {
+                $('//content/nicConfigs/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     const autoGetGatewayMac = $item('autoGetGatewayMac').text().toBoolean()
                     const gatewayMac = item.attr('gatewayMac') as string
@@ -154,7 +150,6 @@ export default defineComponent({
             formatNetworkCardName,
             handleChangeAutoGetGatewayMac,
             handleChangeMannualGatewayMac,
-            BaseMacInput,
         }
     },
 })

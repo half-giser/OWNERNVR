@@ -3,28 +3,31 @@
  * @Date: 2024-06-18 15:33:50
  * @Description: 编辑权限组弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-09 20:46:32
+ * @LastEditTime: 2024-09-05 14:19:20
  */
 import { type UserPermissionChannelAuthList, UserPermissionSystemAuthList, UserPermissionGroupAddForm } from '@/types/apiType/userAndSecurity'
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
 import type { XmlResult } from '@/utils/xmlParse'
 import PermissionGroupInfoPop from './PermissionGroupInfoPop.vue'
 
 export default defineComponent({
     components: {
-        BaseImgSprite,
         PermissionGroupInfoPop,
     },
     props: {
+        /**
+         * @description 用户组ID
+         */
         groupId: {
             type: String,
-            require: true,
-            default: '',
+            required: true,
         },
     },
     emits: {
-        close(e: boolean) {
-            return typeof e === 'boolean'
+        confirm() {
+            return true
+        },
+        close() {
+            return true
         },
     },
     setup(prop, ctx) {
@@ -77,7 +80,7 @@ export default defineComponent({
             commLoadResponseHandler(result, ($) => {
                 getSystemAuth($)
                 getChannelAuth($)
-                formData.value.name = $('/response/content/name').text()
+                formData.value.name = $('//content/name').text()
             })
 
             closeLoading(LoadingTarget.FullScreen)
@@ -88,7 +91,7 @@ export default defineComponent({
          * @param {Function} $doc
          */
         const getSystemAuth = ($doc: (path: string) => XmlResult) => {
-            const $ = queryXml($doc('/response/content/systemAuth')[0].element)
+            const $ = queryXml($doc('//content/systemAuth')[0].element)
             Object.keys(systemAuthList.value).forEach((classify) => {
                 Object.keys(systemAuthList.value[classify].value).forEach((key) => {
                     systemAuthList.value[classify].value[key].value = $(key).text().toBoolean()
@@ -105,7 +108,7 @@ export default defineComponent({
          * @param {boolean} isQueryFromGroupID
          */
         const getChannelAuth = ($: (path: string) => XmlResult) => {
-            channelAuthList.value = $('/response/content/chlAuth/item').map((item) => {
+            channelAuthList.value = $('//content/chlAuth/item').map((item) => {
                 const arrayItem: Record<string, any> = {}
                 const $item = queryXml(item.element)
                 arrayItem.id = item.attr('id') as string
@@ -182,14 +185,14 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            if ($('/response/status').text() === 'success') {
-                goBack(true)
+            if ($('//status').text() === 'success') {
+                ctx.emit('confirm')
             } else {
-                const errorCode = Number($('/response/errorCode').text())
+                const errorCode = Number($('//errorCode').text())
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_GET_CONFIG_INFO_FAIL:
-                        goBack(true)
+                        ctx.emit('confirm')
                         return
                     case ErrorCode.USER_ERROR__CANNOT_FIND_NODE_ERROR:
                         errorInfo = Translate('IDCS_RESOURCE_NOT_EXIST').format(Translate('IDCS_RIGHT_GROUP'))
@@ -200,26 +203,25 @@ export default defineComponent({
                 }
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: errorInfo,
-                }).then(() => {
-                    goBack()
                 })
             }
         }
 
         /**
          * @description 处理关闭弹窗
-         * @param {boolean} bool true:成功时关闭弹窗；false:取消或失败时关闭弹窗
          */
-        const goBack = (bool = false) => {
-            ctx.emit('close', bool)
+        const goBack = () => {
+            ctx.emit('close')
         }
 
         /**
          * @description 打开弹窗时处理回显信息
          */
         const handleOpen = () => {
+            formData.value.name = ''
+            systemAuthList.value = new UserPermissionSystemAuthList()
+            channelAuthList.value = []
             getAuthGroup(prop.groupId)
         }
 
@@ -243,7 +245,6 @@ export default defineComponent({
             changeAllChannelAuth,
             handleOpen,
             displayAuthGroup,
-            BaseImgSprite,
             PermissionGroupInfoPop,
         }
     },

@@ -1,32 +1,21 @@
-import { getXmlWrapData } from '@/api/api'
-import { editDevDefaultPwd, queryDevDefaultPwd } from '@/api/channel'
 import { DefaultPwdDto } from '@/types/apiType/channel'
-import { queryXml } from '@/utils/xmlParse'
 import { type FormInstance } from 'element-plus'
-import { trim } from 'lodash'
-import BaseCheckAuthPop from '../../components/BaseCheckAuthPop.vue'
-import { cutStringByByte, getSecurityVer } from '@/utils/tools'
-import { nameByteMaxLen } from '@/utils/constants'
-import { AES_encrypt } from '@/utils/encrypt'
-import { useUserSessionStore } from '@/stores/userSession'
-import { type SetupContext } from 'vue'
-import useMessageBox from '@/hooks/useMessageBox'
-import useLoading from '@/hooks/useLoading'
-import { useLangStore } from '@/stores/lang'
+import { type RuleItem } from 'async-validator'
+import BaseCheckAuthPop, { type UserCheckAuthForm } from '../../components/auth/BaseCheckAuthPop.vue'
 
 export default defineComponent({
     components: {
         BaseCheckAuthPop,
     },
-    props: {
-        close: {
-            type: Function,
-            require: true,
-            default: () => {},
+    emits: {
+        change(data: DefaultPwdDto[]) {
+            return !!data
+        },
+        close() {
+            return true
         },
     },
-    emits: ['change'],
-    setup(props: any, { emit }: SetupContext) {
+    setup(props, { emit }) {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const userSessionStore = useUserSessionStore()
@@ -45,12 +34,12 @@ export default defineComponent({
 
         const getData = () => {
             openLoading(LoadingTarget.FullScreen)
-            queryDevDefaultPwd(getXmlWrapData('')).then((res: any) => {
+            queryDevDefaultPwd(getXmlWrapData('')).then((res) => {
                 closeLoading(LoadingTarget.FullScreen)
-                res = queryXml(res)
-                if (res('status').text() == 'success') {
+                const $ = queryXml(res)
+                if ($('status').text() == 'success') {
                     const rowData = [] as Array<DefaultPwdDto>
-                    res('//content/item').forEach((ele: any) => {
+                    $('//content/item').forEach((ele) => {
                         const eleXml = queryXml(ele.element)
                         const defaultPwdData = new DefaultPwdDto()
                         defaultPwdData.id = ele.attr('id') as string
@@ -74,10 +63,9 @@ export default defineComponent({
             }
         }
 
-        const validate = {
-            validateUserName: (_rule: any, value: any, callback: any) => {
-                value = trim(value)
-                if (value.length == 0) {
+        const validate: Record<string, RuleItem['validator']> = {
+            validateUserName: (_rule, value, callback) => {
+                if (value.trim().length == 0) {
                     callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
                     return
                 }
@@ -98,29 +86,29 @@ export default defineComponent({
             })
         }
 
-        const setData = (authName: string, authPwd: string) => {
+        const setData = (e: UserCheckAuthForm) => {
             let data = `<content type='list'>`
             formData.value.params.forEach((ele: DefaultPwdDto) => {
-                data += `<item id='${ele.id}'>
+                data += rawXml`<item id='${ele.id}'>
                             <userName>${cutStringByByte(ele.userName, nameByteMaxLen)}</userName>`
                 if (ele.password != '') {
                     data += `<password ${getSecurityVer()}><![CDATA[${AES_encrypt(ele.password, userSessionStore.sesionKey)}]]></password>`
                 }
                 data += '</item>'
             })
-            data += `</content>
+            data += rawXml`</content>
                     <auth>
-                        <userName>${authName}</userName>
-                        <password>${authPwd}</password>
+                        <userName>${e.userName}</userName>
+                        <password>${e.hexHash}</password>
                     </auth>`
-            editDevDefaultPwd(getXmlWrapData(data)).then((res: any) => {
-                res = queryXml(res)
-                if (res('status').text() == 'success') {
+            editDevDefaultPwd(getXmlWrapData(data)).then((res) => {
+                const $ = queryXml(res)
+                if ($('status').text() == 'success') {
                     const defaultPwdData: Array<DefaultPwdDto> = []
-                    res('//content/item').forEach((ele: any) => {
+                    $('//content/item').forEach((ele) => {
                         const eleXml = queryXml(ele.element)
                         const newData = new DefaultPwdDto()
-                        newData.id = ele.attr('id')
+                        newData.id = ele.attr('id')!
                         newData.userName = eleXml('userName').text()
                         newData.password = eleXml('password').text()
                         newData.displayName = eleXml('displayName').text()
@@ -129,35 +117,31 @@ export default defineComponent({
                     })
                     emit('change', defaultPwdData)
                     baseCheckAuthPopVisiable.value = false
-                    props.close()
+                    emit('close')
                 } else {
-                    const errorCode = res('errorCode').text()
+                    const errorCode = $('errorCode').text()
                     if (errorCode == '536870948' || errorCode == '536870947') {
                         // 用户名/密码错误
                         openMessageTipBox({
                             type: 'info',
-                            title: Translate('IDCS_INFO_TIP'),
                             message: Translate('IDCS_DEVICE_PWD_ERROR'),
-                            showCancelButton: false,
                         })
                     } else if (errorCode == '536870953') {
                         // 鉴权账号无相关权限
                         openMessageTipBox({
                             type: 'info',
-                            title: Translate('IDCS_INFO_TIP'),
                             message: Translate('IDCS_NO_AUTH'),
-                            showCancelButton: false,
                         })
                     } else {
                         baseCheckAuthPopVisiable.value = false
-                        props.close()
+                        emit('close')
                     }
                 }
             })
         }
 
-        const handleKeydownEnter = (event: any) => {
-            event.target.blur()
+        const handleKeydownEnter = (event: Event) => {
+            ;(event.target as HTMLElement).blur()
         }
 
         const opened = () => {

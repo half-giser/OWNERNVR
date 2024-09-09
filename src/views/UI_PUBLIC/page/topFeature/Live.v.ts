@@ -3,11 +3,10 @@
  * @Date: 2024-07-29 18:07:29
  * @Description: 现场预览
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 15:05:28
+ * @LastEditTime: 2024-09-05 14:22:03
  */
 import { cloneDeep } from 'lodash-es'
 import { type LiveChannelList, type LiveCustomViewChlList, LiveSharedWinData } from '@/types/apiType/live'
-import BaseNotification from '../../components/BaseNotification.vue'
 import { type TVTPlayerWinDataListItem, type TVTPlayerPosInfoItem } from '@/utils/wasmPlayer/tvtPlayer'
 import WebsocketState from '@/utils/websocket/websocketState'
 import { APP_TYPE } from '@/utils/constants'
@@ -233,7 +232,7 @@ const useRecType = (mode: Ref<string>) => {
     const getData = async () => {
         const result = await queryRecordDistributeInfo()
         const $ = queryXml(result)
-        recType.value = $('/response/content/recMode/mode').text()
+        recType.value = $('//content/recMode/mode').text()
     }
 
     const stopWatch = watch(
@@ -266,13 +265,13 @@ const usePos = (mode: Ref<string>) => {
     const getData = async () => {
         const result = await queryPosList()
         const $ = queryXml(result)
-        if ($('/response/status').text() !== 'success') return
-        const $systemX = $('/response/content/itemType/coordinateSystem/X')
-        const $systemY = $('/response/content/itemType/coordinateSystem/Y')
+        if ($('//status').text() !== 'success') return
+        const $systemX = $('//content/itemType/coordinateSystem/X')
+        const $systemY = $('//content/itemType/coordinateSystem/Y')
         const width = Number($systemX.attr('max')) - Number($systemX.attr('min'))
         const height = Number($systemY.attr('max')) - Number($systemY.attr('min'))
 
-        $('/response/channel/chl').forEach((ele) => {
+        $('//channel/chl').forEach((ele) => {
             const chlId = ele.attr('id') as string
             const $ele = queryXml(ele.element)
             const previewDisplay = $ele('previewDisplay').text() === 'true'
@@ -290,7 +289,7 @@ const usePos = (mode: Ref<string>) => {
                 timeout: 10, // pos超时隐藏时间，默认10秒
             }
         })
-        $('/response/content/item').forEach((ele) => {
+        $('//content/item').forEach((ele) => {
             const $ele = queryXml(ele.element)
             const $position = `param/displaySetting/displayPosition/`
             const $triggerChls = $ele('trigger/triggerChl/chls/item')
@@ -377,7 +376,6 @@ export default defineComponent({
         LivePtzPanel,
         LiveSnapPanel,
         LiveFishEyePanel,
-        BaseNotification,
     },
     setup() {
         const { Translate } = useLangStore()
@@ -540,7 +538,7 @@ export default defineComponent({
          */
         const getDeviceInfo = async () => {
             const result = await queryBasicCfg(getXmlWrapData(''))
-            return queryXml(result)('/response/content/productModel').text()
+            return queryXml(result)('//content/productModel').text()
         }
 
         /**
@@ -564,7 +562,7 @@ export default defineComponent({
                     showPos: winData.showPos,
                     chlID: winData.CHANNEL_INFO?.chlID || '',
                     supportPtz: winData.CHANNEL_INFO?.supportPtz || false,
-                    chlName: winData.CHANNEL_INFO?.chlName || '',
+                    chlName: winData.CHANNEL_INFO?.chlID ? pageData.value.chlMap[winData.CHANNEL_INFO!.chlID]?.value || '' : '',
                     streamType: winData.CHANNEL_INFO?.streamType || 2,
                     talk: false,
                     isDwellPlay: false,
@@ -1286,7 +1284,7 @@ export default defineComponent({
                     `
                     const result = await queryNodeEncodeInfo(sendXml)
                     const $ = queryXml(result)
-                    const content = $('/response/content/item')
+                    const content = $('//content/item')
 
                     let mainResolution = ''
                     if (content.length > 0) {
@@ -1641,7 +1639,6 @@ export default defineComponent({
             layoutStore.liveLastChlList = [...pageData.value.playingList]
 
             stopPollingChlGroup()
-            console.log('live before unmounted')
 
             if (plugin?.IsPluginAvailable() && mode.value === 'ocx' && ready.value) {
                 // 离开时切换为一分屏，防止safari上其余用到插件的地方出现多分屏
@@ -1651,8 +1648,6 @@ export default defineComponent({
                 }
 
                 plugin.VideoPluginNotifyEmitter.removeListener(notify)
-
-                console.log('live unmounted')
             }
         })
 
@@ -1708,7 +1703,6 @@ export default defineComponent({
             LivePtzPanel,
             LiveSnapPanel,
             LiveFishEyePanel,
-            BaseNotification,
         }
     },
 })

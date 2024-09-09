@@ -1,35 +1,19 @@
 import { ChangePasswordForm } from '@/types/apiType/user'
-import { MD5_encrypt, AES_encrypt } from '@/utils/encrypt'
-import { getPwdSaftyStrength } from '@/utils/tools'
-import { Logout } from '@/api/user'
-import { queryXml } from '@/utils/xmlParse'
 import { type FormInstance, type FormRules } from 'element-plus'
-import { useUserSessionStore } from '@/stores/userSession'
-import useMessageBox from '@/hooks/useMessageBox'
-import { ErrorCode, DEFAULT_PASSWORD_STREMGTH_MAPPING } from '@/utils/constants'
-import { rawXml } from '@/utils/xmlParse'
-import { ElMessage } from 'element-plus'
-import BasePasswordStrength from './form/BasePasswordStrength.vue'
 
 export default defineComponent({
-    components: {
-        BasePasswordStrength,
-    },
     props: {
         title: {
             type: String,
-            require: true,
-            default: '',
+            required: true,
         },
         forced: {
             type: Boolean,
-            require: false,
             default: false,
         },
         passwordStrength: {
             type: String,
-            require: true,
-            default: 'weak',
+            required: true,
         },
     },
     emits: {
@@ -132,36 +116,34 @@ export default defineComponent({
             `
             const result = await editUserPassword(xml)
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 userSession.defaultPwd = false
                 userSession.isChangedPwd = true
                 userSession.pwdExpired = false
                 openMessageTipBox({
                     type: 'success',
-                    title: Translate('IDCS_SUCCESS_TIP'),
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 }).then(() => {
                     ctx.emit('close')
                 })
             } else {
-                const errorCode = Number($('/response/errorCode').text())
+                const errorCode = Number($('//errorCode').text())
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_PWD_ERR:
                         ElMessage({
-                            type: 'error',
+                            type: 'info',
                             message: Translate('IDCS_PASSWORD_NOT_CORRENT'),
                         })
                         break
                     case ErrorCode.USER_ERROR_NO_AUTH:
                         ElMessage({
-                            type: 'error',
+                            type: 'info',
                             message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_NO_PERMISSION'),
                         })
                         break
                     case ErrorCode.USER_ERROR_NO_USER:
                         openMessageTipBox({
-                            type: 'error',
-                            title: Translate('IDCS_INFO_TIP'),
+                            type: 'info',
                             message: Translate('IDCS_DEVICE_USER_NOTEXIST'),
                         }).then(() => {
                             Logout()
@@ -169,7 +151,7 @@ export default defineComponent({
                         break
                     default:
                         ElMessage({
-                            type: 'error',
+                            type: 'info',
                             message: Translate('IDCS_SAVE_DATA_FAIL'),
                         })
                         break
@@ -190,7 +172,6 @@ export default defineComponent({
             if (prop.forced) {
                 openMessageTipBox({
                     type: 'question',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_PWD_STRONG_ERROR_TIPS'),
                 }).then(() => {
                     Logout()

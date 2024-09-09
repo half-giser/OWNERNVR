@@ -1,6 +1,5 @@
 <template>
     <div>
-        <ScheduleManagPop v-show="pageData.scheduleManagPopOpen"></ScheduleManagPop>
         <div class="alarmEmail_top">
             <span id="lblReceiver">{{ Translate('IDCS_RECIPIENT') }}</span>
             <div id="txtReceiver">
@@ -41,8 +40,8 @@
             </div>
         </div>
         <ScheduleManagPop
-            v-model="pageData.scheduleManagPopOpen"
-            @close="pageData.scheduleManagPopOpen = false"
+            v-model="pageData.scheduleManagePopOpen"
+            @close="pageData.scheduleManagePopOpen = false"
         >
         </ScheduleManagPop>
     </div>

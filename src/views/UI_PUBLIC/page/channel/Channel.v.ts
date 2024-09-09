@@ -3,37 +3,15 @@
  * @Date: 2024-05-07 17:12:45
  * @Description:
  */
-import { queryDevList, queryRtspProtocolList, delDevList, queryChlPort, queryIPChlInfo, queryOnlineChlList } from '@/api/channel'
-import { getXmlWrapData } from '@/api/api'
-import { queryBasicCfg } from '@/api/system'
-import { queryXml } from '@/utils/xmlParse'
 import { ChannelInfoDto } from '@/types/apiType/channel'
-import { LocalCacheKey } from '@/utils/constants'
-import { getUiAndTheme, isHttpsLogin } from '@/utils/tools'
-import { checkIpV6, filterProperty, formatHttpsTips, getShortString } from '../../../../utils/tools'
 import ChannelEditPop from './ChannelEditPop.vue'
-import { querySystemCaps } from '@/api/system'
-import { useUserSessionStore } from '@/stores/userSession'
-import { useCababilityStore } from '@/stores/cabability'
-import { ArrowDown } from '@element-plus/icons-vue'
-import { useRouter } from 'vue-router'
 import ChannelEditIPCPwdPop from './ChannelEditIPCPwdPop.vue'
-import useMessageBox from '@/hooks/useMessageBox'
-import { useLangStore } from '@/stores/lang'
-import useLoading from '@/hooks/useLoading'
-import BaseImgSprite from '@/views/UI_PUBLIC/components/sprite/BaseImgSprite.vue'
-import BaseLivePop from '@/views/UI_PUBLIC/components/BaseLivePop.vue'
-import BaseNotification from '@/views/UI_PUBLIC/components/BaseNotification.vue'
 import ChannelIPCUpgradePop from './ChannelIPCUpgradePop.vue'
 
 export default defineComponent({
     components: {
-        ArrowDown,
         ChannelEditPop,
         ChannelEditIPCPwdPop,
-        BaseImgSprite,
-        BaseLivePop,
-        BaseNotification,
         ChannelIPCUpgradePop,
     },
     setup() {
@@ -57,7 +35,7 @@ export default defineComponent({
         const ipNum = ref('')
         const ipNumVisable = ref(false)
         const editNameMapping = ref({} as Record<string, string>)
-        const baseLivePopRef = ref()
+        const baseLivePopRef = ref<LivePopInstance>()
         const notifications = ref([] as string[])
         const channelIPCUpgradePopRef = ref()
 
@@ -87,7 +65,7 @@ export default defineComponent({
         }
 
         const handlePreview = function (rowData: ChannelInfoDto) {
-            baseLivePopRef.value.openLiveWin(rowData.id, rowData.name, rowData.chlIndex, rowData.chlType, rowData.chlStatus == Translate('IDCS_ONLINE'))
+            baseLivePopRef.value?.openLiveWin(rowData.id, rowData.name, rowData.chlStatus === Translate('IDCS_ONLINE'))
         }
 
         // 编辑通道
@@ -103,7 +81,7 @@ export default defineComponent({
             editRowData.value.port = newData.port
         }
 
-        const closeEditChannelPop = function (isRefresh: boolean) {
+        const closeEditChannelPop = function (isRefresh = false) {
             channelEditPopVisable.value = false
             if (isRefresh) getDataList()
         }
@@ -121,50 +99,44 @@ export default defineComponent({
             if (tableData.value.length == 0) return
             openMessageTipBox({
                 type: 'question',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_DELETE_ALL_ITEMS'),
-            })
-                .then(() => {
-                    let data = '<condition><devIds type="list">'
-                    tableData.value.forEach((ele: ChannelInfoDto) => {
-                        // UI1-E可以删除poe通道
-                        if (uiName == 'UI1-E') {
-                            if (ele.ip) data += '<item id="' + ele.id + '"></item>'
-                        } else {
-                            if (ele.addType != 'poe' && ele.ip) data += '<item id="' + ele.id + '"></item>'
-                        }
-                    })
-                    data += '</devIds></condition>'
-                    const sendXml = getXmlWrapData(data)
-                    openLoading(LoadingTarget.FullScreen)
-                    delDevList(sendXml).then(() => {
-                        closeLoading(LoadingTarget.FullScreen)
-                        //删除通道不提示
-                        getDataList()
-                    })
+            }).then(() => {
+                let data = '<condition><devIds type="list">'
+                tableData.value.forEach((ele: ChannelInfoDto) => {
+                    // UI1-E可以删除poe通道
+                    if (uiName == 'UI1-E') {
+                        if (ele.ip) data += '<item id="' + ele.id + '"></item>'
+                    } else {
+                        if (ele.addType != 'poe' && ele.ip) data += '<item id="' + ele.id + '"></item>'
+                    }
                 })
-                .catch(() => {})
+                data += '</devIds></condition>'
+                const sendXml = getXmlWrapData(data)
+                openLoading(LoadingTarget.FullScreen)
+                delDevList(sendXml).then(() => {
+                    closeLoading(LoadingTarget.FullScreen)
+                    //删除通道不提示
+                    getDataList()
+                })
+            })
         }
 
         const handleDelChannel = function (rowData: ChannelInfoDto) {
             openMessageTipBox({
                 type: 'question',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_DELETE_MP_CHNANEL_S').formatForLang(getShortString(rowData.name, 10)),
-            })
-                .then(() => {
-                    let data = '<condition><devIds type="list">' + '<item id="' + rowData.id + '">' + rowData.name
-                    if (Number(rowData.poeIndex) * 1 > 0) data += '<poeIndex>' + rowData.poeIndex + '</poeIndex>'
-                    data += '</item>' + '</devIds></condition>'
-                    const sendXml = getXmlWrapData(data)
-                    openLoading(LoadingTarget.FullScreen)
-                    delDevList(sendXml).then(() => {
-                        closeLoading(LoadingTarget.FullScreen)
-                        //删除通道不提示
-                        getDataList()
-                    })
+            }).then(() => {
+                let data = '<condition><devIds type="list">' + '<item id="' + rowData.id + '">' + rowData.name
+                if (Number(rowData.poeIndex) * 1 > 0) data += '<poeIndex>' + rowData.poeIndex + '</poeIndex>'
+                data += '</item>' + '</devIds></condition>'
+                const sendXml = getXmlWrapData(data)
+                openLoading(LoadingTarget.FullScreen)
+                delDevList(sendXml).then(() => {
+                    closeLoading(LoadingTarget.FullScreen)
+                    //删除通道不提示
+                    getDataList()
                 })
-                .catch(() => {})
+            })
         }
 
         const handleSettingChannel = function (rowData: ChannelInfoDto) {
@@ -177,10 +149,10 @@ export default defineComponent({
                 // 非poe通道跳转时要带上端口号，避免用户改了ipc默认的80端口，导致跳转不成功
                 const data = getXmlWrapData(`<condition><chlId>${rowData.id}</chlId></condition>`)
                 openLoading(LoadingTarget.FullScreen)
-                queryChlPort(data).then((res: any) => {
+                queryChlPort(data).then((res) => {
                     closeLoading(LoadingTarget.FullScreen)
-                    res = queryXml(res)
-                    const httpPort = res('//content/chl/port/httpPort').length > 0 ? res('//content/chl/port/httpPort').text() : ''
+                    const $ = queryXml(res)
+                    const httpPort = $('//content/chl/port/httpPort').length > 0 ? $('//content/chl/port/httpPort').text() : ''
                     // ipv6地址访问格式为：http://[ipv6]
                     const ip = checkIpV6(rowData.ip) ? '[' + rowData.ip + ']' : rowData.ip
                     browserInfo.type === 'ie' && (userSessionStore.showPluginNoResponse = '')
@@ -210,13 +182,10 @@ export default defineComponent({
             }
             openMessageTipBox({
                 type: 'question',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_IPC_UPGRADE_FINISH_RESTART'),
+            }).then(() => {
+                channelIPCUpgradePopRef.value.init(type, data)
             })
-                .then(() => {
-                    channelIPCUpgradePopRef.value.init(type, data)
-                })
-                .catch(() => {})
         }
 
         const getDataList = function (chlName?: String) {
@@ -238,29 +207,29 @@ export default defineComponent({
                 '</requireField>'
             const sendXml = getXmlWrapData(data)
             openLoading(LoadingTarget.FullScreen)
-            queryDevList(sendXml).then((res: any) => {
+            queryDevList(sendXml).then((res) => {
                 closeLoading(LoadingTarget.FullScreen)
-                res = queryXml(res)
+                const $ = queryXml(res)
                 getIpAnalogCout()
                 getProtocolList(function () {
-                    if (res('status').text() == 'success') {
+                    if ($('status').text() == 'success') {
                         manufacturerMap = {}
-                        res('//types/manufacturer/enum').forEach((ele: any) => {
-                            manufacturerMap[ele.text()] = ele.attr('displayName')
+                        $('//types/manufacturer/enum').forEach((ele) => {
+                            manufacturerMap[ele.text()] = ele.attr('displayName')!
                         })
 
                         tableData.value = []
                         nameMapping = {}
-                        res('//content/item').forEach((ele: any) => {
+                        $('//content/item').forEach((ele) => {
                             const eleXml = queryXml(ele.element)
-                            nameMapping[ele.attr('id')] = eleXml('name').text()
+                            nameMapping[ele.attr('id')!] = eleXml('name').text()
                             const channelInfo = new ChannelInfoDto()
-                            channelInfo.id = ele.attr('id')
+                            channelInfo.id = ele.attr('id')!
                             channelInfo.chlNum = eleXml('chlNum').text()
                             channelInfo.name = eleXml('name').text()
                             channelInfo.devID = eleXml('devID').text()
                             channelInfo.ip = eleXml('ip').text()
-                            channelInfo.port = eleXml('port').text()
+                            channelInfo.port = Number(eleXml('port').text())
                             channelInfo.poePort = eleXml('poePort').text()
                             channelInfo.userName = eleXml('userName').text()
                             channelInfo.password = eleXml('password').text()
@@ -285,7 +254,7 @@ export default defineComponent({
                             //模拟通道，端口和状态置为空
                             if (!ele.ip) {
                                 ele.chlStatus = ''
-                                ele.port = ''
+                                ele.port = 0
                             } else {
                                 ele.chlStatus = Translate('IDCS_OFFLINE')
                             }
@@ -314,15 +283,15 @@ export default defineComponent({
         const getIPChlInfo = function (channelInfo: ChannelInfoDto) {
             const type = channelInfo.productModel.factoryName == 'Recorder'
             const data = getXmlWrapData('<condition><chlId>' + (type ? channelInfo.devID : channelInfo.id) + '</chlId></condition>')
-            queryIPChlInfo(data).then((res: any) => {
+            queryIPChlInfo(data).then((res) => {
                 channelInfo.version = queryXml(res)('//content/chl/detailedSoftwareVersion').text()
             })
         }
 
         const getOnlineChlList = function () {
-            queryOnlineChlList().then((res: any) => {
-                res = queryXml(res)
-                if (res('status').text() == 'success') {
+            queryOnlineChlList().then((res) => {
+                const $ = queryXml(res)
+                if ($('status').text() == 'success') {
                     if (tableData.value.length == 0) return
                     tableData.value.forEach((ele: ChannelInfoDto) => {
                         //模拟通道，状态置为空
@@ -331,8 +300,8 @@ export default defineComponent({
                             return
                         }
                         let isOnline = false
-                        res('//content/item').forEach((element: any) => {
-                            const chlId = element.attr('id')
+                        $('//content/item').forEach((element) => {
+                            const chlId = element.attr('id')!
                             if (ele.id == chlId) {
                                 ele.chlStatus = Translate('IDCS_ONLINE')
                                 ele.upgradeDisabled = false
@@ -372,12 +341,12 @@ export default defineComponent({
 
         const getIpAnalogCout = function () {
             openLoading(LoadingTarget.FullScreen)
-            queryBasicCfg(getXmlWrapData('')).then((res: any) => {
+            queryBasicCfg(getXmlWrapData('')).then((res) => {
                 closeLoading(LoadingTarget.FullScreen)
-                res = queryXml(res)
-                if (res('status').text() == 'success') {
-                    let channelSignalTypeList = []
-                    if (res('//content/channelSignalType').length > 0) channelSignalTypeList = res('//content/channelSignalType').text().split(':')
+                const $ = queryXml(res)
+                if ($('status').text() == 'success') {
+                    let channelSignalTypeList: string[] = []
+                    if ($('//content/channelSignalType').length > 0) channelSignalTypeList = $('//content/channelSignalType').text().split(':')
                     ipChlMaxCountOriginal = 0
                     channelSignalTypeList.forEach((ele: string) => {
                         if (ele == 'D') ipChlMaxCountOriginal++
@@ -389,24 +358,24 @@ export default defineComponent({
 
         const getBandwidth = function () {
             openLoading(LoadingTarget.FullScreen)
-            queryRecordDistributeInfo().then((res1: any) => {
+            queryRecordDistributeInfo().then((res1) => {
                 closeLoading(LoadingTarget.FullScreen)
-                res1 = queryXml(res1)
-                const mode = res1('//content/recMode/mode').text()
+                const $ = queryXml(res1)
+                const mode = $('//content/recMode/mode').text()
                 openLoading(LoadingTarget.FullScreen)
-                querySystemCaps(getXmlWrapData('')).then((res2: any) => {
+                querySystemCaps(getXmlWrapData('')).then((res2) => {
                     closeLoading(LoadingTarget.FullScreen)
-                    res2 = queryXml(res2)
-                    if (res2('status').text() == 'success') {
-                        const totalBandwidth = res2('//content/totalBandwidth').text() * 1
-                        const usedBandwidth = res2('//content/' + (mode == 'auto' ? 'usedAutoBandwidth' : 'usedManualBandwidth')).text() * 1
+                    const $ = queryXml(res2)
+                    if ($('status').text() == 'success') {
+                        const totalBandwidth = Number($('//content/totalBandwidth').text())
+                        const usedBandwidth = Number($('//content/' + (mode == 'auto' ? 'usedAutoBandwidth' : 'usedManualBandwidth')).text())
                         let remainBandwidth = (totalBandwidth * 1024 - usedBandwidth) / 1024
-                        const switchableIpChlMaxCount = res2('//content/switchableIpChlMaxCount').text()
-                        ipChlMaxCount = ipChlMaxCountOriginal + res2('//content/ipChlMaxCount').text() * 1
+                        const switchableIpChlMaxCount = Number($('//content/switchableIpChlMaxCount').text())
+                        ipChlMaxCount = ipChlMaxCountOriginal + Number($('//content/ipChlMaxCount').text())
                         if (remainBandwidth < 0) remainBandwidth = 0
                         txtBrandwidth.value = Translate('IDCS_CURRENT_BANDWIDTH_ALL_D_D').formatForLang(remainBandwidth.toFixed(0), totalBandwidth.toFixed(0))
 
-                        if ((switchableIpChlMaxCount * 1 > 0 && cababilityStore.analogChlCount * 1 > 0) || cababilityStore.analogChlCount * 1 == 0) {
+                        if ((switchableIpChlMaxCount > 0 && cababilityStore.analogChlCount > 0) || cababilityStore.analogChlCount * 1 == 0) {
                             ipNumVisable.value = true
                             ipNum.value = ' : ' + ipChlMaxCount
                         } else {
@@ -419,17 +388,17 @@ export default defineComponent({
 
         const getProtocolList = function (callback: Function) {
             openLoading(LoadingTarget.FullScreen)
-            queryRtspProtocolList(getXmlWrapData('')).then((res: any) => {
+            queryRtspProtocolList(getXmlWrapData('')).then((res) => {
                 closeLoading(LoadingTarget.FullScreen)
-                res = queryXml(res)
-                if (res('status').text() == 'success') {
+                const $ = queryXml(res)
+                if ($('status').text() == 'success') {
                     protocolList.value = []
-                    const nodes = res('//content/item')
-                    nodes.forEach((ele: any) => {
+                    const nodes = $('//content/item')
+                    nodes.forEach((ele) => {
                         const eleXml = queryXml(ele.element)
                         protocolList.value.push({
                             displayName: eleXml('displayName').text(),
-                            index: ele.attr('id'),
+                            index: ele.attr('id')!,
                         })
                     })
                     if (callback) callback()
@@ -512,6 +481,9 @@ export default defineComponent({
             baseLivePopRef,
             notifications,
             channelIPCUpgradePopRef,
+            ChannelEditPop,
+            ChannelEditIPCPwdPop,
+            ChannelIPCUpgradePop,
         }
     },
 })

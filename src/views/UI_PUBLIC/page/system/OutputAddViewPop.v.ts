@@ -3,34 +3,30 @@
  * @Date: 2024-06-25 20:56:27
  * @Description: 收藏视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-27 19:41:27
+ * @LastEditTime: 2024-09-05 14:59:09
  */
 import { type FormInstance, type FormRules } from 'element-plus'
 import { SystemOutputSettingAddViewForm } from '@/types/apiType/system'
 import { type PropType } from 'vue'
 
-interface ChlsDto {
+export interface ChlsDto {
     id: string
     winindex: number
 }
 
-interface ChlGroupData {
+export interface ChlGroupData {
     segNum: number
     chls: ChlsDto[]
 }
 
 export default defineComponent({
     props: {
+        /**
+         * @property 当前通道数据
+         */
         chl: {
             type: Object as PropType<ChlGroupData>,
-            require: true,
-            default: () => {
-                const data: ChlGroupData = {
-                    segNum: 0,
-                    chls: [],
-                }
-                return data
-            },
+            required: true,
         },
     },
     emits: {
@@ -94,18 +90,22 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 ctx.emit('close')
             } else {
-                const errorCode = Number($('/response/errorCode').text())
+                const errorCode = Number($('//errorCode').text())
                 if (errorCode === ErrorCode.USER_ERROR_NAME_EXISTED) {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_NAME_SAME'),
                     })
                 }
             }
+        }
+
+        const open = () => {
+            formRef.value?.clearValidate()
+            formData.value.name = ''
         }
 
         const close = () => {
@@ -117,6 +117,7 @@ export default defineComponent({
             formRef,
             rules,
             verify,
+            open,
             close,
         }
     },

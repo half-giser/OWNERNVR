@@ -1,26 +1,12 @@
-import { getXmlWrapData } from '@/api/api'
-import { createDevList, queryDevDefaultPwd } from '@/api/channel'
-import { queryXml } from '../../../../utils/xmlParse'
+import { trim } from 'lodash-es'
 import { ChannelManualAddDto, DefaultPwdDto } from '@/types/apiType/channel'
-import { useCababilityStore } from '@/stores/cabability'
-import { queryLanFreeDeviceList, queryLanRecorderList, queryRtspProtocolList } from '../../../../api/channel'
-import { editBasicCfg, querySystemCaps } from '@/api/system'
-import { ChannelAddRecorderDto, ChannelQuickAddDto } from '../../../../types/apiType/channel'
-import { cutStringByByte, filterProperty } from '../../../../utils/tools'
+import { ChannelAddRecorderDto, ChannelQuickAddDto } from '@/types/apiType/channel'
 import ChannelAddActivateIPCPop from './ChannelAddActivateIPCPop.vue'
-import { useRouter } from 'vue-router'
-import useMessageBox from '@/hooks/useMessageBox'
 import ChannelAddSetDefaultPwdPop from './ChannelAddSetDefaultPwdPop.vue'
 import ChannelAddEditIPCIpPop from './ChannelAddEditIPCIpPop.vue'
 import ChannelAddToAddRecorderPop from './ChannelAddToAddRecorderPop.vue'
-import useLoading from '@/hooks/useLoading'
-import { useLangStore } from '@/stores/lang'
 import ChannelAddSetProtocolPop from './ChannelAddSetProtocolPop.vue'
-import { LocalCacheKey, errorCodeMap, nameByteMaxLen } from '@/utils/constants'
-import { trim } from 'lodash'
 import ChannelAddMultiChlIPCAdd from './ChannelAddMultiChlIPCAdd.vue'
-import BaseImgSprite from '@/views/UI_PUBLIC/components/sprite/BaseImgSprite.vue'
-import BaseIpInput from '../../components/form/BaseIpInput.vue'
 
 export default defineComponent({
     components: {
@@ -30,8 +16,6 @@ export default defineComponent({
         ChannelAddToAddRecorderPop,
         ChannelAddSetProtocolPop,
         ChannelAddMultiChlIPCAdd,
-        BaseImgSprite,
-        BaseIpInput,
     },
     setup() {
         const { Translate } = useLangStore()
@@ -94,17 +78,17 @@ export default defineComponent({
 
         const getSystemCaps = function () {
             openLoading(LoadingTarget.FullScreen)
-            queryRecordDistributeInfo().then((res: any) => {
-                res = queryXml(res)
-                const mode = res('//content/recMode/mode').text()
-                querySystemCaps(getXmlWrapData('')).then((res: any) => {
+            queryRecordDistributeInfo().then((res) => {
+                const $ = queryXml(res)
+                const mode = $('//content/recMode/mode').text()
+                querySystemCaps(getXmlWrapData('')).then((res) => {
                     closeLoading(LoadingTarget.FullScreen)
-                    res = queryXml(res)
-                    chlCountLimit.value = res('//content/chlMaxCount').text() * 1
-                    const totalBandwidth = res('//content/totalBandwidth').text() * 1
-                    const usedBandwidth = res('//content/' + (mode == 'auto' ? 'usedAutoBandwidth' : 'usedManualBandwidth')).text() * 1
-                    supportRecorder.value = res('//content/supportRecorder').text() == 'true'
-                    faceMatchLimitMaxChlNum.value = res('//content/faceMatchLimitMaxChlNum').text() * 1
+                    const $ = queryXml(res)
+                    chlCountLimit.value = Number($('//content/chlMaxCount').text())
+                    const totalBandwidth = Number($('//content/totalBandwidth').text())
+                    const usedBandwidth = Number($('//content/' + (mode == 'auto' ? 'usedAutoBandwidth' : 'usedManualBandwidth')).text())
+                    supportRecorder.value = $('//content/supportRecorder').text().toBoolean()
+                    faceMatchLimitMaxChlNum.value = Number($('//content/faceMatchLimitMaxChlNum').text())
                     let remainBandwidth = (totalBandwidth * 1024 - usedBandwidth) / 1024
                     if (remainBandwidth < 0) remainBandwidth = 0
                     txtBandwidth.value = Translate('IDCS_CURRENT_BANDWIDTH_ALL_D_D').formatForLang(remainBandwidth.toFixed(0), totalBandwidth.toFixed(0))
@@ -114,13 +98,13 @@ export default defineComponent({
 
         const getDefaultPwd = function (callback?: Function) {
             openLoading(LoadingTarget.FullScreen)
-            queryDevDefaultPwd(getXmlWrapData('')).then((res: any) => {
+            queryDevDefaultPwd(getXmlWrapData('')).then((res) => {
                 closeLoading(LoadingTarget.FullScreen)
-                res = queryXml(res)
-                if (res('status').text() == 'success') {
+                const $ = queryXml(res)
+                if ($('status').text() == 'success') {
                     defaultPwdList.value = []
                     mapping.value = {}
-                    res('//content/item').forEach((ele: any) => {
+                    $('//content/item').forEach((ele) => {
                         const eleXml = queryXml(ele.element)
                         const defaultPwdData = new DefaultPwdDto()
                         defaultPwdData.id = ele.attr('id') as string
@@ -139,16 +123,16 @@ export default defineComponent({
 
         const getLanFreeDevs = function () {
             openLoading(LoadingTarget.FullScreen)
-            queryLanFreeDeviceList(getXmlWrapData('')).then((res: any) => {
+            queryLanFreeDeviceList(getXmlWrapData('')).then((res) => {
                 closeLoading(LoadingTarget.FullScreen)
-                res = queryXml(res)
-                if (res('status').text() == 'success') {
+                const $ = queryXml(res)
+                if ($('status').text() == 'success') {
                     manufacturerMap.value = {}
                     manufacturerList.value = []
                     nameList.value = []
-                    res('//types/manufacturer/enum').forEach((ele: any) => {
+                    $('//types/manufacturer/enum').forEach((ele) => {
                         const value = ele.text()
-                        const text = ele.attr('displayName') as string
+                        const text = ele.attr('displayName')!
                         manufacturerMap.value[value] = text
                         manufacturerList.value.push({
                             value: value,
@@ -159,7 +143,7 @@ export default defineComponent({
                             text: text,
                         })
                     })
-                    getProtocolList(function () {
+                    getProtocolList(() => {
                         if (cababilityStore.analogChlCount * 1 <= 0) {
                             manufacturerList.value.push({
                                 value: 'ProtocolMgr',
@@ -173,7 +157,7 @@ export default defineComponent({
                         manualAddFormData.value = []
                         manualAddNewRow(0)
                         const rowData = [] as Array<ChannelQuickAddDto>
-                        res('//content/item').forEach((ele: any) => {
+                        $('//content/item').forEach((ele) => {
                             const eleXml = queryXml(ele.element)
                             const newData = new ChannelQuickAddDto()
                             newData.ip = eleXml('ip').text()
@@ -231,22 +215,22 @@ export default defineComponent({
 
         const getLanRecorders = function () {
             openLoading(LoadingTarget.FullScreen)
-            queryLanRecorderList(getXmlWrapData('')).then((res: any) => {
+            queryLanRecorderList(getXmlWrapData('')).then((res) => {
                 closeLoading(LoadingTarget.FullScreen)
-                res = queryXml(res)
-                if (res('status').text() == 'success') {
+                const $ = queryXml(res)
+                if ($('status').text() == 'success') {
                     const rowData = [] as Array<ChannelAddRecorderDto>
-                    res('//content/item').forEach((ele: any) => {
+                    $('//content/item').forEach((ele) => {
                         const eleXml = queryXml(ele.element)
                         const newData = new ChannelAddRecorderDto()
                         newData.ip = eleXml('ip').text()
-                        newData.port = eleXml('port').text()
+                        newData.port = Number(eleXml('port').text())
                         newData.version = eleXml('version').text()
                         newData.name = eleXml('name').text()
                         newData.serialNum = eleXml('serialNum').text()
-                        newData.chlTotalCount = eleXml('chlTotalCount').text()
-                        newData.httpPort = eleXml('httpPort').text()
-                        newData.chlAddedCount = eleXml('chlAddedCount').text()
+                        newData.chlTotalCount = Number(eleXml('chlTotalCount').text())
+                        newData.httpPort = Number(eleXml('httpPort').text())
+                        newData.chlAddedCount = Number(eleXml('chlAddedCount').text())
                         newData.productModel = eleXml('productModel').text()
                         newData.displayName =
                             eleXml('name').text() + (Number(eleXml('chlTotalCount').text()) > 0 ? '(' + eleXml('chlAddedCount').text() + '/' + eleXml('chlTotalCount').text() + ')' : '')
@@ -258,12 +242,12 @@ export default defineComponent({
         }
 
         const getProtocolList = function (callBack: Function) {
-            queryRtspProtocolList(getXmlWrapData('')).then((res: any) => {
-                res = queryXml(res)
-                if (res('status').text() == 'success') {
+            queryRtspProtocolList(getXmlWrapData('')).then((res) => {
+                const $ = queryXml(res)
+                if ($('status').text() == 'success') {
                     protocolList.value = []
                     rtspMapping = []
-                    res('//content/item').forEach((ele: any) => {
+                    $('//content/item').forEach((ele) => {
                         const eleXml = queryXml(ele.element)
                         if (eleXml('enabled').text() == 'true') {
                             // todo key、value相同？
@@ -285,22 +269,22 @@ export default defineComponent({
             })
         }
 
-        const closeSetProtocolPop = (isRefresh: boolean) => {
+        const closeSetProtocolPop = (isRefresh = false) => {
             setProtocolPopVisiable.value = false
             if (isRefresh) getData()
         }
 
         const manualAddNewRow = function (rowCount: number) {
             const defaultPwdData = defaultPwdList.value[0]
-            let defaultPort = ''
+            let defaultPort = 80
             if (defaultPwdData.protocolType == 'TVT_IPCAMERA') {
                 if (defaultPwdData.displayName == 'Speco') {
-                    defaultPort = '554'
+                    defaultPort = 554
                 } else {
-                    defaultPort = '9008'
+                    defaultPort = 9008
                 }
             } else {
-                defaultPort = '80'
+                defaultPort = 80
             }
             const newData = new ChannelManualAddDto()
             newData.ip = '0.0.0.0'
@@ -352,20 +336,20 @@ export default defineComponent({
                             if (Trim(ele, 'g') == Trim(val, 'g')) isArray = true
                         })
                         if (isArray) {
-                            row.port = ''
+                            row.port = 0
                             row.userName = ''
                             row.password = ''
                             row.portDisabled = true
                         } else {
-                            let defaultPort = ''
+                            let defaultPort = 80
                             if (mapping.value[val]['protocolType'] == 'TVT_IPCAMERA') {
                                 if (mapping.value[val]['displayName'] == 'Speco') {
-                                    defaultPort = '554'
+                                    defaultPort = 554
                                 } else {
-                                    defaultPort = '9008'
+                                    defaultPort = 9008
                                 }
                             } else {
-                                defaultPort = '80'
+                                defaultPort = 80
                             }
                             row.port = defaultPort
                             row.userName = mapping.value[val]['userName']
@@ -417,9 +401,7 @@ export default defineComponent({
             if (selectedRows.length == 0) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_SEL_ACTIVATE_CHANNEL'),
-                    showCancelButton: false,
                 })
                 return false
             }
@@ -429,9 +411,7 @@ export default defineComponent({
             if (unActivateData.length == 0) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_NO_CHANNEL_TO_ACTIVATE'),
-                    showCancelButton: false,
                 })
                 return false
             }
@@ -485,7 +465,8 @@ export default defineComponent({
         }
 
         // 添加录像机
-        const recoderEditItem: Ref<ChannelAddRecorderDto | null> = ref(null)
+        const cloneRecoderEditItem = new ChannelAddRecorderDto()
+        const recoderEditItem = ref<ChannelAddRecorderDto>(cloneRecoderEditItem)
         let selectedRecoder: ChannelAddRecorderDto | null = null
         const handleRecorderRowClick = (rowData: ChannelAddRecorderDto) => {
             selectedRecoder = rowData
@@ -500,7 +481,7 @@ export default defineComponent({
         }
 
         const handleManualAdd = () => {
-            recoderEditItem.value = null
+            recoderEditItem.value = cloneRecoderEditItem
             toAddRecorderPopVisiable.value = true
         }
 
@@ -526,7 +507,7 @@ export default defineComponent({
                 for (const key in manufacturerMap.value) {
                     data += `<enum displayName='${manufacturerMap.value[key]}'>${key}</enum>`
                 }
-                data += `
+                data += rawXml`
                         </manufacturer>
                         <protocolType>
                             <enum>TVT_IPCAMERA</enum>
@@ -596,13 +577,13 @@ export default defineComponent({
         }
 
         const getXmlDataByQuickAdd = (element: ChannelQuickAddDto, supportType: string, chlName: string) => {
-            const defaultParam = `
+            const defaultParam = rawXml`
                 <rec per='5' post='10'/>
                     <snapSwitch>true</snapSwitch>
                     <buzzerSwitch>false</buzzerSwitch>
                     <popVideoSwitch>false</popVideoSwitch>
                     <frontEndOffline_popMsgSwitch>false</frontEndOffline_popMsgSwitch>`
-            let data = `
+            let data = rawXml`
                 <item>
                     <name>${chlName}</name>
                     <ip>${element.ip}</ip>
@@ -631,90 +612,67 @@ export default defineComponent({
 
         const addIPCDev = (sendXml: string) => {
             openLoading(LoadingTarget.FullScreen)
-            createDevList(sendXml).then((res: any) => {
+            createDevList(sendXml).then((res) => {
                 closeLoading(LoadingTarget.FullScreen)
-                res = queryXml(res)
+                const $ = queryXml(res)
                 getSystemCaps()
-                if (res('status').text() == 'success') {
+                if ($('status').text() == 'success') {
                     openMessageTipBox({
                         type: 'success',
-                        title: Translate('IDCS_SUCCESS_TIP'),
                         message: Translate('IDCS_SAVE_DATA_SUCCESS'),
-                        showCancelButton: false,
+                    }).then(() => {
+                        router.push('list')
                     })
-                        .then(() => {
-                            router.push('list')
-                        })
-                        .catch(() => {})
                 } else {
-                    const errorCode = Number(res('errorCode').text())
+                    const errorCode = Number($('errorCode').text())
                     if (errorCode == errorCodeMap.nodeExist) {
                         openMessageTipBox({
                             type: 'info',
-                            title: Translate('IDCS_INFO_TIP'),
                             message: Translate('IDCS_PROMPT_CHANNEL_EXIST'),
-                            showCancelButton: false,
                         })
                     } else if (errorCode == 536871004) {
                         openMessageTipBox({
                             type: 'info',
-                            title: Translate('IDCS_INFO_TIP'),
                             message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT'),
-                            showCancelButton: false,
+                        }).then(() => {
+                            router.push('list')
                         })
-                            .then(() => {
-                                router.push('list')
-                            })
-                            .catch(() => {})
                     } else if (errorCode == 536871005) {
                         openMessageTipBox({
                             type: 'info',
-                            title: Translate('IDCS_INFO_TIP'),
                             message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_BANDWIDTH_LIMIT'),
-                            showCancelButton: false,
                         })
                     } else if (errorCode == 536871007) {
-                        const poePort = res('poePort').text()
+                        const poePort = $('poePort').text()
                         // POE连接冲突提示
                         openMessageTipBox({
                             type: 'info',
-                            title: Translate('IDCS_INFO_TIP'),
                             message: Translate('IDCS_POE_RESOURCE_CONFLICT_TIP').formatForLang(poePort),
-                            showCancelButton: false,
                         })
                     } else if (errorCode == 536871050) {
                         openMessageTipBox({
                             type: 'info',
-                            title: Translate('IDCS_INFO_TIP'),
                             message: Translate('IDCS_ADD_CHANNEL_FAIL').formatForLang(faceMatchLimitMaxChlNum),
-                            showCancelButton: false,
                         })
                     } else if (errorCode == 536870992) {
                         openMessageTipBox({
                             type: 'info',
-                            title: Translate('IDCS_INFO_TIP'),
                             message: Translate('IDCS_PROMPT_IPADDRESS_V6_INVALID'),
-                            showCancelButton: false,
                         })
                     } else if (errorCode == 536871052) {
                         const msg = Translate('IDCS_ADD_CHANNEL_FAIL').formatForLang(faceMatchLimitMaxChlNum) + Translate('IDCS_REBOOT_DEVICE').formatForLang(Translate('IDCS_KEEP_ADD'))
                         openMessageTipBox({
                             type: 'question',
-                            title: Translate('IDCS_INFO_TIP'),
                             message: msg,
+                        }).then(() => {
+                            const data = '<content><AISwitch>false</AISwitch></content>'
+                            editBasicCfg(getXmlWrapData(data))
                         })
-                            .then(() => {
-                                const data = '<content><AISwitch>false</AISwitch></content>'
-                                editBasicCfg(getXmlWrapData(data))
-                            })
-                            .catch(() => {})
                     } else {
                         openMessageTipBox({
                             type: 'info',
-                            title: Translate('IDCS_INFO_TIP'),
                             message: Translate('IDCS_SAVE_DATA_FAIL'),
-                            showCancelButton: false,
-                        }).catch(() => {})
+                        })
                     }
                 }
             })
@@ -786,6 +744,12 @@ export default defineComponent({
             closeSetProtocolPop,
             nameList,
             multiChlIPCAddRef,
+            ChannelAddActivateIPCPop,
+            ChannelAddSetDefaultPwdPop,
+            ChannelAddEditIPCIpPop,
+            ChannelAddToAddRecorderPop,
+            ChannelAddSetProtocolPop,
+            ChannelAddMultiChlIPCAdd,
         }
     },
 })

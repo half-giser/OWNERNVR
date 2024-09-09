@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2023-05-04 22:08:40
  * @Description: HTTP请求工具类
- * @LastEditors: tengxiang tengxiang@tvt.net.cn
- * @LastEditTime: 2024-07-29 19:54:53
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-05 16:19:10
  */
 
 /* axios配置入口文件 */
@@ -11,13 +11,6 @@
 import axios, { type AxiosRequestConfig } from 'axios'
 import { ElMessage } from 'element-plus'
 import dayjs from 'dayjs'
-import { getXmlDoc, compressXml, queryXml, rawXml } from '@/utils/xmlParse'
-import { ApiStatus, ErrorCode, ErrorCodeMapping } from '@/utils/constants'
-import { Logout } from '@/api/user'
-import useMessageBox from '@/hooks/useMessageBox'
-import useLoading from '@/hooks/useLoading'
-import { useUserSessionStore } from '@/stores/userSession'
-import { useLangStore } from '@/stores/lang'
 
 export const xmlHeader = '<?xml version="1.0" encoding="UTF-8" ?>'
 //公共错误上次处理时间
@@ -61,7 +54,7 @@ export const getXmlWrapData = (data: string, url = '', refresh = false) => {
     }
 }
 
-const handleUserErrorRedirectToLogin = (param: { title: string; message: string }) => {
+const handleUserErrorRedirectToLogin = (param: { message: string }) => {
     const { openMessageTipBox } = useMessageBox()
     const layoutStore = useLayoutStore()
     if (!layoutStore.isInitial) {
@@ -71,11 +64,9 @@ const handleUserErrorRedirectToLogin = (param: { title: string; message: string 
         if (!isErrorMessageBox) {
             isErrorMessageBox = true
             openMessageTipBox({
-                type: 'error',
-                title: param.title,
+                type: 'info',
                 message: param.message,
-                showCancelButton: false,
-            }).then(() => {
+            }).finally(() => {
                 isErrorMessageBox = false
                 Logout(true)
             })
@@ -114,8 +105,8 @@ class Request {
                     const xmlDoc = getXmlDoc(response.data)
                     if (xmlDoc) {
                         const xml = queryXml(xmlDoc)
-                        if (xml('/response/status').text() === ApiStatus.fail) {
-                            const errorCode = Number(queryXml(xmlDoc)('//response/errorCode').text())
+                        if (xml('//status').text() === ApiStatus.fail) {
+                            const errorCode = Number(queryXml(xmlDoc)('//errorCode').text())
                             if (checkCommonErrorSwitch && this.handelCommonError(errorCode)) {
                                 reject(errorCode)
                                 return
@@ -148,32 +139,28 @@ class Request {
             case ErrorCode.USER_ERROR_NO_USER:
             case ErrorCode.USER_ERROR_PWD_ERR:
                 handleUserErrorRedirectToLogin({
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR'),
                 })
                 break
             case ErrorCode.USER_ERROR_SERVER_NO_EXISTS:
                 handleUserErrorRedirectToLogin({
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_LOGIN_OVERTIME'),
                 })
                 break
             case ErrorCode.USER_ERROR_USER_LOCKED:
                 handleUserErrorRedirectToLogin({
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_LOGIN_FAIL_USER_LOCKED'),
                 })
                 break
             case ErrorCode.USER_ERROR_INVALID_PARAM:
                 handleUserErrorRedirectToLogin({
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_USER_ERROR_INVALID_PARAM'),
                 })
                 break
             case ErrorCode.USER_ERROR_FAIL:
                 //Session无效相关错误处理，2秒内不重复处理，防止多个API并发调用时，弹出多次会话超时提示
                 if (dayjs().valueOf() - commonErrorLastTime > 2000) {
-                    ElMessage.error(Translate(ErrorCodeMapping[errorCode]))
+                    ElMessage.error(Translate('IDCS_LOGIN_OVERTIME'))
                     Logout(true)
                     commonErrorLastTime = dayjs().valueOf()
                 }
@@ -182,7 +169,7 @@ class Request {
             case ErrorCode.USER_SESSION_NOTFOUND:
                 //Session无效相关错误处理，2秒内不重复处理，防止多个API并发调用时，弹出多次会话超时提示
                 if (dayjs().valueOf() - commonErrorLastTime > 2000) {
-                    ElMessage.error(Translate(ErrorCodeMapping[errorCode]))
+                    ElMessage.error(Translate('IDCS_LOGIN_OVERTIME'))
                     // Logout(true)
                     commonErrorLastTime = dayjs().valueOf()
                 }

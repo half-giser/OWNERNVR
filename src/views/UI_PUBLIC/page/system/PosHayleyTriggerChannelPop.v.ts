@@ -3,25 +3,32 @@
  * @Date: 2024-07-02 17:13:17
  * @Description: POS联动通道设置（Hayley）
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-03 15:24:15
+ * @LastEditTime: 2024-09-05 15:19:12
  */
 import { type SystemPosListChls } from '@/types/apiType/system'
 
 export default defineComponent({
     props: {
+        /**
+         * @property 最大取值
+         */
         max: {
             type: Number,
             default: 4294967295,
         },
+        /**
+         * @property 通道列表
+         */
         chls: {
             type: Array as PropType<SystemPosListChls[]>,
             required: true,
-            default: () => [],
         },
+        /**
+         * @property 已选通道
+         */
         linkChls: {
             type: Array as PropType<string[]>,
             required: true,
-            default: () => [],
         },
     },
     emits: {
@@ -60,7 +67,7 @@ export default defineComponent({
             const result = await queryNodeList(getXmlWrapData(sendXml))
 
             commLoadResponseHandler(result, ($) => {
-                chlList.value = $('/response/content/item').map((item) => {
+                chlList.value = $('//content/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
                         id: item.attr('id')!,
@@ -79,7 +86,6 @@ export default defineComponent({
                 await getData()
             }
             const selectedList = (prop.chls as SystemPosListChls[]).map((item) => item.id)
-            console.log(prop.linkChls, selectedList)
 
             // 需把源数据的通道从选中通道移除掉
             tableData.value = chlList.value
@@ -114,7 +120,6 @@ export default defineComponent({
             if (!isValid) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_POS_TILL_RANGE').formatForLang(1, prop.max),
                 })
                 return
@@ -126,7 +131,6 @@ export default defineComponent({
             if (!isNoSameTillNumber) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_POS_TILL_SAME_ERROR'),
                 })
                 return

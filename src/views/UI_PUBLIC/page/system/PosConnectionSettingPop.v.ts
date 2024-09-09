@@ -3,17 +3,16 @@
  * @Date: 2024-07-02 13:36:25
  * @Description: POS连接设置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-03 15:27:14
+ * @LastEditTime: 2024-09-05 15:05:11
  */
 import { type FormInstance, type FormRules } from 'element-plus'
-import BaseIpInput from '../../components/form/BaseIpInput.vue'
 import { SystemPosList, SystemPosConnectionForm } from '@/types/apiType/system'
 
 export default defineComponent({
-    components: {
-        BaseIpInput,
-    },
     props: {
+        /**
+         * @property POS配置数据
+         */
         data: {
             type: Object as PropType<SystemPosList>,
             default: () => new SystemPosList(),
@@ -97,6 +96,7 @@ export default defineComponent({
          * @description 打开弹窗时，初始化弹窗数据
          */
         const open = () => {
+            formRef.value?.clearValidate()
             formData.value.ip = prop.data.connectionSetting.posIp || '0.0.0.0'
             formData.value.switch = prop.data.connectionSetting.filterPostPortSwitch
             if (prop.data.connectionType === 'TCP-Listen') {
@@ -113,7 +113,6 @@ export default defineComponent({
             verify,
             close,
             rules,
-            BaseIpInput,
         }
     },
 })

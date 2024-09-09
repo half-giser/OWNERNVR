@@ -3,7 +3,7 @@
  * @Date: 2024-06-14 10:33:02
  * @Description: 用户与安全
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 20:40:35
+ * @LastEditTime: 2024-08-29 09:10:44
  */
 
 /**
@@ -16,22 +16,6 @@ export class UserAddForm {
     allowModifyPassword = true // 是否允许修改密码
     email = '' // 电子邮箱
     authGroup = '' // 权限组
-}
-
-/**
- * @description 鉴权弹窗表单
- */
-export class UserCheckAuthForm {
-    userName = ''
-    password = '' // 明文密码用于与插件的鉴权交互
-    hexHash = '' // 密文密码
-}
-
-/**
- * @description 加密密码弹窗表单
- */
-export class UserInputEncryptPwdForm {
-    password = ''
 }
 
 /**

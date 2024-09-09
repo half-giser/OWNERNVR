@@ -3,11 +3,10 @@
  * @Date: 2024-07-04 16:41:45
  * @Description: 磁盘模式
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-09 20:33:05
+ * @LastEditTime: 2024-09-05 11:58:29
  */
 import { DiskModeForm } from '@/types/apiType/disk'
-import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import { type UserCheckAuthForm } from '@/types/apiType/userAndSecurity'
+import BaseCheckAuthPop, { type UserCheckAuthForm } from '../../components/auth/BaseCheckAuthPop.vue'
 
 export default defineComponent({
     components: {
@@ -30,7 +29,6 @@ export default defineComponent({
         const changeDiskMode = () => {
             openMessageTipBox({
                 type: 'question',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_CHANGE_RAID_USE_TIP'),
             })
                 .then(() => {
@@ -63,10 +61,10 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 pageData.value.isAuthDialog = false
             } else {
-                const errorCode = Number($('/response/errorCode').text())
+                const errorCode = Number($('//errorCode').text())
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_PWD_ERR:
@@ -82,7 +80,6 @@ export default defineComponent({
                 if (errorInfo) {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: errorInfo,
                     })
                 }
@@ -103,7 +100,7 @@ export default defineComponent({
         const getData = async () => {
             const result = await queryDiskMode()
             const $ = queryXml(result)
-            formData.value.enable = $('/response/content/diskMode/isUseRaid').text().toBoolean()
+            formData.value.enable = $('//content/diskMode/isUseRaid').text().toBoolean()
         }
 
         onMounted(() => {

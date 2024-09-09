@@ -7,9 +7,6 @@ import { type ChannelInfoDto } from '@/types/apiType/channel'
 import WebsocketState from '@/utils/websocket/websocketState'
 import WebsocketUpload from '@/utils/websocket/websocketUpload'
 import { type UploadFile, type UploadRawFile, genFileId } from 'element-plus'
-import { OCX_XML_FileNetTransport, OCX_XML_OpenFileBrowser } from '@/utils/ocx/ocxCmd'
-import { OCX_XML_OpenFileBrowser_getpath } from '@/utils/ocx/ocxUtil'
-import { trim } from 'lodash'
 import { getRandomGUID } from '@/utils/websocket/websocketCmd'
 import type WebsocketPlugin from '@/utils/websocket/websocketPlugin'
 import { type XmlResult } from '@/utils/xmlParse'
@@ -144,9 +141,7 @@ export default defineComponent({
                     if (progress == '100') {
                         openMessageTipBox({
                             type: 'info',
-                            title: Translate('IDCS_INFO_TIP'),
                             message: Translate('IDCS_UPGRADE_IPC_NOTE'),
-                            showCancelButton: false,
                         })
                     }
                 }
@@ -175,17 +170,13 @@ export default defineComponent({
                 // 设备忙
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_DEVICE_BUSY'),
-                    showCancelButton: false,
                 })
             } else if (errorCode == '536871030') {
                 // 无磁盘
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_NO_DISK'),
-                    showCancelButton: false,
                 })
             } else {
                 // 提示错误图标
@@ -193,7 +184,7 @@ export default defineComponent({
                     ele.upgradeStatus = 'error'
                 })
             }
-            destroy()
+            destory()
         }
 
         const handleChange = (uploadFile: UploadFile) => {
@@ -212,7 +203,7 @@ export default defineComponent({
         const handleOcxBtnClick = () => {
             const sendXML = OCX_XML_OpenFileBrowser('OPEN_FILE')
             Plugin.AsynQueryInfo(Plugin.GetVideoPlugin() as WebsocketPlugin, sendXML, (result: string) => {
-                const path = trim(OCX_XML_OpenFileBrowser_getpath(result))
+                const path = OCX_XML_OpenFileBrowser_getpath(result).trim()
                 if (path) {
                     fileName.value = path
                     btnOKDisabled.value = false

@@ -3,7 +3,7 @@
  * @Date: 2024-07-11 08:56:08
  * @Description: UPnP配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 16:44:02
+ * @LastEditTime: 2024-09-05 16:07:10
  */
 import { NetUPnPForm, type NetUPnPPortDto } from '@/types/apiType/net'
 
@@ -50,10 +50,10 @@ export default defineComponent({
         const getData = async () => {
             const result = await queryUPnPCfg()
             const $ = queryXml(result)
-            formData.value.switch = $('/response/content/switch').text().toBoolean()
-            formData.value.mappingType = $('/response/content/mappingType').text()
+            formData.value.switch = $('//content/switch').text().toBoolean()
+            formData.value.mappingType = $('//content/mappingType').text()
 
-            tableData.value = $('/response/content/ports/item').map((item) => {
+            tableData.value = $('//content/ports/item').map((item) => {
                 const $item = queryXml(item.element)
                 return {
                     portType: $item('portType').text(),
@@ -71,7 +71,7 @@ export default defineComponent({
         const getWirelessNetworkData = async () => {
             const result = await queryWirelessNetworkCfg()
             const $ = queryXml(result)
-            pageData.value.wirelessSwitch = $('/response/content/switch').text().toBoolean()
+            pageData.value.wirelessSwitch = $('//content/switch').text().toBoolean()
         }
 
         /**
@@ -80,7 +80,7 @@ export default defineComponent({
         const getPPPoEData = async () => {
             const result = await queryPPPoECfg()
             const $ = queryXml(result)
-            pageData.value.pppoeSwitch = $('/response/content/switch').text().toBoolean()
+            pageData.value.pppoeSwitch = $('//content/switch').text().toBoolean()
         }
 
         /**
@@ -139,7 +139,6 @@ export default defineComponent({
             if (isHasSamePort) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: isHasSamePort,
                 })
                 return

@@ -164,7 +164,7 @@
                         >
                             <BaseIpInput
                                 v-show="scope.row.addrType == 'ip'"
-                                v-model:value="scope.row.ip"
+                                v-model="scope.row.ip"
                                 class="ipInput"
                                 @change="cellChange($event, scope.$index, scope.row, 'ip')"
                             />
@@ -183,9 +183,12 @@
                 width="100px"
             >
                 <template #default="scope">
-                    <el-input
+                    <el-input-number
                         v-model="scope.row.port"
-                        v-numericalRange:[scope.row].port="[10, 65535]"
+                        :min="10"
+                        :max="65535"
+                        value-on-clear="min"
+                        :controls="false"
                         :disabled="scope.row.portDisabled"
                         size="small"
                         @change="cellChange($event, scope.$index, scope.row, 'port')"
@@ -357,33 +360,33 @@
     <ChannelAddActivateIPCPop
         v-model="activateIPCVisable"
         :activate-ipc-data="activateIpcData"
-        :close="closeActivateIPCPop"
-    ></ChannelAddActivateIPCPop>
+        @close="closeActivateIPCPop"
+    />
     <ChannelAddSetDefaultPwdPop
         v-model="setDefaultPwdPopVisiable"
-        :close="closeSetDefaultPwdPop"
+        @close="closeSetDefaultPwdPop"
         @change="handleUpdateMapping"
-    ></ChannelAddSetDefaultPwdPop>
+    />
     <ChannelAddEditIPCIpPop
         v-model="editIPCIpPopVisiable"
-        :close="closeEditIPCIpPop"
         :edit-item="quickAddEditRowData"
         :mapping="mapping"
-    ></ChannelAddEditIPCIpPop>
+        @close="closeEditIPCIpPop"
+    />
     <ChannelAddToAddRecorderPop
         v-model="toAddRecorderPopVisiable"
-        :close="closeToAddRecorderPopVisiable"
         :edit-item="recoderEditItem"
         :mapping="mapping"
         :chl-count-limit="chlCountLimit"
         :face-match-limit-max-chl-num="faceMatchLimitMaxChlNum"
-    ></ChannelAddToAddRecorderPop>
+        @close="closeToAddRecorderPopVisiable"
+    />
     <ChannelAddSetProtocolPop
         v-model="setProtocolPopVisiable"
         :manufacturer-list="nameList"
-        :close="closeSetProtocolPop"
-    ></ChannelAddSetProtocolPop>
-    <ChannelAddMultiChlIPCAdd ref="multiChlIPCAddRef"></ChannelAddMultiChlIPCAdd>
+        @close="closeSetProtocolPop"
+    />
+    <ChannelAddMultiChlIPCAdd ref="multiChlIPCAddRef" />
 </template>
 
 <script lang="ts" src="./ChannelAdd.v.ts"></script>

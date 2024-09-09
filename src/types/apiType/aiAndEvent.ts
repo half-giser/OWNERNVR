@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-08-10 12:08:57
  * @Description: AI/事件
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-13 15:52:19
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-08-28 11:56:00
  */
 const { Translate } = useLangStore()
 
@@ -63,4 +63,327 @@ export class buzzerForm {
 export class pushForm {
     chkEnable = false // 是否启用
     pushSchedule = ''
+}
+
+// 事件通知——闪灯
+export class whiteLightInfo {
+    id = ''
+    name = ''
+    enable = ''
+    durationTime: number | null = null
+    frequencyType = ''
+    enableDisable = true
+    rowDisable = true
+    durationTimeDisable = false
+    frequencyTypeDisable = false
+    status = '' //行状态: loading, success, error
+}
+
+// 事件通知——报警类型
+export class AlarmTypeInfo {
+    id = ''
+    value = ''
+}
+
+// 移动侦测、前端掉线、视频丢失的通用表格数据类型
+export class MotionEventConfig {
+    id = ''
+    addType = ''
+    chlType = ''
+    poeIndex = ''
+    productModel = {
+        value: '',
+        factoryName: '',
+    }
+    status = '' //行状态: loading, success, error
+    name = ''
+    schedule = {
+        value: '',
+        label: '',
+    }
+    record = {
+        switch: false,
+        chls: [] as { value: string; label: string }[],
+    }
+    recordList = [] as string[]
+    snap = {
+        switch: false,
+        chls: [] as { value: string; label: string }[],
+    }
+    snapList = [] as string[]
+    sysAudio = ''
+    msgPush = ''
+    ftpSnap = '' //抓图到FTP，暂时无用
+    alarmOut = {
+        switch: false,
+        chls: [] as { value: string; label: string }[],
+    }
+    alarmOutList = [] as string[]
+    preset = {
+        switch: false,
+        presets: [] as { index: string; name: string; chl: { value: string; label: string } }[],
+    }
+    beeper = ''
+    videoPopup = ''
+    videoPopupInfo = { switch: false, chl: { value: '', label: '' } as { value: string; label: string } }
+    videoPopupList = [] as { value: string; label: string }[]
+    msgBoxPopup = ''
+    email = ''
+    oldSchedule = {
+        value: '',
+        label: '',
+    }
+
+    rowDisable = true
+}
+
+export class ipcAudioForm {
+    ipcRadio = 'audioAlarm' // 摄像机选择项——语音播报/声音设备
+
+    // 语音播报
+    audioChl = '' // 通道
+    audioChecked = false // 声音是否启用
+    voice = '' // 语音
+    number = '' // 次数
+    volume = '' // 音量
+    language = '' // 语言
+
+    // 声音设备
+    deviceChl = '' // 通道
+    deviceEnable = false // 声音设备
+    deviceAudioInput = '' // 音频输入设备
+    micOrLinVolume = 0 // 音频输入音量
+    loudSpeaker = '' // 扬声器（内置）
+    deviceAudioOutput = '' // LOUT（外置）
+    outputVolume = 0 // 音频输出音量
+    audioEncode = '' // 音频输入编码
+}
+
+export class AudioAlarmOut {
+    successFlag = false
+    editFlag = false
+    id = ''
+    name = ''
+    audioTypeList = [] as SelectOption<string, string>[]
+    customeAudioNum = 0
+    langArr = [] as SelectOption<string, string>[]
+    audioSwitch = ''
+    audioType = ''
+    alarmTimes = ''
+    audioVolume = ''
+    languageType = ''
+    audioFormat = ''
+    sampleRate = ''
+    audioChannel = ''
+    audioDepth = ''
+    audioFileLimitSize = ''
+}
+
+export class AudioDevice {
+    successFlag = false
+    editFlag = false
+    id = ''
+    name = ''
+    audioEncodeType = [] as SelectOption<string, string>[]
+    audioInputType = [] as SelectOption<string, string>[]
+    audioOutputType = [] as SelectOption<string, string>[]
+    audioInSwitch = ''
+    audioEncode = ''
+    audioInput = ''
+    loudSpeaker = ''
+    audioOutput = ''
+    micInVolume = 0
+    linInVolume = 0
+    audioOutVolume = 0
+    micMaxValue = 100
+    linMaxValue = 100
+    audioOutMaxValue = 100
+    micOrLinEnabled = false
+    audioOutEnabled = false
+}
+
+export class LocalTableRow {
+    id = ''
+    index = ''
+    name = ''
+    originalName = ''
+    fileValid = ''
+}
+
+export class ExceptionAlarmRow {
+    id = ''
+    eventType = ''
+    sysAudio = ''
+    msgPush = ''
+    alarmOut = {
+        switch: false,
+        alarmOuts: [] as { value: string; label: string }[],
+    }
+    alarmOutList = [] as string[]
+    beeper = ''
+    msgBoxPopup = ''
+    email = 'false'
+    rowDisable = true
+    emailDisable = true
+}
+
+export class SystemDisarm {
+    id = ''
+    chlName = ''
+    // 已选择的撤防联动项列表
+    disarmItemsList = [] as { id: string; value: string }[]
+    // 可选择的撤防联动项列表
+    disarmItems = [] as { id: string; value: string }[]
+    disarmItemsStr = ''
+    nodeType = ''
+}
+
+// 传感器页面——通道列表
+export class ChlList {
+    id = ''
+    name = ''
+}
+
+// 传感器的table项
+export class SensorEvent {
+    id = ''
+    status = '' //行状态: loading, success, error
+    alarmInType = ''
+    nodeIndex = ''
+    disabled = true
+    isEditable = false
+    serialNum = '' // 序号
+    name = '' // 名称
+    originalName = ''
+    // 类型
+    type = ''
+    // 启用
+    switch = ''
+    holdTimeNote = ''
+    // 持续时间
+    holdTime = ''
+    // 排程
+    schedule = {
+        value: '',
+        label: '',
+    }
+    // 打开排程管理时将原本的排程填入
+    oldSchedule = ''
+    // record录像
+    sysRec = {
+        switch: false,
+        chls: [] as SelectOption<string, string>[],
+    }
+    recordList = [] as string[]
+    // audio声音
+    sysAudio = ''
+    // snap抓图
+    sysSnap = {
+        switch: false,
+        chls: [] as SelectOption<string, string>[],
+    }
+    snapList = [] as string[]
+    // 报警输出
+    alarmOut = {
+        switch: false,
+        alarmOuts: [] as SelectOption<string, string>[],
+    }
+    alarmOutList = [] as string[]
+    // 视频弹出
+    popVideo = {
+        switch: '',
+        chl: {
+            id: '',
+            innerText: '',
+        },
+    }
+    // 预置点名称
+    preset = {
+        switch: false,
+        presets: [] as PresetItem[],
+    }
+    msgPushSwitch = '' // 推送
+    buzzerSwitch = '' // 蜂鸣器
+    emailSwitch = '' // email
+    popMsgSwitch = '' // 消息框弹出
+}
+
+export class PresetItem {
+    index = ''
+    name = ''
+    chl = {
+        value: '',
+        label: '',
+    }
+}
+
+export class PresetList {
+    id = ''
+    name = ''
+    chlType = ''
+    preset = {
+        value: '',
+        label: '',
+    }
+    presetList = [] as SelectOption<string, string>[]
+}
+
+export class CombinedAlarm {
+    id = ''
+    name = ''
+    status = '' //行状态: loading, success, error
+    combinedAlarm = {
+        switch: false,
+        item: [] as CombinedAlarmItem[],
+    }
+    sysRec = {
+        switch: false,
+        chls: [] as SelectOption<string, string>[],
+    }
+    recordList = [] as string[]
+    sysSnap = {
+        switch: false,
+        chls: [] as SelectOption<string, string>[],
+    }
+    snapList = [] as string[]
+    alarmOut = {
+        switch: false,
+        alarmOuts: [] as SelectOption<string, string>[],
+    }
+    alarmOutList = [] as string[]
+    popVideo = {
+        switch: '',
+        chl: {
+            value: '',
+            label: '',
+        },
+    }
+    preset = {
+        switch: false,
+        presets: [] as PresetItem[],
+    }
+    sysAudio = ''
+    msgPush = ''
+    beeper = ''
+    email = ''
+    msgBoxPopup = ''
+    videoPopup = ''
+}
+
+export class CombinedAlarmItem {
+    alarmSourceType = ''
+    alarmSourceEntity = {
+        value: '',
+        label: '',
+    }
+}
+
+export class faceMatchObj {
+    rule = ''
+    duration = 5
+    delay = 5
+    groupId = [] as string[]
+    noShowDisplay = 'false'
+    displayText = ''
+    faceDataBase = [] as string[]
 }

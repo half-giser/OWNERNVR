@@ -3,16 +3,12 @@
  * @Date: 2024-06-27 16:34:38
  * @Description: 系统升级-备份弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-27 19:56:21
+ * @LastEditTime: 2024-09-05 15:29:57
  */
 import type { FormInstance, FormRules } from 'element-plus'
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
 import { SystemUpgradeBackUpForm } from '@/types/apiType/system'
 
 export default defineComponent({
-    components: {
-        BaseImgSprite,
-    },
     emits: {
         confirm(filePath: string) {
             return filePath.length
@@ -69,6 +65,7 @@ export default defineComponent({
          * @description 打开弹窗时清空表单
          */
         const opened = () => {
+            formRef.value?.clearValidate()
             formData.value = new SystemUpgradeBackUpForm()
             formRef.value?.clearValidate()
         }
@@ -80,7 +77,6 @@ export default defineComponent({
             rules,
             verify,
             opened,
-            BaseImgSprite,
         }
     },
 })

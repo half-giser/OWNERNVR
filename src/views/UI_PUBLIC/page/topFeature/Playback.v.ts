@@ -3,9 +3,8 @@
  * @Date: 2024-08-05 16:00:46
  * @Description: 回放
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 15:31:50
+ * @LastEditTime: 2024-09-04 18:19:25
  */
-import BaseNotification from '../../components/BaseNotification.vue'
 import PlaybackChannelPanel from '../playback/PlaybackChannelPanel.vue'
 import PlaybackEventPanel from '../playback/PlaybackEventPanel.vue'
 import PlaybackAsidePanel from '../playback/PlaybackAsidePanel.vue'
@@ -14,11 +13,11 @@ import PlaybackScreenPanel from '../playback/PlaybackScreenPanel.vue'
 import PlaybackFisheyePanel, { type FishEyePanelExpose } from '../playback/PlaybackFisheyePanel.vue'
 import { type PlaybackEventList, type PlaybackRecList, type PlaybackChlList, type PlaybackBackUpRecList, type PlaybackRecLogList } from '@/types/apiType/playback'
 import { LiveSharedWinData } from '@/types/apiType/live'
-import PlaybackBackUpPanel, { type BackUpPanelExpose } from '../playback/PlaybackBackUpPanel.vue'
+import PlaybackBackUpPanel from '../playback/PlaybackBackUpPanel.vue'
 import PlaybackRecLogPanel from '../playback/PlaybackRecLogPanel.vue'
-import PlaybackBackUpPop from '../playback/PlaybackBackUpPop.vue'
-import PlaybackBackUpLocalPop from '../playback/PlaybackBackUpLocalPop.vue'
-import { type TVTPlayerWinDataListItem, type TVTPlayerPosInfoItem } from '@/utils/wasmPlayer/tvtPlayer'
+import BackupPop from '../searchAndBackup/BackupPop.vue'
+import BackupLocalPop from '../searchAndBackup/BackupLocalPop.vue'
+import { type TVTPlayerWinDataListItem } from '@/utils/wasmPlayer/tvtPlayer'
 import dayjs from 'dayjs'
 import { type XMLQuery } from '@/utils/xmlParse'
 
@@ -72,120 +71,6 @@ const useCalendar = () => {
         current,
         highlight,
     }
-}
-
-/**
- * @description 是否显示POS信息
- */
-const usePos = (mode: Ref<string>) => {
-    const posInfo: Record<string, TVTPlayerPosInfoItem> = {}
-
-    /**
-     * @description 获取POS数据列表
-     */
-    const getData = async () => {
-        const result = await queryPosList()
-        const $ = queryXml(result)
-        if ($('/response/status').text() !== 'success') return
-        const $systemX = $('/response/content/itemType/coordinateSystem/X')
-        const $systemY = $('/response/content/itemType/coordinateSystem/Y')
-        const width = Number($systemX.attr('max')) - Number($systemX.attr('min'))
-        const height = Number($systemY.attr('max')) - Number($systemY.attr('min'))
-
-        $('/response/channel/chl').forEach((ele) => {
-            const chlId = ele.attr('id') as string
-            const $ele = queryXml(ele.element)
-            const previewDisplay = $ele('previewDisplay').text() === 'true'
-            const printMode = $ele('printMode').text()
-            posInfo[chlId] = {
-                previewDisplay: previewDisplay, // 现场预览是否显示pos
-                printMode: printMode as 'page' | 'scroll', // pos显示模式：page翻页/scroll滚屏
-                displayPosition: {
-                    // pos显示区域
-                    x: 0,
-                    y: 0,
-                    width: width,
-                    height: height,
-                },
-                timeout: 10, // pos超时隐藏时间，默认10秒
-            }
-        })
-        $('/response/content/item').forEach((ele) => {
-            const $ele = queryXml(ele.element)
-            const $position = `param/displaySetting/displayPosition/`
-            const $triggerChls = $ele('trigger/triggerChl/chls/item')
-            const timeout = $ele('param/displaySetting/common/timeOut').text()
-            if ($triggerChls.length === 0) return
-            const displayPosition = {
-                x: Number($ele(`${$position}X`).text()),
-                y: Number($ele(`${$position}Y`).text()),
-                width: Number($ele(`${$position}width`).text()),
-                height: Number($ele(`${$position}height`).text()),
-            }
-            $triggerChls.forEach((item) => {
-                const chlId = item.attr('id')!
-                if (posInfo[chlId]) {
-                    posInfo[chlId].displayPosition = displayPosition
-                    posInfo[chlId].timeout = Number(timeout)
-                }
-            })
-        })
-    }
-
-    /**
-     * @description 查询通道的POS信息
-     * @param {string} chlId
-     */
-    const getPosInfo = (chlId: string) => {
-        if (posInfo[chlId]) {
-            return posInfo[chlId]
-        }
-        return {
-            previewDisplay: false,
-            printMode: 'page',
-            timeout: 10,
-            displayPosition: {
-                x: 0,
-                y: 0,
-                width: 0,
-                height: 0,
-            },
-        }
-    }
-
-    /**
-     * @description 生成OCX命令
-     * @param {Boolean} bool
-     * @param {Array} chlList
-     * @param {String} chlId
-     * @param {Number} winIndex
-     */
-    const getCmd = (bool: boolean, chlId: string, winIndex: number) => {
-        const pos = getPosInfo(chlId)
-        if (bool) {
-            const area = pos.displayPosition
-            return OCX_XML_SetPOSDisplayArea(bool, winIndex, area.x, area.y, area.width, area.height, pos.printMode)
-        } else {
-            return OCX_XML_SetPOSDisplayArea(false, winIndex, 0, 0, 0, 0)
-        }
-    }
-
-    const stopWatch = watch(
-        mode,
-        (newVal) => {
-            if (newVal === 'ocx') {
-                getData()
-                stopWatch()
-            } else if (newVal === 'h5') {
-                stopWatch()
-            }
-        },
-        {
-            immediate: true,
-        },
-    )
-
-    return getCmd
 }
 
 /**
@@ -255,7 +140,6 @@ const useOCXCacheWinMap = (maxWin: number) => {
 
 export default defineComponent({
     components: {
-        BaseNotification,
         PlaybackChannelPanel,
         PlaybackEventPanel,
         PlaybackAsidePanel,
@@ -263,8 +147,8 @@ export default defineComponent({
         PlaybackScreenPanel,
         PlaybackBackUpPanel,
         PlaybackRecLogPanel,
-        PlaybackBackUpPop,
-        PlaybackBackUpLocalPop,
+        BackupPop,
+        BackupLocalPop,
         PlaybackFisheyePanel,
     },
     setup() {
@@ -276,7 +160,6 @@ export default defineComponent({
         const playerRef = ref<PlayerInstance>()
         const timelineRef = ref<TimelineInstance>()
         const fisheyeRef = ref<FishEyePanelExpose>()
-        const backUpRef = ref<BackUpPanelExpose>()
 
         const ocxCacheWinMap = useOCXCacheWinMap(systemCaps.playbackMaxWin)
 
@@ -370,8 +253,8 @@ export default defineComponent({
             `
             const result = await queryRecSection(sendXml)
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
-                pageData.value.recTimeList = $('/response/content/item').map((item) => {
+            if ($('//status').text() === 'success') {
+                pageData.value.recTimeList = $('//content/item').map((item) => {
                     const index = Number(item.text())
                     const utcTime = startTime.add(index, 'day')
                     return utcTime.valueOf()
@@ -392,10 +275,9 @@ export default defineComponent({
             return playerRef.value?.ready || false
         })
 
-        const dateTime = useDateTime()
         const calendar = useCalendar()
         const userAuth = useUserChlAuth()
-        const pos = usePos(mode)
+        const pos = usePosInfo(mode)
 
         // 鱼眼视图是否显示
         const isFishEyePanel = computed(() => {
@@ -1450,10 +1332,10 @@ export default defineComponent({
          * @description 备份，打开备份表单
          */
         const backUp = () => {
-            if (backUpRef.value?.isExeed(pageData.value.recLogList.length)) {
+            if (plugin.BackUpTask.isExeed(pageData.value.recLogList.length)) {
                 openMessageTipBox({
                     type: 'info',
-                    message: Translate('IDCS_BACKUP_TASK_NUM_LIMIT'),
+                    message: Translate('IDCS_BACKUP_TASK_NUM_LIMIT').formatForLang(plugin.BackUpTask.limit),
                 })
                 return
             }
@@ -1504,7 +1386,7 @@ export default defineComponent({
                 if (mode.value === 'h5') {
                     pageData.value.isLocalBackUpPop = true
                 } else if (mode.value === 'ocx') {
-                    backUpRef.value?.addLocalBackUpList(pageData.value.backupRecList, path, format)
+                    plugin.BackUpTask.addTask(pageData.value.backupRecList, path, format)
                     pageData.value.isBackUpList = true
                 }
                 pageData.value.isBackUpPop = false
@@ -1609,10 +1491,6 @@ export default defineComponent({
                 }
             }
         }
-
-        onMounted(() => {
-            dateTime.getTimeConfig()
-        })
 
         onBeforeUnmount(() => {
             if (plugin?.IsPluginAvailable() && mode.value === 'ocx' && ready.value) {
@@ -1752,8 +1630,6 @@ export default defineComponent({
             handlePlayerReady,
             playerRef,
             timelineRef,
-            backUpRef,
-            dateTime,
             calendar,
             snap,
             closeImg,
@@ -1801,7 +1677,6 @@ export default defineComponent({
             updateTimeline,
             changeFishEyeMode,
             isFishEyePanel,
-            BaseNotification,
             PlaybackChannelPanel,
             PlaybackEventPanel,
             PlaybackAsidePanel,
@@ -1809,8 +1684,8 @@ export default defineComponent({
             PlaybackScreenPanel,
             PlaybackBackUpPanel,
             PlaybackRecLogPanel,
-            PlaybackBackUpPop,
-            PlaybackBackUpLocalPop,
+            BackupPop,
+            BackupLocalPop,
             PlaybackFisheyePanel,
         }
     },

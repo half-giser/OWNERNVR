@@ -3,31 +3,34 @@
  * @Date: 2024-07-03 15:01:51
  * @Description: POS显示设置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-05 18:25:11
+ * @LastEditTime: 2024-09-05 15:09:05
  */
-import { cloneDeep } from 'lodash'
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
-import BaseVideoPlayer from '../../components/player/BaseVideoPlayer.vue'
-import { SystemPosDisplaySetting, SystemPosDisplayPosition, type SystemPosListStartEndChar, SystemPostDisplaySet, type SystemPostColorData } from '@/types/apiType/system'
+import { cloneDeep } from 'lodash-es'
+import { type SystemPosDisplaySetting, SystemPosDisplayPosition, type SystemPosListStartEndChar, type SystemPostDisplaySet, type SystemPostColorData } from '@/types/apiType/system'
 import CanvasPos from '@/utils/canvas/canvasPos'
 
 export default defineComponent({
-    components: {
-        BaseImgSprite,
-        BaseVideoPlayer,
-    },
     props: {
+        /**
+         * @property POS显示设置数据
+         */
         data: {
             type: Object as PropType<SystemPosDisplaySetting>,
-            default: () => new SystemPosDisplaySetting(),
+            required: true,
         },
+        /**
+         * @property Display Set设置数据
+         */
         limit: {
             type: Object as PropType<SystemPostDisplaySet>,
-            default: () => new SystemPostDisplaySet(),
+            required: true,
         },
+        /**
+         * @property 颜色设置数据
+         */
         colorData: {
             type: Array as PropType<SystemPostColorData[]>,
-            default: () => [],
+            required: true,
         },
     },
     emits: {
@@ -50,11 +53,11 @@ export default defineComponent({
             // 打印方式选项
             printOption: [
                 {
-                    name: Translate('IDCS_TURN_PAGE'),
+                    label: Translate('IDCS_TURN_PAGE'),
                     value: 'page',
                 },
                 {
-                    name: Translate('IDCS_SCROLL'),
+                    label: Translate('IDCS_SCROLL'),
                     value: 'scroll',
                 },
             ],
@@ -276,7 +279,6 @@ export default defineComponent({
                 if (drawingPosition.value.width < prop.limit.wmin || drawingPosition.value.height < prop.limit.hmin) {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_DISPLAY_SIZE_INVALID'),
                     }).finally(() => {
                         drawingPosition.value = { ...displayPosition.value }
@@ -380,7 +382,6 @@ export default defineComponent({
             if (!matchStartEndChar) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_START_END_NOT_MATCH'),
                 })
                 return
@@ -491,8 +492,6 @@ export default defineComponent({
             playerRef,
             div,
             toggleOCX,
-            BaseImgSprite,
-            BaseVideoPlayer,
         }
     },
 })

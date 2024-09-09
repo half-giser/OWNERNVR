@@ -1,6 +1,4 @@
-import { editBasicCfg } from '@/api/system'
 import { type ChlSignal } from '@/types/apiType/channel'
-import { ArrowDown } from '@element-plus/icons-vue'
 
 /*
  * @Author: linguifan linguifan@tvt.net.cn
@@ -8,9 +6,6 @@ import { ArrowDown } from '@element-plus/icons-vue'
  * @Description:
  */
 export default defineComponent({
-    components: {
-        ArrowDown,
-    },
     setup() {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
@@ -42,9 +37,7 @@ export default defineComponent({
                 if ((switchIpChlRange[0] && rowData.id < switchIpChlRange[0] - 1) || (switchIpChlRange[1] && rowData.id > switchIpChlRange[1] - 1)) {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_ANALOG_SWITCH_RANGE_ERROR').formatForLang(switchIpChlRange[0], switchIpChlRange[1]),
-                        showCancelButton: false,
                     })
                     rowData.analogIp = 'Analog'
                     return
@@ -52,9 +45,7 @@ export default defineComponent({
                 if (count >= switchableIpChlMaxCount) {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_IP_CAN_NOT_ALL_SWITCH').formatForLang(switchableIpChlMaxCount),
-                        showCancelButton: false,
                     })
                     rowData.analogIp = 'Analog'
                     return
@@ -68,9 +59,7 @@ export default defineComponent({
                 if (chls.includes(Number(name))) {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_SIGNAL_IP_TO_ANALOG_TIP'),
-                        showCancelButton: false,
                     })
                     rowData.analogIp = 'IP'
                     return
@@ -103,9 +92,7 @@ export default defineComponent({
                 })
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_IP_CAN_NOT_ALL_SWITCH').formatForLang(switchableIpChlMaxCount),
-                    showCancelButton: false,
                 })
                 hasChangeIP = true
             }
@@ -115,17 +102,13 @@ export default defineComponent({
                 })
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_ANALOG_SWITCH_RANGE_ERROR').formatForLang(switchIpChlRange[0], switchIpChlRange[1]),
-                    showCancelButton: false,
                 })
             }
             if (guidAnalog && val == 'Analog') {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_SIGNAL_IP_TO_ANALOG_TIP'),
-                    showCancelButton: false,
                 })
                 // todo 老代码意义不明
                 // tableData.value.forEach((ele) => (ele.analogIp = 'IP'))
@@ -180,12 +163,12 @@ export default defineComponent({
 
         const getChlListData = () => {
             openLoading(LoadingTarget.FullScreen)
-            getChlList({}).then((res: any) => {
+            getChlList({}).then((res) => {
                 closeLoading(LoadingTarget.FullScreen)
                 commLoadResponseHandler(res, ($) => {
-                    $('//content/item').forEach((ele: any) => {
+                    $('//content/item').forEach((ele) => {
                         const eleXml = queryXml(ele.element)
-                        if (eleXml('chlType').text() == 'digital') chls.push(parseInt(ele.attr('id').slice(7, 9), 16))
+                        if (eleXml('chlType').text() == 'digital') chls.push(parseInt(ele.attr('id')!.slice(7, 9), 16))
                     })
                 })
             })
@@ -193,24 +176,24 @@ export default defineComponent({
 
         const getSystemCaps = (callback?: Function) => {
             openLoading(LoadingTarget.FullScreen)
-            querySystemCaps(getXmlWrapData('')).then((res: any) => {
+            querySystemCaps(getXmlWrapData('')).then((res) => {
                 closeLoading(LoadingTarget.FullScreen)
-                res = queryXml(res)
-                chlSupSignalType = res('//content/chlSupSignalType').text().split(':')
+                const $ = queryXml(res)
+                chlSupSignalType = $('//content/chlSupSignalType').text().split(':')
                 ipChlMaxCount.value = cababilityStore.ipChlMaxCount
                 ipChlMaxCountOriginal = cababilityStore.ipChlMaxCount
                 switchIpChlRange = []
-                switchIpChlRange.push(Number(res('content/switchIpChlRange/start').text()))
-                switchIpChlRange.push(Number(res('content/switchIpChlRange/end').text()))
+                switchIpChlRange.push(Number($('content/switchIpChlRange/start').text()))
+                switchIpChlRange.push(Number($('content/switchIpChlRange/end').text()))
             })
             if (callback) callback()
         }
 
         const getData = () => {
             openLoading(LoadingTarget.FullScreen)
-            queryBasicCfg(getXmlWrapData('')).then((res: any) => {
+            queryBasicCfg(getXmlWrapData('')).then((res) => {
                 closeLoading(LoadingTarget.FullScreen)
-                res = queryXml(res)
+                const $ = queryXml(res)
                 chlSupSignalTypeList.value = []
                 let supportCvi = false
                 chlSupSignalType.forEach((ele) => {
@@ -229,12 +212,12 @@ export default defineComponent({
                         text: signalTrasMap['CVI'],
                     })
 
-                if (res('status').text() == 'success') {
+                if ($('status').text() == 'success') {
                     const analogChlCount = cababilityStore.analogChlCount
-                    const channelSignalTypeList = res('content/channelSignalType').text().split(':')
-                    const defaultChannelSignalType = res('content/defaultChannelSignalType').text().split(':')
-                    const channelSignalLiteList = res('content/channelSignalLite').text().split(':')
-                    if (res('content/channelSignalLite').text()) supportChannelSignalLite = true
+                    const channelSignalTypeList = $('content/channelSignalType').text().split(':')
+                    const defaultChannelSignalType = $('content/defaultChannelSignalType').text().split(':')
+                    const channelSignalLiteList = $('content/channelSignalLite').text().split(':')
+                    if ($('content/channelSignalLite').text()) supportChannelSignalLite = true
 
                     tableData.value = Array(analogChlCount)
                         .fill(null)
@@ -280,7 +263,6 @@ export default defineComponent({
             if (changeAnalogIp) {
                 openMessageTipBox({
                     type: 'question',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_SIGNAL_SWITCH_AFTER_REBOOT'),
                 })
                     .then(() => {
@@ -300,19 +282,19 @@ export default defineComponent({
                 channelSignalTypeList.push(ele.signal)
                 channelSignalLiteList.push(ele.lite)
             })
-            const data = `
+            const data = rawXml`
                 <content>
                     <channelSignalType>${channelSignalTypeList.join(':')}</channelSignalType>
                     ${supportChannelSignalLite ? '<channelSignalLite>' + channelSignalLiteList.join(':') + '</channelSignalLite>' : ''}
                 </content>`
             console.log(data)
-            return
+            // return
 
-            openLoading(LoadingTarget.FullScreen)
-            editBasicCfg(getXmlWrapData(data)).then(() => {
-                closeLoading(LoadingTarget.FullScreen)
-                btnOkDisabled.value = true
-            })
+            // openLoading(LoadingTarget.FullScreen)
+            // editBasicCfg(getXmlWrapData(data)).then(() => {
+            //     closeLoading(LoadingTarget.FullScreen)
+            //     btnOkDisabled.value = true
+            // })
         }
 
         const initData = () => {

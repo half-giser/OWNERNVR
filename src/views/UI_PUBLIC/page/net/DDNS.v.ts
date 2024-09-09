@@ -3,12 +3,10 @@
  * @Date: 2024-07-10 09:13:17
  * @Description: DDNS
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 16:22:03
+ * @LastEditTime: 2024-09-05 15:39:35
  */
 import { NetDDNSForm, NetDDNSServerTypeList } from '@/types/apiType/net'
 import { type FormInstance, type FormRules } from 'element-plus'
-import { formatInputUserName } from '@/utils/tools'
-import { nameByteMaxLen } from '@/utils/constants'
 
 export default defineComponent({
     setup() {
@@ -110,7 +108,7 @@ export default defineComponent({
             const result = await queryNetCfgV2()
             const $ = queryXml(result)
 
-            const find = $('response/content/nicConfigs/item').find((item) => {
+            const find = $('//content/nicConfigs/item').find((item) => {
                 return item.attr('id') === 'eth0'
             })
             if (find) {
@@ -139,15 +137,15 @@ export default defineComponent({
         const getData = async () => {
             const result = await queryDDNSCfg()
             commLoadResponseHandler(result, ($) => {
-                formData.value.serverType = $('/response/content/serverType').text()
-                formData.value.serverAddr = $('/response/content/serverAddr').text()
-                formData.value.userName = $('/response/content/userName').text()
-                formData.value.password = $('/response/content/password').text()
-                formData.value.domainName = $('/response/content/domainName').text()
-                formData.value.heartbeatTime = Number($('/response/content/heartbeatTime').text()) || null
-                formData.value.switch = $('/response/content/switch').text().toBoolean()
+                formData.value.serverType = $('//content/serverType').text()
+                formData.value.serverAddr = $('//content/serverAddr').text()
+                formData.value.userName = $('//content/userName').text()
+                formData.value.password = $('//content/password').text()
+                formData.value.domainName = $('//content/domainName').text()
+                formData.value.heartbeatTime = Number($('//content/heartbeatTime').text()) || undefined
+                formData.value.switch = $('//content/switch').text().toBoolean()
 
-                pageData.value.serverTypeOptions = $('/response/types/ddnsServerType/enum').map((item) => {
+                pageData.value.serverTypeOptions = $('//types/ddnsServerType/enum').map((item) => {
                     const serverType = item.attr('display') || item.text()
                     const serverTypeValue = item.text()
                     const isSelected = serverTypeValue === formData.value.serverType
@@ -189,12 +187,12 @@ export default defineComponent({
                         userName: isSelected ? formData.value.userName : '',
                         password: isSelected ? formData.value.password : '',
                         domainName: isSelected ? formData.value.domainName : '',
-                        heartbeatTime: isSelected ? formData.value.heartbeatTime : null,
+                        heartbeatTime: isSelected ? formData.value.heartbeatTime : undefined,
                         suffix,
                         requireParam: item.attr('requireParam')!.split(','),
                         hideParam: hideParam,
                         defaultServerAddr,
-                        defaultHeartBeatTime: Number(item.attr('defaultHeartBeatTime')) || null,
+                        defaultHeartBeatTime: Number(item.attr('defaultHeartBeatTime')) || undefined,
                         defaultDomainName,
                         isRegisterBtn,
                         isTestBtn,
@@ -205,7 +203,7 @@ export default defineComponent({
                     formData.value.serverType = pageData.value.serverTypeOptions[0].serverType
                 }
 
-                pageData.value.connectState = $('/response/content/connectState').text() === 'success' ? Translate('IDCS_SUCCESS') : Translate('IDCS_FAILED')
+                pageData.value.connectState = $('//content/connectState').text() === 'success' ? Translate('IDCS_SUCCESS') : Translate('IDCS_FAILED')
                 timer = setInterval(() => getConnectStatus(), 5000)
             })
         }
@@ -279,17 +277,15 @@ export default defineComponent({
                 const result = await testDDNSCfg(getSetDataXml())
                 const $ = queryXml(result)
 
-                if ($('/response/status').text() === 'success') {
+                if ($('//status').text() === 'success') {
                     openMessageTipBox({
                         type: 'success',
-                        title: Translate('IDCS_SUCCESS_TIP'),
                         message: current.value.isRegisterBtn ? Translate('IDCS_REGISTER_SUCCESS') : Translate('IDCS_TEST_SUCCESS'),
                     })
                 } else {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
-                        message: Translate($('/response/errorDescription').text()),
+                        message: Translate($('//errorDescription').text()),
                     })
                 }
 
@@ -302,7 +298,7 @@ export default defineComponent({
          */
         const getConnectStatus = async () => {
             const result = await queryDDNSCfg()
-            pageData.value.connectState = queryXml(result)('/response/content/connectState').text() === 'success' ? Translate('IDCS_SUCCESS') : Translate('IDCS_FAILED')
+            pageData.value.connectState = queryXml(result)('//content/connectState').text() === 'success' ? Translate('IDCS_SUCCESS') : Translate('IDCS_FAILED')
         }
 
         /**

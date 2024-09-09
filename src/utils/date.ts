@@ -3,7 +3,7 @@
  * @Date: 2024-07-04 09:40:06
  * @Description: 日期模块
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-06 10:31:45
+ * @LastEditTime: 2024-09-04 16:49:37
  */
 import dayjs from 'dayjs'
 
@@ -124,4 +124,21 @@ export const isDST = (str: string, format = 'YYYY-MM-DD hh:mm:ss') => {
     if (winterSolstice === summerSolstice) return false
     if (dayjs(str, format).utcOffset() === summerSolstice) return true
     return false
+}
+
+/**
+ * @description 日历周末高亮
+ * @param {Date} date
+ * @returns
+ */
+export const highlightWeekend = (date: Date) => {
+    const instance = dayjs(date)
+    if (instance.isJalali()) {
+        return ''
+    }
+    const day = instance.day()
+    if (day === 0 || day === 6) {
+        return 'highlight'
+    }
+    return ''
 }

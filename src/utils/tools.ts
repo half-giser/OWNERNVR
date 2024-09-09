@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2023-04-28 17:57:48
  * @Description: 工具方法
- * @LastEditors: tengxiang tengxiang@tvt.net.cn
- * @LastEditTime: 2024-08-12 10:25:49
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-05 16:20:37
  */
 
 import { useUserSessionStore } from '@/stores/userSession'
@@ -12,9 +12,10 @@ import { useLangStore } from '@/stores/lang'
 import { type QueryNodeListDto } from '@/types/apiType/channel'
 import { queryNodeList } from '@/api/channel'
 import { type ApiResult, getXmlWrapData } from '@/api/api'
-import { type XmlResult } from './xmlParse'
+import { type XMLQuery, type XmlResult } from './xmlParse'
 import useMessageBox from '@/hooks/useMessageBox'
 import { APP_TYPE } from '@/utils/constants'
+import JSZip from 'jszip'
 
 export * from './transformers'
 export * from './validates'
@@ -273,6 +274,103 @@ export const downloadFromBase64 = (imgBase64: string, fileName: string) => {
     }, 1000)
 }
 
+type XlsDesc = {
+    colspan: number | string
+    content: number | string
+}
+
+const createExcelTemplate = (titleArr: string[], contentArr: string[][], xlsDesc?: XlsDesc) => {
+    const content = contentArr
+        .map((tr) => {
+            return `<tr>${tr.map((td) => `<td style='vnd.ms-excel.numberformat:@'>${td}</td>`).join('')}</tr>`
+        })
+        .join('')
+    return rawXml`
+        <table cellspacing='0' cellpadding='0' border='1' style='display:none' class="excelTable">
+            <thead>
+                ${ternary(!!xlsDesc, `<tr><th colspan="${xlsDesc?.colspan}">${xlsDesc?.content}</th></tr>`, '')}
+                <tr>${titleArr.map((item) => `<th>${item}</th>`).join('')}</tr>
+            </thead>
+            <tbody>${content}</tbody>
+        </table>
+    `
+}
+
+export const downloadExcel = (titleArr: string[], contentArr: string[][], fileName?: string, xlsDesc?: XlsDesc) => {
+    // 替换table数据和worksheet名字
+    const table = createExcelTemplate(titleArr, contentArr, xlsDesc)
+    const template =
+        "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:x='urn:schemas-microsoft-com:office:excel'" +
+        "xmlns='http://www.w3.org/TR/REC-html40'><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>" +
+        `<x:Name>${fileName || 'Worksheet'}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets>` +
+        '</x:ExcelWorkbook></xml><![endif]-->' +
+        "<style type='text/css'>table td, table th {height: 50px;text-align: center;font-size: 18px;}</style>" +
+        `</head><body>${table}</body></html>`
+    const blob = new Blob([template], { type: 'text/csv' })
+    const link = document.createElement('a')
+    const url = window.URL.createObjectURL(blob)
+    link.setAttribute('href', url)
+    link.setAttribute('download', fileName || 'Worksheet.xls')
+    link.style.display = 'none'
+    document.body.appendChild(link)
+    link.click()
+    setTimeout(() => {
+        document.body.removeChild(link)
+        window.URL.revokeObjectURL(url)
+    }, 1000)
+}
+
+type DownloadZipOptions = {
+    zipName: string
+    files: { name: string; content: string; folder: string }[]
+}
+
+export const downloadZip = (options: DownloadZipOptions) => {
+    return new Promise((resolve) => {
+        const zipName = options.zipName || 'demo'
+        const files = options.files || []
+
+        if (!files.length) {
+            resolve(void 0)
+            return
+        }
+
+        const zip = new JSZip()
+        const folders: Record<string, JSZip | null> = {}
+
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i]
+            const name = file.name
+            const content = file.content
+            const folder = file.folder
+            if (folder && !folders[folder]) {
+                folders[folder] = zip.folder(folder)
+            }
+            const obj = folders[folder] || zip
+            // 判断是否为图片文件
+            const isImg = /\.(png|jpe?g|gif|svg)(\?.*)?$/.test(name)
+            if (isImg) {
+                obj.file(name, content.replace(/data:image\/(png|jpg);base64,/, ''), { base64: true })
+            } else {
+                if (content.length == 0) {
+                    // 跳过空录像文件
+                    files.splice(i, 1)
+                    i--
+                    continue
+                }
+                obj.file(name, content)
+            }
+        }
+
+        zip.generateAsync({ type: 'blob' }).then((content) => {
+            download(content, zipName + '.zip')
+            // see FileSaver.js
+            // saveAs(content, zipName + ".zip")
+            resolve(void 0)
+        })
+    })
+}
+
 /**
  * @description
  * @param arrayObject
@@ -385,6 +483,102 @@ export const getChlList = (options: Partial<QueryNodeListDto>) => {
 }
 
 /**
+ * @description 传入当前页的路由 检测通道能力集
+ * @param {string} route
+ * @returns {Promise<Boolean>}
+ */
+export const checkChlListCaps = async (route: string) => {
+    const { openLoading, closeLoading, LoadingTarget } = useLoading()
+    const systemCaps = useCababilityStore()
+
+    if (route.includes('faceRecognition') || route.includes('vehicleRecognition') || route.includes('boundary') || route.includes('more')) {
+    } else {
+        return false
+    }
+
+    // 通过能力集判断设备是否支持人脸后侦测
+    const localFaceDectEnabled = systemCaps.localFaceDectMaxCount !== 0
+    const localTargetDectEnabled = systemCaps.localTargetDectMaxCount !== 0
+
+    openLoading(LoadingTarget.FullScreen)
+
+    const resultOnline = await queryOnlineChlList()
+    const $online = queryXml(resultOnline)
+    const onlineList = $online('//content/item').map((item) => item.attr('id')!)
+
+    const result = await getChlList({
+        requireField: [
+            'supportVfd',
+            'supportVehiclePlate',
+            'supportAOIEntry',
+            'supportAOILeave',
+            'supportTripwire',
+            'supportPea',
+            'supportPeaTrigger',
+            'supportAvd',
+            'supportCdd',
+            'supportOsc',
+            'supportPassLine',
+            'supportPassLine',
+            'protocolType',
+        ],
+    })
+    const $ = queryXml(result)
+
+    closeLoading(LoadingTarget.FullScreen)
+
+    const supportFlag = $('//content/item').some((item) => {
+        const $item = queryXml(item.element)
+        const protocolType = $('protocolType').text()
+        const factoryName = $('productModel').attr('factoryName')!
+        if (factoryName === 'Recorder') {
+            return false
+        }
+        const chlId = item.attr('id')!
+        if (protocolType !== 'RTSP' && onlineList.includes(chlId)) {
+            const supportOsc = $item('supportOsc').text().toBoolean()
+            const supportCdd = $item('supportCdd').text().toBoolean()
+            const supportVfd = $item('supportVfd').text().toBoolean()
+            const supportAvd = $item('supportAvd').text().toBoolean()
+            const supportPea = $item('supportPea').text().toBoolean()
+            const supportPeaTrigger = $item('supportPeaTrigger').text().toBoolean()
+            const supportTripwire = $item('supportTripwire').text().toBoolean()
+            const supportAOIEntry = $item('supportAOIEntry').text().toBoolean()
+            const supportAOILeave = $item('supportAOILeave').text().toBoolean()
+            const supportVehiclePlate = $item('supportVehiclePlate').text().toBoolean()
+            const supportPassLine = $item('supportPassLine').text().toBoolean()
+            const supportCpc = $item('supportCpc').text().toBoolean()
+            let supportBackVfd = false
+            if (localFaceDectEnabled && !supportVfd) {
+                supportBackVfd = true
+            }
+
+            if (
+                supportBackVfd ||
+                supportVfd ||
+                supportVehiclePlate ||
+                supportTripwire ||
+                supportPea ||
+                supportPeaTrigger ||
+                supportAOIEntry ||
+                supportAOILeave ||
+                localTargetDectEnabled ||
+                supportOsc ||
+                supportCdd ||
+                supportPassLine ||
+                supportAvd ||
+                supportCpc
+            ) {
+                return true
+            }
+            return false
+        }
+    })
+
+    return supportFlag
+}
+
+/**
  * @description 通用的加载数据请求处理
  * @param {XMLDocument} $response 响应数据
  * @param {Function} successHandler 成功回调
@@ -423,7 +617,7 @@ export const commSaveResponseHadler = ($response: ApiResult, successHandler?: (r
         const Translate = useLangStore().Translate
         const openMessageTipBox = useMessageBox().openMessageTipBox
         const $ = queryXml($response)
-        if ($('/response/status').text() == 'success') {
+        if ($('//status').text() == 'success') {
             openMessageTipBox({
                 type: 'success',
                 title: Translate('IDCS_SUCCESS_TIP'),
@@ -732,7 +926,7 @@ export const buildScheduleList = async () => {
     const result = await queryScheduleList()
     let scheduleList = [] as SelectOption<string, string>[]
     commLoadResponseHandler(result, async ($) => {
-        scheduleList = $('/response/content/item').map((item) => {
+        scheduleList = $('//content/item').map((item) => {
             return {
                 value: item.attr('id')!,
                 label: item.text(),
@@ -789,4 +983,147 @@ const getTranslateForTime = (value: number, unit1: string, unit1s: string, unit2
         label += (t1 > 0 ? ' ' : '') + `${t2} ${t2 === 1 ? unit2 : unit2s}`
     }
     return label
+}
+
+/**
+ * @description 提示达到搜索最大数量
+ * @param $
+ */
+export const showMaxSearchLimitTips = ($: XMLQuery) => {
+    const isMaxSearchResultNum = $('//content/IsMaxSearchResultNum').text().toBoolean()
+    const { openMessageTipBox } = useMessageBox()
+    const { Translate } = useLangStore()
+
+    if (isMaxSearchResultNum) {
+        openMessageTipBox({
+            type: 'info',
+            message: Translate('IDCS_SEARCH_RESULT_LIMIT_TIPS'),
+        })
+    }
+}
+
+type GetBitRateRangeOption = {
+    resolution:
+        | {
+              width: number
+              height: number
+          }
+        | string
+    level: string
+    fps: number
+    maxQoI: number
+    videoEncodeType: string
+}
+
+/**
+ * @description 获取比率范围
+ * @param options
+ * @returns
+ */
+export const getBitrateRange = (options: GetBitRateRangeOption) => {
+    // 计算分辨率对应参数
+    // const resolution = options.resolution
+    const videoEncodeType = options.videoEncodeType
+    let resolution = { width: 0, height: 0 }
+    if (typeof options.resolution == 'string') {
+        const resParts = options.resolution.split('x')
+        resolution = { width: Number(resParts[0]), height: Number(resParts[1]) }
+    } else {
+        resolution = options.resolution
+    }
+    const totalResolution = resolution.width * resolution.height
+    if (!totalResolution) {
+        return null
+    }
+    let resParam = Math.floor(totalResolution / (totalResolution >= 1920 * 1080 ? 200000 : 150000))
+    if (!resParam) {
+        resParam = 0.5
+    }
+
+    // 计算图像质量对应参数
+    const levelParamMapping: Record<string, number> = {
+        highest: 100,
+        higher: 67,
+        medium: 50,
+        lower: 34,
+        lowest: 25,
+    }
+    const levelParam = levelParamMapping[options.level]
+    if (!levelParam) {
+        return null
+    }
+    // 根据帧率使用不同公式计算下限和上限
+    const minBase = (768 * resParam * levelParam * (options.fps >= 10 ? options.fps : 10)) / 3000
+    let min = minBase - (options.fps >= 10 ? 0 : ((10 - options.fps) * minBase * 2) / 27)
+    const maxBase = (1280 * resParam * levelParam * (options.fps >= 10 ? options.fps : 10)) / 3000
+    let max = maxBase - (options.fps >= 10 ? 0 : ((10 - options.fps) * maxBase * 2) / 27)
+    min = options.maxQoI ? (options.maxQoI < min ? options.maxQoI : min) : min
+    max = videoEncodeType == 'h265' ? Math.floor(max * 0.55) : Math.floor(max)
+    if (videoEncodeType == 'h265' || videoEncodeType == 'h265p' || videoEncodeType == 'h265s') {
+        min = Math.floor(min * 0.55)
+    } else {
+        min = Math.floor(min)
+    }
+    if (!min || !max) {
+        return null
+    }
+
+    return { min: min, max: max }
+}
+
+// 将IPC音频文件转换为base64-导入摄像机声音/本地音频使用
+export const fileToBase64 = (file: Blob, callback: Function) => {
+    const reader = new FileReader()
+    reader.onload = function (e) {
+        const data = (e.target?.result as string).split(',')
+        const base64 = data[1]
+        const base64Str = formatBase64(base64)
+        if (typeof callback === 'function') {
+            callback(base64Str)
+        }
+    }
+    reader.readAsDataURL(file)
+}
+
+// base64 每76位加一个换行
+export const formatBase64 = (param: string) => {
+    let result = ''
+    for (let i = 0; i < param.length; i++) {
+        if (i != 0 && i % 76 == 0) {
+            result += '\r\n'
+        }
+        result += param[i]
+    }
+    return result
+}
+
+// 获取base64文件大小，返回MB数字
+export const base64FileSize = (base64url: string) => {
+    let str = base64url || ''
+    const equalIndex = str.indexOf('=')
+    if (str.indexOf('=') > 0) {
+        str = str.substring(0, equalIndex)
+    }
+    const strLength = str.length
+    const fileLength = strLength - (strLength / 8) * 2
+    // 返回单位为MB的大小
+    return (fileLength / (1024 * 1024)).toFixed(1)
+}
+
+/**
+ * @description 填充通道id,获取guid
+ * @param {string} id
+ * @returns Pstring
+ */
+export const getChlGuid16 = (id: string) => {
+    try {
+        while (id.length < 8) {
+            id = '0' + id
+        }
+        const arr = [id, '0000', '0000', '0000', '000000000000']
+        const guid = '{' + arr.join('-') + '}'
+        return guid
+    } catch (e) {
+        return '{00000001-0000-0000-0000-000000000000}'
+    }
 }

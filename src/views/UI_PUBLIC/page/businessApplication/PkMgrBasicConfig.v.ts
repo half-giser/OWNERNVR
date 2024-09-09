@@ -5,13 +5,8 @@
  */
 
 import { type FormRules, type FormInstance } from 'element-plus'
-import { getXmlWrapData } from '@/api/api'
+import { type RuleItem } from 'async-validator'
 import { PkMgrBasicConfigPageData } from '@/types/apiType/business'
-import { queryParkingLotConfig, editParkingLotConfig } from '@/api/business'
-import { queryXml } from '@/utils/xmlParse'
-import { useLangStore } from '@/stores/lang'
-import useLoading from '@/hooks/useLoading'
-import useMessageBox from '@/hooks/useMessageBox'
 
 export default defineComponent({
     setup() {
@@ -23,14 +18,14 @@ export default defineComponent({
         const { openMessageTipBox } = useMessageBox()
 
         // 页面初始数据
-        const pageData = reactive<PkMgrBasicConfigPageData>(new PkMgrBasicConfigPageData())
+        const pageData = reactive(new PkMgrBasicConfigPageData())
         let originalPageData = new PkMgrBasicConfigPageData()
         let changeDataFlg = false
 
         // 获取数据-更新页面初始数据
         function getPageData() {
             openLoading(LoadingTarget.FullScreen)
-            queryParkingLotConfig().then((result: any) => {
+            queryParkingLotConfig().then((result) => {
                 closeLoading(LoadingTarget.FullScreen)
                 const resultXml = queryXml(result)
                 if (resultXml('status').text() === 'success') {
@@ -54,12 +49,8 @@ export default defineComponent({
 
         // 校验数据合法性
         const pkMgrFormRef = ref<FormInstance>()
-        const rules = reactive<FormRules>({
-            parkName: [{ required: true, message: Translate('IDCS_PARKING_LOT_NAME_EMPTY_TIPS'), trigger: 'blur' }],
-            totalNum: [{ required: true, validator: validateTotalNum, trigger: 'manual' }],
-            remainTotalNum: [{ required: true, validator: validateRemainTotalNum, trigger: 'manual' }],
-        })
-        function validateTotalNum(_rule: any, _value: any, callback: any) {
+
+        const validateTotalNum: RuleItem['validator'] = (_rule, _value, callback) => {
             if (!pageData.totalNum) {
                 callback(new Error(Translate('IDCS_TOTAL_VEHICLE_NOT_CONFIG')))
                 return
@@ -70,7 +61,8 @@ export default defineComponent({
             }
             callback()
         }
-        function validateRemainTotalNum(_rule: any, _value: any, callback: any) {
+
+        const validateRemainTotalNum: RuleItem['validator'] = (_rule, _value, callback) => {
             if (pageData.remainTotalNum > pageData.totalNum) {
                 callback(new Error(Translate('IDCS_REMAIN_VEHICLE_NUM_OVER_TIPS')))
                 return
@@ -81,6 +73,13 @@ export default defineComponent({
             }
             callback()
         }
+
+        const rules = reactive<FormRules>({
+            parkName: [{ required: true, message: Translate('IDCS_PARKING_LOT_NAME_EMPTY_TIPS'), trigger: 'blur' }],
+            totalNum: [{ required: true, validator: validateTotalNum, trigger: 'manual' }],
+            remainTotalNum: [{ required: true, validator: validateRemainTotalNum, trigger: 'manual' }],
+        })
+
         // 校验数据是否被修改
         function compareDataChange(pageData: PkMgrBasicConfigPageData, originalPageData: PkMgrBasicConfigPageData) {
             changeDataFlg = false
@@ -90,22 +89,20 @@ export default defineComponent({
         }
 
         // 编辑-下发编辑协议
-        function apply(formRef: FormInstance | undefined) {
-            if (!formRef) return
+        function apply() {
+            if (!pkMgrFormRef.value) return
             compareDataChange(pageData, originalPageData)
-            formRef.validate((valid) => {
+            pkMgrFormRef.value.validate((valid) => {
                 if (valid && changeDataFlg) {
-                    const data = getXmlWrapData(
-                        `<content>
-                            <basicInfo>
-                                <name><![CDATA[${pageData.parkName}]]></name>
-                                <totalVehicleNum>${pageData.totalNum}</totalVehicleNum>
-                                <remainSpaceNum>${pageData.remainTotalNum}</remainSpaceNum>
-                            </basicInfo>
-                        </content>`,
-                    )
+                    const data = rawXml`<content>
+                        <basicInfo>
+                            <name><![CDATA[${pageData.parkName}]]></name>
+                            <totalVehicleNum>${pageData.totalNum.toString()}</totalVehicleNum>
+                            <remainSpaceNum>${pageData.remainTotalNum.toString()}</remainSpaceNum>
+                        </basicInfo>
+                    </content>`
                     openLoading(LoadingTarget.FullScreen)
-                    editParkingLotConfig(data).then((result: any) => {
+                    editParkingLotConfig(data).then((result) => {
                         closeLoading(LoadingTarget.FullScreen)
                         // 更新原始数据
                         originalPageData = JSON.parse(JSON.stringify(pageData))
@@ -113,7 +110,7 @@ export default defineComponent({
                         if (resultXml('status').text() === 'success') {
                             handleSuccess()
                         } else {
-                            const errorCode = resultXml('errorCode').text()
+                            const errorCode = Number(resultXml('errorCode').text())
                             handleError(errorCode)
                         }
                     })
@@ -125,25 +122,21 @@ export default defineComponent({
         function handleSuccess() {
             openMessageTipBox({
                 type: 'success',
-                title: Translate('IDCS_SUCCESS_TIP'),
                 message: Translate('IDCS_SAVE_DATA_SUCCESS'),
-                showCancelButton: false,
-            }).catch(() => {})
+            })
         }
         // 处理错误码提示
-        function handleError(errorCode: string) {
+        function handleError(errorCode: number) {
             let errorMsg = Translate('IDCS_SAVE_DATA_FAIL')
-            if (errorCode === '536870943') {
+            if (errorCode === ErrorCode.USER_ERROR_INVALID_PARAM) {
                 errorMsg = Translate('IDCS_FTP_ERROR_INVALID_PARAM')
-            } else if (errorCode === '536870953') {
+            } else if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
                 errorMsg = Translate('IDCS_NO_PERMISSION')
             }
             openMessageTipBox({
                 type: 'info',
-                title: Translate('IDCS_INFO_TIP'),
                 message: errorMsg,
-                showCancelButton: false,
-            }).catch(() => {})
+            })
         }
 
         return {

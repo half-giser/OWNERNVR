@@ -3,18 +3,14 @@
  * @Date: 2024-06-14 09:47:42
  * @Description: 新增用户
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 20:42:28
+ * @LastEditTime: 2024-09-05 13:46:04
  */
-import BaseSensitiveEmailInput from '../../components/form/BaseSensitiveEmailInput.vue'
-import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import BasePasswordStrength from '../../components/form/BasePasswordStrength.vue'
-import { UserAddForm, type UserCheckAuthForm, type UserAuthGroupOption } from '@/types/apiType/userAndSecurity'
+import BaseCheckAuthPop, { type UserCheckAuthForm } from '../../components/auth/BaseCheckAuthPop.vue'
+import { UserAddForm, type UserAuthGroupOption } from '@/types/apiType/userAndSecurity'
 import { type FormInstance, type FormRules } from 'element-plus'
 
 export default defineComponent({
     components: {
-        BaseSensitiveEmailInput,
-        BasePasswordStrength,
         BaseCheckAuthPop,
     },
     setup() {
@@ -60,8 +56,8 @@ export default defineComponent({
             const isInw48 = systemCaps.supportPwdSecurityConfig // TODO: 原项目是这个值
             const result = await queryPasswordSecurity()
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
-                strength = ($('/response/content/pwdSecureSetting/pwdSecLevel').text() as keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING & null) ?? 'weak'
+            if ($('//status').text() === 'success') {
+                strength = ($('//content/pwdSecureSetting/pwdSecLevel').text() as keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING & null) ?? 'weak'
                 if (isInw48) {
                     strength = 'strong'
                 }
@@ -81,7 +77,7 @@ export default defineComponent({
             `
             queryAuthGroupList(sendXml).then((result) => {
                 commLoadResponseHandler(result, ($) => {
-                    $('/response/content/item').forEach((element) => {
+                    $('//content/item').forEach((element) => {
                         const $element = queryXml(element.element)
                         const item = {
                             id: element.attr('id') as string,
@@ -209,12 +205,12 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 isAuthDialog.value = false
                 goBack()
             } else {
                 let errorInfo = ''
-                const errorCode = Number($('/response/errorCode').text())
+                const errorCode = Number($('//errorCode').text())
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_NAME_EXISTED:
                         errorInfo = Translate('IDCS_USER_EXISTED_TIPS')
@@ -235,7 +231,6 @@ export default defineComponent({
                 }
                 openMessageTipBox({
                     type: 'error',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: errorInfo,
                 })
             }
@@ -268,8 +263,6 @@ export default defineComponent({
             formatInputMaxLength,
             formatInputUserName,
             displayAuthGroup,
-            BaseSensitiveEmailInput,
-            BasePasswordStrength,
             BaseCheckAuthPop,
         }
     },

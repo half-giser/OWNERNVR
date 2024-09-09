@@ -3,16 +3,11 @@
  * @Date: 2024-07-08 18:01:51
  * @Description: 存储模式新增通道弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 16:14:05
+ * @LastEditTime: 2024-09-05 12:00:23
  */
-import { type PropType } from 'vue'
-import BaseLivePop from '../../components/BaseLivePop.vue'
 import { StorageModeDiskGroupList, type StorageModeChlList } from '@/types/apiType/disk'
 
 export default defineComponent({
-    components: {
-        BaseLivePop,
-    },
     props: {
         /**
          * @property 当前磁盘组
@@ -66,9 +61,9 @@ export default defineComponent({
             const result = await queryDevList(getXmlWrapData(sendXml))
             const $ = queryXml(result)
 
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 const chlList = prop.current.chlList.map((item) => item.id)
-                tableData.value = $('/response/content/item')
+                tableData.value = $('//content/item')
                     .filter((item) => !chlList.includes(item.attr('id')!))
                     .map((item) => {
                         const $item = queryXml(item.element)
@@ -88,7 +83,7 @@ export default defineComponent({
          * @param {StorageModeChlList} rowData
          */
         const preview = (rowData: StorageModeChlList) => {
-            liveRef.value?.openLiveWin(rowData.id, rowData.name, rowData.chlIndex, rowData.chlType, true)
+            liveRef.value?.openLiveWin(rowData.id, rowData.name, true)
         }
 
         /**
@@ -105,7 +100,6 @@ export default defineComponent({
             if (!pageData.value.selection.length) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_PROMPT_CHANNEL_GROUP_EMPTY'),
                 })
                 return
@@ -151,7 +145,7 @@ export default defineComponent({
             const result = await editSetAndElementRelation(getXmlWrapData(sendXml))
             const $ = queryXml(result)
 
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 ctx.emit('confirm')
             }
 
@@ -182,7 +176,6 @@ export default defineComponent({
             confirm,
             close,
             changeSelection,
-            BaseLivePop,
         }
     },
 })

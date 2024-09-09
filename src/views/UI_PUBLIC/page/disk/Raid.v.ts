@@ -3,12 +3,10 @@
  * @Date: 2024-07-09 13:43:11
  * @Description: 磁盘阵列
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 16:10:53
+ * @LastEditTime: 2024-09-05 11:59:28
  */
-
-import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
+import BaseCheckAuthPop, { type UserCheckAuthForm } from '../../components/auth/BaseCheckAuthPop.vue'
 import { DiskRaidList } from '@/types/apiType/disk'
-import { type UserCheckAuthForm } from '@/types/apiType/userAndSecurity'
 import RaidRebuildPop from './RaidRebuildPop.vue'
 
 export default defineComponent({
@@ -73,7 +71,7 @@ export default defineComponent({
 
             let hasRebuildArray = false
 
-            tableData.value = $('/response/content/raidList/item').map((item) => {
+            tableData.value = $('//content/raidList/item').map((item) => {
                 const $item = queryXml(item.element)
 
                 if ($item('raidState').text() === 'rebuild') {
@@ -88,12 +86,10 @@ export default defineComponent({
                     physicalDisk: $item('physicalDisks').text(),
                     raidState: $item('raidState').text(),
                     raidType: $item('raidType').text(),
-                    spareHard: $('/response/content/spareHard').text(),
+                    spareHard: $('//content/spareHard').text(),
                     task: '',
                 }
             })
-
-            tableData.value.push(new DiskRaidList())
 
             return hasRebuildArray
         }
@@ -124,7 +120,6 @@ export default defineComponent({
         const deleteRaid = (row: DiskRaidList, index: number) => {
             openMessageTipBox({
                 type: 'question',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_NOTE_DELETE_RAID').formatForLang(row.name),
             }).then(async () => {
                 pageData.value.isCheckAuth = true
@@ -156,11 +151,11 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 refreshData()
                 pageData.value.isCheckAuth = false
             } else {
-                const errorCode = Number($('/response/errorCode').text())
+                const errorCode = Number($('//errorCode').text())
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_PWD_ERR:
@@ -176,7 +171,6 @@ export default defineComponent({
 
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: errorInfo,
                 })
             }
@@ -191,7 +185,7 @@ export default defineComponent({
             const $ = queryXml(result)
 
             let hasRebuildArray = false
-            $('/response/content/item').forEach((item) => {
+            $('//content/item').forEach((item) => {
                 const $item = queryXml(item.element)
                 const raid = item.attr('id')!
                 const raidState = $item('raidState').text()

@@ -3,48 +3,64 @@
  * @Date: 2024-08-06 20:37:55
  * @Description: 回放-事件列表
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 11:16:31
+ * @LastEditTime: 2024-09-05 16:22:50
  */
 import type { PlaybackRecLogList, PlaybackChlList, PlaybackRecList } from '@/types/apiType/playback'
 import dayjs from 'dayjs'
 
 export default defineComponent({
     props: {
+        /**
+         * @property {Number} 开始时间 毫秒
+         */
         startTime: {
             type: Number,
             required: true,
             default: 0,
         },
+        /**
+         * @property {Number} 结束时间 毫秒
+         */
         endTime: {
             type: Number,
             required: true,
             default: 0,
         },
+        /**
+         * @property {Enum} 模式 modeOne | modeTwo
+         */
         modeType: {
             type: String,
             required: true,
             default: 'modeOne',
         },
+        /**
+         * @property {Array} 事件列表
+         */
         eventList: {
             type: Array as PropType<string[]>,
             required: true,
             default: () => [],
         },
+        /**
+         * @property {Array} 通道列表
+         */
         chls: {
             type: Array as PropType<PlaybackChlList[]>,
             required: true,
             default: () => [],
         },
+        /**
+         * @property 当前通道
+         */
         chl: {
             type: String,
             required: true,
             default: '',
         },
-        dateTimeFormat: {
-            type: String,
-            required: true,
-            default: 'YYYY-MM-DD hh:mm:ss',
-        },
+        /**
+         * @property 播放状态
+         */
         playStatus: {
             type: String,
             required: true,
@@ -67,6 +83,7 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
+        const dateTime = useDateTimeStore()
 
         // 事件与显示文本的映射
         const EVENT_TRANS_MAPPING: Record<string, string> = {
@@ -135,7 +152,7 @@ export default defineComponent({
          * @returns {string}
          */
         const displayTime = (timestamp: number) => {
-            return formatDate(timestamp, prop.dateTimeFormat)
+            return formatDate(timestamp, dateTime.dateTimeFormat)
         }
 
         /**
@@ -258,9 +275,9 @@ export default defineComponent({
 
             isLocked = false
 
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 let hasPosEvent = false
-                tableData.value = $('/response/content/chl/item').map((item) => {
+                tableData.value = $('//content/chl/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
                         chlId: item.attr('id')!,
@@ -289,7 +306,7 @@ export default defineComponent({
                 })
                 ctx.emit('callback', tableData.value, hasPosEvent)
             } else {
-                const errorType = $('/response/errorDescription').text()
+                const errorType = $('//errorDescription').text()
                 if (errorType === 'noRecord') {
                     const error = prop.chls.map((item) => item.value + ' : ' + Translate('IDCS_NO_RECORD_DATA'))
                     ctx.emit('error', error)

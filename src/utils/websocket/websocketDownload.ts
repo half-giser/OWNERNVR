@@ -6,9 +6,7 @@
  * @LastEditTime: 2024-05-31 09:07:35
  */
 import WebsocketBase from './websocketBase'
-import { ErrorCode } from '../constants'
-import { CMD_DOWNLOAD_FILE_OPEN, type CmdDownloadFileOpenOption, CMD_DOWNLOAD_CONFIRM_STEP, CMD_DOWNLOAD_FILE_CLOSE } from './websocketCmd'
-import { appendBuffer, download } from '../tools'
+import { type CmdDownloadFileOpenOption } from './websocketCmd'
 
 export interface WebsocketDownloadOption {
     config: CmdDownloadFileOpenOption
@@ -70,7 +68,11 @@ export default class WebsocketDownload {
         this.ws!.send(JSON.stringify(cmd))
     }
 
-    // 解包，返回真正的文件buffer
+    /**
+     * @description 解包，返回真正的文件buffer
+     * @param {ArrayBuffer} data
+     * @returns {ArrayBuffer}
+     */
     private getFileBuffer(data: ArrayBuffer) {
         const dataView = new DataView(data)
         const encryptType = dataView.getUint32(0, true)
@@ -80,6 +82,10 @@ export default class WebsocketDownload {
         return data.slice(jsonEndPosition)
     }
 
+    /**
+     * @description
+     * @param {ArrayBuffer} newBuf
+     */
     private writeFile(newBuf: ArrayBuffer) {
         this.downloadIndex++
         if (!this.fileBuffer) {
@@ -91,7 +97,9 @@ export default class WebsocketDownload {
         this.confirmStep()
     }
 
-    // 确认下载帧
+    /**
+     * @description 确认下载帧
+     */
     private confirmStep() {
         const cmd = CMD_DOWNLOAD_CONFIRM_STEP(this.downloadIndex)
         this.ws!.send(JSON.stringify(cmd))

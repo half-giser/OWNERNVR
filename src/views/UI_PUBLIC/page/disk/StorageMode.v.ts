@@ -3,7 +3,7 @@
  * @Date: 2024-07-08 18:01:29
  * @Description: 存储模式配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 16:12:49
+ * @LastEditTime: 2024-09-05 12:00:08
  */
 import type { StorageModeDiskGroupListDatum, StorageModeDiskGroupList } from '@/types/apiType/disk'
 import StorageModeAddDiskPop from './StorageModeAddDiskPop.vue'
@@ -64,13 +64,13 @@ export default defineComponent({
             const $ = queryXml(result)
             const disk = await queryLogicalDiskList(sendXml)
             const $disk = queryXml(disk)
-            const isDiskDataSuccess = $disk('/response/status').text() === 'success'
+            const isDiskDataSuccess = $disk('//status').text() === 'success'
 
             pageData.value.diskGroupList = []
             pageData.value.diskTotalNum = 0
             pageData.value.backupDiskId = []
 
-            $('/response/content/item').forEach((item) => {
+            $('//content/item').forEach((item) => {
                 const $item = queryXml(item.element)
                 const isBackUp = item.attr('type') === 'backup'
 
@@ -93,7 +93,7 @@ export default defineComponent({
                                 text: element.text(),
                             })
                             if (isDiskDataSuccess) {
-                                totalSize += Number($disk(`/response/content/item[@id="${id}"]/size`).text())
+                                totalSize += Number($disk(`//content/item[@id="${id}"]/size`).text())
                             }
                         }
                     })
@@ -185,7 +185,6 @@ export default defineComponent({
         const deleteDisk = (id: string) => {
             openMessageTipBox({
                 type: 'question',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_HD_CHANGE_GROUP_WARNING'),
             }).then(() => {
                 editRelation('disks', id)
@@ -234,10 +233,9 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 openMessageTipBox({
                     type: 'success',
-                    title: Translate('IDCS_SUCCESS_TIP'),
                     message: Translate('IDCS_DELETE_SUCCESS'),
                 }).finally(() => {
                     getDiskGroupList()
@@ -245,7 +243,6 @@ export default defineComponent({
             } else {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_DELETE_FAIL'),
                 })
             }
@@ -258,7 +255,7 @@ export default defineComponent({
             const result = await queryDiskStatus()
             const $ = queryXml(result)
             pageData.value.diskStatus = Object.fromEntries(
-                $('/response/content/item').map((item) => {
+                $('//content/item').map((item) => {
                     const $item = queryXml(item.element)
                     const obj = {
                         diskStatus: $item('diskStatus').text(),

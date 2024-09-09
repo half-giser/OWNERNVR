@@ -6,8 +6,7 @@
  * @LastEditTime: 2024-08-01 10:42:03
  */
 
-// import type { AxiosRequestConfig } from 'axios'
-import http, { getXmlWrapData } from './api'
+import http from './api'
 
 /**
  * @description 查询磁盘模式
@@ -17,6 +16,7 @@ export const queryDiskMode = () => http.fetch('queryDiskMode', getXmlWrapData(''
 
 /**
  * @description 更改磁盘模式
+ * @param {string} data
  * @returns
  */
 export const editDiskMode = (data: string) => http.fetch('editDiskMode', getXmlWrapData(data))
@@ -36,6 +36,7 @@ export const queryAllDisksHealthStatus = () => http.fetch('queryAllDisksHealthSt
 
 /**
  * @description 获取指定磁盘的健康状态
+ * @param {string} data
  * @returns
  */
 export const queryDiskHealthDetailInfo = (data: string) => http.fetch('queryDiskHealthDetailInfo', getXmlWrapData(data))
@@ -69,6 +70,7 @@ export const unlockDisk = (data: string) => http.fetch('unlockDisk', getXmlWrapD
 
 /**
  * @description 获取磁盘组
+ * @param {string} data
  * @returns
  */
 export const queryDiskGroupList = (data: string) => http.fetch('queryDiskGroupList', getXmlWrapData(data))

@@ -3,42 +3,45 @@
  * @Date: 2024-06-20 10:38:53
  * @Description: 编辑黑白名单弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 19:51:38
+ * @LastEditTime: 2024-09-05 14:16:10
  */
-import BaseIpInput from '../../components/form/BaseIpInput.vue'
-import BaseMacInput from '../../components/form/BaseMacInput.vue'
 import { UserEditBlackAllowListForm } from '@/types/apiType/userAndSecurity'
 import { type FormInstance, type FormRules } from 'element-plus'
 
 export default defineComponent({
-    components: {
-        BaseIpInput,
-        BaseMacInput,
-    },
     props: {
+        /**
+         * @property 当前编辑数据
+         */
         data: {
             type: Object as PropType<UserEditBlackAllowListForm>,
-            require: true,
-            default: () => new UserEditBlackAllowListForm(),
+            required: true,
         },
+        /**
+         * @property 列表索引
+         */
         index: {
             type: Number,
-            require: true,
-            default: -1,
+            required: true,
         },
+        /**
+         * @property 列表数据
+         */
         tableData: {
             type: Array as PropType<UserEditBlackAllowListForm[]>,
-            require: true,
-            default: () => [],
+            required: true,
         },
     },
     emits: {
-        close(data: UserEditBlackAllowListForm | null) {
-            return data || !data
+        confirm(data: UserEditBlackAllowListForm) {
+            return !!data
+        },
+        close() {
+            return true
         },
     },
     setup(prop, ctx) {
-        const { Translate } = inject('appGlobalProp') as appGlobalProp
+        const { Translate } = useLangStore()
 
         const formRef = ref<FormInstance>()
         const formData = ref(new UserEditBlackAllowListForm())
@@ -54,7 +57,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_EMPTY')))
                             return
                         }
-                        const findIndex = (prop.tableData as UserEditBlackAllowListForm[]).findIndex((item) => item.ip === value)
+                        const findIndex = prop.tableData.findIndex((item) => item.ip === value)
                         if (findIndex > -1 && findIndex !== prop.index) {
                             callback(new Error(Translate('IDCS_IP_ADDRESS_REPEAT_LIMIT')))
                             return
@@ -79,7 +82,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_COMPARE')))
                             return
                         }
-                        const findIndex = (prop.tableData as UserEditBlackAllowListForm[]).findIndex((item) => item.startIp === value && item.endIp === formData.value.endIp)
+                        const findIndex = prop.tableData.findIndex((item) => item.startIp === value && item.endIp === formData.value.endIp)
                         if (findIndex > -1 && findIndex !== prop.index) {
                             callback(new Error(Translate('IDCS_IP_ADDRESS_REPEAT_LIMIT')))
                             return
@@ -116,7 +119,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PROMPT_MACADDRESS_INVALID')))
                             return
                         }
-                        const findIndex = (prop.tableData as UserEditBlackAllowListForm[]).findIndex((item) => item.mac === value)
+                        const findIndex = prop.tableData.findIndex((item) => item.mac === value)
                         if (findIndex > -1 && findIndex !== prop.index) {
                             callback(new Error(Translate('IDCS_MAC_ADDRESS_REPEAT_LIMIT')))
                             return
@@ -165,9 +168,9 @@ export default defineComponent({
          * @description 验证表单，验证通过则关闭弹窗，往表格添加/更新数据
          */
         const verify = () => {
-            formRef.value?.validate((valid) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
-                    ctx.emit('close', formData.value)
+                    ctx.emit('confirm', formData.value)
                 }
             })
         }
@@ -176,13 +179,14 @@ export default defineComponent({
          * @description 关闭弹窗，不执行任何操作
          */
         const goBack = () => {
-            ctx.emit('close', null)
+            ctx.emit('close')
         }
 
         /**
          * @description 开启弹窗时更新表单数据
          */
         const handleOpen = () => {
+            formRef.value?.clearValidate()
             formData.value.switch = prop.data.switch
             formData.value.addressType = prop.data.addressType
             formData.value.ip = prop.data.ip
@@ -199,8 +203,6 @@ export default defineComponent({
             goBack,
             handleOpen,
             title,
-            BaseIpInput,
-            BaseMacInput,
         }
     },
 })

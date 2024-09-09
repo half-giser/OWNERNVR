@@ -3,14 +3,12 @@
  * @Date: 2024-05-30 15:59:38
  * @Description: websocket 订阅实时抓拍
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-23 21:20:26
+ * @LastEditTime: 2024-08-28 11:14:24
  */
 
 import WebsocketBase from './websocketBase'
-import { Uint8ArrayToStr, getPicBase64 } from '../tools'
-import { CMD_REALTIME_SNAP_SUBSCRIBE, CMD_REALTIME_SNAP_UNSUBSCRIBE } from './websocketCmd'
 
-type SnapDataConfig = {
+type SnapDataConfig = Partial<{
     channel_id: string
     face_detect: {
         info: boolean
@@ -33,7 +31,10 @@ type SnapDataConfig = {
         detect_pic: boolean
         scene_pic: boolean
     }
-}[]
+    parking_lot: {
+        info: boolean
+    }
+}>[]
 
 export interface WebsocketSnapOption {
     config: SnapDataConfig
@@ -244,7 +245,13 @@ export default class WebsocketSnap {
         })
     }
 
-    // 从响应json报文的data字段信息中读取抓拍数据
+    /**
+     * @description 从响应json报文的data字段信息中读取抓拍数据
+     * @param {SnapDataType} data
+     * @param {number} jsonEndPosition
+     * @param {ArrayBuffer} buffer
+     * @returns {WebsocketSnapOnSuccessParam[]}
+     */
     private getSnapData(data: SnapDataType, jsonEndPosition: number, buffer: ArrayBuffer) {
         const snapDataList: WebsocketSnapOnSuccessParam[] = []
 
@@ -285,7 +292,13 @@ export default class WebsocketSnap {
         return snapDataList
     }
 
-    // 解析停车场抓拍数据（数据结构见websocket协议 parking_lot）
+    /**
+     * @description 解析停车场抓拍数据（数据结构见websocket协议 parking_lot）
+     * @param {SnapDataDatum} data
+     * @param {number} jsonEndPosition
+     * @param {ArrayBuffer} buffer
+     * @returns {WebsocketSnapOnSuccessPlate}
+     */
     private analysisParkData(data: SnapDataDatum, jsonEndPosition: number, buffer: ArrayBuffer) {
         const parking_lot = data
         const parking_lot_info = parking_lot.parking_lot_info

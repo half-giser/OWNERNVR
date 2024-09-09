@@ -3,16 +3,12 @@
  * @Date: 2024-04-23 11:52:48
  * @Description: 登录界面
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 11:52:39
+ * @LastEditTime: 2024-09-05 14:21:22
  */
 import { type FormRules, type FormInstance } from 'element-plus'
 import { LoginForm, LoginReqData } from '@/types/apiType/user'
-import BasePluginDownload from '@/views/UI_PUBLIC/components/ocx/BasePluginDownload.vue'
 
 export default defineComponent({
-    components: {
-        BasePluginDownload,
-    },
     setup() {
         const { Translate } = useLangStore()
         const langStore = useLangStore()
@@ -159,8 +155,8 @@ export default defineComponent({
         const getIsShowPrivacy = async () => {
             const result = await queryShowPrivacyView()
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
-                if ($('/response/content/show').text().toBoolean() && !localStorage.getItem('privacy')) {
+            if ($('//status').text() === 'success') {
+                if ($('//content/show').text().toBoolean() && !localStorage.getItem('privacy')) {
                     isPrivacy.value = true
                 } else {
                     localStorage.setItem('privacy', 'true')
@@ -222,7 +218,6 @@ export default defineComponent({
             isPrivacy,
             isAllowPrivacy,
             closePrivacy,
-            BasePluginDownload,
         }
     },
 })

@@ -3,22 +3,17 @@
  * @Date: 2024-06-27 11:50:06
  * @Description: 备份与恢复
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 19:41:47
+ * @LastEditTime: 2024-09-05 14:25:44
  */
-import BasePluginNotice from '../../components/ocx/BasePluginNotice.vue'
-import BaseNotification from '../../components/BaseNotification.vue'
-import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import BaseInputEncryptPwdPop from '../../components/auth/BaseInputEncryptPwdPop.vue'
-import { UserCheckAuthForm, UserInputEncryptPwdForm } from '@/types/apiType/userAndSecurity'
+import BaseCheckAuthPop, { UserCheckAuthForm } from '../../components/auth/BaseCheckAuthPop.vue'
+import BaseInputEncryptPwdPop, { UserInputEncryptPwdForm } from '../../components/auth/BaseInputEncryptPwdPop.vue'
 import WebsocketUpload from '@/utils/websocket/websocketUpload'
 import WebsocketDownload from '@/utils/websocket/websocketDownload'
 import { SystemRestoreForm, SystemBackUpForm } from '@/types/apiType/system'
-import { type XmlResult } from '@/utils/xmlParse'
+import { type XMLQuery } from '@/utils/xmlParse'
 
 export default defineComponent({
     components: {
-        BasePluginNotice,
-        BaseNotification,
         BaseCheckAuthPop,
         BaseInputEncryptPwdPop,
     },
@@ -246,7 +241,7 @@ export default defineComponent({
 
             pageData.value.isEncryptPwd = false
 
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 if (isSupportH5.value) {
                     new WebsocketDownload({
                         config: {
@@ -288,7 +283,7 @@ export default defineComponent({
                 }
             } else {
                 closeLoading(LoadingTarget.FullScreen)
-                const errorCode = Number($('/response/errorCode').text())
+                const errorCode = Number($('//errorCode').text())
                 handleErrorMsg(errorCode)
             }
         }
@@ -300,7 +295,6 @@ export default defineComponent({
         const showMsg = (message: string) => {
             openMessageTipBox({
                 type: 'info',
-                title: Translate('IDCS_INFO_TIP'),
                 message,
             })
         }
@@ -334,7 +328,6 @@ export default defineComponent({
                 case ErrorCode.USER_ERROR_SERVER_NO_EXISTS:
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_LOGIN_OVERTIME'),
                     }).finally(() => {
                         Logout()
@@ -353,7 +346,7 @@ export default defineComponent({
          * @description OCX数据响应侦听
          * @param {Function} $
          */
-        const notify = ($: (path: string) => XmlResult) => {
+        const notify = ($: XMLQuery) => {
             //导入或导出进度
             if ($("/statenotify[@type='FileNetTransportProgress']").length > 0) {
                 const progress = $("/statenotify[@type='FileNetTransportProgress']/progress").text()
@@ -364,7 +357,7 @@ export default defineComponent({
                         pageData.value.isEncryptPwd = false
                         if (progress == '100%') {
                             pageData.value.importNote = TRANS_MAPPING['uploadReboot']
-                            openLoading(TRANS_MAPPING['uploadReboot'])
+                            openLoading(LoadingTarget.FullScreen, TRANS_MAPPING['uploadReboot'])
                             //发送升级指令，但不一定会收到应答，需要延时检测重启
                             //延时检测重启
                             importTimer = reconnect()
@@ -450,8 +443,6 @@ export default defineComponent({
             confirmInputEncryptPwd,
             handleBrowse,
             handleExport,
-            BasePluginNotice,
-            BaseNotification,
             BaseCheckAuthPop,
             BaseInputEncryptPwdPop,
         }

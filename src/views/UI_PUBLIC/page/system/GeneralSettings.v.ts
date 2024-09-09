@@ -3,11 +3,10 @@
  * @Date: 2024-06-24 15:06:48
  * @Description: 基本配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-19 16:06:04
+ * @LastEditTime: 2024-09-05 14:49:14
  */
 import { type FormInstance, type FormRules } from 'element-plus'
 import { SystemGeneralSettingForm } from '@/types/apiType/system'
-import { ref } from 'vue'
 
 export default defineComponent({
     setup() {
@@ -22,26 +21,38 @@ export default defineComponent({
         const decoderCardMap: Record<number, { [index: number]: string; onlineStatus: boolean }> = {}
 
         const pageData = ref({
+            // 是否显示输出配置
             isOutputConfig: systemCaps.supportHdmiVgaSeparate,
+            // 输出配置选项
             outputConfigOption: [
                 {
-                    name: Translate('IDCS_SAME_SOURCE'),
+                    label: Translate('IDCS_SAME_SOURCE'),
                     value: 0,
                 },
                 {
-                    name: Translate('IDCS_DIFF_SOURCE'),
+                    label: Translate('IDCS_DIFF_SOURCE'),
                     value: 1,
                 },
             ],
+            // 等待时长选项
             waitTimeOption: [] as number[],
+            // 视频格式选项
             videoFormatOption: [] as string[],
+            // 当前视频格式
             currrentVideoFormat: '',
+            // 当前输入配置
             currentOutputConfig: '',
+            // 是否显示零操作添加IPC选项
             isZeroOrAddIpc: systemCaps.supportZeroOprAdd,
+            // 分辨率选项
             resolutionOptions: [] as string[][],
+            // 分辨率提示
             resolutionTip: '',
+            // 分辨率类型
             resolutionType: [] as string[],
+            // 语言类型选项
             langType: [] as string[],
+            // 解码器选项
             decoderOptions: {} as Record<number, Record<number, string[]>>,
         })
 
@@ -84,7 +95,6 @@ export default defineComponent({
         const hanelChangeVideoFormat = () => {
             openMessageTipBox({
                 type: 'question',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_VIDEO_FORMAT_EDIT_AFTER_REBOOT'),
             })
                 .then(() => {
@@ -101,7 +111,6 @@ export default defineComponent({
         const handleChangeOutputConfig = () => {
             openMessageTipBox({
                 type: 'question',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_EDIT_AFTER_REBOOT').formatForLang(Translate('IDCS_OUTPUT_CONFIG')),
             })
                 .then(() => {
@@ -206,44 +215,44 @@ export default defineComponent({
             const result = await queryBasicCfg(getXmlWrapData(''))
             const $ = queryXml(result)
 
-            formData.value.deviceName = $('/response/content/name').text()
-            formData.value.deviceNumber = Number($('/response/content/deviceNumber').text())
-            formData.value.enableAutoDwell = $('/response/content/autoDwell').text().toBoolean()
+            formData.value.deviceName = $('//content/name').text()
+            formData.value.deviceNumber = Number($('//content/deviceNumber').text())
+            formData.value.enableAutoDwell = $('//content/autoDwell').text().toBoolean()
 
-            formData.value.waitTime = Number($('/response/content/autoDwellWaitTime').text())
+            formData.value.waitTime = Number($('//content/autoDwellWaitTime').text())
             pageData.value.waitTimeOption = []
-            $('/response/types/autoDwellWaitTime/enum').forEach((item) => {
+            $('//types/autoDwellWaitTime/enum').forEach((item) => {
                 pageData.value.waitTimeOption.push(Number(item.text()))
             })
 
-            formData.value.videoFormat = $('/response/content/videoType').text()
+            formData.value.videoFormat = $('//content/videoType').text()
             pageData.value.currrentVideoFormat = formData.value.videoFormat
             pageData.value.videoFormatOption = []
-            $('/response/types/videoType/enum').forEach((item) => {
+            $('//types/videoType/enum').forEach((item) => {
                 pageData.value.videoFormatOption.push(item.text())
             })
 
-            formData.value.enableGuide = $('/response/content/bootWizardSwitch').text().toBoolean()
+            formData.value.enableGuide = $('//content/bootWizardSwitch').text().toBoolean()
             if (formData.value.enableGuide) {
-                formData.value.zeroOrAddIpc = $('/response/content/bootZeroCfgAddSwitch').text().toBoolean()
+                formData.value.zeroOrAddIpc = $('//content/bootZeroCfgAddSwitch').text().toBoolean()
             } else {
                 pageData.value.isZeroOrAddIpc = false
             }
 
             // NLYC-48：同源异源输出配置
             if (systemCaps.supportHdmiVgaSeparate) {
-                formData.value.outputConfig = $('/response/content/hdmivgaParam').text()
+                formData.value.outputConfig = $('//content/hdmivgaParam').text()
                 pageData.value.currentOutputConfig = formData.value.outputConfig
             }
 
             // 显示多路输出分辨率
-            $('/response/content/resolution/item').forEach((item) => {
+            $('//content/resolution/item').forEach((item) => {
                 const index = Number(item.attr('index'))
                 formData.value.resolution[index] = item.text()
                 if (index === 0) {
                     formData.value.outputAdapt = item.attr('set') === 'true'
                     const mainOutputList: string[] = [] // 主输出分辨率枚举值
-                    $('/response/types/resolution/output[@index="0"]/enum').forEach((enumValue) => {
+                    $('//types/resolution/output[@index="0"]/enum').forEach((enumValue) => {
                         mainOutputList.push(enumValue.text())
                     })
                     // 支持8k,则在主输出后拼接8k提示
@@ -254,7 +263,7 @@ export default defineComponent({
                     pageData.value.resolutionOptions[index] = mainOutputList
                 } else if (systemCaps.outputScreensCount > 1) {
                     const outputList: string[] = []
-                    $(`/response/types/resolution/output[@index="${index}"]/enum`).forEach((enumValue) => {
+                    $(`//types/resolution/output[@index="${index}"]/enum`).forEach((enumValue) => {
                         outputList.push(enumValue.text())
                     })
                     pageData.value.resolutionOptions[index] = outputList
@@ -263,7 +272,7 @@ export default defineComponent({
 
             // TODO 解码卡输出部分需要测试数据才能测试
             // 解码卡输出排序
-            const decoderResolutionEnumXml = $('/response/types/DecoderResolution/decoder')
+            const decoderResolutionEnumXml = $('//types/DecoderResolution/decoder')
             const decoderEnumXml = decoderResolutionEnumXml.sort(($a, $b) => {
                 return Number($a.attr('id')) - Number($b.attr('id'))
             })
@@ -296,7 +305,7 @@ export default defineComponent({
                 })
             })
 
-            const decodeResolutionXml = $('/response/content/decoderResolution/decoder')
+            const decodeResolutionXml = $('//content/decoderResolution/decoder')
             decodeResolutionXml.forEach((item) => {
                 const $item = queryXml(item.element)
                 const decoderId = Number(item.attr('id'))
@@ -325,8 +334,8 @@ export default defineComponent({
                 })
             })
 
-            pageData.value.langType = $('/response/types/langType/enum').map((item) => item.text())
-            pageData.value.resolutionType = $('/response/types/resolutionType/enum').map((item) => item.text())
+            pageData.value.langType = $('//types/langType/enum').map((item) => item.text())
+            pageData.value.resolutionType = $('//types/resolutionType/enum').map((item) => item.text())
 
             closeLoading(LoadingTarget.FullScreen)
         }

@@ -3,29 +3,34 @@
  * @Date: 2024-07-19 18:41:50
  * @Description: 现场预览-云台视图-巡航线组
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 16:01:48
+ * @LastEditTime: 2024-08-22 10:54:16
 -->
 <template>
     <div class="ptz-group">
         <BaseListBox class="ptz-group-content">
             <BaseListBoxItem
                 v-for="(item, index) in listData"
-                :key="item.value"
+                :key="item.index"
                 :class="{
                     active: pageData.active === index,
                 }"
                 @click="pageData.active = index"
-                @dblclick="playCurrentCruiseGroup(item.value)"
+                @dblclick="playCurrentCruiseGroup(item.index)"
             >
-                <span class="ptz-group-text text-ellipsis">{{ item.label }}</span>
-                <BaseImgSprite
-                    file="delete (2)"
-                    :index="1"
-                    :disabled-index="1"
-                    :chunk="2"
-                    :disabled="!enabled"
-                    @click.stop="deleteCruiseGroup(item.value, item.label)"
-                />
+                <span class="ptz-group-text text-ellipsis">{{ item.name }}</span>
+                <el-tooltip
+                    :content="Translate('IDCS_DELETE')"
+                    :show-after="500"
+                >
+                    <BaseImgSprite
+                        file="delete (2)"
+                        :index="0"
+                        :disabled-index="1"
+                        :chunk="2"
+                        :disabled="!enabled"
+                        @click.stop="deleteCruiseGroup(item.index, item.name)"
+                    />
+                </el-tooltip>
             </BaseListBoxItem>
         </BaseListBox>
         <div class="ptz-group-btns">
@@ -66,6 +71,14 @@
                 />
             </el-tooltip>
         </div>
+        <ChannelCruiseGroupAddPop
+            v-model="pageData.isAddPop"
+            :max="pageData.maxCount"
+            :cruise="listData"
+            :chl-id="chlId"
+            @confirm="confirmAddCruiseGroup"
+            @close="pageData.isAddPop = false"
+        />
     </div>
 </template>
 
@@ -97,8 +110,7 @@
     }
 
     &-text {
-        width: 80%;
-        flex-shrink: 0;
+        width: 100%;
         height: 100%;
     }
 }

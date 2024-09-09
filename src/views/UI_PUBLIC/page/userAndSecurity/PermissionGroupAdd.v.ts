@@ -3,18 +3,16 @@
  * @Date: 2024-06-17 20:32:26
  * @Description: 添加权限组
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-09 20:46:02
+ * @LastEditTime: 2024-09-05 13:43:44
  */
 import { UserPermissionSystemAuthList, type UserPermissionChannelAuthList } from '@/types/apiType/userAndSecurity'
 import { UserPermissionGroupAddForm } from '@/types/apiType/userAndSecurity'
 import { type FormInstance, type FormRules } from 'element-plus'
-import type { XmlResult } from '@/utils/xmlParse'
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
+import type { XMLQuery } from '@/utils/xmlParse'
 import PermissionGroupInfoPop from './PermissionGroupInfoPop.vue'
 
 export default defineComponent({
     components: {
-        BaseImgSprite,
         PermissionGroupInfoPop,
     },
     setup() {
@@ -22,7 +20,6 @@ export default defineComponent({
         const userSession = useUserSessionStore()
         const { openMessageTipBox } = useMessageBox()
         const { closeLoading, LoadingTarget, openLoading } = useLoading()
-        const route = useRoute()
         const router = useRouter()
 
         const formRef = ref<FormInstance>()
@@ -86,7 +83,7 @@ export default defineComponent({
                 commLoadResponseHandler(result, ($) => {
                     getSystemAuth($)
                     getChannelAuth($, true)
-                    getAuthGroupName($('/response/content/name').text())
+                    getAuthGroupName($('//content/name').text())
                 })
             }
             // 从新建入口进来，所有选项默认为false
@@ -114,7 +111,7 @@ export default defineComponent({
             const result = await queryAuthGroupList(sendXml)
             const $ = queryXml(result)
 
-            const nameList = $('/response/content/item').map((item) => {
+            const nameList = $('//content/item').map((item) => {
                 const $item = queryXml(item.element)
                 return $item('name').text()
             })
@@ -133,8 +130,8 @@ export default defineComponent({
          * @description 更新系统权限
          * @param {Function} $doc
          */
-        const getSystemAuth = ($doc: (path: string) => XmlResult) => {
-            const $ = queryXml($doc('/response/content/systemAuth')[0].element)
+        const getSystemAuth = ($doc: XMLQuery) => {
+            const $ = queryXml($doc('//content/systemAuth')[0].element)
             Object.keys(systemAuthList.value).forEach((classify: string) => {
                 Object.keys(systemAuthList.value[classify].value).forEach((key) => {
                     systemAuthList.value[classify].value[key].value = $(key).text().toBoolean()
@@ -150,9 +147,9 @@ export default defineComponent({
          * @param {Function} $
          * @param {boolean} isQueryFromGroupID
          */
-        const getChannelAuth = ($: (path: string) => XmlResult, isQueryFromGroupID: boolean) => {
+        const getChannelAuth = ($: XMLQuery, isQueryFromGroupID: boolean) => {
             if (isQueryFromGroupID) {
-                channelAuthList.value = $('/response/content/chlAuth/item').map((item) => {
+                channelAuthList.value = $('//content/chlAuth/item').map((item) => {
                     const arrayItem: Record<string, any> = {}
                     const $item = queryXml(item.element)
                     arrayItem.id = item.attr('id') as string
@@ -168,7 +165,7 @@ export default defineComponent({
                     return arrayItem as UserPermissionChannelAuthList
                 })
             } else {
-                channelAuthList.value = $('/response/content/item').map((item) => {
+                channelAuthList.value = $('//content/item').map((item) => {
                     const arrayItem: Record<string, any> = {}
                     const $item = queryXml(item.element)
                     arrayItem.id = item.attr('id') as string
@@ -246,10 +243,10 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 goBack()
             } else {
-                const errorCode = Number($('/response/errorCode').text())
+                const errorCode = Number($('//errorCode').text())
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_NAME_EXISTED:
@@ -264,7 +261,6 @@ export default defineComponent({
                 }
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: errorInfo,
                 })
             }
@@ -280,8 +276,11 @@ export default defineComponent({
         }
 
         onMounted(() => {
-            const id = (route.query.group_id as string) || ''
+            const id = history.state.group_id || ''
             getAuthGroup(id)
+            if (history.state.group_id) {
+                delete history.state.group_id
+            }
         })
 
         return {
@@ -296,7 +295,6 @@ export default defineComponent({
             goBack,
             verify,
             changeAllChannelAuth,
-            BaseImgSprite,
             PermissionGroupInfoPop,
         }
     },

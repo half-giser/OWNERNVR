@@ -3,11 +3,10 @@
  * @Date: 2024-08-12 14:21:22
  * @Description:
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-13 15:42:58
+ * @LastEditTime: 2024-08-21 16:49:16
  */
 import { defineComponent } from 'vue'
 import { ArrowDown } from '@element-plus/icons-vue'
-// import ScheduleEditPop from '@/views/UI_PUBLIC/components/schedule/ScheduleEditPop.vue'
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import { useLangStore } from '@/stores/lang'
 import useLoading from '@/hooks/useLoading'
@@ -69,7 +68,7 @@ export default defineComponent({
             // 排程列表
             scheduleList: [] as [] as SelectOption<string, string>[],
             //排程管理弹窗显示状态
-            scheduleManagPopOpen: false,
+            scheduleManagePopOpen: false,
         })
         const checkExist = function (address: string) {
             const result = tableData.value.filter((item) => item.address == address)
@@ -102,7 +101,6 @@ export default defineComponent({
         }
         const getData = function () {
             getScheduleList().then(() => {
-                // console.log('pageData.value.scheduleList', pageData.value.scheduleList)
                 // 将scheduleList中value为''的元素转换为' '
                 pageData.value.scheduleList.forEach((item) => {
                     if (item.value == '') {
@@ -127,7 +125,6 @@ export default defineComponent({
                                 emailReceiver.address = eleXml('address').text()
                                 emailReceiver.schedule = eleXml('schedule').attr('id') == '{00000000-0000-0000-0000-000000000000}' ? ' ' : eleXml('schedule').attr('id')
                                 emailReceiver.addressShow = hideEmailAddress(emailReceiver.address)
-                                // console.log('emailReceiver', emailReceiver)
                                 tableData.value.push(emailReceiver)
                             }
                         })
@@ -198,7 +195,7 @@ export default defineComponent({
             }
         }
         const handleScheduleManage = function () {
-            pageData.value.scheduleManagPopOpen = true
+            pageData.value.scheduleManagePopOpen = true
         }
         const handleApply = function () {
             let sendXml = `

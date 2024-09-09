@@ -3,7 +3,7 @@
  * @Date: 2024-06-05 10:57:42
  * @Description: 音量控件
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-24 11:51:29
+ * @LastEditTime: 2024-08-23 13:57:17
 -->
 <template>
     <div class="VoiceCtrl">
@@ -35,12 +35,19 @@
 </template>
 
 <script lang="ts" setup>
-import BaseImgSprite from '@/views/UI_PUBLIC/components/sprite/BaseImgSprite.vue'
-
 const prop = withDefaults(
     defineProps<{
+        /**
+         * @property 音量值 范围: [0, 100]
+         */
         volume: number
+        /**
+         * @property 是否静音
+         */
         mute: boolean
+        /**
+         * @property 是否禁用
+         */
         disabled?: boolean
     }>(),
     {
@@ -63,14 +70,21 @@ const emits = defineEmits<{
     (e: 'update:mute', mute: boolean): void
 }>()
 
+// ICON图标
 const iconFile = computed(() => {
     return prop.mute ? 'sound_close' : 'sound'
 })
 
+/**
+ * @description 更改音量回调
+ */
 const handleChangevolume = (event: number) => {
     emits('update:volume', event)
 }
 
+/**
+ * @description 开关静音回调
+ */
 const handleSwitchMute = () => {
     if (prop.disabled) {
         return

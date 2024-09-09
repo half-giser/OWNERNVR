@@ -5,8 +5,6 @@
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
  * @LastEditTime: 2024-08-06 16:56:15
  */
-import { xmlParse, XMLStr2XMLDoc, XMLDoc2XMLStr } from '../xmlParse'
-
 const logInfoMapping = {
     pluginMainProcess: {
         openTip: 'ocx 2.0 main process websocket success',
@@ -20,9 +18,9 @@ const logInfoMapping = {
     },
 }
 
-type logInfoType = 'pluginMainProcess' | 'pluginSubProcess'
+type LogInfoType = 'pluginMainProcess' | 'pluginSubProcess'
 
-type errorType = 'openTip' | 'interruptErr' | 'closeTip'
+type ErrorType = 'openTip' | 'interruptErr' | 'closeTip'
 
 export interface WebSocketPluginOption {
     onopen?: (e: Event) => void
@@ -31,7 +29,7 @@ export interface WebSocketPluginOption {
     onclose?: (e: CloseEvent) => void
     port: number
     wsUrl?: string
-    wsType?: logInfoType
+    wsType?: LogInfoType
 }
 
 /**
@@ -48,7 +46,7 @@ export default class WebsocketPlugin {
     private readonly MAX_RETRY = 1 // 最大重试次数
     private port: number // 端口
     private wsUrl: string // websocket链接地址
-    private wsType: logInfoType // ws类型, 'pluginMainProcess': 插件主进程用于获取新端口号，'pluginSubProcess': 插件子进程用于浏览器、插件、NVR三者之间交互
+    private wsType: LogInfoType // ws类型, 'pluginMainProcess': 插件主进程用于获取新端口号，'pluginSubProcess': 插件子进程用于浏览器、插件、NVR三者之间交互
     private reqId: number // 记录查询信息id
     // private retryTimer: number | null // 重试定时器
     private retryCount: number // 当前重试次数
@@ -74,7 +72,9 @@ export default class WebsocketPlugin {
         this.init()
     }
 
-    // 初始化
+    /**
+     * @description 初始化
+     */
     init() {
         this.ws = new WebSocket(this.wsUrl)
         this.ws.onopen = (event) => {
@@ -102,7 +102,9 @@ export default class WebsocketPlugin {
         }
     }
 
-    // 重试连接
+    /**
+     * @description 重试连接
+     */
     openRetryConnect() {
         if (this.retryCount >= this.MAX_RETRY) {
             // 超过最大重试次数, 断开连接
@@ -118,12 +120,19 @@ export default class WebsocketPlugin {
         }
     }
 
-    // 向插件发送指令
+    /**
+     * @description 向插件发送指令
+     * @param {string} xmlData
+     */
     ExecuteCmd(xmlData: string) {
         if (this.ws && this.ws.readyState === 1) this.ws.send(xmlData)
     }
 
-    // 通过插件查询设备信息
+    /**
+     * @description 通过插件查询设备信息
+     * @param {string} xmlData
+     * @param {Function} callBack
+     */
     QueryInfo(xmlData: string, callBack: (str: string) => void) {
         const newXmlData: string = this.handle(xmlData, this.reqId + '')
         this.ws.send(newXmlData)
@@ -131,22 +140,33 @@ export default class WebsocketPlugin {
         this.reqId++
     }
 
-    // 关闭插件链接
+    /**
+     * @description 关闭插件链接
+     */
     Destroy() {
         this.reqId = 0
         this.queryInfoMap = {}
         if (this.ws) this.ws.close()
     }
 
-    // 处理xml数据
+    /**
+     * @description 处理xml数据
+     * @param {string} xmlData
+     * @param {string} reqId
+     * @returns {string}
+     */
     handle(xmlData: string, reqId: string) {
         const $xmlDoc = <XMLDocument>XMLStr2XMLDoc(xmlData)
         xmlParse('//request', $xmlDoc).attr('reqId', reqId)
         return XMLDoc2XMLStr($xmlDoc)
     }
 
-    // 打印信息
-    printLog(logType: logInfoType, logLevel: errorType) {
+    /**
+     * @description 打印信息
+     * @param {LogInfoType} logType
+     * @param {ErrorType} logLevel
+     */
+    printLog(logType: LogInfoType, logLevel: ErrorType) {
         console.log(logInfoMapping[logType][logLevel], formatDate(new Date()).formatForLang('YYYY-MM-DD HH:mm:ss'))
     }
 }

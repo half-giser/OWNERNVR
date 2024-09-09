@@ -2,10 +2,10 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-17 17:02:54
  * @Description: 录像与回放
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-12 13:56:08
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-08-27 19:34:52
  */
-import http, { getXmlWrapData } from './api'
+import http from './api'
 
 /**
  * @description 更新手动录像状态
@@ -50,20 +50,21 @@ export const queryRecBackupTaskList = () => http.fetch('queryRecBackupTaskList',
 
 /**
  * @description 修改备份任务
+ * @param {string} data
  * @returns
  */
 export const ctrlRecBackupTask = (data: string) => http.fetch('ctrlRecBackupTask', getXmlWrapData(data))
 
 /**
  * @description 查询通道录像日志列表
- * @param data
+ * @param {string} data
  * @returns
  */
 export const queryChlRecLog = (data: string) => http.fetch('queryChlRecLog', getXmlWrapData(data))
 
 /**
  * @description 创建远程备份任务
- * @param data
+ * @param {string} data
  * @returns
  */
 export const createRecBackupTask = (data: string) => http.fetch('createRecBackupTask', getXmlWrapData(data))
@@ -73,14 +74,14 @@ export const createRecBackupTask = (data: string) => http.fetch('createRecBackup
  * @param
  * @returns
  */
-export const queryRecordDistributeInfo = () => http.fetch('queryRecordDistributeInfo', getXmlWrapData(''))
+// export const queryRecordDistributeInfo = () => http.fetch('queryRecordDistributeInfo', getXmlWrapData(''))
 
 /**
  * @description 获取系统宽带容量
  * @param
  * @returns
  * */
-export const querySystemCaps = () => http.fetch('querySystemCaps', getXmlWrapData(''))
+// export const querySystemCaps = () => http.fetch('querySystemCaps', getXmlWrapData(''))
 
 /**
  * @description 获取录像剩余时间
@@ -88,3 +89,45 @@ export const querySystemCaps = () => http.fetch('querySystemCaps', getXmlWrapDat
  * @returns
  */
 export const queryRemainRecTime = (data: string) => http.fetch('queryRemainRecTime', getXmlWrapData(data))
+
+/**
+ * @description 搜索图片
+ * @param {string} data
+ * @returns
+ */
+export const searchPictures = (data: string) => http.fetch('searchPictures', getXmlWrapData(data))
+
+/**
+ * @description 删除图片
+ * @param {string} data
+ * @returns
+ */
+export const delPictures = (data: string) => http.fetch('delPictures', getXmlWrapData(data))
+
+/**
+ * @description 备份图片
+ * @param {string} data
+ * @returns
+ */
+export const backupPicture = (data: string) => http.fetch('backupPicture', getXmlWrapData(data))
+
+/**
+ * @description 获取每日分通道录像列表
+ * @param {string} data
+ * @returns
+ */
+export const queryDateListRecChl = (data: string) => http.fetch('queryDateListRecChl', getXmlWrapData(data))
+
+/**
+ * @description 获取通道实时抓拍缩略图
+ * @param {string} data
+ * @returns
+ */
+export const snapChlPicture = (data: string) => http.fetch('snapChlPicture', getXmlWrapData(data))
+
+/**
+ * @description 获取回放数据的大小
+ * @param {string} data
+ * @returns
+ */
+export const queryRecDataSize = (data: string) => http.fetch('queryRecDataSize', getXmlWrapData(data))

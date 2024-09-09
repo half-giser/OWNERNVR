@@ -10,7 +10,7 @@ export class ChannelInfoDto {
     name = ''
     devID = ''
     ip = ''
-    port = ''
+    port = 0
     poePort = ''
     userName = ''
     password = ''
@@ -70,7 +70,7 @@ export class ChannelManualAddDto {
     name = ''
     ip = ''
     domain = ''
-    port = ''
+    port = 10
     userName = ''
     password = ''
     index = 0
@@ -82,13 +82,13 @@ export class ChannelManualAddDto {
 
 export class ChannelAddRecorderDto {
     ip = ''
-    port = ''
+    port = 0
     version = ''
     name = ''
     serialNum = ''
-    chlTotalCount = ''
-    httpPort = ''
-    chlAddedCount = ''
+    chlTotalCount = 0
+    httpPort = 0
+    chlAddedCount = 0
     productModel = ''
     displayName = ''
 }
@@ -114,9 +114,9 @@ export class RecorderAddDto {
     ip = ''
     domain = ''
     chkDomain = false
-    servePort = ''
-    httpPort = ''
-    channelCount = ''
+    servePort = 6036
+    httpPort = 80
+    channelCount = 8
     userName = ''
     password = ''
     useDefaultPwd = true
@@ -453,4 +453,124 @@ export class PrivacyMask {
     Y = 0
     width = 0
     height = 0
+}
+
+export class ChannelPtzPresetChlDto {
+    chlId = ''
+    chlName = ''
+    presetCount = 0
+    maxCount = Infinity
+    presets = [] as ChannelPtzPresetDto[]
+}
+
+export class ChannelPtzPresetDto {
+    index = 0
+    name = ''
+}
+
+export class ChannelPtzTraceChlDto {
+    chlId = ''
+    chlName = ''
+    traceCount = 0
+    maxCount = Infinity
+    trace = [] as ChannelPtzTraceDto[]
+}
+
+export class ChannelPtzTraceDto extends ChannelPtzPresetDto {}
+
+export class ChannelPtzCruiseChlDto {
+    chlId = ''
+    chlName = ''
+    cruiseCount = 0
+    maxCount = Infinity
+    cruise = [] as ChannelPtzCruiseDto[]
+}
+
+export class ChannelPtzCruiseDto extends ChannelPtzPresetDto {}
+
+export class ChannelPtzCruisePresetDto extends ChannelPtzPresetDto {
+    id = 0
+    speed = 5
+    holdTime = 5
+}
+
+export class ChannelPtzCruisePresetForm {
+    name = ''
+    speed = 5
+    holdTime = 5
+}
+
+export class ChannelPtzCruiseGroupChlDto {
+    chlId = ''
+    chlName = ''
+    cruiseCount = 0
+    maxCount = Infinity
+    cruise = [] as ChannelPtzCruiseGroupCruiseDto[]
+}
+
+export class ChannelPtzCruiseGroupCruiseDto extends ChannelPtzPresetDto {
+    id = 0
+}
+
+/**
+ * @description 云台 任务 通道列表项
+ */
+export class ChannelPtzTaskChlDto {
+    chlId = ''
+    chlName = ''
+    taskItemCount = 0
+}
+
+/**
+ * @description 云台 任务列表项
+ */
+export class ChannelPtzTaskDto {
+    index = 0
+    enable = ''
+    startTime = ''
+    endTime = ''
+    type = ''
+    name = ''
+    editIndex = ''
+}
+
+/**
+ * @description 云台 任务 表单
+ */
+export class ChannelPtzTaskForm {
+    startTime = '00:00'
+    endTime = '00:00'
+    name = 'No'
+    type = 'NON'
+}
+
+/**
+ * @description 云台 智能跟踪 通道列表项
+ */
+export class ChannelPtzSmartTrackDto {
+    [key: string]: boolean | string | number
+    chlId = ''
+    chlName = ''
+    autoBackSwitch = false
+    autoBackTime = 0
+    ptzControlMode = 'manual'
+    status = 'loading'
+}
+
+/**
+ * @description 云台协议 通道列表项
+ */
+export class ChannelPtzProtocolDto {
+    [key: string]: any
+    chlId = ''
+    chlName = ''
+    baudRate = ''
+    protocol = ''
+    baudRateOptions = [] as SelectOption<string, string>[]
+    protocolOptions = [] as SelectOption<string, string>[]
+    status = 'loading'
+    address = 1
+    addressMin = 1
+    addressMax = 1
+    ptz = false
 }

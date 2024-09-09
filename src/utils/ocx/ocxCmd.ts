@@ -3,7 +3,7 @@
  * @Date: 2024-06-03 11:56:43
  * @Description: 插件命令集合
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-06 15:51:44
+ * @LastEditTime: 2024-08-09 14:45:29
  */
 import { compressXml, rawXml } from '../xmlParse'
 import { xmlHeader } from '@/api/api'
@@ -87,7 +87,6 @@ export const OCX_XML_GetLangNode = () => {
         'IDCS_MAINTENSIGN_ITEM_OTHERSYS',
         'IDCS_REMOTE_USER_LOCKED',
     ]
-    // TODO: TEST
     const { langItems } = useLangStore()
     return Object.keys(langItems!)
         .map((item) => {
@@ -453,7 +452,7 @@ export const OCX_XML_SearchRec = (
     taskId?: string,
 ) => {
     return wrapXml(rawXml`
-        <cmd type="${cmdType}" ${taskId ? `taskId="${taskId}` : ''}" compatibilityMode='true'>
+        <cmd type="${cmdType}" ${taskId ? `taskId="${taskId}"` : ''} compatibilityMode='true'>
             ${startTime ? `<startTime>${startTime}</startTime>` : ''}
             ${endTime ? `<endTime>${endTime}</endTime>` : ''}
             ${startTimeEx ? `<startTimeEx timeZone='UTC'>${startTimeEx}</startTimeEx>` : ''}
@@ -1321,13 +1320,13 @@ interface OcxXmlBackUpRecList extends OcxXmlSetRecList {
  * @param isMainStream
  * @param list
  */
-export const OCX_XML_BackUpRecList = (format: string, path: string, isMainStream: boolean, list: OcxXmlBackUpRecList[]) => {
+export const OCX_XML_BackUpRecList = (format: string, path: string, groupby = 'chlId', isMainStream: boolean, list: OcxXmlBackUpRecList[]) => {
     return wrapXml(rawXml`
         <cmd type='BackUpRecList'>
             <format>${format}</format>
             <path>${wrapCDATA(path)}</path>
             <isMainStream>${isMainStream.toString()}</isMainStream>
-            <backupRecList groupby='chlId'>
+            <backupRecList groupby='${groupby}'>
                 ${list
                     .map(
                         (item) => rawXml`<item 

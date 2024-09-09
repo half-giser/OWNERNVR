@@ -2,8 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-02 15:55:47
  * @Description: POS联动通道设置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-03 15:26:53
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-08-19 10:05:32
 -->
 <template>
     <el-dialog
@@ -11,7 +11,7 @@
         center
         width="700px"
         :title="Translate('IDCS_CHANNEL_TRGGER')"
-        @before-color="close"
+        @before-close="close"
         @open="open"
     >
         <div class="PosTriggerChannel">

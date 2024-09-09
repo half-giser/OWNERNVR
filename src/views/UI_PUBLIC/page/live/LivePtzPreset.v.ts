@@ -3,9 +3,15 @@
  * @Date: 2024-07-29 16:07:38
  * @Description: 现场预览-云台视图-预置点
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 17:41:10
+ * @LastEditTime: 2024-08-21 11:31:45
  */
+import ChannelPresetAddPop from '../channel/ChannelPresetAddPop.vue'
+import { type ChannelPtzPresetDto } from '@/types/apiType/channel'
+
 export default defineComponent({
+    components: {
+        ChannelPresetAddPop,
+    },
     props: {
         /**
          * @property 通道ID
@@ -13,7 +19,6 @@ export default defineComponent({
         chlId: {
             type: String,
             required: true,
-            default: '',
         },
         /**
          * @property 通道名称
@@ -21,7 +26,6 @@ export default defineComponent({
         chlName: {
             type: String,
             required: true,
-            default: '',
         },
         /**
          * @property 是否可用
@@ -29,7 +33,6 @@ export default defineComponent({
         enabled: {
             type: Boolean,
             required: true,
-            default: false,
         },
         /**
          * @property 速度值
@@ -37,7 +40,6 @@ export default defineComponent({
         speed: {
             type: Number,
             required: true,
-            default: 4,
         },
     },
     setup(prop) {
@@ -55,7 +57,7 @@ export default defineComponent({
         })
 
         // 列表数据
-        const listData = ref<SelectOption<number, string>[]>([])
+        const listData = ref<ChannelPtzPresetDto[]>([])
 
         /**
          * @description 获取预置点列表
@@ -69,12 +71,12 @@ export default defineComponent({
             `
             const result = await queryChlPresetList(sendXml)
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success' && chlId === prop.chlId) {
-                pageData.value.maxCount = Number($('/response/content/presets').attr('maxCount'))
-                listData.value = $('/response/content/presets/item').map((item) => {
+            if ($('//status').text() === 'success' && chlId === prop.chlId) {
+                pageData.value.maxCount = Number($('//content/presets').attr('maxCount'))
+                listData.value = $('//content/presets/item').map((item) => {
                     return {
-                        label: item.text(),
-                        value: Number(item.attr('index')),
+                        name: item.text(),
+                        index: Number(item.attr('index')),
                     }
                 })
             }
@@ -85,6 +87,13 @@ export default defineComponent({
          */
         const addPreset = () => {
             if (!prop.enabled) {
+                return
+            }
+            if (listData.value.length >= pageData.value.maxCount) {
+                openMessageTipBox({
+                    type: 'info',
+                    message: Translate('IDCS_OVER_MAX_NUMBER_LIMIT'),
+                })
                 return
             }
             pageData.value.isAddPop = true
@@ -117,7 +126,7 @@ export default defineComponent({
 
             openMessageTipBox({
                 type: 'question',
-                message: Translate('IDCS_DELETE_MP_PRESET_S').formatForLang('IDCS_CHANNEL') + getShortString(prop.chlName, 10) + getShortString(item.label, 10),
+                message: Translate('IDCS_DELETE_MP_PRESET_S').formatForLang(Translate('IDCS_CHANNEL'), getShortString(prop.chlName, 10), getShortString(item.name, 10)),
             }).then(async () => {
                 openLoading(LoadingTarget.FullScreen)
 
@@ -125,7 +134,7 @@ export default defineComponent({
                     <condition>
                         <chlId>${prop.chlId}</chlId>
                         <presetIndexes>
-                            <item index="${item.value.toString()}">${wrapCDATA(item.label)}</item>
+                            <item index="${item.index.toString()}">${wrapCDATA(item.name)}</item>
                         </presetIndexes>
                     </condition>
                 `
@@ -134,7 +143,7 @@ export default defineComponent({
 
                 closeLoading(LoadingTarget.FullScreen)
 
-                if ($('/response/status').text() === 'success') {
+                if ($('//status').text() === 'success') {
                     openMessageTipBox({
                         type: 'success',
                         message: Translate('IDCS_DELETE_SUCCESS'),
@@ -172,10 +181,10 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <chlId>${prop.chlId}</chlId>
-                    <index>${item.value.toString()}</index>
+                    <index>${item.index.toString()}</index>
                 </content>
             `
-            const result = editChlPresetPosition(sendXml)
+            const result = await editChlPresetPosition(sendXml)
 
             commSaveResponseHadler(result)
 
@@ -222,6 +231,7 @@ export default defineComponent({
             deletePreset,
             callPreset,
             savePreset,
+            ChannelPresetAddPop,
         }
     },
 })

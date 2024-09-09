@@ -3,7 +3,7 @@
  * @Date: 2024-07-11 19:26:58
  * @Description: 列表组件
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 14:33:01
+ * @LastEditTime: 2024-08-09 15:28:33
 -->
 <template>
     <div
@@ -19,6 +19,9 @@
 <script lang="ts" setup>
 withDefaults(
     defineProps<{
+        /**
+         * @description 是否显示边框
+         */
         border?: boolean
     }>(),
     {
@@ -41,6 +44,11 @@ withDefaults(
     ul {
         margin: 0;
         padding: 0;
+
+        :deep(.el-checkbox) {
+            margin-left: 10px;
+            display: flex;
+        }
     }
 }
 </style>

@@ -2,8 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-10 15:00:10
  * @Description: E-mail发送
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-13 10:57:09
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-05 15:40:52
  */
 import { type FormInstance, type FormRules } from 'element-plus'
 import { NetEmailForm } from '@/types/apiType/net'
@@ -141,15 +141,15 @@ export default defineComponent({
 
             const result = await queryEmailCfg()
             commLoadResponseHandler(result, ($) => {
-                formData.value.anonymousSwitch = $('/response/content/sender/anonymousSwitch').text().toBoolean()
-                formData.value.name = $('/response/content/sender/name').text()
-                formData.value.address = $('/response/content/sender/address').text()
-                formData.value.userName = $('/response/content/sender/userName').text()
-                formData.value.server = $('/response/content/sender/smtp/server').text()
-                formData.value.port = Number($('/response/content/sender/smtp/port').text())
-                formData.value.attachImg = Number($('/response/content/sender/attachImg').text())
-                formData.value.imageNumber = Number($('/response/content/sender/imageNumber').text())
-                formData.value.ssl = $('/response/content/sender/smtp/ssl').text().toBoolean() ? 'SSL' : 'NO'
+                formData.value.anonymousSwitch = $('//content/sender/anonymousSwitch').text().toBoolean()
+                formData.value.name = $('//content/sender/name').text()
+                formData.value.address = $('//content/sender/address').text()
+                formData.value.userName = $('//content/sender/userName').text()
+                formData.value.server = $('//content/sender/smtp/server').text()
+                formData.value.port = Number($('//content/sender/smtp/port').text())
+                formData.value.attachImg = Number($('//content/sender/attachImg').text())
+                formData.value.imageNumber = Number($('//content/sender/imageNumber').text())
+                formData.value.ssl = $('//content/sender/smtp/ssl').text().toBoolean() ? 'SSL' : 'NO'
             })
 
             closeLoading(LoadingTarget.FullScreen)
@@ -173,7 +173,6 @@ export default defineComponent({
             if (!userSession.hasAuth('alarmMgr')) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_NO_AUTH'),
                 })
                 return
@@ -202,7 +201,6 @@ export default defineComponent({
             if (formData.value.ssl === 'NO') {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_MAIL_ARENOT_ENCRYPTED_WITHOUT_SSL'),
                 })
             }

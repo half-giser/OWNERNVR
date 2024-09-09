@@ -35,8 +35,8 @@
                     <el-form-item prop="ip">
                         <BaseIpInput
                             v-show="showIpInput"
-                            v-model:value="editItem.ip"
-                            :disable="ipDisabled"
+                            v-model="editItem.ip"
+                            :disabled="ipDisabled"
                         />
                         <el-input
                             v-show="!showIpInput"
@@ -51,9 +51,12 @@
                 <el-col :span="8">{{ Translate('IDCS_PORT') }}</el-col>
                 <el-col :span="16">
                     <el-form-item prop="port">
-                        <el-input
+                        <el-input-number
                             v-model="editItem.port"
-                            v-numericalRange:[editItem].port="[10, 65535]"
+                            :min="10"
+                            :max="65535"
+                            :controls="false"
+                            value-on-clear="min"
                             :disabled="portDisabled"
                         />
                     </el-form-item>
@@ -117,12 +120,10 @@
         <template #footer>
             <div class="dialog-footer">
                 <el-button @click="save(false)">{{ Translate('IDCS_OK') }}</el-button>
-                <el-button @click="close(false)">{{ Translate('IDCS_CANCEL') }}</el-button>
+                <el-button @click="$emit('close')">{{ Translate('IDCS_CANCEL') }}</el-button>
             </div>
         </template>
     </el-dialog>
 </template>
 
 <script lang="ts" src="./ChannelEditPop.v.ts"></script>
-
-<style lang="scss" scoped></style>

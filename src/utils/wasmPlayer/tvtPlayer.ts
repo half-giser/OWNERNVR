@@ -3,7 +3,7 @@
  * @Date: 2024-06-05 14:16:36
  * @Description: 集成wasm-player和多分屏功能
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-07 18:06:23
+ * @LastEditTime: 2024-09-05 16:21:48
  */
 
 import { ErrorCode } from '../constants'
@@ -1071,14 +1071,14 @@ export default class TVTPlayer {
     getPosCfg() {
         queryPosList().then((res: any) => {
             const $ = queryXml(res)
-            if ($('/response/status').text() !== 'success') return
-            const $systemX = $('/response/content/itemType/coordinateSystem/X')
-            const $systemY = $('/response/content/itemType/coordinateSystem/Y')
+            if ($('//status').text() !== 'success') return
+            const $systemX = $('//content/itemType/coordinateSystem/X')
+            const $systemY = $('//content/itemType/coordinateSystem/Y')
             const width = Number($systemX.attr('max')) - Number($systemX.attr('min'))
             const height = Number($systemY.attr('max')) - Number($systemY.attr('min'))
             this.screen.setPosBaseSize({ width, height })
             const posInfo: Record<string, TVTPlayerPosInfoItem> = {}
-            $('/response/channel/chl').forEach((ele) => {
+            $('//channel/chl').forEach((ele) => {
                 const chlId = ele.attr('id') as string
                 const $ele = queryXml(ele.element)
                 const previewDisplay = $ele('previewDisplay').text() === 'true'
@@ -1096,7 +1096,7 @@ export default class TVTPlayer {
                     timeout: 10, // pos超时隐藏时间，默认10秒
                 }
             })
-            $('/response/content/item').forEach((ele) => {
+            $('//content/item').forEach((ele) => {
                 const $ele = queryXml(ele.element)
                 const $position = `param/displaySetting/displayPosition/`
                 const $triggerChls = $ele('trigger/triggerChl/chls/item')
@@ -1165,14 +1165,14 @@ export default class TVTPlayer {
     getChlIp() {
         http.fetch('queryDevOsdDisplayCfg', '').then((res: any) => {
             const $ = queryXml(res)
-            if ($('/response/status').text() !== 'success') return
-            if ($('/response/content/addressSwitch').text() === 'true') {
+            if ($('//status').text() !== 'success') return
+            if ($('//content/addressSwitch').text() === 'true') {
                 // 若为true则可以显示ip地址
                 http.fetch('queryDevList', `<requireField><ip/></requireField>`).then((res: any) => {
                     const $ = queryXml(res)
-                    if ($('/response/status').text() !== 'success') return
+                    if ($('//status').text() !== 'success') return
                     this.chlIpMap = {}
-                    $('/response/content/item').forEach((item) => {
+                    $('//content/item').forEach((item) => {
                         const $el = queryXml(item.element)
                         const ip = $el('ip').text()
                         const id = item.attr('id') as string

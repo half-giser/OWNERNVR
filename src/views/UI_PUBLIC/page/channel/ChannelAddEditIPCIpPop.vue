@@ -29,15 +29,15 @@
                 prop="ip"
                 :label="Translate('IDCS_ADDRESS')"
             >
-                <BaseIpInput v-model:value="formData.ip" />
+                <BaseIpInput v-model="formData.ip" />
             </el-form-item>
             <el-form-item
                 prop="mask"
                 :label="Translate('IDCS_SUBNET_MASK')"
             >
                 <BaseIpInput
-                    v-model:value="formData.mask"
-                    :disable="maskDisabled"
+                    v-model="formData.mask"
+                    :disabled="maskDisabled"
                 />
             </el-form-item>
             <el-form-item
@@ -45,8 +45,8 @@
                 :label="Translate('IDCS_GATEWAY')"
             >
                 <BaseIpInput
-                    v-model:value="formData.gateway"
-                    :disable="gatewayDisabled"
+                    v-model="formData.gateway"
+                    :disabled="gatewayDisabled"
                 />
             </el-form-item>
             <el-form-item
@@ -81,7 +81,7 @@
                     class="el-col-flex-end"
                 >
                     <el-button @click="save">{{ Translate('IDCS_OK') }}</el-button>
-                    <el-button @click="close()">{{ Translate('IDCS_CANCEL') }}</el-button>
+                    <el-button @click="$emit('close')">{{ Translate('IDCS_CANCEL') }}</el-button>
                 </el-col>
             </el-row>
         </template>
@@ -89,5 +89,3 @@
 </template>
 
 <script lang="ts" src="./ChannelAddEditIPCIpPop.v.ts"></script>
-
-<style scoped lang="scss"></style>

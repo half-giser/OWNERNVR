@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 二级类型1布局页--适用于所有配置页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-16 20:22:46
+ * @LastEditTime: 2024-08-19 20:54:22
 -->
 <template>
     <el-container id="layout2">
@@ -64,10 +64,12 @@
             </div>
             <div id="layout2Content">
                 <router-view v-slot="{ Component }">
-                    <component
-                        :is="Component"
-                        ref="chilComponent"
-                    />
+                    <div>
+                        <component
+                            :is="Component"
+                            ref="chilComponent"
+                        />
+                    </div>
                 </router-view>
             </div>
         </el-main>
@@ -82,6 +84,7 @@
 }
 
 #layout2 {
+    width: 100%;
     border: solid 1px var(--border-color2);
     min-height: 100%;
     // min-height: calc(100vh - 172px);

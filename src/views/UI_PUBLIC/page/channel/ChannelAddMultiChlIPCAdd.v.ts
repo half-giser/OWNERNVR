@@ -1,16 +1,4 @@
-import useLoading from '@/hooks/useLoading'
-import { useLangStore } from '@/stores/lang'
-import { LocalCacheKey, nameByteMaxLen } from '@/utils/constants'
 import { ChannelInfoDto, type DefaultPwdDto, MultiChlCheckedInfoDto, type MultiChlIPCAddDto } from '@/types/apiType/channel'
-import { checkIpV4 } from '@/utils/validates'
-import { cutStringByByte } from '@/utils/formats'
-import { getSecurityVer } from '@/utils/tools'
-import { AES_encrypt } from '@/utils/encrypt'
-import { useUserSessionStore } from '@/stores/userSession'
-import { getXmlWrapData } from '@/api/api'
-import { queryDevList, queryLanDevice } from '@/api/channel'
-import { queryXml } from '@/utils/xmlParse'
-import { useRouter } from 'vue-router'
 
 export default defineComponent({
     setup() {
@@ -80,11 +68,11 @@ export default defineComponent({
             let curRequestNum = 0
             openLoading(LoadingTarget.FullScreen)
             nonRTSPData.forEach((item: MultiChlIPCAddDto) => {
-                createLanDeviceRequest(item).then((res: any) => {
-                    res = queryXml(res)
+                createLanDeviceRequest(item).then((res) => {
+                    const $ = queryXml(res)
                     curRequestNum++
-                    if (res('status').text() == 'success') {
-                        const supportChlType = res('//content/industryProductType').text() // 值为"THERMAL_DOUBLE"，代表“热成像双目IPC”
+                    if ($('status').text() == 'success') {
+                        const supportChlType = $('//content/industryProductType').text() // 值为"THERMAL_DOUBLE"，代表“热成像双目IPC”
                         if (supportChlType) chlTypeMap[item.ip] = supportChlType
                     } else {
                         chlTypeMap[item.ip] = 'NORMAL' // 返回“fail”，代表“普通单目IPC”
@@ -169,12 +157,12 @@ export default defineComponent({
                     domainXmlStr = `<domain><![CDATA[${element.domain}]]></domain>`
                 }
             }
-            const data = `
+            const data = rawXml`
                 <content>
                     <manufacturer>${element.manufacturer}</manufacturer>
                     ${ipXmlStr}
                     ${domainXmlStr}
-                    <port>${element.port}</port>
+                    <port>${element.port.toString()}</port>
                     <userName><![CDATA[${cutStringByByte(element.userName, nameByteMaxLen)}]]></userName>
                     ${element.password == '******' ? '' : '<password' + getSecurityVer() + '><![CDATA[' + AES_encrypt(element.password, userSessionStore.sesionKey) + ']]></password>'}
                 </content>`
@@ -186,7 +174,7 @@ export default defineComponent({
          * @param cb
          */
         const getExistChl = (cb: Function) => {
-            const data = `
+            const data = rawXml`
                 <requireField>
                     <name/>
                     <ip/>
@@ -200,19 +188,19 @@ export default defineComponent({
                     <chlType/>
                     <chlNum/>
                 </requireField>`
-            queryDevList(getXmlWrapData(data)).then((res: any) => {
-                res = queryXml(res)
+            queryDevList(getXmlWrapData(data)).then((res) => {
+                const $ = queryXml(res)
                 const rowData: ChannelInfoDto[] = []
-                if (res('status').text() == 'success') {
-                    res('//content/item').forEach((ele: any) => {
+                if ($('status').text() == 'success') {
+                    $('//content/item').forEach((ele) => {
                         const eleXml = queryXml(ele.element)
                         const channelInfo = new ChannelInfoDto()
-                        channelInfo.id = ele.attr('id')
+                        channelInfo.id = ele.attr('id')!
                         channelInfo.chlNum = eleXml('chlNum').text()
                         channelInfo.name = eleXml('name').text()
                         channelInfo.devID = eleXml('devID').text()
                         channelInfo.ip = eleXml('ip').text()
-                        channelInfo.port = eleXml('port').text()
+                        channelInfo.port = Number(eleXml('port').text())
                         channelInfo.poePort = eleXml('poePort').text()
                         channelInfo.userName = eleXml('userName').text()
                         channelInfo.password = eleXml('password').text()
@@ -228,13 +216,13 @@ export default defineComponent({
         }
 
         const saveData = () => {
-            let data = `
+            let data = rawXml`
                 <types>
                     <manufacturer>`
             for (const key in manufacturerMap) {
                 data += `<enum displayName='${manufacturerMap[key]}'>${key}</enum>`
             }
-            data += `
+            data += rawXml`
                     </manufacturer>
                     <protocolType>
                         <enum>TVT_IPCAMERA</enum>
@@ -295,7 +283,7 @@ export default defineComponent({
                     //解决中间有空格不相等的问题
                     if (Trim(ele.displayName, 'g') == Trim(element.manufacturer, 'g')) manufacturerID = ele.index
                 })
-                itemXMLStr += `
+                itemXMLStr += rawXml`
                     <item>
                         <name><![CDATA[${name}]]></name>
                         ${ipXmlStr}
@@ -310,12 +298,12 @@ export default defineComponent({
                         ${defaultParam}
                     </item>`
             } else {
-                itemXMLStr += `
+                itemXMLStr += rawXml`
                     <item>
                         <name><![CDATA[${name}]]></name>
                         ${ipXmlStr}
                         ${domainXmlStr}
-                        <port>${element.port}</port>
+                        <port>${element.port.toString()}</port>
                         <userName><![CDATA[${cutStringByByte(element.userName, nameByteMaxLen)}]]></userName>
                         ${element.password == '******' ? '' : '<password' + getSecurityVer() + '><![CDATA[' + AES_encrypt(element.password, userSessionStore.sesionKey) + ']]></password>'}
                         <index>0</index>

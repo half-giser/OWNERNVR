@@ -3,7 +3,7 @@
  * @Date: 2024-08-07 09:15:58
  * @Description: 用户通道权限
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-07 09:21:19
+ * @LastEditTime: 2024-09-05 16:20:13
  */
 export class UserChlAuth {
     // 是否拥有全部权限
@@ -20,9 +20,11 @@ export class UserChlAuth {
     lp = {} as Record<string, boolean>
 
     bk = {} as Record<string, boolean>
+
+    update: () => Promise<void> = () => Promise.resolve()
 }
 
-export const useUserChlAuth = () => {
+export const useUserChlAuth = (immediate = true) => {
     const auth = ref(new UserChlAuth())
     const userSession = useUserSessionStore()
 
@@ -49,7 +51,7 @@ export const useUserChlAuth = () => {
         const result = await queryAuthGroup(sendXml)
         const $ = queryXml(result)
 
-        $('/response/content/chlAuth/item').forEach((item) => {
+        $('//content/chlAuth/item').forEach((item) => {
             const $item = queryXml(item.element)
             const id = item.attr('id')!
             auth.value.ptz[id] = $item('auth').text().includes('@ptz')
@@ -58,11 +60,15 @@ export const useUserChlAuth = () => {
             auth.value.bk[id] = $item('auth').text().includes('@bk')
             auth.value.lp[id] = $item('auth').text().includes('@lp')
         })
-        auth.value.accessControl = $('/response/content/systemAuth/AccessControlMgr').text().toBoolean()
+        auth.value.accessControl = $('//content/systemAuth/AccessControlMgr').text().toBoolean()
     }
 
+    auth.value.update = getAuth
+
     onMounted(() => {
-        getAuth()
+        if (immediate) {
+            getAuth()
+        }
     })
 
     return auth

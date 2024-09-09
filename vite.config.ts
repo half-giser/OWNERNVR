@@ -4,7 +4,7 @@
  * @Description:
  */
 import path from 'node:path'
-import { defineConfig, loadEnv } from 'vite'
+import { defineConfig, loadEnv, type PluginOption } from 'vite'
 import Vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
 import { createHtmlPlugin } from 'vite-plugin-html'
@@ -15,6 +15,7 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import GenerateSprite from './scripts/generateSprite'
 import MinifyXmlTemplateStrings from './scripts/minifyXmlTemplateStrings'
 import PostCssVariableCompress from 'postcss-variable-compress'
+import { visualizer } from 'rollup-plugin-visualizer'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -24,6 +25,16 @@ export default defineConfig(({ mode }) => {
     console.log(process.env.NODE_ENV)
 
     const { VITE_APP_IP, VITE_UI_TYPE } = env
+
+    const devPlugin: PluginOption[] = [
+        visualizer({
+            open: false,
+            gzipSize: true,
+            brotliSize: true,
+        }),
+    ]
+
+    const buildPlugin: PluginOption[] = []
 
     return {
         envDir,
@@ -42,9 +53,11 @@ export default defineConfig(({ mode }) => {
                         proxy.on('proxyReq', (proxyReq, req) => {
                             // NVR 设备端会读取 Content-Length，必须是首字母大写的，而proxy转发后，会把header的key全部转为小写，
                             // 设备读取不到Content-Length，则不返回，dev server控制台打印错误： [vite] http proxy error: error: socket hang up
-                            const len = req.headers['content-length'] as string
-                            proxyReq.removeHeader('content-length')
-                            proxyReq.setHeader('Content-Length', len)
+                            if (req.headers['content-length']) {
+                                const len = req.headers['content-length'] as string
+                                proxyReq.removeHeader('content-length')
+                                proxyReq.setHeader('Content-Length', len)
+                            }
                         })
                     },
                 },
@@ -71,8 +84,8 @@ export default defineConfig(({ mode }) => {
         },
         plugins: [
             GenerateSprite({
-                src: `sprite/${VITE_UI_TYPE === 'UI1-A' ? 'UI-Public' : VITE_UI_TYPE}-sprite/sprite/*.png`,
-                dist: path.resolve(__dirname, 'src/views/UI_PUBLIC/components/sprite/'),
+                src: `sprite/${VITE_UI_TYPE}-sprite/sprite/*.png`,
+                dist: path.resolve(__dirname, 'src/components/sprite/'),
             }),
             MinifyXmlTemplateStrings(),
             Vue(),
@@ -150,7 +163,7 @@ export default defineConfig(({ mode }) => {
                     },
                 },
             }),
-        ],
+        ].concat(mode === 'dev' ? devPlugin : buildPlugin),
         // components: [
         // ],
         build: {

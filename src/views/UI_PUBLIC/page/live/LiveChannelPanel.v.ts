@@ -3,10 +3,10 @@
  * @Date: 2024-07-26 17:03:07
  * @Description: 现场预览-通道视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-30 10:29:57
+ * @LastEditTime: 2024-09-05 16:08:06
  */
 import ChannelGroupEditPop from '../channel/ChannelGroupEditPop.vue'
-import ChannelGroupAdd from '../channel/ChannelGroupAdd.vue'
+import ChannelGroupAddPop from '../channel/ChannelGroupAddPop.vue'
 import { type LiveChannelList, type LiveChannelGroupList, type LiveChlOfChannelGroupList, type LiveCustomViewList, type LiveCustomViewChlList } from '@/types/apiType/live'
 import { ChlGroup } from '@/types/apiType/channel'
 
@@ -20,7 +20,7 @@ export interface ChannelPanelExpose {
 export default defineComponent({
     components: {
         ChannelGroupEditPop,
-        ChannelGroupAdd,
+        ChannelGroupAddPop,
     },
     props: {
         /**
@@ -29,14 +29,12 @@ export default defineComponent({
         mode: {
             type: String,
             required: true,
-            default: '',
         },
         /**
          * @property 播放类型
          */
         type: {
             type: String as PropType<'live' | 'record'>,
-            required: false,
             default: 'live',
         },
         /**
@@ -45,7 +43,6 @@ export default defineComponent({
         playingList: {
             type: Array as PropType<string[]>,
             required: true,
-            default: () => [],
         },
     },
     emits: {
@@ -163,8 +160,8 @@ export default defineComponent({
                 requireField: ['name', 'chlType', 'protocolType', 'supportPtz', 'supportPTZGroupTraceTask', 'supportAccessControl', 'supportTalkback'],
             })
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
-                pageData.value.cacheChlList = $('/response/content/item').map((item) => {
+            if ($('//status').text() === 'success') {
+                pageData.value.cacheChlList = $('//content/item').map((item) => {
                     const $item = queryXml(item.element)
                     const result = {
                         id: item.attr('id')!,
@@ -198,9 +195,9 @@ export default defineComponent({
             const result = await queryOnlineChlList()
             const $ = queryXml(result)
 
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 // 查询出所有在线的通道
-                pageData.value.onlineChlList = $('/response/content/item').map((item) => {
+                pageData.value.onlineChlList = $('//content/item').map((item) => {
                     return item.attr('id')!
                 })
             }
@@ -277,8 +274,8 @@ export default defineComponent({
             `
             const result = await queryChlGroupList(getXmlWrapData(sendXml))
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
-                pageData.value.chlGroupList = $('/response/content/item').map((item) => {
+            if ($('//status').text() === 'success') {
+                pageData.value.chlGroupList = $('//content/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
                         id: item.attr('id')!,
@@ -287,7 +284,7 @@ export default defineComponent({
                     }
                 })
             } else {
-                if (Number($('/response/errorCode').text()) === ErrorCode.USER_ERROR_NO_AUTH) {
+                if (Number($('//errorCode').text()) === ErrorCode.USER_ERROR_NO_AUTH) {
                     openMessageTipBox({
                         type: 'info',
                         message: Translate('IDCS_NO_PERMISSION'),
@@ -311,8 +308,8 @@ export default defineComponent({
             const result = await queryChlGroup(getXmlWrapData(sendXml))
             const $ = queryXml(result)
 
-            if ($('/response/status').text() === 'success') {
-                pageData.value.chlListOfGroup = $('/response/content/chlList/item').map((item) => {
+            if ($('//status').text() === 'success') {
+                pageData.value.chlListOfGroup = $('//content/chlList/item').map((item) => {
                     return {
                         id: item.attr('id')!,
                         value: item.text(),
@@ -398,7 +395,6 @@ export default defineComponent({
             if (findItem) {
                 openMessageTipBox({
                     type: 'question',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_DELETE_MP_GROUP_S').formatForLang(getShortString(findItem.value, 10)),
                 }).then(async () => {
                     openLoading(LoadingTarget.FullScreen)
@@ -412,10 +408,9 @@ export default defineComponent({
                     const result = await delChlGroup(getXmlWrapData(sendXml))
                     const $ = queryXml(result)
                     closeLoading(LoadingTarget.FullScreen)
-                    if ($('/response/status').text() === 'success') {
+                    if ($('//status').text() === 'success') {
                         openMessageTipBox({
                             type: 'success',
-                            title: Translate('IDCS_SUCCESS_TIP'),
                             message: Translate('IDCS_DELETE_SUCCESS'),
                         }).then(() => {
                             getChlGroupList()
@@ -461,8 +456,8 @@ export default defineComponent({
             const result = await queryCustomerView()
             const $ = queryXml(result)
 
-            if ($('/response/status').text() === 'success') {
-                pageData.value.customViewList = $('/response/content/item').map((item, index) => {
+            if ($('//status').text() === 'success') {
+                pageData.value.customViewList = $('//content/item').map((item, index) => {
                     const $item = queryXml(item.element)
                     return {
                         chlArr: $item('chls/item').map((chl) => ({
@@ -558,7 +553,7 @@ export default defineComponent({
             chlGroupElement,
             mousedownChlGroupPosition,
             ChannelGroupEditPop,
-            ChannelGroupAdd,
+            ChannelGroupAddPop,
         }
     },
 })

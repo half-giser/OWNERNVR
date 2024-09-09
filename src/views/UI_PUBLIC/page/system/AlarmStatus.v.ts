@@ -3,27 +3,20 @@
  * @Date: 2024-06-28 11:45:28
  * @Description: 报警状态
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-11 20:05:37
+ * @LastEditTime: 2024-09-05 14:24:15
  */
-import { type XmlResult } from '@/utils/xmlParse'
+import { type XMLQuery } from '@/utils/xmlParse'
 import type { SystemAlarmStatusListData, SystemAlarmStatusList } from '@/types/apiType/system'
 import dayjs from 'dayjs'
-// import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
-import RecPop from '../rec/RecPop.vue'
 import type { TableInstance } from 'element-plus'
-import { type RecPlayList } from '@/types/apiType/playback'
+import { type PlaybackPopList } from '@/components/player/BasePlaybackPop.vue'
 
 export default defineComponent({
-    components: {
-        // BaseImgSprite,
-        RecPop,
-    },
     setup() {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const systemCaps = useCababilityStore()
-        const userSession = useUserSessionStore()
-        const dateTime = useDateTime()
+        const dateTime = useDateTimeStore()
 
         const NAME_MAPPING: Record<number, string> = {
             1: Translate('IDCS_WHITE_LIST') + '1',
@@ -92,7 +85,7 @@ export default defineComponent({
             activeRow: [] as string[],
             // 是否打开回放弹窗
             isRecord: false,
-            recordPlayList: [] as RecPlayList[],
+            recordPlayList: [] as PlaybackPopList[],
         })
 
         /**
@@ -102,7 +95,7 @@ export default defineComponent({
             const result = await queryBasicCfg(getXmlWrapData(''))
             const $ = queryXml(result)
 
-            const CustomerID = $('/response/content/CustomerID').text()
+            const CustomerID = $('//content/CustomerID').text()
             pageData.value.isInw48 = CustomerID === '100'
         }
 
@@ -113,7 +106,7 @@ export default defineComponent({
             const result = await queryFacePersonnalInfoGroupList()
             const $ = queryXml(result)
             // const data: Record<number, string> = {}
-            $('/response/content/item').forEach((item) => {
+            $('//content/item').forEach((item) => {
                 const $item = queryXml(item.element)
                 const groupId = Number($item('groupId').text())
                 const name = $item('name').text()
@@ -135,8 +128,8 @@ export default defineComponent({
             const result = await queryPlateLibrary()
             const $ = queryXml(result)
 
-            if ($('/response/status').text() === 'success') {
-                $('/response/content/group/item').forEach((item) => {
+            if ($('//status').text() === 'success') {
+                $('//content/group/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     PLATE_LIBRARY_NAME[item.attr('id')!] = $item('name').text()
                 })
@@ -301,10 +294,10 @@ export default defineComponent({
          * @param {Function} $
          * @param {number} index
          */
-        const getAlaramInData = ($: (path: string) => XmlResult, index: number) => {
-            const alarmInData = $('/response/content/alarmIns/item').map((item) => {
+        const getAlaramInData = ($: XMLQuery, index: number) => {
+            const alarmInData = $('//content/alarmIns/item').map((item) => {
                 const $item = queryXml(item.element)
-                const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat.value)
+                const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat)
                 const rec = $item('triggerRecChls/item').map((chl) => ({
                     id: chl.attr('id')!,
                     text: chl.text(),
@@ -382,10 +375,10 @@ export default defineComponent({
          * @param {Function} $
          * @param {number} index
          */
-        const getAlarmOutData = ($: (path: string) => XmlResult, index: number) => {
-            const alarmOutData = $('/response/content/alarmOuts/item').map((item) => {
+        const getAlarmOutData = ($: XMLQuery, index: number) => {
+            const alarmOutData = $('//content/alarmOuts/item').map((item) => {
                 const $item = queryXml(item.element)
-                const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat.value)
+                const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat)
                 return {
                     id: $item('alarmOut').attr('id')!,
                     rec: [],
@@ -412,10 +405,10 @@ export default defineComponent({
          * @param {Function} $
          * @param {number} index
          */
-        const getMotionData = ($: (path: string) => XmlResult, index: number) => {
-            const motionData = $('/response/content/motions/item').map((item) => {
+        const getMotionData = ($: XMLQuery, index: number) => {
+            const motionData = $('//content/motions/item').map((item) => {
                 const $item = queryXml(item.element)
-                const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat.value)
+                const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat)
                 const rec = $item('triggerRecChls/item').map((chl) => ({
                     id: chl.attr('id')!,
                     text: chl.text(),
@@ -495,10 +488,10 @@ export default defineComponent({
          * @param {Function} $
          * @param {number} index
          */
-        const getIntelligentsData = ($: (path: string) => XmlResult, index: number) => {
-            const intelligentsData = $('/response/content/intelligents/item').map((item) => {
+        const getIntelligentsData = ($: XMLQuery, index: number) => {
+            const intelligentsData = $('//content/intelligents/item').map((item) => {
                 const $item = queryXml(item.element)
-                const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat.value)
+                const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat)
                 const rec = $item('triggerRecChls/item').map((chl) => ({
                     id: chl.attr('id')!,
                     text: chl.text(),
@@ -577,15 +570,15 @@ export default defineComponent({
          * @param {Function} $
          * @param {number} index
          */
-        const getAbnormalData = ($: (path: string) => XmlResult, index: number) => {
+        const getAbnormalData = ($: XMLQuery, index: number) => {
             const data: SystemAlarmStatusListData[] = []
 
-            const abnormalData = $('/response/content/abnormals/item').map((item) => {
+            const abnormalData = $('//content/abnormals/item').map((item) => {
                 const $item = queryXml(item.element)
 
                 const abnormalType = $item('abnormalType').text() || ''
                 const diskType = Number($item('alarmNode').attr('diskType')!)
-                const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat.value)
+                const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat)
                 const serialNO = $item('alarmNode').attr('serialNO')!
                 const nic = $item('alarmNode').attr('nic')!
                 const ip = $item('alarmNode').attr('ip')!
@@ -684,9 +677,9 @@ export default defineComponent({
                     ],
                 }
             })
-            const frontEndOfflineData = $('/response/content/frontEndOffline/item').map((item) => {
+            const frontEndOfflineData = $('//content/frontEndOffline/item').map((item) => {
                 const $item = queryXml(item.element)
-                const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat.value)
+                const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat)
                 const ip = $item('alarmNode').attr('ip')!
 
                 let errorNote = ''
@@ -767,9 +760,9 @@ export default defineComponent({
                     ],
                 }
             })
-            const videoLossData = $('/response/content/videoLoss/item').map((item) => {
+            const videoLossData = $('//content/videoLoss/item').map((item) => {
                 const $item = queryXml(item.element)
-                const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat.value)
+                const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat)
 
                 return {
                     id: $item('sourceChl').attr('id')!,
@@ -837,7 +830,7 @@ export default defineComponent({
             })
             data.push(...abnormalData, ...frontEndOfflineData, ...videoLossData)
             data.sort((a, b) => {
-                return dayjs(a.alarmTime, dateTime.dateTimeFormat.value).valueOf() - dayjs(b.alarmTime, dateTime.dateTimeFormat.value).valueOf()
+                return dayjs(a.alarmTime, dateTime.dateTimeFormat).valueOf() - dayjs(b.alarmTime, dateTime.dateTimeFormat).valueOf()
             })
             tableList.value[index].data = data
         }
@@ -847,10 +840,10 @@ export default defineComponent({
          * @param {Function} $
          * @param {number} index
          */
-        const getFaceMatchAlaramsData = ($: (path: string) => XmlResult, index: number) => {
-            const faceMatchAlarmsData = $('/response/content/faceMatchAlarms/item').map((item) => {
+        const getFaceMatchAlaramsData = ($: XMLQuery, index: number) => {
+            const faceMatchAlarmsData = $('//content/faceMatchAlarms/item').map((item) => {
                 const $item = queryXml(item.element)
-                const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat.value)
+                const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat)
                 const rec = $item('triggerRecChls/item').map((chl) => ({
                     id: chl.attr('id')!,
                     text: chl.text(),
@@ -939,10 +932,10 @@ export default defineComponent({
          * @param {Function} $
          * @param {number} index
          */
-        const getCombinedAlarmsData = ($: (path: string) => XmlResult, index: number) => {
-            const combinedAlarmsData = $('/response/content/combinedAlarms/item').map((item) => {
+        const getCombinedAlarmsData = ($: XMLQuery, index: number) => {
+            const combinedAlarmsData = $('//content/combinedAlarms/item').map((item) => {
                 const $item = queryXml(item.element)
-                const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat.value)
+                const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat)
                 const rec = $item('triggerRecChls/item').map((chl) => ({
                     id: chl.attr('id')!,
                     text: chl.text(),
@@ -1016,10 +1009,10 @@ export default defineComponent({
          * @param {Function} $
          * @param {number} index
          */
-        const getVehiclePlateMatchAlarmsData = ($: (path: string) => XmlResult, index: number) => {
-            const vehiclePlateMatchAlarmsData = $('/response/content/vehiclePlateMatchAlarms/item').map((item) => {
+        const getVehiclePlateMatchAlarmsData = ($: XMLQuery, index: number) => {
+            const vehiclePlateMatchAlarmsData = $('//content/vehiclePlateMatchAlarms/item').map((item) => {
                 const $item = queryXml(item.element)
-                const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat.value)
+                const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat)
                 const rec = $item('triggerRecChls/item').map((chl) => ({
                     id: chl.attr('id')!,
                     text: chl.text(),
@@ -1112,16 +1105,10 @@ export default defineComponent({
          * @param {SystemAlarmStatusListData} row
          */
         const playRec = (row: SystemAlarmStatusListData) => {
-            let alarmTime = row.alarmTime
-            if (userSession.calendarType === 'Persian') {
-                alarmTime = persianToGregory(alarmTime, dateTime.dateTimeFormat.value)
-            }
-            const startTime = dayjs(alarmTime, { format: dateTime.dateTimeFormat.value, jalali: false }).subtract(preTime, 'millisecond').calendar('gregory').format('YYYY-MM-DD HH:mm:ss')
-            const endTime = dayjs(alarmTime, { format: dateTime.dateTimeFormat.value, jalali: false })
-                .add(recDuration, 'millisecond')
-                .subtract(preTime, 'millisecond')
-                .calendar('gregory')
-                .format('YYYY-MM-DD HH:mm:ss')
+            const alarmTime = row.alarmTime
+            const startTime = dayjs(alarmTime, dateTime.dateTimeFormat).subtract(preTime, 'millisecond').valueOf()
+            const endTime = dayjs(alarmTime, dateTime.dateTimeFormat).add(recDuration, 'millisecond').subtract(preTime, 'millisecond').valueOf()
+
             const playList = row.rec.map((item) => {
                 return {
                     chlId: item.id,
@@ -1138,12 +1125,10 @@ export default defineComponent({
         onMounted(async () => {
             openLoading(LoadingTarget.FullScreen)
             await getBasicCfg()
-            await systemCaps.updateCabability()
             await getFaceFeatureGroupsName()
             await getPlateLibrary()
 
             renderTable()
-            await dateTime.getTimeConfig()
             await getAlarmStatus()
             closeLoading(LoadingTarget.FullScreen)
         })
@@ -1160,8 +1145,6 @@ export default defineComponent({
             getAlarmStatusActive,
             handleChangeRow,
             playRec,
-            // BaseImgSprite,
-            RecPop,
         }
     },
 })

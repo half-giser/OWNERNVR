@@ -3,10 +3,9 @@
  * @Date: 2024-06-20 15:59:54
  * @Description: 系统重启
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-20 17:21:02
+ * @LastEditTime: 2024-08-23 17:10:45
  */
-import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import { type UserCheckAuthForm } from '@/types/apiType/userAndSecurity'
+import BaseCheckAuthPop, { type UserCheckAuthForm } from '../../components/auth/BaseCheckAuthPop.vue'
 
 export default defineComponent({
     components: {
@@ -21,14 +20,14 @@ export default defineComponent({
 
         const pageData = ref({
             // 显示隐藏权限弹窗
-            isAuthDialog: false,
+            isAuthPop: false,
         })
 
         /**
          * @description 打开鉴权弹窗
          */
         const verify = () => {
-            pageData.value.isAuthDialog = true
+            pageData.value.isAuthPop = true
         }
 
         /**
@@ -49,12 +48,12 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            if ($('/response/status').text() === 'success') {
-                pageData.value.isAuthDialog = false
+            if ($('//status').text() === 'success') {
+                pageData.value.isAuthPop = false
                 openLoading(LoadingTarget.FullScreen, Translate('IDCS_REBOOTING'))
                 timer = reconnect()
             } else {
-                const errorCode = Number($('/response/errorCode').text())
+                const errorCode = Number($('//errorCode').text())
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_NO_AUTH:
@@ -68,7 +67,6 @@ export default defineComponent({
                 }
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: errorInfo,
                 })
             }

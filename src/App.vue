@@ -3,19 +3,12 @@
  * @Date: 2024-05-24 17:12:55
  * @Description: 
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 15:37:47
+ * @LastEditTime: 2024-09-05 09:20:01
 -->
 <template>
     <div>
         <el-config-provider :locale="langStore.elLocale">
-            <router-view v-slot="{ Component }">
-                <transition name="page-view">
-                    <component
-                        :is="Component"
-                        :key
-                    />
-                </transition>
-            </router-view>
+            <router-view />
         </el-config-provider>
         <transition name="intitial-view">
             <div
@@ -38,7 +31,6 @@ import dayjs from 'dayjs'
 
 const route = useRoute()
 const router = useRouter()
-const key = computed(() => `${String(route.name || route.path)}-${new Date()}`)
 const layoutStore = useLayoutStore()
 const langStore = useLangStore()
 const session = useUserSessionStore()
@@ -60,8 +52,10 @@ const hanedleActivationStatus = async (checkActivationStatus: boolean, isUserAut
             if (!auInfo) {
                 router.replace('/login')
                 return
-            } else if (isUserAuth && route.name === 'login') {
-                router.replace('/live')
+            } else if (isUserAuth) {
+                if (route.name === 'login') {
+                    router.replace('/live')
+                }
             }
         }
     } catch (e) {
@@ -78,7 +72,7 @@ if (APP_TYPE === 'STANDARD') {
         })
         .finally(() => {
             queryActivationStatus().then((result) => {
-                const checkActivationStatus = queryXml(result)('/response/content/activated').text() === 'true'
+                const checkActivationStatus = queryXml(result)('//content/activated').text().toBoolean()
                 hanedleActivationStatus(checkActivationStatus, isUserAuth)
             })
         })
@@ -158,11 +152,13 @@ body {
     }
 
     &-enter-active {
-        transition: opacity 0.4s linear;
+        width: 100vw;
+        transition: opacity 0.3s linear;
     }
 
     &-leave-active {
-        transition: opacity 0.4s linear;
+        width: 100vw;
+        transition: opacity 0.3s linear;
     }
 }
 </style>

@@ -3,7 +3,7 @@
  * @Date: 2024-07-17 11:11:44
  * @Description: 现场预览-通道视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 15:36:13
+ * @LastEditTime: 2024-08-23 16:17:43
 -->
 <template>
     <div class="left">
@@ -179,23 +179,15 @@
         <ChannelGroupEditPop
             v-model="pageData.isEditChlGroup"
             :edit-item="pageData.editChlGroup"
-            :close="closeEditChlGroup"
-            :call-back="getChlGroupList"
+            @close="closeEditChlGroup"
+            @call-back="getChlGroupList"
         />
         <!-- 编辑通道组 -->
-        <el-dialog
+        <ChannelGroupAddPop
             v-model="pageData.isAddChlGroup"
-            :title="Translate('IDCS_ADD_GROUP')"
-            width="800"
-            align-center
-            draggable
-        >
-            <ChannelGroupAdd
-                dialog
-                :close="closeAddChlGroup"
-                :call-back="getChlGroupList"
-            />
-        </el-dialog>
+            @close="closeAddChlGroup"
+            @call-back="getChlGroupList"
+        />
     </div>
 </template>
 

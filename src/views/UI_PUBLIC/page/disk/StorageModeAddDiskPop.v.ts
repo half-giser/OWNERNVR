@@ -3,7 +3,7 @@
  * @Date: 2024-07-08 18:02:05
  * @Description: 存储模式新增磁盘弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-08 20:00:21
+ * @LastEditTime: 2024-09-05 12:00:34
  */
 import { StorageModeDiskGroupList, type StorageModeDiskList } from '@/types/apiType/disk'
 
@@ -62,11 +62,11 @@ export default defineComponent({
             tableData.value = []
 
             // TODO 需要测试数据
-            if ($('/response/status').text() === 'success') {
-                $disk('/response/content/item').forEach((item) => {
+            if ($('//status').text() === 'success') {
+                $disk('//content/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     const diskId = item.attr('id')!
-                    const diskStatus = $(`/response/content/item[@id="${diskId}"]/diskStatus`).text()
+                    const diskStatus = $(`//content/item[@id="${diskId}"]/diskStatus`).text()
                     const diskInterfaceType = $item('diskInterfaceType').text()
                     const diskType = $item('diskType').text()
                     const diskList = prop.current.diskList.map((item) => item.id)
@@ -112,14 +112,12 @@ export default defineComponent({
             if (!pageData.value.selection.length) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_PLEASE_SELECT_DISK'),
                 })
                 return
             }
             openMessageTipBox({
                 type: 'question',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_HD_CHANGE_GROUP_WARNING'),
             }).then(async () => {
                 openLoading(LoadingTarget.FullScreen)
@@ -142,7 +140,7 @@ export default defineComponent({
                 const result = await editSetAndElementRelation(getXmlWrapData(sendXml))
                 const $ = queryXml(result)
 
-                if ($('/response/status').text() === 'success') {
+                if ($('//status').text() === 'success') {
                     ctx.emit('comfirm')
                 }
 

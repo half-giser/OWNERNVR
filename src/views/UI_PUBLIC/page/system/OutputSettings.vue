@@ -3,7 +3,7 @@
  * @Date: 2024-06-25 09:59:16
  * @Description: 输出配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 14:29:47
+ * @LastEditTime: 2024-08-23 16:16:31
 -->
 <template>
     <div class="OutputSetting">
@@ -303,22 +303,14 @@
         <ChannelGroupEditPop
             v-model="pageData.isEditChlGroup"
             :edit-item="pageData.editChlGroup"
-            :close="closeEditChlGroup"
-            :call-back="getChlGroupList"
+            @close="closeEditChlGroup"
+            @call-back="getChlGroupList"
         />
-        <el-dialog
+        <ChannelGroupAddPop
             v-model="pageData.isAddChlGroup"
-            :title="Translate('IDCS_ADD_GROUP')"
-            width="800"
-            align-center
-            draggable
-        >
-            <ChannelGroupAdd
-                dialog
-                :close="closeAddChlGroup"
-                :call-back="getChlGroupList"
-            />
-        </el-dialog>
+            @close="closeAddChlGroup"
+            @call-back="getChlGroupList"
+        />
     </div>
 </template>
 

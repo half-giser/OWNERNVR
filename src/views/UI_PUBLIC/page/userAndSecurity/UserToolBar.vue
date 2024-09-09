@@ -3,7 +3,7 @@
  * @Date: 2024-05-07 19:40:23
  * @Description: 用户板块右上方工具栏
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-17 20:26:26
+ * @LastEditTime: 2024-08-23 14:05:05
 -->
 <template>
     <el-input
@@ -24,12 +24,7 @@
 </template>
 
 <script lang="ts">
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
-
 export default defineComponent({
-    components: {
-        BaseImgSprite,
-    },
     emits: ['toolBarEvent'],
     setup(_props, ctx) {
         const msg = ref('')
@@ -55,7 +50,6 @@ export default defineComponent({
             msg,
             search,
             add,
-            BaseImgSprite,
         }
     },
 })

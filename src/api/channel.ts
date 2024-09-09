@@ -127,6 +127,27 @@ export const queryChlCruiseList = (data: string) => http.fetch('queryChlCruiseLi
 export const delChlCruise = (data: string) => http.fetch('delChlCruise', getXmlWrapData(data))
 
 /**
+ * @description 编辑巡航线
+ * @param {string} data
+ * @returns
+ */
+export const editChlCruise = (data: string) => http.fetch('editChlCruise', getXmlWrapData(data))
+
+/**
+ * @description 获取巡航先的预置点列表
+ * @param {string} data
+ * @returns
+ */
+export const queryChlCruise = (data: string) => http.fetch('queryChlCruise', getXmlWrapData(data))
+
+/**
+ * @description 创建巡航线
+ * @param {string} data
+ * @returns
+ */
+export const createChlCruise = (data: string) => http.fetch('createChlCruise', getXmlWrapData(data))
+
+/**
  * @description 播放巡航线组
  * @param {string} data
  * @returns
@@ -204,6 +225,20 @@ export const goToPtzPreset = (data: string) => http.fetch('goToPtzPreset', getXm
 export const delChlPreset = (data: string) => http.fetch('delChlPreset', getXmlWrapData(data))
 
 /**
+ * @description 编辑预置点
+ * @param {string} data
+ * @returns
+ */
+export const editChlPreset = (data: string) => http.fetch('editChlPreset', getXmlWrapData(data))
+
+/**
+ * @description 新增预置点
+ * @param {string} data
+ * @returns
+ */
+export const createChlPreset = (data: string) => http.fetch('createChlPreset', getXmlWrapData(data))
+
+/**
  * @description 编辑预置点位置
  * @param {string} data
  * @returns
@@ -232,6 +267,41 @@ export const delLocalChlPtzTrace = (data: string) => http.fetch('delLocalChlPtzT
 export const deleteChlPtzTrace = (data: string) => http.fetch('deleteChlPtzTrace', getXmlWrapData(data))
 
 /**
+ * @description 编辑轨迹
+ * @param {string} data
+ * @returns
+ */
+export const editChlPtzTrace = (data: string) => http.fetch('editChlPtzTrace', getXmlWrapData(data))
+
+/**
+ * @description 创建轨迹
+ * @param {string} data
+ * @returns
+ */
+export const createChlPtzTrace = (data: string) => http.fetch('createChlPtzTrace', getXmlWrapData(data))
+
+/**
+ * @description 获取云台任务列表
+ * @param {string} data
+ * @returns
+ */
+export const queryLocalChlPtzTask = (data: string) => http.fetch('queryLocalChlPtzTask', getXmlWrapData(data))
+
+/**
+ * @description 编辑云台任务列表
+ * @param {string} data
+ * @returns
+ */
+export const editChlPtzTask = (data: string) => http.fetch('editChlPtzTask', getXmlWrapData(data))
+
+/**
+ * @description 编辑云台任务状态
+ * @param {string} data
+ * @returns
+ */
+export const setChlPtzTaskStatus = (data: string) => http.fetch('setChlPtzTaskStatus', getXmlWrapData(data))
+
+/**
  * @description 查询鱼眼信息
  * @param {string} data
  * @returns
@@ -243,3 +313,37 @@ export const queryIPChlORChlFishEye = (data: string) => http.fetch('queryIPChlOR
  * @returns
  */
 export const queryChlsExistRec = () => http.fetch('queryChlsExistRec', getXmlWrapData(''))
+
+/**
+ * @description 查询POS信息
+ * @returns
+ */
+export const queryPosBillList = (data: string) => http.fetch('queryPosBillList', getXmlWrapData(data))
+
+/**
+ * @description 获取云台智能追踪配置
+ * @param {string} data
+ * @returns
+ */
+export const queryBallIPCATCfg = (data: string) => http.fetch('queryBallIPCATCfg', getXmlWrapData(data))
+
+/**
+ * @description 编辑云台智能追踪配置
+ * @param {string} data
+ * @returns
+ */
+export const editBallIPCATCfg = (data: string) => http.fetch('editBallIPCATCfg', getXmlWrapData(data))
+
+/**
+ * @description 获取云台协议配置
+ * @param {string} data
+ * @returns
+ */
+export const queryPtzProtocol = (data: string) => http.fetch('queryPtzProtocol', getXmlWrapData(data))
+
+/**
+ * @description 编辑云台协议配置
+ * @param {string} data
+ * @returns
+ */
+export const editPtzProtocol = (data: string) => http.fetch('editPtzProtocol', getXmlWrapData(data))

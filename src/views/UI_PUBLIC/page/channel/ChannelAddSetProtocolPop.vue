@@ -129,9 +129,12 @@
                 width="130px"
             >
                 <template #default="scope">
-                    <el-input
+                    <el-input-number
                         v-model="scope.row.port"
-                        v-numericalRange:[formData].port="[1, 65535]"
+                        :min="10"
+                        :max="65535"
+                        value-on-clear="min"
+                        :controls="false"
                         size="small"
                         :disabled="!formData.enabled"
                     />
@@ -159,7 +162,7 @@
             <el-row>
                 <el-col class="el-col-flex-end">
                     <el-button @click="save">{{ Translate('IDCS_OK') }}</el-button>
-                    <el-button @click="close(false)">{{ Translate('IDCS_CANCEL') }}</el-button>
+                    <el-button @click="$emit('close')">{{ Translate('IDCS_CANCEL') }}</el-button>
                 </el-col>
             </el-row>
         </template>

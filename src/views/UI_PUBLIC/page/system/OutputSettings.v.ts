@@ -3,32 +3,20 @@
  * @Date: 2024-06-25 09:59:23
  * @Description: 输出配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 17:41:54
+ * @LastEditTime: 2024-09-05 16:26:55
  */
 import { type XmlResult } from '@/utils/xmlParse'
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
 import OutputSplitTemplate from './OutputSplitTemplate.vue'
-import OutputAddViewPop from './OutputAddViewPop.vue'
-import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import { type UserCheckAuthForm } from '@/types/apiType/userAndSecurity'
+import OutputAddViewPop, { type ChlsDto, type ChlGroupData } from './OutputAddViewPop.vue'
+import BaseCheckAuthPop, { type UserCheckAuthForm } from '../../components/auth/BaseCheckAuthPop.vue'
 import ChannelGroupEditPop from '../channel/ChannelGroupEditPop.vue'
-import ChannelGroupAdd from '../channel/ChannelGroupAdd.vue'
+import ChannelGroupAddPop from '../channel/ChannelGroupAddPop.vue'
 import { ChlGroup } from '@/types/apiType/channel'
 
 type ChlItem = {
     id: string
     value: string
     dwellTime?: number
-}
-
-interface ChlsDto {
-    id: string
-    winindex: number
-}
-
-interface ChlGroupData {
-    segNum: number
-    chls: ChlsDto[]
 }
 
 interface DwellData {
@@ -75,11 +63,10 @@ interface DecoderCardMap {
 export default defineComponent({
     components: {
         BaseCheckAuthPop,
-        BaseImgSprite,
         OutputSplitTemplate,
         OutputAddViewPop,
         ChannelGroupEditPop,
-        ChannelGroupAdd,
+        ChannelGroupAddPop,
     },
     setup() {
         const { Translate } = useLangStore()
@@ -256,13 +243,7 @@ export default defineComponent({
          * @returns {string}
          */
         const displayDwellTimeLabel = (value: number) => {
-            if (value < 60) {
-                return value + ' ' + Translate('IDCS_SECONDS')
-            } else if (value === 60) {
-                return value / 60 + ' ' + Translate('IDCS_MINUTE')
-            } else {
-                return value / 60 + ' ' + Translate('IDCS_MINUTES')
-            }
+            return getTranslateForSecond(value)
         }
 
         /**
@@ -521,7 +502,6 @@ export default defineComponent({
             if (findItem) {
                 openMessageTipBox({
                     type: 'question',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_DELETE_MP_GROUP_S').formatForLang(getShortString(findItem.value, 10)),
                 }).then(async () => {
                     openLoading(LoadingTarget.FullScreen)
@@ -535,10 +515,9 @@ export default defineComponent({
                     const result = await delChlGroup(getXmlWrapData(sendXml))
                     const $ = queryXml(result)
                     closeLoading(LoadingTarget.FullScreen)
-                    if ($('/response/status').text() === 'success') {
+                    if ($('//status').text() === 'success') {
                         openMessageTipBox({
                             type: 'success',
-                            title: Translate('IDCS_SUCCESS_TIP'),
                             message: Translate('IDCS_DELETE_SUCCESS'),
                         }).then(() => {
                             getChlGroupList()
@@ -558,9 +537,9 @@ export default defineComponent({
                 requireField: ['name'],
             })
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 pageData.value.chlList = []
-                $('/response/content/item').forEach((item) => {
+                $('//content/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     const id = item.attr('id')!
                     const value = $item('name').text()
@@ -584,9 +563,9 @@ export default defineComponent({
             `
             const result = await queryChlGroupList(getXmlWrapData(sendXml))
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 pageData.value.chlGroupList = []
-                $('/response/content/item').forEach((item) => {
+                $('//content/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     pageData.value.chlGroupList.push({
                         id: item.attr('id')!,
@@ -621,9 +600,9 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 cacheChlListOfGroup[id] = [] as ChlItem[]
-                $('/response/content/chlList/item').forEach((item) => {
+                $('//content/chlList/item').forEach((item) => {
                     // const $item = queryXml(item.element)
                     cacheChlListOfGroup[id].push({
                         id: item.attr('id')!,
@@ -707,8 +686,8 @@ export default defineComponent({
             const $ = queryXml(result)
 
             // 解码卡排序
-            const decoderResXml = $('/response/decoderContent/decoder')
-            const decoderArrXml = $('/response/decoderContent/decoder').sort((a, b) => {
+            const decoderResXml = $('//decoderContent/decoder')
+            const decoderArrXml = $('//decoderContent/decoder').sort((a, b) => {
                 return Number(a.attr('id')) - Number(b.attr('id'))
             })
             const decorderOutputXml: Record<number, XmlResult> = {}
@@ -792,10 +771,10 @@ export default defineComponent({
 
             // 获取主输出的配置
             mainOutputData.value = new MainOutputData()
-            mainOutputData.value.displayMode = $('/response/content/item[@outType="Main"]/item1/displayMode').text()
-            mainOutputData.value.timeInterval = Number($('/response/content/item[@outType="Main"]/item1/timeInterval').text())
+            mainOutputData.value.displayMode = $('//content/item[@outType="Main"]/item1/displayMode').text()
+            mainOutputData.value.timeInterval = Number($('//content/item[@outType="Main"]/item1/timeInterval').text())
             mainOutputData.value.chlGroups = []
-            $('/response/content/item[@outType="Main"]/item1/chlGroups/item').forEach((item) => {
+            $('//content/item[@outType="Main"]/item1/chlGroups/item').forEach((item) => {
                 const $item = queryXml(item.element)
                 const segNum = Number($item('segNum').text())
                 const chlsData: ChlsDto[] = []
@@ -830,7 +809,7 @@ export default defineComponent({
                 }
             }
 
-            $("/response/content/item[contains(@outType,'Sub')]").forEach((item) => {
+            $("//content/item[contains(@outType,'Sub')]").forEach((item) => {
                 const $item = queryXml(item.element)
                 // 每个辅输出对应的索引序号（1，2，3...）
                 const outIndex = Number(item.attr('outIndex'))
@@ -888,9 +867,9 @@ export default defineComponent({
         const getSystemWorkMode = async () => {
             const result = await querySystemWorkMode()
             const $ = queryXml(result)
-            const supportAI = $('/response/content/supportAI').text().toBoolean()
-            const is3535A = $('/response/content/openSubOutput').length > 0
-            const openSubOutput = $('/response/content/openSubOutput').text().toBoolean()
+            const supportAI = $('//content/supportAI').text().toBoolean()
+            const is3535A = $('//content/openSubOutput').length > 0
+            const openSubOutput = $('//content/openSubOutput').text().toBoolean()
             // 只有3535A且支持AI的机型才会有辅输出开关
             if (supportAI && is3535A) {
                 pageData.value.isConfigSwitch = true
@@ -907,7 +886,6 @@ export default defineComponent({
             pageData.value.configSwitch = !pageData.value.configSwitch
             openMessageTipBox({
                 type: 'question',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_OPEN_SUBOUTPUT_TIP'),
             }).then(() => {
                 pageData.value.isCheckAuth = true
@@ -938,11 +916,11 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 pageData.value.isCheckAuth = false
                 pageData.value.configSwitch = !pageData.value.configSwitch
             } else {
-                const errorCode = Number($('/response/errorCode').text())
+                const errorCode = Number($('//errorCode').text())
                 let errorInfo = ''
 
                 switch (errorCode) {
@@ -962,7 +940,6 @@ export default defineComponent({
 
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: errorInfo,
                 })
             }
@@ -1204,12 +1181,6 @@ export default defineComponent({
             await getChlsList()
             await getChlGroupList()
 
-            /**
-             * 获取解码卡的最大分割数
-             * 未配置解码卡时，queryDwell协议不会返回解码卡信息，导致ShowHdmiIn, decoderDwellData，decoderPreviewData为空
-             */
-            await systemCaps.updateCabability()
-
             await getDwellData()
 
             // 3535A是否显示辅输出控制开关
@@ -1264,11 +1235,10 @@ export default defineComponent({
             closeAddChlGroup,
 
             BaseCheckAuthPop,
-            BaseImgSprite,
             OutputSplitTemplate,
-            // OutputAddViewPop,
+            OutputAddViewPop,
             ChannelGroupEditPop,
-            ChannelGroupAdd,
+            ChannelGroupAddPop,
         }
     },
 })

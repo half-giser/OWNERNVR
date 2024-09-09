@@ -131,7 +131,7 @@ export default defineComponent({
             const result = await queryStorageDevInfo()
             const $ = queryXml(result)
 
-            pageData.value.diskList = $('/response/content/diskList/item')
+            pageData.value.diskList = $('//content/diskList/item')
                 .filter((item) => {
                     const $item = queryXml(item.element)
                     // 移动U盘不显示
@@ -163,8 +163,8 @@ export default defineComponent({
             const result = await queryDiskSmartInfo(sendXml)
             const $ = queryXml(result)
 
-            if ($('/response/status').text() === 'success') {
-                tableData.value = $('/response/content/smartItems/item').map((item) => {
+            if ($('//status').text() === 'success') {
+                tableData.value = $('//content/smartItems/item').map((item) => {
                     const $item = queryXml(item.element)
                     let id = Number(item.attr('id')).toString(16)
                     id = `${id.length === 1 ? '0x0' : '0x'}${id}`
@@ -179,9 +179,9 @@ export default defineComponent({
                     }
                 })
 
-                pageData.value.diskPowerOnHours = $('/response/content/powerOnDays').text()
-                pageData.value.diskTemperature = $('/response/content/temperature').text()
-                pageData.value.diskStatus = DISK_STATUS_MAPPING[$('/response/content/diskStatus').text()]
+                pageData.value.diskPowerOnHours = $('//content/powerOnDays').text()
+                pageData.value.diskTemperature = $('//content/temperature').text()
+                pageData.value.diskStatus = DISK_STATUS_MAPPING[$('//content/diskStatus').text()]
             }
         }
 

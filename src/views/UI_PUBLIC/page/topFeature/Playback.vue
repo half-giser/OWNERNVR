@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 18:39:25
  * @Description: 回放
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 15:29:05
+ * @LastEditTime: 2024-09-05 11:26:24
 -->
 <template>
     <div class="playback">
@@ -75,7 +75,6 @@
                     :end-time="endTimeStamp"
                     :event-list="pageData.eventList"
                     :mode-type="pageData.eventModeType"
-                    :date-time-format="dateTime.dateTimeFormat.value"
                     :chl="pageData.winData.chlID"
                     :play-status="pageData.playStatus"
                     :chls="pageData.chls"
@@ -110,8 +109,6 @@
                     <div class="timeline-view">
                         <BaseTimeline
                             ref="timelineRef"
-                            :date-time-format="dateTime.dateTimeFormat.value"
-                            :time-format="dateTime.timeFormat.value"
                             :colors-map="pageData.legend"
                             @seek="seek"
                             @set-offset-x="pageData.timelineOffsetX = $event"
@@ -163,14 +160,14 @@
                 />
             </template>
         </PlaybackAsidePanel>
-        <PlaybackBackUpPop
+        <BackupPop
             v-model="pageData.isBackUpPop"
             :mode
             :backup-list="pageData.backupRecList"
             @confirm="confirmBackUp"
             @close="pageData.isBackUpPop = false"
         />
-        <PlaybackBackUpLocalPop
+        <BackupLocalPop
             v-model="pageData.isLocalBackUpPop"
             :auth="userAuth"
             :backup-list="pageData.backupRecList"

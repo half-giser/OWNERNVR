@@ -3,12 +3,11 @@
  * @Date: 2024-07-02 09:08:32
  * @Description: POS配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-03 15:24:59
+ * @LastEditTime: 2024-09-05 15:15:25
  */
-import { cloneDeep } from 'lodash'
+import { cloneDeep } from 'lodash-es'
 import type { SystemPosList, SystemPosListChls, SystemPostColorData, SystemPosConnectionForm, SystemPosDisplaySetting } from '@/types/apiType/system'
 import { SystemPostDisplaySet } from '@/types/apiType/system'
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
 import PosConnectionSettingsPop from './PosConnectionSettingsPop.vue'
 import PosTriggerChannelPop from './PosTriggerChannelPop.vue'
 import PosHayleyTriggerChannelPop from './PosHayleyTriggerChannelPop.vue'
@@ -20,13 +19,13 @@ export default defineComponent({
         PosTriggerChannelPop,
         PosHayleyTriggerChannelPop,
         PosDisplaySettingPop,
-        BaseImgSprite,
     },
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
 
+        // 连接类型与显示文本的映射
         const CONNECTION_TYPE_MAPPING: Record<string, string> = {
             'TCP-Listen': Translate('IDCS_CONNECT_TYPE'),
             'TCP-Client': Translate('IDCS_TCP_CLIENT'),
@@ -91,17 +90,17 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            if ($('/response/status').text() === 'success') {
-                pageData.value.tillNumberMax = Number($('/response/types/tillNumber').attr('max'))
+            if ($('//status').text() === 'success') {
+                pageData.value.tillNumberMax = Number($('//types/tillNumber').attr('max'))
 
-                pageData.value.connectionTypeList = $('/response/types/connectionType/enum').map((item) => {
+                pageData.value.connectionTypeList = $('//types/connectionType/enum').map((item) => {
                     return {
                         value: item.text(),
                         name: CONNECTION_TYPE_MAPPING[item.text()],
                     }
                 })
 
-                pageData.value.colorData = $('/response/channel/chl').map((item) => {
+                pageData.value.colorData = $('//channel/chl').map((item) => {
                     const $item = queryXml(item.element)
 
                     return {
@@ -113,7 +112,7 @@ export default defineComponent({
                     }
                 })
 
-                const displaysetString = '/response/content/itemType/param/displaySetting/displayPosition/'
+                const displaysetString = '//content/itemType/param/displaySetting/displayPosition/'
                 pageData.value.displaysetList.xmin = Number($(`${displaysetString}coordinateSystem/X`).attr('min'))
                 pageData.value.displaysetList.xmax = Number($(`${displaysetString}coordinateSystem/X`).attr('max'))
                 pageData.value.displaysetList.ymin = Number($(`${displaysetString}coordinateSystem/Y`).attr('min'))
@@ -121,7 +120,7 @@ export default defineComponent({
                 pageData.value.displaysetList.wmin = Number($(`${displaysetString}width`).attr('min'))
                 pageData.value.displaysetList.hmin = Number($(`${displaysetString}height`).attr('min'))
 
-                pageData.value.manufacturersList = $('/response/types/manufacturers/enum').map((item) => {
+                pageData.value.manufacturersList = $('//types/manufacturers/enum').map((item) => {
                     const value = item.text()
                     return {
                         value,
@@ -129,12 +128,12 @@ export default defineComponent({
                     }
                 })
 
-                pageData.value.encodeList = $('/response/types/encodeFormat/enum').map((item) => ({
+                pageData.value.encodeList = $('//types/encodeFormat/enum').map((item) => ({
                     value: item.text(),
                     name: item.text(),
                 }))
 
-                const data: SystemPosList[] = $('/response/content/item').map((item) => {
+                const data: SystemPosList[] = $('//content/item').map((item) => {
                     const $item = queryXml(item.element)
                     const manufacturers = $item('param/manufacturers').text()
                     const connectionType = $item('param/connectionType').text()
@@ -299,16 +298,14 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 openMessageTipBox({
                     type: 'success',
-                    title: Translate('IDCS_SUCCESS_TIP'),
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
             } else {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_SAVE_DATA_FAIL'),
                 })
             }
@@ -337,7 +334,6 @@ export default defineComponent({
             if (!isValidAddress) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_PROMPT_IPADDRESS_INVALID'),
                 })
                 return false
@@ -354,7 +350,6 @@ export default defineComponent({
             if (!isNoEmptyIp) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_POS_IP_EMPTY'),
                 })
                 return false
@@ -373,7 +368,6 @@ export default defineComponent({
             if (!isNoEmptyPort) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_POS_PORT_EMPTY'),
                 })
                 return false
@@ -396,7 +390,6 @@ export default defineComponent({
             if (isSameIPAndPort) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_POS_IP_SAME'),
                 })
                 return false
@@ -595,7 +588,6 @@ export default defineComponent({
             PosTriggerChannelPop,
             PosHayleyTriggerChannelPop,
             PosDisplaySettingPop,
-            BaseImgSprite,
         }
     },
 })

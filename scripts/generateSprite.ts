@@ -3,13 +3,13 @@
  * @Date: 2024-06-05 08:54:10
  * @Description: 生成雪碧图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-11 09:10:35
+ * @LastEditTime: 2024-09-02 09:01:52
  */
 import { type Plugin } from 'vite'
 
 import fs from 'node:fs/promises'
 import path from 'path'
-import glob from 'glob'
+import globby from 'globby'
 import MagicString from 'magic-string'
 import SpriteSmith from 'spritesmith'
 import Chalk from 'chalk'
@@ -20,10 +20,15 @@ interface GenerateSpriteOption {
 }
 
 function generateSprite(option: GenerateSpriteOption) {
-    return new Promise((resolve, reject) => {
-        const sprites = glob.glob.sync(option.src, {
-            ignore: '**/img.png',
+    return new Promise(async (resolve, reject) => {
+        let sprites = await globby(option.src, {
+            ignore: ['**/img.png'],
         })
+        if (!sprites.length) {
+            sprites = await globby('sprite/UI-Public-sprite/sprite/*.png', {
+                ignore: ['**/img.png'],
+            })
+        }
         SpriteSmith.run({ src: sprites }, async (err, result) => {
             if (err) {
                 console.log(Chalk.red.bold('ERROR'), Chalk.white(`GenerateSprite Error: ${err}`))

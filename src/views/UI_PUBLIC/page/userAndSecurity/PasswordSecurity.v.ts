@@ -3,7 +3,7 @@
  * @Date: 2024-06-18 18:40:47
  * @Description: 密码安全
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 20:34:42
+ * @LastEditTime: 2024-09-05 13:42:54
  */
 import { UserPasswordSecurityForm } from '@/types/apiType/userAndSecurity'
 
@@ -49,11 +49,11 @@ export default defineComponent({
             const $ = queryXml(result)
             closeLoading(LoadingTarget.FullScreen)
 
-            if ($('/response/status').text() === 'success') {
-                formData.value.passwordStrength = $('/response/content/pwdSecureSetting/pwdSecLevel').text()
-                formData.value.expirationTime = $('/response/content/pwdSecureSetting/expiration').text()
+            if ($('//status').text() === 'success') {
+                formData.value.passwordStrength = $('//content/pwdSecureSetting/pwdSecLevel').text()
+                formData.value.expirationTime = $('//content/pwdSecureSetting/expiration').text()
 
-                pageData.value.passwordStrengthOptions = $('/response/types/userPasswordAllowLevel/enum').map((item) => {
+                pageData.value.passwordStrengthOptions = $('//types/userPasswordAllowLevel/enum').map((item) => {
                     const text = item.text()
                     return {
                         value: text,
@@ -61,7 +61,7 @@ export default defineComponent({
                     }
                 })
 
-                pageData.value.expirationTimeOptions = $('/response/types/userPasswordExpirationTime/enum').map((item) => {
+                pageData.value.expirationTimeOptions = $('//types/userPasswordExpirationTime/enum').map((item) => {
                     const text = item.text()
                     return {
                         value: text,
@@ -90,10 +90,9 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 openMessageTipBox({
                     type: 'success',
-                    title: Translate('IDCS_SUCCESS_TIP'),
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
             }

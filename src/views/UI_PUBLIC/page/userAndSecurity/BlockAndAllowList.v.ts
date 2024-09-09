@@ -3,15 +3,13 @@
  * @Date: 2024-06-18 18:42:59
  * @Description: 黑白名单
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 19:55:29
+ * @LastEditTime: 2024-09-05 14:01:56
  */
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
 import BlockAndAllowEditPop from './BlockAndAllowEditPop.vue'
 import { UserBlackAllowListForm, UserEditBlackAllowListForm } from '@/types/apiType/userAndSecurity'
 
 export default defineComponent({
     components: {
-        BaseImgSprite,
         BlockAndAllowEditPop,
     },
     setup() {
@@ -21,7 +19,7 @@ export default defineComponent({
 
         const pageData = ref({
             // 是否显示编辑弹窗
-            isEditDialog: false,
+            isEditPop: false,
             // 编辑项的索引. -1为新增
             editIndex: -1,
             // 编辑数据
@@ -42,7 +40,7 @@ export default defineComponent({
          * @param {number} index
          */
         const handleEdit = (row: UserEditBlackAllowListForm, index: number) => {
-            pageData.value.isEditDialog = true
+            pageData.value.isEditPop = true
             pageData.value.editIndex = index
             pageData.value.editData = { ...row }
         }
@@ -54,7 +52,6 @@ export default defineComponent({
         const handleDelete = (index: number) => {
             openMessageTipBox({
                 type: 'question',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_DELETE_MP_S'),
             }).then(() => {
                 tableData.value.splice(index, 1)
@@ -65,7 +62,7 @@ export default defineComponent({
          * @description 添加IP，打开编辑弹窗
          */
         const handleAddIp = () => {
-            pageData.value.isEditDialog = true
+            pageData.value.isEditPop = true
             pageData.value.editIndex = -1
             const editData = new UserEditBlackAllowListForm()
             editData.addressType = 'ip'
@@ -76,7 +73,7 @@ export default defineComponent({
          * @description 添加MAC，打开编辑弹窗
          */
         const handleAddMac = () => {
-            pageData.value.isEditDialog = true
+            pageData.value.isEditPop = true
             pageData.value.editIndex = -1
             const editData = new UserEditBlackAllowListForm()
             editData.addressType = 'mac'
@@ -87,7 +84,7 @@ export default defineComponent({
          * @description 关闭编辑弹窗，更新表格数据
          * @param {UserEditBlackAllowListForm} e
          */
-        const handleCloseEdit = (e: UserEditBlackAllowListForm | null) => {
+        const handleConfirmEdit = (e: UserEditBlackAllowListForm | null) => {
             if (e) {
                 if (pageData.value.editIndex === -1) {
                     tableData.value.push({ ...e })
@@ -95,7 +92,7 @@ export default defineComponent({
                     tableData.value[pageData.value.editIndex] = { ...e }
                 }
             }
-            pageData.value.isEditDialog = false
+            pageData.value.isEditPop = false
         }
 
         /**
@@ -104,10 +101,10 @@ export default defineComponent({
         const getData = async () => {
             const result = await queryBlackAndWhiteList()
             commLoadResponseHandler(result, ($) => {
-                formData.value.switch = $('/response/content/switch').text().toBoolean()
-                formData.value.filterType = $('/response/content/filterType').text() as UserBlackAllowListForm['filterType']
+                formData.value.switch = $('//content/switch').text().toBoolean()
+                formData.value.filterType = $('//content/filterType').text() as UserBlackAllowListForm['filterType']
                 tableData.value = []
-                $('/response/content/filterList/itemType/item').forEach((item) => {
+                $('//content/filterList/itemType/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     tableData.value.push({
                         switch: $item('switch').text().toBoolean(),
@@ -232,8 +229,7 @@ export default defineComponent({
             handleAddMac,
             formatIpMacAddress,
             setData,
-            handleCloseEdit,
-            BaseImgSprite,
+            handleConfirmEdit,
             BlockAndAllowEditPop,
         }
     },

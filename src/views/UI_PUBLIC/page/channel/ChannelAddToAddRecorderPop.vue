@@ -26,8 +26,8 @@
                     >
                         <BaseIpInput
                             v-show="!formData.chkDomain"
-                            v-model:value="formData.ip"
-                            :disable="eleIpDisabled"
+                            v-model="formData.ip"
+                            :disabled="eleIpDisabled"
                         />
                         <el-input
                             v-show="formData.chkDomain"
@@ -55,9 +55,12 @@
                         prop="servePort"
                         :label="Translate('IDCS_SERVE_PORT')"
                     >
-                        <el-input
+                        <el-input-number
                             v-model="formData.servePort"
-                            v-numericalRange:[formData].servePort="[10, 65535]"
+                            :min="10"
+                            :max="65535"
+                            value-on-clear="min"
+                            :controls="false"
                             :disabled="eleServePortDisabled"
                         />
                     </el-form-item>
@@ -68,9 +71,12 @@
                         prop="channelCount"
                         :label="Translate('IDCS_CHANNELS')"
                     >
-                        <el-input
+                        <el-input-number
                             v-model="formData.channelCount"
-                            v-numericalRange:[formData].channelCount="[1, 128]"
+                            :min="1"
+                            :max="128"
+                            value-on-clear="min"
+                            :controls="false"
                             :disabled="eleChlCountDisabled"
                         />
                     </el-form-item>
@@ -169,7 +175,7 @@
                         >{{ Translate('IDCS_TEST') }}</el-button
                     >
                     <el-button @click="save">{{ Translate('IDCS_OK') }}</el-button>
-                    <el-button @click="close()">{{ Translate('IDCS_CANCEL') }}</el-button>
+                    <el-button @click="$emit('close')">{{ Translate('IDCS_CANCEL') }}</el-button>
                 </el-col>
             </el-row>
         </template>

@@ -3,27 +3,32 @@
  * @Date: 2024-07-19 18:40:58
  * @Description: 现场预览-云台视图-预置点
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 16:29:12
+ * @LastEditTime: 2024-08-20 19:42:25
 -->
 <template>
     <div class="ptz-preset">
         <BaseListBox class="ptz-preset-content">
             <BaseListBoxItem
                 v-for="(item, index) in listData"
-                :key="item.value"
+                :key="item.index"
                 :class="{
                     active: pageData.active === index,
                 }"
-                @dblclick="callPreset(item.value, index)"
+                @dblclick="callPreset(item.index, index)"
                 @click="pageData.active = index"
             >
-                <span class="ptz-preset-text text-ellipsis">{{ item.label }}</span>
-                <BaseImgSprite
-                    file="call"
-                    :index="0"
-                    :chunk="2"
-                    @click.stop="callPreset(item.value, index)"
-                />
+                <span class="ptz-preset-text text-ellipsis">{{ item.name }}</span>
+                <el-tooltip
+                    :show-after="500"
+                    :content="Translate('IDCS_CALL')"
+                >
+                    <BaseImgSprite
+                        file="call"
+                        :index="0"
+                        :chunk="2"
+                        @click.stop="callPreset(item.index, index)"
+                    />
+                </el-tooltip>
             </BaseListBoxItem>
         </BaseListBox>
         <div class="ptz-preset-btns">
@@ -70,6 +75,14 @@
                 />
             </el-tooltip>
         </div>
+        <ChannelPresetAddPop
+            v-model="pageData.isAddPop"
+            :max="pageData.maxCount"
+            :presets="listData"
+            :chl-id="chlId"
+            @confirm="confirmAddPreset"
+            @close="pageData.isAddPop = false"
+        />
     </div>
 </template>
 
@@ -101,8 +114,7 @@
     }
 
     &-text {
-        width: 80%;
-        flex-shrink: 0;
+        width: 100%;
         height: 100%;
     }
 }

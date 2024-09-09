@@ -3,12 +3,9 @@
  * @Date: 2024-05-30 18:48:05
  * @Description: websocket导出车牌库
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-11 09:39:31
+ * @LastEditTime: 2024-09-02 17:23:03
  */
-import { ErrorCode } from '../constants'
 import WebsocketBase from './websocketBase'
-import { Uint8ArrayToStr } from '../tools'
-import { CMD_PLATELIB_EXPORT_START, CMD_PLATELIB_EXPORT_STOP, CMD_PLATELIB_EXPORT_CONFIRM_STEP } from './websocketCmd'
 
 export interface WebsocketPlateLibOption {
     onsuccess?: (param: WebsocketPlateLibOnSuccessParam[] | number) => void
@@ -94,7 +91,8 @@ export default class WebsocketPlateLib {
     }
 
     /**
-     * 从响应json报文的data字段信息中读取车牌库数据
+     * @description 从响应json报文的data字段信息中读取车牌库数据
+     * @param {PlateDataDatum[]} data
      * @return {Array} plateDataList
      * plateDataList: [
      *  {

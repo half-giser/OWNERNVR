@@ -3,29 +3,24 @@
  * @Date: 2024-07-01 11:01:12
  * @Description: 查看日志
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-30 14:54:41
+ * @LastEditTime: 2024-09-05 15:30:26
  */
 import { SystemLogForm, type SystemLogList } from '@/types/apiType/system'
 import dayjs from 'dayjs'
-import BaseImgSprite from '../../components/sprite/BaseImgSprite.vue'
 import ViewLogDetailPop from './ViewLogDetailPop.vue'
-import RecPop from '../rec/RecPop.vue'
-import { type RecPlayList } from '@/types/apiType/playback'
+import { type PlaybackPopList } from '@/components/player/BasePlaybackPop.vue'
 
 export default defineComponent({
     components: {
-        BaseImgSprite,
         ViewLogDetailPop,
-        RecPop,
     },
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const systemCaps = useCababilityStore()
-        const userSession = useUserSessionStore()
         const lang = useLangStore()
-        const dateTime = useDateTime()
+        const dateTime = useDateTimeStore()
 
         // 类型和语言资源映射
         const TRANS_MAPPING: Record<string, string> = {
@@ -201,12 +196,6 @@ export default defineComponent({
         // const totalCount = 0
         // 导出的最大条数
         const exportMaxCount = 2000
-        // const lang = $.webSession("lang_type");// 语言类型
-
-        // 日期格式
-        // const dateTimeFormat = ref('YYYY-MM-dd HH:mm:ss')
-        // 时间格式
-        // const timeFormat = ref('HH:mm:ss')
 
         const formData = ref(new SystemLogForm())
 
@@ -234,7 +223,7 @@ export default defineComponent({
             isDetail: false,
             // 是否打开回放弹窗
             isRecord: false,
-            recordPlayList: [] as RecPlayList[],
+            recordPlayList: [] as PlaybackPopList[],
         })
 
         // 日志子类型选项
@@ -286,14 +275,12 @@ export default defineComponent({
          * @description 获取时间格式化配置
          */
         const getTimeConfig = async () => {
-            await dateTime.getTimeConfig()
-
             formData.value.startTime = dayjs(new Date().setHours(-48, 0, 0, 0))
                 .calendar('gregory')
-                .format(dateTime.dateTimeFormat.value)
+                .format(dateTime.dateTimeFormat)
             formData.value.endTime = dayjs(new Date().setHours(23, 59, 59, 0))
                 .calendar('gregory')
-                .format(dateTime.dateTimeFormat.value)
+                .format(dateTime.dateTimeFormat)
 
             pageData.value.startTime = formData.value.startTime
             pageData.value.endTime = formData.value.endTime
@@ -390,8 +377,8 @@ export default defineComponent({
                         <itemType type="logType" />
                         ${formData.value.subType.length ? subType : mainType}
                     </logType>
-                    <startTime>${wrapCDATA(localToUtc(formData.value.startTime, dateTime.dateTimeFormat.value))}</startTime>
-                    <endTime>${wrapCDATA(localToUtc(formData.value.endTime, dateTime.dateTimeFormat.value))}</endTime>
+                    <startTime>${wrapCDATA(localToUtc(formData.value.startTime, dateTime.dateTimeFormat))}</startTime>
+                    <endTime>${wrapCDATA(localToUtc(formData.value.endTime, dateTime.dateTimeFormat))}</endTime>
                     <langId>${wrapCDATA(lang.langId)}</langId>
                     ${isExport ? `<exportMaxCount>${exportMaxCount}</exportMaxCount>` : ''}
                 </condition>
@@ -415,9 +402,9 @@ export default defineComponent({
             closeLoading(LoadingTarget.FullScreen)
 
             commLoadResponseHandler(result, ($) => {
-                pageData.value.totalCount = Number($('/response/content').attr('total'))
+                pageData.value.totalCount = Number($('//content').attr('total'))
 
-                const data = $('/response/content/item').map((item, index) => {
+                const data = $('//content/item').map((item, index) => {
                     const $item = queryXml(item.element)
                     const clientType = $item('clientType').text()
                     const logType = $item('logType').text()
@@ -425,7 +412,7 @@ export default defineComponent({
                         index: formData.value.pageSize * formData.value.currentPage + (index + 1),
                         logType,
                         clientType,
-                        time: utcToLocal($item('time').text(), dateTime.dateTimeFormat.value),
+                        time: utcToLocal($item('time').text(), dateTime.dateTimeFormat),
                         userName: $item('userName').text(),
                         subType: clientType + Translate(TRANS_MAPPING[logType]),
                         mainType: Translate(TRANS_MAPPING[SUB_MAIN_TYPE_MAPPING[logType]]),
@@ -484,10 +471,9 @@ export default defineComponent({
          * @param {string} value
          */
         const changeStartTime = (value: string) => {
-            if (dayjs(value, dateTime.dateTimeFormat.value).isAfter(dayjs(pageData.value.endTime, dateTime.dateTimeFormat.value))) {
+            if (dayjs(value, dateTime.dateTimeFormat).isAfter(dayjs(pageData.value.endTime, dateTime.dateTimeFormat))) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_END_TIME_GREATER_THAN_START'),
                 })
                 pageData.value.startTime = formData.value.startTime
@@ -502,10 +488,9 @@ export default defineComponent({
          * @param {string} value
          */
         const changeEndTime = (value: string) => {
-            if (dayjs(value, dateTime.dateTimeFormat.value).isBefore(dayjs(pageData.value.startTime, dateTime.dateTimeFormat.value))) {
+            if (dayjs(value, dateTime.dateTimeFormat).isBefore(dayjs(pageData.value.startTime, dateTime.dateTimeFormat))) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_END_TIME_GREATER_THAN_START'),
                 })
                 pageData.value.endTime = formData.value.endTime
@@ -516,21 +501,6 @@ export default defineComponent({
         }
 
         /**
-         * @description 日历周末高亮
-         * @param {Date} date
-         */
-        const handleCalendarCellHighLight = (date: Date) => {
-            if (userSession.calendarType === 'Persian') {
-                return ''
-            }
-            const day = dayjs(date).day()
-            if (day === 0 || day === 6) {
-                return 'highlight'
-            }
-            return ''
-        }
-
-        /**
          * @description 导出数据
          */
         const handleExport = async () => {
@@ -538,7 +508,6 @@ export default defineComponent({
             // if (!Plugin.IsSupportH5() && !Plugin.IsInstallPlugin()) {
             //     openMessageTipBox({
             //         type: 'info',
-            //         title: Translate('IDCS_INFO_TIP'),
             //         message: Plugin.pluginNoticeHtml.value,
             //     })
             //     return
@@ -552,20 +521,18 @@ export default defineComponent({
             try {
                 const result = await exportLog(sendXML)
                 const $ = queryXml(result)
-                const content = $('/response/content').text()
+                const content = $('//content').text()
 
                 download(new Blob([content]), 'log_' + dayjs(new Date()).format('YYYYMMDDHHmmss') + '.txt')
                 closeLoading(LoadingTarget.FullScreen)
 
                 openMessageTipBox({
                     type: 'success',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_EXPORT_SUCCESS') + `(${Translate('IDCS_EXPORT_LOG_OVER_LIMIT_TIP')})`,
                 })
             } catch (e) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_EXPORT_FAIL'),
                 })
             }
@@ -601,27 +568,12 @@ export default defineComponent({
          */
         const playRec = (row: SystemLogList) => {
             const eventList = ['MOTION', 'SCHEDULE', 'SENSOR', 'MANUAL', 'INTELLIGENT']
-            let time = row.time
-            if (userSession.calendarType === 'Persian') {
-                time = persianToGregory(time, dateTime.dateTimeFormat.value)
-            }
-            const startTime = dayjs(time, {
-                jalali: false,
-                format: dateTime.dateTimeFormat.value,
-            })
-                .subtract(preStartTime, 'millisecond')
-                .calendar('gregory')
-                .format('YYYY-MM-DD HH:mm:ss')
-            const endTime = dayjs(time, {
-                jalali: false,
-                format: dateTime.dateTimeFormat.value,
-            })
-                .add(recDuration, 'millisecond')
-                .subtract(preStartTime, 'millisecond')
-                .calendar('gregory')
-                .format('YYYY-MM-DD HH:mm:ss')
+            const time = row.time
 
-            let playList: RecPlayList[] = []
+            const startTime = dayjs(time, dateTime.dateTimeFormat).subtract(preStartTime, 'millisecond').valueOf()
+            const endTime = dayjs(time, dateTime.dateTimeFormat).add(recDuration, 'millisecond').subtract(preStartTime, 'millisecond').valueOf()
+
+            let playList: PlaybackPopList[] = []
             if (row.logType === 'LOG_ALARM_SENSOR' || row.logType === 'LOG_ALARM_COMBINED') {
                 playList = row.triggerRecChls
                     .filter((item) => item.id !== '{00000000-0000-0000-0000-000000000000}')
@@ -646,7 +598,6 @@ export default defineComponent({
             if (!playList.length) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_NO_ASSOCIATE_CHANNEL_RECORD'),
                 })
                 return
@@ -677,9 +628,8 @@ export default defineComponent({
             return false
         }
 
-        onMounted(async () => {
-            await systemCaps.updateCabability()
-            await getTimeConfig()
+        onMounted(() => {
+            getTimeConfig()
 
             if (!systemCaps.supportFaceMatch) {
                 filterLogType('LOG_ALARM_FACE_MATCH')
@@ -705,6 +655,7 @@ export default defineComponent({
 
         return {
             dateTime,
+            highlightWeekend,
             formData,
             tableList,
             pageData,
@@ -716,7 +667,6 @@ export default defineComponent({
             changePagination,
             changePaginationSize,
             handleExport,
-            handleCalendarCellHighLight,
             changeStartTime,
             changeEndTime,
             playRec,
@@ -724,9 +674,7 @@ export default defineComponent({
             handleChangeRow,
             changeLogDetail,
             closeLogDetail,
-            BaseImgSprite,
             ViewLogDetailPop,
-            RecPop,
         }
     },
 })

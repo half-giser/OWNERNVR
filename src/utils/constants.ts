@@ -31,57 +31,6 @@ export * as ErrorCode from './const/errorcode'
 /** 用户错误都需要这个位为1 */
 // const USER_ERROR_FLAG = 0x20000000
 
-/**
- * 错误码
- */
-// export const ErrorCode = {
-//     USER_ERROR_NO_RECORDDATA: 536870942,
-//     USER_ERROR_DEVICE_BUSY: 536870945,
-//     USER_ERROR_UNSUPPORTED_CMD: 536870944,
-//     USER_ERROR_FILE_STREAM_COMPLETED: 536870961,
-//     USER_ERROR_INVALID_PARAM: USER_ERROR_FLAG + 0x1f, // 536870943,
-//     USER_ERROR_SERVER_NO_EXISTS: 536871011, // USER_ERROR_FLAG + 0x63, //
-//     USER_ERROR_DEV_RESOURCE_LIMITED: 536870982,
-//     USER_ERROR_NODE_NET_DISCONNECT: 536870931,
-
-//     USER_ERROR_NODE_NET_OFFLINE: 536870935,
-//     USER_ERROR_NO_USER: USER_ERROR_FLAG + 0x23,
-//     USER_ERROR_PWD_ERR: USER_ERROR_FLAG + 0x24,
-//     //用户被锁定，暂时无法使用
-//     USER_ERROR_USER_LOCKED: USER_ERROR_FLAG + 0x27,
-//     //权限不够
-//     USER_ERROR_NO_AUTH: USER_ERROR_FLAG + 0x29,
-//     //系统忙,不能请求
-//     USER_ERROR_SYSTEM_BUSY: USER_ERROR_FLAG + 0x30,
-//     //http会话超时
-//     USER_SESSION_TIMEOUT: USER_ERROR_FLAG + 0xa2,
-//     //http会话找不到
-//     USER_SESSION_NOTFOUND: USER_ERROR_FLAG + 0xa3,
-//     //失败
-//     USER_ERROR_FAIL: USER_ERROR_FLAG + 0x16,
-//     // : 536871080
-//     // 名称已存在
-//     USER_ERROR_NAME_EXISTED: 536870970,
-//     // 资源不存在
-//     USER_ERROR__CANNOT_FIND_NODE_ERROR: 536870923,
-//     // 节点已存在（目前用于判断ip 端口重复）
-//     USER_ERROR_NODE_ID_EXISTS: 536870913,
-//     // IP地址格式错误
-//     USER_ERROR_INVALID_IP: 536870992,
-//     // 超出范围
-//     USER_ERROR_OVER_LIMIT: 536871004,
-//     // 没有产生任何配置数据（当做是成功的）
-//     USER_ERROR_GET_CONFIG_INFO_FAIL: 536870962,
-
-//     USER_ERROR_EXISTED_CHILD_NODE: 536870981,
-//     USER_ERROR_FILE_TYPE_ERROR: 536870977,
-//     USER_ERROR_NO_PARENT_AREA_AUTH: 536871017,
-//     USER_ERROR_NO_AUTH_EDIT_SAMERIGHT: 536871024,
-//     USER_ERROR_FILE_MISMATCHING: 536871030,
-//     USER_ERROR_OPEN_FILE_ERROR: 536870980,
-//     USER_ERROR_FILE_NO_EXISTED: 536870979,
-// }
-
 export const errorCodeMap = {
     nodeExist: 536870913, //0x20000000+0x01 // 节点已存在（目前用于判断ip 端口重复）
     resourceNotExist: 536870923, //0x20000000+0x0B // 资源不存在
@@ -652,20 +601,6 @@ export const DEFAULT_MOMENT_MAPPING: Record<string, string> = {
     // "24": "HH:mm",
     // "12": "hh:mm tt"
 }
-
-// export const DEFAULT_DAYJS_MAPPINGL: Record<string, string> = {
-//     'year-month-day': 'YYYY/MM/DD',
-//     'month-day-year': 'MM/DD/YYYY',
-//     'day-month-year': 'DD/MM/YYYY',
-//     '24': 'HH:mm:ss',
-//     '12': 'hh:mm:ss A',
-
-//     // "year-month-day": "yyyy/MM/dd",
-//     // "month-day-year": "MM/dd/yyyy",
-//     // "day-month-year": "dd/MM/yyyy",
-//     // "24": "HH:mm",
-//     // "12": "hh:mm tt"
-// }
 
 export const REC_MODE_TYPE = {
     INTENSIVE: 'INTENSIVE',

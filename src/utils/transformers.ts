@@ -3,7 +3,7 @@
  * @Date: 2024-06-04 20:27:19
  * @Description:
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-05 09:00:15
+ * @LastEditTime: 2024-08-30 16:29:12
  */
 
 /**
@@ -128,4 +128,21 @@ export const getPicBase64 = (buffer: ArrayBuffer, streamBufRangeStr: string, jso
     } else {
         return null
     }
+}
+
+/**
+ * @description Base64转文件
+ * @param {String} base64
+ * @param {String} fileName
+ * @returns
+ */
+export const base64ToFile = (base64: string, fileName: string) => {
+    const mime = fileName.split('.').pop()
+    const bstr = window.atob(base64)
+    let n = bstr.length
+    const u8arr = new Uint8Array(n)
+    while (n--) {
+        u8arr[n] = bstr.charCodeAt(n)
+    }
+    return new File([u8arr], fileName, { type: mime })
 }

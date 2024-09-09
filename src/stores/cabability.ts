@@ -3,7 +3,7 @@
  * @Date: 2023-05-09 16:45:59
  * @Description: 服务端能力集全局存储
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-07 10:04:35
+ * @LastEditTime: 2024-08-29 11:16:39
  */
 import { getXmlWrapData } from '@/api/api'
 import { querySystemCaps } from '@/api/system'
@@ -53,6 +53,7 @@ export const useCababilityStore = defineStore(
         const poeChlMaxCount = ref(0)
         const supportOriginalDisplay = ref(false)
         const supportImageRotate = ref(false)
+        const supportFTP = ref(false)
         const showVideoLossMessage = ref(false)
         const audioInNum = ref(0)
         const supportPtzGroupAndTrace = ref(false)
@@ -62,6 +63,7 @@ export const useCababilityStore = defineStore(
 
         const CustomerID = ref(0)
         const isInw48 = ref(false)
+        const AISwitch = ref(false)
 
         const isUseRaid = ref(false)
 
@@ -111,6 +113,7 @@ export const useCababilityStore = defineStore(
             supportHdmiVgaSeparate.value = $(`content/supportHdmiVgaSeparate`).text().toBoolean() // 是否支持VGA异源输出
             supportOriginalDisplay.value = $('content/supportOriginalDisplay').text().toBoolean()
             supportImageRotate.value = $('content/supportImageRotate').text().toBoolean()
+            supportFTP.value = $('content/supportFTP').text().toBoolean()
             showVideoLossMessage.value = $('content/showVideoLossMessage').text().toBoolean()
             audioInNum.value = Number($('content/audioInNum').text())
             supportPtzGroupAndTrace.value = $('content/supportPtzGroupAndTrace').text().toBoolean()
@@ -177,12 +180,14 @@ export const useCababilityStore = defineStore(
             poeChlMaxCount,
             supportOriginalDisplay,
             supportImageRotate,
+            supportFTP,
             showVideoLossMessage,
             audioInNum,
             supportPtzGroupAndTrace,
             supportTalk,
             fishEyeCap,
             playbackMaxWin,
+            AISwitch,
         }
     },
     {

@@ -161,7 +161,11 @@
                         <template #header>
                             <el-dropdown trigger="click">
                                 <span class="el-dropdown-link">
-                                    {{ `${Translate('IDCS_NAME')}OSD` }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
+                                    {{ `${Translate('IDCS_NAME')}OSD` }}
+                                    <BaseImgSprite
+                                        class="ddn"
+                                        file="ddn"
+                                    />
                                 </span>
                                 <template #dropdown>
                                     <el-dropdown-menu>
@@ -199,7 +203,11 @@
                         <template #header>
                             <el-dropdown trigger="click">
                                 <span class="el-dropdown-link">
-                                    {{ `${Translate('IDCS_TIME')}OSD` }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
+                                    {{ `${Translate('IDCS_TIME')}OSD` }}
+                                    <BaseImgSprite
+                                        class="ddn"
+                                        file="ddn"
+                                    />
                                 </span>
                                 <template #dropdown>
                                     <el-dropdown-menu>
@@ -237,7 +245,11 @@
                         <template #header>
                             <el-dropdown trigger="click">
                                 <span class="el-dropdown-link">
-                                    {{ Translate('IDCS_DATE_FORMAT') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
+                                    {{ Translate('IDCS_DATE_FORMAT') }}
+                                    <BaseImgSprite
+                                        class="ddn"
+                                        file="ddn"
+                                    />
                                 </span>
                                 <template #dropdown>
                                     <el-dropdown-menu>
@@ -262,7 +274,11 @@
                         <template #header>
                             <el-dropdown trigger="click">
                                 <span class="el-dropdown-link">
-                                    {{ Translate('IDCS_TIME_FORMAT') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
+                                    {{ Translate('IDCS_TIME_FORMAT') }}
+                                    <BaseImgSprite
+                                        class="ddn"
+                                        file="ddn"
+                                    />
                                 </span>
                                 <template #dropdown>
                                     <el-dropdown-menu>
@@ -292,7 +308,11 @@
                         <template #header>
                             <el-dropdown trigger="click">
                                 <span class="el-dropdown-link">
-                                    {{ Translate('IDCS_WATER_MARK') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
+                                    {{ Translate('IDCS_WATER_MARK') }}
+                                    <BaseImgSprite
+                                        class="ddn"
+                                        file="ddn"
+                                    />
                                 </span>
                                 <template #dropdown>
                                     <el-dropdown-menu>

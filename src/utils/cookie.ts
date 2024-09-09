@@ -4,7 +4,11 @@
  * @Description:
  */
 
-// 获取cookie
+/**
+ * @description 获取cookie
+ * @param {string} name
+ * @returns {string | null}
+ */
 export const getCookie = (name: string) => {
     let arr
     const reg = new RegExp('(^| )' + name + '=([^;]*)(;|$)')
@@ -12,7 +16,12 @@ export const getCookie = (name: string) => {
     else return null
 }
 
-// 设置cookie,增加到vue实例方便全局调用
+/**
+ * @description 设置cookie,增加到vue实例方便全局调用
+ * @param {string} c_name
+ * @param {string | number} value
+ * @param {number} expiredays
+ */
 export const setCookie = (c_name: string, value: string | number, expiredays?: number) => {
     let exp = ''
     if (expiredays) {
@@ -23,7 +32,10 @@ export const setCookie = (c_name: string, value: string | number, expiredays?: n
     document.cookie = c_name + '=' + value + ';path=/' + exp
 }
 
-// 删除cookie
+/**
+ * @description 删除cookie
+ * @param {string} name
+ */
 export const delCookie = (name: string) => {
     const exp = new Date()
     exp.setTime(exp.getTime() - 1)
@@ -33,7 +45,9 @@ export const delCookie = (name: string) => {
     }
 }
 
-// 清除全部
+/**
+ * @description 清除全部
+ */
 export const clearCookie = () => {
     const keys = document.cookie.match(/[^ =;]+(?=\=)/g)
     if (keys) {

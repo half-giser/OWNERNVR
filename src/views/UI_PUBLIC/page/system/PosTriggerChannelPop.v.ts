@@ -3,16 +3,18 @@
  * @Date: 2024-07-02 15:56:26
  * @Description: POS联动通道设置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-03 15:26:24
+ * @LastEditTime: 2024-09-05 15:21:56
  */
 import { type SystemPosListChls } from '@/types/apiType/system'
 
 export default defineComponent({
     props: {
+        /**
+         * @property 通道列表
+         */
         chls: {
-            type: Array,
-            // required: true,
-            default: () => [] as SystemPosListChls[],
+            type: Array as PropType<SystemPosListChls[]>,
+            required: true,
         },
     },
     emits: {
@@ -55,7 +57,7 @@ export default defineComponent({
             `
             const result = await queryNodeList(getXmlWrapData(sendXml))
             commLoadResponseHandler(result, ($) => {
-                chlList.value = $('/response/content/item').map((item) => {
+                chlList.value = $('//content/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
                         id: item.attr('id')!,
@@ -72,7 +74,6 @@ export default defineComponent({
             if (value.value.length > MAX_TRIGGER_COUNT) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_ALARMOUT_LIMIT'),
                 })
                 value.value.splice(MAX_TRIGGER_COUNT, value.value.length - 1)

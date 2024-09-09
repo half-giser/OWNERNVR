@@ -4,7 +4,7 @@
  * @Date: 2024-07-31 10:29:37
  * @Description: 录像码流通用表格组件
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-12 14:02:57
+ * @LastEditTime: 2024-08-19 16:18:20
 -->
 <template>
     <div>
@@ -498,6 +498,7 @@
                         ref="gopDropdownRef"
                         trigger="click"
                         :hide-on-click="false"
+                        placement="bottom-end"
                         class="gop_input"
                     >
                         <span class="el-dropdown-link">
@@ -586,7 +587,7 @@
 import { ArrowDown } from '@element-plus/icons-vue'
 import { RecordStreamInfoDto } from '@/types/apiType/record'
 // import { type FormInstance } from 'element-plus'
-import { queryRecordDistributeInfo, querySystemCaps, queryRemainRecTime } from '@/api/rec'
+// import { queryRecordDistributeInfo, querySystemCaps, queryRemainRecTime } from '@/api/rec'
 import { getChlList } from '@/utils/tools'
 // import { type ChannelInfoDto } from '@/types/apiType/channel'
 import { ElMessageBox } from 'element-plus'
@@ -718,7 +719,7 @@ const getDevRecParamCfgModule = function (callback: Function) {
 }
 // 获取系统宽带容量
 const getSystemCaps = function (callback?: Function) {
-    querySystemCaps().then((res: any) => {
+    querySystemCaps(getXmlWrapData('')).then((res: any) => {
         res = queryXml(res)
         if (res('status').text() === 'success') {
             const totalBandwidth = res('//content/totalBandwidth').text() * 1
@@ -785,8 +786,6 @@ const getNetCfgModule = function (callback: Function) {
 const getData = function () {
     openLoading(LoadingTarget.FullScreen)
     getNetCfgModule(function () {
-        // console.log('pageData', pageData)
-        // console.log('RecStreamModule', RecStreamModule)
         const sendXml = rawXml`
                                 <requireField>
                                     <name/>
@@ -1003,18 +1002,6 @@ const bindCtrlData = function (res: any) {
             pageData.value.resolutionGroups = getResolutionGroups(tableData.value)
             queryRemainRecTimeF()
             pageData.value.levelDropDisable = pageData.value.isAllCBR
-            // console.log('frameRateList', pageData.value.frameRateList)
-            // console.log('maxQoI', pageData.value.maxQoI)
-            // console.log('poeModeNode', pageData.value.poeModeNode)
-            // console.log('bitTypeUnionList', pageData.value.bitTypeUnionList)
-            // console.log('videoEncodeTypeUnionList', pageData.value.videoEncodeTypeUnionList)
-            // console.log('videoQualityList', pageData.value.videoQualityList)
-            // console.log('levelList', pageData.value.levelList)
-            // console.log('tableData', tableData)
-            // console.log('pageData', pageData)
-            // tableData.value.forEach((rowData: RecordStreamInfoDto) => {
-            //     console.log('disable', rowData.rowDisable)
-            // })
         }
     })
 }
@@ -1090,8 +1077,6 @@ const queryRemainRecTimeF = function () {
                 // }
             }
         }
-        // console.log('recTime', pageData.value.recTime)
-        // console.log('pageData', pageData)
     })
 }
 // 获取所有数据
@@ -1228,7 +1213,6 @@ const handleSetResolutionAll = function (): void {
         const ids = rowData['chls']['data'].map((element) => {
             return element['value']
         })
-        // console.log('ids', ids)
         const changeRows = [] as RecordStreamInfoDto[]
         // 获取tableData中的被修改的数据,设置编辑状态，更新数据
         tableData.value.forEach((element: RecordStreamInfoDto) => {
@@ -1241,7 +1225,6 @@ const handleSetResolutionAll = function (): void {
                 }
             }
         })
-        // console.log('changeRows', changeRows)
         // 修正帧率上限
         changeRows[0]['mainCaps']['res'].forEach((element) => {
             if (element['value'] == resolution) {
@@ -1378,8 +1361,6 @@ const handleLevelChange = function (rowData: RecordStreamInfoDto) {
 const handleLevelChangeAll = function (level: string): void {
     tableData.value.forEach((rowData: RecordStreamInfoDto) => {
         if (rowData['chlType'] !== 'recorder' && !rowData['rowDisable'] && rowData['bitType'] != 'CBR' && rowData['bitType'] && !rowData['imageLevelDisable']) {
-            // console.log('currentLevel', rowData.level)
-            // console.log('level', level)
             rowData.level = level
             setBitRange(rowData)
             addEditeRows(rowData)
@@ -1610,7 +1591,6 @@ const getResolutionGroups = function (
             rowDatas.push(rowData)
         }
     })
-    // console.log('rowDatas', rowDatas)
     const resolutionMapping = {} as { [key: string]: { value: string; text: string }[] }
     const resolutionGroups = [] as { res: string; resGroup: { value: string; label: string }[]; chls: { expand: boolean; data: { value: string; text: string }[] } }[]
     rowDatas.forEach((rowData) => {
@@ -1619,7 +1599,6 @@ const getResolutionGroups = function (
             resolutionList.push(element['value'])
         })
         const mappingKey = resolutionList.join(',')
-        // console.log('mappingKey', mappingKey)
         if (!resolutionMapping[mappingKey]) {
             resolutionMapping[mappingKey] = []
             resolutionGroups.push({
@@ -1638,7 +1617,6 @@ const getResolutionGroups = function (
             text: rowData['name'],
         })
     })
-    // console.log('resolutionGroups', resolutionGroups)
     return resolutionGroups
 }
 // 根据其他参数变化生成码率范围
@@ -1894,7 +1872,6 @@ const setData = function () {
 
 onMounted(() => {
     fetchData()
-    // console.log('tableData', tableData)
 })
 </script>
 

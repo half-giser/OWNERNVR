@@ -1,4 +1,3 @@
-<!-- eslint-disable vue/eqeqeq -->
 <!--
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-05-04 12:58:39
@@ -92,7 +91,11 @@
                 <template #header>
                     <el-dropdown trigger="click">
                         <span class="el-dropdown-link">
-                            {{ Translate('IDCS_EDIT') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
+                            {{ Translate('IDCS_EDIT') }}
+                            <BaseImgSprite
+                                class="ddn"
+                                file="ddn"
+                            />
                         </span>
                         <template #dropdown>
                             <el-dropdown-menu>
@@ -119,7 +122,11 @@
                 <template #header>
                     <el-dropdown trigger="click">
                         <span class="el-dropdown-link">
-                            {{ Translate('IDCS_DELETE') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
+                            {{ Translate('IDCS_DELETE') }}
+                            <BaseImgSprite
+                                class="ddn"
+                                file="ddn"
+                            />
                         </span>
                         <template #dropdown>
                             <el-dropdown-menu>
@@ -165,7 +172,11 @@
                 <template #header>
                     <el-dropdown trigger="click">
                         <span class="el-dropdown-link">
-                            {{ Translate('IDCS_UPGRADE') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
+                            {{ Translate('IDCS_UPGRADE') }}
+                            <BaseImgSprite
+                                class="ddn"
+                                file="ddn"
+                            />
                         </span>
                         <template #dropdown>
                             <el-dropdown-menu>
@@ -176,7 +187,7 @@
                 </template>
                 <template #default="scope">
                     <BaseImgSprite
-                        v-show="handleShowUpgradeBtn(scope.row) && scope.row.upgradeStatus == 'normal'"
+                        v-show="handleShowUpgradeBtn(scope.row) && scope.row.upgradeStatus === 'normal'"
                         file="upload"
                         :chunk="4"
                         :index="0"
@@ -187,20 +198,20 @@
                         @click="handleUpgradeIPC(scope.row)"
                     />
                     <BaseImgSprite
-                        v-show="scope.row.upgradeStatus == 'error'"
+                        v-show="scope.row.upgradeStatus === 'error'"
                         file="error"
                         :chunk="1"
                         :index="0"
                         @click="handleUpgradeIPC(scope.row)"
                     />
                     <BaseImgSprite
-                        v-show="scope.row.upgradeStatus == 'success'"
+                        v-show="scope.row.upgradeStatus === 'success'"
                         file="success"
                         :chunk="1"
                         :index="0"
                         @click="handleUpgradeIPC(scope.row)"
                     />
-                    <span v-show="scope.row.upgradeStatus == 'progress'">{{ scope.row.upgradeProgressText }}</span>
+                    <span v-show="scope.row.upgradeStatus === 'progress'">{{ scope.row.upgradeProgressText }}</span>
                 </template>
             </el-table-column>
             <el-table-column
@@ -223,21 +234,19 @@
             :row-data="editRowData"
             :protocol-list="protocolList"
             :manufacturer-map="manufacturerMap"
-            :close="closeEditChannelPop"
             :name-mapping="editNameMapping"
             :set-data-call-back="setDataCallBack"
-        >
-        </ChannelEditPop>
+            @close="closeEditChannelPop"
+        />
         <ChannelEditIPCPwdPop
             v-model="editIPCPwdPopVisiable"
             :edit-data="tableData"
             :name-mapping="editNameMapping"
-            :close="closeEditIPCPwdPop"
-        >
-        </ChannelEditIPCPwdPop>
-        <BaseLivePop ref="baseLivePopRef"></BaseLivePop>
-        <BaseNotification v-model:notifications="notifications"></BaseNotification>
-        <ChannelIPCUpgradePop ref="channelIPCUpgradePopRef"></ChannelIPCUpgradePop>
+            @close="closeEditIPCPwdPop"
+        />
+        <BaseLivePop ref="baseLivePopRef" />
+        <BaseNotification v-model:notifications="notifications" />
+        <ChannelIPCUpgradePop ref="channelIPCUpgradePopRef" />
     </div>
 </template>
 

@@ -4,7 +4,7 @@
  * @Description: OCX插件模块
  * 原项目中MAC插件和TimeSliderPlugin相关逻辑不保留
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 14:36:13
+ * @LastEditTime: 2024-09-05 16:21:17
  */
 import WebsocketPlugin from '@/utils/websocket/websocketPlugin'
 import { usePluginStore } from '@/stores/plugin'
@@ -82,6 +82,11 @@ const usePlugin = () => {
 
     const systemInfo = getSystemInfo()
     const browserInfo = getBrowserInfo()
+
+    const backupTask = useOcxBackUp((str) => {
+        getVideoPlugin().ExecuteCmd(str)
+    })
+    VideoPluginNotifyEmitter.addListener(backupTask.notify)
 
     const compareOcxVersion = (ver1: string, ver2: string) => {
         const var1Arr = ver1.split(',')
@@ -426,8 +431,8 @@ const usePlugin = () => {
             })
             .then((result) => {
                 const $ = queryXml(result)
-                if ($('/response/status').text() === 'success') {
-                    $('/response/content/nicConfigs/item').forEach((item) => {
+                if ($('//status').text() === 'success') {
+                    $('//content/nicConfigs/item').forEach((item) => {
                         const $item = queryXml(item.element)
                         if (item.attr('isSupSecondIP') === 'true') {
                             // 判断是否使用了辅IP
@@ -440,10 +445,10 @@ const usePlugin = () => {
             })
             .then((result) => {
                 const $ = queryXml(result)
-                if ($('/response/status').text() === 'success') {
-                    const isUPnPEnable = $('/response/content/switch').text().toBoolean()
+                if ($('//status').text() === 'success') {
+                    const isUPnPEnable = $('//content/switch').text().toBoolean()
                     let port = 0
-                    $('/response/content/ports/item').forEach((item) => {
+                    $('//content/ports/item').forEach((item) => {
                         const $item = queryXml(item.element)
 
                         if ($item('portType').text() === 'SERVICE') {
@@ -1131,7 +1136,6 @@ const usePlugin = () => {
         isPluginNoResponse = true
         openMessageTipBox({
             type: 'info',
-            title: Translate('IDCS_INFO_TIP'),
             message: Translate('IDCS_PLUGIN_NO_RESPONSE_TIPS'),
         })
             .then(() => {
@@ -1619,7 +1623,6 @@ const usePlugin = () => {
                 setReconnCallBack(() => {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_LOGIN_OVERTIME'),
                     }).then(() => {
                         closeLoading(LoadingTarget.FullScreen)
@@ -1686,6 +1689,7 @@ const usePlugin = () => {
         pluginNoticeHtml,
         pluginDownloadUrl,
         pluginNoticeContainer,
+        BackUpTask: backupTask,
     }
 }
 

@@ -3,12 +3,11 @@
  * @Date: 2024-07-08 18:01:16
  * @Description: 创建磁盘阵列弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 16:10:07
+ * @LastEditTime: 2024-09-05 11:59:04
  */
 import { type DiskPhysicalList, DiskCreateRaidForm } from '@/types/apiType/disk'
 import { type FormInstance, type FormRules } from 'element-plus'
-import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import { type UserCheckAuthForm } from '@/types/apiType/userAndSecurity'
+import BaseCheckAuthPop, { type UserCheckAuthForm } from '../../components/auth/BaseCheckAuthPop.vue'
 
 export default defineComponent({
     components: {
@@ -21,7 +20,6 @@ export default defineComponent({
         list: {
             type: Array as PropType<DiskPhysicalList[]>,
             required: true,
-            default: () => [],
         },
         /**
          * @property 阵列类型选项
@@ -29,7 +27,6 @@ export default defineComponent({
         raidType: {
             type: Array as PropType<SelectOption<string, string>[]>,
             required: true,
-            default: () => [],
         },
     },
     emits: {
@@ -171,16 +168,15 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 openMessageTipBox({
                     type: 'success',
-                    title: Translate('IDCS_SUCCESS_TIP'),
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 }).finally(() => {
                     ctx.emit('confirm')
                 })
             } else {
-                const errorCode = Number($('/response/errorCode').text())
+                const errorCode = Number($('//errorCode').text())
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_PWD_ERR:
@@ -202,7 +198,6 @@ export default defineComponent({
                 }
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: errorInfo,
                 })
             }
@@ -240,7 +235,7 @@ export default defineComponent({
             `
             const result = await queryCreateRaidCapacity(sendXml)
             const $ = queryXml(result)
-            formData.value.space = Math.floor(Number($('/response/content/capacity').text()) / 1024) + ' GB'
+            formData.value.space = Math.floor(Number($('//content/capacity').text()) / 1024) + ' GB'
         }
 
         return {

@@ -3,9 +3,15 @@
  * @Date: 2024-07-29 15:58:44
  * @Description: 现场预览-云台视图-巡航线组
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 17:40:58
+ * @LastEditTime: 2024-09-05 16:10:52
  */
+import ChannelCruiseGroupAddPop from '../channel/ChannelCruiseGroupAddPop.vue'
+import { type ChannelPtzCruiseDto } from '@/types/apiType/channel'
+
 export default defineComponent({
+    components: {
+        ChannelCruiseGroupAddPop,
+    },
     props: {
         /**
          * @property 通道ID
@@ -13,7 +19,6 @@ export default defineComponent({
         chlId: {
             type: String,
             required: true,
-            default: '',
         },
         /**
          * @property 是否可用
@@ -21,7 +26,6 @@ export default defineComponent({
         enabled: {
             type: Boolean,
             required: true,
-            default: false,
         },
     },
     setup(prop) {
@@ -30,15 +34,19 @@ export default defineComponent({
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const systemCaps = useCababilityStore()
 
+        // 巡航线最大数量
+        const CRUISE_MAX_COUNT = 8
+
         const pageData = ref({
             // 是否显示新增巡航线组弹窗
             isAddPop: false,
             // 当前选中巡航线组项索引
             active: 0,
+            maxCount: CRUISE_MAX_COUNT,
         })
 
         // 列表数据
-        const listData = ref<SelectOption<number, string>[]>([])
+        const listData = ref<ChannelPtzCruiseDto[]>([])
 
         /**
          * @description 获取巡航线组列表
@@ -52,12 +60,12 @@ export default defineComponent({
             `
             const result = await queryLocalChlPtzGroup(sendXml)
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success' && chlId === prop.chlId) {
-                listData.value = $('/response/content/cruises/item').map((item, index) => {
+            if ($('//status').text() === 'success' && chlId === prop.chlId) {
+                listData.value = $('//content/cruises/item').map((item, index) => {
                     const $item = queryXml(item.element)
                     return {
-                        label: $item('name').text(),
-                        value: Number(item.attr('index') ? item.attr('index') : index),
+                        name: $item('name').text(),
+                        index: Number(item.attr('index') ? item.attr('index') : index),
                     }
                 })
             }
@@ -68,6 +76,14 @@ export default defineComponent({
          */
         const addCruiseGroup = () => {
             if (!prop.enabled) {
+                return
+            }
+            // 巡航线数量达到上限8个
+            if (listData.value.length >= CRUISE_MAX_COUNT) {
+                openMessageTipBox({
+                    type: 'info',
+                    message: 'IDCS_OVER_MAX_NUMBER_LIMIT',
+                })
                 return
             }
             pageData.value.isAddPop = true
@@ -114,7 +130,7 @@ export default defineComponent({
 
                 closeLoading(LoadingTarget.FullScreen)
 
-                if ($('/response/status').text() === 'success') {
+                if ($('//status').text() === 'success') {
                     openMessageTipBox({
                         type: 'success',
                         message: Translate('IDCS_DELETE_SUCCESS'),
@@ -154,8 +170,10 @@ export default defineComponent({
             }
             if (prop.chlId) {
                 const sendXml = rawXml`
-                    <chlId>${prop.chlId}</chlId>
-                    <index>${item.value.toString()}</index>
+                    <content>
+                        <chlId>${prop.chlId}</chlId>
+                        <index>${item.index.toString()}</index>
+                    </content>
                 `
                 runChlPtzGroup(sendXml)
             }
@@ -167,7 +185,9 @@ export default defineComponent({
         const stopCruiseGroup = () => {
             if (prop.chlId) {
                 const sendXml = rawXml`
-                    <chlId>${prop.chlId}</chlId>
+                    <content>
+                        <chlId>${prop.chlId}</chlId>
+                    </content>
                 `
                 stopChlPtzGroup(sendXml)
             }
@@ -194,6 +214,7 @@ export default defineComponent({
             playCurrentCruiseGroup,
             stopCruiseGroup,
             confirmAddCruiseGroup,
+            ChannelCruiseGroupAddPop,
         }
     },
 })
