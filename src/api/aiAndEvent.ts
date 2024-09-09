@@ -3,7 +3,7 @@
  * @Date: 2024-08-10 16:25:58
  * @Description: AI/事件
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-28 11:55:44
+ * @LastEditTime: 2024-09-06 18:11:25
  */
 
 import { type AxiosRequestConfig } from 'axios'
@@ -125,3 +125,33 @@ export const editCombinedAlarm = (data: string) => http.fetch('editCombinedAlarm
 
 // 修改组合报警人脸匹配数据
 export const editCombinedAlarmFaceMatch = (data: string) => http.fetch('editCombinedAlarmFaceMatch', getXmlWrapData(data))
+
+// 获取AI资源数据
+export const queryAIResourceDetail = (data: string) => http.fetch('queryAIResourceDetail', getXmlWrapData(data))
+
+// 删除AI资源数据
+export const freeAIOccupyResource = (data: string) => http.fetch('freeAIOccupyResource', getXmlWrapData(data))
+
+// 获取人脸侦测数据
+export const queryVfd = (data: string) => http.fetch('queryVfd', getXmlWrapData(data))
+
+// 修改人脸侦测数据
+export const editVfd = (data: string) => http.fetch('editVfd', getXmlWrapData(data))
+
+// 修改人脸匹配数据
+export const editRealFaceMatch = (data: string) => http.fetch('editRealFaceMatch', getXmlWrapData(data))
+
+// 获取人脸匹配配置数据
+export const queryFaceMatchConfig = (data: string) => http.fetch('queryFaceMatchConfig', getXmlWrapData(data))
+
+// 修改人脸匹配配置数据
+export const editFaceMatchConfig = (data: string) => http.fetch('editFaceMatchConfig', getXmlWrapData(data))
+
+// 获取人脸匹配报警参数
+export const queryFaceMatchAlarmParam = (data: string) => http.fetch('queryFaceMatchAlarmParam', getXmlWrapData(data))
+
+// 修改人脸匹配报警参数
+export const editFaceMatchAlarmParam = (data: string) => http.fetch('editFaceMatchAlarmParam', getXmlWrapData(data))
+
+// 删除人脸匹配报警参数
+export const deleteFaceMatchAlarmParam = (data: string) => http.fetch('deleteFaceMatchAlarmParam', getXmlWrapData(data))

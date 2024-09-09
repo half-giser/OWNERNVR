@@ -3,7 +3,7 @@
  * @Date: 2024-08-10 12:08:57
  * @Description: AI/事件
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-28 11:56:00
+ * @LastEditTime: 2024-09-06 18:12:33
  */
 const { Translate } = useLangStore()
 
@@ -327,63 +327,110 @@ export class PresetList {
     }
     presetList = [] as SelectOption<string, string>[]
 }
-
-export class CombinedAlarm {
+/**
+ * @description: AI事件——人脸识别相关类型
+ * @return {*}
+ */
+// 人脸识别通道
+export class FaceChlItem {
     id = ''
     name = ''
-    status = '' //行状态: loading, success, error
-    combinedAlarm = {
-        switch: false,
-        item: [] as CombinedAlarmItem[],
-    }
-    sysRec = {
-        switch: false,
-        chls: [] as SelectOption<string, string>[],
-    }
-    recordList = [] as string[]
-    sysSnap = {
-        switch: false,
-        chls: [] as SelectOption<string, string>[],
-    }
-    snapList = [] as string[]
-    alarmOut = {
-        switch: false,
-        alarmOuts: [] as SelectOption<string, string>[],
-    }
-    alarmOutList = [] as string[]
-    popVideo = {
-        switch: '',
-        chl: {
-            value: '',
-            label: '',
-        },
-    }
-    preset = {
-        switch: false,
-        presets: [] as PresetItem[],
-    }
+    ip = ''
+    chlType = ''
+    accessType = ''
+    supportVfd = false
+    supportBackVfd = false
+    supportAudio = false
+    supportWhiteLight = false
+    showAIReourceDetail = false
+    faceMatchLimitMaxChlNum = 0
+}
+// AI资源table项
+export class AIResource {
+    id = ''
+    name = ''
+    eventType = [] as string[]
+    eventTypeText = ''
+    percent = ''
+    decodeResource = ''
+    decodeResourceText = ''
+}
+// 侦测——参数配置表单项
+export class FaceDetection {
+    enabledSwitch = false
+    originalSwitch = false
+    holdTime = ''
+    holdTimeList = [] as SelectOption<string, string>[]
+    regionInfo = [] as Region[]
+    mutexList = [] as { object: string; status: boolean }[]
+    mutexListEx = [] as { object: string; status: boolean }[]
+    saveFacePicture = ''
+    saveSourcePicture = ''
+    snapInterval = ''
+    captureCycle = ''
+    minFaceFrame = 3
+    minRegionInfo = [] as Region[]
+    maxFaceFrame = 50
+    maxRegionInfo = [] as Region[]
+    triggerAudio = ''
+    triggerWhiteLight = ''
+    faceExpSwitch = false
+    faceExpStrength = 50
+    schedule = ''
+    record = [] as SelectOption<string, string>[]
+    alarmOut = [] as SelectOption<string, string>[]
+    preset = [] as PresetItem[]
+    msgPushSwitch = false
+    buzzerSwitch = false
+    popVideoSwitch = false
+    emailSwitch = false
+    catchSnapSwitch = false
     sysAudio = ''
-    msgPush = ''
-    beeper = ''
-    email = ''
-    msgBoxPopup = ''
-    videoPopup = ''
 }
 
-export class CombinedAlarmItem {
-    alarmSourceType = ''
-    alarmSourceEntity = {
-        value: '',
-        label: '',
-    }
+export class Region {
+    X1 = 0
+    Y1 = 0
+    X2 = 0
+    Y2 = 0
 }
-
-export class faceMatchObj {
-    rule = ''
-    duration = 5
-    delay = 5
+// 识别——参数配置表单项（人脸匹配）
+export class FaceMatch {
+    hitEnable = false
+    notHitEnable = false
+    liveDisplaySwitch = false
+    groupInfo = [] as FaceGroupTableItem[]
+    editFlag = false
+}
+// 识别——参数配置——人脸分组表格
+export class FaceGroupTableItem {
+    guid = ''
+    name = ''
+    similarity = 75
+}
+// 识别——识别成功/陌生人
+export class FaceCompare {
+    voiceList = [] as SelectOption<string, string>[]
+    task = [] as FaceCompareTask[]
+    editFlag = false
+}
+export class FaceCompareTask {
+    guid = ''
+    id = ''
+    ruleType = ''
+    nameId = 0
+    pluseSwitch = false
     groupId = [] as string[]
-    noShowDisplay = 'false'
-    displayText = ''
-    faceDataBase = [] as string[]
+    hintword = ''
+    schedule = ''
+    record = [] as SelectOption<string, string>[]
+    alarmOut = [] as SelectOption<string, string>[]
+    snap = [] as SelectOption<string, string>[]
+    preset = [] as PresetItem[]
+    msgPushSwitch = false
+    buzzerSwitch = false
+    popVideoSwitch = false
+    emailSwitch = false
+    popMsgSwitch = false
+    sysAudio = ''
 }
