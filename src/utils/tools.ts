@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2023-04-28 17:57:48
  * @Description: 工具方法
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:20:37
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-09-06 18:13:09
  */
 
 import { useUserSessionStore } from '@/stores/userSession'
@@ -1126,4 +1126,15 @@ export const getChlGuid16 = (id: string) => {
     } catch (e) {
         return '{00000001-0000-0000-0000-000000000000}'
     }
+}
+
+// 翻译key值拼接添加空格（排除简体中文、繁体中文）
+export const joinSpaceForLang = (str: string) => {
+    if (!str) return ''
+    const { getLangType } = useLangStore()
+    const langTypeList = ['zh-cn', 'zh-tw']
+    const currLangType = getLangType || 'en-us'
+    const isInclude = langTypeList.includes(currLangType)
+    str = isInclude ? str : str + ' '
+    return str
 }

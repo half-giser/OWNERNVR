@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2023-05-09 16:45:59
  * @Description: 服务端能力集全局存储
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-29 11:16:39
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-09-06 18:11:57
  */
 import { getXmlWrapData } from '@/api/api'
 import { querySystemCaps } from '@/api/system'
