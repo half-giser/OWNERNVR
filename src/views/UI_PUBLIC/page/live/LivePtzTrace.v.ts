@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 16:07:46
  * @Description: 现场预览-云台视图-轨迹
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-21 11:44:02
+ * @LastEditTime: 2024-09-05 16:11:29
  */
 import ChannelTraceAddPop from '../channel/ChannelTraceAddPop.vue'
 import { type ChannelPtzTraceDto } from '@/types/apiType/channel'
@@ -86,9 +86,9 @@ export default defineComponent({
             `
             const result = await queryLocalChlPtzTraceList(sendXml)
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success' && chlId === prop.chlId) {
-                pageData.value.maxCount = Number($('/response/content/traces').attr('maxCount'))
-                listData.value = $('/response/content/traces/item').map((item) => {
+            if ($('//status').text() === 'success' && chlId === prop.chlId) {
+                pageData.value.maxCount = Number($('//content/traces').attr('maxCount'))
+                listData.value = $('//content/traces/item').map((item) => {
                     return {
                         name: item.text(),
                         index: Number(item.attr('index')),
@@ -198,7 +198,7 @@ export default defineComponent({
                 const result = await delLocalChlPtzTrace(sendXml)
                 const $ = queryXml(result)
 
-                if ($('/response/status').text() === 'success') {
+                if ($('//status').text() === 'success') {
                     const sendXml = rawXml`
                        <content>
                             <chlId>${prop.chlId}</chlId>
@@ -208,7 +208,7 @@ export default defineComponent({
                     const result = await deleteChlPtzTrace(sendXml)
                     const $ = queryXml(result)
 
-                    if ($('/response/status').text() === 'success') {
+                    if ($('//status').text() === 'success') {
                         openMessageTipBox({
                             type: 'success',
                             message: Translate('IDCS_DELETE_SUCCESS'),

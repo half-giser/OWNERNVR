@@ -3,11 +3,11 @@
  * @Date: 2024-06-14 10:33:32
  * @Description: 用户与安全API
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-20 17:52:50
+ * @LastEditTime: 2024-08-27 19:55:54
  */
 
 // import type { AxiosRequestConfig } from 'axios'
-import http, { getXmlWrapData } from './api'
+import http from './api'
 
 /**
  * @description 查询密码安全性

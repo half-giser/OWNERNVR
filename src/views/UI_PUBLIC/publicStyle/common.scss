@@ -35,6 +35,11 @@ li {
     white-space: nowrap;
 }
 
+/* 文字标红 */
+.text-error {
+    color: var(--error--01);
+}
+
 /* 滚动条样式 */
 ::-webkit-scrollbar {
     width: 10px;
@@ -492,8 +497,13 @@ input[type='number'] {
             padding: 10px 15px;
             margin-bottom: 0;
 
-            .el-form-item {
-                width: 50%;
+            :has(.el-form-item) {
+                flex-wrap: nowrap;
+                justify-content: space-between;
+            }
+
+            &>.el-form-item__content>.el-form-item {
+                width: 49%;
                 padding: 0;
             }
         }
@@ -514,7 +524,8 @@ input[type='number'] {
             }
         }
 
-        .el-checkbox {
+        .el-checkbox,
+        .el-button {
             & + * {
                 margin-left: 10px;
             }
@@ -682,11 +693,17 @@ input[type='number'] {
 // 放置按钮、页码等的容器
 .base-btn-box {
     margin-top: 10px;
-    width: calc(var(--form-input-width) + var(--form-label-width) + 24px);
+    width: calc(var(--form-input-width) + var(--form-label-width) + 16px);
     max-width: 100%;
     display: flex;
     justify-content: flex-end;
     flex-shrink: 0;
+
+    &.padding {
+        box-sizing: border-box;
+        width: 100%;
+        padding-inline: 10px;
+    }
 
     &[span='2'] {
         justify-content: space-between;

@@ -3,9 +3,9 @@
  * @Date: 2024-08-06 20:35:43
  * @Description: 回放-右侧视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-07 09:10:09
+ * @LastEditTime: 2024-09-05 15:38:01
  */
-import { LiveSharedWinData } from '@/types/apiType/live'
+import { type LiveSharedWinData } from '@/types/apiType/live'
 
 export default defineComponent({
     props: {
@@ -15,7 +15,6 @@ export default defineComponent({
         mode: {
             type: String,
             required: true,
-            default: '',
         },
         /**
          * @property 当前窗口数据
@@ -23,7 +22,6 @@ export default defineComponent({
         winData: {
             type: Object as PropType<LiveSharedWinData>,
             required: true,
-            default: () => new LiveSharedWinData(),
         },
         /**
          * @property 支持鱼眼
@@ -31,7 +29,6 @@ export default defineComponent({
         supportFishEye: {
             type: Boolean,
             required: true,
-            default: false,
         },
     },
     setup(prop) {

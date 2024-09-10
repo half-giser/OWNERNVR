@@ -3,10 +3,10 @@
  * @Date: 2023-06-02 11:57:11
  * @Description: 系统API
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-17 15:14:01
+ * @LastEditTime: 2024-09-05 09:59:48
  */
 import type { AxiosRequestConfig } from 'axios'
-import http, { getXmlWrapData } from './api'
+import http from './api'
 
 /**
  * @description 获取服务端能力集
@@ -42,7 +42,7 @@ export const queryActivationStatus = (config?: AxiosRequestConfig) => http.fetch
  * @description 获取时间配置
  * @returns
  */
-export const queryTimeCfg = () => http.fetch('queryTimeCfg', getXmlWrapData(''))
+export const queryTimeCfg = (state = true) => http.fetch('queryTimeCfg', getXmlWrapData(''), {}, state)
 
 /**
  * @description 编辑时间
@@ -193,13 +193,6 @@ export const queryLog = (data: string) => http.fetch('queryLog', getXmlWrapData(
  * @returns
  */
 export const exportLog = (data: string) => http.fetch('exportLog', getXmlWrapData(data))
-
-/**
- * @description 获取通道捕捉人脸图像
- * @param {string} data
- * @returns
- */
-export const requestChSnapFaceImage = (data: string) => http.fetch('requestChSnapFaceImage', getXmlWrapData(data), {}, false)
 
 /**
  * @description 获取POS列表数据

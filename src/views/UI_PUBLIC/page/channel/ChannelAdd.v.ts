@@ -224,13 +224,13 @@ export default defineComponent({
                         const eleXml = queryXml(ele.element)
                         const newData = new ChannelAddRecorderDto()
                         newData.ip = eleXml('ip').text()
-                        newData.port = eleXml('port').text()
+                        newData.port = Number(eleXml('port').text())
                         newData.version = eleXml('version').text()
                         newData.name = eleXml('name').text()
                         newData.serialNum = eleXml('serialNum').text()
-                        newData.chlTotalCount = eleXml('chlTotalCount').text()
-                        newData.httpPort = eleXml('httpPort').text()
-                        newData.chlAddedCount = eleXml('chlAddedCount').text()
+                        newData.chlTotalCount = Number(eleXml('chlTotalCount').text())
+                        newData.httpPort = Number(eleXml('httpPort').text())
+                        newData.chlAddedCount = Number(eleXml('chlAddedCount').text())
                         newData.productModel = eleXml('productModel').text()
                         newData.displayName =
                             eleXml('name').text() + (Number(eleXml('chlTotalCount').text()) > 0 ? '(' + eleXml('chlAddedCount').text() + '/' + eleXml('chlTotalCount').text() + ')' : '')
@@ -276,15 +276,15 @@ export default defineComponent({
 
         const manualAddNewRow = function (rowCount: number) {
             const defaultPwdData = defaultPwdList.value[0]
-            let defaultPort = ''
+            let defaultPort = 80
             if (defaultPwdData.protocolType == 'TVT_IPCAMERA') {
                 if (defaultPwdData.displayName == 'Speco') {
-                    defaultPort = '554'
+                    defaultPort = 554
                 } else {
-                    defaultPort = '9008'
+                    defaultPort = 9008
                 }
             } else {
-                defaultPort = '80'
+                defaultPort = 80
             }
             const newData = new ChannelManualAddDto()
             newData.ip = '0.0.0.0'
@@ -336,20 +336,20 @@ export default defineComponent({
                             if (Trim(ele, 'g') == Trim(val, 'g')) isArray = true
                         })
                         if (isArray) {
-                            row.port = ''
+                            row.port = 0
                             row.userName = ''
                             row.password = ''
                             row.portDisabled = true
                         } else {
-                            let defaultPort = ''
+                            let defaultPort = 80
                             if (mapping.value[val]['protocolType'] == 'TVT_IPCAMERA') {
                                 if (mapping.value[val]['displayName'] == 'Speco') {
-                                    defaultPort = '554'
+                                    defaultPort = 554
                                 } else {
-                                    defaultPort = '9008'
+                                    defaultPort = 9008
                                 }
                             } else {
-                                defaultPort = '80'
+                                defaultPort = 80
                             }
                             row.port = defaultPort
                             row.userName = mapping.value[val]['userName']

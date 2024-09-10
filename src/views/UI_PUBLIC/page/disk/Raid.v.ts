@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 13:43:11
  * @Description: 磁盘阵列
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-23 14:51:53
+ * @LastEditTime: 2024-09-05 11:59:28
  */
 import BaseCheckAuthPop, { type UserCheckAuthForm } from '../../components/auth/BaseCheckAuthPop.vue'
 import { DiskRaidList } from '@/types/apiType/disk'
@@ -71,7 +71,7 @@ export default defineComponent({
 
             let hasRebuildArray = false
 
-            tableData.value = $('/response/content/raidList/item').map((item) => {
+            tableData.value = $('//content/raidList/item').map((item) => {
                 const $item = queryXml(item.element)
 
                 if ($item('raidState').text() === 'rebuild') {
@@ -86,7 +86,7 @@ export default defineComponent({
                     physicalDisk: $item('physicalDisks').text(),
                     raidState: $item('raidState').text(),
                     raidType: $item('raidType').text(),
-                    spareHard: $('/response/content/spareHard').text(),
+                    spareHard: $('//content/spareHard').text(),
                     task: '',
                 }
             })
@@ -151,11 +151,11 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 refreshData()
                 pageData.value.isCheckAuth = false
             } else {
-                const errorCode = Number($('/response/errorCode').text())
+                const errorCode = Number($('//errorCode').text())
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_PWD_ERR:
@@ -185,7 +185,7 @@ export default defineComponent({
             const $ = queryXml(result)
 
             let hasRebuildArray = false
-            $('/response/content/item').forEach((item) => {
+            $('//content/item').forEach((item) => {
                 const $item = queryXml(item.element)
                 const raid = item.attr('id')!
                 const raidState = $item('raidState').text()

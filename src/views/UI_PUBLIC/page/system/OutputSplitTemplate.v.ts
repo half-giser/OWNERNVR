@@ -3,33 +3,44 @@
  * @Date: 2024-06-26 17:39:29
  * @Description: 分屏模版
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-27 20:02:55
+ * @LastEditTime: 2024-09-05 15:04:14
  */
 export default defineComponent({
     props: {
+        /**
+         * @property {enum} 类型 screen | thumbail
+         */
         type: {
-            default: 'screen',
             type: String,
+            default: 'screen',
         },
+        /**
+         * @property 分屏数
+         */
         segment: {
-            default: 1,
-            require: true,
             type: Number,
+            required: true,
         },
+        /**
+         * @property 当前选中状态的视窗的索引
+         */
         activeWin: {
-            default: 0,
-            require: true,
             type: Number,
+            required: true,
         },
+        /**
+         * @property 当前视图是否选中状态
+         */
         activeView: {
-            default: false,
-            require: false,
             type: Boolean,
+            required: false,
         },
+        /**
+         * @property 视窗数据列表
+         */
         winData: {
             type: Array as PropType<{ id: string; value: string }[]>,
-            require: true,
-            default: () => Array(64).fill({ id: '', value: '' }),
+            required: true,
         },
     },
     emits: {

@@ -1,3 +1,10 @@
+/*
+ * @Description: 普通事件——传感器
+ * @Author: luoyiming luoyiming@tvt.net.cn
+ * @Date: 2024-08-23 10:58:27
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-08-27 17:45:05
+ */
 import { type PresetItem, SensorEvent, type ChlList } from '@/types/apiType/aiAndEvent'
 import { QueryNodeListDto } from '@/types/apiType/channel'
 import { tableRowStatus, tableRowStatusToolTip } from '@/utils/const/other'
@@ -386,13 +393,15 @@ export default defineComponent({
                         label: item.text(),
                     })
                 })
+                rowData.snapList = rowData.sysSnap.chls.map((item) => item.value)
 
-                $content('trigger/alarmOut/chls/item').forEach((item) => {
+                $content('trigger/alarmOut/alarmOuts/item').forEach((item) => {
                     rowData.alarmOut.alarmOuts.push({
                         value: item.attr('id')!,
                         label: item.text(),
                     })
                 })
+                rowData.alarmOutList = rowData.alarmOut.alarmOuts.map((item) => item.value)
 
                 $content('trigger/preset/presets/item').forEach((item) => {
                     const $item = queryXml(item.element)
@@ -645,16 +654,36 @@ export default defineComponent({
         const presetCheckChange = (row: SensorEvent) => {
             if (row.preset.switch) {
                 openPresetPop(row)
+            } else {
+                row.preset.presets = []
             }
         }
 
         const checkChange = (index: number, type: string) => {
-            if (type == 'record' && tableData.value[index].sysRec.switch) {
-                setRecord(index)
-            } else if (type == 'snap' && tableData.value[index].sysSnap.switch) {
-                setSnap(index)
-            } else if (type == 'alarmOut' && tableData.value[index].alarmOut.switch) {
-                setAlarmOut(index)
+            switch (type) {
+                case 'record':
+                    if (tableData.value[index].sysRec.switch) {
+                        setRecord(index)
+                    } else {
+                        tableData.value[index].sysRec.chls = []
+                    }
+                    break
+                case 'snap':
+                    if (tableData.value[index].sysSnap.switch) {
+                        setSnap(index)
+                    } else {
+                        tableData.value[index].sysSnap.chls = []
+                    }
+                    break
+                case 'alarmOut':
+                    if (tableData.value[index].alarmOut.switch) {
+                        setAlarmOut(index)
+                    } else {
+                        tableData.value[index].alarmOut.alarmOuts = []
+                    }
+                    break
+                default:
+                    break
             }
         }
 
@@ -706,7 +735,7 @@ export default defineComponent({
         }
 
         const getSavaData = (row: SensorEvent) => {
-            let sendXml = `
+            let sendXml = rawXml`
                 <types>
                     <alarmInVoltage>
                         <enum>NO</enum>
@@ -722,10 +751,10 @@ export default defineComponent({
                     </param>
                 `
             //sysRec通道遍历
-            sendXml += `
+            sendXml += rawXml`
                     <trigger>
                         <sysRec>
-                            <switch>${row.sysRec.switch}</switch>
+                            <switch>${String(row.sysRec.switch)}</switch>
                             <chls type='list'>
                 `
             row.sysRec.chls.forEach((item) => {
@@ -734,10 +763,10 @@ export default defineComponent({
                 `
             })
             //sysSnap通道遍历
-            sendXml += `</chls>
+            sendXml += rawXml`</chls>
                 </sysRec>
                 <sysSnap>
-                    <switch>${row.sysSnap.switch}</switch>
+                    <switch>${String(row.sysSnap.switch)}</switch>
                     <chls type='list'>
                 `
             row.sysSnap.chls.forEach((item) => {
@@ -746,25 +775,25 @@ export default defineComponent({
                 `
             })
             //alarmOut通道遍历
-            sendXml += `</chls>
+            sendXml += rawXml`</chls>
                 </sysSnap>
                 <alarmOut>
-                    <switch>${row.alarmOut.switch}</switch>
+                    <switch>${String(row.alarmOut.switch)}</switch>
                         <alarmOuts type='list'>
                 `
             row.alarmOut.alarmOuts.forEach((item) => {
-                sendXml += `<item id='${item.value}'>
+                sendXml += rawXml`<item id='${item.value}'>
                     <![CDATA[${item.label}]]></item>
                 `
             })
-            sendXml += `</alarmOuts>
+            sendXml += rawXml`</alarmOuts>
                 </alarmOut>
                     <preset>
-                        <switch>${row.preset.switch}</switch>
+                        <switch>${String(row.preset.switch)}</switch>
                         <presets type='list'>
                 `
             row.preset.presets.forEach((item) => {
-                sendXml += `<item>
+                sendXml += rawXml`<item>
                     <index>${item.index}</index>
                         <name><![CDATA[${item.index}]]></name>
                         <chl id='${item.chl.value}'>
@@ -772,7 +801,7 @@ export default defineComponent({
                     </item>
                 `
             })
-            sendXml += `</presets>
+            sendXml += rawXml`</presets>
                 </preset>
                 <buzzerSwitch>${row.buzzerSwitch}</buzzerSwitch>
                 <popVideo>
@@ -793,22 +822,24 @@ export default defineComponent({
         const setData = async () => {
             const editedRows = getEditedRows(tableData.value, tableDataInit)
             let count = 0
-            openLoading(LoadingTarget.FullScreen)
-            editedRows.forEach(async (item) => {
-                const sendXml = getSavaData(item)
-                const result = await editAlarmIn(sendXml)
-                const $ = queryXml(result)
-                const isSuccess = $('/response/status').text() === 'success'
-                item.status = isSuccess ? 'success' : 'error'
-                count++
+            if (editedRows.length != 0) {
+                openLoading(LoadingTarget.FullScreen)
+                editedRows.forEach(async (item) => {
+                    const sendXml = getSavaData(item)
+                    const result = await editAlarmIn(sendXml)
+                    const $ = queryXml(result)
+                    const isSuccess = $('/response/status').text() === 'success'
+                    item.status = isSuccess ? 'success' : 'error'
+                    count++
 
-                if (count >= editedRows.length) {
-                    pageData.value.applyDisabled = false
-                    // 更新表格初始对比值
-                    tableDataInit = cloneDeep(tableData.value)
-                }
-            })
-            closeLoading(LoadingTarget.FullScreen)
+                    if (count >= editedRows.length) {
+                        pageData.value.applyDisabled = true
+                        // 更新表格初始对比值
+                        tableDataInit = cloneDeep(tableData.value)
+                        closeLoading(LoadingTarget.FullScreen)
+                    }
+                })
+            }
         }
 
         onMounted(async () => {

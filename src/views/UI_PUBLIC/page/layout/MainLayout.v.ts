@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 顶层布局页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-23 17:05:19
+ * @LastEditTime: 2024-09-05 12:01:54
  */
 
 import { type RouteLocationMatched } from 'vue-router'
@@ -83,14 +83,14 @@ export default defineComponent({
         const showProductModel = async (cbk?: () => void) => {
             const result = await queryBasicCfg(getXmlWrapData(''))
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 if (APP_TYPE === 'P2P' && judgeCurrUI(result)) return
-                CustomerID = Number($('/response/content/CustomerID').text())
+                CustomerID = Number($('//content/CustomerID').text())
                 cbk && cbk()
                 if (!showProductModelList.includes(CustomerID)) {
                     return
                 }
-                pageData.value.logoProductModel = $('/response/content/productModel').text()
+                pageData.value.logoProductModel = $('//content/productModel').text()
             }
         }
 
@@ -99,8 +99,8 @@ export default defineComponent({
             const isInw48 = systemCaps.supportPwdSecurityConfig // TODO: 原项目是这个值
             const result = await queryPasswordSecurity()
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
-                strength = ($('/response/content/pwdSecureSetting/pwdSecLevel').text() as keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING & null) ?? 'weak'
+            if ($('//status').text() === 'success') {
+                strength = ($('//content/pwdSecureSetting/pwdSecLevel').text() as keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING & null) ?? 'weak'
                 if (isInw48) {
                     strength = 'strong'
                 }
@@ -168,7 +168,7 @@ export default defineComponent({
 
         // P2P 判断输入栏UI不是设备UI, 则跳转地址回设备UI
         const judgeCurrUI = ($basicXml: XMLDocument | Element) => {
-            const devVersion = queryXml($basicXml)('/response/content/softwareVersion').text()
+            const devVersion = queryXml($basicXml)('//content/softwareVersion').text()
             const inputUI = getUiAndTheme().name.toLowerCase().replace(/i|-/g, '') // 输入栏UI
             let targetUI = '' // 设备UI
 
@@ -194,7 +194,7 @@ export default defineComponent({
         const checkIsDiskStatus = async () => {
             const result = await queryDiskStatus()
             const $ = queryXml(result)
-            const diskNum = Number($('/response/content/item').text())
+            const diskNum = Number($('//content/item').text())
             if (diskNum == 0) {
                 openMessageTipBox({
                     type: 'info',
@@ -203,7 +203,7 @@ export default defineComponent({
                 return
             }
             let diskDamage = false //是否有磁盘损坏/未格式化
-            $('/response/content/item').forEach((item) => {
+            $('//content/item').forEach((item) => {
                 const $item = queryXml(item.element)
                 const diskStatus = $item('/diskStatus').text()
                 if (diskStatus === 'bad' || diskStatus == 'read') {
@@ -218,7 +218,7 @@ export default defineComponent({
                     if (userSession.hasAuth('diskMgr')) {
                         if (systemCaps.supportRaid) {
                             queryDiskMode().then((result) => {
-                                const isUseRaid = queryXml(result)('/response/content/diskMode/isUseRaid').text().toBoolean()
+                                const isUseRaid = queryXml(result)('//content/diskMode/isUseRaid').text().toBoolean()
                                 // TODO: 具体URL待确认
                                 const routeUrl = isUseRaid ? 'config/disk/diskArrayCfg' : 'config/disk/manager'
                                 router.push(routeUrl)

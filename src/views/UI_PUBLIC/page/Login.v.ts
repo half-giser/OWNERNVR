@@ -3,7 +3,7 @@
  * @Date: 2024-04-23 11:52:48
  * @Description: 登录界面
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-23 14:11:10
+ * @LastEditTime: 2024-09-05 14:21:22
  */
 import { type FormRules, type FormInstance } from 'element-plus'
 import { LoginForm, LoginReqData } from '@/types/apiType/user'
@@ -155,8 +155,8 @@ export default defineComponent({
         const getIsShowPrivacy = async () => {
             const result = await queryShowPrivacyView()
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
-                if ($('/response/content/show').text().toBoolean() && !localStorage.getItem('privacy')) {
+            if ($('//status').text() === 'success') {
+                if ($('//content/show').text().toBoolean() && !localStorage.getItem('privacy')) {
                     isPrivacy.value = true
                 } else {
                     localStorage.setItem('privacy', 'true')

@@ -53,7 +53,7 @@ export default defineComponent({
             const result = await queryPhysicalDiskInfo()
             const $ = queryXml(result)
 
-            pageData.value.raidType = $('/response/types/raidType/enum').map((item) => {
+            pageData.value.raidType = $('//types/raidType/enum').map((item) => {
                 const text = item.text()
                 return {
                     value: item.text(),
@@ -61,7 +61,7 @@ export default defineComponent({
                 }
             })
 
-            tableData.value = $('/response/content/physicalDisk/item').map((item) => {
+            tableData.value = $('//content/physicalDisk/item').map((item) => {
                 const $item = queryXml(item.element)
                 return {
                     id: item.attr('id')!,
@@ -134,11 +134,11 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 pageData.value.isCheckAuth = false
                 getData()
             } else {
-                const errorCode = Number($('/response/errorCode').text())
+                const errorCode = Number($('//errorCode').text())
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_PWD_ERR:

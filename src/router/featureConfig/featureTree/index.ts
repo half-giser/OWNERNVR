@@ -49,7 +49,7 @@ export default {
     parkLot: {
         //停车场
         path: '/business-application/park-lot-manage/park-lot',
-        component: 'businessApplication/PkMgrParkLog.vue',
+        component: 'businessApplication/PkMgrParkLot.vue',
         meta: { sort: 40, lk: 'IDCS_PARKING_LOT', icon: 'park' },
     },
 } as FeatureTree

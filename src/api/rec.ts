@@ -3,9 +3,9 @@
  * @Date: 2024-07-17 17:02:54
  * @Description: 录像与回放
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-14 14:47:03
+ * @LastEditTime: 2024-08-27 19:34:52
  */
-import http, { getXmlWrapData } from './api'
+import http from './api'
 
 /**
  * @description 更新手动录像状态

@@ -3,7 +3,7 @@
  * @Date: 2024-07-04 16:47:11
  * @Description: 健康状态检测
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 16:08:55
+ * @LastEditTime: 2024-09-05 11:58:39
  */
 import { type DiskHealthInfoDiskList, type DiskHealthInfoDiskDetailList } from '@/types/apiType/disk'
 
@@ -95,7 +95,7 @@ export default defineComponent({
             const result = await queryDiskHealthDetailInfo(sendXml)
             const $ = queryXml(result)
 
-            tableData.value = $('/response/content/disk/item').map((item) => {
+            tableData.value = $('//content/disk/item').map((item) => {
                 const $item = queryXml(item.element)
                 const id = item.attr('id')!
                 const status = item.attr('status')!
@@ -126,7 +126,7 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            pageData.value.diskList = $('/response/content/diskList/item').map((item) => {
+            pageData.value.diskList = $('//content/diskList/item').map((item) => {
                 const $item = queryXml(item.element)
                 const healthStatus = $item('healthStatus').text()
                 return {

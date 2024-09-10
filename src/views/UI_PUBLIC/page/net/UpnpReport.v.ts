@@ -6,8 +6,6 @@
  * @LastEditTime: 2024-07-15 10:29:32
  */
 import { type FormInstance, type FormRules } from 'element-plus'
-import { nameByteMaxLen } from '@/utils/constants'
-import { formatInputMaxLength } from '@/utils/tools'
 import { NetUPnPReportForm } from '@/types/apiType/net'
 
 export default defineComponent({
@@ -48,12 +46,12 @@ export default defineComponent({
         const getData = async () => {
             const result = await queryUPnPCfg()
             const $ = queryXml(result)
-            if ($('/response/content/reportPorts').length) {
-                pageData.value.upnpSwitch = $('/response/content/switch').text().toBoolean()
-                formData.value.switch = $('/response/content/reportPorts/switch').text().toBoolean()
-                formData.value.serverAddr = $('/response/content/reportPorts/serverAddr').text()
-                formData.value.port = Number($('/response/content/reportPorts/port').text())
-                formData.value.manId = $('/response/content/reportPorts/manId').text()
+            if ($('//content/reportPorts').length) {
+                pageData.value.upnpSwitch = $('//content/switch').text().toBoolean()
+                formData.value.switch = $('//content/reportPorts/switch').text().toBoolean()
+                formData.value.serverAddr = $('//content/reportPorts/serverAddr').text()
+                formData.value.port = Number($('//content/reportPorts/port').text())
+                formData.value.manId = $('//content/reportPorts/manId').text()
             }
         }
 

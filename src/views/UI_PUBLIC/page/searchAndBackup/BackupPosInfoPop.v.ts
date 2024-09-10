@@ -3,7 +3,7 @@
  * @Date: 2024-08-12 16:13:26
  * @Description: POS信息弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-12 16:51:07
+ * @LastEditTime: 2024-09-04 17:59:58
  */
 import { type PlaybackRecLogList } from '@/types/apiType/playback'
 
@@ -23,13 +23,6 @@ export default defineComponent({
             type: String,
             required: true,
         },
-        /**
-         * @property 日期时间格式
-         */
-        dateTimeFormat: {
-            type: String,
-            required: true,
-        },
     },
     emits: {
         close() {
@@ -38,6 +31,7 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
+        const dateTime = useDateTimeStore()
 
         const pageData = ref({
             // POS名称
@@ -60,10 +54,10 @@ export default defineComponent({
             `
             const result = await queryPosBillList(sendXml)
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
-                pageData.value.name = $('/response/content/pos').text()
+            if ($('//status').text() === 'success') {
+                pageData.value.name = $('//content/pos').text()
                 // TODO 需要测试数据做测试
-                pageData.value.info = base64Decode($('/response/content/posInfo').text())
+                pageData.value.info = base64Decode($('//content/posInfo').text())
             }
         }
 
@@ -89,7 +83,7 @@ export default defineComponent({
          * @returns {String}
          */
         const displayDateTime = (timestamp: number) => {
-            return formatDate(timestamp, prop.dateTimeFormat)
+            return formatDate(timestamp, dateTime.dateTimeFormat)
         }
 
         return {

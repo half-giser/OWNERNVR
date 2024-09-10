@@ -3,7 +3,7 @@
  * @Date: 2024-08-10 16:25:58
  * @Description: AI/事件
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-04 16:23:01
+ * @LastEditTime: 2024-09-10 17:06:08
  */
 
 import { type AxiosRequestConfig } from 'axios'
@@ -128,3 +128,42 @@ export const queryIntelAreaConfig = (data: string) => http.fetch('queryIntelArea
 
 // 修改区域入侵侦测数据
 export const editIntelAreaConfig = (data: string) => http.fetch('editIntelAreaConfig', getXmlWrapData(data))
+
+// 获取组合报警数据
+export const queryCombinedAlarm = () => http.fetch('queryCombinedAlarm', getXmlWrapData(''))
+
+// 获取已配置的人脸库分组
+export const queryCombinedAlarmFaceMatch = () => http.fetch('queryCombinedAlarmFaceMatch', getXmlWrapData(''))
+
+// 人脸比对中请求后侦测开关
+export const queryBackFaceMatch = () => http.fetch('queryBackFaceMatch', getXmlWrapData(''))
+
+// 修改组合报警数据
+export const editCombinedAlarm = (data: string) => http.fetch('editCombinedAlarm', getXmlWrapData(data))
+
+// 修改组合报警人脸匹配数据
+export const editCombinedAlarmFaceMatch = (data: string) => http.fetch('editCombinedAlarmFaceMatch', getXmlWrapData(data))
+
+// 获取人脸侦测数据
+export const queryVfd = (data: string) => http.fetch('queryVfd', getXmlWrapData(data))
+
+// 修改人脸侦测数据
+export const editVfd = (data: string) => http.fetch('editVfd', getXmlWrapData(data))
+
+// 修改人脸匹配数据
+export const editRealFaceMatch = (data: string) => http.fetch('editRealFaceMatch', getXmlWrapData(data))
+
+// 获取人脸匹配配置数据
+export const queryFaceMatchConfig = (data: string) => http.fetch('queryFaceMatchConfig', getXmlWrapData(data))
+
+// 修改人脸匹配配置数据
+export const editFaceMatchConfig = (data: string) => http.fetch('editFaceMatchConfig', getXmlWrapData(data))
+
+// 获取人脸匹配报警参数
+export const queryFaceMatchAlarmParam = (data: string) => http.fetch('queryFaceMatchAlarmParam', getXmlWrapData(data))
+
+// 修改人脸匹配报警参数
+export const editFaceMatchAlarmParam = (data: string) => http.fetch('editFaceMatchAlarmParam', getXmlWrapData(data))
+
+// 删除人脸匹配报警参数
+export const deleteFaceMatchAlarmParam = (data: string) => http.fetch('deleteFaceMatchAlarmParam', getXmlWrapData(data))

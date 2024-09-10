@@ -1,3 +1,10 @@
+<!--
+ * @Description: 普通事件——传感器
+ * @Author: luoyiming luoyiming@tvt.net.cn
+ * @Date: 2024-08-23 10:58:27
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-08-23 11:06:46
+-->
 <template>
     <div class="base-flex-box">
         <div class="base-table-box">

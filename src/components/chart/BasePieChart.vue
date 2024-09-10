@@ -44,28 +44,66 @@ type PieChartNumsOption = PieChartNumsOptionItem[]
 
 const prop = withDefaults(
     defineProps<{
+        /**
+         * @property Canvas宽
+         */
         width: number
+        /**
+         * @property Canvas高
+         */
         height: number
-        ox: number
-        oy: number
+        /**
+         * @property 旋转角度
+         */
         rotationAngle: number
+        /**
+         * @property 原点坐标
+         */
         resetOriginal: [number, number]
+        /**
+         * @property 半径
+         */
         r: number
+        /**
+         * @property 字体Style
+         */
         fontStyle: string
+        /**
+         * @property 扇形字体Style:
+         */
         rectangleFontStyle: string
+        /**
+         * @property 扇形位置
+         */
         rectanglePosition: number
+        /**
+         * @property 字体颜色
+         */
         fontColor: string
+        /**
+         * @property 线条颜色
+         */
         lineColor: string
+        /**
+         * @property 扇形颜色
+         */
         rectangleColor: string
+        /**
+         * @property 字体选项
+         */
         showFont: PieChartShowFontOption
+        /**
+         * @property 颜色列表
+         */
         colors: PieChartColorsOption
+        /**
+         * @property 数据
+         */
         nums: PieChartNumsOption
     }>(),
     {
         width: 1200,
         height: 270,
-        ox: 0,
-        oy: 0,
         rotationAngle: -30,
         resetOriginal: () => [400, 140],
         r: 110,
@@ -84,6 +122,9 @@ const prop = withDefaults(
 const $canvas = ref<HTMLCanvasElement>()
 let context: CanvasRenderingContext2D
 
+/**
+ * @description 绘制饼状图
+ */
 const drawPie = () => {
     const total = prop.nums.reduce((a, b) => {
         return a + b.imageNum
@@ -121,6 +162,9 @@ const drawPie = () => {
     })
 }
 
+/**
+ * @description 绘制扇形
+ */
 const drawRectangle = () => {
     prop.showFont.forEach((item, i) => {
         const find = prop.colors.find((fintItem) => fintItem.name === item.showColor)
@@ -154,11 +198,17 @@ const drawRectangle = () => {
 //     })
 // }
 
+/**
+ * @description 更新
+ */
 const update = () => {
     context.clearRect(0, 0, prop.width, prop.height)
     render()
 }
 
+/**
+ * @description 渲染
+ */
 const render = () => {
     if (prop.nums.length !== 0) {
         drawRectangle()

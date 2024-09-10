@@ -3,7 +3,7 @@
  * @Date: 2024-05-24 17:12:55
  * @Description: 
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-14 18:11:20
+ * @LastEditTime: 2024-09-05 09:20:01
 -->
 <template>
     <div>
@@ -25,7 +25,6 @@ import { getXmlWrapData } from './api/api'
 import { queryActivationStatus, querySystemCaps } from './api/system'
 import { queryXml } from './utils/xmlParse'
 import { APP_TYPE } from './utils/constants'
-import usePlugin from './utils/ocx/ocxPlugin'
 import { useUserSessionStore } from './stores/userSession'
 import dayjs from 'dayjs'
 
@@ -52,8 +51,10 @@ const hanedleActivationStatus = async (checkActivationStatus: boolean, isUserAut
             if (!auInfo) {
                 router.replace('/login')
                 return
-            } else if (isUserAuth && route.name === 'login') {
-                router.replace('/live')
+            } else if (isUserAuth) {
+                if (route.name === 'login') {
+                    router.replace('/live')
+                }
             }
         }
     } catch (e) {
@@ -70,7 +71,7 @@ if (APP_TYPE === 'STANDARD') {
         })
         .finally(() => {
             queryActivationStatus().then((result) => {
-                const checkActivationStatus = queryXml(result)('/response/content/activated').text() === 'true'
+                const checkActivationStatus = queryXml(result)('//content/activated').text().toBoolean()
                 hanedleActivationStatus(checkActivationStatus, isUserAuth)
             })
         })

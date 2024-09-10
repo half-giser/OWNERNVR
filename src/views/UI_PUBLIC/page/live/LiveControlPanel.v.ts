@@ -3,7 +3,7 @@
  * @Date: 2024-07-26 17:04:12
  * @Description: 现场预览-操作视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 14:30:33
+ * @LastEditTime: 2024-09-06 18:30:28
  */
 import { type LiveChannelList, type LiveResolutionOptions, type LiveQualityOptions, LiveStreamForm, type LiveSharedWinData } from '@/types/apiType/live'
 
@@ -50,7 +50,6 @@ export default defineComponent({
         split: {
             type: Number,
             required: true,
-            default: 1,
         },
         /**
          * @property 音量
@@ -58,7 +57,6 @@ export default defineComponent({
         volume: {
             type: Number,
             required: true,
-            default: 50,
         },
     },
     emits: {
@@ -280,8 +278,8 @@ export default defineComponent({
             const result = await manualUnlocking(sendXml)
             const $ = queryXml(result)
 
-            if ($('/response/status').text() !== 'success') {
-                const errorCode = Number($('/response/errorCode').text())
+            if ($('//status').text() !== 'success') {
+                const errorCode = Number($('//errorCode').text())
                 let errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
                 if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
                     errorInfo = Translate('IDCS_NO_PERMISSION')
@@ -346,8 +344,8 @@ export default defineComponent({
             `
             const result = await queryManualRecord(sendXml)
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
-                ctx.emit('remoteRecord', $('/response/content/switch').text().toBoolean())
+            if ($('//status').text() === 'success') {
+                ctx.emit('remoteRecord', $('//content/switch').text().toBoolean())
             }
         }
 
@@ -449,14 +447,14 @@ export default defineComponent({
          * @description 更新码流
          * @param {number} type
          */
-        const changeStreamType = (type: number) => {
+        const changeStreamType = (type: string | number | boolean | undefined) => {
             if (prop.winData.streamType === type) {
                 return
             }
             if (streamTypeDisabled.value && pageData.value.isRTSP && type === 1) {
                 return
             }
-            ctx.emit('streamType', type)
+            ctx.emit('streamType', type as number)
         }
 
         /**
@@ -476,7 +474,7 @@ export default defineComponent({
             `
             const result = await queryNodeEncodeInfo(sendXml)
             const $ = queryXml(result)
-            const content = $('/response/content/item')
+            const content = $('//content/item')
             if (content.length) {
                 const $item = queryXml(content[0].element)
                 pageData.value.GOP = $item('sub').attr('GOP')!
@@ -486,9 +484,9 @@ export default defineComponent({
                 pageData.value.isRTSP = true
             }
 
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 // 多分割时会遍历窗口触发请求，异步请求返回值通过通道id来确定最后一次的数据正确
-                const chl = $(`/response/content/item[@id="${chlID.value}"]`)
+                const chl = $(`//content/item[@id="${chlID.value}"]`)
                 if (chl.length === 0) {
                     return
                 }
@@ -556,13 +554,13 @@ export default defineComponent({
             `
             const result = await editNodeEncodeInfo(sendXml)
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 openMessageTipBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
             } else {
-                const errorCode = Number($('/response/errorCode').text())
+                const errorCode = Number($('//errorCode').text())
                 let errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
                 if (errorCode === ErrorCode.USER_ERROR_UNSUPPORTED_FUNC) {
                     errorInfo = Translate('IDCS_NOT_SUPPORTFUNC')

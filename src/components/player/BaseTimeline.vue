@@ -3,12 +3,15 @@
  * @Date: 2024-07-29 10:41:06
  * @Description: 录像与回放时间轴组件
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-23 15:03:50
+ * @LastEditTime: 2024-09-05 11:22:45
 -->
 <template>
     <div
         ref="$container"
         class="timeline"
+        :style="{
+            backgroundColor: `var(--timeline-bg-color-0${colorSet})`,
+        }"
         @mouseover="handleMouseOver"
         @mouseout="handleMouseOut"
         @mousedown="handleMouseDown"
@@ -74,10 +77,6 @@ const prop = withDefaults(
          */
         enableClip?: boolean
         /**
-         * @property 时间日期格式 (year/month模式)
-         */
-        dateTimeFormat?: string
-        /**
          * @propert 时间日期格式（day模式）
          */
         dayFormat?: string
@@ -89,14 +88,18 @@ const prop = withDefaults(
          * @property 通道列表
          */
         chlsList?: ChlList[]
+        /**
+         * @property 颜色集
+         */
+        colorSet?: number
     }>(),
     {
         disableZoom: false,
         disableDrag: false,
         enableMask: false,
         enableClip: false,
-        dateTimeFormat: 'YYYY-MM-DD HH:mm:ss',
         dayFormat: 'HH:mm:ss',
+        colorSet: 1,
     },
 )
 
@@ -110,6 +113,8 @@ const emits = defineEmits<{
     (e: 'setCurrentPointerTime', timeStr: string): void
     (e: 'clipRange', range: number[]): void
 }>()
+
+const dateTime = useDateTimeStore()
 
 const $canvas = ref<HTMLCanvasElement>()
 const $recordCanvas = ref<HTMLCanvasElement>()
@@ -197,18 +202,21 @@ let timeSplitList: TimeRange[] = []
 let canvasWidth = 0
 let canvasHeight = 40
 
+/**
+ * @description 初始化颜色值
+ */
 const initColor = () => {
     const style = getComputedStyle($container.value!)
-    bgColor = style.getPropertyValue('--timeline-bg-color') // 画布背景色
-    scaleLineColor = style.getPropertyValue('--timeline-scale-line-color') // 刻度线颜色
-    scaleTextColor = style.getPropertyValue('--timeline-scale-text-color') // 刻度字体线颜色
-    splitLineColor = style.getPropertyValue('--timeline-split-line-color') // 通道间的分割线颜色
-    pointerColor = style.getPropertyValue('--timeline-pointer-color') // 指针颜色
-    pointerTimeColor = style.getPropertyValue('--timeline-pointer-time-color') // 指针显示的时间颜色
-    mousemovingPointerColor = style.getPropertyValue('--timeline-moving-pointer-color') // 鼠标跟随指针颜色
-    mousemovingTimeBgColor = style.getPropertyValue('--timeline-moving-time-bg-color') // 鼠标跟随时间背景色
-    mousemovingTimeTextColor = style.getPropertyValue('--timeline-moving-time-text-color') // 鼠标跟随时间文本颜色
-    timeRangeMaskColor = style.getPropertyValue('--timeline-range-mask-color') // 时间范围遮罩颜色
+    bgColor = style.getPropertyValue(`--timeline-bg-color-0${prop.colorSet}`) // 画布背景色
+    scaleLineColor = style.getPropertyValue(`--timeline-scale-line-color-0${prop.colorSet}`) // 刻度线颜色
+    scaleTextColor = style.getPropertyValue(`--timeline-scale-text-color-0${prop.colorSet}`) // 刻度字体线颜色
+    splitLineColor = style.getPropertyValue(`--timeline-split-line-color-0${prop.colorSet}`) // 通道间的分割线颜色
+    pointerColor = style.getPropertyValue(`--timeline-pointer-color-0${prop.colorSet}`) // 指针颜色
+    pointerTimeColor = style.getPropertyValue(`--timeline-pointer-time-color-0${prop.colorSet}`) // 指针显示的时间颜色
+    mousemovingPointerColor = style.getPropertyValue(`--timeline-moving-pointer-color-0${prop.colorSet}`) // 鼠标跟随指针颜色
+    mousemovingTimeBgColor = style.getPropertyValue(`--timeline-moving-time-bg-color-0${prop.colorSet}`) // 鼠标跟随时间背景色
+    mousemovingTimeTextColor = style.getPropertyValue(`--timeline-moving-time-text-color-0${prop.colorSet}`) // 鼠标跟随时间文本颜色
+    timeRangeMaskColor = style.getPropertyValue(`--timeline-range-mask-color-0${prop.colorSet}`) // 时间范围遮罩颜色
 }
 
 /**
@@ -941,7 +949,7 @@ const drawScaleByYear = (startScaleX: number, startScaleTime: number) => {
     const arr = dateStr.split(' ')[0].split('/')
     if (Number(arr[2]) === 1) {
         let ym = arr[0] + '/' + arr[1]
-        if (prop.dateTimeFormat.indexOf('DD/') >= 0) {
+        if (dateTime.dateTimeFormat.indexOf('DD/') >= 0) {
             // 出现'dd/'说明是"日/月/年"或者"月/日/年"格式
             ym = arr[1] + '/' + arr[0]
         }
@@ -1027,7 +1035,7 @@ const drawPointer = () => {
                 }
             }
         } else {
-            timeStr = formatTime(pointerTime, prop.dateTimeFormat.split(' ')[0])
+            timeStr = formatTime(pointerTime, dateTime.dateTimeFormat.split(' ')[0])
         }
         let startX = pointerX - 3.4 * timeStr.length
         startX = startX < 0 ? 0 : startX
@@ -1067,7 +1075,7 @@ const drawMovingWithMousePointer = (x: number, y: number) => {
             }
         }
     } else {
-        timeStr = formatTime(time, prop.dateTimeFormat.split(' ')[0])
+        timeStr = formatTime(time, dateTime.dateTimeFormat.split(' ')[0])
     }
     let textX = x - 4 * timeStr.length
     let rectX = x - 4 * timeStr.length - 5
@@ -1406,7 +1414,7 @@ defineExpose<TimelineInstance>({
     cursor: pointer;
     width: 100%;
     height: 100%;
-    background-color: var(--timeline-bg-color);
+    // background-color: var(--timeline-bg-color-01);
 }
 
 .scale {

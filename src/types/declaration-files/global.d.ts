@@ -5,7 +5,7 @@
  */
 
 import type { Action, MessageBoxState } from 'element-plus'
-import type usePlugin from '@/utils/ocx/ocxPlugin'
+import type { usePlugin } from '@/utils/ocx/ocxPlugin'
 import type TVTPlayer from '@/utils/wasmPlayer/tvtPlayer'
 import type { UserChlAuth as _UserChlAuth } from '@/hooks/useUserChlAuth'
 

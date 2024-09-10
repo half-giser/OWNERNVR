@@ -3,9 +3,9 @@
  * @Date: 2024-08-06 20:37:13
  * @Description: 回放-操作视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 10:56:04
+ * @LastEditTime: 2024-09-06 18:32:10
  */
-import { LiveSharedWinData } from '@/types/apiType/live'
+import { type LiveSharedWinData } from '@/types/apiType/live'
 
 export default defineComponent({
     props: {
@@ -15,7 +15,6 @@ export default defineComponent({
         mode: {
             type: String,
             required: true,
-            default: '',
         },
         /**
          * @property 当前窗口数据
@@ -23,7 +22,6 @@ export default defineComponent({
         winData: {
             type: Object as PropType<LiveSharedWinData>,
             required: true,
-            default: () => new LiveSharedWinData(),
         },
         /**
          * @property 分屏数
@@ -31,7 +29,6 @@ export default defineComponent({
         split: {
             type: Number,
             required: true,
-            default: 1,
         },
         /**
          * @property 音量
@@ -39,7 +36,6 @@ export default defineComponent({
         volume: {
             type: Number,
             required: true,
-            default: 50,
         },
     },
     emits: {
@@ -173,14 +169,14 @@ export default defineComponent({
          * @description 更新码流
          * @param {number} type
          */
-        const changeStreamType = (type: number) => {
+        const changeStreamType = (type: string | number | boolean | undefined) => {
             if (prop.winData.streamType === type) {
                 return
             }
             if (streamTypeDisabled.value && type === 0) {
                 return
             }
-            ctx.emit('streamType', type)
+            ctx.emit('streamType', type as number)
         }
 
         // 是否禁用音频

@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 16:11:02
  * @Description: 现场预览-目标检测视图-渲染单个结构化抓拍元素
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 17:56:54
+ * @LastEditTime: 2024-09-04 17:56:36
  */
 import { DEFAULT_BODY_STRUCT_MAPPING, DEFAULT_NON_VEHICLE_STRUCT_MAPPING, DEFAULT_VEHICLE_STRUCT_MAPPING } from '@/utils/const/snap'
 import { type WebsocketSnapOnSuccessSnap } from '@/utils/websocket/websocketSnap'
@@ -22,16 +22,7 @@ export default defineComponent({
          */
         border: {
             type: Number,
-            required: false,
             default: 0,
-        },
-        /**
-         * @description 时间格式
-         */
-        timeFormat: {
-            type: String,
-            required: true,
-            default: 'hh:mm:ss',
         },
     },
     emits: {
@@ -51,6 +42,7 @@ export default defineComponent({
     setup(prop) {
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
+        const dateTime = useDateTimeStore()
 
         /**
          * @description 显示Base64图像
@@ -67,7 +59,7 @@ export default defineComponent({
          * @returns {String}
          */
         const displayTime = (time: number) => {
-            return formatDate(time, prop.timeFormat)
+            return formatDate(time, dateTime.timeFormat)
         }
 
         // 是否显示注册按钮

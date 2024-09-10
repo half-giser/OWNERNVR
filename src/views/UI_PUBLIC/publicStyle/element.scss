@@ -8,6 +8,7 @@
     :root {
         --el-color-primary: var(--primary--04);
         --el-color-primary-light-3: var(--primary--03);
+        --el-transition-duration: 0.2s;
     }
 
     .el-menu {
@@ -25,9 +26,22 @@
     .el-dialog,
     .el-message-box,
     .el-loading-spinner,
+    .el-radio-button,
     .el-textarea {
         --el-color-primary: var(--primary--04);
         --el-color-primary-light-3: var(--primary--03);
+    }
+
+    .el-radio-button {
+        .el-radio-button__inner {
+            border: 1px solid var(--border-color4);
+            border-radius: 0;
+            width: var(--form-radio-button-width);
+        }
+
+        & + .el-radio-button .el-radio-button__inner {
+            border-left: none;
+        }
     }
 
     .el-button {

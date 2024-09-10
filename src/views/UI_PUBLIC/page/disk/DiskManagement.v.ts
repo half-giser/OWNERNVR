@@ -3,7 +3,7 @@
  * @Date: 2024-07-05 13:42:37
  * @Description: 磁盘管理
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-23 14:50:21
+ * @LastEditTime: 2024-09-05 11:58:16
  */
 import { type DiskManagememtList } from '@/types/apiType/disk'
 import BaseCheckAuthPop, { type UserCheckAuthForm } from '../../components/auth/BaseCheckAuthPop.vue'
@@ -18,7 +18,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
-        const dateTime = useDateTime()
+        const dateTime = useDateTimeStore()
 
         // 磁盘名字与显示文本的映射
         const DISK_TYPE_MAPPING: Record<string, string> = {
@@ -84,7 +84,7 @@ export default defineComponent({
          */
         const getData = async () => {
             const storage = await queryStorageDevInfo()
-            const $storage = queryXml(queryXml(storage)('/response/content')[0].element)
+            const $storage = queryXml(queryXml(storage)('//content')[0].element)
 
             const result = await queryDiskStatus()
             const $ = queryXml(result)
@@ -103,10 +103,10 @@ export default defineComponent({
                 }
 
                 const id = item.attr('id')!
-                const diskStatus = $(`/response/content/item[@id="${id}"]/diskStatus`).text()
-                const diskEncryptStatus = $(`/response/content/item[@id="${id}"]/diskEncryptStatus`).text()
-                const recStartDate = formatDate($item('recStartDate').text(), dateTime.dateFormat.value, 'YYYY-MM-DD')
-                const recEndDate = formatDate($item('recEndDate').text(), dateTime.dateFormat.value, 'YYYY-MM-DD')
+                const diskStatus = $(`//content/item[@id="${id}"]/diskStatus`).text()
+                const diskEncryptStatus = $(`//content/item[@id="${id}"]/diskEncryptStatus`).text()
+                const recStartDate = formatDate($item('recStartDate').text(), dateTime.dateFormat, 'YYYY-MM-DD')
+                const recEndDate = formatDate($item('recEndDate').text(), dateTime.dateFormat, 'YYYY-MM-DD')
 
                 let combinedStatus = ''
                 switch (diskEncryptStatus) {
@@ -147,10 +147,10 @@ export default defineComponent({
                     const $item = queryXml(item.element)
                     const logicDiskId = $item('logicDiskId').text()
 
-                    const diskStatus = $(`/response/content/item[@id="${logicDiskId}"/diskStatus`).text()
-                    const diskEncryptStatus = $(`/response/content/item[@id="${logicDiskId}"]/diskEncryptStatus`).text()
-                    const recStartDate = formatDate($item('recStartDate').text(), dateTime.dateFormat.value, 'YYYY-MM-DD')
-                    const recEndDate = formatDate($item('recEndDate').text(), dateTime.dateFormat.value, 'YYYY-MM-DD')
+                    const diskStatus = $(`//content/item[@id="${logicDiskId}"/diskStatus`).text()
+                    const diskEncryptStatus = $(`//content/item[@id="${logicDiskId}"]/diskEncryptStatus`).text()
+                    const recStartDate = formatDate($item('recStartDate').text(), dateTime.dateFormat, 'YYYY-MM-DD')
+                    const recEndDate = formatDate($item('recEndDate').text(), dateTime.dateFormat, 'YYYY-MM-DD')
 
                     let combinedStatus = ''
                     switch (diskEncryptStatus) {
@@ -240,11 +240,11 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 pageData.value.isCheckAuth = false
                 getData()
             } else {
-                const errorCode = Number($('/response/errorCode').text())
+                const errorCode = Number($('//errorCode').text())
                 let errorInfo = ''
 
                 switch (errorCode) {
@@ -294,7 +294,7 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 pageData.value.isInputEncryptPwd = false
                 getData()
             } else {
@@ -309,7 +309,6 @@ export default defineComponent({
         onMounted(async () => {
             openLoading(LoadingTarget.FullScreen)
 
-            await dateTime.getTimeConfig()
             await getData()
 
             closeLoading(LoadingTarget.FullScreen)

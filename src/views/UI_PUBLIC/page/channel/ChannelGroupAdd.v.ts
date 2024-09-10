@@ -3,7 +3,7 @@
  * @Date: 2024-06-19 09:52:27
  * @Description:
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-23 18:17:02
+ * @LastEditTime: 2024-09-05 16:28:57
  */
 import { ChannelInfoDto, ChlGroup } from '@/types/apiType/channel'
 import { type RuleItem } from 'async-validator'
@@ -13,7 +13,6 @@ export default defineComponent({
         dialog: {
             type: Boolean,
             default: false,
-            require: false,
         },
     },
     emits: {

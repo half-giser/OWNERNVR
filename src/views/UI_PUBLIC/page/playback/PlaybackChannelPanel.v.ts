@@ -22,14 +22,12 @@ export default defineComponent({
         mode: {
             type: String,
             required: true,
-            default: '',
         },
         /**
          * @property 播放类型
          */
         type: {
             type: String as PropType<'live' | 'record'>,
-            required: false,
             default: 'record',
         },
     },
@@ -121,8 +119,8 @@ export default defineComponent({
 
             chlMap.value = {}
 
-            if ($('/response/status').text() === 'success') {
-                pageData.value.cacheChlList = $('/response/content/item').map((item) => {
+            if ($('//status').text() === 'success') {
+                pageData.value.cacheChlList = $('//content/item').map((item) => {
                     const id = item.attr('id')!
 
                     // 新获取的通道列表若没有已选中的通道，移除该选中的通道
@@ -224,8 +222,8 @@ export default defineComponent({
             `
             const result = await queryChlGroupList(getXmlWrapData(sendXml))
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
-                pageData.value.chlGroupList = $('/response/content/item').map((item) => {
+            if ($('//status').text() === 'success') {
+                pageData.value.chlGroupList = $('//content/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
                         id: item.attr('id')!,
@@ -234,7 +232,7 @@ export default defineComponent({
                     }
                 })
             } else {
-                if (Number($('/response/errorCode').text()) === ErrorCode.USER_ERROR_NO_AUTH) {
+                if (Number($('//errorCode').text()) === ErrorCode.USER_ERROR_NO_AUTH) {
                     openMessageTipBox({
                         type: 'info',
                         message: Translate('IDCS_NO_PERMISSION'),
@@ -270,8 +268,8 @@ export default defineComponent({
             const result = await queryChlGroup(getXmlWrapData(sendXml))
             const $ = queryXml(result)
 
-            if ($('/response/status').text() === 'success') {
-                pageData.value.chlListOfGroup = $('/response/content/chlList/item').map((item) => {
+            if ($('//status').text() === 'success') {
+                pageData.value.chlListOfGroup = $('//content/chlList/item').map((item) => {
                     return {
                         id: item.attr('id')!,
                         value: item.text(),
@@ -337,7 +335,7 @@ export default defineComponent({
                     const result = await delChlGroup(getXmlWrapData(sendXml))
                     const $ = queryXml(result)
                     closeLoading(LoadingTarget.FullScreen)
-                    if ($('/response/status').text() === 'success') {
+                    if ($('//status').text() === 'success') {
                         openMessageTipBox({
                             type: 'success',
                             message: Translate('IDCS_DELETE_SUCCESS'),

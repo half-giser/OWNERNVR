@@ -7,9 +7,7 @@
  */
 import WebsocketBase from './websocketBase'
 import ImgRender from '../wasmPlayer/imageRender'
-import { CMD_KEYFRAME_START, CMD_KEYFRAME_STOP, type CmdKeyframeStartOption } from './websocketCmd'
-import { ErrorCode } from '../constants'
-import { Uint8ArrayToStr } from '../tools'
+import { type CmdKeyframeStartOption } from './websocketCmd'
 
 export interface WebsocketKeyframeOption {
     onready?: () => void
@@ -148,11 +146,8 @@ export default class WebsocketKeyframe {
     }
 
     /**
-     * @param {Object} option
-     *  @property {String} chlId: 通道id
-     *  @property {Number} startTime: 开始时间戳（秒）
-     *  @property {Number} endTime: 结束时间戳（秒）
-     *  @property {Number} frameNum: 切片数量
+     * @description
+     * @param {CmdKeyframeStartOption} option
      */
     start(option: CmdKeyframeStartOption) {
         const cmd = CMD_KEYFRAME_START(option)
@@ -164,7 +159,7 @@ export default class WebsocketKeyframe {
     }
 
     /**
-     * 发送请求
+     * @description 发送请求
      */
     execCmd() {
         const cmd = this.cmdQueue[0]

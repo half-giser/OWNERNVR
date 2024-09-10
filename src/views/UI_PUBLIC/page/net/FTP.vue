@@ -3,23 +3,23 @@
  * @Date: 2024-07-12 18:20:28
  * @Description: FTP
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-19 09:35:59
+ * @LastEditTime: 2024-09-05 15:49:10
 -->
 <template>
     <div class="base-flex-box">
         <div class="base-subheading-box">{{ Translate('IDCS_FTP') }}</div>
-        <div class="flex">
-            <el-form
-                ref="formRef1"
-                :style="{
-                    '--form-input-width': '200px',
-                }"
-                inline-message
-                class="form stripe narrow"
-                :rules="formRule"
-                :model="formData"
-                label-position="left"
-            >
+        <el-form
+            ref="formRef"
+            :style="{
+                '--form-input-width': '200px',
+            }"
+            inline-message
+            class="stripe narrow"
+            :rules="formRule"
+            :model="formData"
+            label-position="left"
+        >
+            <el-form-item>
                 <el-form-item>
                     <el-checkbox
                         v-model="formData.switch"
@@ -27,6 +27,9 @@
                         >{{ Translate('IDCS_ENABLE') }}</el-checkbox
                     >
                 </el-form-item>
+                <el-form-item>&nbsp;</el-form-item>
+            </el-form-item>
+            <el-form-item>
                 <el-form-item
                     :label="Translate('IDCS_SERVER_ADDRESS')"
                     prop="serverAddr"
@@ -39,57 +42,6 @@
                         maxlength="64"
                     />
                 </el-form-item>
-                <el-form-item>
-                    <el-checkbox
-                        v-model="formData.anonymousSwitch"
-                        :disabled="!formData.switch"
-                        >{{ Translate('IDCS_ANONYMOUS') }}</el-checkbox
-                    >
-                </el-form-item>
-                <el-form-item
-                    :label="Translate('IDCS_USERNAME')"
-                    prop="userName"
-                >
-                    <el-input
-                        v-model="formData.userName"
-                        maxlength="64"
-                        :disabled="!formData.switch || formData.anonymousSwitch"
-                    />
-                </el-form-item>
-                <el-form-item
-                    :label="Translate('IDCS_MAX_FILE_SIZE')"
-                    prop="maxSize"
-                >
-                    <el-input-number
-                        v-model="formData.maxSize"
-                        :min="pageData.minFileSize"
-                        :max="pageData.maxFileSize"
-                        :disabled="!formData.switch"
-                        :controls="false"
-                    />
-                    <el-text>M</el-text>
-                </el-form-item>
-                <el-form-item>
-                    <el-checkbox
-                        v-model="formData.disNetUpLoad"
-                        :disabled="!formData.switch"
-                        >{{ Translate('IDCS_DIS_NET_UPLOAD') }}</el-checkbox
-                    >
-                    <el-text>{{ Translate('IDCS_DIS_NET_UPLOAD_TIP') }}</el-text>
-                </el-form-item>
-            </el-form>
-            <el-form
-                ref="formRef2"
-                :style="{
-                    '--form-input-width': '200px',
-                }"
-                inline-message
-                class="form stripe narrow"
-                :rules="formRule"
-                :model="formData"
-                label-position="left"
-            >
-                <el-form-item>&nbsp;</el-form-item>
                 <el-form-item
                     :label="Translate('IDCS_PORT')"
                     prop="port"
@@ -102,7 +54,28 @@
                         :controls="false"
                     />
                 </el-form-item>
+            </el-form-item>
+            <el-form-item>
+                <el-form-item>
+                    <el-checkbox
+                        v-model="formData.anonymousSwitch"
+                        :disabled="!formData.switch"
+                        >{{ Translate('IDCS_ANONYMOUS') }}</el-checkbox
+                    >
+                </el-form-item>
                 <el-form-item>&nbsp;</el-form-item>
+            </el-form-item>
+            <el-form-item>
+                <el-form-item
+                    :label="Translate('IDCS_USERNAME')"
+                    prop="userName"
+                >
+                    <el-input
+                        v-model="formData.userName"
+                        maxlength="64"
+                        :disabled="!formData.switch || formData.anonymousSwitch"
+                    />
+                </el-form-item>
                 <el-form-item
                     :label="Translate('IDCS_CHANGE_PWD')"
                     prop="password"
@@ -120,6 +93,21 @@
                         :disabled="!formData.switch || formData.anonymousSwitch"
                     />
                 </el-form-item>
+            </el-form-item>
+            <el-form-item>
+                <el-form-item
+                    :label="Translate('IDCS_MAX_FILE_SIZE')"
+                    prop="maxSize"
+                >
+                    <el-input-number
+                        v-model="formData.maxSize"
+                        :min="pageData.minFileSize"
+                        :max="pageData.maxFileSize"
+                        :disabled="!formData.switch"
+                        :controls="false"
+                    />
+                    <el-text>M</el-text>
+                </el-form-item>
                 <el-form-item
                     :label="Translate('IDCS_REMOTE_DIRECTORY')"
                     prop="path"
@@ -132,9 +120,19 @@
                         :disabled="!formData.switch"
                     />
                 </el-form-item>
+            </el-form-item>
+            <el-form-item>
+                <el-form-item>
+                    <el-checkbox
+                        v-model="formData.disNetUpLoad"
+                        :disabled="!formData.switch"
+                        >{{ Translate('IDCS_DIS_NET_UPLOAD') }}</el-checkbox
+                    >
+                    <el-text>{{ Translate('IDCS_DIS_NET_UPLOAD_TIP') }}</el-text>
+                </el-form-item>
                 <el-form-item>&nbsp;</el-form-item>
-            </el-form>
-        </div>
+            </el-form-item>
+        </el-form>
         <div class="base-subheading-box">{{ Translate('IDCS_UPLOAD_SET') }}</div>
         <el-table
             height="100%"
@@ -475,13 +473,3 @@
 </template>
 
 <script lang="ts" src="./FTP.v.ts"></script>
-
-<style lang="scss" scoped>
-.flex {
-    width: 100%;
-}
-
-.form {
-    width: 50%;
-}
-</style>

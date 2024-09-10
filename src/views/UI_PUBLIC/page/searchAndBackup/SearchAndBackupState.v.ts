@@ -13,7 +13,6 @@ export default defineComponent({
         const Plugin = inject('Plugin') as PluginType
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const pluginStore = usePluginStore()
 
         const mode = computed(() => {
             return Plugin.IsSupportH5() ? 'h5' : 'ocx'
@@ -72,8 +71,8 @@ export default defineComponent({
             const result = await queryRecBackupTaskList()
             const $ = queryXml(result)
 
-            if ($('/response/status').text() === 'success') {
-                remoteTableData.value = $('/response/content/item').map((item) => {
+            if ($('//status').text() === 'success') {
+                remoteTableData.value = $('//content/item').map((item) => {
                     const $item = queryXml(item.element)
                     const startTime = $item('startTime').text()
                     const endTime = $item('endTime').text()
@@ -195,7 +194,7 @@ export default defineComponent({
             mode,
             (newVal) => {
                 if (newVal !== 'h5' && !Plugin.IsPluginAvailable) {
-                    pluginStore.showPluginNoResponse = true
+                    Plugin.SetPluginNoResponse()
                     Plugin.ShowPluginNoResponse()
                 }
                 if (newVal === 'ocx') {

@@ -3,11 +3,10 @@
  * @Date: 2024-05-30 14:08:47
  * @Description: websocket 导入车牌库
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-11 09:39:06
+ * @LastEditTime: 2024-09-03 11:21:01
  */
 import WebsocketBase from './websocketBase'
-import { CMD_PLATELIB_IMPORT_START, CMD_PLATELIB_IMPORT_STOP, CMD_PLATELIB_IMPORT_DATA } from './websocketCmd'
-import { appendBuffer, dataToBuffer, buildHeader } from '../tools'
+import { type CmdPlateLibImportDataList } from './websocketCmd'
 
 export interface WebsocketImportPlateLibOption {
     // onopen?: () => void
@@ -15,13 +14,13 @@ export interface WebsocketImportPlateLibOption {
     onprogress?: (param: number) => void
     onerror?: (param?: number) => void
     onclose?: () => void
-    plateDataList: string[]
-    limitNum: number
+    plateDataList: CmdPlateLibImportDataList[]
+    limitNum?: number
 }
 
 export default class WebsocketImportPlateLib {
     private ws: WebsocketBase | null = null
-    private plateDataList: string[] = []
+    private plateDataList: CmdPlateLibImportDataList[] = []
     private totalNum = 0
     private limitNum = 300
     private importIdx = 0
@@ -88,7 +87,10 @@ export default class WebsocketImportPlateLib {
         })
     }
 
-    // 裁剪JSON数据成多份
+    /**
+     * @description 裁剪JSON数据成多份
+     * @param {number} importIdx
+     */
     private cutPackage(importIdx: number) {
         const startIdx = importIdx * this.limitNum
         const endIdx = (importIdx + 1) * this.limitNum
@@ -99,7 +101,10 @@ export default class WebsocketImportPlateLib {
         }
     }
 
-    // 传输给服务端
+    /**
+     * @description 传输给服务端
+     * @param {Object} json
+     */
     private sendJsonBuffer(json: any) {
         dataToBuffer(JSON.stringify(json)).then((jsonBuffer) => {
             // 包头buffer + jsonbuffer (数据包含在jsonbuffer里)

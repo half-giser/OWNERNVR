@@ -3,21 +3,29 @@
  * @Date: 2024-08-16 14:52:59
  * @Description: 平台接入 设置Code ID弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-16 18:10:18
+ * @LastEditTime: 2024-09-05 16:02:31
  */
 import { type FormInstance, type FormRules } from 'element-plus'
-import { formatDigit } from '@/utils/formats'
 
 export default defineComponent({
     props: {
+        /**
+         * @property 编码ID列表
+         */
         codeList: {
             type: Array as PropType<string[]>,
             default: () => [],
         },
+        /**
+         * @property 名称
+         */
         name: {
             type: String,
             default: '',
         },
+        /**
+         * @property Code
+         */
         code: {
             type: String,
             default: '',
@@ -59,17 +67,25 @@ export default defineComponent({
             ],
         })
 
+        /**
+         * @description 打开弹窗时重置表单
+         */
         const open = () => {
             formRef.value?.clearValidate()
-            formRef.value?.resetFields()
             formData.value.name = prop.name
             formData.value.code = prop.code
         }
 
+        /**
+         * @description 关闭弹窗
+         */
         const close = () => {
             ctx.emit('close')
         }
 
+        /**
+         * @description 校验表单
+         */
         const verify = () => {
             formRef.value!.validate((valid) => {
                 if (valid) {

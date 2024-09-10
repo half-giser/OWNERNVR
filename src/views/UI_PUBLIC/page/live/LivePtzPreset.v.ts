@@ -40,7 +40,6 @@ export default defineComponent({
         speed: {
             type: Number,
             required: true,
-            default: 4,
         },
     },
     setup(prop) {
@@ -72,9 +71,9 @@ export default defineComponent({
             `
             const result = await queryChlPresetList(sendXml)
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success' && chlId === prop.chlId) {
-                pageData.value.maxCount = Number($('/response/content/presets').attr('maxCount'))
-                listData.value = $('/response/content/presets/item').map((item) => {
+            if ($('//status').text() === 'success' && chlId === prop.chlId) {
+                pageData.value.maxCount = Number($('//content/presets').attr('maxCount'))
+                listData.value = $('//content/presets/item').map((item) => {
                     return {
                         name: item.text(),
                         index: Number(item.attr('index')),
@@ -144,7 +143,7 @@ export default defineComponent({
 
                 closeLoading(LoadingTarget.FullScreen)
 
-                if ($('/response/status').text() === 'success') {
+                if ($('//status').text() === 'success') {
                     openMessageTipBox({
                         type: 'success',
                         message: Translate('IDCS_DELETE_SUCCESS'),

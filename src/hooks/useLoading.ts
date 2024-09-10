@@ -1,9 +1,9 @@
 /*
- * @Author: yejiahao yejiahao@tvt.net.cn
+ * @Author: tengxiang
  * @Date: 2024-05-30 08:58:30
  * @Description: Loading
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-11 09:45:03
+ * @LastEditTime: 2024-09-03 11:04:58
  */
 import { useLangStore } from '@/stores/lang'
 

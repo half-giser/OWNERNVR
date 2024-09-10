@@ -3,11 +3,11 @@
  * @Date: 2024-06-17 17:21:22
  * @Description: 查看或更改用户
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-23 14:05:23
+ * @LastEditTime: 2024-09-05 13:45:27
  */
 import UserEditPop from './UserEditPop.vue'
 import UserEditPasswordPop from './UserEditPasswordPop.vue'
-import { type XmlResult } from '@/utils/xmlParse'
+import type { XMLQuery } from '@/utils/xmlParse'
 import { type UserList, type UserPermissionChannelAuthList, UserPermissionSystemAuthList } from '@/types/apiType/userAndSecurity'
 
 export default defineComponent({
@@ -90,8 +90,8 @@ export default defineComponent({
          * @description 更新系统权限
          * @param {Function} $doc
          */
-        const getSystemAuth = ($doc: (path: string) => XmlResult) => {
-            const $ = queryXml($doc('/response/content/systemAuth')[0].element)
+        const getSystemAuth = ($doc: XMLQuery) => {
+            const $ = queryXml($doc('//content/systemAuth')[0].element)
             Object.keys(systemAuthList.value).forEach((classify: string) => {
                 Object.keys(systemAuthList.value[classify].value).forEach((key) => {
                     systemAuthList.value[classify].value[key].value = $(key).text().toBoolean()
@@ -104,9 +104,9 @@ export default defineComponent({
          * @param {Function} $
          * @param {boolean} isQueryFromUserID
          */
-        const getChannelAuth = ($: (path: string) => XmlResult, isQueryFromUserID: boolean) => {
+        const getChannelAuth = ($: XMLQuery, isQueryFromUserID: boolean) => {
             if (isQueryFromUserID) {
-                channelAuthList.value = $('/response/content/chlAuth/item').map((item) => {
+                channelAuthList.value = $('//content/chlAuth/item').map((item) => {
                     const arrayItem: Record<string, any> = {}
                     const $item = queryXml(item.element)
                     arrayItem.id = item.attr('id') as string
@@ -122,7 +122,7 @@ export default defineComponent({
                     return arrayItem as UserPermissionChannelAuthList
                 })
             } else {
-                channelAuthList.value = $('/response/content/item').map((item) => {
+                channelAuthList.value = $('//content/item').map((item) => {
                     const arrayItem: Record<string, any> = {}
                     const $item = queryXml(item.element)
                     arrayItem.id = item.attr('id') as string
@@ -168,7 +168,7 @@ export default defineComponent({
                 const currentUserName = authInfo ? authInfo[0] : ''
                 const currentUserType = userSession.userType
 
-                userList.value = $('/response/content/item').map((item) => {
+                userList.value = $('//content/item').map((item) => {
                     const $item = queryXml(item.element)
                     const isAdmin = $item('userType').text() === USER_TYPE_DEFAULT_ADMIN
 

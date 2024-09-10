@@ -19,6 +19,9 @@
 <script lang="ts" setup>
 withDefaults(
     defineProps<{
+        /**
+         * @description 是否显示边框
+         */
         border?: boolean
     }>(),
     {

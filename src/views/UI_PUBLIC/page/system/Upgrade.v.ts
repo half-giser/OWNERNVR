@@ -3,12 +3,12 @@
  * @Date: 2024-06-27 11:49:04
  * @Description: 系统升级
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-23 17:10:52
+ * @LastEditTime: 2024-09-05 15:25:42
  */
 import BaseCheckAuthPop, { UserCheckAuthForm } from '../../components/auth/BaseCheckAuthPop.vue'
 import BaseInputEncryptPwdPop, { UserInputEncryptPwdForm } from '../../components/auth/BaseInputEncryptPwdPop.vue'
 import UpgradeBackUpPop from './UpgradeBackUpPop.vue'
-import { type XmlResult } from '@/utils/xmlParse'
+import { type XMLQuery } from '@/utils/xmlParse'
 import type WebsocketPlugin from '@/utils/websocket/websocketPlugin'
 import WebsocketUpload from '@/utils/websocket/websocketUpload'
 import WebsocketDownload from '@/utils/websocket/websocketDownload'
@@ -27,7 +27,6 @@ export default defineComponent({
         const { openLoading, closeLoading, closeAllLoading, LoadingTarget } = useLoading()
         const systemCaps = useCababilityStore()
         const Plugin = inject('Plugin') as PluginType
-        const pluginStore = usePluginStore()
         const userSession = useUserSessionStore()
         // 用户鉴权表单数据
         const userCheckAuthForm = new UserCheckAuthForm()
@@ -97,7 +96,7 @@ export default defineComponent({
          * @description OCX通知回调
          * @param {Function} $
          */
-        const notify = ($: (path: string) => XmlResult) => {
+        const notify = ($: XMLQuery) => {
             // 升级进度/备份进度
             if ($("/statenotify[@type='FileNetTransportProgress']").length > 0) {
                 const progress = $("/statenotify[@type='FileNetTransportProgress']/progress").text()
@@ -144,7 +143,7 @@ export default defineComponent({
                 queryUpgradeFileHead(sendXml).then((result) => {
                     const $$ = queryXml(result)
                     const errorCode = Number($$('/content/errorCode').text())
-                    if ($$('/response/status').text() === 'success') {
+                    if ($$('//status').text() === 'success') {
                         if (errorCode !== 0) handleErrorMsg(errorCode)
                     }
                     // 若errorCode为0，即正常低升高版本
@@ -159,9 +158,9 @@ export default defineComponent({
         const getSystemStatus = async () => {
             const result = await queryDoubleSystemInfo()
             const $ = queryXml(result)
-            pageData.value.currentRunningSystem = $('/response/content/curRunSystem').text()
-            pageData.value.systemList[0].value = SYSTEM_STATUS_MAPPING[$('/response/content/mainSystemStatus').text()]
-            pageData.value.systemList[1].value = SYSTEM_STATUS_MAPPING[$('/response/content/backupSystemStatus').text()]
+            pageData.value.currentRunningSystem = $('//content/curRunSystem').text()
+            pageData.value.systemList[0].value = SYSTEM_STATUS_MAPPING[$('//content/mainSystemStatus').text()]
+            pageData.value.systemList[1].value = SYSTEM_STATUS_MAPPING[$('//content/backupSystemStatus').text()]
         }
 
         /**
@@ -287,7 +286,7 @@ export default defineComponent({
             const $ = queryXml(result)
 
             closeLoading(LoadingTarget.FullScreen)
-            if ($('/response/status').text() === 'success') {
+            if ($('//status').text() === 'success') {
                 pageData.value.isCheckAuth = false
                 if (isSupportH5.value) {
                     new WebsocketDownload({
@@ -303,7 +302,7 @@ export default defineComponent({
                     pageData.value.isUpgradeBackUp = true
                 }
             } else {
-                const errorCode = Number($('/response/errorCode').text())
+                const errorCode = Number($('//errorCode').text())
                 handleErrorMsg(errorCode)
             }
         }
@@ -479,7 +478,7 @@ export default defineComponent({
             isSupportH5,
             (newVal) => {
                 if (!newVal && !Plugin.IsPluginAvailable) {
-                    pluginStore.showPluginNoResponse = true
+                    Plugin.SetPluginNoResponse()
                     Plugin.ShowPluginNoResponse()
                 }
                 if (newVal && isHttpsLogin()) {

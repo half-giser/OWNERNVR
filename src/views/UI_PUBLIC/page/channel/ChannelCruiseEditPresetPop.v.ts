@@ -3,7 +3,7 @@
  * @Date: 2024-08-21 17:52:33
  * @Description: 云台-巡航线-新增/编辑预置点弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-22 16:49:18
+ * @LastEditTime: 2024-09-05 11:51:20
  */
 import type { FormInstance, FormRules } from 'element-plus'
 import { ChannelPtzCruisePresetDto, ChannelPtzCruisePresetForm } from '@/types/apiType/channel'
@@ -97,8 +97,8 @@ export default defineComponent({
             `
             const result = await queryChlPresetList(sendXml)
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
-                pageData.value.nameOptions = $('/response/content/presets/item').map((item) => {
+            if ($('//status').text() === 'success') {
+                pageData.value.nameOptions = $('//content/presets/item').map((item) => {
                     return {
                         value: Number(item.attr('index')!),
                         label: item.text(),

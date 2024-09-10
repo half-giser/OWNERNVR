@@ -3,15 +3,17 @@
  * @Date: 2024-08-06 20:37:25
  * @Description: 回放-事件类型视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-07 17:44:16
+ * @LastEditTime: 2024-09-05 15:34:11
  */
 import { type PlaybackEventList } from '@/types/apiType/playback'
 
 export default defineComponent({
     props: {
+        /**
+         * @property
+         */
         smdRecLogPlay: {
             type: String,
-            requeired: false,
             default: '',
         },
     },

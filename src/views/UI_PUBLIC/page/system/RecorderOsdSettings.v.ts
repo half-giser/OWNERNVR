@@ -3,7 +3,7 @@
  * @Date: 2024-06-27 09:03:07
  * @Description: 录像机OSD配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-27 17:55:08
+ * @LastEditTime: 2024-09-05 15:24:00
  */
 import { SystemRecorderOSDSettingsForm } from '@/types/apiType/system'
 
@@ -27,9 +27,9 @@ export default defineComponent({
             const result = await queryDevOsdDisplayCfg()
             const $ = queryXml(result)
 
-            formData.value.nameEnable = $('/response/content/nameSwitch').text()
-            formData.value.iconEnable = $('/response/content/iconSwitch').text()
-            formData.value.addressEnable = $('/response/content/addressSwitch').text()
+            formData.value.nameEnable = $('//content/nameSwitch').text()
+            formData.value.iconEnable = $('//content/iconSwitch').text()
+            formData.value.addressEnable = $('//content/addressSwitch').text()
 
             closeLoading(LoadingTarget.FullScreen)
         }

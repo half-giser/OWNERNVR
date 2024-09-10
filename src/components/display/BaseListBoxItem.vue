@@ -18,12 +18,13 @@
 <script lang="ts" setup>
 withDefaults(
     defineProps<{
+        /**
+         * @property 是否选中状态
+         */
         active?: boolean
-        icon?: string
     }>(),
     {
         active: false,
-        icon: '',
     },
 )
 
@@ -34,6 +35,9 @@ const emits = defineEmits<{
 
 let timer: NodeJS.Timeout | number = 0
 
+/**
+ * @description 拦截点击事件，在非双击时回调
+ */
 const handleClick = () => {
     clearTimeout(timer)
     timer = setTimeout(() => {
@@ -41,6 +45,9 @@ const handleClick = () => {
     }, 300)
 }
 
+/**
+ * @description 双击时，取消点击事件
+ */
 const handleDblClick = () => {
     clearTimeout(timer)
     emits('dblclick')

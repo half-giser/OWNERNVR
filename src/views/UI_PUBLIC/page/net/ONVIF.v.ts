@@ -3,7 +3,7 @@
  * @Date: 2024-08-15 18:18:50
  * @Description: OVNIF
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-16 18:15:56
+ * @LastEditTime: 2024-09-05 16:00:34
  */
 import { NetOnvifForm, NetOnvifUserList } from '@/types/apiType/net'
 import ONVIFUserAddPop from './ONVIFUserAddPop.vue'
@@ -52,8 +52,8 @@ export default defineComponent({
         const getOnvifConfig = async () => {
             const result = await queryOnvifCfg()
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
-                formData.value.switch = $('/response/content/switch').text().toBoolean()
+            if ($('//status').text() === 'success') {
+                formData.value.switch = $('//content/switch').text().toBoolean()
             }
         }
 
@@ -64,8 +64,8 @@ export default defineComponent({
         const getRtspSwitch = async () => {
             const result = await queryRTSPServer()
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
-                return $('/response/content/rtspServerSwitch').text().toBoolean()
+            if ($('//status').text() === 'success') {
+                return $('//content/rtspServerSwitch').text().toBoolean()
             }
             return false
         }
@@ -76,8 +76,8 @@ export default defineComponent({
         const getUserList = async () => {
             const result = await queryOnvifUserList()
             const $ = queryXml(result)
-            if ($('/response/status').text() === 'success') {
-                tableData.value = $('/response/content/item').map((item) => {
+            if ($('//status').text() === 'success') {
+                tableData.value = $('//content/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
                         id: item.attr('id')!,

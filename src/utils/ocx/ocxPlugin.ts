@@ -4,26 +4,11 @@
  * @Description: OCX插件模块
  * 原项目中MAC插件和TimeSliderPlugin相关逻辑不保留
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-23 16:47:25
+ * @LastEditTime: 2024-09-05 16:21:17
  */
 import WebsocketPlugin from '@/utils/websocket/websocketPlugin'
-import { usePluginStore } from '@/stores/plugin'
-// import { useCababilityStore } from '@/stores/cabability'
-import { APP_TYPE, ErrorCode } from '@/utils/constants'
-import { getBrowserInfo, getSystemInfo, isBrowserSupportWasm } from '@/utils/tools'
+import { APP_TYPE } from '@/utils/constants'
 import { ClientPort, P2PClientPort, P2PACCESSTYPE, SERVER_IP, getPluginPath, PluginSizeModeMapping, type OCX_Plugin_Notice_Map } from '@/utils/ocx/ocxUtil'
-import { XMLStr2XMLDoc, queryXml } from '@/utils/xmlParse'
-import * as CMD from '@/utils/ocx/ocxCmd'
-import { useLangStore } from '@/stores/lang'
-import useMessageBox from '@/hooks/useMessageBox'
-import { Logout } from '@/api/user'
-import useLoading from '@/hooks/useLoading'
-import { getXmlWrapData } from '@/api/api'
-import { doLogin } from '@/api/user'
-import { useUserSessionStore } from '@/stores/userSession'
-import { setCookie, delCookie } from '@/utils/cookie'
-import { queryNetStatus, queryNetCfgV2, queryUPnPCfg } from '@/api/net'
-import { CreateEvent } from '@/utils/customEvent'
 
 type PluginStatus = 'Unloaded' | 'Loaded' | 'InitialComplete' | 'Connected' | 'Disconnected' | 'Reconnecting'
 
@@ -35,7 +20,9 @@ type EmbedPlugin = HTMLEmbedElement & {
     LiveNotify2Js: (strXMLFormat: string) => Promise<void>
 }
 
-const usePlugin = () => {
+let plugin: ReturnType<typeof useOCXPlugin> | null = null
+
+const useOCXPlugin = () => {
     const pluginStore = usePluginStore()
     const { Translate, getLangTypes, getLangItems, langItems } = useLangStore()
     const { openMessageTipBox } = useMessageBox()
@@ -43,7 +30,6 @@ const usePlugin = () => {
     const { closeLoading, openLoading, LoadingTarget } = useLoading()
     const userSession = useUserSessionStore()
     const layoutStore = useLayoutStore()
-    // const systemCaps = useCababilityStore()
     const route = useRoute()
 
     // 通知相关
@@ -52,19 +38,14 @@ const usePlugin = () => {
     const pluginDownloadUrl = ref('')
     const pluginNoticeContainer = ref('')
     const isInstallPlugin = ref(false) // 插件已安装运行标记
-    // const isPluginReady = ref(false) // 插件是否已经ready
 
     let videoPlugin: WebsocketPlugin | null = null // | EmbedPlugin //主视频插件
     let videoPluginStatus: PluginStatus = 'Unloaded' // Unloaded, Loaded, InitialComplete, Connected, Disconnected, Reconnecting
-    // let timeSliderPlugin: WebsocketPlugin | null | EmbedPlugin //主视频插件
-    // let timeSliderPluginStatus: PluginStatus = 'Unloaded' // Unloaded, Loaded, InitialComplete, Connected, Disconnected, Reconnecting
 
     const VideoPluginReconnectTimeout = 5000 // 断开重新连接时间
-    // let isReconn = false //登录是否为重连
     let VideoPluginReconnectTimeoutId: NodeJS.Timeout | null = null // 重新连接超时ID
 
     const VideoPluginNotifyEmitter = CreateEvent('notify')
-    // const TimeSliderPluginNotifyEmitter = CreateEvent('notify')
 
     // 对支持wasm的浏览器环境做插件调用代码的兼容处理，避免调用插件的代码报错
     const FakePluginForWasm = {
@@ -86,8 +67,15 @@ const usePlugin = () => {
     const backupTask = useOcxBackUp((str) => {
         getVideoPlugin().ExecuteCmd(str)
     })
+
     VideoPluginNotifyEmitter.addListener(backupTask.notify)
 
+    /**
+     * @description 比较插件版本
+     * @param {string} ver1
+     * @param {string} ver2
+     * @returns {Number}
+     */
     const compareOcxVersion = (ver1: string, ver2: string) => {
         const var1Arr = ver1.split(',')
         const var2Arr = ver2.split(',')
@@ -122,33 +110,6 @@ const usePlugin = () => {
     }
 
     /**
-     * @description safari无安装插件
-     * @param {string} downLoadUrl
-     */
-    // const getSafariPluginNotice = (downLoadUrl: string) => {
-    //     pluginNoticeHtml.value = 'IDCS_NO_PLUGIN_FOR_MAC'
-    //     pluginDownloadUrl.value = downLoadUrl
-    // }
-
-    /**
-     * @description safari版本过低警告
-     * @param {string} downLoadUrl
-     */
-    // const getSafariPluginWarning = () => {
-    //     pluginNoticeHtml.value = 'IDCS_SAFARI_VERSION_WARNING'
-    //     pluginDownloadUrl.value = ''
-    // }
-
-    /**
-     * @description NPAPI插件已禁用
-     * @param {string} downLoadUrl
-     */
-    // const getChromeNPAPIDisableNotice = (downLoadUrl: string) => {
-    //     pluginNoticeHtml.value = 'IDCS_NPAPI_NOT_SUPPORT'
-    //     pluginDownloadUrl.value = downLoadUrl
-    // }
-
-    /**
      * @description 设置通知在哪显示
      * @param {string} selector 容器Selector
      */
@@ -156,7 +117,10 @@ const usePlugin = () => {
         pluginNoticeContainer.value = selector
     }
 
-    // 检测当前浏览器是否支持插件（websocket)
+    /**
+     * @description 检测当前浏览器是否支持插件（websocket)
+     * @returns {boolean}
+     */
     const checkSupportWebsocket = () => {
         const browserVersion = browserInfo.majorVersion
         const browserType = browserInfo.type
@@ -193,25 +157,6 @@ const usePlugin = () => {
         return true
     }
 
-    // 检测MAC系统上Safari浏览器当前版本是否支持P2P登录(仅支持MAC系统Safari10及其以下)
-    // function checkSupportPluginV1ForMac() {
-    //     let supportPluginV1 = true
-    //     // const browserInfo = WidgetBase.DetectBrowserInfo()
-    //     const browserType = browserInfo.type
-    //     const browserVersion = browserInfo.majorVersion
-    //     if (browserType == 'safari') {
-    //         if (browserVersion > 10) {
-    //             isPluginAvailable.value = false
-    //             supportPluginV1 = false
-    //             pluginNoticeHtml.value = 'IDCS_SAFARI_VERSION_FOR_P2P'
-    //         }
-    //     } else {
-    //         supportPluginV1 = false
-    //         alert('This browser does not support the current plugin!')
-    //     }
-    //     return supportPluginV1
-    // }
-
     /**
      * @description 视频插件通知回调
      * Firefox，Chrome中，回调函数名的字符串中不能出现“.”,否则插件无法识别，不能正确回调
@@ -232,23 +177,16 @@ const usePlugin = () => {
         }
         if ($('/statenotify[@type="NVMS_NAT_CMD"]').length) {
             const $response = $('/statenotify[@type="NVMS_NAT_CMD"]/response')
-            const $res = queryXml(XMLStr2XMLDoc(CMD_QUEUE.currentCmd!.cmd))
-            const $request = $res("//cmd[@type='NVMS_NAT_CMD']/request")
+            const $request = queryXml(XMLStr2XMLDoc(CMD_QUEUE.cmd))("//cmd[@type='NVMS_NAT_CMD']/request")
             const curCmdUrl = $request.attr('url')
             const curCmdFlay = $request.attr('flag')
             if ($response.attr('flag') === curCmdFlay && $response.attr('url') === curCmdUrl) {
                 try {
-                    CMD_QUEUE.unLock()
-                    if (CMD_QUEUE.currentCmd) {
-                        clearTimeout(CMD_QUEUE.currentCmd.timeoutId as NodeJS.Timeout)
-                        //result, textStatus, jqXHR
-                        CMD_QUEUE.currentCmd.DFD.resolve($response)
-                    }
+                    CMD_QUEUE.unlock()
+                    clearTimeout(CMD_QUEUE.timeoutId)
                 } catch (ex) {
                 } finally {
-                    CMD_QUEUE._queue.shift()
-                    CMD_QUEUE.currentCmd = null
-                    CMD_QUEUE.execute()
+                    CMD_QUEUE.next()
                 }
             }
         }
@@ -305,7 +243,7 @@ const usePlugin = () => {
 
                             //执行标准客户端的登录流程
                             const userInfoArr = userSession.getAuthInfo()
-                            const sendXML = CMD.OCX_XML_SetLang()
+                            const sendXML = OCX_XML_SetLang()
                             getVideoPlugin().ExecuteCmd(sendXML)
                             router.replace('/live')
                             const result = await doLogin(getXmlWrapData(''), {}, false)
@@ -365,14 +303,17 @@ const usePlugin = () => {
     }
 
     let videoPluginLoadLang_timeoutId: NodeJS.Timeout | null = null
-    // 初始化成功后，检测到语言包加载成功后，设置插件的语言内容
+
+    /**
+     * @description 初始化成功后，检测到语言包加载成功后，设置插件的语言内容
+     */
     const videoPluginLoadLang = () => {
         if (Object.keys(langItems).length) {
             if (videoPluginLoadLang_timeoutId !== null) {
                 clearTimeout(videoPluginLoadLang_timeoutId)
                 videoPluginLoadLang_timeoutId = null
             }
-            const sendXML = CMD.OCX_XML_SetLang()
+            const sendXML = OCX_XML_SetLang()
             getVideoPlugin().ExecuteCmd(sendXML)
         } else {
             videoPluginLoadLang_timeoutId = setTimeout(videoPluginLoadLang, 500)
@@ -380,8 +321,11 @@ const usePlugin = () => {
     }
 
     let videoPluginLoginForStandard_timeoutId: NodeJS.Timeout | null = null
-    //标准客户端插件登录
-    //初始化成功后，检测到客户端登录成功后，插件立即登录
+
+    /**
+     * @description 标准客户端插件登录
+     * 初始化成功后，检测到客户端登录成功后，插件立即登录
+     */
     const videoPluginLoginForStandard = () => {
         const userInfoArr = userSession.getAuthInfo()
         if (userInfoArr != null) {
@@ -404,35 +348,24 @@ const usePlugin = () => {
         }
     }
 
+    /**
+     * @description 获取端口
+     * @param {Function} callback
+     */
     const getPort = async (callback?: (p: number) => void) => {
         let hostName = window.top!.location.hostname
-        // let isMainIpUsed = true // 主IP登录，插件使用localPort登录
         let isSubIpUsed = false // 辅IP登录，插件使用externalPort登录
         queryNetStatus()
             .then(() => {
-                // const $ = queryXml(result)
                 if (hostName.indexOf('[') !== -1 || hostName.lastIndexOf(']') !== -1) {
                     hostName = hostName.substring(hostName.indexOf('[') + 1, hostName.indexOf(']'))
                 }
-                // if ($('response/status').text() === 'success') {
-                //     if ($('response/content/ipGroup/switch').text().toBoolean()) {
-                //         isMainIpUsed = hostName === $('response/content/ipGroup/ip').text() || hostName === $('response/content/ipGroup/ipV6').text()
-                //     } else {
-                //         $('response/content/nic/item').forEach((item) => {
-                //             const $item = queryXml(item.element)
-                //             if ($item('/ip').text() === hostName || $item('/ipV6').text() === hostName) {
-                //                 isMainIpUsed = true
-                //                 return false
-                //             }
-                //         })
-                //     }
-                // }
                 return queryNetCfgV2()
             })
             .then((result) => {
                 const $ = queryXml(result)
-                if ($('/response/status').text() === 'success') {
-                    $('/response/content/nicConfigs/item').forEach((item) => {
+                if ($('//status').text() === 'success') {
+                    $('//content/nicConfigs/item').forEach((item) => {
                         const $item = queryXml(item.element)
                         if (item.attr('isSupSecondIP') === 'true') {
                             // 判断是否使用了辅IP
@@ -445,10 +378,10 @@ const usePlugin = () => {
             })
             .then((result) => {
                 const $ = queryXml(result)
-                if ($('/response/status').text() === 'success') {
-                    const isUPnPEnable = $('/response/content/switch').text().toBoolean()
+                if ($('//status').text() === 'success') {
+                    const isUPnPEnable = $('//content/switch').text().toBoolean()
                     let port = 0
-                    $('/response/content/ports/item').forEach((item) => {
+                    $('//content/ports/item').forEach((item) => {
                         const $item = queryXml(item.element)
 
                         if ($item('portType').text() === 'SERVICE') {
@@ -473,7 +406,7 @@ const usePlugin = () => {
         // const username = userInfoArr[0]
         // const password = userInfoArr[1]
         const id = ''
-        const sendXML = CMD.OCX_XML_SetLoginInfo(SERVER_IP, pluginStore.pluginPort, id)
+        const sendXML = OCX_XML_SetLoginInfo(SERVER_IP, pluginStore.pluginPort, id)
         getVideoPlugin().ExecuteCmd(sendXML)
     }
 
@@ -484,7 +417,7 @@ const usePlugin = () => {
         pluginStore.p2pSessionId = null // 采用用户名/密码登录，要么无sessionId, 要么产生新的授权码后有新的sessionId
         const userInfoArr = userSession.getAuthInfo()
         if (userInfoArr != null) {
-            const sendXML = CMD.OCX_XML_SetPasswordLogin_P2P(userInfoArr[0], userInfoArr[1], userInfoArr[2])
+            const sendXML = OCX_XML_SetPasswordLogin_P2P(userInfoArr[0], userInfoArr[1], userInfoArr[2])
             getVideoPlugin().ExecuteCmd(sendXML)
         } else {
             execLoginErrorCallback()
@@ -499,7 +432,7 @@ const usePlugin = () => {
     const p2pAuthCodeLogin = (authCode: string, authCodeIndex: string) => {
         const sn = userSession.sn
         if (authCode && authCodeIndex && sn) {
-            const sendXML = CMD.OCX_XML_SetAuthCodeLogin_P2P(authCode, authCodeIndex, sn)
+            const sendXML = OCX_XML_SetAuthCodeLogin_P2P(authCode, authCodeIndex, sn)
             getVideoPlugin().ExecuteCmd(sendXML)
         } else {
             execLoginErrorCallback()
@@ -513,7 +446,7 @@ const usePlugin = () => {
         const p2pSessionId = pluginStore.p2pSessionId
         const userInfoArr = userSession.getAuthInfo()
         if (p2pSessionId && userInfoArr && userInfoArr[2]) {
-            const sendXML = CMD.OCX_XML_SetSessionIdLogin_P2P(p2pSessionId, userInfoArr[2])
+            const sendXML = OCX_XML_SetSessionIdLogin_P2P(p2pSessionId, userInfoArr[2])
             getVideoPlugin().ExecuteCmd(sendXML)
         } else {
             execLoginErrorCallback()
@@ -547,69 +480,54 @@ const usePlugin = () => {
         errorCode && setCookie('ec', errorCode)
         errorDescription && setCookie('em', errorDescription.trim())
         // TODO: what is it?
-        window.location.href = '/index.html'
-    }
-
-    // const TimeSliderPluginNotify = (strXMLFormat: string) => {
-    //     const $xmlDoc = queryXml(XMLStr2XMLDoc(strXMLFormat))
-    //     TimeSliderPluginNotifyEmitter.emit($xmlDoc, strXMLFormat)
-    //     return TimeSliderPluginNotifyEmitter
-    // }
-
-    class CmdDeferred {
-        // DFD = $.Deferred() TODO?
-        DFD = Promise
-        cmd: string
-        timeoutId: NodeJS.Timeout | null = null
-        constructor(cmd: string) {
-            this.cmd = cmd
-        }
+        // window.location.href = '/index.html'
+        router.push({
+            path: '/live',
+        })
     }
 
     //命令发送队列
     const CMD_QUEUE = {
         viewFlag: 1, //当页面切换后，该flag加1，OCX将不会处理上一个页面的请求
-        currentCmd: null as CmdDeferred | null,
-        _queue: [] as CmdDeferred[], // { cmd: string }
-        _lock: false, //锁定标识：当前命令没有返回时，不能发送新的命令
-        _timeout: 60000, //命令超时时长，如果一个命令发出后，在_timeout时间内没返回，就认为超时
+        cmd: '',
+        queue: [] as string[], // { cmd: string }
+        lock: false, //锁定标识：当前命令没有返回时，不能发送新的命令
+        timeout: 60000, //命令超时时长，如果一个命令发出后，在_timeout时间内没返回，就认为超时
+        timeoutId: 0 as NodeJS.Timeout | number,
         add(cmd: string) {
-            if (this._queue.length > 10000) {
+            if (this.queue.length > 10000) {
                 throw 'CMD_QUEUE is full'
             }
-            const cmdObj = new CmdDeferred(cmd)
-            this._queue.push(cmdObj)
-            if (this._queue.length == 1 && !this._lock) {
+            this.queue.push(cmd)
+            if (this.queue.length == 1 && !this.lock) {
                 setTimeout(this.execute, 10)
             }
-            return cmdObj
+            return cmd
         },
         execute() {
-            if (this._queue.length == 0 || this._lock) {
+            if (this.queue.length == 0 || this.lock) {
                 return
             }
-            this._lock = true
-            const cmdItem = this._queue[0]
-            this.currentCmd = cmdItem
-            getVideoPlugin().ExecuteCmd(cmdItem.cmd)
-            cmdItem.timeoutId = setTimeout(() => {
-                if (this.currentCmd) {
-                    this._queue.shift()
-                    this._lock = false
-                    this.currentCmd.DFD.reject()
-                    if (this._queue.length > 0) {
-                        this.execute()
-                    }
-                }
-            }, this._timeout)
+            this.lock = true
+            const cmd = this.queue.shift()!
+            this.cmd = cmd
+            getVideoPlugin().ExecuteCmd(cmd)
+            this.timeoutId = setTimeout(() => {
+                this.unlock()
+                this.next()
+            }, this.timeout)
         },
-        unLock() {
-            this._lock = false
+        unlock() {
+            this.lock = false
         },
         clear() {
-            this.currentCmd = null
-            this._queue.length = 0
-            this._lock = false
+            this.cmd = ''
+            this.queue.length = 0
+            this.lock = false
+        },
+        next() {
+            this.cmd = ''
+            this.execute()
         },
     }
 
@@ -631,23 +549,6 @@ const usePlugin = () => {
     }
 
     /**
-     * @description 查询TimeSliderPlugin状态
-     * @returns {PluginStatus}
-     */
-    // const getTimeSliderPluginStatus = () => {
-    //     return timeSliderPluginStatus
-    // }
-
-    /**
-     * @description 设置TimeSliderPlugin状态
-     * @param {PluginStatus} value
-     * @returns {PluginStatus}
-     */
-    // const setTimeSliderPluginStatus = (value: PluginStatus) => {
-    //     return (timeSliderPluginStatus = value)
-    // }
-
-    /**
      * @description 开启V2进程
      */
     const startV2Process = () => {
@@ -655,10 +556,6 @@ const usePlugin = () => {
         isInstallPlugin.value = false
         pluginStore.currPluginMode = null
 
-        // if (systemInfo.platform === 'mac') {
-        //     initMacPlugin()
-        //     return
-        // }
         if (!checkSupportWebsocket()) {
             setPluginNotice('body')
             return
@@ -699,9 +596,6 @@ const usePlugin = () => {
             case 'windows':
                 initWinPlugin()
                 break
-            // case 'mac':
-            //     initMacPlugin()
-            //     break
             default:
                 console.error("The plugin don't support current operating system!")
         }
@@ -751,7 +645,7 @@ const usePlugin = () => {
         const path = getPluginPath()
         const downLoadUrl = APP_TYPE === 'STANDARD' ? path.ClientPluDownLoadPath : path.P2PClientPluDownLoadPath
         let needUpate = true
-        const sendXML = CMD.OCX_XML_GetOcxVersion()
+        const sendXML = OCX_XML_GetOcxVersion()
         getVideoPlugin().QueryInfo(sendXML, (strXMLFormat) => {
             const $ = queryXml(XMLStr2XMLDoc(strXMLFormat))
             const $xmlDoc = $('//response[@type="GetOcxVersion"]')
@@ -781,142 +675,18 @@ const usePlugin = () => {
             //设置OCX模式
             try {
                 if (APP_TYPE === 'P2P') {
-                    const sendXML = CMD.OCX_XML_Initial_P2P('Interactive', 'VideoPluginNotify', 'Live', 1)
+                    const sendXML = OCX_XML_Initial_P2P('Interactive', 'VideoPluginNotify', 'Live', 1)
                     getVideoPlugin().ExecuteCmd(sendXML)
                 } else {
-                    const sendXML = CMD.OCX_XML_Initial('Interactive', 'VideoPluginNotify', 'Live')
+                    const sendXML = OCX_XML_Initial('Interactive', 'VideoPluginNotify', 'Live')
                     getVideoPlugin().ExecuteCmd(sendXML)
                 }
 
-                const sendXML = CMD.OCX_XML_SetProperty({ calendarType: userSession.calendarType, supportRecStatus: true })
+                const sendXML = OCX_XML_SetProperty({ calendarType: userSession.calendarType, supportRecStatus: true })
                 getVideoPlugin().ExecuteCmd(sendXML)
             } catch (ex) {}
         })
     }
-
-    /**
-     * @description 初始化Mac视频插件
-     */
-    // const initMacPlugin = () => {
-    //     if (APP_TYPE === 'STANDARD') {
-    //         if (isBrowserSupportWasm()) {
-    //             isPluginAvailable.value = false
-    //             pluginStore.currPluginMode = 'h5'
-    //         } else {
-    //             isPluginAvailable.value = false
-    //             getSafariPluginWarning()
-    //             setPluginNotice('body')
-    //         }
-    //     } else {
-    //         videoPlugin = loadMacPlugin()
-    //         if (videoPlugin) {
-    //             setVideoPluginStatus('Loaded')
-    //             isInstallPlugin.value = true
-    //             isPluginAvailable.value = true
-    //             //设置OCX模式
-    //             try {
-    //                 //FOR MAC Only
-    //                 videoPlugin.LiveNotify2Js = VideoPluginNotify
-    //                 if (APP_TYPE === 'P2P') {
-    //                     const sendXML = CMD.OCX_XML_Initial_P2P('Interactive', 'VideoPluginNotify', 'Live', 1)
-    //                     videoPlugin.ExecuteCmd(sendXML)
-    //                 } else {
-    //                     const sendXML = CMD.OCX_XML_Initial('Interactive', 'VideoPluginNotify', 'Live')
-    //                     videoPlugin.ExecuteCmd(sendXML)
-    //                 }
-    //                 const sendXML = CMD.OCX_XML_SetProperty({ calendarType: userSession.calendarType, supportRecStatus: true })
-    //                 videoPlugin.ExecuteCmd(sendXML)
-    //             } catch (ex) {}
-    //             const sendXML = CMD.OCX_XML_SetLang()
-    //             videoPlugin.ExecuteCmd(sendXML)
-    //         } else {
-    //             isInstallPlugin.value = false
-    //             isPluginAvailable.value = false
-    //             setPluginNotice('body')
-    //         }
-    //     }
-    //     // VideoPluginNotify.notify = CreateEvent('notify')
-    // }
-
-    /**
-     * @description 加载MAC平台的插件
-     * @returns {ElementPlugin}
-     */
-    // const loadMacPlugin = () => {
-    //     const path = getPluginPath()
-
-    //     let needUpate = true
-    //     if (!checkSupportPluginV1ForMac()) return null
-    //     const element = document.createElement('embed') as EmbedPlugin
-    //     element.setAttribute('id', 'VideoPlugin')
-    //     element.style.setProperty('position', 'absolute')
-    //     element.style.setProperty('width', '1px')
-    //     element.style.setProperty('height', '1px')
-    //     element.style.setProperty('z-index', '10')
-    //     element.setAttribute('plugin_visible', 'true')
-    //     element.setAttribute('type', path.P2PClientPluMimeType_MAC)
-    //     document.body.prepend(element)
-
-    //     if ('QueryInfo' in element) {
-    //         const sendXML = CMD.OCX_XML_GetOcxVersion()
-    //         const returnXML = element.QueryInfo(sendXML)
-    //         const $ = queryXml(XMLStr2XMLDoc(returnXML))
-    //         const $xmlDoc = $('response[@type="GetOcxVersion"]')
-    //         if ($xmlDoc.length > 0) {
-    //             const intCurVer = $xmlDoc.text()
-    //             if (intCurVer && compareOcxVersion(intCurVer, path.P2PClientPluVer_MAC) >= 0) {
-    //                 needUpate = false
-    //             }
-    //         }
-    //     }
-
-    //     if (needUpate) {
-    //         isPluginAvailable.value = false
-    //         getSafariPluginNotice(path.P2PClientPluDownLoadPath_MAC)
-    //         return null
-    //     }
-    //     return element
-    // }
-
-    /**
-     * @description 初始化TimeSlider插件
-     */
-    // const initTimeSliderPlugin = () => {
-    //     if (videoPlugin == null) {
-    //         initVideoPlugin()
-    //     }
-    //     timeSliderPlugin = videoPlugin
-    //     // TimeSliderPluginNotify.notify = CreateEvent('notify')
-
-    //     if (timeSliderPlugin) {
-    //         setTimeSliderPluginStatus('Loaded')
-    //         //设置OCX模式
-    //         try {
-    //             if (APP_TYPE === 'P2P') {
-    //                 const sendXML = CMD.OCX_XML_Initial_P2P('Interactive', 'TimeSliderPluginNotify', TIMESLIDER_PLUGIN, 1)
-    //                 timeSliderPlugin.ExecuteCmd(sendXML)
-    //             } else {
-    //                 const sendXML = CMD.OCX_XML_Initial('Interactive', 'TimeSliderPluginNotify', TIMESLIDER_PLUGIN)
-    //                 timeSliderPlugin.ExecuteCmd(sendXML)
-    //             }
-
-    //             let sendXML = CMD.OCX_XML_SetProperty(
-    //                 {
-    //                     calendarType: userSession.calendarType,
-    //                 },
-    //                 TIMESLIDER_PLUGIN,
-    //             )
-    //             timeSliderPlugin.ExecuteCmd(sendXML)
-    //             sendXML = CMD.OCX_XML_SetProperty(
-    //                 {
-    //                     supportIntelligent: systemCaps.ipChlMaxCount > 0,
-    //                 },
-    //                 TIMESLIDER_PLUGIN,
-    //             )
-    //             timeSliderPlugin.ExecuteCmd(sendXML)
-    //         } catch (ex) {}
-    //     }
-    // }
 
     /**
      * @description 根据是否选择插件切换不同的页面
@@ -930,18 +700,6 @@ const usePlugin = () => {
             currPluginMode = 'ocx'
         }
         pluginStore.currPluginMode = currPluginMode
-
-        // TODO! route
-        // const appModuleList = Route.GetAppModuleList()
-        // appModuleList['live'] = {
-        //     url: currPluginMode == 'h5' ? 'view/Live/liveWasm.html' : 'view/Live/live.html',
-        //     apModule: currPluginMode == 'h5' ? 'app/Live/liveWasm' : 'app/Live/live',
-        // }
-        // appModuleList['rec'] = {
-        //     url: currPluginMode == 'h5' ? 'view/RecWasm/recWasm.html' : 'view/Rec/rec.html',
-        //     apModule: currPluginMode == 'h5' ? 'app/RecWasm/recWasm' : 'app/Rec/rec',
-        // }
-        // Route.SetAppModuleList(appModuleList)
     }
 
     /**
@@ -951,19 +709,14 @@ const usePlugin = () => {
      * @param callback
      */
     const asynQueryInfo = (pluginObj: WebsocketPlugin | EmbedPlugin | typeof FakePluginForWasm, sendXML: string, callback?: (str: string) => void) => {
-        // if (systemInfo.platform === 'mac' && APP_TYPE === 'P2P') {
-        //     const result = (pluginObj as EmbedPlugin).QueryInfo(sendXML)
-        //     callback && callback(result)
-        // } else {
         pluginObj.QueryInfo(sendXML, (strXMLFormat: string) => {
             callback && callback(strXMLFormat)
         })
-        // }
     }
 
     /**
      * 获得视频插件对象
-     * @returns
+     * @returns {WebsocketPlugin}
      */
     const getVideoPlugin = () => {
         if (!videoPlugin) {
@@ -977,26 +730,6 @@ const usePlugin = () => {
 
         return videoPlugin ? videoPlugin : FakePluginForWasm
     }
-
-    /**
-     * 获得TimeSlider插件对象
-     * @returns
-     */
-    // const getTimeSliderPlugin = () => {
-    //     return timeSliderPlugin
-    // }
-
-    /**
-     * @description 设置视频插件默认的z-index值
-     */
-    // const setVideoPluginDefaultZIndex = () => {
-    //     // TODO: Component
-    //     if (systemInfo.platform === 'mac' || browserInfo.type !== 'chrome') {
-    //         $(videoPlugin).css('z-index', 10)
-    //     } else {
-    //         $(videoPlugin).css('z-index', 0)
-    //     }
-    // }
 
     /**
      * @description 获取是否重连
@@ -1047,7 +780,10 @@ const usePlugin = () => {
             p2pLoginTypeCallback(loginType, authCodeIndex)
         } else {
             // TODO what is it?
-            window.location.href = '/index.html'
+            // window.location.href = '/index.html'
+            router.push({
+                path: '/live',
+            })
         }
     }
 
@@ -1061,6 +797,8 @@ const usePlugin = () => {
 
     /**
      * @description 执行登录失败回调
+     * @param {number} errorCode
+     * @param {string} errorDescription
      * @returns {Function}
      */
     const execLoginErrorCallback = (errorCode?: number, errorDescription?: string) => {
@@ -1101,18 +839,21 @@ const usePlugin = () => {
      * @description 注销视频插件
      */
     const disposePlugin = () => {
-        // if (videoPlugin && isPluginAvailable.value) {
-        const sendXML = CMD.OCX_XML_SetPluginSize(0, 0, 0, 0)
+        const sendXML = OCX_XML_SetPluginSize(0, 0, 0, 0)
         getVideoPlugin().ExecuteCmd(sendXML)
         getVideoPlugin().Destroy()
         // }
         pluginStore.ocxPort = 0
         pluginStore.currPluginMode = null
         videoPlugin = null
-        // document.getElementById('VideoPlugin')?.remove()
     }
 
     let isPluginNoResponse = false
+
+    const setPluginNoResponse = () => {
+        pluginStore.showPluginNoResponse = true
+    }
+
     /**
      * @description 视频无响应处理
      */
@@ -1168,10 +909,6 @@ const usePlugin = () => {
      * @return {boolean}
      */
     const getIsSupportH5 = () => {
-        // TODO !!!
-        // const appModuleList = Route.GetAppModuleList()
-        // const isH5PageState = appModuleList['live']['apModule'] == 'app/Live/liveWasm'
-        // return isH5PageState
         return pluginStore.currPluginMode === 'h5'
     }
 
@@ -1190,7 +927,7 @@ const usePlugin = () => {
             }, 50)
             return
         }
-        const sendXML = CMD.OCX_XML_SetViewChannelID(chlId, chlName)
+        const sendXML = OCX_XML_SetViewChannelID(chlId, chlName)
         getVideoPlugin().ExecuteCmd(sendXML)
         callback && callback()
     }
@@ -1244,7 +981,7 @@ const usePlugin = () => {
         //     })
         //     return
         // }
-        const sendXML = CMD.OCX_XML_DisplayPlugin(isShow)
+        const sendXML = OCX_XML_DisplayPlugin(isShow)
         getVideoPlugin().ExecuteCmd(sendXML)
     }
 
@@ -1335,51 +1072,9 @@ const usePlugin = () => {
         }
         const domWidth = ocxMode == 'relativeToDom' ? window.innerWidth * ratio : 0
         const domHeight = ocxMode == 'relativeToDom' ? window.innerHeight * ratio : 0
-        const sendXML = CMD.OCX_XML_SetPluginSize(winLeft, winTop, adjust(refW), adjust(refH), ocxMode, domWidth, domHeight)
+        const sendXML = OCX_XML_SetPluginSize(winLeft, winTop, adjust(refW), adjust(refH), ocxMode, domWidth, domHeight)
         pluginObj.ExecuteCmd(sendXML)
     }
-
-    /**
-     * @description P2P Mac 插件大小设置
-     * @param pluginRefDiv
-     * @param pluginObj
-     */
-    // const setPluginSizeForP2PMac = (pluginRefDiv: HTMLElement | null, pluginObj: EmbedPlugin) => {
-    //     if (!pluginRefDiv) return
-    //     if (!pluginRefDiv.id) pluginRefDiv.id = `id${getNonce()}`
-    //     pluginObj.setAttribute('pluginPlaceholderId', pluginRefDiv.id)
-
-    //     // TODO effect
-    //     // if ($('.tvt_dialog').length > 0 && $('#divPopRecOCX').length == 0 && $('#popLiveOCX').length == 0 && $('#posOcxArea').length == 0) return
-
-    //     const position = pluginRefDiv.style.position
-    //     const offsetLeft = pluginRefDiv.style.left
-    //     const offsetTop = pluginRefDiv.style.top
-    //     const refW = pluginRefDiv.style.width
-    //     const refH = pluginRefDiv.style.height
-
-    //     // 解决chrome上最大化，插件位置不刷新的问题
-    //     pluginObj.style.position = position === 'static' ? 'relative' : pluginRefDiv.style.position
-    //     pluginObj.style.left = `${Number.parseInt(offsetLeft) - 1}px`
-    //     pluginObj.style.top = `${Number.parseInt(offsetTop) - 1}px`
-    //     pluginObj.style.width = `${Number.parseInt(refW) - 1}px`
-    //     pluginObj.style.height = `${Number.parseInt(refH) - 1}px`
-
-    //     pluginObj.style.position = position
-    //     pluginObj.style.left = offsetLeft
-    //     pluginObj.style.top = offsetTop
-    //     pluginObj.style.width = refW
-    //     pluginObj.style.height = refH
-
-    //     // Safari：将浏览器最大化，在退出最大化，视屏未整铺视屏框，需要重复设置一次
-    //     if (systemInfo.platform == 'mac') {
-    //         pluginObj.style.position = position
-    //         pluginObj.style.left = offsetLeft
-    //         pluginObj.style.top = offsetTop
-    //         pluginObj.style.width = refW
-    //         pluginObj.style.height = refH
-    //     }
-    // }
 
     /**
      * @description 根据浏览器的缩放比例获取视口大小
@@ -1417,23 +1112,11 @@ const usePlugin = () => {
      */
     const closeCurPlugin = (pluginPlaceholderId: HTMLElement | null) => {
         if (!pluginPlaceholderId) return null
-        // if (browserEventMap.has(pluginPlaceholderId)) {
-        // if (!browserMoveEventObj) browserMoveEventObj = {}
-        // const browserMoveEventObj = browserEventMap.get(pluginPlaceholderId)!
         pluginPlaceholderId.style.width = '0px'
         pluginPlaceholderId.style.height = '0px'
         setPluginSize(pluginPlaceholderId, getVideoPlugin())
         // 离开当前页面，关闭插件的同时注销浏览器移动、滚动时更新插件尺寸
         disableUpdatePluginPos(pluginPlaceholderId)
-        // window.removeEventListener('scroll', browserMoveEventObj.browserScrollCallback)
-        // window.removeEventListener('resize', browserMoveEventObj.browserScrollCallback)
-        // clearInterval(browserMoveEventObj.browserMoveTimer)
-        // browserMoveEventObj.mutationObserver.disconnect()
-        // browserMoveEventObj.resizeObserver.disconnect()
-        // // browserMoveEventObj = {}
-        // browserEventMap.delete(pluginPlaceholderId)
-        // displayOCX(false)
-        // }
     }
 
     /**
@@ -1586,6 +1269,9 @@ const usePlugin = () => {
         })
     }
 
+    /**
+     * @description VisibleChange事件回调
+     */
     const pageVisibleChangeHandle = () => {
         if (!getIsPluginAvailable()) {
             return
@@ -1649,17 +1335,12 @@ const usePlugin = () => {
         GetVideoPlugin: getVideoPlugin,
         StartV2Process: startV2Process,
         InitVideoPlugin: initVideoPlugin,
-        // GetTimeSliderPlugin: getTimeSliderPlugin,
         P2pCmdSender: CMD_QUEUE,
         AsynQueryInfo: asynQueryInfo,
         SetPluginSize: setPluginSize,
         DisplayOCX: displayOCX,
-        // InitTimeSliderPlugin: initTimeSliderPlugin,
         GetVideoPluginStatus: getVideoPluginStatus,
         SetVideoPluginStatus: setVideoPluginStatus,
-        // GetTimeSliderPluginStatus: getTimeSliderPluginStatus,
-        // SetTimeSliderPluginStatus: setTimeSliderPluginStatus,
-        // SetVideoPluginDefaultZIndex: setVideoPluginDefaultZIndex,
         VideoPluginLogin: videoPluginLogin,
         P2pAuthCodeLogin: p2pAuthCodeLogin,
         GetIsReconn: getIsReconn,
@@ -1676,6 +1357,7 @@ const usePlugin = () => {
         CloseAllPlugin: closeAllPlugin,
         DisableUpdatePluginPos: disableUpdatePluginPos,
         ShowPluginNoResponse: showPluginNoResponse,
+        SetPluginNoResponse: setPluginNoResponse,
         AddPluginMoveEvent: addPluginMoveEvent,
         IsInstallPlugin: getIsInstallPlugin,
         IsPluginAvailable: getIsPluginAvailable,
@@ -1684,7 +1366,6 @@ const usePlugin = () => {
         RetryStartChlView: retryStartChlView,
         SetPluginNotice: setPluginNotice,
         VideoPluginNotifyEmitter,
-        // TimeSliderPluginNotifyEmitter,
         isPluginAvailable,
         pluginNoticeHtml,
         pluginDownloadUrl,
@@ -1693,4 +1374,15 @@ const usePlugin = () => {
     }
 }
 
-export default usePlugin
+/**
+ * @description 确保plugin对象是个单例
+ * @returns
+ */
+export const usePlugin = () => {
+    if (plugin) {
+        return plugin
+    } else {
+        plugin = useOCXPlugin()
+        return plugin
+    }
+}

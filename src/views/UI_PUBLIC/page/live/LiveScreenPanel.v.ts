@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 16:08:14
  * @Description: 现场预览-底部菜单栏视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 14:32:44
+ * @LastEditTime: 2024-09-05 16:12:11
  */
 import LiveScreenAlarmOut from './LiveScreenAlarmOut.vue'
 import { type LiveSharedWinData } from '@/types/apiType/live'
@@ -26,7 +26,6 @@ export default defineComponent({
         mode: {
             type: String,
             required: true,
-            default: '',
         },
         /**
          * @property 当前分屏数
@@ -34,7 +33,6 @@ export default defineComponent({
         split: {
             type: Number,
             required: true,
-            default: 0,
         },
         /**
          * @property 是否开启OSD状态
@@ -42,7 +40,6 @@ export default defineComponent({
         osd: {
             type: Boolean,
             required: true,
-            default: false,
         },
         /**
          * @property 本地录像按钮状态
@@ -50,7 +47,6 @@ export default defineComponent({
         clientRecord: {
             type: Boolean,
             required: true,
-            default: false,
         },
         /**
          * @property 远程录像按钮状态
@@ -58,7 +54,6 @@ export default defineComponent({
         remoteRecord: {
             type: Boolean,
             required: true,
-            default: false,
         },
         /**
          * @property 预览按钮状态
@@ -66,7 +61,6 @@ export default defineComponent({
         preview: {
             type: Boolean,
             required: true,
-            default: true,
         },
         /**
          * @property 对讲按钮状态
@@ -74,7 +68,6 @@ export default defineComponent({
         talk: {
             type: Boolean,
             required: true,
-            default: false,
         },
     },
     emits: {
@@ -185,9 +178,9 @@ export default defineComponent({
             const result = await queryRecStatus()
             const $ = queryXml(result)
 
-            let remoteRecord = !!$('/response/content/item').length
+            let remoteRecord = !!$('//content/item').length
 
-            $('/response/content/item').forEach((item) => {
+            $('//content/item').forEach((item) => {
                 const $item = queryXml(item.element)
                 // 查看当前通道录像类型是否有手动录像
                 const recType = $item('recTypes/item').some((rec) => rec.text() === 'manual')

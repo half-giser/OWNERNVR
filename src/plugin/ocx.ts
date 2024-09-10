@@ -7,7 +7,7 @@
  */
 
 import { type App } from 'vue'
-import usePlugin from '@/utils/ocx/ocxPlugin'
+import { usePlugin } from '@/utils/ocx/ocxPlugin'
 
 export default {
     install: (app: App<Element>) => {

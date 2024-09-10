@@ -4,21 +4,9 @@
  * @Description: 业务应用-停车场管理-车位管理
  */
 
-import { ArrowDown } from '@element-plus/icons-vue'
-import { getXmlWrapData } from '@/api/api'
 import { PkMgrSpaceManagePageData, PkMgrSpaceManageItem } from '@/types/apiType/business'
-import { queryParkingLotConfig, editParkingLotConfig } from '@/api/business'
-import { queryScheduleList } from '@/api/schedule'
-import { queryXml } from '@/utils/xmlParse'
-import { checkEmail } from '@/utils/tools'
-import { useLangStore } from '@/stores/lang'
-import useLoading from '@/hooks/useLoading'
-import useMessageBox from '@/hooks/useMessageBox'
 
 export default defineComponent({
-    components: {
-        ArrowDown,
-    },
     setup() {
         // 多语言翻译方法
         const { Translate } = useLangStore()
@@ -230,9 +218,8 @@ export default defineComponent({
                     </item>`
                 })
                 sendXml += '</parkingSapce></content>'
-                const data = getXmlWrapData(sendXml)
                 openLoading(LoadingTarget.FullScreen)
-                editParkingLotConfig(data).then((result) => {
+                editParkingLotConfig(sendXml).then((result) => {
                     closeLoading(LoadingTarget.FullScreen)
                     // 更新原始数据
                     originalPageData = JSON.parse(JSON.stringify(pageData))
@@ -240,7 +227,7 @@ export default defineComponent({
                     if (resultXml('status').text() === 'success') {
                         handleSuccess()
                     } else {
-                        const errorCode = resultXml('errorCode').text()
+                        const errorCode = Number(resultXml('errorCode').text())
                         handleError(errorCode)
                     }
                 })
@@ -254,10 +241,11 @@ export default defineComponent({
                 message: Translate('IDCS_SAVE_DATA_SUCCESS'),
             })
         }
+
         // 处理错误码提示
-        function handleError(errorCode: string) {
+        function handleError(errorCode: number) {
             let errorMsg = Translate('IDCS_SAVE_DATA_FAIL')
-            if (errorCode === '536870953') {
+            if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
                 errorMsg = Translate('IDCS_NO_PERMISSION')
             }
             openMessageTipBox({

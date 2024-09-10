@@ -91,7 +91,11 @@
                 <template #header>
                     <el-dropdown trigger="click">
                         <span class="el-dropdown-link">
-                            {{ Translate('IDCS_EDIT') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
+                            {{ Translate('IDCS_EDIT') }}
+                            <BaseImgSprite
+                                class="ddn"
+                                file="ddn"
+                            />
                         </span>
                         <template #dropdown>
                             <el-dropdown-menu>
@@ -118,7 +122,11 @@
                 <template #header>
                     <el-dropdown trigger="click">
                         <span class="el-dropdown-link">
-                            {{ Translate('IDCS_DELETE') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
+                            {{ Translate('IDCS_DELETE') }}
+                            <BaseImgSprite
+                                class="ddn"
+                                file="ddn"
+                            />
                         </span>
                         <template #dropdown>
                             <el-dropdown-menu>
@@ -164,7 +172,11 @@
                 <template #header>
                     <el-dropdown trigger="click">
                         <span class="el-dropdown-link">
-                            {{ Translate('IDCS_UPGRADE') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
+                            {{ Translate('IDCS_UPGRADE') }}
+                            <BaseImgSprite
+                                class="ddn"
+                                file="ddn"
+                            />
                         </span>
                         <template #dropdown>
                             <el-dropdown-menu>

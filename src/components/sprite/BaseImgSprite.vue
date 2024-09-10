@@ -33,14 +33,38 @@ import customSprites from './customSprites'
 
 const prop = withDefaults(
     defineProps<{
-        file: string // 雪碧图文件名
-        scale?: number // 缩放值
-        chunk?: number // 分块 (由于雪碧大图可能由雪碧小图生成，此值对雪碧小图分块. 这里假定了小雪碧图都是水平平均分块的形式，如果不是这种模式，需特殊处理)
-        index?: number // 分块索引，下标从0开始
-        hoverIndex?: number | string // :hover索引值, number时是hover的下标索引，string时是hover的文件
-        activeIndex?: number | string // :active索引值, number时是active的下标索引，string时是active的文件
-        disabledIndex?: number | string // 禁用状态索引值. number时是disabled的下标索引，string时是disabled的文件
-        disabled?: boolean // 是否禁用
+        /**
+         * @property 雪碧图文件名
+         */
+        file: string
+        /**
+         * @property 缩放值
+         */
+        scale?: number
+        /**
+         * @property 分块 (由于雪碧大图可能由雪碧小图生成，此值对雪碧小图分块. 这里假定了小雪碧图都是水平平均分块的形式，如果不是这种模式，需特殊处理)
+         */
+        chunk?: number
+        /**
+         * @property 分块索引，下标从0开始
+         */
+        index?: number
+        /**
+         * @property :hover索引值, number时是hover的下标索引，string时是hover的文件
+         */
+        hoverIndex?: number | string
+        /**
+         * @property :active索引值, number时是active的下标索引，string时是active的文件
+         */
+        activeIndex?: number | string
+        /**
+         * @property 禁用状态索引值. number时是disabled的下标索引，string时是disabled的文件
+         */
+        disabledIndex?: number | string
+        /**
+         * @property 是否禁用
+         */
+        disabled?: boolean
     }>(),
     {
         scale: 1,
@@ -56,6 +80,7 @@ const prop = withDefaults(
 const isHover = ref(false)
 const isMouseDown = ref(false)
 
+// 当前索引值
 const currentIndex = computed(() => {
     if (typeof prop.disabledIndex === 'number' && prop.disabled && prop.disabledIndex > -1) return prop.disabledIndex
     if (isMouseDown.value && typeof prop.activeIndex === 'number' && prop.activeIndex !== -1) return prop.activeIndex
@@ -63,6 +88,7 @@ const currentIndex = computed(() => {
     return prop.index
 })
 
+// 当前图标
 const currentFile = computed(() => {
     if (typeof prop.disabledIndex === 'string' && prop.disabled) return prop.disabledIndex
     if (isMouseDown.value && typeof prop.activeIndex === 'string') return prop.activeIndex
@@ -70,10 +96,12 @@ const currentFile = computed(() => {
     return prop.file
 })
 
+// hover状态
 const isHoverClass = computed(() => {
     return !prop.disabled && ((typeof prop.hoverIndex === 'number' && prop.hoverIndex > -1) || (typeof prop.hoverIndex === 'string' && prop.hoverIndex.length))
 })
 
+// 当前图标文件
 const item = computed(() => {
     return (
         sprites.coordinates[currentFile.value] || {
@@ -85,6 +113,7 @@ const item = computed(() => {
     )
 })
 
+// 非标准的图标
 const custom = computed(() => {
     const customFn = customSprites[currentFile.value]
     if (customFn) {
@@ -93,6 +122,7 @@ const custom = computed(() => {
     return null
 })
 
+// css backgroundPositionX
 const backgroundPositionX = computed(() => {
     if (custom.value) {
         return `-${item.value.x + custom.value.x}px`
@@ -100,6 +130,7 @@ const backgroundPositionX = computed(() => {
     return `-${item.value.x + (currentIndex.value / prop.chunk) * item.value.width}px`
 })
 
+// css backgroundPositionY
 const backgroundPositionY = computed(() => {
     if (custom.value) {
         return `-${item.value.y + custom.value.y}px`
@@ -107,6 +138,7 @@ const backgroundPositionY = computed(() => {
     return `-${item.value.y}px`
 })
 
+// css width
 const width = computed(() => {
     if (custom.value) {
         return `${custom.value.width}px`
@@ -114,6 +146,7 @@ const width = computed(() => {
     return `${item.value.width / prop.chunk}px`
 })
 
+// css height
 const height = computed(() => {
     if (custom.value) {
         return `${custom.value.height}px`

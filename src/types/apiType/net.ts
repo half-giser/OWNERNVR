@@ -6,6 +6,9 @@
  * @LastEditTime: 2024-08-20 10:34:10
  */
 
+/**
+ * @description TCP/IP配置表单
+ */
 export class NetTcpIpForm {
     netConfig = {
         defaultNic: '',
@@ -22,6 +25,9 @@ export class NetTcpIpForm {
     nicConfigs = [] as NetTcpIpNicConfigList[]
 }
 
+/**
+ * @description TCP/IP DHCP列表项
+ */
 export class NetTcpIpDhcpList {
     [key: string]: string | number | undefined | boolean
     ip = ''
@@ -36,6 +42,9 @@ export class NetTcpIpDhcpList {
     ipv6Dns2 = ''
 }
 
+/**
+ * @description TCP/IP Bond列表项
+ */
 export class NetTcpIpBondsList extends NetTcpIpDhcpList {
     index = 0
     id = ''
@@ -59,6 +68,9 @@ export class NetTcpIpBondsList extends NetTcpIpDhcpList {
     isPoe = false
 }
 
+/**
+ * @description TCP/IP NIC配置列表项
+ */
 export class NetTcpIpNicConfigList extends NetTcpIpDhcpList {
     index = 0
     id = ''
@@ -87,6 +99,9 @@ export class NetTcpIpNicConfigList extends NetTcpIpDhcpList {
     secondMask = ''
 }
 
+/**
+ * @description TCP/IP 高级配置表单
+ */
 export class NetTcpIpAdvanceForm {
     dhcpSwitch = false
     secondIpSwitch = false
@@ -96,7 +111,7 @@ export class NetTcpIpAdvanceForm {
 }
 
 /**
- * @description 端口表单
+ * @description 端口配置表单
  */
 export class NetPortForm {
     httpPort = 0
@@ -107,6 +122,9 @@ export class NetPortForm {
     virtualHostEnabled = false
 }
 
+/**
+ * @description 端口-UPnP端口选项
+ */
 export class NetPortUPnPPortDto {
     portType = ''
     externalPort = ''
@@ -115,6 +133,9 @@ export class NetPortUPnPPortDto {
     status = ''
 }
 
+/**
+ * @description 端口 UPnP选项
+ */
 export class NetPortUPnPDto {
     switch = ''
     mappingType = ''
@@ -122,11 +143,17 @@ export class NetPortUPnPDto {
     ports = [] as NetPortUPnPPortDto[]
 }
 
+/**
+ * @description API服务配置表单
+ */
 export class NetPortApiServerForm {
     apiserverSwitch = false
     authenticationType = ''
 }
 
+/**
+ * @description RTSP服务配置表单
+ */
 export class NetPortRtspServerForm {
     rtspServerSwitch = false
     anonymousAccess = false
@@ -134,12 +161,18 @@ export class NetPortRtspServerForm {
     rtspPort = 0
 }
 
+/***
+ * @description PPPoE配置表单
+ */
 export class NetPPPoEForm {
     switch = false
     userName = ''
     password = ''
 }
 
+/**
+ * @description DDNS配置表单
+ */
 export class NetDDNSForm {
     serverType = ''
     serverAddr = ''
@@ -150,6 +183,9 @@ export class NetDDNSForm {
     switch = false
 }
 
+/**
+ * @description DDNS服务烈性列表项
+ */
 export class NetDDNSServerTypeList {
     display = ''
     serverType = ''
@@ -168,6 +204,9 @@ export class NetDDNSServerTypeList {
     isTestBtn = false
 }
 
+/**
+ * @description Email配置表单
+ */
 export class NetEmailForm {
     anonymousSwitch = false
     name = ''
@@ -181,21 +220,33 @@ export class NetEmailForm {
     password = ''
 }
 
+/**
+ * @description Email接受者选项
+ */
 export class NetEmailReceiverDto {
     address = ''
     schedule = ''
 }
 
+/**
+ * @description Email测试表单
+ */
 export class NetEmailTestForm {
     address = ''
     password = ''
 }
 
+/**
+ * @description UPnP配置表单
+ */
 export class NetUPnPForm {
     switch = false
     mappingType = ''
 }
 
+/**
+ * @description UPnP端口选项
+ */
 export class NetUPnPPortDto {
     portType = ''
     externalPort = 0
@@ -204,6 +255,9 @@ export class NetUPnPPortDto {
     status = ''
 }
 
+/**
+ * @description 802.1x配置表单
+ */
 export class Net8021xForm {
     switch = false
     protocal = ''
@@ -212,11 +266,17 @@ export class Net8021xForm {
     password = ''
 }
 
+/**
+ * @description NAT配置表单
+ */
 export class NetNatForm {
     natSwitch = false
     index = ''
 }
 
+/**
+ * @description UPnP报告配置表单
+ */
 export class NetUPnPReportForm {
     switch = false
     serverAddr = ''
@@ -224,6 +284,9 @@ export class NetUPnPReportForm {
     manId = ''
 }
 
+/**
+ * @description HTTPS私有证书配置表单
+ */
 export class NetHTTPSPrivateCertForm {
     countryName = ''
     commonName = ''
@@ -236,11 +299,17 @@ export class NetHTTPSPrivateCertForm {
     password = ''
 }
 
+/**
+ * @description HTTPS证书密码表单
+ */
 export class NetHTTPSCertPasswordForm {
     password = ''
     encryption = 'unencrypted'
 }
 
+/**
+ * @description FTP配置表单
+ */
 export class NetFTPForm {
     switch = false
     serverAddr = ''
@@ -253,6 +322,9 @@ export class NetFTPForm {
     password = ''
 }
 
+/**
+ * @description FTP列表项
+ */
 export class NetFTPList {
     id = ''
     chlNum = ''
@@ -266,6 +338,9 @@ export class NetFTPList {
     ftpAlarmInfoSwitch = 'false'
 }
 
+/**
+ * @description SNMP配置表单
+ */
 export class NetSNMPForm {
     snmpv1Switch = false
     snmpv2Switch = false
@@ -276,10 +351,16 @@ export class NetSNMPForm {
     trapAddress = ''
 }
 
+/**
+ * @description 云升级配置表单
+ */
 export class NetCloudUpgradeForm {
     upgradeType = 'close'
 }
 
+/**
+ * @description 网络码流通道列表项
+ */
 export class NetStreamChlList {
     id = ''
     addType = ''
@@ -291,11 +372,17 @@ export class NetStreamChlList {
     factoryName = ''
 }
 
+/**
+ * @description 网络子码流分辨率列表项
+ */
 export class NetSubStreamResList {
     fps = 0
     value = ''
 }
 
+/**
+ * @description 网络子码流码流质量列表项
+ */
 export class NetSubStreamQualityCapsList {
     enct = ''
     res = ''
@@ -304,11 +391,17 @@ export class NetSubStreamQualityCapsList {
     value = [] as string[]
 }
 
+/**
+ * @description 网络子码流比特范围
+ */
 export class NetSubStreamListBitRange {
     min = 0
     max = 0
 }
 
+/**
+ * @description 网络子码流列表项
+ */
 export class NetSubStreamList {
     [key: string]: any
     id = ''
@@ -332,6 +425,9 @@ export class NetSubStreamList {
     // audio = ''
 }
 
+/**
+ * @description 网络子码流分辨率列表项
+ */
 export class NetSubStreamResolutionList {
     key = ''
     value = ''
@@ -339,10 +435,16 @@ export class NetSubStreamResolutionList {
     chlsList = [] as { chlId: string; chlName: string; chlIndex: number }[]
 }
 
+/**
+ * @description Onvif配置表单
+ */
 export class NetOnvifForm {
     switch = false
 }
 
+/**
+ * @description Onvif用户列表项
+ */
 export class NetOnvifUserList {
     id = ''
     userName = ''
@@ -350,6 +452,9 @@ export class NetOnvifUserList {
     password = ''
 }
 
+/**
+ * @description Onvif用户配置表单
+ */
 export class NetOnvifUserForm {
     userName = ''
     userLevel = ''
@@ -357,6 +462,9 @@ export class NetOnvifUserForm {
     confirmPassword = ''
 }
 
+/**
+ * @description 平台接入配置表单
+ */
 export class NetPlatformAccessForm {
     accessType = ''
     nwms5000Switch = false
@@ -375,6 +483,9 @@ export class NetPlatformAccessForm {
     sipId = ''
 }
 
+/**
+ * @description 平台SIP列表
+ */
 export class NetPlatformSipList {
     value = ''
     type = ''
@@ -382,6 +493,9 @@ export class NetPlatformSipList {
     list = [] as NetPlatformSipCodeList[]
 }
 
+/**
+ * @description 平台接入SIP Code列表
+ */
 export class NetPlatformSipCodeList {
     id = ''
     gbId = ''
