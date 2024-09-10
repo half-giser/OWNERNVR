@@ -1,3 +1,10 @@
+<!--
+ * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @Date: 2024-08-16 18:13:47
+ * @Description: 移动侦测
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-08-23 10:24:57
+-->
 <template>
     <div>
         <BaseTransferDialog

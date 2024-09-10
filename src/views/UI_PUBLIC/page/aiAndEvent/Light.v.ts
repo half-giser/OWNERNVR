@@ -3,14 +3,10 @@
  * @Date: 2024-08-13 15:58:57
  * @Description:闪灯
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-26 10:50:04
+ * @LastEditTime: 2024-08-27 16:50:12
  */
-import { defineComponent } from 'vue'
 import { ArrowDown } from '@element-plus/icons-vue'
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
-import { useLangStore } from '@/stores/lang'
-import useLoading from '@/hooks/useLoading'
-import { buildScheduleList } from '@/utils/tools'
 import { tableRowStatus, tableRowStatusToolTip } from '@/utils/const/other'
 import { whiteLightInfo } from '@/types/apiType/aiAndEvent'
 export default defineComponent({
@@ -51,7 +47,7 @@ export default defineComponent({
                 pageSize: pageData.value.pageSize,
                 nodeType: 'chls',
                 isSupportWhiteLightAlarmOut: true,
-            }).then(async (res: any) => {
+            }).then(async (res) => {
                 const $chl = queryXml(res)
                 pageData.value.totalCount = Number($chl('/response/content').attr('total'))
                 $chl('/response/content/item').forEach(async (item) => {
@@ -64,7 +60,7 @@ export default defineComponent({
                 let completeCount = 0
                 for (let i = 0; i < tableData.value.length; i++) {
                     const row = tableData.value[i]
-                    const sendXml = `<condition>
+                    const sendXml = rawXml`<condition>
                                         <chlId>${row.id}</chlId>
                                     </condition>
                                     <requireField>
@@ -118,8 +114,8 @@ export default defineComponent({
             }
         }
         const getSchedule = async function () {
-            queryEventNotifyParam().then((res: any) => {
-                res = queryXml(res)
+            queryEventNotifyParam().then((resb) => {
+                const res = queryXml(resb)
                 if (res('status').text() === 'success') {
                     pageData.value.schedule = res('//content/triggerChannelLightSchedule').attr('id')
                     if (pageData.value.schedule == '{00000000-0000-0000-0000-000000000000}') {
@@ -135,8 +131,8 @@ export default defineComponent({
             pageData.value.editRows.forEach((row) => {
                 const sendXml = getSaveData(row)
                 if (sendXml) {
-                    editWhiteLightAlarmOutCfg(sendXml).then((res: any) => {
-                        res = queryXml(res)
+                    editWhiteLightAlarmOutCfg(sendXml).then((resb) => {
+                        const res = queryXml(resb)
                         const isSuccess = res('status').text() === 'success'
                         row.status = isSuccess ? 'success' : 'error'
                         if (isSuccess) {
@@ -163,8 +159,8 @@ export default defineComponent({
                                                 </triggerChannelLightSchedule>
                                             </content>`
                 }
-                editEventNotifyParam(scheduleSendXml).then((res: any) => {
-                    res = queryXml(res)
+                editEventNotifyParam(scheduleSendXml).then((resb) => {
+                    const res = queryXml(resb)
                     if (res('status').text() === 'success') {
                         pageData.value.applyDisable = true
                     }

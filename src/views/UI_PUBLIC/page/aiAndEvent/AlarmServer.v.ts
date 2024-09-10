@@ -1,16 +1,12 @@
 /*
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @Date: 2024-08-13 15:58:57
+ * @Date: 2024-08-14 17:06:11
  * @Description: 报警服务器
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-16 17:00:04
+ * @LastEditTime: 2024-08-27 16:53:36
  */
-import { defineComponent } from 'vue'
 import { ArrowDown } from '@element-plus/icons-vue'
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
-import { useLangStore } from '@/stores/lang'
-// import useLoading from '@/hooks/useLoading'
-import { buildScheduleList } from '@/utils/tools'
 import { type FormInstance, type FormRules } from 'element-plus'
 import { type AlarmTypeInfo } from '@/types/apiType/aiAndEvent'
 export default defineComponent({
@@ -195,8 +191,8 @@ export default defineComponent({
                     }
                 })
             })
-            queryAlarmServerParam().then(async (res: any) => {
-                res = queryXml(res)
+            queryAlarmServerParam().then(async (resb) => {
+                const res = queryXml(resb)
                 if (res('status').text() === 'success') {
                     formData.value.enable = res('//content/switch').text() == 'true'
                     formData.value.deviceId = res('//content/deviceId').text()
@@ -273,26 +269,26 @@ export default defineComponent({
                     scheduleLabel = item.label
                 }
             })
-            let sendXml = `<content>
+            let sendXml = rawXml`<content>
                                 <address>${formData.value.address}</address>
                                 <url>${formData.value.url}</url>
-                                <switch>${formData.value.enable}</switch>
+                                <switch>${formData.value.enable.toString()}</switch>
                                 <dataFormat>${formData.value.protocol}</dataFormat>
-                                <port>${formData.value.port}</port>
+                                <port>${formData.value.port.toString()}</port>
                                 <alarmServerSchedule>${scheduleLabel}</alarmServerSchedule>`
             if (pageData.value.isProtocolXML) {
-                sendXml += `<alarmServerAlarmTypes>${pageData.value.linkedAlarmList.join(',')} </alarmServerAlarmTypes>`
+                sendXml += rawXml`<alarmServerAlarmTypes>${pageData.value.linkedAlarmList.join(',')} </alarmServerAlarmTypes>`
             }
             if (url == 'editAlarmServerParam') {
-                sendXml += `<heartbeat>
-                                <switch>${formData.value.heartEnable}</switch>
-                                <interval>${formData.value.interval}</interval>
+                sendXml += rawXml`<heartbeat>
+                                <switch>${formData.value.heartEnable.toString()}</switch>
+                                <interval>${formData.value.interval.toString()}</interval>
                             </heartbeat>`
             }
             if (pageData.value.supportAdditionalServerSetting) {
-                sendXml += `<deviceId><![CDATA[${formData.value.deviceId}]]></deviceId>`
+                sendXml += rawXml`<deviceId><![CDATA[${formData.value.deviceId}]]></deviceId>`
             }
-            sendXml += `</content>`
+            sendXml += rawXml`</content>`
             return sendXml
         }
         const setData = function (url: string) {
@@ -304,9 +300,9 @@ export default defineComponent({
                 if (valid) {
                     if (url == 'testAlarmServerParam') {
                         openLoading(LoadingTarget.FullScreen)
-                        testAlarmServerParam(getSavaData(url)).then((res: any) => {
+                        testAlarmServerParam(getSavaData(url)).then((resb) => {
                             closeLoading(LoadingTarget.FullScreen)
-                            res = queryXml(res)
+                            const res = queryXml(resb)
                             if (res('status').text() == 'success') {
                                 openMessageTipBox({
                                     type: 'success',
@@ -325,9 +321,9 @@ export default defineComponent({
                     } else if (url == 'editAlarmServerParam') {
                         pageData.value.isTestAlarmServer = false
                         openLoading(LoadingTarget.FullScreen)
-                        editAlarmServerParam(getSavaData(url)).then((res: any) => {
+                        editAlarmServerParam(getSavaData(url)).then((resb) => {
                             closeLoading(LoadingTarget.FullScreen)
-                            res = queryXml(res)
+                            const res = queryXml(resb)
                             if (res('status').text() == 'success') {
                                 openMessageTipBox({
                                     type: 'success',

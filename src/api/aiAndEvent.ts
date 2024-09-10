@@ -3,7 +3,7 @@
  * @Date: 2024-08-10 16:25:58
  * @Description: AI/事件
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-27 11:33:03
+ * @LastEditTime: 2024-09-04 16:23:01
  */
 
 import { type AxiosRequestConfig } from 'axios'
@@ -104,3 +104,27 @@ export const queryVideoLossTrigger = (data: string) => http.fetch('queryVideoLos
 
 // 修改视频丢失数据
 export const editVideoLossTrigger = (data: string) => http.fetch('editVideoLossTrigger', getXmlWrapData(data))
+
+// 获取AI资源数据
+export const queryAIResourceDetail = (data: string) => http.fetch('queryAIResourceDetail', getXmlWrapData(data))
+
+// 释放AI资源
+export const freeAIOccupyResource = (data: string) => http.fetch('freeAIOccupyResource', getXmlWrapData(data))
+
+// 获取云台锁定状态
+export const queryBallIPCPTZLockCfg = (data: string) => http.fetch('queryBallIPCPTZLockCfg', getXmlWrapData(data))
+
+// 锁定云台
+export const editBallIPCPTZLockCfg = (data: string) => http.fetch('editBallIPCPTZLockCfg', getXmlWrapData(data))
+
+// 获取越界侦测数据
+export const queryTripwire = (data: string) => http.fetch('queryTripwire', getXmlWrapData(data))
+
+// 修改越界侦测数据
+export const editTripwire = (data: string) => http.fetch('editTripwire', getXmlWrapData(data))
+
+// 获取区域入侵侦测数据
+export const queryIntelAreaConfig = (data: string) => http.fetch('queryIntelAreaConfig', getXmlWrapData(data))
+
+// 修改区域入侵侦测数据
+export const editIntelAreaConfig = (data: string) => http.fetch('editIntelAreaConfig', getXmlWrapData(data))
