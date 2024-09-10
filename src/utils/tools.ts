@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2023-04-28 17:57:48
  * @Description: 工具方法
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-06 18:13:09
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-09 19:40:01
  */
 
 import { useUserSessionStore } from '@/stores/userSession'
@@ -320,9 +320,9 @@ export const downloadExcel = (titleArr: string[], contentArr: string[][], fileNa
     }, 1000)
 }
 
-type DownloadZipOptions = {
+export type DownloadZipOptions = {
     zipName: string
-    files: { name: string; content: string; folder: string }[]
+    files: { name: string; content: string | ArrayBuffer; folder: string }[]
 }
 
 export const downloadZip = (options: DownloadZipOptions) => {
@@ -350,10 +350,16 @@ export const downloadZip = (options: DownloadZipOptions) => {
             // 判断是否为图片文件
             const isImg = /\.(png|jpe?g|gif|svg)(\?.*)?$/.test(name)
             if (isImg) {
-                obj.file(name, content.replace(/data:image\/(png|jpg);base64,/, ''), { base64: true })
+                obj.file(name, (content as string).replace(/data:image\/(png|jpg);base64,/, ''), { base64: true })
             } else {
-                if (content.length == 0) {
-                    // 跳过空录像文件
+                if (typeof content === 'string') {
+                    if (!content.length) {
+                        // 跳过空录像文件
+                        files.splice(i, 1)
+                        i--
+                        continue
+                    }
+                } else if (!content.byteLength) {
                     files.splice(i, 1)
                     i--
                     continue

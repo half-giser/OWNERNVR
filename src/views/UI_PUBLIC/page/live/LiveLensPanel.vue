@@ -3,7 +3,7 @@
  * @Date: 2024-07-19 13:37:47
  * @Description: 现场预览-镜头控制视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-26 18:02:14
+ * @LastEditTime: 2024-09-06 17:41:58
 -->
 <template>
     <div class="lens">
@@ -104,7 +104,7 @@
                 >
             </div>
             <el-form-item>
-                <el-text class="lens-tip">{{ Translate('IDCS_FOCUS_MODEL_TIP') }}</el-text>
+                <el-text class="text-error">{{ Translate('IDCS_FOCUS_MODEL_TIP') }}</el-text>
             </el-form-item>
             <!-- <p class="focus-tip"></p> -->
             <el-form-item>
@@ -153,10 +153,6 @@
 
     &-txt {
         flex-shrink: 0;
-    }
-
-    &-tip {
-        color: var(--error--01);
     }
 
     &-onekeyfocus {

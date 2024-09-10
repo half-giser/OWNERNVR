@@ -3,7 +3,7 @@
  * @Date: 2024-09-05 10:13:11
  * @Description: 智能分析 属性选择器
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 10:17:06
+ * @LastEditTime: 2024-09-06 15:23:52
  */
 export default defineComponent({
     props: {
@@ -15,7 +15,7 @@ export default defineComponent({
             default: () => ['vehicle'],
         },
         /**
-         * @property {Array(string[], string[])} 车辆选项 人脸选项
+         * @property {[string[], string[]][]} ['车辆选项', '人脸选项']
          */
         modelValue: {
             type: Array as PropType<string[][]>,
@@ -66,8 +66,8 @@ export default defineComponent({
         const content = computed(() => {
             const modelValueLength = prop.modelValue.flat().length
             if (!modelValueLength || modelValueLength === pageData.value.vehicleOptions.length) {
-                return Translate('IDCS_ATTRIBUTE') + `(${Translate('IDCS_FULL')})`
-            } else return Translate('IDCS_ATTRIBUTE') + `(${Translate('IDCS_PART')})`
+                return Translate('IDCS_TARGET') + `(${Translate('IDCS_FULL')})`
+            } else return Translate('IDCS_TARGET') + `(${Translate('IDCS_PART')})`
         })
 
         /**
@@ -89,13 +89,39 @@ export default defineComponent({
             selectedVehicle.value = []
         }
 
+        // 打开选择框时，更新勾选值
+        watch(
+            () => pageData.value.isPop,
+            (value) => {
+                if (value) {
+                    if (prop.modelValue[0].length === pageData.value.vehicleOptions.length) {
+                        if (selectedVehicle.value.length) {
+                            selectedVehicle.value = prop.modelValue[0]
+                        }
+                    } else {
+                        selectedVehicle.value = prop.modelValue[0]
+                    }
+                    if (prop.modelValue[1].length === pageData.value.personOptions.length) {
+                        if (selectedPerson.value.length) {
+                            selectedPerson.value = prop.modelValue[1]
+                        }
+                    } else {
+                        selectedPerson.value = prop.modelValue[1]
+                    }
+                }
+            },
+        )
+
         onMounted(() => {
             const mapping: Record<string, string> = {}
             pageData.value.vehicleOptions.map((item) => {
                 mapping[item.value] = mapping[item.label]
             })
             ctx.emit('ready', mapping)
-            confirm()
+            // 如果表单没有值，则创造初始值
+            if (!prop.modelValue[0].length && !prop.modelValue[1].length) {
+                confirm()
+            }
         })
 
         return {

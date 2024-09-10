@@ -3,7 +3,7 @@
  * @Date: 2024-06-14 09:47:30
  * @Description: 添加用户页面
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 14:18:10
+ * @LastEditTime: 2024-09-06 18:15:26
 -->
 <template>
     <div class="UserAdd">
@@ -46,10 +46,12 @@
                     @paste.capture.prevent=""
                 />
             </el-form-item>
-            <BasePasswordStrength
-                :strength
-                class="strength"
-            />
+            <el-form-item>
+                <BasePasswordStrength
+                    class="strength"
+                    :strength
+                />
+            </el-form-item>
             <el-form-item
                 prop="confirmPassword"
                 :label="Translate('IDCS_CONFIRM_PASSWORD')"

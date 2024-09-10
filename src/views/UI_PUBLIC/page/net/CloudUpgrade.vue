@@ -3,7 +3,7 @@
  * @Date: 2024-07-16 16:18:16
  * @Description: 云升级
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-16 20:12:30
+ * @LastEditTime: 2024-09-06 17:42:22
 -->
 <template>
     <div>
@@ -58,7 +58,7 @@
         </div>
         <div
             v-show="pageData.isUpdateNotify"
-            class="latest"
+            class="latest text-error"
         >
             <BaseImgSprite file="warnIcon" />
             <span>{{ Translate('IDCS_CLOUD_UPGRADE_WEB_TIP') }}</span>
@@ -112,7 +112,6 @@
 }
 
 .latest {
-    color: var(--error--01);
     font-size: 20px;
     display: flex;
     align-items: center;

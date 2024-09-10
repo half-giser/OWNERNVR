@@ -3,7 +3,7 @@
  * @Date: 2024-06-27 11:50:00
  * @Description: 备份与恢复
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 21:14:18
+ * @LastEditTime: 2024-09-06 18:07:50
 -->
 <template>
     <div class="BackupAndRestore">
@@ -28,6 +28,19 @@
                     @click="handleOCXUpload"
                     >{{ Translate('IDCS_BROWSE') }}</el-button
                 >
+                <label
+                    v-show="isSupportH5"
+                    class="el-button"
+                    for="h5BrowerImport"
+                    :class="{ 'is-disabled': pageData.isUploadDisabled }"
+                >
+                    {{ Translate('IDCS_BROWSE') }}
+                </label>
+                <el-button
+                    :disabled="pageData.isImportDisabled"
+                    @click="handleImport"
+                    >{{ Translate('IDCS_IMPORT') }}</el-button
+                >
                 <input
                     id="h5BrowerImport"
                     type="file"
@@ -35,22 +48,6 @@
                     :disabled="pageData.isUploadDisabled"
                     @change="handleH5Upload"
                 />
-                <el-button
-                    v-show="isSupportH5"
-                    :disabled="pageData.isUploadDisabled"
-                >
-                    <label
-                        for="h5BrowerImport"
-                        :class="{ disabled: pageData.isUploadDisabled }"
-                    >
-                        {{ Translate('IDCS_BROWSE') }}
-                    </label>
-                </el-button>
-                <el-button
-                    :disabled="pageData.isImportDisabled"
-                    @click="handleImport"
-                    >{{ Translate('IDCS_IMPORT') }}</el-button
-                >
             </el-form-item>
             <div class="note">{{ pageData.importNote }}</div>
         </el-form>
@@ -106,14 +103,6 @@
 <script lang="ts" src="./BackupAndRestore.v.ts"></script>
 
 <style lang="scss" scoped>
-label {
-    display: inline-block;
-
-    &.disabled {
-        cursor: not-allowed;
-    }
-}
-
 .note {
     font-size: 15px;
     margin: 10px 0px 0px 0px;

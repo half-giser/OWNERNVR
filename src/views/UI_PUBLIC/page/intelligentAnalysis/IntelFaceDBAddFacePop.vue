@@ -115,7 +115,7 @@
                 <div>
                     <div class="swiper-container">
                         <template v-if="formData[0].pic">
-                            <IntelFaceItem
+                            <IntelBaseFaceItem
                                 v-for="(item, key) in picList"
                                 :key
                                 type="status"

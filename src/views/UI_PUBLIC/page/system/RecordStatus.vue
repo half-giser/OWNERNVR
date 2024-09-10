@@ -3,7 +3,7 @@
  * @Date: 2024-06-21 14:31:21
  * @Description: 录像状态
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-11 17:54:54
+ * @LastEditTime: 2024-09-06 17:38:18
 -->
 <template>
     <div class="base-flex-box">
@@ -13,16 +13,22 @@
             :data="tableData"
             height="100%"
         >
-            <el-table-column :label="Translate('IDCS_CHANNEL_NAME')">
+            <el-table-column
+                :label="Translate('IDCS_CHANNEL_NAME')"
+                width="250px"
+            >
                 <template #default="scope">
-                    <el-tooltip :content="scope.row.name">
-                        <div class="ellipsis">{{ scope.row.name }}</div>
+                    <el-tooltip
+                        :content="scope.row.name"
+                        :show-after="500"
+                    >
+                        <div class="text-ellipsis">{{ scope.row.name }}</div>
                     </el-tooltip>
                 </template>
             </el-table-column>
             <el-table-column :label="Translate('IDCS_RECORD_STATE')">
                 <template #default="scope">
-                    <span :class="{ error: scope.row.recStatus === 'abnormal' }">{{ Translate(DEFAULT_REC_STATUS_MAPPING[scope.row.recStatus]) }}</span>
+                    <span :class="{ 'text-error': scope.row.recStatus === 'abnormal' }">{{ Translate(DEFAULT_REC_STATUS_MAPPING[scope.row.recStatus]) }}</span>
                 </template>
             </el-table-column>
             <el-table-column :label="Translate('IDCS_CODE_STREAM_TYPE')">
@@ -65,16 +71,3 @@
 </template>
 
 <script lang="ts" src="./RecordStatus.v.ts"></script>
-
-<style lang="scss" scoped>
-.error {
-    color: var(--error--01);
-}
-
-.ellipsis {
-    width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-</style>

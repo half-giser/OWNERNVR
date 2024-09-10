@@ -3,7 +3,7 @@
  * @Date: 2024-08-01 10:23:43
  * @Description: 备份录像弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-09 17:24:31
+ * @LastEditTime: 2024-09-06 17:41:16
 -->
 <template>
     <el-dialog
@@ -69,7 +69,7 @@
                 </el-button>
             </el-form-item>
             <el-form-item v-show="formData.destination === 'local'">
-                <el-text class="tip">{{ Translate('IDCS_AVI_UNENCRYPTED_TIP') }}</el-text>
+                <el-text class="text-error">{{ Translate('IDCS_AVI_UNENCRYPTED_TIP') }}</el-text>
             </el-form-item>
             <el-form-item
                 v-show="formData.destination === 'remote'"
@@ -121,10 +121,6 @@
 <script lang="ts" src="./BackupPop.v.ts"></script>
 
 <style lang="scss" scoped>
-.tip {
-    color: var(--error--01);
-}
-
 .path {
     :deep(.el-form-item__content) {
         flex-wrap: nowrap !important;

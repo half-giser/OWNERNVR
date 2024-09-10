@@ -7,13 +7,13 @@
  */
 import { IntelFaceDBFaceForm, type IntelFaceDBGroupDto, type IntelFaceDBSnapFaceList, type IntelFaceDBImportFaceDto } from '@/types/apiType/intelligentAnalysis'
 import { type FormInstance } from 'element-plus'
-import IntelFaceItem from './IntelFaceItem.vue'
+import IntelBaseFaceItem from './IntelBaseFaceItem.vue'
 import IntelFaceDBChooseFacePop from './IntelFaceDBChooseFacePop.vue'
 
 export default defineComponent({
     components: {
         IntelFaceDBChooseFacePop,
-        IntelFaceItem,
+        IntelBaseFaceItem,
     },
     props: {
         /**
@@ -485,7 +485,7 @@ export default defineComponent({
             swiperSize,
             highlightWeekend,
             IntelFaceDBChooseFacePop,
-            IntelFaceItem,
+            IntelBaseFaceItem,
         }
     },
 })

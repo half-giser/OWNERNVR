@@ -20,7 +20,6 @@ export default defineComponent({
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
 
         const playerRef = ref<PlayerInstance>()
-        const pluginStore = usePluginStore()
         const auth = useUserChlAuth(false)
         const dateTime = useDateTimeStore()
 
@@ -175,7 +174,7 @@ export default defineComponent({
                     return
                 }
                 if (!plugin.IsPluginAvailable()) {
-                    pluginStore.showPluginNoResponse = true
+                    plugin.SetPluginNoResponse()
                     plugin.ShowPluginNoResponse()
                 }
                 const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')

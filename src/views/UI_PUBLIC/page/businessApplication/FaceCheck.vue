@@ -151,7 +151,7 @@
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_ATTENDANCE_UNCHECK')">
                     <template #default="scope">
-                        <span class="error">{{ displayStatus(scope.row.unchecked) }}</span>
+                        <span class="text-error">{{ displayStatus(scope.row.unchecked) }}</span>
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -247,9 +247,5 @@
 
 .end-time {
     padding-left: 15px;
-}
-
-.error {
-    color: var(--error--01);
 }
 </style>

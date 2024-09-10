@@ -3,7 +3,7 @@
  * @Date: 2024-07-17 17:02:54
  * @Description: 智能分析
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-03 17:14:14
+ * @LastEditTime: 2024-09-09 10:26:56
  */
 import http from './api'
 
@@ -163,3 +163,10 @@ export const editPlateNumber = (data: string) => http.fetch('editPlateNumber', g
  * @returns
  */
 export const faceImgStatistic_v2 = (data: string) => http.fetch('faceImgStatistic_v2', getXmlWrapData(data))
+
+/**
+ * @description 智能搜索
+ * @param {string} data
+ * @returns
+ */
+export const searchSmartTarget = (data: string) => http.fetch('searchSmartTarget', getXmlWrapData(data))

@@ -7,11 +7,11 @@
  */
 import { cloneDeep } from 'lodash-es'
 import { type IntelFaceDBSnapFaceList } from '@/types/apiType/intelligentAnalysis'
-import IntelFaceItem from './IntelFaceItem.vue'
+import IntelBaseFaceItem from './IntelBaseFaceItem.vue'
 
 export default defineComponent({
     components: {
-        IntelFaceItem,
+        IntelBaseFaceItem,
     },
     emits: {
         change(item: IntelFaceDBSnapFaceList[]) {
@@ -247,7 +247,7 @@ export default defineComponent({
             displayDateTime,
             listData,
             filterListData,
-            IntelFaceItem,
+            IntelBaseFaceItem,
         }
     },
 })

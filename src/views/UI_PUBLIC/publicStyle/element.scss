@@ -36,6 +36,7 @@
         .el-radio-button__inner {
             border: 1px solid var(--border-color4);
             border-radius: 0;
+            width: var(--form-radio-button-width);
         }
 
         & + .el-radio-button .el-radio-button__inner {

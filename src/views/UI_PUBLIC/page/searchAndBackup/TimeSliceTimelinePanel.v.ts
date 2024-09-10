@@ -68,7 +68,6 @@ export default defineComponent({
         const Plugin = inject('Plugin') as PluginType
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const pluginStore = usePluginStore()
         const router = useRouter()
         const systemCaps = useCababilityStore()
         const userAuth = useUserChlAuth()
@@ -855,7 +854,7 @@ export default defineComponent({
             mode,
             (newVal) => {
                 if (newVal !== 'h5' && !Plugin.IsPluginAvailable) {
-                    pluginStore.showPluginNoResponse = true
+                    Plugin.SetPluginNoResponse()
                     Plugin.ShowPluginNoResponse()
                 }
                 if (newVal === 'ocx') {

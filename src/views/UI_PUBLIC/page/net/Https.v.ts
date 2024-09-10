@@ -3,7 +3,7 @@
  * @Date: 2024-07-12 18:19:55
  * @Description: HTTPS
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 15:53:03
+ * @LastEditTime: 2024-09-06 17:52:28
  */
 import WebsocketUpload from '@/utils/websocket/websocketUpload'
 import WebsocketDownload from '@/utils/websocket/websocketDownload'
@@ -22,7 +22,6 @@ export default defineComponent({
         const { openMessageTipBox } = useMessageBox()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const Plugin = inject('Plugin') as PluginType
-        const pluginStore = usePluginStore()
         const userSession = useUserSessionStore()
 
         const pageData = ref({
@@ -463,9 +462,6 @@ export default defineComponent({
                 case ErrorCode.USER_ERROR_NODE_NET_DISCONNECT:
                     errorInfo = Translate('IDCS_OCX_NET_DISCONNECT')
                     break
-                case ErrorCode.USER_ERROR_FILE_TYPE_ERROR:
-                    errorInfo = Translate('IDCS_FILE_NOT_AVAILABLE')
-                    break
                 case ErrorCode.USER_ERROR_OPEN_FILE_ERROR:
                     // 拔出U盘，点击导入按钮提示NT2-680
                     errorInfo = Translate('IDCS_FILE_NO_EXISTS')
@@ -530,7 +526,7 @@ export default defineComponent({
             isSupportH5,
             (newVal) => {
                 if (!newVal && !Plugin.IsPluginAvailable) {
-                    pluginStore.showPluginNoResponse = true
+                    Plugin.SetPluginNoResponse()
                     Plugin.ShowPluginNoResponse()
                 }
                 if (!newVal) {

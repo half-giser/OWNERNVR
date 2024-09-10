@@ -19,10 +19,13 @@ import { visualizer } from 'rollup-plugin-visualizer'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
-    const env = loadEnv(mode, envDir)
+    const split = mode.split(',')
+    const env = loadEnv(split[0], envDir)
     console.log('----env: ')
     console.log(env)
     console.log(process.env.NODE_ENV)
+
+    env.VITE_UI_TYPE = split[1] || env.VITE_UI_TYPE
 
     const { VITE_APP_IP, VITE_UI_TYPE } = env
 
@@ -37,9 +40,18 @@ export default defineConfig(({ mode }) => {
     const buildPlugin: PluginOption[] = []
 
     return {
-        envDir,
+        // envDir,
         define: {
             __TRUE__: true,
+            'import.meta.env.NODE_ENV': env.NODE_ENV,
+            'import.meta.env.VITE_UI_TYPE': JSON.stringify(env.VITE_UI_TYPE),
+            'import.meta.env.VITE_BASE_URL': JSON.stringify(env.VITE_BASE_URL),
+            'import.meta.env.VITE_APP_IP': JSON.stringify(env.VITE_APP_IP || ''),
+            'import.meta.env.VITE_APP_NAME': JSON.stringify(env.VITE_APP_NAME),
+            'import.meta.env.VITE_APP_TITLE': JSON.stringify(env.VITE_APP_TITLE),
+            'import.meta.env.VITE_APP_DESC': JSON.stringify(env.VITE_APP_DESC),
+            'import.meta.env.VITE_APP_KEYWORDS': JSON.stringify(env.VITE_APP_KEYWORDS),
+            'import.meta.env.VITE_APP_TYPE': JSON.stringify(env.VITE_APP_TYPE),
         },
         base: env.VITE_DEPLOY_BASE_URL,
         server: {
@@ -163,16 +175,18 @@ export default defineConfig(({ mode }) => {
                     },
                 },
             }),
-        ].concat(mode === 'dev' ? devPlugin : buildPlugin),
+        ].concat(split[0] === 'dev' ? devPlugin : buildPlugin),
         // components: [
         // ],
         build: {
+            outDir: `dist/${env.VITE_UI_TYPE}`,
             assetsInlineLimit: 0,
             cssCodeSplit: false,
             minify: 'esbuild',
             target: 'esnext',
             // 设置 source map 选项
             sourcemap: false,
+            chunkSizeWarningLimit: 1024,
             rollupOptions: {
                 output: {
                     chunkFileNames: '[hash].js',

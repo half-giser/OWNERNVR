@@ -3,7 +3,7 @@
  * @Date: 2024-08-29 10:06:12
  * @Description: 人脸库
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-04 17:21:40
+ * @LastEditTime: 2024-09-06 17:42:45
 -->
 <template>
     <div class="base-flex-box">
@@ -96,7 +96,7 @@
                             <div class="expand-content">
                                 <div class="expand-list">
                                     <div>
-                                        <IntelFaceItem
+                                        <IntelBaseFaceItem
                                             v-for="(item, index) in groupTableData"
                                             :key="item.id"
                                             :src="item.pic[0] || ''"
@@ -104,7 +104,7 @@
                                             @update:model-value="selectFace(index, $event)"
                                         >
                                             {{ hideSensitiveInfo(item.name, 'medium', 'name') }}
-                                        </IntelFaceItem>
+                                        </IntelBaseFaceItem>
                                     </div>
                                     <div>
                                         <el-pagination
@@ -207,7 +207,7 @@
         <el-dialog v-model="pageData.isExportTipPop">
             <div>
                 <div>{{ Translate('IDCS_FILE_TYPE') }}: CSV+JPG</div>
-                <div class="error">{{ Translate('IDCS_EXPORT_UNENCRYPTED_TIP') }}</div>
+                <div class="text-error">{{ Translate('IDCS_EXPORT_UNENCRYPTED_TIP') }}</div>
             </div>
             <template #footer>
                 <el-row>
@@ -304,9 +304,5 @@
             margin: 20px;
         }
     }
-}
-
-.error {
-    color: var(--error--01);
 }
 </style>
