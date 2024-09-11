@@ -3,7 +3,7 @@
  * @Date: 2024-08-27 15:43:26
  * @Description:  周界防范/人车检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-11 14:22:05
+ * @LastEditTime: 2024-09-11 15:05:43
 -->
 <template>
     <div class="content">
@@ -174,7 +174,13 @@
                     >
                         {{ Translate('IDCS_CURRENT_INTEL_EVENT_UNSUPORT') }}
                     </div>
-                    <div v-if="!pageData.notSupportTipShow">
+                    <div
+                        v-if="tripwireData.requireDataFail"
+                        class="notSupportBox"
+                    >
+                        {{ Translate('IDCS_QUERY_DATA_FAIL') }}
+                    </div>
+                    <div v-if="!pageData.notSupportTipShow && !tripwireData.requireDataFail">
                         <!-- nvr/ipc检测开启及ai按钮 -->
                         <el-row>
                             <el-checkbox
@@ -777,7 +783,13 @@
                     >
                         {{ Translate('IDCS_CURRENT_INTEL_EVENT_UNSUPORT') }}
                     </div>
-                    <div v-if="!pageData.notSupportTipShow">
+                    <div
+                        v-if="peaData.requireDataFail"
+                        class="notSupportBox"
+                    >
+                        {{ Translate('IDCS_QUERY_DATA_FAIL') }}
+                    </div>
+                    <div v-if="!pageData.notSupportTipShow && !peaData.requireDataFail">
                         <!-- nvr/ipc检测开启及ai按钮 -->
                         <el-row>
                             <el-checkbox
@@ -1574,6 +1586,7 @@
             padding: 0px;
             border: 1px solid #999999;
             margin-top: 0px;
+            margin-left: 0px;
         }
     }
     .content_main {

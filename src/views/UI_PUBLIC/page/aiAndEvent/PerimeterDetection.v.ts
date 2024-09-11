@@ -3,7 +3,7 @@
  * @Date: 2024-08-27 15:43:32
  * @Description: 周界防范/人车检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-11 11:24:47
+ * @LastEditTime: 2024-09-11 14:58:19
  */
 import { ArrowDown } from '@element-plus/icons-vue'
 import { ElDivider, type TabsPaneContext } from 'element-plus'
@@ -152,6 +152,8 @@ export default defineComponent({
             notification: [] as string[],
             // 排程
             tripwire_schedule: '',
+            // 请求失败显示提示
+            requireDataFail: false,
 
             // 持续时间
             holdTime: 0,
@@ -345,6 +347,8 @@ export default defineComponent({
             chosenWarnAreaIndex: 0,
             // 支持的活动类型列表
             supportList: [] as string[],
+            // 请求失败显示提示
+            requireDataFail: false,
 
             // 云台锁定状态
             lockStatus: false,
@@ -925,6 +929,8 @@ export default defineComponent({
                         { value: tripwireData.value.popVideoSwitch, label: 'IDCS_VIDEO_POPUP', property: 'popVideoSwitch' },
                         { value: tripwireData.value.emailSwitch, label: 'IDCS_EMAIL', property: 'emailSwitch' },
                     ]
+                } else {
+                    tripwireData.value.requireDataFail = true
                 }
             } else {
                 const sendXML = rawXml` <condition>
@@ -1062,6 +1068,8 @@ export default defineComponent({
                     if (tripwireData.value.lightSuport && pageData.value.chlData['supportWhiteLight']) {
                         tripwireTriggerData.value.push({ value: tripwireData.value.triggerWhiteLight, label: 'IDCS_LIGHT', property: 'triggerWhiteLight' })
                     }
+                } else {
+                    tripwireData.value.requireDataFail = true
                 }
             }
             getPresetList('tripwire')
@@ -1116,6 +1124,8 @@ export default defineComponent({
                 }
                 peaData.value.currentRegulation = peaData.value.areaCfgData[peaData.value.activity_type].regulation
                 peaData.value.currAreaType = peaData.value.currentRegulation ? 'regionArea' : 'detectionArea'
+            } else {
+                peaData.value.requireDataFail = true
             }
         }
         // 获取区域活动数据 perimeter/entry/leave
