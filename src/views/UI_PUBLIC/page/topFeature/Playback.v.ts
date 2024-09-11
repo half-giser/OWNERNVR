@@ -3,7 +3,7 @@
  * @Date: 2024-08-05 16:00:46
  * @Description: 回放
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-04 18:19:25
+ * @LastEditTime: 2024-09-10 18:24:58
  */
 import PlaybackChannelPanel from '../playback/PlaybackChannelPanel.vue'
 import PlaybackEventPanel from '../playback/PlaybackEventPanel.vue'
@@ -1503,8 +1503,8 @@ export default defineComponent({
                 toggleOSD(false)
                 // 离开时关闭osd信息，防止pc其他带视频的地方显示两个通道名
                 stop()
-                plugin.VideoPluginNotifyEmitter.removeListener(notify)
             }
+            plugin?.VideoPluginNotifyEmitter.removeListener(notify)
         })
 
         watch(

@@ -3,11 +3,11 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 二级类型1布局页--适用于所有配置页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-19 20:45:08
+ * @LastEditTime: 2024-09-10 18:17:07
  */
 
 import { type RouteRecordRaw } from 'vue-router'
-import { menu2Item, menu3Items, menu3Item, getMenuItem } from '@/router'
+import { getMenuItem } from '@/router'
 
 export default defineComponent({
     setup() {
@@ -15,6 +15,11 @@ export default defineComponent({
         const router = useRouter()
         const menu = useMenuStore()
         const chilComponent = ref()
+        const layoutStore = useLayoutStore()
+
+        const menu2Item = computed(() => layoutStore.menu2Item)
+        const menu3Items = computed(() => layoutStore.menu3Items)
+        const menu3Item = computed(() => layoutStore.menu3Item)
 
         //排序后的菜单分组
         const sortedGroups = computed(() => {
@@ -56,6 +61,7 @@ export default defineComponent({
         const groupMenuMap = ref<Record<string, RouteRecordRawExtends[]>>({})
 
         const getGroupMenuMap = () => {
+            groupMenuMap.value = {}
             menu3Items.value.forEach((value) => {
                 const meta = value.meta
                 if (meta.noMenu) {
@@ -67,11 +73,6 @@ export default defineComponent({
                 groupMenuMap.value[meta.group].push(value)
             })
         }
-
-        onMounted(() => {
-            getBreadCrumb()
-            getGroupMenuMap()
-        })
 
         const toDefault = (menuGroup: string) => {
             const defaultMenu = groupMenuMap.value[menuGroup]?.find((o) => o.meta?.default === true) as RouteRecordRaw
@@ -92,6 +93,20 @@ export default defineComponent({
             () => route.path,
             () => {
                 getBreadCrumb()
+            },
+            {
+                immediate: true,
+            },
+        )
+
+        watch(
+            () => menu3Items.value,
+            () => {
+                getGroupMenuMap()
+            },
+            {
+                deep: true,
+                immediate: true,
             },
         )
 

@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 18:07:29
  * @Description: 现场预览
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 14:22:03
+ * @LastEditTime: 2024-09-10 18:24:41
  */
 import { cloneDeep } from 'lodash-es'
 import { type LiveChannelList, type LiveCustomViewChlList, LiveSharedWinData } from '@/types/apiType/live'
@@ -507,13 +507,13 @@ export default defineComponent({
                     pageData.value.notification = [formatHttpsTips(Translate('IDCS_TARGET_DETECTION'))]
                 }
 
-                const productModel = await getDeviceInfo()
-                plugin.VideoPluginNotifyEmitter.addListener(notify)
-
                 {
                     const sendXML = OCX_XML_SetPluginModel('Interactive', 'Live')
                     plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 }
+
+                const productModel = await getDeviceInfo()
+                plugin.VideoPluginNotifyEmitter.addListener(notify)
 
                 {
                     const sendXML = OCX_XML_SetProperty({
@@ -1645,9 +1645,9 @@ export default defineComponent({
                     const sendXML = OCX_XML_SetScreenMode(1)
                     plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 }
-
-                plugin.VideoPluginNotifyEmitter.removeListener(notify)
             }
+
+            plugin?.VideoPluginNotifyEmitter.removeListener(notify)
         })
 
         return {
