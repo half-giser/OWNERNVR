@@ -3,12 +3,10 @@
  * @Date: 2024-08-21 15:34:24
  * @Description: 异常报警
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-23 10:30:19
+ * @LastEditTime: 2024-08-27 17:07:31
  */
 import { cloneDeep } from 'lodash'
-import { defineComponent } from 'vue'
 import { ArrowDown } from '@element-plus/icons-vue'
-import { useLangStore } from '@/stores/lang'
 import { tableRowStatus, tableRowStatusToolTip } from '@/utils/const/other'
 import BaseTransferPop from '@/components/BaseTransferPop.vue'
 import BaseTransferDialog from '@/components/BaseTransferDialog.vue'
@@ -74,9 +72,9 @@ export default defineComponent({
             pageData.value.supportAudio = systemCaps.supportAlarmAudioConfig
             // pageData.value.supportAudio = true
             if (pageData.value.supportAudio == true) {
-                queryAlarmAudioCfg().then(async (res: any) => {
+                queryAlarmAudioCfg().then(async (resb) => {
                     pageData.value.audioList = []
-                    res = queryXml(res)
+                    const res = queryXml(resb)
                     if (res('status').text() == 'success') {
                         res('//content/audioList/item').forEach((item: any) => {
                             const $item = queryXml(item.element)
@@ -94,8 +92,8 @@ export default defineComponent({
             getChlList({
                 requireField: ['device'],
                 nodeType: 'alarmOuts',
-            }).then(async (res: any) => {
-                res = queryXml(res)
+            }).then(async (resb) => {
+                const res = queryXml(resb)
                 if (res('status').text() == 'success') {
                     res('//content/item').forEach((item: any) => {
                         const $item = queryXml(item.element)
@@ -119,12 +117,12 @@ export default defineComponent({
             tableData.value.length = 0
             openLoading(LoadingTarget.FullScreen)
 
-            queryAbnormalTrigger().then((res: any) => {
+            queryAbnormalTrigger().then((resb) => {
                 // TODO p2p
                 // if (APP_TYPE == 'P2P') {
                 //     res = res[0]
                 // }
-                res = queryXml(res)
+                const res = queryXml(resb)
                 if (res('status').text() == 'success') {
                     tableData.value = []
                     res('//content/item').forEach((item: any) => {
@@ -299,7 +297,7 @@ export default defineComponent({
         }
 
         const getSavaData = function () {
-            let sendXml = `
+            let sendXml = rawXml`
                 <types>
                     <abnormalType>
                     <enum>ipConflict</enum>
@@ -321,11 +319,11 @@ export default defineComponent({
                 `
             tableData.value.forEach((item) => {
                 const alarmOutSwitch = item.alarmOut.switch
-                sendXml += `
+                sendXml += rawXml`
                             <item>
                                 <abnormalType>${item['eventType']}</abnormalType>
                                 <triggerAlarmOut>
-                                    <switch>${item['alarmOut']['switch']}</switch>
+                                    <switch>${item['alarmOut']['switch'].toString()}</switch>
                                     <alarmOuts>
                         `
                 if (!alarmOutSwitch) {
@@ -339,13 +337,13 @@ export default defineComponent({
                     alarmOuts = [alarmOuts]
                 }
                 alarmOuts.forEach((item: any) => {
-                    sendXml += ` <item id="${item.value}">
+                    sendXml += rawXml` <item id="${item.value}">
                                 <![CDATA[${item.label}]]>
                             </item>`
                 })
-                sendXml += `</alarmOuts>
+                sendXml += rawXml`</alarmOuts>
                     </triggerAlarmOut>`
-                sendXml += `
+                sendXml += rawXml`
                         <msgPushSwitch>${item.msgPush}</msgPushSwitch>
                         <buzzerSwitch>${item.beeper}</buzzerSwitch>
                         <popMsgSwitch>${item.msgBoxPopup}</popMsgSwitch>
@@ -353,14 +351,14 @@ export default defineComponent({
                         <sysAudio id='${item.sysAudio}'></sysAudio>
                     </item>`
             })
-            sendXml += '</content>'
+            sendXml += rawXml`</content>`
             return sendXml
         }
         const setData = function () {
             openLoading(LoadingTarget.FullScreen)
             const sendXml = getSavaData()
-            editAbnormalTrigger(sendXml).then((res: any) => {
-                res = queryXml(res)
+            editAbnormalTrigger(sendXml).then((resb) => {
+                const res = queryXml(resb)
                 if (res('status').text() == 'success') {
                     openMessageTipBox({
                         type: 'success',
@@ -377,7 +375,6 @@ export default defineComponent({
             })
             closeLoading(LoadingTarget.FullScreen)
             pageData.value.applyDisable = true
-            buildTableData()
         }
 
         onMounted(async () => {

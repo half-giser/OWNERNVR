@@ -3,11 +3,9 @@
  * @Date: 2024-08-23 10:59:14
  * @Description: 系统撤防
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-27 09:58:33
+ * @LastEditTime: 2024-08-27 17:10:18
  */
-import { defineComponent } from 'vue'
 import { ArrowDown } from '@element-plus/icons-vue'
-import { useLangStore } from '@/stores/lang'
 import { SystemDisarm } from '@/types/apiType/aiAndEvent'
 import { type ElDropdown } from 'element-plus'
 
@@ -190,8 +188,8 @@ export default defineComponent({
             }
         }
         const buildData = () => {
-            querySystemDisArmParam().then(async (res: any) => {
-                res = queryXml(res)
+            querySystemDisArmParam().then(async (resb) => {
+                const res = queryXml(resb)
                 if (res('status').text() == 'success') {
                     pageData.value.defenseSwitch = res('//content/defenseSwitch').text() == 'true'
                     pageData.value.remoteSwitch = res('//content/remoteSwitch').text() == 'true'
@@ -260,12 +258,12 @@ export default defineComponent({
             })
         }
         const getSaveData = () => {
-            let sendXml = `<types>
+            let sendXml = rawXml`<types>
                             <defenseType>`
             pageData.value.totalDefenseParamList.forEach((item: { id: string; value: string }) => {
-                sendXml += `<enum>${item.id}</enum>`
+                sendXml += rawXml`<enum>${item.id}</enum>`
             })
-            sendXml += `
+            sendXml += rawXml`
                         </defenseType>
                         <nodeType>
                             <enum>channel</enum>
@@ -273,32 +271,32 @@ export default defineComponent({
                         </nodeType>
                     </types>
                     <content>
-                        <defenseSwitch>${pageData.value.defenseSwitch}</defenseSwitch>
-                        <remoteSwitch>${pageData.value.remoteSwitch}</remoteSwitch>
-                        <sensorSwitch>${formData.value.sensorSwitch}</sensorSwitch>
+                        <defenseSwitch>${pageData.value.defenseSwitch.toString()}</defenseSwitch>
+                        <remoteSwitch>${pageData.value.remoteSwitch.toString()}</remoteSwitch>
+                        <sensorSwitch>${formData.value.sensorSwitch.toString()}</sensorSwitch>
                         <inputSourceSensor>${formData.value.inputSource}</inputSourceSensor>
                         <defenseSwitchParam type="list">
                     `
             tableData.value.forEach((item: SystemDisarm) => {
-                sendXml += `<item id="${item.id}">
+                sendXml += rawXml`<item id="${item.id}">
                                 <nodeType type="nodeType">${item.nodeType}</nodeType>
                                 <defenseAttrs type="list">`
                 item.disarmItemsList.forEach((ele: { id: string; value: string }) => {
-                    sendXml += `<item>${ele.id}</item>`
+                    sendXml += rawXml`<item>${ele.id}</item>`
                 })
-                sendXml += `</defenseAttrs>
+                sendXml += rawXml`</defenseAttrs>
                             </item>`
             })
-            sendXml += `</defenseSwitchParam>
+            sendXml += rawXml`</defenseSwitchParam>
                     </content>`
             return sendXml
         }
         const setData = () => {
             const sendXml = getSaveData()
             openLoading(LoadingTarget.FullScreen)
-            editSystemDisArmParam(sendXml).then((res: any) => {
+            editSystemDisArmParam(sendXml).then((resb) => {
                 closeLoading(LoadingTarget.FullScreen)
-                res = queryXml(res)
+                const res = queryXml(resb)
                 if (res('status').text() == 'success') {
                     openMessageTipBox({
                         type: 'success',
