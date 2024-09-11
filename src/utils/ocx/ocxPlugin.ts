@@ -4,7 +4,7 @@
  * @Description: OCX插件模块
  * 原项目中MAC插件和TimeSliderPlugin相关逻辑不保留
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:21:17
+ * @LastEditTime: 2024-09-10 18:27:24
  */
 import WebsocketPlugin from '@/utils/websocket/websocketPlugin'
 import { APP_TYPE } from '@/utils/constants'
@@ -998,7 +998,11 @@ const useOCXPlugin = () => {
         //     return
         // }
         if (!pluginRefDiv) {
-            return
+            if (browserEventMap.data.length) {
+                pluginRefDiv = browserEventMap.data[0].element
+            } else {
+                return
+            }
         }
 
         // // 获取浏览器的缩放比率
@@ -1096,6 +1100,7 @@ const useOCXPlugin = () => {
     }
 
     interface BrowserMoveEventObj {
+        element: HTMLElement
         browserScrollCallback: (e: Event) => void
         browserMoveTimer: NodeJS.Timeout
         mutationObserver: MutationObserver
@@ -1103,7 +1108,24 @@ const useOCXPlugin = () => {
         observerList: HTMLElement[]
     }
 
-    const browserEventMap = new Map<HTMLElement, BrowserMoveEventObj>()
+    const browserEventMap = {
+        data: [] as BrowserMoveEventObj[],
+        has(element: HTMLElement) {
+            return this.data.some((item) => item.element === element)
+        },
+        get(element: HTMLElement) {
+            return this.data.find((item) => item.element === element)
+        },
+        set(item: BrowserMoveEventObj) {
+            this.data.push(item)
+        },
+        delete(element: HTMLElement) {
+            const index = this.data.findIndex((item) => item.element === element)
+            if (index > -1) {
+                this.data.splice(index, 1)
+            }
+        },
+    }
 
     /**
      * @description 关闭当前插件
@@ -1125,11 +1147,8 @@ const useOCXPlugin = () => {
      * @returns
      */
     const closeAllPlugin = () => {
-        const keys = browserEventMap.keys()
-        let current = keys.next()
-        while (current.value) {
-            closeCurPlugin(current.value)
-            current = keys.next()
+        for (let i = 0; i < browserEventMap.data.length; i++) {
+            closeCurPlugin(browserEventMap.data[i].element)
         }
     }
 
@@ -1218,7 +1237,7 @@ const useOCXPlugin = () => {
                     const hasPop = data.observerList.some((item) => {
                         return item.style.display !== 'none'
                     })
-                    if (!hasPop && browserEventMap.size) {
+                    if (!hasPop && browserEventMap.data.length) {
                         displayOCX(true)
                         forcedHidden = false
                     }
@@ -1260,7 +1279,8 @@ const useOCXPlugin = () => {
         document.getElementById('layoutMainContent')?.addEventListener('scroll', browserScrollCallback)
         window.addEventListener('scroll', browserScrollCallback)
         window.addEventListener('resize', browserScrollCallback)
-        browserEventMap.set(pluginPlaceholderId, {
+        browserEventMap.set({
+            element: pluginPlaceholderId,
             browserMoveTimer: browserMoveTimer,
             browserScrollCallback: browserScrollCallback,
             mutationObserver: mutationObserver,
@@ -1281,7 +1301,7 @@ const useOCXPlugin = () => {
             displayOCX(false)
         } else {
             setTimeout(() => {
-                if (browserEventMap.size && !forcedHidden) displayOCX(true)
+                if (browserEventMap.data.length && !forcedHidden) displayOCX(true)
             }, 500)
         }
     }
@@ -1295,7 +1315,7 @@ const useOCXPlugin = () => {
                 displayOCX(false)
             } else {
                 setTimeout(() => {
-                    if (browserEventMap.size && !forcedHidden) displayOCX(true)
+                    if (browserEventMap.data.length && !forcedHidden) displayOCX(true)
                 }, 500)
             }
         },
