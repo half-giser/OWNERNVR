@@ -14,10 +14,30 @@ export const useLayoutStore = defineStore('layout', () => {
     const liveLastSegNum = ref(1)
     const liveLastChlList = ref<string[]>([])
 
+    //一级菜单列表
+    const menu1Items = ref<RouteRecordRawExtends[]>([])
+    // //当前进入的一级菜单项
+    const menu1Item = ref<RouteRecordRawExtends | null>(null)
+    // //当前进入的一级菜单项的二级菜单列表
+    const menu2Items = ref<RouteRecordRawExtends[]>([])
+    // //当前进入的二级菜单项
+    const menu2Item = ref<RouteRecordRawExtends | null>(null)
+    // //当前进入的二级菜单项的三级菜单列表
+    const menu3Items = ref<RouteRecordRawExtends[]>([])
+    // //当前进入的三级菜单项
+    const menu3Item = ref<RouteRecordRawExtends | null>(null)
+
     return {
         messageBoxCount,
         isInitial,
         liveLastSegNum,
         liveLastChlList,
+
+        menu1Items,
+        menu1Item,
+        menu2Items,
+        menu2Item,
+        menu3Items,
+        menu3Item,
     }
 })

@@ -3,13 +3,13 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 顶层布局页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 12:01:54
+ * @LastEditTime: 2024-09-10 17:12:35
  */
 
 import { type RouteLocationMatched } from 'vue-router'
 import BaseChangePwdPop from '../../components/BaseChangePwdPop.vue'
 import { APP_TYPE } from '@/utils/constants'
-import { menu1Item, menu1Items as allMenu1Items, getMenu1 } from '@/router'
+import { getMenu1 } from '@/router'
 
 export default defineComponent({
     components: {
@@ -25,6 +25,10 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const Plugin = inject('Plugin') as PluginType
         const systemInfo = getSystemInfo()
+        const layoutStore = useLayoutStore()
+
+        const menu1Item = computed(() => layoutStore.menu1Item)
+        const allMenu1Items = computed(() => layoutStore.menu1Items)
 
         // const key = computed(() => `${String(route.name || route.path)}-${new Date()}`)
 
@@ -289,7 +293,6 @@ export default defineComponent({
                 }
             })
             setPluginURL()
-            console.log('repeated mounted')
         })
 
         return {
