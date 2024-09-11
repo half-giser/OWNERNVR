@@ -3,7 +3,7 @@
  * @Date: 2024-09-10 17:50:24
  * @Description: 更多功能页面的框架
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-11 14:07:11
+ * @LastEditTime: 2024-09-11 14:21:43
 -->
 <template>
     <div class="content">
@@ -266,6 +266,7 @@
         .el-tabs--border-card > .el-tabs__header .el-tabs__item {
             padding: 0px;
             border: 1px solid #999999;
+            margin-top: 0px;
         }
     }
     .content_main {

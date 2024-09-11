@@ -3,7 +3,7 @@
  * @Date: 2024-08-27 15:43:26
  * @Description:  周界防范/人车检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-11 14:04:36
+ * @LastEditTime: 2024-09-11 14:22:05
 -->
 <template>
     <div class="content">
@@ -1573,6 +1573,7 @@
         .el-tabs--border-card > .el-tabs__header .el-tabs__item {
             padding: 0px;
             border: 1px solid #999999;
+            margin-top: 0px;
         }
     }
     .content_main {
