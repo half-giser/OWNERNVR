@@ -1,0 +1,67 @@
+/*
+ * @Author: yejiahao yejiahao@tvt.net.cn
+ * @Date: 2024-09-06 17:34:44
+ * @Description: 智能分析 - 抓拍选项框
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-09 15:52:19
+ */
+export default defineComponent({
+    props: {
+        /**
+         * @property 是否选中
+         */
+        modelValue: {
+            type: Boolean,
+            default: false,
+        },
+        /**
+         * @property 图片路径
+         */
+        src: {
+            type: String,
+            default: '',
+        },
+        /**
+         * @property {enum} 卡片类型 snap | panorama
+         */
+        type: {
+            type: String,
+            default: 'snap',
+        },
+        /**
+         * @property 图标
+         */
+        play: {
+            type: Boolean,
+            default: false,
+        },
+        /**
+         * @property 禁用选择
+         */
+        disabled: {
+            type: Boolean,
+            default: false,
+        },
+    },
+    emits: {
+        'update:modelValue'(bool: boolean) {
+            return typeof bool === 'boolean'
+        },
+        detail() {
+            return true
+        },
+    },
+    setup(prop, ctx) {
+        /**
+         * @description 选中/取消选中
+         * @param {boolean} e
+         */
+        const changeValue = (e: boolean) => {
+            ctx.emit('update:modelValue', e)
+        }
+
+        return {
+            changeValue,
+        }
+    },
+})

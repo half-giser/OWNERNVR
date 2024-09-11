@@ -22,7 +22,6 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
-        const pluginStore = usePluginStore()
         const browser = getBrowserInfo()
 
         const tableRef = ref<TableInstance>()
@@ -392,7 +391,7 @@ export default defineComponent({
             mode,
             (newVal) => {
                 if (newVal !== 'h5' && !Plugin.IsPluginAvailable) {
-                    pluginStore.showPluginNoResponse = true
+                    Plugin.SetPluginNoResponse()
                     Plugin.ShowPluginNoResponse()
                 }
                 if (newVal === 'ocx') {

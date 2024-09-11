@@ -3,7 +3,7 @@
  * @Date: 2024-09-04 14:36:21
  * @Description: 智能分析 属性选择器
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-04 16:33:56
+ * @LastEditTime: 2024-09-06 11:37:07
 -->
 <template>
     <div>
@@ -16,7 +16,7 @@
             :hide-after="0"
         >
             <template #reference>
-                <div class="placeholder">
+                <div class="base-intel-placeholder">
                     <div class="text-ellipsis">{{ content }}</div>
                     <BaseImgSprite
                         file="arrow"
@@ -29,7 +29,7 @@
                 <el-checkbox-group
                     v-if="range.length === 1 && range[0] === 'vehicle'"
                     v-model="selectedVehicle"
-                    class="single"
+                    class="base-intel-checkbox-group"
                 >
                     <el-checkbox
                         v-for="item in pageData.vehicleOptions"
@@ -77,36 +77,6 @@
 
 <script lang="ts" src="./IntelBaseAttributeSelector.v.ts"></script>
 
-<style lang="scss" scoped>
-.placeholder {
-    width: 100%;
-    height: 30px;
-    line-height: 30px;
-    text-align: center;
-    display: flex;
-    margin-bottom: 10px;
-    align-items: center;
-    border: 1px solid var(--border-color7);
-    font-size: 12px;
-    box-sizing: border-box;
-    padding: 0 5px;
-    cursor: pointer;
-
-    div {
-        width: 100%;
-    }
-
-    span {
-        flex-shrink: 0;
-    }
-}
-
-.single {
-    display: flex;
-    flex-wrap: wrap;
-
-    .el-checkbox {
-        width: 100%;
-    }
-}
+<style lang="scss">
+@import '@/views/UI_PUBLIC/publicStyle/intelligentAnalysis.scss';
 </style>

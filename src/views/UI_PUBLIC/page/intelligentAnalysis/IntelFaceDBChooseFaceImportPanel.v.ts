@@ -16,7 +16,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const Plugin = inject('Plugin') as PluginType
-        // const pluginStore = usePluginStore()
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()

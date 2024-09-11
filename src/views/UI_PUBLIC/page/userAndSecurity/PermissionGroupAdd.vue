@@ -3,7 +3,7 @@
  * @Date: 2024-06-17 20:25:35
  * @Description: 添加权限组
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 14:10:03
+ * @LastEditTime: 2024-09-06 18:24:14
 -->
 <template>
     <div class="base-flex-box">
@@ -52,14 +52,14 @@
         </div>
         <div class="channel">
             <ul>
-                <li
-                    v-for="key in pageData.channelTabs"
-                    :key
-                    :class="{ active: key === pageData.activeChannelTab }"
-                    @click="pageData.activeChannelTab = key"
-                >
-                    {{ Translate(key) }}
-                </li>
+                <el-radio-group v-model="pageData.activeChannelTab">
+                    <el-radio-button
+                        v-for="key in pageData.channelTabs"
+                        :key
+                        :value="key"
+                        >{{ Translate(key) }}</el-radio-button
+                    >
+                </el-radio-group>
             </ul>
             <div class="list">
                 <div
@@ -249,28 +249,6 @@
         margin: 0;
         padding: 5px;
         flex-shrink: 0;
-
-        li {
-            list-style: none;
-            cursor: pointer;
-            border: 1px solid var(--border-color7);
-            line-height: 20px;
-            font-size: 14px;
-            padding: 4px 15px;
-
-            &:hover {
-                background-color: var(--primary--01);
-            }
-
-            &.active {
-                background-color: var(--primary--04);
-                color: #fff;
-            }
-
-            & + li {
-                border-left: none;
-            }
-        }
     }
 
     :deep(.el-table) {

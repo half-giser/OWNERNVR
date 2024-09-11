@@ -3,18 +3,25 @@
  * @Date: 2024-09-05 10:16:53
  * @Description: 智能分析 通道选择器
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 10:22:08
+ * @LastEditTime: 2024-09-06 15:32:48
  */
 import { type TableInstance } from 'element-plus'
 
 export default defineComponent({
     props: {
         /**
-         * @property 通道选项
+         * @property 通道ID选项
          */
         modelValue: {
             type: Array as PropType<string[]>,
             required: true,
+        },
+        /**
+         * @property {enum} 通道或停车场 channel | park
+         */
+        mode: {
+            type: String,
+            default: 'channel',
         },
     },
     emits: {
@@ -51,7 +58,10 @@ export default defineComponent({
         // 选项框回显的内容
         const content = computed(() => {
             if (tableData.value.length === prop.modelValue.length || !prop.modelValue.length) {
-                return Translate('IDCS_CHANNEL') + `(${Translate('IDCS_FULL')})`
+                if (prop.mode === 'channel') {
+                    return Translate('IDCS_CHANNEL') + `(${Translate('IDCS_FULL')})`
+                }
+                return Translate('IDCS_SEARCH_ENTRANCE_AND_EXIT') + `(${Translate('IDCS_FULL')})`
             }
             return prop.modelValue.map((item) => chlMap[item]).join('; ')
         })
@@ -81,23 +91,57 @@ export default defineComponent({
             }
         }
 
-        onMounted(() => {
-            getChlList({
+        /**
+         * @description 获取通道数据
+         */
+        const getData = async () => {
+            const result = await getChlList({
                 isContainsDeletedItem: true,
                 authList: '@spr,@bk',
-            }).then((result) => {
-                const $ = queryXml(result)
-                tableData.value = $('//content/item').map((item) => {
-                    const $item = queryXml(item.element)
-                    chlMap[item.attr('id')!] = $item('name').text()
-                    return {
-                        label: $item('name').text(),
-                        value: item.attr('id')!,
-                    }
-                })
-                ctx.emit('ready', chlMap)
-                confirm()
             })
+            const $ = queryXml(result)
+            tableData.value = $('//content/item').map((item) => {
+                const $item = queryXml(item.element)
+                let text = $item('name').text()
+                const id = item.attr('id')!
+                if (id === '{00000000-0000-0000-0000-000000000000}') {
+                    text = prop.mode === 'channel' ? Translate('IDCS_HISTORY_CHANNEL') : Translate('IDCS_HISTORY_ENTRANCE_EXIT')
+                }
+                chlMap[id] = text
+                return {
+                    label: text,
+                    value: id,
+                }
+            })
+        }
+
+        // 打开弹窗时 重置选项
+        watch(
+            () => pageData.value.isPop,
+            (value) => {
+                if (value) {
+                    if (tableData.value.length === prop.modelValue.length) {
+                        if (selected.value.length) {
+                            tableData.value.forEach((item) => {
+                                tableRef.value?.toggleRowSelection(item, prop.modelValue.includes(item.value))
+                            })
+                        }
+                    } else {
+                        tableData.value.forEach((item) => {
+                            tableRef.value?.toggleRowSelection(item, prop.modelValue.includes(item.value))
+                        })
+                    }
+                }
+            },
+        )
+
+        onMounted(async () => {
+            await getData()
+            ctx.emit('ready', chlMap)
+            // 如果表单没有值，则创造初始值
+            if (!prop.modelValue.length) {
+                confirm()
+            }
         })
 
         return {

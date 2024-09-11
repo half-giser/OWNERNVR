@@ -3,15 +3,15 @@
  * @Date: 2024-07-22 20:03:07
  * @Description: 抓拍相关常量
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-24 10:57:15
+ * @LastEditTime: 2024-09-05 20:11:18
  */
-const GENDER_MAP: Record<number, string> = {
+export const GENDER_MAP: Record<number, string> = {
     0: '--',
     1: 'IDCS_MALE',
     2: 'IDCS_FEMALE',
 }
 
-const AGE_MAP: Record<number, string> = {
+export const AGE_MAP: Record<number, string> = {
     0: '--',
     1: 'IDCS_INFANT',
     2: 'IDCS_JUVENILE',
@@ -20,32 +20,32 @@ const AGE_MAP: Record<number, string> = {
     5: 'IDCS_ELDERLY',
 }
 
-const ORIENT_MAP: Record<number, string> = {
+export const ORIENT_MAP: Record<number, string> = {
     0: '--',
     1: 'IDCS_FRONT_FACE',
     2: 'IDCS_BACK_FACE',
     3: 'IDCS_SIDE_FACE',
 }
 
-const HAT_MAP: Record<number, string> = {
+export const HAT_MAP: Record<number, string> = {
     0: '--',
     1: 'IDCS_YES',
     2: 'IDCS_NO',
 }
 
-const GLASS_MAP: Record<number, string> = {
+export const GLASS_MAP: Record<number, string> = {
     0: '--',
     1: 'IDCS_YES',
     2: 'IDCS_NO',
 }
 
-const MASK_MAP: Record<number, string> = {
+export const MASK_MAP: Record<number, string> = {
     0: '--',
     1: 'IDCS_YES',
     2: 'IDCS_NO',
 }
 
-const BACKPACK_TYPE_MAP: Record<number, string> = {
+export const BACKPACK_TYPE_MAP: Record<number, string> = {
     0: '--',
     1: 'IDCS_YES',
     2: 'IDCS_NO',
@@ -57,19 +57,19 @@ const BACKPACK_TYPE_MAP: Record<number, string> = {
 //     2: '没有单肩包',
 // }
 
-const UPPER_TYPE_MAP: Record<number, string> = {
+export const UPPER_TYPE_MAP: Record<number, string> = {
     0: '--',
     1: 'IDCS_COLOR_SHORT_SLEEVE',
     2: 'IDCS_COLOR_LONG_SLEEVE',
 }
 
-const LOWER_TYPE_MAP: Record<number, string> = {
+export const LOWER_TYPE_MAP: Record<number, string> = {
     0: '--',
     1: 'IDCS_COLOR_SHORT_TROUSER',
     2: 'IDCS_COLOR_LONG_TROUSER',
 }
 
-const COLOR_MAP: Record<number, string> = {
+export const COLOR_MAP: Record<number, string> = {
     0: '--',
     1: 'IDCS_RED',
     2: 'IDCS_ORANGE',
@@ -86,13 +86,13 @@ const COLOR_MAP: Record<number, string> = {
     13: 'IDCS_BROWN',
 }
 
-const SKIRT_TYPE_MAP: Record<number, string> = {
+export const SKIRT_TYPE_MAP: Record<number, string> = {
     0: '--',
     1: 'IDCS_YES',
     2: 'IDCS_NO',
 }
 
-const CAR_TYPE_MAP: Record<number, string> = {
+export const CAR_TYPE_MAP: Record<number, string> = {
     0: '--',
     1: 'IDCS_SEDAN',
     2: 'IDCS_SUV',
@@ -108,7 +108,7 @@ const CAR_TYPE_MAP: Record<number, string> = {
     12: 'IDCS_SPECIAL_VEHICLE',
 }
 
-const NON_MOTOR_MAP: Record<number, string> = {
+export const NON_MOTOR_MAP: Record<number, string> = {
     0: '--', // 未知
     1: 'IDCS_BICYCLE',
     2: 'IDCS_BATTERY_CAR',
@@ -116,7 +116,7 @@ const NON_MOTOR_MAP: Record<number, string> = {
     4: 'IDCS_TRICYCLE',
 }
 
-const CAR_BRAND_MAP: Record<number | string, string> = {
+export const CAR_BRAND_MAP: Record<number | string, string> = {
     0: 'IDCS_UNCONTRAST', // 未知
     3: 'IDCS_CAR_BRAND_ACURA',
     4: 'IDCS_CAR_BRAND_ALFAROMEO',

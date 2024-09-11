@@ -3,7 +3,7 @@
  * @Date: 2024-08-09 17:23:56
  * @Description: 备份图像弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-12 09:54:41
+ * @LastEditTime: 2024-09-06 17:41:32
 -->
 <template>
     <el-dialog
@@ -32,7 +32,7 @@
                 </el-select>
             </el-form-item>
             <el-form-item v-show="formData.destination === 'local'">
-                <el-text class="tip">{{ Translate('IDCS_AVI_UNENCRYPTED_TIP') }}</el-text>
+                <el-text class="text-error">{{ Translate('IDCS_AVI_UNENCRYPTED_TIP') }}</el-text>
             </el-form-item>
             <el-form-item
                 v-show="formData.destination === 'remote'"
@@ -63,9 +63,3 @@
 </template>
 
 <script lang="ts" src="./BackupImgPop.v.ts"></script>
-
-<style lang="scss" scoped>
-.tip {
-    color: var(--error--01);
-}
-</style>

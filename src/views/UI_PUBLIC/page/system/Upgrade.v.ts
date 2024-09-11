@@ -27,7 +27,6 @@ export default defineComponent({
         const { openLoading, closeLoading, closeAllLoading, LoadingTarget } = useLoading()
         const systemCaps = useCababilityStore()
         const Plugin = inject('Plugin') as PluginType
-        const pluginStore = usePluginStore()
         const userSession = useUserSessionStore()
         // 用户鉴权表单数据
         const userCheckAuthForm = new UserCheckAuthForm()
@@ -479,7 +478,7 @@ export default defineComponent({
             isSupportH5,
             (newVal) => {
                 if (!newVal && !Plugin.IsPluginAvailable) {
-                    pluginStore.showPluginNoResponse = true
+                    Plugin.SetPluginNoResponse()
                     Plugin.ShowPluginNoResponse()
                 }
                 if (newVal && isHttpsLogin()) {

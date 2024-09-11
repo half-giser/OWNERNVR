@@ -2,16 +2,9 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-03 11:56:43
  * @Description: 插件命令集合
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-03 18:06:18
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-09 20:35:22
  */
-import { compressXml, rawXml } from '../xmlParse'
-import { xmlHeader } from '@/api/api'
-import * as util from './ocxUtil'
-import { getUiAndTheme, getUTCDateByMilliseconds, getURLSearchParams } from '@/utils/tools'
-import { useUserSessionStore } from '@/stores/userSession'
-import { useLangStore } from '@/stores/lang'
-import { usePluginStore } from '@/stores/plugin'
 import { APP_SERVER_IP } from '@/utils/constants'
 
 const wrapXml = (xml: string) => compressXml(`${xmlHeader}${xml}`)
@@ -108,7 +101,7 @@ export const OCX_XML_GetLangNode = () => {
  */
 export const OCX_XML_Initial = (model: string, notifyFunName: string, viewType: string, screenNum?: number) => {
     return wrapXml(rawXml`<cmd type="Initial">
-            ${viewType == util.TIMESLIDER_PLUGIN ? `<cmd type="Initial" target="dateCtrl">` : viewType ? `<viewType>${viewType}</viewType>` : ''}
+            ${viewType == TIMESLIDER_PLUGIN ? `<cmd type="Initial" target="dateCtrl">` : viewType ? `<viewType>${viewType}</viewType>` : ''}
             ${model ? `<setModel>${model}</setModel>` : ''}
             <setLang></setLang>
             ${notifyFunName ? `<NotifyFunName>${notifyFunName}</NotifyFunName>` : ''}
@@ -133,10 +126,10 @@ export const OCX_XML_Initial_P2P = (model?: string, notifyFunName?: string, view
     const natIp_2_0 = ''
     const natPort_2_0 = ''
     return wrapXml(rawXml`
-        ${viewType == util.TIMESLIDER_PLUGIN ? '<cmd type="Initial" target="dateCtrl">' : '<cmd type="Initial">' + viewType ? `<viewType>${viewType}</viewType>` : ''}
+        ${viewType == TIMESLIDER_PLUGIN ? '<cmd type="Initial" target="dateCtrl">' : '<cmd type="Initial">' + viewType ? `<viewType>${viewType}</viewType>` : ''}
             ${model ? `<setModel>${model}</setModel>` : ''}
             <natSvc>
-                ${util.P2P_V === '1.0' ? `<item ver="${util.P2P_V}" ip="${natIp}" port="${natPort}" />` : `<item ver="${util.P2P_V}" ip="${natIp_2_0}" port="${natPort_2_0}" />`}
+                ${P2P_V === '1.0' ? `<item ver="${P2P_V}" ip="${natIp}" port="${natPort}" />` : `<item ver="${P2P_V}" ip="${natIp_2_0}" port="${natPort_2_0}" />`}
             </natSvc>
             ${notifyFunName ? `<NotifyFunName>${notifyFunName}</NotifyFunName>` : ''}
             <systemType>NVMS-9000</systemType>
@@ -154,7 +147,7 @@ export const OCX_XML_Initial_P2P = (model?: string, notifyFunName?: string, view
  */
 export const OCX_XML_SetPluginModel = (model?: string, viewType?: string) => {
     return wrapXml(rawXml`
-        ${(viewType == util.TIMESLIDER_PLUGIN ? '<cmd type="SetPluginModel" target="dateCtrl">' : '<cmd type="SetPluginModel">') + (viewType ? `<viewType>${viewType}</viewType>` : '')}
+        ${(viewType == TIMESLIDER_PLUGIN ? '<cmd type="SetPluginModel" target="dateCtrl">' : '<cmd type="SetPluginModel">') + (viewType ? `<viewType>${viewType}</viewType>` : '')}
             ${model ? `<setModel>${model}</setModel>` : ''}
         </cmd>
     `)
@@ -214,7 +207,7 @@ export const OCX_XML_DisplayPlugin = (isShow: boolean) => {
  */
 export const OCX_XML_SetProperty = (properties: Record<string, string | Boolean>, viewType?: string) => {
     return wrapXml(rawXml`
-        ${(viewType == util.TIMESLIDER_PLUGIN ? '<cmd type="SetProperty" target="dateCtrl">' : '<cmd type="SetProperty">') + (viewType ? `<viewType>${viewType}</viewType>` : '')}
+        ${(viewType == TIMESLIDER_PLUGIN ? '<cmd type="SetProperty" target="dateCtrl">' : '<cmd type="SetProperty">') + (viewType ? `<viewType>${viewType}</viewType>` : '')}
             ${Object.entries(properties)
                 .map(([key, item]) => `<${key}>${item}</${key}>`)
                 .join('')}
@@ -230,7 +223,7 @@ export const OCX_XML_SetProperty = (properties: Record<string, string | Boolean>
  */
 export const OCX_XML_SetModeTwo = (properties: Record<string, string | Boolean>, viewType: string) => {
     return wrapXml(rawXml`
-        ${viewType == util.TIMESLIDER_PLUGIN ? '<cmd type="SetNewProperty" target="dateCtrl">' : '<cmd type="SetNewProperty">' + viewType ? `<viewType>${viewType}</viewType>` : ''}
+        ${viewType == TIMESLIDER_PLUGIN ? '<cmd type="SetNewProperty" target="dateCtrl">' : '<cmd type="SetNewProperty">' + viewType ? `<viewType>${viewType}</viewType>` : ''}
             ${Object.entries(properties)
                 .map(([key, item]) => `<${key}>${item}</${key}>`)
                 .join('')}
@@ -320,7 +313,7 @@ export const OCX_XML_SetSessionIdLogin_P2P = (sessionId: string, sn: string) => 
  */
 export const OCX_XML_SetScreenMode = (screenNum: number, layoutType?: number, viewType?: string) => {
     return wrapXml(rawXml`
-        <cmd type="SetScreenMode" ${viewType === util.TIMESLIDER_PLUGIN ? 'target="dateCtrl"' : ''} layoutType="${String(layoutType || 1)}">${String(screenNum)}</cmd>
+        <cmd type="SetScreenMode" ${viewType === TIMESLIDER_PLUGIN ? 'target="dateCtrl"' : ''} layoutType="${String(layoutType || 1)}">${String(screenNum)}</cmd>
     `)
 }
 
@@ -649,7 +642,7 @@ export const OCX_XML_LightSwitch = (status: 'ON' | 'OFF') => {
  */
 export const OCX_XML_SetLang = (viewType: string = '') => {
     return wrapXml(rawXml`
-        <cmd type="SetLang" ${viewType === util.TIMESLIDER_PLUGIN ? 'target="dateCtrl"' : ''}>
+        <cmd type="SetLang" ${viewType === TIMESLIDER_PLUGIN ? 'target="dateCtrl"' : ''}>
             ${OCX_XML_GetLangNode()}
         </cmd>
     `)
@@ -802,7 +795,7 @@ export const OCX_XML_Skip = (time: number) => {
  */
 export const OCX_XML_RecCurPlayTime = (winList: { time: number; index: number }[], viewType: string = '') => {
     return wrapXml(rawXml`
-        <cmd type="RecCurPlayTime" ${viewType === util.TIMESLIDER_PLUGIN ? 'target="dateCtrl"' : ''}>
+        <cmd type="RecCurPlayTime" ${viewType === TIMESLIDER_PLUGIN ? 'target="dateCtrl"' : ''}>
             ${winList.map((item) => `<win index="${item.index}" time="${getUTCDateByMilliseconds(item.time)}">${item.time}</win>`).join('')}
         </cmd>
     `)
@@ -881,7 +874,7 @@ export const OCX_XML_DefaultSize = () => {
  * @returns {string}
  */
 export const OCX_XML_SetRecPlayMode = (mode: string, viewType: string = '') => {
-    return wrapXml(rawXml`<cmd type="SetRecPlayMode" ${viewType === util.TIMESLIDER_PLUGIN ? 'target="dateCtrl"' : ''}>${mode}</cmd>`)
+    return wrapXml(rawXml`<cmd type="SetRecPlayMode" ${viewType === TIMESLIDER_PLUGIN ? 'target="dateCtrl"' : ''}>${mode}</cmd>`)
 }
 
 /**
@@ -1659,11 +1652,11 @@ export const OCX_XML_SetCddAreaAction = (action: 'EDIT_ON' | 'EDIT_OFF' | 'NONE'
  * @param eventType
  * @returns {string}
  */
-export const OCX_XML_SetVfdArea = (points: { X1: number; X2: number; Y1: number; Y2: number }, type: string, lineColor: string, eventType: keyof typeof util.AIEventTypeMap) => {
+export const OCX_XML_SetVfdArea = (points: { X1: number; X2: number; Y1: number; Y2: number }, type: string, lineColor: string, eventType: keyof typeof AIEventTypeMap) => {
     return wrapXml(rawXml`
         <cmd type="SetVfdArea">
             ${lineColor ? `<LineColor>${lineColor}</LineColor>` : ''}
-            ${eventType ? `<EventType>${util.AIEventTypeMap[eventType]}</EventType>` : ''}
+            ${eventType ? `<EventType>${AIEventTypeMap[eventType]}</EventType>` : ''}
             <item type="${type}">
                 <X1>${String(points.X1)}</X1>
                 <X2>${String(points.X2)}</X2>
@@ -1758,11 +1751,11 @@ export const OCX_XML_SetPeaAreaAction = (action: 'EDIT_ON' | 'EDIT_OFF' | 'NONE'
  * @returns {string}
  */
 // TODO
-export const OCX_XML_SetPeaArea = (points: { X: number; Y: number }[], regulation?: boolean, lineColor?: string, eventType?: keyof typeof util.AIEventTypeMap) => {
+export const OCX_XML_SetPeaArea = (points: { X: number; Y: number }[], regulation?: boolean, lineColor?: string, eventType?: keyof typeof AIEventTypeMap) => {
     return wrapXml(rawXml`
         <cmd type="SetPeaArea">
             ${lineColor ? `<LineColor>${lineColor}</LineColor>` : ''}
-            ${eventType ? `<EventType>${util.AIEventTypeMap[eventType]}</EventType>` : ''}
+            ${eventType ? `<EventType>${AIEventTypeMap[eventType]}</EventType>` : ''}
             <points>
                 ${points.map((item) => `<item X="${item.X}" Y=${item.Y} />`).join('')}
             </points>
@@ -1895,13 +1888,13 @@ interface OcxXmlSetAllAreaAreaInfoOption {
 export const OCX_XML_SetAllArea = (
     areaInfo: OcxXmlSetAllAreaAreaInfoOption,
     areaType: 'IrregularPolygon' | 'IrregularPolygon' | 'Rectangle' | 'WarningLine',
-    eventType: keyof typeof util.AIEventTypeMap,
+    eventType: keyof typeof AIEventTypeMap,
     maxMinXml?: string,
     isShowAll?: boolean,
 ) => {
     const cmd = `<cmd type="SetAllArea">
         <AreaType>${areaType}<AreaType>
-        <EventType>${util.AIEventTypeMap[eventType]}<EventType>
+        <EventType>${AIEventTypeMap[eventType]}<EventType>
         ${isShowAll ? `<IsShowAllArea>${isShowAll}</IsShowAllArea>` : ''}
         ${maxMinXml ?? ''}
     `

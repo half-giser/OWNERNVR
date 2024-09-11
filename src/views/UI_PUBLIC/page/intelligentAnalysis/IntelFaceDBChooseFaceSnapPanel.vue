@@ -38,7 +38,7 @@
         </div>
         <div class="choose">
             <div class="choose-list">
-                <IntelFaceItem
+                <IntelBaseFaceItem
                     v-for="(item, index) in filterListData"
                     :key="`${item.timestamp}:${item.timeNS}`"
                     :src="item.pic || ''"
@@ -48,7 +48,7 @@
                     @update:model-value="selectFace(index)"
                 >
                     {{ displayDateTime(item.timestamp) }}<br />{{ item.chlName }}
-                </IntelFaceItem>
+                </IntelBaseFaceItem>
             </div>
             <div class="base-btn-box padding">
                 <el-pagination

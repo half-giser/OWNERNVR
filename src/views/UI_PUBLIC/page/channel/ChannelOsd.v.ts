@@ -17,7 +17,6 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const { openMessageTipBox } = useMessageBox()
-        const pluginStore = usePluginStore()
         const userSessionStore = useUserSessionStore()
         const Plugin = inject('Plugin') as PluginType
         const osType = getSystemInfo().platform
@@ -555,7 +554,7 @@ export default defineComponent({
 
         const onReady = () => {
             if (!Plugin.IsSupportH5() && !Plugin.IsPluginAvailable()) {
-                pluginStore.showPluginNoResponse = true
+                Plugin.SetPluginNoResponse()
                 Plugin.ShowPluginNoResponse()
             }
             if (!Plugin.IsSupportH5()) Plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)

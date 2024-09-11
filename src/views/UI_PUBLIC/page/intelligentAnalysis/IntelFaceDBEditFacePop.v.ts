@@ -3,17 +3,17 @@
  * @Date: 2024-08-30 18:48:06
  * @Description: 人脸库 - 编辑人脸弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-04 17:47:42
+ * @LastEditTime: 2024-09-06 16:37:17
  */
 import { IntelFaceDBFaceForm, type IntelFaceDBGroupDto, type IntelFaceDBSnapFaceList, type IntelFaceDBFaceInfo } from '@/types/apiType/intelligentAnalysis'
 import { type FormInstance } from 'element-plus'
-import IntelFaceItem from './IntelFaceItem.vue'
+import IntelBaseFaceItem from './IntelBaseFaceItem.vue'
 import IntelFaceDBChooseFacePop from './IntelFaceDBChooseFacePop.vue'
 
 export default defineComponent({
     components: {
         IntelFaceDBChooseFacePop,
-        IntelFaceItem,
+        IntelBaseFaceItem,
     },
     props: {
         /**
@@ -299,7 +299,7 @@ export default defineComponent({
             close,
             highlightWeekend,
             IntelFaceDBChooseFacePop,
-            IntelFaceItem,
+            IntelBaseFaceItem,
         }
     },
 })

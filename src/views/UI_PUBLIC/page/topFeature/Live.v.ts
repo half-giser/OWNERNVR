@@ -385,7 +385,6 @@ export default defineComponent({
         const systemCaps = useCababilityStore()
         const userSession = useUserSessionStore()
         const layoutStore = useLayoutStore()
-        const pluginStore = usePluginStore()
         const theme = getUiAndTheme()
 
         const playerRef = ref<PlayerInstance>()
@@ -499,7 +498,7 @@ export default defineComponent({
                     return
                 }
                 if (!plugin.IsPluginAvailable()) {
-                    pluginStore.showPluginNoResponse = true
+                    plugin.SetPluginNoResponse()
                     plugin.ShowPluginNoResponse()
                 }
 

@@ -3,7 +3,7 @@
  * @Date: 2024-07-12 18:19:49
  * @Description: HTTPS
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-16 19:46:46
+ * @LastEditTime: 2024-09-06 18:11:31
 -->
 <template>
     <div>
@@ -112,6 +112,22 @@
                     @click="handleOCXImport"
                     >{{ Translate('IDCS_BROWSE') }}</el-button
                 >
+                <label
+                    v-show="isSupportH5"
+                    class="el-button"
+                    for="h5BrowerImport2"
+                    :class="{
+                        'is-disabled': pageData.isBrowserImportCertDirectDisabled,
+                    }"
+                    @click="preventH5Import"
+                >
+                    {{ Translate('IDCS_BROWSE') }}
+                </label>
+                <el-button
+                    :disabled="pageData.isImportCertDirectDisabled"
+                    @click="inputCertPassword"
+                    >{{ Translate('IDCS_IMPORT') }}</el-button
+                >
                 <input
                     id="h5BrowerImport2"
                     type="file"
@@ -120,25 +136,6 @@
                     :disabled="pageData.isBrowserImportCertDirectDisabled"
                     @change="handleH5Import"
                 />
-                <el-button
-                    v-show="isSupportH5"
-                    :disabled="pageData.isBrowserImportCertDirectDisabled"
-                >
-                    <label
-                        for="h5BrowerImport2"
-                        :class="{
-                            disabled: pageData.isBrowserImportCertDirectDisabled,
-                        }"
-                        @click="preventH5Import"
-                    >
-                        {{ Translate('IDCS_BROWSE') }}
-                    </label>
-                </el-button>
-                <el-button
-                    :disabled="pageData.isImportCertDirectDisabled"
-                    @click="inputCertPassword"
-                    >{{ Translate('IDCS_IMPORT') }}</el-button
-                >
             </el-form-item>
         </el-form>
         <!-- 创建证书请求 -->
@@ -196,6 +193,19 @@
                     @click="handleOCXImport"
                     >{{ Translate('IDCS_BROWSE') }}</el-button
                 >
+                <label
+                    v-show="isSupportH5"
+                    class="el-button"
+                    for="h5BrowerImport3"
+                    @click="preventH5Import"
+                >
+                    {{ Translate('IDCS_BROWSE') }}
+                </label>
+                <el-button
+                    :disabled="pageData.isImportCertReqDisabled"
+                    @click="importCertFile()"
+                    >{{ Translate('IDCS_IMPORT') }}</el-button
+                >
                 <input
                     id="h5BrowerImport3"
                     type="file"
@@ -203,19 +213,6 @@
                     accept=".crt"
                     @change="handleH5Import"
                 />
-                <el-button v-show="isSupportH5">
-                    <label
-                        for="h5BrowerImport3"
-                        @click="preventH5Import"
-                    >
-                        {{ Translate('IDCS_BROWSE') }}
-                    </label>
-                </el-button>
-                <el-button
-                    :disabled="pageData.isImportCertReqDisabled"
-                    @click="importCertFile()"
-                    >{{ Translate('IDCS_IMPORT') }}</el-button
-                >
             </el-form-item>
         </el-form>
         <div
@@ -245,14 +242,6 @@
 <script lang="ts" src="./Https.v.ts"></script>
 
 <style lang="scss" scoped>
-label {
-    display: inline-block;
-
-    &.disabled {
-        cursor: not-allowed;
-    }
-}
-
 .radio-group {
     display: block;
 

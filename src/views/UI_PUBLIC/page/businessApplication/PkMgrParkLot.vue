@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 18:39:25
  * @Description: 实时过车记录
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-04 17:14:25
+ * @LastEditTime: 2024-09-06 17:43:32
 -->
 <template>
     <div class="lot">
@@ -144,17 +144,17 @@
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_VEHICLE_PARKING_TIME')">
                         <template #default="scope">
-                            <span :class="{ error: scope.row.abnormal }">{{ displayDuration(scope.row) }}</span>
+                            <span :class="{ 'text-error': scope.row.abnormal }">{{ displayDuration(scope.row) }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_VEHICLE_IN_OUT_RESULT')">
                         <template #default="scope">
-                            <span :class="{ error: scope.row.abnormal }">{{ displayType(scope.row.type) }}</span>
+                            <span :class="{ 'text-error': scope.row.abnormal }">{{ displayType(scope.row.type) }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_VEHICLE_ENTRANCE')">
                         <template #default="scope">
-                            <span :class="{ error: scope.row.abnormal }">{{ scope.row.enterChl || '--' }}</span>
+                            <span :class="{ 'text-error': scope.row.abnormal }">{{ scope.row.enterChl || '--' }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column
@@ -162,17 +162,17 @@
                         prop="enterTime"
                     >
                         <template #default="scope">
-                            <span :class="{ error: scope.row.abnormal }">{{ displayDateTime(scope.row.enterTime) }}</span>
+                            <span :class="{ 'text-error': scope.row.abnormal }">{{ displayDateTime(scope.row.enterTime) }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_VEHICLE_IN_RELEASE_METHOD')">
                         <template #default="scope">
-                            <span :class="{ error: scope.row.abnormal }">{{ displayOpenGateType(scope.row.enterType) }}</span>
+                            <span :class="{ 'text-error': scope.row.abnormal }">{{ displayOpenGateType(scope.row.enterType) }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_VEHICLE_EXIT')">
                         <template #default="scope">
-                            <span :class="{ error: scope.row.abnormal }">{{ scope.row.exitChl || '--' }}</span>
+                            <span :class="{ 'text-error': scope.row.abnormal }">{{ scope.row.exitChl || '--' }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column
@@ -180,7 +180,7 @@
                         prop="exitTime"
                     >
                         <template #default="scope">
-                            <span :class="{ error: scope.row.abnormal }">{{ displayDateTime(scope.row.exitTime) }}</span>
+                            <span :class="{ 'text-error': scope.row.abnormal }">{{ displayDateTime(scope.row.exitTime) }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column
@@ -188,7 +188,7 @@
                         prop="exitType"
                     >
                         <template #default="scope">
-                            <span :class="{ error: scope.row.abnormal }">{{ displayOpenGateType(scope.row.exitType) }}</span>
+                            <span :class="{ 'text-error': scope.row.abnormal }">{{ displayOpenGateType(scope.row.exitType) }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column
@@ -375,10 +375,6 @@
     padding: 0 10px;
     box-sizing: border-box;
     margin-bottom: 10px;
-}
-
-.error {
-    color: var(--error--01);
 }
 
 .copyright {
