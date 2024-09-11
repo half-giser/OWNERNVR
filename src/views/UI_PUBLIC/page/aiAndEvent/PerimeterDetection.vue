@@ -3,7 +3,7 @@
  * @Date: 2024-08-27 15:43:26
  * @Description:  周界防范/人车检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-10 15:13:11
+ * @LastEditTime: 2024-09-11 14:04:36
 -->
 <template>
     <div class="content">
@@ -150,11 +150,24 @@
             >
                 <!-- tripwire -->
                 <el-tab-pane
-                    :label="Translate('IDCS_BEYOND_DETECTION')"
                     :disabled="pageData.tripwireDisable"
                     name="tripwire"
                     class="tripwire_setting_pane"
                 >
+                    <template #label>
+                        <span
+                            :style="{
+                                backgroundColor: pageData.tripwireDisable ? '#AEABAB' : '',
+                                color: pageData.tripwireDisable ? '#797979' : '',
+                                width: '100%',
+                                height: '100%',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                            }"
+                            >{{ Translate('IDCS_BEYOND_DETECTION') }}</span
+                        >
+                    </template>
                     <div
                         v-if="pageData.notSupportTipShow"
                         class="notSupportBox"
@@ -740,11 +753,24 @@
                 </el-tab-pane>
                 <!-- pea -->
                 <el-tab-pane
-                    :label="Translate('IDCS_INVADE_DETECTION')"
                     :disabled="pageData.peaDisable"
                     name="pea"
                     class="pea_setting_pane"
                 >
+                    <template #label>
+                        <span
+                            :style="{
+                                backgroundColor: pageData.peaDisable ? '#AEABAB' : '',
+                                color: pageData.peaDisable ? '#797979' : '',
+                                width: '100%',
+                                height: '100%',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                            }"
+                            >{{ Translate('IDCS_INVADE_DETECTION') }}</span
+                        >
+                    </template>
                     <div
                         v-if="pageData.notSupportTipShow"
                         class="notSupportBox"
@@ -1542,6 +1568,12 @@
     }
     .form {
         width: 600px;
+    }
+    :deep() {
+        .el-tabs--border-card > .el-tabs__header .el-tabs__item {
+            padding: 0px;
+            border: 1px solid #999999;
+        }
     }
     .content_main {
         .demo-tabs {

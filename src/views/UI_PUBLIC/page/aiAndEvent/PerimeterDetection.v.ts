@@ -3,7 +3,7 @@
  * @Date: 2024-08-27 15:43:32
  * @Description: 周界防范/人车检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-10 16:58:11
+ * @LastEditTime: 2024-09-11 11:24:47
  */
 import { ArrowDown } from '@element-plus/icons-vue'
 import { ElDivider, type TabsPaneContext } from 'element-plus'
@@ -18,6 +18,7 @@ import SetPresetPop from './SetPresetPop.vue'
 import { peaPageData, type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
 import CanvasPolygon from '@/utils/canvas/canvasPolygon'
 import CanvasPassline from '@/utils/canvas/canvasPassline'
+import { queryAIResourceDetail } from '@/api/aiAndEvent'
 export default defineComponent({
     components: {
         ArrowDown,
@@ -44,8 +45,6 @@ export default defineComponent({
         const pageData = ref({
             // 当前选中的通道
             currChlId: '',
-            // 原本选中的通道
-            originalChlId: '',
             // 在线通道id列表
             onlineChannelIdList: [] as string[],
             // 在线通道列表
@@ -54,7 +53,7 @@ export default defineComponent({
             chlData: {} as chlCaps,
             // 通道能力集
             chlCaps: {} as Record<string, chlCaps>,
-            // 当前选择的功能 TODO初始跳转问题
+            // 当前选择的功能
             chosenFunction: 'tripwire',
             // 声音列表
             voiceList: [] as { value: string; label: string }[],
@@ -1881,11 +1880,8 @@ export default defineComponent({
         const handleChangeChannel = async () => {
             pageData.value.chlData = pageData.value.chlCaps[pageData.value.currChlId]
             await initPageData()
-            if (pageData.value.chosenFunction == 'pea') {
-                peaPlay()
-            } else if (pageData.value.chosenFunction == 'tripwire') {
-                tripwirePlay()
-            }
+            peaPlay()
+            tripwirePlay()
         }
         // 大tab点击事件,切换功能 tripwire/pea
         const handleTabClick = (pane: TabsPaneContext) => {
