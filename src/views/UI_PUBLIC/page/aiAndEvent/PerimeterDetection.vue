@@ -3,7 +3,7 @@
  * @Date: 2024-08-27 15:43:26
  * @Description:  周界防范/人车检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-11 15:05:43
+ * @LastEditTime: 2024-09-11 18:04:00
 -->
 <template>
     <div class="content">
@@ -690,17 +690,6 @@
                                                 empty-text=" "
                                             >
                                                 <el-table-column>
-                                                    <template #header>
-                                                        <el-row>
-                                                            <span class="table_cell_span">{{ Translate('IDCS_ALARM_OUT') }}</span>
-                                                            <el-button
-                                                                class="form_btn"
-                                                                size="small"
-                                                                @click="tripwireData.alarmOutIsShow = true"
-                                                                >{{ Translate('IDCS_CONFIG') }}
-                                                            </el-button>
-                                                        </el-row>
-                                                    </template>
                                                     <template #default="scope">
                                                         <span>{{ scope.row.label }}</span>
                                                     </template>
@@ -1324,17 +1313,6 @@
                                                 empty-text=" "
                                             >
                                                 <el-table-column>
-                                                    <template #header>
-                                                        <el-row>
-                                                            <span class="table_cell_span">{{ Translate('IDCS_ALARM_OUT') }}</span>
-                                                            <el-button
-                                                                class="form_btn"
-                                                                size="small"
-                                                                @click="peaData.areaCfgData[peaData.activity_type].alarmOutIsShow = true"
-                                                                >{{ Translate('IDCS_CONFIG') }}
-                                                            </el-button>
-                                                        </el-row>
-                                                    </template>
                                                     <template #default="scope">
                                                         <span>{{ scope.row.label }}</span>
                                                     </template>
@@ -1638,7 +1616,7 @@
                     .tripwire_param {
                         display: flex;
                         flex-direction: row;
-                        min-height: 482px;
+                        min-height: 481px;
                         .right {
                             // height: 480px;
                             margin-left: 500px;
@@ -1653,7 +1631,7 @@
                     .tripwire_target {
                         display: flex;
                         flex-direction: row;
-                        min-height: 482px;
+                        min-height: 481px;
                         .right {
                             // height: 480px;
                             margin-left: 500px;
@@ -1668,12 +1646,12 @@
                     .tripwire_trigger {
                         display: flex;
                         flex-direction: column;
-                        height: 482px;
+                        height: 481px;
                         background-color: #fff;
 
                         .trigger_box {
                             z-index: 3;
-                            height: 482px;
+                            height: 481px;
                             background-color: #fff;
                         }
                         .audio_row {
@@ -1784,7 +1762,7 @@
                     .tripwire_param {
                         display: flex;
                         flex-direction: row;
-                        min-height: 482px;
+                        min-height: 481px;
                         .right {
                             // height: 480px;
                             margin-left: 500px;
@@ -1799,7 +1777,7 @@
                     .tripwire_target {
                         display: flex;
                         flex-direction: row;
-                        min-height: 482px;
+                        min-height: 481px;
                         .right {
                             // height: 480px;
                             margin-left: 500px;
@@ -1814,11 +1792,11 @@
                     .tripwire_trigger {
                         display: flex;
                         flex-direction: column;
-                        height: 482px;
+                        height: 481px;
                         background-color: #fff;
                         .trigger_box {
                             z-index: 3;
-                            height: 482px;
+                            height: 481px;
                             background-color: #fff;
                         }
                         .audio_row {

@@ -3,11 +3,15 @@
  * @Date: 2024-09-10 17:50:35
  * @Description: 更多功能页面的框架
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-11 14:05:47
+ * @LastEditTime: 2024-09-11 16:23:07
  */
 import { type chlCaps } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
+import fireDetection from './fireDetection.vue'
 export default defineComponent({
+    components: {
+        fireDetection,
+    },
     setup() {
         // const { LoadingTarget, openLoading, closeLoading } = useLoading()
         // const openMessageTipBox = useMessageBox().openMessageTipBox
@@ -69,6 +73,7 @@ export default defineComponent({
             // 保存所有支持更多分类的通道
             moreChlCapsObj: [],
         })
+        // 切换通道
         const handleChangeChannel = async () => {
             pageData.value.chlData = pageData.value.chlCaps[pageData.value.currChlId]
             initPage()
@@ -78,13 +83,6 @@ export default defineComponent({
         const handleTabClick = (pane: TabsPaneContext) => {
             pageData.value.chosenFunction = pane.props.name?.toString() ? pane.props.name?.toString() : ''
             // TODO 刷新对应页面的数据
-        }
-        // 对sheduleList进行处理
-        const getScheduleList = async () => {
-            pageData.value.scheduleList = await buildScheduleList()
-            pageData.value.scheduleList.map((item) => {
-                item.value = item.value != '' ? item.value : pageData.value.scheduleDefaultId
-            })
         }
         // 获取在线通道
         const getOnlineChannel = async () => {
@@ -311,6 +309,7 @@ export default defineComponent({
         // 切换通道及初始化时判断tab是否可用，若不可用则切换到可用的tab，都不可用再显示提示
         const isTabDisabled = () => {
             pageData.value.fireDetectionDisable = !pageData.value.chlData['supportFire']
+            // pageData.value.fireDetectionDisable = false
             pageData.value.videoStructureDisable = !pageData.value.chlData['supportVideoMetadata']
             pageData.value.passLineDisable = !(pageData.value.chlData['supportPassLine'] || pageData.value.chlData['supportCpc'])
             pageData.value.cddDisable = !pageData.value.chlData['supportCdd']
@@ -340,7 +339,6 @@ export default defineComponent({
             await getOnlineChannel()
             await getChannelData()
             await getVoiceList()
-            await getScheduleList()
             initPage()
         })
         return { pageData, handleChangeChannel, handleTabClick }

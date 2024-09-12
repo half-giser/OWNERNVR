@@ -3,7 +3,7 @@
  * @Date: 2024-09-10 17:50:24
  * @Description: 更多功能页面的框架
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-11 14:21:43
+ * @LastEditTime: 2024-09-12 13:45:27
 -->
 <template>
     <div class="content">
@@ -59,6 +59,15 @@
                             }"
                             >{{ Translate('IDCS_FIRE_POINT_DETECTION') }}</span
                         >
+                    </template>
+                    <template #default>
+                        <fireDetection
+                            v-if="pageData.chosenFunction === 'fireDetection'"
+                            :curr-chl-id="pageData.currChlId"
+                            :chl-data="pageData.chlData"
+                            :voice-list="pageData.voiceList"
+                            :online-channel-list="pageData.onlineChannelList"
+                        ></fireDetection>
                     </template>
                 </el-tab-pane>
                 <!-- videoStructure -->
