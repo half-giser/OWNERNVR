@@ -3,7 +3,7 @@
  * @Date: 2024-07-17 16:16:59
  * @Description: 现场预览-底部菜单栏视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-07 16:44:25
+ * @LastEditTime: 2024-09-11 10:08:40
 -->
 <template>
     <div class="ctrl">
@@ -80,21 +80,19 @@
                 />
             </el-tooltip>
             <!-- 码流切换按钮 -->
-            <div
+            <el-radio-group
                 v-show="mode === 'ocx'"
-                class="stream-menu"
+                :disabled="split > 4"
+                :model-value="-1"
+                @update:model-value="changeStreamType($event)"
             >
-                <div
+                <el-radio-button
                     v-for="item in pageData.streamMenuOptions"
                     :key="item.value"
-                    :class="{
-                        disabled: split > 4,
-                    }"
-                    @click="$emit('streamType', item.value)"
+                    :value="item.value"
+                    >{{ item.label }}</el-radio-button
                 >
-                    {{ item.label }}
-                </div>
-            </div>
+            </el-radio-group>
         </div>
         <div class="ctrl-right">
             <LiveScreenAlarmOut />
@@ -194,34 +192,6 @@
 
     & > span {
         margin: 0 5px;
-    }
-}
-
-.stream {
-    &-menu {
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        // margin: 20px auto 10px;
-        cursor: pointer;
-
-        & > div {
-            border: 1px solid var(--border-color4);
-            color: var(--text-nav);
-            width: 100px;
-            height: 33px;
-            line-height: 33px;
-            text-align: center;
-
-            &:not(:first-child) {
-                border-left: none;
-            }
-
-            &.disabled:first-child {
-                background: var(--bg-color-disabled);
-                color: var(--text-disabled);
-            }
-        }
     }
 }
 </style>
