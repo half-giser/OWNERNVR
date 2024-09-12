@@ -3,12 +3,12 @@
  * @Date: 2024-04-16 13:47:54
  * @Description: 项目入口
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 10:00:27
+ * @LastEditTime: 2024-09-10 17:09:52
  */
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import App from '@/App.vue'
-import router from '@/router'
+import router, { getMenu1Items } from '@/router'
 import { createPersistedState } from 'pinia-plugin-persistedstate'
 // import { getBrowserInfo } from './utils/tools'
 // import { useLangStore } from './stores/lang'
@@ -39,6 +39,8 @@ pinia.use(
 app.use(pinia) // 启用Pinia
 
 app.use(componentPlugin)
+
+getMenu1Items()
 
 const lang = useLangStore()
 await lang.getLangTypes()

@@ -3,7 +3,7 @@
  * @Date: 2024-07-18 14:45:58
  * @Description: 现场预览-操作视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 18:33:57
+ * @LastEditTime: 2024-09-11 10:00:04
 -->
 <template>
     <div class="ctrl">
@@ -174,13 +174,13 @@
         <div class="stream-menu">
             <el-radio-group
                 :model-value="winData.streamType"
+                :disabled="streamTypeDisabled || pageData.isRTSP || winData.PLAY_STATUS !== 'play'"
                 @update:model-value="changeStreamType"
             >
                 <el-radio-button
-                    v-for="(item, key) in pageData.streamMenuOptions"
+                    v-for="item in pageData.streamMenuOptions"
                     :key="item.value"
                     :value="item.value"
-                    :disabled="key === 0 && (streamTypeDisabled || pageData.isRTSP)"
                     >{{ item.label }}</el-radio-button
                 >
             </el-radio-group>
@@ -202,6 +202,7 @@
                     <el-select
                         v-model="streamFormData.resolution"
                         :disabled="streamOptionDisabled"
+                        @change="changeResolution"
                     >
                         <el-option
                             v-for="item in pageData.resolutionOptions"

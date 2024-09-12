@@ -15,7 +15,7 @@
     >
         <div class="playerWrap">
             <BaseVideoPlayer
-                v-if="dialogOpened"
+                v-if="playerOpened"
                 ref="playerRef"
                 :split="1"
                 @onready="ready"
@@ -29,6 +29,7 @@ const userSessionStore = useUserSessionStore()
 
 const playerRef = ref<PlayerInstance>()
 const dialogOpened = ref(false)
+const playerOpened = ref(false)
 
 let chlId: string
 let chlName: string
@@ -89,13 +90,14 @@ const play = () => {
  * @description 打开弹窗
  */
 const opened = () => {
-    dialogOpened.value = true
+    playerOpened.value = true
 }
 
 /**
  * @description 关闭弹窗
  */
 const close = () => {
+    playerOpened.value = false
     dialogOpened.value = false
 }
 

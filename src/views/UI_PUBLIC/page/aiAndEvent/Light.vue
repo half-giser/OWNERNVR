@@ -1,3 +1,10 @@
+<!--
+ * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @Date: 2024-08-13 15:58:40
+ * @Description: 闪灯
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-08-23 10:24:57
+-->
 <template>
     <div>
         <ScheduleManagPop

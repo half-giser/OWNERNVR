@@ -3,7 +3,7 @@
  * @Date: 2024-07-30 10:36:43
  * @Description: 回放-操作视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 18:33:21
+ * @LastEditTime: 2024-09-11 10:00:32
 -->
 <template>
     <div class="ctrl">
@@ -98,13 +98,13 @@
         <div class="stream-menu">
             <el-radio-group
                 :model-value="winData.streamType"
+                :disabled="streamTypeDisabled"
                 @update:model-value="changeStreamType"
             >
                 <el-radio-button
-                    v-for="(item, key) in pageData.streamMenuOptions"
+                    v-for="item in pageData.streamMenuOptions"
                     :key="item.value"
                     :value="item.value"
-                    :disabled="key === 0 && streamTypeDisabled"
                     >{{ item.label }}</el-radio-button
                 >
             </el-radio-group>

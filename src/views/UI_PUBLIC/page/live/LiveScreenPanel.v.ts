@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 16:08:14
  * @Description: 现场预览-底部菜单栏视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:12:11
+ * @LastEditTime: 2024-09-11 10:07:23
  */
 import LiveScreenAlarmOut from './LiveScreenAlarmOut.vue'
 import { type LiveSharedWinData } from '@/types/apiType/live'
@@ -192,6 +192,10 @@ export default defineComponent({
             ctx.emit('update:remoteRecord', remoteRecord)
         }
 
+        const changeStreamType = (value: string | number | boolean | undefined) => {
+            ctx.emit('streamType', value as number)
+        }
+
         onMounted(() => {
             getRecStatus()
         })
@@ -202,6 +206,7 @@ export default defineComponent({
             remoteRecordDisabled,
             isTalk,
             LiveScreenAlarmOut,
+            changeStreamType,
         }
     },
 })

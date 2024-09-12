@@ -4,7 +4,7 @@
  * @Date: 2024-07-31 10:29:37
  * @Description: 录像码流通用表格组件
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-19 16:18:20
+ * @LastEditTime: 2024-08-27 16:41:22
 -->
 <template>
     <div>
@@ -586,10 +586,6 @@
 <script lang="ts" setup>
 import { ArrowDown } from '@element-plus/icons-vue'
 import { RecordStreamInfoDto } from '@/types/apiType/record'
-// import { type FormInstance } from 'element-plus'
-// import { queryRecordDistributeInfo, querySystemCaps, queryRemainRecTime } from '@/api/rec'
-import { getChlList } from '@/utils/tools'
-// import { type ChannelInfoDto } from '@/types/apiType/channel'
 import { ElMessageBox } from 'element-plus'
 import type { DropdownInstance, TableInstance } from 'element-plus'
 
@@ -699,8 +695,8 @@ const pageData = ref({
 // TODO 获取UI，设置visible属性
 // 获取设备录制参数配置
 const getDevRecParamCfgModule = function (callback: Function) {
-    queryRecordDistributeInfo().then((res: any) => {
-        res = queryXml(res)
+    queryRecordDistributeInfo().then((resb) => {
+        const res = queryXml(resb)
         if (res('status').text() == 'success') {
             DevRecParamCfgModule.doubleStreamRecSwitch = res('//content/recMode/doubleStreamRecSwitch').text() == 'true'
             // 需要改
@@ -719,16 +715,16 @@ const getDevRecParamCfgModule = function (callback: Function) {
 }
 // 获取系统宽带容量
 const getSystemCaps = function (callback?: Function) {
-    querySystemCaps(getXmlWrapData('')).then((res: any) => {
-        res = queryXml(res)
+    querySystemCaps(getXmlWrapData('')).then((resb) => {
+        const res = queryXml(resb)
         if (res('status').text() === 'success') {
-            const totalBandwidth = res('//content/totalBandwidth').text() * 1
+            const totalBandwidth = Number(res('//content/totalBandwidth').text()) * 1
             let usedBandwidth = 0
             // 需要改
             if (prop.mode == 'event') {
-                usedBandwidth = res('//content/' + (RecStreamModule.value.recType == 'me' ? 'usedManualBandwidth' : 'usedAutoBandwidth')).text() * 1
+                usedBandwidth = Number(res('//content/' + (RecStreamModule.value.recType == 'me' ? 'usedManualBandwidth' : 'usedAutoBandwidth')).text()) * 1
             } else if (prop.mode == 'timing') {
-                usedBandwidth = res('//content/' + (RecStreamModule.value.recType == 'mn' ? 'usedManualBandwidth' : 'usedAutoBandwidth')).text() * 1
+                usedBandwidth = Number(res('//content/' + (RecStreamModule.value.recType == 'mn' ? 'usedManualBandwidth' : 'usedAutoBandwidth')).text()) * 1
             }
             // 可能要用于bandwidthDetail
             // const singleChannelBandwidth = res('//content/singleChannelBandwidth').text()
@@ -740,16 +736,16 @@ const getSystemCaps = function (callback?: Function) {
             }
             pageData.value.txtBandwidth = Translate('IDCS_CURRENT_BANDWIDTH_ALL_D_D').formatForLang(remainBandwidth.toFixed(0), totalBandwidth.toFixed(0))
             // TODO: 可能要写bandwidthDetail
-            pageData.value.audioInNum = res('//content/audioInNum').text() * 1
-            pageData.value.mainStreamLimitFps = res('//content/mainStreamLimitFps').text() * 1 || pageData.value.mainStreamLimitFps
+            pageData.value.audioInNum = Number(res('//content/audioInNum').text()) * 1
+            pageData.value.mainStreamLimitFps = Number(res('//content/mainStreamLimitFps').text()) * 1 || pageData.value.mainStreamLimitFps
         }
         if (callback) callback()
     })
 }
 // 获取通道列表
 const getChlListData = function () {
-    getChlList({}).then((res: any) => {
-        commLoadResponseHandler(res, ($) => {
+    getChlList({}).then((resb) => {
+        commLoadResponseHandler(resb, ($) => {
             const rowData = [] as ChlItem[]
             $('//content/item').forEach((ele: any) => {
                 const eleXml = queryXml(ele.element)
@@ -774,8 +770,8 @@ const getChlListData = function () {
 }
 // 获取网络配置信息
 const getNetCfgModule = function (callback: Function) {
-    queryNetCfgV2().then((res: any) => {
-        res = queryXml(res)
+    queryNetCfgV2().then((resb) => {
+        const res = queryXml(resb)
         if (res('status').text() === 'success') {
             pageData.value.poeModeNode = res('//content/poeMode').text()
         }
@@ -797,8 +793,8 @@ const getData = function () {
                                     <mainStreamQualityCaps/>
                                     <levelNote/>
                                 </requireField>  `
-        queryNodeEncodeInfo(sendXml).then((res: any) => {
-            commLoadResponseHandler(res, ($) => {
+        queryNodeEncodeInfo(sendXml).then((resb) => {
+            commLoadResponseHandler(resb, ($) => {
                 bindCtrlData($)
             })
             closeLoading(LoadingTarget.FullScreen)
@@ -1015,13 +1011,13 @@ const queryRemainRecTimeF = function () {
     } else if (prop.mode == 'timing') {
         recType = RecStreamModule.value.recType == 'an' ? 'auto' : 'manually'
     }
-    let sendXml = `<content>  
+    let sendXml = rawXml`<content>  
                         <recMode   type='recModeType'>${recType}</recMode> 
                         <streamType  type='streamType'>Main</streamType>
                         <chls type='list'>`
     tableData.value.forEach((rowData: RecordStreamInfoDto) => {
         if (!rowData['rowDisable']) {
-            sendXml += `<item  id='${rowData['@id']}'>
+            sendXml += rawXml`<item  id='${rowData['@id']}'>
                             <QoI>${rowData['videoQuality']}</QoI>
                         </item>`
         }
@@ -1029,9 +1025,9 @@ const queryRemainRecTimeF = function () {
     sendXml += `</chls>
             </content>`
     openLoading(LoadingTarget.FullScreen)
-    queryRemainRecTime(sendXml).then((res: any) => {
+    queryRemainRecTime(sendXml).then((resb) => {
         closeLoading(LoadingTarget.FullScreen)
-        res = queryXml(res)
+        const res = queryXml(resb)
         if (res('status').text() === 'success') {
             pageData.value.recTime = ''
             const item = res('//content/item')
@@ -1061,7 +1057,7 @@ const queryRemainRecTimeF = function () {
                 pageData.value.PredictVisible = false
                 pageData.value.CalculateVisible = false
             } else {
-                const remainRecTime = res('//content/item/remainRecTime').text() * 1
+                const remainRecTime = Number(res('//content/item/remainRecTime').text()) * 1
                 const recTime =
                     remainRecTime == 0 && RecStreamModule.value.loopRecSwitch
                         ? Translate('IDCS_CYCLE_RECORD')
@@ -1778,7 +1774,7 @@ const getSaveData = function () {
     // 编辑时rtsp通道由设备端区分，web还是传所有节点设备对无效节点过滤
     const editRowDatas = pageData.value.editeRows
     // console.log('editRowDatas', editRowDatas)
-    let sendXml = `<content type='list' total='${editRowDatas.length}'>`
+    let sendXml = rawXml`<content type='list' total='${editRowDatas.length.toString()}'>`
     editRowDatas.forEach((element: RecordStreamInfoDto) => {
         // 需要改
         let gop = ''
@@ -1788,7 +1784,7 @@ const getSaveData = function () {
             gop = RecStreamModule.value.recType === 'an' ? 'aGOP' : 'mGOP'
         }
         const bitType = element['bitType'] || 'CBR'
-        sendXml += `
+        sendXml += rawXml`
                 <item id="${element['@id']}">
                 <${RecStreamModule.value.recType} 
                     res="${element['resolution']}"
@@ -1805,35 +1801,35 @@ const getSaveData = function () {
             if (prop.mode === 'event') {
                 if (RecStreamModule.value.recType1 == 'an') {
                     const min = parseInt(element['frameRate']) * 4 > parseInt(element['an']['@fps']) * 4 ? parseInt(element['frameRate']) * 4 : parseInt(element['an']['@fps']) * 4
-                    sendXml += `<main enct="${element['videoEncodeType']}" ${gop}="${min}"></main>`
+                    sendXml += rawXml`<main enct="${element['videoEncodeType']}" ${gop}="${min.toString()}"></main>`
                 } else if (RecStreamModule.value.recType1 == 'mn') {
                     const min = parseInt(element['frameRate']) * 4 > parseInt(element['mn']['@fps']) * 4 ? parseInt(element['frameRate']) * 4 : parseInt(element['mn']['@fps']) * 4
-                    sendXml += `<main enct="${element['videoEncodeType']}" ${gop}="${min}"></main>`
+                    sendXml += rawXml`<main enct="${element['videoEncodeType']}" ${gop}="${min.toString()}"></main>`
                 }
             } else if (prop.mode === 'timing') {
                 if (RecStreamModule.value.recType1 == 'ae') {
                     const min = parseInt(element['frameRate']) * 4 > parseInt(element['ae']['@fps']) * 4 ? parseInt(element['frameRate']) * 4 : parseInt(element['ae']['@fps']) * 4
-                    sendXml += `<main enct="${element['videoEncodeType']}" ${gop}="${min}"></main>`
+                    sendXml += rawXml`<main enct="${element['videoEncodeType']}" ${gop}="${min.toString()}"></main>`
                 } else if (RecStreamModule.value.recType1 == 'me') {
                     const min = parseInt(element['frameRate']) * 4 > parseInt(element['me']['@fps']) * 4 ? parseInt(element['frameRate']) * 4 : parseInt(element['me']['@fps']) * 4
-                    sendXml += `<main enct="${element['videoEncodeType']}" ${gop}="${min}"></main>`
+                    sendXml += rawXml`<main enct="${element['videoEncodeType']}" ${gop}="${min.toString()}"></main>`
                 }
             }
         } else {
-            sendXml += `<main enct="${element['videoEncodeType']}" ${gop}="${element['GOP']}" ></main>`
+            sendXml += rawXml`<main enct="${element['videoEncodeType']}" ${gop}="${element['GOP']}" ></main>`
         }
-        sendXml += `</item>`
+        sendXml += rawXml`</item>`
     })
-    sendXml += `</content>`
+    sendXml += rawXml`</content>`
     // console.log('sendXml', sendXml)
     return sendXml
 }
 const setData = function () {
     openLoading(LoadingTarget.FullScreen)
     editNodeEncodeInfo(getSaveData())
-        .then((res: any) => {
+        .then((resb) => {
             closeLoading(LoadingTarget.FullScreen)
-            res = queryXml(res)
+            const res = queryXml(resb)
             getSystemCaps()
             if (res('status').text() == 'success') {
                 ElMessageBox.confirm(Translate('IDCS_SAVE_DATA_SUCCESS'), Translate('IDCS_SUCCESS_TIP'), {
@@ -1847,7 +1843,7 @@ const setData = function () {
                 })
                 pageData.value.editeRows = []
             } else {
-                const errorCode = res('response/errorCode').text() * 1
+                const errorCode = Number(res('response/errorCode').text()) * 1
                 if (errorCode == parseInt('2000005C', 16)) {
                     ElMessageBox.confirm(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT'), Translate('IDCS_INFO_TIP'), {
                         confirmButtonText: Translate('IDCS_OK'),
