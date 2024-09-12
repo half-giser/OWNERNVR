@@ -3,7 +3,7 @@
  * @Date: 2024-08-10 16:25:58
  * @Description: AI/事件
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-10 17:06:08
+ * @LastEditTime: 2024-09-12 11:36:32
  */
 
 import { type AxiosRequestConfig } from 'axios'
@@ -167,3 +167,9 @@ export const editFaceMatchAlarmParam = (data: string) => http.fetch('editFaceMat
 
 // 删除人脸匹配报警参数
 export const deleteFaceMatchAlarmParam = (data: string) => http.fetch('deleteFaceMatchAlarmParam', getXmlWrapData(data))
+
+// 获取火点检测数据
+export const querySmartFireConfig = (data: string) => http.fetch('querySmartFireConfig', getXmlWrapData(data))
+
+// 修改火点检测数据
+export const editSmartFireConfig = (data: string) => http.fetch('editSmartFireConfig', getXmlWrapData(data))
