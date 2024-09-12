@@ -25,7 +25,6 @@ export default defineComponent({
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const auth = useUserChlAuth(false)
         const playerRef = ref<PlayerInstance>()
-        const pluginStore = usePluginStore()
 
         // 最大的巡航线数量
         const TRACE_MAX_COUNT = 4
@@ -104,7 +103,7 @@ export default defineComponent({
                     return
                 }
                 if (!plugin.IsPluginAvailable()) {
-                    pluginStore.showPluginNoResponse = true
+                    plugin.SetPluginNoResponse()
                     plugin.ShowPluginNoResponse()
                 }
                 const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')

@@ -3,7 +3,7 @@
  * @Date: 2024-04-16 13:47:54
  * @Description: 路由构建入口文件
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-19 20:58:49
+ * @LastEditTime: 2024-09-10 18:03:26
  */
 import { createRouter, createWebHistory, type RouteLocationNormalized } from 'vue-router'
 import { buildRouter, setRouteAuth } from './featureConfig/RouteUtil'
@@ -25,19 +25,6 @@ const router = createRouter({
         return savedPosition ? savedPosition : { top: 0, left: 0 }
     },
 })
-
-//一级菜单列表
-const menu1Items = ref<RouteRecordRawExtends[]>([])
-// //当前进入的一级菜单项
-const menu1Item = ref<RouteRecordRawExtends | null>(null)
-// //当前进入的一级菜单项的二级菜单列表
-const menu2Items = ref<RouteRecordRawExtends[]>([])
-// //当前进入的二级菜单项
-const menu2Item = ref<RouteRecordRawExtends | null>(null)
-// //当前进入的二级菜单项的三级菜单列表
-const menu3Items = ref<RouteRecordRawExtends[]>([])
-// //当前进入的三级菜单项
-const menu3Item = ref<RouteRecordRawExtends | null>(null)
 
 const getMenuItem = (item: RouteRecordRawExtends) => {
     return {
@@ -70,12 +57,13 @@ const getMenuItems = (routes: RouteRecordRawExtends[]): RouteRecordRawExtends[] 
 }
 
 // 生成一级菜单
-const getMenu1Items = () => {
+export const getMenu1Items = () => {
+    const layoutStore = useLayoutStore()
     const roots = root.children?.filter((o) => !o.meta?.noMenu) as RouteRecordRawExtends[]
-    menu1Items.value = getMenuItems(roots)
+    layoutStore.menu1Items = getMenuItems(roots)
 }
 
-getMenu1Items()
+// getMenu1Items()
 
 /**
  * @description: 获取当前路由的一级菜单
@@ -129,28 +117,28 @@ router.afterEach((to) => {
 注册全局路由守卫，设置当前的菜单状态
 */
 router.beforeResolve((to: RouteLocationNormalized, _from: RouteLocationNormalized, next: Function) => {
-    // TODO: MenuItems 需要deepClone，且不能包含component
-    menu1Item.value = null
-    menu2Items.value = []
+    const layoutStore = useLayoutStore()
+    layoutStore.menu1Item = null
+    layoutStore.menu2Items = []
     if (to.matched && to.matched.length > 1) {
-        menu1Item.value = getMenuItem(to.matched[1] as any as RouteRecordRawExtends)
-        menu2Items.value = menu1Item.value.children
+        layoutStore.menu1Item = getMenuItem(to.matched[1] as any as RouteRecordRawExtends)
+        layoutStore.menu2Items = layoutStore.menu1Item.children
     }
-    menu2Item.value = null
-    menu3Items.value = []
+    layoutStore.menu2Item = null
+    layoutStore.menu3Items = []
     if (to.matched && to.matched.length > 2) {
-        menu2Item.value = getMenuItem(to.matched[2] as any as RouteRecordRawExtends)
-        menu3Items.value = menu2Item.value.children
+        layoutStore.menu2Item = getMenuItem(to.matched[2] as any as RouteRecordRawExtends)
+        layoutStore.menu3Items = layoutStore.menu2Item.children
     }
 
-    menu3Item.value = null
+    layoutStore.menu3Item = null
     if (to.matched && to.matched.length > 3) {
-        menu3Item.value = getMenuItem(to.matched[3] as any as RouteRecordRawExtends)
+        layoutStore.menu3Item = getMenuItem(to.matched[3] as any as RouteRecordRawExtends)
     }
 
     next()
 })
 
-export { routes as routeRawList, setRouteAuth, menu1Items, menu1Item, menu2Items, menu2Item, menu3Items, menu3Item, getMenu1, getMenu2, getMenu3, getMenuItems, getMenuItem }
+export { routes as routeRawList, setRouteAuth, getMenu1, getMenu2, getMenu3, getMenuItems, getMenuItem }
 
 export default router

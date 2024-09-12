@@ -14,7 +14,6 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const playerRef = ref<PlayerInstance>()
-        const pluginStore = usePluginStore()
 
         const pageData = ref({
             notification: [] as string[],
@@ -71,7 +70,7 @@ export default defineComponent({
                     return
                 }
                 if (!plugin.IsPluginAvailable()) {
-                    pluginStore.showPluginNoResponse = true
+                    plugin.SetPluginNoResponse()
                     plugin.ShowPluginNoResponse()
                 }
                 const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')

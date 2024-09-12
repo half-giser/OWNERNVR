@@ -3,10 +3,11 @@
  * @Date: 2024-08-06 20:35:59
  * @Description: 本地备份任务 进度弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-23 17:09:17
+ * @LastEditTime: 2024-09-09 17:57:17
  */
 import type { PlaybackBackUpRecList } from '@/types/apiType/playback'
 import WebsocketRecordBackup, { type WebsocketRecordBackupOnMessageParam } from '@/utils/websocket/websocketRecordBackup'
+import { type DownloadZipOptions } from '@/utils/tools'
 
 export default defineComponent({
     props: {
@@ -18,19 +19,26 @@ export default defineComponent({
             required: true,
         },
         /**
-         * @description 备份数据列表
+         * @property 备份数据列表
          */
         backupList: {
             type: Array as PropType<PlaybackBackUpRecList[]>,
             required: true,
         },
         /**
-         * @description 最大单文件大小
+         * @property 最大单文件大小
          */
         maxSingleSize: {
             type: Number,
             required: false,
             default: 10 * 1024 * 1024,
+        },
+        /**
+         * @property 下载类型 file | zip
+         */
+        downloadType: {
+            type: String,
+            default: 'file',
         },
     },
     emits: {
@@ -39,6 +47,9 @@ export default defineComponent({
         },
         error(errorMsg: string[]) {
             return errorMsg
+        },
+        recordFile(data: DownloadZipOptions['files']) {
+            return Array.isArray(data)
         },
     },
     setup(prop, ctx) {
@@ -56,6 +67,9 @@ export default defineComponent({
             totalTask: 0,
         })
 
+        let zipNameMapping: Record<string, number> = {}
+        let zipDownloadData: DownloadZipOptions['files'] = []
+
         /**
          * @description 关闭弹窗，停止下载
          */
@@ -68,6 +82,9 @@ export default defineComponent({
          * @description 开启弹窗，开始下载
          */
         const open = () => {
+            zipDownloadData = []
+            zipNameMapping = {}
+
             if (isHttpsLogin()) {
                 ctx.emit('error', [formatHttpsTips(Translate('IDCS_LOCAL_BACKUP'))])
                 return
@@ -97,17 +114,38 @@ export default defineComponent({
          * @param {Object} data
          */
         const handleRecordFile = (data: WebsocketRecordBackupOnMessageParam) => {
+            // if (prop.downloadType === 'zip') {
+            //     ctx.emit('recordFile', data.file, data.taskIndex, data.finished)
+            //     return
+            // }
+
             handleDownloadFile(data)
 
             if (!data.finished) {
                 return
             }
-            openMessageTipBox({
-                type: 'success',
-                message: Translate('IDCS_BACKUP_SUCCESS'),
-            }).finally(() => {
+            if (prop.downloadType === 'zip') {
+                ctx.emit('recordFile', zipDownloadData)
                 close()
-            })
+            } else {
+                openMessageTipBox({
+                    type: 'success',
+                    message: Translate('IDCS_BACKUP_SUCCESS'),
+                }).finally(() => {
+                    close()
+                })
+            }
+        }
+
+        const getZipVideoName = (chlName: string, frameTime: number) => {
+            chlName = chlName ? chlName : Translate('IDCS_UNKNOWN_CHANNEL') + '1'
+            const name = chlName + '_' + formatDate(frameTime, 'YYYYMMDDHHmmss')
+            if (zipNameMapping[name]) {
+                zipNameMapping[name]++
+            } else {
+                zipNameMapping[name] = 1
+            }
+            return `${name}(${('000' + zipNameMapping[name]).slice(-3)}).avi`
         }
 
         /**
@@ -119,8 +157,17 @@ export default defineComponent({
                 return
             }
             const item = prop.backupList[data.taskIndex]
-            const fileName = item.chlName + '_' + formatDate(item.startTime, 'YYYYMMDDHHmmss') + '.avi'
-            download(new Blob([data.file]), fileName)
+            if (prop.downloadType === 'file') {
+                const fileName = item.chlName + '_' + formatDate(item.startTime, 'YYYYMMDDHHmmss') + '.avi'
+                download(new Blob([data.file]), fileName)
+            } else {
+                const name = getZipVideoName(item.chlName, data.frameTime)
+                zipDownloadData.push({
+                    name: name,
+                    content: data.file,
+                    folder: '',
+                })
+            }
         }
 
         /**

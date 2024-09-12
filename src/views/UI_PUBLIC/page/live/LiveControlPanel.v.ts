@@ -3,7 +3,7 @@
  * @Date: 2024-07-26 17:04:12
  * @Description: 现场预览-操作视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 14:30:33
+ * @LastEditTime: 2024-09-10 09:56:41
  */
 import { type LiveChannelList, type LiveResolutionOptions, type LiveQualityOptions, LiveStreamForm, type LiveSharedWinData } from '@/types/apiType/live'
 
@@ -447,14 +447,14 @@ export default defineComponent({
          * @description 更新码流
          * @param {number} type
          */
-        const changeStreamType = (type: number) => {
+        const changeStreamType = (type: string | number | boolean | undefined) => {
             if (prop.winData.streamType === type) {
                 return
             }
             if (streamTypeDisabled.value && pageData.value.isRTSP && type === 1) {
                 return
             }
-            ctx.emit('streamType', type)
+            ctx.emit('streamType', type as number)
         }
 
         /**
@@ -492,7 +492,6 @@ export default defineComponent({
                 }
                 const $chl = queryXml(chl[0].element)
 
-                pageData.value.maxFps = 25
                 pageData.value.enct = $chl('sub').attr('enct')!
                 pageData.value.bitType = $chl('sub').attr('bitType')!
                 pageData.value.QoI = $chl('sub').attr('QoI')!
@@ -517,6 +516,8 @@ export default defineComponent({
                         chlType: item.attr('chlType')!,
                     }
                 })
+
+                changeResolution()
             }
         }
 

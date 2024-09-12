@@ -24,7 +24,6 @@ export default defineComponent({
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const { openMessageTipBox } = useMessageBox()
         const playerRef = ref<PlayerInstance>()
-        const pluginStore = usePluginStore()
         const auth = useUserChlAuth(false)
 
         const pageData = ref({
@@ -89,7 +88,7 @@ export default defineComponent({
                     return
                 }
                 if (!plugin.IsPluginAvailable()) {
-                    pluginStore.showPluginNoResponse = true
+                    plugin.SetPluginNoResponse()
                     plugin.ShowPluginNoResponse()
                 }
                 const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')

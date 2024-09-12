@@ -3,7 +3,7 @@
  * @Date: 2024-07-18 14:45:58
  * @Description: 现场预览-操作视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 15:37:50
+ * @LastEditTime: 2024-09-11 10:00:04
 -->
 <template>
     <div class="ctrl">
@@ -172,18 +172,20 @@
         </div>
         <!-- 码流控制 -->
         <div class="stream-menu">
-            <div
-                v-for="item in pageData.streamMenuOptions"
-                :key="item.value"
-                :class="{
-                    active: winData.streamType === item.value,
-                    disabled: streamTypeDisabled || pageData.isRTSP,
-                }"
-                @click="changeStreamType(item.value)"
+            <el-radio-group
+                :model-value="winData.streamType"
+                :disabled="streamTypeDisabled || pageData.isRTSP || winData.PLAY_STATUS !== 'play'"
+                @update:model-value="changeStreamType"
             >
-                {{ item.label }}
-            </div>
+                <el-radio-button
+                    v-for="item in pageData.streamMenuOptions"
+                    :key="item.value"
+                    :value="item.value"
+                    >{{ item.label }}</el-radio-button
+                >
+            </el-radio-group>
         </div>
+
         <div
             v-show="winData.streamType === 2 && !streamTypeDisabled && winData.PLAY_STATUS === 'play'"
             class="stream-param"
@@ -200,6 +202,7 @@
                     <el-select
                         v-model="streamFormData.resolution"
                         :disabled="streamOptionDisabled"
+                        @change="changeResolution"
                     >
                         <el-option
                             v-for="item in pageData.resolutionOptions"
@@ -280,29 +283,6 @@
         justify-content: center;
         margin: 10px auto;
         cursor: pointer;
-
-        & > div {
-            border: 1px solid var(--border-color4);
-            color: var(--text-nav);
-            width: 100px;
-            height: 33px;
-            line-height: 33px;
-            text-align: center;
-
-            &.active {
-                color: var(--text-active);
-                background: var(--primary--04);
-            }
-
-            &:not(:first-child) {
-                border-left: none;
-            }
-
-            &.disabled:first-child {
-                background: var(--bg-color-disabled);
-                color: var(--text-disabled);
-            }
-        }
     }
 }
 </style>

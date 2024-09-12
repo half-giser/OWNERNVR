@@ -3,7 +3,7 @@
  * @Date: 2024-08-29 09:13:28
  * @Description: 智能分析
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 10:37:28
+ * @LastEditTime: 2024-09-09 16:26:50
  */
 
 export class EngineConfigForm {
@@ -203,4 +203,45 @@ export class IntelCombineStatsForm {
     vehicleAttribute = [] as string[]
     personAttribute = [] as string[]
     deduplicate = false
+}
+
+export class IntelSearchCollectList {
+    name = '' as string
+    dateRange = [0, 0] as [number, number]
+    chl = [] as string[]
+    event = [] as string[]
+    attribute = [] as [string[], string[]][] // ['车辆选项', '人脸选项']
+    profile = {} as Record<string, Record<string, number[]>>
+    direction = [] as number[]
+}
+
+export class IntelSnapImgDto {
+    pic = ''
+    panorama = ''
+    eventType = ''
+    targetType = ''
+    width = 1
+    height = 1
+    X1 = 0
+    Y1 = 0
+    X2 = 0
+    Y2 = 0
+}
+
+export class IntelSearchBodyList extends IntelSnapImgDto {
+    isDelSnap = false
+    imgId = ''
+    timestamp = 0
+    timeNS = ''
+    guid = 0
+    chlId = ''
+    chlName = ''
+    recStartTime = 0
+    recEndTime = 0
+    pathGUID = ''
+    sectionNo = 0
+    fileIndex = 0
+    bolckNo = 0
+    offset = 0
+    eventTypeID = 0
 }

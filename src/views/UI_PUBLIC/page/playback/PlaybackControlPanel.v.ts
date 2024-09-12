@@ -3,7 +3,7 @@
  * @Date: 2024-08-06 20:37:13
  * @Description: 回放-操作视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 15:33:46
+ * @LastEditTime: 2024-09-06 18:32:10
  */
 import { type LiveSharedWinData } from '@/types/apiType/live'
 
@@ -169,14 +169,14 @@ export default defineComponent({
          * @description 更新码流
          * @param {number} type
          */
-        const changeStreamType = (type: number) => {
+        const changeStreamType = (type: string | number | boolean | undefined) => {
             if (prop.winData.streamType === type) {
                 return
             }
             if (streamTypeDisabled.value && type === 0) {
                 return
             }
-            ctx.emit('streamType', type)
+            ctx.emit('streamType', type as number)
         }
 
         // 是否禁用音频

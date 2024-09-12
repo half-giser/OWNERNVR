@@ -3,7 +3,7 @@
  * @Date: 2024-08-30 09:26:20
  * @Description: 人脸库 - 编辑人脸弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-04 17:48:07
+ * @LastEditTime: 2024-09-06 16:37:21
 -->
 <template>
     <el-dialog
@@ -110,7 +110,7 @@
             </el-form>
             <div class="pics">
                 <div class="pics-list">
-                    <IntelFaceItem
+                    <IntelBaseFaceItem
                         v-show="!disabled"
                         type="status"
                         :src="formData.pic"

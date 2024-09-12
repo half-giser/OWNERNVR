@@ -25,7 +25,6 @@ import { getXmlWrapData } from './api/api'
 import { queryActivationStatus, querySystemCaps } from './api/system'
 import { queryXml } from './utils/xmlParse'
 import { APP_TYPE } from './utils/constants'
-import usePlugin from './utils/ocx/ocxPlugin'
 import { useUserSessionStore } from './stores/userSession'
 import dayjs from 'dayjs'
 

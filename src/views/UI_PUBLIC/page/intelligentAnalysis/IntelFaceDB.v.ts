@@ -3,13 +3,13 @@
  * @Date: 2024-08-30 18:46:48
  * @Description: 人脸库
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-04 18:30:09
+ * @LastEditTime: 2024-09-06 16:36:32
  */
 import { cloneDeep } from 'lodash-es'
 import { IntelFaceDBGroupList, IntelFaceDBFaceInfo } from '@/types/apiType/intelligentAnalysis'
 import { type TableInstance } from 'element-plus'
 import { APP_TYPE } from '@/utils/constants'
-import IntelFaceItem from './IntelFaceItem.vue'
+import IntelBaseFaceItem from './IntelBaseFaceItem.vue'
 import IntelFaceDBEditPop from './IntelFaceDBEditPop.vue'
 import IntelFaceDBExportPop from './IntelFaceDBExportPop.vue'
 import IntelFaceDBAddFacePop from './IntelFaceDBAddFacePop.vue'
@@ -17,7 +17,7 @@ import IntelFaceDBEditFacePop from './IntelFaceDBEditFacePop.vue'
 
 export default defineComponent({
     components: {
-        IntelFaceItem,
+        IntelBaseFaceItem,
         IntelFaceDBEditPop,
         IntelFaceDBExportPop,
         IntelFaceDBAddFacePop,
@@ -807,7 +807,7 @@ export default defineComponent({
             hideSensitiveInfo,
             editFace,
             confirmEditFace,
-            IntelFaceItem,
+            IntelBaseFaceItem,
             IntelFaceDBEditPop,
             IntelFaceDBExportPop,
             IntelFaceDBAddFacePop,

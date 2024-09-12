@@ -3,7 +3,7 @@
  * @Date: 2024-07-04 11:34:14
  * @Description: 回放弹窗（OCX+H5）
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:18:42
+ * @LastEditTime: 2024-09-10 18:22:02
 -->
 <template>
     <el-dialog
@@ -12,7 +12,7 @@
         center
         draggable
         @close="beforeClose"
-        @open="open"
+        @opened="open"
     >
         <div class="RecordPop">
             <div class="main">
@@ -424,8 +424,8 @@ const handleSuccess = () => {
 const beforeClose = () => {
     if (mode.value === 'ocx') {
         stop()
-        playerRef.value!.plugin.VideoPluginNotifyEmitter.removeListener(ocxNotify)
     }
+    playerRef.value!.plugin.VideoPluginNotifyEmitter.removeListener(ocxNotify)
     pageData.value.mounted = false
 }
 
@@ -528,6 +528,10 @@ const ocxNotify = ($: XMLQuery) => {
 
 onMounted(() => {
     getChannelList()
+})
+
+onBeforeUnmount(() => {
+    playerRef.value?.plugin.VideoPluginNotifyEmitter.removeListener(ocxNotify)
 })
 </script>
 

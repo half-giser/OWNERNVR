@@ -3,30 +3,30 @@
  * @Date: 2024-09-05 10:22:52
  * @Description: 智能分析 事件选择器
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 10:23:07
+ * @LastEditTime: 2024-09-06 15:35:29
  */
 export default defineComponent({
     props: {
         /**
-         * @property
+         * @property radio | checkbox
          */
         mode: {
             type: String,
             default: 'radio',
         },
         /**
-         * @property face, vehicle
+         * @property face, person, vehicle
          */
         range: {
             type: Array as PropType<string[]>,
             default: () => ['face'],
         },
         /**
-         * @property
+         * @property 当前选中的事件值
          */
         modelValue: {
             type: Array as PropType<string[]>,
-            default: () => [],
+            default: () => [] as string[],
         },
     },
     emits: {
@@ -49,6 +49,7 @@ export default defineComponent({
             intrusion: Translate('IDCS_INVADE_DETECTION'),
             tripwire: Translate('IDCS_BEYOND_DETECTION'),
             passLine: Translate('IDCS_PASS_LINE_COUNT_DETECTION'),
+            videoMetadata: Translate('IDCS_VSD_DETECTION'),
             plateDetection: Translate('IDCS_PLATE_DETECTION'),
             plateMatchWhiteList: Translate('IDCS_PLATE_MATCH') + '-' + Translate('IDCS_SUCCESSFUL_RECOGNITION'),
             plateMatchStranger: Translate('IDCS_PLATE_MATCH') + '-' + Translate('IDCS_STRANGE_PLATE'),
@@ -83,6 +84,29 @@ export default defineComponent({
                     value: 'passLine',
                     hidden: false,
                 },
+                {
+                    value: 'videoMetadata',
+                    hidden: prop.mode === 'radio',
+                },
+            ],
+            // 人体选项
+            personOptions: [
+                {
+                    value: 'intrusion',
+                    hidden: false,
+                },
+                {
+                    value: 'tripwire',
+                    hidden: false,
+                },
+                {
+                    value: 'passLine',
+                    hidden: false,
+                },
+                {
+                    value: 'videoMetadata',
+                    hidden: prop.mode === 'radio',
+                },
             ],
             // 车辆选项
             vehicleOptions: [
@@ -97,6 +121,10 @@ export default defineComponent({
                 {
                     value: 'passLine',
                     hidden: false,
+                },
+                {
+                    value: 'videoMetadata',
+                    hidden: prop.mode === 'radio',
                 },
                 {
                     value: 'plateDetection',
@@ -123,6 +151,13 @@ export default defineComponent({
                     }
                 })
             }
+            if (prop.range.includes('person')) {
+                pageData.value.personOptions.forEach((item) => {
+                    if (!item.hidden) {
+                        list.push(item.value)
+                    }
+                })
+            }
             if (prop.range.includes('vehicle')) {
                 pageData.value.vehicleOptions.forEach((item) => {
                     if (!item.hidden) {
@@ -142,7 +177,11 @@ export default defineComponent({
         const content = computed(() => {
             if (!prop.modelValue.length) {
                 return Translate('IDCS_EVENT') + `(${Translate('IDCS_NULL')})`
-            } else return prop.modelValue.map((item) => EVENT_MAPPING[item]).join('; ')
+            } else if (prop.modelValue.length === options.value.length) {
+                return Translate('IDCS_EVENT') + `(${Translate('IDCS_FULL')})`
+            } else {
+                return prop.modelValue.map((item) => EVENT_MAPPING[item]).join('; ')
+            }
         })
 
         /**
@@ -150,11 +189,58 @@ export default defineComponent({
          * @param {string} e
          */
         const changeRadio = (e: string | number | boolean | undefined) => {
+            pageData.value.isPop = false
             ctx.emit('update:modelValue', [e as string])
         }
 
+        const checkboxSelected = ref<string[]>([])
+
+        /**
+         * @description 确认复选
+         */
+        const confirmCheckbox = () => {
+            pageData.value.isPop = false
+            if (!checkboxSelected.value.length) {
+                ctx.emit(
+                    'update:modelValue',
+                    options.value.map((item) => item.value),
+                )
+            } else {
+                ctx.emit('update:modelValue', checkboxSelected.value)
+            }
+        }
+
+        /**
+         * @description 重置复选
+         */
+        const resetCheckbox = () => {
+            checkboxSelected.value = []
+        }
+
+        // 选项框打开时 更新选项框勾选项
+        watch(
+            () => pageData.value.isPop,
+            (value) => {
+                if (value) {
+                    if (prop.mode === 'checkbox') {
+                        if (prop.modelValue.length === options.value.length) {
+                            if (checkboxSelected.value.length) {
+                                checkboxSelected.value = prop.modelValue
+                            }
+                        } else {
+                            checkboxSelected.value = prop.modelValue
+                        }
+                    }
+                }
+            },
+        )
+
         onMounted(() => {
             ctx.emit('ready', EVENT_MAPPING)
+            // 如果表单没有值，则创造初始值
+            if (prop.mode === 'checkbox' && !prop.modelValue.length) {
+                confirmCheckbox()
+            }
         })
 
         return {
@@ -162,6 +248,9 @@ export default defineComponent({
             options,
             content,
             changeRadio,
+            checkboxSelected,
+            confirmCheckbox,
+            resetCheckbox,
         }
     },
 })

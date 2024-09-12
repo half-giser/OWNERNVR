@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-05-04 12:58:39
  * @Description: 查看或更改用户
- * @LastEditors: tengxiang tengxiang@tvt.net.cn
- * @LastEditTime: 2024-08-08 15:39:47
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-06 18:20:10
 -->
 <template>
     <div class="User">
@@ -47,14 +47,14 @@
                 class="channel"
             >
                 <ul>
-                    <li
-                        v-for="key in pageData.channelTabs"
-                        :key
-                        :class="{ active: key === pageData.activeChannelTab }"
-                        @click="pageData.activeChannelTab = key"
-                    >
-                        {{ Translate(key) }}
-                    </li>
+                    <el-radio-group v-model="pageData.activeChannelTab">
+                        <el-radio-button
+                            v-for="key in pageData.channelTabs"
+                            :key
+                            :value="key"
+                            >{{ Translate(key) }}</el-radio-button
+                        >
+                    </el-radio-group>
                 </ul>
                 <div class="base-table-box">
                     <div v-show="pageData.activeChannelTab === 'IDCS_LOCAL_RIGHT'">
@@ -258,28 +258,6 @@
             margin: 0;
             padding: 5px;
             flex-shrink: 0;
-
-            li {
-                list-style: none;
-                cursor: pointer;
-                border: 1px solid var(--border-color7);
-                line-height: 20px;
-                font-size: 14px;
-                padding: 4px 15px;
-
-                &:hover {
-                    background-color: var(--primary--01);
-                }
-
-                &.active {
-                    background-color: var(--primary--04);
-                    color: #fff;
-                }
-
-                & + li {
-                    border-left: none;
-                }
-            }
         }
 
         .list {

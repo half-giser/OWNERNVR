@@ -1,21 +1,15 @@
 /*
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-12 14:21:22
- * @Description:
+ * @Description: email通知
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-21 16:49:16
+ * @LastEditTime: 2024-08-27 16:47:53
  */
 import { defineComponent } from 'vue'
 import { ArrowDown } from '@element-plus/icons-vue'
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
-import { useLangStore } from '@/stores/lang'
-import useLoading from '@/hooks/useLoading'
-import { buildScheduleList } from '@/utils/tools'
 import { EmailReceiver } from '@/types/apiType/aiAndEvent'
-import { useRouter } from 'vue-router'
-import { useUserSessionStore } from '@/stores/userSession'
 import { type FormInstance, type FormRules } from 'element-plus'
-import { checkEmail } from '@/utils/tools'
 
 export default defineComponent({
     components: {
@@ -108,9 +102,9 @@ export default defineComponent({
                     }
                 })
                 openLoading(LoadingTarget.FullScreen)
-                queryEmailCfg().then((res: any) => {
+                queryEmailCfg().then((resb) => {
                     closeLoading(LoadingTarget.FullScreen)
-                    res = queryXml(res)
+                    const res = queryXml(resb)
                     if (res('status').text() == 'success') {
                         pageData.value.sender = res('//content/sender/address').text()
                         res('//content/receiver/item').forEach((ele: any) => {
@@ -198,26 +192,26 @@ export default defineComponent({
             pageData.value.scheduleManagePopOpen = true
         }
         const handleApply = function () {
-            let sendXml = `
+            let sendXml = rawXml`
             <content>   
                 <receiver type="list">
                 `
             tableData.value.forEach((item) => {
                 const schedule = item.schedule == ' ' ? '{00000000-0000-0000-0000-000000000000}' : item.schedule
-                sendXml += `
+                sendXml += rawXml`
                     <item>
                         <address><![CDATA[${item.address}]]></address>
                         <schedule id="${schedule}"></schedule>
                     </item>
                 `
             })
-            sendXml += `
+            sendXml += rawXml`
                 </receiver>
             </content>`
             openLoading(LoadingTarget.FullScreen)
-            editEmailCfg(sendXml).then((res: any) => {
+            editEmailCfg(sendXml).then((resb) => {
                 closeLoading(LoadingTarget.FullScreen)
-                res = queryXml(res)
+                const res = queryXml(resb)
                 if (res('status').text() == 'success') {
                     openMessageTipBox({
                         type: 'success',

@@ -3,7 +3,7 @@
  * @Date: 2024-06-21 18:46:16
  * @Description: 磁盘状态
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-11 17:49:54
+ * @LastEditTime: 2024-09-06 17:40:15
 -->
 <template>
     <div class="base-flex-box">
@@ -63,9 +63,3 @@
 </template>
 
 <script lang="ts" src="./DiskStatus.v.ts"></script>
-
-<style lang="scss" scoped>
-.error {
-    color: var(--error--01);
-}
-</style>

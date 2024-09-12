@@ -3,7 +3,7 @@
  * @Date: 2024-09-03 15:07:31
  * @Description: 智能分析 事件选择器
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 10:22:40
+ * @LastEditTime: 2024-09-06 11:45:47
 -->
 <template>
     <div>
@@ -16,7 +16,7 @@
             :hide-after="0"
         >
             <template #reference>
-                <div class="placeholder">
+                <div class="base-intel-placeholder">
                     <div class="text-ellipsis">{{ content }}</div>
                     <BaseImgSprite
                         file="arrow"
@@ -25,9 +25,13 @@
                     />
                 </div>
             </template>
-            <el-scrollbar max-height="300">
+            <el-scrollbar
+                v-if="mode === 'radio'"
+                max-height="300"
+            >
                 <el-radio-group
                     :model-value="modelValue[0]"
+                    class="base-intel-radio-group"
                     @change="changeRadio"
                 >
                     <el-radio
@@ -38,41 +42,31 @@
                     >
                 </el-radio-group>
             </el-scrollbar>
+            <template v-else>
+                <el-scrollbar max-height="300">
+                    <el-checkbox-group
+                        v-model="checkboxSelected"
+                        class="base-intel-checkbox-group"
+                    >
+                        <el-checkbox
+                            v-for="item in options"
+                            :key="item.value"
+                            :value="item.value"
+                            >{{ item.label }}</el-checkbox
+                        >
+                    </el-checkbox-group>
+                </el-scrollbar>
+                <div class="base-btn-box">
+                    <el-button @click="resetCheckbox">{{ Translate('IDCS_RESET') }}</el-button>
+                    <el-button @click="confirmCheckbox">{{ Translate('IDCS_OK') }}</el-button>
+                </div>
+            </template>
         </el-popover>
     </div>
 </template>
 
 <script lang="ts" src="./IntelBaseEventSelector.v.ts"></script>
 
-<style lang="scss" scoped>
-.placeholder {
-    width: 100%;
-    height: 30px;
-    line-height: 30px;
-    text-align: center;
-    display: flex;
-    margin-bottom: 10px;
-    align-items: center;
-    border: 1px solid var(--border-color7);
-    font-size: 12px;
-    box-sizing: border-box;
-    padding: 0 5px;
-    cursor: pointer;
-
-    div {
-        width: 100%;
-    }
-
-    span {
-        flex-shrink: 0;
-    }
-}
-
-.el-radio-group {
-    display: flex;
-}
-
-.el-radio {
-    width: 100%;
-}
+<style lang="scss">
+@import '@/views/UI_PUBLIC/publicStyle/intelligentAnalysis.scss';
 </style>

@@ -3,7 +3,7 @@
  * @Date: 2024-06-05 13:35:57
  * @Description: 多分屏WASM播放器控件
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-13 19:27:18
+ * @LastEditTime: 2024-09-10 18:12:46
 -->
 <template>
     <div
@@ -1644,7 +1644,15 @@ onBeforeUnmount(() => {
 watch(
     readyState,
     (val) => {
-        if (val) emits('onready')
+        if (val) {
+            emits('onready')
+            if (mode.value === 'ocx') {
+                nextTick(() => {
+                    Plugin.DisplayOCX(true)
+                    Plugin.SetPluginSize(null, undefined, true)
+                })
+            }
+        }
     },
     {
         immediate: true,
