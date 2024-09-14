@@ -217,7 +217,7 @@ export class BusinessFaceGroupList {
 export class BusinessFaceResultList {
     faceFeatureId = ''
     timestamp = 0
-    timeNS = ''
+    frameTime = ''
     imgId = 0
     chlId = ''
     chlName = ''

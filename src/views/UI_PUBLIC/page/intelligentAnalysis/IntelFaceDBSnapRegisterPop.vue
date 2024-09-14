@@ -3,7 +3,7 @@
  * @Date: 2024-07-22 16:34:10
  * @Description: 抓拍注册弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-02 19:38:03
+ * @LastEditTime: 2024-09-11 14:45:59
 -->
 <template>
     <el-dialog
@@ -17,7 +17,7 @@
             <div class="title">{{ Translate('IDCS_SNAP_PICTURE') }}</div>
             <img
                 class="snap-img"
-                :src="displayBase64Img(pic)"
+                :src="pic"
             />
             <el-form
                 ref="formRef"

@@ -3,7 +3,7 @@
  * @Date: 2024-09-06 10:32:09
  * @Description: 智能分析版块的一些公共样式，仅在需要用到的智能分析版块下import
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-09 14:34:42
+ * @LastEditTime: 2024-09-10 20:40:38
  */
 .base-intel-placeholder {
     width: 100%;
@@ -169,5 +169,15 @@
         height: 40px;
         text-align: center;
     }
+}
 
+.base-intel-pics-box {
+    box-sizing: border-box;
+    height: 100%;
+    width: 100%;
+    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    border: 1px solid var(--border-color8);
+    overflow-y: scroll;
 }

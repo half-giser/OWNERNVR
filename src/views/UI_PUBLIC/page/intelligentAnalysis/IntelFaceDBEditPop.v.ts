@@ -3,7 +3,7 @@
  * @Date: 2024-08-29 10:46:13
  * @Description: 人脸库- 新增/编辑分组
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-02 18:18:05
+ * @LastEditTime: 2024-09-12 20:44:06
  */
 import { IntelFaceDBGroupList } from '@/types/apiType/intelligentAnalysis'
 import { type FormRules, type FormInstance } from 'element-plus'
@@ -18,7 +18,7 @@ export default defineComponent({
             default: () => new IntelFaceDBGroupList(),
         },
         /**
-         * @property 'add' | 'edit'
+         * @property {'add' | 'edit'}
          */
         type: {
             type: String,

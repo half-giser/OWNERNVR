@@ -3,10 +3,8 @@
  * @Date: 2024-07-17 11:31:57
  * @Description: 现场预览
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-02 19:45:03
+ * @LastEditTime: 2024-09-14 12:01:45
  */
-import { type WebsocketSnapOnSuccessSnap } from '@/utils/websocket/websocketSnap'
-
 export class LiveChannelList {
     id = ''
     value = ''
@@ -94,41 +92,4 @@ export class LiveSharedWinData {
     streamType = 2
     talk = false
     supportAudio = true
-}
-
-export class LiveSnapData implements WebsocketSnapOnSuccessSnap {
-    type = ''
-    chlId = ''
-    chlName = ''
-    detect_time = 0
-    frame_time = 0
-    scene_pic = ''
-    snap_pic = ''
-    repo_pic = ''
-    info = {
-        similarity: '',
-        text_tip: '',
-        group_name: '',
-        remarks: '',
-        name: '',
-        compare_status: 0,
-        plate: '',
-        event_type: '',
-        target_type: '',
-        person_info: {},
-        car_info: {},
-        bike_info: {},
-        face_respo_id: '',
-        birth_date: '',
-        certificate_number: '',
-        mobile_phone_number: '',
-        repo_pic: '',
-        face_id: '',
-        point_left_top: '',
-        point_right_bottom: '',
-        ptWidth: 0,
-        ptHeight: 0,
-        serial_number: '',
-        gender: '',
-    }
 }

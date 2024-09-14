@@ -1,14 +1,37 @@
 /*
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-30 18:47:22
- * @Description: 人脸库 - 选择人脸 - 从外部导入
+ * @Description: 智能分析 - 选择人脸 - 从外部导入
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-02 17:59:07
+ * @LastEditTime: 2024-09-12 15:42:08
  */
 import { type IntelFaceDBImportImgDto, IntelFaceDBImportFaceDto } from '@/types/apiType/intelligentAnalysis'
 import { type XMLQuery } from '@/utils/tools'
 
 export default defineComponent({
+    props: {
+        /**
+         * @property 上传数量限制
+         */
+        limit: {
+            type: Number,
+            default: 10000,
+        },
+        /**
+         * @property {'both' | 'img-only'} 支持的文件类型 both: 支持jpg和csv、xls；img-only：只支持jpg
+         */
+        accept: {
+            type: String,
+            default: 'both',
+        },
+        /**
+         * @property {'both' | 'h5-only'} 上传的模式 both: 支持OCX与H5上传； h5-only: 只支持H5上传
+         */
+        type: {
+            type: String,
+            default: 'both',
+        },
+    },
     emits: {
         change(e: IntelFaceDBImportFaceDto[]) {
             return Array.isArray(e)
@@ -23,7 +46,7 @@ export default defineComponent({
         const DEFAULT_BIRTHDAY = formatDate(new Date(), 'YYYY/MM/DD')
 
         const mode = computed(() => {
-            return Plugin.IsSupportH5() ? 'h5' : 'ocx'
+            return Plugin.IsSupportH5() || prop.type === 'h5-only' ? 'h5' : 'ocx'
         })
 
         watch(
@@ -33,7 +56,7 @@ export default defineComponent({
                 //     pluginStore.showPluginNoResponse = true
                 //     Plugin.ShowPluginNoResponse()
                 // }
-                if (newVal === 'ocx') {
+                if (newVal === 'ocx' && prop.type === 'both') {
                     const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
                     Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 }
@@ -55,10 +78,10 @@ export default defineComponent({
          * @returns {boolean}
          */
         const checkImportFaceImgCount = (len: number) => {
-            if (len > 10000) {
+            if (len > prop.limit) {
                 openMessageTipBox({
                     type: 'info',
-                    message: Translate('IDCS_SELECT_FACE_UPTO_MAX').formatForLang(10000),
+                    message: Translate('IDCS_SELECT_FACE_UPTO_MAX').formatForLang(prop.limit),
                 })
                 return false
             }
@@ -159,12 +182,18 @@ export default defineComponent({
          * @param {File} file
          */
         const parseImgFile = (file: File) => {
-            // NT2-3425 导入图片为0B
             return new Promise((resolve: (e: IntelFaceDBImportImgDto) => void, reject: (e: string) => void) => {
+                // NT2-3425 导入图片为0B
                 if (file.size === 0) {
                     reject(Translate('IDCS_ADD_FACE_FAIL'))
                     return
                 }
+                // 图片小于200KB
+                if (file.size > 200 * 1024) {
+                    reject(Translate('IDCS_ADD_FACE_FAIL'))
+                    return
+                }
+
                 const reader = new FileReader()
                 reader.readAsDataURL(file)
                 reader.onloadend = () => {
@@ -187,7 +216,7 @@ export default defineComponent({
          * @param {FileList | File[]} files
          */
         const parseFiles = async (files: FileList | File[]) => {
-            const supportTypes = ['csv', 'txt', 'jpg', 'jpeg'] // 支持导入的文件类型
+            const supportTypes = prop.accept === 'img-only' ? ['jpg', 'jpeg'] : ['csv', 'txt', 'jpg', 'jpeg'] // 支持导入的文件类型
             let hasNotSupportedType = false
             let dataFileType = ''
             let dataFile = files[0]
@@ -376,11 +405,15 @@ export default defineComponent({
         }
 
         onMounted(() => {
-            Plugin.VideoPluginNotifyEmitter.addListener(notify)
+            if (prop.type === 'both') {
+                Plugin.VideoPluginNotifyEmitter.addListener(notify)
+            }
         })
 
         onBeforeUnmount(() => {
-            Plugin.VideoPluginNotifyEmitter.removeListener(notify)
+            if (prop.type === 'both') {
+                Plugin.VideoPluginNotifyEmitter.removeListener(notify)
+            }
         })
 
         return {

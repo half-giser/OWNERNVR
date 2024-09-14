@@ -3,12 +3,12 @@
  * @Date: 2024-09-06 16:33:02
  * @Description: 智能分析 - 抓拍选项框
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-09 15:12:27
+ * @LastEditTime: 2024-09-12 09:10:09
 -->
 <template>
     <div
         class="snap"
-        :class="{ panorama: type === 'panorama' }"
+        :class="{ panorama: type === 'panorama', match: type === 'match' }"
     >
         <div
             class="snap-box"
@@ -34,13 +34,17 @@
                 />
             </div>
             <div class="snap-pic">
-                <BaseImgSprite
-                    v-show="!src"
-                    class="snap-404"
-                    file="empty"
-                    :index="0"
-                />
+                <div class="snap-404">{{ errorText }}</div>
                 <img :src />
+                <img
+                    v-show="type === 'match'"
+                    :src="matchSrc"
+                />
+                <BaseImgSprite
+                    v-show="identity"
+                    class="identity"
+                    file="identify_icon"
+                />
             </div>
         </div>
         <div class="snap-text"><slot></slot></div>
@@ -56,7 +60,42 @@
     user-select: none;
 
     &.panorama {
-        width: 242px;
+        width: 234px;
+        // object-fit: cover;
+
+        .snap-pic {
+            height: 130px;
+        }
+
+        .snap-404 {
+            line-height: 130px;
+        }
+    }
+
+    &.match {
+        width: 234px;
+
+        img {
+            width: 114px;
+            object-fit: cover;
+            &:nth-of-type(2) {
+                left: unset;
+                right: 0;
+            }
+        }
+
+        .snap-404 {
+            width: 102px;
+            line-height: 130px;
+        }
+
+        .snap-pic {
+            height: 130px;
+        }
+
+        .snap-404 {
+            line-height: 130px;
+        }
     }
 
     &-cbx {
@@ -96,11 +135,9 @@
     }
 
     &-404 {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate3d(-50%, -50%, 0) scale(0.6) !important;
-        pointer-events: none;
+        line-height: 120px;
+        width: 100%;
+        text-align: center;
     }
 
     img {
@@ -109,11 +146,18 @@
         left: 0;
         width: 100%;
         height: 100%;
+        object-fit: contain;
         display: block;
 
         &[src=''] {
             opacity: 0;
         }
+    }
+
+    .identity {
+        position: absolute;
+        top: 0;
+        right: 0;
     }
 }
 </style>

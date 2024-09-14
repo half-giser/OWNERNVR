@@ -1,9 +1,9 @@
 <!--
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-30 11:57:52
- * @Description: 人脸库 - 选择人脸 - 从抓拍库选择
+ * @Description: 智能分析 - 选择人脸 - 从抓拍库选择
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-04 17:34:22
+ * @LastEditTime: 2024-09-14 09:29:56
 -->
 <template>
     <div class="snap">
@@ -40,25 +40,33 @@
             <div class="choose-list">
                 <IntelBaseFaceItem
                     v-for="(item, index) in filterListData"
-                    :key="`${item.timestamp}:${item.timeNS}`"
+                    :key="item.frameTime"
                     :src="item.pic || ''"
-                    :model-value="formData.faceIndex === index"
+                    :model-value="formData.faceIndex.includes(index + (formData.pageIndex - 1) * formData.pageSize)"
                     :disabled="!item.pic"
-                    :icon="item.featureStatus ? 'identity' : ''"
-                    @update:model-value="selectFace(index)"
+                    :icon="item.featureStatus && !multiple ? 'identity' : ''"
+                    @update:model-value="selectFace(index + (formData.pageIndex - 1) * formData.pageSize)"
                 >
                     {{ displayDateTime(item.timestamp) }}<br />{{ item.chlName }}
                 </IntelBaseFaceItem>
             </div>
-            <div class="base-btn-box padding">
-                <el-pagination
-                    v-model:current-page="formData.pageIndex"
-                    :page-size="18"
-                    layout="prev, pager, next, total"
-                    :total="listData.length"
-                    size="small"
-                    @current-change="changeFacePage"
-                />
+            <div
+                class="base-btn-box padding"
+                :span="2"
+            >
+                <div>
+                    <span v-show="multiple">{{ Translate('IDCS_SELECTED_NUM_D').formatForLang(formData.faceIndex.length) }}</span>
+                </div>
+                <div>
+                    <el-pagination
+                        v-model:current-page="formData.pageIndex"
+                        :page-size="18"
+                        layout="prev, pager, next, total"
+                        :total="listData.length"
+                        size="small"
+                        @current-change="changeFacePage"
+                    />
+                </div>
             </div>
         </div>
         <BaseTableSelectPop

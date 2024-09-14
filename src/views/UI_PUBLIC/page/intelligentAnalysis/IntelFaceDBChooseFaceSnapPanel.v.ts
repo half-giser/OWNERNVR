@@ -1,9 +1,9 @@
 /*
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-30 18:47:52
- * @Description: 人脸库 - 选择人脸 - 从抓拍库选择
+ * @Description: 智能分析 - 选择人脸 - 从抓拍库选择
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-04 18:30:57
+ * @LastEditTime: 2024-09-14 09:29:04
  */
 import { cloneDeep } from 'lodash-es'
 import { type IntelFaceDBSnapFaceList } from '@/types/apiType/intelligentAnalysis'
@@ -13,13 +13,31 @@ export default defineComponent({
     components: {
         IntelBaseFaceItem,
     },
+    props: {
+        /**
+         * @property 嵌入此组件的弹窗是否打开
+         */
+        visible: {
+            type: Boolean,
+            default: false,
+        },
+        /**
+         * @property 是否支持多选
+         */
+        multiple: {
+            type: Boolean,
+            default: false,
+        },
+    },
     emits: {
         change(item: IntelFaceDBSnapFaceList[]) {
             return Array.isArray(item)
         },
     },
     setup(prop, ctx) {
+        const { openMessageTipBox } = useMessageBox()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { Translate } = useLangStore()
         const dateTime = useDateTimeStore()
 
         const chlMap: Record<string, string> = {}
@@ -37,10 +55,11 @@ export default defineComponent({
         })
 
         const formData = ref({
-            pageIndex: 0,
+            pageIndex: 1,
+            pageSize: 18,
             dateRange: [0, 0] as [number, number],
             chls: [] as SelectOption<string, string>[],
-            faceIndex: -1,
+            faceIndex: [] as number[],
         })
 
         const listData = ref<IntelFaceDBSnapFaceList[]>([])
@@ -109,14 +128,16 @@ export default defineComponent({
 
             closeLoading(LoadingTarget.FullScreen)
 
+            formData.value.faceIndex = []
             listData.value = $('//content/i')
                 .map((item) => {
                     const textArr = item.text().split(',')
                     const chlId = getChlGuid16(textArr[4]).toUpperCase()
+                    const timestamp = parseInt(textArr[1], 16) * 1000
                     return {
                         faceFeatureId: parseInt(textArr[0], 16) + '',
-                        timestamp: parseInt(textArr[1], 16) * 1000,
-                        timeNS: ('0000000' + parseInt(textArr[2], 16)).slice(-7),
+                        timestamp,
+                        frameTime: localToUtc(timestamp) + ':' + ('0000000' + parseInt(textArr[2], 16)).slice(-7),
                         imgId: parseInt(textArr[3], 16),
                         chlId,
                         chlName: chlMap[chlId],
@@ -129,6 +150,7 @@ export default defineComponent({
             closeLoading(LoadingTarget.FullScreen)
 
             changeFacePage(1)
+            ctx.emit('change', [])
         }
 
         /**
@@ -137,7 +159,7 @@ export default defineComponent({
          */
         const changeFacePage = async (pageIndex: number) => {
             formData.value.pageIndex = pageIndex
-            filterListData.value = listData.value.slice((formData.value.pageIndex - 1) * 18, formData.value.pageIndex * 18)
+            filterListData.value = listData.value.slice((formData.value.pageIndex - 1) * formData.value.pageSize, formData.value.pageIndex * formData.value.pageSize)
             for (let i = 0; i < filterListData.value.length; i++) {
                 const result = await getFacePic(filterListData.value[i])
                 filterListData.value[i].pic = result.pic
@@ -150,13 +172,28 @@ export default defineComponent({
          * @param {number} index
          */
         const selectFace = (index: number) => {
-            if (formData.value.faceIndex === index) {
-                formData.value.faceIndex = -1
-                ctx.emit('change', [])
+            const findIndex = formData.value.faceIndex.indexOf(index)
+            if (findIndex > -1) {
+                formData.value.faceIndex.splice(findIndex, 1)
             } else {
-                formData.value.faceIndex = index
-                ctx.emit('change', [filterListData.value[index]])
+                if (!prop.multiple) {
+                    formData.value.faceIndex[0] = index
+                } else {
+                    if (formData.value.faceIndex.length >= 5) {
+                        openMessageTipBox({
+                            type: 'info',
+                            message: Translate('IDCS_SELECT_FACE_UPTO_MAX').formatForLang(5),
+                        })
+                        return
+                    }
+                    formData.value.faceIndex.push(index)
+                }
             }
+
+            ctx.emit(
+                'change',
+                formData.value.faceIndex.map((index) => listData.value[index]),
+            )
         }
 
         /**
@@ -165,7 +202,7 @@ export default defineComponent({
          * @returns {string}
          */
         const getFacePic = async (item: IntelFaceDBSnapFaceList) => {
-            const key = item.timestamp + ':' + item.timeNS
+            const key = item.frameTime
             if (cachePic[key]) {
                 return cachePic[key]
             }
@@ -173,7 +210,7 @@ export default defineComponent({
                 <condition>
                     <imgId>${item.imgId.toString()}</imgId>
                     <chlId>${item.chlId}</chlId>
-                    <frameTime>${localToUtc(item.timestamp)}:${item.timeNS}</frameTime>
+                    <frameTime>${item.frameTime}</frameTime>
                     <featureStatus>true</featureStatus>
                 </condition>
             `
@@ -224,6 +261,25 @@ export default defineComponent({
         const displayDateTime = (timestamp: number) => {
             return formatDate(timestamp, dateTime.dateTimeFormat)
         }
+
+        /**
+         * @description 打开时重置
+         */
+        const open = async () => {
+            formData.value.faceIndex = []
+        }
+
+        watch(
+            () => prop.visible,
+            (visible) => {
+                if (visible) {
+                    open()
+                }
+            },
+            {
+                immediate: true,
+            },
+        )
 
         onMounted(() => {
             getChannelList()

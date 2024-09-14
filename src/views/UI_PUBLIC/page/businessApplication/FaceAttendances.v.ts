@@ -383,10 +383,11 @@ export default defineComponent({
                 .map((item) => {
                     const textArr = item.text().split(',')
                     const chlId = getChlGuid16(textArr[4]).toUpperCase()
+                    const timestamp = parseInt(textArr[1], 16) * 1000
                     return {
                         faceFeatureId: parseInt(textArr[0], 16) + '',
-                        timestamp: parseInt(textArr[1], 16) * 1000,
-                        timeNS: ('0000000' + parseInt(textArr[2], 16)).slice(-7),
+                        timestamp,
+                        frameTime: localToUtc(timestamp) + ':' + ('0000000' + parseInt(textArr[2], 16)).slice(-7),
                         imgId: parseInt(textArr[3], 16),
                         chlId,
                         chlName: chlMap[chlId],

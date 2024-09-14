@@ -3,7 +3,7 @@
  * @Date: 2024-08-26 19:58:43
  * @Description: 多选弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-30 09:25:25
+ * @LastEditTime: 2024-09-11 11:24:29
 -->
 <template>
     <el-dialog
@@ -34,6 +34,7 @@
                 :prop="label"
             />
         </el-table>
+        <slot></slot>
         <template #footer>
             <el-row>
                 <el-col

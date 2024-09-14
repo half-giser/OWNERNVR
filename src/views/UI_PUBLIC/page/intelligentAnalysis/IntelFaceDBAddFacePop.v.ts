@@ -3,7 +3,7 @@
  * @Date: 2024-08-30 18:47:04
  * @Description: 人脸库 - 添加人脸
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-04 18:30:19
+ * @LastEditTime: 2024-09-14 09:27:31
  */
 import { IntelFaceDBFaceForm, type IntelFaceDBGroupDto, type IntelFaceDBSnapFaceList, type IntelFaceDBImportFaceDto } from '@/types/apiType/intelligentAnalysis'
 import { type FormInstance } from 'element-plus'
@@ -385,7 +385,7 @@ export default defineComponent({
                     </groups>
                     <faceImgs type="list" maxCount="5">
                         <item>
-                            <frameTime>${localToUtc(snapItem.timestamp)}:${snapItem.timeNS}</frameTime>
+                            <frameTime>${snapItem.frameTime}</frameTime>
                             <img id="${snapItem.imgId.toString()}" />
                             <chl id="${snapItem.chlId}" />
                         </item>

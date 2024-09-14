@@ -3,7 +3,7 @@
  * @Date: 2024-07-19 13:37:26
  * @Description: 现场预览-目标检测视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-04 17:57:37
+ * @LastEditTime: 2024-09-14 11:56:10
 -->
 <template>
     <div class="snap">
@@ -57,14 +57,22 @@
                 {{ item.label }}
             </div>
         </div>
-        <LiveSnapInfoPop
+        <IntelBaseSnapPop
             v-model="pageData.isInfoPop"
             :list="pageData.infoList"
             :index="pageData.infoIndex"
-            @play-rec="playRec"
-            @add="register"
-            @search="search"
+            @play-rec="handleSnapRec"
+            @add="handleSnapRegister"
+            @search="handleSnapSearch"
             @close="pageData.isInfoPop = false"
+        />
+        <IntelBaseFaceMatchPop
+            v-model="pageData.isFacePop"
+            :list="pageData.faceList"
+            :index="pageData.faceIndex"
+            @play-rec="handleMatchSnapRec"
+            @search="handleMatchSnapSearch"
+            @close="pageData.isFacePop = false"
         />
         <IntelFaceDBSnapRegisterPop
             v-model="pageData.isRegisterPop"
@@ -78,14 +86,6 @@
                 plateNumber: pageData.addPlateNum,
             }"
             @close="pageData.isAddPlatePop = false"
-        />
-        <LiveSnapFaceMatchPop
-            v-model="pageData.isFacePop"
-            :list="pageData.faceList"
-            :index="pageData.faceIndex"
-            @play-rec="playRec"
-            @search="search"
-            @close="pageData.isFacePop = false"
         />
     </div>
 </template>

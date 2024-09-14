@@ -3,7 +3,7 @@
  * @Date: 2024-08-30 18:46:39
  * @Description: 导出人脸库弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-02 18:21:08
+ * @LastEditTime: 2024-09-12 20:25:29
  */
 import WebsocketFaceLib, { type WebsocketFaceLibFaceDataDatum } from '@/utils/websocket/websocketFacelib'
 
@@ -139,13 +139,13 @@ export default defineComponent({
                 onerror(code) {
                     let errorInfo = ''
                     switch (code) {
-                        case 536870942:
+                        case ErrorCode.USER_ERROR_NO_RECORDDATA:
                             errorInfo = Translate('IDCS_NO_RECORD_DATA')
                             break
-                        case 536870953:
+                        case ErrorCode.USER_ERROR_NO_AUTH:
                             errorInfo = Translate('IDCS_NO_PERMISSION')
                             break
-                        case 536870960:
+                        case ErrorCode.USER_ERROR_SYSTEM_BUSY:
                             errorInfo = Translate('IDCS_EXPORT_FACE_DATABASE_TASK_TIP')
                             break
                     }
