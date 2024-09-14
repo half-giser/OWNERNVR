@@ -3,7 +3,7 @@
  * @Date: 2024-08-10 12:08:57
  * @Description: AI/事件
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-12 15:16:28
+ * @LastEditTime: 2024-09-14 17:31:19
  */
 const { Translate } = useLangStore()
 
@@ -331,6 +331,66 @@ export class PresetList {
  * @description: 组合报警
  * @return {*}
  */
+
+export class CombinedAlarm {
+    id = ''
+    name = ''
+    status = '' //行状态: loading, success, error
+    combinedAlarm = {
+        switch: false,
+        item: [] as CombinedAlarmItem[],
+    }
+    sysRec = {
+        switch: false,
+        chls: [] as SelectOption<string, string>[],
+    }
+    recordList = [] as string[]
+    sysSnap = {
+        switch: false,
+        chls: [] as SelectOption<string, string>[],
+    }
+    snapList = [] as string[]
+    alarmOut = {
+        switch: false,
+        alarmOuts: [] as SelectOption<string, string>[],
+    }
+    alarmOutList = [] as string[]
+    popVideo = {
+        switch: '',
+        chl: {
+            value: '',
+            label: '',
+        },
+    }
+    preset = {
+        switch: false,
+        presets: [] as PresetItem[],
+    }
+    sysAudio = ''
+    msgPush = ''
+    beeper = ''
+    email = ''
+    msgBoxPopup = ''
+    videoPopup = ''
+}
+
+export class CombinedAlarmItem {
+    alarmSourceType = ''
+    alarmSourceEntity = {
+        value: '',
+        label: '',
+    }
+}
+
+export class faceMatchObj {
+    rule = ''
+    duration = 5
+    delay = 5
+    groupId = [] as string[]
+    noShowDisplay = 'false'
+    displayText = ''
+    faceDataBase = [] as string[]
+}
 /**
  * @description: AI事件——人脸识别相关类型
  * @return {*}
@@ -605,4 +665,44 @@ export class VehicleCompare {
     notHitEnable = false
     task = [] as CompareTask[]
     editFlag = false
+}
+/* AI事件——更多——温度检测 */
+export class TempDetection {
+    enabledSwitch = false
+    holdTime = ''
+    holdTimeList = [] as SelectOption<string, string>[]
+    schedule = ''
+    triggerAudio = ''
+    triggerWhiteLight = ''
+    record = [] as SelectOption<string, string>[]
+    alarmOut = [] as SelectOption<string, string>[]
+    snap = [] as SelectOption<string, string>[]
+    preset = [] as PresetItem[]
+    msgPushSwitch = false
+    buzzerSwitch = false
+    popVideoSwitch = false
+    emailSwitch = false
+    popMsgSwitch = false
+    catchSnapSwitch = false
+    sysAudio = ''
+    boundaryData = [] as BoundaryTableDataItem[]
+}
+// 检测界限数据（区域）
+export class BoundaryTableDataItem {
+    id = ''
+    ruleId = 0
+    switch = false
+    ruleName = ''
+    ruleType = ''
+    emissivity = ''
+    emissivityDefault = ''
+    distance = ''
+    distanceDefault = ''
+    reflectTemper = ''
+    reflectTemperDefault = ''
+    alarmRule = ''
+    alarmTemper = ''
+    alarmTemperDefault = ''
+    maxCount = 0
+    points = [] as { X: number; Y: number; isClosed: boolean }[]
 }

@@ -1400,7 +1400,7 @@ export default defineComponent({
                         <word>${item.hintword}</word>
                     </hint></param>
                     <schedule id='${item.schedule}'></schedule>
-                    <trigger>" + 
+                    <trigger>
                         <sysAudio id='${item.sysAudio}'></sysAudio>
                         <buzzerSwitch>${String(item.buzzerSwitch)}</buzzerSwitch>
                         <popMsgSwitch>${String(item.popMsgSwitch)}</popMsgSwitch>
