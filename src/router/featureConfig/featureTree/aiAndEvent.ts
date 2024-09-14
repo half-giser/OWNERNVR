@@ -24,7 +24,7 @@ export default {
                 lk: 'IDCS_AI_EVENT',
                 icon: 'intelligentAlarm_s',
             },
-            //
+            // 样本库
             database: {
                 sort: 30,
                 lk: 'IDCS_FACE_LIBRARY_SELECT',
@@ -134,26 +134,26 @@ export default {
                 group: 'eventNotify',
             },
         },
-        alaramScheduleAdd: {
-            //
-            path: 'schedule/add',
-            component: 'aiAndEvent/ScheduleAdd.vue',
-            meta: {
-                sort: 90,
-                lk: 'IDCS_ADD_SCHEDULE',
-                group: 'eventNotify',
-            },
-        },
-        alaramScheduleManage: {
-            //
-            path: 'schedule/manager',
-            component: 'aiAndEvent/ScheduleManage.vue',
-            meta: {
-                sort: 100,
-                lk: 'IDCS_SCHEDULE_MANAGE',
-                group: 'eventNotify',
-            },
-        },
+        // alaramScheduleAdd: {
+        //     //
+        //     path: 'schedule/add',
+        //     component: 'aiAndEvent/ScheduleAdd.vue',
+        //     meta: {
+        //         sort: 90,
+        //         lk: 'IDCS_ADD_SCHEDULE',
+        //         group: 'eventNotify',
+        //     },
+        // },
+        // alaramScheduleManage: {
+        //     //
+        //     path: 'schedule/manager',
+        //     component: 'aiAndEvent/ScheduleManage.vue',
+        //     meta: {
+        //         sort: 100,
+        //         lk: 'IDCS_SCHEDULE_MANAGE',
+        //         group: 'eventNotify',
+        //     },
+        // },
         perimeterDetection: {
             //周界防范
             path: 'alarm/boundary',
@@ -289,9 +289,9 @@ export default {
             },
         },
         faceFeatureLibrary: {
-            //
+            // 人脸库
             path: 'faceFeature',
-            component: 'aiAndEvent/FaceFeature.vue',
+            component: 'intelligentAnalysis/IntelFaceDB.vue',
             meta: {
                 sort: 10,
                 lk: 'IDCS_FEATURE_LIBRARY',
@@ -300,9 +300,9 @@ export default {
             },
         },
         vehicleDatabase: {
-            //
+            // 车牌库
             path: 'vehicleDatabase',
-            component: 'aiAndEvent/FaceFeature.vue',
+            component: 'intelligentAnalysis/IntelLicencePlateDB.vue',
             meta: {
                 sort: 10,
                 lk: 'IDCS_VEHICLE_DATABASE',
