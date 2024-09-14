@@ -3,7 +3,7 @@
  * @Date: 2024-08-23 10:36:05
  * @Description: 云台-协议
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-27 09:11:57
+ * @LastEditTime: 2024-09-14 16:09:06
 -->
 <template>
     <div class="protocol">
@@ -104,16 +104,7 @@
                         class-name="custom_cell"
                     >
                         <template #default="scope">
-                            <div
-                                v-if="scope.row.status === 'loading'"
-                                class="table_status_col_loading"
-                            ></div>
-                            <BaseImgSprite
-                                v-else-if="scope.row.status === 'error'"
-                                file="error"
-                                :chunk="1"
-                                :index="0"
-                            />
+                            <BaseTableRowStatus :icon="scope.row.status" />
                         </template>
                     </el-table-column>
                     <el-table-column

@@ -3,7 +3,7 @@
  * @Date: 2024-08-23 09:01:11
  * @Description: 云台-智能追踪
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 11:54:53
+ * @LastEditTime: 2024-09-14 16:07:36
  */
 import { cloneDeep } from 'lodash-es'
 import { type TableInstance } from 'element-plus'
@@ -131,10 +131,8 @@ export default defineComponent({
                 tableData.value[index].autoBackSwitch = $('//content/chl/param/backTime/switch').text().toBoolean()
                 tableData.value[index].autoBackTime = Number($('//content/chl/param/backTime/timeValue').text())
                 tableData.value[index].ptzControlMode = $('//content/chl/param/ptzControlMode').text()
-                tableData.value[index].status = 'success'
-            } else {
-                tableData.value[index].status = 'fail'
             }
+            tableData.value[index].status = ''
             cacheTableData.push({ ...tableData.value[index] })
         }
 
@@ -143,8 +141,9 @@ export default defineComponent({
          */
         const setData = async () => {
             const edits: ChannelPtzSmartTrackDto[] = []
+            const editsIndex: number[] = []
             tableData.value.forEach((item, index) => {
-                if (item.status !== 'success') {
+                if (item.status === 'loading') {
                     return
                 }
                 const params = ['autoBackSwitch', 'autoBackTime', 'ptzControlMode']
@@ -154,6 +153,7 @@ export default defineComponent({
                     }
                     if (item[param] !== cacheTableData[index][param]) {
                         edits.push(item)
+                        editsIndex.push(index)
                         return true
                     }
                     return false
@@ -177,7 +177,13 @@ export default defineComponent({
                         </chl>
                     </content>
                 `
-                await editBallIPCATCfg(sendXml)
+                const result = await editBallIPCATCfg(sendXml)
+                const $ = queryXml(result)
+                if ($('//status').text() === 'success') {
+                    tableData.value[editsIndex[i]].status = 'success'
+                } else {
+                    tableData.value[editsIndex[i]].status = 'error'
+                }
             }
 
             cacheTableData = cloneDeep(tableData.value)
