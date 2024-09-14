@@ -3,12 +3,10 @@
  * @Date: 2024-08-21 15:34:24
  * @Description: 前端掉线
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-27 11:22:44
+ * @LastEditTime: 2024-08-27 17:03:59
  */
 import { cloneDeep } from 'lodash'
-import { defineComponent } from 'vue'
 import { ArrowDown } from '@element-plus/icons-vue'
-import { useLangStore } from '@/stores/lang'
 import { tableRowStatus, tableRowStatusToolTip } from '@/utils/const/other'
 import BaseTransferPop from '@/components/BaseTransferPop.vue'
 import BaseTransferDialog from '@/components/BaseTransferDialog.vue'
@@ -94,9 +92,9 @@ export default defineComponent({
             pageData.value.supportAudio = systemCaps.supportAlarmAudioConfig
             // pageData.value.supportAudio = true
             if (pageData.value.supportAudio == true) {
-                queryAlarmAudioCfg().then(async (res: any) => {
+                queryAlarmAudioCfg().then(async (resb) => {
                     pageData.value.audioList = []
-                    res = queryXml(res)
+                    const res = queryXml(resb)
                     if (res('status').text() == 'success') {
                         res('//content/audioList/item').forEach((item: any) => {
                             const $item = queryXml(item.element)
@@ -114,8 +112,8 @@ export default defineComponent({
             getChlList({
                 nodeType: 'chls',
                 isSupportSnap: true,
-            }).then(async (res: any) => {
-                res = queryXml(res)
+            }).then(async (resb) => {
+                const res = queryXml(resb)
                 if (res('status').text() == 'success') {
                     res('//content/item').forEach((item: any) => {
                         const $item = queryXml(item.element)
@@ -131,8 +129,8 @@ export default defineComponent({
             getChlList({
                 requireField: ['device'],
                 nodeType: 'alarmOuts',
-            }).then(async (res: any) => {
-                res = queryXml(res)
+            }).then(async (resb) => {
+                const res = queryXml(resb)
                 if (res('status').text() == 'success') {
                     res('//content/item').forEach((item: any) => {
                         const $item = queryXml(item.element)
@@ -167,8 +165,8 @@ export default defineComponent({
             pageData.value.videoPopupList.push({ value: ' ', label: Translate('IDCS_OFF') })
             getChlList({
                 nodeType: 'chls',
-            }).then(async (res: any) => {
-                res = queryXml(res)
+            }).then(async (resb) => {
+                const res = queryXml(resb)
                 if (res('status').text() == 'success') {
                     res('//content/item').forEach((item: any) => {
                         const $item = queryXml(item.element)
@@ -182,7 +180,7 @@ export default defineComponent({
         }
         const buildTableData = function () {
             tableData.value.length = 0
-            const xml = `<types>
+            const xml = rawXml`<types>
                             <nodeType>
                                 <enum>chls</enum>
                                 <enum>sensors</enum>
@@ -194,8 +192,8 @@ export default defineComponent({
                                 <enum>all</enum>
                             </chlType>
                         </types>
-                        <pageIndex>${pageData.value.pageIndex}</pageIndex>
-                        <pageSize>${pageData.value.pageSize}</pageSize>
+                        <pageIndex>${pageData.value.pageIndex.toString()}</pageIndex>
+                        <pageSize>${pageData.value.pageSize.toString()}</pageSize>
                         <nodeType type="nodeType">chls</nodeType>
                         <requireField>
                             <name/>
@@ -203,7 +201,7 @@ export default defineComponent({
                         <condition>
                             <chlType type="chlType">digital</chlType>
                         </condition>`
-            queryNodeList(getXmlWrapData(xml)).then(async (res: any) => {
+            queryNodeList(getXmlWrapData(xml)).then(async (res) => {
                 const $chl = queryXml(res)
                 pageData.value.totalCount = Number($chl('//content').attr('total'))
                 $chl('//content/item').forEach(async (item) => {
@@ -217,7 +215,7 @@ export default defineComponent({
                 for (let i = 0; i < tableData.value.length; i++) {
                     const row = tableData.value[i]
                     row.status = ''
-                    const sendXml = `<condition>
+                    const sendXml = rawXml`<condition>
                                         <chlId>${row.id}</chlId>
                                     </condition>`
                     const offLine = await queryFrontEndOfflineTrigger(sendXml)
@@ -565,37 +563,37 @@ export default defineComponent({
             const snapSwitch = rowData.snap.switch
             const alarmOutSwitch = rowData.alarmOut.switch
             const presetSwitch = rowData.preset.switch
-            let sendXml = `<content id="${rowData.id}">`
-            sendXml += `<sysSnap>
-                            <switch>${snapSwitch}</switch>
+            let sendXml = rawXml`<content id="${rowData.id}">`
+            sendXml += rawXml`<sysSnap>
+                            <switch>${snapSwitch.toString()}</switch>
                             <chls type="list">`
             if (!snapSwitch) {
                 rowData.snap = { switch: false, chls: [] }
             }
             const snapChls = rowData.snap.chls
             snapChls.forEach((item: any) => {
-                sendXml += ` <item id="${item.value}">
+                sendXml += rawXml` <item id="${item.value}">
                                 <![CDATA[${item.label}]]>
                             </item>`
             })
-            sendXml += `</chls>
+            sendXml += rawXml`</chls>
                     </sysSnap>`
-            sendXml += `<alarmOut>
-                            <switch>${alarmOutSwitch}</switch>
+            sendXml += rawXml`<alarmOut>
+                            <switch>${alarmOutSwitch.toString()}</switch>
                             <alarmOuts type="list">`
             if (!alarmOutSwitch) {
                 rowData.alarmOut = { switch: false, chls: [] }
             }
             const alarmOutChls = rowData.alarmOut.chls
             alarmOutChls.forEach((item: any) => {
-                sendXml += ` <item id="${item.value}">
+                sendXml += rawXml` <item id="${item.value}">
                                 <![CDATA[${item.label}]]>
                             </item>`
             })
-            sendXml += `</alarmOuts>
+            sendXml += rawXml`</alarmOuts>
                     </alarmOut>`
-            sendXml += `<preset>
-                            <switch>${presetSwitch}</switch>
+            sendXml += rawXml`<preset>
+                            <switch>${presetSwitch.toString()}</switch>
                             <presets type="list">`
             if (!presetSwitch) {
                 rowData.preset = { switch: false, presets: [] }
@@ -609,7 +607,7 @@ export default defineComponent({
             }
             presets.forEach((item: any) => {
                 if (item.index) {
-                    sendXml += `
+                    sendXml += rawXml`
                     <item>
                         <index>${item.index}</index>
                         <name><![CDATA[${item.name}]]></name>
@@ -617,9 +615,9 @@ export default defineComponent({
                     </item>`
                 }
             })
-            sendXml += `</presets>
+            sendXml += rawXml`</presets>
                     </preset>`
-            sendXml += `
+            sendXml += rawXml`
                         <buzzerSwitch>${rowData.beeper}</buzzerSwitch>
                         <popVideo>
                             <switch>${rowData.videoPopupInfo.chl.value == ' ' ? 'false' : 'true'}</switch>
@@ -649,8 +647,8 @@ export default defineComponent({
             openLoading(LoadingTarget.FullScreen)
             pageData.value.editRows.forEach((item: MotionEventConfig) => {
                 const sendXml = getSavaData(item)
-                editFrontEndOfflineTrigger(sendXml).then((res: any) => {
-                    res = queryXml(res)
+                editFrontEndOfflineTrigger(sendXml).then((resb) => {
+                    const res = queryXml(resb)
                     if (res('status').text() == 'success') {
                         item.status = 'success'
                     } else {

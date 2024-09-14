@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-08-10 16:25:58
  * @Description: AI/事件
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-06 18:11:25
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-09-12 11:36:32
  */
 
 import { type AxiosRequestConfig } from 'axios'
@@ -105,20 +105,38 @@ export const queryVideoLossTrigger = (data: string) => http.fetch('queryVideoLos
 // 修改视频丢失数据
 export const editVideoLossTrigger = (data: string) => http.fetch('editVideoLossTrigger', getXmlWrapData(data))
 
+// 获取AI资源数据
+export const queryAIResourceDetail = (data: string) => http.fetch('queryAIResourceDetail', getXmlWrapData(data))
+
+// 释放AI资源
+export const freeAIOccupyResource = (data: string) => http.fetch('freeAIOccupyResource', getXmlWrapData(data))
+
+// 获取云台锁定状态
+export const queryBallIPCPTZLockCfg = (data: string) => http.fetch('queryBallIPCPTZLockCfg', getXmlWrapData(data))
+
+// 锁定云台
+export const editBallIPCPTZLockCfg = (data: string) => http.fetch('editBallIPCPTZLockCfg', getXmlWrapData(data))
+
+// 获取越界侦测数据
+export const queryTripwire = (data: string) => http.fetch('queryTripwire', getXmlWrapData(data))
+
+// 修改越界侦测数据
+export const editTripwire = (data: string) => http.fetch('editTripwire', getXmlWrapData(data))
+
+// 获取区域入侵侦测数据
+export const queryIntelAreaConfig = (data: string) => http.fetch('queryIntelAreaConfig', getXmlWrapData(data))
+
+// 修改区域入侵侦测数据
+export const editIntelAreaConfig = (data: string) => http.fetch('editIntelAreaConfig', getXmlWrapData(data))
+
 // 获取组合报警数据
 export const queryCombinedAlarm = () => http.fetch('queryCombinedAlarm', getXmlWrapData(''))
 
 // 获取已配置的人脸库分组
 export const queryCombinedAlarmFaceMatch = () => http.fetch('queryCombinedAlarmFaceMatch', getXmlWrapData(''))
 
-// 获取区域入侵参数
-export const queryIntelAreaConfig = (data: string) => http.fetch('queryIntelAreaConfig', getXmlWrapData(data))
-
 // 人脸比对中请求后侦测开关
-export const queryBackFaceMatch = () => http.fetch('queryBackFaceMatch', getXmlWrapData(''))
-
-//获取越界参数
-export const queryTripwire = (data: string) => http.fetch('queryTripwire', getXmlWrapData(data))
+export const queryBackFaceMatch = (data?: string) => http.fetch('queryBackFaceMatch', getXmlWrapData(data || ''))
 
 // 修改组合报警数据
 export const editCombinedAlarm = (data: string) => http.fetch('editCombinedAlarm', getXmlWrapData(data))
@@ -126,11 +144,11 @@ export const editCombinedAlarm = (data: string) => http.fetch('editCombinedAlarm
 // 修改组合报警人脸匹配数据
 export const editCombinedAlarmFaceMatch = (data: string) => http.fetch('editCombinedAlarmFaceMatch', getXmlWrapData(data))
 
-// 获取AI资源数据
-export const queryAIResourceDetail = (data: string) => http.fetch('queryAIResourceDetail', getXmlWrapData(data))
+// 获取火点检测数据
+export const querySmartFireConfig = (data: string) => http.fetch('querySmartFireConfig', getXmlWrapData(data))
 
-// 删除AI资源数据
-export const freeAIOccupyResource = (data: string) => http.fetch('freeAIOccupyResource', getXmlWrapData(data))
+// 修改火点检测数据
+export const editSmartFireConfig = (data: string) => http.fetch('editSmartFireConfig', getXmlWrapData(data))
 
 // 获取人脸侦测数据
 export const queryVfd = (data: string) => http.fetch('queryVfd', getXmlWrapData(data))
@@ -155,3 +173,18 @@ export const editFaceMatchAlarmParam = (data: string) => http.fetch('editFaceMat
 
 // 删除人脸匹配报警参数
 export const deleteFaceMatchAlarmParam = (data: string) => http.fetch('deleteFaceMatchAlarmParam', getXmlWrapData(data))
+
+// 获取车辆识别参数
+export const queryVehicleConfig = (data: string) => http.fetch('queryVehicleConfig', getXmlWrapData(data))
+
+// 获取车牌匹配报警参数
+export const queryVehicleMatchAlarm = (data: string) => http.fetch('queryVehicleMatchAlarm', getXmlWrapData(data))
+
+// 修改车牌匹配报警参数
+export const editVehicleMatchAlarm = (data: string) => http.fetch('editVehicleMatchAlarm', getXmlWrapData(data))
+
+// 删除车牌匹配报警参数
+export const deleteVehicleMatchAlarm = (data: string) => http.fetch('deleteVehicleMatchAlarm', getXmlWrapData(data))
+
+// 修改车辆侦测数据
+export const editVehicleConfig = (data: string) => http.fetch('editVehicleConfig', getXmlWrapData(data))

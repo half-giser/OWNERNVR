@@ -1,23 +1,19 @@
 /*
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-16 18:13:56
- * @Description:
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-26 10:52:52
+ * @Description: 移动侦测
+ * @LastEditors: A11600 A11600@tvt.net.cn
+ * @LastEditTime: 2024-09-02 16:54:53
  */
 import { cloneDeep } from 'lodash'
-import { defineComponent } from 'vue'
 import { ArrowDown } from '@element-plus/icons-vue'
-import { useLangStore } from '@/stores/lang'
-// import useLoading from '@/hooks/useLoading'
-import { buildScheduleList } from '@/utils/tools'
 import { tableRowStatus, tableRowStatusToolTip } from '@/utils/const/other'
 import BaseTransferPop from '@/components/BaseTransferPop.vue'
 import BaseTransferDialog from '@/components/BaseTransferDialog.vue'
 import { MotionEventConfig, type PresetItem } from '@/types/apiType/aiAndEvent'
 import { errorCodeMap } from '@/utils/constants'
 import SetPresetPop from './SetPresetPop.vue'
-// import { type ElDropdown } from 'element-plus'
+// import { DropdownInstance } from 'element-plus'
 export default defineComponent({
     components: {
         ArrowDown,
@@ -99,10 +95,6 @@ export default defineComponent({
             alarmOutIsShow: false,
             alarmOutType: 'alarmOut',
 
-            // preset数据源
-            // presetList: [] as { index: string; name: string; chl: { value: string; label: string } }[],
-            presetList: [] as any[],
-            filterChlIds: [] as string[],
             isPresetPopOpen: false,
             presetChlId: '',
             presetLinkedList: [] as PresetItem[],
@@ -122,9 +114,9 @@ export default defineComponent({
         const getAudioList = async () => {
             pageData.value.supportAudio = systemCaps.supportAlarmAudioConfig
             if (pageData.value.supportAudio == true) {
-                queryAlarmAudioCfg().then(async (res: any) => {
+                queryAlarmAudioCfg().then(async (resb) => {
                     pageData.value.audioList = []
-                    res = queryXml(res)
+                    const res = queryXml(resb)
                     if (res('status').text() == 'success') {
                         res('//content/audioList/item').forEach((item: any) => {
                             const $item = queryXml(item.element)
@@ -142,8 +134,8 @@ export default defineComponent({
             getChlList({
                 nodeType: 'chls',
                 isSupportSnap: false,
-            }).then(async (res: any) => {
-                res = queryXml(res)
+            }).then(async (resb) => {
+                const res = queryXml(resb)
                 if (res('status').text() == 'success') {
                     res('//content/item').forEach((item: any) => {
                         const $item = queryXml(item.element)
@@ -159,8 +151,8 @@ export default defineComponent({
             getChlList({
                 nodeType: 'chls',
                 isSupportSnap: true,
-            }).then(async (res: any) => {
-                res = queryXml(res)
+            }).then(async (resb) => {
+                const res = queryXml(resb)
                 if (res('status').text() == 'success') {
                     res('//content/item').forEach((item: any) => {
                         const $item = queryXml(item.element)
@@ -176,8 +168,8 @@ export default defineComponent({
             getChlList({
                 requireField: ['device'],
                 nodeType: 'alarmOuts',
-            }).then(async (res: any) => {
-                res = queryXml(res)
+            }).then(async (resb) => {
+                const res = queryXml(resb)
                 if (res('status').text() == 'success') {
                     res('//content/item').forEach((item: any) => {
                         const $item = queryXml(item.element)
@@ -204,8 +196,8 @@ export default defineComponent({
                 pageIndex: pageData.value.pageIndex,
                 pageSize: pageData.value.pageSize,
                 isSupportMotion: true,
-            }).then(async (res: any) => {
-                const $chl = queryXml(res)
+            }).then(async (resb) => {
+                const $chl = queryXml(resb)
                 pageData.value.totalCount = Number($chl('//content').attr('total'))
                 $chl('//content/item').forEach(async (item) => {
                     const $ele = queryXml(item.element)
@@ -221,14 +213,14 @@ export default defineComponent({
                 })
                 for (let i = 0; i < tableData.value.length; i++) {
                     const row = tableData.value[i]
-                    const sendXml = `<condition>
+                    const sendXml = rawXml`<condition>
                                         <chlId>${row.id}</chlId>
                                     </condition>
                                     <requireField>
                                         <trigger/>
                                     </requireField>`
                     const motion = await queryMotion(sendXml)
-                    res = queryXml(motion)
+                    const res = queryXml(motion)
                     row.status = ''
 
                     if (res('status').text() == 'success') {
@@ -635,39 +627,39 @@ export default defineComponent({
             const snapSwitch = rowData.snap.switch
             const alarmOutSwitch = rowData.alarmOut.switch
             const presetSwitch = rowData.preset.switch
-            let sendXml = `<content>
+            let sendXml = rawXml`<content>
                                 <chl id="${rowData.id}">
                                 <trigger>`
-            sendXml += `<sysRec>
-                            <switch>${recordSwitch}</switch>
+            sendXml += rawXml`<sysRec>
+                            <switch>${recordSwitch.toString()}</switch>
                             <chls type="list">`
             if (!recordSwitch) {
                 rowData.record = { switch: false, chls: [] }
             }
             const recordChls = rowData.record.chls
             recordChls.forEach((item: any) => {
-                sendXml += ` <item id="${item.value}">
+                sendXml += rawXml` <item id="${item.value}">
                                 <![CDATA[${item.label}]]>
                             </item>`
             })
-            sendXml += `</chls>
+            sendXml += rawXml`</chls>
                     </sysRec>`
-            sendXml += `<alarmOut>
-                            <switch>${alarmOutSwitch}</switch>
+            sendXml += rawXml`<alarmOut>
+                            <switch>${alarmOutSwitch.toString()}</switch>
                             <alarmOuts type="list">`
             if (!alarmOutSwitch) {
                 rowData.alarmOut = { switch: false, chls: [] }
             }
             const alarmOutChls = rowData.alarmOut.chls
             alarmOutChls.forEach((item: any) => {
-                sendXml += ` <item id="${item.value}">
+                sendXml += rawXml` <item id="${item.value}">
                                 <![CDATA[${item.label}]]>
                             </item>`
             })
-            sendXml += `</alarmOuts>
+            sendXml += rawXml`</alarmOuts>
                     </alarmOut>`
-            sendXml += `<preset>
-                            <switch>${presetSwitch}</switch>
+            sendXml += rawXml`<preset>
+                            <switch>${presetSwitch.toString()}</switch>
                             <presets type="list">`
             if (!presetSwitch) {
                 rowData.preset = { switch: false, presets: [] }
@@ -681,7 +673,7 @@ export default defineComponent({
             }
             presets.forEach((item: any) => {
                 if (item.index) {
-                    sendXml += `
+                    sendXml += rawXml`
                     <item>
                         <index>${item.index}</index>
                         <name><![CDATA[${item.name}]]></name>
@@ -689,29 +681,29 @@ export default defineComponent({
                     </item>`
                 }
             })
-            sendXml += `</presets>
+            sendXml += rawXml`</presets>
                     </preset>`
-            sendXml += `<sysSnap>
-                            <switch>${snapSwitch}</switch>
+            sendXml += rawXml`<sysSnap>
+                            <switch>${snapSwitch.toString()}</switch>
                             <chls type="list">`
             if (!snapSwitch) {
                 rowData.snap = { switch: false, chls: [] }
             }
             const snapChls = rowData.snap.chls
             snapChls.forEach((item: any) => {
-                sendXml += ` <item id="${item.value}">
+                sendXml += rawXml` <item id="${item.value}">
                                 <![CDATA[${item.label}]]>
                             </item>`
             })
-            sendXml += `</chls>
+            sendXml += rawXml`</chls>
                     </sysSnap>`
             const schedule = rowData.schedule.value == ' ' ? true : false
-            sendXml += `
+            sendXml += rawXml`
                         <buzzerSwitch>${rowData.beeper}</buzzerSwitch>
                         <msgPushSwitch>${rowData.msgPush}</msgPushSwitch>
                         <sysAudio id='${rowData.sysAudio}'></sysAudio>
                         <triggerSchedule>
-                            <switch>${schedule}</switch>
+                            <switch>${schedule.toString()}</switch>
                             <schedule id="${rowData.schedule.value == ' ' ? '' : rowData.schedule.value}"></schedule>
                         </triggerSchedule>
                         <popVideoSwitch>${rowData.videoPopup}</popVideoSwitch>
@@ -725,8 +717,8 @@ export default defineComponent({
             openLoading(LoadingTarget.FullScreen)
             pageData.value.editRows.forEach((item: MotionEventConfig) => {
                 const sendXml = getSavaData(item)
-                editMotion(sendXml).then((res: any) => {
-                    res = queryXml(res)
+                editMotion(sendXml).then((resb) => {
+                    const res = queryXml(resb)
                     if (res('status').text() == 'success') {
                         item.status = 'success'
                     } else {

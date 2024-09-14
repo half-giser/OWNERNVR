@@ -3,7 +3,7 @@
  * @Date: 2024-08-10 12:08:57
  * @Description: AI/事件
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-06 18:12:33
+ * @LastEditTime: 2024-09-12 15:16:28
  */
 const { Translate } = useLangStore()
 
@@ -328,6 +328,10 @@ export class PresetList {
     presetList = [] as SelectOption<string, string>[]
 }
 /**
+ * @description: 组合报警
+ * @return {*}
+ */
+/**
  * @description: AI事件——人脸识别相关类型
  * @return {*}
  */
@@ -408,13 +412,141 @@ export class FaceGroupTableItem {
     name = ''
     similarity = 75
 }
+
+export class chlCaps {
+    id = ''
+    ip = ''
+    name = ''
+    accessType = ''
+    chlType = ''
+    supportOsc = false
+    supportCdd = false
+    supportVfd = false
+    supportBackVfd = false
+    supportAvd = false
+    supportPea = false
+    supportPeaTrigger = false
+    supportIpd = false
+    supportTripwire = false
+    supportAOIEntry = false
+    supportAOILeave = false
+    supportBackTripwire = false
+    supportBackPea = false
+    supportBackAOIEntry = false
+    supportBackAOILeave = false
+    supportVehiclePlate = false
+    supportPassLine = false
+    supportCpc = false
+    supportAudio = false
+    supportWhiteLight = false
+    supportAutoTrack = false
+    supportFire = false
+    supportTemperature = false
+    supportVideoMetadata = false
+    showAIReourceDetail = false
+    faceMatchLimitMaxChlNum = 0
+}
+
+export class aiResourceRow {
+    id = ''
+    name = ''
+    eventType = [] as string[]
+    eventTypeText = ''
+    percent = ''
+    decodeResource = '--'
+}
+
+// 区域入侵不同区域类型的公用页面数据。
+export class peaPageData {
+    [key: string]: any
+    // 是否启用侦测
+    detectionEnable = false
+    // 用于对比
+    originalEnable = false
+    // 是否支持SD卡存储
+    pictureAvailable = false
+    // SD卡原图存储
+    saveTargetPicture = false
+    // SD卡目标图存储
+    saveSourcePicture = false
+
+    // 联动追踪是否支持
+    hasAutoTrack = false
+    // 联动追踪
+    autoTrack = false
+
+    // 持续时间
+    holdTime = 0
+    // 持续时间列表
+    holdTimeList = [] as { value: number; label: string }[]
+    // 区别联咏ipc标志
+    regulation = false
+    boundaryInfo = [] as { point: { X: number; Y: number; isClosed?: boolean }[]; maxCount: number; configured: boolean }[]
+    regionInfo = {} as { X1: number; Y1: number; X2: number; Y2: number }[]
+    mutexList = [] as { object: string; status: boolean }[]
+    mutexListEx = [] as { object: string; status: boolean }[]
+    // 目标类型只支持人
+    pea_onlyPreson = false
+    // 只支持人的灵敏度
+    onlyPersonSensitivity = 0
+    // 检测目标
+    hasObj = false
+    person = false
+    car = false
+    motorcycle = false
+    // 检测目标灵敏度
+    personSensitivity = 0
+    carSensitivity = 0
+    motorSensitivity = 0
+    // 联动
+    triggerSwitch = false
+    snapSwitch = false
+    msgPushSwitch = false
+    buzzerSwitch = false
+    popVideoSwitch = false
+    emailSwitch = false
+    // 音频联动
+    audioSuport = false
+    triggerAudio = false
+    // 白光联动
+    lightSuport = false
+    triggerWhiteLight = false
+    // 用于显示在页面上
+    peaTriggerData = [] as { value: boolean; label: string; property: string }[]
+    sysAudio = ''
+    recordSwitch = false
+    recordChls = [] as { value: string; label: string }[]
+    // 选中的record id
+    recordList = [] as string[]
+    recordIsShow = false
+    recordHeaderTitle = 'IDCS_TRIGGER_CHANNEL_RECORD'
+    recordSourceTitle = 'IDCS_CHANNEL'
+    recordTargetTitle = 'IDCS_CHANNEL_TRGGER'
+    // recordSource = [] as { value: string; label: string }[]
+    recordType = 'record'
+
+    alarmOutSwitch = false
+    alarmOutChls = [] as { value: string; label: string }[]
+    // 选中的alarmOut id
+    alarmOutList = [] as string[]
+    alarmOutIsShow = false
+    alarmOutHeaderTitle = 'IDCS_TRIGGER_ALARM_OUT'
+    alarmOutSourceTitle = 'IDCS_ALARM_OUT'
+    alarmOutTargetTitle = 'IDCS_TRIGGER_ALARM_OUT'
+    // alarmOutSource = [] as { value: string; label: string; device: { value: string; label: string } }[]
+    alarmOutType = 'alarmOut'
+
+    presetSwitch = false
+    presets = [] as PresetItem[]
+    presetSource = [] as PresetList[]
+}
 // 识别——识别成功/陌生人
 export class FaceCompare {
     voiceList = [] as SelectOption<string, string>[]
-    task = [] as FaceCompareTask[]
+    task = [] as CompareTask[]
     editFlag = false
 }
-export class FaceCompareTask {
+export class CompareTask {
     guid = ''
     id = ''
     ruleType = ''
@@ -433,4 +565,44 @@ export class FaceCompareTask {
     emailSwitch = false
     popMsgSwitch = false
     sysAudio = ''
+}
+/**
+ * @description: AI事件——车牌识别相关类型
+ * @return {*}
+ */
+// 人脸识别通道
+export class VehicleChlItem {
+    id = ''
+    name = ''
+    chlType = ''
+    supportVehiclePlate = false
+}
+// 侦测——参数配置表单项
+export class VehicleDetection {
+    enabledSwitch = false
+    originalSwitch = false
+    schedule = ''
+    plateSupportArea = ''
+    direction = ''
+    exposureChecked = false
+    exposureValue = 0
+    plateAbsenceCheceked = false
+    regionInfo = [] as Region[]
+    maskAreaInfo = {} as Record<number, { X: number; Y: number; isClosed: boolean }[]>
+    mutexList = [] as { object: string; status: boolean }[]
+    plateSize = {
+        minWidth: 0,
+        maxWidth: 0,
+        min: 1,
+        max: 50,
+    }
+    minRegionInfo = [] as Region[]
+    maxRegionInfo = [] as Region[]
+}
+// 识别——识别成功/陌生车牌
+export class VehicleCompare {
+    hitEnable = false
+    notHitEnable = false
+    task = [] as CompareTask[]
+    editFlag = false
 }
