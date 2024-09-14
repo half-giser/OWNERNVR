@@ -1,9 +1,9 @@
 <!--
  * @Author: yejiahao yejiahao@tvt.net.cn
- * @Date: 2024-07-23 21:22:11
- * @Description: 查看原图弹窗
+ * @Date: 2024-09-12 09:39:23
+ * @Description: 智能分析 - 查看原图弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 17:52:44
+ * @LastEditTime: 2024-09-12 20:39:56
 -->
 <template>
     <el-dialog
@@ -11,10 +11,11 @@
         align-center
         draggable
         width="540px"
+        append-to-body
         @opened="open"
     >
         <div class="img">
-            <img :src="displayBase64Img(pic)" />
+            <img :src="data.panorama" />
             <canvas
                 ref="canvas"
                 :width="pageData.canvasWidth"
@@ -24,7 +25,7 @@
     </el-dialog>
 </template>
 
-<script lang="ts" src="./LiveSnapShotPop.v.ts"></script>
+<script lang="ts" src="./IntelBasePanoramaPop.v.ts"></script>
 
 <style lang="scss" scoped>
 .img {

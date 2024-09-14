@@ -3,7 +3,7 @@
  * @Date: 2024-09-05 17:02:01
  * @Description: 智能分析 - 时间日期选择器
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 16:41:09
+ * @LastEditTime: 2024-09-11 14:59:41
 -->
 <template>
     <div>
@@ -52,6 +52,7 @@
                         :cell-class-name="highlightWeekend"
                         clear-icon=""
                         type="datetime"
+                        :teleported="false"
                         @change="changeType('custom')"
                     />
                 </el-form-item>
@@ -63,6 +64,7 @@
                         :cell-class-name="highlightWeekend"
                         clear-icon=""
                         type="datetime"
+                        :teleported="false"
                         @change="changeType('custom')"
                     />
                 </el-form-item>

@@ -1,18 +1,21 @@
 /*
  * @Author: yejiahao yejiahao@tvt.net.cn
- * @Date: 2024-09-09 19:21:49
- * @Description: 智能分析 - 人体搜索
+ * @Date: 2024-09-10 18:29:15
+ * @Description: 智能分析 - 组合搜索
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-14 09:42:55
+ * @LastEditTime: 2024-09-14 09:26:44
  */
-import { type IntelSearchCollectList, type IntelSearchList, IntelSnapImgDto, IntelSearchBodyForm, type IntelSnapPopList } from '@/types/apiType/intelligentAnalysis'
+import { type IntelSearchCollectList, type IntelSearchList, IntelSnapImgDto, IntelSearchCombineForm, type IntelSnapPopList } from '@/types/apiType/intelligentAnalysis'
 import IntelBaseChannelSelector from './IntelBaseChannelSelector.vue'
 import IntelBaseDateTimeSelector from './IntelBaseDateTimeSelector.vue'
 import IntelBaseEventSelector from './IntelBaseEventSelector.vue'
 import IntelBaseProfileSelector from './IntelBaseProfileSelector.vue'
+import IntelBaseAttributeSelector from './IntelBaseAttributeSelector.vue'
 import IntelBaseCollect from './IntelBaseCollect.vue'
 import IntelBaseSnapItem from './IntelBaseSnapItem.vue'
 import IntelBaseSnapPop from './IntelBaseSnapPop.vue'
+import IntelLicencePlateDBAddPlatePop from './IntelLicencePlateDBAddPlatePop.vue'
+import IntelFaceDBSnapRegisterPop from './IntelFaceDBSnapRegisterPop.vue'
 import type { TableInstance, CheckboxValueType } from 'element-plus'
 import { type PlaybackPopList } from '@/components/player/BasePlaybackPop.vue'
 import BackupPop from '../searchAndBackup/BackupPop.vue'
@@ -27,11 +30,14 @@ export default defineComponent({
         IntelBaseDateTimeSelector,
         IntelBaseEventSelector,
         IntelBaseProfileSelector,
+        IntelBaseAttributeSelector,
         IntelBaseCollect,
         IntelBaseSnapItem,
         IntelBaseSnapPop,
         BackupPop,
         BackupLocalPop,
+        IntelLicencePlateDBAddPlatePop,
+        IntelFaceDBSnapRegisterPop,
     },
     setup() {
         const { Translate } = useLangStore()
@@ -39,6 +45,7 @@ export default defineComponent({
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const dateTime = useDateTimeStore()
         const auth = useUserChlAuth()
+        const userSession = useUserSessionStore()
 
         // 图像失败重新请求最大次数
         const REPEAR_REQUEST_IMG_TIMES = 2
@@ -109,9 +116,17 @@ export default defineComponent({
             playbackList: [] as PlaybackPopList[],
             // 是否支持备份（H5模式）
             isSupportBackUp: isBrowserSupportWasm() && !isHttpsLogin(),
+            // 是否打开新增车牌弹窗
+            isAddPlatePop: false,
+            // 新增车牌的车牌号码
+            addPlateNumber: '',
+            // 是否打开注册人脸弹窗
+            isAddFacePop: false,
+            // 注册人脸的图像数据
+            addFacePic: '',
         })
 
-        const formData = ref(new IntelSearchBodyForm())
+        const formData = ref(new IntelSearchCombineForm())
 
         const playerData = ref({
             // 播放开始时间
@@ -134,6 +149,22 @@ export default defineComponent({
 
         const sliceTableData = ref<IntelSearchList[]>([])
 
+        // 车牌侦测、车牌识别才下载CSV
+        const isSupportCSV = computed(() => {
+            return !['plateDetection', 'plateMatchWhiteList', 'plateMatchStranger'].some((event) => !formData.value.event.includes(event))
+        })
+
+        const attributeRange = computed(() => {
+            if (formData.value.target.length) {
+                const list = [...formData.value.target[0]]
+                if (formData.value.target[1]?.length) {
+                    list.push('person')
+                }
+                return list
+            }
+            return []
+        })
+
         /**
          * @description 获取通道ID与通道名称的映射
          * @param {Record<string, string>} e
@@ -144,13 +175,15 @@ export default defineComponent({
 
         /**
          * @description 收藏回显
-         * @param {string[]} e
+         * @param {IntelSearchCollectList} e
          */
         const changeCollect = (e: IntelSearchCollectList) => {
             formData.value.dateRange = e.dateRange
             formData.value.chl = e.chl
             formData.value.attribute = e.profile
             formData.value.event = e.event
+            formData.value.plateNumber = e.plateNumber
+            formData.value.target = e.attribute
             getData()
         }
 
@@ -182,7 +215,7 @@ export default defineComponent({
 
         /**
          * @description 播放
-         * @param {Number} startTime 毫秒
+         * @param {IntelSearchList} row
          */
         const play = (row: IntelSearchList) => {
             stop()
@@ -351,6 +384,7 @@ export default defineComponent({
                             panorama: cachePic[key] ? cachePic[key].panorama : '',
                             eventType: $('//eventType').text(),
                             targetType: $('//targetType').text(),
+                            plateNumber: $('//plateNumber').text() || '--',
                             width,
                             height,
                             X1: leftTopX / width,
@@ -359,7 +393,6 @@ export default defineComponent({
                             Y2: rightBottomY / height,
                             isDelSnap: false,
                             isNoData: !content,
-                            plateNumber: '',
                         }
                         if (isPanorama) {
                             item.panorama = 'data:image/png;base64,' + content
@@ -410,6 +443,7 @@ export default defineComponent({
          */
         const getData = async () => {
             const attributeXml = Object.keys(formData.value.attribute)
+                .filter((key) => attributeRange.value.includes(key))
                 .map((key) => {
                     const detail = Object.entries(formData.value.attribute[key])
                         .map((item) => {
@@ -430,10 +464,11 @@ export default defineComponent({
                     <endTime>${formatDate(formData.value.dateRange[1], 'YYYY-MM-DD HH:mm:ss')}</endTime>
                     <chls type="list">${formData.value.chl.map((item) => `<item id="${item}"></item>`).join('')}</chls>
                     <events type="list">${formData.value.event.map((item) => `<item>${item}</item>`).join('')}</events>
-                    <person type="list">
-                        <item>male</item>
-                        <item>female</item>
-                    </person>
+                    <vehicle>
+                        ${formData.value.target[0].map((item) => `<item>${item}</item>`).join('')}
+                        ${ternary(!!formData.value.plateNumber, `<item num="${formData.value.plateNumber}">plate</item>`)}
+                    </vehicle>
+                    ${ternary(!!formData.value.target[1].length, `<person type="list"><item></item></person>`)}
                     <targetAttribute>${attributeXml}</targetAttribute>
                 </condition>
             `
@@ -456,11 +491,9 @@ export default defineComponent({
                     return {
                         isDelSnap: isDelSnap,
                         isNoData: false,
-                        plateNumber: '',
-                        direction: '',
                         imgId: parseInt(split[2], 16) + '',
-                        timestamp: parseInt(split[0], 16) * 1000,
-                        frameTime: localToUtc(timestamp) + ':' + ('0000000' + parseInt(split[1], 16)).slice(-7),
+                        timestamp,
+                        frameTime: localToUtc + ':' + ('0000000' + parseInt(split[1], 16)).slice(-7),
                         guid,
                         chlId,
                         chlName: chlMap[chlId],
@@ -472,6 +505,8 @@ export default defineComponent({
                         bolckNo: parseInt(split[9], 16),
                         offset: parseInt(split[10], 16),
                         eventTypeID: parseInt(split[11], 16),
+                        direction: split[13],
+                        plateNumber: '--',
                         pic: '',
                         panorama: '',
                         eventType: '',
@@ -577,6 +612,20 @@ export default defineComponent({
             pageData.value.isPlaybackPop = true
         }
 
+        /**
+         * @description 打开新增车牌弹窗/注册人脸弹窗
+         * @param {IntelSnapPopList} row
+         */
+        const register = (row: IntelSnapPopList) => {
+            if (['plateDetection', 'plateMatchStranger'].includes(row.eventType)) {
+                pageData.value.addPlateNumber = row.plateNumber
+                pageData.value.isAddPlatePop = true
+            } else if (['faceDetection', 'faceMatchStranger'].includes(row.eventType)) {
+                pageData.value.addFacePic = row.pic
+                pageData.value.isAddFacePop = true
+            }
+        }
+
         let downloadData: DownloadZipOptions['files'] = []
 
         /**
@@ -611,7 +660,9 @@ export default defineComponent({
             downloadData = []
             if (pageData.value.isBackUpPic) {
                 downloadPic()
+                downloadCSV()
             }
+
             if (pageData.value.isBackUpVideo) {
                 pageData.value.isBackUpPop = true
             } else {
@@ -658,6 +709,13 @@ export default defineComponent({
         }
 
         /**
+         * @description 生成CSV文件名
+         */
+        const getCsvName = () => {
+            return 'EXPORT_SNAP_PLATE_LIST-' + dayjs().format('YYYYMMDDHHmmss')
+        }
+
+        /**
          * @description 添加图像到ZIP
          */
         const downloadPic = () => {
@@ -693,42 +751,45 @@ export default defineComponent({
         }
 
         /**
+         * @description 添加CSV到ZIP
+         */
+        const downloadCSV = () => {
+            // 车牌侦测、车牌识别才下载CSV
+            if (isSupportCSV.value) {
+                const csvContent: string[] = []
+                const csvTitle = [Translate('IDCS_SERIAL_NUMBER'), Translate('IDCS_LICENSE_PLATE_NUM'), Translate('IDCS_CHANNEL'), Translate('IDCS_DEVICE_NAME'), Translate('IDCS_SNAP_TIME')].join(',')
+                csvContent.push(csvTitle)
+                sliceTableData.value.forEach((item, index) => {
+                    csvContent.push([index + 1, item.plateNumber || '--', item.chlName, userSession.csvDeviceName, displayDateTime(item.timestamp)].join(','))
+                })
+                downloadData.push({
+                    content: csvContent.join('\r\n'),
+                    folder: '',
+                    name: getCsvName(),
+                })
+            }
+        }
+
+        /**
          * @description 下载ZIP
          */
         const createZip = () => {
+            openLoading(LoadingTarget.FullScreen)
             downloadZip({
                 zipName: getZipName(pageData.value.selection[0].chlName),
                 files: downloadData,
-            }).then(() => {
-                openMessageTipBox({
-                    type: 'success',
-                    message: Translate('IDCS_BACKUP_SUCCESS'),
-                })
             })
+                .then(() => {
+                    closeLoading(LoadingTarget.FullScreen)
+                    openMessageTipBox({
+                        type: 'success',
+                        message: Translate('IDCS_BACKUP_SUCCESS'),
+                    })
+                })
+                .catch(() => {
+                    closeLoading(LoadingTarget.FullScreen)
+                })
         }
-
-        onMounted(() => {
-            if (history.state.eventType) {
-                switch (history.state.eventType) {
-                    case 'aoi_entry':
-                    case 'aoi_leave':
-                    case 'perimeter':
-                        formData.value.event.push('intrusion')
-                        break
-                    case 'tripwire':
-                        formData.value.event.push('tripwire')
-                        break
-                    case 'pass_line':
-                        formData.value.event.push('passLine')
-                        break
-                    case 'video_metavideo':
-                        formData.value.event.push('videoMetadata')
-                        break
-                }
-                delete history.state.eventType
-                getData()
-            }
-        })
 
         onBeforeUnmount(() => {
             stop()
@@ -763,9 +824,12 @@ export default defineComponent({
             handleSelect,
             handleSelectAll,
             playRec,
+            register,
             confirmBackUp,
             downloadVideo,
             auth,
+            attributeRange,
+            isSupportCSV,
             getUniqueKey,
         }
     },

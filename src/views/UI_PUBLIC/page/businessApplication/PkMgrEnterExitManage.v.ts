@@ -35,7 +35,7 @@ export default defineComponent({
             return result
         }
         // 通道树状态刷新定时器
-        let ChlStatusRefreshTimer: NodeJS.Timeout | null = null
+        let ChlStatusRefreshTimer: NodeJS.Timeout | number = 0
         // 通道树状态刷新定时器-开启
         function StartRefreshChlStatus() {
             if (ChlStatusRefreshTimer) {
@@ -58,8 +58,8 @@ export default defineComponent({
         }
         // 通道树状态刷新定时器-销毁
         function StopRefreshChlStatus() {
-            clearTimeout(ChlStatusRefreshTimer as NodeJS.Timeout)
-            ChlStatusRefreshTimer = null
+            clearTimeout(ChlStatusRefreshTimer)
+            ChlStatusRefreshTimer = 0
         }
 
         // 查询-发起请求
@@ -178,6 +178,10 @@ export default defineComponent({
                 message: errorMsg,
             })
         }
+
+        onBeforeUnmount(() => {
+            StopRefreshChlStatus()
+        })
 
         return {
             pageData,

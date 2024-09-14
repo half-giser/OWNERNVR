@@ -1,53 +1,55 @@
 <!--
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-30 11:57:52
- * @Description: 智能分析 - 选择人脸 - 从抓拍库选择
+ * @Description: 智能分析 - 选择人脸 - 从人脸库选择
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-14 09:29:56
+ * @LastEditTime: 2024-09-12 20:21:37
 -->
 <template>
-    <div class="snap">
+    <div class="feature">
         <div
             class="base-btn-box"
             :span="2"
         >
             <div>
-                <BaseDateRange
-                    :model-value="formData.dateRange"
-                    :type="pageData.dateRangeType"
-                    @change="changeDateRange"
-                />
+                <span class="group-title">{{ Translate('IDCS_ADD_FACE_GROUP') }}</span>
+                <el-checkbox
+                    v-model="pageData.isAllFaceGroup"
+                    @change="changeAllFaceGroup"
+                    >{{ Translate('IDCS_ALL') }}</el-checkbox
+                >
+                <el-text class="group-list text-ellipsis">{{ formData.faceGroup.map((item) => item.name).join(';') }}</el-text>
             </div>
             <div>
-                <BaseDateTab
-                    :model-value="formData.dateRange"
-                    @change="changeDateRange"
-                />
+                <el-button @click="changeGroup">{{ Translate('IDCS_CONFIGURATION') }}</el-button>
             </div>
         </div>
-        <div class="chl">
-            <span class="chl-title">{{ Translate('IDCS_CHANNEL') }}</span>
-            <el-checkbox
-                v-model="pageData.isAllChl"
-                @change="changeAllChl"
-                >{{ Translate('IDCS_ALL') }}</el-checkbox
-            >
-            <el-text class="chl-chls text-ellipsis">{{ formData.chls.map((item) => item.label).join(';') }}</el-text>
-            <el-button @click="changeChl">{{ Translate('IDCS_MORE') }}</el-button>
-            <el-button @click="searchData">{{ Translate('IDCS_SEARCH') }}</el-button>
-        </div>
+        <el-form
+            label-position="left"
+            :style="{
+                '--form-input-width': '200px',
+            }"
+            class="narrow"
+        >
+            <el-form-item>
+                <el-input
+                    v-model="formData.name"
+                    :placeholder="Translate('IDCS_SEARCH_TARGET_PERSON')"
+                />
+                <el-button @click="searchFace">{{ Translate('IDCS_SEARCH') }}</el-button>
+            </el-form-item>
+        </el-form>
         <div class="choose">
             <div class="choose-list">
                 <IntelBaseFaceItem
                     v-for="(item, index) in filterListData"
-                    :key="item.frameTime"
-                    :src="item.pic || ''"
+                    :key="item.id"
+                    :src="item.pic[0] || ''"
                     :model-value="formData.faceIndex.includes(index + (formData.pageIndex - 1) * formData.pageSize)"
-                    :disabled="!item.pic"
-                    :icon="item.featureStatus && !multiple ? 'identity' : ''"
+                    :disabled="!item.pic[0]"
                     @update:model-value="selectFace(index + (formData.pageIndex - 1) * formData.pageSize)"
                 >
-                    {{ displayDateTime(item.timestamp) }}<br />{{ item.chlName }}
+                    {{ item.name }}
                 </IntelBaseFaceItem>
             </div>
             <div
@@ -64,30 +66,36 @@
                         layout="prev, pager, next, total"
                         :total="listData.length"
                         size="small"
-                        @current-change="changeFacePage"
+                        @current-change="changePage"
                     />
                 </div>
             </div>
         </div>
         <BaseTableSelectPop
-            v-model="pageData.isSelectChlPop"
-            :title="Translate('IDCS_CHANNEL_SELECT')"
-            :data="pageData.chlList"
-            :current="formData.chls"
-            :label-title="Translate('IDCS_CHANNEL_NAME')"
-            @confirm="confirmChangeChl"
+            v-model="pageData.isSelectGroupPop"
+            :title="Translate('IDCS_CONFIGURATION')"
+            :data="pageData.faceGroupList"
+            :current="formData.faceGroup"
+            :label-title="Translate('IDCS_ADD_FACE_GROUP')"
+            value=""
+            label=""
+            @confirm="confirmChangeGroup"
         />
     </div>
 </template>
 
-<script lang="ts" src="./IntelFaceDBChooseFaceSnapPanel.v.ts"></script>
+<script lang="ts" src="./IntelFaceDBChooseFaceFacePanel.v.ts"></script>
 
 <style lang="scss" scoped>
-.snap {
+.el-form-item {
+    padding-inline: 0 !important;
+}
+
+.feature {
     width: 922px;
 }
 
-.chl {
+.group {
     display: flex;
     margin-top: 10px;
     align-items: center;
@@ -97,7 +105,7 @@
         margin-right: 5px;
     }
 
-    &-chls {
+    &-list {
         margin: 0 20px 0 10px;
         width: 500px;
     }

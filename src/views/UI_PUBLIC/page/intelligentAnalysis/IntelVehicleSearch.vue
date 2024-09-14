@@ -1,66 +1,113 @@
 <!--
  * @Author: yejiahao yejiahao@tvt.net.cn
- * @Date: 2024-09-05 17:42:11
- * @Description: 智能分析 - 人体搜索
+ * @Date: 2024-09-10 09:15:11
+ * @Description: 智能分析 - 车辆搜索
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-14 09:41:37
+ * @LastEditTime: 2024-09-14 09:52:10
 -->
 <template>
     <div class="base-intel-box">
         <div class="base-intel-left base-intel-left-column">
-            <div>
-                <IntelBaseDateTimeSelector v-model="formData.dateRange" />
-                <IntelBaseChannelSelector
-                    v-model="formData.chl"
-                    @ready="getChlMap"
-                />
-                <IntelBaseEventSelector
-                    v-model="formData.event"
-                    mode="checkbox"
-                    :range="['person']"
-                />
-                <IntelBaseProfileSelector
-                    v-model="formData.attribute"
-                    :range="['person']"
-                />
-                <div class="base-intel-row">
-                    <el-button @click="getData">{{ Translate('IDCS_SEARCH') }}</el-button>
-                    <IntelBaseCollect
-                        storage-key="intel_body_search"
-                        :data="{
-                            dateRange: formData.dateRange,
-                            chl: formData.chl,
-                            event: formData.event,
-                            profile: formData.attribute,
+            <el-radio-group
+                v-model="pageData.searchType"
+                size="large"
+                class="inline hide-border-top hide-border-inline"
+                @change="changeSearchType"
+            >
+                <el-radio-button
+                    v-for="item in pageData.searchOptions"
+                    :key="item.value"
+                    :value="item.value"
+                    >{{ item.label }}</el-radio-button
+                >
+            </el-radio-group>
+            <div class="base-intel-left-column">
+                <div>
+                    <IntelBaseDateTimeSelector v-model="formData.dateRange" />
+                    <IntelBaseChannelSelector
+                        v-model="formData.chl"
+                        :mode="pageData.searchType === 'event' ? 'channel' : 'park'"
+                        @ready="getChlMap"
+                    />
+                    <IntelBaseEventSelector
+                        v-show="pageData.searchType === 'event'"
+                        v-model="formData.event"
+                        mode="checkbox"
+                        :range="['vehicle']"
+                    />
+                    <IntelBaseAttributeSelector
+                        v-show="pageData.searchType === 'event'"
+                        :model-value="[formData.target, []]"
+                        :range="['vehicle']"
+                        placeholder-type="target"
+                        @update:model-value="changeTarget"
+                    />
+                    <IntelBaseProfileSelector
+                        v-show="pageData.searchType === 'event'"
+                        v-model="formData.attribute"
+                        placeholder-type="spread"
+                        :range="formData.target"
+                    />
+                    <IntelBaseVehicleDirectionSelector
+                        v-show="pageData.searchType === 'park'"
+                        v-model="formData.direction"
+                    />
+                    <el-form
+                        label-position="left"
+                        class="narrow"
+                        :style="{
+                            '--form-label-width': 'auto',
                         }"
-                        @change="changeCollect"
-                    />
+                    >
+                        <el-form-item :label="Translate('IDCS_LICENSE_PLATE_NUM')">
+                            <el-input
+                                v-model="formData.plateNumber"
+                                :placeholder="Translate('IDCS_ENTER_PLATE_NUM')"
+                            />
+                        </el-form-item>
+                    </el-form>
+                    <div class="base-intel-row">
+                        <el-button @click="getData">{{ Translate('IDCS_SEARCH') }}</el-button>
+                        <IntelBaseCollect
+                            :storage-key="pageData.searchType === 'event' ? 'intel_vehicle_event_search' : 'intel_vehicle_park_search'"
+                            :data="{
+                                dateRange: formData.dateRange,
+                                chl: formData.chl,
+                                event: formData.event,
+                                profile: formData.attribute,
+                                attribute: [formData.target, []],
+                                plateNumber: formData.plateNumber,
+                                direction: formData.direction,
+                            }"
+                            @change="changeCollect"
+                        />
+                    </div>
                 </div>
-            </div>
-            <div class="base-intel-playback-box">
-                <h3>{{ Translate('IDCS_REPLAY') }}</h3>
-                <div class="player">
-                    <BaseVideoPlayer
-                        ref="playerRef"
-                        :split="1"
-                        type="record"
-                        only-wasm
-                        @ontime="handlePlayerTimeUpdate"
-                    />
-                </div>
-                <div class="control-bar">
-                    <span class="start-time">{{ displayTime(playerData.startTime) }}</span>
-                    <el-slider
-                        v-model="playerData.currentTime"
-                        :show-tooltip="false"
-                        :min="playerData.startTime"
-                        :max="playerData.endTime"
-                        :disabled="playerData.startTime === 0 || playerData.endTime === 0"
-                        @mousedown="handleSliderMouseDown"
-                        @mouseup="handleSliderMouseUp"
-                        @change="handleSliderChange"
-                    />
-                    <span class="end-time">{{ displayTime(playerData.endTime) }}</span>
+                <div class="base-intel-playback-box">
+                    <h3>{{ Translate('IDCS_REPLAY') }}</h3>
+                    <div class="player">
+                        <BaseVideoPlayer
+                            ref="playerRef"
+                            :split="1"
+                            type="record"
+                            only-wasm
+                            @ontime="handlePlayerTimeUpdate"
+                        />
+                    </div>
+                    <div class="control-bar">
+                        <span class="start-time">{{ displayTime(playerData.startTime) }}</span>
+                        <el-slider
+                            v-model="playerData.currentTime"
+                            :show-tooltip="false"
+                            :min="playerData.startTime"
+                            :max="playerData.endTime"
+                            :disabled="playerData.startTime === 0 || playerData.endTime === 0"
+                            @mousedown="handleSliderMouseDown"
+                            @mouseup="handleSliderMouseUp"
+                            @change="handleSliderChange"
+                        />
+                        <span class="end-time">{{ displayTime(playerData.endTime) }}</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -83,7 +130,7 @@
             <div class="base-intel-row space-between">
                 <div>
                     <el-radio-group
-                        v-show="pageData.chartType === 'list'"
+                        v-show="pageData.chartType === 'list' && pageData.searchType === 'event'"
                         v-model="pageData.listType"
                         :style="{
                             '--form-radio-button-width': '160px',
@@ -99,6 +146,7 @@
                 </div>
                 <div>
                     <el-radio-group
+                        v-show="pageData.searchType === 'event'"
                         v-model="pageData.sortType"
                         @change="changeSortType"
                     >
@@ -167,9 +215,22 @@
                         </template>
                     </el-table-column>
                     <el-table-column
-                        :label="Translate('IDCS_CHANNEL')"
+                        :label="formData.searchType === 'park' ? Translate('IDCS_SEARCH_ENTRANCE_AND_EXIT') : Translate('IDCS_CHANNEL')"
                         prop="chlName"
                     >
+                    </el-table-column>
+                    <el-table-column
+                        :label="Translate('IDCS_LICENSE_PLATE_NUM')"
+                        prop="plateNumber"
+                    />
+                    <el-table-column
+                        v-if="formData.searchType === 'park'"
+                        :label="Translate('IDCS_VEHICLE_DIRECTION')"
+                        prop="direction"
+                    >
+                        <template #default="scope">
+                            {{ displayDirection(scope.row.direction) }}
+                        </template>
                     </el-table-column>
                     <el-table-column
                         width="100"
@@ -193,7 +254,9 @@
                 :span="2"
             >
                 <div>
-                    <el-checkbox v-model="pageData.isBackUpPic">{{ Translate('IDCS_BACKUP_PICTURE') }}</el-checkbox>
+                    <el-checkbox v-model="pageData.isBackUpPic">
+                        {{ Translate('IDCS_BACKUP_PICTURE') }}{{ sliceTableData.length && isSupportCSV ? ` (${Translate('IDCS_LICENSE_PLATE_NUM_LIST')})` : '' }}
+                    </el-checkbox>
                     <el-checkbox v-model="pageData.isBackUpVideo">{{ Translate('IDCS_BACKUP_RECORD') }}</el-checkbox>
                 </div>
                 <el-pagination
@@ -219,6 +282,7 @@
             :list="sliceTableData"
             :index="pageData.detailIndex"
             @close="pageData.isDetailPop = false"
+            @add="addPlate"
             @play-rec="playRec"
         />
         <BasePlaybackPop
@@ -242,11 +306,37 @@
             @record-file="downloadVideo"
             @close="pageData.isBackUpLocalPop = false"
         />
+        <IntelLicencePlateDBAddPlatePop
+            v-model="pageData.isAddPlatePop"
+            type="register"
+            :data="{
+                plateNumber: pageData.addPlateNumber,
+            }"
+            @confirm="pageData.isAddPlatePop = false"
+            @close="pageData.isAddPlatePop = false"
+        />
     </div>
 </template>
 
-<script lang="ts" src="./IntelBodySearch.v.ts"></script>
+<script lang="ts" src="./IntelVehicleSearch.v.ts"></script>
 
 <style lang="scss">
 @import '@/views/UI_PUBLIC/publicStyle/intelligentAnalysis.scss';
+</style>
+
+<style lang="scss" scoped>
+.base-intel-left {
+    padding: 0;
+
+    .el-radio-group {
+        flex-shrink: 0;
+    }
+
+    & > .base-intel-left-column {
+        padding: 20px;
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box;
+    }
+}
 </style>

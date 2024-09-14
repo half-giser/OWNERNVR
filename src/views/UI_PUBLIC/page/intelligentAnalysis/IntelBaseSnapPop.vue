@@ -3,7 +3,7 @@
  * @Date: 2024-09-09 15:29:39
  * @Description: 抓拍弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-09 19:25:10
+ * @LastEditTime: 2024-09-11 14:24:06
 -->
 <template>
     <el-dialog
@@ -74,6 +74,16 @@
                     :span="12"
                     class="el-col-flex-start"
                 >
+                    <el-button
+                        v-show="isAddBtn"
+                        @click="add"
+                        >{{ Translate('IDCS_REGISTER') }}</el-button
+                    >
+                    <el-button
+                        v-show="showSearch"
+                        @click="search"
+                        >{{ Translate('IDCS_SEARCH') }}</el-button
+                    >
                     <el-button @click="playRec">{{ Translate('IDCS_REPLAY') }}</el-button>
                 </el-col>
                 <el-col

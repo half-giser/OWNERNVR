@@ -3,7 +3,7 @@
  * @Date: 2024-09-05 10:22:52
  * @Description: 智能分析 事件选择器
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 15:35:29
+ * @LastEditTime: 2024-09-10 10:13:26
  */
 export default defineComponent({
     props: {
@@ -15,7 +15,7 @@ export default defineComponent({
             default: 'radio',
         },
         /**
-         * @property face, person, vehicle
+         * @property ['face', 'person', 'vehicle']
          */
         range: {
             type: Array as PropType<string[]>,

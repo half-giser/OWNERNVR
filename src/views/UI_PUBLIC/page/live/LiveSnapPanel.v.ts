@@ -3,28 +3,32 @@
  * @Date: 2024-07-29 16:10:28
  * @Description: 现场预览-目标检测视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-09 10:10:31
+ * @LastEditTime: 2024-09-14 15:18:13
  */
 import WebsocketSnap, { type WebsocketSnapOnSuccessSnap } from '@/utils/websocket/websocketSnap'
 import LiveSnapFaceMatchItem from './LiveSnapFaceMatchItem.vue'
 import LiveSnapItem from './LiveSnapItem.vue'
 import LiveSnapStructItem from './LiveSnapStructItem.vue'
-import LiveSnapInfoPop from './LiveSnapInfoPop.vue'
-import LiveSnapFaceMatchPop from './LiveSnapFaceMatchPop.vue'
 import IntelFaceDBSnapRegisterPop from '../intelligentAnalysis/IntelFaceDBSnapRegisterPop.vue'
 import IntelLicencePlateDBAddPlatePop from '../intelligentAnalysis/IntelLicencePlateDBAddPlatePop.vue'
+import IntelBaseFaceMatchPop from '../intelligentAnalysis/IntelBaseFaceMatchPop.vue'
+import IntelBaseSnapPop from '../intelligentAnalysis/IntelBaseSnapPop.vue'
+import type { IntelFaceMatchPopList, IntelSnapPopList } from '@/types/apiType/intelligentAnalysis'
 
 export default defineComponent({
     components: {
         LiveSnapFaceMatchItem,
         LiveSnapItem,
         LiveSnapStructItem,
-        LiveSnapInfoPop,
-        LiveSnapFaceMatchPop,
         IntelFaceDBSnapRegisterPop,
         IntelLicencePlateDBAddPlatePop,
+        IntelBaseSnapPop,
+        IntelBaseFaceMatchPop,
     },
     props: {
+        /**
+         * @property 用户通道权限
+         */
         auth: {
             type: Object as PropType<UserChlAuth>,
             required: true,
@@ -36,14 +40,40 @@ export default defineComponent({
         const router = useRouter()
         const dateTime = useDateTimeStore()
 
+        // 由于Webscoket回传和HTTP请求的事件类型和目标类型的key值命名不同，所以需根据映射关系对列表数据重新组装
+
+        let faceListMapping: WebsocketSnapOnSuccessSnap[] = []
+        let infoListMapping: WebsocketSnapOnSuccessSnap[] = []
+
+        const TARGET_MAPPING: Record<string, string> = {
+            face_detect: 'face',
+            face_verify: 'face',
+            vehicle_plate: 'vehicle_plate',
+            boundary: 'person',
+        }
+
+        const EVENT_TYPE: Record<string, string> = {
+            perimeter: 'intrusion',
+            aoi_entry: 'intrusion',
+            aoi_leave: 'intrusion',
+            tripwire: 'tripwire',
+            pass_line: 'passLine',
+            video_metavideo: 'videoMetadata',
+            face_detect: 'faceDetection',
+            face_verify: 'faceMatch',
+            vehicle_plate: 'plateDetection',
+            plate: 'plateMatch',
+        }
+
+        const COMPARE_TYPE: Record<number, string> = {
+            1: '',
+            3: 'Stranger',
+            4: 'Stranger',
+            6: 'WhiteList',
+        }
+
         // 获取历史抓拍图片数量
         const SNAP_LIST_LENGTH = 40
-
-        // const SNAP_TARGET_MAPPING: Record<string, string> = {
-        //     person: 'person_info',
-        //     vehicle: 'car_info',
-        //     non_vehicle: 'bike_info',
-        // }
 
         const pageData = ref({
             // 底部菜单
@@ -68,7 +98,7 @@ export default defineComponent({
             // 是否显示详情弹窗
             isInfoPop: false,
             // 详情弹窗的抓拍数据列表
-            infoList: [] as WebsocketSnapOnSuccessSnap[],
+            infoList: [] as IntelSnapPopList[],
             // 注册图片
             registerPic: '',
             // 是否显示注册弹窗
@@ -80,7 +110,7 @@ export default defineComponent({
             // 触发人脸匹配的项的索引
             faceIndex: 0,
             // 人脸匹配弹窗的抓拍数据列表
-            faceList: [] as WebsocketSnapOnSuccessSnap[],
+            faceList: [] as IntelFaceMatchPopList[],
             // 是否显示人脸匹配弹窗
             isFacePop: false,
         })
@@ -163,6 +193,56 @@ export default defineComponent({
         }
 
         /**
+         * @description 抓拍详情弹窗回放回调
+         * @param item
+         * @param {number} index
+         * @returns
+         */
+        const handleSnapRec = (item: any, index: number) => {
+            return playRec(infoListMapping[index])
+        }
+
+        /**
+         * @description 抓拍详情弹窗注册回调
+         * @param item
+         * @param {number} index
+         * @returns
+         */
+        const handleSnapRegister = (item: any, index: number) => {
+            return register(infoListMapping[index])
+        }
+
+        /**
+         * @description 抓拍详情弹窗搜索回调
+         * @param item
+         * @param {number} index
+         * @returns
+         */
+        const handleSnapSearch = (item: any, index: number) => {
+            return search(infoListMapping[index])
+        }
+
+        /**
+         * @description 匹配详情弹窗回放回调
+         * @param item
+         * @param {number} index
+         * @returns
+         */
+        const handleMatchSnapRec = (item: any, index: number) => {
+            return search(faceListMapping[index])
+        }
+
+        /**
+         * @description 匹配抓拍详情弹窗搜索回调
+         * @param item
+         * @param {number} index
+         * @returns
+         */
+        const handleMatchSnapSearch = (item: any, index: number) => {
+            return search(faceListMapping[index])
+        }
+
+        /**
          * @description 回放
          * @param {Object} data
          */
@@ -191,31 +271,32 @@ export default defineComponent({
                 return
             }
             if (data.type === 'face_detect' || data.type === 'face_verify') {
-                if (type === 'featureImg') {
+                if (type === 'face') {
                     // 按右侧的比对成功的人脸库图片搜索
                     const searchInfo = {
-                        picType: 'faceFeaturePic', // 人脸库图片
+                        picType: 'face', // 人脸库图片
                         id: data.info.face_respo_id,
                         name: data.info.name,
                         birthday: data.info.birth_date,
                         certificateNum: data.info.certificate_number,
                         mobile: data.info.mobile_phone_number,
-                        content1: 'data:image/png;base64,' + data.repo_pic,
+                        pic: 'data:image/png;base64,' + data.repo_pic,
                     }
                     router.push({
-                        path: 'intelligent-analysis/search/search-face',
+                        path: '/intelligent-analysis/search/search-face',
                         state: searchInfo,
                     })
                 } else {
                     // 按左侧的抓拍图片搜索
                     const searchInfo = {
+                        picType: 'snap',
                         chlId: data.chlId,
                         imgId: data.info.face_id,
                         frameTime: data.frame_time,
-                        content: 'data:image/png;base64,' + data.snap_pic,
+                        pic: 'data:image/png;base64,' + data.snap_pic,
                     }
                     router.push({
-                        path: 'intelligent-analysis/search/search-face',
+                        path: '/intelligent-analysis/search/search-face',
                         state: searchInfo,
                     })
                 }
@@ -225,7 +306,7 @@ export default defineComponent({
                     targetType: data.info.target_type,
                 }
                 router.push({
-                    path: 'intelligent-analysis/search/search-combine',
+                    path: '/intelligent-analysis/search/search-body',
                     state: searchInfo,
                 })
             } else if (data.type === 'vehicle_plate') {
@@ -239,7 +320,7 @@ export default defineComponent({
                     plateNum: data.info.plate,
                 }
                 router.push({
-                    path: 'intelligent-analysis/search/search-vehicle',
+                    path: '/intelligent-analysis/search/search-vehicle',
                     state: searchInfo,
                 })
             }
@@ -250,8 +331,53 @@ export default defineComponent({
          * @param {Number} index
          */
         const showDetail = (index: number) => {
+            infoListMapping = pageData.value.snapListQueue.slice(0, pageData.value.menu[pageData.value.activeMenu].maxlength)
             pageData.value.infoIndex = index
-            pageData.value.infoList = pageData.value.snapListQueue.slice(0, pageData.value.menu[pageData.value.activeMenu].maxlength)
+            pageData.value.infoList = infoListMapping.map((item) => {
+                const width = item.info.ptWidth || 10000
+                const height = item.info.ptHeight || 10000
+                let X1 = 0,
+                    X2 = 0,
+                    Y1 = 0,
+                    Y2 = 0
+                const pointLeftTop = item.info.point_left_top
+                const pointRightBottm = item.info.point_right_bottom
+                if (pointLeftTop && pointRightBottm) {
+                    const leftTop = pointLeftTop.slice(1, pointLeftTop.length - 1).split(',')
+                    const rightBottom = pointRightBottm.slice(1, pointRightBottm.length - 1).split(',')
+                    X1 = Number(leftTop[0]) / width
+                    X2 = Number(rightBottom[0]) / width
+                    Y1 = Number(leftTop[1]) / height
+                    Y2 = Number(rightBottom[1]) / height
+                }
+
+                let eventType = EVENT_TYPE[item.info.event_type] || EVENT_TYPE[item.type] || ''
+                const compareType = COMPARE_TYPE[item.info.compare_status] || ''
+                if (eventType === 'plateDetection' && compareType !== '') {
+                    eventType = 'plateMatch'
+                }
+
+                return {
+                    imgId: item.info.face_id,
+                    pic: item.snap_pic ? 'data:image/png;base64,' + item.snap_pic : '',
+                    panorama: item.scene_pic ? 'data:image/png;base64,' + item.scene_pic : '',
+                    width,
+                    height,
+                    X1,
+                    Y1,
+                    X2,
+                    Y2,
+                    timestamp: item.detect_time,
+                    frameTime: item.frame_time,
+                    chlId: item.chlId,
+                    chlName: item.chlName,
+                    recStartTime: item.detect_time - 5000,
+                    recEndTime: item.detect_time + 5000,
+                    eventType: eventType + compareType,
+                    targetType: TARGET_MAPPING[item.type] || '',
+                    plateNumber: item.info.plate || '',
+                }
+            })
             pageData.value.isInfoPop = true
         }
 
@@ -261,7 +387,7 @@ export default defineComponent({
          */
         const register = (value: WebsocketSnapOnSuccessSnap) => {
             if (value.type === 'face_detect') {
-                pageData.value.registerPic = value.snap_pic!
+                pageData.value.registerPic = 'data:image/png;base64,' + value.snap_pic!
                 pageData.value.isRegisterPop = true
             } else if (value.type === 'vehicle_plate') {
                 pageData.value.addPlateNum = value.info.plate!
@@ -274,10 +400,68 @@ export default defineComponent({
          * @param {Number} index
          */
         const showFaceDetail = (index: number) => {
+            faceListMapping = pageData.value.snapListQueue.slice(0, pageData.value.menu[pageData.value.activeMenu].maxlength).filter((item) => item.type === 'face_verify')
             const faceId = currentSnapList.value[index].info.face_id
-            pageData.value.faceList = pageData.value.snapListQueue.slice(0, pageData.value.menu[pageData.value.activeMenu].maxlength).filter((item) => item.type === 'face_verify')
+            pageData.value.faceList = faceListMapping.map((item) => {
+                const width = item.info.ptWidth || 10000
+                const height = item.info.ptHeight || 10000
+                let X1 = 0,
+                    X2 = 0,
+                    Y1 = 0,
+                    Y2 = 0
+                const pointLeftTop = item.info.point_left_top
+                const pointRightBottm = item.info.point_right_bottom
+                if (pointLeftTop && pointRightBottm) {
+                    const leftTop = pointLeftTop.slice(1, pointLeftTop.length - 1).split(',')
+                    const rightBottom = pointRightBottm.slice(1, pointRightBottm.length - 1).split(',')
+                    X1 = Number(leftTop[0]) / width
+                    X2 = Number(rightBottom[0]) / width
+                    Y1 = Number(leftTop[1]) / height
+                    Y2 = Number(rightBottom[1]) / height
+                }
+
+                let eventType = EVENT_TYPE[item.info.event_type] || EVENT_TYPE[item.type] || ''
+                const compareType = COMPARE_TYPE[item.info.compare_status] || ''
+                if (eventType === 'plateDetection' && compareType !== '') {
+                    eventType = 'plateMatch'
+                }
+
+                return {
+                    imgId: item.info.face_id,
+                    pic: item.snap_pic ? 'data:image/png;base64,' + item.snap_pic : '',
+                    match: item.repo_pic ? 'data:image/png;base64,' + item.repo_pic : '',
+                    timestamp: item.detect_time,
+                    frameTime: item.frame_time,
+                    chlId: item.chlId,
+                    chlName: item.chlName,
+                    recStartTime: item.detect_time - 5000,
+                    recEndTime: item.detect_time + 5000,
+                    eventType: eventType + compareType,
+                    targetType: TARGET_MAPPING[item.type] || '',
+                    similarity: Number(item.info.similarity),
+
+                    number: item.info.serial_number,
+                    name: item.info.name,
+                    sex: item.info.gender,
+                    birthday: item.info.birth_date,
+                    nativePlace: '',
+                    certificateType: '',
+                    certificateNum: item.info.certificate_number,
+                    mobile: item.info.mobile_phone_number,
+                    note: item.info.remarks || '',
+                    groupName: item.info.group_name,
+
+                    panorama: item.scene_pic ? 'data:image/png;base64,' + item.scene_pic : '',
+                    width,
+                    height,
+                    X1,
+                    Y1,
+                    X2,
+                    Y2,
+                }
+            })
             pageData.value.faceIndex = pageData.value.faceList.findIndex((item) => {
-                return item.info.face_id === faceId
+                return item.imgId === faceId
             })
             pageData.value.isFacePop = true
         }
@@ -301,13 +485,18 @@ export default defineComponent({
             register,
             currentSnapList,
             showFaceDetail,
+            handleSnapRec,
+            handleSnapRegister,
+            handleSnapSearch,
+            handleMatchSnapRec,
+            handleMatchSnapSearch,
             LiveSnapFaceMatchItem,
             LiveSnapItem,
             LiveSnapStructItem,
-            LiveSnapInfoPop,
             IntelFaceDBSnapRegisterPop,
             IntelLicencePlateDBAddPlatePop,
-            LiveSnapFaceMatchPop,
+            IntelBaseFaceMatchPop,
+            IntelBaseSnapPop,
         }
     },
 })

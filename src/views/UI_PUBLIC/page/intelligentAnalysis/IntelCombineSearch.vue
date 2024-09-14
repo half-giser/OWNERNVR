@@ -1,9 +1,9 @@
 <!--
  * @Author: yejiahao yejiahao@tvt.net.cn
- * @Date: 2024-09-05 17:42:11
- * @Description: 智能分析 - 人体搜索
+ * @Date: 2024-09-10 18:29:07
+ * @Description: 智能分析 - 组合搜索
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-14 09:41:37
+ * @LastEditTime: 2024-09-14 09:48:50
 -->
 <template>
     <div class="base-intel-box">
@@ -17,21 +17,43 @@
                 <IntelBaseEventSelector
                     v-model="formData.event"
                     mode="checkbox"
-                    :range="['person']"
+                    :range="['face', 'person', 'vehicle']"
+                />
+                <IntelBaseAttributeSelector
+                    v-model="formData.target"
+                    :range="['face', 'vehicle']"
+                    placeholder-type="target"
                 />
                 <IntelBaseProfileSelector
                     v-model="formData.attribute"
-                    :range="['person']"
+                    placeholder-type="spread"
+                    :range="attributeRange"
                 />
+                <el-form
+                    label-position="left"
+                    class="narrow"
+                    :style="{
+                        '--form-label-width': 'auto',
+                    }"
+                >
+                    <el-form-item :label="Translate('IDCS_LICENSE_PLATE_NUM')">
+                        <el-input
+                            v-model="formData.plateNumber"
+                            :placeholder="Translate('IDCS_ENTER_PLATE_NUM')"
+                        />
+                    </el-form-item>
+                </el-form>
                 <div class="base-intel-row">
                     <el-button @click="getData">{{ Translate('IDCS_SEARCH') }}</el-button>
                     <IntelBaseCollect
-                        storage-key="intel_body_search"
+                        storage-key="intel_combine_search"
                         :data="{
                             dateRange: formData.dateRange,
                             chl: formData.chl,
                             event: formData.event,
                             profile: formData.attribute,
+                            attribute: formData.target,
+                            plateNumber: formData.plateNumber,
                         }"
                         @change="changeCollect"
                     />
@@ -172,6 +194,10 @@
                     >
                     </el-table-column>
                     <el-table-column
+                        :label="Translate('IDCS_LICENSE_PLATE_NUM')"
+                        prop="plateNumber"
+                    />
+                    <el-table-column
                         width="100"
                         :label="Translate('IDCS_DETAIL_INFO')"
                     >
@@ -193,7 +219,9 @@
                 :span="2"
             >
                 <div>
-                    <el-checkbox v-model="pageData.isBackUpPic">{{ Translate('IDCS_BACKUP_PICTURE') }}</el-checkbox>
+                    <el-checkbox v-model="pageData.isBackUpPic">
+                        {{ Translate('IDCS_BACKUP_PICTURE') }}{{ sliceTableData.length && isSupportCSV ? ` (${Translate('IDCS_LICENSE_PLATE_NUM_LIST')})` : '' }}
+                    </el-checkbox>
                     <el-checkbox v-model="pageData.isBackUpVideo">{{ Translate('IDCS_BACKUP_RECORD') }}</el-checkbox>
                 </div>
                 <el-pagination
@@ -220,6 +248,7 @@
             :index="pageData.detailIndex"
             @close="pageData.isDetailPop = false"
             @play-rec="playRec"
+            @add="register"
         />
         <BasePlaybackPop
             v-model="pageData.isPlaybackPop"
@@ -242,11 +271,22 @@
             @record-file="downloadVideo"
             @close="pageData.isBackUpLocalPop = false"
         />
+        <IntelLicencePlateDBAddPlatePop
+            v-model="pageData.isAddPlatePop"
+            type="register"
+            :data="{
+                plateNumber: pageData.addPlateNumber,
+            }"
+            @confirm="pageData.isAddPlatePop = false"
+            @close="pageData.isAddPlatePop = false"
+        />
+        <IntelFaceDBSnapRegisterPop
+            v-model="pageData.isAddFacePop"
+            :pic="pageData.addFacePic"
+            @confirm="pageData.isAddFacePop = false"
+            @close="pageData.isAddFacePop = false"
+        />
     </div>
 </template>
 
-<script lang="ts" src="./IntelBodySearch.v.ts"></script>
-
-<style lang="scss">
-@import '@/views/UI_PUBLIC/publicStyle/intelligentAnalysis.scss';
-</style>
+<script lang="ts" src="./IntelCombineSearch.v.ts"></script>

@@ -1,18 +1,21 @@
 /*
  * @Author: yejiahao yejiahao@tvt.net.cn
- * @Date: 2024-09-09 19:21:49
- * @Description: 智能分析 - 人体搜索
+ * @Date: 2024-09-10 09:15:27
+ * @Description: 智能分析 - 车辆搜索
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-14 09:42:55
+ * @LastEditTime: 2024-09-14 09:51:28
  */
-import { type IntelSearchCollectList, type IntelSearchList, IntelSnapImgDto, IntelSearchBodyForm, type IntelSnapPopList } from '@/types/apiType/intelligentAnalysis'
+import { type IntelSearchCollectList, type IntelSearchList, IntelSnapImgDto, IntelSearchVehicleForm, type IntelSnapPopList } from '@/types/apiType/intelligentAnalysis'
 import IntelBaseChannelSelector from './IntelBaseChannelSelector.vue'
 import IntelBaseDateTimeSelector from './IntelBaseDateTimeSelector.vue'
 import IntelBaseEventSelector from './IntelBaseEventSelector.vue'
 import IntelBaseProfileSelector from './IntelBaseProfileSelector.vue'
+import IntelBaseAttributeSelector from './IntelBaseAttributeSelector.vue'
 import IntelBaseCollect from './IntelBaseCollect.vue'
 import IntelBaseSnapItem from './IntelBaseSnapItem.vue'
 import IntelBaseSnapPop from './IntelBaseSnapPop.vue'
+import IntelBaseVehicleDirectionSelector from './IntelBaseVehicleDirectionSelector.vue'
+import IntelLicencePlateDBAddPlatePop from './IntelLicencePlateDBAddPlatePop.vue'
 import type { TableInstance, CheckboxValueType } from 'element-plus'
 import { type PlaybackPopList } from '@/components/player/BasePlaybackPop.vue'
 import BackupPop from '../searchAndBackup/BackupPop.vue'
@@ -27,9 +30,12 @@ export default defineComponent({
         IntelBaseDateTimeSelector,
         IntelBaseEventSelector,
         IntelBaseProfileSelector,
+        IntelBaseAttributeSelector,
         IntelBaseCollect,
         IntelBaseSnapItem,
         IntelBaseSnapPop,
+        IntelBaseVehicleDirectionSelector,
+        IntelLicencePlateDBAddPlatePop,
         BackupPop,
         BackupLocalPop,
     },
@@ -39,6 +45,7 @@ export default defineComponent({
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const dateTime = useDateTimeStore()
         const auth = useUserChlAuth()
+        const userSession = useUserSessionStore()
 
         // 图像失败重新请求最大次数
         const REPEAR_REQUEST_IMG_TIMES = 2
@@ -47,7 +54,28 @@ export default defineComponent({
 
         let chlMap: Record<string, string> = {}
 
+        const DIRECTION_MAPPING: Record<number | string, string> = {
+            0: '', // 无
+            1: Translate('IDCS_APPROACH'), // 进场
+            2: Translate('IDCS_APPEARANCE'), // 出场
+            in: Translate('IDCS_APPROACH'), // 进场
+            out: Translate('IDCS_APPEARANCE'), // 出场
+        }
+
         const pageData = ref({
+            // 搜索类型
+            searchType: 'event',
+            // 搜索选项
+            searchOptions: [
+                {
+                    label: Translate('IDCS_BY_EVENT'),
+                    value: 'event',
+                },
+                {
+                    label: Translate('IDCS_VEHICLE_IN_OUT_NOTE'),
+                    value: 'park',
+                },
+            ],
             // 图表类型
             chartType: 'list',
             // 图表选项
@@ -109,9 +137,13 @@ export default defineComponent({
             playbackList: [] as PlaybackPopList[],
             // 是否支持备份（H5模式）
             isSupportBackUp: isBrowserSupportWasm() && !isHttpsLogin(),
+            // 是否打开新增车牌弹窗
+            isAddPlatePop: false,
+            // 新增车牌的车牌号码
+            addPlateNumber: '',
         })
 
-        const formData = ref(new IntelSearchBodyForm())
+        const formData = ref(new IntelSearchVehicleForm())
 
         const playerData = ref({
             // 播放开始时间
@@ -134,6 +166,11 @@ export default defineComponent({
 
         const sliceTableData = ref<IntelSearchList[]>([])
 
+        // 车牌侦测、车牌识别才下载CSV
+        const isSupportCSV = computed(() => {
+            return !['plateDetection', 'plateMatchWhiteList', 'plateMatchStranger'].some((event) => !formData.value.event.includes(event))
+        })
+
         /**
          * @description 获取通道ID与通道名称的映射
          * @param {Record<string, string>} e
@@ -143,14 +180,31 @@ export default defineComponent({
         }
 
         /**
+         * @description 更改目标
+         * @param {string[][]} e
+         */
+        const changeTarget = (e: string[][]) => {
+            formData.value.target = e[0]
+        }
+
+        /**
          * @description 收藏回显
-         * @param {string[]} e
+         * @param {IntelSearchCollectList} e
          */
         const changeCollect = (e: IntelSearchCollectList) => {
-            formData.value.dateRange = e.dateRange
-            formData.value.chl = e.chl
-            formData.value.attribute = e.profile
-            formData.value.event = e.event
+            if (pageData.value.searchType === 'event') {
+                formData.value.dateRange = e.dateRange
+                formData.value.chl = e.chl
+                formData.value.attribute = e.profile
+                formData.value.event = e.event
+                formData.value.plateNumber = e.plateNumber
+                formData.value.target = e.attribute[0]
+            } else {
+                formData.value.dateRange = e.dateRange
+                formData.value.chl = e.chl
+                formData.value.direction = e.direction
+                formData.value.plateNumber = e.plateNumber
+            }
             getData()
         }
 
@@ -173,6 +227,14 @@ export default defineComponent({
             return formatDate(timestamp, dateTime.timeFormat)
         }
 
+        /**
+         * @description 方向文本格式化
+         * @param {string} direction
+         */
+        const displayDirection = (direction: number | string) => {
+            return DIRECTION_MAPPING[direction] || '--'
+        }
+
         const getUniqueKey = (row: { imgId: string; frameTime: string }) => {
             if (!row.imgId || !row.frameTime) {
                 return Math.floor(Math.random() * 1e8) + ''
@@ -182,7 +244,7 @@ export default defineComponent({
 
         /**
          * @description 播放
-         * @param {Number} startTime 毫秒
+         * @param {IntelSearchList} row
          */
         const play = (row: IntelSearchList) => {
             stop()
@@ -288,6 +350,15 @@ export default defineComponent({
         }
 
         /**
+         * @description 更改搜索类型
+         */
+        const changeSearchType = () => {
+            if (pageData.value.searchType === 'park') {
+                pageData.value.listType = 'panorama'
+            }
+        }
+
+        /**
          * @description 更改排序类型 重新渲染列表
          */
         const changeSortType = () => {
@@ -351,6 +422,7 @@ export default defineComponent({
                             panorama: cachePic[key] ? cachePic[key].panorama : '',
                             eventType: $('//eventType').text(),
                             targetType: $('//targetType').text(),
+                            plateNumber: $('//plateNumber').text() || '--',
                             width,
                             height,
                             X1: leftTopX / width,
@@ -359,7 +431,6 @@ export default defineComponent({
                             Y2: rightBottomY / height,
                             isDelSnap: false,
                             isNoData: !content,
-                            plateNumber: '',
                         }
                         if (isPanorama) {
                             item.panorama = 'data:image/png;base64,' + content
@@ -409,7 +480,10 @@ export default defineComponent({
          * @description 获取列表数据
          */
         const getData = async () => {
+            const eventXml = pageData.value.searchType === 'event' ? `<events type="list">${formData.value.event.map((item) => `<item>${item}</item>`).join('')}</events>` : ''
+
             const attributeXml = Object.keys(formData.value.attribute)
+                .filter((key) => formData.value.target.includes(key))
                 .map((key) => {
                     const detail = Object.entries(formData.value.attribute[key])
                         .map((item) => {
@@ -423,22 +497,30 @@ export default defineComponent({
                 })
                 .join('')
 
+            let vehicleXml = ''
+            if (pageData.value.searchType === 'event') {
+                vehicleXml += formData.value.target.map((item) => `<item>${item}</item>`).join('')
+            } else {
+                vehicleXml += formData.value.direction.map((item) => `<item directionType="${item.toString()}">plate</item>`).join('')
+            }
+            if (formData.value.plateNumber) {
+                vehicleXml += `<item num="${formData.value.plateNumber}">plate</item>`
+            }
+
             const sendXml = rawXml`
                 <resultLimit>10000</resultLimit>
                 <condition>
                     <startTime>${formatDate(formData.value.dateRange[0], 'YYYY-MM-DD HH:mm:ss')}</startTime>
                     <endTime>${formatDate(formData.value.dateRange[1], 'YYYY-MM-DD HH:mm:ss')}</endTime>
                     <chls type="list">${formData.value.chl.map((item) => `<item id="${item}"></item>`).join('')}</chls>
-                    <events type="list">${formData.value.event.map((item) => `<item>${item}</item>`).join('')}</events>
-                    <person type="list">
-                        <item>male</item>
-                        <item>female</item>
-                    </person>
+                    ${eventXml}
+                    <vehicle>${vehicleXml}</vehicle>
                     <targetAttribute>${attributeXml}</targetAttribute>
                 </condition>
             `
 
             openLoading(LoadingTarget.FullScreen)
+            formData.value.searchType = pageData.value.searchType
             tableData.value = []
 
             const result = await searchSmartTarget(sendXml)
@@ -453,13 +535,12 @@ export default defineComponent({
                     const guid = parseInt(split[3], 16)
                     const chlId = getChlGuid16(split[3]).toUpperCase()
                     const timestamp = parseInt(split[0], 16) * 1000
+
                     return {
                         isDelSnap: isDelSnap,
                         isNoData: false,
-                        plateNumber: '',
-                        direction: '',
                         imgId: parseInt(split[2], 16) + '',
-                        timestamp: parseInt(split[0], 16) * 1000,
+                        timestamp,
                         frameTime: localToUtc(timestamp) + ':' + ('0000000' + parseInt(split[1], 16)).slice(-7),
                         guid,
                         chlId,
@@ -472,6 +553,8 @@ export default defineComponent({
                         bolckNo: parseInt(split[9], 16),
                         offset: parseInt(split[10], 16),
                         eventTypeID: parseInt(split[11], 16),
+                        direction: split[13],
+                        plateNumber: '--',
                         pic: '',
                         panorama: '',
                         eventType: '',
@@ -577,6 +660,15 @@ export default defineComponent({
             pageData.value.isPlaybackPop = true
         }
 
+        /**
+         * @description 打开新增车牌弹窗
+         * @param {IntelSnapPopList} row
+         */
+        const addPlate = (row: IntelSnapPopList) => {
+            pageData.value.addPlateNumber = row.plateNumber
+            pageData.value.isAddPlatePop = true
+        }
+
         let downloadData: DownloadZipOptions['files'] = []
 
         /**
@@ -611,7 +703,9 @@ export default defineComponent({
             downloadData = []
             if (pageData.value.isBackUpPic) {
                 downloadPic()
+                downloadCSV()
             }
+
             if (pageData.value.isBackUpVideo) {
                 pageData.value.isBackUpPop = true
             } else {
@@ -658,6 +752,13 @@ export default defineComponent({
         }
 
         /**
+         * @description 生成CSV文件名
+         */
+        const getCsvName = () => {
+            return 'EXPORT_SNAP_PLATE_LIST-' + dayjs().format('YYYYMMDDHHmmss')
+        }
+
+        /**
          * @description 添加图像到ZIP
          */
         const downloadPic = () => {
@@ -693,39 +794,90 @@ export default defineComponent({
         }
 
         /**
+         * @description 添加CSV到ZIP
+         */
+        const downloadCSV = () => {
+            if (isSupportCSV.value) {
+                const csvContent: string[] = []
+                const csvTitle = [
+                    Translate('IDCS_SERIAL_NUMBER'),
+                    Translate('IDCS_LICENSE_PLATE_NUM'),
+                    formData.value.searchType === 'event' ? Translate('IDCS_CHANNEL') : Translate('IDCS_SEARCH_ENTRANCE_AND_EXIT'),
+                    Translate('IDCS_DEVICE_NAME'),
+                    Translate('IDCS_SNAP_TIME'),
+                ].join(',')
+                csvContent.push(csvTitle)
+                sliceTableData.value.forEach((item, index) => {
+                    csvContent.push([index + 1, item.plateNumber || '--', item.chlName, userSession.csvDeviceName, displayDateTime(item.timestamp)].join(','))
+                })
+                downloadData.push({
+                    content: csvContent.join('\r\n'),
+                    folder: '',
+                    name: getCsvName(),
+                })
+            }
+        }
+
+        /**
          * @description 下载ZIP
          */
         const createZip = () => {
+            openLoading(LoadingTarget.FullScreen)
             downloadZip({
                 zipName: getZipName(pageData.value.selection[0].chlName),
                 files: downloadData,
-            }).then(() => {
-                openMessageTipBox({
-                    type: 'success',
-                    message: Translate('IDCS_BACKUP_SUCCESS'),
-                })
             })
+                .then(() => {
+                    closeLoading(LoadingTarget.FullScreen)
+                    openMessageTipBox({
+                        type: 'success',
+                        message: Translate('IDCS_BACKUP_SUCCESS'),
+                    })
+                })
+                .catch(() => {
+                    closeLoading(LoadingTarget.FullScreen)
+                })
         }
 
         onMounted(() => {
-            if (history.state.eventType) {
-                switch (history.state.eventType) {
-                    case 'aoi_entry':
-                    case 'aoi_leave':
-                    case 'perimeter':
-                        formData.value.event.push('intrusion')
-                        break
-                    case 'tripwire':
-                        formData.value.event.push('tripwire')
-                        break
-                    case 'pass_line':
-                        formData.value.event.push('passLine')
-                        break
-                    case 'video_metavideo':
-                        formData.value.event.push('videoMetadata')
-                        break
+            // 如果路由跳转包含搜索条件，则执行搜索
+            if (history.state.eventType || history.state.targetType) {
+                if (history.state.eventType) {
+                    switch (history.state.eventType) {
+                        case 'aoi_entry':
+                        case 'aoi_leave':
+                        case 'perimeter':
+                            formData.value.event.push('intrusion')
+                            break
+                        case 'tripwire':
+                            formData.value.event.push('tripwire')
+                            break
+                        case 'pass_line':
+                            formData.value.event.push('passLine')
+                            break
+                        case 'plateDetection':
+                            formData.value.event.push('plateDetection')
+                            break
+                        case 'plateMatchWhiteList':
+                            formData.value.event.push('plateMatchWhiteList')
+                            break
+                        case 'plateMatchStranger':
+                            formData.value.event.push('plateMatchStranger')
+                            break
+                        case 'video_metavideo':
+                            formData.value.event.push('videoMetadata')
+                            break
+                    }
+                    delete history.state.eventType
                 }
-                delete history.state.eventType
+
+                if (history.state.targetType === 'vehicle') {
+                    formData.value.target.push('car')
+                } else {
+                    formData.value.target.push('motor')
+                }
+                delete history.state.targetType
+
                 getData()
             }
         })
@@ -743,6 +895,7 @@ export default defineComponent({
             sliceTableData,
             formData,
             getChlMap,
+            changeTarget,
             changeCollect,
             changePage,
             displayDateTime,
@@ -756,6 +909,7 @@ export default defineComponent({
             displayTime,
             getData,
             changeSortType,
+            changeSearchType,
             handleTableRowClick,
             handleTableSelectionChange,
             getTableSelectable,
@@ -766,6 +920,9 @@ export default defineComponent({
             confirmBackUp,
             downloadVideo,
             auth,
+            displayDirection,
+            isSupportCSV,
+            addPlate,
             getUniqueKey,
         }
     },

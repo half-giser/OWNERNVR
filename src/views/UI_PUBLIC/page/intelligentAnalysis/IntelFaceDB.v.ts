@@ -3,7 +3,7 @@
  * @Date: 2024-08-30 18:46:48
  * @Description: 人脸库
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 16:36:32
+ * @LastEditTime: 2024-09-11 18:29:34
  */
 import { cloneDeep } from 'lodash-es'
 import { IntelFaceDBGroupList, IntelFaceDBFaceInfo } from '@/types/apiType/intelligentAnalysis'
@@ -462,6 +462,7 @@ export default defineComponent({
                 faceImgCount: Number($item('faceImgCount').text()),
                 note: $item('remark').text(),
                 pic: [],
+                groupId: '',
             }
         }
 
