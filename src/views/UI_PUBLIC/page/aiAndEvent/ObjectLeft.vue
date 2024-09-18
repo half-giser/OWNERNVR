@@ -1,20 +1,13 @@
-<!--
- * @Description: AI 事件——更多——温度检测
- * @Author: luoyiming luoyiming@tvt.net.cn
- * @Date: 2024-09-13 09:18:25
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-18 17:09:31
--->
 <template>
-    <div class="temp_detection">
+    <div class="obj_left_detection">
         <div class="row_padding">
-            <el-checkbox v-model="tempDetectionData.enabledSwitch">{{ Translate('IDCS_ENABLE') }}</el-checkbox>
+            <el-checkbox v-model="objectLeftData.enabledSwitch">{{ Translate('IDCS_ENABLE') }}</el-checkbox>
         </div>
         <div :style="{ position: 'relative' }">
             <el-tabs
                 v-model="pageData.tab"
                 class="menu_tab"
-                @tab-change="tempTabChange"
+                @tab-change="tabChange"
             >
                 <!-- 参数设置 -->
                 <el-tab-pane
@@ -33,15 +26,20 @@
                         <div>
                             <div class="base-btn-box">
                                 <el-checkbox
+                                    v-show="pageData.isShowAllAreaCheckBox"
                                     v-model="pageData.isShowAllArea"
                                     :style="{ flex: '1' }"
                                     @change="showAllArea"
                                     >{{ Translate('IDCS_DISPLAY_ALL_AREA') }}</el-checkbox
                                 >
                                 <el-button @click="clearArea">{{ Translate('IDCS_CLEAR') }}</el-button>
-                                <el-button @click="clearAllArea">{{ Translate('IDCS_FACE_CLEAR_ALL') }}</el-button>
+                                <el-button
+                                    v-show="pageData.isShowAllClearBtn"
+                                    @click="clearAllArea"
+                                    >{{ Translate('IDCS_FACE_CLEAR_ALL') }}</el-button
+                                >
                             </div>
-                            <span class="draw_area_tip">{{ pageData.drawAreaTip }}</span>
+                            <span class="draw_area_tip">{{ Translate('IDCS_DRAW_AREA_TIP').formatForLang(6) }}</span>
                         </div>
                     </div>
                     <div class="param_right">
@@ -57,7 +55,7 @@
                             <div class="title">{{ Translate('IDCS_SCHEDULE') }}</div>
                             <!-- 排程配置 -->
                             <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
-                                <el-select v-model="tempDetectionData.schedule">
+                                <el-select v-model="objectLeftData.schedule">
                                     <el-option
                                         v-for="item in pageData.scheduleList"
                                         :key="item.value"
@@ -72,9 +70,9 @@
                             <div class="title">{{ Translate('IDCD_RULE') }}</div>
                             <!-- 持续时间 -->
                             <el-form-item :label="Translate('IDCS_DURATION')">
-                                <el-select v-model="tempDetectionData.holdTime">
+                                <el-select v-model="objectLeftData.holdTime">
                                     <el-option
-                                        v-for="item in tempDetectionData.holdTimeList"
+                                        v-for="item in objectLeftData.holdTimeList"
                                         :key="item.value"
                                         :value="item.value"
                                         :label="item.label"
@@ -83,146 +81,43 @@
                                     </el-option>
                                 </el-select>
                             </el-form-item>
-                        </el-form>
-
-                        <el-table
-                            ref="boundaryTableRef"
-                            stripe
-                            border
-                            :data="tempDetectionData.boundaryData"
-                            highlight-current-row
-                            :style="{ width: '940px', height: '280px' }"
-                            @row-click="boundaryRowClick"
-                        >
-                            <!-- 序号 -->
-                            <el-table-column
-                                type="index"
-                                :label="Translate('IDCS_SERIAL_NUMBER')"
-                                width="60px"
-                            />
-                            <!-- 启用 -->
-                            <el-table-column
-                                prop="switch"
-                                width="60px"
-                                :label="Translate('IDCS_ENABLE')"
-                            >
-                                <template #default="scope">
-                                    <el-checkbox v-model="scope.row.switch"></el-checkbox>
-                                </template>
-                            </el-table-column>
-                            <!-- 名称 -->
-                            <el-table-column
-                                prop="ruleName"
-                                width="180px"
-                                :label="Translate('IDCS_NAME')"
-                            >
-                                <template #default="scope">
-                                    <el-input
-                                        v-model="scope.row.ruleName"
-                                        @input="ruleNameInput(scope.row.ruleName, scope.$index)"
-                                        @keyup.enter="enterBlur($event)"
-                                    ></el-input>
-                                </template>
-                            </el-table-column>
                             <!-- 类型 -->
-                            <el-table-column
-                                prop="ruleType"
-                                width="110px"
-                                :label="Translate('IDCS_TYPE')"
-                            >
-                                <template #default="scope">
-                                    <el-select
-                                        v-model="scope.row.ruleType"
-                                        @change="ruleTypeChange(scope.row.ruleType, scope.row, scope.$index)"
+                            <el-form-item :label="Translate('IDCS_TYPE')">
+                                <el-select v-model="objectLeftData.oscType">
+                                    <el-option
+                                        v-for="item in objectLeftData.oscTypeList"
+                                        :key="item.value"
+                                        :value="item.value"
+                                        :label="item.label"
                                     >
-                                        <el-option
-                                            v-for="item in ruleShapeTypeList"
-                                            :key="item.value"
-                                            :value="item.value"
-                                            :label="item.label"
-                                        ></el-option>
-                                    </el-select>
-                                </template>
-                            </el-table-column>
-                            <!-- 发射率 -->
-                            <el-table-column
-                                prop="emissivity"
-                                width="90px"
-                                :label="Translate('IDCS_EMISSIVITY')"
-                            >
-                                <template #default="scope">
-                                    <el-input
-                                        v-model="scope.row.emissivity"
-                                        type="number"
-                                        @input="emissivityInput(scope.row.emissivity, scope.$index)"
-                                        @blur="emissivityBlur(scope.row)"
-                                        @keyup.enter="enterBlur($event)"
-                                    ></el-input>
-                                </template>
-                            </el-table-column>
-                            <!-- 距离（m） -->
-                            <el-table-column
-                                prop="distance"
-                                width="90px"
-                                :label="Translate('IDCS_DISTANCE')"
-                            >
-                                <template #default="scope">
-                                    <el-input
-                                        v-model="scope.row.distance"
-                                        @input="distanceInput(scope.row.distance, scope.$index)"
-                                        @blur="distanceBlur(scope.row)"
-                                        @keyup.enter="enterBlur($event)"
-                                    ></el-input>
-                                </template>
-                            </el-table-column>
-                            <!-- 反射温度（℃） -->
-                            <el-table-column
-                                prop="reflectTemper"
-                                width="120px"
-                                :label="Translate('IDCS_REFLECTED_TEMPERATURE')"
-                            >
-                                <template #default="scope">
-                                    <el-input
-                                        v-model="scope.row.reflectTemper"
-                                        @input="reflectTemperInput(scope.row.reflectTemper, scope.$index)"
-                                        @blur="reflectTemperBlur(scope.row)"
-                                        @keyup.enter="enterBlur($event)"
-                                    ></el-input>
-                                </template>
-                            </el-table-column>
-                            <!-- 报警规则 -->
-                            <el-table-column
-                                prop="alarmRule"
-                                width="180px"
-                                :label="Translate('IDCS_ALARM_RULES')"
-                            >
-                                <template #default="scope">
-                                    <el-select v-model="scope.row.alarmRule">
-                                        <el-option
-                                            v-for="item in pageData.alarmRuleTypeList[scope.$index]"
-                                            :key="item.value"
-                                            :value="item.value"
-                                            :label="item.label"
-                                        ></el-option>
-                                    </el-select>
-                                </template>
-                            </el-table-column>
-                            <!-- 报警温度（℃） -->
-                            <el-table-column
-                                prop="alarmTemper"
-                                width="150px"
-                                :label="Translate('IDCS_ALARM_TEMPERATURE')"
-                            >
-                                <template #default="scope">
-                                    <el-input
-                                        v-model="scope.row.alarmTemper"
-                                        @input="alarmTemperInput(scope.row.alarmTemper, scope.$index)"
-                                        @blur="alarmTemperBlur(scope.row)"
-                                        @keyup.enter="enterBlur($event)"
-                                    ></el-input>
-                                </template>
-                            </el-table-column>
-                        </el-table>
+                                    </el-option>
+                                </el-select>
+                            </el-form-item>
+                            <!-- 警戒区域 -->
+                            <el-form-item :label="Translate('IDCS_WARN_AREA')">
+                                <el-radio-group
+                                    v-model="pageData.warnArea"
+                                    class="area_radio_group"
+                                    @change="warnAreaChange"
+                                >
+                                    <el-radio-button
+                                        v-for="index in objectLeftData.areaMaxCount"
+                                        :key="index - 1"
+                                        :label="index"
+                                        :value="index - 1"
+                                        :class="{ configured_area: pageData.configuredArea[index - 1] }"
+                                    />
+                                </el-radio-group>
+                            </el-form-item>
+                            <!-- 区域名称 -->
+                            <el-form-item :label="Translate('IDCS_AREA_NAME')">
+                                <el-input
+                                    v-model="pageData.areaName"
+                                    @input="areaNameInput"
+                                    @keyup.enter="enterBlur($event)"
+                                ></el-input>
+                            </el-form-item>
+                        </el-form>
                     </div>
                 </el-tab-pane>
                 <!-- 联动方式 -->
@@ -241,7 +136,7 @@
                             v-show="supportAlarmAudioConfig"
                             :label="Translate('IDCS_VOICE_PROMPT')"
                         >
-                            <el-select v-model="tempDetectionData.sysAudio">
+                            <el-select v-model="objectLeftData.sysAudio">
                                 <el-option
                                     v-for="item in pageData.voiceList"
                                     :key="item.value"
@@ -287,7 +182,7 @@
                             >
                         </div>
                         <el-table
-                            :data="tempDetectionData.record"
+                            :data="objectLeftData.record"
                             :show-header="false"
                         >
                             <el-table-column prop="label" />
@@ -304,24 +199,7 @@
                             >
                         </div>
                         <el-table
-                            :data="tempDetectionData.alarmOut"
-                            :show-header="false"
-                        >
-                            <el-table-column prop="label" />
-                        </el-table>
-                    </div>
-                    <!-- 抓图 -->
-                    <div class="linkage_box">
-                        <div class="linkage_title">
-                            <span>{{ `${Translate('IDCS_SNAP')} ` }}</span>
-                            <el-button
-                                size="small"
-                                @click="pageData.snapIsShow = true"
-                                >{{ Translate('IDCS_CONFIG') }}</el-button
-                            >
-                        </div>
-                        <el-table
-                            :data="tempDetectionData.snap"
+                            :data="objectLeftData.alarmOut"
                             :show-header="false"
                         >
                             <el-table-column prop="label" />
@@ -377,7 +255,7 @@
         <div class="page_bottom">
             <el-button
                 :disabled="pageData.applyDisabled"
-                @click="applyTempDetectionData"
+                @click="applyObjectLeftData"
                 >{{ Translate('IDCS_APPLY') }}</el-button
             >
         </div>
@@ -398,7 +276,7 @@
         source-title="IDCS_CHANNEL"
         target-title="IDCS_CHANNEL_TRGGER"
         :source-data="pageData.recordList"
-        :linked-list="tempDetectionData.record?.map((item) => item.value) || []"
+        :linked-list="objectLeftData.record?.map((item) => item.value) || []"
         type="record"
         @confirm="recordConfirm"
         @close="recordClose"
@@ -410,40 +288,18 @@
         source-title="IDCS_ALARM_OUT"
         target-title="IDCS_TRIGGER_ALARM_OUT"
         :source-data="pageData.alarmOutList"
-        :linked-list="tempDetectionData.alarmOut?.map((item) => item.value) || []"
+        :linked-list="objectLeftData.alarmOut?.map((item) => item.value) || []"
         type="alarmOut"
         @confirm="alarmOutConfirm"
         @close="alarmOutClose"
     >
     </BaseTransferDialog>
-    <BaseTransferDialog
-        v-model="pageData.snapIsShow"
-        header-title="IDCS_TRIGGER_CHANNEL_SNAP"
-        source-title="IDCS_CHANNEL"
-        target-title="IDCS_CHANNEL_TRGGER"
-        :source-data="pageData.snapList"
-        :linked-list="tempDetectionData.snap?.map((item) => item.value) || []"
-        type="snap"
-        @confirm="snapConfirm"
-        @close="snapClose"
-    >
-    </BaseTransferDialog>
 </template>
 
-<script lang="ts" src="./TemperatureDetection.v.ts"></script>
-
-<style lang="scss">
-.errorMsg {
-    height: 30px;
-    top: 490px !important;
-    left: 1328px;
-    background-color: white;
-    border: 1px solid red;
-}
-</style>
+<script lang="ts" src="./ObjectLeft.v.ts"></script>
 
 <style lang="scss" scoped>
-.temp_detection {
+.obj_left_detection {
     height: calc(100vh - 360px);
     position: relative;
     .menu_tab {
@@ -532,6 +388,31 @@
             :deep(.el-form-item) {
                 padding: 5px 15px;
                 margin-bottom: 0;
+            }
+            .area_radio_group {
+                :deep(.el-radio-button) {
+                    margin-right: 15px;
+                    border-radius: 2px;
+                    .el-radio-button__inner {
+                        //修改按钮样式
+                        width: 50px !important;
+                        height: 24px;
+                        line-height: 24px;
+                        padding: 0;
+                        border: 1px solid var(--border-color4) !important;
+                    }
+                }
+                :deep(.el-radio-button.is-active) {
+                    .el-radio-button__inner {
+                        color: #fff;
+                    }
+                }
+                .configured_area {
+                    :deep(.el-radio-button__inner) {
+                        border: 1px solid #00bbdb !important;
+                        color: #00bbdb;
+                    }
+                }
             }
         }
     }

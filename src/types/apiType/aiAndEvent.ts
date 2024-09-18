@@ -3,7 +3,7 @@
  * @Date: 2024-08-10 12:08:57
  * @Description: AI/事件
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-14 17:31:19
+ * @LastEditTime: 2024-09-18 11:23:43
  */
 const { Translate } = useLangStore()
 
@@ -704,5 +704,33 @@ export class BoundaryTableDataItem {
     alarmTemper = ''
     alarmTemperDefault = ''
     maxCount = 0
+    points = [] as { X: number; Y: number; isClosed: boolean }[]
+}
+/* AI事件——更多——物品遗留与看护 */
+export class ObjectLeft {
+    enabledSwitch = false
+    originalSwitch = false
+    holdTime = ''
+    holdTimeList = [] as SelectOption<string, string>[]
+    schedule = ''
+    oscTypeList = [] as SelectOption<string, string>[]
+    oscType = ''
+    areaMaxCount = 0
+    regulation = false
+    boundary = [] as BoundaryItem[]
+    mutexList = [] as { object: string; status: boolean }[]
+    maxNameLength = 0
+    record = [] as SelectOption<string, string>[]
+    alarmOut = [] as SelectOption<string, string>[]
+    preset = [] as PresetItem[]
+    msgPushSwitch = false
+    buzzerSwitch = false
+    popVideoSwitch = false
+    emailSwitch = false
+    catchSnapSwitch = false
+    sysAudio = ''
+}
+export class BoundaryItem {
+    areaName = ''
     points = [] as { X: number; Y: number; isClosed: boolean }[]
 }

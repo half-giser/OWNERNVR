@@ -3,7 +3,7 @@
  * @Date: 2024-09-10 17:50:24
  * @Description: 更多功能页面的框架
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-13 10:32:03
+ * @LastEditTime: 2024-09-18 10:24:16
 -->
 <template>
     <div class="content">
@@ -163,7 +163,6 @@
                             :curr-chl-id="pageData.currChlId"
                             :chl-data="pageData.chlData"
                             :voice-list="pageData.voiceList"
-                            :online-channel-list="pageData.onlineChannelList"
                         ></TemperatureDetection>
                     </template>
                 </el-tab-pane>
@@ -187,6 +186,14 @@
                             }"
                             >{{ Translate('IDCS_WATCH_DETECTION') }}</span
                         >
+                    </template>
+                    <template #default>
+                        <ObjectLeft
+                            v-if="pageData.chosenFunction === 'objectLeft'"
+                            :curr-chl-id="pageData.currChlId"
+                            :chl-data="pageData.chlData"
+                            :voice-list="pageData.voiceList"
+                        ></ObjectLeft>
                     </template>
                 </el-tab-pane>
 

@@ -4,15 +4,20 @@
  * @Description: 更多功能页面的框架
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
  * @LastEditTime: 2024-09-13 16:38:26
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-09-13 16:38:26
  */
 import { type chlCaps } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
 import fireDetection from './fireDetection.vue'
 import TemperatureDetection from './TemperatureDetection.vue'
+import ObjectLeft from './ObjectLeft.vue'
+
 export default defineComponent({
     components: {
         fireDetection,
         TemperatureDetection,
+        ObjectLeft,
     },
     setup() {
         // const { LoadingTarget, openLoading, closeLoading } = useLoading()
@@ -347,6 +352,7 @@ export default defineComponent({
         })
         return {
             TemperatureDetection,
+            ObjectLeft,
             pageData,
             handleChangeChannel,
             handleTabClick,
