@@ -14,6 +14,9 @@ export default defineComponent({
         IntelFaceDBEditPop,
     },
     props: {
+        /**
+         * @property 需要注册的图像base64数据
+         */
         pic: {
             type: String,
             required: true,
@@ -77,18 +80,6 @@ export default defineComponent({
                 },
             ],
         })
-
-        /**
-         * @description 显示Base64图像
-         * @param {String} src
-         * @returns {String}
-         */
-        const displayBase64Img = (src: string) => {
-            if (src) {
-                return 'data:image/png;base64,' + src
-            }
-            return ''
-        }
 
         /**
          * @description 获取人脸数据库列表
@@ -249,7 +240,7 @@ export default defineComponent({
                 pageData.value.imgWidth = img.width
                 pageData.value.imgHeight = img.height
             }
-            img.src = displayBase64Img(prop.pic)
+            img.src = prop.pic
         }
 
         /**
@@ -275,7 +266,6 @@ export default defineComponent({
             formRule,
             addGroup,
             getFaceDatabaseList,
-            displayBase64Img,
             confirmAddGroup,
             verify,
             highlightWeekend,

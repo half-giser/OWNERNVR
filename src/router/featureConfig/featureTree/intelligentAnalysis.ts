@@ -8,8 +8,8 @@ export default {
     meta: {
         sort: 40,
         lk: 'IDCS_INTEL_DETECTION',
-        auth: (systemCaps?: { IntelAndFaceConfigHide: boolean }) => {
-            return !systemCaps || !systemCaps.IntelAndFaceConfigHide
+        auth: (systemCaps) => {
+            return !systemCaps.IntelAndFaceConfigHide
         },
     },
     children: {

@@ -3,7 +3,7 @@
  * @Date: 2024-09-05 10:13:11
  * @Description: 智能分析 属性选择器
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 15:23:52
+ * @LastEditTime: 2024-09-12 20:34:34
  */
 export default defineComponent({
     props: {
@@ -20,6 +20,13 @@ export default defineComponent({
         modelValue: {
             type: Array as PropType<string[][]>,
             default: () => [],
+        },
+        /**
+         * @property {'attribute' | 'target'} 占位符类型
+         */
+        placeholderType: {
+            type: String,
+            default: 'attribute',
         },
     },
     emits: {
@@ -65,9 +72,10 @@ export default defineComponent({
         // 选项框回显内容
         const content = computed(() => {
             const modelValueLength = prop.modelValue.flat().length
+            const placeholder = prop.placeholderType === 'attribute' ? Translate('IDCS_ATTRIBUTE') : Translate('IDCS_TARGET')
             if (!modelValueLength || modelValueLength === pageData.value.vehicleOptions.length) {
-                return Translate('IDCS_TARGET') + `(${Translate('IDCS_FULL')})`
-            } else return Translate('IDCS_TARGET') + `(${Translate('IDCS_PART')})`
+                return placeholder + `(${Translate('IDCS_FULL')})`
+            } else return placeholder + `(${Translate('IDCS_PART')})`
         })
 
         /**

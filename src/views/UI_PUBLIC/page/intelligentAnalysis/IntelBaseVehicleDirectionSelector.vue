@@ -3,7 +3,7 @@
  * @Date: 2024-09-06 11:18:03
  * @Description: 智能分析 - 进出口方向 选择框
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 16:38:15
+ * @LastEditTime: 2024-09-10 10:12:29
 -->
 <template>
     <div>
@@ -16,7 +16,7 @@
             :hide-after="0"
         >
             <template #reference>
-                <div class="placeholder">
+                <div class="base-intel-placeholder">
                     <div class="text-ellipsis">{{ content }}</div>
                     <BaseImgSprite
                         file="arrow"

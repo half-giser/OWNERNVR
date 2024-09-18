@@ -3,7 +3,7 @@
  * @Date: 2024-09-02 15:04:43
  * @Description: 车牌库- 新增/编辑分组
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-03 19:53:00
+ * @LastEditTime: 2024-09-12 20:45:29
  */
 import { IntelPlateDBGroupList } from '@/types/apiType/intelligentAnalysis'
 import { type FormRules, type FormInstance } from 'element-plus'
@@ -18,7 +18,7 @@ export default defineComponent({
             default: () => new IntelPlateDBGroupList(),
         },
         /**
-         * @property 'add' | 'edit'
+         * @property {'add' | 'edit'}
          */
         type: {
             type: String,

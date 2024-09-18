@@ -34,7 +34,7 @@
 
     .el-radio-button {
         .el-radio-button__inner {
-            border: 1px solid var(--border-color4);
+            border-color: var(--border-color4);
             border-radius: 0;
             width: var(--form-radio-button-width);
         }
@@ -291,11 +291,11 @@
     }
 
     .el-form-item__error {
-        width: 100%;
+        // width: 100%;
         white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        text-align: left;
+        // overflow: hidden;
+        // text-overflow: ellipsis;
+        // text-align: left;
     }
 
     .el-popper {

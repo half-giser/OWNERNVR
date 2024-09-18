@@ -3,7 +3,7 @@
  * @Date: 2024-08-20 13:58:22
  * @Description: 云台-智能追踪
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-23 11:53:02
+ * @LastEditTime: 2024-09-14 15:44:42
 -->
 <template>
     <div class="smart-track">
@@ -80,16 +80,7 @@
                         class-name="custom_cell"
                     >
                         <template #default="scope">
-                            <div
-                                v-if="scope.row.status === 'loading'"
-                                class="table_status_col_loading"
-                            ></div>
-                            <BaseImgSprite
-                                v-else-if="scope.row.status === 'error'"
-                                file="error"
-                                :chunk="1"
-                                :index="0"
-                            />
+                            <BaseTableRowStatus :icon="scope.row.status" />
                         </template>
                     </el-table-column>
                     <el-table-column

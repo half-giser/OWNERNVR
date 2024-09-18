@@ -3,7 +3,7 @@
  * @Date: 2024-08-27 14:27:13
  * @Description: 业务应用-人脸签到
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 11:50:03
+ * @LastEditTime: 2024-09-14 09:24:19
  */
 import { cloneDeep } from 'lodash-es'
 import dayjs from 'dayjs'
@@ -337,10 +337,11 @@ export default defineComponent({
                 .map((item) => {
                     const textArr = item.text().split(',')
                     const chlId = getChlGuid16(textArr[4]).toUpperCase()
+                    const timestamp = parseInt(textArr[1], 16) * 1000
                     return {
                         faceFeatureId: parseInt(textArr[0], 16) + '',
-                        timestamp: parseInt(textArr[1], 16) * 1000,
-                        timeNS: ('0000000' + parseInt(textArr[2], 16)).slice(-7),
+                        timestamp,
+                        frameTime: localToUtc(timestamp) + ':' + ('0000000' + parseInt(textArr[2], 16)).slice(-7),
                         imgId: parseInt(textArr[3], 16),
                         chlId,
                         chlName: chlMap[chlId],
