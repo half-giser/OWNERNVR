@@ -3,7 +3,7 @@
  * @Date: 2024-09-11 14:16:37
  * @Description: 火点检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-12 14:19:50
+ * @LastEditTime: 2024-09-18 14:11:56
  */
 import { ArrowDown } from '@element-plus/icons-vue'
 import { type chlCaps, type aiResourceRow } from '@/types/apiType/aiAndEvent'
@@ -50,6 +50,7 @@ export default defineComponent({
 
         const playerRef = ref<PlayerInstance>()
         const pluginStore = usePluginStore()
+        const osType = getSystemInfo().platform
         const pageData: { [key: string]: any } = ref({
             // 当前选中的通道
             currChlId: '',
@@ -224,8 +225,10 @@ export default defineComponent({
                     pluginStore.showPluginNoResponse = true
                     plugin.ShowPluginNoResponse()
                 }
-                const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
+                plugin.AddPluginMoveEvent(document.getElementById('player')!)
+                const sendXML = OCX_XML_SetPluginModel(osType == 'mac' ? 'FireConfig' : 'ReadOnly', 'Live')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.DisplayOCX(true)
             }
         }
         //播放视频
@@ -237,7 +240,19 @@ export default defineComponent({
                     streamType: 2,
                 })
             } else if (mode.value === 'ocx') {
-                plugin.RetryStartChlView(id, name)
+                if (osType == 'mac') {
+                    const sendXML = OCX_XML_Preview({
+                        winIndexList: [0],
+                        chlIdList: [pageData.value.chlData['id']],
+                        chlNameList: [pageData.value.chlData['name']],
+                        streamType: 'sub',
+                        chlIndexList: [pageData.value.chlData['id']],
+                        chlTypeList: [pageData.value.chlData['chlType']],
+                    })
+                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                } else {
+                    plugin.RetryStartChlView(id, name)
+                }
             }
         }
         // 首次加载成功 播放视频
@@ -596,6 +611,7 @@ export default defineComponent({
                 const itemText = element == 60 ? '1 ' + Translate('IDCS_MINUTE') : element > 60 ? element / 60 + ' ' + Translate('IDCS_MINUTES') : element + ' ' + Translate('IDCS_SECONDS')
                 timeList.push({ value: element, label: itemText })
             })
+            timeList.sort((a, b) => a.value - b.value)
             return timeList
         }
         // 获取mutexobj
@@ -653,11 +669,12 @@ export default defineComponent({
                 }
                 pageData.value.applyDisable = true
                 const schedule = $('//content/chl').attr('scheduleGuid')
-                pageData.value.schedule = schedule
-                    ? pageData.value.scheduleList.some((item: { value: string; label: string }) => item.value == schedule)
-                        ? schedule
+                pageData.value.schedule =
+                    schedule != ''
+                        ? pageData.value.scheduleList.some((item: { value: string; label: string }) => item.value == schedule)
+                            ? schedule
+                            : pageData.value.scheduleDefaultId
                         : pageData.value.scheduleDefaultId
-                    : pageData.value.scheduleDefaultId
                 pageData.value.detectionEnable = $('//content/chl/param/switch').text() == 'true'
                 pageData.value.originalEnable = pageData.value.detectionEnable
                 pageData.value.audioSuport = $('//content/chl/param/triggerAudio').text() == '' ? false : true
@@ -737,8 +754,7 @@ export default defineComponent({
             console.log('pageData.value', pageData.value)
         }
         // 执行编辑请求
-        const savaData = async () => {
-            console.log(1)
+        const saveData = async () => {
             const sendXml = rawXml`
                 <content>
                     <chl id="${pageData.value.currChlId}" scheduleGuid="${pageData.value['schedule']}">
@@ -818,13 +834,11 @@ export default defineComponent({
                     </chl>
                 </content>
             `
-            console.log(2)
 
             openLoading(LoadingTarget.FullScreen)
             const res = await editSmartFireConfig(sendXml)
             const $ = queryXml(res)
             closeLoading(LoadingTarget.FullScreen)
-            console.log(3)
             if ($('status').text() == 'success') {
                 if (pageData.value['detectionEnable']) {
                     // 开关为开把originalSwitch置为true避免多次弹出互斥提示
@@ -846,14 +860,12 @@ export default defineComponent({
         }
         // 应用
         const handleApply = () => {
-            console.log(0)
             let isSwitchChange = false
             const switchChangeTypeArr: string[] = []
             const mutexChlNameObj = getMutexChlNameObj()
             if (pageData.value['detectionEnable'] && pageData.value['detectionEnable'] != pageData.value['originalEnable']) {
                 isSwitchChange = true
             }
-            console.log(11)
             pageData.value.mutexList.forEach((ele: { object: string; status: boolean }) => {
                 if (ele['status']) {
                     const prefixName = mutexChlNameObj['normalChlName'] ? joinSpaceForLang(Translate('IDCS_CHANNEL') + ':' + mutexChlNameObj['normalChlName']) : ''
@@ -861,7 +873,6 @@ export default defineComponent({
                     switchChangeTypeArr.push(showInfo)
                 }
             })
-            console.log(22)
             pageData.value.mutexListEx.forEach((ele: { object: string; status: boolean }) => {
                 if (ele['status']) {
                     const prefixName = mutexChlNameObj['thermalChlName'] ? joinSpaceForLang(Translate('IDCS_CHANNEL') + ':' + mutexChlNameObj['thermalChlName']) : ''
@@ -870,18 +881,16 @@ export default defineComponent({
                 }
             })
             if (isSwitchChange && switchChangeTypeArr.length > 0) {
-                console.log(33)
                 const switchChangeType = switchChangeTypeArr.join(',')
                 openMessageTipBox({
                     type: 'question',
                     title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_FIRE_POINT_DETECT_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + pageData.value.chlData['name'], switchChangeType),
                 }).then(() => {
-                    savaData()
+                    saveData()
                 })
             } else {
-                console.log(44)
-                savaData()
+                saveData()
             }
         }
         // 初始化页面数据

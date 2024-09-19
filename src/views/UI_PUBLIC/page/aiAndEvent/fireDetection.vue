@@ -143,7 +143,7 @@
             <div class="left">
                 <div class="player">
                     <BaseVideoPlayer
-                        id="tripwireplayer"
+                        id="player"
                         ref="playerRef"
                         type="live"
                         @onready="handlePlayerReady"

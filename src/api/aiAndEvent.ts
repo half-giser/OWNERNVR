@@ -3,7 +3,7 @@
  * @Date: 2024-08-10 16:25:58
  * @Description: AI/事件
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-12 11:36:32
+ * @LastEditTime: 2024-09-18 14:05:55
  */
 
 import { type AxiosRequestConfig } from 'axios'
@@ -173,3 +173,24 @@ export const querySmartFireConfig = (data: string) => http.fetch('querySmartFire
 
 // 修改火点检测数据
 export const editSmartFireConfig = (data: string) => http.fetch('editSmartFireConfig', getXmlWrapData(data))
+
+// 获取过线检测数据
+export const queryPls = (data: string) => http.fetch('queryPls', getXmlWrapData(data))
+
+// 修改过线检测数据
+export const editPls = (data: string) => http.fetch('editPls', getXmlWrapData(data))
+
+// 获取定时发送邮件数据
+export const queryTimingSendEmail = () => http.fetch('queryTimingSendEmail', getXmlWrapData(''))
+
+// 修改定时发送邮件数据
+export const editTimingSendEmail = (data: string) => http.fetch('editTimingSendEmail', getXmlWrapData(data))
+
+// 重置cpc信息
+export const forceResetCpc = (data: string) => http.fetch('forceResetCpc', getXmlWrapData(data))
+
+// 获取cpc信息
+export const queryCpc = (data: string) => http.fetch('queryCpc', getXmlWrapData(data))
+
+// 编辑cpc信息
+export const editCpc = (data: string) => http.fetch('editCpc', getXmlWrapData(data))

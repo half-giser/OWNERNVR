@@ -3,7 +3,7 @@
  * @Date: 2024-08-27 15:43:32
  * @Description: 周界防范/人车检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-12 11:38:59
+ * @LastEditTime: 2024-09-18 17:13:06
  */
 import { ArrowDown } from '@element-plus/icons-vue'
 import { ElDivider, type TabsPaneContext } from 'element-plus'
@@ -19,6 +19,7 @@ import { peaPageData, type PresetList, type PresetItem } from '@/types/apiType/a
 import CanvasPolygon from '@/utils/canvas/canvasPolygon'
 import CanvasPassline from '@/utils/canvas/canvasPassline'
 import { queryAIResourceDetail } from '@/api/aiAndEvent'
+import { type XmlResult } from '@/utils/xmlParse'
 export default defineComponent({
     components: {
         ArrowDown,
@@ -39,6 +40,7 @@ export default defineComponent({
         const tripwireplayerRef = ref<PlayerInstance>()
         const peaplayerRef = ref<PlayerInstance>()
         const pluginStore = usePluginStore()
+        const osType = getSystemInfo().platform
         // 绘制的Canvas
         let tripwireDrawer: CanvasPassline
         let peaDrawer: CanvasPolygon
@@ -55,6 +57,7 @@ export default defineComponent({
             chlCaps: {} as Record<string, chlCaps>,
             // 当前选择的功能
             chosenFunction: 'tripwire',
+            tabKey: 0,
             // 声音列表
             voiceList: [] as { value: string; label: string }[],
             // 是否支持声音设置
@@ -295,8 +298,10 @@ export default defineComponent({
                     pluginStore.showPluginNoResponse = true
                     tripwirePlugin.ShowPluginNoResponse()
                 }
-                const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
+                tripwirePlugin.AddPluginMoveEvent(document.getElementById('tripwireplayer')!)
+                const sendXML = OCX_XML_SetPluginModel(osType == 'mac' ? 'TripwireConfig' : 'ReadOnly', 'Live')
                 tripwirePlugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                tripwirePlugin.DisplayOCX(true)
             }
         }
         /**
@@ -309,8 +314,21 @@ export default defineComponent({
                     chlID: id,
                     streamType: 2,
                 })
-            } else if (tripwiremode.value === 'ocx') {
-                tripwirePlugin.RetryStartChlView(id, name)
+            } else {
+                if (osType == 'mac') {
+                    // TODO index
+                    const sendXML = OCX_XML_Preview({
+                        winIndexList: [0],
+                        chlIdList: [id],
+                        chlNameList: [name],
+                        streamType: 'sub',
+                        chlIndexList: [pageData.value.chlData['id']],
+                        chlTypeList: [pageData.value.chlData['chlType']],
+                    })
+                    tripwirePlugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                } else {
+                    tripwirePlugin.RetryStartChlView(id, name)
+                }
             }
         }
         // 首次加载成功 播放tripwire视频
@@ -437,8 +455,10 @@ export default defineComponent({
                     pluginStore.showPluginNoResponse = true
                     peaPlugin.ShowPluginNoResponse()
                 }
-                const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
+                peaPlugin.AddPluginMoveEvent(document.getElementById('peaplayer')!)
+                const sendXML = OCX_XML_SetPluginModel(osType == 'mac' ? 'PeaConfig' : 'ReadOnly', 'Live')
                 peaPlugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                peaPlugin.DisplayOCX(true)
             }
         }
         /**
@@ -451,8 +471,21 @@ export default defineComponent({
                     chlID: id,
                     streamType: 2,
                 })
-            } else if (peamode.value === 'ocx') {
-                peaPlugin.RetryStartChlView(id, name)
+            } else {
+                if (osType == 'mac') {
+                    const sendXML = OCX_XML_Preview({
+                        winIndexList: [0],
+                        chlIdList: [pageData.value.chlData['id']],
+                        chlNameList: [pageData.value.chlData['name']],
+                        streamType: 'sub',
+                        chlIndexList: [pageData.value.chlData['id']],
+                        chlTypeList: [pageData.value.chlData['chlType']],
+                    })
+                    peaPlugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                }
+                if (peamode.value === 'ocx') {
+                    peaPlugin.RetryStartChlView(id, name)
+                }
             }
         }
         // 首次加载成功 播放pea视频
@@ -468,6 +501,8 @@ export default defineComponent({
         // 跳转至tripwire时，设置ocx数据
         watchEffect(() => {
             if (tripwireData.value.initComplete && pageData.value.chosenFunction === 'tripwire' && tripwireData.value.drawerInitCount === 0) {
+                tripwirePlayer = tripwireplayerRef.value!.player
+                tripwirePlugin = tripwireplayerRef.value!.plugin
                 if (tripwiremode.value === 'h5') {
                     if (tripwireplayerRef.value) {
                         const canvas = tripwireplayerRef.value.player.getDrawbordCanvas(0)
@@ -491,8 +526,10 @@ export default defineComponent({
                         pluginStore.showPluginNoResponse = true
                         tripwirePlugin.ShowPluginNoResponse()
                     }
-                    const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
+                    tripwirePlugin.AddPluginMoveEvent(document.getElementById('tripwireplayer')!)
+                    const sendXML = OCX_XML_SetPluginModel(osType == 'mac' ? 'TripwireConfig' : 'ReadOnly', 'Live')
                     tripwirePlugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    tripwirePlugin.DisplayOCX(true)
                 }
                 tripwireData.value.drawerInitCount++
                 tripwireDrawer.clear()
@@ -502,8 +539,10 @@ export default defineComponent({
         // 跳转至pea时，设置ocx数据
         watchEffect(() => {
             if (peaData.value.initComplete && pageData.value.chosenFunction === 'pea' && peaData.value.drawerInitCount === 0) {
+                peaPlayer = peaplayerRef.value!.player
+                peaPlugin = peaplayerRef.value!.plugin
                 if (peamode.value === 'h5') {
-                    if (peaplayerRef.value) {
+                    if (peaplayerRef.value && peaData.value.initComplete) {
                         const canvas = peaplayerRef.value.player.getDrawbordCanvas(0)
                         const regulation = peaData.value.currentRegulation
                         peaDrawer = new CanvasPolygon({
@@ -528,8 +567,10 @@ export default defineComponent({
                         pluginStore.showPluginNoResponse = true
                         peaPlugin.ShowPluginNoResponse()
                     }
-                    const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
+                    peaPlugin.AddPluginMoveEvent(document.getElementById('peaplayer')!)
+                    const sendXML = OCX_XML_SetPluginModel(osType == 'mac' ? 'PeaConfig' : 'ReadOnly', 'Live')
                     peaPlugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    peaPlugin.DisplayOCX(true)
                 }
                 peaData.value.drawerInitCount++
                 peaDrawer.clear()
@@ -708,6 +749,7 @@ export default defineComponent({
                                 name: name,
                                 accessType: accessType,
                             })
+                            console.log('pageData.value.onlineChannelList', pageData.value.onlineChannelList)
                             pageData.value.chlCaps[id] = {
                                 id: id,
                                 ip: ip,
@@ -874,11 +916,8 @@ export default defineComponent({
                 if ($('status').text() == 'success') {
                     pageData.value.applyDisable = true
                     const schedule = $('//content/chl').attr('scheduleGuid')
-                    tripwireData.value.tripwire_schedule = schedule
-                        ? pageData.value.scheduleList.some((item) => item.value == schedule)
-                            ? schedule
-                            : pageData.value.scheduleDefaultId
-                        : pageData.value.scheduleDefaultId
+                    tripwireData.value.tripwire_schedule =
+                        schedule != '' ? (pageData.value.scheduleList.some((item) => item.value == schedule) ? schedule : pageData.value.scheduleDefaultId) : pageData.value.scheduleDefaultId
                     $('//content/chl/trigger').forEach((item) => {
                         const $item = queryXml(item.element)
                         tripwireData.value.snapSwitch = $item('snapSwitch').text() == 'true'
@@ -1091,11 +1130,8 @@ export default defineComponent({
             if ($('status').text() == 'success') {
                 pageData.value.applyDisable = true
                 const schedule = $('//content/chl').attr('scheduleGuid')
-                peaData.value.pea_schedule = schedule
-                    ? pageData.value.scheduleList.some((item) => item.value == schedule)
-                        ? schedule
-                        : pageData.value.scheduleDefaultId
-                    : pageData.value.scheduleDefaultId
+                peaData.value.pea_schedule =
+                    schedule != '' ? (pageData.value.scheduleList.some((item) => item.value == schedule) ? schedule : pageData.value.scheduleDefaultId) : pageData.value.scheduleDefaultId
                 getPeaActivityData('perimeter', res)
                 getPeaActivityData('entry', res)
                 getPeaActivityData('leave', res)
@@ -1154,7 +1190,8 @@ export default defineComponent({
                     holdTimeArr.push(peaData.value.areaCfgData[activity_type].holdTime.toString())
                     peaData.value.areaCfgData[activity_type].holdTimeList = formatHoldTime(holdTimeArr)
                 }
-                peaData.value.areaCfgData[activity_type].regulation = $(`//content/chl/${activity_type}/param/boundary`).attr('regulation') == '1'
+                const regulation = $(`//content/chl/${activity_type}/param/boundary`).attr('regulation') == '1'
+                peaData.value.areaCfgData[activity_type].regulation = regulation
                 const boundaryInfo = [] as { point: { X: number; Y: number; isClosed: boolean }[]; maxCount: number; configured: boolean }[]
                 const regionInfo = [] as { X1: number; Y1: number; X2: number; Y2: number }[]
                 $(`//content/chl/${activity_type}/param/boundary/item`).forEach((element) => {
@@ -1173,6 +1210,24 @@ export default defineComponent({
                     boundaryInfo.push(boundary)
                     regionInfo.push(region)
                 })
+                if (regulation) {
+                    regionInfo.forEach((ele, idx) => {
+                        if (ele.X1 != 0 || ele.Y1 != 0 || ele.X2 != 0 || ele.Y2 != 0) {
+                            boundaryInfo[idx].configured = true
+                        } else {
+                            boundaryInfo[idx].configured = false
+                        }
+                    })
+                } else {
+                    boundaryInfo.forEach((ele) => {
+                        if (ele.point.length > 0) {
+                            ele.configured = true
+                        } else {
+                            ele.configured = false
+                        }
+                    })
+                }
+
                 peaData.value.areaCfgData[activity_type].boundaryInfo = boundaryInfo
                 peaData.value.areaCfgData[activity_type].regionInfo = regionInfo
                 peaData.value.areaCfgData[activity_type].audioSuport = $(`//content/chl/${activity_type}/param/triggerAudio`).text() == '' ? false : true
@@ -1182,11 +1237,9 @@ export default defineComponent({
                 peaData.value.areaCfgData[activity_type].hasAutoTrack = $(`//content/chl/${activity_type}/param/autoTrack`).text() == '' ? false : true
                 peaData.value.areaCfgData[activity_type].autoTrack = $(`//content/chl/${activity_type}/param/autoTrack`).text() == 'true'
                 peaData.value.areaCfgData[activity_type].pictureAvailable = $(`//content/chl/${activity_type}/param/saveTargetPicture`).text() == '' ? false : true
-                // peaData.value.areaCfgData[activity_type].pictureAvailable = true
                 peaData.value.areaCfgData[activity_type].saveTargetPicture = $(`//content/chl/${activity_type}/param/saveTargetPicture`).text() == 'true'
                 peaData.value.areaCfgData[activity_type].saveSourcePicture = $(`//content/chl/${activity_type}/param/saveSourcePicture`).text() == 'true'
                 peaData.value.areaCfgData[activity_type].pea_onlyPreson = $(`//content/chl/${activity_type}/param/sensitivity`).text() == '' ? false : true
-                // peaData.value.areaCfgData[activity_type].pea_onlyPreson = true
                 // NTA1-231：低配版IPC：4M S4L-C，越界/区域入侵目标类型只支持人
                 peaData.value.areaCfgData[activity_type].onlyPersonSensitivity = peaData.value.areaCfgData[activity_type].pea_onlyPreson
                     ? Number($(`//content/chl/${activity_type}/param/sensitivity`).text())
@@ -1479,7 +1532,7 @@ export default defineComponent({
                                             <point type="list"/>
                                         </itemType>
                         `
-                peaData.value.areaCfgData[type]['boundaryInfo'].forEach((element: { point: { X: number; Y: number; isClosed?: boolean }[]; maxCount: number }) => {
+                peaData.value.areaCfgData[type]['boundaryInfo'].forEach((element: { point: { X: number; Y: number; isClosed?: boolean }[]; maxCount: number; configured: boolean }) => {
                     sendXml += rawXml`<item>
                                         <point type="list" maxCount="${element.maxCount.toString()}" count="${element.point.length.toString()}">`
                     element.point.forEach((point: { X: number; Y: number; isClosed?: boolean }) => {
@@ -1888,23 +1941,36 @@ export default defineComponent({
 
         // 切换通道操作
         const handleChangeChannel = async () => {
-            pageData.value.chlData = pageData.value.chlCaps[pageData.value.currChlId]
+            const id = pageData.value.currChlId
+            pageData.value.chlData = pageData.value.chlCaps[id]
+            tripwireDrawer.clear()
+            peaDrawer.clear()
+            tripwireData.value.chosenSurfaceIndex = 0
+            peaData.value.chosenWarnAreaIndex = 0
             await initPageData()
             peaPlay()
             tripwirePlay()
-        }
-        // 大tab点击事件,切换功能 tripwire/pea
-        const handleTabClick = (pane: TabsPaneContext) => {
-            pageData.value.chosenFunction = pane.props.name?.toString() ? pane.props.name?.toString() : ''
-            initPageData()
+
             // if (pageData.value.chosenFunction == 'pea') {
             //     peaPlay()
-            //     setPeaOcxData()
-            //     // setTripwireOcxData()
+            //     // setPeaOcxData()
             // }
             // if (pageData.value.chosenFunction == 'tripwire') {
             //     tripwirePlay()
-            //     setPeaOcxData()
+            //     // setTripwireOcxData()
+            // }
+        }
+        // 大tab点击事件,切换功能 tripwire/pea
+        const handleTabClick = async (pane: TabsPaneContext) => {
+            pageData.value.chosenFunction = pane.props.name?.toString() ? pane.props.name?.toString() : ''
+            await initPageData()
+            // if (pageData.value.chosenFunction == 'pea') {
+            //     peaPlay()
+            //     // setPeaOcxData()
+            // }
+            // if (pageData.value.chosenFunction == 'tripwire') {
+            //     tripwirePlay()
+            //     // setTripwireOcxData()
             // }
         }
         // tripwire tab点击事件
@@ -2030,12 +2096,13 @@ export default defineComponent({
                 // 画点
                 const boundaryInfoList = peaData.value.areaCfgData[type].boundaryInfo
                 boundaryInfoList.forEach((ele, idx) => {
-                    if (ele.point && ele.point.length > 0) {
+                    if (ele.point.length > 0) {
                         peaData.value.areaCfgData[type].boundaryInfo[idx].configured = true
                     } else {
                         peaData.value.areaCfgData[type].boundaryInfo[idx].configured = false
                     }
                 })
+                // console.log(peaData.value.areaCfgData[type].boundaryInfo)
                 // 是否显示全部区域切换按钮和清除全部按钮（区域数量大于等于2时才显示）
                 if (boundaryInfoList && boundaryInfoList.length > 1) {
                     peaData.value.showAllAreaVisible = true
@@ -2049,8 +2116,6 @@ export default defineComponent({
         // 初始化页面数据
         const initPageData = async () => {
             isTabDisabled()
-            // setTripwireOcxData()
-            // setPeaOcxData()
             if (pageData.value.chosenFunction === 'tripwire') {
                 tripwireData.value.initComplete = false
                 if (
@@ -2061,6 +2126,13 @@ export default defineComponent({
                     pageData.value.chlData['supportBackAOIEntry'] ||
                     pageData.value.chlData['supportBackAOILeave']
                 ) {
+                    // const pageTimer = setTimeout(async () => {
+                    //     // 临时方案-NVRUSS44-79（页面快速切换时。。。）
+                    const tripwirePlugin = tripwireplayerRef.value?.plugin
+                    const isSupportH5 = tripwirePlugin?.IsSupportH5()
+                    if (!isSupportH5) {
+                        tripwirePlugin?.VideoPluginNotifyEmitter.addListener(tripwireLiveNotify2Js)
+                    }
                     tripwireData.value.detectionTypeText = Translate('IDCS_DETECTION_BY_DEVICE').formatForLang(pageData.value.chlData['supportTripwire'] ? 'IPC' : 'NVR')
                     await getTripwireData()
                     // 是否显示控制全部区域按钮
@@ -2069,11 +2141,26 @@ export default defineComponent({
                     if (pageData.value.chlData.supportAutoTrack) {
                         getPTZLockStatus()
                     }
+                    if (tripwiremode.value === 'h5') {
+                        tripwireDrawer.setEnable('line', true)
+                    } else {
+                        const sendXML = OCX_XML_SetPeaAreaAction('EDIT_ON')
+                        tripwirePlugin?.GetVideoPlugin().ExecuteCmd(sendXML)
+                    }
                     setTripwireOcxData()
+                    //     clearTimeout(pageTimer)
+                    // }, 250)
                 } else {
                     pageData.value.notSupportTipShow = true
                 }
             } else if (pageData.value.chosenFunction === 'pea') {
+                // const pageTimer = setTimeout(async () => {
+                // 临时方案-NVRUSS44-79（页面快速切换时。。。）
+                const peaPlugin = peaplayerRef.value?.plugin
+                const isSupportH5 = peaPlugin?.IsSupportH5()
+                if (!isSupportH5) {
+                    peaPlugin?.VideoPluginNotifyEmitter.addListener(peaLiveNotify2Js)
+                }
                 peaData.value.initComplete = false
                 peaData.value.detectionTypeText = Translate('IDCS_DETECTION_BY_DEVICE').formatForLang(pageData.value.chlData['supportTripwire'] ? 'IPC' : 'NVR')
                 await getPeaData()
@@ -2088,9 +2175,12 @@ export default defineComponent({
                     peaDrawer.setEnable(true)
                 } else {
                     const sendXML = OCX_XML_SetPeaAreaAction('EDIT_ON')
-                    peaPlugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    peaPlugin?.GetVideoPlugin().ExecuteCmd(sendXML)
                 }
+                // peaDrawer.clear()
                 setPeaOcxData()
+                //     clearTimeout(pageTimer)
+                // }, 250)
             }
         }
 
@@ -2109,6 +2199,7 @@ export default defineComponent({
                 const itemText = element == 60 ? '1 ' + Translate('IDCS_MINUTE') : element > 60 ? element / 60 + ' ' + Translate('IDCS_MINUTES') : element + ' ' + Translate('IDCS_SECONDS')
                 timeList.push({ value: element, label: itemText })
             })
+            timeList.sort((a, b) => a.value - b.value)
             return timeList
         }
         // tripwire执行是否显示全部区域
@@ -2548,32 +2639,33 @@ export default defineComponent({
         }
         // pea显示
         const setPeaOcxData = function () {
-            if (peaData.value.peaFunction == 'pea_param') {
-                const type = peaData.value.activity_type
-                const area = peaData.value.chosenWarnAreaIndex
-                const boundaryInfo = peaData.value.areaCfgData[type]['boundaryInfo']
-                const regionInfo = peaData.value.areaCfgData[type]['regionInfo']
-                if (boundaryInfo && boundaryInfo.length > 0) {
-                    if (peamode.value === 'h5') {
-                        peaDrawer.setCurrAreaIndex(area, peaData.value.currAreaType)
-                        if (peaData.value.currentRegulation) {
-                            // 画矩形
-                            peaDrawer.setArea(regionInfo[area])
-                        } else {
-                            // 画点
-                            peaDrawer.setPointList(boundaryInfo[area]['point'])
-                        }
+            // if (peaData.value.peaFunction == 'pea_param') {
+            const type = peaData.value.activity_type
+            const area = peaData.value.chosenWarnAreaIndex
+            const boundaryInfo = peaData.value.areaCfgData[type]['boundaryInfo']
+            // console.log(boundaryInfo)
+            const regionInfo = peaData.value.areaCfgData[type]['regionInfo']
+            if (boundaryInfo && boundaryInfo.length > 0) {
+                if (peamode.value === 'h5') {
+                    peaDrawer.setCurrAreaIndex(area, peaData.value.currAreaType)
+                    if (peaData.value.currentRegulation) {
+                        // 画矩形
+                        peaDrawer.setArea(regionInfo[area])
                     } else {
-                        const sendXML = OCX_XML_SetPeaArea(boundaryInfo[area]['point'], peaData.value.currentRegulation)
-                        if (sendXML) {
-                            peaPlugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                        }
+                        // 画点
+                        peaDrawer.setPointList(boundaryInfo[area]['point'])
+                    }
+                } else {
+                    const sendXML = OCX_XML_SetPeaArea(boundaryInfo[area]['point'], peaData.value.currentRegulation)
+                    if (sendXML) {
+                        peaPlugin.GetVideoPlugin().ExecuteCmd(sendXML)
                     }
                 }
-                if (peaData.value.isShowAllArea == true) {
-                    showAllPeaArea(true)
-                }
             }
+            if (peaData.value.isShowAllArea == true) {
+                showAllPeaArea(true)
+            }
+            // }
         }
         // 区域关闭
         const peaClosePath = function (
@@ -2694,6 +2786,62 @@ export default defineComponent({
             }
             pageData.value.applyDisable = false
         }
+
+        const tripwireLiveNotify2Js = ($: (path: string) => XmlResult) => {
+            if ($("statenotify[type='TripwireLine']").length > 0) {
+                const surface = tripwireData.value.chosenSurfaceIndex
+                tripwireData.value['lineInfo'][surface]['startPoint'] = {
+                    X: parseInt($('statenotify/startPoint').attr('X')),
+                    Y: parseInt($('statenotify/startPoint').attr('Y')),
+                }
+                tripwireData.value['lineInfo'][surface]['endPoint'] = {
+                    X: parseInt($('statenotify/endPoint').attr('X')),
+                    Y: parseInt($('statenotify/endPoint').attr('Y')),
+                }
+                pageData.value.applyDisable = false
+            }
+        }
+        const peaLiveNotify2Js = ($: (path: string) => XmlResult) => {
+            // 区域入侵
+            // const $xmlPea = $("statenotify[type='PeaArea']")
+            const $points = $("statenotify[type='PeaArea']/points")
+            const errorCode = $("statenotify[type='PeaArea']/errorCode").text()
+            // 绘制点线
+            if ($points.length > 0) {
+                const currType = peaData.value.activity_type
+                const points: { X: number; Y: number }[] = []
+                $('statenotify/points/item').forEach((element) => {
+                    const X = parseInt(element.attr('X')!)
+                    const Y = parseInt(element.attr('Y')!)
+                    points.push({ X: X, Y: Y })
+                })
+                const area = peaData.value.chosenWarnAreaIndex
+                if (peaData.value.currentRegulation) {
+                    peaData.value.areaCfgData[currType]['boundaryInfo'][area]['point'] = points
+                    peaData.value.areaCfgData[currType]['regionInfo'][area] = {
+                        X1: points[0]['X'],
+                        Y1: points[0]['Y'],
+                        X2: points[1]['X'],
+                        Y2: points[2]['Y'],
+                    }
+                } else {
+                    peaData.value.areaCfgData[currType]['boundaryInfo'][area]['point'] = points
+                }
+                pageData.value.applyDisable = false
+            }
+            // 处理错误码
+            if (errorCode == '517') {
+                // 517-区域已闭合
+                peaClearCurrentArea()
+            } else if (errorCode == '515') {
+                // 515-区域有相交直线，不可闭合
+                openMessageTipBox({
+                    type: 'info',
+                    title: Translate('IDCS_INFO_TIP'),
+                    message: Translate('IDCS_INTERSECT'),
+                })
+            }
+        }
         onMounted(async () => {
             await getScheduleList()
             await getOnlineChannel()
@@ -2702,6 +2850,7 @@ export default defineComponent({
             await getAIResourceData(false)
             await getRecordList()
             await getAlarmOutList()
+            // pageData.value.chosenFunction = 'pea'
             await initPageData()
         })
         onBeforeUnmount(() => {
@@ -2714,6 +2863,19 @@ export default defineComponent({
                 peaPlugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
         })
+        // onUpdated(() => {
+        //     tripwirePlay()
+        //     peaPlay()
+        // })
+        // onUnmounted(() => {
+        //     if (isSupportH5) {
+        //         tripwirePlayer.destroy()
+        //         peaPlayer.destroy()
+        //     } else {
+        //         tripwirePlugin.CloseCurPlugin(document.getElementById('tripwireplayer')!)
+        //         peaPlugin.CloseCurPlugin(document.getElementById('peaplayer')!)
+        //     }
+        // })
         return {
             buildScheduleList,
             Translate,

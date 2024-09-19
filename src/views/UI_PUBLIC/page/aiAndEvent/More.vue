@@ -3,7 +3,7 @@
  * @Date: 2024-09-10 17:50:24
  * @Description: 更多功能页面的框架
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-12 13:45:27
+ * @LastEditTime: 2024-09-18 17:42:41
 -->
 <template>
     <div class="content">
@@ -34,6 +34,7 @@
         </div>
         <div class="content_main">
             <el-tabs
+                :key="pageData.tabKey"
                 v-model="pageData.chosenFunction"
                 type="border-card"
                 class="demo-tabs"
@@ -111,6 +112,15 @@
                             }"
                             >{{ Translate('IDCS_PASS_LINE_COUNT_DETECTION') }}</span
                         >
+                    </template>
+                    <template #default>
+                        <passLine
+                            v-if="pageData.chosenFunction === 'passLine'"
+                            :curr-chl-id="pageData.currChlId"
+                            :chl-data="pageData.chlData"
+                            :voice-list="pageData.voiceList"
+                            :online-channel-list="pageData.onlineChannelList"
+                        ></passLine>
                     </template>
                 </el-tab-pane>
 
@@ -198,7 +208,7 @@
                                 justifyContent: 'center',
                                 alignItems: 'center',
                             }"
-                            >{{ Translate('IDCS_FIRE_POINT_DETECTION') }}</span
+                            >{{ Translate('IDCS_ABNORMAL_DISPOSE_WAY') }}</span
                         >
                     </template>
                 </el-tab-pane>

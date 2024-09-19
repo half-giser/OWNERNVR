@@ -3,7 +3,7 @@
  * @Date: 2024-08-10 12:08:57
  * @Description: AI/事件
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-10 17:11:43
+ * @LastEditTime: 2024-09-14 17:07:58
  */
 const { Translate } = useLangStore()
 
@@ -562,4 +562,28 @@ export class peaPageData {
     presetSwitch = false
     presets = [] as PresetItem[]
     presetSource = [] as PresetList[]
+}
+
+export class emailData {
+    saveTargetPicture = false
+    saveSourcePicture = false
+    sendEmailData = {
+        type: '0',
+        enableSwitch: false,
+        dailyReportSwitch: false,
+        weeklyReportSwitch: false,
+        weeklyReportDate: '0',
+        mouthlyReportSwitch: false,
+        mouthlyReportDate: '0',
+        reportHour: 0,
+        reportMin: 0,
+    }
+    receiverData = [] as { address: string; schedule: string; rowClicked: boolean }[]
+}
+
+export class regionData {
+    X1 = 0
+    Y1 = 0
+    X2 = 0
+    Y2 = 0
 }

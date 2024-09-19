@@ -3,7 +3,7 @@
  * @Date: 2024-08-27 15:43:26
  * @Description:  周界防范/人车检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-11 18:04:00
+ * @LastEditTime: 2024-09-18 10:31:43
 -->
 <template>
     <div class="content">
@@ -143,6 +143,7 @@
         </div>
         <div class="content_main">
             <el-tabs
+                :key="pageData.tabKey"
                 v-model="pageData.chosenFunction"
                 type="border-card"
                 class="demo-tabs"
@@ -504,7 +505,7 @@
                                     >
                                         <div class="form_span">
                                             <el-divider direction="vertical"></el-divider>
-                                            <span>{{ Translate('IDCD_RULE') }}</span>
+                                            <span>{{ Translate('IDCS_DETECTION_TARGET') }}</span>
                                         </div>
                                         <!-- 人灵敏度 -->
                                         <el-form-item>
@@ -858,6 +859,7 @@
                         <div class="left">
                             <div class="player">
                                 <BaseVideoPlayer
+                                    id="peaplayer"
                                     ref="peaplayerRef"
                                     type="live"
                                     @onready="peahandlePlayerReady"
@@ -1127,7 +1129,7 @@
                                     >
                                         <div class="form_span">
                                             <el-divider direction="vertical"></el-divider>
-                                            <span>{{ Translate('IDCD_RULE') }}</span>
+                                            <span>{{ Translate('IDCS_DETECTION_TARGET') }}</span>
                                         </div>
                                         <!-- 人灵敏度 -->
                                         <el-form-item>
