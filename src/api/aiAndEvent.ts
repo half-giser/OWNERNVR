@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-08-10 16:25:58
  * @Description: AI/事件
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-18 10:34:31
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-09-19 10:58:26
  */
 
 import { type AxiosRequestConfig } from 'axios'
@@ -176,6 +176,27 @@ export const deleteFaceMatchAlarmParam = (data: string) => http.fetch('deleteFac
 
 // 获取车辆识别参数
 export const queryVehicleConfig = (data: string) => http.fetch('queryVehicleConfig', getXmlWrapData(data))
+
+// 获取过线检测数据
+export const queryPls = (data: string) => http.fetch('queryPls', getXmlWrapData(data))
+
+// 修改过线检测数据
+export const editPls = (data: string) => http.fetch('editPls', getXmlWrapData(data))
+
+// 获取定时发送邮件数据
+export const queryTimingSendEmail = () => http.fetch('queryTimingSendEmail', getXmlWrapData(''))
+
+// 修改定时发送邮件数据
+export const editTimingSendEmail = (data: string) => http.fetch('editTimingSendEmail', getXmlWrapData(data))
+
+// 重置cpc信息
+export const forceResetCpc = (data: string) => http.fetch('forceResetCpc', getXmlWrapData(data))
+
+// 获取cpc信息
+export const queryCpc = (data: string) => http.fetch('queryCpc', getXmlWrapData(data))
+
+// 编辑cpc信息
+export const editCpc = (data: string) => http.fetch('editCpc', getXmlWrapData(data))
 
 // 获取车牌匹配报警参数
 export const queryVehicleMatchAlarm = (data: string) => http.fetch('queryVehicleMatchAlarm', getXmlWrapData(data))
