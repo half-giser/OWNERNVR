@@ -11,6 +11,7 @@ export default {
         lk: 'IDCS_ACCOUNT_AND_SECURITY',
         plClass: 'md1',
         icon: 'user',
+        enabled: 'securityMgr',
         groups: {
             //账户和权限
             account: {
@@ -129,6 +130,9 @@ export default {
                 sort: 40,
                 lk: 'IDCS_PASSWORD_SAFETY',
                 group: 'security',
+                auth(systemCaps) {
+                    return systemCaps.supportPwdSecurityConfig
+                },
             },
         },
         onlineUser: {

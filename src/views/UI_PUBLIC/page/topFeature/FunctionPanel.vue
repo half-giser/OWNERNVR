@@ -55,65 +55,16 @@
             border: solid 2px var(--primary--04);
         }
 
-        .subMenus {
-            color: var(--text-menu-05);
-            span {
-                font-size: 15px;
-                text-decoration: none;
-                cursor: pointer;
-                display: inline-block;
-                zoom: 1;
-                margin: 0px 0px 3px 0px;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-
-                &:not(:last-of-type):after {
-                    content: '';
-                    display: inline-block;
-                    margin: 0px 2px;
-                    position: relative;
-                    top: 2px;
-                    width: 1px;
-                    height: 15px;
-                    background-color: var(--border-color2);
-                }
-
-                &:hover {
-                    text-decoration: underline;
-                    color: var(--primary--04);
-                }
-            }
-        }
-
         &.md1 {
             width: 336px;
-            .subMenus {
-                width: 255px;
-                span {
-                    max-width: 228px;
-                }
-            }
         }
 
         &.md2 {
             width: 354px;
-            .subMenus {
-                width: 275px;
-                span {
-                    max-width: 170px;
-                }
-            }
         }
 
         &.md3 {
             width: 232px;
-            .subMenus {
-                width: 156px;
-                span {
-                    max-width: 146px;
-                }
-            }
         }
 
         .icon {
@@ -133,6 +84,9 @@
     .menuContent {
         display: flex;
         flex-direction: column;
+        width: 100%;
+        box-sizing: border-box;
+        padding-right: 5px;
     }
 
     .mainMenu {
@@ -149,9 +103,34 @@
 
     .subMenus {
         position: relative;
-        width: 275px;
-        margin: 8px 0px 0px 10px;
+        margin: 8px 0px 0px 8px;
         padding: 4px 6px 0px 0px;
+        color: var(--text-menu-05);
+        span {
+            font-size: 15px;
+            text-decoration: none;
+            cursor: pointer;
+            display: inline-block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+
+            &:not(:last-of-type):after {
+                content: '';
+                display: inline-block;
+                margin: 0px 2px;
+                position: relative;
+                top: 2px;
+                width: 1px;
+                height: 15px;
+                background-color: var(--border-color2);
+            }
+
+            &:hover {
+                text-decoration: underline;
+                color: var(--primary--04);
+            }
+        }
     }
 }
 </style>

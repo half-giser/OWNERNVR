@@ -3,7 +3,7 @@
  * @Date: 2024-07-12 18:19:55
  * @Description: HTTPS
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 17:52:28
+ * @LastEditTime: 2024-09-19 14:04:31
  */
 import WebsocketUpload from '@/utils/websocket/websocketUpload'
 import WebsocketDownload from '@/utils/websocket/websocketDownload'
@@ -525,7 +525,7 @@ export default defineComponent({
         watch(
             isSupportH5,
             (newVal) => {
-                if (!newVal && !Plugin.IsPluginAvailable) {
+                if (!newVal && !Plugin.IsPluginAvailable()) {
                     Plugin.SetPluginNoResponse()
                     Plugin.ShowPluginNoResponse()
                 }

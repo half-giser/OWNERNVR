@@ -3,7 +3,7 @@
  * @Date: 2024-07-22 20:03:07
  * @Description: 抓拍相关常量
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 20:11:18
+ * @LastEditTime: 2024-09-19 17:00:45
  */
 export const GENDER_MAP: Record<number, string> = {
     0: '--',
@@ -59,14 +59,18 @@ export const BACKPACK_TYPE_MAP: Record<number, string> = {
 
 export const UPPER_TYPE_MAP: Record<number, string> = {
     0: '--',
-    1: 'IDCS_COLOR_SHORT_SLEEVE',
-    2: 'IDCS_COLOR_LONG_SLEEVE',
+    1: 'IDCS_UPPER_BODY_LONG_SLEEVE',
+    2: 'IDCS_UPPER_BODY_SHORT_SLEEVE',
+    // 1: 'IDCS_COLOR_SHORT_SLEEVE',
+    // 2: 'IDCS_COLOR_LONG_SLEEVE',
 }
 
 export const LOWER_TYPE_MAP: Record<number, string> = {
     0: '--',
-    1: 'IDCS_COLOR_SHORT_TROUSER',
-    2: 'IDCS_COLOR_LONG_TROUSER',
+    1: 'IDCS_LOWER_BODY_SHORTS',
+    2: 'IDCS_LOWER_BODY_TROUSERS',
+    // 1: 'IDCS_COLOR_SHORT_TROUSER',
+    // 2: 'IDCS_COLOR_LONG_TROUSER',
 }
 
 export const COLOR_MAP: Record<number, string> = {
@@ -112,7 +116,8 @@ export const NON_MOTOR_MAP: Record<number, string> = {
     0: '--', // 未知
     1: 'IDCS_BICYCLE',
     2: 'IDCS_BATTERY_CAR',
-    3: 'IDCS_NON_VEHICLE',
+    3: 'IDCS_DETECTION_MOTORCYCLE',
+    // 3: 'IDCS_NON_VEHICLE',
     4: 'IDCS_TRICYCLE',
 }
 

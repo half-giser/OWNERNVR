@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 二级类型2布局页--三级类型1布局页--适用于“智能分析-搜索”、“业务应用-停车场管理”等
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-14 18:04:47
+ * @LastEditTime: 2024-09-19 15:36:07
 -->
 <template>
     <el-container id="layout3">
@@ -81,8 +81,11 @@
     }
 
     span {
-        line-height: 30px;
+        // line-height: 30px;
         width: 100%;
+        font-size: 12px;
+        line-height: 1.4;
+        white-space: pre-wrap;
     }
 }
 </style>

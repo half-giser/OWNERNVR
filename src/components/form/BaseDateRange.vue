@@ -162,7 +162,7 @@ const displayDateValue = (timestamp: number) => {
     font-size: 14px;
 
     &-box {
-        padding: 0 15px;
+        padding: 0 8px;
     }
 }
 </style>

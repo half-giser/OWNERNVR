@@ -3,7 +3,7 @@
  * @Date: 2023-05-09 16:45:59
  * @Description: 导航全局存储
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-17 14:30:18
+ * @LastEditTime: 2024-09-19 12:03:03
  */
 
 import { type RouteRecordRaw, type RouteMeta } from 'vue-router'
@@ -65,9 +65,10 @@ export const useMenuStore = defineStore(
          * @param {RouteRecordRaw} item
          * @return {*}
          */
-        const isMenuItemShow = (item: RouteRecordRawExtends, args?: any) => {
-            const auth = (<RouteMeta>item.meta).auth
-            return typeof auth === 'undefined' || (auth as (args: any) => boolean)(args)
+        const isMenuItemShow = (item: RouteRecordRawExtends) => {
+            const systemCaps = useCababilityStore()
+            const theme = getUiAndTheme().name
+            return typeof item.meta.auth === 'undefined' || item.meta.auth(systemCaps, theme)
         }
 
         /**

@@ -3,7 +3,7 @@
  * @Date: 2024-06-14 10:33:32
  * @Description: 用户与安全API
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-27 19:55:54
+ * @LastEditTime: 2024-09-18 17:56:42
  */
 
 // import type { AxiosRequestConfig } from 'axios'
@@ -11,9 +11,10 @@ import http from './api'
 
 /**
  * @description 查询密码安全性
+ * @param {boolean} status
  * @returns
  */
-export const queryPasswordSecurity = () => http.fetch('queryPasswordSecurity', getXmlWrapData(''))
+export const queryPasswordSecurity = (status = true) => http.fetch('queryPasswordSecurity', getXmlWrapData(''), {}, status)
 
 /**
  * @description 重置密码
