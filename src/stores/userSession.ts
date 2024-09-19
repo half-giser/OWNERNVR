@@ -41,6 +41,9 @@ export const useUserSessionStore = defineStore(
         const advanceRecModeId = ref('')
         const defaultStreamType = ref('')
 
+        const p2pSessionId = ref<null | string>(null)
+        const authCodeIndex = ref('')
+
         /**
          * 加密本地存储用户信息
          * @param authInfo
@@ -213,6 +216,8 @@ export const useUserSessionStore = defineStore(
             advanceRecModeId,
             authEffective,
             defaultStreamType,
+            p2pSessionId,
+            authCodeIndex,
         }
     },
     {

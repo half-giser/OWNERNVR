@@ -512,7 +512,7 @@ export default defineComponent({
         watch(
             mode,
             (newVal) => {
-                if (newVal !== 'h5' && !Plugin.IsPluginAvailable) {
+                if (newVal !== 'h5' && !Plugin.IsPluginAvailable()) {
                     Plugin.SetPluginNoResponse()
                     Plugin.ShowPluginNoResponse()
                 }
