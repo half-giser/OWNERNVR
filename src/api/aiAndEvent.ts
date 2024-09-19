@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-08-10 16:25:58
  * @Description: AI/事件
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-12 11:36:32
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-09-18 10:34:31
  */
 
 import { type AxiosRequestConfig } from 'axios'
@@ -188,3 +188,15 @@ export const deleteVehicleMatchAlarm = (data: string) => http.fetch('deleteVehic
 
 // 修改车辆侦测数据
 export const editVehicleConfig = (data: string) => http.fetch('editVehicleConfig', getXmlWrapData(data))
+
+// 获取温度检测数据
+export const queryTemperatureAlarmConfig = (data: string) => http.fetch('queryTemperatureAlarmConfig', getXmlWrapData(data))
+
+// 修改温度检测数据
+export const editTemperatureAlarmConfig = (data: string) => http.fetch('editTemperatureAlarmConfig', getXmlWrapData(data))
+
+// 获取物品遗留与看护数据
+export const queryOsc = (data: string) => http.fetch('queryOsc', getXmlWrapData(data))
+
+// 修改物品遗留与看护数据
+export const editOsc = (data: string) => http.fetch('editOsc', getXmlWrapData(data))

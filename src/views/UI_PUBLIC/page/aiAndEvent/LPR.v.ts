@@ -1132,7 +1132,8 @@ export default defineComponent({
             openLoading(LoadingTarget.FullScreen)
             const result = await editVehicleConfig(sendXml)
             closeLoading(LoadingTarget.FullScreen)
-            commSaveResponseHadler(result, () => {
+            const $ = queryXml(result)
+            if ($('/response/status').text() == 'success') {
                 if (vehicleDetectionData.value.enabledSwitch) {
                     vehicleDetectionData.value.originalSwitch = true
                 }
@@ -1142,7 +1143,7 @@ export default defineComponent({
                 }
                 refreshInitPage()
                 detectionPageData.value.applyDisabled = true
-            })
+            }
         }
         // 提交车辆识别数据
         const applyVehicleDetectionData = async () => {
@@ -1400,7 +1401,7 @@ export default defineComponent({
                         <word>${item.hintword}</word>
                     </hint></param>
                     <schedule id='${item.schedule}'></schedule>
-                    <trigger>" + 
+                    <trigger>
                         <sysAudio id='${item.sysAudio}'></sysAudio>
                         <buzzerSwitch>${String(item.buzzerSwitch)}</buzzerSwitch>
                         <popMsgSwitch>${String(item.popMsgSwitch)}</popMsgSwitch>

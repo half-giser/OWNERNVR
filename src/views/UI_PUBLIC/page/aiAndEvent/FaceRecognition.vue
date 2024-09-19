@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-28 13:41:57
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-09 18:06:18
+ * @LastEditTime: 2024-09-14 17:31:50
 -->
 <template>
     <!-- 通道名称及选择器 -->
@@ -571,6 +571,7 @@
     >
         <div class="notChlSupportTip">{{ pageData.notSupportTip }}</div>
     </div>
+    <BaseNotification v-model:notifications="pageData.notification" />
     <!-- AI资源的弹窗 -->
     <el-dialog
         v-model="AIResourcePopOpen"

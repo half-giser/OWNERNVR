@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-28 13:42:09
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-12 17:26:02
+ * @LastEditTime: 2024-09-14 17:31:32
  */
 import { ArrowDown } from '@element-plus/icons-vue'
 import { cloneDeep } from 'lodash'
@@ -1027,7 +1027,7 @@ export default defineComponent({
                         <enum>alarmOuts</enum>
                     </nodeType>
                 </types>
-                <nodeType type="nodeType">chls</nodeType>
+                <nodeType type='nodeType'>chls</nodeType>
                 <requireField>
                     <name/>
                     <chlType/>
@@ -1641,7 +1641,7 @@ export default defineComponent({
                         <word>${item.hintword}</word>
                     </hint></param>
                     <schedule id='${item.schedule}'></schedule>
-                    <trigger>" + 
+                    <trigger>
                         <sysAudio id='${item.sysAudio}'></sysAudio>
                         <buzzerSwitch>${String(item.buzzerSwitch)}</buzzerSwitch>
                         <popMsgSwitch>${String(item.popMsgSwitch)}</popMsgSwitch>
@@ -1733,8 +1733,8 @@ export default defineComponent({
             await getRecordList()
             await getAlarmOutData()
             await getSnapList()
-            await getPresetData()
             await getChlData()
+            await getPresetData()
         })
 
         onBeforeUnmount(() => {

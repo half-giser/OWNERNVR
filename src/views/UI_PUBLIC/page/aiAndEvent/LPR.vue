@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-09 09:56:14
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-12 15:04:51
+ * @LastEditTime: 2024-09-14 17:32:09
 -->
 <template>
     <!-- 通道名称及选择器 -->
@@ -358,6 +358,7 @@
     >
         <div class="notChlSupportTip">{{ pageData.notSupportTip }}</div>
     </div>
+    <BaseNotification v-model:notifications="pageData.notification" />
     <!-- 排程管理弹窗 -->
     <ScheduleManagPop
         v-model="pageData.scheduleManagPopOpen"
@@ -560,9 +561,15 @@
                     border: 1px solid var(--border-color4) !important;
                 }
             }
+            :deep(.el-radio-button.is-active) {
+                .el-radio-button__inner {
+                    color: #fff;
+                }
+            }
             .configured_area {
                 :deep(.el-radio-button__inner) {
                     border: 1px solid #00bbdb !important;
+                    color: #00bbdb;
                 }
             }
         }
