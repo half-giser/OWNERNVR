@@ -3,7 +3,7 @@
  * @Date: 2024-08-30 18:48:06
  * @Description: 人脸库 - 编辑人脸弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 16:37:17
+ * @LastEditTime: 2024-09-14 09:30:13
  */
 import { IntelFaceDBFaceForm, type IntelFaceDBGroupDto, type IntelFaceDBSnapFaceList, type IntelFaceDBFaceInfo } from '@/types/apiType/intelligentAnalysis'
 import { type FormInstance } from 'element-plus'
@@ -240,7 +240,7 @@ export default defineComponent({
                 </delFaceImgs>
                 <item>
                     <item>
-                        <frameTime>${localToUtc(snapData[0].timestamp)}:${snapData[0].timeNS}</frameTime>
+                        <frameTime>${snapData[0].frameTime}</frameTime>
                         <img id="${snapData[0].imgId.toString()}" />
                         <chl id="${snapData[0].chlId}" />
                     </item>

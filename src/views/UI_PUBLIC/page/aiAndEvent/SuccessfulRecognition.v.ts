@@ -1,13 +1,13 @@
 /*
- * @Description:人脸识别——识别成功（1,2,3）/陌生人tab页
+ * @Description:识别成功（1,2,3）/陌生人tab页/陌生车牌tab页，用于人脸识别和车牌识别的识别tab下
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-04 14:23:54
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-06 15:17:46
+ * @LastEditTime: 2024-09-09 18:01:39
  */
 import { cloneDeep } from 'lodash'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
-import { type PresetList, type FaceCompareTask } from '@/types/apiType/aiAndEvent'
+import { type PresetList, type CompareTask } from '@/types/apiType/aiAndEvent'
 import { type CheckboxValueType, type ElTable } from 'element-plus'
 
 export default defineComponent({
@@ -16,11 +16,11 @@ export default defineComponent({
     },
     props: {
         currTaskData: {
-            type: Object as PropType<FaceCompareTask>,
+            type: Object as PropType<CompareTask>,
             require: true,
             default: () => {},
         },
-        faceGroupData: {
+        groupData: {
             type: Array<any>,
             require: true,
             default: [],
@@ -84,7 +84,7 @@ export default defineComponent({
             { value: 'popMsgSwitch', label: Translate('IDCS_MESSAGEBOX_POPUP') },
         ])
 
-        const faceGroupTableRef = ref<InstanceType<typeof ElTable>>()
+        const groupTableRef = ref<InstanceType<typeof ElTable>>()
         // 常规联动
         const normalParamCheckAll = ref(false)
         const normalParamCheckList = ref([] as string[])
@@ -95,13 +95,13 @@ export default defineComponent({
         const supportAlarmAudioConfig = systemCaps.supportAlarmAudioConfig
 
         const pageData = ref({
-            // 人脸分组弹窗
-            faceGroupPopOpen: false,
-            faceGroupSelection: [] as { guid: string; name: string }[],
-            // 人脸分组的checkbox
+            // 分组弹窗
+            groupPopOpen: false,
+            groupSelection: [] as { guid: string; name: string }[],
+            // 分组的checkbox
             selectAll: false,
-            // 人脸分组选中名称拼接
-            faceGroupName: '',
+            // 分组选中名称拼接
+            groupName: '',
             // 排程弹窗
             scheduleManagPopOpen: false,
             recordIsShow: false,
@@ -111,8 +111,8 @@ export default defineComponent({
 
         // 初始化数据
         const initData = () => {
-            pageData.value.selectAll = taskData.groupId.length > 0 && taskData.groupId.length == prop.faceGroupData.length
-            handleFaceGroupName()
+            pageData.value.selectAll = taskData.groupId.length > 0 && taskData.groupId.length == prop.groupData.length
+            handleGroupName()
             if (taskData.msgPushSwitch) normalParamCheckList.value.push('msgPushSwitch')
             if (taskData.buzzerSwitch) normalParamCheckList.value.push('buzzerSwitch')
             if (taskData.popVideoSwitch) normalParamCheckList.value.push('popVideoSwitch')
@@ -122,51 +122,51 @@ export default defineComponent({
                 normalParamCheckAll.value = true
             }
         }
-        // 生成人脸分组选中的数据名称
-        const handleFaceGroupName = () => {
-            pageData.value.faceGroupName = ''
-            prop.faceGroupData.forEach((item) => {
+        // 生成分组选中的数据名称
+        const handleGroupName = () => {
+            pageData.value.groupName = ''
+            prop.groupData.forEach((item) => {
                 if (taskData.groupId.includes(item.guid)) {
-                    pageData.value.faceGroupName += item.name + '; '
+                    pageData.value.groupName += item.name + '; '
                 }
             })
         }
-        // 人脸分组全选checkbox
+        // 分组全选checkbox
         const selectAllCheckChange = (value: CheckboxValueType) => {
             if (value) {
-                taskData.groupId = prop.faceGroupData.map((item) => item.guid)
+                taskData.groupId = prop.groupData.map((item) => item.guid)
             } else {
                 taskData.groupId = []
             }
-            handleFaceGroupName()
+            handleGroupName()
         }
 
-        // 人脸分组弹窗打开/关闭
-        const openFaceGroupPop = () => {
-            prop.faceGroupData.forEach((item) => {
+        // 分组弹窗打开/关闭
+        const openGroupPop = () => {
+            prop.groupData.forEach((item) => {
                 if (taskData.groupId.includes(item.guid)) {
-                    faceGroupTableRef.value!.toggleRowSelection(item, true)
+                    groupTableRef.value!.toggleRowSelection(item, true)
                 }
             })
         }
-        const closeFaceGroupPop = () => {
-            faceGroupTableRef.value!.clearSelection()
-            pageData.value.faceGroupPopOpen = false
+        const closeGroupPop = () => {
+            groupTableRef.value!.clearSelection()
+            pageData.value.groupPopOpen = false
         }
-        // 人脸分支选中
-        const faceGroupSelect = (selection: []) => {
-            pageData.value.faceGroupSelection = selection
+        // 分支选中
+        const groupSelect = (selection: []) => {
+            pageData.value.groupSelection = selection
         }
         // 单行点击
         const handleRowClick = (rowData: { guid: string; name: string }) => {
-            faceGroupTableRef.value!.clearSelection()
-            faceGroupTableRef.value!.toggleRowSelection(rowData, true)
+            groupTableRef.value!.clearSelection()
+            groupTableRef.value!.toggleRowSelection(rowData, true)
         }
-        const saveFaceGroup = () => {
-            taskData.groupId = pageData.value.faceGroupSelection.map((item) => item.guid)
-            closeFaceGroupPop()
-            pageData.value.selectAll = taskData.groupId.length > 0 && taskData.groupId.length == prop.faceGroupData.length
-            handleFaceGroupName()
+        const saveGroup = () => {
+            taskData.groupId = pageData.value.groupSelection.map((item) => item.guid)
+            closeGroupPop()
+            pageData.value.selectAll = taskData.groupId.length > 0 && taskData.groupId.length == prop.groupData.length
+            handleGroupName()
         }
 
         // 常规联动多选
@@ -312,7 +312,7 @@ export default defineComponent({
         })
         return {
             ScheduleManagPop,
-            faceGroupTableRef,
+            groupTableRef,
             normalParamCheckAll,
             normalParamCheckList,
             supportAlarmAudioConfig,
@@ -321,14 +321,14 @@ export default defineComponent({
             pageData,
             PresetTableData,
             normalParamList,
-            // 人脸分组全选checkbox
+            // 分组全选checkbox
             selectAllCheckChange,
-            // 人脸分组弹框
-            faceGroupSelect,
+            // 分组弹框
+            groupSelect,
             handleRowClick,
-            openFaceGroupPop,
-            closeFaceGroupPop,
-            saveFaceGroup,
+            openGroupPop,
+            closeGroupPop,
+            saveGroup,
             // 常规联动
             handleNormalParamCheckAll,
             handleNormalParamCheck,

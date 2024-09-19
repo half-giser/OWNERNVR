@@ -3,17 +3,21 @@
  * @Date: 2024-09-10 17:50:35
  * @Description: 更多功能页面的框架
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-19 10:48:32
+ * @LastEditTime: 2024-09-19 11:01:04
  */
 // import { cloneDeep } from 'lodash-es'
 import { type chlCaps } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
 import fireDetection from './fireDetection.vue'
+import TemperatureDetection from './TemperatureDetection.vue'
+import ObjectLeft from './ObjectLeft.vue'
 import passLine from './passLine.vue'
 export default defineComponent({
     components: {
         fireDetection,
         passLine,
+        TemperatureDetection,
+        ObjectLeft,
     },
     setup() {
         // const { LoadingTarget, openLoading, closeLoading } = useLoading()
@@ -354,10 +358,11 @@ export default defineComponent({
             pageData.value.tabKey += 1
         })
         return {
+            TemperatureDetection,
+            ObjectLeft,
             pageData,
             handleChangeChannel,
             handleTabClick,
-            //  passLinePlay ,
         }
     },
 })

@@ -3,7 +3,7 @@
  * @Date: 2024-09-03 09:09:06
  * @Description: 新增车牌弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-03 19:50:43
+ * @LastEditTime: 2024-09-12 20:45:06
  */
 import { IntelPlateDBAddPlateForm, IntelPlateDBPlateInfo } from '@/types/apiType/intelligentAnalysis'
 import IntelLicenceDBEditPop from './IntelLicencePlateDBEditPop.vue'
@@ -18,7 +18,7 @@ export default defineComponent({
     },
     props: {
         /**
-         * @property {Enum} 弹窗类型 add | edit | register
+         * @property {'add' | 'edit' | 'register'} 弹窗类型
          */
         type: {
             type: String,
@@ -49,23 +49,6 @@ export default defineComponent({
         const mode = computed(() => {
             return Plugin.IsSupportH5() ? 'h5' : 'ocx'
         })
-
-        watch(
-            mode,
-            (newVal) => {
-                // if (newVal !== 'h5' && !Plugin.IsPluginAvailable) {
-                //     pluginStore.showPluginNoResponse = true
-                //     Plugin.ShowPluginNoResponse()
-                // }
-                if (newVal === 'ocx') {
-                    const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
-                    Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                }
-            },
-            {
-                immediate: true,
-            },
-        )
 
         const groupMap: Record<string, string> = {}
 
@@ -367,6 +350,11 @@ export default defineComponent({
          * @description OCX导入的回调
          */
         const handleOCXImport = () => {
+            if (Plugin.IsPluginAvailable()) {
+                const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
+                Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+            }
+
             const sendXML = OCX_XML_OpenFileBrowser('OPEN_FILE', 'csv')
             Plugin.AsynQueryInfo(Plugin.GetVideoPlugin(), sendXML, (result) => {
                 const path = OCX_XML_OpenFileBrowser_getpath(result).trim()

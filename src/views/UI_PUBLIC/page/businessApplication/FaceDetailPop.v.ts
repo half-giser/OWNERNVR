@@ -3,10 +3,11 @@
  * @Date: 2024-08-27 14:25:04
  * @Description: 业务应用-人脸考勤-详情弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-04 17:12:57
+ * @LastEditTime: 2024-09-14 15:16:57
  */
 import { type BusinessFaceList, BusinessFaceDetailList, BusinessFaceResultList } from '@/types/apiType/business'
 import { type TableInstance } from 'element-plus'
+import dayjs from 'dayjs'
 
 export default defineComponent({
     props: {
@@ -151,7 +152,7 @@ export default defineComponent({
                 <condition>
                     <imgId>${item.imgId.toString()}</imgId>
                     <chlId>${item.chlId}</chlId>
-                    <frameTime>${formatDate(item.timestamp, 'YYYY-MM-DD HH:mm:ss')}:${item.timeNS}</frameTime>
+                    <frameTime>${item.frameTime}</frameTime>
                     <isPanorama />
                 </condition>
             `
@@ -168,17 +169,24 @@ export default defineComponent({
          * @description 打开智能分析页面
          */
         const search = async () => {
-            // TODO!!!
+            if (!current.value.date) {
+                return
+            }
             const id = prop.data.id
             const data = await getSimpleFaceFeatureInfo(id)
-
-            data.content1 = await getFacePersonalImage(data.id)
+            const pic = await getFacePersonalImage(data.id)
             const searchInfo = {
-                data: [data],
-                date: formatDate(current.value.date, dateTime.dateFormat, 'YYYY-MM-DD'),
+                faceType: 'face',
+                id: data.id,
+                name: data.name,
+                certificateNum: data.certificateNum,
+                mobile: data.mobile,
+                birthday: data.birthday,
+                pic: 'data:image/png;base64,' + pic,
+                date: dayjs(current.value.date, 'YYYY-MM-DD').valueOf(),
             }
             router.push({
-                path: 'smartAnalysis',
+                path: '/intelligent-analysis/search/search-face',
                 state: searchInfo,
             })
         }

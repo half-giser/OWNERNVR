@@ -40,7 +40,7 @@ declare global {
      */
     interface FeatureItemGroupMeta {
         /** 是否没有权限访问，true不可访问，false可访问，如果undefined，则说明不受权限控制，可以访问 */
-        noAuth?: boolean
+        // noAuth?: boolean
         /** 菜单排序 */
         sort?: number
         /** 菜单翻译key或菜单名称，如果没有对应翻译项就直接显示lk的值 */
@@ -69,9 +69,11 @@ declare global {
         /** 元标签 */
         meta: {
             /** 权限访问回调 **/
-            auth?: (arg: any) => boolean
+            auth?: (systemCaps: ReturnType<typeof useCababilityStore>, ui: string) => boolean
+            /** 菜单禁用条件 */
+            disabled?: string
             /** 是否没有权限访问，true不可访问，false可访问，如果undefined，则说明不受权限控制，可以访问 */
-            noAuth?: boolean
+            // noAuth?: boolean
             /** 路由组件缓存（开启 `true`、关闭 `false`）`可选` */
             keepAlive?: boolean
             /** 菜单排序 */
@@ -113,9 +115,11 @@ declare global {
         name: RouteRecordName
         meta: {
             /** 权限访问回调 **/
-            auth?: (arg: any) => boolean
+            auth?: (systemCaps: ReturnType<typeof useCababilityStore>, ui: string) => boolean
+            /** 菜单禁用条件 */
+            disabled?: string
             /** 是否没有权限访问，true不可访问，false可访问，如果undefined，则说明不受权限控制，可以访问 */
-            noAuth?: boolean
+            // noAuth?: boolean
             /** 路由组件缓存（开启 `true`、关闭 `false`）`可选` */
             keepAlive?: boolean
             /** 菜单翻译key或菜单名称，如果没有对应翻译项就直接显示lk的值 */

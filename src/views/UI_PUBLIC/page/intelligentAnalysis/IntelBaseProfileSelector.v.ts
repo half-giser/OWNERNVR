@@ -3,7 +3,7 @@
  * @Date: 2024-09-06 16:42:13
  * @Description: 智能分析 属性选择器
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 16:42:39
+ * @LastEditTime: 2024-09-14 13:44:59
  */
 import {
     GENDER_MAP,
@@ -31,11 +31,18 @@ export default defineComponent({
             required: true,
         },
         /**
-         * @property {enum[]} 选项范围 ['person', 'car', 'motor']
+         * @property {<'person' | 'car' | 'motor'>[]} 选项范围
          */
         range: {
             type: Array as PropType<string[]>,
             required: true,
+        },
+        /**
+         * @property {'default' | 'spread'} 占位形式
+         */
+        placeholderType: {
+            type: String,
+            default: 'default',
         },
     },
     emits: {
@@ -306,9 +313,9 @@ export default defineComponent({
                     }
                 })
             })
-            const entries = Object.entries(label)
-            if (entries.length === 1) {
-                return `${Translate('IDCS_ATTRIBUTE')} (${entries[0][1] ? Translate('IDCS_PART') : Translate('IDCS_FULL')})`
+            const entries = Object.entries(label).filter((item) => prop.range.includes(item[0]))
+            if (prop.placeholderType === 'default') {
+                return `${Translate('IDCS_ATTRIBUTE')} (${entries.every((item) => item[1]) ? Translate('IDCS_FULL') : Translate('IDCS_PART')})`
             } else {
                 return `${Translate('IDCS_ATTRIBUTE')} (${entries.map((item) => `${NAMES_MAPPING[item[0]]}: ${item[1] ? Translate('IDCS_PART') : Translate('IDCS_FULL')}`).join('; ')})`
             }
@@ -389,8 +396,8 @@ export default defineComponent({
                         Object.keys(selected.value[key1]).forEach((key2: string) => {
                             if (prop.modelValue[key1] && prop.modelValue[key1][key2]) {
                                 if (key2 === 'brand') {
-                                    if (prop.modelValue[key1][key2].length === CAR_BRAND_OPTIONS.length && selected.value[key1][key2][0] >= 0) {
-                                        selected.value[key1][key2][0] = -2
+                                    if (prop.modelValue[key1][key2].length === CAR_BRAND_OPTIONS.length && selected.value[key1][key2][0] < 0) {
+                                        selected.value[key1][key2][0] = selected.value[key1][key2][0]
                                     } else {
                                         selected.value[key1][key2] = [...prop.modelValue[key1][key2]]
                                     }
@@ -407,16 +414,7 @@ export default defineComponent({
         onMounted(() => {
             // 如果表单没有值，则创造初始值
             if (!Object.keys(prop.modelValue).length) {
-                const result: Record<string, Record<string, number[]>> = {}
-                options.value.forEach((item1) => {
-                    result[item1.value] = {}
-                    item1.children.forEach((item2) => {
-                        item2.children.forEach((item3) => {
-                            result[item1.value][item3.value] = []
-                        })
-                    })
-                })
-                ctx.emit('update:modelValue', result)
+                confirm()
             }
         })
 

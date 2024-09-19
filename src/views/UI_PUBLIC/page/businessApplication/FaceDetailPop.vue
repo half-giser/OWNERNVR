@@ -3,7 +3,7 @@
  * @Date: 2024-08-27 09:17:16
  * @Description: 业务应用-人脸考勤-详情弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 17:44:14
+ * @LastEditTime: 2024-09-14 15:17:18
 -->
 <template>
     <el-dialog
@@ -41,7 +41,10 @@
                 >
                     <div>{{ current?.date || '' }}</div>
                     <div>
-                        <el-button @click="search">
+                        <el-button
+                            :disabled="!current.date"
+                            @click="search"
+                        >
                             <BaseImgSprite
                                 file="toolbar_search"
                                 :index="0"

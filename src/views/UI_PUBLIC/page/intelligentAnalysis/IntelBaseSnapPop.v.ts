@@ -3,10 +3,10 @@
  * @Date: 2024-09-09 19:24:00
  * @Description: 智能分析 - 抓拍详情弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-09 19:27:24
+ * @LastEditTime: 2024-09-14 11:45:42
  */
 import CanvasBase from '@/utils/canvas/canvasBase'
-import { IntelSearchBodyList } from '@/types/apiType/intelligentAnalysis'
+import { IntelSnapPopList } from '@/types/apiType/intelligentAnalysis'
 
 export default defineComponent({
     props: {
@@ -14,7 +14,7 @@ export default defineComponent({
          * @property 抓拍数据列表
          */
         list: {
-            type: Array as PropType<IntelSearchBodyList[]>,
+            type: Array as PropType<IntelSnapPopList[]>,
             required: true,
         },
         /**
@@ -24,13 +24,26 @@ export default defineComponent({
             type: Number,
             default: 0,
         },
+        /**
+         * @property 展示搜索按钮
+         */
+        showSearch: {
+            type: Boolean,
+            default: false,
+        },
     },
     emits: {
-        playRec(item: IntelSearchBodyList) {
-            return !!item
+        playRec(item: IntelSnapPopList, index: number) {
+            return !!item && typeof index === 'number'
         },
         close() {
             return true
+        },
+        add(item: IntelSnapPopList, index: number) {
+            return !!item && typeof index === 'number'
+        },
+        search(item: IntelSnapPopList, index: number) {
+            return !!item && typeof index === 'number'
         },
     },
     setup(prop, ctx) {
@@ -40,17 +53,21 @@ export default defineComponent({
         let context: CanvasBase
         const canvas = ref<HTMLCanvasElement>()
 
-        // 事件类型与文本映射
+        // 允许注册的事件
+        const ENABLE_REGISTER_LIST = ['faceDetection', 'faceMatchStranger', 'plateDetection', 'plateMatchStranger']
+
+        // 事件与显示文本的映射
         const EVENT_TYPE_MAPPING: Record<string, string> = {
-            perimeter: Translate('IDCS_INVADE_DETECTION'),
-            aoi_entry: Translate('IDCS_INVADE_DETECTION'),
-            aoi_leave: Translate('IDCS_INVADE_DETECTION'),
+            faceDetection: Translate('IDCS_FACE_DETECTION'),
+            faceMatchWhiteList: Translate('IDCS_FACE_MATCH') + '-' + Translate('IDCS_SUCCESSFUL_RECOGNITION'),
+            faceMatchStranger: Translate('IDCS_FACE_MATCH') + '-' + Translate('IDCS_GROUP_STRANGER'),
+            intrusion: Translate('IDCS_INVADE_DETECTION'),
             tripwire: Translate('IDCS_BEYOND_DETECTION'),
-            pass_line: Translate('IDCS_PASS_LINE_COUNT_DETECTION'),
-            video_metavideo: Translate('IDCS_VSD_DETECTION'),
-            face_detect: Translate('IDCS_FACE_DETECTION'),
-            face_verify: Translate('IDCS_FACE_MATCH'),
-            vehicle_plate: Translate('IDCS_PLATE_MATCH'), // 车牌事件，默认展示为：车牌识别-
+            passLine: Translate('IDCS_PASS_LINE_COUNT_DETECTION'),
+            videoMetadata: Translate('IDCS_VSD_DETECTION'),
+            plateDetection: Translate('IDCS_PLATE_DETECTION'),
+            plateMatchWhiteList: Translate('IDCS_PLATE_MATCH') + '-' + Translate('IDCS_SUCCESSFUL_RECOGNITION'),
+            plateMatchStranger: Translate('IDCS_PLATE_MATCH') + '-' + Translate('IDCS_STRANGE_PLATE'),
         }
 
         // 目标类型与文本映射
@@ -72,7 +89,11 @@ export default defineComponent({
         })
 
         const current = computed(() => {
-            return prop.list[pageData.value.currentIndex] || new IntelSearchBodyList()
+            return prop.list[pageData.value.currentIndex] || new IntelSnapPopList()
+        })
+
+        const isAddBtn = computed(() => {
+            return ENABLE_REGISTER_LIST.includes(current.value.eventType)
         })
 
         /**
@@ -144,7 +165,7 @@ export default defineComponent({
          * @returns {string}
          */
         const displayEventType = (type: string) => {
-            return EVENT_TYPE_MAPPING[type]
+            return EVENT_TYPE_MAPPING[type] || '--'
         }
 
         /**
@@ -153,17 +174,28 @@ export default defineComponent({
          * @returns {string}
          */
         const displayTargetType = (type: string) => {
-            return TARGET_TYPE_MAPPING[type]
+            return TARGET_TYPE_MAPPING[type] || '--'
         }
 
         /**
          * @description 回放
          */
         const playRec = () => {
-            if (!current.value.imgId) {
-                return
-            }
-            ctx.emit('playRec', current.value)
+            ctx.emit('playRec', current.value, pageData.value.currentIndex)
+        }
+
+        /**
+         * @description 注册
+         */
+        const add = () => {
+            ctx.emit('add', current.value, pageData.value.currentIndex)
+        }
+
+        /**
+         * @description 搜索
+         */
+        const search = () => {
+            ctx.emit('search', current.value, pageData.value.currentIndex)
         }
 
         return {
@@ -178,6 +210,9 @@ export default defineComponent({
             pageData,
             close,
             playRec,
+            add,
+            search,
+            isAddBtn,
         }
     },
 })

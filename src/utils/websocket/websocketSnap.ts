@@ -3,7 +3,7 @@
  * @Date: 2024-05-30 15:59:38
  * @Description: websocket 订阅实时抓拍
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-28 11:14:24
+ * @LastEditTime: 2024-09-14 10:44:27
  */
 
 import WebsocketBase from './websocketBase'
@@ -45,7 +45,7 @@ type SnapDataDatum = {
     channel_id: string
     channel_name: string
     detect_time: number
-    frame_time?: number
+    frame_time: string
     scene_pic: string
     snap_pic: string
     repo_pic: string
@@ -143,7 +143,7 @@ export type WebsocketSnapOnSuccessSnap = {
     chlId: string
     chlName: string
     detect_time: number
-    frame_time?: number
+    frame_time: string
     scene_pic: string | null
     snap_pic: string | null
     repo_pic?: string | null
@@ -266,7 +266,7 @@ export default class WebsocketSnap {
                 const chlId = itemOut.channel_id
                 const chlName = itemOut.channel_name
                 const detect_time = itemOut.detect_time * 1000
-                const frame_time = itemOut.frame_time || undefined
+                const frame_time = itemOut.frame_time || ''
                 const scene_pic = getPicBase64(buffer, itemOut.scene_pic, jsonEndPosition)
                 const snapPicKey = PIC_KEY_MAP[key].snap_pic
                 const repoPicKey = PIC_KEY_MAP[key].repo_pic
