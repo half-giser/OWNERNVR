@@ -480,6 +480,7 @@ input[type='number'] {
         .el-form-item {
             .el-form-item__label {
                 width: var(--form-label-width);
+                white-space: nowrap;
 
                 .el-text.label {
                     color: var(--form-input-width);
