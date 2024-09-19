@@ -11,6 +11,7 @@ export default {
         lk: 'IDCS_SYSTEM',
         plClass: 'md3',
         icon: 'system',
+        enabled: 'remoteSysCfgAndMaintain',
         groups: {
             //基本配置
             basicConfig: {
@@ -50,6 +51,7 @@ export default {
                 default: true,
                 inHome: 'group',
                 homeSort: 10,
+                enabled: 'remoteSysCfgAndMaintain',
             },
         },
         dateAndTime: {
@@ -60,6 +62,7 @@ export default {
                 sort: 20,
                 lk: 'IDCS_DATE_AND_TIME',
                 group: 'basicConfig',
+                enabled: 'remoteSysCfgAndMaintain',
             },
         },
         outputSettings: {
@@ -70,6 +73,7 @@ export default {
                 sort: 30,
                 lk: 'IDCS_OUTPUT_CONFIG',
                 group: 'basicConfig',
+                enabled: 'remoteSysCfgAndMaintain',
             },
         },
         posSettings: {
@@ -80,6 +84,10 @@ export default {
                 sort: 40,
                 lk: 'IDCS_POS_CONFIG',
                 group: 'basicConfig',
+                enabled: 'remoteSysCfgAndMaintain',
+                auth(systemCaps) {
+                    return systemCaps.supportPOS
+                },
             },
         },
         poeSettings: {
@@ -90,6 +98,10 @@ export default {
                 sort: 50,
                 lk: 'IDCS_SYSTEM_POE_SETUP',
                 group: 'basicConfig',
+                enabled: 'remoteSysCfgAndMaintain',
+                auth(systemCaps) {
+                    return systemCaps.supportPoePowerManage
+                },
             },
         },
         recorderOsdSettings: {
@@ -100,6 +112,7 @@ export default {
                 sort: 60,
                 lk: 'IDCS_OSD_CONFIG',
                 group: 'basicConfig',
+                enabled: 'remoteSysCfgAndMaintain',
             },
         },
         viewLog: {
@@ -113,6 +126,7 @@ export default {
                 default: true,
                 inHome: 'self',
                 homeSort: 20,
+                enabled: 'remoteSysCfgAndMaintain',
             },
         },
         factoryDefault: {
@@ -123,6 +137,7 @@ export default {
                 sort: 20,
                 lk: 'IDCS_DEFAULT_SET',
                 group: 'maintenance',
+                enabled: 'remoteSysCfgAndMaintain',
             },
         },
         upgrade: {
@@ -133,6 +148,7 @@ export default {
                 sort: 30,
                 lk: 'IDCS_UPGRADE',
                 group: 'maintenance',
+                enabled: 'remoteSysCfgAndMaintain',
             },
         },
         backupAndRestore: {
@@ -145,6 +161,7 @@ export default {
                 group: 'maintenance',
                 inHome: 'self',
                 homeSort: 30,
+                enabled: 'remoteSysCfgAndMaintain',
             },
         },
         reboot: {
@@ -155,6 +172,7 @@ export default {
                 sort: 50,
                 lk: 'IDCS_SYSTEM_REBOOT',
                 group: 'maintenance',
+                enabled: 'remoteSysCfgAndMaintain',
             },
         },
         autoMaintenance: {
@@ -165,6 +183,7 @@ export default {
                 sort: 60,
                 lk: 'IDCS_AUTO_MAINTENANCE',
                 group: 'maintenance',
+                enabled: 'remoteSysCfgAndMaintain',
             },
         },
         basic: {

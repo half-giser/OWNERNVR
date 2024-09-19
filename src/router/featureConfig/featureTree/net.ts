@@ -11,6 +11,7 @@ export default {
         lk: 'IDCS_NETWORK',
         plClass: 'md3',
         icon: 'net',
+        enabled: 'net',
         groups: {
             //网络
             network: {
@@ -124,6 +125,9 @@ export default {
                 sort: 80,
                 lk: 'IDCS_NAT',
                 group: 'network',
+                auth(systemCaps) {
+                    return systemCaps.showNat
+                },
             },
         },
         https: {
@@ -134,6 +138,9 @@ export default {
                 sort: 90,
                 lk: 'IDCS_HTTPS',
                 group: 'network',
+                auth(systemCaps) {
+                    return systemCaps.supportHttpsConfig
+                },
             },
         },
         ftp: {
@@ -144,6 +151,9 @@ export default {
                 sort: 100,
                 lk: 'FTP',
                 group: 'network',
+                auth(systemCaps, ui) {
+                    return ui !== 'UI1-E' && systemCaps.supportFTP
+                },
             },
         },
         snmp: {
@@ -154,6 +164,9 @@ export default {
                 sort: 110,
                 lk: 'IDCS_SNMP',
                 group: 'network',
+                auth(systemCaps, ui) {
+                    return ui !== 'UI1-E' && systemCaps.supportSnmp
+                },
             },
         },
         cloudUpgrade: {
@@ -164,6 +177,9 @@ export default {
                 sort: 120,
                 lk: 'IDCS_ONLINE_UPGRADE',
                 group: 'network',
+                auth(systemCaps) {
+                    return systemCaps.showCloudUpgrade
+                },
             },
         },
         networkStream: {
@@ -196,6 +212,9 @@ export default {
                 sort: 20,
                 lk: 'IDCS_PLATFORM_ACCESS',
                 group: 'integration',
+                auth(systemCaps) {
+                    return systemCaps.supportPlatform
+                },
             },
         },
         upnpReport: {

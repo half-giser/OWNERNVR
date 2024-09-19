@@ -11,6 +11,7 @@ export default {
         lk: 'IDCS_DISK',
         plClass: 'md3',
         icon: 'disk',
+        enabled: 'diskMgr',
         groups: {
             //磁盘管理
             diskManagement: {
@@ -44,26 +45,7 @@ export default {
                 default: true,
                 inHome: 'self',
                 homeSort: 10,
-            },
-        },
-        physicalDiskCfg: {
-            // 物理磁盘
-            path: 'physicalDiskCfg',
-            component: 'disk/PhysicalDisk.vue',
-            meta: {
-                sort: 20,
-                lk: 'IDCS_PHYSICAL_DISK',
-                group: 'diskManagement',
-            },
-        },
-        diskArray: {
-            // 磁盘阵列
-            path: 'diskArray',
-            component: 'disk/Raid.vue',
-            meta: {
-                sort: 30,
-                lk: 'IDCS_ARRAY',
-                group: 'diskManagement',
+                enabled: 'diskMgr',
             },
         },
         diskMode: {
@@ -77,6 +59,38 @@ export default {
                 default: true,
                 inHome: 'self',
                 homeSort: 10,
+                enabled: 'diskMgr',
+                auth(systemCaps) {
+                    return systemCaps.supportRaid
+                },
+            },
+        },
+        physicalDiskCfg: {
+            // 物理磁盘
+            path: 'physicalDiskCfg',
+            component: 'disk/PhysicalDisk.vue',
+            meta: {
+                sort: 20,
+                lk: 'IDCS_PHYSICAL_DISK',
+                group: 'diskManagement',
+                enabled: 'diskMgr',
+                auth(systemCaps) {
+                    return systemCaps.isUseRaid
+                },
+            },
+        },
+        diskArray: {
+            // 磁盘阵列
+            path: 'diskArray',
+            component: 'disk/Raid.vue',
+            meta: {
+                sort: 30,
+                lk: 'IDCS_ARRAY',
+                group: 'diskManagement',
+                enabled: 'diskMgr',
+                auth(systemCaps) {
+                    return systemCaps.isUseRaid
+                },
             },
         },
         storageMode: {
@@ -90,6 +104,7 @@ export default {
                 default: true,
                 inHome: 'group',
                 homeSort: 20,
+                enabled: 'diskMgr',
             },
         },
         viewDiskInfo: {

@@ -68,10 +68,10 @@ declare global {
         components?: componentMap
         /** 元标签 */
         meta: {
-            /** 权限访问回调 **/
+            /** 权限访问回调，这里会传入能力集和UI名参数 **/
             auth?: (systemCaps: ReturnType<typeof useCababilityStore>, ui: string) => boolean
-            /** 菜单禁用条件 */
-            disabled?: string
+            /** 菜单可用条件, 此值会传入useUserSessionStore.hasAuth()判断菜单可用/禁用状态. 如果undefined，则此菜单不禁用 */
+            enabled?: string
             /** 是否没有权限访问，true不可访问，false可访问，如果undefined，则说明不受权限控制，可以访问 */
             // noAuth?: boolean
             /** 路由组件缓存（开启 `true`、关闭 `false`）`可选` */
@@ -94,7 +94,7 @@ declare global {
             group?: string
             /** 面包屑导航项列表（路由项的name） */
             navs?: string[]
-            /** 是否默认菜单项 */
+            /** TODO 是否默认菜单项 */
             default?: boolean
             /** 分组元标签 */
             groups?: Record<string, FeatureItemGroupMeta>
@@ -114,10 +114,10 @@ declare global {
         path: string
         name: RouteRecordName
         meta: {
-            /** 权限访问回调 **/
+            /** 权限访问回调，这里会传入能力集和UI名参数 **/
             auth?: (systemCaps: ReturnType<typeof useCababilityStore>, ui: string) => boolean
-            /** 菜单禁用条件 */
-            disabled?: string
+            /** 菜单可用条件，如果没定义，则此菜单不禁用 */
+            enabled?: string
             /** 是否没有权限访问，true不可访问，false可访问，如果undefined，则说明不受权限控制，可以访问 */
             // noAuth?: boolean
             /** 路由组件缓存（开启 `true`、关闭 `false`）`可选` */

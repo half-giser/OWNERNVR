@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 顶层布局页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-14 18:13:45
+ * @LastEditTime: 2024-09-19 15:29:05
 -->
 <template>
     <el-container id="layoutMain">
@@ -35,7 +35,10 @@
                                 v-text="Translate('IDCS_PLUGIN_DOWNLOAD')"
                             ></span>
                         </span>
-                        <el-tooltip :content="Translate('IDCS_PLUGIN_DOWNLOAD_INSTRUCTIONS')">
+                        <el-tooltip
+                            :content="Translate('IDCS_PLUGIN_DOWNLOAD_INSTRUCTIONS')"
+                            :show-after="500"
+                        >
                             <BaseImgSprite
                                 class="icon_aq"
                                 file="aq"
@@ -71,6 +74,11 @@
                         v-show="pageData.isLocalConfigBtn"
                         class="nav-item"
                     >
+                        <BaseImgSprite
+                            file="localCfg"
+                            :index="0"
+                            :chunk="4"
+                        />
                         <a
                             class="divLocalCfg effective"
                             @click="showLocalConfig"
@@ -85,13 +93,15 @@
                     mode="horizontal"
                     :router="true"
                 >
-                    <template v-for="(route, key) in menu1Items">
+                    <template v-for="(route, key) in allMenu1Items">
                         <el-menu-item
-                            v-if="menu.isMenuItemShow(route, systemCaps)"
+                            v-if="menu.isMenuItemShow(route)"
                             :key
-                            :index="String(key)"
-                            :route
-                            :class="{ 'is-active': isMenu1Active(route) }"
+                            :index="route.meta.fullPath"
+                            :class="{
+                                'is-active': isMenu1Active(route),
+                            }"
+                            @click="goToPath(route)"
                         >
                             <span
                                 :title="Translate(String(route?.meta?.lk))"
@@ -201,6 +211,10 @@
             content: '|';
             margin: 0 10px;
         }
+
+        .divLocalCfg {
+            margin-left: 5px;
+        }
     }
 }
 
@@ -250,9 +264,6 @@
 #layoutMainBody {
     padding: 0px;
     flex: auto 1 1;
-    // height: 100%;
-    // display: flex;
-    // flex-direction: column;
     overflow-y: auto;
 }
 
@@ -263,9 +274,7 @@
     width: 100%;
     height: 100%;
     overflow-y: auto;
-    // height: auto;
     flex-shrink: 1;
-    // min-height: calc(100% - 21px); //calc(100vh - 222px);
 }
 
 #divCopyRight {

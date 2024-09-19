@@ -3,7 +3,7 @@
  * @Date: 2024-05-07 20:42:33
  * @Description: 功能面板
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-23 14:04:30
+ * @LastEditTime: 2024-09-19 15:19:28
  */
 
 import { config } from '@/router/featureConfig/RouteUtil'
@@ -17,7 +17,7 @@ export default defineComponent({
         const configModules = ref<RouteRecordRawExtends[]>([])
 
         const getConfigModule = () => {
-            const modules = getMenuItems(config.children as RouteRecordRawExtends[])
+            const modules = getMenuItems(config.children as RouteRecordRawExtends[]).filter((item) => !!item.meta?.groups)
             modules.forEach((item) => {
                 item.children = item.children.filter((subItem) => subItem.meta.inHome)
                 item.children.forEach((subItem) => {
