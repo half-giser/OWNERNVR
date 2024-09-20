@@ -11,6 +11,7 @@ export default {
         lk: 'IDCS_RECORD',
         plClass: 'md2',
         icon: 'rec',
+        enabled: 'rec',
         groups: {
             //录像
             record: {

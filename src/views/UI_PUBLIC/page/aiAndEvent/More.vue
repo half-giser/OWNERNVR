@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-10 17:50:24
  * @Description: 更多功能页面的框架
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-18 10:24:16
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-09-19 11:01:41
 -->
 <template>
     <div class="content">
@@ -113,6 +113,15 @@
                             >{{ Translate('IDCS_PASS_LINE_COUNT_DETECTION') }}</span
                         >
                     </template>
+                    <template #default>
+                        <passLine
+                            v-if="pageData.chosenFunction === 'passLine'"
+                            :curr-chl-id="pageData.currChlId"
+                            :chl-data="pageData.chlData"
+                            :voice-list="pageData.voiceList"
+                            :online-channel-list="pageData.onlineChannelList"
+                        ></passLine>
+                    </template>
                 </el-tab-pane>
 
                 <!-- cdd -->
@@ -215,7 +224,7 @@
                                 justifyContent: 'center',
                                 alignItems: 'center',
                             }"
-                            >{{ Translate('IDCS_FIRE_POINT_DETECTION') }}</span
+                            >{{ Translate('IDCS_ABNORMAL_DISPOSE_WAY') }}</span
                         >
                     </template>
                 </el-tab-pane>

@@ -600,6 +600,31 @@ export class peaPageData {
     presets = [] as PresetItem[]
     presetSource = [] as PresetList[]
 }
+
+export class emailData {
+    saveTargetPicture = false
+    saveSourcePicture = false
+    sendEmailData = {
+        type: '0',
+        enableSwitch: false,
+        dailyReportSwitch: false,
+        weeklyReportSwitch: false,
+        weeklyReportDate: '0',
+        mouthlyReportSwitch: false,
+        mouthlyReportDate: '0',
+        reportHour: 0,
+        reportMin: 0,
+    }
+    receiverData = [] as { address: string; schedule: string; rowClicked: boolean }[]
+}
+
+export class regionData {
+    X1 = 0
+    Y1 = 0
+    X2 = 0
+    Y2 = 0
+}
+
 // 识别——识别成功/陌生人
 export class FaceCompare {
     voiceList = [] as SelectOption<string, string>[]

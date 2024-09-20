@@ -477,7 +477,7 @@ export default defineComponent({
         watch(
             isSupportH5,
             (newVal) => {
-                if (!newVal && !Plugin.IsPluginAvailable) {
+                if (!newVal && !Plugin.IsPluginAvailable()) {
                     Plugin.SetPluginNoResponse()
                     Plugin.ShowPluginNoResponse()
                 }

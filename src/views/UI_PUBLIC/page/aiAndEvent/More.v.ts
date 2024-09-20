@@ -2,20 +2,20 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-10 17:50:35
  * @Description: 更多功能页面的框架
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-13 16:38:26
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-13 16:38:26
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-09-19 11:01:04
  */
+// import { cloneDeep } from 'lodash-es'
 import { type chlCaps } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
 import fireDetection from './fireDetection.vue'
 import TemperatureDetection from './TemperatureDetection.vue'
 import ObjectLeft from './ObjectLeft.vue'
-
+import passLine from './passLine.vue'
 export default defineComponent({
     components: {
         fireDetection,
+        passLine,
         TemperatureDetection,
         ObjectLeft,
     },
@@ -79,18 +79,21 @@ export default defineComponent({
             boundaryChlCapsObj: [],
             // 保存所有支持更多分类的通道
             moreChlCapsObj: [],
+
+            // tabkey
             tabKey: 0,
         })
+        // const PlayerInstance = ref<PlayerInstance>()
         // 切换通道
         const handleChangeChannel = async () => {
             pageData.value.chlData = pageData.value.chlCaps[pageData.value.currChlId]
             pageData.value.tabKey += 1
             initPage()
-            // TODO 刷新对应页面的数据
         }
         // 大tab点击事件,切换功能
         const handleTabClick = (pane: TabsPaneContext) => {
             pageData.value.chosenFunction = pane.props.name?.toString() ? pane.props.name?.toString() : ''
+            pageData.value.tabKey += 1
             // TODO 刷新对应页面的数据
         }
         // 获取在线通道
@@ -343,12 +346,16 @@ export default defineComponent({
         const initPage = () => {
             isTabDisabled()
         }
+        // const passLinePlay = (e: PlayerInstance) => {
+        //     PlayerInstance.value = cloneDeep(e)
+        // }
         onMounted(async () => {
             // pageData.value.chosenFunction = ''
             await getOnlineChannel()
             await getChannelData()
             await getVoiceList()
             initPage()
+            pageData.value.tabKey += 1
         })
         return {
             TemperatureDetection,

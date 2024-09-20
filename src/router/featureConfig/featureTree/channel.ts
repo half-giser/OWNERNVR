@@ -10,6 +10,7 @@ export default {
         lk: 'IDCS_CHANNEL',
         plClass: 'md2',
         icon: 'chl',
+        enabled: 'remoteChlMgr',
         groups: {
             //通道管理
             channel: {
@@ -53,6 +54,9 @@ export default {
                 lk: 'IDCS_ADD_CHANNEL',
                 group: 'channel',
                 navs: ['channelList'],
+                auth(systemCaps) {
+                    return !!systemCaps.ipChlMaxCount
+                },
             },
         },
         channelList: {
@@ -69,6 +73,9 @@ export default {
                 default: true,
                 inHome: 'self',
                 homeSort: 10,
+                auth(systemCaps) {
+                    return !!systemCaps.ipChlMaxCount
+                },
             },
         },
         channelGroupAdd: {
@@ -81,6 +88,9 @@ export default {
                 noMenu: true,
                 group: 'channel',
                 navs: ['channelGroupList'],
+                auth(systemCaps) {
+                    return !systemCaps.analogChlCount
+                },
             },
         },
         channelGroupList: {
@@ -94,12 +104,22 @@ export default {
                 sort: 40,
                 lk: 'IDCS_CHANGE_OR_DELETE_CHANNEL_GROUP',
                 group: 'channel',
+                auth(systemCaps) {
+                    return !systemCaps.analogChlCount
+                },
             },
         },
         signal: {
             //信号接入配置
             component: 'channel/ChannelSignal.vue',
-            meta: { sort: 50, lk: 'IDCS_CHANNEL_SIGNAL_ACCESS_SET', group: 'channel' },
+            meta: {
+                sort: 50,
+                lk: 'IDCS_CHANNEL_SIGNAL_ACCESS_SET',
+                group: 'channel',
+                auth(systemCaps) {
+                    return !!systemCaps.analogChlCount
+                },
+            },
         },
         osd: {
             //OSD配置
@@ -172,6 +192,9 @@ export default {
                 sort: 60,
                 lk: 'IDCS_WATER_MARK_SETTING',
                 group: 'image',
+                auth(systemCaps) {
+                    return systemCaps.supportWaterMark
+                },
             },
         },
         fishEye: {
@@ -228,6 +251,9 @@ export default {
                 sort: 30,
                 lk: 'IDCS_PTZ_GROUP',
                 group: 'ptz',
+                auth(systemCaps) {
+                    return systemCaps.supportPtzGroupAndTrace
+                },
             },
         },
         trace: {
@@ -238,6 +264,9 @@ export default {
                 sort: 40,
                 lk: 'IDCS_PTZ_TRACE',
                 group: 'ptz',
+                auth(systemCaps) {
+                    return systemCaps.supportPtzGroupAndTrace
+                },
             },
         },
         ptzTask: {
@@ -248,6 +277,9 @@ export default {
                 sort: 50,
                 lk: 'IDCS_TASK',
                 group: 'ptz',
+                auth(systemCaps) {
+                    return systemCaps.supportPtzGroupAndTrace
+                },
             },
         },
         smartTrack: {
@@ -268,6 +300,9 @@ export default {
                 sort: 70,
                 lk: 'IDCS_PROTOCOL',
                 group: 'ptz',
+                auth(systemCaps) {
+                    return !!systemCaps.analogChlCount
+                },
             },
         },
         // 以下页面只有在UI3-A才有

@@ -4,7 +4,7 @@
  * @Description: OCX插件模块
  * 原项目中MAC插件和TimeSliderPlugin相关逻辑不保留
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-10 18:27:24
+ * @LastEditTime: 2024-09-19 15:17:57
  */
 import WebsocketPlugin from '@/utils/websocket/websocketPlugin'
 import { APP_TYPE } from '@/utils/constants'
@@ -196,7 +196,7 @@ const useOCXPlugin = () => {
             if ($('/statenotify[@type="sessionId"]/sessionId').length) {
                 sessionId = $('/statenotify[@type="sessionId"]/sessionId').text()
             }
-            pluginStore.p2pSessionId = sessionId
+            userSession.p2pSessionId = sessionId
             return
         }
         //OCX已创建好窗口，通知可以登录了
@@ -247,7 +247,7 @@ const useOCXPlugin = () => {
                             getVideoPlugin().ExecuteCmd(sendXML)
                             router.replace('/live')
                             const result = await doLogin(getXmlWrapData(''), {}, false)
-                            if (queryXml(result)('/response/status').text() === 'success') {
+                            if (queryXml(result)('//status').text() === 'success') {
                                 // TODO !!!
                                 if (userInfoArr) {
                                     setCookie('lastSN', userInfoArr[2], 36500)
@@ -274,11 +274,11 @@ const useOCXPlugin = () => {
                             return
                         case 536871080: // 设备已被绑定，需要授权码方式登录
                             const authCodeIndex = errorDescription
-                            pluginStore.authCodeIndex = authCodeIndex
+                            userSession.authCodeIndex = authCodeIndex
                             if (curRoutUrl.includes('authCodeLogin')) {
                                 execLoginTypeCallback(P2PACCESSTYPE.P2P_AUTHCODE_LOGIN, authCodeIndex)
                             } else {
-                                router.replace('/live')
+                                // router.replace('/live')
                                 router.push('/authCodeLogin')
                             }
                             return
@@ -414,7 +414,7 @@ const useOCXPlugin = () => {
      * @description p2p用户名/密码登录
      */
     const p2pUsernameLogin = () => {
-        pluginStore.p2pSessionId = null // 采用用户名/密码登录，要么无sessionId, 要么产生新的授权码后有新的sessionId
+        userSession.p2pSessionId = null // 采用用户名/密码登录，要么无sessionId, 要么产生新的授权码后有新的sessionId
         const userInfoArr = userSession.getAuthInfo()
         if (userInfoArr != null) {
             const sendXML = OCX_XML_SetPasswordLogin_P2P(userInfoArr[0], userInfoArr[1], userInfoArr[2])
@@ -443,7 +443,7 @@ const useOCXPlugin = () => {
      * @description p2p SessionId登录
      */
     const p2pSessionIdLogin = () => {
-        const p2pSessionId = pluginStore.p2pSessionId
+        const p2pSessionId = userSession.p2pSessionId
         const userInfoArr = userSession.getAuthInfo()
         if (p2pSessionId && userInfoArr && userInfoArr[2]) {
             const sendXML = OCX_XML_SetSessionIdLogin_P2P(p2pSessionId, userInfoArr[2])
@@ -458,7 +458,7 @@ const useOCXPlugin = () => {
      */
     const videoPluginLogin = () => {
         if (APP_TYPE === 'P2P') {
-            if (pluginStore.p2pSessionId) {
+            if (userSession.p2pSessionId) {
                 p2pSessionIdLogin()
             } else {
                 p2pUsernameLogin()
@@ -472,18 +472,14 @@ const useOCXPlugin = () => {
     }
 
     /**
-     * @description
+     * @description 返回P2P登录页
      * @param errorCode
      * @param errorDescription
      */
     const goToIndex = (errorCode?: number, errorDescription?: string) => {
         errorCode && setCookie('ec', errorCode)
         errorDescription && setCookie('em', errorDescription.trim())
-        // TODO: what is it?
-        // window.location.href = '/index.html'
-        router.push({
-            path: '/live',
-        })
+        window.location.href = '/index.html'
     }
 
     //命令发送队列
@@ -607,7 +603,7 @@ const useOCXPlugin = () => {
     const initWinPlugin = () => {
         const ocxPort = pluginStore.ocxPort
         if (!ocxPort) {
-            pluginErrorHandle()
+            // pluginErrorHandle()
             return
         }
         videoPlugin = new WebsocketPlugin({
@@ -779,11 +775,7 @@ const useOCXPlugin = () => {
         if (typeof p2pLoginTypeCallback == 'function') {
             p2pLoginTypeCallback(loginType, authCodeIndex)
         } else {
-            // TODO what is it?
-            // window.location.href = '/index.html'
-            router.push({
-                path: '/live',
-            })
+            window.location.href = '/index.html'
         }
     }
 

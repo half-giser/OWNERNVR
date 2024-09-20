@@ -3,7 +3,7 @@
  * @Date: 2024-06-17 17:21:34
  * @Description: 更改其他用户密码的弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 14:11:25
+ * @LastEditTime: 2024-09-19 13:52:07
  */
 import BaseCheckAuthPop, { type UserCheckAuthForm } from '../../components/auth/BaseCheckAuthPop.vue'
 import { UserEditPasswordForm } from '@/types/apiType/userAndSecurity'
@@ -90,12 +90,11 @@ export default defineComponent({
          */
         const getPasswordSecurityStrength = async () => {
             let strength: keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING = 'weak'
-            const isInw48 = systemCaps.supportPwdSecurityConfig // TODO: 原项目是这个值
             const result = await queryPasswordSecurity()
             const $ = queryXml(result)
             if ($('//status').text() === 'success') {
                 strength = ($('//content/pwdSecureSetting/pwdSecLevel').text() as keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING & null) ?? 'weak'
-                if (isInw48) {
+                if (systemCaps.supportPwdSecurityConfig) {
                     strength = 'strong'
                 }
             }

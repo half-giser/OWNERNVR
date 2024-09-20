@@ -1,7 +1,7 @@
 /*
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-04-20 10:51:34
- * @Description:
+ * @Description: 智能与分析 路由配置
  */
 export default {
     component: 'layout/L2T2Layout.vue',
@@ -19,6 +19,9 @@ export default {
             meta: {
                 sort: 10,
                 lk: 'IDCS_ENGINE_CONFIG',
+                auth(systemCaps) {
+                    return systemCaps.supportBootWorkMode
+                },
             },
         },
         search: {
@@ -37,6 +40,9 @@ export default {
                         sort: 10,
                         lk: 'IDCS_FACE',
                         icon: 'event_search_face',
+                        auth(systemCaps) {
+                            return systemCaps.supportFaceMatch
+                        },
                     },
                 },
                 body: {
@@ -117,6 +123,9 @@ export default {
             meta: {
                 sort: 40,
                 lk: 'IDCS_SAMPLE_DATABASE',
+                auth(systemCaps) {
+                    return systemCaps.supportFaceMatch || systemCaps.supportPlateMatch
+                },
             },
             children: {
                 face: {
@@ -127,6 +136,9 @@ export default {
                         sort: 10,
                         lk: 'IDCS_FACE',
                         icon: 'event_search_body',
+                        auth(systemCaps) {
+                            return systemCaps.supportFaceMatch
+                        },
                     },
                 },
                 licencePlate: {
@@ -137,6 +149,9 @@ export default {
                         sort: 30,
                         lk: 'IDCS_LICENSE_PLATE',
                         icon: 'event_search_car',
+                        auth(systemCaps) {
+                            return systemCaps.supportPlateMatch
+                        },
                     },
                 },
             },

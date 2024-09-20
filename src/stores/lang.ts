@@ -13,12 +13,14 @@ import * as elLang from 'element-plus/es/locale/index.mjs'
 export const useLangStore = defineStore(
     'lang',
     () => {
+        /* 语言key值（16进制字符串，如0x0409） */
         const langType = ref('')
+        /* 语言代码 （如zh-cn、en-us） */
         const langId = ref('')
 
         /** 语言类型列表 */
         const langTypes = ref<Record<string, string>>({})
-        /** 语言列表 */
+        /** 语言列表(key值与显示文本的映射) */
         const langItems = ref<Record<string, string>>({})
         /** 需要文本右对齐的语言列表（如: 波斯语、阿拉伯语） */
         const rtlLangList = ref<string[]>([])
@@ -28,15 +30,20 @@ export const useLangStore = defineStore(
          * @return {*}
          */
         const requestLangTypes = () => {
-            const data: string = getXmlWrapData('')
+            const data = getXmlWrapData('')
+            if (!langType.value) {
+                langType.value = localStorage.getItem(LocalCacheKey.langType) || ''
+            }
+            if (!langId.value) {
+                langId.value = localStorage.getItem(LocalCacheKey.langId) || ''
+            }
             return getSupportLangList(data).then((result) => {
                 const langNodes = queryXml(result)('//content/item')
                 const langTypesTemp: Record<string, string> = {}
                 langNodes.forEach((item) => {
-                    langTypesTemp[item.attr('id') as string] = queryXml(item.element)('name').text()
+                    langTypesTemp[item.attr('id')!] = queryXml(item.element)('name').text()
                 })
                 langTypes.value = langTypesTemp
-                langId.value = sessionStorage.getItem(LocalCacheKey.langId) as string
                 if (!langId.value || langId.value === 'null') {
                     const $ = queryXml(result)
                     const devLandId = $('//content').attr('currentLangType')!
@@ -52,24 +59,23 @@ export const useLangStore = defineStore(
                     if (!langTypes.value[langId.value]) {
                         langId.value = devLandId
                     }
-                    for (const key in LANG_MAPPING) {
-                        if (LANG_MAPPING[key].toLowerCase() == langId.value) {
-                            langType.value = key
-                            break
-                        }
-                    }
+
                     rtlLangList.value = $('//content/item[@alignRight="true"]').map((item) => {
                         return item.attr('id')!
                     })
                     if (!rtlLangList.value.length) {
                         rtlLangList.value = ['0x0429', '0x0c01']
                     }
-                    localStorage.setItem(LocalCacheKey.langType, langType.value)
-                    localStorage.setItem(LocalCacheKey.langId, langId.value)
                 }
-
-                // 将语言在本地缓存，避免刷新页面重复请求，切换语言类型时更新
-                sessionStorage.setItem(LocalCacheKey.langTypes, JSON.stringify(langTypes.value))
+                for (const key in LANG_MAPPING) {
+                    if (LANG_MAPPING[key].toLowerCase() == langId.value) {
+                        langType.value = key
+                        break
+                    }
+                }
+                // 记住用户选择的语言
+                localStorage.setItem(LocalCacheKey.langType, langType.value)
+                localStorage.setItem(LocalCacheKey.langId, langId.value)
             })
         }
 
@@ -81,7 +87,7 @@ export const useLangStore = defineStore(
         const requestLangItems = () => {
             const data = getXmlWrapData(rawXml`
                 <condition>
-                    <langType>${langIdLocal.value}</langType>
+                    <langType>${langId.value}</langType>
                 </condition>
             `)
             return getLangContent(data).then((result) => {
@@ -91,8 +97,6 @@ export const useLangStore = defineStore(
                     langItemsTemp[item.attr('id') as string] = item.text()
                 })
                 langItems.value = langItemsTemp
-                //将语言在本地缓存，避免刷新页面重复请求，切换语言类型时更新
-                sessionStorage.setItem(LocalCacheKey.langItems, JSON.stringify(langItems.value))
             })
         }
 
@@ -117,25 +121,6 @@ export const useLangStore = defineStore(
             }
             await requestLangItems()
             return langItems
-        }
-
-        const langIdLocal = computed(() => {
-            return getLocalValue(langId, LocalCacheKey.langId)
-        })
-
-        const langTypeLocal = computed(() => {
-            return getLocalValue(langType, LocalCacheKey.langType)
-        })
-
-        const getLocalValue = (ref: Ref<string>, cacheKey: string) => {
-            if (ref.value) {
-                return ref.value
-            }
-            const cache = localStorage.getItem(cacheKey)
-            if (cache) {
-                ref.value = cache
-            }
-            return ref.value
         }
 
         /**
@@ -178,8 +163,9 @@ export const useLangStore = defineStore(
 
         return {
             langId,
-            getLangId: langIdLocal,
-            getLangType: langTypeLocal,
+            langType,
+            // getLangId: langIdLocal,
+            // getLangType: langTypeLocal,
             elLocale,
             langItems,
             getLangTypes,
