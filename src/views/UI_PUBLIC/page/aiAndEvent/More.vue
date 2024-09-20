@@ -3,7 +3,7 @@
  * @Date: 2024-09-10 17:50:24
  * @Description: 更多功能页面的框架
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-19 11:01:41
+ * @LastEditTime: 2024-09-20 11:43:19
 -->
 <template>
     <div class="content">
@@ -143,6 +143,15 @@
                             }"
                             >{{ Translate('IDCS_CROWD_DENSITY_DETECTION') }}</span
                         >
+                    </template>
+                    <template #default>
+                        <Cdd
+                            v-if="pageData.chosenFunction === 'cdd'"
+                            :curr-chl-id="pageData.currChlId"
+                            :chl-data="pageData.chlData"
+                            :voice-list="pageData.voiceList"
+                            :online-channel-list="pageData.onlineChannelList"
+                        ></Cdd>
                     </template>
                 </el-tab-pane>
 
@@ -306,7 +315,8 @@
     }
     .content_main {
         .demo-tabs {
-            height: calc(100vh - 300px);
+            width: 1562px;
+            min-height: 627px;
             margin-top: 10px;
             .notSupportBox {
                 display: flex;

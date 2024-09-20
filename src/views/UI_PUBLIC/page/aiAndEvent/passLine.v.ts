@@ -3,7 +3,7 @@
  * @Date: 2024-09-11 15:00:19
  * @Description: 过线检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-19 10:50:55
+ * @LastEditTime: 2024-09-20 14:52:44
  */
 import { ArrowDown } from '@element-plus/icons-vue'
 import { type chlCaps } from '@/types/apiType/aiAndEvent'
@@ -88,8 +88,8 @@ export default defineComponent({
             clearAllVisible: false,
 
             // CPC播放器设置
-            // 是否显示CPC绘制控制
-            showCpcDrawAvailable: true,
+            // 是否显示CPC绘制控制 TODO 老代码写死不显示，并且不可画图
+            showCpcDrawAvailable: false,
             // CPC绘制控制
             isCpcDrawAvailable: false,
 
@@ -1129,6 +1129,7 @@ export default defineComponent({
                     plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
                 }
                 await getData()
+                // pageData.value.requireDataFail = true
                 passLineRefreshInitPage()
                 if (pageData.value.chlData['supportPassLine']) {
                     if (mode.value === 'h5') {

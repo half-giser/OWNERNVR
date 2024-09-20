@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 13:35:56
  * @Description:  区域入侵
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-19 15:05:58
+ * @LastEditTime: 2024-09-20 11:29:41
 -->
 <template>
     <div class="pea_setting_pane">
@@ -861,12 +861,16 @@
     align-items: center;
     width: 100%;
     background-color: #fff;
-    height: 568px;
+    height: 567px;
     z-index: 2;
     font-size: 20px;
 }
 .pea_setting_pane {
     position: relative;
+    :deep(#n9web .el-form .el-input-number.is-without-controls .el-input__wrapper) {
+        padding-left: 9px;
+        padding-right: 9px;
+    }
     .checkbox_text {
         margin-left: 5px;
         width: 100px;

@@ -3,7 +3,7 @@
  * @Date: 2024-08-27 15:43:32
  * @Description: 周界防范/人车检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-19 17:35:08
+ * @LastEditTime: 2024-09-20 11:23:22
  */
 import { type TabsPaneContext } from 'element-plus'
 import { useLangStore } from '@/stores/lang'
@@ -356,6 +356,7 @@ export default defineComponent({
                 pageData.value.notSupportTipShow = true
                 pageData.value.chosenFunction = ''
             }
+            // pageData.value.chosenFunction = ''
         }
         // 初始化页面数据
         const initPageData = async () => {

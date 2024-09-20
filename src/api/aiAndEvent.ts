@@ -221,3 +221,9 @@ export const queryOsc = (data: string) => http.fetch('queryOsc', getXmlWrapData(
 
 // 修改物品遗留与看护数据
 export const editOsc = (data: string) => http.fetch('editOsc', getXmlWrapData(data))
+
+// 获取人群密度检测数据
+export const queryCdd = (data: string) => http.fetch('queryCdd', getXmlWrapData(data))
+
+// 修改人群密度检测数据
+export const editCdd = (data: string) => http.fetch('editCdd', getXmlWrapData(data))
