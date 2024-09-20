@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-13 09:18:41
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-18 15:34:09
+ * @LastEditTime: 2024-09-20 09:27:31
  */
 import { cloneDeep } from 'lodash'
 import { type BoundaryTableDataItem, type chlCaps, type PresetList, TempDetection } from '@/types/apiType/aiAndEvent'
@@ -341,10 +341,10 @@ export default defineComponent({
             }
             // 设置视频区域可编辑
             // 界面内切换tab，调用play时初始化区域
+            setTimeout(() => {
+                setAreaView()
+            }, 0)
             if (mode.value === 'h5') {
-                setTimeout(() => {
-                    setAreaView()
-                }, 0)
                 tempDrawer.setEnable(true)
             } else {
                 const sendXML = OCX_XML_SetVfdAreaAction('EDIT_ON')
@@ -495,15 +495,8 @@ export default defineComponent({
             if (normalParamCheckList.value.length == normalParamList.value.length) {
                 normalParamCheckAll.value = true
             }
-            // 设置视频区域可编辑
-            if (mode.value === 'h5') {
-                tempDrawer.setEnable(true)
-                setPaintType()
-                setAreaView()
-            } else {
-                const sendXML = OCX_XML_SetVfdAreaAction('EDIT_ON')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-            }
+            setPaintType()
+            setAreaView()
         }
         // tab项（参数设置，联动方式）
         const tempTabChange = (name: TabPaneName) => {
@@ -546,7 +539,7 @@ export default defineComponent({
         const showAllArea = () => {
             tempDrawer && tempDrawer.setEnableShowAll(pageData.value.isShowAllArea)
             if (pageData.value.isShowAllArea) {
-                const detectAreaInfo = {} as Record<number, { X: number; Y: number; isClosed: boolean }[]>
+                const detectAreaInfo = [] as { X: number; Y: number; isClosed: boolean }[][]
                 tempDetectionData.value.boundaryData.forEach((item, index) => {
                     detectAreaInfo[index] = item.points
                 })
@@ -557,7 +550,7 @@ export default defineComponent({
                 } else {
                     const pluginDetectAreaInfo = JSON.parse(JSON.stringify(detectAreaInfo))
                     pluginDetectAreaInfo[pageData.value.currRowData.ruleId] = [] // 插件端下发全部区域需要过滤掉当前区域数据
-                    const sendXML = OCX_XML_SetAllArea({ detectAreaInfo: pluginDetectAreaInfo }, 'IrregularPolygon', 'TYPE_PLATE_DETECTION', '', true)
+                    const sendXML = OCX_XML_SetAllArea({ detectAreaInfo: pluginDetectAreaInfo }, 'IrregularPolygon', 'TYPE_WATCH_DETECTION', '', true)
                     plugin.GetVideoPlugin().ExecuteCmd(sendXML!)
                 }
             } else {
@@ -591,7 +584,7 @@ export default defineComponent({
             if (mode.value === 'h5') {
                 tempDrawer.clear()
             } else {
-                const sendXMLAll = OCX_XML_SetAllArea({ detectAreaInfo: [], maskAreaInfo: [] }, 'IrregularPolygon', 'TYPE_PLATE_DETECTION', '', false)
+                const sendXMLAll = OCX_XML_SetAllArea({ detectAreaInfo: [], maskAreaInfo: [] }, 'IrregularPolygon', 'TYPE_WATCH_DETECTION', '', pageData.value.isShowAllArea)
                 plugin.GetVideoPlugin().ExecuteCmd(sendXMLAll!)
                 const sendXML = OCX_XML_SetPeaAreaAction('NONE')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
@@ -1100,7 +1093,9 @@ export default defineComponent({
                 const sendXML = OCX_XML_StopPreview('ALL')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
-            tempDrawer.destroy()
+            if (mode.value == 'h5') {
+                tempDrawer.destroy()
+            }
         })
 
         watch(

@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-10 17:50:35
  * @Description: 更多功能页面的框架
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-19 11:01:04
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-09-20 09:26:07
  */
 // import { cloneDeep } from 'lodash-es'
 import { type chlCaps } from '@/types/apiType/aiAndEvent'
@@ -12,12 +12,15 @@ import fireDetection from './fireDetection.vue'
 import TemperatureDetection from './TemperatureDetection.vue'
 import ObjectLeft from './ObjectLeft.vue'
 import passLine from './passLine.vue'
+import AbnormalDispose from './AbnormalDispose.vue'
+
 export default defineComponent({
     components: {
         fireDetection,
         passLine,
         TemperatureDetection,
         ObjectLeft,
+        AbnormalDispose,
     },
     setup() {
         // const { LoadingTarget, openLoading, closeLoading } = useLoading()
@@ -360,6 +363,7 @@ export default defineComponent({
         return {
             TemperatureDetection,
             ObjectLeft,
+            AbnormalDispose,
             pageData,
             handleChangeChannel,
             handleTabClick,

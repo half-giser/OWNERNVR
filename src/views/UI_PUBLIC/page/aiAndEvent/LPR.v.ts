@@ -1,3 +1,10 @@
+/*
+ * @Description: AI 事件——车牌识别
+ * @Author: luoyiming luoyiming@tvt.net.cn
+ * @Date: 2024-09-09 09:56:33
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-09-19 15:12:35
+ */
 import { ArrowDown } from '@element-plus/icons-vue'
 // import { cloneDeep } from 'lodash'
 import { type CompareTask, VehicleDetection, type VehicleChlItem, VehicleCompare } from '@/types/apiType/aiAndEvent'
@@ -1163,7 +1170,7 @@ export default defineComponent({
                 openMessageTipBox({
                     type: 'info',
                     title: Translate('IDCS_INFO_TIP'),
-                    message: Translate('IDCS_SIMPLE_FACE_DETECT_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + chlList[pageData.value.curChl].name, switchChangeType),
+                    message: Translate('IDCS_SIMPLE_SMART_VEHICLE_DETECT_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + chlList[pageData.value.curChl].name, switchChangeType),
                 }).then(() => {
                     setVehicleDetectionData()
                 })
@@ -1496,7 +1503,9 @@ export default defineComponent({
                 const sendXML = OCX_XML_StopPreview('ALL')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
-            vehicleDrawer.destroy()
+            if (mode.value == 'h5') {
+                vehicleDrawer.destroy()
+            }
         })
 
         watch(
