@@ -4,10 +4,9 @@
  * @Description: OCX插件模块
  * 原项目中MAC插件和TimeSliderPlugin相关逻辑不保留
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-19 15:17:57
+ * @LastEditTime: 2024-09-20 16:04:27
  */
 import WebsocketPlugin from '@/utils/websocket/websocketPlugin'
-import { APP_TYPE } from '@/utils/constants'
 import { ClientPort, P2PClientPort, P2PACCESSTYPE, SERVER_IP, getPluginPath, PluginSizeModeMapping, type OCX_Plugin_Notice_Map } from '@/utils/ocx/ocxUtil'
 
 type PluginStatus = 'Unloaded' | 'Loaded' | 'InitialComplete' | 'Connected' | 'Disconnected' | 'Reconnecting'
@@ -223,7 +222,7 @@ const useOCXPlugin = () => {
                     setIsReconn(false)
                     setReconnCallBack(() => {})
                 } else {
-                    if (APP_TYPE === 'P2P') {
+                    if (import.meta.env.VITE_APP_TYPE === 'P2P') {
                         closeLoading()
                         if (VideoPluginReconnectTimeoutId !== null) {
                             // 重新连接成功，隐藏“加载中”状态
@@ -237,6 +236,10 @@ const useOCXPlugin = () => {
                             //初始化多语言翻译模块
                             await getLangTypes()
                             await getLangItems()
+
+                            const dateTime = useDateTimeStore()
+                            await dateTime.getTimeConfig(false)
+
                             layoutStore.isInitial = true
                             delCookie('ec')
                             delCookie('em')
@@ -260,7 +263,7 @@ const useOCXPlugin = () => {
                     }
                 }
             } else {
-                if (APP_TYPE === 'P2P') {
+                if (import.meta.env.VITE_APP_TYPE === 'P2P') {
                     const errorCode = Number($('/statenotify/errorCode').text())
                     const errorDescription = $('/statenotify/errorDescription').text() || ''
                     const curRoutUrl = route.path
@@ -457,7 +460,7 @@ const useOCXPlugin = () => {
      * @description videoPluginLogin 登录
      */
     const videoPluginLogin = () => {
-        if (APP_TYPE === 'P2P') {
+        if (import.meta.env.VITE_APP_TYPE === 'P2P') {
             if (userSession.p2pSessionId) {
                 p2pSessionIdLogin()
             } else {
@@ -558,7 +561,7 @@ const useOCXPlugin = () => {
         }
         const connPlugin = new WebsocketPlugin({
             wsType: 'pluginMainProcess',
-            port: APP_TYPE === 'STANDARD' ? ClientPort : P2PClientPort,
+            port: import.meta.env.VITE_APP_TYPE === 'STANDARD' ? ClientPort : P2PClientPort,
             onopen: () => {
                 isInstallPlugin.value = true
             },
@@ -639,7 +642,7 @@ const useOCXPlugin = () => {
      */
     const loadWinPlugin = () => {
         const path = getPluginPath()
-        const downLoadUrl = APP_TYPE === 'STANDARD' ? path.ClientPluDownLoadPath : path.P2PClientPluDownLoadPath
+        const downLoadUrl = import.meta.env.VITE_APP_TYPE === 'STANDARD' ? path.ClientPluDownLoadPath : path.P2PClientPluDownLoadPath
         let needUpate = true
         const sendXML = OCX_XML_GetOcxVersion()
         getVideoPlugin().QueryInfo(sendXML, (strXMLFormat) => {
@@ -661,7 +664,7 @@ const useOCXPlugin = () => {
                 isInstallPlugin.value = false
                 // 将showPluginNoResponse置为空，避免更新插件并安装后页面弹出：插件无响应
                 pluginStore.showPluginNoResponse = false
-                APP_TYPE == 'P2P' && setPluginNotice('body')
+                import.meta.env.VITE_APP_TYPE == 'P2P' && setPluginNotice('body')
                 return
             } else {
                 isPluginAvailable.value = true
@@ -670,7 +673,7 @@ const useOCXPlugin = () => {
 
             //设置OCX模式
             try {
-                if (APP_TYPE === 'P2P') {
+                if (import.meta.env.VITE_APP_TYPE === 'P2P') {
                     const sendXML = OCX_XML_Initial_P2P('Interactive', 'VideoPluginNotify', 'Live', 1)
                     getVideoPlugin().ExecuteCmd(sendXML)
                 } else {
@@ -690,7 +693,7 @@ const useOCXPlugin = () => {
     const togglePageByPlugin = () => {
         let currPluginMode = pluginStore.currPluginMode
         // 如果当前浏览器不支持H5，获取的插件模式为'h5'时，需要进行转换为'ocx'
-        if (APP_TYPE == 'STANDARD' && 'WebAssembly' in window) {
+        if (import.meta.env.VITE_APP_TYPE == 'STANDARD' && 'WebAssembly' in window) {
             // currPluginMode = currPluginMode // || 'h5'
         } else {
             currPluginMode = 'ocx'
@@ -763,8 +766,12 @@ const useOCXPlugin = () => {
      * @description 设置P2P登录回调
      * @param {Function} callback
      */
-    const setLoginTypeCallback = (callback: ((loginType: string, authCodeIndex: string) => void) | null) => {
-        p2pLoginTypeCallback = callback
+    const setLoginTypeCallback = (callback?: ((loginType: string, authCodeIndex: string) => void) | null) => {
+        if (typeof callback === 'function') {
+            p2pLoginTypeCallback = callback
+        } else {
+            p2pLoginTypeCallback = null
+        }
     }
 
     /**
@@ -772,7 +779,7 @@ const useOCXPlugin = () => {
      * @returns {Function}
      */
     const execLoginTypeCallback = (loginType: string, authCodeIndex: string) => {
-        if (typeof p2pLoginTypeCallback == 'function') {
+        if (typeof p2pLoginTypeCallback === 'function') {
             p2pLoginTypeCallback(loginType, authCodeIndex)
         } else {
             window.location.href = '/index.html'
@@ -783,7 +790,7 @@ const useOCXPlugin = () => {
      * @description 设置登录失败回调
      * @param {Function} callback
      */
-    const setLoginErrorCallback = (callback: () => void) => {
+    const setLoginErrorCallback = (callback: (errorCode?: number, errorDescription?: string) => void) => {
         loginErrorCallback = callback
     }
 
@@ -815,7 +822,7 @@ const useOCXPlugin = () => {
             pluginStore.currPluginMode = 'ocx'
         }
         const path = getPluginPath()
-        if (APP_TYPE == 'P2P') {
+        if (import.meta.env.VITE_APP_TYPE == 'P2P') {
             getPluginNotice(path.P2PClientPluDownLoadPath)
             // 与插件建链成功后，发生了错误，禁止跳转到插件下载页面,保留当前页面状态
             if (pluginStore.showPluginNoResponse) return
@@ -948,7 +955,7 @@ const useOCXPlugin = () => {
         // 检查浏览器当前标签页是否为可见。若不可见,则不显示视频插件窗口
         if (isShow && document.visibilityState == 'hidden') return
         if (!getIsPluginAvailable()) return
-        // if (systemInfo.platform === 'mac' && APP_TYPE === 'P2P') {
+        // if (systemInfo.platform === 'mac' && import.meta.env.VITE_APP_TYPE === 'P2P') {
         //     // TODO effect
         //     // if ($('.tvt_dialog').length > 0 && isShow && $('#popRec_content').length == 0) {
         //     //     return
@@ -985,7 +992,7 @@ const useOCXPlugin = () => {
     const setPluginSize = (pluginRefDiv: HTMLElement | null, pluginObj?: ReturnType<typeof getVideoPlugin>, shouldAdjust = false) => {
         // if (!context) context = document.body // $('body')
         if (!pluginObj) pluginObj = getVideoPlugin()
-        // if (systemInfo.platform === 'mac' && APP_TYPE === 'P2P') {
+        // if (systemInfo.platform === 'mac' && import.meta.env.VITE_APP_TYPE === 'P2P') {
         //     setPluginSizeForP2PMac(pluginRefDiv, pluginObj as EmbedPlugin)
         //     return
         // }
@@ -1340,6 +1347,33 @@ const useOCXPlugin = () => {
             }
         },
     )
+
+    watch(
+        () => userSession.sessionId,
+        (val) => {
+            if (val === '') {
+                disposePlugin()
+            }
+        },
+    )
+
+    onMounted(() => {
+        disposePlugin()
+        if (import.meta.env.VITE_APP_TYPE === 'STANDARD') {
+            startV2Process()
+        } else {
+            if (userSession.refreshLoginPage) {
+                userSession.clearSession()
+                goToIndex()
+                return
+            }
+            startV2Process()
+        }
+    })
+
+    onBeforeUnmount(() => {
+        disposePlugin()
+    })
 
     document.addEventListener('visibilitychange', pageVisibleChangeHandle, false)
 

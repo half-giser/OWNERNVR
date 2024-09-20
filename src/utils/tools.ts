@@ -3,18 +3,12 @@
  * @Date: 2023-04-28 17:57:48
  * @Description: 工具方法
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-09 19:40:01
+ * @LastEditTime: 2024-09-20 15:51:49
  */
 
-import { useUserSessionStore } from '@/stores/userSession'
-import { checkPort } from './validates'
-import { useLangStore } from '@/stores/lang'
 import { type QueryNodeListDto } from '@/types/apiType/channel'
-import { queryNodeList } from '@/api/channel'
-import { type ApiResult, getXmlWrapData } from '@/api/api'
+import { type ApiResult } from '@/api/api'
 import { type XMLQuery, type XmlResult } from './xmlParse'
-import useMessageBox from '@/hooks/useMessageBox'
-import { APP_TYPE } from '@/utils/constants'
 import JSZip from 'jszip'
 
 export * from './transformers'
@@ -193,7 +187,7 @@ export const isHttpsLogin = () => {
 
 // 判断浏览器是否支持webAssembly
 export const isBrowserSupportWasm = () => {
-    return 'WebAssembly' in window && APP_TYPE == 'STANDARD'
+    return 'WebAssembly' in window && import.meta.env.VITE_APP_TYPE == 'STANDARD'
 }
 
 /**
@@ -888,7 +882,7 @@ export const reconnect = () => {
     const pluginStore = usePluginStore()
     const { closeLoading, LoadingTarget } = useLoading()
 
-    if (APP_TYPE === 'STANDARD') {
+    if (import.meta.env.VITE_APP_TYPE === 'STANDARD') {
         return setTimeout(() => {
             reconnectStandard(() => {
                 openMessageTipBox({
@@ -1137,9 +1131,9 @@ export const getChlGuid16 = (id: string) => {
 // 翻译key值拼接添加空格（排除简体中文、繁体中文）
 export const joinSpaceForLang = (str: string) => {
     if (!str) return ''
-    const { getLangType } = useLangStore()
+    const { langType } = useLangStore()
     const langTypeList = ['zh-cn', 'zh-tw']
-    const currLangType = getLangType || 'en-us'
+    const currLangType = langType || 'en-us'
     const isInclude = langTypeList.includes(currLangType)
     str = isInclude ? str : str + ' '
     return str

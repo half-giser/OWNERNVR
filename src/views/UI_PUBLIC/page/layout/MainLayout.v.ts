@@ -8,7 +8,6 @@
 
 import { type RouteLocationMatched } from 'vue-router'
 import BaseChangePwdPop from '../../components/BaseChangePwdPop.vue'
-import { APP_TYPE } from '@/utils/constants'
 import { getMenu1 } from '@/router'
 
 export default defineComponent({
@@ -83,7 +82,7 @@ export default defineComponent({
             const result = await queryBasicCfg(getXmlWrapData(''))
             const $ = queryXml(result)
             if ($('//status').text() === 'success') {
-                if (APP_TYPE === 'P2P' && judgeCurrUI(result)) return
+                if (import.meta.env.VITE_APP_TYPE === 'P2P' && judgeCurrUI(result)) return
                 CustomerID = Number($('//content/CustomerID').text())
                 cbk && cbk()
                 if (!showProductModelList.includes(CustomerID)) {

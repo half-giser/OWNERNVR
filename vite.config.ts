@@ -21,9 +21,6 @@ import { visualizer } from 'rollup-plugin-visualizer'
 export default defineConfig(({ mode }) => {
     const split = mode.split(',')
     const env = loadEnv(split[0], envDir)
-    console.log('----env: ')
-    console.log(env)
-    console.log(process.env.NODE_ENV)
 
     env.VITE_UI_TYPE = split[1] || env.VITE_UI_TYPE
 
@@ -42,7 +39,6 @@ export default defineConfig(({ mode }) => {
     return {
         // envDir,
         define: {
-            __TRUE__: true,
             'import.meta.env.NODE_ENV': env.NODE_ENV,
             'import.meta.env.VITE_UI_TYPE': JSON.stringify(env.VITE_UI_TYPE),
             'import.meta.env.VITE_BASE_URL': JSON.stringify(env.VITE_BASE_URL),
@@ -52,6 +48,8 @@ export default defineConfig(({ mode }) => {
             'import.meta.env.VITE_APP_DESC': JSON.stringify(env.VITE_APP_DESC),
             'import.meta.env.VITE_APP_KEYWORDS': JSON.stringify(env.VITE_APP_KEYWORDS),
             'import.meta.env.VITE_APP_TYPE': JSON.stringify(env.VITE_APP_TYPE),
+            'import.meta.env.VITE_APP_COPYRIGHT': JSON.stringify(env.VITE_APP_COPYRIGHT),
+            'import.meta.env.VITE_APP_ICP_NUMBER': JSON.stringify(env.VITE_APP_ICP_NUMBER),
         },
         base: env.VITE_DEPLOY_BASE_URL,
         server: {
