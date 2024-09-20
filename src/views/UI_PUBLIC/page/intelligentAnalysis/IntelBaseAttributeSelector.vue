@@ -3,7 +3,7 @@
  * @Date: 2024-09-04 14:36:21
  * @Description: 智能分析 属性选择器
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 11:37:07
+ * @LastEditTime: 2024-09-19 17:03:12
 -->
 <template>
     <div>
@@ -42,11 +42,14 @@
                     v-else-if="range.length > 1"
                     label-position="left"
                     :style="{
-                        '--form-label-width': '80px',
+                        '--form-label-width': '100px',
                     }"
                 >
                     <el-form-item :label="Translate('IDCS_FIGURE')">
-                        <el-checkbox-group v-model="selectedPerson">
+                        <el-checkbox-group
+                            v-model="selectedPerson"
+                            class="base-intel-checkbox-group"
+                        >
                             <el-checkbox
                                 v-for="item in pageData.personOptions"
                                 :key="item.value"
@@ -56,7 +59,10 @@
                         </el-checkbox-group>
                     </el-form-item>
                     <el-form-item :label="Translate('IDCS_VEHICLE')">
-                        <el-checkbox-group v-model="selectedVehicle">
+                        <el-checkbox-group
+                            v-model="selectedVehicle"
+                            class="base-intel-checkbox-group"
+                        >
                             <el-checkbox
                                 v-for="item in pageData.vehicleOptions"
                                 :key="item.value"

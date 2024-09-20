@@ -3,7 +3,7 @@
  * @Date: 2024-08-14 16:50:21
  * @Description: 时间切片-时间线界面
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:24:05
+ * @LastEditTime: 2024-09-19 14:05:49
  */
 import dayjs from 'dayjs'
 import TimeSliceChlCard from './TimeSliceChlCard.vue'
@@ -853,7 +853,7 @@ export default defineComponent({
         watch(
             mode,
             (newVal) => {
-                if (newVal !== 'h5' && !Plugin.IsPluginAvailable) {
+                if (newVal !== 'h5' && !Plugin.IsPluginAvailable()) {
                     Plugin.SetPluginNoResponse()
                     Plugin.ShowPluginNoResponse()
                 }

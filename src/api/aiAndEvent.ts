@@ -3,7 +3,7 @@
  * @Date: 2024-08-10 16:25:58
  * @Description: AI/事件
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-19 10:58:26
+ * @LastEditTime: 2024-09-20 15:31:35
  */
 
 import { type AxiosRequestConfig } from 'axios'
@@ -227,3 +227,9 @@ export const queryCdd = (data: string) => http.fetch('queryCdd', getXmlWrapData(
 
 // 修改人群密度检测数据
 export const editCdd = (data: string) => http.fetch('editCdd', getXmlWrapData(data))
+
+// 获取异常侦测数据
+export const queryAvd = (data: string) => http.fetch('queryAvd', getXmlWrapData(data))
+
+// 修改异常侦测数据
+export const editAvd = (data: string) => http.fetch('editAvd', getXmlWrapData(data))

@@ -217,7 +217,6 @@
 
                 <!-- avd -->
                 <el-tab-pane
-                    :label="Translate('IDCS_ABNORMAL_DISPOSE_WAY')"
                     :disabled="pageData.avdDisable"
                     name="avd"
                     class="tripwire_setting_pane"
@@ -235,6 +234,14 @@
                             }"
                             >{{ Translate('IDCS_ABNORMAL_DISPOSE_WAY') }}</span
                         >
+                    </template>
+                    <template #default>
+                        <AbnormalDispose
+                            v-if="pageData.chosenFunction === 'avd'"
+                            :curr-chl-id="pageData.currChlId"
+                            :chl-data="pageData.chlData"
+                            :voice-list="pageData.voiceList"
+                        ></AbnormalDispose>
                     </template>
                 </el-tab-pane>
 

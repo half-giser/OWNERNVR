@@ -3,7 +3,7 @@
  * @Date: 2024-09-10 09:15:11
  * @Description: 智能分析 - 车辆搜索
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-14 09:52:10
+ * @LastEditTime: 2024-09-19 16:46:05
 -->
 <template>
     <div class="base-intel-box">
@@ -333,7 +333,7 @@
     }
 
     & > .base-intel-left-column {
-        padding: 20px;
+        padding: 20px 10px;
         width: 100%;
         height: 100%;
         box-sizing: border-box;

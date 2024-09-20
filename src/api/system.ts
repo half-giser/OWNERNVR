@@ -3,7 +3,7 @@
  * @Date: 2023-06-02 11:57:11
  * @Description: 系统API
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 09:59:48
+ * @LastEditTime: 2024-09-18 18:12:52
  */
 import type { AxiosRequestConfig } from 'axios'
 import http from './api'
@@ -150,9 +150,10 @@ export const editDevOsdDisplayCfg = (data: string) => http.fetch('editDevOsdDisp
 
 /**
  * @description 获取磁盘信息
+ * @param {boolean} status
  * @returns
  */
-export const queryStorageDevInfo = () => http.fetch('queryStorageDevInfo', getXmlWrapData(''))
+export const queryStorageDevInfo = (status = true) => http.fetch('queryStorageDevInfo', getXmlWrapData(''), {}, status)
 
 /**
  * @description 获取系统信息
@@ -206,3 +207,23 @@ export const queryPosList = () => http.fetch('queryPosList', getXmlWrapData(''))
  * @returns
  */
 export const editPosList = (data: string) => http.fetch('editPosList', getXmlWrapData(data))
+
+/**
+ * @description 获取地区列表
+ * @returns
+ */
+export const queryRegionList = () => http.fetch('queryRegionList', getXmlWrapData(''), {}, false)
+
+/**
+ * @description 获取默认配置
+ * @param {string} data
+ * @returns
+ */
+export const queryDefaultInitData = (data: string) => http.fetch('queryDefaultInitData', getXmlWrapData(data), {}, false)
+
+/**
+ * @description 激活设备
+ * @param {string} data
+ * @returns
+ */
+export const activateDev = (data: string) => http.fetch('queryDefaultInitData', getXmlWrapData(data), {}, false)

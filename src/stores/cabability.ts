@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2023-05-09 16:45:59
  * @Description: 服务端能力集全局存储
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-06 18:11:57
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-19 11:38:33
  */
 import { getXmlWrapData } from '@/api/api'
 import { querySystemCaps } from '@/api/system'
@@ -15,6 +15,7 @@ export const useCababilityStore = defineStore(
         const IntelAndFaceConfigHide = ref(false)
         const supportFaceMatch = ref(false)
         const supportPlateMatch = ref(false)
+        const supportWaterMark = ref(false)
         const showAIReourceDetail = ref(false)
         const localTargetDectMaxCount = ref(0)
         const localFaceDectMaxCount = ref(0)
@@ -60,6 +61,11 @@ export const useCababilityStore = defineStore(
         const supportTalk = ref(false)
         const fishEyeCap = ref<Record<string, string[]>>({})
         const playbackMaxWin = ref(9)
+        const showNat = ref(false)
+        const supportHttpsConfig = ref(false)
+        const supportSnmp = ref(false)
+        const supportPlatform = ref(false)
+        const supportPoePowerManage = ref(false)
 
         const CustomerID = ref(0)
         const isInw48 = ref(false)
@@ -79,6 +85,7 @@ export const useCababilityStore = defineStore(
             IntelAndFaceConfigHide.value = $(`content/IntelAndFaceConfigHide`).text().toBoolean()
             supportFaceMatch.value = $(`content/supportFaceMatch`).text().toBoolean() // 人脸识别：最初只有supportFaceMatch这一个字段来代表‘人脸侦测和人脸识别’的能力集。
             supportPlateMatch.value = $(`content/supportPlateMatch`).text().toBoolean()
+            supportWaterMark.value = $(`content/supportWaterMark`).text().toBoolean()
             showAIReourceDetail.value = $(`content/showAIReourceDetail`).text().toBoolean()
             localTargetDectMaxCount.value = Number($(`content/localTargetDectMaxCount`).text())
             localFaceDectMaxCount.value = Number($(`content/localFaceDectMaxCount`).text())
@@ -125,6 +132,11 @@ export const useCababilityStore = defineStore(
             supportAlarmServerConfig.value = $('content/supportAlarmServerConfig').text().toBoolean()
             poeChlMaxCount.value = Number($(`content/poeChlMaxCount`).text())
             playbackMaxWin.value = Number($('content/playbackMaxWin').text())
+            showNat.value = $(`content/showNat`).text().toBoolean()
+            supportHttpsConfig.value = $(`content/supportHttpsConfig`).text().toBoolean()
+            supportSnmp.value = $(`content/supportSnmp`).text().toBoolean()
+            supportPlatform.value = $(`content/supportPlatform`).text().toBoolean()
+            supportPoePowerManage.value = $(`content/supportPoePowerManage`).text().toBoolean()
 
             $('content/FishEyeCaps/installType/enum').forEach((item) => {
                 const text = item.text()
@@ -188,6 +200,12 @@ export const useCababilityStore = defineStore(
             fishEyeCap,
             playbackMaxWin,
             AISwitch,
+            supportWaterMark,
+            showNat,
+            supportHttpsConfig,
+            supportSnmp,
+            supportPlatform,
+            supportPoePowerManage,
         }
     },
     {

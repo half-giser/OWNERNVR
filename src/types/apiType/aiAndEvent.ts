@@ -3,7 +3,7 @@
  * @Date: 2024-08-10 12:08:57
  * @Description: AI/事件
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-18 11:23:43
+ * @LastEditTime: 2024-09-19 10:23:15
  */
 const { Translate } = useLangStore()
 
@@ -758,4 +758,22 @@ export class ObjectLeft {
 export class BoundaryItem {
     areaName = ''
     points = [] as { X: number; Y: number; isClosed: boolean }[]
+}
+/* AI事件——更多——异常侦测 */
+export class AbnormalDispose {
+    holdTime = ''
+    holdTimeList = [] as SelectOption<string, string>[]
+    sceneChangeSwitch = ''
+    clarityAbnormalSwitch = ''
+    colorAbnormalSwitch = ''
+    sensitivity = 0
+    record = [] as SelectOption<string, string>[]
+    alarmOut = [] as SelectOption<string, string>[]
+    preset = [] as PresetItem[]
+    msgPushSwitch = false
+    buzzerSwitch = false
+    popVideoSwitch = false
+    emailSwitch = false
+    catchSnapSwitch = false
+    sysAudio = ''
 }

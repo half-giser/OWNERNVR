@@ -3,7 +3,7 @@
  * @Date: 2024-09-10 17:50:35
  * @Description: 更多功能页面的框架
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-20 15:26:21
+ * @LastEditTime: 2024-09-20 15:36:26
  */
 // import { cloneDeep } from 'lodash-es'
 import { type chlCaps } from '@/types/apiType/aiAndEvent'
@@ -12,13 +12,16 @@ import fireDetection from './fireDetection.vue'
 import TemperatureDetection from './TemperatureDetection.vue'
 import ObjectLeft from './ObjectLeft.vue'
 import passLine from './passLine.vue'
+import AbnormalDispose from './AbnormalDispose.vue'
 import Cdd from './Cdd.vue'
+
 export default defineComponent({
     components: {
         fireDetection,
         passLine,
         TemperatureDetection,
         ObjectLeft,
+        AbnormalDispose,
         Cdd,
     },
     setup() {
@@ -359,6 +362,7 @@ export default defineComponent({
         return {
             TemperatureDetection,
             ObjectLeft,
+            AbnormalDispose,
             pageData,
             handleChangeChannel,
             handleTabClick,

@@ -3,7 +3,7 @@
  * @Date: 2024-05-24 17:12:55
  * @Description: 
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 09:20:01
+ * @LastEditTime: 2024-09-19 09:48:41
 -->
 <template>
     <div>
@@ -20,12 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import { isMobile, watchResize } from '@bassist/utils'
-import { getXmlWrapData } from './api/api'
-import { queryActivationStatus, querySystemCaps } from './api/system'
-import { queryXml } from './utils/xmlParse'
 import { APP_TYPE } from './utils/constants'
-import { useUserSessionStore } from './stores/userSession'
 import dayjs from 'dayjs'
 
 const route = useRoute()
@@ -36,10 +31,6 @@ const session = useUserSessionStore()
 
 const Plugin = usePlugin()
 provide('Plugin', Plugin)
-
-watchResize(() => {
-    document.body.className = `platform-${isMobile() ? 'mobile' : 'desktop'}`
-})
 
 const hanedleActivationStatus = async (checkActivationStatus: boolean, isUserAuth: boolean) => {
     try {

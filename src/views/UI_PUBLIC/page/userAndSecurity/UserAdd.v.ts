@@ -53,12 +53,11 @@ export default defineComponent({
          */
         const getPasswordSecurityStrength = async () => {
             let strength: keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING = 'weak'
-            const isInw48 = systemCaps.supportPwdSecurityConfig // TODO: 原项目是这个值
             const result = await queryPasswordSecurity()
             const $ = queryXml(result)
             if ($('//status').text() === 'success') {
                 strength = ($('//content/pwdSecureSetting/pwdSecLevel').text() as keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING & null) ?? 'weak'
-                if (isInw48) {
+                if (systemCaps.supportPwdSecurityConfig) {
                     strength = 'strong'
                 }
             }

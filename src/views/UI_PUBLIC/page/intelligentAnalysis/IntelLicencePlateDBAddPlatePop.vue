@@ -3,7 +3,7 @@
  * @Date: 2024-09-03 09:08:22
  * @Description: 新增车牌弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-03 13:58:19
+ * @LastEditTime: 2024-09-19 17:08:54
 -->
 <template>
     <el-dialog
@@ -34,7 +34,7 @@
                 :model="formData"
                 :rules="formRule"
                 :style="{
-                    '--form-label-width': '150px',
+                    '--form-label-width': '130px',
                     '--form-input-width': '280px',
                 }"
             >
