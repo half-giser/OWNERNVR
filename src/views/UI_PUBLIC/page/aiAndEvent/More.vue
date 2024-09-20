@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-10 17:50:24
  * @Description: 更多功能页面的框架
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-18 10:24:16
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-09-20 11:43:19
 -->
 <template>
     <div class="content">
@@ -113,6 +113,15 @@
                             >{{ Translate('IDCS_PASS_LINE_COUNT_DETECTION') }}</span
                         >
                     </template>
+                    <template #default>
+                        <passLine
+                            v-if="pageData.chosenFunction === 'passLine'"
+                            :curr-chl-id="pageData.currChlId"
+                            :chl-data="pageData.chlData"
+                            :voice-list="pageData.voiceList"
+                            :online-channel-list="pageData.onlineChannelList"
+                        ></passLine>
+                    </template>
                 </el-tab-pane>
 
                 <!-- cdd -->
@@ -134,6 +143,15 @@
                             }"
                             >{{ Translate('IDCS_CROWD_DENSITY_DETECTION') }}</span
                         >
+                    </template>
+                    <template #default>
+                        <Cdd
+                            v-if="pageData.chosenFunction === 'cdd'"
+                            :curr-chl-id="pageData.currChlId"
+                            :chl-data="pageData.chlData"
+                            :voice-list="pageData.voiceList"
+                            :online-channel-list="pageData.onlineChannelList"
+                        ></Cdd>
                     </template>
                 </el-tab-pane>
 
@@ -199,7 +217,6 @@
 
                 <!-- avd -->
                 <el-tab-pane
-                    :label="Translate('IDCS_ABNORMAL_DISPOSE_WAY')"
                     :disabled="pageData.avdDisable"
                     name="avd"
                     class="tripwire_setting_pane"
@@ -215,8 +232,16 @@
                                 justifyContent: 'center',
                                 alignItems: 'center',
                             }"
-                            >{{ Translate('IDCS_FIRE_POINT_DETECTION') }}</span
+                            >{{ Translate('IDCS_ABNORMAL_DISPOSE_WAY') }}</span
                         >
+                    </template>
+                    <template #default>
+                        <AbnormalDispose
+                            v-if="pageData.chosenFunction === 'avd'"
+                            :curr-chl-id="pageData.currChlId"
+                            :chl-data="pageData.chlData"
+                            :voice-list="pageData.voiceList"
+                        ></AbnormalDispose>
                     </template>
                 </el-tab-pane>
 
@@ -297,7 +322,8 @@
     }
     .content_main {
         .demo-tabs {
-            height: calc(100vh - 300px);
+            width: 1562px;
+            min-height: 627px;
             margin-top: 10px;
             .notSupportBox {
                 display: flex;

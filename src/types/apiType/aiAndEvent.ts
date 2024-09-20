@@ -3,7 +3,7 @@
  * @Date: 2024-08-10 12:08:57
  * @Description: AI/事件
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-18 11:23:43
+ * @LastEditTime: 2024-09-19 10:23:15
  */
 const { Translate } = useLangStore()
 
@@ -600,6 +600,31 @@ export class peaPageData {
     presets = [] as PresetItem[]
     presetSource = [] as PresetList[]
 }
+
+export class emailData {
+    saveTargetPicture = false
+    saveSourcePicture = false
+    sendEmailData = {
+        type: '0',
+        enableSwitch: false,
+        dailyReportSwitch: false,
+        weeklyReportSwitch: false,
+        weeklyReportDate: '0',
+        mouthlyReportSwitch: false,
+        mouthlyReportDate: '0',
+        reportHour: 0,
+        reportMin: 0,
+    }
+    receiverData = [] as { address: string; schedule: string; rowClicked: boolean }[]
+}
+
+export class regionData {
+    X1 = 0
+    Y1 = 0
+    X2 = 0
+    Y2 = 0
+}
+
 // 识别——识别成功/陌生人
 export class FaceCompare {
     voiceList = [] as SelectOption<string, string>[]
@@ -733,4 +758,22 @@ export class ObjectLeft {
 export class BoundaryItem {
     areaName = ''
     points = [] as { X: number; Y: number; isClosed: boolean }[]
+}
+/* AI事件——更多——异常侦测 */
+export class AbnormalDispose {
+    holdTime = ''
+    holdTimeList = [] as SelectOption<string, string>[]
+    sceneChangeSwitch = ''
+    clarityAbnormalSwitch = ''
+    colorAbnormalSwitch = ''
+    sensitivity = 0
+    record = [] as SelectOption<string, string>[]
+    alarmOut = [] as SelectOption<string, string>[]
+    preset = [] as PresetItem[]
+    msgPushSwitch = false
+    buzzerSwitch = false
+    popVideoSwitch = false
+    emailSwitch = false
+    catchSnapSwitch = false
+    sysAudio = ''
 }

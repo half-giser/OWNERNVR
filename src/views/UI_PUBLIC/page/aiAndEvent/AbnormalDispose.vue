@@ -1,15 +1,12 @@
 <!--
- * @Description: AI 事件——更多——物品遗留与看护
+ * @Description: AI 事件——更多——异常侦测
  * @Author: luoyiming luoyiming@tvt.net.cn
- * @Date: 2024-09-18 09:43:32
+ * @Date: 2024-09-19 09:27:27
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-20 09:27:02
+ * @LastEditTime: 2024-09-19 10:40:44
 -->
 <template>
-    <div class="obj_left_detection">
-        <div class="row_padding">
-            <el-checkbox v-model="objectLeftData.enabledSwitch">{{ Translate('IDCS_ENABLE') }}</el-checkbox>
-        </div>
+    <div class="abnormal_dispose_detection">
         <div :style="{ position: 'relative' }">
             <el-tabs
                 v-model="pageData.tab"
@@ -30,24 +27,6 @@
                                 @onready="handlePlayerReady"
                             />
                         </div>
-                        <div>
-                            <div class="base-btn-box">
-                                <el-checkbox
-                                    v-show="pageData.isShowAllAreaCheckBox"
-                                    v-model="pageData.isShowAllArea"
-                                    :style="{ flex: '1' }"
-                                    @change="showAllArea"
-                                    >{{ Translate('IDCS_DISPLAY_ALL_AREA') }}</el-checkbox
-                                >
-                                <el-button @click="clearArea">{{ Translate('IDCS_CLEAR') }}</el-button>
-                                <el-button
-                                    v-show="pageData.isShowAllClearBtn"
-                                    @click="clearAllArea"
-                                    >{{ Translate('IDCS_FACE_CLEAR_ALL') }}</el-button
-                                >
-                            </div>
-                            <span class="draw_area_tip">{{ Translate('IDCS_DRAW_AREA_TIP').formatForLang(6) }}</span>
-                        </div>
                     </div>
                     <div class="param_right">
                         <el-form
@@ -58,41 +37,13 @@
                             label-position="left"
                             inline-message
                         >
-                            <!-- 排程 -->
-                            <div class="title">{{ Translate('IDCS_SCHEDULE') }}</div>
-                            <!-- 排程配置 -->
-                            <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
-                                <el-select v-model="objectLeftData.schedule">
-                                    <el-option
-                                        v-for="item in pageData.scheduleList"
-                                        :key="item.value"
-                                        :value="item.value"
-                                        :label="item.label"
-                                    >
-                                    </el-option>
-                                </el-select>
-                                <el-button @click="pageData.scheduleManagPopOpen = true">{{ Translate('IDCS_MANAGE') }}</el-button>
-                            </el-form-item>
                             <!-- 规则 -->
                             <div class="title">{{ Translate('IDCD_RULE') }}</div>
                             <!-- 持续时间 -->
                             <el-form-item :label="Translate('IDCS_DURATION')">
-                                <el-select v-model="objectLeftData.holdTime">
+                                <el-select v-model="abnormalDisposeData.holdTime">
                                     <el-option
-                                        v-for="item in objectLeftData.holdTimeList"
-                                        :key="item.value"
-                                        :value="item.value"
-                                        :label="item.label"
-                                        :empty-values="[undefined, null]"
-                                    >
-                                    </el-option>
-                                </el-select>
-                            </el-form-item>
-                            <!-- 类型 -->
-                            <el-form-item :label="Translate('IDCS_TYPE')">
-                                <el-select v-model="objectLeftData.oscType">
-                                    <el-option
-                                        v-for="item in objectLeftData.oscTypeList"
+                                        v-for="item in abnormalDisposeData.holdTimeList"
                                         :key="item.value"
                                         :value="item.value"
                                         :label="item.label"
@@ -100,29 +51,64 @@
                                     </el-option>
                                 </el-select>
                             </el-form-item>
-                            <!-- 警戒区域 -->
-                            <el-form-item :label="Translate('IDCS_WARN_AREA')">
-                                <el-radio-group
-                                    v-model="pageData.warnArea"
-                                    class="area_radio_group"
-                                    @change="warnAreaChange"
+                            <!-- 场景变更 -->
+                            <el-form-item :label="Translate('IDCS_SCENE_CHANGE')">
+                                <el-select
+                                    v-model="abnormalDisposeData.sceneChangeSwitch"
+                                    :disabled="abnormalDisposeData.sceneChangeSwitch === ''"
+                                    placeholder=""
                                 >
-                                    <el-radio-button
-                                        v-for="index in objectLeftData.areaMaxCount"
-                                        :key="index - 1"
-                                        :label="index"
-                                        :value="index - 1"
-                                        :class="{ configured_area: pageData.configuredArea[index - 1] }"
-                                    />
-                                </el-radio-group>
+                                    <el-option
+                                        v-for="item in pageData.enableList"
+                                        :key="item.value"
+                                        :value="item.value"
+                                        :label="item.label"
+                                    >
+                                    </el-option>
+                                </el-select>
                             </el-form-item>
-                            <!-- 区域名称 -->
-                            <el-form-item :label="Translate('IDCS_AREA_NAME')">
-                                <el-input
-                                    v-model="pageData.areaName"
-                                    @input="areaNameInput"
-                                    @keyup.enter="enterBlur($event)"
-                                ></el-input>
+                            <!-- 视频模糊 -->
+                            <el-form-item :label="Translate('IDCS_VIDEO_BLUR')">
+                                <el-select
+                                    v-model="abnormalDisposeData.clarityAbnormalSwitch"
+                                    :disabled="abnormalDisposeData.clarityAbnormalSwitch === ''"
+                                    placeholder=""
+                                >
+                                    <el-option
+                                        v-for="item in pageData.enableList"
+                                        :key="item.value"
+                                        :value="item.value"
+                                        :label="item.label"
+                                    >
+                                    </el-option>
+                                </el-select>
+                            </el-form-item>
+                            <!-- 视频偏色 -->
+                            <el-form-item :label="Translate('IDCS_VIDEO_COLOR')">
+                                <el-select
+                                    v-model="abnormalDisposeData.colorAbnormalSwitch"
+                                    :disabled="abnormalDisposeData.colorAbnormalSwitch === ''"
+                                    placeholder=""
+                                >
+                                    <el-option
+                                        v-for="item in pageData.enableList"
+                                        :key="item.value"
+                                        :value="item.value"
+                                        :label="item.label"
+                                    >
+                                    </el-option>
+                                </el-select>
+                            </el-form-item>
+                            <!-- 灵敏度 -->
+                            <el-form-item :label="Translate('IDCS_SENSITIVITY')">
+                                <el-slider
+                                    v-model="abnormalDisposeData.sensitivity"
+                                    :show-tooltip="false"
+                                    :min="1"
+                                    :max="100"
+                                    :style="{ width: '175px' }"
+                                />
+                                <span class="sensitivity_span">{{ abnormalDisposeData.sensitivity }}</span>
                             </el-form-item>
                         </el-form>
                     </div>
@@ -143,7 +129,7 @@
                             v-show="supportAlarmAudioConfig"
                             :label="Translate('IDCS_VOICE_PROMPT')"
                         >
-                            <el-select v-model="objectLeftData.sysAudio">
+                            <el-select v-model="abnormalDisposeData.sysAudio">
                                 <el-option
                                     v-for="item in pageData.voiceList"
                                     :key="item.value"
@@ -189,7 +175,7 @@
                             >
                         </div>
                         <el-table
-                            :data="objectLeftData.record"
+                            :data="abnormalDisposeData.record"
                             :show-header="false"
                         >
                             <el-table-column prop="label" />
@@ -206,7 +192,7 @@
                             >
                         </div>
                         <el-table
-                            :data="objectLeftData.alarmOut"
+                            :data="abnormalDisposeData.alarmOut"
                             :show-header="false"
                         >
                             <el-table-column prop="label" />
@@ -262,29 +248,19 @@
         <div class="page_bottom">
             <el-button
                 :disabled="pageData.applyDisabled"
-                @click="applyObjectLeftData"
+                @click="applyAbnormalDisposeData"
                 >{{ Translate('IDCS_APPLY') }}</el-button
             >
         </div>
         <BaseNotification v-model:notifications="pageData.notification" />
     </div>
-    <BaseNotification v-model:notifications="pageData.notification" />
-    <!-- 排程管理弹窗 -->
-    <ScheduleManagPop
-        v-model="pageData.scheduleManagPopOpen"
-        @close="
-            () => {
-                pageData.scheduleManagPopOpen = false
-            }
-        "
-    />
     <BaseTransferDialog
         v-model="pageData.recordIsShow"
         header-title="IDCS_TRIGGER_CHANNEL_RECORD"
         source-title="IDCS_CHANNEL"
         target-title="IDCS_CHANNEL_TRGGER"
         :source-data="pageData.recordList"
-        :linked-list="objectLeftData.record?.map((item) => item.value) || []"
+        :linked-list="abnormalDisposeData.record?.map((item) => item.value) || []"
         type="record"
         @confirm="recordConfirm"
         @close="recordClose"
@@ -296,7 +272,7 @@
         source-title="IDCS_ALARM_OUT"
         target-title="IDCS_TRIGGER_ALARM_OUT"
         :source-data="pageData.alarmOutList"
-        :linked-list="objectLeftData.alarmOut?.map((item) => item.value) || []"
+        :linked-list="abnormalDisposeData.alarmOut?.map((item) => item.value) || []"
         type="alarmOut"
         @confirm="alarmOutConfirm"
         @close="alarmOutClose"
@@ -304,10 +280,10 @@
     </BaseTransferDialog>
 </template>
 
-<script lang="ts" src="./ObjectLeft.v.ts"></script>
+<script lang="ts" src="./AbnormalDispose.v.ts"></script>
 
 <style lang="scss" scoped>
-.obj_left_detection {
+.abnormal_dispose_detection {
     height: calc(100vh - 360px);
     position: relative;
     .menu_tab {
@@ -421,6 +397,13 @@
                         color: #00bbdb;
                     }
                 }
+            }
+            .sensitivity_span {
+                width: 30px;
+                height: 20px;
+                line-height: 20px;
+                text-align: center;
+                border: 1px solid var(--border-color4);
             }
         }
     }
