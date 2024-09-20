@@ -281,7 +281,7 @@
                 align-items: center;
                 width: 100%;
                 background-color: #fff;
-                height: 568px;
+                height: 567px;
                 z-index: 2;
                 font-size: 20px;
             }

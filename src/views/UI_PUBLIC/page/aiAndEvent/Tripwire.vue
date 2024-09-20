@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 11:11:35
  * @Description:  越界
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-19 14:20:46
+ * @LastEditTime: 2024-09-20 11:29:31
 -->
 
 <template>
@@ -838,12 +838,16 @@
     align-items: center;
     width: 100%;
     background-color: #fff;
-    height: 568px;
+    height: 567px;
     z-index: 2;
     font-size: 20px;
 }
 .tripwire_setting_pane {
     position: relative;
+    :deep(#n9web .el-form .el-input-number.is-without-controls .el-input__wrapper) {
+        padding-left: 9px;
+        padding-right: 9px;
+    }
     .checkbox_text {
         margin-left: 5px;
         width: 100px;

@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-08-10 16:25:58
  * @Description: AI/事件
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-20 09:24:35
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-09-20 15:31:35
  */
 
 import { type AxiosRequestConfig } from 'axios'
@@ -221,6 +221,12 @@ export const queryOsc = (data: string) => http.fetch('queryOsc', getXmlWrapData(
 
 // 修改物品遗留与看护数据
 export const editOsc = (data: string) => http.fetch('editOsc', getXmlWrapData(data))
+
+// 获取人群密度检测数据
+export const queryCdd = (data: string) => http.fetch('queryCdd', getXmlWrapData(data))
+
+// 修改人群密度检测数据
+export const editCdd = (data: string) => http.fetch('editCdd', getXmlWrapData(data))
 
 // 获取异常侦测数据
 export const queryAvd = (data: string) => http.fetch('queryAvd', getXmlWrapData(data))

@@ -3,7 +3,7 @@
  * @Date: 2024-09-12 15:00:13
  * @Description: 过线检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-19 10:53:10
+ * @LastEditTime: 2024-09-20 10:39:41
 -->
 <template>
     <div class="tripwire_setting_pane">
@@ -856,8 +856,22 @@
         margin-left: 0px;
     }
 }
+.notSupportBox {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    background-color: #fff;
+    height: 567px;
+    z-index: 2;
+    font-size: 20px;
+}
 .tripwire_setting_pane {
     position: relative;
+    :deep(#n9web .el-form .el-input-number.is-without-controls .el-input__wrapper) {
+        padding-left: 9px;
+        padding-right: 9px;
+    }
     .checkbox_text {
         margin-left: 5px;
         width: 100px;

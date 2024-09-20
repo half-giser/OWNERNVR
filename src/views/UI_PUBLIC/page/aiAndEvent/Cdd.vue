@@ -1,9 +1,9 @@
 <!--
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @Date: 2024-09-11 14:16:29
- * @Description: 火点检测
+ * @Date: 2024-09-19 17:51:14
+ * @Description: 人群密度检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-20 11:38:36
+ * @LastEditTime: 2024-09-20 14:19:16
 -->
 <template>
     <div class="tripwire_setting_pane">
@@ -36,74 +36,6 @@
             @confirm="alarmOutConfirm"
             @close="alarmOutClose"
         ></BaseTransferDialog>
-        <!-- snap弹窗 -->
-        <BaseTransferDialog
-            v-model="pageData.snapIsShow"
-            :header-title="pageData.snapHeaderTitle"
-            :source-title="pageData.snapSourceTitle"
-            :target-title="pageData.snapTargetTitle"
-            :source-data="pageData.snapSource"
-            :linked-list="pageData.snapList || []"
-            :type="pageData.snapType"
-            @confirm="snapConfirm"
-            @close="snapClose"
-        ></BaseTransferDialog>
-        <el-dialog
-            v-model="pageData.aiResourcePopOpen"
-            :title="Translate('IDCS_DETAIL')"
-            class="aiResourcePop"
-            width="600px"
-            center
-            draggable
-        >
-            <el-table
-                :data="aiResourceTableData"
-                stripe
-                border
-                show-overflow-tooltip
-                height="290px"
-            >
-                <el-table-column
-                    prop="name"
-                    :label="Translate('IDCS_CHANNEL')"
-                    width="138px"
-                ></el-table-column>
-                <el-table-column
-                    prop="eventTypeText"
-                    :label="Translate('IDCS_EVENT_TYPE')"
-                    width="150px"
-                ></el-table-column>
-                <el-table-column
-                    prop="percent"
-                    :label="Translate('IDCS_USAGE_RATE')"
-                    width="100px"
-                ></el-table-column>
-                <el-table-column
-                    prop="decodeResource"
-                    :label="Translate('IDCS_DECODE_RESOURCE')"
-                    width="100px"
-                ></el-table-column>
-                <el-table-column
-                    :label="Translate('IDCS_FREE_AI_RESOURCE')"
-                    width="70px"
-                >
-                    <template #default="scope">
-                        <BaseImgSprite
-                            file="del"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
-                            @click="handleAIResourceDel(scope.row)"
-                        />
-                    </template>
-                </el-table-column>
-            </el-table>
-            <el-row class="base-btn-box">
-                <el-button @click="pageData.aiResourcePopOpen = false">
-                    {{ Translate('IDCS_CLOSE') }}
-                </el-button>
-            </el-row>
-        </el-dialog>
         <div
             v-if="pageData.notSupportTipShow"
             class="notSupportBox"
@@ -124,20 +56,6 @@
                     @change="pageData.applyDisable = false"
                 ></el-checkbox>
                 <span class="checkbox_text">{{ Translate('IDCS_ENABLE') }}</span>
-                <div
-                    v-if="pageData.showAiConfig"
-                    class="aiResource"
-                >
-                    <span>{{ Translate('IDCS_USAGE_RATE') }}</span>
-                    <span>{{ ` : ${pageData.totalResourceOccupancy}% ` }}</span>
-                    <BaseImgSprite
-                        file="detail"
-                        :index="0"
-                        :hover-index="1"
-                        :chunk="4"
-                        @click="pageData.aiResourcePopOpen = true"
-                    />
-                </div>
             </el-row>
             <!-- 只存在一个播放器，因此放于tab区域外 -->
             <div class="left">
@@ -148,6 +66,35 @@
                         type="live"
                         @onready="handlePlayerReady"
                     />
+                </div>
+                <div
+                    v-if="pageData.fuction === 'param'"
+                    class="player_config"
+                >
+                    <el-row>
+                        <el-col :span="16">
+                            <div
+                                v-if="pageData.showDrawAvailable"
+                                class="showAllArea"
+                            >
+                                <el-checkbox
+                                    v-model="pageData.isDrawAvailable"
+                                    @change="handleDrawAvailableChange"
+                                ></el-checkbox>
+                                <span class="checkbox_text">{{ Translate('IDCS_DRAW_WARN_SURFACE') }}</span>
+                            </div>
+                        </el-col>
+                        <el-col :span="8">
+                            <div class="clear_btns">
+                                <el-button
+                                    size="small"
+                                    @click="clearArea"
+                                    >{{ Translate('IDCS_CLEAR') }}</el-button
+                                >
+                            </div>
+                        </el-col>
+                    </el-row>
+                    <span id="draw_tip">{{ Translate('IDCS_DRAW_RECT_TIP') }}</span>
                 </div>
             </div>
             <!-- 两种功能 -->
@@ -227,6 +174,46 @@
                                         :value="item.value"
                                     ></el-option>
                                 </el-select>
+                            </el-form-item>
+                            <!-- 刷新频率 -->
+                            <el-form-item
+                                :label="Translate('IDCS_REFRESH_FREQUENCY')"
+                                :style="{
+                                    '--form-input-width': '215px',
+                                }"
+                            >
+                                <el-select
+                                    v-model="pageData.refreshFrequency"
+                                    value-key="value"
+                                    size="small"
+                                    :options="pageData.refreshFrequencyList"
+                                    @change="pageData.applyDisable = false"
+                                >
+                                    <el-option
+                                        v-for="item in pageData.refreshFrequencyList"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value"
+                                    ></el-option>
+                                </el-select>
+                            </el-form-item>
+                            <!-- 报警阈值 -->
+                            <el-form-item
+                                :label="Translate('IDCS_ALARM_THRESHOLD')"
+                                :style="{
+                                    '--form-input-width': '275px',
+                                }"
+                            >
+                                <el-slider
+                                    v-model="pageData.triggerAlarmLevel"
+                                    size="small"
+                                    :show-input-controls="false"
+                                    show-input
+                                    :style="{
+                                        marginLeft: '10px',
+                                    }"
+                                    @change="pageData.applyDisable = false"
+                                />
                             </el-form-item>
                         </el-form>
                     </div>
@@ -354,33 +341,6 @@
                                 </el-table>
                             </div>
 
-                            <!-- snap -->
-                            <div class="trigger_snap">
-                                <div class="title">
-                                    <el-row>
-                                        <span class="table_cell_span">{{ Translate('IDCS_SNAP') }}</span>
-                                        <el-button
-                                            class="form_btn"
-                                            size="small"
-                                            @click="pageData.snapIsShow = true"
-                                            >{{ Translate('IDCS_CONFIG') }}
-                                        </el-button>
-                                    </el-row>
-                                </div>
-                                <el-table
-                                    :show-header="false"
-                                    height="358px"
-                                    :data="pageData.snap.chls"
-                                    empty-text=" "
-                                >
-                                    <el-table-column>
-                                        <template #default="scope">
-                                            <span>{{ scope.row.label }}</span>
-                                        </template>
-                                    </el-table-column>
-                                </el-table>
-                            </div>
-
                             <!-- preset -->
                             <div class="trigger_preset">
                                 <div class="title">
@@ -433,7 +393,7 @@
     </div>
 </template>
 
-<script lang="ts" src="./fireDetection.v.ts"></script>
+<script lang="ts" src="./Cdd.v.ts"></script>
 
 <style lang="scss" scoped>
 .el-divider--vertical {
@@ -567,11 +527,15 @@
     width: 100%;
     background-color: #fff;
     height: 567px;
-    z-index: 2;
+    z-index: 3;
     font-size: 20px;
 }
 .tripwire_setting_pane {
     position: relative;
+    :deep(#n9web .el-form .el-input-number.is-without-controls .el-input__wrapper) {
+        padding-left: 9px;
+        padding-right: 9px;
+    }
     .checkbox_text {
         margin-left: 5px;
         width: 100px;
@@ -713,7 +677,7 @@
                     display: flex;
                     justify-content: center;
                     align-items: flex-end;
-                    margin-left: 68px;
+                    margin-left: 318px;
                 }
             }
         }
