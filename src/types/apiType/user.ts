@@ -3,7 +3,7 @@
  * @Date: 2024-05-24 17:12:55
  * @Description:
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-18 08:58:42
+ * @LastEditTime: 2024-09-20 17:59:18
  */
 
 /**
@@ -22,6 +22,14 @@ export class LoginReqData {
     userName = ''
     password = ''
     passwordMd5 = ''
+}
+
+/**
+ * @description 授权码登录表单数据
+ */
+export class AuthCodeLoginForm {
+    sn = ''
+    code = ''
 }
 
 /**
