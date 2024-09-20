@@ -3,7 +3,7 @@
  * @Date: 2024-04-23 16:32:45
  * @Description: 用户会话信息
  */
-import { type XmlResult } from '@/utils/xmlParse'
+import { type XMLQuery } from '@/utils/xmlParse'
 import { type LoginForm, type LoginReqData } from '@/types/apiType/user'
 
 export const useUserSessionStore = defineStore(
@@ -28,26 +28,23 @@ export const useUserSessionStore = defineStore(
         const defaultPwd = ref(false)
         const loginCheck = ref('')
         const isChangedPwd = ref(false)
-        const ignoreAIJudge = ref('')
-        const backChlId = ref('')
         const pwdSaftyStrength = ref(0)
         const pwdExpired = ref(false)
         const calendarType = ref('')
         const authEffective = ref(false)
         const authMask = ref(0)
         const csvDeviceName = ref('')
-        const showPluginNoResponse = ref('')
         const sn = ref('')
         const advanceRecModeId = ref('')
         const defaultStreamType = ref('')
 
         const p2pSessionId = ref<null | string>(null)
         const authCodeIndex = ref('')
+        const refreshLoginPage = ref(false)
 
         /**
-         * 加密本地存储用户信息
+         * @description 加密本地存储用户信息
          * @param authInfo
-         * @returns
          */
         const setAuthInfo = (authInfo: string) => {
             if (!unmask.value) return
@@ -60,6 +57,10 @@ export const useUserSessionStore = defineStore(
             auInfo_N9K.value = base64Encode(userInfoMasked)
         }
 
+        /**
+         * @description 获取AuthInfo
+         * @returns {string[]}
+         */
         const getAuthInfo = () => {
             if (!auInfo_N9K.value) return null
             if (!unmask.value) return null
@@ -74,8 +75,11 @@ export const useUserSessionStore = defineStore(
             return userInfoArr.join('').split(':')
         }
 
-        // 初始化权限
-        const initSystemAuth = ($: (path: string) => XmlResult) => {
+        /**
+         * @description 初始化权限
+         * @param {XMLQuery} $
+         */
+        const initSystemAuth = ($: XMLQuery) => {
             authMask.value = 0
             SYSTEM_AUTH_LIST.forEach((element, index) => {
                 if ($(`content/systemAuth/${element}`).text().toBoolean()) {
@@ -86,7 +90,7 @@ export const useUserSessionStore = defineStore(
         }
 
         /**
-         * 判断是否有某个权限（可选值见顶部systemAuthList）
+         * @description 判断是否有某个权限（可选值见顶部systemAuthList）
          * @param {strng} authName
          * @returns {boolean}
          */
@@ -99,7 +103,7 @@ export const useUserSessionStore = defineStore(
         }
 
         /**
-         * reqLogin更新用户会话信息
+         * @description reqLogin更新用户会话信息
          * @param loginResult
          */
         const updataByReqLogin = (loginResult: XMLDocument | Element) => {
@@ -116,7 +120,7 @@ export const useUserSessionStore = defineStore(
         }
 
         /**
-         * doLogin后更新用户会话信息
+         * @description doLogin后更新用户会话信息
          * @param loginResult
          * @param loginReqData
          * @param loginFormData
@@ -153,8 +157,6 @@ export const useUserSessionStore = defineStore(
 
                 loginCheck.value = 'check'
                 isChangedPwd.value = false
-                ignoreAIJudge.value = ''
-                backChlId.value = ''
                 pwdSaftyStrength.value = getPwdSaftyStrength(loginFormData!.password)
                 pwdExpired.value = $('content/passwordExpired').text() === 'true'
             }
@@ -184,6 +186,38 @@ export const useUserSessionStore = defineStore(
             await dateTime.getTimeConfig(true)
         }
 
+        /**
+         * @description P2P登录情况下，从SessionStorage中获取auInfo_N9K、unmask、sn等信息
+         */
+        const getP2PSessionInfo = () => {
+            auInfo_N9K.value = sessionStorage.getItem('auInfo_N9K') || ''
+            unmask.value = Number(sessionStorage.getItem('unmask'))
+            sn.value = sessionStorage.getItem('sn') || ''
+        }
+
+        /**
+         * @description 用户登出时，清理Session
+         */
+        const clearSession = () => {
+            auInfo_N9K.value = ''
+            unmask.value = 0
+            authGroupId.value = ''
+            authMask.value = 0
+            userId.value = ''
+            authEffective.value = false
+            sessionId.value = ''
+            token.value = ''
+            defaultPwd.value = false
+            isChangedPwd.value = false
+            pwdSaftyStrength.value = 0
+            pwdExpired.value = false
+            refreshLoginPage.value = false
+            p2pSessionId.value = null
+            sessionStorage.removeItem('auInfo_N9K')
+            sessionStorage.removeItem('unmask')
+            sessionStorage.removeItem('sn')
+        }
+
         return {
             sessionId,
             token,
@@ -201,13 +235,10 @@ export const useUserSessionStore = defineStore(
             defaultPwd,
             loginCheck,
             isChangedPwd,
-            ignoreAIJudge,
-            backChlId,
             pwdSaftyStrength,
             pwdExpired,
             calendarType,
             csvDeviceName,
-            showPluginNoResponse,
             hasAuth,
             getAuthInfo,
             updataByReqLogin,
@@ -218,6 +249,9 @@ export const useUserSessionStore = defineStore(
             defaultStreamType,
             p2pSessionId,
             authCodeIndex,
+            getP2PSessionInfo,
+            clearSession,
+            refreshLoginPage,
         }
     },
     {

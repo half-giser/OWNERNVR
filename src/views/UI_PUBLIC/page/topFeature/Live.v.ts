@@ -3,13 +3,12 @@
  * @Date: 2024-07-29 18:07:29
  * @Description: 现场预览
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-10 18:24:41
+ * @LastEditTime: 2024-09-20 15:54:07
  */
 import { cloneDeep } from 'lodash-es'
 import { type LiveChannelList, type LiveCustomViewChlList, LiveSharedWinData } from '@/types/apiType/live'
 import { type TVTPlayerWinDataListItem, type TVTPlayerPosInfoItem } from '@/utils/wasmPlayer/tvtPlayer'
 import WebsocketState from '@/utils/websocket/websocketState'
-import { APP_TYPE } from '@/utils/constants'
 import { type XMLQuery } from '@/utils/xmlParse'
 import LiveChannelPanel, { type ChannelPanelExpose } from '../live/LiveChannelPanel.vue'
 import LiveScreenPanel from '../live/LiveScreenPanel.vue'
@@ -462,7 +461,7 @@ export default defineComponent({
             if (mode.value === 'h5') {
                 return true
             }
-            if (mode.value === 'ocx' && APP_TYPE === 'STANDARD') {
+            if (mode.value === 'ocx' && import.meta.env.VITE_APP_TYPE === 'STANDARD') {
                 return true
             }
             return false
@@ -470,7 +469,7 @@ export default defineComponent({
 
         // 鱼眼视图是否显示
         const isFishEyePanel = computed(() => {
-            return mode.value === 'ocx' && APP_TYPE === 'STANDARD'
+            return mode.value === 'ocx' && import.meta.env.VITE_APP_TYPE === 'STANDARD'
         })
 
         let player: PlayerInstance['player']
@@ -502,7 +501,7 @@ export default defineComponent({
                     plugin.ShowPluginNoResponse()
                 }
 
-                if (APP_TYPE === 'STANDARD' && isHttpsLogin()) {
+                if (import.meta.env.VITE_APP_TYPE === 'STANDARD' && isHttpsLogin()) {
                     // 本地https访问时，提示不支持目标检测（依赖websocket与设备端的通信，仅支持http）
                     pageData.value.notification = [formatHttpsTips(Translate('IDCS_TARGET_DETECTION'))]
                 }

@@ -6,7 +6,6 @@
  * @LastEditTime: 2024-09-03 19:44:03
  */
 import { type TableInstance } from 'element-plus'
-import { APP_TYPE } from '@/utils/constants'
 import { IntelPlateDBGroupList, IntelPlateDBPlateInfo } from '@/types/apiType/intelligentAnalysis'
 import IntelLicencePlateDBEditPop from './IntelLicencePlateDBEditPop.vue'
 import IntelLicencePlateDBExportPop from './IntelLicencePlateDBExportPop.vue'
@@ -37,7 +36,7 @@ export default defineComponent({
             // 展开的行
             tableIndex: 0,
             // 导出按钮不显示
-            isExportDisabled: APP_TYPE === 'P2P' || isHttpsLogin(),
+            isExportDisabled: import.meta.env.VITE_APP_TYPE === 'P2P' || isHttpsLogin(),
             // 是否显示编辑车牌弹窗
             isEditPlatePop: false,
             // 编辑车牌的数据

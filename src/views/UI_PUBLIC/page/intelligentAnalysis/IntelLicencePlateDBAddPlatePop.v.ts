@@ -8,7 +8,6 @@
 import { IntelPlateDBAddPlateForm, IntelPlateDBPlateInfo } from '@/types/apiType/intelligentAnalysis'
 import IntelLicenceDBEditPop from './IntelLicencePlateDBEditPop.vue'
 import { type FormInstance, type FormRules } from 'element-plus'
-import { APP_TYPE } from '@/utils/constants'
 import { type XMLQuery } from '@/utils/tools'
 import WebsocketImportPlate from '@/utils/websocket/websocketImportplate'
 
@@ -72,7 +71,7 @@ export default defineComponent({
             tab: 'form',
             csvTitle: ['(B1)' + Translate('IDCS_LICENSE_PLATE_NUM'), '(B2)' + Translate('IDCS_VEHICLE_OWNER'), '(B3)' + Translate('IDCS_PHONE_NUMBER'), '(N1)' + Translate('IDCS_VEHICLE_TYPE')],
             // 是否禁用Tab
-            disabledTab: APP_TYPE === 'P2P' || isHttpsLogin(),
+            disabledTab: import.meta.env.VITE_APP_TYPE === 'P2P' || isHttpsLogin(),
             // 导入框是否drag状态
             isDrag: false,
             // 导入的文件名

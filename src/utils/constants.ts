@@ -312,6 +312,11 @@ export const LANG_MAPPING: Record<string, string> = {
     nb: '0x0414',
 }
 
+export const LANG_TYPE_MAPPING: Record<string, string> = {}
+Object.entries(LANG_MAPPING).forEach((item) => {
+    LANG_TYPE_MAPPING[item[1]] = item[0]
+})
+
 /**
  * @description 语言id映射与ElementPlus语言包映射
  */
@@ -376,19 +381,6 @@ export const BrowserType = {
     safari: 'safari',
     unknow: 'unknow',
 }
-
-// export const ElTagTypeC = {
-//     success: 'success' as ElTagType,
-//     warning: 'warning' as ElTagType,
-//     info: 'info' as ElTagType,
-//     danger: 'danger' as ElTagType,
-// }
-
-// export const BaseSelectPopDataTypeC = {
-//     MediaServer: 'MediaServer',
-//     StorageServer: 'StorageServer',
-//     JoinServer: 'JoinServer',
-// }
 
 export const DefaultPagerSizeOptions = [10, 20, 30]
 
