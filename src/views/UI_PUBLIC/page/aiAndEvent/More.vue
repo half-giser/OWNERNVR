@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-10 17:50:24
  * @Description: 更多功能页面的框架
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-19 11:01:41
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-09-20 09:26:38
 -->
 <template>
     <div class="content">
@@ -208,7 +208,6 @@
 
                 <!-- avd -->
                 <el-tab-pane
-                    :label="Translate('IDCS_ABNORMAL_DISPOSE_WAY')"
                     :disabled="pageData.avdDisable"
                     name="avd"
                     class="tripwire_setting_pane"
@@ -226,6 +225,14 @@
                             }"
                             >{{ Translate('IDCS_ABNORMAL_DISPOSE_WAY') }}</span
                         >
+                    </template>
+                    <template #default>
+                        <AbnormalDispose
+                            v-if="pageData.chosenFunction === 'avd'"
+                            :curr-chl-id="pageData.currChlId"
+                            :chl-data="pageData.chlData"
+                            :voice-list="pageData.voiceList"
+                        ></AbnormalDispose>
                     </template>
                 </el-tab-pane>
 

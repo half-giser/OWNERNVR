@@ -3,13 +3,14 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-18 09:43:49
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-18 16:50:17
+ * @LastEditTime: 2024-09-20 09:26:53
  */
 import { cloneDeep } from 'lodash'
 import { type BoundaryItem, ObjectLeft, type PresetList, type chlCaps } from '@/types/apiType/aiAndEvent'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import { type TabPaneName, type CheckboxValueType } from 'element-plus'
 import CanvasPolygon from '@/utils/canvas/canvasPolygon'
+import { type XmlResult } from '@/utils/xmlParse'
 
 export default defineComponent({
     components: {
@@ -38,6 +39,7 @@ export default defineComponent({
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const pluginStore = usePluginStore()
         const systemCaps = useCababilityStore()
+        const Plugin = inject('Plugin') as PluginType
         const osType = getSystemInfo().platform
         // 系统配置
         const supportAlarmAudioConfig = systemCaps.supportAlarmAudioConfig
@@ -201,7 +203,7 @@ export default defineComponent({
         })
         let player: PlayerInstance['player']
         let plugin: PlayerInstance['plugin']
-        // 车牌侦测绘制的Canvas
+        // 物品遗留与看护绘制的Canvas
         let objDrawer: CanvasPolygon
         /**
          * @description 播放器就绪时回调
@@ -304,13 +306,13 @@ export default defineComponent({
             }
             // 设置视频区域可编辑
             // 界面内切换tab，调用play时初始化区域
+            setTimeout(() => {
+                setAreaView()
+            }, 0)
             if (mode.value === 'h5') {
-                setTimeout(() => {
-                    setAreaView()
-                }, 0)
                 objDrawer.setEnable(true)
             } else {
-                const sendXML = OCX_XML_SetVfdAreaAction('EDIT_ON')
+                const sendXML = OCX_XML_SetOscAreaAction('EDIT_ON')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
         }
@@ -417,14 +419,6 @@ export default defineComponent({
             })
         }
         const handleObjectLeftData = () => {
-            refreshInitPage()
-            if (mode.value === 'h5') {
-                setAreaView()
-                objDrawer.setEnable(true)
-            } else {
-                const sendXML = OCX_XML_SetVfdAreaAction('EDIT_ON')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-            }
             pageData.value.areaName = objectLeftData.value.boundary[pageData.value.warnArea].areaName
             if (objectLeftData.value.msgPushSwitch) normalParamCheckList.value.push('msgPushSwitch')
             if (objectLeftData.value.buzzerSwitch) normalParamCheckList.value.push('buzzerSwitch')
@@ -434,6 +428,10 @@ export default defineComponent({
             if (normalParamCheckList.value.length == normalParamList.value.length) {
                 normalParamCheckAll.value = true
             }
+            // 初始化样式
+            refreshInitPage()
+            // 绘制
+            setAreaView()
         }
         // 检测和屏蔽区域的样式初始化
         const refreshInitPage = () => {
@@ -521,7 +519,7 @@ export default defineComponent({
                     objDrawer.setCurrAreaIndex(pageData.value.warnArea, 'detectionArea')
                     objDrawer.setPointList(objectLeftData.value.boundary[pageData.value.warnArea].points, true)
                 } else {
-                    const sendXML = OCX_XML_SetOscArea(objectLeftData.value.boundary[pageData.value.warnArea].points, false)
+                    const sendXML = OCX_XML_SetOscArea(objectLeftData.value.boundary[pageData.value.warnArea].points, objectLeftData.value.regulation)
                     plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 }
             }
@@ -806,7 +804,7 @@ export default defineComponent({
                 openMessageTipBox({
                     type: 'info',
                     title: Translate('IDCS_INFO_TIP'),
-                    message: Translate('IDCS_SIMPLE_FACE_DETECT_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + prop.chlData.name, switchChangeType),
+                    message: Translate('IDCS_SIMPLE_WATCH_DETECT_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + prop.chlData.name, switchChangeType),
                 }).then(() => {
                     setObjectLeftData()
                 })
@@ -822,7 +820,38 @@ export default defineComponent({
                 stopWatchFirstPlay()
             }
         })
+
+        const LiveNotify2Js = ($: (path: string) => XmlResult) => {
+            // 物品看护改变
+            // const $xmlNote = $("statenotify[type='OscArea']")
+            const $points = $("statenotify[type='OscArea']/points")
+            const errorCode = $("statenotify[type='OscArea']/errorCode").text()
+            // 绘制点线
+            if ($points.length > 0) {
+                const points = [] as { X: number; Y: number }[]
+                $('statenotify/points/item').forEach((item) => {
+                    points.push({ X: Number(item.attr('X')), Y: Number(item.attr('Y')) })
+                })
+                objectLeftData.value.boundary[pageData.value.warnArea].points = points as { X: number; Y: number; isClosed: boolean }[]
+            }
+            // 处理错误码
+            if (errorCode == '517') {
+                // 517-区域已闭合
+                clearCurrentArea()
+            } else if (errorCode == '515') {
+                // 515-区域有相交直线，不可闭合
+                openMessageTipBox({
+                    type: 'info',
+                    title: Translate('IDCS_INFO_TIP'),
+                    message: Translate('IDCS_INTERSECT'),
+                    showCancelButton: false,
+                })
+            }
+        }
         onMounted(async () => {
+            if (mode.value != 'h5') {
+                Plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
+            }
             await getScheduleData()
             await getRecordList()
             await getAlarmOutData()
@@ -832,13 +861,16 @@ export default defineComponent({
 
         onBeforeUnmount(() => {
             if (plugin?.IsPluginAvailable() && mode.value === 'ocx' && ready.value) {
+                Plugin.VideoPluginNotifyEmitter.removeListener(LiveNotify2Js)
                 // 切到其他AI事件页面时清除一下插件显示的（线条/点/矩形/多边形）数据
                 const sendMinXML = OCX_XML_SetOscAreaAction('NONE')
                 plugin.GetVideoPlugin().ExecuteCmd(sendMinXML)
                 const sendXML = OCX_XML_StopPreview('ALL')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
-            objDrawer.destroy()
+            if (mode.value == 'h5') {
+                objDrawer.destroy()
+            }
         })
 
         watch(
@@ -884,7 +916,7 @@ export default defineComponent({
             alarmOutConfirm,
             alarmOutClose,
             presetChange,
-            // 提交温度检测数据
+            // 提交物品遗留与看护数据
             applyObjectLeftData,
         }
     },

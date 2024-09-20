@@ -1749,7 +1749,9 @@ export default defineComponent({
                 const sendXML = OCX_XML_StopPreview('ALL')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
-            vfdDrawer.destroy()
+            if (mode.value == 'h5') {
+                vfdDrawer.destroy()
+            }
         })
 
         watch(
