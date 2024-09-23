@@ -7,12 +7,12 @@
  */
 
 import { type RouteLocationMatched } from 'vue-router'
-import BaseChangePwdPop from '../../components/BaseChangePwdPop.vue'
+import ChangePasswordPop from '../ChangePasswordPop.vue'
 import { getMenu1 } from '@/router'
 
 export default defineComponent({
     components: {
-        BaseChangePwdPop,
+        ChangePasswordPop,
     },
     setup() {
         const route = useRoute()
@@ -302,7 +302,7 @@ export default defineComponent({
             closeChangePwdPop,
             showChangePwdPop,
             handleDownloadPlugin,
-            BaseChangePwdPop,
+            ChangePasswordPop,
         }
     },
 })

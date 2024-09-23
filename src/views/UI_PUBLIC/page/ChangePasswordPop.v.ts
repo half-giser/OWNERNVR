@@ -3,14 +3,23 @@ import { type FormInstance, type FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
+        /**
+         * @property 弹窗标题
+         */
         title: {
             type: String,
             required: true,
         },
+        /**
+         * @property 是否强制修改密码，若是，则修改密码才能关闭弹窗
+         */
         forced: {
             type: Boolean,
             default: false,
         },
+        /**
+         * @property 密码强度要求
+         */
         passwordStrength: {
             type: String,
             required: true,
@@ -81,6 +90,9 @@ export default defineComponent({
             ],
         })
 
+        /**
+         * @description 获取密码强度提示文本
+         */
         const getNoticeMsg = () => {
             switch (prop.passwordStrength) {
                 case 'medium':
@@ -97,6 +109,9 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 验证表单
+         */
         const verify = () => {
             formRef.value!.validate(async (valid: boolean) => {
                 if (valid) {
@@ -105,6 +120,9 @@ export default defineComponent({
             })
         }
 
+        /**
+         * @description 更新密码
+         */
         const doUpdateUserPassword = async () => {
             const oldPassword = AES_encrypt(base64Encode(MD5_encrypt(formData.value.currentPassword)), userSession.sesionKey)
             const password = AES_encrypt(base64Encode(MD5_encrypt(formData.value.newPassword)), userSession.sesionKey)
@@ -159,15 +177,25 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 弹窗关闭前检测是否能关闭弹窗
+         * @param {Function} done
+         */
         const handleBeforeClose = (done: (cancel?: boolean) => void) => {
             done(prop.forced)
         }
 
+        /**
+         * @description 打开弹窗时重置表单
+         */
         const opened = () => {
             formData.value = new ChangePasswordForm()
             formRef.value?.clearValidate()
         }
 
+        /**
+         * @description 关闭弹窗
+         */
         const close = () => {
             if (prop.forced) {
                 openMessageTipBox({

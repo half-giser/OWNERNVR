@@ -3,7 +3,7 @@
  * @Date: 2024-06-21 18:15:30
  * @Description: 系统
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-19 14:31:24
+ * @LastEditTime: 2024-09-20 17:40:42
  */
 
 /**
@@ -404,4 +404,14 @@ export class SystemLocalConfig {
     liveSnapSavePath = ''
     recSavePath = ''
     recBackUpPath = ''
+}
+
+/**
+ * @description POE电源管理列表
+ */
+export class SystemPoeList {
+    id = ''
+    poeName = ''
+    switch = ''
+    power = ''
 }

@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 顶层布局页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-19 15:29:05
+ * @LastEditTime: 2024-09-20 18:02:18
 -->
 <template>
     <el-container id="layoutMain">
@@ -130,7 +130,7 @@
             id="divCopyRight"
             v-text="Translate('IDCS_COPYRIGHT')"
         ></div>
-        <BaseChangePwdPop
+        <ChangePasswordPop
             v-model="pageData.isPasswordDialogVisible"
             :forced="pageData.mustBeModifiedPassword"
             :title="pageData.passwordDialogTitle"

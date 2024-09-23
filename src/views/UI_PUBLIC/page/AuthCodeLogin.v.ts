@@ -3,9 +3,10 @@
  * @Date: 2024-09-20 09:10:22
  * @Description: P2P授权码登录
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-20 16:47:54
+ * @LastEditTime: 2024-09-20 17:59:53
  */
 import type { FormInstance, FormRules } from 'element-plus'
+import { AuthCodeLoginForm } from '@/types/apiType/user'
 
 export default defineComponent({
     setup() {
@@ -54,10 +55,7 @@ export default defineComponent({
 
         const formRef = ref<FormInstance>()
 
-        const formData = ref({
-            sn: userSession.sn,
-            code: '',
-        })
+        const formData = ref(new AuthCodeLoginForm())
 
         const rules = ref<FormRules>({
             sn: [
