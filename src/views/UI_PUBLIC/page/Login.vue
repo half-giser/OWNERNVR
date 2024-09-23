@@ -3,13 +3,13 @@
  * @Date: 2023-05-10 09:30:08
  * @Description: 登录页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-28 09:04:16
+ * @LastEditTime: 2024-09-20 10:15:47
 -->
 <template>
     <div class="login">
         <el-select
             v-model="langId"
-            class="langSel"
+            class="login-lang"
         >
             <el-option
                 v-for="(value, key) in langTypes"
@@ -18,7 +18,7 @@
                 :value="key"
             />
         </el-select>
-        <div id="content">
+        <div class="login-content">
             <el-form
                 ref="loginFormRef"
                 label-position="top"
@@ -50,7 +50,7 @@
                     </el-input>
                 </el-form-item>
                 <el-button
-                    class="btnLogin"
+                    class="login-submit"
                     size="large"
                     :disabled="loginBtnDisabled"
                     @click="handleLogin(loginFormRef)"
@@ -60,7 +60,7 @@
                 </el-button>
             </el-form>
             <div
-                id="loginErrorMsg"
+                class="login-error"
                 v-text="loginErrorMessage"
             ></div>
         </div>
@@ -77,7 +77,7 @@
         >
             <div>
                 <textarea
-                    class="privacyContent"
+                    class="login-privacy"
                     :readonly="true"
                     :value="Translate('IDCS_PRIVACY_TEXT')"
                 >
@@ -115,68 +115,68 @@
     justify-content: center;
 }
 
-#content {
+.login-content {
     position: relative;
     width: 693px;
     height: 296px;
     // margin: 280px auto 0px auto;
     background: no-repeat var(--login-content);
 
-    :deep(.el-form) {
-        margin-top: -18px;
-    }
+    #n9web & {
+        :deep(.el-form) {
+            margin-top: -18px;
+        }
 
-    .el-input {
-        width: 253px;
-    }
+        .el-input {
+            width: 253px;
+        }
 
-    :deep(.el-input__wrapper) {
-        box-shadow: none;
-    }
+        :deep(.el-input__wrapper) {
+            box-shadow: none;
+        }
 
-    :deep(.el-form-item) {
-        margin: 19px 0px 0px 430px;
-        font-size: 16px;
-        padding: 18px 0px 0px 0px;
-    }
-    :deep(.el-form-item__error) {
-        margin: 8px 0px 0px 0px;
-    }
+        :deep(.el-form-item) {
+            margin: 19px 0px 0px 430px;
+            font-size: 16px;
+            padding: 18px 0px 0px 0px;
+        }
+        :deep(.el-form-item__error) {
+            margin: 8px 0px 0px 0px;
+        }
 
-    .btnLogin {
-        --el-button-border-color: var(--primary--04);
-        --el-button-bg-color: var(--primary--03);
-        --el-button-text-color: var(--page-bg);
-        --el-button-hover-text-color: var(--page-bg);
-        --el-button-hover-bg-color: var(--primary--02);
-        --el-button-hover-border-color: var(--primary--03);
-        --el-button-active-text-color: var(--page-bg);
-        --el-button-active-border-color: var(--primary--05);
-        --el-button-active-bg-color: var(--primary--04);
+        .login-submit {
+            --el-button-border-color: var(--primary--04);
+            --el-button-bg-color: var(--primary--03);
+            --el-button-text-color: var(--page-bg);
+            --el-button-hover-text-color: var(--page-bg);
+            --el-button-hover-bg-color: var(--primary--02);
+            --el-button-hover-border-color: var(--primary--03);
+            --el-button-active-text-color: var(--page-bg);
+            --el-button-active-border-color: var(--primary--05);
+            --el-button-active-bg-color: var(--primary--04);
 
-        width: 314px;
-        height: 50px;
-        font-size: 18px;
-        margin: 33px 0px 0px 378px;
+            width: 314px;
+            height: 50px;
+            font-size: 18px;
+            margin: 33px 0px 0px 378px;
+        }
     }
 }
 
-.langSel {
+.login-lang {
     position: absolute;
     top: 20px;
     right: 30px;
     width: 180px;
-    // float: right;
-    // margin: 20px 30px;
 }
 
-#loginErrorMsg {
+.login-error {
     position: relative;
     margin: 30px 0px 0px 10px;
     color: var(--error--01);
 }
 
-.privacyContent {
+.login-privacy {
     height: 350px;
     overflow: auto;
     width: 754px;

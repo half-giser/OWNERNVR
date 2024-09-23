@@ -3,7 +3,7 @@
  * @Date: 2023-06-02 11:57:11
  * @Description: 系统API
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-18 18:12:52
+ * @LastEditTime: 2024-09-20 17:55:00
  */
 import type { AxiosRequestConfig } from 'axios'
 import http from './api'
@@ -227,3 +227,16 @@ export const queryDefaultInitData = (data: string) => http.fetch('queryDefaultIn
  * @returns
  */
 export const activateDev = (data: string) => http.fetch('queryDefaultInitData', getXmlWrapData(data), {}, false)
+
+/**
+ * @description 获取Poe电源配置
+ * @returns
+ */
+export const queryPoePower = () => http.fetch('queryPoePower', getXmlWrapData(''), {}, false)
+
+/**
+ * @description 更新Poe电源配置
+ * @param {string} data
+ * @returns
+ */
+export const editPoePower = (data: string) => http.fetch('editPoePower', getXmlWrapData(data), {}, false)

@@ -3,7 +3,7 @@
  * @Date: 2023-05-04 22:08:40
  * @Description: HTTP请求工具类
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:19:10
+ * @LastEditTime: 2024-09-20 15:32:56
  */
 
 /* axios配置入口文件 */
@@ -15,22 +15,20 @@ import dayjs from 'dayjs'
 export const xmlHeader = '<?xml version="1.0" encoding="UTF-8" ?>'
 //公共错误上次处理时间
 let commonErrorLastTime = dayjs().valueOf()
-let userSessionStore: ReturnType<typeof useUserSessionStore>
 let isErrorMessageBox = false
 
 export type ApiResult = Element | XMLDocument
 
 /**
- * @description: 添加xml外层公共包装
+ * @description 添加xml外层公共包装
  * @param {string} data
  * @param {string} url
  * @param {boolean} refresh
- * @return {string}
+ * @returns {string}
  */
 export const getXmlWrapData = (data: string, url = '', refresh = false) => {
-    if (!userSessionStore) {
-        userSessionStore = useUserSessionStore()
-    }
+    const userSessionStore = useUserSessionStore()
+
     let tokenXml = ''
     if (userSessionStore.token) {
         tokenXml = `<token>${userSessionStore.token}</token>`
@@ -54,29 +52,33 @@ export const getXmlWrapData = (data: string, url = '', refresh = false) => {
     }
 }
 
-const handleUserErrorRedirectToLogin = (param: { message: string }) => {
+/**
+ * @description 错误信息处理，返回登录页
+ * @param {string} message
+ */
+const handleUserErrorRedirectToLogin = (message: string) => {
     const { openMessageTipBox } = useMessageBox()
     const layoutStore = useLayoutStore()
     if (!layoutStore.isInitial) {
         isErrorMessageBox = false
-        Logout(true)
+        Logout()
     } else {
         if (!isErrorMessageBox) {
             isErrorMessageBox = true
             openMessageTipBox({
                 type: 'info',
-                message: param.message,
+                message: message,
             }).finally(() => {
                 isErrorMessageBox = false
-                Logout(true)
+                Logout()
             })
         }
     }
 }
 
 /**
- * @description: HTTP请求工具类
- * @return {*}
+ * @description HTTP请求工具类
+ * @returns
  */
 class Request {
     BASE_URL: string
@@ -127,9 +129,9 @@ class Request {
     }
 
     /**
-     * @description: 处理公共错误
+     * @description 处理公共错误
      * @param {errorCode} number
-     * @return {*} true：停止继续处理，一般为流程中断了，比如退出登录，false：需要继续处理
+     * @returns {boolean} true：停止继续处理，一般为流程中断了，比如退出登录，false：需要继续处理
      */
     handelCommonError(errorCode: number) {
         const { Translate } = useLangStore()
@@ -138,30 +140,22 @@ class Request {
         switch (errorCode) {
             case ErrorCode.USER_ERROR_NO_USER:
             case ErrorCode.USER_ERROR_PWD_ERR:
-                handleUserErrorRedirectToLogin({
-                    message: Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR'),
-                })
+                handleUserErrorRedirectToLogin(Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR'))
                 break
             case ErrorCode.USER_ERROR_SERVER_NO_EXISTS:
-                handleUserErrorRedirectToLogin({
-                    message: Translate('IDCS_LOGIN_OVERTIME'),
-                })
+                handleUserErrorRedirectToLogin(Translate('IDCS_LOGIN_OVERTIME'))
                 break
             case ErrorCode.USER_ERROR_USER_LOCKED:
-                handleUserErrorRedirectToLogin({
-                    message: Translate('IDCS_LOGIN_FAIL_USER_LOCKED'),
-                })
+                handleUserErrorRedirectToLogin(Translate('IDCS_LOGIN_FAIL_USER_LOCKED'))
                 break
             case ErrorCode.USER_ERROR_INVALID_PARAM:
-                handleUserErrorRedirectToLogin({
-                    message: Translate('IDCS_USER_ERROR_INVALID_PARAM'),
-                })
+                handleUserErrorRedirectToLogin(Translate('IDCS_USER_ERROR_INVALID_PARAM'))
                 break
             case ErrorCode.USER_ERROR_FAIL:
                 //Session无效相关错误处理，2秒内不重复处理，防止多个API并发调用时，弹出多次会话超时提示
                 if (dayjs().valueOf() - commonErrorLastTime > 2000) {
                     ElMessage.error(Translate('IDCS_LOGIN_OVERTIME'))
-                    Logout(true)
+                    Logout()
                     commonErrorLastTime = dayjs().valueOf()
                 }
                 break
@@ -170,7 +164,7 @@ class Request {
                 //Session无效相关错误处理，2秒内不重复处理，防止多个API并发调用时，弹出多次会话超时提示
                 if (dayjs().valueOf() - commonErrorLastTime > 2000) {
                     ElMessage.error(Translate('IDCS_LOGIN_OVERTIME'))
-                    // Logout(true)
+                    // Logout()
                     commonErrorLastTime = dayjs().valueOf()
                 }
                 break

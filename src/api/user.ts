@@ -31,23 +31,26 @@ export const doLogin = (data: string, config?: AxiosRequestConfig, checkCommonEr
  * @param config
  * @returns
  */
-export const doLogout = (data: string, config?: AxiosRequestConfig) => http.fetch('doLogout', data, config)
+export const doLogout = () => http.fetch('doLogout', getXmlWrapData(''))
 
 /**
  * @description 登出处理
- * @param {boolean} isTotokenInvalid
  * @returns
  */
-export const Logout = (isTotokenInvalid: boolean = false) => {
+export const Logout = async () => {
     const userSession = useUserSessionStore()
+    const pluginStore = usePluginStore()
     if (router.currentRoute.value.name === 'login') return
-    if (!isTotokenInvalid) {
-        doLogout(getXmlWrapData(''))
+
+    if (import.meta.env.VITE_APP_TYPE === 'STANDARD') {
+        await doLogout()
+        userSession.clearSession()
+        pluginStore.showPluginNoResponse = false
+        router.push('/login')
+    } else {
+        userSession.clearSession()
+        window.location.href = '/index.html'
     }
-    userSession.sessionId = ''
-    // sessionStorage.removeItem(LocalCacheKey.sessionId)
-    delCookie(LocalCacheKey.sessionId)
-    router.push('/login')
 }
 
 /**

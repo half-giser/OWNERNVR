@@ -3,10 +3,9 @@
  * @Date: 2024-07-26 16:38:37
  * @Description: 现场预览-右侧视图 Layout
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 14:29:24
+ * @LastEditTime: 2024-09-20 15:53:41
  */
 import { type LiveChannelList, type LiveSharedWinData } from '@/types/apiType/live'
-import { APP_TYPE } from '@/utils/constants'
 
 export default defineComponent({
     props: {
@@ -99,7 +98,7 @@ export default defineComponent({
             if (prop.mode === 'h5') {
                 return [targetDetection, control, lens, ptz]
             } else if (prop.mode === 'ocx') {
-                if (APP_TYPE === 'P2P') {
+                if (import.meta.env.VITE_APP_TYPE === 'P2P') {
                     return [control, lens, ptz, fishEye]
                 } else {
                     return [targetDetection, control, lens, ptz, fishEye]

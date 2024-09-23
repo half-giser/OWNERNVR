@@ -173,12 +173,9 @@ export default defineComponent({
         // 切换语言
         watch(langId, async (newVal) => {
             langStore.updateLangId(newVal)
-            for (const item in LANG_MAPPING) {
-                if (LANG_MAPPING[item].toLowerCase() == newVal) {
-                    // langStore.langType.value
-                    langStore.updateLangType(item)
-                    break
-                }
+            const langType = LANG_TYPE_MAPPING[newVal]
+            if (langType) {
+                langStore.updateLangType(langType)
             }
             await langStore.getLangItems(true)
         })
