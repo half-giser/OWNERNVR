@@ -3,7 +3,7 @@
  * @Date: 2024-09-11 14:16:29
  * @Description: 火点检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-20 11:38:36
+ * @LastEditTime: 2024-09-20 17:41:34
 -->
 <template>
     <div class="tripwire_setting_pane">
@@ -140,7 +140,10 @@
                 </div>
             </el-row>
             <!-- 只存在一个播放器，因此放于tab区域外 -->
-            <div class="left">
+            <div
+                v-show="pageData.fuction !== 'trigger'"
+                class="left"
+            >
                 <div class="player">
                     <BaseVideoPlayer
                         id="player"

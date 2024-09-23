@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 11:11:35
  * @Description:  越界
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-20 11:29:31
+ * @LastEditTime: 2024-09-20 17:36:58
 -->
 
 <template>
@@ -183,7 +183,10 @@
                 </template>
             </el-dropdown>
             <!-- 只存在一个播放器，因此放于tab区域外 -->
-            <div class="left">
+            <div
+                v-show="tripwireData.tripwireFunction !== 'tripwire_trigger'"
+                class="left"
+            >
                 <div class="player">
                     <BaseVideoPlayer
                         id="tripwireplayer"

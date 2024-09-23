@@ -2,8 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-03 11:56:43
  * @Description: 插件命令集合
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-09 20:35:22
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-09-23 10:55:21
  */
 import { APP_SERVER_IP } from '@/utils/constants'
 
@@ -1730,7 +1730,7 @@ export const OCX_XML_SetCpcArea = (points: { X1: number; X2: number; Y1: number;
  * @returns {string}
  */
 export const OCX_XML_SetCpcAreaAction = (action: 'EDIT_ON' | 'EDIT_OFF' | 'NONE') => {
-    return `<cmd type="SetCpcAreaAction">${action}</cmd>`
+    return wrapXml(`<cmd type="SetCpcAreaAction">${action}</cmd>`)
 }
 
 /**
@@ -1739,7 +1739,7 @@ export const OCX_XML_SetCpcAreaAction = (action: 'EDIT_ON' | 'EDIT_OFF' | 'NONE'
  * @returns {string}
  */
 export const OCX_XML_SetPeaAreaAction = (action: 'EDIT_ON' | 'EDIT_OFF' | 'NONE') => {
-    return `<cmd type="SetPeaAreaAction">${action}</cmd>`
+    return wrapXml(`<cmd type="SetPeaAreaAction">${action}</cmd>`)
 }
 
 /**
@@ -1757,7 +1757,7 @@ export const OCX_XML_SetPeaArea = (points: { X: number; Y: number }[], regulatio
             ${lineColor ? `<LineColor>${lineColor}</LineColor>` : ''}
             ${eventType ? `<EventType>${AIEventTypeMap[eventType]}</EventType>` : ''}
             <points>
-                ${points.map((item) => `<item X="${item.X}" Y=${item.Y} />`).join('')}
+                ${points.map((item) => `<item X="${item.X}" Y="${item.Y}" />`).join('')}
             </points>
             ${regulation ? '<type>regulation</type>' : ''}
         </cmd>
@@ -1893,37 +1893,44 @@ export const OCX_XML_SetAllArea = (
     isShowAll?: boolean,
 ) => {
     const cmd = `<cmd type="SetAllArea">
-        <AreaType>${areaType}<AreaType>
-        <EventType>${AIEventTypeMap[eventType]}<EventType>
+        <AreaType>${areaType}</AreaType>
+        <EventType>${AIEventTypeMap[eventType]}</EventType>
         ${isShowAll ? `<IsShowAllArea>${isShowAll}</IsShowAllArea>` : ''}
         ${maxMinXml ?? ''}
     `
 
     if (areaType == 'IrregularPolygon') {
-        const detectAreaInfo = areaInfo.detectAreaInfo?.flat() || []
-        const maskAreaInfo = areaInfo.maskAreaInfo?.flat() || []
+        // const detectAreaInfo = areaInfo.detectAreaInfo?.flat() || []
+        const detectAreaInfo = areaInfo.detectAreaInfo || []
+        // const maskAreaInfo = areaInfo.maskAreaInfo?.flat() || []
+        const maskAreaInfo = areaInfo.maskAreaInfo || []
+        let index = 0
         return wrapXml(rawXml`
             ${cmd}
             ${detectAreaInfo
-                .map(
-                    (item, index) => `
+                .map((item) =>
+                    item.length > 0
+                        ? `
                         <points>
-                            <item X="${item.X}" Y="${item.Y}" />
-                            <Area>${index + 1}</Area>
+                            ${item.map((point) => `<item X="${point.X}" Y="${point.Y}" />`).join('')}
+                            <Area>${++index}</Area>
                             <LineColor>green</LineColor>
                         </points>
-                `,
+                `
+                        : '',
                 )
                 .join('')}
             ${maskAreaInfo
-                .map(
-                    (item, index) => `
+                .map((item) =>
+                    item.length > 0
+                        ? `
                         <points>
-                            <item X="${item.X}" Y="${item.Y}" />
-                            <Area>${index + 1}</Area>
+                            ${item.map((point) => `<item X="${point.X}" Y="${point.Y}" />`).join('')}
+                            <Area>${++index}</Area>
                             <LineColor>red</LineColor>
                         </points>
-                `,
+                `
+                        : '',
                 )
                 .join('')}
             </cmd>
