@@ -3,7 +3,7 @@
  * @Date: 2024-09-10 17:50:24
  * @Description: 更多功能页面的框架
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-11 14:21:43
+ * @LastEditTime: 2024-09-20 11:43:19
 -->
 <template>
     <div class="content">
@@ -34,6 +34,7 @@
         </div>
         <div class="content_main">
             <el-tabs
+                :key="pageData.tabKey"
                 v-model="pageData.chosenFunction"
                 type="border-card"
                 class="demo-tabs"
@@ -59,6 +60,15 @@
                             }"
                             >{{ Translate('IDCS_FIRE_POINT_DETECTION') }}</span
                         >
+                    </template>
+                    <template #default>
+                        <fireDetection
+                            v-if="pageData.chosenFunction === 'fireDetection'"
+                            :curr-chl-id="pageData.currChlId"
+                            :chl-data="pageData.chlData"
+                            :voice-list="pageData.voiceList"
+                            :online-channel-list="pageData.onlineChannelList"
+                        ></fireDetection>
                     </template>
                 </el-tab-pane>
                 <!-- videoStructure -->
@@ -103,6 +113,15 @@
                             >{{ Translate('IDCS_PASS_LINE_COUNT_DETECTION') }}</span
                         >
                     </template>
+                    <template #default>
+                        <passLine
+                            v-if="pageData.chosenFunction === 'passLine'"
+                            :curr-chl-id="pageData.currChlId"
+                            :chl-data="pageData.chlData"
+                            :voice-list="pageData.voiceList"
+                            :online-channel-list="pageData.onlineChannelList"
+                        ></passLine>
+                    </template>
                 </el-tab-pane>
 
                 <!-- cdd -->
@@ -124,6 +143,15 @@
                             }"
                             >{{ Translate('IDCS_CROWD_DENSITY_DETECTION') }}</span
                         >
+                    </template>
+                    <template #default>
+                        <Cdd
+                            v-if="pageData.chosenFunction === 'cdd'"
+                            :curr-chl-id="pageData.currChlId"
+                            :chl-data="pageData.chlData"
+                            :voice-list="pageData.voiceList"
+                            :online-channel-list="pageData.onlineChannelList"
+                        ></Cdd>
                     </template>
                 </el-tab-pane>
 
@@ -147,6 +175,14 @@
                             >{{ Translate('IDCS_TEMPERATURE_DETECTION') }}</span
                         >
                     </template>
+                    <template #default>
+                        <TemperatureDetection
+                            v-if="pageData.chosenFunction === 'temperatureDetection'"
+                            :curr-chl-id="pageData.currChlId"
+                            :chl-data="pageData.chlData"
+                            :voice-list="pageData.voiceList"
+                        ></TemperatureDetection>
+                    </template>
                 </el-tab-pane>
 
                 <!-- objectLeft -->
@@ -169,11 +205,18 @@
                             >{{ Translate('IDCS_WATCH_DETECTION') }}</span
                         >
                     </template>
+                    <template #default>
+                        <ObjectLeft
+                            v-if="pageData.chosenFunction === 'objectLeft'"
+                            :curr-chl-id="pageData.currChlId"
+                            :chl-data="pageData.chlData"
+                            :voice-list="pageData.voiceList"
+                        ></ObjectLeft>
+                    </template>
                 </el-tab-pane>
 
                 <!-- avd -->
                 <el-tab-pane
-                    :label="Translate('IDCS_ABNORMAL_DISPOSE_WAY')"
                     :disabled="pageData.avdDisable"
                     name="avd"
                     class="tripwire_setting_pane"
@@ -189,8 +232,16 @@
                                 justifyContent: 'center',
                                 alignItems: 'center',
                             }"
-                            >{{ Translate('IDCS_FIRE_POINT_DETECTION') }}</span
+                            >{{ Translate('IDCS_ABNORMAL_DISPOSE_WAY') }}</span
                         >
+                    </template>
+                    <template #default>
+                        <AbnormalDispose
+                            v-if="pageData.chosenFunction === 'avd'"
+                            :curr-chl-id="pageData.currChlId"
+                            :chl-data="pageData.chlData"
+                            :voice-list="pageData.voiceList"
+                        ></AbnormalDispose>
                     </template>
                 </el-tab-pane>
 

@@ -11,6 +11,7 @@ export default {
         lk: 'IDCS_AI_AND_EVENT',
         plClass: 'md2',
         icon: 'alarm',
+        enabled: 'alarmMgr',
         groups: {
             //事件通知
             eventNotify: {
@@ -24,7 +25,7 @@ export default {
                 lk: 'IDCS_AI_EVENT',
                 icon: 'intelligentAlarm_s',
             },
-            //
+            // 样本库
             database: {
                 sort: 30,
                 lk: 'IDCS_FACE_LIBRARY_SELECT',
@@ -112,6 +113,9 @@ export default {
                 sort: 60,
                 lk: 'IDCS_AUDIO',
                 group: 'eventNotify',
+                auth(systemCaps) {
+                    return systemCaps.supportAlarmAudioConfig
+                },
             },
         },
         alarmLight: {
@@ -132,28 +136,31 @@ export default {
                 sort: 80,
                 lk: 'IDCS_ALARM_SERVER',
                 group: 'eventNotify',
+                auth(systemCaps) {
+                    return systemCaps.supportAlarmServerConfig
+                },
             },
         },
-        alaramScheduleAdd: {
-            //
-            path: 'schedule/add',
-            component: 'aiAndEvent/ScheduleAdd.vue',
-            meta: {
-                sort: 90,
-                lk: 'IDCS_ADD_SCHEDULE',
-                group: 'eventNotify',
-            },
-        },
-        alaramScheduleManage: {
-            //
-            path: 'schedule/manager',
-            component: 'aiAndEvent/ScheduleManage.vue',
-            meta: {
-                sort: 100,
-                lk: 'IDCS_SCHEDULE_MANAGE',
-                group: 'eventNotify',
-            },
-        },
+        // alaramScheduleAdd: {
+        //     //
+        //     path: 'schedule/add',
+        //     component: 'aiAndEvent/ScheduleAdd.vue',
+        //     meta: {
+        //         sort: 90,
+        //         lk: 'IDCS_ADD_SCHEDULE',
+        //         group: 'eventNotify',
+        //     },
+        // },
+        // alaramScheduleManage: {
+        //     //
+        //     path: 'schedule/manager',
+        //     component: 'aiAndEvent/ScheduleManage.vue',
+        //     meta: {
+        //         sort: 100,
+        //         lk: 'IDCS_SCHEDULE_MANAGE',
+        //         group: 'eventNotify',
+        //     },
+        // },
         perimeterDetection: {
             //周界防范
             path: 'alarm/boundary',
@@ -165,6 +172,9 @@ export default {
                 default: true,
                 inHome: 'self',
                 homeSort: 10,
+                auth(systemCaps) {
+                    return !systemCaps.IntelAndFaceConfigHide
+                },
             },
         },
         faceRecognition: {
@@ -177,6 +187,9 @@ export default {
                 group: 'aiEvent',
                 inHome: 'self',
                 homeSort: 20,
+                auth(systemCaps) {
+                    return !systemCaps.IntelAndFaceConfigHide
+                },
             },
         },
         lrp: {
@@ -189,6 +202,9 @@ export default {
                 group: 'aiEvent',
                 inHome: 'self',
                 homeSort: 30,
+                auth(systemCaps) {
+                    return !systemCaps.IntelAndFaceConfigHide
+                },
             },
         },
         aiEventMore: {
@@ -199,6 +215,9 @@ export default {
                 sort: 40,
                 lk: 'IDCS_MORE',
                 group: 'aiEvent',
+                auth(systemCaps) {
+                    return !systemCaps.IntelAndFaceConfigHide
+                },
             },
         },
         motionEventConfig: {
@@ -244,6 +263,9 @@ export default {
                 sort: 40,
                 lk: 'IDCS_FRONT_OFFLINE',
                 group: 'generalEvent',
+                auth(systemCaps) {
+                    return !!systemCaps.ipChlMaxCount
+                },
             },
         },
         exceptionAlarm: {
@@ -254,16 +276,22 @@ export default {
                 sort: 170,
                 lk: 'IDCS_ABNORMAL_ALARM',
                 group: 'generalEvent',
+                auth(systemCaps) {
+                    return !!systemCaps.ipChlMaxCount
+                },
             },
         },
         alarmVideoLoss: {
-            //
+            // 视频丢失
             path: 'video/loss',
             component: 'aiAndEvent/VideoLoss.vue',
             meta: {
                 sort: 180,
                 lk: 'IDCS_VIDEO_LOSE_SET',
                 group: 'generalEvent',
+                auth(systemCaps) {
+                    return !!systemCaps.analogChlCount
+                },
             },
         },
         systemDisarm: {
@@ -289,24 +317,30 @@ export default {
             },
         },
         faceFeatureLibrary: {
-            //
+            // 人脸库
             path: 'faceFeature',
-            component: 'aiAndEvent/FaceFeature.vue',
+            component: 'intelligentAnalysis/IntelFaceDB.vue',
             meta: {
                 sort: 10,
                 lk: 'IDCS_FEATURE_LIBRARY',
                 group: 'database',
                 default: true,
+                auth(systemCaps, ui) {
+                    return systemCaps.supportFaceMatch && ui === 'UI2-A'
+                },
             },
         },
         vehicleDatabase: {
-            //
+            // 车牌库
             path: 'vehicleDatabase',
-            component: 'aiAndEvent/FaceFeature.vue',
+            component: 'intelligentAnalysis/IntelLicencePlateDB.vue',
             meta: {
                 sort: 10,
                 lk: 'IDCS_VEHICLE_DATABASE',
                 group: 'database',
+                auth(systemCaps, ui) {
+                    return systemCaps.supportPlateMatch && ui === 'UI2-A'
+                },
             },
         },
     },

@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-08-10 12:08:57
  * @Description: AI/事件
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-10 17:11:43
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-09-19 10:23:15
  */
 const { Translate } = useLangStore()
 
@@ -327,7 +327,70 @@ export class PresetList {
     }
     presetList = [] as SelectOption<string, string>[]
 }
+/**
+ * @description: 组合报警
+ * @return {*}
+ */
 
+export class CombinedAlarm {
+    id = ''
+    name = ''
+    status = '' //行状态: loading, success, error
+    combinedAlarm = {
+        switch: false,
+        item: [] as CombinedAlarmItem[],
+    }
+    sysRec = {
+        switch: false,
+        chls: [] as SelectOption<string, string>[],
+    }
+    recordList = [] as string[]
+    sysSnap = {
+        switch: false,
+        chls: [] as SelectOption<string, string>[],
+    }
+    snapList = [] as string[]
+    alarmOut = {
+        switch: false,
+        alarmOuts: [] as SelectOption<string, string>[],
+    }
+    alarmOutList = [] as string[]
+    popVideo = {
+        switch: '',
+        chl: {
+            value: '',
+            label: '',
+        },
+    }
+    preset = {
+        switch: false,
+        presets: [] as PresetItem[],
+    }
+    sysAudio = ''
+    msgPush = ''
+    beeper = ''
+    email = ''
+    msgBoxPopup = ''
+    videoPopup = ''
+}
+
+export class CombinedAlarmItem {
+    alarmSourceType = ''
+    alarmSourceEntity = {
+        value: '',
+        label: '',
+    }
+}
+
+export class faceMatchObj {
+    rule = ''
+    duration = 5
+    delay = 5
+    groupId = [] as string[]
+    noShowDisplay = 'false'
+    displayText = ''
+    faceDataBase = [] as string[]
+}
 /**
  * @description: AI事件——人脸识别相关类型
  * @return {*}
@@ -408,32 +471,6 @@ export class FaceGroupTableItem {
     guid = ''
     name = ''
     similarity = 75
-}
-// 识别——识别成功/陌生人
-export class FaceCompare {
-    voiceList = [] as SelectOption<string, string>[]
-    task = [] as FaceCompareTask[]
-    editFlag = false
-}
-export class FaceCompareTask {
-    guid = ''
-    id = ''
-    ruleType = ''
-    nameId = 0
-    pluseSwitch = false
-    groupId = [] as string[]
-    hintword = ''
-    schedule = ''
-    record = [] as SelectOption<string, string>[]
-    alarmOut = [] as SelectOption<string, string>[]
-    snap = [] as SelectOption<string, string>[]
-    preset = [] as PresetItem[]
-    msgPushSwitch = false
-    buzzerSwitch = false
-    popVideoSwitch = false
-    emailSwitch = false
-    popMsgSwitch = false
-    sysAudio = ''
 }
 
 export class chlCaps {
@@ -562,4 +599,181 @@ export class peaPageData {
     presetSwitch = false
     presets = [] as PresetItem[]
     presetSource = [] as PresetList[]
+}
+
+export class emailData {
+    saveTargetPicture = false
+    saveSourcePicture = false
+    sendEmailData = {
+        type: '0',
+        enableSwitch: false,
+        dailyReportSwitch: false,
+        weeklyReportSwitch: false,
+        weeklyReportDate: '0',
+        mouthlyReportSwitch: false,
+        mouthlyReportDate: '0',
+        reportHour: 0,
+        reportMin: 0,
+    }
+    receiverData = [] as { address: string; schedule: string; rowClicked: boolean }[]
+}
+
+export class regionData {
+    X1 = 0
+    Y1 = 0
+    X2 = 0
+    Y2 = 0
+}
+
+// 识别——识别成功/陌生人
+export class FaceCompare {
+    voiceList = [] as SelectOption<string, string>[]
+    task = [] as CompareTask[]
+    editFlag = false
+}
+export class CompareTask {
+    guid = ''
+    id = ''
+    ruleType = ''
+    nameId = 0
+    pluseSwitch = false
+    groupId = [] as string[]
+    hintword = ''
+    schedule = ''
+    record = [] as SelectOption<string, string>[]
+    alarmOut = [] as SelectOption<string, string>[]
+    snap = [] as SelectOption<string, string>[]
+    preset = [] as PresetItem[]
+    msgPushSwitch = false
+    buzzerSwitch = false
+    popVideoSwitch = false
+    emailSwitch = false
+    popMsgSwitch = false
+    sysAudio = ''
+}
+/**
+ * @description: AI事件——车牌识别相关类型
+ * @return {*}
+ */
+// 人脸识别通道
+export class VehicleChlItem {
+    id = ''
+    name = ''
+    chlType = ''
+    supportVehiclePlate = false
+}
+// 侦测——参数配置表单项
+export class VehicleDetection {
+    enabledSwitch = false
+    originalSwitch = false
+    schedule = ''
+    plateSupportArea = ''
+    direction = ''
+    exposureChecked = false
+    exposureValue = 0
+    plateAbsenceCheceked = false
+    regionInfo = [] as Region[]
+    maskAreaInfo = {} as Record<number, { X: number; Y: number; isClosed: boolean }[]>
+    mutexList = [] as { object: string; status: boolean }[]
+    plateSize = {
+        minWidth: 0,
+        maxWidth: 0,
+        min: 1,
+        max: 50,
+    }
+    minRegionInfo = [] as Region[]
+    maxRegionInfo = [] as Region[]
+}
+// 识别——识别成功/陌生车牌
+export class VehicleCompare {
+    hitEnable = false
+    notHitEnable = false
+    task = [] as CompareTask[]
+    editFlag = false
+}
+/* AI事件——更多——温度检测 */
+export class TempDetection {
+    enabledSwitch = false
+    holdTime = ''
+    holdTimeList = [] as SelectOption<string, string>[]
+    schedule = ''
+    triggerAudio = ''
+    triggerWhiteLight = ''
+    record = [] as SelectOption<string, string>[]
+    alarmOut = [] as SelectOption<string, string>[]
+    snap = [] as SelectOption<string, string>[]
+    preset = [] as PresetItem[]
+    msgPushSwitch = false
+    buzzerSwitch = false
+    popVideoSwitch = false
+    emailSwitch = false
+    popMsgSwitch = false
+    catchSnapSwitch = false
+    sysAudio = ''
+    boundaryData = [] as BoundaryTableDataItem[]
+}
+// 检测界限数据（区域）
+export class BoundaryTableDataItem {
+    id = ''
+    ruleId = 0
+    switch = false
+    ruleName = ''
+    ruleType = ''
+    emissivity = ''
+    emissivityDefault = ''
+    distance = ''
+    distanceDefault = ''
+    reflectTemper = ''
+    reflectTemperDefault = ''
+    alarmRule = ''
+    alarmTemper = ''
+    alarmTemperDefault = ''
+    maxCount = 0
+    points = [] as { X: number; Y: number; isClosed: boolean }[]
+}
+/* AI事件——更多——物品遗留与看护 */
+export class ObjectLeft {
+    enabledSwitch = false
+    originalSwitch = false
+    holdTime = ''
+    holdTimeList = [] as SelectOption<string, string>[]
+    schedule = ''
+    oscTypeList = [] as SelectOption<string, string>[]
+    oscType = ''
+    areaMaxCount = 0
+    regulation = false
+    boundary = [] as BoundaryItem[]
+    mutexList = [] as { object: string; status: boolean }[]
+    maxNameLength = 0
+    record = [] as SelectOption<string, string>[]
+    alarmOut = [] as SelectOption<string, string>[]
+    preset = [] as PresetItem[]
+    msgPushSwitch = false
+    buzzerSwitch = false
+    popVideoSwitch = false
+    emailSwitch = false
+    catchSnapSwitch = false
+    sysAudio = ''
+}
+export class BoundaryItem {
+    areaName = ''
+    points = [] as { X: number; Y: number; isClosed: boolean }[]
+}
+/* AI事件——更多——异常侦测 */
+export class AbnormalDispose {
+    holdTime = ''
+    holdTimeList = [] as SelectOption<string, string>[]
+    sceneChangeSwitch = ''
+    clarityAbnormalSwitch = ''
+    colorAbnormalSwitch = ''
+    sensitivity = 0
+    record = [] as SelectOption<string, string>[]
+    alarmOut = [] as SelectOption<string, string>[]
+    preset = [] as PresetItem[]
+    msgPushSwitch = false
+    buzzerSwitch = false
+    popVideoSwitch = false
+    emailSwitch = false
+    catchSnapSwitch = false
+    sysAudio = ''
 }

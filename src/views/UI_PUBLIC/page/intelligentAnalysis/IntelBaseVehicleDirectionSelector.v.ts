@@ -3,7 +3,7 @@
  * @Date: 2024-09-06 11:18:24
  * @Description: 智能分析 - 进出口方向 选择框
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 16:37:43
+ * @LastEditTime: 2024-09-10 10:17:54
  */
 export default defineComponent({
     props: {
@@ -84,7 +84,13 @@ export default defineComponent({
             () => pageData.value.isPop,
             (value) => {
                 if (value) {
-                    selected.value = prop.modelValue
+                    if (prop.modelValue.length === pageData.value.options.length) {
+                        if (selected.value.length) {
+                            selected.value = prop.modelValue
+                        }
+                    } else {
+                        selected.value = prop.modelValue
+                    }
                 }
             },
         )

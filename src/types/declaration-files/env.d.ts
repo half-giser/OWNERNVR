@@ -12,5 +12,22 @@ declare module '*.vue' {
     export default component
 }
 
-declare const __TRUE__: boolean
-declare const __UI__: string
+// declare const __TRUE__: boolean
+// declare const __UI__: string
+
+interface ImportMetaEnv {
+    readonly VITE_UI_TYPE: string
+    readonly VITE_BASE_URL: string
+    readonly VITE_APP_IP: string
+    readonly VITE_APP_NAME: string
+    readonly VITE_APP_TITLE: string
+    readonly VITE_APP_DESC: string
+    readonly VITE_APP_KEYWORDS: string
+    readonly VITE_APP_TYPE: string
+    readonly VITE_APP_COPYRIGHT: string
+    readonly VITE_APP_ICP_NUMBER: string
+}
+
+interface ImportMeta {
+    readonly env: ImportMetaEnv
+}

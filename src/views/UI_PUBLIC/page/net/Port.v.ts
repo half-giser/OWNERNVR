@@ -7,7 +7,6 @@
  */
 import { NetPortForm, NetPortUPnPDto, NetPortApiServerForm, NetPortRtspServerForm } from '@/types/apiType/net'
 import { type FormInstance, type FormRules } from 'element-plus'
-import { APP_TYPE } from '@/utils/constants'
 
 export default defineComponent({
     setup() {
@@ -311,7 +310,7 @@ export default defineComponent({
          * @description P2P获取无线网络数据
          */
         const getWirelessNetworkData = async () => {
-            if (APP_TYPE === 'P2P') {
+            if (import.meta.env.VITE_APP_TYPE === 'P2P') {
                 const result = await queryWirelessNetworkCfg()
                 const $ = queryXml(result)
                 pageData.value.wirelessSwitch = $('//content/switch').text().toBoolean()

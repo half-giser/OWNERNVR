@@ -3,11 +3,27 @@
  * @Date: 2024-09-10 17:50:35
  * @Description: 更多功能页面的框架
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-11 14:05:47
+ * @LastEditTime: 2024-09-20 15:36:26
  */
+// import { cloneDeep } from 'lodash-es'
 import { type chlCaps } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
+import fireDetection from './fireDetection.vue'
+import TemperatureDetection from './TemperatureDetection.vue'
+import ObjectLeft from './ObjectLeft.vue'
+import passLine from './passLine.vue'
+import AbnormalDispose from './AbnormalDispose.vue'
+import Cdd from './Cdd.vue'
+
 export default defineComponent({
+    components: {
+        fireDetection,
+        passLine,
+        TemperatureDetection,
+        ObjectLeft,
+        AbnormalDispose,
+        Cdd,
+    },
     setup() {
         // const { LoadingTarget, openLoading, closeLoading } = useLoading()
         // const openMessageTipBox = useMessageBox().openMessageTipBox
@@ -68,23 +84,22 @@ export default defineComponent({
             boundaryChlCapsObj: [],
             // 保存所有支持更多分类的通道
             moreChlCapsObj: [],
+
+            // tabkey
+            tabKey: 0,
         })
+        // const PlayerInstance = ref<PlayerInstance>()
+        // 切换通道
         const handleChangeChannel = async () => {
             pageData.value.chlData = pageData.value.chlCaps[pageData.value.currChlId]
+            pageData.value.tabKey += 1
             initPage()
-            // TODO 刷新对应页面的数据
         }
         // 大tab点击事件,切换功能
         const handleTabClick = (pane: TabsPaneContext) => {
             pageData.value.chosenFunction = pane.props.name?.toString() ? pane.props.name?.toString() : ''
+            pageData.value.tabKey += 1
             // TODO 刷新对应页面的数据
-        }
-        // 对sheduleList进行处理
-        const getScheduleList = async () => {
-            pageData.value.scheduleList = await buildScheduleList()
-            pageData.value.scheduleList.map((item) => {
-                item.value = item.value != '' ? item.value : pageData.value.scheduleDefaultId
-            })
         }
         // 获取在线通道
         const getOnlineChannel = async () => {
@@ -311,9 +326,11 @@ export default defineComponent({
         // 切换通道及初始化时判断tab是否可用，若不可用则切换到可用的tab，都不可用再显示提示
         const isTabDisabled = () => {
             pageData.value.fireDetectionDisable = !pageData.value.chlData['supportFire']
-            pageData.value.videoStructureDisable = !pageData.value.chlData['supportVideoMetadata']
+            // pageData.value.videoStructureDisable = !pageData.value.chlData['supportVideoMetadata']
+            pageData.value.videoStructureDisable = false
             pageData.value.passLineDisable = !(pageData.value.chlData['supportPassLine'] || pageData.value.chlData['supportCpc'])
-            pageData.value.cddDisable = !pageData.value.chlData['supportCdd']
+            // pageData.value.cddDisable = !pageData.value.chlData['supportCdd']
+            pageData.value.cddDisable = false
             pageData.value.temperatureDetectionDisable = !pageData.value.chlData['supportTemperature']
             pageData.value.objectLeftDisable = !pageData.value.chlData['supportOsc']
             pageData.value.avdDisable = !pageData.value.chlData['supportAvd']
@@ -336,13 +353,19 @@ export default defineComponent({
             isTabDisabled()
         }
         onMounted(async () => {
-            // pageData.value.chosenFunction = ''
             await getOnlineChannel()
             await getChannelData()
             await getVoiceList()
-            await getScheduleList()
             initPage()
+            pageData.value.tabKey += 1
         })
-        return { pageData, handleChangeChannel, handleTabClick }
+        return {
+            TemperatureDetection,
+            ObjectLeft,
+            AbnormalDispose,
+            pageData,
+            handleChangeChannel,
+            handleTabClick,
+        }
     },
 })

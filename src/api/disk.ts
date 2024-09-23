@@ -3,7 +3,7 @@
  * @Date: 2024-06-11 11:41:37
  * @Description: 磁盘API
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-01 10:42:03
+ * @LastEditTime: 2024-09-18 17:56:09
  */
 
 import http from './api'
@@ -43,9 +43,10 @@ export const queryDiskHealthDetailInfo = (data: string) => http.fetch('queryDisk
 
 /**
  * @description 查询磁盘状态
+ * @param {boolean} status
  * @returns
  */
-export const queryDiskStatus = () => http.fetch('queryDiskStatus', getXmlWrapData(''))
+export const queryDiskStatus = (status = true) => http.fetch('queryDiskStatus', getXmlWrapData(''), {}, status)
 
 /**
  * @description 查询指定磁盘信息
@@ -57,9 +58,10 @@ export const queryDiskDetailInfo = (data: string) => http.fetch('queryDiskDetail
 /**
  * @description 格式化磁盘
  * @param {string} data
+ * @param {boolean} status
  * @returns
  */
-export const formatDisk = (data: string) => http.fetch('formatDisk', getXmlWrapData(data))
+export const formatDisk = (data: string, status = true) => http.fetch('formatDisk', getXmlWrapData(data), {}, status)
 
 /**
  * @description 解锁磁盘

@@ -3,7 +3,7 @@
  * @Date: 2024-06-07 10:40:47
  * @Description: 插件下载按钮
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-23 14:00:41
+ * @LastEditTime: 2024-09-20 15:54:16
 -->
 <template>
     <div
@@ -28,7 +28,6 @@
 <script lang="ts" setup>
 import { getSystemInfo } from '@/utils/tools'
 import { getPluginPath } from '@/utils/ocx/ocxUtil'
-import { APP_TYPE } from '@/utils/constants'
 
 const osType = getSystemInfo().platform
 const path = getPluginPath()
@@ -37,7 +36,7 @@ const path = getPluginPath()
 const pluginLink = ref(path.ClientPluDownLoadPath)
 
 // MAC系统本地访问进入登录页面时，不显示插件下载链接
-const isPluginIconHide = ref(APP_TYPE === 'STANDARD' && osType === 'mac') // ref(osType === 'mac')
+const isPluginIconHide = ref(import.meta.env.VITE_APP_TYPE === 'STANDARD' && osType === 'mac') // ref(osType === 'mac')
 </script>
 
 <style lang="scss" scoped>
@@ -45,11 +44,9 @@ const isPluginIconHide = ref(APP_TYPE === 'STANDARD' && osType === 'mac') // ref
     position: absolute;
     left: 0px;
     width: 100%;
-    // right: 0px;
     bottom: 20px;
     font-size: 18px;
     text-align: center;
-    // vertical-align: middle;
     color: var(--text-menu-05);
     display: flex;
     justify-content: center;
@@ -61,8 +58,8 @@ const isPluginIconHide = ref(APP_TYPE === 'STANDARD' && osType === 'mac') // ref
     }
 
     a {
-        // height: 27px;
         margin-top: -4px;
+        margin-left: 5px;
     }
 }
 </style>

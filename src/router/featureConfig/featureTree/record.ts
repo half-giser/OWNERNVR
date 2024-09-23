@@ -11,6 +11,7 @@ export default {
         lk: 'IDCS_RECORD',
         plClass: 'md2',
         icon: 'rec',
+        enabled: 'rec',
         groups: {
             //录像
             record: {
@@ -24,12 +25,12 @@ export default {
                 lk: 'IDCS_CODE_PARAM',
                 icon: 'encodeParam_s',
             },
-            // schedule:
-            schedule: {
-                sort: 30,
-                lk: 'IDCS_RECORD_SCHEDULE',
-                icon: 'scheduleRec_s',
-            },
+            // 排程
+            // schedule: {
+            //     sort: 30,
+            //     lk: 'IDCS_RECORD_SCHEDULE',
+            //     icon: 'scheduleRec_s',
+            // },
             //录像状态
             recStatus: {
                 sort: 40,
@@ -112,35 +113,36 @@ export default {
                 homeSort: 30,
             },
         },
-        recSchedule: {
-            //
-            path: 'schedule',
-            components: 'record/RecordSchedule.vue',
-            meta: {
-                sort: 10,
-                lk: 'IDCS_SCHEDULE_OF_RECORD_SET',
-                group: 'schedule',
-            },
-        },
-        recScheduleAdd: {
-            //
-            path: 'schedule/add',
-            components: 'record/RecordScheduleAdd.vue',
-            meta: {
-                sort: 10,
-                lk: 'IDCS_ADD_SCHEDULE',
-                group: 'schedule',
-            },
-        },
-        recScheduleManager: {
-            //
-            path: 'schedule/manager',
-            components: 'record/RecordScheduleManage.vue',
-            meta: {
-                sort: 10,
-                lk: 'IDCS_VIEW_OR_CHANGE_SCHEDULE',
-                group: 'schedule',
-            },
-        },
+        // 每个需要配置的排程的地方打开公共的排程管理和编辑的弹窗
+        // recSchedule: {
+        //     //
+        //     path: 'schedule',
+        //     components: 'record/RecordSchedule.vue',
+        //     meta: {
+        //         sort: 10,
+        //         lk: 'IDCS_SCHEDULE_OF_RECORD_SET',
+        //         group: 'schedule',
+        //     },
+        // },
+        // recScheduleAdd: {
+        //     //
+        //     path: 'schedule/add',
+        //     components: 'record/RecordScheduleAdd.vue',
+        //     meta: {
+        //         sort: 10,
+        //         lk: 'IDCS_ADD_SCHEDULE',
+        //         group: 'schedule',
+        //     },
+        // },
+        // recScheduleManager: {
+        //     //
+        //     path: 'schedule/manager',
+        //     components: 'record/RecordScheduleManage.vue',
+        //     meta: {
+        //         sort: 10,
+        //         lk: 'IDCS_VIEW_OR_CHANGE_SCHEDULE',
+        //         group: 'schedule',
+        //     },
+        // },
     },
 } as FeatureItem

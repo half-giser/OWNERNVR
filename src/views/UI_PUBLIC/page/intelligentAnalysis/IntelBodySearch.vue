@@ -3,31 +3,25 @@
  * @Date: 2024-09-05 17:42:11
  * @Description: 智能分析 - 人体搜索
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-09 19:21:29
+ * @LastEditTime: 2024-09-14 09:41:37
 -->
 <template>
     <div class="base-intel-box">
         <div class="base-intel-left base-intel-left-column">
             <div>
-                <IntelBaseDateTimeSelector
-                    :model-value="formData.dateRange"
-                    @update:model-value="changeDateRange"
-                />
+                <IntelBaseDateTimeSelector v-model="formData.dateRange" />
                 <IntelBaseChannelSelector
-                    :model-value="formData.chl"
-                    @update:model-value="changeChl"
+                    v-model="formData.chl"
                     @ready="getChlMap"
                 />
                 <IntelBaseEventSelector
-                    :model-value="formData.event"
+                    v-model="formData.event"
                     mode="checkbox"
                     :range="['person']"
-                    @update:model-value="changeEvent"
                 />
                 <IntelBaseProfileSelector
-                    :model-value="formData.attribute"
+                    v-model="formData.attribute"
                     :range="['person']"
-                    @update:model-value="changeAttribute"
                 />
                 <div class="base-intel-row">
                     <el-button @click="getData">{{ Translate('IDCS_SEARCH') }}</el-button>
@@ -127,16 +121,17 @@
             </div>
             <div
                 v-show="pageData.chartType === 'list'"
-                class="pics"
+                class="base-intel-pics-box"
             >
                 <IntelBaseSnapItem
                     v-for="(item, index) in sliceTableData"
-                    :key="`${item.imgId}:${item.timestamp}`"
-                    :model-value="selectionIds.includes(`${item.imgId}:${item.timestamp}`)"
+                    :key="getUniqueKey(item)"
+                    :model-value="selectionIds.includes(getUniqueKey(item))"
                     :src="pageData.listType === 'snap' ? item.pic : item.panorama"
-                    :play="playerData.playId === `${item.imgId}:${item.timestamp}`"
+                    :play="playerData.playId === getUniqueKey(item)"
                     :type="pageData.listType"
-                    :disabled="item.isDelSnap || !item.pic || !item.panorama"
+                    :disabled="item.isDelSnap || item.isNoData || !item.pic || !item.panorama"
+                    :error-text="item.isDelSnap ? Translate('IDCS_DELETED') : item.isNoData ? Translate('IDCS_NO_RECORD_DATA') : ''"
                     @update:model-value="handleSelect(index, $event)"
                     @click="play(item)"
                     @detail="showDetail(index)"
@@ -250,21 +245,8 @@
     </div>
 </template>
 
-<script lang="ts"></script>
+<script lang="ts" src="./IntelBodySearch.v.ts"></script>
 
 <style lang="scss">
 @import '@/views/UI_PUBLIC/publicStyle/intelligentAnalysis.scss';
-</style>
-
-<style lang="scss" scoped>
-.pics {
-    box-sizing: border-box;
-    height: 100%;
-    width: 100%;
-    padding: 10px;
-    display: flex;
-    flex-wrap: wrap;
-    border: 1px solid var(--border-color8);
-    overflow-y: scroll;
-}
 </style>

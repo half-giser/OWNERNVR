@@ -28,12 +28,6 @@ export const setAlarmOutStatus = (data: string) => http.fetch('setAlarmOutStatus
 export const manualUnlocking = (data: string) => http.fetch('manualUnlocking', getXmlWrapData(data))
 
 /**
- * @description 获取AI资源细节
- * @returns
- */
-export const queryAIResourceDetail = () => http.fetch('queryAIResourceDetail', getXmlWrapData(''))
-
-/**
  * @description 获取人脸组数据
  * @returns
  */
@@ -170,3 +164,36 @@ export const faceImgStatistic_v2 = (data: string) => http.fetch('faceImgStatisti
  * @returns
  */
 export const searchSmartTarget = (data: string) => http.fetch('searchSmartTarget', getXmlWrapData(data))
+
+/**
+ * @description 获取轨迹背景地图
+ * @returns
+ */
+export const queryEMap = () => http.fetch('queryEMap', getXmlWrapData(''))
+
+/**
+ * @description 获取轨迹地图配置
+ * @returns
+ */
+export const queryEMapParam = () => http.fetch('queryEMapParam', getXmlWrapData(''))
+
+/**
+ * @description 编辑轨迹地图配置
+ * @param {string} data
+ * @returns
+ */
+export const editEMapParam = (data: string) => http.fetch('editEMapParam', getXmlWrapData(data))
+
+/**
+ * @description 搜索抓拍图像
+ * @param {string} data
+ * @returns
+ */
+export const searchImageByImageV2 = (data: string) => http.fetch('searchImageByImageV2', getXmlWrapData(data))
+
+/**
+ * @description 获取智能目标抓拍图
+ * @param {string} data
+ * @returns
+ */
+export const requestSmartTargetSnapImage = (data: string) => http.fetch('requestSmartTargetSnapImage', getXmlWrapData(data))

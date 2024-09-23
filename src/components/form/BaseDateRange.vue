@@ -3,7 +3,7 @@
  * @Date: 2024-08-26 10:02:29
  * @Description: 日期范围
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-04 17:04:54
+ * @LastEditTime: 2024-09-14 13:49:05
 -->
 <template>
     <div class="date-range">
@@ -63,6 +63,7 @@ const dateTime = useDateTimeStore()
 const handlePrev = () => {
     const oldValue = [...props.modelValue]
     let current: [number, number] = [0, 0]
+    console.log(props.type)
 
     switch (props.type) {
         case 'date':
@@ -81,7 +82,7 @@ const handlePrev = () => {
             current = [dayjs(oldValue[0]).subtract(7, 'day').valueOf(), dayjs(oldValue[1]).subtract(7, 'day').valueOf()]
             break
         default:
-            const diff = dayjs(oldValue[1]).diff(oldValue[0], 'day')
+            const diff = dayjs(oldValue[1]).diff(oldValue[0], 'day') + 1
             current = [dayjs(oldValue[0]).subtract(diff, 'day').valueOf(), dayjs(oldValue[1]).subtract(diff, 'day').valueOf()]
             break
     }
@@ -114,8 +115,8 @@ const handleNext = () => {
             current = [dayjs(oldValue[0]).add(7, 'day').valueOf(), dayjs(oldValue[1]).add(7, 'day').valueOf()]
             break
         default:
-            const diff = dayjs(oldValue[1]).diff(oldValue[0], 'day')
-            current = [dayjs(oldValue[0]).add(diff, 'day').valueOf(), dayjs(oldValue[1]).subtract(diff, 'day').valueOf()]
+            const diff = dayjs(oldValue[1]).diff(oldValue[0], 'day') + 1
+            current = [dayjs(oldValue[0]).add(diff, 'day').valueOf(), dayjs(oldValue[1]).add(diff, 'day').valueOf()]
             break
     }
 
@@ -158,9 +159,10 @@ const displayDateValue = (timestamp: number) => {
 .date-range {
     display: flex;
     align-items: center;
+    font-size: 14px;
 
     &-box {
-        padding: 0 15px;
+        padding: 0 8px;
     }
 }
 </style>

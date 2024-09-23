@@ -3,7 +3,7 @@
  * @Date: 2024-04-23 11:52:48
  * @Description: 登录界面
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 14:21:22
+ * @LastEditTime: 2024-09-19 16:20:57
  */
 import { type FormRules, type FormInstance } from 'element-plus'
 import { LoginForm, LoginReqData } from '@/types/apiType/user'
@@ -23,8 +23,8 @@ export default defineComponent({
         langStore.getLangTypes().then((res) => {
             langTypes.value = unref(res)
         })
-        langType.value = langStore.getLangType
-        langId.value = langStore.getLangId
+        langType.value = langStore.langType
+        langId.value = langStore.langId
 
         const loginFormRef = ref<FormInstance>()
 
@@ -173,11 +173,9 @@ export default defineComponent({
         // 切换语言
         watch(langId, async (newVal) => {
             langStore.updateLangId(newVal)
-            for (const item in LANG_MAPPING) {
-                if (LANG_MAPPING[item].toLowerCase() == newVal) {
-                    // langStore.langType.value
-                    langStore.updateLangType(item)
-                }
+            const langType = LANG_TYPE_MAPPING[newVal]
+            if (langType) {
+                langStore.updateLangType(langType)
             }
             await langStore.getLangItems(true)
         })

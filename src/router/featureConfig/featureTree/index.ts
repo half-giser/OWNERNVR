@@ -21,9 +21,21 @@ import system from './system'
 
 export default {
     login: {
-        //登录
+        // 登录
         path: '/login',
         component: 'Login.vue',
+        meta: {},
+    },
+    authCodeLogin: {
+        // authCode登录
+        path: '/authCodeLogin',
+        component: 'AuthCodeLogin.vue',
+        meta: {},
+    },
+    guide: {
+        // 开机向导
+        path: '/guide',
+        component: 'Guide.vue',
         meta: {},
     },
     root: {
@@ -33,7 +45,9 @@ export default {
         children: {
             ...topFeature,
             config: {
-                meta: { noMenu: true },
+                meta: {
+                    noMenu: true,
+                },
                 children: {
                     channel,
                     record,
@@ -42,6 +56,11 @@ export default {
                     net,
                     userAndSecurity,
                     system,
+                    localConfig: {
+                        path: 'local',
+                        component: 'LocalConfig.vue',
+                        meta: {},
+                    },
                 },
             },
         },
@@ -50,6 +69,14 @@ export default {
         //停车场
         path: '/business-application/park-lot-manage/park-lot',
         component: 'businessApplication/PkMgrParkLot.vue',
-        meta: { sort: 40, lk: 'IDCS_PARKING_LOT', icon: 'park' },
+        meta: {
+            sort: 40,
+            lk: 'IDCS_PARKING_LOT',
+            icon: 'park',
+            auth(systemCaps) {
+                return !systemCaps.IntelAndFaceConfigHide
+            },
+            disabled: 'parkingLotMgr',
+        },
     },
 } as FeatureTree

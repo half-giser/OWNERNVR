@@ -3,7 +3,7 @@
  * @Date: 2024-09-06 16:38:42
  * @Description: 智能分析 - 添加收藏
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 16:39:08
+ * @LastEditTime: 2024-09-12 20:37:31
  */
 import { IntelSearchCollectList } from '@/types/apiType/intelligentAnalysis'
 import type { FormInstance, FormRules } from 'element-plus'
@@ -11,14 +11,14 @@ import type { FormInstance, FormRules } from 'element-plus'
 export default defineComponent({
     props: {
         /**
-         * @property
+         * @property LocalStorage的key
          */
         storageKey: {
             type: String,
             required: true,
         },
         /**
-         * @property
+         * @property 需要收藏的数据
          */
         data: {
             type: Object as PropType<Partial<IntelSearchCollectList>>,
@@ -36,9 +36,11 @@ export default defineComponent({
 
         const listData = ref<IntelSearchCollectList[]>([])
 
+        // 最大的列表长度
         const MAX_STORAGE_LIMIT = 6
 
         const pageData = ref({
+            // 是否打开收藏弹窗
             isPop: false,
         })
 
@@ -67,16 +69,26 @@ export default defineComponent({
             ],
         })
 
+        /**
+         * @description 选中当前收藏的数据
+         * @param {number} index
+         */
         const change = (index: number) => {
             ctx.emit('change', listData.value[index])
         }
 
+        /**
+         * @description 添加收藏
+         */
         const addCollect = () => {
             formRef.value?.clearValidate()
             formData.value.name = ''
             pageData.value.isPop = true
         }
 
+        /**
+         * @description 验证表单通过后，添加收藏
+         */
         const verify = () => {
             formRef.value!.validate((valid) => {
                 if (valid) {
@@ -96,6 +108,9 @@ export default defineComponent({
             })
         }
 
+        /**
+         * @description 确认添加收藏
+         */
         const confirmAddCollect = () => {
             const data = new IntelSearchCollectList()
             listData.value.push({
@@ -107,6 +122,10 @@ export default defineComponent({
             pageData.value.isPop = false
         }
 
+        /**
+         * @description 删除选中的收藏
+         * @param {number} index
+         */
         const deleteCollect = (index: number) => {
             openMessageTipBox({
                 type: 'question',
@@ -118,15 +137,24 @@ export default defineComponent({
             })
         }
 
+        /**
+         * @description 约束输入框的输入
+         * @param {string} value
+         * @returns {string}
+         */
         const formatInput = (value: string) => {
             value = value.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '')
             return value
         }
 
+        /**
+         * @description 关闭弹窗
+         */
         const close = () => {
             pageData.value.isPop = false
         }
 
+        // 回显收藏列表
         watch(
             () => prop.storageKey,
             () => {

@@ -3,7 +3,7 @@
  * @Date: 2024-06-21 18:15:30
  * @Description: 系统
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-03 10:18:01
+ * @LastEditTime: 2024-09-20 17:40:42
  */
 
 /**
@@ -333,4 +333,85 @@ export class SystemPosList {
     //     lastTillMode: false,
     //     currentTillMode: false,
     // }
+}
+
+/**
+ * @description 开机向导 语言与地区表单
+ */
+export class SystemGuideLangForm {
+    lang = ''
+    regionId = ''
+    regionCode = ''
+}
+
+/**
+ * @description 开机向导 用户隐私表单
+ */
+export class SysmteGuidePrivacyForm {
+    checked = false
+}
+
+/**
+ * @description 开机向导 日期时间表单
+ */
+export class SystemGuideDateTimeForm {
+    systemTime = '' // new Date() // 系统时间
+    dateFormat = 'year-month-day' // 日期格式
+    timeFormat = '24' // 时间格式
+    syncType = '' // 同步方式
+    timeServer = '' // 时间服务器
+    timeZone = '' // 时区
+    enableDST = false // 夏令时
+    videoType = ''
+}
+
+/**
+ * @description 开机向导 账户表单
+ */
+export class SystemGuideUserForm {
+    userName = 'admin'
+    password = ''
+    confirmPassword = ''
+}
+
+/**
+ * @description 开机向导 密保问题表单
+ */
+export class SystemGuideQuestionForm {
+    id = ''
+    question = ''
+    answer = ''
+}
+
+/**
+ * @description 开机向导 磁盘列表
+ */
+export class SystemGuideDiskList {
+    id = ''
+    name = ''
+    type = ''
+    size = 0
+    combinedStatus = ''
+    diskStatus = ''
+    serialNum = ''
+}
+
+/**
+ * @description 本地配置表单
+ */
+export class SystemLocalConfig {
+    snapCount = 5
+    liveSnapSavePath = ''
+    recSavePath = ''
+    recBackUpPath = ''
+}
+
+/**
+ * @description POE电源管理列表
+ */
+export class SystemPoeList {
+    id = ''
+    poeName = ''
+    switch = ''
+    power = ''
 }

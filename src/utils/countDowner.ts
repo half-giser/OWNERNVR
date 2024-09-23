@@ -98,4 +98,8 @@ export class CountDowner {
     addZelo(n: number) {
         return n < 10 && n >= 0 ? '0' + n : '' + n
     }
+
+    destroy() {
+        clearTimeout(this.timer)
+    }
 }

@@ -3,12 +3,11 @@
  * @Date: 2024-09-03 09:09:06
  * @Description: 新增车牌弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-03 19:50:43
+ * @LastEditTime: 2024-09-12 20:45:06
  */
 import { IntelPlateDBAddPlateForm, IntelPlateDBPlateInfo } from '@/types/apiType/intelligentAnalysis'
 import IntelLicenceDBEditPop from './IntelLicencePlateDBEditPop.vue'
 import { type FormInstance, type FormRules } from 'element-plus'
-import { APP_TYPE } from '@/utils/constants'
 import { type XMLQuery } from '@/utils/tools'
 import WebsocketImportPlate from '@/utils/websocket/websocketImportplate'
 
@@ -18,7 +17,7 @@ export default defineComponent({
     },
     props: {
         /**
-         * @property {Enum} 弹窗类型 add | edit | register
+         * @property {'add' | 'edit' | 'register'} 弹窗类型
          */
         type: {
             type: String,
@@ -50,23 +49,6 @@ export default defineComponent({
             return Plugin.IsSupportH5() ? 'h5' : 'ocx'
         })
 
-        watch(
-            mode,
-            (newVal) => {
-                // if (newVal !== 'h5' && !Plugin.IsPluginAvailable) {
-                //     pluginStore.showPluginNoResponse = true
-                //     Plugin.ShowPluginNoResponse()
-                // }
-                if (newVal === 'ocx') {
-                    const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
-                    Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                }
-            },
-            {
-                immediate: true,
-            },
-        )
-
         const groupMap: Record<string, string> = {}
 
         const pageData = ref({
@@ -89,7 +71,7 @@ export default defineComponent({
             tab: 'form',
             csvTitle: ['(B1)' + Translate('IDCS_LICENSE_PLATE_NUM'), '(B2)' + Translate('IDCS_VEHICLE_OWNER'), '(B3)' + Translate('IDCS_PHONE_NUMBER'), '(N1)' + Translate('IDCS_VEHICLE_TYPE')],
             // 是否禁用Tab
-            disabledTab: APP_TYPE === 'P2P' || isHttpsLogin(),
+            disabledTab: import.meta.env.VITE_APP_TYPE === 'P2P' || isHttpsLogin(),
             // 导入框是否drag状态
             isDrag: false,
             // 导入的文件名
@@ -367,6 +349,11 @@ export default defineComponent({
          * @description OCX导入的回调
          */
         const handleOCXImport = () => {
+            if (Plugin.IsPluginAvailable()) {
+                const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
+                Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+            }
+
             const sendXML = OCX_XML_OpenFileBrowser('OPEN_FILE', 'csv')
             Plugin.AsynQueryInfo(Plugin.GetVideoPlugin(), sendXML, (result) => {
                 const path = OCX_XML_OpenFileBrowser_getpath(result).trim()

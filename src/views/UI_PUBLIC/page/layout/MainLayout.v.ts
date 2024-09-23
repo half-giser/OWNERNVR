@@ -3,17 +3,16 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 顶层布局页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-10 17:12:35
+ * @LastEditTime: 2024-09-19 16:28:50
  */
 
 import { type RouteLocationMatched } from 'vue-router'
-import BaseChangePwdPop from '../../components/BaseChangePwdPop.vue'
-import { APP_TYPE } from '@/utils/constants'
+import ChangePasswordPop from '../ChangePasswordPop.vue'
 import { getMenu1 } from '@/router'
 
 export default defineComponent({
     components: {
-        BaseChangePwdPop,
+        ChangePasswordPop,
     },
     setup() {
         const route = useRoute()
@@ -29,8 +28,6 @@ export default defineComponent({
 
         const menu1Item = computed(() => layoutStore.menu1Item)
         const allMenu1Items = computed(() => layoutStore.menu1Items)
-
-        // const key = computed(() => `${String(route.name || route.path)}-${new Date()}`)
 
         const pageData = ref({
             logoShow: true,
@@ -61,21 +58,18 @@ export default defineComponent({
             pageData.value.isPasswordDialogVisible = true
         }
 
+        const routeMenu = computed(() => getMenu1(route) as RouteLocationMatched)
+
         // 是否是焦点菜单
         const isMenu1Active = (menu1: RouteRecordRawExtends) => {
-            const routeMenu1 = getMenu1(route) as RouteLocationMatched
-            return (menu1.name === 'functionPanel' && routeMenu1.name === 'config') || ((menu1 && menu1.meta && routeMenu1.meta.fullPath === menu1.meta.fullPath) as boolean)
+            return (menu1.name === 'functionPanel' && routeMenu.value.name === 'config') || menu1.meta.fullPath === routeMenu.value.meta.fullPath
         }
 
-        // 二级菜单列表（已过滤）
-        const menu1Items = computed(() => {
-            const routeArr: RouteRecordRawExtends[] = []
-            allMenu1Items.value.forEach((v) => {
-                //根据能力集过滤
-                routeArr.push(v)
+        const goToPath = (route: RouteRecordRawExtends) => {
+            router.push({
+                path: route.meta.fullPath,
             })
-            return routeArr
-        })
+        }
 
         const doLogout = () => {
             Logout()
@@ -88,7 +82,7 @@ export default defineComponent({
             const result = await queryBasicCfg(getXmlWrapData(''))
             const $ = queryXml(result)
             if ($('//status').text() === 'success') {
-                if (APP_TYPE === 'P2P' && judgeCurrUI(result)) return
+                if (import.meta.env.VITE_APP_TYPE === 'P2P' && judgeCurrUI(result)) return
                 CustomerID = Number($('//content/CustomerID').text())
                 cbk && cbk()
                 if (!showProductModelList.includes(CustomerID)) {
@@ -100,12 +94,11 @@ export default defineComponent({
 
         const getPasswordSecurityStrength = async () => {
             let strength: keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING = 'weak'
-            const isInw48 = systemCaps.supportPwdSecurityConfig // TODO: 原项目是这个值
             const result = await queryPasswordSecurity()
             const $ = queryXml(result)
             if ($('//status').text() === 'success') {
                 strength = ($('//content/pwdSecureSetting/pwdSecLevel').text() as keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING & null) ?? 'weak'
-                if (isInw48) {
+                if (systemCaps.supportPwdSecurityConfig) {
                     strength = 'strong'
                 }
             }
@@ -223,17 +216,15 @@ export default defineComponent({
                         if (systemCaps.supportRaid) {
                             queryDiskMode().then((result) => {
                                 const isUseRaid = queryXml(result)('//content/diskMode/isUseRaid').text().toBoolean()
-                                // TODO: 具体URL待确认
-                                const routeUrl = isUseRaid ? 'config/disk/diskArrayCfg' : 'config/disk/manager'
+                                const routeUrl = isUseRaid ? '/config/disk/diskArray' : '/config/disk/management'
                                 router.push(routeUrl)
                             })
                         } else {
-                            // TODO: 具体URL待确认
-                            router.push('config/disk/manager')
+                            router.push('/config/disk/management')
                         }
                     } else {
                         openMessageTipBox({
-                            type: 'question',
+                            type: 'info',
                             message: Translate('IDCS_NO_PERMISSION'),
                         })
                     }
@@ -272,8 +263,9 @@ export default defineComponent({
 
         // 跳转本地配置页
         const showLocalConfig = () => {
-            // TODO route
-            // router.push()
+            router.push({
+                path: '/config/local',
+            })
         }
 
         const userName = computed(() => {
@@ -299,18 +291,18 @@ export default defineComponent({
             route, // 当前进入的二级菜单项
             pageData,
             menu1Item, // 当前进入的一级菜单项的二级菜单列表
-            menu1Items,
+            allMenu1Items,
             menu,
             systemCaps,
             userName,
+            goToPath,
             showLocalConfig,
             isMenu1Active,
             doLogout,
             closeChangePwdPop,
             showChangePwdPop,
             handleDownloadPlugin,
-            BaseChangePwdPop,
-            // key,
+            ChangePasswordPop,
         }
     },
 })

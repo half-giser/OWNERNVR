@@ -3,7 +3,7 @@
  * @Date: 2024-09-05 10:16:53
  * @Description: 智能分析 通道选择器
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 15:32:48
+ * @LastEditTime: 2024-09-12 20:34:17
  */
 import { type TableInstance } from 'element-plus'
 
@@ -17,7 +17,7 @@ export default defineComponent({
             required: true,
         },
         /**
-         * @property {enum} 通道或停车场 channel | park
+         * @property {'channel' | 'park'} 通道或停车场
          */
         mode: {
             type: String,

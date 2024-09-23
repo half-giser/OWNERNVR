@@ -1,9 +1,9 @@
 <!--
  * @Author: yejiahao yejiahao@tvt.net.cn
- * @Date: 2024-07-22 16:34:34
- * @Description: 人脸比对弹窗
+ * @Date: 2024-09-12 09:21:59
+ * @Description: 智能分析 - 人脸比对结果弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 17:59:36
+ * @LastEditTime: 2024-09-12 20:38:57
 -->
 <template>
     <el-dialog
@@ -17,7 +17,7 @@
                 <div class="title">{{ Translate('IDCS_BASIC_INFO') }}</div>
                 <div class="row">
                     <label>{{ Translate('IDCS_SNAP_TIME') }}</label>
-                    <span>{{ displayDateTime(current.detect_time) }}</span>
+                    <span>{{ displayDateTime(current.timestamp) }}</span>
                     <label>{{ Translate('IDCS_SNAP_ADDRESS') }}</label>
                     <span>{{ current.chlName }}</span>
                 </div>
@@ -32,18 +32,18 @@
                 <div>
                     <div class="title">{{ Translate('IDCS_FACE_SNAP_IMAGE') }}</div>
                     <img
-                        :src="displayBase64Img(current.snap_pic)"
+                        :src="current.pic"
                         class="snap-img"
                     />
                 </div>
                 <p>
-                    <span>{{ current.info.similarity }}%</span>
+                    <span class="similarity">{{ current.similarity }}%</span>
                     <span>{{ Translate('IDCS_SIMILARITY') }}</span>
                 </p>
                 <div>
                     <div class="title">{{ Translate('IDCS_FACE_LIBRARY_PREVIEW') }}</div>
                     <img
-                        :src="displayBase64Img(current.repo_pic)"
+                        :src="current.match"
                         class="face-img"
                     />
                 </div>
@@ -52,40 +52,36 @@
                 <div class="title">{{ Translate('IDCS_PERSON_INFO') }}</div>
                 <div class="row">
                     <label>{{ Translate('IDCS_NAME_PERSON') }}</label>
-                    <span>{{ current.info.name }}</span>
+                    <span>{{ current.name }}</span>
                     <label>{{ Translate('IDCS_SEX') }}</label>
                     <span>{{ displayGender }}</span>
                 </div>
                 <div class="row">
                     <label>{{ Translate('IDCS_BIRTHDAY') }}</label>
-                    <span>{{ displayDate(current.info.birth_date) }}</span>
+                    <span>{{ current.birthday }}</span>
                     <label>{{ Translate('IDCS_ID_TYPE') }}</label>
                     <span>{{ Translate('IDCS_ID_CARD') }}</span>
                 </div>
                 <div class="row">
                     <label>{{ Translate('IDCS_ID_NUMBER') }}</label>
-                    <span>{{ current.info.certificate_number }}</span>
+                    <span>{{ current.certificateNum }}</span>
                     <label>{{ Translate('IDCS_PHONE_NUMBER') }}</label>
-                    <span>{{ current.info.mobile_phone_number }}</span>
+                    <span>{{ current.mobile }}</span>
                 </div>
                 <div class="row">
                     <label>{{ Translate('IDCS_NUMBER') }}</label>
-                    <span>{{ current.info.serial_number }}</span>
+                    <span>{{ current.number }}</span>
                     <label>{{ Translate('IDCS_REMARK') }}</label>
-                    <span>{{ current.info.remarks }}</span>
+                    <span>{{ current.note }}</span>
                 </div>
                 <div class="row">
                     <label>{{ Translate('IDCS_ADD_FACE_GROUP') }}</label>
-                    <span>{{ current.info.group_name }}</span>
+                    <span>{{ current.groupName }}</span>
                 </div>
             </div>
-            <LiveSnapShotPop
+            <IntelBasePanoramaPop
                 v-model="pageData.isSnapPop"
-                :pic="current.scene_pic || ''"
-                :width="current.info.ptWidth"
-                :height="current.info.ptHeight"
-                :left-top="current.info.point_left_top"
-                :right-bottom="current.info.point_right_bottom"
+                :data="current"
             />
         </div>
         <template #footer>
@@ -119,7 +115,7 @@
     </el-dialog>
 </template>
 
-<script lang="ts" src="./LiveSnapFaceMatchPop.v.ts"></script>
+<script lang="ts" src="./IntelBaseFaceMatchPop.v.ts"></script>
 
 <style lang="scss" scoped>
 .info {
@@ -163,12 +159,12 @@
     align-items: center;
 
     & > div:first-child {
-        width: 200px;
+        width: 185px;
         flex-shrink: 0;
     }
 
     & > div:last-child {
-        width: 50%;
+        width: 400px;
         flex-shrink: 0;
     }
 
@@ -186,6 +182,11 @@
         flex-direction: column;
         justify-content: center;
         text-align: center;
+    }
+
+    .similarity {
+        font-size: 24px;
+        margin-bottom: 10px;
     }
 }
 </style>

@@ -3,7 +3,7 @@
  * @Date: 2024-08-23 10:36:12
  * @Description: 云台-协议
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 11:53:24
+ * @LastEditTime: 2024-09-14 16:12:24
  */
 import { cloneDeep } from 'lodash-es'
 import { type TableInstance } from 'element-plus'
@@ -135,10 +135,8 @@ export default defineComponent({
                         label: item.text(),
                     }
                 })
-                tableData.value[index].status = 'success'
-            } else {
-                tableData.value[index].status === 'fail'
             }
+            tableData.value[index].status = ''
             cacheTableData.push({ ...tableData.value[index] })
         }
 
@@ -147,8 +145,9 @@ export default defineComponent({
          */
         const setData = async () => {
             const edits: ChannelPtzProtocolDto[] = []
+            const editIndex: number[] = []
             tableData.value.forEach((item, index) => {
-                if (item.status !== 'success') {
+                if (item.status === 'loading') {
                     return
                 }
                 const params = ['address', 'baudRate', 'protocol', 'ptz']
@@ -157,6 +156,7 @@ export default defineComponent({
                         return false
                     }
                     if (item[param] !== cacheTableData[index][param]) {
+                        editIndex.push(index)
                         edits.push(item)
                         return true
                     }
@@ -182,7 +182,13 @@ export default defineComponent({
                         </chl>
                     </content>
                 `
-                await editPtzProtocol(sendXml)
+                const result = await editPtzProtocol(sendXml)
+                const $ = queryXml(result)
+                if ($('//status').text() === 'success') {
+                    tableData.value[editIndex[i]].status = 'success'
+                } else {
+                    tableData.value[editIndex[i]].status = 'error'
+                }
             }
 
             cacheTableData = cloneDeep(tableData.value)

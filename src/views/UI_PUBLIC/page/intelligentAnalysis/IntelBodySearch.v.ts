@@ -3,9 +3,9 @@
  * @Date: 2024-09-09 19:21:49
  * @Description: 智能分析 - 人体搜索
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-09 19:22:19
+ * @LastEditTime: 2024-09-14 09:42:55
  */
-import { type IntelSearchCollectList, type IntelSearchBodyList, IntelSnapImgDto } from '@/types/apiType/intelligentAnalysis'
+import { type IntelSearchCollectList, type IntelSearchList, IntelSnapImgDto, IntelSearchBodyForm, type IntelSnapPopList } from '@/types/apiType/intelligentAnalysis'
 import IntelBaseChannelSelector from './IntelBaseChannelSelector.vue'
 import IntelBaseDateTimeSelector from './IntelBaseDateTimeSelector.vue'
 import IntelBaseEventSelector from './IntelBaseEventSelector.vue'
@@ -40,6 +40,9 @@ export default defineComponent({
         const dateTime = useDateTimeStore()
         const auth = useUserChlAuth()
 
+        // 图像失败重新请求最大次数
+        const REPEAR_REQUEST_IMG_TIMES = 2
+        // 图像缓存，避免重复请求相同的图片
         const cachePic: Record<string, IntelSnapImgDto> = {}
 
         let chlMap: Record<string, string> = {}
@@ -95,7 +98,7 @@ export default defineComponent({
             // 备份列表
             backupList: [] as PlaybackBackUpRecList[],
             // 勾选列表
-            selection: [] as IntelSearchBodyList[],
+            selection: [] as IntelSearchList[],
             // 是否打开抓怕详情弹窗
             isDetailPop: false,
             // 当前选中的抓拍的索引
@@ -108,14 +111,7 @@ export default defineComponent({
             isSupportBackUp: isBrowserSupportWasm() && !isHttpsLogin(),
         })
 
-        const formData = ref({
-            dateRange: [0, 0] as [number, number],
-            chl: [] as string[],
-            event: [] as string[],
-            attribute: {} as Record<string, Record<string, number[]>>,
-            pageSize: 40,
-            pageIndex: 0,
-        })
+        const formData = ref(new IntelSearchBodyForm())
 
         const playerData = ref({
             // 播放开始时间
@@ -134,17 +130,9 @@ export default defineComponent({
 
         const tableRef = ref<TableInstance>()
 
-        const tableData = ref<IntelSearchBodyList[]>([])
+        const tableData = ref<IntelSearchList[]>([])
 
-        const sliceTableData = ref<IntelSearchBodyList[]>([])
-
-        /**
-         * @description 更改日期范围
-         * @param {[number, number]} e
-         */
-        const changeDateRange = (e: [number, number]) => {
-            formData.value.dateRange = e
-        }
+        const sliceTableData = ref<IntelSearchList[]>([])
 
         /**
          * @description 获取通道ID与通道名称的映射
@@ -152,30 +140,6 @@ export default defineComponent({
          */
         const getChlMap = (e: Record<string, string>) => {
             chlMap = e
-        }
-
-        /**
-         * @description 修改通道选项
-         * @param {string[]} e
-         */
-        const changeChl = (e: string[]) => {
-            formData.value.chl = e
-        }
-
-        /**
-         * @description 修改事件选项
-         * @param {string[]} e
-         */
-        const changeEvent = (e: string[]) => {
-            formData.value.event = e
-        }
-
-        /**
-         * @description 修改属性选项
-         * @param {string[]} e
-         */
-        const changeAttribute = (e: Record<string, Record<string, number[]>>) => {
-            formData.value.attribute = e
         }
 
         /**
@@ -209,14 +173,21 @@ export default defineComponent({
             return formatDate(timestamp, dateTime.timeFormat)
         }
 
+        const getUniqueKey = (row: { imgId: string; frameTime: string }) => {
+            if (!row.imgId || !row.frameTime) {
+                return Math.floor(Math.random() * 1e8) + ''
+            }
+            return `${row.imgId}:${row.frameTime}`
+        }
+
         /**
          * @description 播放
          * @param {Number} startTime 毫秒
          */
-        const play = (row: IntelSearchBodyList) => {
+        const play = (row: IntelSearchList) => {
             stop()
 
-            playerData.value.playId = row.imgId + ':' + row.timestamp
+            playerData.value.playId = getUniqueKey(row)
             playerData.value.startTime = row.recStartTime
             playerData.value.endTime = row.recEndTime
 
@@ -304,7 +275,7 @@ export default defineComponent({
                     if (flag2) {
                         sliceTableData.value[i] = {
                             ...sliceTableData.value[i],
-                            ...cachePic[item.imgId + ':' + item.timestamp],
+                            ...cachePic[getUniqueKey(item)],
                         }
                         continue
                     } else {
@@ -339,64 +310,98 @@ export default defineComponent({
 
         /**
          * @description 获取抓拍图或原图
-         * @param {IntelSearchBodyList} row
+         * @param {IntelSearchList} row
          * @param {boolean} isPanorama
          * @param {number} index
          */
-        const getPic = async (row: IntelSearchBodyList, isPanorama: boolean, index: number) => {
-            const key = row.imgId + ':' + row.timestamp
-            if (!row.isDelSnap && (!cachePic[key] || !cachePic[key].pic || !cachePic[key].panorama)) {
-                const sendXml = rawXml`
-                    <condition>
-                        <imgId>${row.imgId}</imgId>
-                        <chlId>${row.chlId}</chlId>
-                        <frameTime>${localToUtc(row.timestamp)}:${row.timeNS}</frameTime>
-                        <pathGUID>${row.pathGUID}</pathGUID>
-                        <sectionNo>${row.sectionNo.toString()}</sectionNo>
-                        <fileIndex>${row.fileIndex.toString()}</fileIndex>
-                        <blockNo>${row.bolckNo.toString()}</blockNo>
-                        <offset>${row.offset.toString()}</offset>
-                        <eventType>${row.eventTypeID.toString()}</eventType>
-                        ${ternary(isPanorama, '<isPanorama />')}
-                    </condition>
-                `
-                const result = await requestSmartTargetSnapImage(sendXml)
-                const $ = queryXml(result)
+        const getPic = async (row: IntelSearchList, isPanorama: boolean, index: number, times = 0) => {
+            try {
+                const key = getUniqueKey(row)
+                if (!row.isDelSnap && (!cachePic[key] || !cachePic[key].pic || !cachePic[key].panorama)) {
+                    const sendXml = rawXml`
+                        <condition>
+                            <imgId>${row.imgId}</imgId>
+                            <chlId>${row.chlId}</chlId>
+                            <frameTime>${row.frameTime}</frameTime>
+                            <pathGUID>${row.pathGUID}</pathGUID>
+                            <sectionNo>${row.sectionNo.toString()}</sectionNo>
+                            <fileIndex>${row.fileIndex.toString()}</fileIndex>
+                            <blockNo>${row.bolckNo.toString()}</blockNo>
+                            <offset>${row.offset.toString()}</offset>
+                            <eventType>${row.eventTypeID.toString()}</eventType>
+                            ${ternary(isPanorama, '<isPanorama />')}
+                        </condition>
+                    `
+                    const result = await requestSmartTargetSnapImage(sendXml)
+                    const $ = queryXml(result)
 
-                if ($('//status').text() === 'success') {
-                    const content = $('//content').text()
-                    const width = Number($('//rect/ptWidth').text()) || 1
-                    const height = Number($('//rect/ptHeight').text()) || 1
-                    const leftTopX = Number($('//rect/leftTopX').text())
-                    const leftTopY = Number($('//rect/leftTopY').text())
-                    const rightBottomX = Number($('//rect/rightBottomX').text())
-                    const rightBottomY = Number($('//rect/rightBottomY').text())
-                    const item = {
-                        pic: cachePic[key] ? cachePic[key].pic : '',
-                        panorama: cachePic[key] ? cachePic[key].panorama : '',
-                        eventType: $('//eventType').text(),
-                        targetType: $('//targetType').text(),
-                        width,
-                        height,
-                        X1: leftTopX / width,
-                        Y1: leftTopY / height,
-                        X2: rightBottomX / width,
-                        Y2: rightBottomY / height,
-                    }
-                    if (isPanorama) {
-                        item.panorama = 'data:image/png;base64,' + content
+                    if ($('//status').text() === 'success') {
+                        const content = $('//content').text()
+                        if (!content && times < REPEAR_REQUEST_IMG_TIMES) {
+                            return getPic(row, isPanorama, index, times + 1)
+                        }
+                        const width = Number($('//rect/ptWidth').text()) || 1
+                        const height = Number($('//rect/ptHeight').text()) || 1
+                        const leftTopX = Number($('//rect/leftTopX').text())
+                        const leftTopY = Number($('//rect/leftTopY').text())
+                        const rightBottomX = Number($('//rect/rightBottomX').text())
+                        const rightBottomY = Number($('//rect/rightBottomY').text())
+                        const item = {
+                            pic: cachePic[key] ? cachePic[key].pic : '',
+                            panorama: cachePic[key] ? cachePic[key].panorama : '',
+                            eventType: $('//eventType').text(),
+                            targetType: $('//targetType').text(),
+                            width,
+                            height,
+                            X1: leftTopX / width,
+                            Y1: leftTopY / height,
+                            X2: rightBottomX / width,
+                            Y2: rightBottomY / height,
+                            isDelSnap: false,
+                            isNoData: !content,
+                            plateNumber: '',
+                        }
+                        if (isPanorama) {
+                            item.panorama = 'data:image/png;base64,' + content
+                        } else {
+                            item.pic = 'data:image/png;base64,' + content
+                        }
+                        cachePic[key] = item
                     } else {
-                        item.pic = 'data:image/png;base64,' + content
+                        cachePic[key] = cachePic[key] || new IntelSnapImgDto()
+                        const errorCode = Number($('//errorCode').text())
+                        switch (errorCode) {
+                            case ErrorCode.HTTPS_CERT_EXIST:
+                                cachePic[key].isDelSnap = true
+                                cachePic[key].isNoData = false
+                                break
+                            case ErrorCode.USER_ERROR_NO_RECORDDATA:
+                                cachePic[key].isDelSnap = false
+                                cachePic[key].isNoData = true
+                                break
+                            default:
+                                // 重复获取数据
+                                if (times < REPEAR_REQUEST_IMG_TIMES) {
+                                    return getPic(row, isPanorama, index, times + 1)
+                                }
+                        }
                     }
-                    cachePic[key] = item
-                } else {
-                    cachePic[key] = cachePic[key] || new IntelSnapImgDto()
                 }
-            }
-            if (row.imgId === sliceTableData.value[index]?.imgId && row.timestamp === sliceTableData.value[index]?.timestamp) {
-                return true
-            } else {
-                return false
+                if (getUniqueKey(row) === getUniqueKey(sliceTableData.value[index])) {
+                    return true
+                } else {
+                    return false
+                }
+            } catch (e) {
+                if (times < REPEAR_REQUEST_IMG_TIMES) {
+                    return getPic(row, isPanorama, index, times + 1)
+                } else {
+                    if (getUniqueKey(row) === getUniqueKey(sliceTableData.value[index])) {
+                        return true
+                    } else {
+                        return false
+                    }
+                }
             }
         }
 
@@ -404,7 +409,7 @@ export default defineComponent({
          * @description 获取列表数据
          */
         const getData = async () => {
-            const targetXml = Object.keys(formData.value.attribute)
+            const attributeXml = Object.keys(formData.value.attribute)
                 .map((key) => {
                     const detail = Object.entries(formData.value.attribute[key])
                         .map((item) => {
@@ -429,7 +434,7 @@ export default defineComponent({
                         <item>male</item>
                         <item>female</item>
                     </person>
-                    <targetAttribute>${targetXml}</targetAttribute>
+                    <targetAttribute>${attributeXml}</targetAttribute>
                 </condition>
             `
 
@@ -447,12 +452,15 @@ export default defineComponent({
                     const split = item.text().split(',')
                     const guid = parseInt(split[3], 16)
                     const chlId = getChlGuid16(split[3]).toUpperCase()
-
+                    const timestamp = parseInt(split[0], 16) * 1000
                     return {
                         isDelSnap: isDelSnap,
+                        isNoData: false,
+                        plateNumber: '',
+                        direction: '',
                         imgId: parseInt(split[2], 16) + '',
                         timestamp: parseInt(split[0], 16) * 1000,
-                        timeNS: ('0000000' + parseInt(split[1], 16)).slice(-7),
+                        frameTime: localToUtc(timestamp) + ':' + ('0000000' + parseInt(split[1], 16)).slice(-7),
                         guid,
                         chlId,
                         chlName: chlMap[chlId],
@@ -500,32 +508,32 @@ export default defineComponent({
 
         // 已选选项
         const selectionIds = computed(() => {
-            return pageData.value.selection.map((item) => item.imgId + ':' + item.timestamp)
+            return pageData.value.selection.map((item) => getUniqueKey(item))
         })
 
         /**
          * @description 点击表格行，勾选当前行
-         * @param {IntelSearchBodyList} row
+         * @param {IntelSearchList} row
          */
-        const handleTableRowClick = (row: IntelSearchBodyList) => {
+        const handleTableRowClick = (row: IntelSearchList) => {
             tableRef.value!.clearSelection()
             tableRef.value!.toggleRowSelection(row, true)
         }
 
         /**
          * @description 表格勾选项改变回调
-         * @param {IntelSearchBodyList[]} row
+         * @param {IntelSearchList[]} row
          */
-        const handleTableSelectionChange = (row: IntelSearchBodyList[]) => {
+        const handleTableSelectionChange = (row: IntelSearchList[]) => {
             pageData.value.selection = row
         }
 
         /**
          * @description 禁用表格选项
-         * @param {IntelSearchBodyList} row
+         * @param {IntelSearchList} row
          * @returns {boolean}
          */
-        const getTableSelectable = (row: IntelSearchBodyList) => {
+        const getTableSelectable = (row: IntelSearchList) => {
             return !row.isDelSnap && !!row.pic && !!row.panorama
         }
 
@@ -542,7 +550,11 @@ export default defineComponent({
          */
         const handleSelectAll = (bool: CheckboxValueType) => {
             if (bool as boolean) {
-                tableRef.value?.toggleAllSelection()
+                sliceTableData.value.forEach((item) => {
+                    if (!item.isDelSnap && !item.isNoData) {
+                        tableRef.value!.toggleRowSelection(item, true)
+                    }
+                })
             } else {
                 tableRef.value?.clearSelection()
             }
@@ -550,9 +562,9 @@ export default defineComponent({
 
         /**
          * @description 打开回放弹窗
-         * @param {IntelSearchBodyList} row
+         * @param {IntelSnapPopList} row
          */
-        const playRec = (row: IntelSearchBodyList) => {
+        const playRec = (row: IntelSnapPopList) => {
             pageData.value.playbackList = [
                 {
                     startTime: row.recStartTime,
@@ -568,9 +580,33 @@ export default defineComponent({
         let downloadData: DownloadZipOptions['files'] = []
 
         /**
+         * @description 检查备份权限
+         * @returns {Boolean}
+         */
+        const checkBackUpAuth = () => {
+            if (auth.value.hasAll) {
+                return true
+            }
+            const find = pageData.value.selection.find((item) => {
+                return !auth.value.bk[item.chlId]
+            })
+            if (find) {
+                openMessageTipBox({
+                    type: 'info',
+                    message: Translate('IDCS_CHANNEL_BACUP_NO_PERMISSION').formatForLang(find.chlName),
+                })
+                return false
+            }
+            return true
+        }
+
+        /**
          * @description 如果需要备份视频，打开备份弹窗，否则直接备份图像
          */
         const backUp = () => {
+            if (!checkBackUpAuth()) {
+                return
+            }
             stop()
             downloadData = []
             if (pageData.value.isBackUpPic) {
@@ -706,11 +742,7 @@ export default defineComponent({
             tableData,
             sliceTableData,
             formData,
-            changeChl,
             getChlMap,
-            changeDateRange,
-            changeEvent,
-            changeAttribute,
             changeCollect,
             changePage,
             displayDateTime,
@@ -734,6 +766,7 @@ export default defineComponent({
             confirmBackUp,
             downloadVideo,
             auth,
+            getUniqueKey,
         }
     },
 })

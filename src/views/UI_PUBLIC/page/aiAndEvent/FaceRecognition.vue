@@ -1,16 +1,9 @@
 <!--
- * @Description: 
- * @Author: luoyiming luoyiming@tvt.net.cn
- * @Date: 2024-08-28 13:41:57
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-06 16:36:09
--->
-<!--
  * @Description: AI 事件——人脸识别
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-28 13:41:57
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-04 14:34:55
+ * @LastEditTime: 2024-09-14 17:31:50
 -->
 <template>
     <!-- 通道名称及选择器 -->
@@ -526,15 +519,15 @@
                             :name="item.value"
                         >
                             <template #default>
-                                <FaceSuccessfulRecognition
+                                <SuccessfulRecognition
                                     :curr-task-data="compareLinkData(item.value)"
-                                    :face-group-data="faceGroupData"
+                                    :group-data="faceGroupData"
                                     :schedule-list="pageData.scheduleList"
                                     :voice-list="pageData.voiceList"
                                     :record-list="pageData.recordList"
                                     :alarm-out-list="pageData.alarmOutList"
                                     :snap-list="pageData.snapList"
-                                ></FaceSuccessfulRecognition>
+                                ></SuccessfulRecognition>
                             </template>
                         </el-tab-pane>
                     </el-tabs>
@@ -578,6 +571,7 @@
     >
         <div class="notChlSupportTip">{{ pageData.notSupportTip }}</div>
     </div>
+    <BaseNotification v-model:notifications="pageData.notification" />
     <!-- AI资源的弹窗 -->
     <el-dialog
         v-model="AIResourcePopOpen"

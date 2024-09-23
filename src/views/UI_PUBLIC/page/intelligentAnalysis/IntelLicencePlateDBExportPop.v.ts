@@ -3,16 +3,22 @@
  * @Date: 2024-09-02 16:42:46
  * @Description: 车牌导出弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-03 19:56:57
+ * @LastEditTime: 2024-09-12 20:46:19
  */
 import WebsocketPlateLib, { type WebsocketPlateLibOnSuccessParam } from '@/utils/websocket/websocketPlatelib'
 
 export default defineComponent({
     props: {
+        /**
+         * @property 导出的数据
+         */
         data: {
             type: Object as PropType<Record<string, string>>,
             required: true,
         },
+        /**
+         * @property 任务总数
+         */
         total: {
             type: Number,
             default: 0,
@@ -72,7 +78,7 @@ export default defineComponent({
                 onsuccess(data) {
                     // 数据接收完毕, 执行导出
                     if (typeof data === 'number') {
-                        if (data === 536870961) {
+                        if (data === ErrorCode.USER_ERROR_FILE_STREAM_COMPLETED) {
                             downloadZip({
                                 zipName: getZipName(),
                                 files: exportData,

@@ -3,7 +3,7 @@
  * @Date: 2024-04-16 13:47:54
  * @Description: 路由构建入口文件
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-10 18:03:26
+ * @LastEditTime: 2024-09-19 09:51:52
  */
 import { createRouter, createWebHistory, type RouteLocationNormalized } from 'vue-router'
 import { buildRouter, setRouteAuth } from './featureConfig/RouteUtil'
@@ -32,7 +32,8 @@ const getMenuItem = (item: RouteRecordRawExtends) => {
         name: item.name,
         meta: {
             auth: item.meta!.auth,
-            noAuth: item.meta!.noAuth,
+            enabled: item.meta!.enabled,
+            // noAuth: item.meta!.noAuth,
             keepAlive: item.meta!.keepAlive,
             fullPath: item.meta!.fullPath,
             icon: item.meta!.icon,

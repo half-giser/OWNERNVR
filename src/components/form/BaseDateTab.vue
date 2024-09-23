@@ -3,18 +3,16 @@
  * @Date: 2024-08-26 10:56:10
  * @Description: 日期切换按钮
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-04 17:05:01
+ * @LastEditTime: 2024-09-14 13:57:28
 -->
 <template>
     <div class="date-tab">
-        <el-radio-group
-            :model-value="currentType"
-            @update:model-value="changeType"
-        >
+        <el-radio-group :model-value="currentType">
             <el-radio-button
                 v-for="item in filterBtns"
                 :key="item.value"
                 :value="item.value"
+                @click="handleClick(item.value)"
                 >{{ item.value === 'today' ? `${item.label} ${today}` : item.label }}</el-radio-button
             >
         </el-radio-group>
@@ -73,7 +71,7 @@ import { highlightWeekend } from '@/utils/date'
 const props = withDefaults(
     defineProps<{
         /**
-         * @property 可选的按钮 排序：day week month season custom today
+         * @property {<'day' | 'week' | 'month' | 'quarter' | 'custom' | 'today'>[]} 可选的按钮 排序：day week month quarter custom today
          */
         layout?: string[]
         /**
@@ -178,6 +176,16 @@ const cancelCustomPop = () => {
     pageData.value.isCustomPop = false
 
     currentType.value = lastType.value
+}
+
+/**
+ * @description 更改日期类型（如果日期类型没变，则不处理）
+ * @param {string} value
+ */
+const handleClick = (value: string) => {
+    if (currentType.value === 'custom' || currentType.value !== value) {
+        changeType(value)
+    }
 }
 
 /**

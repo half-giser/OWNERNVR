@@ -3,12 +3,11 @@
  * @Date: 2024-08-30 18:46:48
  * @Description: 人脸库
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 16:36:32
+ * @LastEditTime: 2024-09-11 18:29:34
  */
 import { cloneDeep } from 'lodash-es'
 import { IntelFaceDBGroupList, IntelFaceDBFaceInfo } from '@/types/apiType/intelligentAnalysis'
 import { type TableInstance } from 'element-plus'
-import { APP_TYPE } from '@/utils/constants'
 import IntelBaseFaceItem from './IntelBaseFaceItem.vue'
 import IntelFaceDBEditPop from './IntelFaceDBEditPop.vue'
 import IntelFaceDBExportPop from './IntelFaceDBExportPop.vue'
@@ -52,7 +51,7 @@ export default defineComponent({
             // 选中的行
             tableIndex: 0,
             // 导出按钮不显示
-            isExportDisabled: APP_TYPE === 'P2P',
+            isExportDisabled: import.meta.env.VITE_APP_TYPE === 'P2P',
             // 是否显示导出提示弹窗
             isExportTipPop: false,
             // 是否显示导出弹窗
@@ -462,6 +461,7 @@ export default defineComponent({
                 faceImgCount: Number($item('faceImgCount').text()),
                 note: $item('remark').text(),
                 pic: [],
+                groupId: '',
             }
         }
 

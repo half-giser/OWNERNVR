@@ -1,0 +1,94 @@
+<!--
+ * @Author: yejiahao yejiahao@tvt.net.cn
+ * @Date: 2024-09-19 17:29:22
+ * @Description: POE电源管理
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-20 17:57:09
+-->
+<template>
+    <div class="base-flex-box">
+        <div class="base-table-box">
+            <el-table
+                :data="tableData"
+                border
+                stripe
+            >
+                <el-table-column
+                    :label="Translate('IDCS_POE_NAME')"
+                    prop="poeName"
+                />
+                <el-table-column :label="Translate('IDCS_ENABLE')">
+                    <template #header>
+                        <el-dropdown trigger="click">
+                            <span class="el-dropdown-link">
+                                {{ Translate('IDCS_SCHEDULE') }}
+                                <BaseImgSprite
+                                    class="ddn"
+                                    file="ddn"
+                                />
+                            </span>
+                            <template #dropdown>
+                                <el-dropdown-menu>
+                                    <el-dropdown-item
+                                        v-for="item in pageData.switchOptions"
+                                        :key="item.value"
+                                        @click="changeAllSwitch(item.value)"
+                                    >
+                                        {{ item.label }}
+                                    </el-dropdown-item>
+                                </el-dropdown-menu>
+                            </template>
+                        </el-dropdown>
+                    </template>
+                    <template #default="scope">
+                        <el-select v-model="scope.row.switch">
+                            <el-option
+                                v-for="item in pageData.switchOptions"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value"
+                            />
+                        </el-select>
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    :label="Translate('IDCS_CURRENT_POWER')"
+                    prop="power"
+                />
+            </el-table>
+        </div>
+        <div
+            class="base-btn-box"
+            :span="2"
+        >
+            <div class="sum">
+                <div>
+                    <span>{{ Translate('IDCS_TOTAL_POWER') }}: </span>
+                    <span>{{ pageData.totalPower }}W</span>
+                </div>
+                <div>
+                    <span>{{ Translate('IDCS_REMAIN_POWER') }}: </span>
+                    <span>{{ pageData.remainPower }}W</span>
+                </div>
+            </div>
+            <div>
+                <el-button
+                    :disabled="!tableData.length"
+                    @click="setData"
+                    >{{ Translate('IDCS_APPLY') }}</el-button
+                >
+            </div>
+        </div>
+    </div>
+</template>
+
+<script lang="ts" src="./PoeSettings.v.ts"></script>
+
+<style lang="scss" scoped>
+.sum {
+    display: flex;
+    & > div {
+        margin-right: 10px;
+    }
+}
+</style>

@@ -3,7 +3,7 @@
  * @Date: 2024-05-24 17:12:55
  * @Description: 
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 09:20:01
+ * @LastEditTime: 2024-09-20 16:00:58
 -->
 <template>
     <div>
@@ -20,12 +20,6 @@
 </template>
 
 <script setup lang="ts">
-import { isMobile, watchResize } from '@bassist/utils'
-import { getXmlWrapData } from './api/api'
-import { queryActivationStatus, querySystemCaps } from './api/system'
-import { queryXml } from './utils/xmlParse'
-import { APP_TYPE } from './utils/constants'
-import { useUserSessionStore } from './stores/userSession'
 import dayjs from 'dayjs'
 
 const route = useRoute()
@@ -37,10 +31,11 @@ const session = useUserSessionStore()
 const Plugin = usePlugin()
 provide('Plugin', Plugin)
 
-watchResize(() => {
-    document.body.className = `platform-${isMobile() ? 'mobile' : 'desktop'}`
-})
-
+/**
+ * @description 如果未激活，跳转开机向导，否则，根据登录状态，跳转登录或现场预览
+ * @param {boolean} checkActivationStatus
+ * @param {boolean} isUserAuth
+ */
 const hanedleActivationStatus = async (checkActivationStatus: boolean, isUserAuth: boolean) => {
     try {
         layoutStore.isInitial = true
@@ -48,10 +43,10 @@ const hanedleActivationStatus = async (checkActivationStatus: boolean, isUserAut
         if (!checkActivationStatus) {
             router.replace('/guide')
         } else {
-            if (!auInfo) {
+            if (!auInfo || !isUserAuth) {
                 router.replace('/login')
                 return
-            } else if (isUserAuth) {
+            } else {
                 if (route.name === 'login') {
                     router.replace('/live')
                 }
@@ -62,12 +57,13 @@ const hanedleActivationStatus = async (checkActivationStatus: boolean, isUserAut
     }
 }
 
-if (APP_TYPE === 'STANDARD') {
+if (import.meta.env.VITE_APP_TYPE === 'STANDARD') {
     let isUserAuth = false
 
     querySystemCaps(getXmlWrapData(''))
-        .then(() => {
-            isUserAuth = true
+        .then((result) => {
+            const $ = queryXml(result)
+            isUserAuth = $('//status').text() === 'success'
         })
         .finally(() => {
             queryActivationStatus().then((result) => {
@@ -75,25 +71,9 @@ if (APP_TYPE === 'STANDARD') {
                 hanedleActivationStatus(checkActivationStatus, isUserAuth)
             })
         })
+} else {
+    session.getP2PSessionInfo()
 }
-
-onMounted(() => {
-    Plugin.DisposePlugin()
-    Plugin.StartV2Process()
-})
-
-onBeforeUnmount(() => {
-    Plugin.DisposePlugin()
-})
-
-watch(
-    () => session.sessionId,
-    (val) => {
-        if (val === '') {
-            Plugin.DisposePlugin()
-        }
-    },
-)
 
 watch(
     () => session.calendarType,

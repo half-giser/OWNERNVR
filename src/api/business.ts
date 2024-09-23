@@ -51,13 +51,6 @@ export const queryAccessDataComCfg = (data: string) => http.fetch('queryAccessDa
 export const editAccessDataComCfg = (data: string) => http.fetch('editAccessDataComCfg', getXmlWrapData(data))
 
 /**
- * @description 搜索抓拍图像
- * @param {string} data
- * @returns
- */
-export const searchImageByImageV2 = (data: string) => http.fetch('searchImageByImageV2', getXmlWrapData(data))
-
-/**
  * @description 获取个人脸照
  * @param {string} data
  * @returns
@@ -70,13 +63,6 @@ export const searchGateSnap = (data: string) => http.fetch('searchGateSnap', get
  * @returns
  */
 export const openGate = (data: string) => http.fetch('openGate', getXmlWrapData(data))
-
-/**
- * @description 获取智能目标抓拍图
- * @param {string} data
- * @returns
- */
-export const requestSmartTargetSnapImage = (data: string) => http.fetch('requestSmartTargetSnapImage', getXmlWrapData(data))
 
 /**
  * @description 搜索开闸事件关联数据

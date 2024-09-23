@@ -3,7 +3,7 @@
  * @Date: 2024-07-22 16:42:37
  * @Description: 现场预览-目标检测视图-人脸比对项组件
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 16:59:24
+ * @LastEditTime: 2024-09-14 11:43:10
 -->
 <template>
     <div
@@ -82,7 +82,7 @@
                             :index="0"
                             :hover-index="1"
                             :chunk="4"
-                            @click.stop="$emit('search', 'featureImg')"
+                            @click.stop="$emit('search', 'face')"
                         />
                     </el-tooltip>
                     <el-tooltip

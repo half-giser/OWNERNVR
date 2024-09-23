@@ -3,20 +3,20 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-28 13:42:09
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-06 18:01:49
+ * @LastEditTime: 2024-09-14 17:31:32
  */
 import { ArrowDown } from '@element-plus/icons-vue'
 import { cloneDeep } from 'lodash'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
-import { type FaceChlItem, type AIResource, FaceDetection, type PresetList, FaceMatch, type FaceGroupTableItem, FaceCompare, type FaceCompareTask } from '@/types/apiType/aiAndEvent'
+import { type FaceChlItem, type AIResource, FaceDetection, type PresetList, FaceMatch, type FaceGroupTableItem, FaceCompare, type CompareTask } from '@/types/apiType/aiAndEvent'
 import { type TabPaneName, type CheckboxValueType } from 'element-plus'
 import CanvasVfd from '@/utils/canvas/canvasVfd'
-import FaceSuccessfulRecognition from './FaceSuccessfulRecognition.vue'
+import SuccessfulRecognition from './SuccessfulRecognition.vue'
 
 export default defineComponent({
     components: {
         ArrowDown,
-        FaceSuccessfulRecognition,
+        SuccessfulRecognition,
         ScheduleManagPop,
     },
     setup() {
@@ -48,7 +48,7 @@ export default defineComponent({
         let haveUseNameId = [] as Number[]
         // 人脸分组数据，初始化后不会改变
         const faceGroupNameMap = {} as Record<string, string>
-        const faceGroupData = [] as { guid: string; name: string }[]
+        let faceGroupData = [] as { guid: string; name: string }[]
         // 人脸匹配数据
         const faceMatchData = ref(new FaceMatch())
         const faceGroupTable = ref<FaceGroupTableItem[]>([])
@@ -150,7 +150,7 @@ export default defineComponent({
             // 相似度默认值
             similarityNumber: 75,
             // 当前选中tab的任务数据
-            taskData: {} as FaceCompareTask,
+            taskData: {} as CompareTask,
 
             // 初始化，后判断应用是否可用
             initComplated: false,
@@ -262,7 +262,7 @@ export default defineComponent({
                         chlNameList: [chlData.name],
                         streamType: 'sub',
                         // chl没有index属性
-                        chlIndexList: ['null'],
+                        chlIndexList: ['0'],
                         chlTypeList: [chlData.chlType],
                     })
                     plugin.GetVideoPlugin().ExecuteCmd(sendXML)
@@ -271,7 +271,10 @@ export default defineComponent({
                 }
             }
             if (chlData.supportVfd) {
-                setCurrChlView('vfdArea')
+                // 通道和tab切换时直接绘制失效，将绘制改成微任务执行
+                setTimeout(() => {
+                    setCurrChlView('vfdArea')
+                }, 0)
                 // 设置视频区域可编辑
                 if (mode.value === 'h5') {
                     vfdDrawer.setEnable(true)
@@ -280,7 +283,7 @@ export default defineComponent({
                     plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 }
             } else {
-                // 设置视频区域可编辑
+                // 设置视频区域不可编辑
                 if (mode.value === 'h5') {
                     vfdDrawer.setEnable(false)
                 } else {
@@ -551,6 +554,7 @@ export default defineComponent({
                         }
                     })
                 }).then(async () => {
+                    if (!pageData.value.curChl) pageData.value.curChl = onlineChlList[0]
                     handleCurrChlData(chlList[pageData.value.curChl])
                     // 在获取到通道数据后再请求通道的侦测数据
                     await getFaceDetectionData()
@@ -585,20 +589,24 @@ export default defineComponent({
             pageData.value.faceTab = 'faceDetection'
             detectionPageData.value.detectionTab = 'param'
             comparePageData.value.compareTab = 'hit'
+            pageData.value.notChlSupport = false
             handleCurrChlData(chlList[pageData.value.curChl])
             // 更换通道时清空上一个通道的数据
             faceDetectionData.value = {} as FaceDetection
+            faceCompareData.value = {} as FaceCompare
+            faceGroupData = []
+            haveUseNameId = []
             detectionPageData.value.initComplated = false
             comparePageData.value.initComplated = false
             detectionPageData.value.applyDisabled = true
             comparePageData.value.applyDisabled = true
+            // 获取改变后的通道数据
             await getFaceDetectionData()
-            // 更换通道，初始化完成
+            // 初始化完成
             detectionPageData.value.initComplated = true
             await getFaceGroupData()
-            comparePageData.value.initComplated = true
             // 播放器
-            clearDrawArea()
+            // clearDrawArea()
             play()
         }
 
@@ -1019,7 +1027,7 @@ export default defineComponent({
                         <enum>alarmOuts</enum>
                     </nodeType>
                 </types>
-                <nodeType type="nodeType">chls</nodeType>
+                <nodeType type='nodeType'>chls</nodeType>
                 <requireField>
                     <name/>
                     <chlType/>
@@ -1157,9 +1165,12 @@ export default defineComponent({
                     type: 'info',
                     title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_SIMPLE_FACE_DETECT_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + chlList[pageData.value.curChl].name, switchChangeType),
+                }).then(() => {
+                    chlList[pageData.value.curChl].supportVfd ? setFaceDetectionData() : setFaceDetectionBackUpData()
                 })
+            } else {
+                chlList[pageData.value.curChl].supportVfd ? setFaceDetectionData() : setFaceDetectionBackUpData()
             }
-            chlList[pageData.value.curChl].supportVfd ? setFaceDetectionData() : setFaceDetectionBackUpData()
         }
 
         const getFaceDetectionSaveData = () => {
@@ -1349,7 +1360,6 @@ export default defineComponent({
                 })
                 comparePageData.value.compareTab = 'hit'
                 comparePageData.value.removeDisabled = true
-                console.log(faceCompareData.value.task)
             })
         }
         const compareTabChange = (name: TabPaneName) => {
@@ -1500,6 +1510,8 @@ export default defineComponent({
         }
         // 获取人脸识别数据
         const getFaceCompareData = async () => {
+            taskTabs.value = []
+            faceCompareData.value.task = []
             const sendXml = rawXml`
             <condition><chlId>${pageData.value.curChl}</chlId></condition>
             `
@@ -1592,13 +1604,13 @@ export default defineComponent({
         }
         // tab项对应的识别数据
         const compareLinkData = (value: string) => {
-            let taskData = {} as FaceCompareTask
+            let taskData = {} as CompareTask
             if (value == 'hit') {
-                taskData = faceCompareData.value.task[0]
+                taskData = faceCompareData.value.task?.[0]
             } else if (value == 'miss') {
-                taskData = faceCompareData.value.task[1]
+                taskData = faceCompareData.value.task?.[1]
             } else {
-                faceCompareData.value.task.forEach((item) => {
+                faceCompareData.value.task?.forEach((item) => {
                     if (item.nameId == Number(value[3])) {
                         taskData = item
                     }
@@ -1629,7 +1641,7 @@ export default defineComponent({
                         <word>${item.hintword}</word>
                     </hint></param>
                     <schedule id='${item.schedule}'></schedule>
-                    <trigger>" + 
+                    <trigger>
                         <sysAudio id='${item.sysAudio}'></sysAudio>
                         <buzzerSwitch>${String(item.buzzerSwitch)}</buzzerSwitch>
                         <popMsgSwitch>${String(item.popMsgSwitch)}</popMsgSwitch>
@@ -1687,7 +1699,7 @@ export default defineComponent({
             comparePageData.value.applyDisabled = true
         }
 
-        const deleteFaceCompareData = async (data: FaceCompareTask) => {
+        const deleteFaceCompareData = async (data: CompareTask) => {
             const sendXml = rawXml`
                 <condition>
                     <chl id='${pageData.value.curChl}'>
@@ -1721,8 +1733,8 @@ export default defineComponent({
             await getRecordList()
             await getAlarmOutData()
             await getSnapList()
-            await getPresetData()
             await getChlData()
+            await getPresetData()
         })
 
         onBeforeUnmount(() => {
@@ -1737,7 +1749,9 @@ export default defineComponent({
                 const sendXML = OCX_XML_StopPreview('ALL')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
-            vfdDrawer.destroy()
+            if (mode.value == 'h5') {
+                vfdDrawer.destroy()
+            }
         })
 
         watch(
@@ -1778,7 +1792,7 @@ export default defineComponent({
 
         return {
             // 识别成功界面
-            FaceSuccessfulRecognition,
+            SuccessfulRecognition,
             ScheduleManagPop,
             detectionPageData,
             pageData,

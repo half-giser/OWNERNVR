@@ -3,7 +3,7 @@
  * @Date: 2024-08-10 16:25:58
  * @Description: AI/事件
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-10 17:06:08
+ * @LastEditTime: 2024-09-20 15:31:35
  */
 
 import { type AxiosRequestConfig } from 'axios'
@@ -136,13 +136,19 @@ export const queryCombinedAlarm = () => http.fetch('queryCombinedAlarm', getXmlW
 export const queryCombinedAlarmFaceMatch = () => http.fetch('queryCombinedAlarmFaceMatch', getXmlWrapData(''))
 
 // 人脸比对中请求后侦测开关
-export const queryBackFaceMatch = () => http.fetch('queryBackFaceMatch', getXmlWrapData(''))
+export const queryBackFaceMatch = (data?: string) => http.fetch('queryBackFaceMatch', getXmlWrapData(data || ''))
 
 // 修改组合报警数据
 export const editCombinedAlarm = (data: string) => http.fetch('editCombinedAlarm', getXmlWrapData(data))
 
 // 修改组合报警人脸匹配数据
 export const editCombinedAlarmFaceMatch = (data: string) => http.fetch('editCombinedAlarmFaceMatch', getXmlWrapData(data))
+
+// 获取火点检测数据
+export const querySmartFireConfig = (data: string) => http.fetch('querySmartFireConfig', getXmlWrapData(data))
+
+// 修改火点检测数据
+export const editSmartFireConfig = (data: string) => http.fetch('editSmartFireConfig', getXmlWrapData(data))
 
 // 获取人脸侦测数据
 export const queryVfd = (data: string) => http.fetch('queryVfd', getXmlWrapData(data))
@@ -167,3 +173,63 @@ export const editFaceMatchAlarmParam = (data: string) => http.fetch('editFaceMat
 
 // 删除人脸匹配报警参数
 export const deleteFaceMatchAlarmParam = (data: string) => http.fetch('deleteFaceMatchAlarmParam', getXmlWrapData(data))
+
+// 获取车辆识别参数
+export const queryVehicleConfig = (data: string) => http.fetch('queryVehicleConfig', getXmlWrapData(data))
+
+// 获取过线检测数据
+export const queryPls = (data: string) => http.fetch('queryPls', getXmlWrapData(data))
+
+// 修改过线检测数据
+export const editPls = (data: string) => http.fetch('editPls', getXmlWrapData(data))
+
+// 获取定时发送邮件数据
+export const queryTimingSendEmail = () => http.fetch('queryTimingSendEmail', getXmlWrapData(''))
+
+// 修改定时发送邮件数据
+export const editTimingSendEmail = (data: string) => http.fetch('editTimingSendEmail', getXmlWrapData(data))
+
+// 重置cpc信息
+export const forceResetCpc = (data: string) => http.fetch('forceResetCpc', getXmlWrapData(data))
+
+// 获取cpc信息
+export const queryCpc = (data: string) => http.fetch('queryCpc', getXmlWrapData(data))
+
+// 编辑cpc信息
+export const editCpc = (data: string) => http.fetch('editCpc', getXmlWrapData(data))
+
+// 获取车牌匹配报警参数
+export const queryVehicleMatchAlarm = (data: string) => http.fetch('queryVehicleMatchAlarm', getXmlWrapData(data))
+
+// 修改车牌匹配报警参数
+export const editVehicleMatchAlarm = (data: string) => http.fetch('editVehicleMatchAlarm', getXmlWrapData(data))
+
+// 删除车牌匹配报警参数
+export const deleteVehicleMatchAlarm = (data: string) => http.fetch('deleteVehicleMatchAlarm', getXmlWrapData(data))
+
+// 修改车辆侦测数据
+export const editVehicleConfig = (data: string) => http.fetch('editVehicleConfig', getXmlWrapData(data))
+
+// 获取温度检测数据
+export const queryTemperatureAlarmConfig = (data: string) => http.fetch('queryTemperatureAlarmConfig', getXmlWrapData(data))
+
+// 修改温度检测数据
+export const editTemperatureAlarmConfig = (data: string) => http.fetch('editTemperatureAlarmConfig', getXmlWrapData(data))
+
+// 获取物品遗留与看护数据
+export const queryOsc = (data: string) => http.fetch('queryOsc', getXmlWrapData(data))
+
+// 修改物品遗留与看护数据
+export const editOsc = (data: string) => http.fetch('editOsc', getXmlWrapData(data))
+
+// 获取人群密度检测数据
+export const queryCdd = (data: string) => http.fetch('queryCdd', getXmlWrapData(data))
+
+// 修改人群密度检测数据
+export const editCdd = (data: string) => http.fetch('editCdd', getXmlWrapData(data))
+
+// 获取异常侦测数据
+export const queryAvd = (data: string) => http.fetch('queryAvd', getXmlWrapData(data))
+
+// 修改异常侦测数据
+export const editAvd = (data: string) => http.fetch('editAvd', getXmlWrapData(data))
