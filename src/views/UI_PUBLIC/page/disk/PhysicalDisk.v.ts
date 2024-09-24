@@ -3,11 +3,12 @@
  * @Date: 2024-07-08 18:01:02
  * @Description: 物理磁盘
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-23 17:04:18
+ * @LastEditTime: 2024-09-23 14:39:44
  */
-import BaseCheckAuthPop, { type UserCheckAuthForm } from '../../components/auth/BaseCheckAuthPop.vue'
+import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import { type DiskPhysicalList } from '@/types/apiType/disk'
 import PhysicalDiskCreateRaidPop from './PhysicalDiskCreateRaidPop.vue'
+import type { UserCheckAuthForm } from '@/types/apiType/user'
 
 export default defineComponent({
     components: {

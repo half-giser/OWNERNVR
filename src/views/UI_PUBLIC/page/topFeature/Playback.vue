@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 18:39:25
  * @Description: 回放
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 11:26:24
+ * @LastEditTime: 2024-09-23 11:53:35
 -->
 <template>
     <div class="playback">
@@ -224,7 +224,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    color: var(--text-menu-04);
+    color: var(--calendar-header-text);
     font-weight: bolder;
     background-color: var(---bg-table);
 

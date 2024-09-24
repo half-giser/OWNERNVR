@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 顶层布局页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-20 18:02:18
+ * @LastEditTime: 2024-09-23 16:17:03
 -->
 <template>
     <el-container id="layoutMain">
@@ -191,7 +191,7 @@
 
         &:hover {
             text-decoration: underline;
-            color: var(--el-menu-active-color);
+            color: var(--primary--04);
         }
     }
 
@@ -242,7 +242,7 @@
 
         &:hover {
             background-color: var(--page-bg);
-            color: var(--text-primary);
+            color: var(--text-menu-01-hover);
             border-bottom: solid 6px var(--primary--01);
         }
 
@@ -257,6 +257,10 @@
         &.is-active {
             color: var(--primary--04);
             border-bottom: solid 6px var(--primary--04);
+
+            &:hover {
+                color: var(--primary--04);
+            }
         }
     }
 }

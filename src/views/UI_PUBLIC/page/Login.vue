@@ -3,7 +3,7 @@
  * @Date: 2023-05-10 09:30:08
  * @Description: 登录页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-20 10:15:47
+ * @LastEditTime: 2024-09-23 17:27:53
 -->
 <template>
     <div class="login">
@@ -113,6 +113,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    background-color: var(--page-bg);
 }
 
 .login-content {
@@ -146,13 +147,13 @@
 
         .login-submit {
             --el-button-border-color: var(--primary--04);
-            --el-button-bg-color: var(--primary--03);
-            --el-button-text-color: var(--page-bg);
-            --el-button-hover-text-color: var(--page-bg);
-            --el-button-hover-bg-color: var(--primary--02);
-            --el-button-hover-border-color: var(--primary--03);
-            --el-button-active-text-color: var(--page-bg);
-            --el-button-active-border-color: var(--primary--05);
+            --el-button-bg-color: var(--primary--04);
+            --el-button-text-color: var(--text-button);
+            --el-button-hover-text-color: var(--text-button);
+            --el-button-hover-bg-color: var(--primary--04);
+            --el-button-hover-border-color: var(--primary--04);
+            --el-button-active-text-color: var(--text-button);
+            --el-button-active-border-color: var(--primary--04);
             --el-button-active-bg-color: var(--primary--04);
 
             width: 314px;

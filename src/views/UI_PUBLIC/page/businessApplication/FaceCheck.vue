@@ -3,7 +3,7 @@
  * @Date: 2024-08-27 14:24:19
  * @Description: 业务应用-人脸签到
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 11:44:36
+ * @LastEditTime: 2024-09-23 11:19:15
 -->
 <template>
     <div class="base-flex-box face">
@@ -13,7 +13,7 @@
                 class="inline-message narrow"
                 :style="{
                     '--form-input-width': '200px',
-                    '--form-label-width': '100px',
+                    '--form-label-width': '150px',
                 }"
             >
                 <el-form-item>

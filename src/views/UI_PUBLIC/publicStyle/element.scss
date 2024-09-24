@@ -4,18 +4,35 @@
  * @Description: 覆盖公共Element UI 样式
  */
 
-#n9web {
-    :root {
-        --el-color-primary: var(--primary--04);
-        --el-color-primary-light-3: var(--primary--03);
-        --el-transition-duration: 0.2s;
-    }
+:root {
+    --el-color-primary: var(--primary--04);
+    --el-color-primary-light-3: var(--primary--04);
+    --el-transition-duration: 0.2s;
+    --el-text-color-regular: var(--text-input);
+    --el-disabled-text-color: var(--text-disabled);
+    --el-text-color-primary: var(--text-input);
+}
 
+#n9web {
     .el-menu {
         --el-menu-text-color: var(--text-menu-01);
         --el-menu-active-color: var(--primary--04);
         --el-menu-hover-bg-color: var(--page-bg);
         --el-menu-hover-text-color: var(--primary--04);
+        background-color: var(--page-bg);
+        &.el-menu--horizontal>.el-menu-item.is-active {
+            color: var(--text-menu-active);
+            &:hover {
+                color: var(--text-menu-hover);
+            }
+        }
+        &.tab-style .el-menu-item:hover {
+            color: var(--text-menu-hover);
+        }
+    }
+
+    .el-text {
+        --el-text-color: var(--text-primary);
     }
 
     .el-input,
@@ -29,7 +46,20 @@
     .el-radio-button,
     .el-textarea {
         --el-color-primary: var(--primary--04);
-        --el-color-primary-light-3: var(--primary--03);
+        --el-color-primary-light-3: var(--primary--04);
+    }
+
+    .el-dialog {
+        background-color: var(--bg-dialog);
+
+        &__body {
+            color: var(--text-primary);
+        }
+    }
+
+    .el-message-box {
+        background-color: var(--bg-dialog);
+        --el-messagebox-content-color: var(--text-primary);
     }
 
     .el-radio-button {
@@ -37,6 +67,13 @@
             border-color: var(--border-color4);
             border-radius: 0;
             width: var(--form-radio-button-width);
+            background-color: var(--page-bg);
+            color: var(--text-primary);
+
+            &:hover {
+                background-color: var(--primary--01);
+                color: var(--text-input);
+            }
         }
 
         & + .el-radio-button .el-radio-button__inner {
@@ -44,11 +81,16 @@
         }
     }
 
+    .el-radio-button__original-radio:checked+.el-radio-button__inner {
+        background-color: var(--primary--04);
+        color: var(--text-active);
+    }
+
     .el-button {
         --el-button-border-color: var(--border-color4);
         --el-button-bg-color: var(--bg-color2);
         --el-button-text-color: var(--text-button);
-        --el-button-disabled-text-color: var(--text-button);
+        --el-button-disabled-text-color: var(--text-button-disabled);
         --el-button-disabled-bg-color: var(--bg-button-disabled);
         --el-button-disabled-border-color: var(--border-color6);
         --el-button-hover-text-color: var(--text-button);
@@ -74,38 +116,38 @@
         --el-button-active-bg-color: var(--bg-color3);
     }
 
-    .el-button--danger {
-        --el-button-text-color: var(--text-button);
-        --el-button-bg-color: var(--danger--06);
-        --el-button-border-color: var(--el-color-danger);
-        --el-button-outline-color: var(--el-color-danger-light-5);
-        --el-button-active-color: var(--el-color-danger-dark-2);
-        --el-button-hover-text-color: var(--text-button);
-        --el-button-hover-link-text-color: var(--el-color-danger-light-5);
-        --el-button-hover-bg-color: var(--danger--05);
-        --el-button-hover-border-color: var(--el-color-danger-light-3);
-        --el-button-active-bg-color: var(--danger--07);
-        --el-button-active-border-color: var(--el-color-danger-dark-2);
-        --el-button-disabled-text-color: var(--text-button);
-        --el-button-disabled-bg-color: var(--danger--03);
-        --el-button-disabled-border-color: var(--el-color-danger-light-5);
-    }
+    // .el-button--danger {
+    //     --el-button-text-color: var(--text-button);
+    //     --el-button-bg-color: var(--danger--06);
+    //     --el-button-border-color: var(--el-color-danger);
+    //     --el-button-outline-color: var(--el-color-danger-light-5);
+    //     --el-button-active-color: var(--el-color-danger-dark-2);
+    //     --el-button-hover-text-color: var(--text-button);
+    //     --el-button-hover-link-text-color: var(--el-color-danger-light-5);
+    //     --el-button-hover-bg-color: var(--danger--05);
+    //     --el-button-hover-border-color: var(--el-color-danger-light-3);
+    //     --el-button-active-bg-color: var(--danger--07);
+    //     --el-button-active-border-color: var(--el-color-danger-dark-2);
+    //     --el-button-disabled-text-color: var(--text-button);
+    //     --el-button-disabled-bg-color: var(--danger--03);
+    //     --el-button-disabled-border-color: var(--el-color-danger-light-5);
+    // }
 
     .el-input,
     .el-textarea {
-        --el-input-text-color: var(--text-primary);
+        --el-input-text-color: var(--text-input);
         --el-input-border: var(--border-color7);
         --el-input-border-color: var(--border-color7);
-        --el-input-hover-border: var(--primary--03);
-        --el-input-hover-border-color: var(--primary--03);
-        --el-input-clear-hover-color: var(--primary--03);
+        --el-input-hover-border: var(--primary--04);
+        --el-input-hover-border-color: var(--primary--04);
+        --el-input-clear-hover-color: var(--primary--04);
         --el-disabled-border-color: var(--border-color-disabled);
         --el-disabled-bg-color: var(--bg-color-disabled);
     }
 
     .el-select {
         --el-border-color: var(--border-color7);
-        --el-border-color-hover: var(--primary--03);
+        --el-border-color-hover: var(--primary--04);
         --el-disabled-border-color: var(--border-color-disabled);
         .el-select__wrapper {
             &.is-disabled {
@@ -115,8 +157,9 @@
     }
 
     .el-checkbox {
+        --el-checkbox-text-color: var(--text-primary);
         --el-checkbox-input-border: var(--el-border-width) var(--el-border-style) var(--border-color7);
-        --el-checkbox-input-border-color-hover: var(--primary--03);
+        --el-checkbox-input-border-color-hover: var(--primary--04);
         --el-checkbox-checked-text-color: var(--primary--04);
         --el-checkbox-checked-input-border-color: var(--primary--04);
         --el-checkbox-checked-bg-color: var(--primary--04);
@@ -136,7 +179,7 @@
     .el-radio {
         --el-radio-checked-text-color: var(--primary--04);
         --el-radio-input-border: var(--el-border-width) var(--el-border-style) var(--border-color7);
-        --el-radio-input-border-color-hover: var(--primary--03);
+        --el-radio-input-border-color-hover: var(--primary--04);
     }
 
     .el-overlay {
@@ -144,11 +187,17 @@
     }
 
     .el-table {
+        --el-table-tr-bg-color: var(--bg-table);
         --el-table-border-color: var(--border-color8);
         --el-table-header-bg-color: var(--bg-table-thead);
         --el-table-header-text-color: var(--text-primary);
         --el-table-text-color: var(--text-primary);
         --el-table-current-row-bg-color: var(--primary--04);
+        --el-table-expanded-cell-bg-color: var(--page-bg);
+
+        &__body-wrapper {
+            background-color: var(--page-bg);
+        }
 
         .cell {
             text-align: center;
@@ -161,6 +210,7 @@
         .el-table__body tr.el-table__row.active {
             &>td.el-table__cell {
                 background-color: var(--primary--04);
+                color: var(--text-active);
             }
         }
 
@@ -210,11 +260,13 @@
             width: 1.3em;
             height: 1.3em;
             fill: var(--text-primary);
+            color: var(--text-primary);
         }
 
         &:hover {
             svg {
-                fill: var(--primary--03);
+                fill: var(--primary--04);
+                color: var(--text-primary);
             }
         }
 
@@ -223,7 +275,19 @@
 
             svg {
                 fill: var(--text-disabled);
+                color: var(--text-primary);
             }
+        }
+    }
+
+    .el-pagination {
+        --el-pagination-bg-color: var(--page-bg);
+        --el-pagination-button-disabled-bg-color: var(--page-bg);
+        --el-pagination-button-color: var(--text-primary);
+        --el-pagination-button-disabled-color: var(--text-disabled);
+
+        &__sizes, &__total, &__jump {
+            color: var(--text-primary);
         }
     }
 
@@ -246,14 +310,14 @@
                     display: inline-block;
                 }
 
-                &::after {
-                    content: '<span></span>';
-                    width: 1px;
-                    margin: 2px 0px 0px -1px;
-                    background-color: var(--table-split);
-                    float: right;
-                    line-height: 10px;
-                }
+                // &::after {
+                //     content: '<span></span>';
+                //     width: 1px;
+                //     margin: 2px 0px 0px -1px;
+                //     background-color: var(--table-split);
+                //     float: right;
+                //     line-height: 10px;
+                // }
 
                 &:last-of-type::after {
                     content: '';
@@ -288,6 +352,10 @@
 
     .el-dropdown {
         line-height: 23px;
+
+        &__popper {
+            --el-dropdown-menuItem-hover-fill: var(--primary--01);
+        }
     }
 
     .el-form-item__error {
@@ -311,18 +379,29 @@
             padding-bottom: 10px;
         }
     }
+
+    .el-popover.el-popper {
+        background-color: var(--bg-popover);
+        border-color: var(--border-color2);
+
+        .el-popper__arrow:before {
+            background-color: var(--bg-popover);
+            border-color: var(--border-color2);
+        }
+    }
     
     .el-row {
         align-items: center;
     }
 
     .el-calendar {
-        --el-calendar-border: 1px solid var(--border-calendar);
+        --el-calendar-border: 1px solid var(--calendar-border);
         --el-calendar-cell-width: unset;
-        --el-calendar-selected-bg-color: var(--bg-color-table-hover); // var(--primary--04);
+        --el-calendar-selected-bg-color: var(--calendar-bg-hover); // var(--primary--04);
+        background-color: var(--calendar-bg);
 
         &__header {
-            background-color: var(--bg-calendar-header);
+            background-color: var(--calendar-header-bg);
             color: var(--text-menu-04);
             padding: 0 5px;
         }
@@ -333,12 +412,20 @@
 
         &-table {
             thead {
-                background-color: var(--bg-calender-thead);
+                background-color: var(--calendar-thead-bg);
                 font-size: 12px;
-                color: var(--text-menu-04);
                 th {
                     padding: 3px 0;
                 }
+            }
+
+            th {
+                color: var(--text-primary);
+            }
+
+            &:not(.is-range) td.next,
+            &:not(.is-range) td.prev {
+                color: var(--calendar-text-disabled);
             }
         }
 

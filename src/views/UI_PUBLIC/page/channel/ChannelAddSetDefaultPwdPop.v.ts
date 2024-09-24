@@ -1,7 +1,8 @@
 import { DefaultPwdDto } from '@/types/apiType/channel'
 import { type FormInstance } from 'element-plus'
 import { type RuleItem } from 'async-validator'
-import BaseCheckAuthPop, { type UserCheckAuthForm } from '../../components/auth/BaseCheckAuthPop.vue'
+import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
+import type { UserCheckAuthForm } from '@/types/apiType/user'
 
 export default defineComponent({
     components: {

@@ -6,8 +6,9 @@
  * @LastEditTime: 2024-08-23 17:04:39
  */
 import { DiskRaidList, DiskRaidRebuildForm } from '@/types/apiType/disk'
-import BaseCheckAuthPop, { type UserCheckAuthForm } from '../../components/auth/BaseCheckAuthPop.vue'
+import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import { type FormInstance, type FormRules } from 'element-plus'
+import type { UserCheckAuthForm } from '@/types/apiType/user'
 
 export default defineComponent({
     props: {

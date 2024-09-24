@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 二级类型1布局页--适用于所有配置页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-19 20:54:22
+ * @LastEditTime: 2024-09-23 20:41:06
 -->
 <template>
     <el-container id="layout2">
@@ -102,6 +102,7 @@
     z-index: 1;
     display: flex;
     flex-direction: column;
+    background-color: var(--bg-config-menu);
 }
 
 .menu-group {
@@ -114,6 +115,23 @@
 
     &.is-active {
         background-color: var(--bg-color-cfg-menu-active);
+
+        .main-menu span {
+            color: var(--text-menu-03-active);
+            &:hover {
+                color: var(--text-menu-03-active);
+            }
+        }
+
+        .sub-menus span {
+            color: var(--text-menu-03-active);
+            &:not(:last-of-type):after {
+                background-color: var(--text-menu-03-active);
+            }
+            &:hover {
+                color: var(--text-menu-03-active);
+            }
+        }
     }
 
     &:hover {
@@ -139,15 +157,15 @@
     span {
         margin-right: 8px;
         display: inline-block;
-        // padding: 2px 0px 0px 0px;
         font-size: 16px;
         text-decoration: none;
         cursor: pointer;
         font-weight: bold;
-        color: var(--text-regular-02);
+        color: var(--text-menu-03);
 
         &:hover {
-            color: var(--primary--04);
+            color: var(--text-menu-03-hover);
+            text-decoration: underline;
         }
     }
 }
@@ -162,7 +180,8 @@
         color: var(--text-menu-03);
 
         &:hover {
-            color: var(--primary--04);
+            color: var(--text-menu-03-hover);
+            text-decoration: underline;
         }
 
         &:not(:last-of-type):after {
@@ -173,7 +192,7 @@
             top: 2px;
             width: 1px;
             height: 15px;
-            background-color: var(--border-color2);
+            background-color: var(--text-menu-03);
         }
     }
 }
@@ -234,6 +253,23 @@
             justify-content: flex-end;
             padding: 0 10px;
             box-sizing: border-box;
+
+            .toolBarText {
+                width: 200px;
+                height: 25px;
+                float: left;
+
+                :deep(.el-input__inner) {
+                    height: 25px;
+                }
+            }
+            .toolBarIconBtn {
+                width: 25px;
+                height: 25px;
+                float: left;
+                margin: 0 0 0 5px;
+                padding: 0;
+            }
         }
     }
 

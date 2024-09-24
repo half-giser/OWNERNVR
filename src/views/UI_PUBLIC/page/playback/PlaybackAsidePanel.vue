@@ -3,7 +3,7 @@
  * @Date: 2024-07-30 10:36:00
  * @Description: 回放-右侧视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-07 09:10:34
+ * @LastEditTime: 2024-09-23 14:23:22
 -->
 <template>
     <div class="right">
@@ -73,6 +73,7 @@
 .right {
     height: 100%;
     flex-shrink: 0;
+    background-color: var(--panel-bg);
 
     &-content {
         width: 260px;
@@ -90,7 +91,8 @@
         height: 50px;
         align-items: center;
         justify-content: flex-start;
-        color: var(--text-dialog);
+        color: var(--panel-header-text);
+        background-color: var(--panel-header-bg);
 
         & > div {
             margin-right: 10px;
@@ -111,7 +113,7 @@
 
             &:after {
                 content: '';
-                border-left: 4px solid var(--page-bg);
+                border-left: 4px solid var(--panel-header-bg);
                 border-top: 4px solid transparent;
                 border-bottom: 4px solid transparent;
                 border-right: 4px solid transparent;
@@ -135,7 +137,7 @@
 
     &-menu {
         height: 50px;
-        background-color: var(--bg-table);
+        background-color: var(--panel-menu-bg);
         display: flex;
         align-items: flex-end;
         justify-content: center;
@@ -152,7 +154,7 @@
             border-top: 3px solid transparent;
 
             &.active {
-                background-color: var(--bg-color-table-hover);
+                background-color: var(--panel-menu-bg-active);
                 border-top-color: var(--primary--04);
             }
         }

@@ -31,7 +31,7 @@ export const doLogin = (data: string, config?: AxiosRequestConfig, checkCommonEr
  * @param config
  * @returns
  */
-export const doLogout = () => http.fetch('doLogout', getXmlWrapData(''))
+export const doLogout = () => http.fetch('doLogout', getXmlWrapData(''), {}, false)
 
 /**
  * @description 登出处理
