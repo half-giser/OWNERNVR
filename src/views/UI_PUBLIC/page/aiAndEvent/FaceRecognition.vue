@@ -2,8 +2,8 @@
  * @Description: AI 事件——人脸识别
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-28 13:41:57
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-14 17:31:50
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-09-24 14:04:41
 -->
 <template>
     <!-- 通道名称及选择器 -->
@@ -780,10 +780,11 @@
     }
 }
 .row_padding {
-    padding: 5px 20px;
+    padding: 0px 20px;
     :deep(.el-checkbox__label) {
         font-size: 15px;
         color: #000;
+        padding-left: 5px;
     }
 }
 // 高级设置

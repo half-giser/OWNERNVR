@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 17:51:22
  * @Description: 人群密度检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-20 16:13:41
+ * @LastEditTime: 2024-09-24 14:19:55
  */
 import { ArrowDown } from '@element-plus/icons-vue'
 import { type chlCaps } from '@/types/apiType/aiAndEvent'
@@ -583,7 +583,7 @@ export default defineComponent({
                 pageData.value.originalEnable = enabledSwitch
                 pageData.value.schedule = schedule
             } else {
-                pageData.value.requireDataFail = true
+                // pageData.value.requireDataFail = true
             }
         }
         const saveData = async () => {
@@ -764,6 +764,19 @@ export default defineComponent({
         }
         onMounted(async () => {
             await initPageData()
+        })
+        onBeforeUnmount(() => {
+            if (plugin?.IsPluginAvailable() && mode.value === 'ocx' && ready.value) {
+                plugin.VideoPluginNotifyEmitter.removeListener(LiveNotify2Js)
+                const sendAreaXML = OCX_XML_SetCddAreaAction('NONE')
+                plugin.GetVideoPlugin().ExecuteCmd(sendAreaXML)
+                const sendXML = OCX_XML_StopPreview('ALL')
+                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.CloseCurPlugin(document.getElementById('player'))
+            }
+            if (mode.value === 'h5') {
+                player.destroy()
+            }
         })
         return {
             pageData,

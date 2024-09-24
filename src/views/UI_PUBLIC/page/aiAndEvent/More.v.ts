@@ -3,7 +3,7 @@
  * @Date: 2024-09-10 17:50:35
  * @Description: 更多功能页面的框架
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-20 16:17:08
+ * @LastEditTime: 2024-09-24 11:41:50
  */
 // import { cloneDeep } from 'lodash-es'
 import { type chlCaps } from '@/types/apiType/aiAndEvent'
@@ -327,7 +327,6 @@ export default defineComponent({
         const isTabDisabled = () => {
             pageData.value.fireDetectionDisable = !pageData.value.chlData['supportFire']
             pageData.value.videoStructureDisable = !pageData.value.chlData['supportVideoMetadata']
-            // pageData.value.videoStructureDisable = false
             pageData.value.passLineDisable = !(pageData.value.chlData['supportPassLine'] || pageData.value.chlData['supportCpc'])
             pageData.value.cddDisable = !pageData.value.chlData['supportCdd']
             // pageData.value.cddDisable = false
