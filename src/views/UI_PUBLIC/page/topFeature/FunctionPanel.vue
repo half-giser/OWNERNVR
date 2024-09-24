@@ -50,9 +50,11 @@
         height: 135px;
         margin: 0px 8px 10px 0px;
         display: flex;
+        background-color: var(--bg-menu-04);
 
         &:hover {
-            border: solid 2px var(--primary--04);
+            border-color: var(--primary--04);
+            background-color: var(--bg-menu-04-hover);
         }
 
         &.md1 {
@@ -99,6 +101,10 @@
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+
+        &:hover {
+            color: var(--text-menu-04-hover);
+        }
     }
 
     .subMenus {
@@ -123,12 +129,12 @@
                 top: 2px;
                 width: 1px;
                 height: 15px;
-                background-color: var(--border-color2);
+                background-color: var(--text-menu-05-hover);
             }
 
             &:hover {
                 text-decoration: underline;
-                color: var(--primary--04);
+                color: var(--text-menu-05-hover);
             }
         }
     }

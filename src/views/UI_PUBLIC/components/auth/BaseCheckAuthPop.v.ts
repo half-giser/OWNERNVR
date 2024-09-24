@@ -3,15 +3,10 @@
  * @Date: 2024-06-07 15:00:44
  * @Description: 账号密码权限认证弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-20 18:11:23
+ * @LastEditTime: 2024-09-23 14:38:50
  */
 import { type FormInstance, type FormRules } from 'element-plus'
-
-export class UserCheckAuthForm {
-    userName = ''
-    password = '' // 明文密码用于与插件的鉴权交互
-    hexHash = '' // 密文密码
-}
+import { UserCheckAuthForm } from '@/types/apiType/user'
 
 export default defineComponent({
     props: {

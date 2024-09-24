@@ -3,7 +3,7 @@
  * @Date: 2024-06-04 10:17:30
  * @Description: 不支持WebSocket或未安装插件时的占位弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-28 18:56:35
+ * @LastEditTime: 2024-09-23 20:00:51
 -->
 <template>
     <teleport
@@ -87,13 +87,13 @@ const container = computed(() => {
         color: #327eee;
 
         &:hover {
-            color: #00bbdb;
+            color: var(--primary--04);
         }
     }
 
     &.warning {
         font-size: 20px;
-        color: #d90000;
+        color: var(--error-01);
     }
 
     &.fixed {

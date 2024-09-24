@@ -5,9 +5,10 @@
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
  * @LastEditTime: 2024-09-05 11:59:28
  */
-import BaseCheckAuthPop, { type UserCheckAuthForm } from '../../components/auth/BaseCheckAuthPop.vue'
+import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import { DiskRaidList } from '@/types/apiType/disk'
 import RaidRebuildPop from './RaidRebuildPop.vue'
+import type { UserCheckAuthForm } from '@/types/apiType/user'
 
 export default defineComponent({
     components: {

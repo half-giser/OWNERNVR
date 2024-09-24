@@ -3,10 +3,10 @@
  * @Date: 2024-06-27 11:49:04
  * @Description: 系统升级
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 15:25:42
+ * @LastEditTime: 2024-09-23 09:39:21
  */
-import BaseCheckAuthPop, { UserCheckAuthForm } from '../../components/auth/BaseCheckAuthPop.vue'
-import BaseInputEncryptPwdPop, { UserInputEncryptPwdForm } from '../../components/auth/BaseInputEncryptPwdPop.vue'
+import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
+import BaseInputEncryptPwdPop from '../../components/auth/BaseInputEncryptPwdPop.vue'
 import UpgradeBackUpPop from './UpgradeBackUpPop.vue'
 import { type XMLQuery } from '@/utils/xmlParse'
 import type WebsocketPlugin from '@/utils/websocket/websocketPlugin'
@@ -14,6 +14,7 @@ import WebsocketUpload from '@/utils/websocket/websocketUpload'
 import WebsocketDownload from '@/utils/websocket/websocketDownload'
 import { type CmdUploadFileOpenOption } from '@/utils/websocket/websocketCmd'
 import { SystemUpgradeForm } from '@/types/apiType/system'
+import { UserCheckAuthForm, UserInputEncryptPwdForm } from '@/types/apiType/user'
 
 export default defineComponent({
     components: {
