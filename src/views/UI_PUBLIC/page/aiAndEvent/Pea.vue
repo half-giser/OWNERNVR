@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 13:35:56
  * @Description:  区域入侵
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-20 11:29:41
+ * @LastEditTime: 2024-09-20 17:38:34
 -->
 <template>
     <div class="pea_setting_pane">
@@ -181,7 +181,10 @@
                 </template>
             </el-dropdown>
             <!-- 只存在一个播放器，因此放于tab区域外 -->
-            <div class="left">
+            <div
+                v-show="peaData.peaFunction !== 'pea_trigger'"
+                class="left"
+            >
                 <div class="player">
                     <BaseVideoPlayer
                         id="peaplayer"
@@ -191,7 +194,7 @@
                     />
                 </div>
                 <div
-                    v-if="peaData.peaFunction === 'pea_param'"
+                    v-show="peaData.peaFunction === 'pea_param'"
                     class="player_config"
                 >
                     <el-row>
