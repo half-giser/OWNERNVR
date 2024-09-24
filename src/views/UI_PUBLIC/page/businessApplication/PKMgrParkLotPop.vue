@@ -159,7 +159,7 @@
         box-sizing: border-box;
         font-size: 14px;
         line-height: 28px;
-        background: var(--bg-parklog-title);
+        background: var(--parklog-title-bg);
     }
 
     &-door {
@@ -199,7 +199,7 @@
         label {
             width: 150px;
             flex-shrink: 0;
-            color: var(--text-parklog-label);
+            color: var(--parklog-label-text);
         }
 
         span {

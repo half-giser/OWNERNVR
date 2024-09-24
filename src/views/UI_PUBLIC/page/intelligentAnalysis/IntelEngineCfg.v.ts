@@ -3,10 +3,12 @@
  * @Date: 2024-08-29 09:41:34
  * @Description: 智能分析-引擎配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-29 09:41:38
+ * @LastEditTime: 2024-09-23 14:40:17
  */
 import { EngineConfigForm, type EngineConfigList } from '@/types/apiType/intelligentAnalysis'
-import BaseCheckAuthPop, { type UserCheckAuthForm } from '../../components/auth/BaseCheckAuthPop.vue'
+import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
+import type { UserCheckAuthForm } from '@/types/apiType/user'
+
 export default defineComponent({
     components: {
         BaseCheckAuthPop,
@@ -62,7 +64,7 @@ export default defineComponent({
          * @description 获取详情
          */
         const getAIResourceDetail = async () => {
-            const result = await queryAIResourceDetail()
+            const result = await queryAIResourceDetail('')
             const $ = queryXml(result)
             tableData.value = []
             $('//content/chl/item').map((item) => {

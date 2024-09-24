@@ -3,7 +3,7 @@
  * @Date: 2024-07-05 10:10:29
  * @Description: 存储模式配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 09:13:54
+ * @LastEditTime: 2024-09-23 15:41:44
 -->
 <template>
     <div class="StorageMode">
@@ -135,6 +135,10 @@
         background-color: var(--bg-color4);
     }
 
+    :deep(.el-form-item__label) {
+        color: var(--text-sub-heading) !important;
+    }
+
     .el-select {
         width: 340px;
     }
@@ -188,7 +192,8 @@
             }
 
             &.active {
-                background-color: var(--primary--01);
+                background-color: var(--primary--04);
+                color: var(--text-menu-active);
             }
         }
     }

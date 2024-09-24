@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 18:39:25
  * @Description: 实时过车记录
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 17:43:32
+ * @LastEditTime: 2024-09-23 11:41:30
 -->
 <template>
     <div class="lot">
@@ -240,7 +240,7 @@
     height: 95px;
     display: flex;
     align-items: center;
-    background-color: var(--bg-parklog);
+    background-color: var(--parklog-bg);
     box-sizing: border-box;
     padding: 5px 20px;
     margin-bottom: 3px;
@@ -273,7 +273,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: var(--bg-parklog-box);
+    background-color: var(--parklog-box-bg);
     margin: 0 4px;
 
     & > div {
@@ -284,6 +284,7 @@
 
         &:last-child {
             font-size: 14px;
+            text-align: center;
         }
     }
 }
@@ -300,7 +301,7 @@
 .center {
     width: 100%;
     height: 380px;
-    background-color: var(--bg-parklog);
+    background-color: var(--parklog-bg);
     box-sizing: border-box;
     display: flex;
     padding: 0 10px;
@@ -309,8 +310,9 @@
 .panel {
     width: 664px;
     height: 365px;
-    border: 1px solid var(--bg-color4);
+    // border: 1px solid var(--bg-color4);
     margin: 5px;
+    background-color: var(--parklog-box-bg);
 
     &-top {
         width: 100%;
@@ -321,7 +323,7 @@
         box-sizing: border-box;
         font-size: 16px;
         line-height: 40px;
-        background: var(--bg-parklog-title);
+        background: var(--parklog-title-bg);
     }
 
     &-door {
@@ -361,7 +363,7 @@
         label {
             width: 150px;
             flex-shrink: 0;
-            color: var(--text-parklog-label);
+            color: var(--parklog-label-text);
         }
 
         span {

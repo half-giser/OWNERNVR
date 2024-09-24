@@ -245,7 +245,7 @@
         ul {
             display: flex;
             justify-content: center;
-            border: 1px solid var(--border-color6);
+            border: 1px solid var(--border-color8);
             margin: 0;
             padding: 5px;
             flex-shrink: 0;

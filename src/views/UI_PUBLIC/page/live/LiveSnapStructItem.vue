@@ -3,7 +3,7 @@
  * @Date: 2024-07-22 16:45:57
  * @Description: 现场预览-目标检测面板-渲染单个结构化抓拍元素
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-23 11:41:04
+ * @LastEditTime: 2024-09-23 14:55:36
 -->
 <template>
     <div
@@ -99,7 +99,7 @@
     font-size: 12px;
 
     &.border {
-        border-color: var(--border-snap-history);
+        border-color: var(--panel-snap-history);
     }
 
     &-top {

@@ -3,10 +3,11 @@
  * @Date: 2024-07-16 16:18:21
  * @Description: 云升级
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 15:38:36
+ * @LastEditTime: 2024-09-23 14:40:25
  */
-import BaseCheckAuthPop, { type UserCheckAuthForm } from '../../components/auth/BaseCheckAuthPop.vue'
+import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import { NetCloudUpgradeForm } from '@/types/apiType/net'
+import type { UserCheckAuthForm } from '@/types/apiType/user'
 
 export default defineComponent({
     components: {

@@ -3,7 +3,7 @@
  * @Date: 2024-09-20 09:10:11
  * @Description: P2P授权码登录
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-20 16:47:44
+ * @LastEditTime: 2024-09-24 09:41:28
 -->
 <template>
     <div class="authCodeLogin">
@@ -120,6 +120,7 @@
     position: relative;
     width: 100vw;
     height: 100vh;
+    background-color: var(--page-bg);
 
     &-lang {
         position: absolute;
@@ -235,13 +236,13 @@
 
         .authCodeLogin-submit {
             --el-button-border-color: var(--primary--04);
-            --el-button-bg-color: var(--primary--03);
+            --el-button-bg-color: var(--primary--04);
             --el-button-text-color: var(--page-bg);
             --el-button-hover-text-color: var(--page-bg);
-            --el-button-hover-bg-color: var(--primary--02);
-            --el-button-hover-border-color: var(--primary--03);
+            --el-button-hover-bg-color: var(--primary--04);
+            --el-button-hover-border-color: var(--primary--04);
             --el-button-active-text-color: var(--page-bg);
-            --el-button-active-border-color: var(--primary--05);
+            --el-button-active-border-color: var(--primary--04);
             --el-button-active-bg-color: var(--primary--04);
 
             width: 300px;
@@ -264,7 +265,7 @@
         font-size: 18px;
         color: var(--primary--04);
         &:hover {
-            color: var(--primary--02);
+            color: var(--primary--01);
         }
     }
 }

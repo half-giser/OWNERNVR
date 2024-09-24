@@ -243,27 +243,6 @@ declare global {
     }
 
     type UserChlAuth = _UserChlAuth
-
-    /**
-     * 通用的日期选择选项卡组件选中日期后的日期信息
-     */
-    interface SelectedDateInfo {
-        startTimeFormat: string
-        endTimeFormat: string
-        oneWeekFirstDayFormat: string
-        oneWeekLastDayFormat: string
-        oneMonthFirstDayFormat: string
-        oneMonthLastDayFormat: string
-        startTimeFormatForCalc: string
-        endTimeFormatForCalc: string
-        oneWeekFirstDayFormatForCalc: string
-        oneWeekLastDayFormatForCalc: string
-        oneMonthFirstDayFormatForCalc: string
-        oneMonthLastDayFormatForCalc: string
-        currentDateIndex: string
-        selectedDateForShow: string
-        selectedDateForLabel: string
-    }
 }
 
 /**

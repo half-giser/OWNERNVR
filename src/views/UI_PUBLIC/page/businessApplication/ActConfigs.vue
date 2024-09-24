@@ -174,8 +174,8 @@
     display: flex;
     align-items: center;
     height: 23px;
-    border-left: 2px solid var(--text-dark);
-    color: var(--text-dark);
+    border-left: 2px solid var(--text-primary);
+    color: var(--text-primary);
     font-size: 16px;
     font-weight: bold;
     padding-left: 10px;

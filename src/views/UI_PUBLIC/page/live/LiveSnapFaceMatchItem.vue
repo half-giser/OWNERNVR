@@ -3,7 +3,7 @@
  * @Date: 2024-07-22 16:42:37
  * @Description: 现场预览-目标检测视图-人脸比对项组件
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-14 11:43:10
+ * @LastEditTime: 2024-09-23 14:55:22
 -->
 <template>
     <div
@@ -136,7 +136,7 @@
     box-sizing: border-box;
 
     &.border {
-        border-color: var(--border-snap-history);
+        border-color: var(--panel-snap-history);
     }
 
     &-top {
@@ -203,7 +203,7 @@
         color: var(--primary--04);
 
         &.border {
-            border: 1px solid var(--primary--02);
+            border: 1px solid var(--primary--04);
         }
 
         .rtl {

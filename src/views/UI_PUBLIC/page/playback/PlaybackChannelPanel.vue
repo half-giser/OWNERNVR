@@ -3,7 +3,7 @@
  * @Date: 2024-07-30 09:32:36
  * @Description: 回放-通道视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-23 16:17:09
+ * @LastEditTime: 2024-09-23 14:28:40
 -->
 <template>
     <div class="left">
@@ -211,6 +211,7 @@
 .left {
     height: 100%;
     flex-shrink: 0;
+    background-color: var(--panel-bg);
 
     &-content {
         width: 260px;
@@ -228,7 +229,8 @@
         height: 50px;
         align-items: center;
         justify-content: space-between;
-        color: var(--text-dialog);
+        color: var(--panel-header-text);
+        background-color: var(--panel-header-bg);
 
         & > div {
             margin-left: 10px;
@@ -249,7 +251,7 @@
 
             &:after {
                 content: '';
-                border-right: 4px solid var(--page-bg);
+                border-right: 4px solid var(--panel-header-bg);
                 border-top: 4px solid transparent;
                 border-bottom: 4px solid transparent;
                 border-left: 4px solid transparent;
@@ -273,7 +275,7 @@
 
     &-menu {
         height: 50px;
-        background-color: var(--bg-table);
+        background-color: var(--panel-menu-bg);
         display: flex;
         align-items: flex-end;
         justify-content: center;
@@ -290,7 +292,7 @@
             border-top: 3px solid transparent;
 
             &.active {
-                background-color: var(--bg-color-table-hover);
+                background-color: var(--panel-menu-bg-active);
                 border-top-color: var(--primary--04);
             }
         }
@@ -415,7 +417,7 @@
                     content: '';
                     width: 100px;
                     height: 25px;
-                    border: 2px solid var(--border-color5);
+                    border: 2px solid var(--panel-btn-bg);
                     position: absolute;
                     right: -40px;
                     top: -3px;
@@ -425,9 +427,9 @@
                     border-color: var(--primary--04);
                 }
                 &.disabled:after {
-                    border-color: var(--border-color8);
+                    border-color: var(--panel-btn-bg-disabled);
                     &:hover {
-                        border-color: var(--border-color8);
+                        border-color: var(--panel-btn-bg-disabled);
                     }
                 }
             }
