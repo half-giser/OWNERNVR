@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 17:51:22
  * @Description: 人群密度检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-20 15:17:55
+ * @LastEditTime: 2024-09-20 16:13:41
  */
 import { ArrowDown } from '@element-plus/icons-vue'
 import { type chlCaps } from '@/types/apiType/aiAndEvent'
@@ -583,7 +583,7 @@ export default defineComponent({
                 pageData.value.originalEnable = enabledSwitch
                 pageData.value.schedule = schedule
             } else {
-                // pageData.value.requireDataFail = true
+                pageData.value.requireDataFail = true
             }
         }
         const saveData = async () => {
