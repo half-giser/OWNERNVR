@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 11:16:22
  * @Description: 周界防范/人车检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-23 11:17:05
+ * @LastEditTime: 2024-09-24 14:17:52
  */
 import { ArrowDown } from '@element-plus/icons-vue'
 import { type chlCaps, type aiResourceRow } from '@/types/apiType/aiAndEvent'
@@ -1273,7 +1273,7 @@ export default defineComponent({
             tripwireDrawer.clear()
             tripwireData.value.applyDisable = false
         }
-        // 清空所有区域'/statenotify[@type="TripwireLine']'
+        // 清空所有区域
         const clearAllTripwireArea = function () {
             tripwireData.value.lineInfo.forEach((lineInfo: { direction: string; startPoint: { X: number; Y: number }; endPoint: { X: number; Y: number }; configured: boolean }) => {
                 lineInfo.startPoint = { X: 0, Y: 0 }
@@ -1321,10 +1321,6 @@ export default defineComponent({
         })
         onBeforeUnmount(() => {
             if (tripwirePlugin?.IsPluginAvailable() && tripwiremode.value === 'ocx' && tripwireReady.value) {
-                const sendXML = OCX_XML_StopPreview('ALL')
-                tripwirePlugin.GetVideoPlugin().ExecuteCmd(sendXML)
-            }
-            if (tripwirePlugin?.IsPluginAvailable()) {
                 tripwirePlugin.VideoPluginNotifyEmitter.removeListener(tripwireLiveNotify2Js)
                 // 切到其他AI事件页面时清除一下插件显示的（线条/点/矩形/多边形）数据
                 const sendAreaXML = OCX_XML_SetTripwireLineAction('NONE')
@@ -1333,6 +1329,10 @@ export default defineComponent({
                 tripwirePlugin.GetVideoPlugin().ExecuteCmd(sendAllAreaXML!)
                 const sendXML = OCX_XML_StopPreview('ALL')
                 tripwirePlugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                tripwirePlugin.CloseCurPlugin(document.getElementById('tripwireplayer'))
+            }
+            if (tripwiremode.value === 'h5') {
+                tripwirePlayer.destroy()
             }
         })
         return {

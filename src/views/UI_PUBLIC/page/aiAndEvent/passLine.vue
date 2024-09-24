@@ -3,7 +3,7 @@
  * @Date: 2024-09-12 15:00:13
  * @Description: 过线检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-20 10:39:41
+ * @LastEditTime: 2024-09-24 15:36:43
 -->
 <template>
     <div class="tripwire_setting_pane">
@@ -31,15 +31,21 @@
             {{ Translate('IDCS_QUERY_DATA_FAIL') }}
         </div>
         <div v-if="!pageData.notSupportTipShow && !pageData.requireDataFail">
-            <!-- 检测开启及ai按钮 -->
-            <el-row v-if="pageData.chlData['supportPassLine']">
+            <!-- 检测开启 -->
+            <el-row
+                v-if="pageData.chlData['supportPassLine']"
+                class="row-padding"
+            >
                 <el-checkbox
                     v-model="pageData.passLineDetectionEnable"
                     @change="pageData.applyDisable = false"
                 ></el-checkbox>
                 <span class="checkbox_text">{{ Translate('IDCS_ENABLE') }}</span>
             </el-row>
-            <el-row v-if="pageData.chlData['supportCpc']">
+            <el-row
+                v-if="pageData.chlData['supportCpc']"
+                class="row-padding"
+            >
                 <el-checkbox
                     v-model="pageData.cpcDetectionEnable"
                     @change="pageData.applyDisable = false"
@@ -75,7 +81,11 @@
                     v-if="pageData.fuction === 'param' && pageData.chlData.supportPassLine"
                     class="player_config"
                 >
-                    <el-row>
+                    <el-row
+                        :style="{
+                            marginTop: '10px',
+                        }"
+                    >
                         <el-col :span="16">
                             <div class="showAllArea">
                                 <el-checkbox
@@ -287,6 +297,7 @@
                                     value-key="value"
                                     size="small"
                                     :options="pageData.countCycleTypeList"
+                                    @change="pageData.applyDisable = false"
                                 >
                                     <el-option
                                         v-for="item in pageData.countCycleTypeList"
@@ -315,6 +326,7 @@
                                             value-key="value"
                                             size="small"
                                             :options="pageData.weekOption"
+                                            @change="pageData.applyDisable = false"
                                         >
                                             <el-option
                                                 v-for="item in pageData.weekOption"
@@ -330,6 +342,7 @@
                                             value-key="value"
                                             size="small"
                                             :options="pageData.monthOption"
+                                            @change="pageData.applyDisable = false"
                                         >
                                             <el-option
                                                 v-for="item in pageData.monthOption"
@@ -657,6 +670,7 @@
                                         size="small"
                                         :show-input-controls="false"
                                         show-input
+                                        class="slider"
                                         @change="pageData.applyDisable = false"
                                     />
                                 </template>
@@ -726,15 +740,24 @@
         --el-checkbox-font-size: 15px;
     }
 }
+.row-padding {
+    padding-left: 20px;
+}
 #n9web .el-form .el-form-item {
     padding: 1px 0px 2px 12px;
     margin-bottom: 0;
 }
 .form > .form_span:first-child {
     padding-bottom: 10px;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
 }
 .form > .form_span:not(:first-child) {
     padding: 10px 0;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
 }
 .el-form-item > .el-select {
     width: 300px;
@@ -742,6 +765,7 @@
 .form_btn {
     width: 80px;
     height: 25px;
+    font-size: 14px;
 }
 .alert_surface_btn {
     width: 50px;
@@ -825,9 +849,6 @@
     margin-top: 5px;
 }
 
-.aiResourcePop {
-    height: 400px;
-}
 .span_txt {
     font-size: 15px;
 }
@@ -848,14 +869,6 @@
 .form {
     width: 600px;
 }
-:deep() {
-    .el-tabs--border-card > .el-tabs__header .el-tabs__item {
-        padding: 0px;
-        border: 1px solid #999999;
-        margin-top: 0px;
-        margin-left: 0px;
-    }
-}
 .notSupportBox {
     display: flex;
     justify-content: center;
@@ -868,16 +881,10 @@
 }
 .tripwire_setting_pane {
     position: relative;
-    :deep(#n9web .el-form .el-input-number.is-without-controls .el-input__wrapper) {
-        padding-left: 9px;
-        padding-right: 9px;
-    }
     .checkbox_text {
         margin-left: 5px;
         width: 100px;
-    }
-    .aiResource {
-        margin-left: 1253px;
+        font-size: 15px;
     }
     .more {
         position: absolute;
@@ -889,8 +896,9 @@
         width: 400px;
         height: 450px;
         position: absolute;
+        padding-left: 20px;
         z-index: 1;
-        top: 84px;
+        top: 82px;
         .player {
             margin-top: 5px;
             width: 400px;
@@ -898,8 +906,39 @@
         }
     }
     .function-tabs {
+        :deep(.el-tabs__header) {
+            border-bottom: 1px solid var(--border-color2);
+        }
+        :deep(.el-tabs__item) {
+            width: 100px;
+            font-size: 15px;
+            border: none;
+        }
+        /* 长分割线 */
+        :deep(.el-tabs__nav-wrap::after) {
+            position: static !important; //可以去掉长分割线
+            // background-color: var(--border-color2);
+        }
+
+        /* 去掉下划线 */
+        :deep(.el-tabs__active-bar) {
+            background-color: transparent !important;
+        }
+
+        :deep(.el-tabs__item:first-child) {
+            margin-left: 30px;
+        }
+        /* 鼠标选中时样式 */
         :deep(.el-tabs__item.is-active) {
-            color: #00bbdb;
+            color: var(--primary--04);
+            background-color: transparent;
+            border: none;
+        }
+        /* 鼠标悬浮时样式 */
+        :deep(.el-tabs__item:hover) {
+            color: var(--primary--04);
+            cursor: pointer;
+            background-color: transparent;
         }
         .tripwire_param {
             display: flex;
@@ -908,6 +947,7 @@
             .right {
                 // height: 480px;
                 margin-left: 500px;
+                padding-left: 20px;
                 width: calc(100% - 500px);
                 .timeSet .el-select {
                     margin-right: 30px;
@@ -926,6 +966,7 @@
             .right {
                 // height: 480px;
                 margin-left: 500px;
+                padding-left: 20px;
                 width: calc(100% - 500px);
             }
             .apply_area {
@@ -959,10 +1000,10 @@
             .trigger_content {
                 display: flex;
                 flex-direction: row;
-                padding-left: 10px;
+                padding-left: 20px;
                 height: 100%;
                 .title {
-                    height: 42px;
+                    height: 33px;
                     background-color: #d0d0d0;
                     color: black;
                     font-size: 15px;
