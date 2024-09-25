@@ -3,7 +3,7 @@
  * @Date: 2024-09-10 17:50:24
  * @Description: 更多功能页面的框架
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-24 15:39:51
+ * @LastEditTime: 2024-09-24 16:55:35
 -->
 <template>
     <div class="content">
@@ -293,6 +293,8 @@
         }
         .span_txt {
             font-size: 15px;
+            display: flex;
+            align-items: center;
         }
     }
     :deep() {

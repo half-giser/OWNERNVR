@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 13:35:56
  * @Description:  区域入侵
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-24 14:13:27
+ * @LastEditTime: 2024-09-24 18:13:43
 -->
 <template>
     <div class="pea_setting_pane">
@@ -376,6 +376,7 @@
                                         backgroundColor: peaData.chosenWarnAreaIndex === index ? '#00BBDB' : 'white',
                                         color: peaData.chosenWarnAreaIndex === index ? 'white' : item.configured ? '#00BBDB' : 'black',
                                         borderColor: peaData.chosenWarnAreaIndex === index || item.configured ? '#00BBDB' : '',
+                                        borderRadius: 0,
                                     }"
                                     @click="handleWarnAreaChange(index)"
                                 >
@@ -738,6 +739,9 @@
         color: black;
         --el-checkbox-font-size: 15px;
     }
+}
+#n9web .el-table {
+    --el-table-tr-bg-color: white;
 }
 #n9web .el-form .el-form-item {
     padding: 1px 0px 2px 12px;

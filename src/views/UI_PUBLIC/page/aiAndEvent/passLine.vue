@@ -3,7 +3,7 @@
  * @Date: 2024-09-12 15:00:13
  * @Description: 过线检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-24 15:36:43
+ * @LastEditTime: 2024-09-24 18:15:07
 -->
 <template>
     <div class="tripwire_setting_pane">
@@ -224,6 +224,7 @@
                                         backgroundColor: pageData.chosenSurfaceIndex === index ? '#00BBDB' : 'white',
                                         color: pageData.chosenSurfaceIndex === index ? 'white' : item.configured ? '#00BBDB' : 'black',
                                         borderColor: pageData.chosenSurfaceIndex === index || item.configured ? '#00BBDB' : '',
+                                        borderRadius: 0,
                                     }"
                                     @click="handleLineChange(index)"
                                 >

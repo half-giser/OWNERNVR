@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 17:51:14
  * @Description: 人群密度检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-24 15:35:51
+ * @LastEditTime: 2024-09-24 17:18:32
 -->
 <template>
     <div class="tripwire_setting_pane">
@@ -464,7 +464,9 @@
 #n9web .el-form .el-slider {
     margin-left: 15px;
 }
-
+#n9web .el-table {
+    --el-table-tr-bg-color: white;
+}
 .clear_btns {
     display: flex;
     align-items: center;

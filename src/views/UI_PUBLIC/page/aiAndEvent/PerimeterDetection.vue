@@ -3,7 +3,7 @@
  * @Date: 2024-08-27 15:43:26
  * @Description:  周界防范/人车检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-24 15:35:03
+ * @LastEditTime: 2024-09-24 17:12:15
 -->
 <template>
     <div class="content">
@@ -139,6 +139,7 @@
     cursor: pointer;
     border: 1px solid var(--border-color2);
 }
+
 // 保留
 .content {
     // 保留
@@ -149,6 +150,8 @@
         }
         .span_txt {
             font-size: 15px;
+            display: flex;
+            align-items: center;
         }
     }
     :deep() {
