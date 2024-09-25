@@ -374,7 +374,9 @@ export default defineComponent({
                                         <param/>
                                         <trigger/>
                                     </requireField>`
+            openLoading(LoadingTarget.FullScreen)
             const res = await queryIntelAreaConfig(sendXML)
+            closeLoading(LoadingTarget.FullScreen)
             const $ = queryXml(res)
             if ($('status').text() == 'success') {
                 peaData.value.applyDisable = true

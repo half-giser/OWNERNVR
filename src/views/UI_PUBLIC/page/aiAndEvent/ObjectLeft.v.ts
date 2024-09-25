@@ -2,8 +2,8 @@
  * @Description: AI 事件——更多——物品遗留与看护
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-18 09:43:49
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-20 09:26:53
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-09-25 11:05:33
  */
 import { cloneDeep } from 'lodash'
 import { type BoundaryItem, ObjectLeft, type PresetList, type chlCaps } from '@/types/apiType/aiAndEvent'
@@ -322,7 +322,9 @@ export default defineComponent({
                 <condition><chlId>${prop.currChlId}</chlId></condition>
                 <requireField><param/><trigger/></requireField>
                 `
+            openLoading(LoadingTarget.FullScreen)
             const result = await queryOsc(sendXml)
+            closeLoading(LoadingTarget.FullScreen)
             commLoadResponseHandler(result, async ($) => {
                 const enabledSwitch = $('/response/content/chl/param/switch').text() == 'true'
                 let holdTimeArr = $('/response/content/chl/param/holdTimeNote').text().split(',')

@@ -3,7 +3,7 @@
  * @Date: 2024-09-11 14:16:37
  * @Description: 火点检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-24 14:22:29
+ * @LastEditTime: 2024-09-25 11:01:21
  */
 import { ArrowDown } from '@element-plus/icons-vue'
 import { type chlCaps, type aiResourceRow } from '@/types/apiType/aiAndEvent'
@@ -648,7 +648,9 @@ export default defineComponent({
                                         <param/>
                                         <trigger/>
                                     </requireField>`
+            openLoading(LoadingTarget.FullScreen)
             const res = await querySmartFireConfig(sendXml)
+            closeLoading(LoadingTarget.FullScreen)
             const $ = queryXml(res)
             if ($('status').text() == 'success') {
                 pageData.value.mutexList = $('//content/chl/param/mutexList/item').map((item) => {

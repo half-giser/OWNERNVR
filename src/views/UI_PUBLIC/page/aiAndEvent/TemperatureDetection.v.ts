@@ -2,8 +2,8 @@
  * @Description: AI 事件——更多——温度检测
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-13 09:18:41
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-20 09:27:31
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-09-25 11:06:17
  */
 import { cloneDeep } from 'lodash'
 import { type BoundaryTableDataItem, type chlCaps, type PresetList, TempDetection } from '@/types/apiType/aiAndEvent'
@@ -364,7 +364,9 @@ export default defineComponent({
                 <condition><chlId>${prop.currChlId}</chlId></condition>
                 <requireField><param/><trigger/></requireField>
                 `
+            openLoading(LoadingTarget.FullScreen)
             const result = await queryTemperatureAlarmConfig(sendXml)
+            closeLoading(LoadingTarget.FullScreen)
             commLoadResponseHandler(result, async ($) => {
                 let holdTimeArr = $('/response/content/chl/param/holdTimeNote').text().split(',')
                 const holdTime = $('/response/content/chl/param/alarmHoldTime').text()

@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 11:16:22
  * @Description: 周界防范/人车检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-24 14:17:52
+ * @LastEditTime: 2024-09-25 10:56:52
  */
 import { ArrowDown } from '@element-plus/icons-vue'
 import { type chlCaps, type aiResourceRow } from '@/types/apiType/aiAndEvent'
@@ -409,6 +409,7 @@ export default defineComponent({
         }
         // 获取越界检测数据
         const getTripwireData = async () => {
+            openLoading(LoadingTarget.FullScreen)
             if (!tripwireData.value.chlData['supportTripwire'] && !tripwireData.value.chlData['supportBackTripwire'] && tripwireData.value.chlData['supportPeaTrigger']) {
                 const sendXML = rawXml` <condition>
                                             <chlId>${tripwireData.value.currChlId}</chlId>
@@ -417,6 +418,7 @@ export default defineComponent({
                                             <trigger/>
                                         </requireField>`
                 const res = await queryTripwire(sendXML)
+                closeLoading(LoadingTarget.FullScreen)
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
                     tripwireData.value.applyDisable = true
@@ -489,6 +491,7 @@ export default defineComponent({
                                             <trigger/>
                                         </requireField>`
                 const res = await queryTripwire(sendXML)
+                closeLoading(LoadingTarget.FullScreen)
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
                     tripwireData.value.applyDisable = true

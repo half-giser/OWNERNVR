@@ -2,8 +2,8 @@
  * @Description: AI 事件——更多——异常侦测
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-19 09:27:33
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-19 10:59:23
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-09-25 11:05:05
  */
 import { cloneDeep } from 'lodash'
 import { AbnormalDispose, type PresetList, type chlCaps } from '@/types/apiType/aiAndEvent'
@@ -204,7 +204,9 @@ export default defineComponent({
                 <condition><chlId>${prop.currChlId}</chlId></condition>
                 <requireField><param/><trigger/></requireField>
                 `
+            openLoading(LoadingTarget.FullScreen)
             const result = await queryAvd(sendXml)
+            closeLoading(LoadingTarget.FullScreen)
             commLoadResponseHandler(result, async ($) => {
                 let holdTimeArr = $('/response/content/chl/param/holdTimeNote').text().split(',')
                 const holdTime = $('/response/content/chl/param/holdTime').text()

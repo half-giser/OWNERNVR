@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 17:51:22
  * @Description: 人群密度检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-24 14:19:55
+ * @LastEditTime: 2024-09-25 11:03:06
  */
 import { ArrowDown } from '@element-plus/icons-vue'
 import { type chlCaps } from '@/types/apiType/aiAndEvent'
@@ -479,7 +479,9 @@ export default defineComponent({
                                         <param/>
                                         <trigger/>
                                     </requireField>`
+            openLoading(LoadingTarget.FullScreen)
             const res = await queryCdd(sendXml)
+            closeLoading(LoadingTarget.FullScreen)
             const $ = queryXml(res)
             if ($('status').text() == 'success') {
                 const holdTimeArr = $('//content/chl/param/holdTimeNote').text().split(',')
