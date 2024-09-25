@@ -2,8 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-03 11:56:43
  * @Description: 插件命令集合
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-23 10:55:21
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-09-25 09:37:30
  */
 import { APP_SERVER_IP } from '@/utils/constants'
 
@@ -1811,7 +1811,7 @@ export const OCX_XML_SetVsdArea = (points: { X: number; Y: number }[], regulatio
     return wrapXml(rawXml`
         <cmd type="SetVsdArea">
             <points>
-                ${points.map((item) => `<item X="${item.X}" Y=${item.Y} />`).join('')}
+                ${points.map((item) => `<item X="${item.X}" Y="${item.Y}" />`).join('')}
                 <Area>${String(areaIndex)}</Area>
                 <LineColor>${lineColor}</LineColor>
             </points>

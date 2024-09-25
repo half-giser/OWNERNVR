@@ -3,7 +3,7 @@
  * @Date: 2024-08-10 12:08:57
  * @Description: AI/事件
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-19 10:23:15
+ * @LastEditTime: 2024-09-25 10:26:43
  */
 const { Translate } = useLangStore()
 
@@ -776,4 +776,60 @@ export class AbnormalDispose {
     emailSwitch = false
     catchSnapSwitch = false
     sysAudio = ''
+}
+/* AI事件——更多——视频结构化 */
+export class VideoStructureData {
+    enabledSwitch = false
+    originalSwitch = false
+    schedule = ''
+    saveSourcePicture = ''
+    saveTargetPicture = ''
+    algoChkModel = ''
+    intervalCheck = 1
+    intervalCheckMin = 1
+    intervalCheckMax = 1
+    detectAreaInfo = {} as Record<number, { X: number; Y: number; isClosed: boolean }[]>
+    maskAreaInfo = {} as Record<number, { X: number; Y: number; isClosed: boolean }[]>
+    mutexList = [] as { object: string; status: boolean }[]
+    countOSD = {
+        switch: false,
+        X: 0,
+        Y: 0,
+        osdPersonName: '',
+        osdCarName: '',
+        osdBikeName: '',
+        osdFormat: '',
+        supportCountOSD: false,
+        supportPoint: false,
+        supportOsdPersonName: false,
+        supportOsdCarName: false,
+        supportBikeName: false,
+    }
+    countPeriod = {
+        countTimeType: 'day',
+        day: {
+            date: '',
+            dateTime: '',
+        },
+        week: {
+            date: '',
+            dateTime: '',
+        },
+        month: {
+            date: '',
+            dateTime: '',
+        },
+    }
+    objectFilter = {
+        car: false,
+        person: false,
+        motorcycle: false,
+        carSensitivity: 1,
+        personSensitivity: 1,
+        motorSensitivity: 1,
+    }
+    osdType = ''
+    osdPersonCfgList = [] as { index: string; value: string; tagName: string }[]
+    osdCarCfgList = [] as { index: string; value: string; tagName: string }[]
+    osdBikeCfgList = [] as { index: string; value: string; tagName: string }[]
 }

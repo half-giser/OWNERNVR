@@ -2,8 +2,10 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-10 17:50:24
  * @Description: 更多功能页面的框架
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-24 15:39:51
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-09-25 11:15:44
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-09-25 09:30:51
 -->
 <template>
     <div class="content">
@@ -88,6 +90,14 @@
                             }"
                             >{{ Translate('IDCS_VSD_DETECTION') }}</span
                         >
+                    </template>
+                    <template #default>
+                        <VideoStructure
+                            v-if="pageData.chosenFunction === 'videoStructure'"
+                            :curr-chl-id="pageData.currChlId"
+                            :chl-data="pageData.chlData"
+                            :voice-list="pageData.voiceList"
+                        ></VideoStructure>
                     </template>
                 </el-tab-pane>
 

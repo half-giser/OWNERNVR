@@ -3,13 +3,14 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-13 09:18:41
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-20 09:27:31
+ * @LastEditTime: 2024-09-24 11:05:02
  */
 import { cloneDeep } from 'lodash'
 import { type BoundaryTableDataItem, type chlCaps, type PresetList, TempDetection } from '@/types/apiType/aiAndEvent'
 import CanvasPolygon from '@/utils/canvas/canvasTemperature'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import { type TabPaneName, type CheckboxValueType } from 'element-plus'
+import { type XmlResult } from '@/utils/xmlParse'
 
 export default defineComponent({
     components: {
@@ -39,6 +40,8 @@ export default defineComponent({
         const pluginStore = usePluginStore()
         const systemCaps = useCababilityStore()
         const osType = getSystemInfo().platform
+        const Plugin = inject('Plugin') as PluginType
+
         // 系统配置
         const supportAlarmAudioConfig = systemCaps.supportAlarmAudioConfig
         // 温度检测数据
@@ -302,10 +305,11 @@ export default defineComponent({
                 showCancelButton: true,
             }).then(() => {
                 if (tempDetectionData.value.boundaryData.length == 0) return
+                pageData.value.currRowData.points = []
                 if (mode.value === 'h5') {
                     tempDrawer.clear()
                 } else {
-                    const sendXML = OCX_XML_SetPeaAreaAction('NONE')
+                    const sendXML = OCX_XML_SetOscAreaAction('NONE')
                     plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 }
                 if (pageData.value.isShowAllArea) {
@@ -461,8 +465,8 @@ export default defineComponent({
                     boundaryData,
                 }
             }).then(() => {
-                handleTemperatureDetectionData()
                 pageData.value.initComplated = true
+                handleTemperatureDetectionData()
             })
         }
         // 处理温度检测数据
@@ -936,7 +940,7 @@ export default defineComponent({
         const verification = () => {
             const count = tempDetectionData.value.boundaryData.length
             for (const item of tempDetectionData.value.boundaryData) {
-                if (count > 2 && !tempDrawer.judgeAreaCanBeClosed(item.points)) {
+                if (count > 2 && !judgeAreaCanBeClosed(item.points)) {
                     openMessageTipBox({
                         type: 'info',
                         title: Translate('IDCS_INFO_TIP'),
@@ -1074,7 +1078,38 @@ export default defineComponent({
                 stopWatchFirstPlay()
             }
         })
+
+        const LiveNotify2Js = ($: (path: string) => XmlResult) => {
+            // 温度报警检测
+            // const $xmlNote = $("statenotify[type='OscArea']")
+            const $points = $("statenotify[@type='OscArea']/points")
+            const errorCode = $("statenotify[@type='OscArea']/errorCode").text()
+            // 绘制点线
+            if ($points.length > 0) {
+                const points = [] as { X: number; Y: number }[]
+                $('/statenotify/points/item').forEach((item) => {
+                    points.push({ X: Number(item.attr('X')), Y: Number(item.attr('Y')) })
+                })
+                pageData.value.currRowData.points = points as { X: number; Y: number; isClosed: boolean }[]
+            }
+            // 处理错误码
+            if (errorCode == '517') {
+                // 517-区域已闭合
+                tempClearCurrentArea()
+            } else if (errorCode == '515') {
+                // 515-区域有相交直线，不可闭合
+                openMessageTipBox({
+                    type: 'info',
+                    title: Translate('IDCS_INFO_TIP'),
+                    message: Translate('IDCS_INTERSECT'),
+                    showCancelButton: false,
+                })
+            }
+        }
         onMounted(async () => {
+            if (mode.value != 'h5') {
+                Plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
+            }
             await getScheduleData()
             await getRecordList()
             await getAlarmOutData()
@@ -1085,6 +1120,7 @@ export default defineComponent({
 
         onBeforeUnmount(() => {
             if (plugin?.IsPluginAvailable() && mode.value === 'ocx' && ready.value) {
+                Plugin.VideoPluginNotifyEmitter.removeListener(LiveNotify2Js)
                 // 切到其他AI事件页面时清除一下插件显示的（线条/点/矩形/多边形）数据
                 const sendMinXML = OCX_XML_SetOscAreaAction('NONE')
                 plugin.GetVideoPlugin().ExecuteCmd(sendMinXML)

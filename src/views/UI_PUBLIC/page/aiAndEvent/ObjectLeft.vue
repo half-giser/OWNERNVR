@@ -2,8 +2,8 @@
  * @Description: AI 事件——更多——物品遗留与看护
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-18 09:43:32
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-24 15:36:20
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-09-25 10:24:04
 -->
 <template>
     <div class="obj_left_detection">
@@ -80,7 +80,7 @@
                                     </el-option>
                                 </el-select>
                                 <el-button
-                                    class="apply_btn"
+                                    class="form_btn"
                                     @click="pageData.scheduleManagPopOpen = true"
                                     >{{ Translate('IDCS_MANAGE') }}</el-button
                                 >
@@ -203,7 +203,7 @@
                             <span>{{ `${Translate('IDCS_RECORD')} ` }}</span>
                             <el-button
                                 size="small"
-                                class="apply_btn"
+                                class="form_btn"
                                 @click="pageData.recordIsShow = true"
                                 >{{ Translate('IDCS_CONFIG') }}</el-button
                             >
@@ -221,7 +221,7 @@
                             <span>{{ `${Translate('IDCS_ALARM_OUT')} ` }}</span>
                             <el-button
                                 size="small"
-                                class="apply_btn"
+                                class="form_btn"
                                 @click="pageData.alarmOutIsShow = true"
                                 >{{ Translate('IDCS_CONFIG') }}</el-button
                             >
@@ -283,7 +283,7 @@
         <div class="page_bottom">
             <el-button
                 :disabled="pageData.applyDisabled"
-                class="apply_btn"
+                class="form_btn"
                 @click="applyObjectLeftData"
                 >{{ Translate('IDCS_APPLY') }}</el-button
             >
@@ -333,7 +333,7 @@
     padding: 1px 0px 2px 12px;
     margin-bottom: 0;
 }
-.apply_btn {
+.form_btn {
     width: 80px;
     height: 25px;
 }
@@ -393,7 +393,7 @@
         }
     }
     .row_padding {
-        padding: 0px 20px;
+        padding: 0 20px;
         :deep(.el-checkbox__label) {
             font-size: 15px;
             color: #000;

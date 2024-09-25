@@ -2,14 +2,15 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2023-04-28 17:57:48
  * @Description: 工具方法
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-23 11:16:44
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-09-25 09:36:32
  */
 
 import { type QueryNodeListDto } from '@/types/apiType/channel'
 import { type ApiResult } from '@/api/api'
 import { type XMLQuery, type XmlResult } from './xmlParse'
 import JSZip from 'jszip'
+import { type CanvasBasePoint } from './canvas/canvasBase'
 
 export * from './transformers'
 export * from './validates'
@@ -1148,11 +1149,6 @@ export const joinSpaceForLang = (str: string) => {
  * @see https://www.cnblogs.com/tuyang1129/p/9390376.html
  * @returns {Boolean} true:相交; false:不相交
  */
-type CanvasBasePoint = {
-    X: number
-    Y: number
-    isClosed?: boolean
-}
 const IsIntersect = (pointA: CanvasBasePoint, pointB: CanvasBasePoint, pointC: CanvasBasePoint, pointD: CanvasBasePoint) => {
     const vectorAC = { X: pointC.X - pointA.X, Y: pointC.Y - pointA.Y }
     const vectorAD = { X: pointD.X - pointA.X, Y: pointD.Y - pointA.Y }

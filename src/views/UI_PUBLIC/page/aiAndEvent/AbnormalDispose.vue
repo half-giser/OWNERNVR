@@ -2,11 +2,11 @@
  * @Description: AI 事件——更多——异常侦测
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-19 09:27:27
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-24 15:37:41
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-09-25 10:03:33
 -->
 <template>
-    <div class="abnormal_dispose_detection">
+    <div class="abnormal_dispose">
         <div :style="{ position: 'relative' }">
             <el-tabs
                 v-model="pageData.tab"
@@ -300,18 +300,12 @@
     width: 80px;
     height: 25px;
 }
-.abnormal_dispose_detection {
+.abnormal_dispose {
     height: calc(100vh - 351px);
     position: relative;
     :deep() {
         .el-form {
             --el-form-label-font-size: 15px;
-            .el-checkbox {
-                color: black;
-                --el-checkbox-font-size: 15px;
-            }
-        }
-        .el-table {
             .el-checkbox {
                 color: black;
                 --el-checkbox-font-size: 15px;

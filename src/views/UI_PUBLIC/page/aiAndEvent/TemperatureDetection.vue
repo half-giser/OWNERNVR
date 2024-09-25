@@ -2,8 +2,8 @@
  * @Description: AI 事件——更多——温度检测
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-13 09:18:25
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-24 11:28:38
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-09-25 09:45:25
 -->
 <template>
     <div class="temp_detection">
@@ -529,7 +529,7 @@
         }
     }
     .row_padding {
-        padding: 0px 20px;
+        padding: 0 20px;
         :deep(.el-checkbox__label) {
             font-size: 15px;
             color: #000;
