@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-18 09:43:32
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-25 10:24:04
+ * @LastEditTime: 2024-09-25 11:26:04
 -->
 <template>
     <div class="obj_left_detection">
