@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 11:16:22
  * @Description: 周界防范/人车检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-19 17:27:19
+ * @LastEditTime: 2024-09-24 14:17:52
  */
 import { ArrowDown } from '@element-plus/icons-vue'
 import { type chlCaps, type aiResourceRow } from '@/types/apiType/aiAndEvent'
@@ -954,15 +954,6 @@ export default defineComponent({
                 thermalChlName: thermalChlName,
             }
         }
-        // 翻译key值拼接添加空格（排除简体中文、繁体中文）
-        const joinSpaceForLang = function (str: string) {
-            if (!str) return ''
-            const langTypeList = ['zh-cn', 'zh-tw']
-            const currLangType = useLangStore().getLangType || 'en-us'
-            const isInclude = !langTypeList.includes(currLangType)
-            str = isInclude ? str : str + ' '
-            return str
-        }
 
         // tripwire tab点击事件
         const handleTripwireFunctionTabClick = async (pane: TabsPaneContext) => {
@@ -1075,7 +1066,7 @@ export default defineComponent({
         }
         // tripwire执行是否显示全部区域
         const handleTripwireShowAllAreaChange = () => {
-            tripwireDrawer.setEnableShowAll(tripwireData.value.isShowAllArea)
+            tripwireDrawer && tripwireDrawer.setEnableShowAll(tripwireData.value.isShowAllArea)
             showAllTripwireArea(tripwireData.value.isShowAllArea)
         }
         // tripWire选择警戒面
@@ -1269,12 +1260,17 @@ export default defineComponent({
         }
         // 清空当前区域
         const clearTripwireArea = function () {
+            if (tripwiremode.value === 'h5') {
+                tripwireDrawer.clear()
+            } else {
+                const sendXML = OCX_XML_SetTripwireLineAction('NONE')
+                tripwirePlugin.GetVideoPlugin().ExecuteCmd(sendXML)
+            }
             const surface = tripwireData.value.chosenSurfaceIndex
             tripwireData.value.lineInfo[surface].startPoint = { X: 0, Y: 0 }
             tripwireData.value.lineInfo[surface].endPoint = { X: 0, Y: 0 }
             tripwireData.value.lineInfo[surface].configured = false
             tripwireDrawer.clear()
-            // setTripwireOcxData()
             tripwireData.value.applyDisable = false
         }
         // 清空所有区域
@@ -1302,16 +1298,17 @@ export default defineComponent({
             tripwireData.value.applyDisable = false
         }
         const tripwireLiveNotify2Js = ($: (path: string) => XmlResult) => {
-            if ($("statenotify[type='TripwireLine']").length > 0) {
+            if ($('/statenotify[@type="TripwireLine"]').length > 0) {
                 const surface = tripwireData.value.chosenSurfaceIndex
                 tripwireData.value['lineInfo'][surface]['startPoint'] = {
-                    X: parseInt($('statenotify/startPoint').attr('X')),
-                    Y: parseInt($('statenotify/startPoint').attr('Y')),
+                    X: parseInt($('/statenotify/startPoint').attr('X')),
+                    Y: parseInt($('/statenotify/startPoint').attr('Y')),
                 }
                 tripwireData.value['lineInfo'][surface]['endPoint'] = {
-                    X: parseInt($('statenotify/endPoint').attr('X')),
-                    Y: parseInt($('statenotify/endPoint').attr('Y')),
+                    X: parseInt($('/statenotify/endPoint').attr('X')),
+                    Y: parseInt($('/statenotify/endPoint').attr('Y')),
                 }
+                tripwireRefreshInitPage()
                 tripwireData.value.applyDisable = false
             }
         }
@@ -1324,8 +1321,18 @@ export default defineComponent({
         })
         onBeforeUnmount(() => {
             if (tripwirePlugin?.IsPluginAvailable() && tripwiremode.value === 'ocx' && tripwireReady.value) {
+                tripwirePlugin.VideoPluginNotifyEmitter.removeListener(tripwireLiveNotify2Js)
+                // 切到其他AI事件页面时清除一下插件显示的（线条/点/矩形/多边形）数据
+                const sendAreaXML = OCX_XML_SetTripwireLineAction('NONE')
+                tripwirePlugin.GetVideoPlugin().ExecuteCmd(sendAreaXML)
+                const sendAllAreaXML = OCX_XML_SetAllArea({ lineInfoList: [] }, 'WarningLine', 'TYPE_TRIPWIRE_LINE', undefined, false)
+                tripwirePlugin.GetVideoPlugin().ExecuteCmd(sendAllAreaXML!)
                 const sendXML = OCX_XML_StopPreview('ALL')
                 tripwirePlugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                tripwirePlugin.CloseCurPlugin(document.getElementById('tripwireplayer'))
+            }
+            if (tripwiremode.value === 'h5') {
+                tripwirePlayer.destroy()
             }
         })
         return {

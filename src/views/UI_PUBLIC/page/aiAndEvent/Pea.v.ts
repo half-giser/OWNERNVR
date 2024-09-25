@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 13:36:26
  * @Description: 区域入侵
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-19 17:26:16
+ * @LastEditTime: 2024-09-24 16:13:36
  */
 import { ArrowDown } from '@element-plus/icons-vue'
 import { type chlCaps, type aiResourceRow } from '@/types/apiType/aiAndEvent'
@@ -920,15 +920,6 @@ export default defineComponent({
                 thermalChlName: thermalChlName,
             }
         }
-        // 翻译key值拼接添加空格（排除简体中文、繁体中文）
-        const joinSpaceForLang = function (str: string) {
-            if (!str) return ''
-            const langTypeList = ['zh-cn', 'zh-tw']
-            const currLangType = useLangStore().getLangType || 'en-us'
-            const isInclude = !langTypeList.includes(currLangType)
-            str = isInclude ? str : str + ' '
-            return str
-        }
         // 获取区域
         const getRegion = function (index: number, element: any, region: { X1: number; Y1: number; X2: number; Y2: number }) {
             const $ = queryXml(element.element)
@@ -971,7 +962,7 @@ export default defineComponent({
                             message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_INPUT_LIMIT_FOUR_POIONT'),
                         })
                         return false
-                    } else if (count > 0 && !peaDrawer.judgeAreaCanBeClosed(allRegionList[i])) {
+                    } else if (count > 0 && !judgeAreaCanBeClosed(allRegionList[i])) {
                         openMessageTipBox({
                             type: 'info',
                             title: Translate('IDCS_INFO_TIP'),
@@ -1051,7 +1042,6 @@ export default defineComponent({
                         peaData.value.areaCfgData[type].boundaryInfo[idx].configured = false
                     }
                 })
-                // console.log(peaData.value.areaCfgData[type].boundaryInfo)
                 // 是否显示全部区域切换按钮和清除全部按钮（区域数量大于等于2时才显示）
                 if (boundaryInfoList && boundaryInfoList.length > 1) {
                     peaData.value.showAllAreaVisible = true
@@ -1072,7 +1062,7 @@ export default defineComponent({
             const pageTimer = setTimeout(async () => {
                 // 临时方案-NVRUSS44-79（页面快速切换时。。。）
                 const peaPlugin = peaplayerRef.value?.plugin
-                if (peamode.value !== 'h5') {
+                if (peamode.value === 'ocx') {
                     peaPlugin?.VideoPluginNotifyEmitter.addListener(peaLiveNotify2Js)
                 }
                 peaData.value.detectionTypeText = Translate('IDCS_DETECTION_BY_DEVICE').formatForLang(peaData.value.chlData['supportPea'] ? 'IPC' : 'NVR')
@@ -1115,7 +1105,7 @@ export default defineComponent({
         }
         // pea执行是否显示全部区域
         const handlePeaShowAllAreaChange = () => {
-            peaDrawer.setEnableShowAll(peaData.value.isShowAllArea)
+            peaDrawer && peaDrawer.setEnableShowAll(peaData.value.isShowAllArea)
             showAllPeaArea(peaData.value.isShowAllArea)
         }
         // pea切换区域活动操作
@@ -1336,18 +1326,17 @@ export default defineComponent({
                         }
                     } else {
                         // 画点
-                        const sendXML = OCX_XML_SetAllArea({ detectAreaInfo: undefined }, 'IrregularPolygon', 'TYPE_PEA_DETECTION', undefined, false)
+                        const sendXML = OCX_XML_SetAllArea({ detectAreaInfo: [] }, 'IrregularPolygon', 'TYPE_PEA_DETECTION', undefined, false)
                         if (sendXML) {
                             peaPlugin.GetVideoPlugin().ExecuteCmd(sendXML)
                         }
                     }
                 }
-                setPeaOcxData()
+                // setPeaOcxData()
             }
         }
         // pea显示
         const setPeaOcxData = function () {
-            // if (peaData.value.peaFunction == 'pea_param') {
             const type = peaData.value.activity_type
             const area = peaData.value.chosenWarnAreaIndex
             const boundaryInfo = peaData.value.areaCfgData[type]['boundaryInfo']
@@ -1372,7 +1361,6 @@ export default defineComponent({
             if (peaData.value.isShowAllArea == true) {
                 showAllPeaArea(true)
             }
-            // }
         }
         // 区域关闭
         const peaClosePath = function (
@@ -1497,8 +1485,8 @@ export default defineComponent({
         const peaLiveNotify2Js = ($: (path: string) => XmlResult) => {
             // 区域入侵
             // const $xmlPea = $("statenotify[type='PeaArea']")
-            const $points = $("statenotify[type='PeaArea']/points")
-            const errorCode = $("statenotify[type='PeaArea']/errorCode").text()
+            const $points = $("statenotify[@type='PeaArea']/points")
+            const errorCode = $("statenotify[@type='PeaArea']/errorCode").text()
             // 绘制点线
             if ($points.length > 0) {
                 const currType = peaData.value.activity_type
@@ -1520,6 +1508,7 @@ export default defineComponent({
                 } else {
                     peaData.value.areaCfgData[currType]['boundaryInfo'][area]['point'] = points
                 }
+                peaRefreshInitPage()
                 peaData.value.applyDisable = false
             }
             // 处理错误码
@@ -1544,8 +1533,24 @@ export default defineComponent({
         })
         onBeforeUnmount(() => {
             if (peaPlugin?.IsPluginAvailable() && peamode.value === 'ocx' && peaReady.value) {
+                peaPlugin.VideoPluginNotifyEmitter.removeListener(peaLiveNotify2Js)
+                const sendAreaXML = OCX_XML_SetPeaAreaAction('NONE')
+                peaPlugin.GetVideoPlugin().ExecuteCmd(sendAreaXML)
+                if (peaData.value.currentRegulation) {
+                    // 画矩形
+                    const sendAllAreaXML = OCX_XML_SetAllArea({ regionInfoList: [] }, 'Rectangle', 'TYPE_PEA_DETECTION', undefined, false)
+                    peaPlugin.GetVideoPlugin().ExecuteCmd(sendAllAreaXML!)
+                } else {
+                    // 画点
+                    const sendAllAreaXML = OCX_XML_SetAllArea({ detectAreaInfo: undefined }, 'IrregularPolygon', 'TYPE_PEA_DETECTION', undefined, false)
+                    peaPlugin.GetVideoPlugin().ExecuteCmd(sendAllAreaXML!)
+                }
                 const sendXML = OCX_XML_StopPreview('ALL')
                 peaPlugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                peaPlugin.CloseCurPlugin(document.getElementById('peaplayer'))
+            }
+            if (peamode.value === 'h5') {
+                peaPlayer.destroy()
             }
         })
         return {

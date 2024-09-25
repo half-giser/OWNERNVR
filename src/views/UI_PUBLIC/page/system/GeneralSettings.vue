@@ -3,7 +3,7 @@
  * @Date: 2024-06-24 09:19:04
  * @Description: 基本配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 14:45:55
+ * @LastEditTime: 2024-09-23 19:53:21
 -->
 <template>
     <div class="Setting">
@@ -14,6 +14,7 @@
             :rules
             :model="formData"
             :style="{
+                '--form-label-width': '200px',
                 '--form-input-width': '250px',
             }"
             hide-required-asterisk

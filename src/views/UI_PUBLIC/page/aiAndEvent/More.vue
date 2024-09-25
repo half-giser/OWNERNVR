@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-10 17:50:24
  * @Description: 更多功能页面的框架
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-20 09:26:38
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-09-24 15:39:51
 -->
 <template>
     <div class="content">
@@ -17,7 +17,7 @@
                         v-model="pageData.currChlId"
                         value-key="id"
                         class="chl_select"
-                        popper-class="eloption"
+                        popper-class="eloption_more"
                         :options="pageData.onlineChannelList"
                         @change="handleChangeChannel"
                     >
@@ -36,7 +36,6 @@
             <el-tabs
                 :key="pageData.tabKey"
                 v-model="pageData.chosenFunction"
-                type="border-card"
                 class="demo-tabs"
                 @tab-click="handleTabClick"
             >
@@ -56,7 +55,6 @@
                                 display: 'flex',
                                 justifyContent: 'center',
                                 alignItems: 'center',
-                                border: '1px solid #999999',
                             }"
                             >{{ Translate('IDCS_FIRE_POINT_DETECTION') }}</span
                         >
@@ -143,6 +141,15 @@
                             }"
                             >{{ Translate('IDCS_CROWD_DENSITY_DETECTION') }}</span
                         >
+                    </template>
+                    <template #default>
+                        <Cdd
+                            v-if="pageData.chosenFunction === 'cdd'"
+                            :curr-chl-id="pageData.currChlId"
+                            :chl-data="pageData.chlData"
+                            :voice-list="pageData.voiceList"
+                            :online-channel-list="pageData.onlineChannelList"
+                        ></Cdd>
                     </template>
                 </el-tab-pane>
 
@@ -251,14 +258,15 @@
 
 <style>
 /* 选择器的下拉框样式必须全局才能生效 */
-.eloption .el-select-dropdown {
+.eloption_more .el-select-dropdown {
     max-width: 430px;
-    height: 150px;
+    height: 120px;
 }
 </style>
 
 <style lang="scss" scoped>
 .chl_select {
+    z-index: 9999;
     width: 430px;
     :deep(.el-select__selection) {
         text-align: center;
@@ -270,50 +278,66 @@
     height: 30px;
     line-height: 30px;
     text-align: center;
-    margin: 10px;
+    margin: 5px 10px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     cursor: pointer;
     border: 1px solid var(--border-color2);
 }
-.el-tabs--border-card > .el-tabs__header .el-tabs__item {
-    padding: 0px;
-}
 .content {
-    .aiResourcePop {
-        height: 400px;
-    }
-    .span_txt {
-        font-size: 15px;
-    }
-    .el-dropdown-link {
-        cursor: pointer;
-        display: flex;
-        font-size: 15px;
-        align-items: center;
-        color: black;
-        justify-content: center;
-    }
     .content_top {
         #row_channel {
             width: 540px;
             padding: 10px 0 10px 20px;
         }
-    }
-    .form {
-        width: 600px;
+        .span_txt {
+            font-size: 15px;
+        }
     }
     :deep() {
-        .el-tabs--border-card > .el-tabs__header .el-tabs__item {
-            padding: 0px;
-            border: 1px solid #999999;
-            margin-top: 0px;
+        .el-tabs__item {
+            width: 150px;
+            border: 2px solid var(--border-color2);
+            margin-right: -2px; /* 处理border重合 */
+            padding: 0 20px !important;
+        }
+
+        /* 长分割线 */
+        .el-tabs__nav-wrap::after {
+            /* position: static !important; 可以去掉长分割线 */
+            background-color: var(--border-color2);
+        }
+
+        /* 去掉下划线 */
+        .el-tabs__active-bar {
+            background-color: transparent !important;
+        }
+
+        .el-tabs__item:first-child {
+            border: 1px solid var(--border-color2);
+        }
+
+        .el-tabs__item.is-active {
+            color: #fff;
+            background-color: var(--primary--04);
+            border: 1px solid var(--border-color2);
+        }
+
+        .el-tabs__item:hover {
+            color: #fff;
+            background-color: var(--primary--04);
+        }
+
+        .el-tabs__item.is-disabled {
+            background: #aeabab;
+            color: #797979;
         }
     }
     .content_main {
         .demo-tabs {
-            height: calc(100vh - 300px);
+            width: 1562px;
+            min-height: 627px;
             margin-top: 10px;
             .notSupportBox {
                 display: flex;
@@ -325,89 +349,6 @@
                 z-index: 2;
                 font-size: 20px;
             }
-            .tripwire_setting_pane {
-                position: relative;
-                .checkbox_text {
-                    margin-left: 5px;
-                    width: 100px;
-                }
-                .aiResource {
-                    margin-left: 1253px;
-                }
-                .more {
-                    position: absolute;
-                    top: 41px;
-                    right: 12px;
-                    z-index: 1;
-                }
-                .left {
-                    width: 400px;
-                    height: 450px;
-                    position: absolute;
-                    z-index: 1;
-                    top: 84px;
-                    .player {
-                        margin-top: 5px;
-                        width: 400px;
-                        height: 300px;
-                    }
-                }
-                .function-tabs {
-                    :deep(.el-tabs__item.is-active) {
-                        color: #00bbdb;
-                    }
-                    .tripwire_param {
-                        display: flex;
-                        flex-direction: row;
-                        min-height: 482px;
-                        .right {
-                            // height: 480px;
-                            margin-left: 500px;
-                            width: calc(100% - 500px);
-                        }
-                        .apply_area {
-                            display: flex;
-                            justify-content: center;
-                            align-items: flex-end;
-                        }
-                    }
-                    .tripwire_target {
-                        display: flex;
-                        flex-direction: row;
-                        min-height: 482px;
-                        .right {
-                            // height: 480px;
-                            margin-left: 500px;
-                            width: calc(100% - 500px);
-                        }
-                        .apply_area {
-                            display: flex;
-                            justify-content: center;
-                            align-items: flex-end;
-                        }
-                    }
-                    :deep(.el-slider) {
-                        width: 515px;
-                    }
-                }
-            }
-        }
-        // tab区域
-        :deep(.demo-tabs > .el-tabs__content) {
-            padding: 10px 20px;
-            color: black;
-            font-size: 15px;
-        }
-        // tab标题
-        :deep(.el-tabs__item) {
-            font-size: 15px;
-            width: 154px;
-            color: black;
-        }
-        // tab标题选中
-        :deep(.el-tabs--border-card > .el-tabs__header .el-tabs__item.is-active) {
-            color: white;
-            background-color: #00bbdb;
         }
     }
 }

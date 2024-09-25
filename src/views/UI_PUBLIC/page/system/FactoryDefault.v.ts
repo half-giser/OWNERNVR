@@ -3,10 +3,11 @@
  * @Date: 2024-06-20 15:59:30
  * @Description: 恢复出厂设置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-23 14:53:02
+ * @LastEditTime: 2024-09-23 09:39:44
  */
-import BaseCheckAuthPop, { type UserCheckAuthForm } from '../../components/auth/BaseCheckAuthPop.vue'
+import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import { SystemFactoryDefaultForm } from '@/types/apiType/system'
+import type { UserCheckAuthForm } from '@/types/apiType/user'
 
 export default defineComponent({
     components: {

@@ -3,7 +3,7 @@
  * @Date: 2024-09-11 14:16:29
  * @Description: 火点检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-12 14:13:15
+ * @LastEditTime: 2024-09-24 15:36:33
 -->
 <template>
     <div class="tripwire_setting_pane">
@@ -119,28 +119,33 @@
         <div v-if="!pageData.notSupportTipShow && !pageData.requireDataFail">
             <!-- 检测开启及ai按钮 -->
             <el-row>
-                <el-checkbox
-                    v-model="pageData.detectionEnable"
-                    @change="pageData.applyDisable = false"
-                ></el-checkbox>
-                <span class="checkbox_text">{{ Translate('IDCS_ENABLE') }}</span>
-                <div
-                    v-if="pageData.showAiConfig"
-                    class="aiResource"
-                >
-                    <span>{{ Translate('IDCS_USAGE_RATE') }}</span>
-                    <span>{{ ` : ${pageData.totalResourceOccupancy}% ` }}</span>
-                    <BaseImgSprite
-                        file="detail"
-                        :index="0"
-                        :hover-index="1"
-                        :chunk="4"
-                        @click="pageData.aiResourcePopOpen = true"
-                    />
-                </div>
+                <el-row class="row-padding">
+                    <el-checkbox
+                        v-model="pageData.detectionEnable"
+                        @change="pageData.applyDisable = false"
+                    ></el-checkbox>
+                    <span class="checkbox_text">{{ Translate('IDCS_ENABLE') }}</span>
+                    <div
+                        v-if="pageData.showAiConfig"
+                        class="aiResource"
+                    >
+                        <span>{{ Translate('IDCS_USAGE_RATE') }}</span>
+                        <span>{{ ` : ${pageData.totalResourceOccupancy}% ` }}</span>
+                        <BaseImgSprite
+                            file="detail"
+                            :index="0"
+                            :hover-index="1"
+                            :chunk="4"
+                            @click="pageData.aiResourcePopOpen = true"
+                        />
+                    </div>
+                </el-row>
             </el-row>
             <!-- 只存在一个播放器，因此放于tab区域外 -->
-            <div class="left">
+            <div
+                v-show="pageData.fuction !== 'trigger'"
+                class="left"
+            >
                 <div class="player">
                     <BaseVideoPlayer
                         id="player"
@@ -273,16 +278,17 @@
                             <!-- 常规联动 -->
                             <div class="trigger_normal">
                                 <div class="title">
-                                    <div class="checkbox"></div>
-                                    <el-checkbox
-                                        v-model="pageData.triggerSwitch"
-                                        class="table_title"
-                                        @change="handleTriggerSwitch"
-                                    ></el-checkbox>
-                                    <span class="span_text">{{ Translate('IDCS_TRIGGER_NOMAL') }}</span>
+                                    <div class="checkbox">
+                                        <el-checkbox
+                                            v-model="pageData.triggerSwitch"
+                                            class="table_title"
+                                            @change="handleTriggerSwitch"
+                                        ></el-checkbox>
+                                        <span class="span_text">{{ Translate('IDCS_TRIGGER_NOMAL') }}</span>
+                                    </div>
                                 </div>
                                 <el-table
-                                    height="358px"
+                                    height="367px"
                                     :data="triggerData"
                                     :show-header="false"
                                     :header-cell-style="{ 'text-align': 'left' }"
@@ -315,7 +321,7 @@
                                 </div>
                                 <el-table
                                     :show-header="false"
-                                    height="358px"
+                                    height="367px"
                                     :data="pageData.record.chls"
                                     empty-text=" "
                                 >
@@ -342,7 +348,7 @@
                                 </div>
                                 <el-table
                                     :show-header="false"
-                                    height="358px"
+                                    height="367px"
                                     :data="pageData.alarmOut.chls"
                                     empty-text=" "
                                 >
@@ -369,7 +375,7 @@
                                 </div>
                                 <el-table
                                     :show-header="false"
-                                    height="358px"
+                                    height="367px"
                                     :data="pageData.snap.chls"
                                     empty-text=" "
                                 >
@@ -389,7 +395,7 @@
                                 <el-table
                                     border
                                     stripe
-                                    height="358px"
+                                    height="367px"
                                     :data="pageData.presetSource"
                                 >
                                     <el-table-column
@@ -449,122 +455,78 @@
     color: #8d8d8d;
     font-size: 12px;
 }
-.el-form {
-    --el-form-label-font-size: 15px;
-    .el-checkbox {
-        color: black;
-        --el-checkbox-font-size: 15px;
-    }
+.row-padding {
+    padding-left: 20px;
 }
-.el-table {
-    .el-checkbox {
-        color: black;
-        --el-checkbox-font-size: 15px;
-    }
-}
-#n9web .el-form .el-form-item {
-    padding: 1px 0px 2px 12px;
-    margin-bottom: 0;
-}
+
 .form > .form_span:first-child {
     padding-bottom: 10px;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
 }
 .form > .form_span:not(:first-child) {
     padding: 10px 0;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
 }
 .el-form-item > .el-select {
     width: 300px;
 }
+.aiResourcePop {
+    height: 400px;
+}
 .form_btn {
     width: 80px;
     height: 25px;
-}
-.alert_surface_btn {
-    width: 50px;
-    height: 22px;
-    margin-right: 0 15px 0 0;
-    padding: 0;
-    background-color: white;
-    color: black;
-}
-.ChannelPtzCtrlPanel {
-    padding: 0 10px;
-}
-.lock_row {
-    margin: 10px 0 0 14px;
-}
-.lock_btn {
-    width: 80px;
-    height: 25px;
-    margin-right: 5px;
-}
-.triggerTrack_checkBox {
-    margin-left: 14px;
+    font-size: 14px;
 }
 .apply_btn {
     width: 80px;
     height: 25px;
 }
-.dropdown_btn {
-    width: 80px;
-    height: 25px;
-    right: -20px;
-}
 #n9web .el-form .el-checkbox + * {
     margin-left: 5px;
-}
-.el-form-item {
-    --font-size: 15px;
 }
 #n9web .el-form .el-slider {
     margin-left: 15px;
 }
-.table_cell_span {
-    margin-right: 5px;
-    font-size: 15px;
-}
-:deep(.el-dropdown-menu__item) {
-    cursor: default;
-    width: 300px;
-    height: 180px;
-    background-color: #e5e5e5;
-}
-
-.moreDropDownBox {
-    width: 300px;
-    height: 180px;
-    background-color: #e5e5e5;
-    .dropDownHeader {
-        margin-top: 5px;
-    }
-    .checkboxes {
-        margin-left: 10px;
-    }
-    .base-btn-box {
-        display: flex;
-        justify-content: flex-end;
-        align-items: flex-end;
-        margin-top: 40px;
-    }
-}
-.clear_btns {
+.notSupportBox {
     display: flex;
+    justify-content: center;
     align-items: center;
-    justify-content: flex-end;
+    width: 100%;
+    background-color: #fff;
+    height: 567px;
+    z-index: 2;
+    font-size: 20px;
 }
-.showAllArea {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-}
-.player_config {
-    margin-top: 5px;
+#n9web .el-form .el-form-item {
+    padding: 1px 0px 2px 12px;
+    margin-bottom: 0;
 }
 .tripwire_setting_pane {
     position: relative;
+    :deep() {
+        .el-form {
+            --el-form-label-font-size: 15px;
+            .el-checkbox {
+                color: black;
+                --el-checkbox-font-size: 15px;
+            }
+        }
+        .el-table {
+            .el-checkbox {
+                color: black;
+                --el-checkbox-font-size: 15px;
+            }
+        }
+    }
     .checkbox_text {
         margin-left: 5px;
         width: 100px;
+        font-size: 15px;
     }
     .aiResource {
         margin-left: 1253px;
@@ -579,8 +541,9 @@
         width: 400px;
         height: 450px;
         position: absolute;
+        padding-left: 20px;
         z-index: 1;
-        top: 84px;
+        top: 82px;
         .player {
             margin-top: 5px;
             width: 400px;
@@ -588,8 +551,39 @@
         }
     }
     .function-tabs {
+        :deep(.el-tabs__header) {
+            border-bottom: 1px solid var(--border-color2);
+        }
+        :deep(.el-tabs__item) {
+            width: 100px;
+            font-size: 15px;
+            border: none;
+        }
+        /* 长分割线 */
+        :deep(.el-tabs__nav-wrap::after) {
+            position: static !important; //可以去掉长分割线
+            // background-color: var(--border-color2);
+        }
+
+        /* 去掉下划线 */
+        :deep(.el-tabs__active-bar) {
+            background-color: transparent !important;
+        }
+
+        :deep(.el-tabs__item:first-child) {
+            margin-left: 30px;
+        }
+        /* 鼠标选中时样式 */
         :deep(.el-tabs__item.is-active) {
-            color: #00bbdb;
+            color: var(--primary--04);
+            background-color: transparent;
+            border: none;
+        }
+        /* 鼠标悬浮时样式 */
+        :deep(.el-tabs__item:hover) {
+            color: var(--primary--04);
+            cursor: pointer;
+            background-color: transparent;
         }
         .tripwire_param {
             display: flex;
@@ -598,21 +592,7 @@
             .right {
                 // height: 480px;
                 margin-left: 500px;
-                width: calc(100% - 500px);
-            }
-            .apply_area {
-                display: flex;
-                justify-content: center;
-                align-items: flex-end;
-            }
-        }
-        .tripwire_target {
-            display: flex;
-            flex-direction: row;
-            min-height: 481px;
-            .right {
-                // height: 480px;
-                margin-left: 500px;
+                padding-left: 20px;
                 width: calc(100% - 500px);
             }
             .apply_area {
@@ -626,7 +606,11 @@
             flex-direction: column;
             height: 481px;
             background-color: #fff;
-
+            :deep() {
+                .el-table td.el-table__cell {
+                    border-bottom: 0;
+                }
+            }
             .trigger_box {
                 z-index: 3;
                 height: 481px;
@@ -646,10 +630,10 @@
             .trigger_content {
                 display: flex;
                 flex-direction: row;
-                padding-left: 10px;
+                padding-left: 20px;
                 height: 100%;
                 .title {
-                    height: 42px;
+                    height: 33px;
                     background-color: #d0d0d0;
                     color: black;
                     font-size: 15px;
@@ -663,17 +647,29 @@
                     border: 1px solid #888888;
                     .title {
                         .checkbox {
-                            margin-right: -138px;
+                            margin-right: 151px;
                         }
                     }
                     .span_text {
-                        margin-left: 5px;
+                        margin-left: 8px;
+                    }
+                    :deep() {
+                        .el-table .cell {
+                            padding: 0px 9px;
+                        }
+                        .el-checkbox__label {
+                            font-size: 15px;
+                            color: black;
+                        }
                     }
                     .table_item {
                         display: flex;
                         justify-content: flex-start;
-                        margin-left: 4px;
                     }
+                }
+                .table_cell_span {
+                    margin-right: 5px;
+                    font-size: 15px;
                 }
                 .trigger_rec {
                     width: 250px;
@@ -703,6 +699,7 @@
                     display: flex;
                     justify-content: center;
                     align-items: flex-end;
+                    padding-left: 26px;
                     margin-left: 68px;
                 }
             }

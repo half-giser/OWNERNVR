@@ -3,7 +3,7 @@
  * @Date: 2024-09-11 15:00:19
  * @Description: 过线检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-19 10:50:55
+ * @LastEditTime: 2024-09-24 16:11:36
  */
 import { ArrowDown } from '@element-plus/icons-vue'
 import { type chlCaps } from '@/types/apiType/aiAndEvent'
@@ -88,8 +88,8 @@ export default defineComponent({
             clearAllVisible: false,
 
             // CPC播放器设置
-            // 是否显示CPC绘制控制
-            showCpcDrawAvailable: true,
+            // 是否显示CPC绘制控制 TODO 老代码写死不显示，并且不可画图
+            showCpcDrawAvailable: false,
             // CPC绘制控制
             isCpcDrawAvailable: false,
 
@@ -374,6 +374,7 @@ export default defineComponent({
                             plugin.GetVideoPlugin().ExecuteCmd(sendXML1)
                             const sendXML2 = OCX_XML_SetTripwireLineInfo(pageData.value['countOSD'])
                             plugin.GetVideoPlugin().ExecuteCmd(sendXML2)
+                            passLineSetOcxData()
                         }
                     } else if (pageData.value.chlData['supportCpc']) {
                         cpcDrawSetOcxData()
@@ -672,6 +673,10 @@ export default defineComponent({
                             element.configured = true
                         }
                     })
+                    if (lineInfo.length > 1) {
+                        pageData.value.showAllAreaVisible = true
+                        pageData.value.clearAllVisible = true
+                    }
                     const schedule = $('//content/chl').attr('scheduleGuid')
 
                     pageData.value.passLineSchedule = schedule
@@ -1123,7 +1128,7 @@ export default defineComponent({
             }
             await getScheduleList()
             const pageTimer = setTimeout(async () => {
-                //     // 临时方案-NVRUSS44-79（页面快速切换时。。。）
+                // 临时方案-NVRUSS44-79（页面快速切换时。。。）
                 const plugin = playerRef.value!.plugin
                 if (mode.value === 'ocx') {
                     plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
@@ -1251,7 +1256,7 @@ export default defineComponent({
         const passLineSetOcxData = function () {
             const alarmLine = pageData.value.chosenSurfaceIndex
             const plugin = playerRef.value!.plugin
-            if (pageData.value['lineInfo'] && pageData.value['lineInfo'].length > 0) {
+            if (pageData.value['lineInfo'].length > 0) {
                 if (mode.value === 'h5') {
                     passLineDrawer.setCurrentSurfaceOrAlarmLine(alarmLine)
                     passLineDrawer.setDirection(pageData.value['lineInfo'][alarmLine]['direction'])
@@ -1275,15 +1280,18 @@ export default defineComponent({
                     passLineDrawer.setOSD(pageData.value['countOSD'])
                 }
             }
+            if (pageData.value.isShowAllArea) {
+                passLineShowAllArea(true)
+            }
         }
         // 执行是否显示全部区域
         const handlePassLineShowAllAreaChange = () => {
-            passLineDrawer.setEnableShowAll(pageData.value.isShowAllArea)
+            // passLineDrawer && passLineDrawer.setEnableShowAll(pageData.value.isShowAllArea)
             passLineShowAllArea(pageData.value.isShowAllArea)
         }
         // passLine显示全部区域
         const passLineShowAllArea = function (isShowAllArea: boolean) {
-            passLineDrawer.setEnableShowAll(isShowAllArea)
+            passLineDrawer && passLineDrawer.setEnableShowAll(isShowAllArea)
             if (isShowAllArea) {
                 const lineInfoList = pageData.value['lineInfo']
                 const currentAlarmLine = pageData.value.chosenSurfaceIndex
@@ -1292,26 +1300,34 @@ export default defineComponent({
                     passLineDrawer.drawAllPassline(lineInfoList, currentAlarmLine)
                 } else {
                     console.log('ocx show all alarm area')
+                    const pluginLineInfoList = JSON.parse(JSON.stringify(lineInfoList))
+                    pluginLineInfoList.splice(currentAlarmLine, 1) // 插件端下发全部区域需要过滤掉当前区域数据
+                    const sendXML = OCX_XML_SetAllArea({ lineInfoList: pluginLineInfoList }, 'WarningLine', 'TYPE_TRIPWIRE_LINE', undefined, true)
+                    if (sendXML) {
+                        plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    }
                 }
             } else {
                 if (mode.value !== 'h5') {
-                    console.log('ocx not show all alarm area')
+                    const sendXML = OCX_XML_SetAllArea({ lineInfoList: [] }, 'WarningLine', 'TYPE_TRIPWIRE_LINE', undefined, false)
+                    if (sendXML) {
+                        plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    }
                 }
                 passLineSetOcxData()
             }
         }
         // passLine清空当前区域
         const passLineClearArea = function () {
-            const plugin = playerRef.value!.plugin
-
             if (mode.value === 'h5') {
                 passLineDrawer.clear()
             } else {
                 const sendXML = OCX_XML_SetTripwireLineAction('NONE')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
-            pageData.value['lineInfo'][0]['startPoint'] = { X: 0, Y: 0 }
-            pageData.value['lineInfo'][0]['endPoint'] = { X: 0, Y: 0 }
+            const currentAlarmLine = pageData.value.chosenSurfaceIndex
+            pageData.value['lineInfo'][currentAlarmLine]['startPoint'] = { X: 0, Y: 0 }
+            pageData.value['lineInfo'][currentAlarmLine]['endPoint'] = { X: 0, Y: 0 }
             if (pageData.value.isShowAllArea) {
                 passLineShowAllArea(true)
             }
@@ -1327,8 +1343,12 @@ export default defineComponent({
                 lineInfo['endPoint'] = { X: 0, Y: 0 }
             })
             if (mode.value === 'h5') {
-                passLineDrawer.clear()
+                passLineDrawer && passLineDrawer.clear()
             } else {
+                const sendXML1 = OCX_XML_SetAllArea({ lineInfoList: [] }, 'WarningLine', 'TYPE_TRIPWIRE_LINE', undefined, pageData.value.isShowAllArea)
+                if (sendXML1) {
+                    plugin.GetVideoPlugin().ExecuteCmd(sendXML1)
+                }
                 const sendXML = OCX_XML_SetTripwireLineAction('NONE')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
@@ -1391,7 +1411,7 @@ export default defineComponent({
             pageData.value.applyDisable = false
         }
         const LiveNotify2Js = ($: (path: string) => XmlResult) => {
-            if ($("statenotify[type='CpcParam']").length > 0) {
+            if ($("statenotify[@type='CpcParam']").length > 0) {
                 const region: regionData[] = []
                 const line: regionData[] = []
                 $('statenotify/regionInfo/item').forEach((element) => {
@@ -1415,7 +1435,7 @@ export default defineComponent({
                 pageData.value['regionInfo'] = region[0]
                 pageData.value['cpcLineInfo'] = line[0]
                 pageData.value.applyDisable = false
-            } else if ($("statenotify[type='TripwireLine']").length > 0) {
+            } else if ($("statenotify[@type='TripwireLine']").length > 0) {
                 const alarmLine = pageData.value.chosenSurfaceIndex
                 pageData.value['lineInfo'][alarmLine]['startPoint'] = {
                     X: parseInt($('statenotify/startPoint').attr('X')),
@@ -1426,7 +1446,7 @@ export default defineComponent({
                     Y: parseInt($('statenotify/endPoint').attr('Y')),
                 }
                 pageData.value.applyDisable = false
-            } else if ($("statenotify[type='TripwireLineInfo']").length > 0) {
+            } else if ($("statenotify[@type='TripwireLineInfo']").length > 0) {
                 const X = $('statenotify/PosInfo/X').text()
                 const Y = $('statenotify/PosInfo/Y').text()
                 pageData.value['countOSD']['X'] = parseInt(X)
@@ -1439,8 +1459,16 @@ export default defineComponent({
         })
         onBeforeUnmount(() => {
             if (plugin?.IsPluginAvailable() && mode.value === 'ocx' && ready.value) {
+                plugin.VideoPluginNotifyEmitter.removeListener(LiveNotify2Js)
+                // 切到其他AI事件页面时清除一下插件显示的（线条/点/矩形/多边形）数据
+                const sendAreaXML = OCX_XML_SetTripwireLineAction('NONE')
+                plugin.GetVideoPlugin().ExecuteCmd(sendAreaXML)
                 const sendXML = OCX_XML_StopPreview('ALL')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.CloseCurPlugin(document.getElementById('player'))
+            }
+            if (mode.value === 'h5') {
+                player.destroy()
             }
         })
         return {

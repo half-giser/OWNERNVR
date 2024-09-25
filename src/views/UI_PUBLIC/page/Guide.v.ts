@@ -3,7 +3,7 @@
  * @Date: 2024-09-18 09:33:12
  * @Description: 开机向导
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-19 16:25:08
+ * @LastEditTime: 2024-09-20 16:51:49
  */
 import { SystemGuideLangForm, SysmteGuidePrivacyForm, SystemGuideUserForm, SystemGuideDateTimeForm, SystemGuideQuestionForm, type SystemGuideDiskList } from '@/types/apiType/system'
 import dayjs from 'dayjs'
@@ -437,11 +437,9 @@ export default defineComponent({
                 return
             }
             langStore.updateLangId(key)
-            for (const item in LANG_MAPPING) {
-                if (LANG_MAPPING[item].toLowerCase() === key) {
-                    langStore.updateLangType(item)
-                    break
-                }
+            const langType = LANG_TYPE_MAPPING[key]
+            if (langType) {
+                langStore.updateLangType(langType)
             }
             langFormData.value.lang = key
             await langStore.getLangItems(true)

@@ -3,7 +3,7 @@
  * @Date: 2024-06-07 15:00:44
  * @Description: 用户更改密码弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-10 09:19:08
+ * @LastEditTime: 2024-09-20 18:01:52
 -->
 <template>
     <el-dialog
@@ -76,4 +76,4 @@
     </el-dialog>
 </template>
 
-<script lang="ts" src="./BaseChangePwdPop.v.ts"></script>
+<script lang="ts" src="./ChangePasswordPop.v.ts"></script>

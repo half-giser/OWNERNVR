@@ -20,11 +20,11 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { LoadingTarget, openLoading, closeLoading } = useLoading()
         const { browserInfo, serverIp } = inject('appGlobalProp') as appGlobalProp
-        const userSessionStore = useUserSessionStore()
         const cababilityStore = useCababilityStore()
         const router = useRouter()
         const { openMessageTipBox } = useMessageBox()
         const Plugin = inject('Plugin') as PluginType
+        const pluginStore = usePluginStore()
         const isSupportH5 = Plugin.IsSupportH5()
 
         const tableData = ref([] as ChannelInfoDto[])
@@ -143,7 +143,7 @@ export default defineComponent({
             const linkWinMode = browserInfo.type === 'ie' ? '_self' : '_blank'
             if (rowData.poePort && rowData.poePort != '') {
                 const ip = checkIpV6(serverIp) ? '[' + serverIp + ']' : serverIp
-                browserInfo.type === 'ie' && (userSessionStore.showPluginNoResponse = '')
+                browserInfo.type === 'ie' && (pluginStore.showPluginNoResponse = false)
                 window.open('http://' + ip + ':' + rowData.poePort, linkWinMode, '')
             } else {
                 // 非poe通道跳转时要带上端口号，避免用户改了ipc默认的80端口，导致跳转不成功
@@ -155,7 +155,7 @@ export default defineComponent({
                     const httpPort = $('//content/chl/port/httpPort').length > 0 ? $('//content/chl/port/httpPort').text() : ''
                     // ipv6地址访问格式为：http://[ipv6]
                     const ip = checkIpV6(rowData.ip) ? '[' + rowData.ip + ']' : rowData.ip
-                    browserInfo.type === 'ie' && (userSessionStore.showPluginNoResponse = '')
+                    browserInfo.type === 'ie' && (pluginStore.showPluginNoResponse = false)
                     window.open('http://' + ip + ':' + httpPort, linkWinMode, '')
                 })
             }

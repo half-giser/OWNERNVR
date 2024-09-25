@@ -6,6 +6,7 @@
 
 html {
     min-width: 1024px;
+    color: var(--text-primary);
 }
 
 body {
@@ -14,6 +15,7 @@ body {
     background-color: var(--page-bg);
     font-family: 'Microsoft YaHei', Arial, Helvetica, sans-serif;
     height: 100%;
+    color: var(--text-primary);
 }
 
 li {
@@ -96,29 +98,29 @@ input[type='number'] {
     height: 100%;
 
 
-    .configBorder {
-        width: 100%;
-        height: 100%;
+    // .configBorder {
+    //     width: 100%;
+    //     height: 100%;
 
-        > * {
-            box-sizing: border-box;
-        }
-    }
+    //     > * {
+    //         box-sizing: border-box;
+    //     }
+    // }
 
-    .configTop {
-        border-bottom: solid 1px var(--border-light);
-        padding: 5px 10px;
-    }
+    // .configTop {
+    //     border-bottom: solid 1px var(--border-light);
+    //     padding: 5px 10px;
+    // }
 
-    .configContent {
-        padding: 20px;
-    }
+    // .configContent {
+    //     padding: 20px;
+    // }
 
-    .configContentBottom {
-        padding: 10px 0px 0px 0px;
-        display: flex;
-        justify-content: flex-end;
-    }
+    // .configContentBottom {
+    //     padding: 10px 0px 0px 0px;
+    //     display: flex;
+    //     justify-content: flex-end;
+    // }
 
     .el-col-flex-end {
         display: flex;
@@ -152,122 +154,106 @@ input[type='number'] {
         }
     }
 
-    .dislog-style-1 {
-        .el-dialog__body {
-            padding: 10px 20px;
+    // .dislog-style-1 {
+    //     .el-dialog__body {
+    //         padding: 10px 20px;
 
-            & > .el-row {
-                margin: 10px 0px;
-            }
-        }
+    //         & > .el-row {
+    //             margin: 10px 0px;
+    //         }
+    //     }
 
-        .filed-input {
-            width: 260px;
-        }
-    }
+    //     .filed-input {
+    //         width: 260px;
+    //     }
+    // }
 
-    .dislog-style-2 {
-        .el-dialog__body {
-            padding: 10px 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            & > .el-row {
-                margin: 10px 0px;
-            }
-        }
+    // .dislog-style-2 {
+    //     .el-dialog__body {
+    //         padding: 10px 20px;
+    //         display: flex;
+    //         flex-direction: column;
+    //         align-items: center;
+    //         & > .el-row {
+    //             margin: 10px 0px;
+    //         }
+    //     }
 
-        .filed-input {
-            width: 260px;
-        }
-    }
+    //     .filed-input {
+    //         width: 260px;
+    //     }
+    // }
 
-    .tab-style-1 {
-        .el-tabs__active-bar {
-            height: 2px;
-        }
+    // .tab-style-1 {
+    //     .el-tabs__active-bar {
+    //         height: 2px;
+    //     }
 
-        .el-tabs__item {
-            padding: 0 8px;
-            font-family: 'Microsoft YaHei', Arial, Helvetica, sans-serif;
-            font-style: normal;
-            font-size: 14px;
-            line-height: 24px;
-            color: var(--text-placeholder);
+    //     .el-tabs__item {
+    //         padding: 0 8px;
+    //         font-family: 'Microsoft YaHei', Arial, Helvetica, sans-serif;
+    //         font-style: normal;
+    //         font-size: 14px;
+    //         line-height: 24px;
+    //         color: var(--text-placeholder);
 
-            &.is-active {
-                color: var(--text-menu-01);
-            }
-        }
+    //         &.is-active {
+    //             color: var(--text-menu-01);
+    //         }
+    //     }
 
-        .el-tabs__nav-wrap::after {
-            height: 0px;
-        }
-    }
+    //     .el-tabs__nav-wrap::after {
+    //         height: 0px;
+    //     }
+    // }
 
     .config-row {
         padding: 5px 0px;
         width: 100%;
     }
 
-    .configValidFrom {
-        .noFormItem {
-            display: flex;
-            margin-bottom: 8px;
-        }
+    // .configValidFrom {
+    //     .noFormItem {
+    //         display: flex;
+    //         margin-bottom: 8px;
+    //     }
 
-        .el-form-item {
-            margin-bottom: 8px;
-        }
-    }
+    //     .el-form-item {
+    //         margin-bottom: 8px;
+    //     }
+    // }
 
-    .pluginTip {
-        margin: 100px auto;
-    }
+    // .pluginTip {
+    //     margin: 100px auto;
+    // }
 
-    .custom-column-1 {
-        .cell {
-            display: flex;
-            align-items: flex-end;
-        }
+    // .custom-column-1 {
+    //     .cell {
+    //         display: flex;
+    //         align-items: flex-end;
+    //     }
 
-        .el-select {
-            width: 100%;
-        }
+    //     .el-select {
+    //         width: 100%;
+    //     }
 
-        .el-dropdown {
-            color: var(--text-secondary);
-        }
+    //     .el-dropdown {
+    //         color: var(--text-secondary);
+    //     }
 
-        .el-icon {
-            margin-left: 10px;
-            cursor: pointer;
-        }
-    }
+    //     .el-icon {
+    //         margin-left: 10px;
+    //         cursor: pointer;
+    //     }
+    // }
 
-    .hide-arrow {
-        .el-popper__arrow {
-            display: none;
-        }
-    }
-    #layout2RightTopBarToolBar {
-        .toolBarText {
-            width: 200px;
-            height: 25px;
-            float: left;
-
-            :deep(.el-input__inner) {
-                height: 25px;
-            }
-        }
-        .toolBarIconBtn {
-            width: 25px;
-            height: 25px;
-            float: left;
-            margin: 0 0 0 5px;
-            padding: 0;
-        }
-    }
+    // .hide-arrow {
+    //     .el-popper__arrow {
+    //         display: none;
+    //     }
+    // }
+    // #layout2RightTopBarToolBar {
+    // }
 
     // el-message 公共样式
     .el-message-box {
@@ -627,6 +613,10 @@ input[type='number'] {
         }
     }
 
+    .el-radio {
+        --el-radio-text-color: var(--text-primary);
+    }
+
     .el-radio-group {
         // 不换行
         &.nowrap {
@@ -720,7 +710,11 @@ input[type='number'] {
     font-size: 15px;
     background-color: var(--bg-color4);
     font-weight: bolder;
-    color: var(--text-primary);
+    color: var(--text-sub-heading);
+
+    #n9web & .el-form-item__label {
+        color: var(--text-sub-heading);
+    }
 }
 
 // 放置按钮、页码等的容器

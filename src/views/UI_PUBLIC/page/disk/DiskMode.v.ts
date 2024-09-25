@@ -3,10 +3,11 @@
  * @Date: 2024-07-04 16:41:45
  * @Description: 磁盘模式
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 11:58:29
+ * @LastEditTime: 2024-09-23 09:38:51
  */
 import { DiskModeForm } from '@/types/apiType/disk'
-import BaseCheckAuthPop, { type UserCheckAuthForm } from '../../components/auth/BaseCheckAuthPop.vue'
+import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
+import type { UserCheckAuthForm } from '@/types/apiType/user'
 
 export default defineComponent({
     components: {

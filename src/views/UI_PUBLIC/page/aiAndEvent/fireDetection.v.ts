@@ -3,7 +3,7 @@
  * @Date: 2024-09-11 14:16:37
  * @Description: 火点检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-18 14:11:56
+ * @LastEditTime: 2024-09-24 14:22:29
  */
 import { ArrowDown } from '@element-plus/icons-vue'
 import { type chlCaps, type aiResourceRow } from '@/types/apiType/aiAndEvent'
@@ -257,7 +257,7 @@ export default defineComponent({
         }
         // 首次加载成功 播放视频
         const stopWatchFirstPlay = watchEffect(() => {
-            if (ready.value && pageData.value.chlData && pageData.value.initComplete) {
+            if (ready.value && pageData.value.initComplete) {
                 nextTick(() => {
                     play()
                 })
@@ -362,7 +362,7 @@ export default defineComponent({
                 pageData.value.applyDisable = false
             })
         }
-        // 获取recordList TODO添加pea部分
+        // 获取recordList
         const getRecordList = async () => {
             pageData.value.recordSource = []
             const resb = await getChlList({
@@ -689,7 +689,7 @@ export default defineComponent({
                     pageData.value.popVideoSwitch = $item('popVideoSwitch').text() == 'true'
                     pageData.value.emailSwitch = $item('emailSwitch').text() == 'true'
                     pageData.value.popMsgSwitch = $item('popMsgSwitch').text() == 'true'
-                    pageData.value.sysAudio = $item('sysAudio').attr('id') ? $item('sysAudio').attr('id') : ''
+                    pageData.value.sysAudio = $item('sysAudio').attr('id') == '' ? $item('sysAudio').attr('id') : ''
                     pageData.value.record = {
                         switch: $item('sysRec/switch').text() == 'true',
                         chls: $item('sysRec/chls/item').map((item: any) => {
@@ -751,7 +751,6 @@ export default defineComponent({
             } else {
                 pageData.value.requireDataFail = true
             }
-            console.log('pageData.value', pageData.value)
         }
         // 执行编辑请求
         const saveData = async () => {
@@ -914,7 +913,16 @@ export default defineComponent({
         }
         onMounted(async () => {
             await initPageData()
-            // play()
+        })
+        onBeforeUnmount(() => {
+            if (plugin?.IsPluginAvailable() && mode.value === 'ocx' && ready.value) {
+                const sendXML = OCX_XML_StopPreview('ALL')
+                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.CloseCurPlugin(document.getElementById('player'))
+            }
+            if (mode.value === 'h5') {
+                player.destroy()
+            }
         })
         return {
             Translate,

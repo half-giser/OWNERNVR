@@ -3,11 +3,11 @@
  * @Date: 2024-06-07 15:00:44
  * @Description: 账号密码权限认证弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-23 14:47:40
+ * @LastEditTime: 2024-09-23 09:32:33
 -->
 <template>
     <el-dialog
-        :title="Translate(prop.title)"
+        :title="Translate(title)"
         width="600"
         align-center
         draggable
@@ -67,85 +67,7 @@
     </el-dialog>
 </template>
 
-<script lang="ts" setup>
-import { type FormInstance, type FormRules } from 'element-plus'
-
-const prop = withDefaults(
-    defineProps<{
-        title?: string
-        tip?: string
-        confirmText?: string
-    }>(),
-    {
-        title: 'IDCS_SUPER_USER_CERTIFICATION_RIGHT',
-        tip: '',
-        confirmText: 'IDCS_OK',
-    },
-)
-
-const emits = defineEmits<{
-    (e: 'confirm', data: UserCheckAuthForm): void
-    (e: 'close'): void
-}>()
-
-const { Translate } = inject('appGlobalProp') as appGlobalProp
-const formRef = ref<FormInstance>()
-const formData = ref(new UserCheckAuthForm())
-const userSession = useUserSessionStore()
-// 校验规则
-const rules = reactive<FormRules>({
-    userName: [
-        {
-            required: true,
-            message: Translate('IDCS_PROMPT_USERNAME_EMPTY'),
-            trigger: 'blur',
-        },
-    ],
-    password: [
-        {
-            required: true,
-            message: Translate('IDCS_PROMPT_PASSWORD_EMPTY'),
-            trigger: 'blur',
-        },
-    ],
-})
-
-/**
- * @description 重置表单数据
- */
-const reset = () => {
-    formData.value = new UserCheckAuthForm()
-    formRef.value?.clearValidate()
-}
-
-/**
- * @description 认证表单数据
- */
-const verify = () => {
-    formRef.value!.validate(async (valid: boolean) => {
-        if (valid) {
-            const nonce = userSession.nonce ? userSession.nonce : ''
-            formData.value.hexHash = '' + sha512_encrypt(MD5_encrypt(formData.value.password) + '#' + nonce)
-            emits('confirm', formData.value)
-        }
-    })
-}
-
-/**
- * @description 关闭弹窗
- */
-const close = () => {
-    emits('close')
-}
-</script>
-
-<script lang="ts">
-export class UserCheckAuthForm {
-    userName = ''
-    password = '' // 明文密码用于与插件的鉴权交互
-    hexHash = '' // 密文密码
-}
-</script>
+<script lang="ts" src="./BaseCheckAuthPop.v.ts"></script>
 
 <style lang="scss" scoped>
 .unlockTip {

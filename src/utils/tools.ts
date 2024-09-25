@@ -2,19 +2,13 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2023-04-28 17:57:48
  * @Description: 工具方法
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-09 19:40:01
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-09-23 11:16:44
  */
 
-import { useUserSessionStore } from '@/stores/userSession'
-import { checkPort } from './validates'
-import { useLangStore } from '@/stores/lang'
 import { type QueryNodeListDto } from '@/types/apiType/channel'
-import { queryNodeList } from '@/api/channel'
-import { type ApiResult, getXmlWrapData } from '@/api/api'
+import { type ApiResult } from '@/api/api'
 import { type XMLQuery, type XmlResult } from './xmlParse'
-import useMessageBox from '@/hooks/useMessageBox'
-import { APP_TYPE } from '@/utils/constants'
 import JSZip from 'jszip'
 
 export * from './transformers'
@@ -193,7 +187,7 @@ export const isHttpsLogin = () => {
 
 // 判断浏览器是否支持webAssembly
 export const isBrowserSupportWasm = () => {
-    return 'WebAssembly' in window && APP_TYPE == 'STANDARD'
+    return 'WebAssembly' in window && import.meta.env.VITE_APP_TYPE == 'STANDARD'
 }
 
 /**
@@ -888,7 +882,7 @@ export const reconnect = () => {
     const pluginStore = usePluginStore()
     const { closeLoading, LoadingTarget } = useLoading()
 
-    if (APP_TYPE === 'STANDARD') {
+    if (import.meta.env.VITE_APP_TYPE === 'STANDARD') {
         return setTimeout(() => {
             reconnectStandard(() => {
                 openMessageTipBox({
@@ -1137,10 +1131,53 @@ export const getChlGuid16 = (id: string) => {
 // 翻译key值拼接添加空格（排除简体中文、繁体中文）
 export const joinSpaceForLang = (str: string) => {
     if (!str) return ''
-    const { getLangType } = useLangStore()
+    const { langType } = useLangStore()
     const langTypeList = ['zh-cn', 'zh-tw']
-    const currLangType = getLangType || 'en-us'
+    const currLangType = langType || 'en-us'
     const isInclude = langTypeList.includes(currLangType)
     str = isInclude ? str : str + ' '
     return str
+}
+
+/**
+ * 判断线段AB和线段CD是否相交（不包含共端点）
+ * 原理：如果线段CD的两个端点C和D，与另一条线段的一个端点（A或B，只能是其中一个）连成的向量，与向量AB做叉乘，
+ *       若结果异号，表示C和D分别在直线AB的两边，
+ *       若结果同号，则表示CD两点都在AB的一边，则肯定不相交。
+ *       即判断CD是否在AB的两边、和AB是否在CD的两边，两者同时满足则证明线段相交
+ * @see https://www.cnblogs.com/tuyang1129/p/9390376.html
+ * @returns {Boolean} true:相交; false:不相交
+ */
+type CanvasBasePoint = {
+    X: number
+    Y: number
+    isClosed?: boolean
+}
+const IsIntersect = (pointA: CanvasBasePoint, pointB: CanvasBasePoint, pointC: CanvasBasePoint, pointD: CanvasBasePoint) => {
+    const vectorAC = { X: pointC.X - pointA.X, Y: pointC.Y - pointA.Y }
+    const vectorAD = { X: pointD.X - pointA.X, Y: pointD.Y - pointA.Y }
+    const vectorAB = { X: pointB.X - pointA.X, Y: pointB.Y - pointA.Y }
+    const vectorCA = { X: pointA.X - pointC.X, Y: pointA.Y - pointC.Y }
+    const vectorCB = { X: pointB.X - pointC.X, Y: pointB.Y - pointC.Y }
+    const vectorCD = { X: pointD.X - pointC.X, Y: pointD.Y - pointC.Y }
+    const isBothSideCD = (vectorAC.X * vectorAB.Y - vectorAC.Y * vectorAB.X) * (vectorAD.X * vectorAB.Y - vectorAD.Y * vectorAB.X) < 0
+    const isBothSideAB = (vectorCA.X * vectorCD.Y - vectorCA.Y * vectorCD.X) * (vectorCB.X * vectorCD.Y - vectorCB.Y * vectorCD.X) < 0
+    return isBothSideCD && isBothSideAB
+}
+// 判断画点多边形区域是否可闭合（通过判断区域中的第一个点和最后一个点的连线是否与其他线相交）- true:可闭合; false:不可闭合
+export const judgeAreaCanBeClosed = (pointList: CanvasBasePoint[]) => {
+    let flag = true
+    const startPoint = pointList[0]
+    const lastPoint = pointList[pointList.length - 1]
+    for (let i = 0; i < pointList.length; i++) {
+        if (i < pointList.length - 1) {
+            const item = pointList[i]
+            const itemNext = pointList[i + 1]
+            if (IsIntersect(item, itemNext, startPoint, lastPoint)) {
+                flag = false
+                break
+            }
+        }
+    }
+    return flag
 }

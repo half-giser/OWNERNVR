@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 11:11:35
  * @Description:  越界
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-19 14:20:46
+ * @LastEditTime: 2024-09-24 15:40:56
 -->
 
 <template>
@@ -108,7 +108,7 @@
         </div>
         <div v-if="!tripwireData.notSupportTipShow && !tripwireData.requireDataFail">
             <!-- nvr/ipc检测开启及ai按钮 -->
-            <el-row>
+            <el-row class="row-padding">
                 <el-checkbox
                     v-model="tripwireData.detectionEnable"
                     @change="handleDectionChange"
@@ -183,7 +183,10 @@
                 </template>
             </el-dropdown>
             <!-- 只存在一个播放器，因此放于tab区域外 -->
-            <div class="left">
+            <div
+                v-show="tripwireData.tripwireFunction !== 'tripwire_trigger'"
+                class="left"
+            >
                 <div class="player">
                     <BaseVideoPlayer
                         id="tripwireplayer"
@@ -196,7 +199,11 @@
                     v-if="tripwireData.tripwireFunction === 'tripwire_param'"
                     class="player_config"
                 >
-                    <el-row>
+                    <el-row
+                        :style="{
+                            marginTop: '10px',
+                        }"
+                    >
                         <el-col :span="16">
                             <div class="showAllArea">
                                 <el-checkbox
@@ -542,16 +549,17 @@
                             <!-- 常规联动 -->
                             <div class="trigger_normal">
                                 <div class="title">
-                                    <div class="checkbox"></div>
-                                    <el-checkbox
-                                        v-model="tripwireData.triggerSwitch"
-                                        class="table_title"
-                                        @change="handleTripwireTriggerSwitch"
-                                    ></el-checkbox>
-                                    <span class="span_text">{{ Translate('IDCS_TRIGGER_NOMAL') }}</span>
+                                    <div class="checkbox">
+                                        <el-checkbox
+                                            v-model="tripwireData.triggerSwitch"
+                                            class="table_title"
+                                            @change="handleTripwireTriggerSwitch"
+                                        ></el-checkbox>
+                                        <span class="span_text">{{ Translate('IDCS_TRIGGER_NOMAL') }}</span>
+                                    </div>
                                 </div>
                                 <el-table
-                                    height="358px"
+                                    height="367px"
                                     :data="tripwireTriggerData"
                                     :show-header="false"
                                     :header-cell-style="{ 'text-align': 'left' }"
@@ -584,7 +592,7 @@
                                 </div>
                                 <el-table
                                     :show-header="false"
-                                    height="358px"
+                                    height="367px"
                                     :data="tripwireData.record.chls"
                                     empty-text=" "
                                 >
@@ -611,7 +619,7 @@
                                 </div>
                                 <el-table
                                     :show-header="false"
-                                    height="358px"
+                                    height="367px"
                                     :data="tripwireData.alarmOut.chls"
                                     empty-text=" "
                                 >
@@ -631,7 +639,7 @@
                                 <el-table
                                     border
                                     stripe
-                                    height="358px"
+                                    height="367px"
                                     :data="tripwireData.presetSource"
                                 >
                                     <el-table-column
@@ -690,6 +698,9 @@
     color: #8d8d8d;
     font-size: 12px;
 }
+.row-padding {
+    padding-left: 20px;
+}
 .el-form {
     --el-form-label-font-size: 15px;
     .el-checkbox {
@@ -709,9 +720,15 @@
 }
 .form > .form_span:first-child {
     padding-bottom: 10px;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
 }
 .form > .form_span:not(:first-child) {
     padding: 10px 0;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
 }
 .el-form-item > .el-select {
     width: 300px;
@@ -719,6 +736,7 @@
 .form_btn {
     width: 80px;
     height: 25px;
+    font-size: 14px;
 }
 .alert_surface_btn {
     width: 50px;
@@ -824,32 +842,32 @@
 .form {
     width: 600px;
 }
-:deep() {
-    .el-tabs--border-card > .el-tabs__header .el-tabs__item {
-        padding: 0px;
-        border: 1px solid #999999;
-        margin-top: 0px;
-        margin-left: 0px;
-    }
-}
 .notSupportBox {
     display: flex;
     justify-content: center;
     align-items: center;
     width: 100%;
     background-color: #fff;
-    height: 568px;
+    height: 567px;
     z-index: 2;
     font-size: 20px;
 }
 .tripwire_setting_pane {
     position: relative;
+    :deep() {
+        .el-form .el-input-number.is-without-controls .el-input__wrapper {
+            padding-left: 9px;
+            padding-right: 9px;
+        }
+    }
+
     .checkbox_text {
         margin-left: 5px;
         width: 100px;
+        font-size: 15px;
     }
     .aiResource {
-        margin-left: 1253px;
+        margin-left: 1264px;
     }
     .more {
         position: absolute;
@@ -862,7 +880,8 @@
         height: 450px;
         position: absolute;
         z-index: 1;
-        top: 84px;
+        top: 90px;
+        padding-left: 20px;
         .player {
             margin-top: 5px;
             width: 400px;
@@ -870,8 +889,39 @@
         }
     }
     .function-tabs {
+        :deep(.el-tabs__header) {
+            border-bottom: 1px solid var(--border-color2);
+        }
+        :deep(.el-tabs__item) {
+            width: 100px;
+            font-size: 15px;
+            border: none;
+        }
+        /* 长分割线 */
+        :deep(.el-tabs__nav-wrap::after) {
+            position: static !important; //可以去掉长分割线
+            // background-color: var(--border-color2);
+        }
+
+        /* 去掉下划线 */
+        :deep(.el-tabs__active-bar) {
+            background-color: transparent !important;
+        }
+
+        :deep(.el-tabs__item:first-child) {
+            margin-left: 30px;
+        }
+        /* 鼠标选中时样式 */
         :deep(.el-tabs__item.is-active) {
-            color: #00bbdb;
+            color: var(--primary--04);
+            background-color: transparent;
+            border: none;
+        }
+        /* 鼠标悬浮时样式 */
+        :deep(.el-tabs__item:hover) {
+            color: var(--primary--04);
+            cursor: pointer;
+            background-color: transparent;
         }
         .tripwire_param {
             display: flex;
@@ -879,6 +929,7 @@
             min-height: 481px;
             .right {
                 // height: 480px;
+                padding-left: 20px;
                 margin-left: 500px;
                 width: calc(100% - 500px);
             }
@@ -894,6 +945,7 @@
             min-height: 481px;
             .right {
                 // height: 480px;
+                padding-left: 20px;
                 margin-left: 500px;
                 width: calc(100% - 500px);
             }
@@ -908,7 +960,11 @@
             flex-direction: column;
             height: 481px;
             background-color: #fff;
-
+            :deep() {
+                .el-table td.el-table__cell {
+                    border-bottom: 0;
+                }
+            }
             .trigger_box {
                 z-index: 3;
                 height: 481px;
@@ -928,10 +984,10 @@
             .trigger_content {
                 display: flex;
                 flex-direction: row;
-                padding-left: 10px;
+                padding-left: 20px;
                 height: 100%;
                 .title {
-                    height: 42px;
+                    height: 33px;
                     background-color: #d0d0d0;
                     color: black;
                     font-size: 15px;
@@ -945,16 +1001,24 @@
                     border: 1px solid #888888;
                     .title {
                         .checkbox {
-                            margin-right: -140px;
+                            margin-right: 151px;
                         }
                     }
                     .span_text {
-                        margin-left: 5px;
+                        margin-left: 8px;
+                    }
+                    :deep() {
+                        .el-table .cell {
+                            padding: 0px 9px;
+                        }
+                        .el-checkbox__label {
+                            font-size: 15px;
+                            color: black;
+                        }
                     }
                     .table_item {
                         display: flex;
                         justify-content: flex-start;
-                        margin-left: 4px;
                     }
                 }
                 .trigger_rec {
@@ -979,6 +1043,7 @@
                     display: flex;
                     justify-content: center;
                     align-items: flex-end;
+                    padding-left: 30px;
                     margin-left: 318px;
                 }
             }

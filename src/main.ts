@@ -3,15 +3,13 @@
  * @Date: 2024-04-16 13:47:54
  * @Description: 项目入口
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-10 17:09:52
+ * @LastEditTime: 2024-09-20 14:56:43
  */
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import App from '@/App.vue'
 import router, { getMenu1Items } from '@/router'
 import { createPersistedState } from 'pinia-plugin-persistedstate'
-// import { getBrowserInfo } from './utils/tools'
-// import { useLangStore } from './stores/lang'
 import i18nPlugin from './plugin/i18n'
 import typeEnhance from './plugin/typeEnhance'
 import loadingPlugin from './plugin/loading'
@@ -43,11 +41,15 @@ app.use(componentPlugin)
 getMenu1Items()
 
 const lang = useLangStore()
-await lang.getLangTypes()
-await lang.getLangItems()
 
-const dateTime = useDateTimeStore()
-await dateTime.getTimeConfig(false)
+// 标准登录此处请求语言翻译和时间日期配置，P2P登录则延后至插件连接成功后请求
+if (import.meta.env.VITE_APP_TYPE === 'STANDARD') {
+    await lang.getLangTypes()
+    await lang.getLangItems()
+
+    const dateTime = useDateTimeStore()
+    await dateTime.getTimeConfig(false)
+}
 
 app.use(i18nPlugin, lang)
 app.use(loadingPlugin)
