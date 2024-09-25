@@ -3,7 +3,7 @@
  * @Date: 2024-09-11 14:16:29
  * @Description: 火点检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-24 15:36:33
+ * @LastEditTime: 2024-09-24 17:17:35
 -->
 <template>
     <div class="tripwire_setting_pane">
@@ -505,6 +505,9 @@
 #n9web .el-form .el-form-item {
     padding: 1px 0px 2px 12px;
     margin-bottom: 0;
+}
+#n9web .el-table {
+    --el-table-tr-bg-color: white;
 }
 .tripwire_setting_pane {
     position: relative;

@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-19 09:27:27
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-24 15:37:41
+ * @LastEditTime: 2024-09-24 17:16:27
 -->
 <template>
     <div class="abnormal_dispose_detection">
@@ -295,6 +295,9 @@
 #n9web .el-form.narrow .el-form-item {
     padding: 1px 0px 2px 12px;
     margin-bottom: 0;
+}
+#n9web .el-table {
+    --el-table-tr-bg-color: white;
 }
 .apply_btn {
     width: 80px;

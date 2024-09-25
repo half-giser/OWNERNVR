@@ -2,8 +2,8 @@
  * @Description: 人脸识别——识别成功（0,1,2,3）/陌生人tab页
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-04 14:22:06
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-09 18:10:44
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-09-24 17:36:31
 -->
 <template>
     <!-- 人脸识别——识别成功 -->
@@ -279,6 +279,9 @@
 <script lang="ts" src="./SuccessfulRecognition.v.ts"></script>
 
 <style lang="scss" scoped>
+#n9web .el-table {
+    --el-table-tr-bg-color: white;
+}
 // 联动方式下的盒子样式
 .linkage_box {
     float: left;
@@ -308,7 +311,7 @@
     }
     :deep(.el-table) {
         width: 100%;
-        height: 260px;
+        height: 267px;
     }
     :deep(.el-table__cell) {
         padding: 3px;

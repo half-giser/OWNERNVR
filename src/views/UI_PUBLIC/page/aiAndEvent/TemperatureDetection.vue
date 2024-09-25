@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-13 09:18:25
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-24 11:28:38
+ * @LastEditTime: 2024-09-24 17:18:04
 -->
 <template>
     <div class="temp_detection">
@@ -468,6 +468,9 @@
 #n9web .el-form.narrow .el-form-item {
     padding: 1px 0px 2px 12px;
     margin-bottom: 0;
+}
+#n9web .el-table {
+    --el-table-tr-bg-color: white;
 }
 .apply_btn {
     width: 80px;

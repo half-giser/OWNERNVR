@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 11:11:35
  * @Description:  越界
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-24 15:40:56
+ * @LastEditTime: 2024-09-24 18:14:15
 -->
 
 <template>
@@ -330,6 +330,7 @@
                                         backgroundColor: tripwireData.chosenSurfaceIndex === index ? '#00BBDB' : 'white',
                                         color: tripwireData.chosenSurfaceIndex === index ? 'white' : item.configured ? '#00BBDB' : 'black',
                                         borderColor: tripwireData.chosenSurfaceIndex === index || item.configured ? '#00BBDB' : '',
+                                        borderRadius: 0,
                                     }"
                                     @click="handleSurfaceChange(index)"
                                 >
@@ -777,6 +778,9 @@
 }
 #n9web .el-form .el-slider {
     margin-left: 15px;
+}
+#n9web .el-table {
+    --el-table-tr-bg-color: white;
 }
 .table_cell_span {
     margin-right: 5px;

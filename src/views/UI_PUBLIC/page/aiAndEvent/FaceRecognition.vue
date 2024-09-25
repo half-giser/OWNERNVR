@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-28 13:41:57
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-24 14:04:41
+ * @LastEditTime: 2024-09-24 18:06:58
 -->
 <template>
     <!-- 通道名称及选择器 -->
@@ -11,11 +11,15 @@
         class="stripe narrow"
         :style="{
             '--form-input-width': '430px',
+            '--el-form-label-font-size': '15px',
         }"
         label-position="left"
         inline-message
     >
-        <el-form-item :label="Translate('IDCS_CHANNEL_NAME')">
+        <el-form-item
+            :label="Translate('IDCS_CHANNEL_NAME')"
+            label-width="108px"
+        >
             <el-select
                 v-model="pageData.curChl"
                 class="chl_select"
@@ -43,7 +47,7 @@
             :label="Translate('IDCS_DETECTION')"
             name="faceDetection"
             :disabled="pageData.faceDetectionDisabled"
-            :style="{ height: 'calc(100vh - 340px)' }"
+            :style="{ height: 'calc(100vh - 344px)' }"
         >
             <div>
                 <div class="row_padding">
@@ -401,7 +405,7 @@
             :label="Translate('IDCS_RECOGNITION')"
             name="faceCompare"
             :disabled="pageData.faceCompareDisabled"
-            :style="{ height: 'calc(100vh - 340px)' }"
+            :style="{ height: 'calc(100vh - 344px)' }"
         >
             <div>
                 <div class="row_padding">
@@ -706,6 +710,14 @@
     cursor: pointer;
     border: 1px solid var(--border-color2);
 }
+.narrow {
+    padding: 5px 0 5px 5px;
+    font-size: 15px;
+}
+.apply_btn {
+    width: 80px;
+    height: 25px;
+}
 // 人脸识别下的tab，侦测/识别/人脸库跳转
 .face_tab {
     :deep(.el-tabs__item) {
@@ -824,7 +836,7 @@
     &_left {
         width: 400px;
         height: 100%;
-        padding: 0 100px 0 20px;
+        padding: 8px 100px 0 20px;
         flex-shrink: 0;
         display: flex;
         flex-direction: column;
