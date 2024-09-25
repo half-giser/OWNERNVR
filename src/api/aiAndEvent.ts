@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-08-10 16:25:58
  * @Description: AI/事件
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-20 15:31:35
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-09-25 09:35:39
  */
 
 import { type AxiosRequestConfig } from 'axios'
@@ -233,3 +233,9 @@ export const queryAvd = (data: string) => http.fetch('queryAvd', getXmlWrapData(
 
 // 修改异常侦测数据
 export const editAvd = (data: string) => http.fetch('editAvd', getXmlWrapData(data))
+
+// 获取视频结构化数据
+export const queryVideoMetadata = (data: string) => http.fetch('queryVideoMetadata', getXmlWrapData(data))
+
+// 手动重置数据
+export const editVideoMetadata = (data: string) => http.fetch('editVideoMetadata', getXmlWrapData(data))
