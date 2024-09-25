@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 13:35:56
  * @Description:  区域入侵
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-24 18:13:43
+ * @LastEditTime: 2024-09-25 16:40:24
 -->
 <template>
     <div class="pea_setting_pane">
@@ -108,11 +108,14 @@
             <!-- nvr/ipc检测开启及ai按钮 -->
             <el-row>
                 <el-row class="row-padding">
-                    <el-checkbox
-                        v-model="peaData.areaCfgData[peaData.activity_type].detectionEnable"
-                        @change="handleDectionChange"
-                    ></el-checkbox>
-                    <span class="checkbox_text">{{ peaData.detectionTypeText }}</span>
+                    <div>
+                        <el-checkbox
+                            v-model="peaData.areaCfgData[peaData.activity_type].detectionEnable"
+                            @change="handleDectionChange"
+                        >
+                        </el-checkbox>
+                        <span class="checkbox_text">{{ peaData.detectionTypeText }}</span>
+                    </div>
                     <div class="aiResource">
                         <span>{{ Translate('IDCS_USAGE_RATE') }}</span>
                         <span>{{ ` : ${peaData.totalResourceOccupancy}% ` }}</span>
@@ -453,7 +456,7 @@
                     <div class="right">
                         <el-form
                             :model="peaData"
-                            label-width="100px"
+                            label-width="auto"
                             label-position="left"
                             class="form"
                             :style="{
@@ -725,7 +728,11 @@
     font-size: 12px;
 }
 .row-padding {
-    padding-left: 20px;
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
 }
 .el-form {
     --el-form-label-font-size: 15px;
@@ -763,7 +770,7 @@
     width: 300px;
 }
 .form_btn {
-    width: 80px;
+    width: fit-content;
     height: 25px;
     font-size: 14px;
 }
@@ -782,7 +789,7 @@
     margin: 10px 0 0 14px;
 }
 .lock_btn {
-    width: 80px;
+    width: fit-content;
     height: 25px;
     margin-right: 5px;
 }
@@ -790,11 +797,11 @@
     margin-left: 14px;
 }
 .apply_btn {
-    width: 80px;
+    width: fit-content;
     height: 25px;
 }
 .dropdown_btn {
-    width: 80px;
+    width: fit-content;
     height: 25px;
     right: -20px;
 }
@@ -891,16 +898,16 @@
     }
     .checkbox_text {
         margin-left: 5px;
-        width: 100px;
+        width: fit-content;
         font-size: 15px;
     }
-    .aiResource {
-        margin-left: 1264px;
-    }
+    // .aiResource {
+    //     margin-left: 1264px;
+    // }
     .more {
         position: absolute;
         top: 41px;
-        right: 12px;
+        right: 22px;
         z-index: 1;
     }
     .left {
@@ -921,7 +928,8 @@
             border-bottom: 1px solid var(--border-color2);
         }
         :deep(.el-tabs__item) {
-            width: 100px;
+            padding: 0 20px;
+            width: fit-content;
             font-size: 15px;
             border: none;
         }
@@ -1016,6 +1024,7 @@
                 height: 100%;
                 .title {
                     height: 33px;
+                    width: 100%;
                     background-color: #d0d0d0;
                     color: black;
                     font-size: 15px;
@@ -1028,8 +1037,9 @@
                     height: 400px;
                     border: 1px solid #888888;
                     .title {
+                        justify-content: flex-start;
                         .checkbox {
-                            margin-right: 151px;
+                            margin-left: 9px;
                         }
                     }
                     .span_text {

@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-16 17:19:11
  * @Description: 穿梭框弹窗
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-22 15:20:09
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-09-25 14:38:34
  */
 export default defineComponent({
     props: {
@@ -23,14 +23,12 @@ export default defineComponent({
             default: '',
         },
         sourceData: {
-            type: Array<any>,
+            type: Array as PropType<{ value: string; label: string }[]>,
             require: true,
-            default: [],
         },
         linkedList: {
-            type: Array<any>,
+            type: Array as PropType<string[]>,
             require: true,
-            default: [],
         },
         type: {
             type: String,
@@ -60,8 +58,8 @@ export default defineComponent({
             alarmOut: 'IDCS_ALARMOUT_LIMIT',
         }
         const genData = async () => {
-            data.value = props.sourceData
-            chosedList.value = props.linkedList
+            data.value = props.sourceData!
+            chosedList.value = props.linkedList!
         }
         /**
          * @description 打开弹窗时，根据传入参数,获取数据

@@ -387,6 +387,7 @@ export default defineComponent({
             testAlarmServer,
             applyAlarmSever,
             handleProtocolChange,
+            ScheduleManagPop,
         }
     },
 })

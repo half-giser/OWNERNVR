@@ -3,20 +3,18 @@
  * @Date: 2024-09-19 17:51:22
  * @Description: 人群密度检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-25 11:03:06
+ * @LastEditTime: 2024-09-25 17:05:13
  */
-import { ArrowDown } from '@element-plus/icons-vue'
 import { type chlCaps } from '@/types/apiType/aiAndEvent'
 import { type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
 import { ElDivider, type TabsPaneContext } from 'element-plus'
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import BaseTransferDialog from '@/components/BaseTransferDialog.vue'
 import { type XmlResult } from '@/utils/xmlParse'
-import { cloneDeep } from 'lodash'
+import { cloneDeep } from 'lodash-es'
 import CanvasVfd from '@/utils/canvas/canvasVfd'
 export default defineComponent({
     components: {
-        ArrowDown,
         ElDivider,
         ScheduleManagPop,
         BaseTransferDialog,
@@ -585,7 +583,7 @@ export default defineComponent({
                 pageData.value.originalEnable = enabledSwitch
                 pageData.value.schedule = schedule
             } else {
-                // pageData.value.requireDataFail = true
+                pageData.value.requireDataFail = true
             }
         }
         const saveData = async () => {
@@ -795,6 +793,8 @@ export default defineComponent({
             handleApply,
             handleDrawAvailableChange,
             clearArea,
+            ScheduleManagPop,
+            BaseTransferDialog,
         }
     },
 })

@@ -4,7 +4,7 @@
  * @Date: 2024-07-31 10:29:37
  * @Description: 录像码流通用表格组件
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-27 16:41:22
+ * @LastEditTime: 2024-09-25 14:56:28
 -->
 <template>
     <div>
@@ -322,7 +322,7 @@
                     <el-select
                         v-model="scope.row.level"
                         prop="level"
-                        placeholder="最低"
+                        :placeholder="Translate('IDCS_LOWEST')"
                         value-key="value"
                         :disabled="scope.row.imageLevelDisable"
                         :options="scope.row.levelNote"

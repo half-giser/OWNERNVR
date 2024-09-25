@@ -11,6 +11,7 @@ import { ArrowDown } from '@element-plus/icons-vue'
 import { useLangStore } from '@/stores/lang'
 import { tableRowStatus, tableRowStatusToolTip } from '@/utils/const/other'
 import BaseTransferPop from '@/components/BaseTransferPop.vue'
+import BaseTableRowStatus from '@/components/BaseTableRowStatus.vue'
 import BaseTransferDialog from '@/components/BaseTransferDialog.vue'
 import { MotionEventConfig, type PresetItem } from '@/types/apiType/aiAndEvent'
 import { errorCodeMap, ErrorCodeMapping } from '@/utils/constants'
@@ -21,6 +22,7 @@ export default defineComponent({
         BaseTransferPop,
         BaseTransferDialog,
         SetPresetPop,
+        BaseTableRowStatus,
     },
     setup() {
         const chosedList = ref<any[]>([])
@@ -682,6 +684,7 @@ export default defineComponent({
             handleEmailChangeAll,
             setData,
             addEditRow,
+            BaseTableRowStatus,
         }
     },
 })

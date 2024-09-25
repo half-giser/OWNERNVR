@@ -2,16 +2,11 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-16 17:19:11
  * @Description: 穿梭下拉框内容
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-22 15:23:27
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-09-25 14:39:49
  */
 export default defineComponent({
     props: {
-        // headerTitle: {
-        //     type: String,
-        //     require: true,
-        //     default: '',
-        // },
         sourceTitle: {
             type: String,
             require: true,
@@ -23,14 +18,12 @@ export default defineComponent({
             default: '',
         },
         sourceData: {
-            type: Array<any>,
+            type: Array as PropType<{ value: string; label: string }[]>,
             require: true,
-            default: [],
         },
         linkedList: {
-            type: Array<any>,
+            type: Array as PropType<string[]>,
             require: true,
-            default: [],
         },
         type: {
             type: String,
@@ -60,8 +53,8 @@ export default defineComponent({
             alarmOut: 'IDCS_ALARMOUT_LIMIT',
         }
         const genData = () => {
-            data.value = props.sourceData
-            chosedList.value = props.linkedList
+            data.value = props.sourceData!
+            chosedList.value = props.linkedList!
         }
         /**
          * @description 限制联动通道数量

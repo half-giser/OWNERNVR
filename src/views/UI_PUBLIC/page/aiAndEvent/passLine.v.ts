@@ -3,7 +3,7 @@
  * @Date: 2024-09-11 15:00:19
  * @Description: 过线检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-25 11:02:36
+ * @LastEditTime: 2024-09-25 14:16:02
  */
 import { ArrowDown } from '@element-plus/icons-vue'
 import { type chlCaps } from '@/types/apiType/aiAndEvent'
@@ -12,8 +12,8 @@ import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleMana
 import CanvasPassline from '@/utils/canvas/canvasPassline'
 import CanvasCpc from '@/utils/canvas/canvasCpc'
 import { type emailData } from '@/types/apiType/aiAndEvent'
-import passLineEmailPop from './passLineEmailPop.vue'
-import { cloneDeep } from 'lodash'
+import PassLineEmailPop from './PassLineEmailPop.vue'
+import { cloneDeep } from 'lodash-es'
 import { type XmlResult } from '@/utils/xmlParse'
 import { type regionData } from '@/types/apiType/aiAndEvent'
 export default defineComponent({
@@ -21,7 +21,7 @@ export default defineComponent({
         ArrowDown,
         ElDivider,
         ScheduleManagPop,
-        passLineEmailPop,
+        PassLineEmailPop,
     },
     props: {
         /**
@@ -500,6 +500,7 @@ export default defineComponent({
             pageData.value.emailData.sendEmailData = pageData.value.sendEmailData
             pageData.value.emailData.receiverData = pageData.value.receiverData
             pageData.value.morePopOpen = true
+            pageData.value.applyDisable = false
         }
         // 关闭更多弹窗，将数据传到pageData
         const handleMorePopClose = (e: emailData) => {
@@ -1491,6 +1492,8 @@ export default defineComponent({
             handleMorePopClose,
             clearCpcArea,
             handleApply,
+            ScheduleManagPop,
+            PassLineEmailPop,
         }
     },
 })

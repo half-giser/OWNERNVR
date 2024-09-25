@@ -3,7 +3,7 @@
  * @Date: 2024-09-10 17:50:24
  * @Description: 更多功能页面的框架
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-24 16:55:35
+ * @LastEditTime: 2024-09-25 14:20:40
 -->
 <template>
     <div class="content">
@@ -60,13 +60,13 @@
                         >
                     </template>
                     <template #default>
-                        <fireDetection
+                        <FireDetection
                             v-if="pageData.chosenFunction === 'fireDetection'"
                             :curr-chl-id="pageData.currChlId"
                             :chl-data="pageData.chlData"
                             :voice-list="pageData.voiceList"
                             :online-channel-list="pageData.onlineChannelList"
-                        ></fireDetection>
+                        ></FireDetection>
                     </template>
                 </el-tab-pane>
                 <!-- videoStructure -->
@@ -112,13 +112,13 @@
                         >
                     </template>
                     <template #default>
-                        <passLine
+                        <PassLine
                             v-if="pageData.chosenFunction === 'passLine'"
                             :curr-chl-id="pageData.currChlId"
                             :chl-data="pageData.chlData"
                             :voice-list="pageData.voiceList"
                             :online-channel-list="pageData.onlineChannelList"
-                        ></passLine>
+                        ></PassLine>
                     </template>
                 </el-tab-pane>
 
@@ -266,7 +266,6 @@
 
 <style lang="scss" scoped>
 .chl_select {
-    z-index: 9999;
     width: 430px;
     :deep(.el-select__selection) {
         text-align: center;
