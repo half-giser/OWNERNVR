@@ -3,10 +3,10 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-19 09:27:27
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-19 10:40:44
+ * @LastEditTime: 2024-09-25 11:32:38
 -->
 <template>
-    <div class="abnormal_dispose_detection">
+    <div class="abnormal_dispose">
         <div :style="{ position: 'relative' }">
             <el-tabs
                 v-model="pageData.tab"
@@ -41,7 +41,10 @@
                             <div class="title">{{ Translate('IDCD_RULE') }}</div>
                             <!-- 持续时间 -->
                             <el-form-item :label="Translate('IDCS_DURATION')">
-                                <el-select v-model="abnormalDisposeData.holdTime">
+                                <el-select
+                                    v-model="abnormalDisposeData.holdTime"
+                                    size="small"
+                                >
                                     <el-option
                                         v-for="item in abnormalDisposeData.holdTimeList"
                                         :key="item.value"
@@ -55,6 +58,7 @@
                             <el-form-item :label="Translate('IDCS_SCENE_CHANGE')">
                                 <el-select
                                     v-model="abnormalDisposeData.sceneChangeSwitch"
+                                    size="small"
                                     :disabled="abnormalDisposeData.sceneChangeSwitch === ''"
                                     placeholder=""
                                 >
@@ -71,6 +75,7 @@
                             <el-form-item :label="Translate('IDCS_VIDEO_BLUR')">
                                 <el-select
                                     v-model="abnormalDisposeData.clarityAbnormalSwitch"
+                                    size="small"
                                     :disabled="abnormalDisposeData.clarityAbnormalSwitch === ''"
                                     placeholder=""
                                 >
@@ -87,6 +92,7 @@
                             <el-form-item :label="Translate('IDCS_VIDEO_COLOR')">
                                 <el-select
                                     v-model="abnormalDisposeData.colorAbnormalSwitch"
+                                    size="small"
                                     :disabled="abnormalDisposeData.colorAbnormalSwitch === ''"
                                     placeholder=""
                                 >
@@ -106,7 +112,7 @@
                                     :show-tooltip="false"
                                     :min="1"
                                     :max="100"
-                                    :style="{ width: '175px' }"
+                                    :style="{ width: '215px' }"
                                 />
                                 <span class="sensitivity_span">{{ abnormalDisposeData.sensitivity }}</span>
                             </el-form-item>
@@ -170,6 +176,7 @@
                             <span>{{ `${Translate('IDCS_RECORD')} ` }}</span>
                             <el-button
                                 size="small"
+                                class="apply_btn"
                                 @click="pageData.recordIsShow = true"
                                 >{{ Translate('IDCS_CONFIG') }}</el-button
                             >
@@ -187,6 +194,7 @@
                             <span>{{ `${Translate('IDCS_ALARM_OUT')} ` }}</span>
                             <el-button
                                 size="small"
+                                class="apply_btn"
                                 @click="pageData.alarmOutIsShow = true"
                                 >{{ Translate('IDCS_CONFIG') }}</el-button
                             >
@@ -248,6 +256,7 @@
         <div class="page_bottom">
             <el-button
                 :disabled="pageData.applyDisabled"
+                class="apply_btn"
                 @click="applyAbnormalDisposeData"
                 >{{ Translate('IDCS_APPLY') }}</el-button
             >
@@ -283,9 +292,29 @@
 <script lang="ts" src="./AbnormalDispose.v.ts"></script>
 
 <style lang="scss" scoped>
-.abnormal_dispose_detection {
-    height: calc(100vh - 360px);
+#n9web .el-form.narrow .el-form-item {
+    padding: 1px 0px 2px 12px;
+    margin-bottom: 0;
+}
+#n9web .el-table {
+    --el-table-tr-bg-color: white;
+}
+.apply_btn {
+    width: 80px;
+    height: 25px;
+}
+.abnormal_dispose {
+    height: calc(100vh - 351px);
     position: relative;
+    :deep() {
+        .el-form {
+            --el-form-label-font-size: 15px;
+            .el-checkbox {
+                color: black;
+                --el-checkbox-font-size: 15px;
+            }
+        }
+    }
     .menu_tab {
         :deep(.el-tabs__header) {
             border-bottom: 1px solid var(--border-color2);
@@ -324,10 +353,11 @@
         }
     }
     .row_padding {
-        padding: 5px 20px;
+        padding: 0px 20px;
         :deep(.el-checkbox__label) {
             font-size: 15px;
             color: #000;
+            padding-left: 5px;
         }
     }
     .title {
@@ -335,8 +365,15 @@
         font-size: 15px;
         height: 30px;
         line-height: 30px;
-        padding-left: 10px;
+        padding-left: 8px;
     } // 参数设置
+    .title:first-child {
+        margin-bottom: 10px;
+    }
+    .title:not(:first-child) {
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
     .param {
         width: 100%;
         display: flex;
@@ -344,11 +381,10 @@
         &_left {
             width: 400px;
             height: 100%;
-            padding: 0 100px 0 20px;
+            padding: 8px 100px 0 20px;
             flex-shrink: 0;
             display: flex;
             flex-direction: column;
-            margin-right: 5px;
             overflow: hidden;
             .player {
                 width: 400px;
@@ -370,20 +406,21 @@
                 }
             }
             :deep(.el-form-item) {
-                padding: 5px 15px;
+                padding: 1px 0px 2px 12px;
                 margin-bottom: 0;
             }
             .area_radio_group {
                 :deep(.el-radio-button) {
                     margin-right: 15px;
-                    border-radius: 2px;
+                    border-radius: 4px;
                     .el-radio-button__inner {
                         //修改按钮样式
                         width: 50px !important;
-                        height: 24px;
-                        line-height: 24px;
+                        height: 22px;
+                        line-height: 22px;
                         padding: 0;
                         border: 1px solid var(--border-color4) !important;
+                        border-radius: 4px;
                     }
                 }
                 :deep(.el-radio-button.is-active) {
@@ -436,7 +473,7 @@
         }
         :deep(.el-table) {
             width: 100%;
-            height: 350px;
+            height: 367px;
         }
         :deep(.el-table__cell) {
             padding: 3px;
@@ -448,6 +485,7 @@
         position: absolute;
         right: 0;
         bottom: 0;
+        margin-top: 9px;
     }
 }
 </style>

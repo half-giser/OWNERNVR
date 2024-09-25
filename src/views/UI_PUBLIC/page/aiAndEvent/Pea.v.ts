@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 13:36:26
  * @Description: 区域入侵
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-23 11:19:20
+ * @LastEditTime: 2024-09-24 16:13:36
  */
 import { ArrowDown } from '@element-plus/icons-vue'
 import { type chlCaps, type aiResourceRow } from '@/types/apiType/aiAndEvent'
@@ -741,9 +741,7 @@ export default defineComponent({
         }
         // 执行保存pea数据
         const handlePeaApply = async () => {
-            console.log('begin peaApply')
             if (!verification()) return
-            console.log('verification Complete')
             let isSwitchChange = false
             const switchChangeTypeArr: string[] = []
             const data = peaData.value.areaCfgData[peaData.value.activity_type]
@@ -1044,7 +1042,6 @@ export default defineComponent({
                         peaData.value.areaCfgData[type].boundaryInfo[idx].configured = false
                     }
                 })
-                // console.log(peaData.value.areaCfgData[type].boundaryInfo)
                 // 是否显示全部区域切换按钮和清除全部按钮（区域数量大于等于2时才显示）
                 if (boundaryInfoList && boundaryInfoList.length > 1) {
                     peaData.value.showAllAreaVisible = true
@@ -1536,10 +1533,6 @@ export default defineComponent({
         })
         onBeforeUnmount(() => {
             if (peaPlugin?.IsPluginAvailable() && peamode.value === 'ocx' && peaReady.value) {
-                const sendXML = OCX_XML_StopPreview('ALL')
-                peaPlugin.GetVideoPlugin().ExecuteCmd(sendXML)
-            }
-            if (peaPlugin?.IsPluginAvailable()) {
                 peaPlugin.VideoPluginNotifyEmitter.removeListener(peaLiveNotify2Js)
                 const sendAreaXML = OCX_XML_SetPeaAreaAction('NONE')
                 peaPlugin.GetVideoPlugin().ExecuteCmd(sendAreaXML)
@@ -1554,6 +1547,10 @@ export default defineComponent({
                 }
                 const sendXML = OCX_XML_StopPreview('ALL')
                 peaPlugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                peaPlugin.CloseCurPlugin(document.getElementById('peaplayer'))
+            }
+            if (peamode.value === 'h5') {
+                peaPlayer.destroy()
             }
         })
         return {

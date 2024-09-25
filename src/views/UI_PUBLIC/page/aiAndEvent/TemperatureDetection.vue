@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-13 09:18:25
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-18 17:09:31
+ * @LastEditTime: 2024-09-25 11:33:33
 -->
 <template>
     <div class="temp_detection">
@@ -38,8 +38,16 @@
                                     @change="showAllArea"
                                     >{{ Translate('IDCS_DISPLAY_ALL_AREA') }}</el-checkbox
                                 >
-                                <el-button @click="clearArea">{{ Translate('IDCS_CLEAR') }}</el-button>
-                                <el-button @click="clearAllArea">{{ Translate('IDCS_FACE_CLEAR_ALL') }}</el-button>
+                                <el-button
+                                    size="small"
+                                    @click="clearArea"
+                                    >{{ Translate('IDCS_CLEAR') }}</el-button
+                                >
+                                <el-button
+                                    size="small"
+                                    @click="clearAllArea"
+                                    >{{ Translate('IDCS_FACE_CLEAR_ALL') }}</el-button
+                                >
                             </div>
                             <span class="draw_area_tip">{{ pageData.drawAreaTip }}</span>
                         </div>
@@ -57,7 +65,10 @@
                             <div class="title">{{ Translate('IDCS_SCHEDULE') }}</div>
                             <!-- 排程配置 -->
                             <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
-                                <el-select v-model="tempDetectionData.schedule">
+                                <el-select
+                                    v-model="tempDetectionData.schedule"
+                                    size="small"
+                                >
                                     <el-option
                                         v-for="item in pageData.scheduleList"
                                         :key="item.value"
@@ -66,13 +77,20 @@
                                     >
                                     </el-option>
                                 </el-select>
-                                <el-button @click="pageData.scheduleManagPopOpen = true">{{ Translate('IDCS_MANAGE') }}</el-button>
+                                <el-button
+                                    class="apply_btn"
+                                    @click="pageData.scheduleManagPopOpen = true"
+                                    >{{ Translate('IDCS_MANAGE') }}</el-button
+                                >
                             </el-form-item>
                             <!-- 规则 -->
                             <div class="title">{{ Translate('IDCD_RULE') }}</div>
                             <!-- 持续时间 -->
                             <el-form-item :label="Translate('IDCS_DURATION')">
-                                <el-select v-model="tempDetectionData.holdTime">
+                                <el-select
+                                    v-model="tempDetectionData.holdTime"
+                                    size="small"
+                                >
                                     <el-option
                                         v-for="item in tempDetectionData.holdTimeList"
                                         :key="item.value"
@@ -282,6 +300,7 @@
                             <span>{{ `${Translate('IDCS_RECORD')} ` }}</span>
                             <el-button
                                 size="small"
+                                class="apply_btn"
                                 @click="pageData.recordIsShow = true"
                                 >{{ Translate('IDCS_CONFIG') }}</el-button
                             >
@@ -298,6 +317,7 @@
                         <div class="linkage_title">
                             <span>{{ `${Translate('IDCS_ALARM_OUT')} ` }}</span>
                             <el-button
+                                class="apply_btn"
                                 size="small"
                                 @click="pageData.alarmOutIsShow = true"
                                 >{{ Translate('IDCS_CONFIG') }}</el-button
@@ -316,6 +336,7 @@
                             <span>{{ `${Translate('IDCS_SNAP')} ` }}</span>
                             <el-button
                                 size="small"
+                                class="apply_btn"
                                 @click="pageData.snapIsShow = true"
                                 >{{ Translate('IDCS_CONFIG') }}</el-button
                             >
@@ -377,6 +398,7 @@
         <div class="page_bottom">
             <el-button
                 :disabled="pageData.applyDisabled"
+                class="apply_btn"
                 @click="applyTempDetectionData"
                 >{{ Translate('IDCS_APPLY') }}</el-button
             >
@@ -443,9 +465,35 @@
 </style>
 
 <style lang="scss" scoped>
+#n9web .el-form.narrow .el-form-item {
+    padding: 1px 0px 2px 12px;
+    margin-bottom: 0;
+}
+#n9web .el-table {
+    --el-table-tr-bg-color: white;
+}
+.apply_btn {
+    width: 80px;
+    height: 25px;
+}
 .temp_detection {
-    height: calc(100vh - 360px);
+    height: calc(100vh - 351px);
     position: relative;
+    :deep() {
+        .el-form {
+            --el-form-label-font-size: 15px;
+            .el-checkbox {
+                color: black;
+                --el-checkbox-font-size: 15px;
+            }
+        }
+        .el-table {
+            .el-checkbox {
+                color: black;
+                --el-checkbox-font-size: 15px;
+            }
+        }
+    }
     .menu_tab {
         :deep(.el-tabs__header) {
             border-bottom: 1px solid var(--border-color2);
@@ -484,10 +532,11 @@
         }
     }
     .row_padding {
-        padding: 5px 20px;
+        padding: 0 20px;
         :deep(.el-checkbox__label) {
             font-size: 15px;
             color: #000;
+            padding-left: 5px;
         }
     }
     .title {
@@ -495,8 +544,16 @@
         font-size: 15px;
         height: 30px;
         line-height: 30px;
-        padding-left: 10px;
-    } // 参数设置
+        padding-left: 8px;
+    }
+    .title:first-child {
+        margin-bottom: 10px;
+    }
+    .title:not(:first-child) {
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+    // 参数设置
     .param {
         width: 100%;
         display: flex;
@@ -508,7 +565,6 @@
             flex-shrink: 0;
             display: flex;
             flex-direction: column;
-            margin-right: 5px;
             overflow: hidden;
             .player {
                 width: 400px;
@@ -530,7 +586,7 @@
                 }
             }
             :deep(.el-form-item) {
-                padding: 5px 15px;
+                padding: 1px 0px 2px 12px;
                 margin-bottom: 0;
             }
         }
@@ -564,7 +620,7 @@
         }
         :deep(.el-table) {
             width: 100%;
-            height: 350px;
+            height: 367px;
         }
         :deep(.el-table__cell) {
             padding: 3px;
@@ -576,6 +632,7 @@
         position: absolute;
         right: 0;
         bottom: 0;
+        margin-top: 9px;
     }
 }
 </style>

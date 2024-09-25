@@ -3,7 +3,7 @@
  * @Date: 2024-09-11 14:16:37
  * @Description: 火点检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-20 11:35:28
+ * @LastEditTime: 2024-09-24 14:22:29
  */
 import { ArrowDown } from '@element-plus/icons-vue'
 import { type chlCaps, type aiResourceRow } from '@/types/apiType/aiAndEvent'
@@ -913,6 +913,16 @@ export default defineComponent({
         }
         onMounted(async () => {
             await initPageData()
+        })
+        onBeforeUnmount(() => {
+            if (plugin?.IsPluginAvailable() && mode.value === 'ocx' && ready.value) {
+                const sendXML = OCX_XML_StopPreview('ALL')
+                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.CloseCurPlugin(document.getElementById('player'))
+            }
+            if (mode.value === 'h5') {
+                player.destroy()
+            }
         })
         return {
             Translate,

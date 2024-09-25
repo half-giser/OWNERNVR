@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-09 09:56:14
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-14 17:32:09
+ * @LastEditTime: 2024-09-25 11:32:56
 -->
 <template>
     <!-- 通道名称及选择器 -->
@@ -11,11 +11,15 @@
         class="stripe narrow"
         :style="{
             '--form-input-width': '430px',
+            '--el-form-label-font-size': '15px',
         }"
         label-position="left"
         inline-message
     >
-        <el-form-item :label="Translate('IDCS_CHANNEL_NAME')">
+        <el-form-item
+            :label="Translate('IDCS_CHANNEL_NAME')"
+            label-width="108px"
+        >
             <el-select
                 v-model="pageData.curChl"
                 class="chl_select"
@@ -43,7 +47,7 @@
             :label="Translate('IDCS_DETECTION')"
             name="vehicleDetection"
             :disabled="pageData.vehicleDetectionDisabled"
-            :style="{ height: 'calc(100vh - 340px)' }"
+            :style="{ height: 'calc(100vh - 344px)' }"
         >
             <div>
                 <div class="row_padding">
@@ -286,7 +290,7 @@
             :label="Translate('IDCS_RECOGNITION')"
             name="vehicleCompare"
             :disabled="pageData.vehicleCompareDisabled"
-            :style="{ height: 'calc(100vh - 340px)' }"
+            :style="{ height: 'calc(100vh - 344px)' }"
         >
             <div>
                 <div class="row_padding">
@@ -399,6 +403,10 @@
     cursor: pointer;
     border: 1px solid var(--border-color2);
 }
+.narrow {
+    padding: 5px 0 5px 5px;
+    font-size: 15px;
+}
 // 人脸识别下的tab，侦测/识别/人脸库跳转
 .vehicle_tab {
     :deep(.el-tabs__item) {
@@ -473,10 +481,11 @@
     }
 }
 .row_padding {
-    padding: 5px 20px;
+    padding: 0 20px;
     :deep(.el-checkbox__label) {
         font-size: 15px;
         color: #000;
+        padding-left: 5px;
     }
 }
 // 高级设置
@@ -554,9 +563,9 @@
                 border-radius: 2px;
                 .el-radio-button__inner {
                     //修改按钮样式
-                    width: 50px;
-                    height: 24px;
-                    line-height: 24px;
+                    width: 50px !important;
+                    height: 22px;
+                    line-height: 22px;
                     padding: 0;
                     border: 1px solid var(--border-color4) !important;
                 }
