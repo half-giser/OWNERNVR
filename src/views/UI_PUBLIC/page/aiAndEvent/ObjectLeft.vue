@@ -2,8 +2,8 @@
  * @Description: AI 事件——更多——物品遗留与看护
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-18 09:43:32
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-24 15:36:20
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-09-25 09:44:31
 -->
 <template>
     <div class="obj_left_detection">
@@ -393,7 +393,7 @@
         }
     }
     .row_padding {
-        padding: 0px 20px;
+        padding: 0 20px;
         :deep(.el-checkbox__label) {
             font-size: 15px;
             color: #000;

@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-18 09:43:49
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-20 09:26:53
+ * @LastEditTime: 2024-09-25 09:44:13
  */
 import { cloneDeep } from 'lodash'
 import { type BoundaryItem, ObjectLeft, type PresetList, type chlCaps } from '@/types/apiType/aiAndEvent'
@@ -267,6 +267,7 @@ export default defineComponent({
                 showCancelButton: true,
             }).then(() => {
                 if (objectLeftData.value.boundary.length == 0) return
+                objectLeftData.value.boundary[pageData.value.warnArea].points = []
                 if (mode.value === 'h5') {
                     objDrawer.clear()
                 } else {
@@ -414,8 +415,8 @@ export default defineComponent({
                     sysAudio: $('sysAudio').attr('id'),
                 }
             }).then(() => {
-                handleObjectLeftData()
                 pageData.value.initComplated = true
+                handleObjectLeftData()
             })
         }
         const handleObjectLeftData = () => {
@@ -693,7 +694,7 @@ export default defineComponent({
                         showCancelButton: false,
                     })
                     return false
-                } else if (count > 0 && !objDrawer.judgeAreaCanBeClosed(item.points)) {
+                } else if (count > 0 && !judgeAreaCanBeClosed(item.points)) {
                     openMessageTipBox({
                         type: 'info',
                         title: Translate('IDCS_INFO_TIP'),
@@ -823,13 +824,13 @@ export default defineComponent({
 
         const LiveNotify2Js = ($: (path: string) => XmlResult) => {
             // 物品看护改变
-            // const $xmlNote = $("statenotify[type='OscArea']")
-            const $points = $("statenotify[type='OscArea']/points")
-            const errorCode = $("statenotify[type='OscArea']/errorCode").text()
+            // const $xmlNote = $("statenotify[@type='OscArea']")
+            const $points = $("statenotify[@type='OscArea']/points")
+            const errorCode = $("statenotify[@type='OscArea']/errorCode").text()
             // 绘制点线
             if ($points.length > 0) {
                 const points = [] as { X: number; Y: number }[]
-                $('statenotify/points/item').forEach((item) => {
+                $('/statenotify/points/item').forEach((item) => {
                     points.push({ X: Number(item.attr('X')), Y: Number(item.attr('Y')) })
                 })
                 objectLeftData.value.boundary[pageData.value.warnArea].points = points as { X: number; Y: number; isClosed: boolean }[]

@@ -2,11 +2,11 @@
  * @Description: AI 事件——更多——异常侦测
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-19 09:27:27
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-24 15:37:41
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-09-25 09:39:26
 -->
 <template>
-    <div class="abnormal_dispose_detection">
+    <div class="abnormal_dispose">
         <div :style="{ position: 'relative' }">
             <el-tabs
                 v-model="pageData.tab"

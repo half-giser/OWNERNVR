@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-09 09:56:33
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-19 15:12:35
+ * @LastEditTime: 2024-09-25 09:42:09
  */
 import { ArrowDown } from '@element-plus/icons-vue'
 // import { cloneDeep } from 'lodash'
@@ -13,6 +13,7 @@ import { type TabPaneName } from 'element-plus'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import SuccessfulRecognition from './SuccessfulRecognition.vue'
 import { type CanvasBasePoint } from '@/utils/canvas/canvasBase'
+import { type XmlResult } from '@/utils/xmlParse'
 
 export default defineComponent({
     components: {
@@ -28,6 +29,7 @@ export default defineComponent({
         const pluginStore = usePluginStore()
         const systemCaps = useCababilityStore()
         const osType = getSystemInfo().platform
+        const Plugin = inject('Plugin') as PluginType
         type CanvasAreaType = 'regionArea' | 'maskArea'
 
         const supportPlateMatch = systemCaps.supportPlateMatch
@@ -1483,8 +1485,50 @@ export default defineComponent({
                 await setVehicleCompareData()
             }
         }
-
+        const LiveNotify2Js = ($: (path: string) => XmlResult) => {
+            // todo，未测试
+            // 侦测区域
+            const xmlNote = $("statenotify[@type='VfdArea']")
+            if (xmlNote.length > 0) {
+                const $xmlNote = queryXml(xmlNote[0].element)
+                const points = [] as { X1: number; Y1: number; X2: number; Y2: number }[]
+                $xmlNote('item').forEach((item) => {
+                    const $item = queryXml(item.element)
+                    points.push({ X1: Number($item('X1').text()), Y1: Number($item('Y1').text()), X2: Number($item('X2').text()), Y2: Number($item('Y2').text()) })
+                })
+                vehicleDetectionData.value.regionInfo = points
+            }
+            // 屏蔽区域
+            const xmlPea = $("statenotify[@type='PeaArea']")
+            const $points = $("statenotify[@type='PeaArea']/points")
+            // 绘制点线
+            if ($points.length > 0) {
+                const $xmlPea = queryXml(xmlPea[0].element)
+                const points = [] as { X: number; Y: number; isClosed: boolean }[]
+                $xmlPea('points/item').forEach((item) => {
+                    points.push({ X: Number(item.attr('X')), Y: Number(item.attr('Y')), isClosed: true })
+                })
+                vehicleDetectionData.value.maskAreaInfo[detectionPageData.value.maskArea] = points
+            }
+            const errorCode = $("statenotify[@type='PeaArea']/errorCode").text()
+            // 处理错误码
+            if (errorCode == '517') {
+                // 517-区域已闭合
+                vehicleClearCurrentArea()
+            } else if (errorCode == '515') {
+                // 515-区域有相交直线，不可闭合
+                openMessageTipBox({
+                    type: 'info',
+                    title: Translate('IDCS_INFO_TIP'),
+                    message: Translate('IDCS_INTERSECT'),
+                    showCancelButton: false,
+                })
+            }
+        }
         onMounted(async () => {
+            if (mode.value != 'h5') {
+                Plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
+            }
             await getVoiceList()
             await getScheduleData()
             await getRecordList()
@@ -1495,6 +1539,7 @@ export default defineComponent({
 
         onBeforeUnmount(() => {
             if (plugin?.IsPluginAvailable() && mode.value === 'ocx' && ready.value) {
+                Plugin.VideoPluginNotifyEmitter.removeListener(LiveNotify2Js)
                 // 切到其他AI事件页面时清除一下插件显示的（线条/点/矩形/多边形）数据
                 const sendMaxXML = OCX_XML_SetVfdAreaAction('NONE', 'faceMax')
                 plugin.GetVideoPlugin().ExecuteCmd(sendMaxXML)
