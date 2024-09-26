@@ -3,7 +3,7 @@
  * @Date: 2024-06-17 20:25:35
  * @Description: 编辑权限组弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 18:23:10
+ * @LastEditTime: 2024-09-24 18:27:55
 -->
 <template>
     <el-dialog
@@ -11,6 +11,7 @@
         handle-open
         align-center
         draggable
+        width="1000"
         @open="handleOpen"
     >
         <div class="PermGroupEdit">

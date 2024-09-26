@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 13:36:26
  * @Description: 区域入侵
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-24 16:13:36
+ * @LastEditTime: 2024-09-25 14:26:37
  */
 import { ArrowDown } from '@element-plus/icons-vue'
 import { type chlCaps, type aiResourceRow } from '@/types/apiType/aiAndEvent'
@@ -12,7 +12,7 @@ import { ElDivider, type TabsPaneContext } from 'element-plus'
 import ChannelPtzCtrlPanel from '@/views/UI_PUBLIC/page/channel/ChannelPtzCtrlPanel.vue'
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import CanvasPolygon from '@/utils/canvas/canvasPolygon'
-import { cloneDeep } from 'lodash'
+import { cloneDeep } from 'lodash-es'
 import { type XmlResult } from '@/utils/xmlParse'
 import { type peaPageData, type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
 export default defineComponent({
@@ -374,7 +374,9 @@ export default defineComponent({
                                         <param/>
                                         <trigger/>
                                     </requireField>`
+            openLoading(LoadingTarget.FullScreen)
             const res = await queryIntelAreaConfig(sendXML)
+            closeLoading(LoadingTarget.FullScreen)
             const $ = queryXml(res)
             if ($('status').text() == 'success') {
                 peaData.value.applyDisable = true
@@ -1577,6 +1579,9 @@ export default defineComponent({
             alarmOutClose,
             peaClearCurrentAreaBtn,
             clearAllPeaArea,
+            ScheduleManagPop,
+            BaseTransferDialog,
+            ChannelPtzCtrlPanel,
         }
     },
 })

@@ -3,13 +3,14 @@
  * @Date: 2024-06-27 11:48:58
  * @Description: 系统升级
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 18:06:29
+ * @LastEditTime: 2024-09-24 18:31:19
 -->
 <template>
     <div>
         <el-form
             label-position="left"
             :style="{
+                '--form-label-width': 'auto',
                 '--form-input-width': '250px',
             }"
         >

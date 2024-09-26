@@ -160,7 +160,7 @@
         margin-left: 10px;
         width: 100%;
         height: 100%;
-        border: 1px solid var(--border-color8);
+        border: 1px solid var(--border-color2);
         padding: 10px;
         box-sizing: border-box;
     }

@@ -178,10 +178,10 @@
 
 <style scoped lang="scss">
 :deep(.signalItemCvi) {
-    border-top: 1px solid var(--border-color8);
+    border-top: 1px solid var(--border-color2);
 }
 .signalItemCvi {
-    border-top: 1px solid var(--border-color8);
+    border-top: 1px solid var(--border-color2);
 }
 .footer {
     margin-top: 10px;

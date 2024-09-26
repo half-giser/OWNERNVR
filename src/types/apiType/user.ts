@@ -3,7 +3,7 @@
  * @Date: 2024-05-24 17:12:55
  * @Description:
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-23 14:38:22
+ * @LastEditTime: 2024-09-24 14:34:34
  */
 
 /**
@@ -30,6 +30,7 @@ export class LoginReqData {
 export class AuthCodeLoginForm {
     sn = ''
     code = ''
+    calendarType = ''
 }
 
 /**

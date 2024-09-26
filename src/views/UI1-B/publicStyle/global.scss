@@ -1,11 +1,23 @@
 /*
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-05-29 13:48:55
- * @Description: 定义主题样式全局变量
+ * @Description: UI1-B 主题样式
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-24 10:10:30
+ * @LastEditTime: 2024-09-26 10:10:13
  */
 
+// 客户定制图标
+#n9web {
+    --img-login-content: url('@ui/publicStyle/img/LoginContent.png');
+    --img-logo: url('@ui/publicStyle/img/appName.png');
+    --img-login-btn: url('@ui/publicStyle/img/loginBtn.png');
+    // --img-motion-note: url('@ui/publicStyle/img/motionNote.gif');
+    --img-loading: url('@ui/publicStyle/img/loading.gif');
+    // --img-initview: url('@ui/publicStyle/img/initview.gif');
+    // --img-favicon: url('@ui/publicStyle/img/favicon.ico');
+}
+
+// 主题色
 #n9web {
     --primary--01: #F9E9C8;
     --primary--02: #805B29;
@@ -14,8 +26,6 @@
     // 主Layout
     --text-primary: #CCC; /* 文本主题色 */
     --page-bg: #333; /* 界面默认背景色 */
-    --text-menu-active: #fff; /* 业务应用/搜索与备份等顶部与左侧菜单栏活跃状态字体颜色 */
-    --text-menu-hover: #000; /* 业务应用/搜索与备份等顶部与左侧菜单栏hover状态字体颜色 */
     --text-menu-01: #CCC; /* 顶部菜单栏文本颜色 */
     --text-menu-01-hover: var(--primary--01);
     --border-color1: #a7a0a0; /* 主Layout, 以及Dialog、MessageBox、Notification等弹出框的Border颜色 */
@@ -26,7 +36,7 @@
     --bg-color4: #ccc; /* 子标题背景色 */
     --text-input: #000;
     --text-disabled: #545454; /* 输入框、表格等禁用状态时的文本颜色 */
-    --text-placeholder: #a8abb2; /* placeholder颜色 */
+    // --text-placeholder: #a8abb2; /* placeholder颜色 */
     --text-active: #fff; /* 表格、dropdown、options、tab、menu等被高亮选中时的文本颜色 */
     --border-color7: #888; /* 输入框、选择器等边框颜色 */
     --border-color-disabled: #aeabab;
@@ -57,19 +67,23 @@
     --bg-popover: var(--page-bg); /* popover背景色 */
 
     // 功能面板页
+    --text-menu-05: #8f8f8f; /* 功能面板 子菜单的文本颜色 */
+    --text-menu-05-hover: var(--primary--04); /* 功能面板 子菜单的hover文本颜色 */ 
+    --border-color3: #aeaeae; /* 功能面板 菜单的线框颜色 */
+    --bg-menu-04: var(--page-bg);
+    --bg-menu-04-hover: var(--page-bg);
+    --text-menu-04: #ccc; /* 功能面板 主菜单的文本颜色 */
+    --text-menu-04-hover: var(--primary--04); /* 功能面板 主菜单的hover文本颜色 */ 
+
+    // 功能面板内页
     --text-menu-03: #ccc; /* 配置页左侧菜单栏文本颜色 */
     --text-menu-03-hover: #fff;
     --text-menu-03-active: #fff;
-    --text-menu-04: #ccc; /* 功能面板 主菜单的文本颜色 */
-    --text-menu-04-hover: var(--primary--04); /* 功能面板 主菜单的hover文本颜色 */ 
-    --border-color3: #aeaeae; /* 功能面板 菜单的线框颜色 */
-
-    // 功能面板内页
-    --text-menu-05: #8f8f8f; /* 功能面板 子菜单的文本颜色 */
-    --text-menu-05-hover: var(--primary--04); /* 功能面板 子菜单的hover文本颜色 */ 
     --text-nav: #ccc; /* 面包屑颜色 */
     --bg-config-menu: #666; /* 配置页左侧菜单栏背景色 */
     --bg-color-cfg-menu-active: var(--primary--04);
+    --bg-icon-btn: #f0f0f0;
+    --bg-icon-btn-disabled: #fff;
 
     // 现场预览、回放的侧边栏面板
     --panel-header-bg: #fff; /* 标题背景色 */
@@ -81,12 +95,10 @@
     --panel-btn-bg: #fff;
     --panel-btn-bg-disabled: #777;
     --panel-snap-history: #ffcc66;
-    --bg-icon-btn: #f0f0f0;
-    --bg-icon-btn-disabled: #fff;
-
+    
     // 搜索与备份、智能分析、业务与应用
-    --bg-menu-04: var(--page-bg);
-    --bg-menu-04-hover: var(--page-bg);
+    --text-menu-active: #fff; /* 业务应用/搜索与备份等顶部与左侧菜单栏活跃状态字体颜色 */
+    --text-menu-hover: #000; /* 业务应用/搜索与备份等顶部与左侧菜单栏hover状态字体颜色 */
     --bg-thumbnail-card: #555; /* 按时间切片缩略图背景色 */
     --border-thumbnail-card: #555; /* 按时间切片缩略图边框颜色 */
     --bg-upload-hover: #555;
@@ -175,8 +187,4 @@
     --schedule-time-span-color: #F4971A;
     --schedule-time-span-selection-color: #805B29;
     --schedule-time-span-bg-color: #666;
-
-    // 客户定制图标
-    --login-content: url('@/views/UI1-B/publicStyle/img/LoginContent.png');
-    --logo: url('@/views/UI1-B/publicStyle/img/appName.png');
 }

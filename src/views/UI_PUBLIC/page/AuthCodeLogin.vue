@@ -3,7 +3,7 @@
  * @Date: 2024-09-20 09:10:11
  * @Description: P2P授权码登录
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-24 09:41:28
+ * @LastEditTime: 2024-09-25 16:28:16
 -->
 <template>
     <div class="authCodeLogin">
@@ -88,18 +88,30 @@
                     ></div>
                 </el-form>
             </div>
-            <el-select
-                v-model="pageData.langId"
-                class="authCodeLogin-lang"
-                @change="changeLang"
-            >
-                <el-option
-                    v-for="(item, key) in lang.langTypes.value"
-                    :key="key"
-                    :label="item.name"
-                    :value="item.id"
-                />
-            </el-select>
+            <div class="authCodeLogin-lang">
+                <el-select
+                    v-model="pageData.langId"
+                    @change="changeLang"
+                >
+                    <el-option
+                        v-for="(item, key) in lang.langTypes.value"
+                        :key="key"
+                        :label="item.name"
+                        :value="item.id"
+                    />
+                </el-select>
+                <el-select
+                    v-show="pageData.calendarOptions.length"
+                    v-model="formData.calendarType"
+                >
+                    <el-option
+                        v-for="item in pageData.calendarOptions"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value"
+                    />
+                </el-select>
+            </div>
             <div class="authCodeLogin-footer">
                 <p>{{ pageData.copyright }}</p>
                 <a
@@ -127,10 +139,14 @@
         top: 20px;
         right: 30px;
         width: 180px;
+
+        .el-select {
+            margin-bottom: 10px;
+        }
     }
 
     &-bg {
-        background: url('/mainBg.png') no-repeat;
+        background: var(--img-authcodelogin-bg) no-repeat;
         background-size: 100% 100%;
         height: 467px;
         width: 100%;
@@ -141,7 +157,7 @@
     }
 
     &-mask {
-        background: url('/mainBgMask.png') no-repeat;
+        background: var(--img-authcodelogin-mask) no-repeat;
         background-size: 100% 100%;
         height: 318px;
         width: 100%;
@@ -167,7 +183,6 @@
     position: relative;
     width: 300px;
     height: 50px;
-    // margin-bottom: 30px;
     font-size: 16px;
     border: 1px solid var(--border-color1);
     display: flex;
@@ -184,7 +199,7 @@
     width: 50px;
     height: 100%;
     flex-shrink: 0;
-    background: url('/loginIcon.png');
+    background: var(--img-authcodelogin-icon);
     border-right: 1px solid var(--border-color1);
 
     &.icon-code {
@@ -204,7 +219,7 @@
     position: relative;
     width: 693px;
     height: 262px;
-    background: no-repeat url('/AuthCodeLoginContent.png');
+    background: no-repeat var(--img-authcodelogin-content);
 
     #n9web & {
         .el-form {
@@ -235,19 +250,19 @@
         }
 
         .authCodeLogin-submit {
-            --el-button-border-color: var(--primary--04);
-            --el-button-bg-color: var(--primary--04);
-            --el-button-text-color: var(--page-bg);
-            --el-button-hover-text-color: var(--page-bg);
-            --el-button-hover-bg-color: var(--primary--04);
-            --el-button-hover-border-color: var(--primary--04);
-            --el-button-active-text-color: var(--page-bg);
-            --el-button-active-border-color: var(--primary--04);
-            --el-button-active-bg-color: var(--primary--04);
+            --el-button-border-color: transparent;
+            --el-button-hover-border-color: transparent;
+            --el-button-active-border-color: transparent;
 
             width: 300px;
             height: 50px;
             font-size: 18px;
+            transition: none;
+            background: var(--img-login-btn);
+
+            &:hover {
+                background-position: 0 -50px;
+            }
         }
     }
 }
@@ -273,7 +288,7 @@
 .authCodeLogin-question {
     width: 20px;
     height: 20px;
-    background: url(/question.png);
+    background: var(--img-authcodelogin-question);
     margin-left: 10px;
 }
 

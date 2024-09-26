@@ -12,7 +12,7 @@
             label-position="left"
             :style="{
                 '--form-input-width': '300px',
-                '--form-label-width': '150px',
+                '--form-label-width': '200px',
             }"
             class="inline-message narrow"
         >

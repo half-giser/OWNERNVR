@@ -3,7 +3,7 @@
  * @Date: 2024-06-25 09:59:16
  * @Description: 输出配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-23 16:16:31
+ * @LastEditTime: 2024-09-25 16:08:12
 -->
 <template>
     <div class="OutputSetting">
@@ -328,7 +328,7 @@
         display: flex;
         align-items: center;
         background-color: var(--bg-table-thead);
-        border: 1px solid var(--border-color8);
+        border: 1px solid var(--border-color2);
 
         & > div {
             padding: 0 20px;
@@ -347,20 +347,20 @@
         overflow-y: hidden;
         width: 100%;
         display: flex;
-        border: 1px solid var(--border-color8);
+        border: 1px solid var(--border-color2);
     }
 
     .left {
         width: 100%;
         height: 100%;
-        border-right: 1px solid var(--border-color8);
+        border-right: 1px solid var(--border-color2);
         display: flex;
         flex-direction: column;
     }
 
     .top {
         position: relative;
-        border-bottom: 1px solid var(--border-color8);
+        border-bottom: 1px solid var(--border-color2);
         display: flex;
         width: 100%;
         height: 60px;
@@ -380,7 +380,7 @@
                 padding: 0 20px;
                 margin-left: 10px;
                 background-color: var(--bg-table-thead);
-                border: 1px solid var(--border-color8);
+                border: 1px solid var(--border-color2);
 
                 &.active {
                     background-color: var(--primary--04);
@@ -410,14 +410,14 @@
             display: flex;
             width: 100%;
             height: calc(100% - 50px);
-            border-bottom: 1px solid var(--border-color8);
+            border-bottom: 1px solid var(--border-color2);
         }
 
         &-left {
             width: 260px;
             // flex-grow: 1;
             height: 100%;
-            border-right: 1px solid var(--border-color8);
+            border-right: 1px solid var(--border-color2);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -430,7 +430,7 @@
             flex-shrink: 0;
             width: 100%;
             line-height: 50px;
-            border-bottom: 1px solid var(--border-color8);
+            border-bottom: 1px solid var(--border-color2);
         }
 
         &-thumbnail {
@@ -484,7 +484,7 @@
             width: 120px;
             margin: 10px 0;
             background-color: var(--bg-table-thead);
-            border: 1px solid var(--border-color8);
+            border: 1px solid var(--border-color2);
             cursor: pointer;
         }
 
@@ -522,7 +522,7 @@
             height: 100%;
             display: flex;
             align-items: center;
-            border-left: 1px solid var(--border-color8);
+            border-left: 1px solid var(--border-color2);
 
             span {
                 cursor: pointer;
@@ -571,7 +571,7 @@
             & > div {
                 height: 40px;
                 line-height: 40px;
-                border-bottom: 1px solid var(--border-color8);
+                border-bottom: 1px solid var(--border-color2);
                 text-align: center;
 
                 &.active {
@@ -592,8 +592,8 @@
             // height: 0px;
             flex-shrink: 0;
             padding: 10px 0;
-            border-top: 1px solid var(--border-color8);
-            border-bottom: 1px solid var(--border-color8);
+            border-top: 1px solid var(--border-color2);
+            border-bottom: 1px solid var(--border-color2);
             display: flex;
             justify-content: center;
         }

@@ -106,7 +106,7 @@
     &-left {
         width: 150px;
         height: 460px;
-        border: 1px solid var(--border-color8);
+        border: 1px solid var(--border-color2);
         flex-shrink: 0;
         margin-right: 10px;
 

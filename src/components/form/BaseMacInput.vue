@@ -3,7 +3,7 @@
  * @Date: 2024-06-04 10:26:32
  * @Description: MAC地址输入框
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-22 20:02:33
+ * @LastEditTime: 2024-09-25 11:05:02
 -->
 <template>
     <div
@@ -240,10 +240,15 @@ const handleBlur = (index: number) => {
     }
 
     &.disabled {
+        box-shadow: none;
         background-color: var(--bg-color-disabled);
         border-color: var(--border-color-disabled);
         color: var(--el-disabled-text-color);
         cursor: not-allowed;
+
+        span {
+            color: var(--el-disabled-text-color);
+        }
     }
 
     input {
@@ -263,6 +268,10 @@ const handleBlur = (index: number) => {
             color: var(--el-disabled-text-color);
             cursor: not-allowed;
         }
+    }
+
+    span {
+        color: var(--text-input);
     }
 }
 </style>

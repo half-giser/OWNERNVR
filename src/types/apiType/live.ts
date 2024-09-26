@@ -3,7 +3,7 @@
  * @Date: 2024-07-17 11:31:57
  * @Description: 现场预览
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-14 12:01:45
+ * @LastEditTime: 2024-09-25 18:23:08
  */
 export class LiveChannelList {
     id = ''
@@ -14,6 +14,8 @@ export class LiveChannelList {
     supportPTZGroupTraceTask = false
     supportAccessControl = false
     supportTalkback = false
+    chlIp = ''
+    poeSwitch = false
 }
 
 export class LiveChannelGroupList {

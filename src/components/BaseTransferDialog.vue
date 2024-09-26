@@ -3,7 +3,7 @@
  * @Date: 2024-08-16 17:19:02
  * @Description: 穿梭框弹窗
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-22 11:52:29
+ * @LastEditTime: 2024-09-26 11:19:11
 -->
 <template>
     <el-dialog
@@ -11,7 +11,7 @@
         center
         width="615px"
         :title="Translate(props.headerTitle)"
-        @open="open"
+        :style="{ '--el-dialog-width': `${(panelWidth - 200) * 2 + 615}px` }"
         @close="close"
     >
         <div class="PosTriggerChannel">
@@ -22,7 +22,8 @@
                     key: 'value',
                     label: 'label',
                 }"
-                :titles="[Translate(props.sourceTitle), Translate(props.targetTitle)]"
+                :titles="[source_title, target_title]"
+                :style="{ '--el-transfer-panel-width': `${panelWidth}px` }"
                 @change="change"
             />
         </div>

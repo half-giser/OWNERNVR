@@ -3,7 +3,7 @@
  * @Date: 2024-09-11 14:16:29
  * @Description: 火点检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-24 17:17:35
+ * @LastEditTime: 2024-09-26 10:02:37
 -->
 <template>
     <div class="tripwire_setting_pane">
@@ -439,7 +439,7 @@
     </div>
 </template>
 
-<script lang="ts" src="./fireDetection.v.ts"></script>
+<script lang="ts" src="./FireDetection.v.ts"></script>
 
 <style lang="scss" scoped>
 .el-divider--vertical {
@@ -456,7 +456,7 @@
     font-size: 12px;
 }
 .row-padding {
-    padding-left: 20px;
+    padding: 0 20px;
 }
 
 .form > .form_span:first-child {
@@ -478,12 +478,12 @@
     height: 400px;
 }
 .form_btn {
-    width: 80px;
+    width: fit-content;
     height: 25px;
     font-size: 14px;
 }
 .apply_btn {
-    width: 80px;
+    width: fit-content;
     height: 25px;
 }
 #n9web .el-form .el-checkbox + * {
@@ -528,7 +528,7 @@
     }
     .checkbox_text {
         margin-left: 5px;
-        width: 100px;
+        width: fit-content;
         font-size: 15px;
     }
     .aiResource {
@@ -558,7 +558,8 @@
             border-bottom: 1px solid var(--border-color2);
         }
         :deep(.el-tabs__item) {
-            width: 100px;
+            width: fit-content;
+            padding: 0 20px;
             font-size: 15px;
             border: none;
         }
@@ -649,8 +650,9 @@
                     height: 400px;
                     border: 1px solid #888888;
                     .title {
+                        justify-content: flex-start;
                         .checkbox {
-                            margin-right: 151px;
+                            margin-left: 9px;
                         }
                     }
                     .span_text {
@@ -702,8 +704,8 @@
                     display: flex;
                     justify-content: center;
                     align-items: flex-end;
-                    padding-left: 26px;
-                    margin-left: 68px;
+                    padding-left: 30px;
+                    margin-left: 74px;
                 }
             }
         }

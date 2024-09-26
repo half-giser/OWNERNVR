@@ -3,7 +3,7 @@
  * @Date: 2024-06-25 13:55:36
  * @Description: 分屏模版
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-23 15:29:30
+ * @LastEditTime: 2024-09-25 16:10:32
 -->
 <template>
     <div
@@ -79,7 +79,7 @@
     }
 
     &.thumbail > div {
-        border-color: var(--border-color8);
+        border-color: var(--border-color2);
 
         &.active {
             border-color: var(--primary--04);

@@ -2,25 +2,24 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-10 17:50:35
  * @Description: 更多功能页面的框架
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-25 09:43:06
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-09-26 11:30:55
  */
-// import { cloneDeep } from 'lodash-es'
 import { type chlCaps } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
-import fireDetection from './fireDetection.vue'
+import FireDetection from './FireDetection.vue'
 import TemperatureDetection from './TemperatureDetection.vue'
 import ObjectLeft from './ObjectLeft.vue'
-import passLine from './passLine.vue'
+import PassLine from './PassLine.vue'
 import AbnormalDispose from './AbnormalDispose.vue'
 import Cdd from './Cdd.vue'
 import VideoStructure from './VideoStructure.vue'
 
 export default defineComponent({
     components: {
-        fireDetection,
+        FireDetection,
         VideoStructure,
-        passLine,
+        PassLine,
         TemperatureDetection,
         ObjectLeft,
         AbnormalDispose,
@@ -361,6 +360,9 @@ export default defineComponent({
             pageData.value.tabKey += 1
         })
         return {
+            FireDetection,
+            PassLine,
+            Cdd,
             VideoStructure,
             TemperatureDetection,
             ObjectLeft,

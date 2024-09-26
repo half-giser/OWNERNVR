@@ -114,14 +114,14 @@
 .choose {
     width: 100%;
     height: 365px;
-    border: 1px solid var(--border-color8);
+    border: 1px solid var(--border-color2);
     margin-top: 10px;
 
     &-list {
         height: 320px;
         display: flex;
         flex-wrap: wrap;
-        border-bottom: 1px solid var(--border-color8);
+        border-bottom: 1px solid var(--border-color2);
         overflow-y: auto;
         box-sizing: border-box;
         padding: 10px 0;

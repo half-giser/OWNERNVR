@@ -224,7 +224,7 @@
     position: relative;
     width: 960px;
     height: 500px;
-    border: 1px solid var(--border-color8);
+    border: 1px solid var(--border-color2);
 
     img {
         width: 100%;
