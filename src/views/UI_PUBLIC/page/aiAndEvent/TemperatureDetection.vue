@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-13 09:18:25
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-25 11:33:33
+ * @LastEditTime: 2024-09-26 15:09:21
 -->
 <template>
     <div class="temp_detection">
@@ -78,7 +78,7 @@
                                     </el-option>
                                 </el-select>
                                 <el-button
-                                    class="apply_btn"
+                                    class="form_btn"
                                     @click="pageData.scheduleManagPopOpen = true"
                                     >{{ Translate('IDCS_MANAGE') }}</el-button
                                 >
@@ -300,7 +300,7 @@
                             <span>{{ `${Translate('IDCS_RECORD')} ` }}</span>
                             <el-button
                                 size="small"
-                                class="apply_btn"
+                                class="form_btn"
                                 @click="pageData.recordIsShow = true"
                                 >{{ Translate('IDCS_CONFIG') }}</el-button
                             >
@@ -317,7 +317,7 @@
                         <div class="linkage_title">
                             <span>{{ `${Translate('IDCS_ALARM_OUT')} ` }}</span>
                             <el-button
-                                class="apply_btn"
+                                class="form_btn"
                                 size="small"
                                 @click="pageData.alarmOutIsShow = true"
                                 >{{ Translate('IDCS_CONFIG') }}</el-button
@@ -336,7 +336,7 @@
                             <span>{{ `${Translate('IDCS_SNAP')} ` }}</span>
                             <el-button
                                 size="small"
-                                class="apply_btn"
+                                class="form_btn"
                                 @click="pageData.snapIsShow = true"
                                 >{{ Translate('IDCS_CONFIG') }}</el-button
                             >
@@ -398,7 +398,7 @@
         <div class="page_bottom">
             <el-button
                 :disabled="pageData.applyDisabled"
-                class="apply_btn"
+                class="form_btn"
                 @click="applyTempDetectionData"
                 >{{ Translate('IDCS_APPLY') }}</el-button
             >
@@ -472,9 +472,10 @@
 #n9web .el-table {
     --el-table-tr-bg-color: white;
 }
-.apply_btn {
-    width: 80px;
+.form_btn {
+    width: fit-content;
     height: 25px;
+    font-size: 14px;
 }
 .temp_detection {
     height: calc(100vh - 351px);
@@ -499,7 +500,7 @@
             border-bottom: 1px solid var(--border-color2);
         }
         :deep(.el-tabs__item) {
-            width: 100px !important;
+            width: fit-content;
             font-size: 15px;
             border: none;
             padding: 0 20px !important;

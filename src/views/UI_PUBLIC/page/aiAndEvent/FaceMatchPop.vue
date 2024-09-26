@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-26 16:18:39
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-27 10:57:42
+ * @LastEditTime: 2024-09-26 15:31:39
 -->
 <template>
     <el-dialog
@@ -130,6 +130,12 @@
 .box {
     height: 285px;
     border: solid 1px black;
+}
+:deep(.el-form-item__label) {
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .box_title {
     text-align: center;

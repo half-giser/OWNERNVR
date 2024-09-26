@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-28 13:41:57
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-25 11:32:47
+ * @LastEditTime: 2024-09-26 15:25:47
 -->
 <template>
     <!-- 通道名称及选择器 -->
@@ -561,7 +561,7 @@
             :disabled="pageData.faceLibraryDisabled || !supportFaceMatch"
         >
             <template #label>
-                <span>{{ Translate('IDCS_FEATURE_LIBRARY') }}</span>
+                <span :title="Translate('IDCS_FEATURE_LIBRARY')">{{ Translate('IDCS_FEATURE_LIBRARY') }}</span>
                 <BaseImgSprite
                     class="link-icon"
                     file="jumpto"
@@ -714,17 +714,20 @@
     padding: 5px 0 5px 5px;
     font-size: 15px;
 }
-.apply_btn {
-    width: 80px;
-    height: 25px;
-}
 // 人脸识别下的tab，侦测/识别/人脸库跳转
 .face_tab {
     :deep(.el-tabs__item) {
-        width: 150px;
+        width: 170px;
         border: 2px solid var(--border-color2);
         margin-right: -2px; // 处理border重合
-        padding: 0 20px !important;
+        padding: 0;
+        span {
+            display: block !important;
+            line-height: 36px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     }
     /* 长分割线 */
     :deep(.el-tabs__nav-wrap::after) {
@@ -736,22 +739,27 @@
     :deep(.el-tabs__active-bar) {
         background-color: transparent !important;
     }
-
-    :deep(.el-tabs__item:first-child) {
-        border: 1px solid var(--border-color2);
-    }
     :deep(.el-tabs__item.is-active) {
-        color: #fff;
+        color: var(--text-active);
         background-color: var(--primary--04);
-        border: 1px solid var(--border-color2);
     }
     :deep(.el-tabs__item:hover) {
-        color: #fff;
+        color: var(--text-active);
         background-color: var(--primary--04);
     }
     :deep(.el-tabs__item.is-disabled) {
         background: #aeabab;
         color: #797979;
+    }
+    :deep(.el-form-item) {
+        padding: 5px 15px;
+        margin-bottom: 0;
+        .el-form-item__label {
+            display: inline-block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     }
 }
 // 侦测和识别下的菜单tab
@@ -760,14 +768,14 @@
         border-bottom: 1px solid var(--border-color2);
     }
     :deep(.el-tabs__item) {
-        width: 100px;
+        width: fit-content;
         font-size: 15px;
         border: none;
+        padding: 0 20px !important;
     }
     /* 长分割线 */
     :deep(.el-tabs__nav-wrap::after) {
         position: static !important; //可以去掉长分割线
-        // background-color: var(--border-color2);
     }
 
     /* 去掉下划线 */
@@ -836,7 +844,7 @@
     &_left {
         width: 400px;
         height: 100%;
-        padding: 8px 100px 0 20px;
+        padding: 0 100px 0 20px;
         flex-shrink: 0;
         display: flex;
         flex-direction: column;
@@ -860,10 +868,6 @@
             tbody {
                 cursor: pointer;
             }
-        }
-        :deep(.el-form-item) {
-            padding: 5px 15px;
-            margin-bottom: 0;
         }
     }
 }

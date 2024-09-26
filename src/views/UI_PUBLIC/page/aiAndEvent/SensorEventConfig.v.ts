@@ -8,7 +8,7 @@
 import { type PresetItem, SensorEvent, type ChlList } from '@/types/apiType/aiAndEvent'
 import { QueryNodeListDto } from '@/types/apiType/channel'
 import { tableRowStatus, tableRowStatusToolTip } from '@/utils/const/other'
-import { cloneDeep, isEqual } from 'lodash'
+import { cloneDeep, isEqual } from 'lodash-es'
 import BaseTransferPop from '@/components/BaseTransferPop.vue'
 import BaseTransferDialog from '@/components/BaseTransferDialog.vue'
 import SetPresetPop from './SetPresetPop.vue'
@@ -867,6 +867,8 @@ export default defineComponent({
         )
 
         return {
+            SetPresetPop,
+            ScheduleManagPop,
             recordRef,
             snapRef,
             alarmOutRef,

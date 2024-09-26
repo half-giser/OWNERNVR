@@ -5,7 +5,7 @@
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
  * @LastEditTime: 2024-09-09 18:01:39
  */
-import { cloneDeep } from 'lodash'
+import { cloneDeep } from 'lodash-es'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import { type PresetList, type CompareTask } from '@/types/apiType/aiAndEvent'
 import { type CheckboxValueType, type ElTable } from 'element-plus'

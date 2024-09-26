@@ -18,7 +18,7 @@ export default defineComponent({
             require: true,
         },
         linkedList: {
-            type: Array<CombinedAlarmItem>,
+            type: Array as PropType<CombinedAlarmItem[]>,
             require: true,
         },
         currRowFaceObj: {
@@ -83,7 +83,7 @@ export default defineComponent({
             detectBtn: { value: '', label: '' },
             isFaceMatchPopShow: false,
             linkedEntity: '',
-            linkedObj: {} as Record<string, {}>,
+            linkedObj: {} as Record<string, faceMatchObj>,
             faceMatchObj: {} as Record<string, Record<string, faceMatchObj>>,
         })
 
