@@ -556,7 +556,7 @@ export class PlaybackPopList {
     .chl {
         width: 230px;
         height: 350px;
-        border: 1px solid var(--border-color8);
+        border: 1px solid var(--border-color2);
     }
 
     .player {

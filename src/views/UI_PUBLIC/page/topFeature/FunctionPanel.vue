@@ -53,7 +53,7 @@
         background-color: var(--bg-menu-04);
 
         &:hover {
-            border-color: var(--primary--04);
+            border-color: var(var(--border-menu-04-hover), var(--primary--04));
             background-color: var(--bg-menu-04-hover);
         }
 
@@ -129,7 +129,7 @@
                 top: 2px;
                 width: 1px;
                 height: 15px;
-                background-color: var(--text-menu-05-hover);
+                background-color: var(--text-menu-05);
             }
 
             &:hover {

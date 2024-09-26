@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 顶层布局页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-23 16:17:03
+ * @LastEditTime: 2024-09-25 16:02:48
 -->
 <template>
     <el-container id="layoutMain">
@@ -13,7 +13,7 @@
                     v-show="pageData.logoShow"
                     id="logo"
                     :style="{
-                        backgroundImage: pageData.logoProductModel ? 'none' : 'var(--logo)',
+                        backgroundImage: pageData.logoProductModel ? 'none' : 'var(--img-logo)',
                         marginLeft: pageData.logoProductModel ? '295px' : '14px',
                     }"
                 >
@@ -156,6 +156,7 @@
     padding: 0px;
     height: auto;
     flex: auto 0 0;
+    background-color: var(--bg-menu-01, var(--page-bg));
 }
 
 #MainHeaderLine1 {
@@ -168,7 +169,7 @@
     margin: 8px 0px 0px 14px;
     width: 350px;
     height: 55px;
-    background: var(--logo) no-repeat;
+    background: var(--img-logo) no-repeat;
     text-align: right;
 
     div {
@@ -181,6 +182,7 @@
     font-size: 14px;
     margin: 20px 60px 0px 0px;
     display: flex;
+    color: var(--text-menu-top);
 
     .icon_aq {
         cursor: pointer;
@@ -222,6 +224,7 @@
     height: 40px;
     --el-menu-active-color: var(--primary--04);
     --el-menu-base-level-padding: 10px;
+    background-color: var(--bg-menu-01, var(--page-bg));
 }
 
 .el-menu--horizontal {
@@ -237,13 +240,19 @@
         font-size: 16px;
         color: var(--text-menu-01);
 
-        background-color: var(--page-bg);
-        border-bottom: solid 6px var(--page-bg);
+        background-color: var(--bg-menu-01, var(--page-bg));
+        border-bottom: solid 6px var(--border-menu-01, var(--page-bg));
 
         &:hover {
-            background-color: var(--page-bg);
+            background-color: var(--bg-menu-01, var(--page-bg));
             color: var(--text-menu-01-hover);
-            border-bottom: solid 6px var(--primary--01);
+            border-bottom: solid 6px var(--border-menu-01-hover, var(--primary--01));
+        }
+
+        &:focus {
+            background-color: var(--bg-menu-01, var(--page-bg));
+            color: var(--text-menu-01-hover);
+            border-bottom: solid 6px var(--border-menu-01-hover, var(--primary--01));
         }
 
         &:first-of-type {
@@ -287,9 +296,9 @@
     padding: 1px 0px 1px 0px;
     height: 18px;
     width: 100%;
-    color: var(--text-menu-01);
-    background-color: var(--page-bg);
     border-top: 1px solid var(--border-color1);
     flex-shrink: 0;
+    color: var(--layout-copyright-text, var(--text-menu-01));
+    background-color: var(--layout-copyright-bg, var(--page-bg));
 }
 </style>

@@ -187,7 +187,7 @@
         padding: 10px 0;
 
         &:not(:last-child) {
-            border-bottom: 1px solid var(--border-color8);
+            border-bottom: 1px solid var(--border-color2);
         }
     }
 

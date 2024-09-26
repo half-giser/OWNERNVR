@@ -3,7 +3,7 @@
  * @Date: 2024-05-07 20:42:33
  * @Description: 功能面板
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-19 15:19:28
+ * @LastEditTime: 2024-09-25 10:46:20
  */
 
 import { config } from '@/router/featureConfig/RouteUtil'
@@ -16,6 +16,9 @@ export default defineComponent({
         //去掉在控制面板不需要显示的菜单项，并排序
         const configModules = ref<RouteRecordRawExtends[]>([])
 
+        /**
+         * @description 获取功能面板的菜单列表
+         */
         const getConfigModule = () => {
             const modules = getMenuItems(config.children as RouteRecordRawExtends[]).filter((item) => !!item.meta?.groups)
             modules.forEach((item) => {
@@ -35,10 +38,41 @@ export default defineComponent({
             configModules.value = modules
         }
 
+        /**
+         * @description 点击主菜单，跳转默认子菜单
+         * @param {RouteRecordRawExtends} moduleItem
+         */
         const toDefault = function (moduleItem: RouteRecordRawExtends) {
             const defaultMenu = moduleItem.children?.find((o) => o.meta?.default === true) as RouteRecordRaw
             if (defaultMenu) {
                 router.push(defaultMenu?.meta?.fullPath as string)
+            }
+        }
+
+        const pageData = ref({
+            // 选中的主菜单
+            mainMenuIndex: 0,
+            hoverMenuIndex: -1,
+        })
+
+        /**
+         * @description 切换主菜单 （UI1-D）
+         * @param {number} key
+         */
+        const changeMainMenu = (key: number) => {
+            pageData.value.mainMenuIndex = key
+        }
+
+        /**
+         * @description hover主菜单 （UI1-D）
+         * @param {number} key
+         * @param {boolean} bool
+         */
+        const hoverMainMenu = (key: number, bool: boolean) => {
+            if (bool) {
+                pageData.value.hoverMenuIndex = key
+            } else {
+                pageData.value.hoverMenuIndex = -1
             }
         }
 
@@ -50,6 +84,9 @@ export default defineComponent({
             configModules,
             toDefault,
             router,
+            pageData,
+            changeMainMenu,
+            hoverMainMenu,
         }
     },
 })

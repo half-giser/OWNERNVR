@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 18:39:25
  * @Description: 实时过车记录
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-23 11:41:30
+ * @LastEditTime: 2024-09-25 16:09:11
 -->
 <template>
     <div class="lot">
@@ -351,7 +351,7 @@
         padding: 10px 0;
 
         &:not(:last-child) {
-            border-bottom: 1px solid var(--border-color8);
+            border-bottom: 1px solid var(--border-color2);
         }
     }
 

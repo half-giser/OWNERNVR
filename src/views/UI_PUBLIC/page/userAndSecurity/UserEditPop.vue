@@ -3,7 +3,7 @@
  * @Date: 2024-06-17 14:51:27
  * @Description: 编辑用户信息弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 09:37:10
+ * @LastEditTime: 2024-09-24 18:26:09
 -->
 <template>
     <el-dialog
@@ -20,7 +20,7 @@
             :rules
             :model="formData"
             :class="{
-                '--form-label-width': '150px',
+                '--form-label-width': '200px',
             }"
             hide-required-asterisk
             inline-message

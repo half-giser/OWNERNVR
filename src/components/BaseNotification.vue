@@ -107,7 +107,7 @@ onBeforeUnmount(() => {
 
 <style lang="scss" scoped>
 .notification {
-    border: 1px solid var(--border-color8);
+    border: 1px solid var(--border-color2);
     background-color: var(--page-bg);
     position: fixed;
     bottom: 0;
@@ -136,7 +136,7 @@ onBeforeUnmount(() => {
         line-height: 24px;
         padding: 8px 8px 8px 13px;
         color: var(--text-menu-01);
-        border-bottom: 1px solid var(--border-color8);
+        border-bottom: 1px solid var(--border-color2);
     }
 
     &-content {

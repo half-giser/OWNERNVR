@@ -71,7 +71,7 @@
         padding-bottom: 10px;
         padding-left: 10px;
         padding-top: 20px;
-        border-bottom: 1px solid var(--border-color8);
+        border-bottom: 1px solid var(--border-color2);
         color: var(--text-dialog);
         margin: 5px 5px;
     }

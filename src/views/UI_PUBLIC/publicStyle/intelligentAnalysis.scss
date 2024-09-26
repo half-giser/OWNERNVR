@@ -3,7 +3,7 @@
  * @Date: 2024-09-06 10:32:09
  * @Description: 智能分析版块的一些公共样式，仅在需要用到的智能分析版块下import
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-19 17:05:20
+ * @LastEditTime: 2024-09-25 16:10:05
  */
 .base-intel-placeholder {
     width: 100%;
@@ -61,7 +61,7 @@
 .base-intel-left {
     width: 430px;
     height: 100%;
-    border-right: 1px solid var(--border-color8);
+    border-right: 1px solid var(--border-color2);
     box-sizing: border-box;
     padding: 20px 10px;
     flex-shrink: 0;
@@ -179,6 +179,6 @@
     padding: 10px;
     display: flex;
     flex-wrap: wrap;
-    border: 1px solid var(--border-color8);
+    border: 1px solid var(--border-color2);
     overflow-y: scroll;
 }

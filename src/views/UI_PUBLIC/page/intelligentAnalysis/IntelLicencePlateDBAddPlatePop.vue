@@ -3,7 +3,7 @@
  * @Date: 2024-09-03 09:08:22
  * @Description: 新增车牌弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-19 17:08:54
+ * @LastEditTime: 2024-09-25 10:18:04
 -->
 <template>
     <el-dialog
@@ -188,7 +188,7 @@
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    background-color: var(--bg-color5);
+    background-color: var(--bg-upload, var(--bg-color5));
     border: 1px solid var(--border-color7);
 
     &:hover,

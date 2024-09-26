@@ -66,10 +66,17 @@ export const LocalCacheKey = {
 /**
  * 日历类型MAP
  */
-export const calendarListMap = {
-    'fa-ir': [
-        { value: 'Gregorian', text: 'IDCS_GREGORIAN_CALENDAR' },
-        { value: 'Persian', text: 'IDCS_PERSIAN_CANENDAR', isDefault: true },
+export const CALENDAR_TYPE_MAPPING: Record<string, { value: string; text: string; isDefault?: boolean }[]> = {
+    fa: [
+        {
+            value: 'Gregorian',
+            text: 'IDCS_GREGORIAN_CALENDAR',
+        },
+        {
+            value: 'Persian',
+            text: 'IDCS_PERSIAN_CANENDAR',
+            isDefault: true,
+        },
     ],
 }
 

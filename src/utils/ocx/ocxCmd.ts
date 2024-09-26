@@ -2,8 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-03 11:56:43
  * @Description: 插件命令集合
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-25 09:37:30
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-26 09:22:29
  */
 import { APP_SERVER_IP } from '@/utils/constants'
 
@@ -201,8 +201,8 @@ export const OCX_XML_DisplayPlugin = (isShow: boolean) => {
 
 /**
  * @description 设置OCX属性
- * @param properties
- * @param viewType
+ * @param {Record<string, string | Boolean>} properties
+ * @param {string} viewType
  * @returns {string}
  */
 export const OCX_XML_SetProperty = (properties: Record<string, string | Boolean>, viewType?: string) => {
@@ -211,6 +211,25 @@ export const OCX_XML_SetProperty = (properties: Record<string, string | Boolean>
             ${Object.entries(properties)
                 .map(([key, item]) => `<${key}>${item}</${key}>`)
                 .join('')}
+        </cmd>
+    `)
+}
+
+/**
+ * @description 设置OSD属性
+ * @param {boolean} nameSwitch
+ * @param {boolean} iconSwitch
+ * @param {boolean} addressSwitch
+ * @returns {string}
+ */
+export const OCX_XML_SetPropertyOSD = (nameSwitch: boolean, iconSwitch: boolean, addressSwitch: boolean) => {
+    return wrapXml(rawXml`
+        <cmd type="SetProperty">
+            <devOsdDisplay>
+                <nameSwitch>${nameSwitch.toString()}</nameSwitch>
+                <iconSwitch>${iconSwitch.toString()}</iconSwitch>
+                <addressSwitch>${addressSwitch.toString()}</addressSwitch>
+            </devOsdDisplay>
         </cmd>
     `)
 }

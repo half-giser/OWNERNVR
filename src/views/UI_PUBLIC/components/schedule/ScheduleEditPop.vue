@@ -3,7 +3,7 @@
  * @Date: 2024-07-31 16:36:16
  * @Description: 排程编辑弹框
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-23 16:49:20
+ * @LastEditTime: 2024-09-26 11:55:09
 -->
 <template>
     <el-dialog
@@ -143,6 +143,14 @@
         margin-bottom: 0;
     }
 
+    #n9web & :deep(.el-form-item__label) {
+        color: var(--schedule-form-text, var(--text-primary));
+    }
+
+    #n9web & :deep(.el-radio) {
+        --el-radio-text-color: var(--schedule-form-text, var(--text-primary));
+    }
+
     :deep(.el-form-item__error--inline) {
         position: absolute;
         top: 33px;
@@ -168,7 +176,7 @@
         margin-left: 15px;
         text-decoration: none;
         cursor: pointer;
-        color: var(--schedule-button);
+        color: var(--schedule-form-button, var(--schedule-button));
 
         &:hover {
             text-decoration: underline;
