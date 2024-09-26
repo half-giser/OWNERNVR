@@ -3,7 +3,7 @@
  * @Date: 2024-09-10 17:50:35
  * @Description: 更多功能页面的框架
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-25 17:05:19
+ * @LastEditTime: 2024-09-26 11:30:55
  */
 import { type chlCaps } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
@@ -13,10 +13,12 @@ import ObjectLeft from './ObjectLeft.vue'
 import PassLine from './PassLine.vue'
 import AbnormalDispose from './AbnormalDispose.vue'
 import Cdd from './Cdd.vue'
+import VideoStructure from './VideoStructure.vue'
 
 export default defineComponent({
     components: {
         FireDetection,
+        VideoStructure,
         PassLine,
         TemperatureDetection,
         ObjectLeft,
@@ -361,6 +363,7 @@ export default defineComponent({
             FireDetection,
             PassLine,
             Cdd,
+            VideoStructure,
             TemperatureDetection,
             ObjectLeft,
             AbnormalDispose,

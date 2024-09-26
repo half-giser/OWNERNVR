@@ -89,6 +89,14 @@
                             >{{ Translate('IDCS_VSD_DETECTION') }}</span
                         >
                     </template>
+                    <template #default>
+                        <VideoStructure
+                            v-if="pageData.chosenFunction === 'videoStructure'"
+                            :curr-chl-id="pageData.currChlId"
+                            :chl-data="pageData.chlData"
+                            :voice-list="pageData.voiceList"
+                        ></VideoStructure>
+                    </template>
                 </el-tab-pane>
 
                 <!-- passLine -->

@@ -2,8 +2,8 @@
  * @Description: AI 事件——车牌识别
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-09 09:56:14
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-24 17:21:43
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-09-25 11:32:56
 -->
 <template>
     <!-- 通道名称及选择器 -->
@@ -481,7 +481,7 @@
     }
 }
 .row_padding {
-    padding: 0px 20px;
+    padding: 0 20px;
     :deep(.el-checkbox__label) {
         font-size: 15px;
         color: #000;
@@ -563,9 +563,9 @@
                 border-radius: 2px;
                 .el-radio-button__inner {
                     //修改按钮样式
-                    width: 50px;
-                    height: 24px;
-                    line-height: 24px;
+                    width: 50px !important;
+                    height: 22px;
+                    line-height: 22px;
                     padding: 0;
                     border: 1px solid var(--border-color4) !important;
                 }
