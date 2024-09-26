@@ -4,7 +4,7 @@
  * @Date: 2024-07-31 10:29:37
  * @Description: 录像码流通用表格组件
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-26 13:58:32
+ * @LastEditTime: 2024-09-26 15:37:49
 -->
 <template>
     <div class="base-flex-box">
@@ -543,16 +543,8 @@
                 </el-table-column>
             </el-table>
         </div>
-        <el-row>
-            <el-col
-                :span="12"
-                class="colBandwidthDetail"
-            >
-                <span
-                    v-if="pageData.PredictVisible"
-                    id="txRecTime"
-                    >{{ pageData.recTime }}</span
-                >
+        <el-row class="bottom_row">
+            <div>
                 <span
                     id="txtBandwidth"
                     class="row_bandwidth"
@@ -563,24 +555,24 @@
                     id="bandwidthDetail"
                     class="detailBtn"
                 ></span>
-            </el-col>
-            <el-col
-                :span="12"
-                class="colOperateBtn"
-            >
+                <span
+                    v-if="pageData.PredictVisible"
+                    id="txRecTime"
+                    >{{ pageData.recTime }}</span
+                >
                 <el-button
                     v-show="pageData.CalculateVisible"
                     id="btnActivate"
                     @click="handleCalculate"
                     >{{ Translate('IDCS_CALCULATE') }}</el-button
                 >
-                <el-button
-                    id="btnSetDefaultPwd"
-                    :disabled="pageData.applyBtnDisable"
-                    @click="setData"
-                    >{{ Translate('IDCS_APPLY') }}</el-button
-                >
-            </el-col>
+            </div>
+            <el-button
+                id="btnSetDefaultPwd"
+                :disabled="pageData.applyBtnDisable"
+                @click="setData"
+                >{{ Translate('IDCS_APPLY') }}</el-button
+            >
         </el-row>
     </div>
 </template>
@@ -595,6 +587,7 @@ import type { DropdownInstance, TableInstance } from 'element-plus'
 const gopDropdownRef = ref<DropdownInstance>()
 const resolutionDropdownRef = ref<DropdownInstance>()
 const resolutionTableRef = ref<TableInstance>()
+const theme = getUiAndTheme().name
 const prop = withDefaults(
     defineProps<{
         mode: string
@@ -1051,11 +1044,11 @@ const queryRemainRecTimeF = function () {
                     recTimeArray.push('' + recTime + diskGroupIndex + '')
                 })
                 pageData.value.recTime = recTimeArray.join(';')
-                // TODO根据UI切换是否显示这个数据
-                // if (appInfo.uiName === 'UI1-E') {
-                //     pageData.value.PredictDisable = true
-                //     pageData.value.CalculateDisable = true
-                // }
+                // 根据UI切换是否显示
+                if (theme === 'UI1-E') {
+                    pageData.value.PredictVisible = true
+                    pageData.value.CalculateVisible = true
+                }
             } else if (item.length == 0) {
                 pageData.value.PredictVisible = false
                 pageData.value.CalculateVisible = false
@@ -1070,10 +1063,10 @@ const queryRemainRecTimeF = function () {
                               : remainRecTime + ' ' + Translate('IDCS_DAY_TIME')
                           : remainRecTime + ' ' + Translate('IDCS_DAY_TIMES')
                 pageData.value.recTime = Translate('IDCS_PREDICT_RECORD_TIME') + '' + recTime + ''
-                // if (appInfo.uiName === 'UI1-E') {
-                //     pageData.value.PredictDisable = true
-                //     pageData.value.CalculateDisable = true
-                // }
+                if (theme === 'UI1-E') {
+                    pageData.value.PredictVisible = true
+                    pageData.value.CalculateVisible = true
+                }
             }
         }
     })
@@ -1898,32 +1891,22 @@ watch(
         }
     }
 }
-
-.colBandwidthDetail {
-    display: flex;
-    justify-content: flex-start;
-    align-items: flex-end;
-    font-size: 15px;
+.bottom_row {
     margin-top: 10px;
-}
-.colOperateBtn {
     display: flex;
-    justify-content: flex-end;
-    align-items: flex-end;
-    margin-top: 10px;
+    align-items: flex-start;
+    justify-content: space-between;
 }
 #txRecTime {
     margin-left: 20px;
     margin-top: 10px;
 }
-.row_bandwidth {
-    margin-top: 10px;
+#btnActivate {
     margin-left: 20px;
 }
-// .GOP_dropDown {
-//     // 向左偏移
-//     right: 100px;
-// }
+.row_bandwidth {
+    margin-top: 10px;
+}
 .gop_btn {
     margin: 10px 20px;
 }
