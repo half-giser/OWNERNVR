@@ -3,7 +3,7 @@
  * @Date: 2024-08-14 17:06:01
  * @Description: 
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-23 14:43:51
+ * @LastEditTime: 2024-09-25 15:12:57
 -->
 <template>
     <div>
@@ -270,9 +270,8 @@
         display: flex;
         .tabel_header {
             display: flex;
-            .table_cell_header {
-                margin-right: 260px;
-            }
+            justify-content: space-between;
+            width: 100%;
             .btn {
                 height: 28px;
                 width: 80px;
@@ -281,7 +280,6 @@
         .table_item {
             display: flex;
             justify-content: flex-start;
-            margin-left: 4px;
         }
     }
     .btn-box {

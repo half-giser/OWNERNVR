@@ -3,7 +3,7 @@
  * @Date: 2024-08-27 15:43:26
  * @Description:  周界防范/人车检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-24 17:12:15
+ * @LastEditTime: 2024-09-25 16:34:25
 -->
 <template>
     <div class="content">
@@ -156,12 +156,25 @@
     }
     :deep() {
         .el-tabs__item {
-            width: 150px;
+            width: 170px;
             border: 2px solid var(--border-color2);
             margin-right: -2px; /* 处理border重合 */
-            padding: 0 20px !important;
+            padding: 0;
+            text-align: center;
+            span {
+                display: block;
+                line-height: 36px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
         }
-
+        .el-form-item__label {
+            display: inline-block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
         /* 长分割线 */
         .el-tabs__nav-wrap::after {
             /* position: static !important; 可以去掉长分割线 */

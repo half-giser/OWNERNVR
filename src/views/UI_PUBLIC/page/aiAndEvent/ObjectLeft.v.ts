@@ -323,7 +323,9 @@ export default defineComponent({
                 <condition><chlId>${prop.currChlId}</chlId></condition>
                 <requireField><param/><trigger/></requireField>
                 `
+            openLoading(LoadingTarget.FullScreen)
             const result = await queryOsc(sendXml)
+            closeLoading(LoadingTarget.FullScreen)
             commLoadResponseHandler(result, async ($) => {
                 const enabledSwitch = $('/response/content/chl/param/switch').text() == 'true'
                 let holdTimeArr = $('/response/content/chl/param/holdTimeNote').text().split(',')

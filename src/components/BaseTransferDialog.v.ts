@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-16 17:19:11
  * @Description: 穿梭框弹窗
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-22 15:20:09
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-09-26 11:19:38
  */
 export default defineComponent({
     props: {
@@ -23,14 +23,12 @@ export default defineComponent({
             default: '',
         },
         sourceData: {
-            type: Array<any>,
+            type: Array as PropType<{ value: string; label: string }[]>,
             require: true,
-            default: [],
         },
         linkedList: {
-            type: Array<any>,
+            type: Array as PropType<string[]>,
             require: true,
-            default: [],
         },
         type: {
             type: String,
@@ -50,8 +48,11 @@ export default defineComponent({
         const data = ref<{ value: string; label: string }[]>([])
         const chosedList = ref<string[]>([])
         const MAX_TRIGGER_COUNT = 16
+        const source_title = ref('')
+        const target_title = ref('')
         const { openMessageTipBox } = useMessageBox()
         const { Translate } = useLangStore()
+        const panelWidth = ref(200)
         const typeMapping: Record<string, string> = {
             record: 'IDCS_RECORD_CHANNEL_LIMIT',
             ftpRec: 'IDCS_FTP_RECORD_CHANNEL_LIMIT',
@@ -59,15 +60,11 @@ export default defineComponent({
             ftpSnap: 'IDCS_FTP_SNAP_CHANNEL_LIMIT',
             alarmOut: 'IDCS_ALARMOUT_LIMIT',
         }
-        const genData = async () => {
-            data.value = props.sourceData
-            chosedList.value = props.linkedList
-        }
-        /**
-         * @description 打开弹窗时，根据传入参数,获取数据
-         */
-        const open = async () => {
-            await genData()
+        const genData = () => {
+            data.value = props.sourceData!
+            chosedList.value = props.linkedList!
+            source_title.value = Translate(props.sourceTitle)
+            target_title.value = Translate(props.targetTitle)
         }
         /**
          * @description 限制联动通道数量
@@ -95,14 +92,28 @@ export default defineComponent({
         const close = () => {
             ctx.emit('close')
         }
+        const updatePanelWidth = () => {
+            const source_length = source_title.value.length
+            const sourceTitleWidth = source_length * 9
+            const target_length = target_title.value.length
+            const targetTitleWidth = target_length * 9
+            const maxWidth = Math.max(sourceTitleWidth, targetTitleWidth)
+            panelWidth.value = Math.max(maxWidth + 87, panelWidth.value)
+        }
+        onMounted(() => {
+            genData()
+            updatePanelWidth()
+        })
         return {
-            open,
             data,
             chosedList,
             props,
             verify,
             close,
             change,
+            source_title,
+            target_title,
+            panelWidth,
         }
     },
 })
