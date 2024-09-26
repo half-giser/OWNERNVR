@@ -4,7 +4,7 @@
  * @Date: 2024-07-31 10:29:37
  * @Description: 录像码流通用表格组件
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-25 14:56:28
+ * @LastEditTime: 2024-09-26 12:08:50
 -->
 <template>
     <div>
@@ -690,6 +690,7 @@ const pageData = ref({
     recTime: '', // 预计录像时间
     editeRows: [] as RecordStreamInfoDto[], // 编辑的行
     expands: [] as string[], // 展开的行
+    firstInit: true, // 是否第一次初始化
 })
 
 // TODO 获取UI，设置visible属性
@@ -909,7 +910,6 @@ const bindCtrlData = function (res: any) {
                         pageData.value.bitTypeUnionList.push(element)
                     }
                 })
-                // 需要改
                 if (prop.mode == 'event') {
                     if (RecStreamModule.value.recType === 'ae') {
                         item['GOP'] = item['main']['@aGOP'] ? item['main']['@aGOP'] : ''
@@ -998,6 +998,7 @@ const bindCtrlData = function (res: any) {
             pageData.value.resolutionGroups = getResolutionGroups(tableData.value)
             queryRemainRecTimeF()
             pageData.value.levelDropDisable = pageData.value.isAllCBR
+            pageData.value.firstInit = false
         }
     })
 }
@@ -1396,7 +1397,7 @@ const handleAudioOptionsChangeAll = function (audio: { value: string; label: str
     })
 }
 
-// TODO限制GOP
+// 限制GOP
 const GOPhandleFocus = (value: string) => {
     const maxValue = 480
     if (parseInt(value) > maxValue) {
@@ -1773,7 +1774,6 @@ const handleCalculate = () => {
 const getSaveData = function () {
     // 编辑时rtsp通道由设备端区分，web还是传所有节点设备对无效节点过滤
     const editRowDatas = pageData.value.editeRows
-    // console.log('editRowDatas', editRowDatas)
     let sendXml = rawXml`<content type='list' total='${editRowDatas.length.toString()}'>`
     editRowDatas.forEach((element: RecordStreamInfoDto) => {
         // 需要改
@@ -1821,7 +1821,6 @@ const getSaveData = function () {
         sendXml += rawXml`</item>`
     })
     sendXml += rawXml`</content>`
-    // console.log('sendXml', sendXml)
     return sendXml
 }
 const setData = function () {
@@ -1869,6 +1868,14 @@ const setData = function () {
 onMounted(() => {
     fetchData()
 })
+watch(
+    () => prop.mode,
+    () => {
+        if (!pageData.value.firstInit) {
+            fetchData()
+        }
+    },
+)
 </script>
 
 <style lang="scss" scope>

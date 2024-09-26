@@ -7,7 +7,10 @@
 -->
 <template>
     <div>
-        <RecordStreamTable :mode="pageData.mode"></RecordStreamTable>
+        <RecordStreamTable
+            :v-model="pageData.init"
+            :mode="pageData.mode"
+        ></RecordStreamTable>
     </div>
 </template>
 
