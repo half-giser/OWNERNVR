@@ -3,7 +3,7 @@
  * @Date: 2024-09-18 09:33:05
  * @Description: 开机向导
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-19 09:45:07
+ * @LastEditTime: 2024-09-26 16:31:32
 -->
 <template>
     <div class="guide">
@@ -271,7 +271,7 @@
                         </el-form-item>
                         <el-form-item :label="Translate('IDCS_ANSWER')">
                             <el-input v-model="qaFormData.answer" />
-                            <el-button @click="addQuestion">{{ Translate('IDCS_ADD') }}</el-button>
+                            <el-button @click="addQuestion">{{ isDefeultQuestion ? Translate('IDCS_APPLY') : Translate('IDCS_ADD') }}</el-button>
                         </el-form-item>
                     </el-form>
                     <div class="base-table-box">

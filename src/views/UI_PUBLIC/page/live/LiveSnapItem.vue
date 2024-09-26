@@ -100,7 +100,7 @@
     font-size: 12px;
 
     &.border {
-        border-color: var(--panel-snap-history);
+        border-color: var(--panel-snap-history-border);
     }
 
     &-top {

@@ -13,12 +13,12 @@
     --img-initview: url('@/views/UI_PUBLIC/publicStyle/img/initview.gif');
 
     // 授权码登录素材 （请求服务器的素材）
-    --img-authcodelogin-bg: url('/mainBg.png');
-    --img-authcodelogin-mask: url('/mainBgMask.png');
-    --img-authcodelogin-icon: url('/loginIcon.png');
-    --img-authcodelogin-content: url('/AuthCodeLoginContent.png');
-    --img-authcodelogin-question: url('/question.png');
-    --img-authcodelogin-btn: url('/loginBtn.png');
+    --img-authcodelogin-bg: url('/public/css/pictures/mainBg.png');
+    --img-authcodelogin-mask: url('/public/css/pictures/mainBgMask.png');
+    --img-authcodelogin-icon: url('/public/css/pictures/loginIcon.png');
+    --img-authcodelogin-content: url('/public/css/pictures/LoginContent.png');
+    --img-authcodelogin-question: url('/public/css/pictures/question.png');
+    --img-authcodelogin-btn: url('/public/css/pictures/loginBtn.png');
 }
 
 // 变量
@@ -91,6 +91,15 @@
 
     // 登录
     --login-bg: var(--page-bg);
+    --login-content-bg: transparent;
+    --login-btn-text: #fff;
+
+    // 授权码登录
+    --authcode-bg: #fff;
+    --authcode-btn-text: #fff;
+    --authcode-input-text-disabled: #454545;
+    --authcode-input-bg-disabled: #ccc;
+    --authcode-content-bg: transparent;
 
     // 功能面板内页
     --text-menu-03: #8d8d8d; /* 配置页左侧菜单栏文本颜色 */
@@ -111,7 +120,7 @@
     --panel-bg: #FFF; /* 面板背景色 */
     --panel-btn-bg: #b7b7b7;
     --panel-btn-bg-disabled: #d9d9d9;
-    --panel-snap-history: #FFCC66;
+    --panel-snap-history-border: #FFCC66;
 
     // 搜索与备份、智能分析、业务与应用
     --bg-menu-04: var(--page-bg);
@@ -140,8 +149,6 @@
     --calendar-bg-hover: #f7f7f7; /* 日期hover状态背景色 */
     --calendar-header-text: #3c3c3c;
     --calendar-text-disabled: #ccc; /* 日历上下月日期颜色 */
-
-    // 搜索与备份
 
     // 半透明色
     --bg-color-opacity1: rgba(255, 255, 255, 0.2); /* 半透明白色 */
