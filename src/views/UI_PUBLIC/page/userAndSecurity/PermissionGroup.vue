@@ -3,7 +3,7 @@
  * @Date: 2024-06-17 20:26:14
  * @Description: 权限组列表
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 18:21:41
+ * @LastEditTime: 2024-09-25 16:09:00
 -->
 <template>
     <div class="Perm">
@@ -245,7 +245,7 @@
         ul {
             display: flex;
             justify-content: center;
-            border: 1px solid var(--border-color8);
+            border: 1px solid var(--border-color2);
             margin: 0;
             padding: 5px;
             flex-shrink: 0;

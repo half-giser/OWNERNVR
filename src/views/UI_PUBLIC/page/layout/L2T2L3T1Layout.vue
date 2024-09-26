@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 二级类型2布局页--三级类型1布局页--适用于“智能分析-搜索”、“业务应用-停车场管理”等
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-23 15:52:00
+ * @LastEditTime: 2024-09-24 18:21:38
 -->
 <template>
     <el-container id="layout3">
@@ -53,46 +53,47 @@
     width: 100px;
     border-right: solid 1px var(--border-color1);
     background-color: var(--page-bg);
+
+    .el-menu {
+        border-right: 0px;
+
+        .el-menu-item {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0px !important;
+            height: 90px;
+            --el-menu-hover-bg-color: var(--bg-menu-hover, var(--primary--01));
+            --el-menu-text-color: var(--text-menu-02, var(--text-menu-01));
+
+            &.is-active {
+                background-color: var(--primary--04);
+                border: 0;
+                color: var(--text-menu-active);
+
+                &:hover {
+                    color: var(--text-menu-active);
+                }
+            }
+
+            &:hover {
+                color: var(--text-menu-hover);
+            }
+
+            span {
+                width: 100%;
+                font-size: 12px;
+                line-height: 1.4;
+                white-space: pre-wrap;
+            }
+        }
+    }
 }
 
 #layout3Content {
     background-color: var(--page-bg);
     padding: 0;
-}
-
-.el-menu {
-    border-right: 0px;
-}
-
-.el-menu-item {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding: 0px !important;
-    height: 90px;
-    --el-menu-hover-bg-color: var(--primary--01);
-
-    &.is-active {
-        background-color: var(--primary--04);
-        border: 0;
-        color: var(--text-menu-active);
-
-        &:hover {
-            color: var(--text-menu-active);
-        }
-    }
-
-    &:hover {
-        color: var(--text-menu-hover);
-    }
-
-    span {
-        width: 100%;
-        font-size: 12px;
-        line-height: 1.4;
-        white-space: pre-wrap;
-    }
 }
 </style>

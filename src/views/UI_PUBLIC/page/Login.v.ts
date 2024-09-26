@@ -3,219 +3,296 @@
  * @Date: 2024-04-23 11:52:48
  * @Description: 登录界面
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-19 16:20:57
+ * @LastEditTime: 2024-09-26 09:55:41
  */
 import { type FormRules, type FormInstance } from 'element-plus'
 import { LoginForm, LoginReqData } from '@/types/apiType/user'
+import LoginPrivacyPop from './LoginPrivacyPop.vue'
 
 export default defineComponent({
+    components: {
+        LoginPrivacyPop,
+    },
     setup() {
         const { Translate } = useLangStore()
         const langStore = useLangStore()
         const Plugin = inject('Plugin') as PluginType
         const userSessionStore = useUserSessionStore()
         const router = useRouter()
+        const theme = getUiAndTheme()
 
-        // 语言
-        const langTypes = ref<Record<string, string>>({})
-        const langType = ref('')
-        const langId = ref('')
-        langStore.getLangTypes().then((res) => {
-            langTypes.value = unref(res)
+        const pageData = ref({
+            langTypes: {} as Record<string, string>,
+            langType: langStore.langType,
+            langId: langStore.langId,
+            calendarOptions: [] as SelectOption<string, string>[],
+            // 登录错误提示
+            errorMsg: '',
+            // 登录按钮禁用标志
+            btnDisabled: false,
+            isPrivacy: false,
+            quality: 'sub',
+            qualityOptions: [
+                {
+                    label: 'IDCS_HIGH_QUALITY',
+                    value: 'main',
+                },
+                {
+                    label: 'IDCS_STANDARD_QUALITY',
+                    value: 'sub',
+                },
+            ],
         })
-        langType.value = langStore.langType
-        langId.value = langStore.langId
 
-        const loginFormRef = ref<FormInstance>()
+        langStore.getLangTypes().then((res) => {
+            pageData.value.langTypes = unref(res)
+        })
 
-        // 登录错误提示
-        const loginErrorMessage = ref('')
+        const formRef = ref<FormInstance>()
 
         // 界面表单数据
-        const pageData = ref(new LoginForm())
-        pageData.value.userName = ''
-        pageData.value.password = ''
+        const formData = ref(new LoginForm())
+        formData.value.calendarType = userSessionStore.calendarType
 
-        // 登录按钮禁用标志
-        const loginBtnDisabled = ref(false)
+        // 校验规则
+        const rules = reactive<FormRules>({
+            userName: [
+                {
+                    validator(rule, value, callback) {
+                        if (!value) {
+                            callback(new Error(Translate('IDCS_PROMPT_USERNAME_EMPTY')))
+                            return
+                        }
+                        callback()
+                    },
+                    trigger: 'blur',
+                },
+            ],
+            password: [
+                {
+                    validator(rule, value, callback) {
+                        if (value.length > 16) {
+                            callback(new Error(Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR')))
+                            return
+                        }
+                        callback()
+                    },
+                    trigger: 'blur',
+                },
+            ],
+        })
 
-        // 隐私政策
-        const isPrivacy = ref(false)
-        const isAllowPrivacy = ref(false)
-
-        // 错误超过次数锁定后的读秒回调
+        /**
+         * @description 错误超过次数锁定后的读秒回调
+         * @param {string} countDownInfo
+         */
         const countDownCallback = (countDownInfo: string) => {
-            loginErrorMessage.value = countDownInfo
+            pageData.value.errorMsg = countDownInfo
         }
 
-        // 错误超过次数锁定后的读秒结束回调
+        /**
+         * @description 错误超过次数锁定后的读秒结束回调
+         */
         const countDownEndCallback = () => {
-            loginErrorMessage.value = ''
-            loginBtnDisabled.value = false
+            pageData.value.errorMsg = ''
+            pageData.value.btnDisabled = false
         }
 
         // 初始化错误超过次数锁定检测工具
         const errorLockChecker = new ErrorLockChecker('login', countDownCallback, countDownEndCallback)
         if (errorLockChecker.isLocked) {
-            loginBtnDisabled.value = true
+            pageData.value.btnDisabled = true
         }
 
-        // 登录验证
-        const handleLogin = async (formEl: FormInstance | undefined) => {
-            if (!formEl) return
-            await formEl.validate((valid) => {
+        /**
+         * @description 登录验证
+         */
+        const handleLogin = () => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
-                    loginBtnDisabled.value = true
+                    pageData.value.btnDisabled = true
                     fnReqLogin()
                 }
             })
         }
 
-        // 登录
-        const fnReqLogin = () => {
-            const data: string = getXmlWrapData('')
-            reqLogin(data).then((res) => {
-                if (xmlParse('status', res).text() == 'success') {
-                    // reqLogin更新用户会话信息
-                    userSessionStore.updataByReqLogin(res)
-                    // 执行doLogin
-                    const reqData = new LoginReqData()
-                    const md5Pwd = MD5_encrypt(pageData.value.password)
-                    reqData.userName = pageData.value.userName
-                    const nonce = userSessionStore.nonce ? userSessionStore.nonce : ''
-                    reqData.password = '' + sha512_encrypt(md5Pwd + '#' + nonce)
-                    reqData.passwordMd5 = md5Pwd
-                    fnDoLogin(reqData)
-                } else {
-                    const errorCode = xmlParse('errorCode', res).text()
-                    ElMessage.error(Translate(ErrorCodeMapping[errorCode]))
-                    loginBtnDisabled.value = false
-                }
-            })
+        /**
+         * @description 登录
+         */
+        const fnReqLogin = async () => {
+            const result = await reqLogin(getXmlWrapData(''))
+            const $ = queryXml(result)
+            if ($('//status').text() === 'success') {
+                userSessionStore.updataByReqLogin(result)
+                const reqData = new LoginReqData()
+                const md5Pwd = MD5_encrypt(formData.value.password)
+                reqData.userName = formData.value.userName
+                const nonce = userSessionStore.nonce ? userSessionStore.nonce : ''
+                reqData.password = '' + sha512_encrypt(md5Pwd + '#' + nonce)
+                reqData.passwordMd5 = md5Pwd
+                fnDoLogin(reqData)
+            } else {
+                const errorCode = $('errorCode').text()
+                console.log(errorCode)
+                // ElMessage.error(Translate(ErrorCodeMapping[errorCode]))
+                pageData.value.btnDisabled = false
+            }
         }
 
-        // 登录后更新用户会话信息
-        const fnDoLogin = (reqData: LoginReqData) => {
-            const data = getXmlWrapData(`<content><userName>${reqData.userName}</userName><password>${reqData.password}</password></content>`)
-            doLogin(data)
-                .then(async (res) => {
-                    if (xmlParse('status', res).text() == 'success') {
-                        // doLogin后更新用户会话信息
-                        await userSessionStore.updateByLogin('STANDARD', res, reqData, pageData.value)
-                        loginBtnDisabled.value = false
-                        Plugin.DisposePlugin()
-                        Plugin.TogglePageByPlugin()
-                        Plugin.StartV2Process()
-                        router.push('/live')
-                    } else if (xmlParse('status', res).text() == 'fail') {
-                        loginBtnDisabled.value = false
-                        pageData.value.password = ''
-                        const errorCode = xmlParse('errorCode', res).text()
-                        const ramainingNumber = xmlParse('ramainingNumber', res).text()
-                        errorLockChecker.setLockTime(Number(xmlParse('ramainingTime', res).text()) * 1000)
-                        errorLockChecker.isLocked = xmlParse('locked', res).text() === 'true'
-                        if (errorCode) {
-                            switch (errorCode) {
-                                case '536870947':
-                                case '536870948':
-                                    errorLockChecker.preErrorMsg = Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR')
-                                    loginErrorMessage.value = errorLockChecker.preErrorMsg
-                                    errorLockChecker.error(() => {
-                                        if (ramainingNumber) {
-                                            loginErrorMessage.value = loginErrorMessage.value + '\n' + Translate('IDCS_TICK_ERROR_COUNT').formatForLang(ramainingNumber)
-                                        }
-                                    })
-                                    if (errorLockChecker.isLocked) {
-                                        loginBtnDisabled.value = true
-                                    }
-                                    break
-                                case '536870951':
-                                    loginErrorMessage.value = Translate('IDCS_LOGIN_FAIL_USER_LOCKED')
-                                    break
-                                case '536870953':
-                                    loginErrorMessage.value = Translate('IDCS_LOGIN_FAIL_USER_LIMITED_TELNET')
-                                    break
-                                case '536870943':
-                                    loginErrorMessage.value = Translate('IDCS_USER_ERROR_INVALID_PARAM')
-                                    break
-                                default:
-                                    loginErrorMessage.value = Translate('IDCS_UNKNOWN_ERROR_CODE') + errorCode
-                            }
-                        } else {
-                            loginErrorMessage.value = Translate('loginFailed')
-                        }
+        /**
+         * @description 登录后更新用户会话信息
+         * @param {LoginReqData} reqData
+         */
+        const fnDoLogin = async (reqData: LoginReqData) => {
+            const sendXml = rawXml`
+                <content>
+                    <userName>${reqData.userName}</userName>
+                    <password>${reqData.password}</password>
+                </content>
+            `
+            try {
+                const result = await doLogin(getXmlWrapData(sendXml))
+                const $ = queryXml(result)
+                if ($('//status').text() == 'success') {
+                    // doLogin后更新用户会话信息
+                    await userSessionStore.updateByLogin('STANDARD', result, reqData, formData.value)
+                    pageData.value.btnDisabled = false
+                    // UI1-D / UI1-G 登录默认画质
+                    if (['UI1-D', 'UI1-G'].includes(theme.name)) {
+                        userSessionStore.defaultStreamType = pageData.value.quality
                     }
-                })
-                .catch(() => {
-                    loginBtnDisabled.value = false
-                })
+                    Plugin.DisposePlugin()
+                    Plugin.TogglePageByPlugin()
+                    Plugin.StartV2Process()
+                    router.push('/live')
+                } else if ($('//status').text() == 'fail') {
+                    pageData.value.btnDisabled = false
+                    formData.value.password = ''
+                    const errorCode = Number($('errorCode').text())
+                    const ramainingNumber = $('ramainingNumber').text()
+                    errorLockChecker.setLockTime(Number($('ramainingTime').text()) * 1000)
+                    errorLockChecker.isLocked = $('locked').text().toBoolean()
+                    if (errorCode) {
+                        switch (errorCode) {
+                            case ErrorCode.USER_ERROR_NO_USER:
+                            case ErrorCode.USER_ERROR_PWD_ERR:
+                                errorLockChecker.preErrorMsg = Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR')
+                                pageData.value.errorMsg = errorLockChecker.preErrorMsg
+                                errorLockChecker.error(() => {
+                                    if (ramainingNumber) {
+                                        pageData.value.errorMsg = pageData.value.errorMsg + '\n' + Translate('IDCS_TICK_ERROR_COUNT').formatForLang(ramainingNumber)
+                                    }
+                                })
+                                if (errorLockChecker.isLocked) {
+                                    pageData.value.btnDisabled = true
+                                }
+                                break
+                            case ErrorCode.USER_ERROR_USER_LOCKED:
+                                pageData.value.errorMsg = Translate('IDCS_LOGIN_FAIL_USER_LOCKED')
+                                break
+                            case ErrorCode.USER_ERROR_NO_AUTH:
+                                pageData.value.errorMsg = Translate('IDCS_LOGIN_FAIL_USER_LIMITED_TELNET')
+                                break
+                            case ErrorCode.USER_ERROR_INVALID_PARAM:
+                                pageData.value.errorMsg = Translate('IDCS_USER_ERROR_INVALID_PARAM')
+                                break
+                            default:
+                                pageData.value.errorMsg = Translate('IDCS_UNKNOWN_ERROR_CODE') + errorCode
+                        }
+                    } else {
+                        pageData.value.errorMsg = Translate('loginFailed')
+                    }
+                }
+            } catch (e) {
+                pageData.value.btnDisabled = false
+            }
         }
 
-        // 是否展示弹窗
+        /**
+         * 是否展示隐私政策弹窗
+         */
         const getIsShowPrivacy = async () => {
             const result = await queryShowPrivacyView()
             const $ = queryXml(result)
             if ($('//status').text() === 'success') {
                 if ($('//content/show').text().toBoolean() && !localStorage.getItem('privacy')) {
-                    isPrivacy.value = true
+                    pageData.value.isPrivacy = true
                 } else {
                     localStorage.setItem('privacy', 'true')
                 }
             }
         }
 
-        // 同意并关闭隐私弹窗
+        /**
+         * @description 同意并关闭隐私弹窗
+         */
         const closePrivacy = () => {
-            isPrivacy.value = false
+            pageData.value.isPrivacy = false
             localStorage.setItem('privacy', 'true')
         }
 
-        // 切换语言
-        watch(langId, async (newVal) => {
-            langStore.updateLangId(newVal)
-            const langType = LANG_TYPE_MAPPING[newVal]
+        /**
+         * @description 切换语言
+         */
+        const changeLang = async () => {
+            formRef.value!.clearValidate()
+            langStore.updateLangId(pageData.value.langId)
+            const langType = LANG_TYPE_MAPPING[pageData.value.langId]
             if (langType) {
                 langStore.updateLangType(langType)
             }
             await langStore.getLangItems(true)
-        })
+            updateCalendar()
+        }
 
-        // 回车登录
-        const keyUp = (e: KeyboardEvent) => {
-            if (e.key && e.key.toLowerCase() == 'enter') {
-                handleLogin(loginFormRef.value)
+        /**
+         * @description 根据用户选择的语言，获取日历类型
+         */
+        const updateCalendar = () => {
+            const langType = langStore.langType
+            if (CALENDAR_TYPE_MAPPING[langType]) {
+                pageData.value.calendarOptions = CALENDAR_TYPE_MAPPING[langType].map((item) => {
+                    if (item.isDefault) {
+                        formData.value.calendarType = item.value
+                    }
+                    return {
+                        label: Translate(item.text),
+                        value: item.value,
+                    }
+                })
+            } else {
+                pageData.value.calendarOptions = []
+                formData.value.calendarType = 'Gregorian'
             }
         }
 
-        // 校验规则
-        const rules = reactive<FormRules>({
-            userName: [{ required: true, message: Translate('IDCS_PROMPT_USERNAME_EMPTY'), trigger: 'blur' }],
-        })
+        /**
+         * @description 回车登录
+         * @param e
+         */
+        const keyUp = (e: KeyboardEvent) => {
+            if (e.key && e.key.toLowerCase() == 'enter') {
+                handleLogin()
+            }
+        }
 
         onMounted(() => {
             getIsShowPrivacy()
-            // 绑定监听事件
-            window.addEventListener('keyup', keyUp)
+            updateCalendar()
         })
 
-        onUnmounted(() => {
-            window.removeEventListener('keyup', keyUp)
-        })
+        useEventListener(window, 'keyup', keyUp, false)
 
         return {
-            loginFormRef,
+            formRef,
             pageData,
-            loginErrorMessage,
+            formData,
             handleLogin,
-            loginBtnDisabled,
-            langTypes,
-            langType,
-            langId,
             keyUp,
             rules,
-            isPrivacy,
-            isAllowPrivacy,
+            changeLang,
             closePrivacy,
+            LoginPrivacyPop,
         }
     },
 })

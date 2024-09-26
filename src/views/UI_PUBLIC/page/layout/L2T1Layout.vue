@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 二级类型1布局页--适用于所有配置页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-23 20:41:06
+ * @LastEditTime: 2024-09-24 11:44:02
 -->
 <template>
     <el-container id="layout2">
@@ -112,6 +112,7 @@
     margin: 0px 0px -1px 0px;
     position: relative;
     flex-shrink: 0;
+    background-color: var(--bg-config-menu-item, var(--bg-config-menu));
 
     &.is-active {
         background-color: var(--bg-color-cfg-menu-active);
@@ -219,6 +220,7 @@
         width: 100%;
         height: 35px;
         border-bottom: solid 1px var(--border-color2);
+        background-color: var(--bg-nav, transparent);
 
         #layout2RightTopBarNav {
             display: flex;

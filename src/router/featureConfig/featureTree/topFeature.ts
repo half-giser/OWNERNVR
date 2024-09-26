@@ -3,7 +3,7 @@
  * @Date: 2024-04-18 16:35:38
  * @Description:
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-11 14:14:42
+ * @LastEditTime: 2024-09-24 15:38:04
  */
 
 import searchAndBackup from './searchAndBackup'
@@ -17,6 +17,7 @@ export default {
         meta: {
             sort: 10,
             lk: 'IDCS_LIVE_PREVIEW',
+            icon: 'live_menu',
         },
     },
     playback: {
@@ -25,6 +26,7 @@ export default {
         meta: {
             sort: 20,
             lk: 'IDCS_REPLAY',
+            icon: 'rec_menu',
         },
     },
     searchAndBackup, // 搜索与备份
@@ -35,6 +37,7 @@ export default {
         meta: {
             sort: 50,
             lk: 'IDCS_FUNCTION_PANEL',
+            icon: 'cfgHome_menu',
         },
     },
     businessApplication, //业务应用

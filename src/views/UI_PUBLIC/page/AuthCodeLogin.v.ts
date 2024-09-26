@@ -3,7 +3,7 @@
  * @Date: 2024-09-20 09:10:22
  * @Description: P2P授权码登录
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-20 17:59:53
+ * @LastEditTime: 2024-09-24 14:36:52
  */
 import type { FormInstance, FormRules } from 'element-plus'
 import { AuthCodeLoginForm } from '@/types/apiType/user'
@@ -37,6 +37,8 @@ export default defineComponent({
             expireTime: 0,
             // 登录类型
             loginType: P2PACCESSTYPE.P2P_AUTHCODE_LOGIN,
+            // 日历选项
+            calendarOptions: [] as SelectOption<string, string>[],
         })
 
         // 错误码与回显文本映射
@@ -89,10 +91,32 @@ export default defineComponent({
         /**
          * @description 更换语言，重新请求语言列表
          */
-        const changeLang = () => {
+        const changeLang = async () => {
             lang.updateLangId(pageData.value.langId)
             lang.updateLangType(LANG_TYPE_MAPPING[pageData.value.langId])
-            lang.getLangItems(true)
+            await lang.getLangItems(true)
+            updateCalendar()
+        }
+
+        /**
+         * @description 根据用户选择的语言，获取日历类型
+         */
+        const updateCalendar = () => {
+            const langType = lang.langType.value
+            if (CALENDAR_TYPE_MAPPING[langType]) {
+                pageData.value.calendarOptions = CALENDAR_TYPE_MAPPING[langType].map((item) => {
+                    if (item.isDefault) {
+                        formData.value.calendarType = item.value
+                    }
+                    return {
+                        label: Translate(item.text),
+                        value: item.value,
+                    }
+                })
+            } else {
+                pageData.value.calendarOptions = []
+                formData.value.calendarType = 'Gregorian'
+            }
         }
 
         /**
@@ -359,6 +383,7 @@ export default defineComponent({
             }
             pageData.value.btnDisabled = true
             pageData.value.errorMsg = ''
+            userSession.calendarType = formData.value.calendarType
             Plugin.P2pAuthCodeLogin(formData.value.code, pageData.value.authCodeIndex)
         }
 
@@ -370,6 +395,7 @@ export default defineComponent({
             userSession.refreshLoginPage = true
             startCountDownTime()
             checkIsLocking()
+            updateCalendar()
         })
 
         onBeforeUnmount(() => {

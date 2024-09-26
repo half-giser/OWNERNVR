@@ -3,7 +3,7 @@
  * @Date: 2024-06-14 09:47:30
  * @Description: 添加用户页面
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 18:15:26
+ * @LastEditTime: 2024-09-24 18:25:48
 -->
 <template>
     <div class="UserAdd">
@@ -15,7 +15,7 @@
             :model="formData"
             :style="{
                 '--form-input-width': '340px',
-                '--form-label-width': '150px',
+                '--form-label-width': '200px',
             }"
             hide-required-asterisk
             inline-message

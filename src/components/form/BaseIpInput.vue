@@ -3,7 +3,7 @@
  * @Date: 2024-06-04 10:26:32
  * @Description: IPv4地址输入框
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-22 20:03:00
+ * @LastEditTime: 2024-09-25 11:04:22
 -->
 <template>
     <div
@@ -241,10 +241,15 @@ const handleBlur = () => {
     }
 
     &.disabled {
+        box-shadow: none;
         background-color: var(--bg-color-disabled);
         border-color: var(--border-color-disabled);
         cursor: not-allowed;
         color: var(--el-disabled-text-color);
+
+        span {
+            color: var(--el-disabled-text-color);
+        }
     }
 
     input {
@@ -264,6 +269,10 @@ const handleBlur = () => {
             color: var(--el-disabled-text-color);
             cursor: not-allowed;
         }
+    }
+
+    span {
+        color: var(--text-input);
     }
 }
 </style>

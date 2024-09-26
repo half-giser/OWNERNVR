@@ -3,7 +3,7 @@
  * @Date: 2024-07-30 14:08:41
  * @Description: 回放-事件类型视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-09 14:36:42
+ * @LastEditTime: 2024-09-25 11:11:17
 -->
 <template>
     <fieldset>
@@ -134,6 +134,7 @@ fieldset {
 
     &-list {
         & > div {
+            color: var(--text-primary);
             display: flex;
             padding: 10px 0;
             cursor: pointer;
@@ -171,6 +172,7 @@ fieldset {
 
     &-info {
         margin-bottom: 20px;
+        color: var(--text-primary);
 
         h3 {
             margin: 10px;

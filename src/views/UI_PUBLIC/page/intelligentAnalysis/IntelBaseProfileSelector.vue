@@ -99,7 +99,7 @@
     font-weight: bold;
     padding: 0 10px;
     margin: 15px 0;
-    border-left: 5px solid var(--border-color8);
+    border-left: 5px solid var(--border-color2);
 }
 
 .sub-box {

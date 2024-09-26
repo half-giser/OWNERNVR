@@ -1,0 +1,18 @@
+/*
+ * @Author: yejiahao yejiahao@tvt.net.cn
+ * @Date: 2024-07-09 18:39:25
+ * @Description: UI1-A 主题样式
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-25 17:06:56
+ */
+
+// 客户定制图标
+#n9web {
+    --img-login-content: url('@ui/publicStyle/img/LoginContent.png');
+    --img-logo: url('@ui/publicStyle/img/appName.png');
+    --img-login-btn: url('@ui/publicStyle/img/loginBtn.png');
+    // --img-motion-note: url('@ui/publicStyle/img/motionNote.gif');
+    --img-loading: url('@ui/publicStyle/img/loading.gif');
+    // --img-initview: url('@ui/publicStyle/img/initview.gif');
+    --img-favicon: url('@ui/publicStyle/img/favicon.ico');
+}

@@ -523,7 +523,7 @@
 .face-pic {
     width: 152px;
     height: 174px;
-    border: 1px solid var(--border-color8);
+    border: 1px solid var(--border-color2);
     flex-shrink: 0;
 
     &-add {

@@ -358,7 +358,7 @@
             padding-bottom: 10px;
             width: 90%;
             height: 1px;
-            border-top: 1px solid var(--border-color8);
+            border-top: 1px solid var(--border-color2);
             position: relative;
             margin: 0 auto;
             cursor: n-resize;
@@ -370,7 +370,7 @@
                 left: calc(50% - 15px);
                 width: 30px;
                 height: 1px;
-                border-top: 1px solid var(--border-color8);
+                border-top: 1px solid var(--border-color2);
             }
 
             &:after {
@@ -380,7 +380,7 @@
                 left: calc(50% - 15px);
                 width: 30px;
                 height: 1px;
-                border-top: 1px solid var(--border-color8);
+                border-top: 1px solid var(--border-color2);
             }
         }
     }
