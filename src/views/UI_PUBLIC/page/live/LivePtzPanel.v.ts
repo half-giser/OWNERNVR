@@ -5,7 +5,7 @@
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
  * @LastEditTime: 2024-08-08 14:32:14
  */
-import { type LiveSharedWinData } from '@/types/apiType/live'
+import { type LiveSharedWinData, type LiveChannelList } from '@/types/apiType/live'
 import LivePtzCruise from './LivePtzCruise.vue'
 import LivePtzGroup from './LivePtzGroup.vue'
 import LivePtzPreset from './LivePtzPreset.vue'
@@ -26,6 +26,13 @@ export default defineComponent({
             type: Object as PropType<LiveSharedWinData>,
             required: true,
         },
+        /**
+         * @property 通道能力映射
+         */
+        chl: {
+            type: Object as PropType<Record<string, LiveChannelList>>,
+            required: true,
+        },
     },
     setup(prop) {
         type CmdItem = {
@@ -36,6 +43,8 @@ export default defineComponent({
 
         const { Translate } = useLangStore()
         const userSession = useUserSessionStore()
+        const systemCaps = useCababilityStore()
+        const theme = getUiAndTheme()
 
         const pageData = ref({
             // 菜单选项
@@ -170,7 +179,17 @@ export default defineComponent({
 
         // 是否有权限
         const hasAuth = computed(() => {
-            return userSession.hasAuth('remoteChlMgr')
+            return theme.name === 'UI1-E' || userSession.hasAuth('remoteChlMgr')
+        })
+
+        // 是否有巡航线组和轨迹的权限
+        const hasTraceAuth = computed(() => {
+            return theme.name === 'UI1-E' || (hasAuth.value && systemCaps.supportPtzGroupAndTrace && prop.chl[prop.winData.chlID]?.supportPtz && prop.chl[prop.winData.chlID]?.supportPTZGroupTraceTask)
+        })
+
+        // 最大菜单数量
+        const maxMenu = computed(() => {
+            return hasTraceAuth.value ? pageData.value.menu.length : pageData.value.menu.length - 2
         })
 
         const cmdQueue: CmdItem[] = []
@@ -253,10 +272,18 @@ export default defineComponent({
          * @param {number} index
          */
         const changeMenu = (index: number) => {
-            if (index >= 0 && index <= pageData.value.menu.length - 1) {
+            const max = hasTraceAuth.value ? pageData.value.menu.length : pageData.value.menu.length - 2
+            if (index >= 0 && index <= max - 1) {
                 pageData.value.activeMenu = index
             }
         }
+
+        // 通道切换时，如果该通道没有巡航线组和轨迹权限，即返回预置点
+        watch(chlId, () => {
+            if (pageData.value.activeMenu > maxMenu.value - 1) {
+                pageData.value.activeMenu = 0
+            }
+        })
 
         return {
             pageData,

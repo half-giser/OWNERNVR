@@ -3,7 +3,7 @@
  * @Date: 2024-06-20 17:25:13
  * @Description: 自动维护
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 13:35:28
+ * @LastEditTime: 2024-09-24 18:30:24
 -->
 <template>
     <div>
@@ -17,7 +17,7 @@
             :model="formData"
             :style="{
                 '--form-input-width': '220px',
-                '--form-label-width': '100px',
+                '--form-label-width': '150px',
             }"
         >
             <el-form-item>

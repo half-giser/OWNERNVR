@@ -3,7 +3,7 @@
  * @Date: 2024-08-29 10:06:12
  * @Description: 人脸库
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 17:42:45
+ * @LastEditTime: 2024-09-25 16:09:55
 -->
 <template>
     <div class="base-flex-box">
@@ -268,7 +268,7 @@
         display: flex;
         flex-shrink: 0;
         flex-direction: column;
-        border: 1px solid var(--border-color8);
+        border: 1px solid var(--border-color2);
         justify-content: space-between;
 
         & > div:first-child {
@@ -287,7 +287,7 @@
 
     &-info {
         width: 500px;
-        border: 1px solid var(--border-color8);
+        border: 1px solid var(--border-color2);
     }
 
     &-avatar {

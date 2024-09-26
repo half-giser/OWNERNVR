@@ -375,7 +375,7 @@ input[type='number'] {
                         .el-icon {
                             cursor: pointer;
                             &:hover {
-                                color: var(--text-primary);
+                                color: var(--text-input);
                             }
                         }
                     }
@@ -555,7 +555,7 @@ input[type='number'] {
                 padding: 10px 15px;
 
                 &:nth-child(even) {
-                    background-color: var(--bg-color5);
+                    background-color: var(--form-stripe, var(--bg-color5));
                 }
             }
 
@@ -590,21 +590,23 @@ input[type='number'] {
             border: 0;
             padding: 4px 0px 0px 0px;
             .el-menu-item {
-                --el-menu-active-color: var(--page-bg);
+                --el-menu-active-color: var(--text-menu-active);
+                --el-menu-text-color: var(--text-menu-02, var(--text-menu-01));
                 border-top: solid 1px var(--border-color2);
                 border-bottom: solid 1px var(--border-color2);
                 border-right: solid 1px var(--border-color2);
                 margin: 0px;
                 line-height: 28px;
+                background-color: var(--bg-menu-02, transparent);
                 &:first-of-type {
                     border-left: solid 1px var(--border-color2);
                 }
                 &:hover {
                     color: var(--el-menu-text-color);
-                    background-color: var(--primary--01);
+                    background-color: var(--bg-menu-02-hover, var(--primary--01));
                 }
                 &.is-active {
-                    background-color: var(--primary--04);
+                    background-color: var(--bg-menu-02-active, var(--primary--04));
                 }
             }
             .menu-split {
@@ -668,7 +670,7 @@ input[type='number'] {
     padding: 5px;
     border-style: none solid solid solid;
     border-width: 1px;
-    border-color: var(--border-color8);
+    border-color: var(--border-color2);
     display: flex;
     justify-content: flex-end;
 }

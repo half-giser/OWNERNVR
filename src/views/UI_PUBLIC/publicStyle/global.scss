@@ -4,13 +4,35 @@
  * @Description: 定义主题样式全局变量
  */
 
-// @import './common.scss';
-// @import './element.scss';
-
+// 客户定制图标
 #n9web {
-    // 主题色
+    // --img-login-content: url('@/views/UI_PUBLIC/publicStyle/img/LoginContent.png');
+    // --img-logo: url('@/views/UI_PUBLIC/publicStyle/img/appName.png');
+    --img-motion-note: url('@/views/UI_PUBLIC/publicStyle/img/motionNote.gif');
+    --img-loading: url('@/views/UI_PUBLIC/publicStyle/img/loading.gif');
+    --img-initview: url('@/views/UI_PUBLIC/publicStyle/img/initview.gif');
+
+    // 授权码登录素材 （请求服务器的素材）
+    --img-authcodelogin-bg: url('/mainBg.png');
+    --img-authcodelogin-mask: url('/mainBgMask.png');
+    --img-authcodelogin-icon: url('/loginIcon.png');
+    --img-authcodelogin-content: url('/AuthCodeLoginContent.png');
+    --img-authcodelogin-question: url('/question.png');
+    --img-authcodelogin-btn: url('/loginBtn.png');
+}
+
+// 变量
+#n9web {
+    --content-height: calc(100vh - 241px); /* 正文内容高度 */
+    --form-label-width: 150px; /* 表单label宽度变量 */
+    --form-input-width: 100%; /* 表单所有输入框宽度变量 */
+    --form-radio-button-width: unset; /* el-radio-button的宽度 */
+}
+
+// 主题色
+#n9web {
     --primary--01: #e1fbff;
-    --primary--02: #00bada80;
+    // --primary--02: #00bada80;
     // --primary--03: #25cfe6;
     --primary--04: #00bbdb;
     // --primary--05: #0092b3;
@@ -18,8 +40,6 @@
     // 主Layout
     --text-primary: #000; /* 文本主题色 */
     --page-bg: #fff; /* 界面默认背景色 */
-    --text-menu-active: #fff; /* 业务应用/搜索与备份等顶部与左侧菜单栏活跃状态字体颜色 */
-    --text-menu-hover: var(--text-primary); /* 业务应用/搜索与备份等顶部与左侧菜单栏hover状态字体颜色 */
     --text-menu-01: #666; /* 顶部菜单栏文本颜色 */
     --text-menu-01-hover: #313131;
     --border-color1: #666; /* 主Layout, 以及Dialog、MessageBox、Notification等弹出框的Border颜色 */
@@ -30,7 +50,7 @@
     --bg-color4: #ccc; /* 子标题背景色 */
     --text-input: #000; /* 输入框文本颜色 */
     --text-disabled: #545454; /* 输入框、表格等禁用状态时的文本颜色 */
-    --text-placeholder: #a8abb2; /* placeholder颜色 */
+    // --text-placeholder: #a8abb2; /* placeholder颜色 */
     --text-active: #fff; /* 表格、dropdown、options、tab、menu等被高亮选中时的文本颜色 */
     --border-color7: #888; /* 输入框、选择器等边框颜色 */
     --border-color-disabled: #aeabab;
@@ -51,7 +71,7 @@
     --table-text-disabled: #888;
     --border-color8: #ccc; /* 表格、网格边框颜色 */
     --bg-color5: #eee; /* 斑马线背景色（表单、表格） */
-    --bg-table: #f0f0f0; /* 表格行背景色 */
+    --bg-table: #fff; /* 表格行背景色 */
     --bg-table-thead: #e5e5e5; /* 表格头背景色 */
     --bg-color-table-hover: #f7f7f7; /* 表格行hover背景色 */
 
@@ -61,19 +81,26 @@
     --bg-popover: #fff;
     
     // 功能面板页
+    --text-menu-05: #8f8f8f; /* 功能面板 子菜单的文本颜色 */
+    --text-menu-05-hover: var(--primary--04); /* 功能面板 子菜单的hover文本颜色 */ 
+    --text-menu-04: #3c3c3c;
+    --text-menu-04-hover: var(--primary--04); /* 功能面板 主菜单的hover文本颜色 */
+    --bg-menu-04: unset;
+    --bg-menu-04-hover: unset;
+    --border-color3: #aeaeae; /* 功能面板 菜单的线框颜色 */
+
+    // 登录
+    --login-bg: var(--page-bg);
+
+    // 功能面板内页
     --text-menu-03: #8d8d8d; /* 配置页左侧菜单栏文本颜色 */
     --text-menu-03-hover: var(--primary--04);
     --text-menu-03-active: #8d8d8d;
-    --text-menu-04: #3c3c3c;
-    --text-menu-04-hover: var(--primary--04); /* 功能面板 主菜单的hover文本颜色 */ 
-    --border-color3: #aeaeae; /* 功能面板 菜单的线框颜色 */
-
-    // 功能面板内页
-    --text-menu-05: #8f8f8f; /* 功能面板 子菜单的文本颜色 */
-    --text-menu-05-hover: var(--primary--04); /* 功能面板 子菜单的hover文本颜色 */ 
     --text-nav: #454545; /* 面包屑颜色 */
-    --bg-config-menu: var(--page-bg);
+    --bg-config-menu: unset;
     --bg-color-cfg-menu-active: #eee;
+    --bg-icon-btn: #f0f0f0;
+    --bg-icon-btn-disabled: #fff;
 
     // 现场预览、回放的侧边栏面板
     --panel-header-bg: #FFF; /* 标题背景色 */
@@ -85,12 +112,11 @@
     --panel-btn-bg: #b7b7b7;
     --panel-btn-bg-disabled: #d9d9d9;
     --panel-snap-history: #FFCC66;
-    --bg-icon-btn: #f0f0f0;
-    --bg-icon-btn-disabled: #fff;
 
     // 搜索与备份、智能分析、业务与应用
     --bg-menu-04: var(--page-bg);
     --bg-menu-04-hover: var(--page-bg);
+    --text-menu-active: #fff;
     --bg-thumbnail-card: #555; /* 按时间切片缩略图背景色 */
     --border-thumbnail-card: #ccc; /* 按时间切片缩略图边框颜色 */
     --bg-upload-hover: #ddd;
@@ -118,8 +144,8 @@
     // 搜索与备份
 
     // 半透明色
-    --bg-color-opacity1: rgba(255, 255, 255, 0.3); /* 半透明白色 */
-    --bg-color-opacity2: rgba(0, 0, 0, 0.5); /* 半透明黑色 */
+    --bg-color-opacity1: rgba(255, 255, 255, 0.2); /* 半透明白色 */
+    --bg-color-opacity2: rgba(0, 0, 0, 0.3); /* 半透明黑色 */
     
     // Error
     --error--01: red;
@@ -142,11 +168,6 @@
     --scrollbar-thumb-border: #e0e0e0; /* 滚动条thumb边框色 */
     --scrollbar-thumb-bg-hover: #d9d9d9; /* 滚动条thumb hover背景色 */
     --scrollbar-thumb-bg-active: #c2c2c2; /* 滚动条thumb active背景色 */
-
-    --content-height: calc(100vh - 241px); /* 正文内容高度 */
-    --form-label-width: 150px; /* 表单label宽度变量 */
-    --form-input-width: 100%; /* 表单所有输入框宽度变量 */
-    --form-radio-button-width: unset; /* el-radio-button的宽度 */
 
     // 时间轴组件
     --timeline-legend-bg-color: #666; // 图例背景色
@@ -190,10 +211,6 @@
     --schedule-time-span-color: #18C0DD;
     --schedule-time-span-selection-color: #89E9F9;
     --schedule-time-span-bg-color: #F2F2F3;
-
-    // 客户定制图标
-    --login-content: url('/LoginContent.png');
-    --logo: url('/appName.png');
 
     // Success
     // --success--01: #edf9eb;

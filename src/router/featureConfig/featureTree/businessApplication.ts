@@ -9,6 +9,7 @@ export default {
     meta: {
         sort: 60,
         lk: 'IDCS_BUSINESS_APPLICATION',
+        icon: 'business_menu',
     },
     children: {
         parkLotManage: {

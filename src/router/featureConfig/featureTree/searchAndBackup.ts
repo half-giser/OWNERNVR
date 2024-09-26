@@ -8,6 +8,7 @@ export default {
     meta: {
         sort: 30,
         lk: 'IDCS_SEARCH_AND_BACKUP',
+        icon: 'recBackUp_menu',
     },
     children: {
         byTimeSlice: {

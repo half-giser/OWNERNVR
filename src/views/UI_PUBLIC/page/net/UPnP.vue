@@ -3,7 +3,7 @@
  * @Date: 2024-07-11 08:56:00
  * @Description: UPnP配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 13:33:13
+ * @LastEditTime: 2024-09-26 10:02:19
 -->
 <template>
     <div class="base-flex-box">
@@ -83,7 +83,7 @@
             <el-button
                 :disabled="pageData.wirelessSwitch || pageData.pppoeSwitch || !formData.switch"
                 @click="getData"
-                >{{ Translate('IDCS_REFRESH') }}</el-button
+                >{{ theme.name === 'UI1-E' ? Translate('IDCS_TEST') : Translate('IDCS_REFRESH') }}</el-button
             >
         </div>
     </div>

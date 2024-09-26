@@ -11,6 +11,7 @@ export default {
         auth: (systemCaps) => {
             return !systemCaps.IntelAndFaceConfigHide
         },
+        icon: 'search_menu',
     },
     children: {
         egineCfg: {

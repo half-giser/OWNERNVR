@@ -328,7 +328,7 @@
     justify-content: space-between;
     background-color: var(--bg-color5);
     align-items: center;
-    border: 1px solid var(--border-color8);
+    border: 1px solid var(--border-color2);
     box-sizing: border-box;
     & > div {
         width: 50%;
@@ -354,7 +354,7 @@
 }
 
 .config {
-    border: 1px solid var(--border-color8);
+    border: 1px solid var(--border-color2);
     box-sizing: border-box;
     padding: 5px 0;
     margin-bottom: 5px;

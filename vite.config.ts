@@ -23,6 +23,7 @@ export default defineConfig(({ mode }) => {
     const env = loadEnv(split[0], envDir)
 
     env.VITE_UI_TYPE = split[1] || env.VITE_UI_TYPE
+    console.log(env.VITE_UI_TYPE)
 
     const { VITE_APP_IP, VITE_UI_TYPE } = env
 

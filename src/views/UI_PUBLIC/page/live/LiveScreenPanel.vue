@@ -3,7 +3,7 @@
  * @Date: 2024-07-17 16:16:59
  * @Description: 现场预览-底部菜单栏视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-11 10:08:40
+ * @LastEditTime: 2024-09-25 18:39:56
 -->
 <template>
     <div class="ctrl">
@@ -82,7 +82,7 @@
             <!-- 码流切换按钮 -->
             <el-radio-group
                 v-show="mode === 'ocx'"
-                :disabled="split > 4"
+                :disabled="mainStreamDisabled"
                 :model-value="-1"
                 @update:model-value="changeStreamType($event)"
             >

@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 19:53:54
  * @Description: 现场预览
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 18:08:27
+ * @LastEditTime: 2024-09-25 18:14:37
 -->
 <template>
     <div class="live">
@@ -98,6 +98,7 @@
                     <LivePtzPanel
                         v-show="scope.index === 3"
                         :win-data="pageData.winData"
+                        :chl="pageData.chlMap"
                         :mode="mode"
                     />
                     <LiveFishEyePanel

@@ -3,7 +3,7 @@
  * @Date: 2024-07-04 16:47:04
  * @Description: 健康状态检测
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-11 17:26:50
+ * @LastEditTime: 2024-09-24 16:39:21
 -->
 <template>
     <div class="HealthStatusCheck">
@@ -117,7 +117,7 @@
         box-sizing: border-box;
         padding: 15px;
         font-size: 14px;
-        color: var(--text-menu-01);
+        color: var(--text-primary);
         height: 200px;
         cursor: pointer;
         margin-right: 40px;
@@ -187,7 +187,7 @@
             display: flex;
             width: 200px;
             font-size: 14px;
-            color: var(--text-menu-01);
+            color: var(--text-primary);
         }
 
         &-info {

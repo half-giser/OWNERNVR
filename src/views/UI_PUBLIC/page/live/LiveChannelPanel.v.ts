@@ -3,7 +3,7 @@
  * @Date: 2024-07-26 17:03:07
  * @Description: 现场预览-通道视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:08:06
+ * @LastEditTime: 2024-09-25 18:26:26
  */
 import ChannelGroupEditPop from '../channel/ChannelGroupEditPop.vue'
 import ChannelGroupAddPop from '../channel/ChannelGroupAddPop.vue'
@@ -66,6 +66,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const theme = getUiAndTheme()
 
         const pageData = ref({
             // 通道列表是否初始化完毕
@@ -172,6 +173,8 @@ export default defineComponent({
                         supportPTZGroupTraceTask: $item('supportPTZGroupTraceTask').text().toBoolean(),
                         supportAccessControl: $item('supportAccessControl').text().toBoolean(),
                         supportTalkback: $item('supportTalkback').text().toBoolean(),
+                        chlIp: '',
+                        poeSwitch: false,
                     }
                     if (item.attr('id')) {
                         chlMap[item.attr('id')!] = result
@@ -489,6 +492,28 @@ export default defineComponent({
             ctx.emit('custom', item.chlArr, item.segNum)
         }
 
+        /**
+         * @description 获取设备IP和POE开关
+         */
+        const getDeviceList = async () => {
+            const sendXml = rawXml`
+                <requireField>
+                    <name/>
+                    <ip/>
+                </requireField>
+            `
+            const result = await queryDevList(getXmlWrapData(sendXml))
+            const $ = queryXml(result)
+            $('//content/item').forEach((item) => {
+                const $item = queryXml(item.element)
+                const id = item.attr('id')!
+                if (chlMap[id]) {
+                    chlMap[id].poeSwitch = $item('addType').text() === 'poe'
+                    chlMap[id].chlIp = $item('ip').text()
+                }
+            })
+        }
+
         // const stopRefreshChlStatus = () => {
         //     clearInterval(refreshTimer)
         // }
@@ -514,6 +539,9 @@ export default defineComponent({
 
         onMounted(async () => {
             await getChlsList()
+            if (theme.name === 'UI1-E') {
+                await getDeviceList()
+            }
             await getChlTreeStatus()
             nextTick(() => {
                 pageData.value.ready = true

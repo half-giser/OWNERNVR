@@ -249,7 +249,7 @@
 
 .time-btn {
     padding: 0 20px;
-    border: 1px solid var(--border-color8);
+    border: 1px solid var(--border-color2);
     cursor: pointer;
     line-height: 30px;
     color: var(--text-menu-0);

@@ -3,7 +3,7 @@
  * @Date: 2024-07-12 18:20:28
  * @Description: FTP
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 15:49:10
+ * @LastEditTime: 2024-09-25 10:58:38
 -->
 <template>
     <div class="base-flex-box">
@@ -11,6 +11,7 @@
         <el-form
             ref="formRef"
             :style="{
+                '--form-label-width': '200px',
                 '--form-input-width': '200px',
             }"
             inline-message
@@ -20,14 +21,11 @@
             label-position="left"
         >
             <el-form-item>
-                <el-form-item>
-                    <el-checkbox
-                        v-model="formData.switch"
-                        @change="changeSwitch"
-                        >{{ Translate('IDCS_ENABLE') }}</el-checkbox
-                    >
-                </el-form-item>
-                <el-form-item>&nbsp;</el-form-item>
+                <el-checkbox
+                    v-model="formData.switch"
+                    @change="changeSwitch"
+                    >{{ Translate('IDCS_ENABLE') }}</el-checkbox
+                >
             </el-form-item>
             <el-form-item>
                 <el-form-item
@@ -56,14 +54,11 @@
                 </el-form-item>
             </el-form-item>
             <el-form-item>
-                <el-form-item>
-                    <el-checkbox
-                        v-model="formData.anonymousSwitch"
-                        :disabled="!formData.switch"
-                        >{{ Translate('IDCS_ANONYMOUS') }}</el-checkbox
-                    >
-                </el-form-item>
-                <el-form-item>&nbsp;</el-form-item>
+                <el-checkbox
+                    v-model="formData.anonymousSwitch"
+                    :disabled="!formData.switch"
+                    >{{ Translate('IDCS_ANONYMOUS') }}</el-checkbox
+                >
             </el-form-item>
             <el-form-item>
                 <el-form-item
@@ -122,15 +117,12 @@
                 </el-form-item>
             </el-form-item>
             <el-form-item>
-                <el-form-item>
-                    <el-checkbox
-                        v-model="formData.disNetUpLoad"
-                        :disabled="!formData.switch"
-                        >{{ Translate('IDCS_DIS_NET_UPLOAD') }}</el-checkbox
-                    >
-                    <el-text>{{ Translate('IDCS_DIS_NET_UPLOAD_TIP') }}</el-text>
-                </el-form-item>
-                <el-form-item>&nbsp;</el-form-item>
+                <el-checkbox
+                    v-model="formData.disNetUpLoad"
+                    :disabled="!formData.switch"
+                    >{{ Translate('IDCS_DIS_NET_UPLOAD') }}</el-checkbox
+                >
+                <el-text>{{ Translate('IDCS_DIS_NET_UPLOAD_TIP') }}</el-text>
             </el-form-item>
         </el-form>
         <div class="base-subheading-box">{{ Translate('IDCS_UPLOAD_SET') }}</div>

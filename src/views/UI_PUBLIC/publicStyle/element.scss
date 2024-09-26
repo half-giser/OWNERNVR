@@ -67,12 +67,12 @@
             border-color: var(--border-color4);
             border-radius: 0;
             width: var(--form-radio-button-width);
-            background-color: var(--page-bg);
+            background-color: var(--radio-button-bg, var(--page-bg));
             color: var(--text-primary);
 
             &:hover {
-                background-color: var(--primary--01);
-                color: var(--text-input);
+                background-color: var(--radio-button-bg-hover, var(--primary--01));
+                color: var(--radio-button-text, var(--text-input));
             }
         }
 
@@ -93,7 +93,7 @@
         --el-button-disabled-text-color: var(--text-button-disabled);
         --el-button-disabled-bg-color: var(--bg-button-disabled);
         --el-button-disabled-border-color: var(--border-color6);
-        --el-button-hover-text-color: var(--text-button);
+        --el-button-hover-text-color: var(--text-button-hover, var(--text-button));
         --el-button-hover-bg-color: var(--bg-color3);
         --el-button-hover-border-color: var(--border-color5);
         --el-button-active-text-color: var(--text-button);
@@ -190,7 +190,7 @@
         --el-table-tr-bg-color: var(--bg-table);
         --el-table-border-color: var(--border-color8);
         --el-table-header-bg-color: var(--bg-table-thead);
-        --el-table-header-text-color: var(--text-primary);
+        --el-table-header-text-color: var(--table-thead-text, var(--text-primary));
         --el-table-text-color: var(--text-primary);
         --el-table-current-row-bg-color: var(--primary--04);
         --el-table-expanded-cell-bg-color: var(--page-bg);
@@ -252,33 +252,33 @@
         background-color: var(--bg-color-table-hover);
     }
 
-    .el-icon {
-        width: 1.3em;
-        height: 1.3em;
+    // .el-icon {
+    //     width: 1.3em;
+    //     height: 1.3em;
 
-        svg {
-            width: 1.3em;
-            height: 1.3em;
-            fill: var(--text-primary);
-            color: var(--text-primary);
-        }
+    //     // svg {
+    //     //     width: 1.3em;
+    //     //     height: 1.3em;
+    //     //     fill: var(--text-input);
+    //     //     color: var(--text-input);
+    //     // }
 
-        &:hover {
-            svg {
-                fill: var(--primary--04);
-                color: var(--text-primary);
-            }
-        }
+    //     // &:hover {
+    //     //     svg {
+    //     //         fill: var(--primary--04);
+    //     //         color: var(--text-input);
+    //     //     }
+    //     // }
 
-        &.disabled {
-            cursor: default;
+    //     // &.disabled {
+    //     //     cursor: default;
 
-            svg {
-                fill: var(--text-disabled);
-                color: var(--text-primary);
-            }
-        }
-    }
+    //     //     svg {
+    //     //         fill: var(--text-disabled);
+    //     //         color: var(--text-input);
+    //     //     }
+    //     // }
+    // }
 
     .el-pagination {
         --el-pagination-bg-color: var(--page-bg);
@@ -354,7 +354,8 @@
         line-height: 23px;
 
         &__popper {
-            --el-dropdown-menuItem-hover-fill: var(--primary--01);
+            --el-dropdown-menuItem-hover-fill: var(--primary--04);
+            --el-dropdown-menuItem-hover-color: var(--color-white);
         }
     }
 

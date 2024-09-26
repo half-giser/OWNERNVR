@@ -3,7 +3,7 @@
  * @Date: 2024-07-25 13:42:29
  * @Description: 现场预览-鱼眼视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 15:39:06
+ * @LastEditTime: 2024-09-25 16:10:55
 -->
 <template>
     <div class="fisheye">
@@ -71,7 +71,7 @@
         padding-bottom: 10px;
         padding-left: 10px;
         padding-top: 20px;
-        border-bottom: 1px solid var(--border-color8);
+        border-bottom: 1px solid var(--border-color2);
         color: var(--text-dialog);
         margin: 5px 5px;
     }
