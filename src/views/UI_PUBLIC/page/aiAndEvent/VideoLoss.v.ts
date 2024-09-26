@@ -3,7 +3,7 @@
  * @Date: 2024-08-21 15:34:24
  * @Description: 视频丢失配置
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-27 11:52:08
+ * @LastEditTime: 2024-09-26 10:17:54
  */
 import { cloneDeep } from 'lodash'
 import { defineComponent } from 'vue'
@@ -597,7 +597,7 @@ export default defineComponent({
                         <popMsgSwitch>${rowData.msgBoxPopup}</popMsgSwitch>
                         <emailSwitch>${rowData.email}</emailSwitch>
                 </content>`
-            // ftpSnap无效
+            // ftpSnap无效 TODO
             // sendXml += `
             //             <buzzerSwitch>${rowData.beeper}</buzzerSwitch>
             //             <popVideo>

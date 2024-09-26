@@ -3,7 +3,7 @@
  * @Date: 2024-09-11 14:16:29
  * @Description: 火点检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-25 16:59:45
+ * @LastEditTime: 2024-09-26 10:02:37
 -->
 <template>
     <div class="tripwire_setting_pane">
@@ -478,12 +478,12 @@
     height: 400px;
 }
 .form_btn {
-    width: 80px;
+    width: fit-content;
     height: 25px;
     font-size: 14px;
 }
 .apply_btn {
-    width: 80px;
+    width: fit-content;
     height: 25px;
 }
 #n9web .el-form .el-checkbox + * {
@@ -704,8 +704,8 @@
                     display: flex;
                     justify-content: center;
                     align-items: flex-end;
-                    padding-left: 26px;
-                    margin-left: 68px;
+                    padding-left: 30px;
+                    margin-left: 74px;
                 }
             }
         }
