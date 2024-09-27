@@ -3,7 +3,7 @@
  * @Date: 2024-09-24 14:37:52
  * @Description: UI-D客制化 登录
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-25 10:29:22
+ * @LastEditTime: 2024-09-26 17:38:15
 -->
 <template>
     <div class="login">
@@ -151,26 +151,20 @@
         }
 
         .login-submit {
-            --el-button-border-color: var(--primary--04);
-            --el-button-bg-color: var(--primary--04);
-            --el-button-text-color: var(--text-button);
-            --el-button-hover-text-color: var(--text-button);
-            --el-button-hover-bg-color: var(--primary--04);
-            --el-button-hover-border-color: var(--primary--04);
-            --el-button-active-text-color: var(--text-button);
-            --el-button-active-border-color: var(--primary--04);
-            --el-button-active-bg-color: var(--primary--04);
+            --el-button-border-color: transparent;
+            --el-button-hover-border-color: transparent;
+            --el-button-active-border-color: transparent;
+            --el-button-text-color: var(--login-btn-text);
+            --el-button-hover-text-color: var(--login-btn-text);
 
             width: 150px;
             height: 50px;
             font-size: 18px;
+            background: var(--img-login-btn);
+            transition: none;
 
             &:hover {
-                filter: brightness(1.2);
-            }
-
-            &:active {
-                filter: brightness(0.9);
+                background-position: 0 -50px;
             }
         }
     }

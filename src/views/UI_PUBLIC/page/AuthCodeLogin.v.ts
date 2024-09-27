@@ -3,7 +3,7 @@
  * @Date: 2024-09-20 09:10:22
  * @Description: P2P授权码登录
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-24 14:36:52
+ * @LastEditTime: 2024-09-26 19:40:01
  */
 import type { FormInstance, FormRules } from 'element-plus'
 import { AuthCodeLoginForm } from '@/types/apiType/user'
@@ -29,8 +29,6 @@ export default defineComponent({
             errorMsg: '',
             // 版权信息
             copyright: import.meta.env.VITE_APP_COPYRIGHT,
-            // ICP备案信息
-            icp: import.meta.env.VITE_APP_ICP_NUMBER,
             // auth code index
             authCodeIndex: userSession.authCodeIndex,
             // auth code 过期时间

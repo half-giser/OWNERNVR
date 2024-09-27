@@ -136,7 +136,7 @@
     box-sizing: border-box;
 
     &.border {
-        border-color: var(--panel-snap-history);
+        border-color: var(--panel-snap-history-border);
     }
 
     &-top {

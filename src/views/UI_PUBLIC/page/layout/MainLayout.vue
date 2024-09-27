@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 顶层布局页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-25 16:02:48
+ * @LastEditTime: 2024-09-26 15:09:15
 -->
 <template>
     <el-container id="layoutMain">
@@ -163,13 +163,16 @@
     width: 100%;
     display: flex;
     justify-content: space-between;
+    height: 65px;
+    align-items: center;
 }
 
 #logo {
-    margin: 8px 0px 0px 14px;
+    margin-left: 14px;
+    // margin: 8px 0px 0px 14px;
     width: 350px;
-    height: 55px;
-    background: var(--img-logo) no-repeat;
+    height: 65px;
+    background: var(--img-logo) center left no-repeat;
     text-align: right;
 
     div {

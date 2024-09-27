@@ -3,7 +3,7 @@
  * @Date: 2023-05-10 09:30:08
  * @Description: 登录页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-26 11:34:11
+ * @LastEditTime: 2024-09-26 17:37:28
 -->
 <template>
     <div class="login">
@@ -136,6 +136,8 @@
             --el-button-border-color: transparent;
             --el-button-hover-border-color: transparent;
             --el-button-active-border-color: transparent;
+            --el-button-text-color: var(--login-btn-text);
+            --el-button-hover-text-color: var(--login-btn-text);
 
             width: 314px;
             height: 50px;
