@@ -1,7 +1,7 @@
 import { type CombinedAlarm, type CombinedAlarmItem, type faceMatchObj, type PresetItem } from '@/types/apiType/aiAndEvent'
 // tableRowStatus
 import { tableRowStatusToolTip } from '@/utils/const/other'
-import { cloneDeep, isEqual } from 'lodash'
+import { cloneDeep, isEqual } from 'lodash-es'
 import BaseTransferPop from '@/components/BaseTransferPop.vue'
 import BaseTransferDialog from '@/components/BaseTransferDialog.vue'
 import SetPresetPop from './SetPresetPop.vue'
@@ -961,8 +961,6 @@ export default defineComponent({
         )
 
         return {
-            BaseTransferPop,
-            BaseTransferDialog,
             SetPresetPop,
             CombinationAlarmPop,
             recordRef,

@@ -5,7 +5,7 @@
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @LastEditTime: 2024-09-26 10:17:54
  */
-import { cloneDeep } from 'lodash'
+import { cloneDeep } from 'lodash-es'
 import { defineComponent } from 'vue'
 import { ArrowDown } from '@element-plus/icons-vue'
 import { useLangStore } from '@/stores/lang'

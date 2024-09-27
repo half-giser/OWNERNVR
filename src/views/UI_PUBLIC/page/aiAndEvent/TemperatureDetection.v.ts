@@ -5,7 +5,7 @@
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @LastEditTime: 2024-09-26 11:32:02
  */
-import { cloneDeep } from 'lodash'
+import { cloneDeep } from 'lodash-es'
 import { type BoundaryTableDataItem, type chlCaps, type PresetList, TempDetection } from '@/types/apiType/aiAndEvent'
 import CanvasPolygon from '@/utils/canvas/canvasTemperature'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'

@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-23 10:58:27
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-23 11:06:46
+ * @LastEditTime: 2024-09-26 15:29:37
 -->
 <template>
     <div class="base-flex-box">
@@ -229,7 +229,7 @@
                 <!-- 录像 -->
                 <el-table-column
                     prop="record"
-                    width="140px"
+                    width="180px"
                 >
                     <template #header>
                         <el-dropdown
@@ -291,7 +291,7 @@
                 <!-- 抓图 -->
                 <el-table-column
                     prop="snap"
-                    width="140px"
+                    width="180px"
                 >
                     <template #header>
                         <el-dropdown
@@ -431,7 +431,7 @@
                 <!-- 报警输出 -->
                 <el-table-column
                     prop="alarmOut"
-                    width="140px"
+                    width="180px"
                 >
                     <template #header>
                         <el-dropdown
@@ -490,7 +490,7 @@
                 <!-- 预置点名称 -->
                 <el-table-column
                     :label="Translate('IDCS_PRESET_NAME')"
-                    width="140px"
+                    width="180px"
                 >
                     <template #default="scope">
                         <el-row>

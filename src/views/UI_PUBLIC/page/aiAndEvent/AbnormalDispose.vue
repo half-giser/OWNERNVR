@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-19 09:27:27
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-25 11:32:38
+ * @LastEditTime: 2024-09-26 15:08:39
 -->
 <template>
     <div class="abnormal_dispose">
@@ -176,7 +176,7 @@
                             <span>{{ `${Translate('IDCS_RECORD')} ` }}</span>
                             <el-button
                                 size="small"
-                                class="apply_btn"
+                                class="form_btn"
                                 @click="pageData.recordIsShow = true"
                                 >{{ Translate('IDCS_CONFIG') }}</el-button
                             >
@@ -194,7 +194,7 @@
                             <span>{{ `${Translate('IDCS_ALARM_OUT')} ` }}</span>
                             <el-button
                                 size="small"
-                                class="apply_btn"
+                                class="form_btn"
                                 @click="pageData.alarmOutIsShow = true"
                                 >{{ Translate('IDCS_CONFIG') }}</el-button
                             >
@@ -256,7 +256,7 @@
         <div class="page_bottom">
             <el-button
                 :disabled="pageData.applyDisabled"
-                class="apply_btn"
+                class="form_btn"
                 @click="applyAbnormalDisposeData"
                 >{{ Translate('IDCS_APPLY') }}</el-button
             >
@@ -299,9 +299,10 @@
 #n9web .el-table {
     --el-table-tr-bg-color: white;
 }
-.apply_btn {
-    width: 80px;
+.form_btn {
+    width: fit-content;
     height: 25px;
+    font-size: 14px;
 }
 .abnormal_dispose {
     height: calc(100vh - 351px);
@@ -320,7 +321,7 @@
             border-bottom: 1px solid var(--border-color2);
         }
         :deep(.el-tabs__item) {
-            width: 100px !important;
+            width: fit-content;
             font-size: 15px;
             border: none;
             padding: 0 20px !important;

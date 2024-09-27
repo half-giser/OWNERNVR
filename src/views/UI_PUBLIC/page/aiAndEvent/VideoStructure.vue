@@ -283,7 +283,7 @@
                             :style="{
                                 '--form-input-width': '215px',
                             }"
-                            label-width="100px"
+                            label-width="auto"
                             label-position="left"
                             inline-message
                         >
@@ -292,7 +292,8 @@
                             <!-- 人灵敏度 -->
                             <el-form-item>
                                 <template #label>
-                                    <el-checkbox v-model="vsdData.objectFilter.person">{{ Translate('IDCS_DETECTION_PERSON') }}</el-checkbox>
+                                    <el-checkbox v-model="vsdData.objectFilter.person"></el-checkbox>
+                                    <span>{{ Translate('IDCS_DETECTION_PERSON') }}</span>
                                 </template>
                                 <template #default>
                                     <span>{{ Translate('IDCS_SENSITIVITY') }}</span>
@@ -308,7 +309,8 @@
                             <!-- 汽车灵敏度 -->
                             <el-form-item>
                                 <template #label>
-                                    <el-checkbox v-model="vsdData.objectFilter.car">{{ Translate('IDCS_DETECTION_VEHICLE') }}</el-checkbox>
+                                    <el-checkbox v-model="vsdData.objectFilter.car"></el-checkbox>
+                                    <span>{{ Translate('IDCS_DETECTION_VEHICLE') }}</span>
                                 </template>
                                 <template #default>
                                     <span>{{ Translate('IDCS_SENSITIVITY') }}</span>
@@ -325,7 +327,8 @@
                             <!-- 热成像通道不显示非机动车配置 -->
                             <el-form-item v-if="prop.chlData.accessType === '0'">
                                 <template #label>
-                                    <el-checkbox v-model="vsdData.objectFilter.motorcycle">{{ Translate('IDCS_NON_VEHICLE') }}</el-checkbox>
+                                    <el-checkbox v-model="vsdData.objectFilter.motorcycle"></el-checkbox>
+                                    <span>{{ Translate('IDCS_NON_VEHICLE') }}</span>
                                 </template>
                                 <template #default>
                                     <span>{{ Translate('IDCS_SENSITIVITY') }}</span>
@@ -514,7 +517,7 @@
     margin-bottom: 0;
 }
 .form_btn {
-    width: 80px;
+    width: fit-content;
     height: 25px;
     font-size: 14px;
 }
@@ -526,7 +529,7 @@
             border-bottom: 1px solid var(--border-color2);
         }
         :deep(.el-tabs__item) {
-            width: 100px !important;
+            width: fit-content;
             font-size: 15px;
             border: none;
             padding: 0 20px !important;
