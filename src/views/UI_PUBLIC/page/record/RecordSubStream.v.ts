@@ -3,11 +3,11 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-07-31 10:13:57
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-09 17:33:01
+ * @LastEditTime: 2024-09-26 15:36:48
  */
 
 import { type RecordSubStreamList, type ItemList, type rowNonExistent } from '@/types/apiType/record'
-import { uniq } from 'lodash'
+import { uniq } from 'lodash-es'
 
 export default defineComponent({
     setup() {
@@ -16,7 +16,7 @@ export default defineComponent({
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const systemCaps = useCababilityStore()
         // “RecordSubResAdaptive” 为true时:录像子码流界面仅显示不可编辑，为false时录像子码流可以编辑
-        const RecordSubResAdaptive = systemCaps.RecordSubResAdaptive == true
+        const RecordSubResAdaptive = systemCaps.RecordSubResAdaptive
 
         let mainStreamLimitFps = 1 // 主码流帧率限制
         let poeModeNode = ''
@@ -120,10 +120,11 @@ export default defineComponent({
                 if (!isQualityCapsMatch) {
                     const resolutionParts = rowData.resolution.split('x')
                     rowData.subStreamQualityCaps.forEach((item) => {
-                        const currentResolutionParts = item['res'].split('x')
+                        const currentResolutionParts = (item['res'] as string).split('x')
                         if (
                             item['enct'] == rowData.videoEncodeType &&
-                            (currentResolutionParts[0] < Number(resolutionParts[0]) || (currentResolutionParts[0] == resolutionParts[0] && currentResolutionParts[1] < Number(resolutionParts[1])))
+                            (Number(currentResolutionParts[0]) < Number(resolutionParts[0]) ||
+                                (currentResolutionParts[0] == resolutionParts[0] && Number(currentResolutionParts[1]) < Number(resolutionParts[1])))
                         ) {
                             if (item['value'][0]) {
                                 isQualityCapsEmpty = false
@@ -206,7 +207,7 @@ export default defineComponent({
             let maxFrameRate = 0
 
             commLoadResponseHandler(result, ($) => {
-                const data: RecordSubStreamList[] = $('/response/content/item').map((item, index) => {
+                const data = $('/response/content/item').map((item, index) => {
                     const $item = queryXml(item.element)
 
                     const subCaps = {
@@ -379,7 +380,7 @@ export default defineComponent({
                         streamType: 'sub',
                     }
                 })
-                tableData.value = data
+                tableData.value = data as RecordSubStreamList[]
             })
 
             // isVideoQualityDisabled当前行是否可进行修改

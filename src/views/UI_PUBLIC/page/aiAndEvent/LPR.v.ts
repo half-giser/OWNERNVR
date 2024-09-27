@@ -6,7 +6,7 @@
  * @LastEditTime: 2024-09-25 09:42:09
  */
 import { ArrowDown } from '@element-plus/icons-vue'
-// import { cloneDeep } from 'lodash'
+// import { cloneDeep } from 'lodash-es'
 import { type CompareTask, VehicleDetection, type VehicleChlItem, VehicleCompare } from '@/types/apiType/aiAndEvent'
 import CanvasPolygon from '@/utils/canvas/canvasPolygon'
 import { type TabPaneName } from 'element-plus'

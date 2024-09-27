@@ -5,7 +5,7 @@
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
  * @LastEditTime: 2024-09-25 09:44:13
  */
-import { cloneDeep } from 'lodash'
+import { cloneDeep } from 'lodash-es'
 import { type BoundaryItem, ObjectLeft, type PresetList, type chlCaps } from '@/types/apiType/aiAndEvent'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import { type TabPaneName, type CheckboxValueType } from 'element-plus'
@@ -323,7 +323,9 @@ export default defineComponent({
                 <condition><chlId>${prop.currChlId}</chlId></condition>
                 <requireField><param/><trigger/></requireField>
                 `
+            openLoading(LoadingTarget.FullScreen)
             const result = await queryOsc(sendXml)
+            closeLoading(LoadingTarget.FullScreen)
             commLoadResponseHandler(result, async ($) => {
                 const enabledSwitch = $('/response/content/chl/param/switch').text() == 'true'
                 let holdTimeArr = $('/response/content/chl/param/holdTimeNote').text().split(',')

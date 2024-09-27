@@ -3,7 +3,7 @@
  * @Date: 2024-09-10 17:50:24
  * @Description: 更多功能页面的框架
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-25 11:33:05
+ * @LastEditTime: 2024-09-26 16:06:24
 -->
 <template>
     <div class="content">
@@ -56,22 +56,22 @@
                                 justifyContent: 'center',
                                 alignItems: 'center',
                             }"
+                            :title="Translate('IDCS_FIRE_POINT_DETECTION')"
                             >{{ Translate('IDCS_FIRE_POINT_DETECTION') }}</span
                         >
                     </template>
                     <template #default>
-                        <fireDetection
+                        <FireDetection
                             v-if="pageData.chosenFunction === 'fireDetection'"
                             :curr-chl-id="pageData.currChlId"
                             :chl-data="pageData.chlData"
                             :voice-list="pageData.voiceList"
                             :online-channel-list="pageData.onlineChannelList"
-                        ></fireDetection>
+                        ></FireDetection>
                     </template>
                 </el-tab-pane>
                 <!-- videoStructure -->
                 <el-tab-pane
-                    :disabled="pageData.videoStructureDisable"
                     name="videoStructure"
                     class="tripwire_setting_pane"
                 >
@@ -86,6 +86,7 @@
                                 justifyContent: 'center',
                                 alignItems: 'center',
                             }"
+                            :title="Translate('IDCS_VSD_DETECTION')"
                             >{{ Translate('IDCS_VSD_DETECTION') }}</span
                         >
                     </template>
@@ -116,17 +117,18 @@
                                 justifyContent: 'center',
                                 alignItems: 'center',
                             }"
+                            :title="Translate('IDCS_PASS_LINE_COUNT_DETECTION')"
                             >{{ Translate('IDCS_PASS_LINE_COUNT_DETECTION') }}</span
                         >
                     </template>
                     <template #default>
-                        <passLine
+                        <PassLine
                             v-if="pageData.chosenFunction === 'passLine'"
                             :curr-chl-id="pageData.currChlId"
                             :chl-data="pageData.chlData"
                             :voice-list="pageData.voiceList"
                             :online-channel-list="pageData.onlineChannelList"
-                        ></passLine>
+                        ></PassLine>
                     </template>
                 </el-tab-pane>
 
@@ -147,6 +149,7 @@
                                 justifyContent: 'center',
                                 alignItems: 'center',
                             }"
+                            :title="Translate('IDCS_CROWD_DENSITY_DETECTION')"
                             >{{ Translate('IDCS_CROWD_DENSITY_DETECTION') }}</span
                         >
                     </template>
@@ -178,6 +181,7 @@
                                 justifyContent: 'center',
                                 alignItems: 'center',
                             }"
+                            :title="Translate('IDCS_TEMPERATURE_DETECTION')"
                             >{{ Translate('IDCS_TEMPERATURE_DETECTION') }}</span
                         >
                     </template>
@@ -208,6 +212,7 @@
                                 justifyContent: 'center',
                                 alignItems: 'center',
                             }"
+                            :title="Translate('IDCS_WATCH_DETECTION')"
                             >{{ Translate('IDCS_WATCH_DETECTION') }}</span
                         >
                     </template>
@@ -238,6 +243,7 @@
                                 justifyContent: 'center',
                                 alignItems: 'center',
                             }"
+                            :title="Translate('IDCS_ABNORMAL_DISPOSE_WAY')"
                             >{{ Translate('IDCS_ABNORMAL_DISPOSE_WAY') }}</span
                         >
                     </template>
@@ -274,7 +280,6 @@
 
 <style lang="scss" scoped>
 .chl_select {
-    z-index: 9999;
     width: 430px;
     :deep(.el-select__selection) {
         text-align: center;
@@ -307,10 +312,18 @@
     }
     :deep() {
         .el-tabs__item {
-            width: 150px;
+            width: 170px;
             border: 2px solid var(--border-color2);
             margin-right: -2px; /* 处理border重合 */
-            padding: 0 20px !important;
+            padding: 0;
+            text-align: center;
+            span {
+                display: block !important;
+                line-height: 36px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
         }
 
         /* 长分割线 */
@@ -323,19 +336,13 @@
         .el-tabs__active-bar {
             background-color: transparent !important;
         }
-
-        .el-tabs__item:first-child {
-            border: 1px solid var(--border-color2);
-        }
-
         .el-tabs__item.is-active {
-            color: #fff;
+            color: var(--text-active);
             background-color: var(--primary--04);
-            border: 1px solid var(--border-color2);
         }
 
         .el-tabs__item:hover {
-            color: #fff;
+            color: var(--text-active);
             background-color: var(--primary--04);
         }
 
@@ -346,7 +353,7 @@
     }
     .content_main {
         .demo-tabs {
-            width: 1562px;
+            width: 100%;
             min-height: 627px;
             margin-top: 10px;
             .notSupportBox {
@@ -359,6 +366,12 @@
                 z-index: 2;
                 font-size: 20px;
             }
+        }
+        :deep(.el-form-item__label) {
+            display: inline-block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
     }
 }

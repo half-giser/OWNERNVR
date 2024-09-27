@@ -374,6 +374,8 @@ export default defineComponent({
             pageData,
             handleChangeChannel,
             handleTabClick,
+            Tripwire,
+            Pea,
         }
     },
 })

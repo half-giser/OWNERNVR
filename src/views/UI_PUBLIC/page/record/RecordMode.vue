@@ -251,6 +251,35 @@
             </div>
             <div v-show="formData.mode === 'auto'">
                 <el-radio-group
+                    v-if="pageData.showIcon"
+                    v-model="formData.autoModeId"
+                    class="radio-group"
+                >
+                    <el-radio
+                        v-for="item in recAutoModeList"
+                        :key="item.id"
+                        :value="item.id"
+                        :label="item.text"
+                    >
+                        <div class="radio">{{ item.text }}</div>
+
+                        <span
+                            v-for="(icon, index) in pageData.icons[item.id]"
+                            :key="index"
+                        >
+                            <span>&nbsp;</span>
+                            <BaseImgSprite
+                                :file="icon"
+                                :index="0"
+                                :hover-index="0"
+                                :chunk="1"
+                            />
+                            <span v-if="index !== pageData.icons[item.id].length - 1">&nbsp;+</span>
+                        </span>
+                    </el-radio>
+                </el-radio-group>
+                <el-radio-group
+                    v-else
                     v-model="formData.autoModeId"
                     class="radio-group"
                 >
@@ -368,6 +397,10 @@
 
     label.el-radio:nth-child(even) {
         background-color: var(--bg-color5);
+    }
+    .radio {
+        display: inline-block;
+        width: 670px;
     }
 }
 

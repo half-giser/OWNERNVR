@@ -3,7 +3,7 @@
  * @Date: 2024-09-12 15:00:13
  * @Description: 过线检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-24 18:15:07
+ * @LastEditTime: 2024-09-25 16:54:06
 -->
 <template>
     <div class="tripwire_setting_pane">
@@ -12,12 +12,12 @@
             @close="pageData.scheduleManagePopOpen = false"
         >
         </ScheduleManagPop>
-        <passLineEmailPop
+        <PassLineEmailPop
             v-model="pageData.morePopOpen"
             :schedule-list="pageData.scheduleList"
             :email-data="pageData.emailData"
             @close="handleMorePopClose"
-        ></passLineEmailPop>
+        ></PassLineEmailPop>
         <div
             v-if="pageData.notSupportTipShow"
             class="notSupportBox"
@@ -598,7 +598,7 @@
                     <div class="right">
                         <el-form
                             :model="pageData"
-                            label-width="100px"
+                            label-width="auto"
                             label-position="left"
                             class="form"
                             :style="{
@@ -693,7 +693,7 @@
     </div>
 </template>
 
-<script lang="ts" src="./passLine.v.ts"></script>
+<script lang="ts" src="./PassLine.v.ts"></script>
 
 <style lang="scss" scoped>
 .chl_select {
@@ -742,7 +742,7 @@
     }
 }
 .row-padding {
-    padding-left: 20px;
+    padding: 0 20px;
 }
 #n9web .el-form .el-form-item {
     padding: 1px 0px 2px 12px;
@@ -764,7 +764,7 @@
     width: 300px;
 }
 .form_btn {
-    width: 80px;
+    width: fit-content;
     height: 25px;
     font-size: 14px;
 }
@@ -783,7 +783,7 @@
     margin: 10px 0 0 14px;
 }
 .lock_btn {
-    width: 80px;
+    width: fit-content;
     height: 25px;
     margin-right: 5px;
 }
@@ -791,11 +791,11 @@
     margin-left: 14px;
 }
 .apply_btn {
-    width: 80px;
+    width: fit-content;
     height: 25px;
 }
 .dropdown_btn {
-    width: 80px;
+    width: fit-content;
     height: 25px;
     right: -20px;
 }
@@ -884,13 +884,13 @@
     position: relative;
     .checkbox_text {
         margin-left: 5px;
-        width: 100px;
+        width: fit-content;
         font-size: 15px;
     }
     .more {
         position: absolute;
         top: 41px;
-        right: 12px;
+        right: 22px;
         z-index: 1;
     }
     .left {
@@ -911,7 +911,8 @@
             border-bottom: 1px solid var(--border-color2);
         }
         :deep(.el-tabs__item) {
-            width: 100px;
+            width: fit-content;
+            padding: 0 20px;
             font-size: 15px;
             border: none;
         }
@@ -1017,8 +1018,9 @@
                     height: 400px;
                     border: 1px solid #888888;
                     .title {
+                        justify-content: flex-start;
                         .checkbox {
-                            margin-right: -140px;
+                            margin-left: 9px;
                         }
                     }
                     .span_text {

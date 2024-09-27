@@ -3,10 +3,10 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-28 13:42:09
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-23 16:08:37
+ * @LastEditTime: 2024-09-26 15:55:34
  */
 import { ArrowDown } from '@element-plus/icons-vue'
-import { cloneDeep } from 'lodash'
+import { cloneDeep } from 'lodash-es'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import { type FaceChlItem, type AIResource, FaceDetection, type PresetList, FaceMatch, type FaceGroupTableItem, FaceCompare, type CompareTask } from '@/types/apiType/aiAndEvent'
 import { type TabPaneName, type CheckboxValueType } from 'element-plus'
@@ -608,7 +608,13 @@ export default defineComponent({
             detectionPageData.value.initComplated = true
             await getFaceGroupData()
             // 播放器
-            // clearDrawArea()
+            if (mode.value === 'h5') {
+                vfdDrawer.clear()
+            } else {
+                const sendXML = OCX_XML_SetVfdAreaAction('NONE', 'vfdArea')
+                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+            }
+            dispalyRangeChange(false)
             play()
         }
 

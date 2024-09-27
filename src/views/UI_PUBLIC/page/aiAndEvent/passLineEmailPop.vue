@@ -3,7 +3,7 @@
  * @Date: 2024-09-13 11:31:56
  * @Description: 过线检测邮件设置弹窗
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-14 11:43:40
+ * @LastEditTime: 2024-09-25 14:13:50
 -->
 <template>
     <el-dialog
@@ -282,7 +282,7 @@
     </el-dialog>
 </template>
 
-<script lang="ts" src="./passLineEmailPop.v.ts"></script>
+<script lang="ts" src="./PassLineEmailPop.v.ts"></script>
 
 <style lang="scss" scoped>
 .el-divider--vertical {

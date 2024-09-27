@@ -3,7 +3,7 @@
  * @Date: 2024-09-13 11:32:17
  * @Description:过线检测邮件设置弹窗
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-14 10:24:55
+ * @LastEditTime: 2024-09-25 17:07:07
  */
 import { type emailData } from '@/types/apiType/aiAndEvent'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -171,6 +171,7 @@ export default defineComponent({
         }
         onMounted(() => {
             for (let i = 1; i <= 31; i++) {
+                // TODO 只能翻译成中文
                 pageData.value.monthOption.push({ value: i.toString(), label: i.toString() + Translate('IDCS_TIMING_SEND_EMAIL_DAY') })
             }
         })

@@ -3,7 +3,7 @@
  * @Date: 2024-08-13 15:58:40
  * @Description: 闪灯
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-23 10:24:57
+ * @LastEditTime: 2024-09-25 14:53:51
 -->
 <template>
     <div>
@@ -86,7 +86,7 @@
                                 v-model="scope.row.enable"
                                 prop="enable"
                                 value-key="value"
-                                placeholder="开"
+                                :placeholder="Translate('IDCS_ON')"
                                 :options="pageData.enableList"
                                 :disabled="scope.row.enableDisable"
                                 @change="handleEnabelChange(scope.row)"

@@ -3,7 +3,7 @@
  * @Date: 2024-08-23 10:54:01
  * @Description: 
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-26 17:41:52
+ * @LastEditTime: 2024-09-25 18:19:45
 -->
 <template>
     <el-dialog
@@ -117,7 +117,7 @@
         <el-form-item
             prop="inputSource"
             :label="Translate('IDCS_INPUT_SOURCE')"
-            label-width="70px"
+            label-width="fit-content"
         >
             <el-select
                 v-model="formData.inputSource"
@@ -149,13 +149,15 @@
                 <span class="txt">{{ pageData.defenseSwitch ? Translate('IDCS_GUARD_CLOSED') : Translate('IDCS_GUARD_OPENED') }}</span>
                 <el-button @click="setdisarmAll">{{ pageData.defenseSwitch ? Translate('IDCS_RECOVER_GUARD') : Translate('IDCS_CLOSE_GUARD') }}</el-button>
             </el-form-item>
-            <el-form-item id="add_row">
-                <span class="txt">{{ Translate('IDCS_RECOVER_GUARD_CHANNEL') }}</span>
-                <el-button
-                    id="btn_add"
-                    @click="pageData.showAddDialog = true"
-                    >{{ Translate('IDCS_ADD') }}</el-button
-                >
+            <el-form-item>
+                <el-row id="add_row">
+                    <span class="txt">{{ Translate('IDCS_RECOVER_GUARD_CHANNEL') }}</span>
+                    <el-button
+                        id="btn_add"
+                        @click="pageData.showAddDialog = true"
+                        >{{ Translate('IDCS_ADD') }}</el-button
+                    >
+                </el-row>
             </el-form-item>
         </el-form>
         <el-table
@@ -296,7 +298,11 @@
 .el-form {
     margin-top: 10px;
     --el-form-label-font-size: 15px;
-
+    .add_row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
     .txt {
         font-size: 15px;
         margin-right: 45px;
@@ -306,9 +312,10 @@
         --el-checkbox-font-size: 15px;
     }
     #add_row {
-        #btn_add {
-            margin-left: 1183px;
-        }
+        width: 1400px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
     }
 }
 

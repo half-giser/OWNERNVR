@@ -336,9 +336,10 @@
 #n9web .el-table {
     --el-table-tr-bg-color: white;
 }
-.apply_btn {
-    width: 80px;
+.form_btn {
+    width: fit-content;
     height: 25px;
+    font-size: 14px;
 }
 .obj_left_detection {
     height: calc(100vh - 351px);
@@ -363,7 +364,7 @@
             border-bottom: 1px solid var(--border-color2);
         }
         :deep(.el-tabs__item) {
-            width: 100px !important;
+            width: fit-content;
             font-size: 15px;
             border: none;
             padding: 0 20px !important;
