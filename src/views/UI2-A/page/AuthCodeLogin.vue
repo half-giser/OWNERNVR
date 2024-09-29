@@ -1,15 +1,38 @@
 <!--
  * @Author: yejiahao yejiahao@tvt.net.cn
- * @Date: 2024-09-20 09:10:11
- * @Description: P2P授权码登录
+ * @Date: 2024-09-24 14:37:52
+ * @Description: UI2-A客制化 登录
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-26 19:36:13
+ * @LastEditTime: 2024-09-26 19:25:37
 -->
 <template>
     <div class="authCodeLogin">
-        <div class="authCodeLogin-bg"></div>
-        <div class="authCodeLogin-mask"></div>
+        <div class="authCodeLogin-lang">
+            <el-select
+                v-model="pageData.langId"
+                @change="changeLang"
+            >
+                <el-option
+                    v-for="(item, key) in lang.langTypes.value"
+                    :key="key"
+                    :label="item.name"
+                    :value="item.id"
+                />
+            </el-select>
+            <el-select
+                v-show="pageData.calendarOptions.length"
+                v-model="formData.calendarType"
+            >
+                <el-option
+                    v-for="item in pageData.calendarOptions"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                />
+            </el-select>
+        </div>
         <div class="authCodeLogin-main">
+            <div class="authCodeLogin-logo"></div>
             <div class="authCodeLogin-content">
                 <el-form
                     ref="formRef"
@@ -88,95 +111,49 @@
                     ></div>
                 </el-form>
             </div>
-            <div class="authCodeLogin-lang">
-                <el-select
-                    v-model="pageData.langId"
-                    @change="changeLang"
-                >
-                    <el-option
-                        v-for="(item, key) in lang.langTypes.value"
-                        :key="key"
-                        :label="item.name"
-                        :value="item.id"
-                    />
-                </el-select>
-                <el-select
-                    v-show="pageData.calendarOptions.length"
-                    v-model="formData.calendarType"
-                >
-                    <el-option
-                        v-for="item in pageData.calendarOptions"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                    />
-                </el-select>
-            </div>
-            <!-- <div class="authCodeLogin-footer">
-                <p>{{ pageData.copyright }}</p>
-                <a
-                    v-if="pageData.icp"
-                    href="https://beian.miit.gov.cn/"
-                    target="_blank"
-                    ><p>{{ pageData.icp }}</p></a
-                >
-            </div> -->
         </div>
+        <!-- <div class="authCodeLogin-footer">
+            <p>{{ pageData.copyright }}</p>
+            <a
+                v-if="pageData.icp"
+                href="https://beian.miit.gov.cn/"
+                target="_blank"
+                ><p>{{ pageData.icp }}</p></a
+            >
+        </div> -->
     </div>
 </template>
 
-<script lang="ts" src="./AuthCodeLogin.v.ts"></script>
+<script lang="ts" src="@/views/UI_PUBLIC/page/AuthCodeLogin.v.ts"></script>
 
 <style lang="scss" scoped>
 .authCodeLogin {
-    position: relative;
     width: 100vw;
     height: 100vh;
-    background-color: var(--authcode-bg);
-
-    &-lang {
-        position: absolute;
-        top: 20px;
-        right: 30px;
-        width: 180px;
-
-        .el-select {
-            margin-bottom: 10px;
-        }
-    }
-
-    &-bg {
-        background: var(--img-authcodelogin-bg) no-repeat;
-        background-size: 100% 100%;
-        height: 467px;
-        width: 100%;
-        position: absolute;
-        top: 50%;
-        left: 0;
-        margin-top: -233px;
-    }
-
-    &-mask {
-        background: var(--img-authcodelogin-mask) no-repeat;
-        background-size: 100% 100%;
-        height: 318px;
-        width: 100%;
-        position: absolute;
-        top: 50%;
-        left: 0;
-        margin-top: -159px;
-    }
-}
-
-.authCodeLogin-main {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
+    background-color: var(--authcode-bg);
+}
+
+.authCodeLogin-main {
+    width: 100%;
+    height: 467px;
+    background-color: var(--authcode-content-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    border-bottom: 3px solid var(--primary--04);
+    position: relative;
+    &:after {
+        content: '';
+        width: 62%;
+        position: absolute;
+        bottom: -3px;
+        left: 0;
+        border-bottom: 3px solid var(--color-black);
+    }
 }
 
 .authCodeLogin-item {
@@ -215,20 +192,29 @@
     align-items: center;
 }
 
+.authCodeLogin-logo {
+    width: 693px;
+    height: 36px;
+    margin-bottom: 20px;
+    background-image: var(--img-login-logo);
+    background-position: center left;
+    background-repeat: no-repeat;
+}
+
 .authCodeLogin-content {
     position: relative;
-    width: 693px;
+    width: 713px;
     height: 262px;
     background: no-repeat var(--img-authcodelogin-content);
     background-position: center center;
     background-repeat: no-repeat;
-    background-color: var(--authcode-content-bg);
+    background-color: var(--authcode-content-bg, var(--page-bg));
     padding-inline: 10px;
 
     #n9web & {
         .el-form {
             margin-top: 30px;
-            margin-left: 390px;
+            margin-left: 400px;
         }
 
         .el-input {
@@ -280,13 +266,8 @@
     height: 100%;
     width: 200px;
     display: flex;
+    left: 300px;
     align-items: center;
-
-    @if $GLOBAL_UI_TYPE == UI1-E {
-        left: 310px;
-    } @else {
-        left: 300px;
-    }
 
     .el-button.is-link {
         margin-left: 10px;
@@ -299,16 +280,22 @@
     }
 }
 
-.authCodeLogin-question {
-    width: 20px;
-    height: 20px;
-    background: var(--img-authcodelogin-question);
-    margin-left: 10px;
+.authCodeLogin-lang {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    width: 180px;
+
+    .el-select {
+        margin-bottom: 10px;
+    }
 }
 
-.authCodeLogin-expiretime {
-    font-size: 18px;
-    color: var(--primary--04);
+.authCodeLogin-error {
+    position: absolute;
+    top: calc(100% + 20px);
+    left: 20px;
+    color: var(--error--01);
 }
 
 // .authCodeLogin-footer {
@@ -330,18 +317,4 @@
 //         color: var(--primary--04);
 //     }
 // }
-
-.authCodeLogin-error {
-    position: absolute;
-    color: var(--error--01);
-    font-size: 18px;
-
-    @if $GLOBAL_UI_TYPE == UI1-E {
-        top: calc(100% + 30px);
-        left: 0;
-    } @else {
-        top: calc(100% - 5px);
-        left: 400px;
-    }
-}
 </style>

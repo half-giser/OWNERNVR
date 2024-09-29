@@ -163,8 +163,8 @@
         --el-checkbox-checked-text-color: var(--primary--04);
         --el-checkbox-checked-input-border-color: var(--primary--04);
         --el-checkbox-checked-bg-color: var(--primary--04);
-        --el-checkbox-disabled-border-color: var(--border-color5);
-        --el-checkbox-disabled-checked-input-border-color: var(--border-color5);
+        --el-checkbox-disabled-border-color: var(--border-color-disabled);
+        --el-checkbox-disabled-checked-input-border-color: var(--border-color-disabled);
         --el-checkbox-disabled-input-fill: var(--bg-color-disabled);
         --el-checkbox-disabled-checked-input-fill: var(--bg-color-disabled);
         .el-checkbox__input {

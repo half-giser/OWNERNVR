@@ -3,7 +3,7 @@
  * @Date: 2024-05-29 13:48:55
  * @Description: UI1-E 主题样式
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-26 12:00:01
+ * @LastEditTime: 2024-09-26 19:20:59
  */
 
 // 客户定制图标
@@ -15,6 +15,9 @@
     --img-loading: url('@ui/publicStyle/img/loading.gif');
     // --img-initview: url('@ui/publicStyle/img/initview.gif');
     // --img-favicon: url('@ui/publicStyle/img/favicon.ico');
+
+    --img-authcodelogin-bg: none;
+    --img-authcodelogin-mask: none;
 }
 
 // 主题色
@@ -73,6 +76,11 @@
     --login-bg: #d4d4d4; /* UI1E 定制化 登录界面背景色 */
     --login-content-bg: #fff; /* UI1E 定制化 登录界面背景色 */
 
+    --authcode-bg: #d4d4d4;
+    --authcode-btn-text: #fff;
+    --authcode-input-text-disabled: #454545;
+    --authcode-content-bg: #fff;
+
     // 功能面板页
     --text-menu-05: #ccc; /* 功能面板 子菜单的文本颜色 */
     --text-menu-05-hover: #fff; /* 功能面板 子菜单的hover文本颜色 */ 
@@ -103,7 +111,7 @@
     --panel-bg: #404042; /* 面板背景色 */
     --panel-btn-bg: #fff;
     --panel-btn-bg-disabled: #777;
-    --panel-snap-history: #ffcc66;
+    --panel-snap-history-border: #ffcc66;
     
     // 搜索与备份、智能分析、业务与应用
     --text-menu-active: #fff; /* 业务应用/搜索与备份等顶部与左侧菜单栏活跃状态字体颜色 */
