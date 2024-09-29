@@ -166,8 +166,7 @@ export default defineComponent({
         })
 
         onMounted(async () => {
-            // genIconMap(recAutoModeList.value)
-            // console.log('genIconMap')
+            genIconMap(recAutoModeList.value)
             await getRecModeData()
             await initChlScheduldTb()
             pageData.value.initComplated = true

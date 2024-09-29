@@ -469,9 +469,7 @@
     padding: 1px 0px 2px 12px;
     margin-bottom: 0;
 }
-#n9web .el-table {
-    --el-table-tr-bg-color: white;
-}
+
 .apply_btn {
     width: 80px;
     height: 25px;

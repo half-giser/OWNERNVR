@@ -353,7 +353,7 @@
                 justify-content: center;
                 align-items: center;
                 width: 100%;
-                background-color: #fff;
+                //background-color: #fff;
                 height: 568px;
                 z-index: 2;
                 font-size: 20px;
