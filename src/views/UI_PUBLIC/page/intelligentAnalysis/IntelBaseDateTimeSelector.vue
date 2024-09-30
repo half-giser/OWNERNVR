@@ -91,12 +91,12 @@
 .btn {
     width: 100px;
     height: 30px;
-    background-color: var(--bg-color2);
+    background-color: var(--btn-bg);
     line-height: 30px;
     cursor: pointer;
     margin-right: 7px;
     margin-bottom: 5px;
-    color: var(--text-button);
+    color: var(--btn-text);
     text-align: center;
     font-size: 12px;
 
@@ -105,7 +105,7 @@
     }
 
     &.active {
-        background-color: var(--primary--04);
+        background-color: var(--primary);
     }
 }
 </style>

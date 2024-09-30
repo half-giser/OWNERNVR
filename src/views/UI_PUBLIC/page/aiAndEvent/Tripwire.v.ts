@@ -2,13 +2,13 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-19 11:16:22
  * @Description: 周界防范/人车检测
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-25 14:27:12
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-30 13:47:44
  */
 import { ArrowDown } from '@element-plus/icons-vue'
 import { type chlCaps, type aiResourceRow } from '@/types/apiType/aiAndEvent'
 import BaseTransferDialog from '@/components/BaseTransferDialog.vue'
-import { ElDivider, type TabsPaneContext } from 'element-plus'
+import { type TabsPaneContext } from 'element-plus'
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import CanvasPassline from '@/utils/canvas/canvasPassline'
 import ChannelPtzCtrlPanel from '@/views/UI_PUBLIC/page/channel/ChannelPtzCtrlPanel.vue'
@@ -18,7 +18,6 @@ import { type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
 export default defineComponent({
     components: {
         ArrowDown,
-        ElDivider,
         ScheduleManagPop,
         BaseTransferDialog,
         ChannelPtzCtrlPanel,
@@ -53,7 +52,6 @@ export default defineComponent({
         const pluginStore = usePluginStore()
         const osType = getSystemInfo().platform
         const aiResourceTableData = ref<aiResourceRow[]>([])
-        const moreDropDownRef = ref()
         const tripwireplayerRef = ref<PlayerInstance>()
         let tripwireDrawer: CanvasPassline
         const tripwireData: { [key: string]: any } = ref({
@@ -223,6 +221,7 @@ export default defineComponent({
             },
             presetSource: [] as PresetList[],
             initComplete: false,
+            moreDropDown: false,
         })
         const tripwireTriggerData = ref<{ value: boolean; label: string; property: string }[]>([])
         let tripwirePlayer: PlayerInstance['player']
@@ -369,7 +368,6 @@ export default defineComponent({
                 } else {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_NO_RESOURCE'),
                     })
                     // 资源占用率超过100
@@ -400,7 +398,6 @@ export default defineComponent({
         const handleAIResourceDel = async (row: aiResourceRow) => {
             openMessageTipBox({
                 type: 'question',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_DELETE_MP_S'),
             }).then(() => {
                 deleteAIResource(row)
@@ -798,7 +795,6 @@ export default defineComponent({
                     const switchChangeType = switchChangeTypeArr.join(',')
                     openMessageTipBox({
                         type: 'question',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_SIMPLE_TRIPWIRE_DETECT_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + tripwireData.value.chlData['name'], switchChangeType),
                     }).then(() => {
                         saveTripwireData()
@@ -1073,9 +1069,9 @@ export default defineComponent({
             showAllTripwireArea(tripwireData.value.isShowAllArea)
         }
         // tripWire选择警戒面
-        const handleSurfaceChange = (index: number) => {
-            tripwireData.value.chosenSurfaceIndex = index
-            tripwireData.value.direction = tripwireData.value.lineInfo[index].direction
+        const handleSurfaceChange = () => {
+            // tripwireData.value.chosenSurfaceIndex = index
+            tripwireData.value.direction = tripwireData.value.lineInfo[tripwireData.value.chosenSurfaceIndex].direction
             setTripwireOcxData()
         }
         // tripwire选择方向
@@ -1342,7 +1338,6 @@ export default defineComponent({
             aiResourceTableData,
             tripwireplayerRef,
             tripwireData,
-            moreDropDownRef,
             tripwireTriggerData,
             tripWirehandlePlayerReady,
             setTripWireSpeed,

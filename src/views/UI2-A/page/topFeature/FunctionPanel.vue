@@ -84,11 +84,11 @@
             cursor: pointer;
 
             &:hover {
-                background-color: var(--primary--04);
+                background-color: var(--primary);
             }
 
             &.active {
-                background-color: var(--primary--04);
+                background-color: var(--primary);
             }
 
             div {
@@ -111,11 +111,11 @@
             line-height: 2;
 
             &:hover {
-                background-color: var(--primary--04);
+                background-color: var(--primary);
             }
 
             &.active {
-                background-color: var(--primary--04);
+                background-color: var(--primary);
             }
         }
     }
@@ -132,7 +132,7 @@
             line-height: 2;
 
             &:hover {
-                color: var(--primary--04);
+                color: var(--primary);
             }
         }
     }

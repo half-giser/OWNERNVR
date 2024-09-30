@@ -191,7 +191,7 @@
         width: 852px;
         height: 132px;
         display: flex;
-        border: 1px solid var(--border-color2);
+        border: 1px solid var(--content-border);
     }
 }
 </style>

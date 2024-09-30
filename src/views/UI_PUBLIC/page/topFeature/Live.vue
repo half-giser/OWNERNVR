@@ -122,7 +122,7 @@
 .live {
     width: 100%;
     height: calc(var(--content-height) + 70px);
-    border: 1px solid var(--border-color7);
+    border: 1px solid var(--input-border);
     display: flex;
     font-size: 14px;
     min-width: 1400px;
@@ -131,8 +131,8 @@
 .center {
     width: 100%;
     height: 100%;
-    border-left: 1px solid var(--border-color7);
-    border-right: 1px solid var(--border-color7);
+    border-left: 1px solid var(--input-border);
+    border-right: 1px solid var(--input-border);
 
     &-player {
         width: 100%;

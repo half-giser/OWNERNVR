@@ -328,7 +328,7 @@
 
 <style scoped lang="scss">
 .disabled {
-    color: var(--text-disabled);
+    color: var(--input-text-disabled);
 }
 
 .device-item {

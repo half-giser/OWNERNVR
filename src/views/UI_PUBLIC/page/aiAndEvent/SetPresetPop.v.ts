@@ -127,7 +127,6 @@ export default defineComponent({
             if (presetCount > MAX_TRIGGER_PRESET_COUNT) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_PRESET_LIMIT'),
                 })
             } else {

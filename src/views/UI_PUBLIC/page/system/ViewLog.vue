@@ -166,10 +166,10 @@
 .ViewLog {
     :deep(.el-button) {
         &.is-link {
-            color: var(--text-primary);
+            color: var(--main-text);
 
             &.el-button--primary {
-                color: var(--primary--04);
+                color: var(--primary);
             }
 
             &:hover {

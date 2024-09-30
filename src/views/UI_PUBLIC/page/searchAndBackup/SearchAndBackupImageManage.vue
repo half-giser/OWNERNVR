@@ -275,11 +275,11 @@
 
     :deep(.el-button) {
         &.is-link {
-            color: var(--text-primary);
+            color: var(--main-text);
 
             &:hover {
                 text-decoration: underline;
-                color: var(--primary--04);
+                color: var(--primary);
             }
         }
     }
@@ -295,7 +295,7 @@
 
     & > div:last-child {
         margin-left: 15px;
-        color: var(--text-primary);
+        color: var(--main-text);
     }
 }
 

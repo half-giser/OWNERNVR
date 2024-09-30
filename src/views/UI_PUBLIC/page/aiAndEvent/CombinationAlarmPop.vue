@@ -2,8 +2,8 @@
  * @Description: 普通事件——组合报警弹窗
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-23 15:02:52
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-27 15:21:31
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-30 09:34:41
 -->
 <template>
     <el-dialog
@@ -90,7 +90,7 @@
                 </template>
             </el-table-column>
         </el-table>
-        <div :style="{ height: '180px' }">
+        <div class="detect-box">
             <div
                 v-if="pageData.isDetectShow"
                 class="detect"
@@ -117,12 +117,6 @@
                 </div>
             </div>
         </div>
-        <el-row>
-            <el-col class="el-col-flex-end btnBox">
-                <el-button @click="save">{{ Translate('IDCS_OK') }}</el-button>
-                <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
-            </el-col>
-        </el-row>
         <FaceMatchPop
             v-model="pageData.isFaceMatchPopShow"
             :linked-entity="pageData.linkedEntity"
@@ -130,13 +124,21 @@
             :handle-linked-obj="handleFaceMatchLinkedObj"
             @close="pageData.isFaceMatchPopShow = false"
         ></FaceMatchPop>
+        <template #footer>
+            <el-row>
+                <el-col class="el-col-flex-end">
+                    <el-button @click="save">{{ Translate('IDCS_OK') }}</el-button>
+                    <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
+                </el-col>
+            </el-row>
+        </template>
     </el-dialog>
 </template>
 
 <script lang="ts" src="./CombinationAlarmPop.v.ts"></script>
 
 <style lang="scss" scoped>
-.btnBox {
+.detect-box {
     margin-top: 10px;
 }
 .detect {
@@ -144,7 +146,7 @@
 }
 .detectText {
     margin-right: 15px;
-    color: red;
+    color: var(--color-error);
 }
 .descTip {
     display: inline-block;
@@ -156,6 +158,8 @@
 .description {
     margin-top: 10px;
     height: 115px;
-    border: 1px solid black;
+    border: 1px solid var(--content-border);
+    box-sizing: border-box;
+    padding: 5px;
 }
 </style>

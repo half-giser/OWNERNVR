@@ -95,13 +95,13 @@ const container = computed(() => {
         color: #327eee;
 
         &:hover {
-            color: var(--primary--04);
+            color: var(--primary);
         }
     }
 
     &.warning {
         font-size: 20px;
-        color: var(--error-01);
+        color: var(--color-error-01);
     }
 
     &.fixed {

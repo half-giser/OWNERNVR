@@ -2,14 +2,13 @@
  * @Description: AI/事件——事件通知——显示
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-07-30 09:23:16
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-12 14:22:47
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-29 14:42:43
 -->
 <template>
     <el-form
         ref="popVideoRef"
         :model="videoFormData"
-        class="stripe"
         :style="{
             '--form-input-width': '215px',
         }"
@@ -50,9 +49,12 @@
     <el-form
         ref="popMsgRef"
         :model="msgFormData"
-        class="stripe msgbox"
+        class="msgbox"
         label-position="left"
         inline-message
+        :style="{
+            '--form-input-width': '215px',
+        }"
     >
         <div class="base-subheading-box">{{ Translate('IDCS_POPUP_MESSAGEBOX') }}</div>
         <el-form-item>
@@ -90,6 +92,5 @@
 <style scoped>
 .msgbox {
     margin-top: 50px;
-    --form-input-width: 215px;
 }
 </style>

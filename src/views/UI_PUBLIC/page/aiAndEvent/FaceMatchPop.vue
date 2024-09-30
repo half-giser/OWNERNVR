@@ -2,13 +2,13 @@
  * @Description: 普通事件——组合报警——人脸识别edit弹窗
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-26 16:18:39
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-26 15:31:39
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-30 09:43:36
 -->
 <template>
     <el-dialog
         :title="Translate('IDCS_CONFIG')"
-        width="660"
+        width="900"
         hight="470"
         align-center
         draggable
@@ -23,7 +23,7 @@
                         ref="formRef"
                         label-position="left"
                         :style="{
-                            '--form-label-width': '100px',
+                            '--form-label-width': '150px',
                         }"
                     >
                         <el-form-item :label="Translate('IDCD_RULE')">
@@ -65,7 +65,7 @@
                         ref="formRef"
                         label-position="left"
                         :style="{
-                            '--form-label-width': '130px',
+                            '--form-label-width': '220px',
                         }"
                     >
                         <el-form-item :label="Translate('IDCS_PREALARM_BEFORE')">
@@ -104,23 +104,27 @@
                 </div>
             </el-col>
         </el-row>
-        <div class="btnBox">
-            <el-checkbox v-model="pageData.noShowDisplay">{{ Translate('IDCS_NO_REALTIME_DISPLAY') }}</el-checkbox>
-        </div>
-        <div class="btnBox">
-            <span>{{ Translate('IDCS_TEXT_PROMPT') }}</span>
-            <el-input
-                v-model="pageData.displayText"
-                size="small"
-                class="tipInput"
-            ></el-input>
-        </div>
-        <el-row>
-            <el-col class="el-col-flex-end btnBox">
-                <el-button @click="save">{{ Translate('IDCS_OK') }}</el-button>
-                <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
-            </el-col>
-        </el-row>
+        <el-form
+            label-position="left"
+            :style="{
+                '--form-input-width': '400px',
+            }"
+        >
+            <el-form-item>
+                <el-checkbox v-model="pageData.noShowDisplay">{{ Translate('IDCS_NO_REALTIME_DISPLAY') }}</el-checkbox>
+            </el-form-item>
+            <el-form-item :label="Translate('IDCS_TEXT_PROMPT')">
+                <el-input v-model="pageData.displayText" />
+            </el-form-item>
+        </el-form>
+        <template #footer>
+            <el-row>
+                <el-col class="el-col-flex-end">
+                    <el-button @click="save">{{ Translate('IDCS_OK') }}</el-button>
+                    <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
+                </el-col>
+            </el-row>
+        </template>
     </el-dialog>
 </template>
 
@@ -129,40 +133,32 @@
 <style lang="scss" scoped>
 .box {
     height: 285px;
-    border: solid 1px black;
+    border: solid 1px var(--content-border);
 }
-:deep(.el-form-item__label) {
-    display: inline-block;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
+
 .box_title {
     text-align: center;
-    border-bottom: solid 1px black;
+    padding-block: 5px;
+    border-bottom: solid 1px var(--content-border);
 }
+
 .faceCompare {
     margin-left: -1px;
 }
+
 .faceData {
     width: 180px;
     height: 180px;
-    border: solid 1px black;
+    border: solid 1px var(--content-border);
     padding-left: 5px;
     overflow: auto;
 }
+
 .faceCheckBox {
     width: 120px;
 }
 // 除第一个，其他的会加左右margin拉开距离，这里去掉
 #n9web .el-form .el-checkbox + * {
     margin: 0;
-}
-.tipInput {
-    margin-left: 80px;
-    width: 400px;
-}
-.btnBox {
-    margin-top: 10px;
 }
 </style>

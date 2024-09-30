@@ -3,7 +3,7 @@
  * @Date: 2024-09-20 09:10:11
  * @Description: P2P授权码登录
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-26 19:36:13
+ * @LastEditTime: 2024-09-29 13:33:10
 -->
 <template>
     <div class="authCodeLogin">
@@ -186,7 +186,7 @@
     font-size: 16px;
     border: 1px solid var(--color-black);
     display: flex;
-    background-color: var(--bg-color);
+    background-color: var(--input-bg);
 
     &.disabled {
         background-color: var(--authcode-input-bg-disabled);
@@ -271,6 +271,10 @@
             &:hover {
                 background-position: 0 -50px;
             }
+
+            &.is-disabled {
+                background-position: 0 -150px;
+            }
         }
     }
 }
@@ -291,9 +295,9 @@
     .el-button.is-link {
         margin-left: 10px;
         font-size: 18px;
-        color: var(--primary--04);
+        color: var(--primary);
         &:hover {
-            color: var(--primary--04);
+            color: var(--primary);
             opacity: 0.8;
         }
     }
@@ -308,7 +312,7 @@
 
 .authCodeLogin-expiretime {
     font-size: 18px;
-    color: var(--primary--04);
+    color: var(--primary);
 }
 
 // .authCodeLogin-footer {
@@ -316,7 +320,7 @@
 //     left: 0;
 //     bottom: 10px;
 //     width: 100%;
-//     color: var(--text-menu-01);
+//     color: var(--header-menu-text);
 
 //     p {
 //         width: 100%;
@@ -327,13 +331,13 @@
 //     }
 
 //     a {
-//         color: var(--primary--04);
+//         color: var(--primary);
 //     }
 // }
 
 .authCodeLogin-error {
     position: absolute;
-    color: var(--error--01);
+    color: var(--color-error);
     font-size: 18px;
 
     @if $GLOBAL_UI_TYPE == UI1-E {

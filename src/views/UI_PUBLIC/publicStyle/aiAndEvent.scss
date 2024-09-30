@@ -1,0 +1,271 @@
+/*
+ * @Author: yejiahao yejiahao@tvt.net.cn
+ * @Date: 2024-09-29 09:12:33
+ * @Description: ai与事件版块的一些公共样式，仅在需要用到的ai与事件版块下import
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-30 14:41:39
+ */
+
+.base-ai-menu-tabs {
+    width: 100%;
+    min-height: 627px;
+    margin-top: 10px;
+    & > .el-tabs__header {
+        .el-tabs__item {
+            min-width: 150px;
+            width: fit-content;
+            border: 1px solid var(--content-border);
+            // border: 2px solid var(--content-border);
+            margin-right: -2px; /* 处理border重合 */
+            padding: 0 5px;
+            text-align: center;
+            span {
+                display: block;
+                line-height: 36px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+        }
+
+        /* 长分割线 */
+        .el-tabs__nav-wrap::after {
+            /* position: static !important; 可以去掉长分割线 */
+            background-color: var(--content-border);
+        }
+
+        /* 去掉下划线 */
+        .el-tabs__active-bar {
+            background-color: transparent;
+        }
+
+        .el-tabs__item.is-active {
+            color: var(--main-text-active);
+            background-color: var(--primary);
+        }
+
+        .el-tabs__item:hover {
+            color: var(--main-text-active);
+            background-color: var(--primary);
+        }
+
+        .el-tabs__item.is-disabled {
+            background: var(--btn-bg-disabled);
+            color: var(--btn-text-disabled);
+        }
+    }
+}
+
+.base-ai-tabs {
+    & > .el-tabs__header {
+        border-bottom: 1px solid var(--content-border);
+        
+        .el-tabs__item {
+            width: fit-content;
+            font-size: 15px;
+            border: none;
+            padding: 0 20px;
+        }
+
+        /* 长分割线 */
+        .el-tabs__nav-wrap::after {
+            position: static; //可以去掉长分割线
+        }
+
+        /* 去掉下划线 */
+        .el-tabs__active-bar {
+            background-color: transparent;
+        }
+
+        .el-tabs__item:first-child {
+            margin-left: 30px;
+        }
+
+        /* 鼠标选中时样式 */
+        .el-tabs__item.is-active {
+            color: var(--primary);
+            background-color: transparent;
+            border: none;
+        }
+
+        /* 鼠标悬浮时样式 */
+        .el-tabs__item:hover {
+            color: var(--primary);
+            cursor: pointer;
+            background-color: transparent;
+        }
+    }
+
+    &>.el-tabs__content .el-tab-pane {
+        position: relative;
+        min-height: calc(100vh - 450px);
+    }
+}
+
+.base-ai-subheading {
+    border-left: 3px solid var(--content-border);
+    font-size: 15px;
+    height: 30px;
+    line-height: 30px;
+    padding-left: 8px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+
+    &:first-child {
+        margin-top: 0;
+    }
+}
+
+.base-ai-param-box {
+    width: 100%;
+    display: flex;
+
+    &-left {
+        width: 400px;
+        height: 100%;
+        padding: 8px 100px 0 20px;
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+
+        .player {
+            width: 400px;
+            height: 300px;
+        }
+
+        &.fixed {
+            position: absolute;
+            top: 102px;
+            z-index: 1;
+        }
+    }
+
+    &-right {
+        width: 100%;
+    }
+}
+
+.base-ai-linkage-content {
+    display: flex;
+    flex-wrap: nowrap;
+    width: 100%;
+    box-sizing: border-box;
+    padding-inline: 15px;
+}
+
+.base-ai-linkage-title {
+    text-align: center;
+    font-size: 15px;
+    width: 100%;
+    height: 33px;
+    padding: 4px 10px;
+    background: var(--ai-linkbox-bg);
+    box-sizing: border-box;
+
+    &>span {
+        margin-right: 5px;
+    }
+}
+
+.base-ai-linkage-box {
+    width: 250px;
+    height: 400px;
+    margin-right: 2px;
+    border: 1px solid var(--ai-linkbox-border);
+
+    .el-checkbox-group {
+        .el-checkbox {
+            width: 200px;
+            height: 45px;
+            padding-left: 10px;
+        }
+    }
+
+    .el-table {
+        width: 100%;
+        height: 367px;
+
+        .el-table__cell {
+            padding: 3px;
+            height: 46px;
+            border-bottom: none;
+        }
+    }
+}
+
+.base-ai-not-support-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 567px;
+    z-index: 3;
+    font-size: 20px;
+    background-color: var(--main-bg);
+}
+
+.base-ai-param-box {
+    width: 100%;
+    display: flex;
+
+    &-left {
+        width: 400px;
+        height: 100%;
+        padding: 0 100px 0 20px;
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        margin-right: 5px;
+        overflow: hidden;
+
+        .player {
+            width: 400px;
+            height: 300px;
+        }
+    }
+
+    &-right {
+        width: 100%;
+    }
+}
+
+.base-ai-tip {
+    font-size: 12px;
+    color: var(--main-text-light);
+}
+
+.base-ai-chl-select {
+    .el-select__selection {
+        text-align: center;
+    }
+}
+
+.base-ai-chl-option {
+    width: 430px;
+    height: 140px;
+    padding: 10px;
+    box-sizing: border-box;
+    // overflow-y: auto;
+
+    .el-select-dropdown__list {
+        width: 100%;
+        flex-wrap: wrap;
+        display: flex;
+        justify-content: flex-start;
+        align-items: flex-start;
+    }
+
+    .el-select-dropdown__item {
+        width: 120px;
+        height: 30px;
+        line-height: 30px;
+        text-align: center;
+        margin: 5px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        cursor: pointer;
+        border: 1px solid var(--content-border);
+    }
+}

@@ -124,7 +124,7 @@
                 height: 17px;
                 width: 1px;
                 left: -15px;
-                border-left: 2px solid var(--border-color4);
+                border-left: 2px solid var(--btn-border);
             }
         }
 

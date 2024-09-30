@@ -217,8 +217,8 @@ defineExpose({
     width: 205px;
     top: 20px;
     left: 0px;
-    border: solid 1px var(--border-color1);
-    background-color: var(--bg-color5);
+    border: solid 1px var(--main-border);
+    background-color: var(--table-stripe);
     padding: 5px;
     border-radius: 5px;
 

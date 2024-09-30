@@ -231,7 +231,7 @@
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
-    border: 1px solid var(--border-color2);
+    border: 1px solid var(--content-border);
     min-width: 1400px;
 }
 
@@ -310,7 +310,7 @@
 .panel {
     width: 664px;
     height: 365px;
-    // border: 1px solid var(--bg-color4);
+    // border: 1px solid var(--subheading-bg);
     margin: 5px;
     background-color: var(--parklog-box-bg);
 
@@ -351,7 +351,7 @@
         padding: 10px 0;
 
         &:not(:last-child) {
-            border-bottom: 1px solid var(--border-color2);
+            border-bottom: 1px solid var(--content-border);
         }
     }
 
@@ -385,9 +385,9 @@
     padding: 1px 0px 1px 0px;
     height: 18px;
     width: 100%;
-    color: var(--text-menu-01);
-    background-color: var(--page-bg);
-    border-top: 1px solid var(--border-color1);
+    color: var(--header-menu-text);
+    background-color: var(--main-bg);
+    border-top: 1px solid var(--main-border);
     flex-shrink: 0;
 }
 </style>

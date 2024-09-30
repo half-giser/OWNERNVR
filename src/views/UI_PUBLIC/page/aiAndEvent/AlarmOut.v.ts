@@ -186,7 +186,6 @@ export default defineComponent({
             if (value === curAlarmoutType.value) return
             openMessageTipBox({
                 type: 'question',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_ALARMOUT_TYPE_EDIT_AFTER_REBOOT'),
             }).then(async () => {
                 openLoading(LoadingTarget.FullScreen)

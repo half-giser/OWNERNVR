@@ -1684,7 +1684,7 @@ defineExpose({
     height: 100%;
     overflow: hidden;
     position: relative;
-    background-color: var(--bg-player);
+    background-color: var(--player-bg);
 
     & > .ocx {
         position: absolute;
@@ -1697,7 +1697,7 @@ defineExpose({
     & > .item {
         position: absolute;
         overflow: hidden;
-        background-color: var(--bg-player);
+        background-color: var(--player-bg);
 
         &::after {
             content: '';
@@ -1706,13 +1706,13 @@ defineExpose({
             left: 0;
             width: calc(100% - 2px);
             height: calc(100% - 2px);
-            border: 1px solid var(--border-player-split);
+            border: 1px solid var(--player-split-border);
             pointer-events: none;
         }
 
         &.selected {
             &::after {
-                border-color: var(--primary--04);
+                border-color: var(--primary);
             }
         }
 
@@ -1803,7 +1803,7 @@ defineExpose({
             }
 
             &.mask {
-                background-color: var(--bg-player);
+                background-color: var(--player-bg);
             }
         }
 

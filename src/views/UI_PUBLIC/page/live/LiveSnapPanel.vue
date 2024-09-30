@@ -3,7 +3,7 @@
  * @Date: 2024-07-19 13:37:26
  * @Description: 现场预览-目标检测视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-14 11:56:10
+ * @LastEditTime: 2024-09-27 09:59:13
 -->
 <template>
     <div class="snap">
@@ -108,8 +108,8 @@
         flex-shrink: 0;
         width: 100%;
         height: 33px;
-        border-top: 1px solid var(--border-color7);
-        border-bottom: 1px solid var(--border-color7);
+        border-top: 1px solid var(--input-border);
+        border-bottom: 1px solid var(--input-border);
         line-height: 33px;
         text-align: center;
         display: flex;
@@ -120,13 +120,14 @@
         & > div {
             width: 50%;
             height: 100%;
+
             &.active {
-                background-color: var(--primary--04);
-                color: var(--text-active);
+                background-color: var(--primary);
+                color: var(--main-text-active);
             }
 
             &:first-child {
-                border-right: 1px solid var(--border-color7);
+                border-right: 1px solid var(--input-border);
             }
         }
     }

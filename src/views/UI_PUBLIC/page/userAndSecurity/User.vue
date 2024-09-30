@@ -220,7 +220,7 @@
         margin-top: 12px;
 
         .title {
-            border-left: 3px solid var(--border-color2);
+            border-left: 3px solid var(--content-border);
             height: 30px;
             line-height: 30px;
             padding-left: 15px;
@@ -254,7 +254,7 @@
         ul {
             display: flex;
             justify-content: center;
-            border: 1px solid var(--border-color2);
+            border: 1px solid var(--content-border);
             margin: 0;
             padding: 5px;
             flex-shrink: 0;

@@ -3,7 +3,7 @@
  * @Date: 2024-08-12 14:37:28
  * @Description: POS信息弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-14 17:29:49
+ * @LastEditTime: 2024-09-27 10:44:11
 -->
 <template>
     <el-dialog
@@ -72,7 +72,7 @@
             width: 100%;
             height: 330px;
             margin-top: 5px;
-            border: 1px solid var(--border-color3);
+            border: 1px solid var(--content-border);
             box-sizing: border-box;
             padding: 5px;
         }

@@ -3,7 +3,7 @@
  * @Date: 2024-05-07 20:42:33
  * @Description: 功能面板
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-25 10:46:20
+ * @LastEditTime: 2024-09-27 11:30:30
  */
 
 import { config } from '@/router/featureConfig/RouteUtil'
@@ -42,7 +42,7 @@ export default defineComponent({
          * @description 点击主菜单，跳转默认子菜单
          * @param {RouteRecordRawExtends} moduleItem
          */
-        const toDefault = function (moduleItem: RouteRecordRawExtends) {
+        const toDefault = (moduleItem: RouteRecordRawExtends) => {
             const defaultMenu = moduleItem.children?.find((o) => o.meta?.default === true) as RouteRecordRaw
             if (defaultMenu) {
                 router.push(defaultMenu?.meta?.fullPath as string)

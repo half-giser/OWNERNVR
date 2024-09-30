@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-21 15:34:24
  * @Description: 异常报警
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-25 18:06:55
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-29 15:02:22
 -->
 <template>
     <div class="base-flex-box">
@@ -314,22 +314,21 @@
                 </el-table-column>
             </el-table>
         </div>
-        <el-row class="base-btn-box">
-            <el-col :span="12">
-                <span id="txtTips">{{ Translate('IDCS_DISK_FAILURE_TIPS').formatForLang(Translate('IDCS_DISK_FAILURE')) }}</span>
-            </el-col>
-            <el-col
-                id="btn_col"
-                :span="12"
-            >
+        <el-row
+            class="base-btn-box"
+            :span="2"
+        >
+            <div>
+                {{ Translate('IDCS_DISK_FAILURE_TIPS').formatForLang(Translate('IDCS_DISK_FAILURE')) }}
+            </div>
+            <div>
                 <el-button
-                    id="btnApply"
                     :disabled="pageData.applyDisable"
                     @click="setData"
                 >
                     {{ Translate('IDCS_APPLY') }}
                 </el-button>
-            </el-col>
+            </div>
         </el-row>
     </div>
 </template>
@@ -347,10 +346,5 @@
     display: flex;
     align-items: center;
     justify-content: center;
-}
-#btn_col {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
 }
 </style>

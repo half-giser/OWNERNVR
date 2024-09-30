@@ -85,7 +85,7 @@
 
 #layout2 {
     width: 100%;
-    border: solid 1px var(--border-color2);
+    border: solid 1px var(--content-border);
     min-height: 100%;
     // min-height: calc(100vh - 172px);
     position: relative;
@@ -102,41 +102,41 @@
     z-index: 1;
     display: flex;
     flex-direction: column;
-    background-color: var(--bg-config-menu);
+    background-color: var(--config-aside-bg);
 }
 
 .menu-group {
     width: 237px;
-    border: solid 1px var(--border-color2);
+    border: solid 1px var(--content-border);
     padding: 20px;
     margin: 0px 0px -1px 0px;
     position: relative;
     flex-shrink: 0;
-    background-color: var(--bg-config-menu-item, var(--bg-config-menu));
+    background-color: var(--config-aside-item-bg, var(--config-aside-bg));
 
     &.is-active {
-        background-color: var(--bg-color-cfg-menu-active);
+        background-color: var(--config-aside-item-bg-active);
 
         .main-menu span {
-            color: var(--text-menu-03-active);
+            color: var(--config-aside-text-active);
             &:hover {
-                color: var(--text-menu-03-active);
+                color: var(--config-aside-text-active);
             }
         }
 
         .sub-menus span {
-            color: var(--text-menu-03-active);
+            color: var(--config-aside-text-active);
             &:not(:last-of-type):after {
-                background-color: var(--text-menu-03-active);
+                background-color: var(--config-aside-text-active);
             }
             &:hover {
-                color: var(--text-menu-03-active);
+                color: var(--config-aside-text-active);
             }
         }
     }
 
     &:hover {
-        border: solid 1px var(--primary--04);
+        border: solid 1px var(--primary);
         z-index: 100;
     }
 
@@ -147,7 +147,7 @@
 
 .rest {
     width: 237px;
-    border: solid 1px var(--border-color2);
+    border: solid 1px var(--content-border);
     height: 100%;
 }
 
@@ -162,10 +162,10 @@
         text-decoration: none;
         cursor: pointer;
         font-weight: bold;
-        color: var(--text-menu-03);
+        color: var(--config-aside-text);
 
         &:hover {
-            color: var(--text-menu-03-hover);
+            color: var(--config-aside-text-hover);
             text-decoration: underline;
         }
     }
@@ -178,10 +178,10 @@
         font-size: 13px;
         text-decoration: none;
         cursor: pointer;
-        color: var(--text-menu-03);
+        color: var(--config-aside-text);
 
         &:hover {
-            color: var(--text-menu-03-hover);
+            color: var(--config-aside-text-hover);
             text-decoration: underline;
         }
 
@@ -193,14 +193,14 @@
             top: 2px;
             width: 1px;
             height: 15px;
-            background-color: var(--text-menu-03);
+            background-color: var(--config-aside-text);
         }
     }
 }
 
 .el-menu {
-    border-bottom: solid 1px var(--border-color2);
-    border-right: solid 1px var(--border-color2);
+    border-bottom: solid 1px var(--content-border);
+    border-right: solid 1px var(--content-border);
     overflow: hidden;
 
     .el-menu-item {
@@ -213,13 +213,13 @@
 #layout2Right {
     position: relative;
     padding: 0px;
-    background-color: var(--page-bg);
+    background-color: var(--main-bg);
 
     #layout2RightTopBar {
         display: flex;
         width: 100%;
         height: 35px;
-        border-bottom: solid 1px var(--border-color2);
+        border-bottom: solid 1px var(--content-border);
         background-color: var(--bg-nav, transparent);
 
         #layout2RightTopBarNav {
@@ -235,10 +235,10 @@
                 text-decoration: none;
                 margin: 0 3px 0 3px;
                 display: inline-block;
-                color: var(--text-nav);
+                color: var(--breadcrumb-text);
 
                 &:hover {
-                    color: var(--primary--04);
+                    color: var(--primary);
                 }
 
                 span {

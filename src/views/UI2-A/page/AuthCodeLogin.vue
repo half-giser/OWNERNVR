@@ -144,7 +144,7 @@
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    border-bottom: 3px solid var(--primary--04);
+    border-bottom: 3px solid var(--primary);
     position: relative;
     &:after {
         content: '';
@@ -163,7 +163,7 @@
     font-size: 16px;
     border: 1px solid var(--color-black);
     display: flex;
-    background-color: var(--bg-color);
+    background-color: var(--input-bg);
 
     &.disabled {
         background-color: var(--authcode-input-bg-disabled);
@@ -208,7 +208,7 @@
     background: no-repeat var(--img-authcodelogin-content);
     background-position: center center;
     background-repeat: no-repeat;
-    background-color: var(--authcode-content-bg, var(--page-bg));
+    background-color: var(--authcode-content-bg, var(--main-bg));
     padding-inline: 10px;
 
     #n9web & {
@@ -272,9 +272,9 @@
     .el-button.is-link {
         margin-left: 10px;
         font-size: 18px;
-        color: var(--primary--04);
+        color: var(--primary);
         &:hover {
-            color: var(--primary--04);
+            color: var(--primary);
             opacity: 0.8;
         }
     }
@@ -295,7 +295,7 @@
     position: absolute;
     top: calc(100% + 20px);
     left: 20px;
-    color: var(--error--01);
+    color: var(--color-error);
 }
 
 // .authCodeLogin-footer {
@@ -303,7 +303,7 @@
 //     left: 0;
 //     bottom: 10px;
 //     width: 100%;
-//     color: var(--text-menu-01);
+//     color: var(--header-menu-text);
 
 //     p {
 //         width: 100%;
@@ -314,7 +314,7 @@
 //     }
 
 //     a {
-//         color: var(--primary--04);
+//         color: var(--primary);
 //     }
 // }
 </style>
