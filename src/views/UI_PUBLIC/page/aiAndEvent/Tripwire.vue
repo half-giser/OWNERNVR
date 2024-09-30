@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-19 11:11:35
  * @Description:  越界
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 15:27:46
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-09-30 17:01:16
 -->
 
 <template>
@@ -110,7 +110,7 @@
         <div v-if="!tripwireData.notSupportTipShow && !tripwireData.requireDataFail">
             <!-- nvr/ipc检测开启及ai按钮 -->
             <div
-                class="base-btn-box"
+                class="base-btn-box padding collapse"
                 :span="2"
             >
                 <div>
@@ -390,8 +390,8 @@
                         <el-form
                             :model="tripwireData"
                             label-position="left"
+                            label-width="auto"
                             :style="{
-                                '--form-label-width': '200px',
                                 '--form-input-width': '300px',
                             }"
                         >
@@ -643,8 +643,8 @@
 // 高级设置
 .more_wrap {
     position: absolute;
-    right: 20px;
-    top: 50px;
+    right: 13px;
+    top: 42px;
     cursor: pointer;
     z-index: 1;
 }
@@ -665,5 +665,8 @@
 .table_item {
     display: flex;
     justify-content: flex-start;
+}
+.base-ai-linkage-title > .el-checkbox {
+    margin-right: 10px;
 }
 </style>

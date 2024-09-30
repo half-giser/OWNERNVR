@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-19 13:35:56
  * @Description:  区域入侵
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 15:27:06
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-09-30 16:47:04
 -->
 <template>
     <div class="pea_setting_pane">
@@ -717,7 +717,7 @@
 // 高级设置
 .more_wrap {
     position: absolute;
-    right: 20px;
+    right: 13px;
     top: 41px;
     cursor: pointer;
     z-index: 1;
