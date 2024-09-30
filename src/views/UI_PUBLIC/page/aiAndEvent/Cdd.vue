@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-19 17:51:14
  * @Description: 人群密度检测
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 15:21:52
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-09-30 16:26:02
 -->
 <template>
     <div class="tripwire_setting_pane">
@@ -49,10 +49,10 @@
             {{ Translate('IDCS_QUERY_DATA_FAIL') }}
         </div>
         <div v-if="!pageData.notSupportTipShow && !pageData.requireDataFail">
-            <!-- 检测开启及ai按钮 -->
+            <!-- 检测开启-->
             <div
-                class="base-btn-box"
-                span="start"
+                class="base-btn-box padding collapse"
+                :span="2"
             >
                 <el-checkbox
                     v-model="pageData.detectionEnable"
