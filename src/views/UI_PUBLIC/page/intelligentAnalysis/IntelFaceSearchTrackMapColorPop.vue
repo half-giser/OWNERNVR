@@ -81,7 +81,7 @@
         justify-content: center;
 
         span {
-            background-color: var(--primary--04);
+            background-color: var(--primary);
         }
     }
 
@@ -98,14 +98,14 @@
             border: 1px solid transparent;
 
             &.active {
-                border-color: var(--border-dark);
+                border-color: var(--intel-snap-border);
             }
 
             div {
                 width: 100%;
                 height: 100%;
                 box-sizing: border-box;
-                border: 1px solid var(--border-dark);
+                border: 1px solid var(--intel-snap-border);
             }
         }
     }

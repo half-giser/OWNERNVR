@@ -3,7 +3,7 @@
  * @Date: 2024-07-30 09:32:36
  * @Description: 回放-通道视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-23 14:28:40
+ * @LastEditTime: 2024-09-26 15:23:03
 -->
 <template>
     <div class="left">
@@ -237,7 +237,7 @@
         }
 
         i {
-            border-right: 8px solid #2c3039;
+            border-right: 8px solid var(--panel-header-text);
             border-top: 8px solid transparent;
             border-bottom: 8px solid transparent;
             border-left: 8px solid transparent;
@@ -269,7 +269,7 @@
         }
 
         &:hover i {
-            border-right-color: var(--primary--04);
+            border-right-color: var(--primary);
         }
     }
 
@@ -293,7 +293,7 @@
 
             &.active {
                 background-color: var(--panel-menu-bg-active);
-                border-top-color: var(--primary--04);
+                border-top-color: var(--primary);
             }
         }
     }
@@ -316,13 +316,13 @@
         }
 
         &-search {
-            background-color: var(--bg-color2);
+            background-color: var(--btn-bg);
             margin-left: 5px;
             cursor: pointer;
             flex-shrink: 0;
 
             &:hover {
-                background-color: var(--bg-color3);
+                background-color: var(--btn-bg-hover);
             }
         }
 
@@ -368,7 +368,7 @@
             padding-bottom: 10px;
             width: 90%;
             height: 1px;
-            border-top: 1px solid var(--border-color2);
+            border-top: 1px solid var(--content-border);
             position: relative;
             margin: 0 auto;
             cursor: n-resize;
@@ -380,7 +380,7 @@
                 left: calc(50% - 15px);
                 width: 30px;
                 height: 1px;
-                border-top: 1px solid var(--border-color2);
+                border-top: 1px solid var(--content-border);
             }
 
             &:after {
@@ -390,7 +390,7 @@
                 left: calc(50% - 15px);
                 width: 30px;
                 height: 1px;
-                border-top: 1px solid var(--border-color2);
+                border-top: 1px solid var(--content-border);
             }
         }
     }
@@ -424,7 +424,7 @@
                     border-radius: 3px;
                 }
                 &:hover:after {
-                    border-color: var(--primary--04);
+                    border-color: var(--primary);
                 }
                 &.disabled:after {
                     border-color: var(--panel-btn-bg-disabled);

@@ -122,7 +122,6 @@ export default defineComponent({
         const handleDelReceiver = function (row: { address: string; schedule: string; rowClicked: boolean }) {
             openMessageTipBox({
                 type: 'question',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_DELETE_MP_EMAIL_RECEIVER_S').formatForLang(row['address']),
             }).then(() => {
                 const index = pageData.value.data.receiverData.indexOf(row)

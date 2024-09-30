@@ -111,13 +111,13 @@
 
 <style lang="scss" scoped>
 .info {
-    border-bottom: 1px solid var(--border-color7);
+    border-bottom: 1px solid var(--input-border);
     margin: 10px 0;
     padding-bottom: 20px;
 }
 
 .title {
-    border-left: 3px solid var(--border-color2);
+    border-left: 3px solid var(--content-border);
     height: 30px;
     line-height: 30px;
     padding-left: 15px;

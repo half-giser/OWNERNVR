@@ -2,15 +2,15 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-10 17:50:35
  * @Description: 更多功能页面的框架
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-26 11:30:55
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-30 14:15:33
  */
 import { type chlCaps } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
-import FireDetection from './FireDetection.vue'
+import FireDetection from './FireDetections.vue'
 import TemperatureDetection from './TemperatureDetection.vue'
 import ObjectLeft from './ObjectLeft.vue'
-import PassLine from './PassLine.vue'
+import PassLine from './PassLines.vue'
 import AbnormalDispose from './AbnormalDispose.vue'
 import Cdd from './Cdd.vue'
 import VideoStructure from './VideoStructure.vue'
@@ -330,7 +330,7 @@ export default defineComponent({
             pageData.value.videoStructureDisable = !pageData.value.chlData['supportVideoMetadata']
             pageData.value.passLineDisable = !(pageData.value.chlData['supportPassLine'] || pageData.value.chlData['supportCpc'])
             pageData.value.cddDisable = !pageData.value.chlData['supportCdd']
-            // pageData.value.cddDisable = false
+            pageData.value.cddDisable = false
             pageData.value.temperatureDetectionDisable = !pageData.value.chlData['supportTemperature']
             pageData.value.objectLeftDisable = !pageData.value.chlData['supportOsc']
             pageData.value.avdDisable = !pageData.value.chlData['supportAvd']

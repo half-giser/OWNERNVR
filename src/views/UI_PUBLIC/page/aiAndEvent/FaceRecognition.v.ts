@@ -2,8 +2,8 @@
  * @Description: AI 事件——人脸识别
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-28 13:42:09
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-26 15:55:34
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-30 15:10:01
  */
 import { ArrowDown } from '@element-plus/icons-vue'
 import { cloneDeep } from 'lodash-es'
@@ -360,9 +360,7 @@ export default defineComponent({
                 } else {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_NO_RESOURCE'),
-                        showCancelButton: false,
                     })
                     if (pageData.value.faceTab == 'faceDetection') {
                         faceDetectionData.value.enabledSwitch = false
@@ -950,10 +948,8 @@ export default defineComponent({
         // 删除AI资源行数据
         const handleDelAIResource = async (row: AIResource) => {
             openMessageTipBox({
-                type: 'info',
-                title: Translate('IDCS_INFO_TIP'),
+                type: 'question',
                 message: Translate('IDCS_DELETE_MP_S'),
-                showCancelButton: true,
             }).then(async () => {
                 let sendXml = rawXml`
                 <content>
@@ -1114,7 +1110,6 @@ export default defineComponent({
             if (faceDetectionData.value.preset.length > MAX_TRIGGER_PRESET_COUNT) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_PRESET_LIMIT'),
                 })
             }
@@ -1172,7 +1167,6 @@ export default defineComponent({
                 const switchChangeType = switchChangeTypeArr.join(',')
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_SIMPLE_FACE_DETECT_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + chlList[pageData.value.curChl].name, switchChangeType),
                 }).then(() => {
                     chlList[pageData.value.curChl].supportVfd ? setFaceDetectionData() : setFaceDetectionBackUpData()
@@ -1313,9 +1307,7 @@ export default defineComponent({
             if (taskTabs.value.length === 5) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_OVER_MAX_NUMBER_LIMIT'),
-                    showCancelButton: false,
                 })
                 return false
             }
@@ -1351,10 +1343,8 @@ export default defineComponent({
                 return false
             }
             openMessageTipBox({
-                type: 'info',
-                title: Translate('IDCS_INFO_TIP'),
+                type: 'question',
                 message: Translate('IDCS_DELETE_MP_S'),
-                showCancelButton: true,
             }).then(() => {
                 haveUseNameId = haveUseNameId.filter((item) => item != Number(comparePageData.value.compareTab[3]))
                 taskTabs.value = taskTabs.value.filter((item) => item.value != comparePageData.value.compareTab)
@@ -1494,20 +1484,16 @@ export default defineComponent({
             closeLoading(LoadingTarget.FullScreen)
 
             if ($('/response/status').text() !== 'success') {
-                const errorCode = $('/response/errorCode').text()
-                if (errorCode == '536871051') {
+                const errorCode = Number($('/response/errorCode').text())
+                if (errorCode == ErrorCode.USER_ERROR_LIMITED_PLATFORM_VERSION_MISMATCH) {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_MAX_CHANNEL_LIMIT').formatForLang(faceMatchLimitMaxChlNum),
-                        showCancelButton: false,
                     })
-                } else if (errorCode == '536871052') {
+                } else if (errorCode === ErrorCode.USER_ERROR_PC_LICENSE_MISMATCH) {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_MAX_CHANNEL_LIMIT').formatForLang(faceMatchLimitMaxChlNum) + Translate('IDCS_REBOOT_DEVICE').formatForLang(Translate('IDCS_ENABLE') + 'AI'),
-                        showCancelButton: false,
                     }).then(async () => {
                         //AISwitch 打开AI模式开关 NT-9997
                         const sendXml = `<content><AISwitch>true</AISwitch></content>`

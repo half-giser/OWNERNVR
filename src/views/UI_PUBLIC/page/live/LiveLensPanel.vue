@@ -142,12 +142,12 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        border: 1px solid var(--border-dark);
+        border: 1px solid var(--panel-snap-border);
         cursor: pointer;
         margin: 0 5px;
 
         &:hover {
-            background-color: var(--primary--01);
+            background-color: var(--primary-light);
         }
     }
 

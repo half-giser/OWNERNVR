@@ -2,13 +2,13 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-11 14:16:37
  * @Description: 火点检测
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-25 14:28:13
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-30 14:06:54
  */
 import { ArrowDown } from '@element-plus/icons-vue'
 import { type chlCaps, type aiResourceRow } from '@/types/apiType/aiAndEvent'
 import { type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
-import { ElDivider, type TabsPaneContext } from 'element-plus'
+import { type TabsPaneContext } from 'element-plus'
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import BaseTransferDialog from '@/components/BaseTransferDialog.vue'
 import { cloneDeep } from 'lodash-es'
@@ -16,7 +16,6 @@ import { queryAIResourceDetail } from '@/api/aiAndEvent'
 export default defineComponent({
     components: {
         ArrowDown,
-        ElDivider,
         ScheduleManagPop,
         BaseTransferDialog,
     },
@@ -324,7 +323,6 @@ export default defineComponent({
                 } else {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_NO_RESOURCE'),
                     })
                     // 资源占用率超过100
@@ -355,7 +353,6 @@ export default defineComponent({
         const handleAIResourceDel = async (row: aiResourceRow) => {
             openMessageTipBox({
                 type: 'question',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_DELETE_MP_S'),
             }).then(() => {
                 deleteAIResource(row)
@@ -848,13 +845,11 @@ export default defineComponent({
                 pageData.value.applyDisable = true
                 openMessageTipBox({
                     type: 'success',
-                    title: Translate('IDCS_SUCCESS_TIP'),
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
             } else {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_SAVE_DATA_FAIL'),
                 })
             }
@@ -885,7 +880,6 @@ export default defineComponent({
                 const switchChangeType = switchChangeTypeArr.join(',')
                 openMessageTipBox({
                     type: 'question',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_FIRE_POINT_DETECT_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + pageData.value.chlData['name'], switchChangeType),
                 }).then(() => {
                     saveData()
@@ -912,6 +906,7 @@ export default defineComponent({
             await getData()
             await getPresetList()
             pageData.value.initComplete = true
+            // pageData.value.requireDataFail = true
         }
         onMounted(async () => {
             await initPageData()

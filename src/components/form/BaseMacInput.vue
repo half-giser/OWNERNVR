@@ -213,7 +213,7 @@ const handleBlur = (index: number) => {
     --el-input-inner-height: 28px;
 
     align-items: left;
-    border: 1px solid var(--border-color7);
+    border: 1px solid var(--input-border);
     border-radius: var(--el-input-border-radius, var(--el-border-radius-base));
     box-shadow: 0 0 0 1px var(--el-input-border-color, var(--el-border-color)) inset;
     cursor: text;
@@ -231,17 +231,17 @@ const handleBlur = (index: number) => {
     &:hover,
     &.is-focus {
         box-shadow: 0 0 0 1px var(--el-input-hover-border-color) inset;
-        border-color: var(--primary--04);
+        border-color: var(--primary);
 
         &.disabled {
-            background-color: var(--bg-color-disabled);
+            background-color: var(--input-bg-disabled);
             border-color: var(--border-color-disabled);
         }
     }
 
     &.disabled {
         box-shadow: none;
-        background-color: var(--bg-color-disabled);
+        background-color: var(--input-bg-disabled);
         border-color: var(--border-color-disabled);
         color: var(--el-disabled-text-color);
         cursor: not-allowed;
@@ -271,7 +271,7 @@ const handleBlur = (index: number) => {
     }
 
     span {
-        color: var(--text-input);
+        color: var(--input-text);
     }
 }
 </style>

@@ -300,7 +300,6 @@ export default defineComponent({
                 if (res('status').text() == 'success') {
                     openMessageTipBox({
                         type: 'success',
-                        title: Translate('IDCS_SUCCESS_TIP'),
                         message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                     })
                 } else {
@@ -308,7 +307,6 @@ export default defineComponent({
                     if (errorCode == '536870953') {
                         openMessageTipBox({
                             type: 'info',
-                            title: Translate('IDCS_INFO_TIP'),
                             message: Translate('IDCS_DISARM_SAVE_INVALID'),
                         })
                     }
@@ -389,7 +387,6 @@ export default defineComponent({
                 if (flagIdx >= 0) {
                     openMessageTipBox({
                         type: 'question',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_DISARM_INPUT_SENSOR_TIP').formatForLang(sensorName),
                     }).then(() => {
                         tableData.value.splice(flagIdx, 1)
@@ -408,7 +405,6 @@ export default defineComponent({
             if (!pageData.value.defenseSwitch) {
                 openMessageTipBox({
                     type: 'question',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_CLOSE_GUARD_QUESTION_TIP'),
                 }).then(() => {
                     pageData.value.defenseSwitch = true
@@ -416,7 +412,6 @@ export default defineComponent({
             } else {
                 openMessageTipBox({
                     type: 'question',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_RECOVER_GUARD_QUESTION_TIP'),
                 }).then(() => {
                     pageData.value.defenseSwitch = false
@@ -524,7 +519,6 @@ export default defineComponent({
         const deleteItem = (row: SystemDisarm) => {
             openMessageTipBox({
                 type: 'question',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_DELETE_MP_S'),
             }).then(() => {
                 tableData.value.forEach((item: SystemDisarm) => {
@@ -540,7 +534,6 @@ export default defineComponent({
         const deleteItemAll = () => {
             openMessageTipBox({
                 type: 'question',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_DELETE_ALL_ITEMS'),
             }).then(() => {
                 tableData.value = []

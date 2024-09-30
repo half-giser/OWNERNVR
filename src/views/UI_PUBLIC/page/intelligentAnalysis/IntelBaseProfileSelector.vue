@@ -99,7 +99,7 @@
     font-weight: bold;
     padding: 0 10px;
     margin: 15px 0;
-    border-left: 5px solid var(--border-color2);
+    border-left: 5px solid var(--content-border);
 }
 
 .sub-box {
@@ -141,11 +141,11 @@
     margin: 5px 10px;
     text-align: center;
     font-size: 12px;
-    border: 1px solid var(--border-color7);
+    border: 1px solid var(--input-border);
 
     &.active {
-        border-color: var(--primary--04);
-        color: var(--primary--04);
+        border-color: var(--primary);
+        color: var(--primary);
     }
 }
 

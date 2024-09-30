@@ -1,0 +1,97 @@
+/*
+ * @Author: yejiahao yejiahao@tvt.net.cn
+ * @Date: 2024-09-26 15:32:02
+ * @Description: UI2-A 客制化功能面板
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-26 15:32:34
+ */
+import { config } from '@/router/featureConfig/RouteUtil'
+import { getMenuItems } from '@/router'
+
+export default defineComponent({
+    setup() {
+        const router = useRouter()
+        //去掉在控制面板不需要显示的菜单项，并排序
+        const configModules = ref<RouteRecordRawExtends[]>([])
+
+        const pageData = ref({
+            // 选中的一级菜单
+            mainMenuIndex: 0,
+            // 选中的二级菜单
+            subMenuIndex: '',
+        })
+
+        /**
+         * @description 获取功能面板的菜单列表
+         */
+        const getConfigModule = () => {
+            configModules.value = getMenuItems(config.children as RouteRecordRawExtends[]).filter((item) => !!item.meta?.groups)
+            getDefaultTriMenu()
+        }
+
+        // 二级菜单
+        const subMenu = computed(() => {
+            if (!configModules.value[pageData.value.mainMenuIndex]?.meta.groups) {
+                return []
+            }
+            return Object.entries(configModules.value[pageData.value.mainMenuIndex].meta.groups!).toSorted((a, b) => {
+                return a[1].sort! - b[1].sort!
+            })
+        })
+
+        // 三级菜单
+        const triMenu = computed(() => {
+            if (!configModules.value[pageData.value.mainMenuIndex]) {
+                return []
+            }
+            return configModules.value[pageData.value.mainMenuIndex].children.filter((item) => item.meta.group === pageData.value.subMenuIndex).toSorted((a, b) => a.meta.sort! - b.meta.sort!)
+        })
+
+        /**
+         * @description 获取默认的三级菜单
+         */
+        const getDefaultTriMenu = () => {
+            const groups = configModules.value[pageData.value.mainMenuIndex].meta.groups!
+            pageData.value.subMenuIndex = Object.keys(groups)[0]
+        }
+
+        /**
+         * @description 跳转配置页
+         * @param {RouteRecordRawExtends} moduleItem
+         */
+        const goToPage = (moduleItem: RouteRecordRawExtends) => {
+            router.push(moduleItem.meta.fullPath)
+        }
+
+        /**
+         * @description 切换一级菜单
+         * @param {number} key
+         */
+        const changeMainMenu = (key: number) => {
+            pageData.value.mainMenuIndex = key
+            getDefaultTriMenu()
+        }
+
+        /**
+         * @description 切换二级菜单
+         * @param {string} key
+         */
+        const changeSubMenu = (key: string) => {
+            pageData.value.subMenuIndex = key
+        }
+
+        onMounted(() => {
+            getConfigModule()
+        })
+
+        return {
+            goToPage,
+            pageData,
+            configModules,
+            changeMainMenu,
+            changeSubMenu,
+            subMenu,
+            triMenu,
+        }
+    },
+})

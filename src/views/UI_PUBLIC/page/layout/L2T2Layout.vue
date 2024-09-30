@@ -55,22 +55,22 @@
 
 <style lang="scss" scoped>
 #layout2 {
-    border: solid 1px var(--border-color2);
+    border: solid 1px var(--content-border);
     min-height: calc(100vh - 172px);
     width: 100%;
 }
 
 #layout2Header {
-    background-color: var(--page-bg);
+    background-color: var(--main-bg);
     padding: 0px;
     height: 38px;
-    border-bottom: solid 1px var(--border-color2);
+    border-bottom: solid 1px var(--content-border);
 }
 
 #layout2Main {
     flex: auto 1 1;
     padding: 0px;
-    background-color: var(--page-bg);
+    background-color: var(--main-bg);
     display: flex;
 }
 </style>

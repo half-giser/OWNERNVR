@@ -327,8 +327,8 @@
         height: 50px;
         display: flex;
         align-items: center;
-        background-color: var(--bg-table-thead);
-        border: 1px solid var(--border-color2);
+        background-color: var(--table-thead-bg);
+        border: 1px solid var(--content-border);
 
         & > div {
             padding: 0 20px;
@@ -336,7 +336,7 @@
             border-bottom: 5px solid transparent;
 
             &.active {
-                border-color: var(--primary--04);
+                border-color: var(--primary);
             }
         }
     }
@@ -347,20 +347,20 @@
         overflow-y: hidden;
         width: 100%;
         display: flex;
-        border: 1px solid var(--border-color2);
+        border: 1px solid var(--content-border);
     }
 
     .left {
         width: 100%;
         height: 100%;
-        border-right: 1px solid var(--border-color2);
+        border-right: 1px solid var(--content-border);
         display: flex;
         flex-direction: column;
     }
 
     .top {
         position: relative;
-        border-bottom: 1px solid var(--border-color2);
+        border-bottom: 1px solid var(--content-border);
         display: flex;
         width: 100%;
         height: 60px;
@@ -379,11 +379,11 @@
                 cursor: pointer;
                 padding: 0 20px;
                 margin-left: 10px;
-                background-color: var(--bg-table-thead);
-                border: 1px solid var(--border-color2);
+                background-color: var(--table-thead-bg);
+                border: 1px solid var(--content-border);
 
                 &.active {
-                    background-color: var(--primary--04);
+                    background-color: var(--primary);
                     color: white;
                 }
             }
@@ -410,14 +410,14 @@
             display: flex;
             width: 100%;
             height: calc(100% - 50px);
-            border-bottom: 1px solid var(--border-color2);
+            border-bottom: 1px solid var(--content-border);
         }
 
         &-left {
             width: 260px;
             // flex-grow: 1;
             height: 100%;
-            border-right: 1px solid var(--border-color2);
+            border-right: 1px solid var(--content-border);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -430,7 +430,7 @@
             flex-shrink: 0;
             width: 100%;
             line-height: 50px;
-            border-bottom: 1px solid var(--border-color2);
+            border-bottom: 1px solid var(--content-border);
         }
 
         &-thumbnail {
@@ -458,7 +458,7 @@
                 height: 20px;
                 line-height: 20px;
                 text-align: center;
-                background-color: var(--bg-table-thead);
+                background-color: var(--table-thead-bg);
                 cursor: pointer;
             }
 
@@ -483,8 +483,8 @@
             align-items: center;
             width: 120px;
             margin: 10px 0;
-            background-color: var(--bg-table-thead);
-            border: 1px solid var(--border-color2);
+            background-color: var(--table-thead-bg);
+            border: 1px solid var(--content-border);
             cursor: pointer;
         }
 
@@ -522,7 +522,7 @@
             height: 100%;
             display: flex;
             align-items: center;
-            border-left: 1px solid var(--border-color2);
+            border-left: 1px solid var(--content-border);
 
             span {
                 cursor: pointer;
@@ -571,11 +571,11 @@
             & > div {
                 height: 40px;
                 line-height: 40px;
-                border-bottom: 1px solid var(--border-color2);
+                border-bottom: 1px solid var(--content-border);
                 text-align: center;
 
                 &.active {
-                    background-color: var(--primary--04);
+                    background-color: var(--primary);
                     color: white;
                 }
             }
@@ -592,8 +592,8 @@
             // height: 0px;
             flex-shrink: 0;
             padding: 10px 0;
-            border-top: 1px solid var(--border-color2);
-            border-bottom: 1px solid var(--border-color2);
+            border-top: 1px solid var(--content-border);
+            border-bottom: 1px solid var(--content-border);
             display: flex;
             justify-content: center;
         }
@@ -621,11 +621,11 @@
 
                 &:hover,
                 &.active {
-                    border-color: var(--primary--04);
+                    border-color: var(--primary);
                 }
 
                 &.active {
-                    background-color: var(--primary--04);
+                    background-color: var(--primary);
                     color: white;
                 }
             }

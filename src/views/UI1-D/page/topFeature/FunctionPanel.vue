@@ -3,7 +3,7 @@
  * @Date: 2024-09-24 16:46:13
  * @Description: UI1-D客制化 功能面板
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-25 10:49:28
+ * @LastEditTime: 2024-09-27 11:23:39
 -->
 <template>
     <div class="config-home">
@@ -68,7 +68,7 @@
 
     &-wrapper {
         width: 714px;
-        border: 1px solid var(--border-color1);
+        border: 1px solid var(--main-border);
     }
 
     &-menu {
@@ -83,8 +83,8 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            color: var(--text-menu-04);
-            background-color: var(--bg-menu-04);
+            color: var(--config-menu-text);
+            background-color: var(--config-menu-bg);
             font-size: 14px;
             cursor: pointer;
             margin: 0 1px;
@@ -94,17 +94,17 @@
             }
 
             &:hover {
-                color: var(--text-menu-04-hover);
-                background-color: var(--bg-menu-04-hover);
+                color: var(--config-menu-text-hover);
+                background-color: var(--config-menu-bg-hover);
             }
 
             &.active {
-                color: var(--text-menu-04-active);
-                background-color: var(--bg-menu-04-hover);
+                color: var(--config-menu-text-active);
+                background-color: var(--config-menu-bg-hover);
 
                 &:hover {
-                    color: var(--text-menu-04-active);
-                    background-color: var(--bg-menu-04-active);
+                    color: var(--config-menu-text-active);
+                    background-color: var(--config-menu-bg-active);
                 }
             }
         }
@@ -113,7 +113,7 @@
     &-submenu {
         width: 100%;
         height: 310px;
-        background-color: var(--bg-menu-05);
+        background-color: var(--config-submenu-bg);
 
         &-content {
             padding: 20px 20px 20px 80px;
@@ -135,10 +135,10 @@
         &-item {
             line-height: 2;
             cursor: pointer;
-            color: var(--text-menu-05);
+            color: var(--config-submenu-text);
 
             &:hover {
-                color: var(--text-menu-05-hover);
+                color: var(--config-submenu-text-hover);
             }
         }
     }

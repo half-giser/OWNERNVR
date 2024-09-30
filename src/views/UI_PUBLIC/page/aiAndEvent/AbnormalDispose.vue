@@ -2,24 +2,24 @@
  * @Description: AI 事件——更多——异常侦测
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-19 09:27:27
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-26 15:08:39
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-30 09:29:19
 -->
 <template>
     <div class="abnormal_dispose">
-        <div :style="{ position: 'relative' }">
+        <div>
             <el-tabs
                 v-model="pageData.tab"
-                class="menu_tab"
+                class="base-ai-tabs"
                 @tab-change="tabChange"
             >
                 <!-- 参数设置 -->
                 <el-tab-pane
                     :label="Translate('IDCS_PARAM_SETTING')"
                     name="param"
-                    class="param"
+                    class="base-ai-param-box"
                 >
-                    <div class="param_left">
+                    <div class="base-ai-param-box-left">
                         <div class="player">
                             <BaseVideoPlayer
                                 ref="playerRef"
@@ -28,7 +28,7 @@
                             />
                         </div>
                     </div>
-                    <div class="param_right">
+                    <div class="base-ai-param-box-right">
                         <el-form
                             class="narrow"
                             :style="{
@@ -38,7 +38,7 @@
                             inline-message
                         >
                             <!-- 规则 -->
-                            <div class="title">{{ Translate('IDCD_RULE') }}</div>
+                            <div class="base-ai-subheading">{{ Translate('IDCD_RULE') }}</div>
                             <!-- 持续时间 -->
                             <el-form-item :label="Translate('IDCS_DURATION')">
                                 <el-select
@@ -112,9 +112,10 @@
                                     :show-tooltip="false"
                                     :min="1"
                                     :max="100"
-                                    :style="{ width: '215px' }"
+                                    size="small"
+                                    :show-input-controls="false"
+                                    show-input
                                 />
-                                <span class="sensitivity_span">{{ abnormalDisposeData.sensitivity }}</span>
                             </el-form-item>
                         </el-form>
                     </div>
@@ -146,117 +147,112 @@
                             </el-select>
                         </el-form-item>
                     </el-form>
-                    <!-- 常规联动 -->
-                    <div
-                        class="linkage_box"
-                        :style="{ marginLeft: '15px' }"
-                    >
-                        <el-checkbox
-                            v-model="normalParamCheckAll"
-                            class="normal_param_title"
-                            @change="handleNormalParamCheckAll"
-                            >{{ Translate('IDCS_TRIGGER_NOMAL') }}</el-checkbox
-                        >
-                        <el-checkbox-group
-                            v-model="normalParamCheckList"
-                            @change="handleNormalParamCheck"
-                        >
+                    <div class="base-ai-linkage-content">
+                        <!-- 常规联动 -->
+                        <div class="base-ai-linkage-box">
                             <el-checkbox
-                                v-for="item in normalParamList"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
+                                v-model="normalParamCheckAll"
+                                class="base-ai-linkage-title"
+                                @change="handleNormalParamCheckAll"
+                                >{{ Translate('IDCS_TRIGGER_NOMAL') }}</el-checkbox
                             >
-                            </el-checkbox>
-                        </el-checkbox-group>
-                    </div>
-                    <!-- 录像 -->
-                    <div class="linkage_box">
-                        <div class="linkage_title">
-                            <span>{{ `${Translate('IDCS_RECORD')} ` }}</span>
-                            <el-button
-                                size="small"
-                                class="form_btn"
-                                @click="pageData.recordIsShow = true"
-                                >{{ Translate('IDCS_CONFIG') }}</el-button
+                            <el-checkbox-group
+                                v-model="normalParamCheckList"
+                                @change="handleNormalParamCheck"
                             >
+                                <el-checkbox
+                                    v-for="item in normalParamList"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value"
+                                >
+                                </el-checkbox>
+                            </el-checkbox-group>
                         </div>
-                        <el-table
-                            :data="abnormalDisposeData.record"
-                            :show-header="false"
-                        >
-                            <el-table-column prop="label" />
-                        </el-table>
-                    </div>
-                    <!-- 报警输出 -->
-                    <div class="linkage_box">
-                        <div class="linkage_title">
-                            <span>{{ `${Translate('IDCS_ALARM_OUT')} ` }}</span>
-                            <el-button
-                                size="small"
-                                class="form_btn"
-                                @click="pageData.alarmOutIsShow = true"
-                                >{{ Translate('IDCS_CONFIG') }}</el-button
+                        <!-- 录像 -->
+                        <div class="base-ai-linkage-box">
+                            <div class="base-ai-linkage-title">
+                                <span>{{ `${Translate('IDCS_RECORD')} ` }}</span>
+                                <el-button
+                                    size="small"
+                                    @click="pageData.recordIsShow = true"
+                                    >{{ Translate('IDCS_CONFIG') }}</el-button
+                                >
+                            </div>
+                            <el-table
+                                :data="abnormalDisposeData.record"
+                                :show-header="false"
                             >
+                                <el-table-column prop="label" />
+                            </el-table>
                         </div>
-                        <el-table
-                            :data="abnormalDisposeData.alarmOut"
-                            :show-header="false"
-                        >
-                            <el-table-column prop="label" />
-                        </el-table>
-                    </div>
-                    <!-- 联动预置点 -->
-                    <div
-                        class="linkage_box"
-                        :style="{ width: '350px' }"
-                    >
+                        <!-- 报警输出 -->
+                        <div class="base-ai-linkage-box">
+                            <div class="base-ai-linkage-title">
+                                <span>{{ `${Translate('IDCS_ALARM_OUT')} ` }}</span>
+                                <el-button
+                                    size="small"
+                                    @click="pageData.alarmOutIsShow = true"
+                                    >{{ Translate('IDCS_CONFIG') }}</el-button
+                                >
+                            </div>
+                            <el-table
+                                :data="abnormalDisposeData.alarmOut"
+                                :show-header="false"
+                            >
+                                <el-table-column prop="label" />
+                            </el-table>
+                        </div>
+                        <!-- 联动预置点 -->
                         <div
-                            class="linkage_title"
-                            :style="{ width: '330px' }"
+                            class="base-ai-linkage-box"
+                            :style="{
+                                width: '350px',
+                            }"
                         >
-                            <span>{{ Translate('IDCS_TRIGGER_ALARM_PRESET') }}</span>
+                            <div class="base-ai-linkage-title">
+                                <span>{{ Translate('IDCS_TRIGGER_ALARM_PRESET') }}</span>
+                            </div>
+                            <el-table
+                                stripe
+                                border
+                                :data="PresetTableData"
+                            >
+                                <el-table-column
+                                    prop="name"
+                                    width="180px"
+                                    :label="Translate('IDCS_CHANNEL_NAME')"
+                                >
+                                </el-table-column>
+                                <el-table-column
+                                    width="170px"
+                                    :label="Translate('IDCS_PRESET_NAME')"
+                                >
+                                    <template #default="scope">
+                                        <el-select
+                                            v-model="scope.row.preset.value"
+                                            size="small"
+                                            :empty-values="[undefined, null]"
+                                            @change="presetChange(scope.row)"
+                                        >
+                                            <el-option
+                                                v-for="item in scope.row.presetList"
+                                                :key="item.value"
+                                                :label="item.label"
+                                                :value="item.value"
+                                            />
+                                        </el-select>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
                         </div>
-                        <el-table
-                            stripe
-                            border
-                            :data="PresetTableData"
-                        >
-                            <el-table-column
-                                prop="name"
-                                width="180px"
-                                :label="Translate('IDCS_CHANNEL_NAME')"
-                            >
-                            </el-table-column>
-                            <el-table-column
-                                width="170px"
-                                :label="Translate('IDCS_PRESET_NAME')"
-                            >
-                                <template #default="scope">
-                                    <el-select
-                                        v-model="scope.row.preset.value"
-                                        size="small"
-                                        :empty-values="[undefined, null]"
-                                        @change="presetChange(scope.row)"
-                                    >
-                                        <el-option
-                                            v-for="item in scope.row.presetList"
-                                            :key="item.value"
-                                            :label="item.label"
-                                            :value="item.value"
-                                        />
-                                    </el-select>
-                                </template>
-                            </el-table-column>
-                        </el-table>
                     </div>
                 </el-tab-pane>
             </el-tabs>
         </div>
-        <div class="page_bottom">
+        <div class="base-btn-box fixed">
             <el-button
                 :disabled="pageData.applyDisabled"
-                class="form_btn"
                 @click="applyAbnormalDisposeData"
                 >{{ Translate('IDCS_APPLY') }}</el-button
             >
@@ -291,202 +287,6 @@
 
 <script lang="ts" src="./AbnormalDispose.v.ts"></script>
 
-<style lang="scss" scoped>
-#n9web .el-form.narrow .el-form-item {
-    padding: 1px 0px 2px 12px;
-    margin-bottom: 0;
-}
-#n9web .el-table {
-    --el-table-tr-bg-color: white;
-}
-.form_btn {
-    width: fit-content;
-    height: 25px;
-    font-size: 14px;
-}
-.abnormal_dispose {
-    height: calc(100vh - 351px);
-    position: relative;
-    :deep() {
-        .el-form {
-            --el-form-label-font-size: 15px;
-            .el-checkbox {
-                color: black;
-                --el-checkbox-font-size: 15px;
-            }
-        }
-    }
-    .menu_tab {
-        :deep(.el-tabs__header) {
-            border-bottom: 1px solid var(--border-color2);
-        }
-        :deep(.el-tabs__item) {
-            width: fit-content;
-            font-size: 15px;
-            border: none;
-            padding: 0 20px !important;
-        }
-        /* 长分割线 */
-        :deep(.el-tabs__nav-wrap::after) {
-            position: static !important; //可以去掉长分割线
-            // background-color: var(--border-color2);
-        }
-
-        /* 去掉下划线 */
-        :deep(.el-tabs__active-bar) {
-            background-color: transparent !important;
-        }
-
-        :deep(.el-tabs__item:first-child) {
-            margin-left: 30px;
-        }
-        /* 鼠标选中时样式 */
-        :deep(.el-tabs__item.is-active) {
-            color: var(--primary--04);
-            background-color: transparent;
-            border: none;
-        }
-        /* 鼠标悬浮时样式 */
-        :deep(.el-tabs__item:hover) {
-            color: var(--primary--04);
-            cursor: pointer;
-            background-color: transparent;
-        }
-    }
-    .row_padding {
-        padding: 0px 20px;
-        :deep(.el-checkbox__label) {
-            font-size: 15px;
-            color: #000;
-            padding-left: 5px;
-        }
-    }
-    .title {
-        border-left: 3px solid var(--border-color2);
-        font-size: 15px;
-        height: 30px;
-        line-height: 30px;
-        padding-left: 8px;
-    } // 参数设置
-    .title:first-child {
-        margin-bottom: 10px;
-    }
-    .title:not(:first-child) {
-        margin-top: 10px;
-        margin-bottom: 10px;
-    }
-    .param {
-        width: 100%;
-        display: flex;
-
-        &_left {
-            width: 400px;
-            height: 100%;
-            padding: 8px 100px 0 20px;
-            flex-shrink: 0;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            .player {
-                width: 400px;
-                height: 300px;
-            }
-            .draw_area_tip {
-                font-size: 12px;
-                color: #8d8d8d;
-            }
-        }
-        &_right {
-            width: 100%;
-
-            :deep(.el-table) {
-                width: 100%;
-
-                tbody {
-                    cursor: pointer;
-                }
-            }
-            :deep(.el-form-item) {
-                padding: 1px 0px 2px 12px;
-                margin-bottom: 0;
-            }
-            .area_radio_group {
-                :deep(.el-radio-button) {
-                    margin-right: 15px;
-                    border-radius: 4px;
-                    .el-radio-button__inner {
-                        //修改按钮样式
-                        width: 50px !important;
-                        height: 22px;
-                        line-height: 22px;
-                        padding: 0;
-                        border: 1px solid var(--border-color4) !important;
-                        border-radius: 4px;
-                    }
-                }
-                :deep(.el-radio-button.is-active) {
-                    .el-radio-button__inner {
-                        color: #fff;
-                    }
-                }
-                .configured_area {
-                    :deep(.el-radio-button__inner) {
-                        border: 1px solid #00bbdb !important;
-                        color: #00bbdb;
-                    }
-                }
-            }
-            .sensitivity_span {
-                width: 30px;
-                height: 20px;
-                line-height: 20px;
-                text-align: center;
-                border: 1px solid var(--border-color4);
-            }
-        }
-    }
-    // 联动方式下的盒子样式
-    .linkage_box {
-        float: left;
-        width: 250px;
-        height: 400px;
-        margin-right: 2px;
-        border: 1px solid #888888;
-        :deep(.el-checkbox) {
-            width: 200px;
-            height: 45px;
-            padding-left: 10px;
-            color: #000;
-        }
-        .normal_param_title {
-            width: 230px;
-            height: 25px;
-            padding: 4px 10px;
-            background: #d0d0d0;
-        }
-        .linkage_title {
-            text-align: center;
-            font-size: 15px;
-            width: 230px;
-            height: 25px;
-            padding: 4px 10px;
-            background: #d0d0d0;
-        }
-        :deep(.el-table) {
-            width: 100%;
-            height: 367px;
-        }
-        :deep(.el-table__cell) {
-            padding: 3px;
-            height: 46px;
-            border-bottom: none;
-        }
-    }
-    .page_bottom {
-        position: absolute;
-        right: 0;
-        bottom: 0;
-        margin-top: 9px;
-    }
-}
+<style lang="scss">
+@import '@/views/UI_PUBLIC/publicStyle/aiAndEvent.scss';
 </style>

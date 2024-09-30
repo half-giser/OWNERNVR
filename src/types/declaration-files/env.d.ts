@@ -25,7 +25,6 @@ interface ImportMetaEnv {
     readonly VITE_APP_KEYWORDS: string
     readonly VITE_APP_TYPE: string
     readonly VITE_APP_COPYRIGHT: string
-    readonly VITE_APP_ICP_NUMBER: string
 }
 
 interface ImportMeta {

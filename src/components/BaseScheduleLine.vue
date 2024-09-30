@@ -102,8 +102,8 @@ const props = withDefaults(defineProps<Props>(), {
     dragAction: 'add',
 })
 
+const scaleFont = '11px Arial'
 let scaleColor = '#000'
-let scaleFont = '11px Arial'
 let timeSpanColor = '#18C0DD'
 let timeSpanSelectingColor = '#89E9F9'
 
@@ -150,10 +150,9 @@ const manualTimeInputShow = ref(false)
  */
 const initStyle = () => {
     const style = getComputedStyle(scaleRef.value!)
-    scaleColor = style.getPropertyValue('--schedule-scale-color')
-    scaleFont = style.getPropertyValue('--schedule-font')
-    timeSpanColor = style.getPropertyValue('--schedule-time-span-color')
-    timeSpanSelectingColor = style.getPropertyValue('--schedule-time-span-selection-color')
+    scaleColor = style.getPropertyValue('--schedule-scale')
+    timeSpanColor = style.getPropertyValue('--schedule-time-span-bg-active')
+    timeSpanSelectingColor = style.getPropertyValue('--schedule-time-span-bg-selection')
 }
 
 /**
@@ -556,7 +555,7 @@ defineExpose({
 }
 
 .timeline-border {
-    border: solid 1px var(--border-color1);
+    border: solid 1px var(--main-border);
 
     canvas {
         display: block;
@@ -564,7 +563,7 @@ defineExpose({
 
     .time-selector {
         cursor: text;
-        background-color: var(--schedule-time-span-bg-color);
+        background-color: var(--schedule-time-span-bg);
 
         &.readonly {
             cursor: default;
@@ -579,7 +578,7 @@ defineExpose({
 
     .valueShowText {
         font-size: 12px;
-        color: var(--text-primary);
+        color: var(--main-text);
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -591,7 +590,7 @@ defineExpose({
         font-size: 12px;
         padding: 0px 2px;
         height: 16px;
-        background-color: var(--primary--01);
+        background-color: var(--primary-light);
     }
 
     .btn-panel {
@@ -603,16 +602,16 @@ defineExpose({
             margin-left: 15px;
             text-decoration: none;
             cursor: pointer;
-            color: var(--schedule-button);
+            color: var(--schedule-btn);
 
             &:hover {
                 text-decoration: underline;
-                color: var(--primary--04);
+                color: var(--primary);
             }
 
             &.disabled {
                 cursor: default;
-                color: var(--text-disabled);
+                color: var(--input-text-disabled);
                 text-decoration: none;
             }
         }
@@ -627,8 +626,8 @@ defineExpose({
     right: 0px;
     padding: 2px;
     border-radius: 5px;
-    border: solid 1px var(--border-color1);
-    background-color: var(--bg-color5);
+    border: solid 1px var(--main-border);
+    background-color: var(--table-stripe);
     z-index: 1000;
 }
 </style>

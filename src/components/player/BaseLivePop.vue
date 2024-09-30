@@ -117,6 +117,6 @@ defineExpose<LivePopInstance>({
 .playerWrap {
     width: 600px;
     height: 450px;
-    background-color: var(--bg-color5);
+    background-color: var(--table-stripe);
 }
 </style>

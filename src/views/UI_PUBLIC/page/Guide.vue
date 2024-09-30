@@ -3,7 +3,7 @@
  * @Date: 2024-09-18 09:33:05
  * @Description: 开机向导
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-19 09:45:07
+ * @LastEditTime: 2024-09-26 16:31:32
 -->
 <template>
     <div class="guide">
@@ -271,7 +271,7 @@
                         </el-form-item>
                         <el-form-item :label="Translate('IDCS_ANSWER')">
                             <el-input v-model="qaFormData.answer" />
-                            <el-button @click="addQuestion">{{ Translate('IDCS_ADD') }}</el-button>
+                            <el-button @click="addQuestion">{{ isDefeultQuestion ? Translate('IDCS_APPLY') : Translate('IDCS_ADD') }}</el-button>
                         </el-form-item>
                     </el-form>
                     <div class="base-table-box">
@@ -392,7 +392,7 @@
     position: relative;
     width: 744px;
     height: 522px;
-    border: 1px solid var(--border-color2);
+    border: 1px solid var(--content-border);
 
     & > div {
         width: 100%;
@@ -414,8 +414,8 @@
     width: 100%;
     text-align: center;
     font-size: 20px;
-    background-color: var(--primary--04);
-    color: var(--text-button);
+    background-color: var(--primary);
+    color: var(--btn-text);
 }
 
 .lang {
@@ -439,9 +439,9 @@
         line-height: 30px;
         height: 30px;
         text-align: center;
-        background-color: var(--bg-color2);
-        color: var(--text-button);
-        border: 1px solid var(--bg-color2);
+        background-color: var(--btn-bg);
+        color: var(--btn-text);
+        border: 1px solid var(--btn-bg);
     }
 }
 

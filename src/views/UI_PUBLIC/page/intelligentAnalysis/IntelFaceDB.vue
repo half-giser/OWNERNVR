@@ -268,7 +268,7 @@
         display: flex;
         flex-shrink: 0;
         flex-direction: column;
-        border: 1px solid var(--border-color2);
+        border: 1px solid var(--content-border);
         justify-content: space-between;
 
         & > div:first-child {
@@ -287,7 +287,7 @@
 
     &-info {
         width: 500px;
-        border: 1px solid var(--border-color2);
+        border: 1px solid var(--content-border);
     }
 
     &-avatar {
@@ -300,7 +300,7 @@
         img {
             width: 100px;
             height: 100px;
-            border: 1px solid var(--border-dark);
+            border: 1px solid var(--intel-snap-border);
             margin: 20px;
         }
     }

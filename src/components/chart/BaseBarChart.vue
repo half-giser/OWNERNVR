@@ -3,7 +3,7 @@
  * @Date: 2024-06-04 16:08:10
  * @Description: 条形图组件
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 11:09:49
+ * @LastEditTime: 2024-09-27 13:53:45
 -->
 <template>
     <div
@@ -147,9 +147,9 @@ const barColors: string[] = [] // 条形图矩形可选色
  */
 const initColor = () => {
     const style = getComputedStyle($container.value!)
-    lineColor = style.getPropertyValue('--barchart-line-color')
-    textColor = style.getPropertyValue('--barchart-text-color')
-    barColors.push(style.getPropertyValue('--barchart-color-01'), style.getPropertyValue('--barchart-color-02'))
+    lineColor = style.getPropertyValue('--barchart-line')
+    textColor = style.getPropertyValue('--barchart-text')
+    barColors.push(style.getPropertyValue('--barchart-item-01'), style.getPropertyValue('--barchart-item-02'))
 }
 
 // 是否需要分页

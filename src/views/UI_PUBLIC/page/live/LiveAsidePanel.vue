@@ -3,7 +3,7 @@
  * @Date: 2024-07-18 14:45:58
  * @Description: 现场预览-右侧视图 Layout
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-23 14:19:31
+ * @LastEditTime: 2024-09-26 15:22:15
 -->
 <template>
     <div class="right">
@@ -96,7 +96,7 @@
         }
 
         i {
-            border-left: 8px solid #2c3039;
+            border-left: 8px solid var(--panel-header-text);
             border-top: 8px solid transparent;
             border-bottom: 8px solid transparent;
             border-right: 8px solid transparent;
@@ -128,7 +128,7 @@
         }
 
         &:hover i {
-            border-left-color: var(--primary--04);
+            border-left-color: var(--primary);
         }
     }
 
@@ -152,7 +152,7 @@
 
             &.active {
                 background-color: var(--panel-menu-bg-active);
-                border-top-color: var(--primary--04);
+                border-top-color: var(--primary);
             }
         }
     }

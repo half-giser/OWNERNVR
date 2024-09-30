@@ -13,7 +13,7 @@
     display: flex;
     margin-bottom: 10px;
     align-items: center;
-    border: 1px solid var(--border-color7);
+    border: 1px solid var(--input-border);
     font-size: 12px;
     box-sizing: border-box;
     padding: 0 5px;
@@ -29,7 +29,7 @@
     }
 
     &:hover {
-        border-color: var(--primary--04);
+        border-color: var(--primary);
     }
 }
 
@@ -61,7 +61,7 @@
 .base-intel-left {
     width: 430px;
     height: 100%;
-    border-right: 1px solid var(--border-color2);
+    border-right: 1px solid var(--content-border);
     box-sizing: border-box;
     padding: 20px 10px;
     flex-shrink: 0;
@@ -179,6 +179,6 @@
     padding: 10px;
     display: flex;
     flex-wrap: wrap;
-    border: 1px solid var(--border-color2);
+    border: 1px solid var(--content-border);
     overflow-y: scroll;
 }
