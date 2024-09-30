@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-18 09:43:32
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 09:51:19
+ * @LastEditTime: 2024-09-30 15:23:13
 -->
 <template>
     <div>
@@ -131,6 +131,8 @@
                             <el-form-item :label="Translate('IDCS_WARN_AREA')">
                                 <el-radio-group
                                     v-model="pageData.warnArea"
+                                    class="small-btn"
+                                    size="small"
                                     @change="warnAreaChange"
                                 >
                                     <el-radio-button
@@ -138,7 +140,6 @@
                                         :key="index - 1"
                                         :label="index"
                                         :value="index - 1"
-                                        size="small"
                                     />
                                 </el-radio-group>
                             </el-form-item>

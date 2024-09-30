@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 17:51:14
  * @Description: 人群密度检测
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 09:32:03
+ * @LastEditTime: 2024-09-30 15:21:52
 -->
 <template>
     <div class="tripwire_setting_pane">
@@ -109,18 +109,16 @@
                         <div class="base-ai-param-box-right">
                             <el-form
                                 :model="pageData"
-                                label-width="200px"
                                 label-position="left"
                                 class="narrow"
+                                :style="{
+                                    '--form-label-width': '200px',
+                                    '--form-input-width': '215px',
+                                }"
                             >
                                 <div class="base-ai-subheading">{{ Translate('IDCS_SCHEDULE') }}</div>
                                 <!-- 排程 -->
-                                <el-form-item
-                                    :label="Translate('IDCS_SCHEDULE_CONFIG')"
-                                    :style="{
-                                        '--form-input-width': '215px',
-                                    }"
-                                >
+                                <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
                                     <el-select
                                         v-model="pageData.schedule"
                                         value-key="value"
@@ -145,12 +143,7 @@
                                 </el-form-item>
                                 <div class="base-ai-subheading">{{ Translate('IDCD_RULE') }}</div>
                                 <!-- 持续时间 -->
-                                <el-form-item
-                                    :label="Translate('IDCS_DURATION')"
-                                    :style="{
-                                        '--form-input-width': '215px',
-                                    }"
-                                >
+                                <el-form-item :label="Translate('IDCS_DURATION')">
                                     <el-select
                                         v-model="pageData.holdTime"
                                         value-key="value"
@@ -167,12 +160,7 @@
                                     </el-select>
                                 </el-form-item>
                                 <!-- 刷新频率 -->
-                                <el-form-item
-                                    :label="Translate('IDCS_REFRESH_FREQUENCY')"
-                                    :style="{
-                                        '--form-input-width': '215px',
-                                    }"
-                                >
+                                <el-form-item :label="Translate('IDCS_REFRESH_FREQUENCY')">
                                     <el-select
                                         v-model="pageData.refreshFrequency"
                                         value-key="value"
@@ -257,7 +245,6 @@
                                     height="367px"
                                     :data="triggerData"
                                     :show-header="false"
-                                    :header-cell-style="{ 'text-align': 'left' }"
                                 >
                                     <el-table-column>
                                         <template #default="scope">

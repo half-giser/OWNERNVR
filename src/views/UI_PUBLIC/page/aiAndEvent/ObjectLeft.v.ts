@@ -2,8 +2,8 @@
  * @Description: AI 事件——更多——物品遗留与看护
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-18 09:43:49
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-25 09:44:13
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-30 15:12:34
  */
 import { cloneDeep } from 'lodash-es'
 import { type BoundaryItem, ObjectLeft, type PresetList, type chlCaps } from '@/types/apiType/aiAndEvent'
@@ -253,18 +253,14 @@ export default defineComponent({
             if (!canBeClosed) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_INTERSECT'),
-                    showCancelButton: false,
                 })
             }
         }
         const clearCurrentArea = () => {
             openMessageTipBox({
-                type: 'info',
-                title: Translate('IDCS_INFO_TIP'),
+                type: 'question',
                 message: Translate('IDCS_DRAW_CLEAR_TIP'),
-                showCancelButton: true,
             }).then(() => {
                 if (objectLeftData.value.boundary.length == 0) return
                 objectLeftData.value.boundary[pageData.value.warnArea].points = []
@@ -679,7 +675,6 @@ export default defineComponent({
             if (objectLeftData.value.preset.length > MAX_TRIGGER_PRESET_COUNT) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_PRESET_LIMIT'),
                 })
             }
@@ -691,17 +686,13 @@ export default defineComponent({
                 if (count > 0 && count < 4) {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_INPUT_LIMIT_FOUR_POIONT'),
-                        showCancelButton: false,
                     })
                     return false
                 } else if (count > 0 && !judgeAreaCanBeClosed(item.points)) {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_INTERSECT'),
-                        showCancelButton: false,
                     })
                     return false
                 }
@@ -806,7 +797,6 @@ export default defineComponent({
                 const switchChangeType = switchChangeTypeArr.join(',')
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_SIMPLE_WATCH_DETECT_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + prop.chlData.name, switchChangeType),
                 }).then(() => {
                     setObjectLeftData()
@@ -845,9 +835,7 @@ export default defineComponent({
                 // 515-区域有相交直线，不可闭合
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_INTERSECT'),
-                    showCancelButton: false,
                 })
             }
         }

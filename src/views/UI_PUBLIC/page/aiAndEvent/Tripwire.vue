@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 11:11:35
  * @Description:  越界
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 14:30:08
+ * @LastEditTime: 2024-09-30 15:27:46
 -->
 
 <template>
@@ -288,12 +288,12 @@
                                 <el-radio-group
                                     v-model="tripwireData.chosenSurfaceIndex"
                                     class="small-btn"
+                                    size="small"
                                     @change="handleSurfaceChange()"
                                 >
                                     <el-radio-button
                                         v-for="(item, index) in tripwireData.lineInfo"
                                         :key="index"
-                                        size="small"
                                         :value="index"
                                     >
                                         {{ index + 1 }}

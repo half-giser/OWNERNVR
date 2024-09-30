@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-14 17:06:11
  * @Description: 报警服务器
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-27 16:53:36
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-30 15:01:59
  */
 import { ArrowDown } from '@element-plus/icons-vue'
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
@@ -306,13 +306,11 @@ export default defineComponent({
                             if (res('status').text() == 'success') {
                                 openMessageTipBox({
                                     type: 'success',
-                                    title: Translate('IDCS_INFO_TIP'),
                                     message: Translate('IDCS_TEST_ALARM_SERVER_SUCCESS'),
                                 })
                             } else {
                                 openMessageTipBox({
                                     type: 'info',
-                                    title: Translate('IDCS_INFO_TIP'),
                                     message: Translate('IDCS_TEST_ALARM_SERVER_FAILED'),
                                 })
                             }
@@ -327,24 +325,23 @@ export default defineComponent({
                             if (res('status').text() == 'success') {
                                 openMessageTipBox({
                                     type: 'success',
-                                    title: Translate('IDCS_INFO_TIP'),
                                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                                 })
                             } else {
                                 let msg = ''
-                                switch (res('errorCode').text()) {
-                                    case '536870934':
+                                const errorCode = Number(res('errorCode').text())
+                                switch (errorCode) {
+                                    case ErrorCode.USER_ERROR_FAIL:
                                         msg = Translate('IDCS_LOGIN_OVERTIME')
                                         return
-                                    case '536870951':
+                                    case ErrorCode.USER_ERROR_USER_LOCKED:
                                         msg = Translate('IDCS_LOGIN_FAIL_USER_LOCKED')
                                         return
-                                    case '536870943':
+                                    case ErrorCode.USER_ERROR_INVALID_PARAM:
                                         msg = Translate('IDCS_USER_ERROR_INVALID_PARAM')
                                 }
                                 openMessageTipBox({
                                     type: 'info',
-                                    title: Translate('IDCS_INFO_TIP'),
                                     message: Translate('IDCS_SAVE_DATA_FAIL') + msg,
                                 })
                             }

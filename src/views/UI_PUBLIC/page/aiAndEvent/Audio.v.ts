@@ -2,8 +2,8 @@
  * @Description: AI/事件——事件通知——声音
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-13 09:23:25
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-28 11:47:59
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-30 15:04:09
  */
 import { ipcAudioForm, type AudioAlarmOut, type AudioDevice, type LocalTableRow } from '@/types/apiType/aiAndEvent'
 import { QueryNodeListDto } from '@/types/apiType/channel'
@@ -373,9 +373,7 @@ export default defineComponent({
             if (isSupportH5 && isHttpsLogin()) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_NOT_SUPPORTED').formatForLang('https', Translate('IDCS_UPLOAD_VOICE')) + '!',
-                    showCancelButton: false,
                 })
                 return false
             }
@@ -446,9 +444,7 @@ export default defineComponent({
                 if (errorCode === '536870962') msg += Translate('IDCS_GET_CFG_FAIL')
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: msg,
-                    showCancelButton: false,
                 })
             }
         }

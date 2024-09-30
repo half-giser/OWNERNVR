@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 13:36:26
  * @Description: 区域入侵
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 10:19:28
+ * @LastEditTime: 2024-09-30 15:14:10
  */
 import { ArrowDown } from '@element-plus/icons-vue'
 import { type chlCaps, type aiResourceRow } from '@/types/apiType/aiAndEvent'
@@ -324,7 +324,6 @@ export default defineComponent({
                 } else {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_NO_RESOURCE'),
                     })
                     // 资源占用率超过100
@@ -355,7 +354,6 @@ export default defineComponent({
         const handleAIResourceDel = async (row: aiResourceRow) => {
             openMessageTipBox({
                 type: 'question',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_DELETE_MP_S'),
             }).then(() => {
                 deleteAIResource(row)
@@ -731,11 +729,10 @@ export default defineComponent({
                 // setPeaOcxData()
                 peaRefreshInitPage()
             } else {
-                const errorCode = res('errorCode').text()
-                if (errorCode == '536871053') {
+                const errorCode = Number(res('errorCode').text())
+                if (errorCode === 536871053) {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_INPUT_LIMIT_FOUR_POIONT'),
                     })
                 }
@@ -769,7 +766,6 @@ export default defineComponent({
                 const switchChangeType = switchChangeTypeArr.join(',')
                 openMessageTipBox({
                     type: 'question',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_SIMPLE_INVADE_DETECT_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + peaData.value.chlData['name'], switchChangeType),
                 }).then(async () => {
                     await savePeaData()
@@ -960,14 +956,12 @@ export default defineComponent({
                     if (count > 0 && count < 4) {
                         openMessageTipBox({
                             type: 'info',
-                            title: Translate('IDCS_INFO_TIP'),
                             message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_INPUT_LIMIT_FOUR_POIONT'),
                         })
                         return false
                     } else if (count > 0 && !judgeAreaCanBeClosed(allRegionList[i])) {
                         openMessageTipBox({
                             type: 'info',
-                            title: Translate('IDCS_INFO_TIP'),
                             message: Translate('IDCS_INTERSECT'),
                         })
                         return false
@@ -1384,7 +1378,6 @@ export default defineComponent({
             if (!canBeClosed) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_INTERSECT'),
                 })
             }
@@ -1397,7 +1390,6 @@ export default defineComponent({
             // if (length == 6) {
             openMessageTipBox({
                 type: 'question',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_DRAW_CLEAR_TIP'),
             }).then(() => {
                 peaData.value.areaCfgData[currType]['boundaryInfo'][area]['point'] = []
@@ -1521,7 +1513,6 @@ export default defineComponent({
                 // 515-区域有相交直线，不可闭合
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_INTERSECT'),
                 })
             }

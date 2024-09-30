@@ -2,8 +2,8 @@
  * @Description: 普通事件——组合报警弹窗
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-23 15:03:09
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-27 16:23:44
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-30 15:06:48
  */
 import { type CombinedAlarmItem, type faceMatchObj } from '@/types/apiType/aiAndEvent'
 import FaceMatchPop from './FaceMatchPop.vue'
@@ -504,9 +504,7 @@ export default defineComponent({
                 if (!item.alarmSourceEntity.value) {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_ALARM_SOURCE_NULL'),
-                        showCancelButton: false,
                     })
                     isAlarmSourceNull = true
                     return true

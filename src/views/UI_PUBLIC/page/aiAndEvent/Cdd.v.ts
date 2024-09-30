@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 17:51:22
  * @Description: 人群密度检测
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 14:05:10
+ * @LastEditTime: 2024-09-30 15:05:24
  */
 import { type chlCaps } from '@/types/apiType/aiAndEvent'
 import { type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
@@ -750,7 +750,7 @@ export default defineComponent({
             pageData.value.applyDisable = false
         }
         const LiveNotify2Js = ($: (path: string) => XmlResult) => {
-            const $xmlNote = $("statenotify[type='CddParam']")
+            const $xmlNote = $("statenotify[@type='CddParam']")
             if ($xmlNote.length > 0) {
                 const points: { X1: number; X2: number; Y1: number; Y2: number }[] = []
                 $('statenotify/item').forEach((element) => {

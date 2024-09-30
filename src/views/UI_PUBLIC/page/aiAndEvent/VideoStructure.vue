@@ -110,7 +110,8 @@
                             <el-form-item :label="Translate('IDCS_DETECTION_AREA')">
                                 <el-radio-group
                                     v-model="pageData.detectArea"
-                                    class="area_radio_group"
+                                    size="small"
+                                    class="small-btn"
                                     @change="detectAreaChange"
                                 >
                                     <el-radio-button
@@ -118,13 +119,13 @@
                                         :key="index"
                                         :label="index + 1"
                                         :value="index"
-                                        :class="{ configured_area: pageData.detectConfiguredArea[index] }"
                                     />
                                 </el-radio-group>
                             </el-form-item>
                             <el-form-item :label="Translate('IDCS_MASK_AREA')">
                                 <el-radio-group
                                     v-model="pageData.maskArea"
+                                    size="small"
                                     class="small-btn"
                                     @change="maskAreaChange"
                                 >

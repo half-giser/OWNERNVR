@@ -68,14 +68,12 @@ export default defineComponent({
                 // 过滤非mp3文件
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_SELECT_MP3_FILE'),
                 })
                 return
             } else if (prop.type == 'ipcAudio' && uploadFile.name.indexOf('.wav') == -1) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_NO_CHOOSE_TDB_FILE').formatForLang('wav'),
                 })
                 return
@@ -151,9 +149,7 @@ export default defineComponent({
         const showMsg = (msg: string) => {
             openMessageTipBox({
                 type: 'info',
-                title: Translate('IDCS_INFO_TIP'),
                 message: msg,
-                showCancelButton: false,
             })
         }
 

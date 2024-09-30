@@ -999,7 +999,6 @@ export default defineComponent({
                     const switchChangeType = switchChangeTypeArr.join(',')
                     openMessageTipBox({
                         type: 'question',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_SIMPLE_PASSLINE_DETECT_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + pageData.value['chlData']['name'], switchChangeType),
                     }).then(() => {
                         savePassLineData()
@@ -1037,7 +1036,6 @@ export default defineComponent({
                     const switchChangeType = switchChangeTypeArr.join(',')
                     openMessageTipBox({
                         type: 'question',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_SIMPLE_PASSLINE_DETECT_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + pageData.value['chlData']['name'], switchChangeType),
                     }).then(() => {
                         saveCpcData()
@@ -1062,13 +1060,11 @@ export default defineComponent({
             if ($('status').text() == 'success') {
                 openMessageTipBox({
                     type: 'success',
-                    title: Translate('IDCS_SUCCESS_TIP'),
                     message: Translate('IDCS_RESET_SUCCESSED'),
                 })
             } else {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_SAVE_DATA_FAIL'),
                 })
             }
@@ -1084,13 +1080,11 @@ export default defineComponent({
             if ($('status').text() == 'success') {
                 openMessageTipBox({
                     type: 'success',
-                    title: Translate('IDCS_SUCCESS_TIP'),
                     message: Translate('IDCS_RESET_SUCCESSED'),
                 })
             } else {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_SAVE_DATA_FAIL'),
                 })
             }
@@ -1100,7 +1094,6 @@ export default defineComponent({
             if (pageData.value.chlData['supportPassLine']) {
                 openMessageTipBox({
                     type: 'question',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_RESET_TIP'),
                 }).then(() => {
                     passLineManualResetData()
@@ -1108,7 +1101,6 @@ export default defineComponent({
             } else if (pageData.value.chlData['supportCpc']) {
                 openMessageTipBox({
                     type: 'question',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_RESET_TIP'),
                 }).then(() => {
                     cpcManualResetData()

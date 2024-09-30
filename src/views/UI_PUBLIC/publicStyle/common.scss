@@ -578,16 +578,6 @@ input[type='number'] {
             }
         }
     }
-
-    // .el-radio-button {
-    //     &.small {
-    //         width: 50px;
-    //         height: 22px;
-    //         line-height: 22px;
-    //         padding: 0;
-    //         border: 1px solid var(--btn-border);
-    //     }
-    // }
 }
 
 .row_pagination {
@@ -602,7 +592,7 @@ input[type='number'] {
 .table_status_col_loading {
     width: 20px;
     height: 20px;
-    background-image: url('@/views/UI_PUBLIC/publicStyle/img/loading.gif');
+    background-image: var(--img-loading);
     background-repeat: no-repeat;
 }
 

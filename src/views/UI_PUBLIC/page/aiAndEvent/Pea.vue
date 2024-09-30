@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 13:35:56
  * @Description:  区域入侵
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 10:33:23
+ * @LastEditTime: 2024-09-30 15:27:06
 -->
 <template>
     <div class="pea_setting_pane">
@@ -373,12 +373,12 @@
                                     <el-radio-group
                                         v-model="peaData.chosenWarnAreaIndex"
                                         class="small-btn"
+                                        size="small"
                                         @change="handleWarnAreaChange()"
                                     >
                                         <el-radio-button
                                             v-for="(item, index) in peaData.areaCfgData[peaData.activity_type].boundaryInfo"
                                             :key="index"
-                                            size="small"
                                             :value="index"
                                         >
                                             {{ index + 1 }}

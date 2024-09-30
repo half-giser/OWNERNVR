@@ -2,8 +2,8 @@
  * @Description: AI 事件——车牌识别
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-09 09:56:33
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-25 09:42:09
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-30 15:11:26
  */
 import { ArrowDown } from '@element-plus/icons-vue'
 // import { cloneDeep } from 'lodash-es'
@@ -470,18 +470,14 @@ export default defineComponent({
             if (!canBeClosed) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_INTERSECT'),
-                    showCancelButton: false,
                 })
             }
         }
         const vehicleClearCurrentArea = () => {
             openMessageTipBox({
-                type: 'info',
-                title: Translate('IDCS_INFO_TIP'),
+                type: 'question',
                 message: Translate('IDCS_DRAW_CLEAR_TIP'),
-                showCancelButton: true,
             }).then(() => {
                 vehicleDetectionData.value.maskAreaInfo[detectionPageData.value.maskArea] = []
                 if (mode.value === 'h5') {
@@ -1064,17 +1060,13 @@ export default defineComponent({
                     if (count > 0 && count < 4) {
                         openMessageTipBox({
                             type: 'info',
-                            title: Translate('IDCS_INFO_TIP'),
                             message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_INPUT_LIMIT_FOUR_POIONT'),
-                            showCancelButton: false,
                         })
                         return false
                     } else if (count > 0 && !vehicleDrawer.judgeAreaCanBeClosed(vehicleDetectionData.value.maskAreaInfo[key])) {
                         openMessageTipBox({
                             type: 'info',
-                            title: Translate('IDCS_INFO_TIP'),
                             message: Translate('IDCS_INTERSECT'),
-                            showCancelButton: false,
                         })
                         return false
                     }
@@ -1171,7 +1163,6 @@ export default defineComponent({
                 const switchChangeType = switchChangeTypeArr.join(',')
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_SIMPLE_SMART_VEHICLE_DETECT_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + chlList[pageData.value.curChl].name, switchChangeType),
                 }).then(() => {
                     setVehicleDetectionData()
@@ -1197,9 +1188,7 @@ export default defineComponent({
             if (taskTabs.value.length === 5) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_OVER_MAX_NUMBER_LIMIT'),
-                    showCancelButton: false,
                 })
                 return false
             }
@@ -1235,10 +1224,8 @@ export default defineComponent({
                 return false
             }
             openMessageTipBox({
-                type: 'info',
-                title: Translate('IDCS_INFO_TIP'),
+                type: 'question',
                 message: Translate('IDCS_DELETE_MP_S'),
-                showCancelButton: true,
             }).then(() => {
                 haveUseNameId = haveUseNameId.filter((item) => item != Number(comparePageData.value.compareTab[9]))
                 taskTabs.value = taskTabs.value.filter((item) => item.value != comparePageData.value.compareTab)
@@ -1519,9 +1506,7 @@ export default defineComponent({
                 // 515-区域有相交直线，不可闭合
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_INTERSECT'),
-                    showCancelButton: false,
                 })
             }
         }

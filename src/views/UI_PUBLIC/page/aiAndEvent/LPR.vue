@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-09 09:56:14
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 11:30:20
+ * @LastEditTime: 2024-09-30 15:25:06
 -->
 <template>
     <!-- 通道名称及选择器 -->
@@ -123,6 +123,7 @@
                                         <el-radio-group
                                             v-model="detectionPageData.regionArea"
                                             size="small"
+                                            class="small-btn"
                                             @change="regionAreaChange"
                                         >
                                             <el-radio-button
@@ -130,14 +131,14 @@
                                                 :key="index"
                                                 :label="index + 1"
                                                 :value="index"
-                                                :class="{ configured_area: detectionPageData.reginConfiguredArea[index] }"
                                             />
                                         </el-radio-group>
                                     </el-form-item>
                                     <el-form-item :label="Translate('IDCS_MASK_AREA')">
                                         <el-radio-group
                                             v-model="detectionPageData.maskArea"
-                                            class="area_radio_group"
+                                            class="small-btn"
+                                            size="small"
                                             @change="maskAreaChange"
                                         >
                                             <el-radio-button
@@ -145,7 +146,6 @@
                                                 :key="index"
                                                 :label="index + 1"
                                                 :value="index"
-                                                :class="{ configured_area: detectionPageData.maskConfiguredArea[index] }"
                                             />
                                         </el-radio-group>
                                     </el-form-item>
@@ -377,11 +377,7 @@
     <!-- 排程管理弹窗 -->
     <ScheduleManagPop
         v-model="pageData.scheduleManagPopOpen"
-        @close="
-            () => {
-                pageData.scheduleManagPopOpen = false
-            }
-        "
+        @close="pageData.scheduleManagPopOpen = false"
     />
 </template>
 
