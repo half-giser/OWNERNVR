@@ -3,7 +3,7 @@
  * @Date: 2024-09-29 11:48:59
  * @Description: 水印设置
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-29 18:03:17
+ * @LastEditTime: 2024-09-30 11:14:52
  */
 import { ArrowDown } from '@element-plus/icons-vue'
 import { type ChannelWaterMarkDto } from '@/types/apiType/channel'
@@ -138,6 +138,12 @@ export default defineComponent({
                 }
             })
         }
+        const handleTableSwitchChange = (row: ChannelWaterMarkDto) => {
+            if (pageData.value.currChlId == row.chlId) {
+                pageData.value.chlData.switch = row.switch
+            }
+            addEditRow(pageData.value.chlData)
+        }
         const handleSwitchChangeAll = (value: string) => {
             pageData.value.chlList.forEach((item) => {
                 if (!item.disabled) {
@@ -150,10 +156,17 @@ export default defineComponent({
             })
             pageData.value.applyDisabled = false
         }
-        const handleFocus = (customText: string) => {
+        const handleFocus = (customText: string, type: string) => {
             const reg = /[^A-Za-z0-9]/g
-            if (reg.test(customText)) customText = customText.replace(reg, '')
+            if (reg.test(customText)) {
+                if (type === 'form') {
+                    pageData.value.chlData.customText = customText.replace(reg, '')
+                } else {
+                    pageData.value.customTextSetAll = customText.replace(reg, '')
+                }
+            }
         }
+
         const handleCustomTextInput = (customText: string) => {
             pageData.value.chlList.forEach((item) => {
                 if (item.chlId == pageData.value.currChlId) {
@@ -191,18 +204,18 @@ export default defineComponent({
                 pageData.value.totalCount = Number($('//content').attr('total'))
                 $('//content/item').forEach((item) => {
                     const $ = queryXml(item.element)
-                    if ($('chlType').text() == 'analog') {
-                        pageData.value.chlList.push({
-                            chlId: item.attr('id')!,
-                            chlName: $('name').text(),
-                            chlIndex: '1',
-                            chlType: $('chlType').text(),
-                            status: 'loading',
-                            disabled: true,
-                            switch: '',
-                            customText: '',
-                        })
-                    }
+                    // if ($('chlType').text() == 'analog') {
+                    pageData.value.chlList.push({
+                        chlId: item.attr('id')!,
+                        chlName: $('name').text(),
+                        chlIndex: '1',
+                        chlType: $('chlType').text(),
+                        status: 'loading',
+                        disabled: true,
+                        switch: '',
+                        customText: '',
+                    })
+                    // }
                 })
                 pageData.value.currChlId = pageData.value.chlList[0].chlId
                 pageData.value.chlList.forEach((item) => {
@@ -217,14 +230,19 @@ export default defineComponent({
             const res = await queryChlWaterMark(getXmlWrapData(sendXml))
             const $ = queryXml(res)
             if ($('status').text() == 'success') {
-                const waterMarkSwitch = $('//content/chl/waterMark/switch').text()
-                const customText = $('//content/chl/waterMark/customText').text()
+                const waterMarkSwitch = $('//content/chl/watermark/switch').text()
+                const customText = $('//content/chl/watermark/customText').text()
                 item.disabled = false
                 item.status = ''
                 item.switch = waterMarkSwitch
                 item.customText = customText
                 if (item.chlId == pageData.value.currChlId) {
                     pageData.value.chlData = cloneDeep(item)
+                    if (pageData.value.chlData.disabled) {
+                        pageData.value.switchDisabled = true
+                    } else {
+                        pageData.value.switchDisabled = false
+                    }
                 }
             } else {
                 item.status = ''
@@ -269,6 +287,11 @@ export default defineComponent({
             if (!rowData.disabled) {
                 pageData.value.currChlId = rowData.chlId
                 pageData.value.chlData = cloneDeep(rowData)
+                if (pageData.value.chlData.disabled) {
+                    pageData.value.switchDisabled = true
+                } else {
+                    pageData.value.switchDisabled = false
+                }
                 tableRef.value?.setCurrentRow(rowData)
                 play()
             }
@@ -316,6 +339,7 @@ export default defineComponent({
             tableRef,
             handleChlChange,
             handleSwitchChange,
+            handleTableSwitchChange,
             handleSwitchChangeAll,
             handleFocus,
             handleCustomTextInput,
