@@ -3,7 +3,7 @@
  * @Date: 2024-09-29 11:48:59
  * @Description: 水印设置
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-30 11:14:52
+ * @LastEditTime: 2024-09-30 14:51:03
  */
 import { ArrowDown } from '@element-plus/icons-vue'
 import { type ChannelWaterMarkDto } from '@/types/apiType/channel'
@@ -88,10 +88,10 @@ export default defineComponent({
         }
         //播放视频
         const play = () => {
-            const { chlId, chlName } = pageData.value.chlData
+            const { chlName } = pageData.value.chlData
             if (mode.value === 'h5') {
                 player.play({
-                    chlID: chlId,
+                    chlID: pageData.value.currChlId,
                     streamType: 2,
                 })
             } else if (mode.value === 'ocx') {
@@ -106,7 +106,7 @@ export default defineComponent({
                     })
                     plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 } else {
-                    plugin.RetryStartChlView(chlId, chlName)
+                    plugin.RetryStartChlView(pageData.value.currChlId, chlName)
                 }
             }
         }
@@ -192,6 +192,7 @@ export default defineComponent({
             }
         }
         const getChannelList = async () => {
+            pageData.value.initComplete = false
             const res = await getChlList({
                 pageIndex: pageData.value.pageIndex,
                 pageSize: pageData.value.pageSize,
@@ -204,21 +205,21 @@ export default defineComponent({
                 pageData.value.totalCount = Number($('//content').attr('total'))
                 $('//content/item').forEach((item) => {
                     const $ = queryXml(item.element)
-                    // if ($('chlType').text() == 'analog') {
-                    pageData.value.chlList.push({
-                        chlId: item.attr('id')!,
-                        chlName: $('name').text(),
-                        chlIndex: '1',
-                        chlType: $('chlType').text(),
-                        status: 'loading',
-                        disabled: true,
-                        switch: '',
-                        customText: '',
-                    })
-                    // }
+                    if ($('chlType').text() == 'analog') {
+                        pageData.value.chlList.push({
+                            chlId: item.attr('id')!,
+                            chlName: $('name').text(),
+                            chlIndex: '1',
+                            chlType: $('chlType').text(),
+                            status: 'loading',
+                            disabled: true,
+                            switch: '',
+                            customText: '',
+                        })
+                    }
                 })
                 pageData.value.currChlId = pageData.value.chlList[0].chlId
-                pageData.value.chlList.forEach((item) => {
+                pageData.value.chlList.forEach(async (item) => {
                     getData(item)
                 })
                 tableRef.value?.setCurrentRow(pageData.value.chlList[0])
