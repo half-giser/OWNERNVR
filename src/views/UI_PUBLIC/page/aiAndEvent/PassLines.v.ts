@@ -2,24 +2,23 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-11 15:00:19
  * @Description: 过线检测
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-25 14:16:02
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-30 13:47:17
  */
 import { ArrowDown } from '@element-plus/icons-vue'
 import { type chlCaps } from '@/types/apiType/aiAndEvent'
-import { ElDivider, type TabsPaneContext } from 'element-plus'
+import { type TabsPaneContext } from 'element-plus'
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import CanvasPassline from '@/utils/canvas/canvasPassline'
 import CanvasCpc from '@/utils/canvas/canvasCpc'
 import { type emailData } from '@/types/apiType/aiAndEvent'
-import PassLineEmailPop from './PassLineEmailPop.vue'
+import PassLineEmailPop from './PassLinesEmailPop.vue'
 import { cloneDeep } from 'lodash-es'
 import { type XmlResult } from '@/utils/xmlParse'
 import { type regionData } from '@/types/apiType/aiAndEvent'
 export default defineComponent({
     components: {
         ArrowDown,
-        ElDivider,
         ScheduleManagPop,
         PassLineEmailPop,
     },
@@ -1165,9 +1164,8 @@ export default defineComponent({
             pageData.value.initComplete = true
         }
         // passLine选择警戒线
-        const handleLineChange = (index: number) => {
-            pageData.value.chosenSurfaceIndex = index
-            pageData.value.direction = pageData.value.lineInfo[index].direction
+        const handleLineChange = () => {
+            pageData.value.direction = pageData.value.lineInfo[pageData.value.chosenSurfaceIndex].direction
             passLineSetOcxData()
         }
         // passLine选择方向

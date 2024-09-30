@@ -3,14 +3,14 @@
  * @Date: 2024-07-29 10:41:06
  * @Description: 录像与回放时间轴组件
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 11:22:45
+ * @LastEditTime: 2024-09-27 16:38:02
 -->
 <template>
     <div
         ref="$container"
         class="timeline"
         :style="{
-            backgroundColor: `var(--timeline-bg-color-0${colorSet})`,
+            backgroundColor: `var(--timeline-bg-0${colorSet})`,
         }"
         @mouseover="handleMouseOver"
         @mouseout="handleMouseOut"
@@ -207,16 +207,16 @@ let canvasHeight = 40
  */
 const initColor = () => {
     const style = getComputedStyle($container.value!)
-    bgColor = style.getPropertyValue(`--timeline-bg-color-0${prop.colorSet}`) // 画布背景色
-    scaleLineColor = style.getPropertyValue(`--timeline-scale-line-color-0${prop.colorSet}`) // 刻度线颜色
-    scaleTextColor = style.getPropertyValue(`--timeline-scale-text-color-0${prop.colorSet}`) // 刻度字体线颜色
-    splitLineColor = style.getPropertyValue(`--timeline-split-line-color-0${prop.colorSet}`) // 通道间的分割线颜色
-    pointerColor = style.getPropertyValue(`--timeline-pointer-color-0${prop.colorSet}`) // 指针颜色
-    pointerTimeColor = style.getPropertyValue(`--timeline-pointer-time-color-0${prop.colorSet}`) // 指针显示的时间颜色
-    mousemovingPointerColor = style.getPropertyValue(`--timeline-moving-pointer-color-0${prop.colorSet}`) // 鼠标跟随指针颜色
-    mousemovingTimeBgColor = style.getPropertyValue(`--timeline-moving-time-bg-color-0${prop.colorSet}`) // 鼠标跟随时间背景色
-    mousemovingTimeTextColor = style.getPropertyValue(`--timeline-moving-time-text-color-0${prop.colorSet}`) // 鼠标跟随时间文本颜色
-    timeRangeMaskColor = style.getPropertyValue(`--timeline-range-mask-color-0${prop.colorSet}`) // 时间范围遮罩颜色
+    bgColor = style.getPropertyValue(`--timeline-bg-0${prop.colorSet}`) // 画布背景色
+    scaleLineColor = style.getPropertyValue(`--timeline-scale-line-0${prop.colorSet}`) // 刻度线颜色
+    scaleTextColor = style.getPropertyValue(`--timeline-scale-text-0${prop.colorSet}`) // 刻度字体线颜色
+    splitLineColor = style.getPropertyValue(`--timeline-split-line-0${prop.colorSet}`) // 通道间的分割线颜色
+    pointerColor = style.getPropertyValue(`--timeline-pointer-0${prop.colorSet}`) // 指针颜色
+    pointerTimeColor = style.getPropertyValue(`--timeline-pointer-time-0${prop.colorSet}`) // 指针显示的时间颜色
+    mousemovingPointerColor = style.getPropertyValue(`--timeline-moving-pointer-0${prop.colorSet}`) // 鼠标跟随指针颜色
+    mousemovingTimeBgColor = style.getPropertyValue(`--timeline-moving-time-bg-0${prop.colorSet}`) // 鼠标跟随时间背景色
+    mousemovingTimeTextColor = style.getPropertyValue(`--timeline-moving-time-text-0${prop.colorSet}`) // 鼠标跟随时间文本颜色
+    timeRangeMaskColor = style.getPropertyValue(`--timeline-range-mask-0${prop.colorSet}`) // 时间范围遮罩颜色
 }
 
 /**
@@ -1414,7 +1414,6 @@ defineExpose<TimelineInstance>({
     cursor: pointer;
     width: 100%;
     height: 100%;
-    // background-color: var(--timeline-bg-color-01);
 }
 
 .scale {

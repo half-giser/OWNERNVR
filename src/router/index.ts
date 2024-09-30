@@ -13,7 +13,7 @@ import { root } from '@/router/featureConfig/RouteUtil'
 import { type RouteLocationMatched, type RouteLocationNormalizedLoaded } from 'vue-router'
 
 progress.configure({ showSpinner: false })
-progress.setColor('var(--primary--04)')
+progress.setColor('var(--primary)')
 
 //生成路由
 const routes = buildRouter()

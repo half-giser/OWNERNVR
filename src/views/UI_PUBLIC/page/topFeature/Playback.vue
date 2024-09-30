@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 18:39:25
  * @Description: 回放
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-23 11:53:35
+ * @LastEditTime: 2024-09-27 16:42:19
 -->
 <template>
     <div class="playback">
@@ -183,7 +183,7 @@
 .playback {
     width: 100%;
     height: calc(var(--content-height) + 70px);
-    border: 1px solid var(--border-color7);
+    border: 1px solid var(--input-border);
     display: flex;
     font-size: 14px;
     min-width: 1400px;
@@ -192,8 +192,8 @@
 .center {
     width: 100%;
     height: 100%;
-    border-left: 1px solid var(--border-color7);
-    border-right: 1px solid var(--border-color7);
+    border-left: 1px solid var(--input-border);
+    border-right: 1px solid var(--input-border);
 
     &-player {
         width: 100%;
@@ -246,8 +246,8 @@
 }
 
 .legend {
-    background-color: var(--timeline-legend-bg-color);
-    color: var(--timeline-scale-text-color);
+    background-color: var(--timeline-legend-bg);
+    color: var(--timeline-scale-text-01);
     height: 20px;
     width: 100%;
     display: flex;

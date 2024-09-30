@@ -392,7 +392,7 @@
     position: relative;
     width: 744px;
     height: 522px;
-    border: 1px solid var(--border-color2);
+    border: 1px solid var(--content-border);
 
     & > div {
         width: 100%;
@@ -414,8 +414,8 @@
     width: 100%;
     text-align: center;
     font-size: 20px;
-    background-color: var(--primary--04);
-    color: var(--text-button);
+    background-color: var(--primary);
+    color: var(--btn-text);
 }
 
 .lang {
@@ -439,9 +439,9 @@
         line-height: 30px;
         height: 30px;
         text-align: center;
-        background-color: var(--bg-color2);
-        color: var(--text-button);
-        border: 1px solid var(--bg-color2);
+        background-color: var(--btn-bg);
+        color: var(--btn-text);
+        border: 1px solid var(--btn-bg);
     }
 }
 

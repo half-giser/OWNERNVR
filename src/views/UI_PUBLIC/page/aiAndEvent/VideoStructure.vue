@@ -1,6 +1,6 @@
 <template>
-    <div class="vsd">
-        <div class="left">
+    <div>
+        <div class="base-ai-param-box-left fixed">
             <div
                 v-if="pageData.tab === 'image'"
                 class="osd_show_list"
@@ -31,31 +31,37 @@
                 </div>
             </div>
             <div v-show="pageData.tab === 'param'">
-                <div class="base-btn-box">
-                    <el-checkbox
-                        v-model="pageData.isShowAllArea"
-                        :style="{ flex: '1' }"
-                        @change="showAllArea"
-                        >{{ Translate('IDCS_DISPLAY_ALL_AREA') }}</el-checkbox
-                    >
-                    <el-button
-                        size="small"
-                        @click="clearArea"
-                        >{{ Translate('IDCS_CLEAR') }}</el-button
-                    >
-                    <el-button
-                        size="small"
-                        @click="clearAllArea"
-                        >{{ Translate('IDCS_FACE_CLEAR_ALL') }}</el-button
-                    >
+                <div
+                    class="base-btn-box"
+                    :span="2"
+                >
+                    <div>
+                        <el-checkbox
+                            v-model="pageData.isShowAllArea"
+                            @change="showAllArea"
+                            >{{ Translate('IDCS_DISPLAY_ALL_AREA') }}</el-checkbox
+                        >
+                    </div>
+                    <div>
+                        <el-button
+                            size="small"
+                            @click="clearArea"
+                            >{{ Translate('IDCS_CLEAR') }}</el-button
+                        >
+                        <el-button
+                            size="small"
+                            @click="clearAllArea"
+                            >{{ Translate('IDCS_FACE_CLEAR_ALL') }}</el-button
+                        >
+                    </div>
                 </div>
-                <span class="draw_area_tip">{{ Translate('IDCS_DRAW_AREA_TIP').formatForLang(6) }}</span>
+                <span class="base-ai-tip">{{ Translate('IDCS_DRAW_AREA_TIP').formatForLang(6) }}</span>
             </div>
         </div>
-        <div class="row_padding">
+        <div class="base-btn-box padding">
             <el-checkbox v-model="vsdData.enabledSwitch">{{ Translate('IDCS_ENABLE') }}</el-checkbox>
         </div>
-        <div :style="{ position: 'relative' }">
+        <div>
             <el-tabs
                 v-model="pageData.tab"
                 class="menu_tab"
@@ -65,9 +71,10 @@
                 <el-tab-pane
                     :label="Translate('IDCS_PARAM_SETTING')"
                     name="param"
-                    class="param"
+                    class="base-ai-param-box"
                 >
-                    <div class="param_right">
+                    <div class="base-ai-param-box-left"></div>
+                    <div class="base-ai-param-box-right">
                         <el-form
                             class="narrow"
                             :style="{
@@ -77,7 +84,7 @@
                             inline-message
                         >
                             <!-- 排程 -->
-                            <div class="title">{{ Translate('IDCS_SCHEDULE') }}</div>
+                            <div class="base-ai-subheading">{{ Translate('IDCS_SCHEDULE') }}</div>
                             <!-- 排程配置 -->
                             <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
                                 <el-select
@@ -94,13 +101,12 @@
                                 </el-select>
                                 <el-button
                                     size="small"
-                                    class="form_btn"
                                     @click="pageData.scheduleManagPopOpen = true"
                                     >{{ Translate('IDCS_MANAGE') }}</el-button
                                 >
                             </el-form-item>
                             <!-- 区域 -->
-                            <div class="title">{{ Translate('IDCS_AREA') }}</div>
+                            <div class="base-ai-subheading">{{ Translate('IDCS_AREA') }}</div>
                             <el-form-item :label="Translate('IDCS_DETECTION_AREA')">
                                 <el-radio-group
                                     v-model="pageData.detectArea"
@@ -119,7 +125,7 @@
                             <el-form-item :label="Translate('IDCS_MASK_AREA')">
                                 <el-radio-group
                                     v-model="pageData.maskArea"
-                                    class="area_radio_group"
+                                    class="small-btn"
                                     @change="maskAreaChange"
                                 >
                                     <el-radio-button
@@ -132,7 +138,7 @@
                                 </el-radio-group>
                             </el-form-item>
                             <!-- OSD叠加 -->
-                            <div class="title">{{ Translate('IDCS_OSD') }}</div>
+                            <div class="base-ai-subheading">{{ Translate('IDCS_OSD') }}</div>
                             <!-- 显示OSD -->
                             <el-form-item>
                                 <el-checkbox
@@ -146,24 +152,24 @@
                                     v-model="vsdData.countOSD.osdPersonName"
                                     :disabled="!vsdData.countOSD.supportOsdPersonName"
                                     size="small"
-                                ></el-input>
+                                />
                             </el-form-item>
                             <el-form-item :label="Translate('IDCS_VEHICLE_COUNT')">
                                 <el-input
                                     v-model="vsdData.countOSD.osdCarName"
                                     :disabled="!vsdData.countOSD.supportOsdCarName"
                                     size="small"
-                                ></el-input>
+                                />
                             </el-form-item>
                             <el-form-item :label="Translate('IDCS_BIKE_COUNT')">
                                 <el-input
                                     v-model="vsdData.countOSD.osdBikeName"
                                     :disabled="!vsdData.countOSD.supportBikeName"
                                     size="small"
-                                ></el-input>
+                                />
                             </el-form-item>
                             <!-- 重置信息 -->
-                            <div class="title">{{ Translate('IDCS_RESET_INFO') }}</div>
+                            <div class="base-ai-subheading">{{ Translate('IDCS_RESET_INFO') }}</div>
                             <!-- 自动重置 -->
                             <el-form-item :label="Translate('IDCS_AUTO_RESET')">
                                 <el-checkbox
@@ -186,7 +192,7 @@
                                         :key="item.value"
                                         :label="item.label"
                                         :value="item.value"
-                                    ></el-option>
+                                    />
                                 </el-select>
                             </el-form-item>
                             <!-- 时间 -->
@@ -212,7 +218,7 @@
                                                 :key="item.value"
                                                 :label="item.label"
                                                 :value="item.value"
-                                            ></el-option>
+                                            />
                                         </el-select>
                                         <el-select
                                             v-if="pageData.timeType === 'month'"
@@ -225,7 +231,7 @@
                                                 :key="item.value"
                                                 :label="item.label"
                                                 :value="item.value"
-                                            ></el-option>
+                                            />
                                         </el-select>
                                     </el-col>
                                     <el-col
@@ -262,7 +268,6 @@
                             <el-form-item :label="Translate('IDCS_MANUAL_RESET')">
                                 <el-button
                                     size="small"
-                                    class="form_btn"
                                     @click="manualResetData"
                                 >
                                     {{ Translate('IDCS_RESET') }}
@@ -275,28 +280,28 @@
                 <el-tab-pane
                     :label="Translate('IDCS_DETECTION_TARGET')"
                     name="detection"
-                    class="param"
+                    class="base-ai-param-box"
                 >
-                    <div class="param_right">
+                    <div class="base-ai-param-box-left"></div>
+                    <div class="base-ai-param-box-right">
                         <el-form
                             class="narrow"
                             :style="{
+                                '--form-label-width': '200px',
                                 '--form-input-width': '215px',
                             }"
-                            label-width="auto"
                             label-position="left"
                             inline-message
                         >
                             <!-- 检测目标 -->
-                            <div class="title">{{ Translate('IDCS_DETECTION_TARGET') }}</div>
+                            <div class="base-ai-subheading">{{ Translate('IDCS_DETECTION_TARGET') }}</div>
                             <!-- 人灵敏度 -->
                             <el-form-item>
                                 <template #label>
-                                    <el-checkbox v-model="vsdData.objectFilter.person"></el-checkbox>
-                                    <span>{{ Translate('IDCS_DETECTION_PERSON') }}</span>
+                                    <el-checkbox v-model="vsdData.objectFilter.person">{{ Translate('IDCS_DETECTION_PERSON') }}</el-checkbox>
                                 </template>
                                 <template #default>
-                                    <span>{{ Translate('IDCS_SENSITIVITY') }}</span>
+                                    <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
                                     <el-slider
                                         v-model="vsdData.objectFilter.personSensitivity"
                                         class="detection_slider"
@@ -309,11 +314,10 @@
                             <!-- 汽车灵敏度 -->
                             <el-form-item>
                                 <template #label>
-                                    <el-checkbox v-model="vsdData.objectFilter.car"></el-checkbox>
-                                    <span>{{ Translate('IDCS_DETECTION_VEHICLE') }}</span>
+                                    <el-checkbox v-model="vsdData.objectFilter.car">{{ Translate('IDCS_DETECTION_VEHICLE') }}</el-checkbox>
                                 </template>
                                 <template #default>
-                                    <span>{{ Translate('IDCS_SENSITIVITY') }}</span>
+                                    <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
                                     <el-slider
                                         v-model="vsdData.objectFilter.carSensitivity"
                                         class="detection_slider"
@@ -327,11 +331,10 @@
                             <!-- 热成像通道不显示非机动车配置 -->
                             <el-form-item v-if="prop.chlData.accessType === '0'">
                                 <template #label>
-                                    <el-checkbox v-model="vsdData.objectFilter.motorcycle"></el-checkbox>
-                                    <span>{{ Translate('IDCS_NON_VEHICLE') }}</span>
+                                    <el-checkbox v-model="vsdData.objectFilter.motorcycle">{{ Translate('IDCS_NON_VEHICLE') }}</el-checkbox>
                                 </template>
                                 <template #default>
-                                    <span>{{ Translate('IDCS_SENSITIVITY') }}</span>
+                                    <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
                                     <el-slider
                                         v-model="vsdData.objectFilter.motorSensitivity"
                                         class="detection_slider"
@@ -348,10 +351,10 @@
                 <el-tab-pane
                     :label="Translate('IDCS_IMAGE_OSD')"
                     name="image"
-                    class="param"
+                    class="base-ai-param-box"
                 >
-                    <div class="param_left"></div>
-                    <div class="param_right">
+                    <div class="base-ai-param-box-left"></div>
+                    <div class="base-ai-param-box-right">
                         <el-form
                             class="narrow"
                             :style="{
@@ -361,7 +364,7 @@
                             inline-message
                         >
                             <!-- 图片叠加 -->
-                            <div class="title">{{ Translate('IDCS_IMAGE_OSD') }}</div>
+                            <div class="base-ai-subheading">{{ Translate('IDCS_IMAGE_OSD') }}</div>
                             <!-- 类型 -->
                             <el-form-item :label="Translate('IDCS_TYPE')">
                                 <el-select
@@ -381,7 +384,6 @@
                             <el-form-item>
                                 <el-checkbox
                                     v-model="pageData.osdCheckAll"
-                                    :style="{ width: '600px' }"
                                     @change="checkAllOsdType"
                                     >{{ Translate('IDCS_ALL') }}</el-checkbox
                                 >
@@ -404,24 +406,25 @@
                 </el-tab-pane>
             </el-tabs>
             <!-- 高级设置 -->
-            <div>
-                <div
-                    class="more_wrap"
-                    @click="advancedVisible = !advancedVisible"
-                >
-                    <span>{{ Translate('IDCS_ADVANCED') }}</span>
-                    <BaseImgSprite
-                        class="moreBtn"
-                        file="arrow"
-                        :index="0"
-                        :chunk="4"
-                    />
-                </div>
-                <div
-                    v-show="advancedVisible"
-                    class="advanced_box"
-                >
-                    <div class="title">
+            <el-popover
+                v-model:visible="advancedVisible"
+                width="400"
+                trigger="click"
+                popper-class="no-padding"
+            >
+                <template #reference>
+                    <div class="more_wrap">
+                        <span>{{ Translate('IDCS_ADVANCED') }}</span>
+                        <BaseImgSprite
+                            class="moreBtn"
+                            file="arrow"
+                            :index="0"
+                            :chunk="4"
+                        />
+                    </div>
+                </template>
+                <div class="advanced_box">
+                    <div class="base-ai-subheading">
                         {{ Translate('IDCS_VIDEO_SAVE_PIC') }}
                     </div>
                     <el-checkbox
@@ -439,14 +442,14 @@
                     <el-form
                         class="narrow"
                         :style="{
-                            '--form-input-width': '200px',
+                            '--form-label-width': '150px',
+                            '--form-input-width': '170px',
                         }"
-                        label-width="110px"
                         label-position="left"
                         inline-message
                     >
                         <!-- 识别模式 -->
-                        <div class="title">{{ Translate('IDCS_RECOGNITION_MODE') }}</div>
+                        <div class="base-ai-subheading">{{ Translate('IDCS_RECOGNITION_MODE') }}</div>
                         <!-- 识别模式 -->
                         <el-form-item :label="Translate('IDCS_RECOGNITION_MODE')">
                             <el-select
@@ -459,8 +462,7 @@
                                     :key="item.value"
                                     :value="item.value"
                                     :label="item.label"
-                                >
-                                </el-option>
+                                />
                             </el-select>
                         </el-form-item>
                         <!-- 时间间隔（秒） -->
@@ -473,242 +475,87 @@
                                 :disabled="pageData.algoModelDisabled"
                                 type="number"
                                 @blur="algoHoldTimeBlur"
-                            ></el-input>
+                            />
                         </el-form-item>
                     </el-form>
-
                     <div class="base-btn-box">
-                        <el-button
-                            size="small"
-                            class="form_btn"
-                            @click="advancedVisible = false"
-                            >{{ Translate('IDCS_CLOSE') }}</el-button
-                        >
+                        <el-button @click="advancedVisible = false">{{ Translate('IDCS_CLOSE') }}</el-button>
                     </div>
                 </div>
-            </div>
+            </el-popover>
         </div>
-        <div class="page_bottom">
-            <el-button
-                :disabled="pageData.applyDisabled"
-                class="form_btn"
-                size="small"
-                >{{ Translate('IDCS_APPLY') }}</el-button
-            >
+        <div class="base-btn-box fixed">
+            <el-button :disabled="pageData.applyDisabled">{{ Translate('IDCS_APPLY') }}</el-button>
         </div>
         <BaseNotification v-model:notifications="pageData.notification" />
         <!-- 排程管理弹窗 -->
         <ScheduleManagPop
             v-model="pageData.scheduleManagPopOpen"
-            @close="
-                () => {
-                    pageData.scheduleManagPopOpen = false
-                }
-            "
+            @close="pageData.scheduleManagPopOpen = false"
         />
     </div>
 </template>
 
 <script lang="ts" src="./VideoStructure.v.ts"></script>
 
+<style>
+@import '@/views/UI_PUBLIC/publicStyle/aiAndEvent.scss';
+</style>
+
 <style lang="scss" scoped>
-#n9web .el-form.narrow .el-form-item {
-    padding: 1px 0px 2px 12px;
-    margin-bottom: 0;
+// 高级设置
+.more_wrap {
+    position: absolute;
+    right: 20px;
+    top: 50px;
+    cursor: pointer;
 }
-.form_btn {
-    width: fit-content;
-    height: 25px;
-    font-size: 14px;
+
+.slider-text {
+    margin-right: 15px;
 }
-.vsd {
-    height: calc(100vh - 360px);
-    position: relative;
-    .menu_tab {
-        :deep(.el-tabs__header) {
-            border-bottom: 1px solid var(--border-color2);
-        }
-        :deep(.el-tabs__item) {
-            width: fit-content;
-            font-size: 15px;
-            border: none;
-            padding: 0 20px !important;
-        }
-        /* 长分割线 */
-        :deep(.el-tabs__nav-wrap::after) {
-            position: static !important; //可以去掉长分割线
-            // background-color: var(--border-color2);
-        }
 
-        /* 去掉下划线 */
-        :deep(.el-tabs__active-bar) {
-            background-color: transparent !important;
-        }
+.advanced_box {
+    background-color: var(--ai-advance-bg);
+    padding: 10px;
 
-        :deep(.el-tabs__item:first-child) {
-            margin-left: 30px;
-        }
-        /* 鼠标选中时样式 */
-        :deep(.el-tabs__item.is-active) {
-            color: var(--primary--04);
-            background-color: transparent;
-            border: none;
-        }
-        /* 鼠标悬浮时样式 */
-        :deep(.el-tabs__item:hover) {
-            color: var(--primary--04);
-            cursor: pointer;
-            background-color: transparent;
-        }
+    .el-checkbox {
+        display: block;
     }
-    .row_padding {
-        padding: 0 20px;
-        :deep(.el-checkbox__label) {
-            font-size: 15px;
-            color: #000;
-        }
+}
+
+.timeSet .el-select {
+    margin-right: 30px;
+}
+
+.osd_checkbox_group {
+    width: 600px;
+    margin-left: 0 !important;
+    :deep(.el-checkbox) {
+        width: 200px;
+        margin: 15px 0 !important;
+        overflow: hidden;
     }
-    // 高级设置
-    .more_wrap {
-        position: absolute;
-        right: 20px;
-        top: 10px;
-        cursor: pointer;
-    }
-    .title {
-        border-left: 3px solid var(--border-color2);
-        font-size: 15px;
+}
+
+.osd_show_list {
+    width: 400px;
+    height: 120px;
+    background-color: var(--color-black);
+    p {
+        display: inline-block;
+        width: 90px;
         height: 30px;
-        line-height: 30px;
-        padding-left: 8px;
-    }
-    .title:first-child {
-        margin-bottom: 10px;
-    }
-    .title:not(:first-child) {
-        margin-top: 10px;
-        margin-bottom: 10px;
-    }
-    .advanced_box {
-        position: absolute;
-        right: 17px;
-        top: 39px;
-        width: 350px;
-        border: 1px solid black;
-        padding: 20px;
-        background-color: #e5e5e5;
-        :deep(.el-checkbox) {
-            width: 100px;
-            margin-left: 10px;
-            color: #000;
-        }
-    }
-
-    .left {
-        width: 400px;
-        padding: 0 100px 0 20px;
-        position: absolute;
-        z-index: 1;
-        top: 88px;
-        .osd_show_list {
-            width: 400px;
-            height: 120px;
-            background-color: #000;
-            p {
-                display: inline-block;
-                width: 90px;
-                height: 30px;
-                border: 2px #fff dashed;
-                color: #fff;
-                line-height: 25px;
-                text-align: center;
-                box-sizing: border-box;
-                margin: 5px;
-                margin-bottom: 1px;
-                padding: 1px;
-                font-size: 12px;
-                overflow: hidden;
-            }
-        }
-        .player {
-            width: 400px;
-            height: 300px;
-        }
-        .draw_area_tip {
-            font-size: 12px;
-            color: #8d8d8d;
-        }
-    }
-    // 参数设置
-    .param {
-        width: 100%;
-        display: flex;
-
-        &_right {
-            margin-left: 520px;
-            width: calc(100% - 520px);
-            height: calc(100vh - 450px);
-            overflow: auto;
-            :deep(.el-form-item) {
-                padding: 5px 15px;
-                margin-bottom: 0;
-                .el-form-item__label {
-                    font-size: 15px;
-                }
-            }
-            .timeSet .el-select {
-                margin-right: 30px;
-            }
-            .area_radio_group {
-                :deep(.el-radio-button) {
-                    margin-right: 15px;
-                    border-radius: 2px;
-                    .el-radio-button__inner {
-                        //修改按钮样式
-                        width: 50px !important;
-                        height: 22px;
-                        line-height: 22px;
-                        padding: 0;
-                        border: 1px solid var(--border-color4) !important;
-                    }
-                }
-                :deep(.el-radio-button.is-active) {
-                    .el-radio-button__inner {
-                        color: #fff;
-                    }
-                }
-                .configured_area {
-                    :deep(.el-radio-button__inner) {
-                        border: 1px solid #00bbdb !important;
-                        color: #00bbdb;
-                    }
-                }
-            }
-            .detection_slider {
-                margin: 0 20px;
-            }
-            .detection_span {
-                width: 30px;
-                height: 20px;
-                line-height: 20px;
-                text-align: center;
-                border: 1px solid var(--border-color4);
-            }
-        }
-    }
-    .osd_checkbox_group {
-        width: 600px;
-        margin-left: 0 !important;
-        :deep(.el-checkbox) {
-            width: 200px;
-            margin: 15px 0 !important;
-            overflow: hidden;
-        }
-    }
-    .page_bottom {
-        position: absolute;
-        right: 20px;
-        bottom: 0;
+        border: 2px var(--color-white) dashed;
+        color: var(--color-white);
+        line-height: 25px;
+        text-align: center;
+        box-sizing: border-box;
+        margin: 5px;
+        margin-bottom: 1px;
+        padding: 1px;
+        font-size: 12px;
+        overflow: hidden;
     }
 }
 </style>

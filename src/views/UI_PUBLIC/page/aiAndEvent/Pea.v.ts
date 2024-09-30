@@ -2,13 +2,13 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-19 13:36:26
  * @Description: 区域入侵
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-25 14:26:37
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-30 10:19:28
  */
 import { ArrowDown } from '@element-plus/icons-vue'
 import { type chlCaps, type aiResourceRow } from '@/types/apiType/aiAndEvent'
 import BaseTransferDialog from '@/components/BaseTransferDialog.vue'
-import { ElDivider, type TabsPaneContext } from 'element-plus'
+import { type TabsPaneContext } from 'element-plus'
 import ChannelPtzCtrlPanel from '@/views/UI_PUBLIC/page/channel/ChannelPtzCtrlPanel.vue'
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import CanvasPolygon from '@/utils/canvas/canvasPolygon'
@@ -18,7 +18,6 @@ import { type peaPageData, type PresetList, type PresetItem } from '@/types/apiT
 export default defineComponent({
     components: {
         ArrowDown,
-        ElDivider,
         ScheduleManagPop,
         BaseTransferDialog,
         ChannelPtzCtrlPanel,
@@ -54,7 +53,6 @@ export default defineComponent({
         const osType = getSystemInfo().platform
         const aiResourceTableData = ref<aiResourceRow[]>([])
         const peaplayerRef = ref<PlayerInstance>()
-        const moreDropDownRef = ref()
         let peaDrawer: CanvasPolygon
         const peaData = ref({
             // 当前选中的通道
@@ -171,6 +169,8 @@ export default defineComponent({
             // detectionArea侦测区域 maskArea屏蔽区域 regionArea矩形区域
             currAreaType: 'detectionArea' as CanvasPolygonAreaType,
             initComplete: false,
+
+            moreDropDown: false,
         })
         let peaPlayer: PlayerInstance['player']
         let peaPlugin: PlayerInstance['plugin']
@@ -1136,8 +1136,8 @@ export default defineComponent({
             setPeaOcxData()
         }
         // pea选择警戒区域
-        const handleWarnAreaChange = (index: number) => {
-            peaData.value.chosenWarnAreaIndex = index
+        const handleWarnAreaChange = () => {
+            // peaData.value.chosenWarnAreaIndex = index
             setPeaOcxData()
         }
         // 通用获取云台锁定状态
@@ -1557,7 +1557,6 @@ export default defineComponent({
         })
         return {
             aiResourceTableData,
-            moreDropDownRef,
             peaData,
             peaplayerRef,
             peahandlePlayerReady,

@@ -97,7 +97,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: var(--login-bg, var(--page-bg));
+    background-color: var(--login-bg, var(--main-bg));
 }
 
 .login-main {
@@ -108,7 +108,7 @@
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    border-bottom: 3px solid var(--primary--04);
+    border-bottom: 3px solid var(--primary);
     position: relative;
     &:after {
         content: '';
@@ -200,6 +200,6 @@
     top: calc(100% + 30px);
     left: 405px;
     // margin: 30px 0px 0px 10px;
-    color: var(--error--01);
+    color: var(--color-error);
 }
 </style>

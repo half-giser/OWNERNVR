@@ -2,13 +2,13 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-11 14:16:37
  * @Description: 火点检测
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-27 11:15:49
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-30 14:06:54
  */
 import { ArrowDown } from '@element-plus/icons-vue'
 import { type chlCaps, type aiResourceRow } from '@/types/apiType/aiAndEvent'
 import { type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
-import { ElDivider, type TabsPaneContext } from 'element-plus'
+import { type TabsPaneContext } from 'element-plus'
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import BaseTransferDialog from '@/components/BaseTransferDialog.vue'
 import { cloneDeep } from 'lodash-es'
@@ -16,7 +16,6 @@ import { queryAIResourceDetail } from '@/api/aiAndEvent'
 export default defineComponent({
     components: {
         ArrowDown,
-        ElDivider,
         ScheduleManagPop,
         BaseTransferDialog,
     },

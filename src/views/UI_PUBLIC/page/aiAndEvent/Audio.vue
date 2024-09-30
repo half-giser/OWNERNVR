@@ -2,8 +2,8 @@
  * @Description: AI/事件——事件通知——声音
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-13 09:23:15
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-26 16:02:22
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-27 18:20:22
 -->
 <template>
     <el-tabs
@@ -20,21 +20,18 @@
                 class="stripe narrow"
                 :style="{
                     '--form-input-width': '215px',
-                    height: '440px',
+                    '--form-label-width': ipcAudioFormData.ipcRadio === 'audioAlarm' ? '150px' : '220px',
                 }"
                 label-position="left"
                 inline-message
             >
                 <el-form-item>
-                    <el-radio-group
-                        v-model="ipcAudioFormData.ipcRadio"
-                        class="ipcRadio"
-                    >
+                    <el-radio-group v-model="ipcAudioFormData.ipcRadio">
                         <el-radio-button value="audioAlarm">{{ Translate('IDCS_IPC_VOICE_BROADCAST') }}</el-radio-button>
                         <el-radio-button value="audioDevice">{{ Translate('IDCS_AUDIO_DEVICE') }}</el-radio-button>
                     </el-radio-group>
                 </el-form-item>
-                <div v-if="ipcAudioFormData.ipcRadio === 'audioAlarm'">
+                <template v-if="ipcAudioFormData.ipcRadio === 'audioAlarm'">
                     <el-form-item :label="Translate('IDCS_CHANNEL')">
                         <el-select
                             v-model="ipcAudioFormData.audioChl"
@@ -133,12 +130,9 @@
                             </el-option
                         ></el-select>
                     </el-form-item>
-                </div>
-                <div v-if="ipcAudioFormData.ipcRadio === 'audioDevice'">
-                    <el-form-item
-                        class="audio_device_form"
-                        :label="Translate('IDCS_CHANNEL')"
-                    >
+                </template>
+                <template v-if="ipcAudioFormData.ipcRadio === 'audioDevice'">
+                    <el-form-item :label="Translate('IDCS_CHANNEL')">
                         <el-select
                             v-model="ipcAudioFormData.deviceChl"
                             placeholder=""
@@ -157,10 +151,7 @@
                             >{{ Translate('IDCS_OFFLINE') }}</span
                         >
                     </el-form-item>
-                    <el-form-item
-                        class="audio_device_form"
-                        :label="Translate('IDCS_AUDIO_DEVICE')"
-                    >
+                    <el-form-item :label="Translate('IDCS_AUDIO_DEVICE')">
                         <el-checkbox
                             v-model="ipcAudioFormData.deviceEnable"
                             :disabled="audioDevicePageData.deviceEnableDisabled"
@@ -168,10 +159,7 @@
                             >{{ Translate('IDCS_ENABLE') }}</el-checkbox
                         >
                     </el-form-item>
-                    <el-form-item
-                        class="audio_device_form"
-                        :label="Translate('IDCS_DEVICE_AUDIO_IN')"
-                    >
+                    <el-form-item :label="Translate('IDCS_DEVICE_AUDIO_IN')">
                         <el-select
                             v-model="ipcAudioFormData.deviceAudioInput"
                             :disabled="audioDevicePageData.deviceAudioInputDisabled"
@@ -186,15 +174,11 @@
                             ></el-option>
                         </el-select>
                     </el-form-item>
-                    <el-form-item
-                        class="audio_device_form"
-                        :label="Translate('IDCS_IN_VOLUME')"
-                    >
+                    <el-form-item :label="Translate('IDCS_IN_VOLUME')">
                         <el-slider
                             v-model="ipcAudioFormData.micOrLinVolume"
                             :disabled="audioDevicePageData.micOrLinVolumeDisabled"
                             :min="0"
-                            class="slider"
                             @change="changeMicOrLinVolume"
                         ></el-slider
                         ><span
@@ -203,10 +187,7 @@
                             >{{ ipcAudioFormData.micOrLinVolume }}</span
                         >
                     </el-form-item>
-                    <el-form-item
-                        class="audio_device_form"
-                        :label="Translate('IDCS_DEVICE_SPEAKER_BUILT_IN')"
-                    >
+                    <el-form-item :label="Translate('IDCS_DEVICE_SPEAKER_BUILT_IN')">
                         <el-select
                             v-model="ipcAudioFormData.loudSpeaker"
                             :disabled="audioDevicePageData.loudSpeakerDisabled"
@@ -221,10 +202,7 @@
                             ></el-option>
                         </el-select>
                     </el-form-item>
-                    <el-form-item
-                        class="audio_device_form"
-                        :label="Translate('IDCS_DEVICE_SPEAKER_LINE_OUT')"
-                    >
+                    <el-form-item :label="Translate('IDCS_DEVICE_SPEAKER_LINE_OUT')">
                         <el-select
                             v-model="ipcAudioFormData.deviceAudioOutput"
                             :disabled="audioDevicePageData.deviceAudioOutputDisabled"
@@ -239,15 +217,11 @@
                             ></el-option>
                         </el-select>
                     </el-form-item>
-                    <el-form-item
-                        class="audio_device_form"
-                        :label="Translate('IDCS_AUDIO_OUT_VOLUME')"
-                    >
+                    <el-form-item :label="Translate('IDCS_AUDIO_OUT_VOLUME')">
                         <el-slider
                             v-model="ipcAudioFormData.outputVolume"
                             :disabled="audioDevicePageData.outputVolumeDisabled"
                             :min="0"
-                            class="slider"
                             @change="changeOutputVolume"
                         >
                         </el-slider
@@ -257,10 +231,7 @@
                             >{{ ipcAudioFormData.outputVolume }}</span
                         >
                     </el-form-item>
-                    <el-form-item
-                        class="audio_device_form"
-                        :label="Translate('IDCS_ENCODE_AUDIO_IN')"
-                    >
+                    <el-form-item :label="Translate('IDCS_ENCODE_AUDIO_IN')">
                         <el-select
                             v-model="ipcAudioFormData.audioEncode"
                             :disabled="audioDevicePageData.audioEncodeDisabled"
@@ -275,7 +246,7 @@
                             ></el-option>
                         </el-select>
                     </el-form-item>
-                </div>
+                </template>
             </el-form>
             <el-form
                 ref="popMsgRef"
@@ -382,12 +353,6 @@
 <script lang="ts" src="./Audio.v.ts"></script>
 
 <style lang="scss" scoped>
-:deep(.el-form-item__label) {
-    display: inline-block;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
 .audioTabs {
     /* 去掉长分割线 */
     :deep(.el-tabs__nav-wrap::after) {
@@ -401,7 +366,7 @@
 
     /* 导航行背景色 */
     :deep(.el-tabs__nav-wrap) {
-        background-color: var(--bg-color4);
+        background-color: var(--subheading-bg);
         padding: 0 15px;
     }
 
@@ -409,50 +374,24 @@
     :deep(.el-tabs__item) {
         font-size: 15px;
         font-weight: bolder;
-        color: var(--text-primary);
+        color: var(--main-text);
     }
 
     /* 鼠标选中时样式 */
     :deep(.el-tabs__item.is-active) {
-        color: var(--primary--04);
+        color: var(--primary);
         opacity: 1;
     }
     /* 鼠标悬浮时样式 */
     :deep(.el-tabs__item:hover) {
-        color: var(--primary--04);
+        color: var(--primary);
         cursor: pointer;
         opacity: 1;
     }
 }
 
-.ipcRadio {
-    :deep(.el-radio-button.is-active) {
-        --el-radio-button-checked-bg-color: var(--primary--04);
-        --el-radio-button-checked-border-color: var(--primary--04);
-    }
-
-    :deep(.el-radio-button__inner:hover) {
-        background-color: var(--primary--01);
-        color: var(--text-primary);
-    }
-
-    :deep(.el-radio-button.is-active .el-radio-button__inner:hover) {
-        background-color: var(--primary--04);
-        color: #ffffff;
-    }
-}
-
-.audio_device_form {
-    :deep(.el-form-item__label) {
-        width: 220px !important;
-    }
-}
-.slider {
-    width: 200px;
-}
-
 .ipcAudioTips {
-    color: #8d8d8d;
+    color: var(--main-text-light);
 }
 
 .localTable {

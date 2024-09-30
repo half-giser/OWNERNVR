@@ -2,8 +2,8 @@
  * @Description: 人脸识别——识别成功（0,1,2,3）/陌生人tab页
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-04 14:22:06
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-24 17:36:31
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-29 18:35:46
 -->
 <template>
     <!-- 人脸识别——识别成功 -->
@@ -43,17 +43,13 @@
             <el-button @click="pageData.scheduleManagPopOpen = true">{{ Translate('IDCS_MANAGE') }}</el-button>
         </el-form-item>
         <!-- 文字提示 -->
-        <el-form-item
-            :label="Translate('IDCS_TEXT_PROMPT')"
-            class="prompt"
-        >
+        <el-form-item :label="Translate('IDCS_TEXT_PROMPT')">
             <el-input v-model="taskData.hintword"></el-input>
         </el-form-item>
         <!-- 语音提示 -->
         <el-form-item
             v-if="supportAlarmAudioConfig"
             :label="Translate('IDCS_VOICE_PROMPT')"
-            class="prompt"
         >
             <el-select v-model="taskData.sysAudio">
                 <el-option
@@ -70,127 +66,126 @@
             <el-checkbox v-model="taskData.pluseSwitch">{{ Translate('IDCS_ENABLE_ALARM_OUTPUT') }}</el-checkbox>
         </el-form-item>
     </el-form>
-    <!-- 常规联动 -->
-    <div
-        class="linkage_box"
-        :style="{ marginLeft: '15px' }"
-    >
-        <el-checkbox
-            v-model="normalParamCheckAll"
-            class="normal_param_title"
-            @change="handleNormalParamCheckAll"
-            >{{ Translate('IDCS_TRIGGER_NOMAL') }}</el-checkbox
-        >
-        <el-checkbox-group
-            v-model="normalParamCheckList"
-            @change="handleNormalParamCheck"
+    <div class="base-ai-linkage-content">
+        <!-- 常规联动 -->
+        <div
+            class="base-ai-linkage-box"
+            :style="{ marginLeft: '15px' }"
         >
             <el-checkbox
-                v-for="item in normalParamList"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
+                v-model="normalParamCheckAll"
+                class="base-ai-linkage-title"
+                @change="handleNormalParamCheckAll"
+                >{{ Translate('IDCS_TRIGGER_NOMAL') }}</el-checkbox
             >
-            </el-checkbox>
-        </el-checkbox-group>
-    </div>
-    <!-- 录像 -->
-    <div class="linkage_box">
-        <div class="linkage_title">
-            <span>{{ `${Translate('IDCS_RECORD')} ` }}</span>
-            <el-button
-                size="small"
-                @click="pageData.recordIsShow = true"
-                >{{ Translate('IDCS_CONFIG') }}</el-button
+            <el-checkbox-group
+                v-model="normalParamCheckList"
+                @change="handleNormalParamCheck"
             >
+                <el-checkbox
+                    v-for="item in normalParamList"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                >
+                </el-checkbox>
+            </el-checkbox-group>
         </div>
-        <el-table
-            :data="taskData.record"
-            empty-text=" "
-            :show-header="false"
-        >
-            <el-table-column prop="label" />
-        </el-table>
-    </div>
-    <!-- 报警输出 -->
-    <div class="linkage_box">
-        <div class="linkage_title">
-            <span>{{ `${Translate('IDCS_ALARM_OUT')} ` }}</span>
-            <el-button
-                size="small"
-                @click="pageData.alarmOutIsShow = true"
-                >{{ Translate('IDCS_CONFIG') }}</el-button
+        <!-- 录像 -->
+        <div class="base-ai-linkage-box">
+            <div class="base-ai-linkage-title">
+                <span>{{ Translate('IDCS_RECORD') }}</span>
+                <el-button
+                    size="small"
+                    @click="pageData.recordIsShow = true"
+                    >{{ Translate('IDCS_CONFIG') }}</el-button
+                >
+            </div>
+            <el-table
+                :data="taskData.record"
+                empty-text=" "
+                :show-header="false"
             >
+                <el-table-column prop="label" />
+            </el-table>
         </div>
-        <el-table
-            :data="taskData.alarmOut"
-            empty-text=" "
-            :show-header="false"
-        >
-            <el-table-column prop="label" />
-        </el-table>
-    </div>
-    <!-- 抓图 -->
-    <div class="linkage_box">
-        <div class="linkage_title">
-            <span>{{ `${Translate('IDCS_SNAP')} ` }}</span>
-            <el-button
-                size="small"
-                @click="pageData.snapIsShow = true"
-                >{{ Translate('IDCS_CONFIG') }}</el-button
+        <!-- 报警输出 -->
+        <div class="base-ai-linkage-box">
+            <div class="base-ai-linkage-title">
+                <span>{{ Translate('IDCS_ALARM_OUT') }}</span>
+                <el-button
+                    size="small"
+                    @click="pageData.alarmOutIsShow = true"
+                    >{{ Translate('IDCS_CONFIG') }}</el-button
+                >
+            </div>
+            <el-table
+                :data="taskData.alarmOut"
+                empty-text=" "
+                :show-header="false"
             >
+                <el-table-column prop="label" />
+            </el-table>
         </div>
-        <el-table
-            :data="taskData.snap"
-            empty-text=" "
-            :show-header="false"
-        >
-            <el-table-column prop="label" />
-        </el-table>
-    </div>
-    <!-- 联动预置点 -->
-    <div
-        class="linkage_box"
-        :style="{ width: '350px' }"
-    >
+        <!-- 抓图 -->
+        <div class="base-ai-linkage-box">
+            <div class="base-ai-linkage-title">
+                <span>{{ `${Translate('IDCS_SNAP')} ` }}</span>
+                <el-button
+                    size="small"
+                    @click="pageData.snapIsShow = true"
+                    >{{ Translate('IDCS_CONFIG') }}</el-button
+                >
+            </div>
+            <el-table
+                :data="taskData.snap"
+                empty-text=" "
+                :show-header="false"
+            >
+                <el-table-column prop="label" />
+            </el-table>
+        </div>
+        <!-- 联动预置点 -->
         <div
-            class="linkage_title"
-            :style="{ width: '330px' }"
+            class="base-ai-linkage-box"
+            :style="{ width: '350px' }"
         >
-            <span>{{ Translate('IDCS_TRIGGER_ALARM_PRESET') }}</span>
+            <div class="base-ai-linkage-title">
+                <span>{{ Translate('IDCS_TRIGGER_ALARM_PRESET') }}</span>
+            </div>
+            <el-table
+                stripe
+                border
+                :data="PresetTableData"
+            >
+                <el-table-column
+                    prop="name"
+                    width="180px"
+                    :label="Translate('IDCS_CHANNEL_NAME')"
+                >
+                </el-table-column>
+                <el-table-column
+                    width="170px"
+                    :label="Translate('IDCS_PRESET_NAME')"
+                >
+                    <template #default="scope">
+                        <el-select
+                            v-model="scope.row.preset.value"
+                            size="small"
+                            :empty-values="[undefined, null]"
+                            @change="presetChange(scope.row)"
+                        >
+                            <el-option
+                                v-for="item in scope.row.presetList"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value"
+                            />
+                        </el-select>
+                    </template>
+                </el-table-column>
+            </el-table>
         </div>
-        <el-table
-            stripe
-            border
-            :data="PresetTableData"
-        >
-            <el-table-column
-                prop="name"
-                width="180px"
-                :label="Translate('IDCS_CHANNEL_NAME')"
-            >
-            </el-table-column>
-            <el-table-column
-                width="170px"
-                :label="Translate('IDCS_PRESET_NAME')"
-            >
-                <template #default="scope">
-                    <el-select
-                        v-model="scope.row.preset.value"
-                        size="small"
-                        :empty-values="[undefined, null]"
-                        @change="presetChange(scope.row)"
-                    >
-                        <el-option
-                            v-for="item in scope.row.presetList"
-                            :key="item.value"
-                            :label="item.label"
-                            :value="item.value"
-                        />
-                    </el-select>
-                </template>
-            </el-table-column>
-        </el-table>
     </div>
     <!-- 人脸分组 -->
     <el-dialog
@@ -222,12 +217,14 @@
                 width="228"
             />
         </el-table>
-        <el-row>
-            <el-col class="el-col-flex-end btnBox">
-                <el-button @click="saveGroup">{{ Translate('IDCS_OK') }}</el-button>
-                <el-button @click="closeGroupPop">{{ Translate('IDCS_CANCEL') }}</el-button>
-            </el-col>
-        </el-row>
+        <template #footer>
+            <el-row>
+                <el-col class="el-col-flex-end btnBox">
+                    <el-button @click="saveGroup">{{ Translate('IDCS_OK') }}</el-button>
+                    <el-button @click="closeGroupPop">{{ Translate('IDCS_CANCEL') }}</el-button>
+                </el-col>
+            </el-row>
+        </template>
     </el-dialog>
     <!-- 排程管理 -->
     <ScheduleManagPop
@@ -278,52 +275,6 @@
 
 <script lang="ts" src="./SuccessfulRecognition.v.ts"></script>
 
-<style lang="scss" scoped>
-#n9web .el-table {
-    --el-table-tr-bg-color: white;
-}
-// 联动方式下的盒子样式
-.linkage_box {
-    float: left;
-    width: 250px;
-    height: 300px;
-    margin-right: 2px;
-    border: 1px solid #888888;
-    :deep(.el-checkbox) {
-        width: 200px;
-        height: 45px;
-        padding-left: 10px;
-        color: #000;
-    }
-    .normal_param_title {
-        width: 230px;
-        height: 25px;
-        padding: 4px 10px;
-        background: #d0d0d0;
-    }
-    .linkage_title {
-        text-align: center;
-        font-size: 15px;
-        width: 230px;
-        height: 25px;
-        padding: 4px 10px;
-        background: #d0d0d0;
-    }
-    :deep(.el-table) {
-        width: 100%;
-        height: 267px;
-    }
-    :deep(.el-table__cell) {
-        padding: 3px;
-        height: 46px;
-        border-bottom: none;
-    }
-}
-.btnBox {
-    margin-top: 10px;
-}
-.prompt {
-    display: inline-flex;
-    width: 600px;
-}
+<style>
+@import '@/views/UI_PUBLIC/publicStyle/aiAndEvent.scss';
 </style>

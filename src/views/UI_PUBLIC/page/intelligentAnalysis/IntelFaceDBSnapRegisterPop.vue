@@ -131,7 +131,7 @@
 
 <style lang="scss" scoped>
 .title {
-    border-left: 3px solid var(--border-color2);
+    border-left: 3px solid var(--content-border);
     height: 30px;
     line-height: 30px;
     padding-left: 15px;

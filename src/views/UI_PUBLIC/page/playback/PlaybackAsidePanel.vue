@@ -131,7 +131,7 @@
         }
 
         &:hover i {
-            border-left-color: var(--primary--04);
+            border-left-color: var(--primary);
         }
     }
 
@@ -155,7 +155,7 @@
 
             &.active {
                 background-color: var(--panel-menu-bg-active);
-                border-top-color: var(--primary--04);
+                border-top-color: var(--primary);
             }
         }
     }

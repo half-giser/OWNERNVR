@@ -3,7 +3,7 @@
  * @Date: 2024-07-22 16:42:37
  * @Description: 现场预览-目标检测视图-人脸比对项组件
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-23 14:55:22
+ * @LastEditTime: 2024-09-27 13:34:48
 -->
 <template>
     <div
@@ -131,7 +131,7 @@
     width: 235px;
     margin: 5px auto;
     padding: 5px;
-    border: 1px solid var(--border-dark);
+    border: 1px solid var(--panel-snap-border);
     font-size: 12px;
     box-sizing: border-box;
 
@@ -172,7 +172,7 @@
         align-items: center;
         justify-content: center;
         opacity: 0;
-        background-color: var(--bg-color-opacity2);
+        background-color: var(--panel-snap-btn-bg);
 
         span {
             margin: 0 1px;
@@ -200,10 +200,10 @@
         display: flex;
         justify-content: center;
         line-height: 16px;
-        color: var(--primary--04);
+        color: var(--primary);
 
         &.border {
-            border: 1px solid var(--primary--04);
+            border: 1px solid var(--primary);
         }
 
         .rtl {

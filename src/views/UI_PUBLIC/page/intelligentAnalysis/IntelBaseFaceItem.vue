@@ -61,7 +61,7 @@
     &-box {
         position: relative;
         width: 100%;
-        border: 1px solid var(--border-dark);
+        border: 1px solid var(--intel-snap-border);
         box-sizing: border-box;
     }
 
@@ -94,7 +94,7 @@
     }
 
     &.active &-box {
-        border-color: var(--primary--04);
+        border-color: var(--primary);
     }
 }
 </style>

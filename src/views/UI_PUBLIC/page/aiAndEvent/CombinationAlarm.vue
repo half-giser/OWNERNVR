@@ -2,8 +2,8 @@
  * @Description: 普通事件——组合报警
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-22 16:04:47
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-26 15:29:43
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-29 14:33:36
 -->
 <template>
     <div class="base-flex-box">
@@ -535,13 +535,18 @@
                 </el-table-column>
             </el-table>
         </div>
-        <div class="base-btn-box">
-            <span class="tips">{{ pageData.CombinedALarmInfo }}</span>
-            <el-button
-                :disabled="pageData.applyDisabled"
-                @click="setData()"
-                >{{ Translate('IDCS_APPLY') }}</el-button
-            >
+        <div
+            class="base-btn-box"
+            :span="2"
+        >
+            <div>{{ pageData.CombinedALarmInfo }}</div>
+            <div>
+                <el-button
+                    :disabled="pageData.applyDisabled"
+                    @click="setData()"
+                    >{{ Translate('IDCS_APPLY') }}</el-button
+                >
+            </div>
         </div>
         <BaseTransferDialog
             v-model="pageData.recordIsShow"
@@ -599,9 +604,3 @@
 </template>
 
 <script lang="ts" src="./CombinationAlarm.v.ts"></script>
-
-<style scoped>
-.tips {
-    flex: 1;
-}
-</style>

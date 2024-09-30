@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-13 11:31:56
  * @Description: 过线检测邮件设置弹窗
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-25 14:13:50
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-30 14:16:03
 -->
 <template>
     <el-dialog
@@ -19,10 +19,8 @@
             v-model="pageData.popOpen"
             draggable
             center
-            top="300px"
             :close-on-click-modal="false"
-            :append-to-body="true"
-            class="addEmailPop"
+            append-to-body
             width="450px"
         >
             <el-form
@@ -31,18 +29,12 @@
                 :rules="rules"
                 label-position="left"
                 :style="{
-                    paddingBottom: '10px',
+                    '--form-input-width': '210px',
                 }"
             >
                 <el-form-item
-                    class="form_item"
-                    label-width="150px"
                     :label="Translate('IDCS_EMAIL_ADDRESS')"
                     prop="address"
-                    :style="{
-                        '--form-input-width': '210px',
-                        padding: '0px',
-                    }"
                 >
                     <el-input
                         v-model="formData.address"
@@ -55,13 +47,10 @@
                     </template>
                 </el-form-item>
                 <el-form-item
-                    class="form_item"
-                    label-width="150px"
                     :label="Translate('IDCS_SCHEDULE')"
                     prop="schedule"
                     :style="{
                         '--form-input-width': '210px',
-                        padding: '0px',
                     }"
                 >
                     <el-select
@@ -79,34 +68,24 @@
                     </el-select>
                 </el-form-item>
             </el-form>
-            <el-row class="base-btn-box">
-                <el-button
-                    class="dialog_btn"
-                    @click="handleAddReceiver"
-                >
-                    {{ Translate('IDCS_OK') }}
-                </el-button>
-                <el-button
-                    class="dialog_btn"
-                    @click="pageData.popOpen = false"
-                >
-                    {{ Translate('IDCS_CANCEL') }}
-                </el-button>
-            </el-row>
+            <template #footer>
+                <div class="base-btn-box collapse">
+                    <el-button @click="handleAddReceiver">
+                        {{ Translate('IDCS_OK') }}
+                    </el-button>
+                    <el-button @click="pageData.popOpen = false">
+                        {{ Translate('IDCS_CANCEL') }}
+                    </el-button>
+                </div>
+            </template>
         </el-dialog>
         <div class="main">
-            <div>
-                <el-divider direction="vertical"></el-divider>
-                <span>{{ Translate('IDCS_VIDEO_SAVE_PIC') }}</span>
-            </div>
+            <div class="base-ai-subheading">{{ Translate('IDCS_VIDEO_SAVE_PIC') }}</div>
             <div class="row_container">
                 <el-checkbox v-model="pageData.data.saveSourcePicture">{{ Translate('IDCS_SMART_SAVE_SOURCE_PIC') }}</el-checkbox>
                 <el-checkbox v-model="pageData.data.saveTargetPicture">{{ Translate('IDCS_SMART_SAVE_TARGET_PIC') }}</el-checkbox>
             </div>
-            <div>
-                <el-divider direction="vertical"></el-divider>
-                <span>{{ Translate('IDCS_SEND_EMAIL') }}</span>
-            </div>
+            <div class="base-ai-subheading">{{ Translate('IDCS_SEND_EMAIL') }}</div>
             <div class="row_container">
                 <el-checkbox v-model="pageData.data.sendEmailData.enableSwitch">{{ Translate('IDCS_ENABLE') }}</el-checkbox>
             </div>
@@ -160,7 +139,6 @@
                         :disabled="pageData.data.sendEmailData.enableSwitch ? !pageData.data.sendEmailData.mouthlyReportSwitch : true"
                         value-key="value"
                         class="inputWidth"
-                        :options="pageData.monthOption"
                         size="small"
                     >
                         <el-option
@@ -270,32 +248,26 @@
                 <span class="borderTitle">{{ Translate('IDCS_RECIPIENT') }}</span>
             </div>
             <div class="endRow_container">{{ Translate('IDCS_TIMING_SEND_EMAIL_TIP') }}</div>
-            <el-row class="base-btn-box">
-                <el-button
-                    class="dialog_btn"
-                    @click="close"
-                >
+        </div>
+        <template #footer>
+            <div class="base-btn-box collapse">
+                <el-button @click="close">
                     {{ Translate('IDCS_CLOSE') }}
                 </el-button>
-            </el-row>
-        </div>
+            </div>
+        </template>
     </el-dialog>
 </template>
 
-<script lang="ts" src="./PassLineEmailPop.v.ts"></script>
+<script lang="ts" src="./PassLinesEmailPop.v.ts"></script>
+
+<style>
+@import '@/views/UI_PUBLIC/publicStyle/aiAndEvent.scss';
+</style>
 
 <style lang="scss" scoped>
-.el-divider--vertical {
-    border-right-width: 3px;
-    height: 30px;
-    color: #999;
-    width: 3px;
-    margin: 0;
-    border-left: 3px solid #999;
-    padding-left: 5px;
-}
 .custom-error {
-    color: red;
+    color: var(--color-error);
     /* 自定义错误提示的位置 */
     position: absolute;
     top: -20px; /* 调整错误提示的垂直位置 */
@@ -305,14 +277,8 @@
 .main {
     width: 100%;
     height: 100%;
-    // display: flex;
-    // flex-direction: column;
-    color: black;
     .row_container {
         padding: 10px;
-        .el-checkbox {
-            color: black;
-        }
     }
     .endRow_container {
         padding: 10px;
@@ -325,14 +291,13 @@
         margin-top: 20px;
         padding: 0 10px;
         box-sizing: border-box;
-        border: 1px solid #4a4848;
+        border: 1px solid var(--content-border);
     }
     .contentWrap {
         margin-top: 15px;
         height: 23px;
         display: flex;
         align-items: center;
-        border: 1px solid #999999;
         .inBoxCheckBox:first-child {
             margin-left: 4px;
         }
@@ -348,7 +313,7 @@
         left: 20px;
         top: -10px;
         padding: 0 5px;
-        background-color: white;
+        background-color: var(--dialog-bg);
     }
     .disabled {
         background-color: transparent;
@@ -360,20 +325,12 @@
         bottom: 12px;
         right: 11px;
     }
-    .dialog_btn {
-        width: 80px;
-        height: 25px;
-        // margin-right: 10px;
-    }
+
     .inputWidth {
         width: 100px;
     }
     .table {
         width: 420px;
     }
-}
-.addEmailPop {
-    z-index: 999;
-    height: 200px;
 }
 </style>

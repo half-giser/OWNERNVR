@@ -283,7 +283,7 @@
 
             &.active {
                 color: #fff;
-                background-color: var(--primary--04);
+                background-color: var(--primary);
             }
         }
     }

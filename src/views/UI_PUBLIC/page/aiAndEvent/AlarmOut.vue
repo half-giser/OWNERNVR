@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-08-10 11:05:51
  * @Description: 报警输出
- * @LastEditors: tengxiang tengxiang@tvt.net.cn
- * @LastEditTime: 2024-08-12 11:25:11
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-29 13:34:34
 -->
 <template>
     <div class="base-flex-box">
@@ -198,5 +198,3 @@
 </template>
 
 <script lang="ts" src="./AlarmOut.v.ts"></script>
-
-<style scoped></style>
