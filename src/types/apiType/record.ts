@@ -2,8 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-03 16:14:27
  * @Description: 录像与回放
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-12 13:53:22
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-09-27 09:25:30
  */
 
 /**
@@ -89,6 +89,12 @@ export class RecordSubStreamList {
     videoEncodeType = ''
     subStreamQualityCaps = []
     qualitys = [] as string[]
+}
+// 分辨率数据项
+export class ResolutionRow {
+    res = ''
+    resGroup = [] as string[]
+    chls = { expand: false, data: [] as SelectOption<string, string>[] }
 }
 
 // 录像子码流页面，表格行中不存在的属性

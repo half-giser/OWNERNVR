@@ -875,7 +875,7 @@
     justify-content: center;
     align-items: center;
     width: 100%;
-    background-color: #fff;
+    //background-color: #fff;
     height: 567px;
     z-index: 2;
     font-size: 20px;
@@ -981,12 +981,12 @@
             display: flex;
             flex-direction: column;
             height: 481px;
-            background-color: #fff;
+            //background-color: #fff;
 
             .trigger_box {
                 z-index: 3;
                 height: 481px;
-                background-color: #fff;
+                //background-color: #fff;
             }
             .audio_row {
                 display: flex;

@@ -2,8 +2,8 @@
  * @Description: AI 事件——更多——温度检测
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-13 09:18:25
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-26 15:09:21
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-09-29 18:17:02
 -->
 <template>
     <div class="temp_detection">
@@ -468,9 +468,6 @@
 #n9web .el-form.narrow .el-form-item {
     padding: 1px 0px 2px 12px;
     margin-bottom: 0;
-}
-#n9web .el-table {
-    --el-table-tr-bg-color: white;
 }
 .form_btn {
     width: fit-content;
