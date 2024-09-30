@@ -3,7 +3,7 @@
  * @Date: 2024-09-29 11:48:53
  * @Description: 水印设置
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-29 17:56:50
+ * @LastEditTime: 2024-09-30 11:15:39
 -->
 <template>
     <div class="waterMark_main">
@@ -41,8 +41,8 @@
                         <el-select
                             v-model="pageData.chlData.switch"
                             value-key="value"
-                            :placeholder="Translate('IDCS_ON')"
-                            :disabled="pageData.chlData.disabled"
+                            placeholder=""
+                            :disabled="pageData.switchDisabled"
                             :options="pageData.options"
                             @change="handleSwitchChange"
                         >
@@ -57,7 +57,7 @@
                     <el-form-item :label="Translate('IDCS_INFORMATION')">
                         <el-input
                             v-model="pageData.chlData.customText"
-                            @focus="handleFocus(pageData.chlData.customText)"
+                            @input="handleFocus(pageData.chlData.customText, 'form')"
                             @blur="handleCustomTextInput(pageData.chlData.customText)"
                         ></el-input>
                     </el-form-item>
@@ -128,7 +128,7 @@
                                 :disabled="scope.row.disabled"
                                 :placeholder="Translate('IDCS_ON')"
                                 :options="pageData.options"
-                                @change="addEditRow(getRowById(pageData.chlData.chlId))"
+                                @change="handleTableSwitchChange(scope.row)"
                             >
                                 <el-option
                                     v-for="item in pageData.options"
@@ -164,7 +164,7 @@
                                                 <el-input
                                                     v-model="pageData.customTextSetAll"
                                                     placeholder=""
-                                                    @focus="handleFocus(pageData.customTextSetAll)"
+                                                    @input="handleFocus(pageData.customTextSetAll, 'table')"
                                                 ></el-input>
                                                 <el-row class="base-btn-box">
                                                     <el-button @click="handleSetCustomTextAll(pageData.customTextSetAll)">{{ Translate('IDCS_OK') }}</el-button>
