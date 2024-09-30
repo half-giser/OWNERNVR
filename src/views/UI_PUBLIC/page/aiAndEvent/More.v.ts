@@ -3,7 +3,7 @@
  * @Date: 2024-09-10 17:50:35
  * @Description: 更多功能页面的框架
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-26 11:30:55
+ * @LastEditTime: 2024-09-27 11:16:10
  */
 import { type chlCaps } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
@@ -330,7 +330,7 @@ export default defineComponent({
             pageData.value.videoStructureDisable = !pageData.value.chlData['supportVideoMetadata']
             pageData.value.passLineDisable = !(pageData.value.chlData['supportPassLine'] || pageData.value.chlData['supportCpc'])
             pageData.value.cddDisable = !pageData.value.chlData['supportCdd']
-            // pageData.value.cddDisable = false
+            pageData.value.cddDisable = false
             pageData.value.temperatureDetectionDisable = !pageData.value.chlData['supportTemperature']
             pageData.value.objectLeftDisable = !pageData.value.chlData['supportOsc']
             pageData.value.avdDisable = !pageData.value.chlData['supportAvd']

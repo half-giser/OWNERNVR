@@ -3,7 +3,7 @@
  * @Date: 2024-09-11 14:16:37
  * @Description: 火点检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-25 14:28:13
+ * @LastEditTime: 2024-09-27 11:15:49
  */
 import { ArrowDown } from '@element-plus/icons-vue'
 import { type chlCaps, type aiResourceRow } from '@/types/apiType/aiAndEvent'
@@ -912,6 +912,7 @@ export default defineComponent({
             await getData()
             await getPresetList()
             pageData.value.initComplete = true
+            // pageData.value.requireDataFail = true
         }
         onMounted(async () => {
             await initPageData()

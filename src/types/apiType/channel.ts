@@ -574,3 +574,17 @@ export class ChannelPtzProtocolDto {
     addressMax = 1
     ptz = false
 }
+
+/**
+ * @description 水印设置 通道列表项
+ */
+export class ChannelWaterMarkDto {
+    chlId = ''
+    chlName = ''
+    chlIndex = ''
+    chlType = ''
+    status = 'loading'
+    disabled = false
+    switch = 'false'
+    customText = ''
+}

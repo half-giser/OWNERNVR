@@ -3,7 +3,7 @@
  * @Date: 2024-09-11 14:16:29
  * @Description: 火点检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-26 10:02:37
+ * @LastEditTime: 2024-09-29 18:10:57
 -->
 <template>
     <div class="tripwire_setting_pane">
@@ -497,7 +497,7 @@
     justify-content: center;
     align-items: center;
     width: 100%;
-    background-color: #fff;
+    // //background-color: #fff;
     height: 567px;
     z-index: 2;
     font-size: 20px;
@@ -506,9 +506,7 @@
     padding: 1px 0px 2px 12px;
     margin-bottom: 0;
 }
-#n9web .el-table {
-    --el-table-tr-bg-color: white;
-}
+
 .tripwire_setting_pane {
     position: relative;
     :deep() {
@@ -609,7 +607,7 @@
             display: flex;
             flex-direction: column;
             height: 481px;
-            background-color: #fff;
+            // //background-color: #fff;
             :deep() {
                 .el-table td.el-table__cell {
                     border-bottom: 0;
@@ -618,7 +616,7 @@
             .trigger_box {
                 z-index: 3;
                 height: 481px;
-                background-color: #fff;
+                // //background-color: #fff;
             }
             .audio_row {
                 display: flex;
@@ -664,7 +662,7 @@
                         }
                         .el-checkbox__label {
                             font-size: 15px;
-                            color: black;
+                            // color: black;
                         }
                     }
                     .table_item {

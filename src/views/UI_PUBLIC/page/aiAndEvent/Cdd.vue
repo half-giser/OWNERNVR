@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 17:51:14
  * @Description: 人群密度检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-25 16:24:10
+ * @LastEditTime: 2024-09-27 13:59:18
 -->
 <template>
     <div class="tripwire_setting_pane">
@@ -464,9 +464,6 @@
 #n9web .el-form .el-slider {
     margin-left: 15px;
 }
-#n9web .el-table {
-    --el-table-tr-bg-color: white;
-}
 .clear_btns {
     display: flex;
     align-items: center;
@@ -489,7 +486,7 @@
     justify-content: center;
     align-items: center;
     width: 100%;
-    background-color: #fff;
+    //background-color: #fff;
     height: 567px;
     z-index: 3;
     font-size: 20px;
@@ -585,7 +582,7 @@
             display: flex;
             flex-direction: column;
             height: 481px;
-            background-color: #fff;
+            //background-color: #fff;
             :deep() {
                 .el-table td.el-table__cell {
                     border-bottom: 0;
@@ -594,7 +591,7 @@
             .trigger_box {
                 z-index: 3;
                 height: 481px;
-                background-color: #fff;
+                //background-color: #fff;
             }
             .audio_row {
                 display: flex;

@@ -747,9 +747,7 @@
         --el-checkbox-font-size: 15px;
     }
 }
-#n9web .el-table {
-    --el-table-tr-bg-color: white;
-}
+
 #n9web .el-form .el-form-item {
     padding: 1px 0px 2px 12px;
     margin-bottom: 0;
@@ -883,7 +881,7 @@
     justify-content: center;
     align-items: center;
     width: 100%;
-    background-color: #fff;
+    //background-color: #fff;
     height: 567px;
     z-index: 2;
     font-size: 20px;
@@ -995,7 +993,7 @@
             display: flex;
             flex-direction: column;
             height: 481px;
-            background-color: #fff;
+            //background-color: #fff;
             :deep() {
                 .el-table td.el-table__cell {
                     border-bottom: 0;
@@ -1004,7 +1002,7 @@
             .trigger_box {
                 z-index: 3;
                 height: 481px;
-                background-color: #fff;
+                //background-color: #fff;
             }
             .audio_row {
                 display: flex;
