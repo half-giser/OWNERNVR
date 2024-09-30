@@ -32,7 +32,7 @@
                     />
                 </el-select>
             </el-form-item>
-            <div class="title">{{ Translate('IDCS_DOOR_LOCK') }}</div>
+            <div class="base-business-subheading">{{ Translate('IDCS_DOOR_LOCK') }}</div>
             <el-form-item label=" ">
                 <el-select
                     v-model="pageData.accessLockCurrentIndex"
@@ -122,7 +122,7 @@
                     />
                 </el-select>
             </el-form-item>
-            <div class="title">{{ Translate('IDCS_WIEGAND_CONFIG') }}</div>
+            <div class="base-business-subheading">{{ Translate('IDCS_WIEGAND_CONFIG') }}</div>
             <el-form-item :label="Translate('IDCS_TRANSPORT_DIR')">
                 <el-select
                     v-model="pageData.wiegandIOType"
@@ -162,22 +162,12 @@
 
 <script lang="ts" src="./ActConfigs.v.ts"></script>
 
+<style>
+@import '@/views/UI_PUBLIC/publicStyle/businessApplication.scss';
+</style>
+
 <style lang="scss" scoped>
 .act {
-    display: flex;
-    flex-direction: column;
     padding: 25px 20px;
-}
-
-.title {
-    margin: 10px 0 10px;
-    display: flex;
-    align-items: center;
-    height: 23px;
-    border-left: 2px solid var(--main-text);
-    color: var(--main-text);
-    font-size: 16px;
-    font-weight: bold;
-    padding-left: 10px;
 }
 </style>
