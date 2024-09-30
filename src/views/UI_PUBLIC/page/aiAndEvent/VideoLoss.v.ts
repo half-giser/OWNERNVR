@@ -33,7 +33,6 @@ export default defineComponent({
         const presetRef = ref()
 
         const { LoadingTarget, openLoading, closeLoading } = useLoading()
-        const openMessageTipBox = useMessageBox().openMessageTipBox
         const pageData = ref({
             pageIndex: 1,
             pageSize: 10,
@@ -652,7 +651,6 @@ export default defineComponent({
             chosedList,
             pageData,
             tableData,
-            openMessageTipBox,
             snapRef,
             alarmOutRef,
             presetRef,

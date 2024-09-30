@@ -3,7 +3,7 @@
  * @Date: 2024-07-31 16:36:16
  * @Description: 排程编辑弹框
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-26 11:55:09
+ * @LastEditTime: 2024-09-27 10:30:17
 -->
 <template>
     <el-dialog
@@ -128,9 +128,6 @@
 <script lang="ts" src="./ScheduleEditPop.v.ts"></script>
 
 <style lang="scss" scoped>
-// .base-subheading-box {
-// }
-
 .form {
     width: 950px;
     height: 38px;
@@ -144,11 +141,11 @@
     }
 
     #n9web & :deep(.el-form-item__label) {
-        color: var(--schedule-form-text, var(--text-primary));
+        color: var(--schedule-form-text);
     }
 
     #n9web & :deep(.el-radio) {
-        --el-radio-text-color: var(--schedule-form-text, var(--text-primary));
+        --el-radio-text-color: var(--schedule-form-text);
     }
 
     :deep(.el-form-item__error--inline) {
@@ -165,6 +162,7 @@
 #n9web .el-form .el-form-item {
     padding: 3px 0px 0px 0px;
 }
+
 .btn-panel {
     position: relative;
     flex: 0 0 auto;
@@ -176,20 +174,21 @@
         margin-left: 15px;
         text-decoration: none;
         cursor: pointer;
-        color: var(--schedule-form-button, var(--schedule-button));
+        color: var(--schedule-form-btn);
 
         &:hover {
             text-decoration: underline;
-            color: var(--primary--04);
+            color: var(--primary);
         }
 
         &.disabled {
             cursor: default;
-            color: var(--text-disabled);
+            color: var(--input-text-disabled);
             text-decoration: none;
         }
     }
 }
+
 .menaulTimeInputPL {
     display: flex;
     flex-direction: column;
@@ -199,8 +198,8 @@
     right: 0px;
     padding: 2px;
     border-radius: 5px;
-    border: solid 1px var(--border-color1);
-    background-color: var(--bg-color5);
+    border: solid 1px var(--main-border);
+    background-color: var(--table-stripe);
     z-index: 1000;
 
     .dayList {

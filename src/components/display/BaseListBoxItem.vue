@@ -72,11 +72,11 @@ li {
 
     &:hover,
     &.active {
-        border-color: var(--primary--04);
+        border-color: var(--primary);
     }
 
     &.active {
-        background-color: var(--primary--04);
+        background-color: var(--primary);
         color: white;
     }
 }

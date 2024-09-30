@@ -746,5 +746,3 @@
 </template>
 
 <script lang="ts" src="./SensorEventConfig.v.ts"></script>
-
-<style scoped></style>

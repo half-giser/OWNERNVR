@@ -3,7 +3,7 @@
  * @Date: 2024-06-07 10:40:47
  * @Description: 插件下载按钮
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-20 15:54:16
+ * @LastEditTime: 2024-09-27 10:57:55
 -->
 <template>
     <div
@@ -47,7 +47,7 @@ const isPluginIconHide = ref(import.meta.env.VITE_APP_TYPE === 'STANDARD' && osT
     bottom: 20px;
     font-size: 18px;
     text-align: center;
-    color: var(--text-menu-05);
+    color: var(--login-plugin-text);
     display: flex;
     justify-content: center;
     align-items: center;

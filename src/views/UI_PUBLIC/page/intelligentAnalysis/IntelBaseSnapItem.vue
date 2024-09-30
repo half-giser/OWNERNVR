@@ -107,7 +107,7 @@
         justify-content: space-between;
         align-items: center;
         line-height: 10px;
-        background-color: var(--bg-color4);
+        background-color: var(--subheading-bg);
 
         .el-checkbox {
             height: 25px;
@@ -117,7 +117,7 @@
     &-box {
         position: relative;
         width: 100%;
-        border: 1px solid var(--border-dark);
+        border: 1px solid var(--intel-snap-border);
         box-sizing: border-box;
     }
 

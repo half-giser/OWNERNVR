@@ -3,7 +3,7 @@
  * @Date: 2024-09-24 15:16:31
  * @Description: UI1-D 客制化 顶层布局页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-25 10:26:28
+ * @LastEditTime: 2024-09-27 09:43:42
 -->
 <template>
     <el-container id="layoutMain">
@@ -144,7 +144,7 @@
 
 #layoutMain {
     height: 100vh;
-    background-color: var(--page-bg);
+    background-color: var(--main-bg);
 }
 
 #layoutMainHeader {
@@ -177,17 +177,23 @@
             font-style: normal;
             font-weight: bold;
             font-size: 16px;
-            color: var(--text-menu-01);
+            color: var(--header-menu-text);
             line-height: 33px;
             text-align: left;
             min-width: 170px;
-            background-color: var(--layout-menu-bg);
+            background-color: var(--header-menu-bg);
             display: flex;
             justify-content: flex-start;
 
-            &.is-active {
-                background-color: var(--primary--04);
-                color: var(--text-menu-01-active) !important;
+            &:hover {
+                color: var(--header-menu-text-hover);
+                background-color: var(--header-menu-bg);
+            }
+
+            &.is-active,
+            &.is-active:hover {
+                background-color: var(--header-menu-bg-active);
+                color: var(--header-menu-text-active);
             }
         }
     }
@@ -208,7 +214,7 @@
 
 #topRight {
     font-size: 14px;
-    margin: 20px 60px 0px 0px;
+    margin: 0 60px 0px 0px;
     display: flex;
 
     .icon_aq {
@@ -220,7 +226,7 @@
 
         &:hover {
             text-decoration: underline;
-            color: var(--primary--04);
+            color: var(--primary);
         }
     }
 
@@ -249,7 +255,7 @@
 
 #mainMenu {
     height: 40px;
-    --el-menu-active-color: var(--primary--04);
+    --el-menu-active-color: var(--primary);
     --el-menu-base-level-padding: 10px;
 }
 
@@ -275,9 +281,9 @@
     padding: 1px 0px 1px 0px;
     height: 18px;
     width: 100%;
-    color: var(--layout-copyright-text);
-    background-color: var(--layout-copyright-bg);
-    // border-top: 1px solid var(--border-color1);
+    color: var(--footer-text);
+    background-color: var(--footer-bg);
+    // border-top: 1px solid var(--main-border);
     flex-shrink: 0;
 }
 </style>

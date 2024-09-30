@@ -2,8 +2,8 @@
  * @Description: 事件通知——声音——ipc/local添加语音文件弹窗
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-14 15:48:05
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-23 15:07:53
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-29 18:37:04
 -->
 <template>
     <el-dialog
@@ -71,7 +71,7 @@
 }
 
 .tips {
-    color: red;
+    color: var(--color-error);
     padding: 20px 0px;
 }
 </style>

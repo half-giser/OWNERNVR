@@ -2,8 +2,8 @@
  * @Description: AI/事件——事件通知——推送
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-12 15:28:05
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-19 10:14:26
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-29 13:51:53
 -->
 <template>
     <el-form
@@ -55,10 +55,3 @@
 </template>
 
 <script lang="ts" src="./Push.v.ts"></script>
-
-<style scoped>
-.msgbox {
-    margin-top: 50px;
-    --form-input-width: 215px;
-}
-</style>

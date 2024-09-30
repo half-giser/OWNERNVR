@@ -147,7 +147,7 @@
 .panel {
     width: 380px;
     height: 242px;
-    border: 1px solid var(--bg-color4);
+    border: 1px solid var(--subheading-bg);
     margin: 5px;
 
     &-top {
@@ -187,7 +187,7 @@
         padding: 10px 0;
 
         &:not(:last-child) {
-            border-bottom: 1px solid var(--border-color2);
+            border-bottom: 1px solid var(--content-border);
         }
     }
 

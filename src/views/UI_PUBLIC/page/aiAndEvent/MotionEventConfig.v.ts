@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-16 18:13:56
  * @Description: 移动侦测
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-29 16:34:03
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-30 15:11:59
  */
 import { cloneDeep } from 'lodash-es'
 import { ArrowDown } from '@element-plus/icons-vue'
@@ -610,8 +610,7 @@ export default defineComponent({
                 router.push('/config/channel/settings/motion')
             } else {
                 openMessageTipBox({
-                    type: 'question',
-                    title: Translate('IDCS_INFO_TIP'),
+                    type: 'info',
                     message: Translate('IDCS_NO_AUTH'),
                 })
             }

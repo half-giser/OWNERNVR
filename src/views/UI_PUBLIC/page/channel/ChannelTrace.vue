@@ -199,19 +199,19 @@
 
 .icon-btn {
     flex-shrink: 0;
-    background-color: var(--bg-icon-btn);
-    border: 1px solid var(--bg-icon-btn);
+    background-color: var(--ptz-btn);
+    border: 1px solid var(--ptz-btn);
 
     &:hover {
-        background-color: var(--bg-icon-btn);
-        border-color: var(--primary--04);
+        background-color: var(--ptz-btn);
+        border-color: var(--primary);
     }
 
     &.disabled {
-        background-color: var(--bg-icon-btn-disabled);
+        background-color: var(--ptz-btn-disabled);
 
         &:hover {
-            border-color: var(--bg-icon-btn);
+            border-color: var(--ptz-btn);
         }
     }
 
@@ -230,7 +230,7 @@
     margin: 0;
     width: 50px;
     text-align: center;
-    color: var(--primary--04);
+    color: var(--primary);
     font-size: 22px;
     line-height: 32px;
     padding-right: 10px;

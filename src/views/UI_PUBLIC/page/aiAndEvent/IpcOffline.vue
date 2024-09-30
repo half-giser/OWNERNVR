@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-21 15:34:24
  * @Description: 前端掉线
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-25 17:38:21
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-29 15:50:01
 -->
 <template>
     <div class="base-flex-box">
@@ -112,7 +112,6 @@
                             ></el-checkbox>
                             <el-button
                                 :disabled="!scope.row.snap.switch || scope.row.rowDisable"
-                                class="table_btn"
                                 @click="setSnap(scope.$index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
@@ -255,7 +254,6 @@
                             ></el-checkbox>
                             <el-button
                                 :disabled="!scope.row.alarmOut.switch || scope.row.rowDisable"
-                                class="table_btn"
                                 @click="setAlarmOut(scope.$index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
@@ -279,7 +277,6 @@
                             ></el-checkbox>
                             <el-button
                                 :disabled="!scope.row.preset.switch || scope.row.rowDisable"
-                                class="table_btn"
                                 @click="openPresetPop(scope.row)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
@@ -541,7 +538,7 @@
 <style lang="scss" scoped>
 .row-together {
     width: fit-content;
-    .table_btn {
+    .el-button {
         margin-left: 5px;
     }
 }

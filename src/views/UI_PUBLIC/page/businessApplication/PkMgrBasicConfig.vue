@@ -82,14 +82,14 @@
     display: flex;
     align-items: center;
     height: 23px;
-    border-left: 2px solid var(--text-primary);
-    color: var(--text-primary);
+    border-left: 2px solid var(--main-text);
+    color: var(--main-text);
     font-size: 16px;
     font-weight: bold;
     padding-left: 10px;
 
     &-tip {
-        color: var(--text-menu-03);
+        color: var(--main-text-light);
         font-size: 14px;
         margin-left: 40px;
         font-weight: normal;

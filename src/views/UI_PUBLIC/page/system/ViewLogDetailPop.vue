@@ -122,7 +122,7 @@
         }
 
         &:nth-child(even) {
-            background-color: var(--bg-color5);
+            background-color: var(--table-stripe);
         }
 
         &.text-area {
@@ -158,13 +158,13 @@
         .capture {
             width: 100px;
             height: 100px;
-            background-color: var(--bg-color4);
+            background-color: var(--subheading-bg);
         }
 
         .scenes {
             width: 210px;
             height: 140px;
-            background-color: var(--bg-color4);
+            background-color: var(--subheading-bg);
         }
 
         img {

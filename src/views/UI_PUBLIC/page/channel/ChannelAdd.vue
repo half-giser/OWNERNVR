@@ -403,9 +403,9 @@
     .tabItem {
         font-size: 14px;
         padding: 4px 15px 4px 15px;
-        border: 1px solid var(--border-color7);
+        border: 1px solid var(--input-border);
         &.active {
-            background-color: var(--primary--04);
+            background-color: var(--primary);
             color: var(--color-white);
         }
     }

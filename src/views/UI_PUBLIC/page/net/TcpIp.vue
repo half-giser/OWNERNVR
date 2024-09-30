@@ -326,9 +326,9 @@
     display: flex;
     width: 100%;
     justify-content: space-between;
-    background-color: var(--bg-color5);
+    background-color: var(--table-stripe);
     align-items: center;
-    border: 1px solid var(--border-color2);
+    border: 1px solid var(--content-border);
     box-sizing: border-box;
     & > div {
         width: 50%;
@@ -348,13 +348,13 @@
         cursor: pointer;
 
         &.active {
-            border-bottom-color: var(--primary--04);
+            border-bottom-color: var(--primary);
         }
     }
 }
 
 .config {
-    border: 1px solid var(--border-color2);
+    border: 1px solid var(--content-border);
     box-sizing: border-box;
     padding: 5px 0;
     margin-bottom: 5px;
@@ -362,7 +362,7 @@
 
 .dhcp {
     padding: 5px 10px;
-    background-color: var(--bg-color5);
+    background-color: var(--table-stripe);
     margin: 0 5px;
     width: calc(100% - 30px);
 

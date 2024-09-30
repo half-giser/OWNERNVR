@@ -3,7 +3,7 @@
  * @Date: 2023-05-10 09:30:08
  * @Description: 登录页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-26 17:37:28
+ * @LastEditTime: 2024-09-29 13:32:02
 -->
 <template>
     <div class="login">
@@ -94,7 +94,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: var(--login-bg, var(--page-bg));
+    background-color: var(--login-bg, var(--main-bg));
 }
 
 .login-content {
@@ -102,7 +102,7 @@
     width: 713px;
     // height: 296px;
     background-image: var(--img-login-content);
-    background-color: var(--login-content-bg, var(--page-bg));
+    background-color: var(--login-content-bg, var(--main-bg));
     background-position: center top;
     background-repeat: no-repeat;
     padding-inline: 10px;
@@ -150,6 +150,10 @@
             &:hover {
                 background-position: 0 -50px;
             }
+
+            &.is-disabled {
+                background-position: 0 -150px;
+            }
         }
     }
 }
@@ -170,6 +174,6 @@
     top: calc(100% + 30px);
     left: 405px;
     // margin: 30px 0px 0px 10px;
-    color: var(--error--01);
+    color: var(--color-error);
 }
 </style>

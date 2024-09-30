@@ -2,8 +2,8 @@
  * @Description: AI 事件——更多——视频结构化
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-20 10:15:52
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-25 11:26:16
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-30 15:18:13
  */
 import { VideoStructureData, type chlCaps } from '@/types/apiType/aiAndEvent'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
@@ -251,18 +251,14 @@ export default defineComponent({
             if (!canBeClosed) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_INTERSECT'),
-                    showCancelButton: false,
                 })
             }
         }
         const vsdClearCurrentArea = () => {
             openMessageTipBox({
-                type: 'info',
-                title: Translate('IDCS_INFO_TIP'),
+                type: 'question',
                 message: Translate('IDCS_DRAW_CLEAR_TIP'),
-                showCancelButton: true,
             }).then(() => {
                 if (currAreaType == 'detectionArea') {
                     vsdData.value.detectAreaInfo[pageData.value.detectArea] = []
@@ -846,10 +842,8 @@ export default defineComponent({
         // 手动重置
         const manualResetData = async () => {
             openMessageTipBox({
-                type: 'info',
-                title: Translate('IDCS_INFO_TIP'),
+                type: 'question',
                 message: Translate('IDCS_RESET_TIP'),
-                showCancelButton: true,
             }).then(async () => {
                 const sendXml = rawXml`<content>
                                     <chl id="${prop.currChlId}">
@@ -989,17 +983,13 @@ export default defineComponent({
                 if (count > 0 && count < 4) {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_INPUT_LIMIT_FOUR_POIONT'),
-                        showCancelButton: false,
                     })
                     return false
                 } else if (count > 0 && !judgeAreaCanBeClosed(allRegionList[i])) {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_INTERSECT'),
-                        showCancelButton: false,
                     })
                     return false
                 }
@@ -1011,9 +1001,7 @@ export default defineComponent({
             if (!checkOsdName(peopleOsdName) || !checkOsdName(carOsdName) || !checkOsdName(bikeOsdName)) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_USER_ERROR_INVALID_PARAM'),
-                    showCancelButton: false,
                 })
                 return false
             }
@@ -1174,7 +1162,6 @@ export default defineComponent({
                 const switchChangeType = switchChangeTypeArr.join(',')
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_SIMPLE_VIDEO_META_DETECT_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + prop.chlData.name, switchChangeType),
                 }).then(() => {
                     setVideoStructureData()
@@ -1218,9 +1205,7 @@ export default defineComponent({
                 // 515-区域有相交直线，不可闭合
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_INTERSECT'),
-                    showCancelButton: false,
                 })
             }
         }

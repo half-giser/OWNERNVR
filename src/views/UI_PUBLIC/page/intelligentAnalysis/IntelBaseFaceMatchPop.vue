@@ -123,12 +123,12 @@
     padding-bottom: 10px;
 
     &:first-child {
-        border-bottom: 1px solid var(--border-color7);
+        border-bottom: 1px solid var(--input-border);
     }
 }
 
 .title {
-    border-left: 3px solid var(--border-color2);
+    border-left: 3px solid var(--content-border);
     height: 30px;
     line-height: 30px;
     padding-left: 15px;

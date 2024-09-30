@@ -2,8 +2,8 @@
  * @Description: AI 事件——更多——异常侦测
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-19 09:27:33
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-25 11:05:05
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-30 15:01:07
  */
 import { cloneDeep } from 'lodash-es'
 import { AbnormalDispose, type PresetList, type chlCaps } from '@/types/apiType/aiAndEvent'
@@ -406,7 +406,6 @@ export default defineComponent({
             if (abnormalDisposeData.value.preset.length > MAX_TRIGGER_PRESET_COUNT) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_PRESET_LIMIT'),
                 })
             }
