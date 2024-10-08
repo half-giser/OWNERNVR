@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 13:35:56
  * @Description:  区域入侵
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-30 16:47:04
+ * @LastEditTime: 2024-10-08 11:11:18
 -->
 <template>
     <div class="pea_setting_pane">
@@ -581,7 +581,7 @@
                         <div class="base-ai-linkage-box">
                             <el-checkbox
                                 v-model="peaData.areaCfgData[peaData.activity_type].triggerSwitch"
-                                class="base-ai-linkage-title"
+                                class="base-ai-linkage-title base-ai-linkage-title-checkbox"
                                 @change="handlePeaTriggerSwitch"
                                 >{{ Translate('IDCS_TRIGGER_NOMAL') }}</el-checkbox
                             >

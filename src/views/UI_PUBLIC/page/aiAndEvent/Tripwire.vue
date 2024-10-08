@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 11:11:35
  * @Description:  越界
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-30 17:01:16
+ * @LastEditTime: 2024-10-08 11:09:35
 -->
 
 <template>
@@ -507,7 +507,7 @@
                             <div class="base-ai-linkage-box">
                                 <el-checkbox
                                     v-model="tripwireData.triggerSwitch"
-                                    class="base-ai-linkage-title"
+                                    class="base-ai-linkage-title base-ai-linkage-title-checkbox"
                                     @change="handleTripwireTriggerSwitch"
                                     >{{ Translate('IDCS_TRIGGER_NOMAL') }}</el-checkbox
                                 >
@@ -665,8 +665,5 @@
 .table_item {
     display: flex;
     justify-content: flex-start;
-}
-.base-ai-linkage-title > .el-checkbox {
-    margin-right: 10px;
 }
 </style>
