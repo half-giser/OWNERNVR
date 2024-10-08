@@ -577,6 +577,20 @@ input[type='number'] {
                 }
             }
         }
+
+        &.always-border {
+            border: none;
+
+            .el-radio-button {
+                &__inner {
+                    border: 1px solid var(--btn-border); 
+                }
+
+                & + .el-radio-button .el-radio-button__inner {
+                    border: 1px solid var(--btn-border);
+                }
+            }
+        }
     }
 }
 
@@ -594,6 +608,7 @@ input[type='number'] {
     height: 20px;
     background-image: var(--img-loading);
     background-repeat: no-repeat;
+    background-size: cover;
 }
 
 // 将页面容器转换为flexbox

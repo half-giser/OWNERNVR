@@ -3,7 +3,7 @@
  * @Date: 2024-04-23 11:52:48
  * @Description: 登录界面
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-26 09:55:41
+ * @LastEditTime: 2024-09-30 16:16:50
  */
 import { type FormRules, type FormInstance } from 'element-plus'
 import { LoginForm, LoginReqData } from '@/types/apiType/user'
@@ -277,6 +277,9 @@ export default defineComponent({
         }
 
         onMounted(() => {
+            const title = Translate('IDCS_WEB_CLIENT')
+            document.title = title === 'IDCS_WEB_CLIENT' ? '' : title
+
             getIsShowPrivacy()
             updateCalendar()
         })
