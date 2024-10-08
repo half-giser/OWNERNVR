@@ -330,7 +330,6 @@ export default defineComponent({
             pageData.value.videoStructureDisable = !pageData.value.chlData['supportVideoMetadata']
             pageData.value.passLineDisable = !(pageData.value.chlData['supportPassLine'] || pageData.value.chlData['supportCpc'])
             pageData.value.cddDisable = !pageData.value.chlData['supportCdd']
-            pageData.value.cddDisable = false
             pageData.value.temperatureDetectionDisable = !pageData.value.chlData['supportTemperature']
             pageData.value.objectLeftDisable = !pageData.value.chlData['supportOsc']
             pageData.value.avdDisable = !pageData.value.chlData['supportAvd']

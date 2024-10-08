@@ -2,8 +2,8 @@
  * @Description: AI 事件——人脸识别
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-28 13:41:57
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 14:31:16
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-08 11:01:49
 -->
 <template>
     <!-- 通道名称及选择器 -->
@@ -121,7 +121,10 @@
                                         </el-select>
                                         <el-button @click="pageData.scheduleManagPopOpen = true">{{ Translate('IDCS_MANAGE') }}</el-button>
                                     </el-form-item>
-                                    <div v-if="detectionPageData.isParamRightShow">
+                                    <div
+                                        v-if="detectionPageData.isParamRightShow"
+                                        class="param-right-form-item"
+                                    >
                                         <!-- 规则 -->
                                         <div class="base-ai-subheading">{{ Translate('IDCD_RULE') }}</div>
                                         <!-- 持续时间 -->
@@ -275,6 +278,7 @@
                                     </div>
                                     <el-table
                                         :data="faceDetectionData.record"
+                                        empty-text=" "
                                         stripe
                                         :show-header="false"
                                     >
@@ -293,6 +297,7 @@
                                     </div>
                                     <el-table
                                         :data="faceDetectionData.alarmOut"
+                                        empty-text=" "
                                         stripe
                                         :show-header="false"
                                     >
@@ -413,6 +418,7 @@
                 >
                     <el-form
                         label-position="left"
+                        class="narrow"
                         :style="{
                             '--form-label-width': 'auto',
                         }"
@@ -695,12 +701,17 @@
 .table-box {
     width: 500px;
 }
-
+:deep(.el-form-item__label) {
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 // 高级设置
 .more_wrap {
     position: absolute;
     right: 20px;
-    top: 10px;
+    top: 45px;
     cursor: pointer;
 }
 
@@ -713,10 +724,16 @@
     }
 }
 
+.param-right-form-item {
+    .el-form-item {
+        margin-bottom: 0;
+        padding: 5px 15px;
+    }
+}
 .taskBtn {
     position: absolute;
     right: 20px;
-    top: 3px;
+    top: 58px;
     span {
         font-size: 30px;
         padding: 0 5px;
