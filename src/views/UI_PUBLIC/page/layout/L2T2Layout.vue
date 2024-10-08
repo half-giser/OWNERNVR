@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 二级类型2布局页--适用于“搜索和备份”、“智能分析”、“业务应用”等
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-14 18:04:39
+ * @LastEditTime: 2024-10-08 16:55:36
 -->
 
 <template>
@@ -12,37 +12,16 @@
             <el-menu
                 class="tab-style"
                 mode="horizontal"
-                :router="true"
             >
-                <template
+                <el-menu-item
                     v-for="menu2 in menu2Items"
                     :key="menu2.meta.fullPath"
+                    :index="menu2.meta.fullPath"
+                    :class="{ active: isMenu2Actice(menu2) }"
+                    @click="goToPath(menu2)"
                 >
-                    <el-menu-item
-                        v-if="isSubMenuShow(menu2)"
-                        :index="menu2.meta.fullPath"
-                        :route="menu2"
-                        :class="{ 'is-active': isMenu2Actice(menu2) }"
-                    >
-                        <span
-                            :title="Translate(menu2.meta.lk || '')"
-                            v-text="Translate(menu2.meta.lk || '')"
-                        ></span>
-                        <span class="menu-split"></span>
-                    </el-menu-item>
-                    <el-menu-item
-                        v-else-if="isMenuItemShow(menu2)"
-                        :index="menu2.meta.fullPath"
-                        :route="menu2"
-                        :class="{ 'is-active': isMenu2Actice(menu2) }"
-                    >
-                        <span
-                            :title="Translate(menu2.meta.lk || '')"
-                            v-text="Translate(menu2.meta.lk || '')"
-                        ></span>
-                        <span class="menu-split"></span>
-                    </el-menu-item>
-                </template>
+                    <span>{{ Translate(menu2.meta.lk || '') }}</span>
+                </el-menu-item>
             </el-menu>
         </el-header>
         <el-main id="layout2Main">
@@ -72,5 +51,38 @@
     padding: 0px;
     background-color: var(--main-bg);
     display: flex;
+}
+
+.tab-style {
+    height: 38px;
+    justify-content: center;
+    align-items: center;
+    border: 0;
+    border-bottom: 1px solid var(--content-border);
+    background-color: var(--main-bg);
+
+    :deep(.el-menu-item) {
+        --el-menu-active-color: var(--tabbar-text);
+        --el-menu-text-color: var(--tabbar-text);
+        --el-menu-hover-bg-color: var(--tabbar-bg);
+        border-top: solid 1px var(--content-border);
+        border-bottom: solid 1px var(--content-border);
+        border-right: solid 1px var(--content-border);
+        margin: 0px;
+        line-height: 28px;
+        height: 28px;
+        background-color: var(--tabbar-bg);
+        &:first-of-type {
+            border-left: solid 1px var(--content-border);
+        }
+        &:hover {
+            color: var(--tabbar-text-hover);
+            background-color: var(--tabbar-bg-hover, var(--primary-light));
+        }
+        &.active {
+            background-color: var(--tabbar-bg-active);
+            color: var(--tabbar-text-active) !important;
+        }
+    }
 }
 </style>

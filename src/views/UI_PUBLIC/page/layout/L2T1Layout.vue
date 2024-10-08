@@ -3,24 +3,26 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 二级类型1布局页--适用于所有配置页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-24 11:44:02
+ * @LastEditTime: 2024-10-08 16:52:05
 -->
 <template>
     <el-container id="layout2">
         <el-aside id="layout2Left">
             <div
                 v-for="(menuGroup, key) in sortedGroups"
+                v-show="groupMenuMap[menuGroup[0]]?.length"
                 :key
                 class="menu-group"
                 :class="{
-                    'is-active': route.meta.group === menuGroup[0],
+                    active: route.meta.group === menuGroup[0],
+                    disabled: getMenuGroupDisabled(menuGroup[0]),
                 }"
-                @click="toDefault(menuGroup[0])"
+                @click="goToDefaultPage(menuGroup[0])"
             >
                 <div class="main-menu">
                     <BaseImgSprite
                         :file="menuGroup[1].icon || ''"
-                        :index="0"
+                        :index="getMenuGroupDisabled(menuGroup[0]) ? 1 : 0"
                         :chunk="2"
                     />
                     <span v-text="Translate(menuGroup[1].lk || '')"> </span>
@@ -29,9 +31,12 @@
                     <span
                         v-for="(menu3, menu3Key) in groupMenuMap[menuGroup[0]]"
                         :key="menu3Key"
-                        @click.stop="router.push(menu3.meta.fullPath)"
-                        v-text="Translate(menu3.meta.lk || '')"
-                    ></span>
+                        :class="{
+                            disabled: getMenuDisabled(menu3),
+                        }"
+                        @click.stop="goToPath(menu3)"
+                        >{{ Translate(menu3.meta.lk || '') }}</span
+                    >
                 </div>
             </div>
             <div class="rest"></div>
@@ -112,9 +117,9 @@
     margin: 0px 0px -1px 0px;
     position: relative;
     flex-shrink: 0;
-    background-color: var(--config-aside-item-bg, var(--config-aside-bg));
+    background-color: var(--config-aside-item-bg);
 
-    &.is-active {
+    &.active {
         background-color: var(--config-aside-item-bg-active);
 
         .main-menu span {
@@ -142,6 +147,28 @@
 
     &:last-of-type {
         margin: 0px 0px 0px 0px;
+    }
+
+    &.disabled,
+    &.disabled:hover {
+        border-color: var(--content-border);
+        background-color: var(--config-aside-item-bg);
+
+        .main-menu span,
+        .main-menu span:hover {
+            color: var(--config-aside-text-disabled);
+            cursor: default;
+            text-decoration: none;
+        }
+
+        .sub-menus span,
+        .sub-menu span:hover {
+            color: var(--config-aside-text-disabled);
+
+            &:not(:last-of-type):after {
+                background-color: var(--config-aside-text-disabled);
+            }
+        }
     }
 }
 
@@ -185,6 +212,13 @@
             text-decoration: underline;
         }
 
+        &.disabled,
+        &.disabled:hover {
+            color: var(--config-aside-text-disabled);
+            text-decoration: none;
+            cursor: default;
+        }
+
         &:not(:last-of-type):after {
             content: '';
             display: inline-block;
@@ -202,6 +236,7 @@
     border-bottom: solid 1px var(--content-border);
     border-right: solid 1px var(--content-border);
     overflow: hidden;
+    background-color: var(--main-bg);
 
     .el-menu-item {
         display: inline-block;
@@ -220,7 +255,7 @@
         width: 100%;
         height: 35px;
         border-bottom: solid 1px var(--content-border);
-        background-color: var(--bg-nav, transparent);
+        background-color: var(--breadcrumb-bg);
 
         #layout2RightTopBarNav {
             display: flex;

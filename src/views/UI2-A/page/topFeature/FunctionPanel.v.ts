@@ -3,16 +3,17 @@
  * @Date: 2024-09-26 15:32:02
  * @Description: UI2-A 客制化功能面板
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-26 15:32:34
+ * @LastEditTime: 2024-10-08 15:48:29
  */
-import { config } from '@/router/featureConfig/RouteUtil'
 import { getMenuItems } from '@/router'
 
 export default defineComponent({
     setup() {
         const router = useRouter()
+        const userSession = useUserSessionStore()
         //去掉在控制面板不需要显示的菜单项，并排序
         const configModules = ref<RouteRecordRawExtends[]>([])
+        const layoutStore = useLayoutStore()
 
         const pageData = ref({
             // 选中的一级菜单
@@ -25,7 +26,13 @@ export default defineComponent({
          * @description 获取功能面板的菜单列表
          */
         const getConfigModule = () => {
-            configModules.value = getMenuItems(config.children as RouteRecordRawExtends[]).filter((item) => !!item.meta?.groups)
+            configModules.value = getMenuItems(layoutStore.configMenu?.children || []).filter((item) => !!item.meta?.groups)
+
+            const menuIndex = configModules.value.findIndex((item) => !getMenuDisabled(item))
+            if (menuIndex > -1) {
+                pageData.value.mainMenuIndex = menuIndex
+            }
+
             getDefaultTriMenu()
         }
 
@@ -60,6 +67,9 @@ export default defineComponent({
          * @param {RouteRecordRawExtends} moduleItem
          */
         const goToPage = (moduleItem: RouteRecordRawExtends) => {
+            if (getMenuDisabled(moduleItem)) {
+                return
+            }
             router.push(moduleItem.meta.fullPath)
         }
 
@@ -68,6 +78,9 @@ export default defineComponent({
          * @param {number} key
          */
         const changeMainMenu = (key: number) => {
+            if (getMenuDisabled(configModules.value[key])) {
+                return
+            }
             pageData.value.mainMenuIndex = key
             getDefaultTriMenu()
         }
@@ -80,9 +93,24 @@ export default defineComponent({
             pageData.value.subMenuIndex = key
         }
 
-        onMounted(() => {
-            getConfigModule()
-        })
+        /**
+         * @description 是否禁用菜单
+         * @param {RouteRecordRawExtends} route
+         * @returns {boolean}
+         */
+        const getMenuDisabled = (route: RouteRecordRawExtends) => {
+            return typeof route.meta.enabled !== 'undefined' && !userSession.hasAuth(route.meta.enabled)
+        }
+
+        watch(
+            () => layoutStore.configMenu,
+            () => {
+                getConfigModule()
+            },
+            {
+                immediate: true,
+            },
+        )
 
         return {
             goToPage,
@@ -92,6 +120,7 @@ export default defineComponent({
             changeSubMenu,
             subMenu,
             triMenu,
+            getMenuDisabled,
         }
     },
 })

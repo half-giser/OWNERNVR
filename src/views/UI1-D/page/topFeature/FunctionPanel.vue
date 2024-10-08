@@ -3,7 +3,7 @@
  * @Date: 2024-09-24 16:46:13
  * @Description: UI1-D客制化 功能面板
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-27 11:23:39
+ * @LastEditTime: 2024-10-08 14:29:52
 -->
 <template>
     <div class="config-home">
@@ -15,14 +15,15 @@
                     class="config-menu-item"
                     :class="{
                         active: key === pageData.mainMenuIndex,
+                        disabled: getMenuDisabled(moduleItem),
                     }"
-                    @click="changeMainMenu(key)"
-                    @mouseenter="hoverMainMenu(key, true)"
-                    @mouseleave="hoverMainMenu(key, false)"
+                    @click="changeMainMenu(key, moduleItem)"
+                    @mouseenter="hoverMainMenu(key, true, moduleItem)"
+                    @mouseleave="hoverMainMenu(key, false, moduleItem)"
                 >
                     <BaseImgSprite
                         :file="moduleItem.meta.icon"
-                        :index="key === pageData.mainMenuIndex || key === pageData.hoverMenuIndex ? 1 : 0"
+                        :index="getMenuDisabled(moduleItem) ? 1 : 0"
                         :chunk="2"
                     />
                     <div class="config-menu-text">{{ Translate(moduleItem.meta.lk || '') }}</div>
@@ -44,7 +45,10 @@
                             v-for="subMenu in moduleItem.children"
                             :key="subMenu.meta.fullPath"
                             class="config-submenu-item"
-                            @click.stop="router.push(subMenu.meta.fullPath)"
+                            :class="{
+                                disabled: getMenuDisabled(moduleItem) || getMenuDisabled(subMenu),
+                            }"
+                            @click.stop="goToPage(subMenu, moduleItem)"
                             v-text="Translate(subMenu.meta.lk || '')"
                         ></div>
                     </div>
@@ -98,14 +102,17 @@
                 background-color: var(--config-menu-bg-hover);
             }
 
-            &.active {
+            &.active,
+            &.active:hover {
                 color: var(--config-menu-text-active);
-                background-color: var(--config-menu-bg-hover);
+                background-color: var(--config-menu-bg-active);
+            }
 
-                &:hover {
-                    color: var(--config-menu-text-active);
-                    background-color: var(--config-menu-bg-active);
-                }
+            &.disabled,
+            &.disabled:hover {
+                cursor: not-allowed;
+                color: var(--config-menu-text-disabled);
+                background-color: var(--config-menu-bg-disabled);
             }
         }
     }
@@ -139,6 +146,11 @@
 
             &:hover {
                 color: var(--config-submenu-text-hover);
+            }
+
+            &.disabled {
+                cursor: not-allowed;
+                color: var(--config-submenu-text-disabled);
             }
         }
     }

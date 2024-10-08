@@ -3,7 +3,7 @@
  * @Date: 2024-05-24 17:12:55
  * @Description: 
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-26 19:40:37
+ * @LastEditTime: 2024-10-08 11:06:18
 -->
 <template>
     <div>
@@ -21,6 +21,7 @@
 
 <script setup lang="ts">
 import dayjs from 'dayjs'
+import { generateAsyncRoutes } from './router'
 
 const route = useRoute()
 const router = useRouter()
@@ -47,8 +48,11 @@ const hanedleActivationStatus = async (checkActivationStatus: boolean, isUserAut
                 router.replace('/login')
                 return
             } else {
+                generateAsyncRoutes()
                 if (route.name === 'login') {
                     router.replace('/live')
+                } else {
+                    router.replace(route.fullPath)
                 }
             }
         }

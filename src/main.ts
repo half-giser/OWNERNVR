@@ -3,19 +3,18 @@
  * @Date: 2024-04-16 13:47:54
  * @Description: 项目入口
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-25 09:07:41
+ * @LastEditTime: 2024-10-08 17:04:18
  */
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import App from '@/App.vue'
-import router, { getMenu1Items } from '@/router'
+import router from '@/router'
 import { createPersistedState } from 'pinia-plugin-persistedstate'
 import i18nPlugin from './plugin/i18n'
 import typeEnhance from './plugin/typeEnhance'
 import loadingPlugin from './plugin/loading'
 import './plugin/css'
 import datePlugin from './plugin/date'
-import componentPlugin from './plugin/components'
 import { regAllDirective } from './directives'
 
 export const app = createApp(App)
@@ -35,10 +34,6 @@ pinia.use(
     }),
 )
 app.use(pinia) // 启用Pinia
-
-app.use(componentPlugin)
-
-getMenu1Items()
 
 const lang = useLangStore()
 

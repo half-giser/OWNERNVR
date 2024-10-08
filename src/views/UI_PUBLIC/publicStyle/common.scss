@@ -475,38 +475,6 @@ input[type='number'] {
             }
         }
     }
-    // .el-menu 公共样式
-    .el-menu {
-        &.tab-style {
-            height: auto;
-            justify-content: center;
-            border: 0;
-            padding: 4px 0px 0px 0px;
-            .el-menu-item {
-                --el-menu-active-color: var(--tabbar-text-active);
-                --el-menu-text-color: var(--tabbar-text);
-                border-top: solid 1px var(--content-border);
-                border-bottom: solid 1px var(--content-border);
-                border-right: solid 1px var(--content-border);
-                margin: 0px;
-                line-height: 28px;
-                background-color: var(--tabbar-bg, transparent);
-                &:first-of-type {
-                    border-left: solid 1px var(--content-border);
-                }
-                &:hover {
-                    color: var(--tabbar-text-hover);
-                    background-color: var(--tabbar-bg-hover, var(--primary-light));
-                }
-                &.is-active {
-                    background-color: var(--tabbar-bg-active, var(--primary));
-                }
-            }
-            .menu-split {
-                width: 0px;
-            }
-        }
-    }
 
     .el-radio {
         --el-radio-text-color: var(--main-text);
@@ -525,7 +493,6 @@ input[type='number'] {
 
             .el-radio-button {
                 width: 50%;
-                // margin-right: 15px;
 
                 .el-radio-button__inner {
                     width: 100%;

@@ -3,7 +3,7 @@
  * @Date: 2024-05-29 13:48:55
  * @Description: UI1-K 主题样式
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 13:59:17
+ * @LastEditTime: 2024-10-08 16:04:07
  */
 
 #n9web {
@@ -91,17 +91,21 @@
     --dialog-bg: #fff; 
     --popover-bg: #fff; 
 
-    --config-menu-text: #3c3c3c; 
-    --config-menu-text-hover: var(--primary); 
+    --config-menu-text: #3c3c3c;
+    --config-menu-text-hover: var(--primary);
     --config-menu-text-active: var(--primary);
+    --config-menu-text-disabled: #D9D9D9;
     --config-menu-bg: unset;
     --config-menu-bg-hover: unset;
     --config-menu-bg-active: unset;
-    --config-menu-border: #aeaeae; 
+    --config-menu-bg-disabled: unset;
+    --config-menu-border: #aeaeae;
     --config-menu-border-hover: var(--primary);
+    --config-menu-border-disabled: #D9D9D9;
 
-    --config-submenu-text: #8f8f8f; 
-    --config-submenu-text-hover: var(--primary);  
+    --config-submenu-text: #8f8f8f;
+    --config-submenu-text-hover: var(--primary);
+    --config-submenu-text-disabled: #D9D9D9;
     --config-submenu-bg: unset;
     
     --login-bg: var(--main-bg);
@@ -116,14 +120,15 @@
     --authcode-input-text-disabled: #454545;
     --authcode-input-bg-disabled: #ccc;
 
-    --config-aside-text: #333; 
+    --config-aside-text: #333;
     --config-aside-text-hover: #555;
     --config-aside-text-active: #555;
-    --config-aside-bg: unset; 
+    --config-aside-text-disabled: #D9D9D9;
+    --config-aside-bg: unset;
     --config-aside-item-bg: unset;
     --config-aside-item-bg-active: #ffbe00;
 
-    --breadcrumb-text: #454545; 
+    --breadcrumb-text: #454545;
     --breadcrumb-bg: transparent;
     
     --ptz-btn: #f0f0f0;
@@ -133,12 +138,12 @@
     --ai-linkbox-border: #888;
     --ai-advance-bg: #e5e5e5;
 
-    --panel-bg: #fff; 
-    --panel-header-bg: #fff; 
+    --panel-bg: #fff;
+    --panel-header-bg: #fff;
     --panel-header-text: #666;
     --panel-header-text-02: #ccc;
-    --panel-menu-bg: #f0f2f3; 
-    --panel-menu-bg-active: #fff; 
+    --panel-menu-bg: #f0f2f3;
+    --panel-menu-bg-active: #fff;
     --panel-btn-bg: #d9d9d9;
     --panel-btn-bg-disabled: #777;
 
@@ -153,24 +158,24 @@
     --panel-event-title-text: #D5D4D4;
     --panel-event-title-bg: #999;
 
-    --tabbar-text: #333; 
+    --tabbar-text: #333;
     --tabbar-text-hover: var(--header-menu-text);
-    --tabbar-text-active: #676767; 
-    --tabbar-bg: #fff; 
+    --tabbar-text-active: #676767;
+    --tabbar-bg: #fff;
     --tabbar-bg-hover: var(--primary-light);
     --tabbar-bg-active: var(--primary);
 
     --sidebar-text: var(--header-menu-text);
-    --sidebar-text-hover: #333; 
+    --sidebar-text-hover: #333;
     --sidebar-text-active: var(--main-text-active);
     --sidebar-bg: transparent;
     --sidebar-bg-hover: var(--primary-light);
     --sidebar-bg-active: var(--primary);
-    
-    --backup-snap-bg: #555; 
-    --backup-snap-border: #555; 
-    
-    --intel-snap-border: #000; 
+
+    --backup-snap-bg: #555;
+    --backup-snap-border: #555;
+
+    --intel-snap-border: #000;
 
     --parklog-label-text: #8d8d8d;
     --parklog-bg: #f0f2f3; 
@@ -178,7 +183,7 @@
     --parklog-title-bg: #cbcbcb;
 
     --player-bg: #4c4c4b; 
-    --player-split-border: #343434; 
+    --player-split-border: #343434;
 
     --calendar-bg: var(--main-bg);
     --calendar-header-text: #343434;
