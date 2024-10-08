@@ -2,8 +2,8 @@
  * @Description: AI 事件——车牌识别
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-09 09:56:14
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 15:25:06
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-08 10:09:57
 -->
 <template>
     <!-- 通道名称及选择器 -->
@@ -131,6 +131,7 @@
                                                 :key="index"
                                                 :label="index + 1"
                                                 :value="index"
+                                                :class="{ configured_area: detectionPageData.reginConfiguredArea[index] }"
                                             />
                                         </el-radio-group>
                                     </el-form-item>
@@ -146,6 +147,7 @@
                                                 :key="index"
                                                 :label="index + 1"
                                                 :value="index"
+                                                :class="{ configured_area: detectionPageData.maskConfiguredArea[index] }"
                                             />
                                         </el-radio-group>
                                     </el-form-item>
@@ -218,8 +220,8 @@
                                             :max="vehicleDetectionData.plateSize.max"
                                             type="number"
                                             @blur="maxVehicleBlur"
-                                        ></el-input
-                                        >%
+                                        ></el-input>
+                                        <el-text>%</el-text>
                                     </el-form-item>
                                     <el-form-item>
                                         <el-checkbox
@@ -243,7 +245,6 @@
                             <div
                                 v-show="detectionPageData.isShowDirection"
                                 class="more_wrap"
-                                @click="advancedVisible = !advancedVisible"
                             >
                                 <span>{{ Translate('IDCS_ADVANCED') }}</span>
                                 <BaseImgSprite
@@ -289,7 +290,7 @@
                         </div>
                     </el-popover>
                 </div>
-                <div class="base-btn-box padding">
+                <div class="base-btn-box fixed">
                     <el-button
                         :disabled="detectionPageData.applyDisabled"
                         @click="applyVehicleDetectionData"
@@ -309,6 +310,9 @@
                 <el-form
                     class="narrow"
                     label-position="left"
+                    :style="{
+                        '--form-label-width': 'auto',
+                    }"
                 >
                     <el-form-item :label="Translate('IDCS_ENABLE')">
                         <el-checkbox>{{ Translate('IDCS_SUCCESSFUL_RECOGNITION') }}</el-checkbox>
@@ -350,7 +354,7 @@
                         >
                     </div>
                 </div>
-                <div class="base-btn-box padding">
+                <div class="base-btn-box fixed">
                     <el-button
                         :disabled="comparePageData.applyDisabled"
                         @click="applyVehicleCompareData"
@@ -392,7 +396,7 @@
 .more_wrap {
     position: absolute;
     right: 20px;
-    top: 10px;
+    top: 15px;
     cursor: pointer;
     z-index: 1;
 }
@@ -417,6 +421,12 @@
     }
     .removeDisabled {
         color: var(--main-text-light);
+    }
+}
+.configured_area {
+    :deep(.el-radio-button__inner) {
+        border: 1px solid --primary !important;
+        color: --primary;
     }
 }
 </style>

@@ -60,7 +60,7 @@ export default defineComponent({
             ftpSnap: 'IDCS_FTP_SNAP_CHANNEL_LIMIT',
             alarmOut: 'IDCS_ALARMOUT_LIMIT',
         }
-        const genData = () => {
+        const open = () => {
             data.value = props.sourceData!
             chosedList.value = props.linkedList!
             source_title.value = Translate(props.sourceTitle)
@@ -101,7 +101,7 @@ export default defineComponent({
             panelWidth.value = Math.max(maxWidth + 87, panelWidth.value)
         }
         onMounted(() => {
-            genData()
+            open()
             updatePanelWidth()
         })
         return {
@@ -109,6 +109,7 @@ export default defineComponent({
             chosedList,
             props,
             verify,
+            open,
             close,
             change,
             source_title,

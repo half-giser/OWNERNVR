@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-16 17:19:02
  * @Description: 穿梭框弹窗
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-26 11:19:11
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-09-30 18:05:35
 -->
 <template>
     <el-dialog
@@ -12,6 +12,7 @@
         width="615px"
         :title="Translate(props.headerTitle)"
         :style="{ '--el-dialog-width': `${(panelWidth - 200) * 2 + 615}px` }"
+        @open="open"
         @close="close"
     >
         <div class="PosTriggerChannel">
