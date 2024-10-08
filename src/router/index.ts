@@ -3,14 +3,13 @@
  * @Date: 2024-04-16 13:47:54
  * @Description: 路由构建入口文件
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-19 09:51:52
+ * @LastEditTime: 2024-10-08 13:51:48
  */
 import { createRouter, createWebHistory, type RouteLocationNormalized } from 'vue-router'
-import { buildRouter, setRouteAuth } from './featureConfig/RouteUtil'
+import { buildRouter } from './featureConfig/RouteUtil'
 import progress from '@bassist/progress'
 import { APP_NAME } from '@/utils/constants'
-import { root } from '@/router/featureConfig/RouteUtil'
-import { type RouteLocationMatched, type RouteLocationNormalizedLoaded } from 'vue-router'
+import { type RouteLocationNormalizedLoaded } from 'vue-router'
 
 progress.configure({ showSpinner: false })
 progress.setColor('var(--primary)')
@@ -20,13 +19,72 @@ const routes = buildRouter()
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
-    routes,
+    routes: routes.filter((item) => item.meta?.enabled === ''),
     scrollBehavior: (_to, _from, savedPosition) => {
         return savedPosition ? savedPosition : { top: 0, left: 0 }
     },
 })
 
-const getMenuItem = (item: RouteRecordRawExtends) => {
+let authRoutes: RouteRecordRawExtends[] = []
+
+/**
+ * @description 生成有权限的路由
+ */
+export const generateAsyncRoutes = () => {
+    const systemCaps = useCababilityStore()
+    const userSession = useUserSessionStore()
+    const ui = getUiAndTheme().name
+
+    const asyncRoute = (routes as RouteRecordRawExtends[]).filter((item) => {
+        return item.meta?.enabled !== ''
+    })
+
+    /**
+     * @description 递归生成有权限的路由
+     * @param {RouteRecordRawExtends[]} routes
+     * @returns {RouteRecordRawExtends[]}
+     */
+    const getAuthRoute = (routes: RouteRecordRawExtends[]) => {
+        return routes.filter((item) => {
+            if (item.children) {
+                item.children = getAuthRoute(item.children)
+
+                // 设置路由重定向 （满足能力集和用户权限）
+                const redirect = item.children.find((item) => !item.meta.enabled || userSession.hasAuth(item.meta.enabled))
+                if (redirect) {
+                    item.redirect = redirect.meta.fullPath
+                }
+            }
+
+            return !item.meta.auth || item.meta.auth(systemCaps, ui)
+        })
+    }
+
+    authRoutes = getAuthRoute(asyncRoute)
+
+    authRoutes.forEach((item) => {
+        router.addRoute(item)
+    })
+
+    getMenu1Items()
+    getConfigMenu()
+}
+
+/**
+ * @description 移除有权限的路由
+ */
+export const removeAsyncRoutes = () => {
+    authRoutes.forEach((item) => {
+        router.removeRoute(item.name)
+    })
+}
+
+/**
+ * @description 生成菜单数据
+ * @param {RouteRecordRawExtends} item
+ * @returns {RouteRecordRawExtends}
+ */
+export const getMenuItem = (item: RouteRecordRawExtends) => {
     return {
         path: item.path,
         name: item.name,
@@ -48,30 +106,36 @@ const getMenuItem = (item: RouteRecordRawExtends) => {
             inHome: item.meta!.inHome,
         },
         children: item.children ? getMenuItems(item.children) : [],
+        redirect: item.redirect || '',
     }
 }
 
-const getMenuItems = (routes: RouteRecordRawExtends[]): RouteRecordRawExtends[] => {
+/**
+ * @description 递归生成菜单数据
+ * @param {RouteRecordRawExtends[]} routes
+ * @returns {RouteRecordRawExtends[]}
+ */
+export const getMenuItems: (routes: RouteRecordRawExtends[]) => RouteRecordRawExtends[] = (routes: RouteRecordRawExtends[]) => {
     return routes.map((item) => {
         return getMenuItem(item)
     })
 }
 
-// 生成一级菜单
+/**
+ * @description 生成一级菜单
+ */
 export const getMenu1Items = () => {
     const layoutStore = useLayoutStore()
-    const roots = root.children?.filter((o) => !o.meta?.noMenu) as RouteRecordRawExtends[]
+    const roots = authRoutes.find((item) => item.name === 'root')?.children?.filter((o) => !o.meta?.noMenu) as RouteRecordRawExtends[]
     layoutStore.menu1Items = getMenuItems(roots)
 }
 
-// getMenu1Items()
-
 /**
- * @description: 获取当前路由的一级菜单
+ * @description 获取当前路由的一级菜单
  * @param {RouteLocationNormalizedLoaded} route
  * @return {*}
  */
-function getMenu1(route: RouteLocationNormalizedLoaded): RouteLocationMatched | null {
+export const getMenu1 = (route: RouteLocationNormalizedLoaded) => {
     if (route.matched && route.matched.length > 1) {
         return route.matched[1]
     }
@@ -79,11 +143,11 @@ function getMenu1(route: RouteLocationNormalizedLoaded): RouteLocationMatched | 
 }
 
 /**
- * @description: 获取当前路由的二级菜单
+ * @description 获取当前路由的二级菜单
  * @param {RouteLocationNormalizedLoaded} route
  * @return {*}
  */
-function getMenu2(route: RouteLocationNormalizedLoaded): RouteLocationMatched | null {
+export const getMenu2 = (route: RouteLocationNormalizedLoaded) => {
     if (route.matched && route.matched.length > 2) {
         return route.matched[2]
     }
@@ -91,15 +155,27 @@ function getMenu2(route: RouteLocationNormalizedLoaded): RouteLocationMatched | 
 }
 
 /**
- * @description: 获取当前路由的三级菜单
+ * @description 获取当前路由的三级菜单
  * @param {RouteLocationNormalizedLoaded} route
  * @return {*}
  */
-function getMenu3(route: RouteLocationNormalizedLoaded): RouteLocationMatched | null {
+export const getMenu3 = (route: RouteLocationNormalizedLoaded) => {
     if (route.matched && route.matched.length > 3) {
         return route.matched[3]
     }
     return null
+}
+
+/**
+ * @description 获得配置列表菜单
+ */
+export const getConfigMenu = () => {
+    const layoutStore = useLayoutStore()
+    const find = authRoutes.find((item) => item.name === 'root')?.children?.find((item) => item.name === 'config')
+    if (find) {
+        layoutStore.configMenu = find
+    }
+    // return find as RouteRecordRawExtends
 }
 
 router.beforeEach(() => {
@@ -111,8 +187,6 @@ router.afterEach((to) => {
     document.title = title ? `${title} - ${APP_NAME}` : APP_NAME
     progress.done()
 })
-
-//TODO 查询通道能力集，全局状态中设置不支持的功能项目
 
 /*
 注册全局路由守卫，设置当前的菜单状态
@@ -139,7 +213,5 @@ router.beforeResolve((to: RouteLocationNormalized, _from: RouteLocationNormalize
 
     next()
 })
-
-export { routes as routeRawList, setRouteAuth, getMenu1, getMenu2, getMenu3, getMenuItems, getMenuItem }
 
 export default router

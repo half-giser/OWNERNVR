@@ -4,7 +4,7 @@
  * @Description: OCX插件模块
  * 原项目中MAC插件和TimeSliderPlugin相关逻辑不保留
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-20 16:04:27
+ * @LastEditTime: 2024-10-08 10:42:26
  */
 import WebsocketPlugin from '@/utils/websocket/websocketPlugin'
 import { ClientPort, P2PClientPort, P2PACCESSTYPE, SERVER_IP, getPluginPath, PluginSizeModeMapping, type OCX_Plugin_Notice_Map } from '@/utils/ocx/ocxUtil'
@@ -240,7 +240,6 @@ const useOCXPlugin = () => {
                             const dateTime = useDateTimeStore()
                             await dateTime.getTimeConfig(false)
 
-                            layoutStore.isInitial = true
                             delCookie('ec')
                             delCookie('em')
 
@@ -248,17 +247,17 @@ const useOCXPlugin = () => {
                             const userInfoArr = userSession.getAuthInfo()
                             const sendXML = OCX_XML_SetLang()
                             getVideoPlugin().ExecuteCmd(sendXML)
-                            router.replace('/live')
                             const result = await doLogin(getXmlWrapData(''), {}, false)
                             if (queryXml(result)('//status').text() === 'success') {
-                                // TODO !!!
                                 if (userInfoArr) {
                                     setCookie('lastSN', userInfoArr[2], 36500)
                                 }
                                 userSession.updateByLogin('P2P', result)
+                                router.replace('/live')
                             } else {
                                 Logout()
                             }
+                            layoutStore.isInitial = true
                         }
                     }
                 }

@@ -8,11 +8,18 @@
         <div
             v-for="moduleItem in configModules"
             :key="moduleItem.meta.fullPath"
-            :class="['moduleItem', moduleItem.meta.plClass]"
-            @click="toDefault(moduleItem)"
+            class="moduleItem"
+            :class="[
+                moduleItem.meta.plClass,
+                {
+                    disabled: getMenuDisabled(moduleItem),
+                },
+            ]"
+            @click="goToDefaultPage(moduleItem)"
         >
             <BaseImgSprite
                 :file="moduleItem.meta.icon"
+                :index="getMenuDisabled(moduleItem) ? 1 : 0"
                 :chunk="2"
                 class="icon"
             />
@@ -24,7 +31,10 @@
                     <span
                         v-for="subMenu in moduleItem.children"
                         :key="subMenu.meta.fullPath"
-                        @click.stop="router.push(subMenu.meta.fullPath)"
+                        :class="{
+                            disabled: getMenuDisabled(subMenu),
+                        }"
+                        @click.stop="goToPage(subMenu, moduleItem)"
                         v-text="Translate(subMenu.meta.lk || '')"
                     ></span>
                 </div>
@@ -73,6 +83,34 @@
             margin: 20px 0px 0px 0px;
             flex-shrink: 0;
         }
+
+        &.disabled,
+        &.disaebld:hover {
+            border-color: var(--config-menu-border-disabled);
+            background-color: var(--config-menu-bg-disabled);
+            cursor: not-allowed;
+        }
+
+        &.disabled {
+            .mainMenu,
+            .mainMenu:hover {
+                cursor: not-allowed;
+                color: var(--config-menu-text-disabled);
+            }
+
+            .subMenus,
+            .subMenus:hover {
+                span {
+                    cursor: not-allowed;
+                    text-decoration: none;
+                    color: var(--config-submenu-text-disabled);
+
+                    &:not(:last-of-type):after {
+                        background-color: var(--config-submenu-text-disabled);
+                    }
+                }
+            }
+        }
     }
 
     .menuContent {
@@ -103,7 +141,7 @@
         position: relative;
         margin: 8px 0px 0px 8px;
         padding: 4px 6px 0px 0px;
-        color: var(--config-submenu-text);
+
         span {
             font-size: 15px;
             text-decoration: none;
@@ -112,6 +150,7 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            color: var(--config-submenu-text);
 
             &:not(:last-of-type):after {
                 content: '';
@@ -127,6 +166,13 @@
             &:hover {
                 text-decoration: underline;
                 color: var(--config-submenu-text-hover);
+            }
+
+            &.disabled,
+            &.disabled:hover {
+                cursor: not-allowed;
+                text-decoration: none;
+                color: var(--config-menu-text-disabled);
             }
         }
     }

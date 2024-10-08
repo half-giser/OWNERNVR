@@ -5,6 +5,7 @@
  */
 import { type XMLQuery } from '@/utils/xmlParse'
 import { type LoginForm, type LoginReqData } from '@/types/apiType/user'
+import { generateAsyncRoutes } from '@/router'
 
 export const useUserSessionStore = defineStore(
     'userSession',
@@ -184,6 +185,8 @@ export const useUserSessionStore = defineStore(
             })
 
             await dateTime.getTimeConfig(true)
+
+            generateAsyncRoutes()
         }
 
         /**
