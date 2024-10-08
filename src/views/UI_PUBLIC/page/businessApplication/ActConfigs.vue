@@ -12,7 +12,7 @@
             label-position="left"
             :style="{
                 '--form-input-width': '300px',
-                '--form-label-width': '150px',
+                '--form-label-width': '200px',
             }"
             class="inline-message narrow"
         >
@@ -174,8 +174,8 @@
     display: flex;
     align-items: center;
     height: 23px;
-    border-left: 2px solid var(--text-dark);
-    color: var(--text-dark);
+    border-left: 2px solid var(--main-text);
+    color: var(--main-text);
     font-size: 16px;
     font-weight: bold;
     padding-left: 10px;

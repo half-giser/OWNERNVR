@@ -3,7 +3,7 @@
  * @Date: 2024-09-03 09:08:22
  * @Description: 新增车牌弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-19 17:08:54
+ * @LastEditTime: 2024-09-27 16:16:28
 -->
 <template>
     <el-dialog
@@ -169,14 +169,14 @@
 <style lang="scss" scoped>
 :deep(.el-button) {
     &.is-link {
-        color: var(--primary--04);
+        color: var(--primary);
 
         &.el-button--default {
-            color: var(--text-primary);
+            color: var(--main-text);
         }
 
         &:hover {
-            color: var(--primary--04);
+            color: var(--primary);
         }
     }
 }
@@ -188,16 +188,17 @@
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    background-color: var(--bg-color5);
-    border: 1px solid var(--border-color7);
+    background-color: var(--upload-bg);
+    border: 1px solid var(--input-border);
+    color: var(--upload-text);
 
     &:hover,
     &.drag {
-        background-color: var(--bg-upload-hover);
+        background-color: var(--upload-bg-hover);
     }
 
     .highlight {
-        color: var(--primary--04);
+        color: var(--primary);
     }
 }
 

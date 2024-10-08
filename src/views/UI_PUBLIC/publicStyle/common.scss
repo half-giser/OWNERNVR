@@ -6,14 +6,16 @@
 
 html {
     min-width: 1024px;
+    color: var(--main-text);
 }
 
 body {
     margin: 0;
     padding: 0;
-    background-color: var(--page-bg);
+    background-color: var(--main-bg);
     font-family: 'Microsoft YaHei', Arial, Helvetica, sans-serif;
     height: 100%;
+    color: var(--main-text);
 }
 
 li {
@@ -37,7 +39,7 @@ li {
 
 /* 文字标红 */
 .text-error {
-    color: var(--error--01);
+    color: var(--color-error);
 }
 
 /* 滚动条样式 */
@@ -95,31 +97,6 @@ input[type='number'] {
 #n9web {
     height: 100%;
 
-
-    .configBorder {
-        width: 100%;
-        height: 100%;
-
-        > * {
-            box-sizing: border-box;
-        }
-    }
-
-    .configTop {
-        border-bottom: solid 1px var(--border-light);
-        padding: 5px 10px;
-    }
-
-    .configContent {
-        padding: 20px;
-    }
-
-    .configContentBottom {
-        padding: 10px 0px 0px 0px;
-        display: flex;
-        justify-content: flex-end;
-    }
-
     .el-col-flex-end {
         display: flex;
         justify-content: flex-end;
@@ -140,133 +117,21 @@ input[type='number'] {
         justify-content: center;
     }
 
-    .configTop .el-row {
-        height: 42px;
-        padding: 5px 0px;
-        font-size: var(--el-font-size-base);
+    // .configTop .el-row {
+    //     height: 42px;
+    //     padding: 5px 0px;
+    //     font-size: var(--el-font-size-base);
 
-        .form-item_label {
-            display: inline-block;
-            padding: 8px 3px;
-            margin: 0px 20px 0px 0px;
-        }
-    }
-
-    .dislog-style-1 {
-        .el-dialog__body {
-            padding: 10px 20px;
-
-            & > .el-row {
-                margin: 10px 0px;
-            }
-        }
-
-        .filed-input {
-            width: 260px;
-        }
-    }
-
-    .dislog-style-2 {
-        .el-dialog__body {
-            padding: 10px 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            & > .el-row {
-                margin: 10px 0px;
-            }
-        }
-
-        .filed-input {
-            width: 260px;
-        }
-    }
-
-    .tab-style-1 {
-        .el-tabs__active-bar {
-            height: 2px;
-        }
-
-        .el-tabs__item {
-            padding: 0 8px;
-            font-family: 'Microsoft YaHei', Arial, Helvetica, sans-serif;
-            font-style: normal;
-            font-size: 14px;
-            line-height: 24px;
-            color: var(--text-placeholder);
-
-            &.is-active {
-                color: var(--text-menu-01);
-            }
-        }
-
-        .el-tabs__nav-wrap::after {
-            height: 0px;
-        }
-    }
+    //     .form-item_label {
+    //         display: inline-block;
+    //         padding: 8px 3px;
+    //         margin: 0px 20px 0px 0px;
+    //     }
+    // }
 
     .config-row {
         padding: 5px 0px;
         width: 100%;
-    }
-
-    .configValidFrom {
-        .noFormItem {
-            display: flex;
-            margin-bottom: 8px;
-        }
-
-        .el-form-item {
-            margin-bottom: 8px;
-        }
-    }
-
-    .pluginTip {
-        margin: 100px auto;
-    }
-
-    .custom-column-1 {
-        .cell {
-            display: flex;
-            align-items: flex-end;
-        }
-
-        .el-select {
-            width: 100%;
-        }
-
-        .el-dropdown {
-            color: var(--text-secondary);
-        }
-
-        .el-icon {
-            margin-left: 10px;
-            cursor: pointer;
-        }
-    }
-
-    .hide-arrow {
-        .el-popper__arrow {
-            display: none;
-        }
-    }
-    #layout2RightTopBarToolBar {
-        .toolBarText {
-            width: 200px;
-            height: 25px;
-            float: left;
-
-            :deep(.el-input__inner) {
-                height: 25px;
-            }
-        }
-        .toolBarIconBtn {
-            width: 25px;
-            height: 25px;
-            float: left;
-            margin: 0 0 0 5px;
-            padding: 0;
-        }
     }
 
     // el-message 公共样式
@@ -274,18 +139,18 @@ input[type='number'] {
         padding: 0;
         min-width: 330px;
         width: auto;
-        border: 1px solid var(--border-color1);
+        border: 1px solid var(--main-border);
         box-shadow: unset;
         .el-message-box__header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 12px 20px 10px 20px;
-            border-bottom: 1px solid var(--border-color1);
+            border-bottom: 1px solid var(--main-border);
             .el-message-box__title {
                 font-size: 15px;
                 font-weight: bold;
-                color: var(--text-dialog);
+                color: var(--dialog-title);
             }
             .el-message-box__headerbtn {
                 position: unset;
@@ -330,18 +195,18 @@ input[type='number'] {
     // el-dialog 公共样式
     .el-dialog {
         padding: 0;
-        border: 1px solid var(--border-color1);
+        border: 1px solid var(--main-border);
         box-shadow: unset;
         .el-dialog__header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 12px 20px 10px 20px;
-            border-bottom: 1px solid var(--border-color1);
+            border-bottom: 1px solid var(--main-border);
             .el-dialog__title {
                 font-size: 15px;
                 font-weight: bold;
-                color: var(--text-dialog);
+                color: var(--dialog-title);
             }
             .el-dialog__headerbtn {
                 position: unset;
@@ -389,7 +254,7 @@ input[type='number'] {
                         .el-icon {
                             cursor: pointer;
                             &:hover {
-                                color: var(--text-primary);
+                                color: var(--input-text);
                             }
                         }
                     }
@@ -400,10 +265,10 @@ input[type='number'] {
         .el-table__row {
             &:has(> td.el-table-column--selection > .cell .el-checkbox.is-checked) {
                 color: var(--color-white);
-                background: var(--primary--04);
+                background: var(--primary);
                 td.el-table__cell {
                     color: var(--color-white);
-                    background: var(--primary--04);
+                    background: var(--primary);
                 }
             }
             .el-table-column--selection {
@@ -445,7 +310,7 @@ input[type='number'] {
                     padding: 0 10px;
                     &.is-hovering {
                         color: var(--color-white);
-                        background-color: var(--primary--04);
+                        background-color: var(--primary);
                     }
                 }
             }
@@ -454,7 +319,7 @@ input[type='number'] {
                 font-size: 14px;
                 padding: 7px 10px;
                 &:hover {
-                    color: var(--primary--04);
+                    color: var(--primary);
                 }
             }
         }
@@ -547,6 +412,20 @@ input[type='number'] {
             }
         }
 
+        .el-slider {
+            .el-input-number {
+                &.is-without-controls {
+                    .el-input__inner {
+                        text-align: center;
+                    }
+                    .el-input__wrapper {
+                        padding-left: 5px;
+                        padding-right: 5px;
+                    }
+                }
+            }
+        }
+
         // 错误信息不换行
         &.inline-message {
             .el-form-item__content {
@@ -569,13 +448,13 @@ input[type='number'] {
                 padding: 10px 15px;
 
                 &:nth-child(even) {
-                    background-color: var(--bg-color5);
+                    background-color: var(--form-stripe);
                 }
             }
 
             &.odd>.el-form-item {
                 &:nth-child(odd) {
-                    background-color: var(--bg-color5);
+                    background-color: var(--form-stripe);
                 }
 
                 &:nth-child(even) {
@@ -604,27 +483,33 @@ input[type='number'] {
             border: 0;
             padding: 4px 0px 0px 0px;
             .el-menu-item {
-                --el-menu-active-color: var(--page-bg);
-                border-top: solid 1px var(--border-color2);
-                border-bottom: solid 1px var(--border-color2);
-                border-right: solid 1px var(--border-color2);
+                --el-menu-active-color: var(--tabbar-text-active);
+                --el-menu-text-color: var(--tabbar-text);
+                border-top: solid 1px var(--content-border);
+                border-bottom: solid 1px var(--content-border);
+                border-right: solid 1px var(--content-border);
                 margin: 0px;
                 line-height: 28px;
+                background-color: var(--tabbar-bg, transparent);
                 &:first-of-type {
-                    border-left: solid 1px var(--border-color2);
+                    border-left: solid 1px var(--content-border);
                 }
                 &:hover {
-                    color: var(--el-menu-text-color);
-                    background-color: var(--primary--01);
+                    color: var(--tabbar-text-hover);
+                    background-color: var(--tabbar-bg-hover, var(--primary-light));
                 }
                 &.is-active {
-                    background-color: var(--primary--04);
+                    background-color: var(--tabbar-bg-active, var(--primary));
                 }
             }
             .menu-split {
                 width: 0px;
             }
         }
+    }
+
+    .el-radio {
+        --el-radio-text-color: var(--main-text);
     }
 
     .el-radio-group {
@@ -640,6 +525,7 @@ input[type='number'] {
 
             .el-radio-button {
                 width: 50%;
+                margin-right: 15px;
 
                 .el-radio-button__inner {
                     width: 100%;
@@ -671,6 +557,26 @@ input[type='number'] {
                 border-bottom: none;
             }
         }
+
+        &.small-btn {
+            border: none;
+
+            .el-radio-button {
+                height: 22px;
+                line-height: 22px;
+                padding: 0;
+                margin-right: 5px;
+
+                &__inner {
+                    width: 50px;
+                    border: 1px solid var(--btn-border); 
+                }
+
+                & + .el-radio-button .el-radio-button__inner {
+                    border: 1px solid var(--btn-border);
+                }
+            }
+        }
     }
 }
 
@@ -678,7 +584,7 @@ input[type='number'] {
     padding: 5px;
     border-style: none solid solid solid;
     border-width: 1px;
-    border-color: var(--border-color8);
+    border-color: var(--table-border);
     display: flex;
     justify-content: flex-end;
 }
@@ -686,7 +592,7 @@ input[type='number'] {
 .table_status_col_loading {
     width: 20px;
     height: 20px;
-    background-image: url('@/views/UI_PUBLIC/publicStyle/img/loading.gif');
+    background-image: var(--img-loading);
     background-repeat: no-repeat;
 }
 
@@ -718,9 +624,13 @@ input[type='number'] {
     box-sizing: border-box;
     padding-left: 15px;
     font-size: 15px;
-    background-color: var(--bg-color4);
+    background-color: var(--subheading-bg);
     font-weight: bolder;
-    color: var(--text-primary);
+    color: var(--subheading-text);
+
+    #n9web & .el-form-item__label {
+        color: var(--subheading-text);
+    }
 }
 
 // 放置按钮、页码等的容器
@@ -738,6 +648,16 @@ input[type='number'] {
         padding-inline: 10px;
     }
 
+    &.collapse {
+        margin-top: 0;
+    }
+
+    &.fixed {
+        position: fixed;
+        right: 70px;
+        bottom: 60px;
+    }
+
     &[span='2'] {
         justify-content: space-between;
 
@@ -745,12 +665,14 @@ input[type='number'] {
             display: flex;
             justify-content: flex-start;
             align-items: center;
+            max-width: 100%;
         }
 
         & > div:last-child {
             display: flex;
             justify-content: flex-end;
             align-items: center;
+            max-width: 100%;
         }
     }
 

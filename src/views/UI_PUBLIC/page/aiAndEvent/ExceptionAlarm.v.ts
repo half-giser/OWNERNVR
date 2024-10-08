@@ -2,10 +2,10 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-21 15:34:24
  * @Description: 异常报警
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-27 17:07:31
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-30 15:07:35
  */
-import { cloneDeep } from 'lodash'
+import { cloneDeep } from 'lodash-es'
 import { ArrowDown } from '@element-plus/icons-vue'
 import { tableRowStatus, tableRowStatusToolTip } from '@/utils/const/other'
 import BaseTransferPop from '@/components/BaseTransferPop.vue'
@@ -362,13 +362,11 @@ export default defineComponent({
                 if (res('status').text() == 'success') {
                     openMessageTipBox({
                         type: 'success',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                     })
                 } else {
                     openMessageTipBox({
                         type: 'error',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_SAVE_DATA_FAIL'),
                     })
                 }

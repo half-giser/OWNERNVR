@@ -2,16 +2,17 @@
  * @Description: AI 事件——人脸识别
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-28 13:42:09
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-14 17:31:32
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-30 15:10:01
  */
 import { ArrowDown } from '@element-plus/icons-vue'
-import { cloneDeep } from 'lodash'
+import { cloneDeep } from 'lodash-es'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import { type FaceChlItem, type AIResource, FaceDetection, type PresetList, FaceMatch, type FaceGroupTableItem, FaceCompare, type CompareTask } from '@/types/apiType/aiAndEvent'
 import { type TabPaneName, type CheckboxValueType } from 'element-plus'
 import CanvasVfd from '@/utils/canvas/canvasVfd'
 import SuccessfulRecognition from './SuccessfulRecognition.vue'
+import { type XmlResult } from '@/utils/xmlParse'
 
 export default defineComponent({
     components: {
@@ -27,6 +28,7 @@ export default defineComponent({
         const pluginStore = usePluginStore()
         const systemCaps = useCababilityStore()
         const osType = getSystemInfo().platform
+        const Plugin = inject('Plugin') as PluginType
 
         const playerRef = ref<PlayerInstance>()
         // ai资源弹窗
@@ -270,11 +272,11 @@ export default defineComponent({
                     plugin.RetryStartChlView(pageData.value.curChl, chlList[pageData.value.curChl].name)
                 }
             }
+            // 通道和tab切换时直接绘制失效，将绘制改成微任务执行
+            setTimeout(() => {
+                setCurrChlView('vfdArea')
+            }, 0)
             if (chlData.supportVfd) {
-                // 通道和tab切换时直接绘制失效，将绘制改成微任务执行
-                setTimeout(() => {
-                    setCurrChlView('vfdArea')
-                }, 0)
                 // 设置视频区域可编辑
                 if (mode.value === 'h5') {
                     vfdDrawer.setEnable(true)
@@ -358,9 +360,7 @@ export default defineComponent({
                 } else {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_NO_RESOURCE'),
-                        showCancelButton: false,
                     })
                     if (pageData.value.faceTab == 'faceDetection') {
                         faceDetectionData.value.enabledSwitch = false
@@ -606,7 +606,13 @@ export default defineComponent({
             detectionPageData.value.initComplated = true
             await getFaceGroupData()
             // 播放器
-            // clearDrawArea()
+            if (mode.value === 'h5') {
+                vfdDrawer.clear()
+            } else {
+                const sendXML = OCX_XML_SetVfdAreaAction('NONE', 'vfdArea')
+                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+            }
+            dispalyRangeChange(false)
             play()
         }
 
@@ -783,6 +789,7 @@ export default defineComponent({
                 detectionPageData.value.isPlayerBottomShow = false
                 detectionPageData.value.isMoreWrapShow = false
             }
+            setCurrChlView('vfdArea')
         }
         // 当前通道play上的视图
         const setCurrChlView = (type: string) => {
@@ -791,7 +798,7 @@ export default defineComponent({
                     if (mode.value === 'h5') {
                         vfdDrawer.setArea(faceDetectionData.value.regionInfo[0])
                     } else {
-                        const sendXML = OCX_XML_SetVfdArea(faceDetectionData.value.regionInfo[0], type, '#00ff00', 'TYPE_NULL')
+                        const sendXML = OCX_XML_SetVfdArea(faceDetectionData.value.regionInfo[0], type, '#00ff00', 'TYPE_VFD_BLOCK')
                         plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                     }
                 }
@@ -799,14 +806,14 @@ export default defineComponent({
                 if (mode.value === 'h5') {
                     vfdDrawer.setRangeMax(faceDetectionData.value.maxRegionInfo[0])
                 } else {
-                    const sendXML = OCX_XML_SetVfdArea(faceDetectionData.value.maxRegionInfo[0], type, '#00ff00', 'TYPE_NULL')
+                    const sendXML = OCX_XML_SetVfdArea(faceDetectionData.value.maxRegionInfo[0], type, '#00ff00', 'TYPE_VFD_BLOCK')
                     plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 }
             } else if (type == 'faceMin') {
                 if (mode.value === 'h5') {
                     vfdDrawer.setRangeMin(faceDetectionData.value.minRegionInfo[0])
                 } else {
-                    const sendXML = OCX_XML_SetVfdArea(faceDetectionData.value.minRegionInfo[0], type, '#00ff00', 'TYPE_NULL')
+                    const sendXML = OCX_XML_SetVfdArea(faceDetectionData.value.minRegionInfo[0], type, '#00ff00', 'TYPE_VFD_BLOCK')
                     plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 }
             }
@@ -941,10 +948,8 @@ export default defineComponent({
         // 删除AI资源行数据
         const handleDelAIResource = async (row: AIResource) => {
             openMessageTipBox({
-                type: 'info',
-                title: Translate('IDCS_INFO_TIP'),
+                type: 'question',
                 message: Translate('IDCS_DELETE_MP_S'),
-                showCancelButton: true,
             }).then(async () => {
                 let sendXml = rawXml`
                 <content>
@@ -1105,7 +1110,6 @@ export default defineComponent({
             if (faceDetectionData.value.preset.length > MAX_TRIGGER_PRESET_COUNT) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_PRESET_LIMIT'),
                 })
             }
@@ -1163,7 +1167,6 @@ export default defineComponent({
                 const switchChangeType = switchChangeTypeArr.join(',')
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_SIMPLE_FACE_DETECT_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + chlList[pageData.value.curChl].name, switchChangeType),
                 }).then(() => {
                     chlList[pageData.value.curChl].supportVfd ? setFaceDetectionData() : setFaceDetectionBackUpData()
@@ -1304,9 +1307,7 @@ export default defineComponent({
             if (taskTabs.value.length === 5) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_OVER_MAX_NUMBER_LIMIT'),
-                    showCancelButton: false,
                 })
                 return false
             }
@@ -1342,10 +1343,8 @@ export default defineComponent({
                 return false
             }
             openMessageTipBox({
-                type: 'info',
-                title: Translate('IDCS_INFO_TIP'),
+                type: 'question',
                 message: Translate('IDCS_DELETE_MP_S'),
-                showCancelButton: true,
             }).then(() => {
                 haveUseNameId = haveUseNameId.filter((item) => item != Number(comparePageData.value.compareTab[3]))
                 taskTabs.value = taskTabs.value.filter((item) => item.value != comparePageData.value.compareTab)
@@ -1485,20 +1484,16 @@ export default defineComponent({
             closeLoading(LoadingTarget.FullScreen)
 
             if ($('/response/status').text() !== 'success') {
-                const errorCode = $('/response/errorCode').text()
-                if (errorCode == '536871051') {
+                const errorCode = Number($('/response/errorCode').text())
+                if (errorCode == ErrorCode.USER_ERROR_LIMITED_PLATFORM_VERSION_MISMATCH) {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_MAX_CHANNEL_LIMIT').formatForLang(faceMatchLimitMaxChlNum),
-                        showCancelButton: false,
                     })
-                } else if (errorCode == '536871052') {
+                } else if (errorCode === ErrorCode.USER_ERROR_PC_LICENSE_MISMATCH) {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_MAX_CHANNEL_LIMIT').formatForLang(faceMatchLimitMaxChlNum) + Translate('IDCS_REBOOT_DEVICE').formatForLang(Translate('IDCS_ENABLE') + 'AI'),
-                        showCancelButton: false,
                     }).then(async () => {
                         //AISwitch 打开AI模式开关 NT-9997
                         const sendXml = `<content><AISwitch>true</AISwitch></content>`
@@ -1721,7 +1716,22 @@ export default defineComponent({
             }
         }
 
+        const LiveNotify2Js = ($: (path: string) => XmlResult) => {
+            const $xmlNote = $("statenotify[@type='VfdArea']")
+            if ($xmlNote.length > 0) {
+                const points = [] as { X1: number; Y1: number; X2: number; Y2: number }[]
+                $('/statenotify/item').forEach((item) => {
+                    const $item = queryXml(item.element)
+                    points.push({ X1: Number($item('X1').text()), Y1: Number($item('Y1').text()), X2: Number($item('X2').text()), Y2: Number($item('Y2').text()) })
+                })
+                faceDetectionData.value.regionInfo = points
+            }
+        }
+
         onMounted(async () => {
+            if (mode.value != 'h5') {
+                Plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
+            }
             if (showAIReourceDetail) {
                 await getAIResourceData(false)
             }
@@ -1739,6 +1749,7 @@ export default defineComponent({
 
         onBeforeUnmount(() => {
             if (plugin?.IsPluginAvailable() && mode.value === 'ocx' && ready.value) {
+                Plugin.VideoPluginNotifyEmitter.removeListener(LiveNotify2Js)
                 // 切到其他AI事件页面时清除一下插件显示的（线条/点/矩形/多边形）数据
                 const sendAreaXML = OCX_XML_SetVfdAreaAction('NONE', 'vfdArea')
                 plugin.GetVideoPlugin().ExecuteCmd(sendAreaXML)

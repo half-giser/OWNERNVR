@@ -51,11 +51,11 @@
     &.mode_thumbnail:hover,
     &.mode_thumbnail.active {
         .item-thumbnail {
-            border-color: var(--primary--04);
+            border-color: var(--primary);
         }
         .item-time {
-            border-color: var(--primary--04);
-            background-color: var(--primary--04);
+            border-color: var(--primary);
+            background-color: var(--primary);
         }
     }
 
@@ -66,7 +66,7 @@
         &:hover,
         &.active {
             .item-text {
-                border-color: var(--primary--04);
+                border-color: var(--primary);
             }
         }
 
@@ -99,7 +99,7 @@
         width: 100%;
         height: 98px;
         position: relative;
-        border: 1px solid var(--border-thumbnail-card);
+        border: 1px solid var(--backup-snap-border);
 
         &-404 {
             position: absolute;
@@ -128,9 +128,9 @@
         line-height: 20px;
         font-size: 12px;
         text-align: center;
-        background-color: var(--bg-thumbnail-card);
+        background-color: var(--backup-snap-bg);
         color: var(--color-white);
-        border: 1px solid var(--border-thumbnail-card);
+        border: 1px solid var(--backup-snap-border);
     }
 
     &-text {

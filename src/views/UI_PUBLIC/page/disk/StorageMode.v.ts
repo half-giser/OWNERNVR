@@ -3,7 +3,7 @@
  * @Date: 2024-07-08 18:01:29
  * @Description: 存储模式配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 12:00:08
+ * @LastEditTime: 2024-09-23 15:37:41
  */
 import type { StorageModeDiskGroupListDatum, StorageModeDiskGroupList } from '@/types/apiType/disk'
 import StorageModeAddDiskPop from './StorageModeAddDiskPop.vue'
@@ -129,7 +129,7 @@ export default defineComponent({
          */
         const displayStorageSize = (size: number) => {
             const sizeGB = size / 1024
-            if (size > 1024) {
+            if (sizeGB > 1024) {
                 const sizeTB = sizeGB / 1024
                 return sizeTB.toFixed(1) + 'TB'
             }

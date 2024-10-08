@@ -3,7 +3,7 @@
  * @Date: 2024-09-12 10:39:32
  * @Description: 智能分析 - 人脸搜索 - 选择人脸弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-12 20:26:55
+ * @LastEditTime: 2024-09-25 16:10:44
 -->
 <template>
     <el-dialog
@@ -149,7 +149,7 @@
     &-left {
         width: 150px;
         height: 460px;
-        border: 1px solid var(--border-color8);
+        border: 1px solid var(--content-border);
         flex-shrink: 0;
         margin-right: 10px;
         display: flex;
@@ -165,8 +165,8 @@
                 cursor: pointer;
 
                 &.active {
-                    color: var(--text-active);
-                    background-color: var(--primary--04);
+                    color: var(--main-text-active);
+                    background-color: var(--primary);
                 }
             }
         }
@@ -179,14 +179,14 @@
 .current {
     width: 100%;
     height: 100%;
-    border: 1px solid var(--border-color8);
+    border: 1px solid var(--content-border);
     margin-top: 10px;
 
     &-list {
         height: calc(100% - 45px);
         display: flex;
         flex-wrap: wrap;
-        border-bottom: 1px solid var(--border-color8);
+        border-bottom: 1px solid var(--content-border);
         overflow-y: auto;
         box-sizing: border-box;
         padding: 10px 0;

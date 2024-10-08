@@ -3,10 +3,10 @@
  * @Date: 2024-07-03 15:01:51
  * @Description: POS显示设置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 15:09:05
+ * @LastEditTime: 2024-09-23 20:08:27
  */
 import { cloneDeep } from 'lodash-es'
-import { type SystemPosDisplaySetting, SystemPosDisplayPosition, type SystemPosListStartEndChar, type SystemPostDisplaySet, type SystemPostColorData } from '@/types/apiType/system'
+import { SystemPosDisplaySetting, SystemPosDisplayPosition, type SystemPosListStartEndChar, type SystemPostDisplaySet, type SystemPostColorData } from '@/types/apiType/system'
 import CanvasPos from '@/utils/canvas/canvasPos'
 
 export default defineComponent({
@@ -16,7 +16,7 @@ export default defineComponent({
          */
         data: {
             type: Object as PropType<SystemPosDisplaySetting>,
-            required: true,
+            default: () => new SystemPosDisplaySetting(),
         },
         /**
          * @property Display Set设置数据

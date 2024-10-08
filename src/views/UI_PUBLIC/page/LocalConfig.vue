@@ -78,7 +78,7 @@
 .local-config {
     width: 100%;
     height: 100%;
-    border: 1px solid var(--border-color2);
+    border: 1px solid var(--content-border);
     box-sizing: border-box;
     padding: 10px;
 }

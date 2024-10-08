@@ -6,10 +6,7 @@
  * @LastEditTime: 2024-09-20 18:21:35
  */
 import { type FormInstance, type FormRules } from 'element-plus'
-
-export class UserInputEncryptPwdForm {
-    password = ''
-}
+import { UserInputEncryptPwdForm } from '@/types/apiType/user'
 
 export default defineComponent({
     props: {

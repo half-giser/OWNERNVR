@@ -2,14 +2,15 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-16 18:13:56
  * @Description: 移动侦测
- * @LastEditors: A11600 A11600@tvt.net.cn
- * @LastEditTime: 2024-09-02 16:54:53
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-30 15:11:59
  */
-import { cloneDeep } from 'lodash'
+import { cloneDeep } from 'lodash-es'
 import { ArrowDown } from '@element-plus/icons-vue'
 import { tableRowStatus, tableRowStatusToolTip } from '@/utils/const/other'
 import BaseTransferPop from '@/components/BaseTransferPop.vue'
 import BaseTransferDialog from '@/components/BaseTransferDialog.vue'
+import BaseTableRowStatus from '@/components/BaseTableRowStatus.vue'
 import { MotionEventConfig, type PresetItem } from '@/types/apiType/aiAndEvent'
 import { errorCodeMap } from '@/utils/constants'
 import SetPresetPop from './SetPresetPop.vue'
@@ -20,6 +21,7 @@ export default defineComponent({
         BaseTransferPop,
         BaseTransferDialog,
         SetPresetPop,
+        BaseTableRowStatus,
     },
     setup() {
         const chosedList = ref<any[]>([])
@@ -608,8 +610,7 @@ export default defineComponent({
                 router.push('/config/channel/settings/motion')
             } else {
                 openMessageTipBox({
-                    type: 'question',
-                    title: Translate('IDCS_INFO_TIP'),
+                    type: 'info',
                     message: Translate('IDCS_NO_AUTH'),
                 })
             }
@@ -795,6 +796,10 @@ export default defineComponent({
             handleMotionSetting,
             setData,
             addEditRow,
+            BaseTransferPop,
+            BaseTransferDialog,
+            SetPresetPop,
+            BaseTableRowStatus,
         }
     },
 })

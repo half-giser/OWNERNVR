@@ -6,7 +6,7 @@
  * @LastEditTime: 2024-08-09 13:48:10
  */
 
-import { cloneDeep, isEqual } from 'lodash'
+import { cloneDeep, isEqual } from 'lodash-es'
 import RecParamCustomizationPop from './RecParamCustomizationPop.vue'
 import { type ChlRecParamList, type ItemList } from '@/types/apiType/record'
 

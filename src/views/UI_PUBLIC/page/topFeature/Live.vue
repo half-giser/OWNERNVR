@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 19:53:54
  * @Description: 现场预览
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 18:08:27
+ * @LastEditTime: 2024-09-25 18:14:37
 -->
 <template>
     <div class="live">
@@ -98,6 +98,7 @@
                     <LivePtzPanel
                         v-show="scope.index === 3"
                         :win-data="pageData.winData"
+                        :chl="pageData.chlMap"
                         :mode="mode"
                     />
                     <LiveFishEyePanel
@@ -121,7 +122,7 @@
 .live {
     width: 100%;
     height: calc(var(--content-height) + 70px);
-    border: 1px solid var(--border-color7);
+    border: 1px solid var(--input-border);
     display: flex;
     font-size: 14px;
     min-width: 1400px;
@@ -130,8 +131,8 @@
 .center {
     width: 100%;
     height: 100%;
-    border-left: 1px solid var(--border-color7);
-    border-right: 1px solid var(--border-color7);
+    border-left: 1px solid var(--input-border);
+    border-right: 1px solid var(--input-border);
 
     &-player {
         width: 100%;

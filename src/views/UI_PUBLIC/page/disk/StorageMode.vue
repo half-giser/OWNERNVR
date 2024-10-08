@@ -3,7 +3,7 @@
  * @Date: 2024-07-05 10:10:29
  * @Description: 存储模式配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 09:13:54
+ * @LastEditTime: 2024-09-23 15:41:44
 -->
 <template>
     <div class="StorageMode">
@@ -132,7 +132,11 @@
     :deep(.el-form-item) {
         margin-bottom: 10px;
         padding: 10px 0 10px 15px;
-        background-color: var(--bg-color4);
+        background-color: var(--subheading-bg);
+    }
+
+    :deep(.el-form-item__label) {
+        color: var(--subheading-text) !important;
     }
 
     .el-select {
@@ -141,15 +145,15 @@
 
     .group {
         display: flex;
-        border: 1px solid var(--border-color2);
+        border: 1px solid var(--content-border);
     }
 
     .left {
         width: 20%;
-        border-right: 1px solid var(--border-color2);
+        border-right: 1px solid var(--content-border);
 
         .title {
-            border-bottom: 1px solid var(--border-color2);
+            border-bottom: 1px solid var(--content-border);
             height: 30px;
             line-height: 30px;
             font-size: 18px;
@@ -159,7 +163,7 @@
         .group-item {
             width: 100%;
             height: 107px;
-            color: var(--text-primary);
+            color: var(--main-text);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -179,23 +183,24 @@
             }
 
             &:not(:last-child) {
-                border-bottom: 1px solid var(--border-color2);
+                border-bottom: 1px solid var(--content-border);
             }
 
             &.disabled {
-                color: var(--text-disabled);
+                color: var(--input-text-disabled);
                 cursor: unset;
             }
 
             &.active {
-                background-color: var(--primary--01);
+                background-color: var(--primary);
+                color: var(--tabbar-text-active);
             }
         }
     }
 
     .center {
         width: 15%;
-        border-right: 1px solid var(--border-color2);
+        border-right: 1px solid var(--content-border);
     }
 
     .right {
@@ -205,7 +210,7 @@
     .disk-list,
     .disk-title {
         height: 138px;
-        border-bottom: 1px solid var(--border-color2);
+        border-bottom: 1px solid var(--content-border);
     }
 
     .disk-title {

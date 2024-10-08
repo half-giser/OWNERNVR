@@ -2,8 +2,8 @@
  * @Description: AI/事件——事件通知——声音
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-13 09:23:15
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-29 09:22:39
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-27 18:20:22
 -->
 <template>
     <el-tabs
@@ -20,21 +20,18 @@
                 class="stripe narrow"
                 :style="{
                     '--form-input-width': '215px',
-                    height: '440px',
+                    '--form-label-width': ipcAudioFormData.ipcRadio === 'audioAlarm' ? '150px' : '220px',
                 }"
                 label-position="left"
                 inline-message
             >
                 <el-form-item>
-                    <el-radio-group
-                        v-model="ipcAudioFormData.ipcRadio"
-                        class="ipcRadio"
-                    >
+                    <el-radio-group v-model="ipcAudioFormData.ipcRadio">
                         <el-radio-button value="audioAlarm">{{ Translate('IDCS_IPC_VOICE_BROADCAST') }}</el-radio-button>
                         <el-radio-button value="audioDevice">{{ Translate('IDCS_AUDIO_DEVICE') }}</el-radio-button>
                     </el-radio-group>
                 </el-form-item>
-                <div v-if="ipcAudioFormData.ipcRadio === 'audioAlarm'">
+                <template v-if="ipcAudioFormData.ipcRadio === 'audioAlarm'">
                     <el-form-item :label="Translate('IDCS_CHANNEL')">
                         <el-select
                             v-model="ipcAudioFormData.audioChl"
@@ -133,8 +130,8 @@
                             </el-option
                         ></el-select>
                     </el-form-item>
-                </div>
-                <div v-if="ipcAudioFormData.ipcRadio === 'audioDevice'">
+                </template>
+                <template v-if="ipcAudioFormData.ipcRadio === 'audioDevice'">
                     <el-form-item :label="Translate('IDCS_CHANNEL')">
                         <el-select
                             v-model="ipcAudioFormData.deviceChl"
@@ -182,7 +179,6 @@
                             v-model="ipcAudioFormData.micOrLinVolume"
                             :disabled="audioDevicePageData.micOrLinVolumeDisabled"
                             :min="0"
-                            class="slider"
                             @change="changeMicOrLinVolume"
                         ></el-slider
                         ><span
@@ -226,7 +222,6 @@
                             v-model="ipcAudioFormData.outputVolume"
                             :disabled="audioDevicePageData.outputVolumeDisabled"
                             :min="0"
-                            class="slider"
                             @change="changeOutputVolume"
                         >
                         </el-slider
@@ -251,7 +246,7 @@
                             ></el-option>
                         </el-select>
                     </el-form-item>
-                </div>
+                </template>
             </el-form>
             <el-form
                 ref="popMsgRef"
@@ -371,7 +366,7 @@
 
     /* 导航行背景色 */
     :deep(.el-tabs__nav-wrap) {
-        background-color: var(--bg-color4);
+        background-color: var(--subheading-bg);
         padding: 0 15px;
     }
 
@@ -379,45 +374,24 @@
     :deep(.el-tabs__item) {
         font-size: 15px;
         font-weight: bolder;
-        color: var(--text-primary);
+        color: var(--main-text);
     }
 
     /* 鼠标选中时样式 */
     :deep(.el-tabs__item.is-active) {
-        color: var(--primary--04);
+        color: var(--primary);
         opacity: 1;
     }
     /* 鼠标悬浮时样式 */
     :deep(.el-tabs__item:hover) {
-        color: var(--primary--04);
+        color: var(--primary);
         cursor: pointer;
         opacity: 1;
     }
 }
 
-.ipcRadio {
-    :deep(.el-radio-button.is-active) {
-        --el-radio-button-checked-bg-color: var(--primary--04);
-        --el-radio-button-checked-border-color: var(--primary--04);
-    }
-
-    :deep(.el-radio-button__inner:hover) {
-        background-color: var(--primary--01);
-        color: var(--text-primary);
-    }
-
-    :deep(.el-radio-button.is-active .el-radio-button__inner:hover) {
-        background-color: var(--primary--04);
-        color: #ffffff;
-    }
-}
-
-.slider {
-    width: 200px;
-}
-
 .ipcAudioTips {
-    color: #8d8d8d;
+    color: var(--main-text-light);
 }
 
 .localTable {

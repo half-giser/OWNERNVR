@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 顶层布局页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-20 18:02:18
+ * @LastEditTime: 2024-09-27 13:42:29
 -->
 <template>
     <el-container id="layoutMain">
@@ -13,7 +13,7 @@
                     v-show="pageData.logoShow"
                     id="logo"
                     :style="{
-                        backgroundImage: pageData.logoProductModel ? 'none' : 'var(--logo)',
+                        backgroundImage: pageData.logoProductModel ? 'none' : 'var(--img-logo)',
                         marginLeft: pageData.logoProductModel ? '295px' : '14px',
                     }"
                 >
@@ -92,6 +92,7 @@
                     id="mainMenu"
                     mode="horizontal"
                     :router="true"
+                    :ellipsis="false"
                 >
                     <template v-for="(route, key) in allMenu1Items">
                         <el-menu-item
@@ -149,26 +150,29 @@
 
 #layoutMain {
     height: 100vh;
-    background-color: var(--page-bg);
+    background-color: var(--main-bg);
 }
 
 #layoutMainHeader {
     padding: 0px;
     height: auto;
     flex: auto 0 0;
+    background-color: var(--header-bg);
 }
 
 #MainHeaderLine1 {
     width: 100%;
     display: flex;
     justify-content: space-between;
+    height: 65px;
+    align-items: center;
 }
 
 #logo {
-    margin: 8px 0px 0px 14px;
+    margin-left: 14px;
     width: 350px;
-    height: 55px;
-    background: var(--logo) no-repeat;
+    height: 65px;
+    background: var(--img-logo) center left no-repeat;
     text-align: right;
 
     div {
@@ -181,6 +185,7 @@
     font-size: 14px;
     margin: 20px 60px 0px 0px;
     display: flex;
+    color: var(--header-text);
 
     .icon_aq {
         cursor: pointer;
@@ -191,7 +196,7 @@
 
         &:hover {
             text-decoration: underline;
-            color: var(--el-menu-active-color);
+            color: var(--primary);
         }
     }
 
@@ -204,7 +209,6 @@
     }
 
     .nav-item {
-        // margin: 0 20px;
         display: flex;
 
         &:not(:first-child)::before {
@@ -220,13 +224,14 @@
 
 #mainMenu {
     height: 40px;
-    --el-menu-active-color: var(--primary--04);
+    --el-menu-active-color: var(--primary);
     --el-menu-base-level-padding: 10px;
+    background-color: var(--header-bg);
 }
 
 .el-menu--horizontal {
-    background-color: var(--page-bg);
-    border-bottom: solid 1px var(--border-color1);
+    background-color: var(--main-bg);
+    border-bottom: solid 1px var(--main-border);
 
     & > .el-menu-item {
         margin: 0px 12px;
@@ -235,15 +240,20 @@
         font-style: normal;
         font-weight: bold;
         font-size: 16px;
-        color: var(--text-menu-01);
-
-        background-color: var(--page-bg);
-        border-bottom: solid 6px var(--page-bg);
+        color: var(--header-menu-text);
+        background-color: var(--header-menu-bg);
+        border-bottom: solid 6px var(--header-menu-border);
 
         &:hover {
-            background-color: var(--page-bg);
-            color: var(--text-primary);
-            border-bottom: solid 6px var(--primary--01);
+            background-color: var(--header-menu-bg-hover);
+            color: var(--header-menu-text-hover);
+            border-bottom: solid 6px var(--header-menu-border-hover);
+        }
+
+        &:focus {
+            background-color: var(--header-menu-bg-hover);
+            color: var(--header-menu-text-hover);
+            border-bottom: solid 6px var(--header-menu-border-hover);
         }
 
         &:first-of-type {
@@ -254,9 +264,11 @@
             display: none;
         }
 
-        &.is-active {
-            color: var(--primary--04);
-            border-bottom: solid 6px var(--primary--04);
+        &.is-active,
+        &.is-active:hover {
+            background-color: var(--header-menu-bg-active);
+            color: var(--header-menu-border-active);
+            border-bottom: solid 6px var(--header-menu-border-active);
         }
     }
 }
@@ -283,9 +295,9 @@
     padding: 1px 0px 1px 0px;
     height: 18px;
     width: 100%;
-    color: var(--text-menu-01);
-    background-color: var(--page-bg);
-    border-top: 1px solid var(--border-color1);
+    border-top: 1px solid var(--main-border);
     flex-shrink: 0;
+    color: var(--footer-text);
+    background-color: var(--footer-bg);
 }
 </style>

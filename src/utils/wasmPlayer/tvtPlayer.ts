@@ -3,7 +3,7 @@
  * @Date: 2024-06-05 14:16:36
  * @Description: 集成wasm-player和多分屏功能
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:21:48
+ * @LastEditTime: 2024-09-20 18:35:07
  */
 
 import { ErrorCode } from '../constants'
@@ -1168,14 +1168,15 @@ export default class TVTPlayer {
             if ($('//status').text() !== 'success') return
             if ($('//content/addressSwitch').text() === 'true') {
                 // 若为true则可以显示ip地址
-                http.fetch('queryDevList', `<requireField><ip/></requireField>`).then((res: any) => {
+                const sendXml = getXmlWrapData('<requireField><ip/></requireField>')
+                queryDevList(sendXml).then((res) => {
                     const $ = queryXml(res)
                     if ($('//status').text() !== 'success') return
                     this.chlIpMap = {}
                     $('//content/item').forEach((item) => {
                         const $el = queryXml(item.element)
                         const ip = $el('ip').text()
-                        const id = item.attr('id') as string
+                        const id = item.attr('id')!
                         this.chlIpMap[id] = ip
                     })
                     this.winDataList.forEach((item) => {

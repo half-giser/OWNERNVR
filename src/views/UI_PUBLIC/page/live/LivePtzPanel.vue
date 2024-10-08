@@ -171,7 +171,7 @@
     height: 100%;
     width: 220px;
     margin: 10px auto 20px;
-    border: 1px solid var(--border-color4);
+    border: 1px solid var(--btn-border);
     display: flex;
     flex-direction: column;
 
@@ -202,7 +202,7 @@
         width: 90%;
         margin: 0 5%;
         padding-top: 5px;
-        border-top: 1px solid var(--border-color4);
+        border-top: 1px solid var(--btn-border);
         span {
             margin-left: 5px;
         }

@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-19 17:51:14
  * @Description: 人群密度检测
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-20 14:19:16
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-30 15:21:52
 -->
 <template>
     <div class="tripwire_setting_pane">
@@ -38,69 +38,32 @@
         ></BaseTransferDialog>
         <div
             v-if="pageData.notSupportTipShow"
-            class="notSupportBox"
+            class="base-ai-not-support-box"
         >
             {{ Translate('IDCS_CURRENT_INTEL_EVENT_UNSUPORT') }}
         </div>
         <div
             v-if="pageData.requireDataFail"
-            class="notSupportBox"
+            class="base-ai-not-support-box"
         >
             {{ Translate('IDCS_QUERY_DATA_FAIL') }}
         </div>
         <div v-if="!pageData.notSupportTipShow && !pageData.requireDataFail">
             <!-- 检测开启及ai按钮 -->
-            <el-row>
+            <div
+                class="base-btn-box"
+                span="start"
+            >
                 <el-checkbox
                     v-model="pageData.detectionEnable"
                     @change="pageData.applyDisable = false"
-                ></el-checkbox>
-                <span class="checkbox_text">{{ Translate('IDCS_ENABLE') }}</span>
-            </el-row>
-            <!-- 只存在一个播放器，因此放于tab区域外 -->
-            <div class="left">
-                <div class="player">
-                    <BaseVideoPlayer
-                        id="player"
-                        ref="playerRef"
-                        type="live"
-                        @onready="handlePlayerReady"
-                    />
-                </div>
-                <div
-                    v-if="pageData.fuction === 'param'"
-                    class="player_config"
+                    >{{ Translate('IDCS_ENABLE') }}</el-checkbox
                 >
-                    <el-row>
-                        <el-col :span="16">
-                            <div
-                                v-if="pageData.showDrawAvailable"
-                                class="showAllArea"
-                            >
-                                <el-checkbox
-                                    v-model="pageData.isDrawAvailable"
-                                    @change="handleDrawAvailableChange"
-                                ></el-checkbox>
-                                <span class="checkbox_text">{{ Translate('IDCS_DRAW_WARN_SURFACE') }}</span>
-                            </div>
-                        </el-col>
-                        <el-col :span="8">
-                            <div class="clear_btns">
-                                <el-button
-                                    size="small"
-                                    @click="clearArea"
-                                    >{{ Translate('IDCS_CLEAR') }}</el-button
-                                >
-                            </div>
-                        </el-col>
-                    </el-row>
-                    <span id="draw_tip">{{ Translate('IDCS_DRAW_RECT_TIP') }}</span>
-                </div>
             </div>
             <!-- 两种功能 -->
             <el-tabs
                 v-model="pageData.fuction"
-                class="function-tabs"
+                class="base-ai-tabs function-tabs"
                 @tab-click="handleFunctionTabClick"
             >
                 <!-- 参数设置 -->
@@ -109,117 +72,125 @@
                     name="param"
                     class="tripwire_param"
                 >
-                    <div class="right">
-                        <el-form
-                            :model="pageData"
-                            label-width="200px"
-                            label-position="left"
-                            class="form"
-                        >
-                            <div class="form_span">
-                                <el-divider direction="vertical"></el-divider>
-                                <span>{{ Translate('IDCS_SCHEDULE') }}</span>
-                            </div>
-                            <!-- 排程 -->
-                            <el-form-item
-                                :label="Translate('IDCS_SCHEDULE_CONFIG')"
-                                :style="{
-                                    '--form-input-width': '215px',
-                                }"
-                            >
-                                <el-select
-                                    v-model="pageData.schedule"
-                                    value-key="value"
-                                    :options="pageData.scheduleList"
-                                    size="small"
-                                    @change="pageData.applyDisable = false"
-                                >
-                                    <el-option
-                                        v-for="item in pageData.scheduleList"
-                                        :key="item.value"
-                                        :label="item.label"
-                                        :value="item.value"
-                                    ></el-option>
-                                </el-select>
-                                <el-button
-                                    class="form_btn"
-                                    size="small"
-                                    @click="pageData.scheduleManagePopOpen = true"
-                                >
-                                    {{ Translate('IDCS_MANAGE') }}
-                                </el-button>
-                            </el-form-item>
-                            <div class="form_span">
-                                <el-divider direction="vertical"></el-divider>
-                                <span>{{ Translate('IDCD_RULE') }}</span>
-                            </div>
-                            <!-- 持续时间 -->
-                            <el-form-item
-                                :label="Translate('IDCS_DURATION')"
-                                :style="{
-                                    '--form-input-width': '215px',
-                                }"
-                            >
-                                <el-select
-                                    v-model="pageData.holdTime"
-                                    value-key="value"
-                                    size="small"
-                                    :options="pageData.holdTimeList"
-                                    @change="pageData.applyDisable = false"
-                                >
-                                    <el-option
-                                        v-for="item in pageData.holdTimeList"
-                                        :key="item.value"
-                                        :label="item.label"
-                                        :value="item.value"
-                                    ></el-option>
-                                </el-select>
-                            </el-form-item>
-                            <!-- 刷新频率 -->
-                            <el-form-item
-                                :label="Translate('IDCS_REFRESH_FREQUENCY')"
-                                :style="{
-                                    '--form-input-width': '215px',
-                                }"
-                            >
-                                <el-select
-                                    v-model="pageData.refreshFrequency"
-                                    value-key="value"
-                                    size="small"
-                                    :options="pageData.refreshFrequencyList"
-                                    @change="pageData.applyDisable = false"
-                                >
-                                    <el-option
-                                        v-for="item in pageData.refreshFrequencyList"
-                                        :key="item.value"
-                                        :label="item.label"
-                                        :value="item.value"
-                                    ></el-option>
-                                </el-select>
-                            </el-form-item>
-                            <!-- 报警阈值 -->
-                            <el-form-item
-                                :label="Translate('IDCS_ALARM_THRESHOLD')"
-                                :style="{
-                                    '--form-input-width': '275px',
-                                }"
-                            >
-                                <el-slider
-                                    v-model="pageData.triggerAlarmLevel"
-                                    size="small"
-                                    :show-input-controls="false"
-                                    show-input
-                                    :style="{
-                                        marginLeft: '10px',
-                                    }"
-                                    @change="pageData.applyDisable = false"
+                    <div class="base-ai-param-box">
+                        <div class="base-ai-param-box-left">
+                            <div class="player">
+                                <BaseVideoPlayer
+                                    id="player"
+                                    ref="playerRef"
+                                    type="live"
+                                    @onready="handlePlayerReady"
                                 />
-                            </el-form-item>
-                        </el-form>
+                            </div>
+                            <div v-if="pageData.fuction === 'param'">
+                                <div
+                                    class="base-btn-box"
+                                    :span="2"
+                                >
+                                    <div>
+                                        <el-checkbox
+                                            v-show="pageData.showDrawAvailable"
+                                            v-model="pageData.isDrawAvailable"
+                                            @change="handleDrawAvailableChange"
+                                            >{{ Translate('IDCS_DRAW_WARN_SURFACE') }}</el-checkbox
+                                        >
+                                    </div>
+                                    <div>
+                                        <el-button
+                                            size="small"
+                                            @click="clearArea"
+                                            >{{ Translate('IDCS_CLEAR') }}</el-button
+                                        >
+                                    </div>
+                                </div>
+                                <span class="base-ai-tip">{{ Translate('IDCS_DRAW_RECT_TIP') }}</span>
+                            </div>
+                        </div>
+                        <div class="base-ai-param-box-right">
+                            <el-form
+                                :model="pageData"
+                                label-position="left"
+                                class="narrow"
+                                :style="{
+                                    '--form-label-width': '200px',
+                                    '--form-input-width': '215px',
+                                }"
+                            >
+                                <div class="base-ai-subheading">{{ Translate('IDCS_SCHEDULE') }}</div>
+                                <!-- 排程 -->
+                                <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
+                                    <el-select
+                                        v-model="pageData.schedule"
+                                        value-key="value"
+                                        :options="pageData.scheduleList"
+                                        size="small"
+                                        @change="pageData.applyDisable = false"
+                                    >
+                                        <el-option
+                                            v-for="item in pageData.scheduleList"
+                                            :key="item.value"
+                                            :label="item.label"
+                                            :value="item.value"
+                                        ></el-option>
+                                    </el-select>
+                                    <el-button
+                                        class="form_btn"
+                                        size="small"
+                                        @click="pageData.scheduleManagePopOpen = true"
+                                    >
+                                        {{ Translate('IDCS_MANAGE') }}
+                                    </el-button>
+                                </el-form-item>
+                                <div class="base-ai-subheading">{{ Translate('IDCD_RULE') }}</div>
+                                <!-- 持续时间 -->
+                                <el-form-item :label="Translate('IDCS_DURATION')">
+                                    <el-select
+                                        v-model="pageData.holdTime"
+                                        value-key="value"
+                                        size="small"
+                                        :options="pageData.holdTimeList"
+                                        @change="pageData.applyDisable = false"
+                                    >
+                                        <el-option
+                                            v-for="item in pageData.holdTimeList"
+                                            :key="item.value"
+                                            :label="item.label"
+                                            :value="item.value"
+                                        ></el-option>
+                                    </el-select>
+                                </el-form-item>
+                                <!-- 刷新频率 -->
+                                <el-form-item :label="Translate('IDCS_REFRESH_FREQUENCY')">
+                                    <el-select
+                                        v-model="pageData.refreshFrequency"
+                                        value-key="value"
+                                        size="small"
+                                        :options="pageData.refreshFrequencyList"
+                                        @change="pageData.applyDisable = false"
+                                    >
+                                        <el-option
+                                            v-for="item in pageData.refreshFrequencyList"
+                                            :key="item.value"
+                                            :label="item.label"
+                                            :value="item.value"
+                                        ></el-option>
+                                    </el-select>
+                                </el-form-item>
+                                <!-- 报警阈值 -->
+                                <el-form-item :label="Translate('IDCS_ALARM_THRESHOLD')">
+                                    <el-slider
+                                        v-model="pageData.triggerAlarmLevel"
+                                        size="small"
+                                        :show-input-controls="false"
+                                        show-input
+                                        @change="pageData.applyDisable = false"
+                                    />
+                                </el-form-item>
+                            </el-form>
+                        </div>
                     </div>
-                    <div class="apply_area">
+                    <div class="base-btn-box fixed">
                         <el-button
-                            class="apply_btn"
                             :disabled="pageData.applyDisable"
                             @click="handleApply"
                         >
@@ -233,46 +204,47 @@
                     name="trigger"
                     class="tripwire_trigger"
                 >
-                    <div class="trigger_box">
+                    <div>
                         <!-- 音频 -->
-                        <div
+                        <el-form
                             v-if="pageData.supportAlarmAudioConfig"
-                            class="audio_row"
+                            class="narrow"
+                            :style="{
+                                '--form-input-width': '215px',
+                            }"
+                            label-position="left"
                         >
-                            <span>{{ Translate('IDCS_VOICE_PROMPT') }}</span>
-                            <el-select
-                                v-model="pageData.sysAudio"
-                                value-key="value"
-                                size="small"
-                                class="audio_select"
-                                :options="pageData.voiceList"
-                                @change="pageData.applyDisable = false"
-                            >
-                                <el-option
-                                    v-for="item in pageData.voiceList"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value"
-                                ></el-option>
-                            </el-select>
-                        </div>
-                        <div class="trigger_content">
+                            <el-form-item :label="Translate('IDCS_VOICE_PROMPT')">
+                                <el-select
+                                    v-model="pageData.sysAudio"
+                                    value-key="value"
+                                    size="small"
+                                    class="audio_select"
+                                    :options="pageData.voiceList"
+                                    @change="pageData.applyDisable = false"
+                                >
+                                    <el-option
+                                        v-for="item in pageData.voiceList"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value"
+                                    ></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-form>
+                        <div class="base-ai-linkage-content">
                             <!-- 常规联动 -->
-                            <div class="trigger_normal">
-                                <div class="title">
-                                    <div class="checkbox"></div>
-                                    <el-checkbox
-                                        v-model="pageData.triggerSwitch"
-                                        class="table_title"
-                                        @change="handleTriggerSwitch"
-                                    ></el-checkbox>
-                                    <span class="span_text">{{ Translate('IDCS_TRIGGER_NOMAL') }}</span>
-                                </div>
+                            <div class="base-ai-linkage-box">
+                                <el-checkbox
+                                    v-model="pageData.triggerSwitch"
+                                    class="base-ai-linkage-title"
+                                    @change="handleTriggerSwitch"
+                                    >{{ Translate('IDCS_TRIGGER_NOMAL') }}</el-checkbox
+                                >
                                 <el-table
-                                    height="358px"
+                                    height="367px"
                                     :data="triggerData"
                                     :show-header="false"
-                                    :header-cell-style="{ 'text-align': 'left' }"
                                 >
                                     <el-table-column>
                                         <template #default="scope">
@@ -280,29 +252,25 @@
                                                 v-model="scope.row.value"
                                                 class="table_item"
                                                 @change="handleTrigger(scope.row)"
-                                                >{{ Translate(scope.row.label) }}</el-checkbox
-                                            >
+                                                >{{ Translate(scope.row.label) }}
+                                            </el-checkbox>
                                         </template>
                                     </el-table-column>
                                 </el-table>
                             </div>
-
                             <!-- record -->
-                            <div class="trigger_rec">
-                                <div class="title">
-                                    <el-row>
-                                        <span class="table_cell_span">{{ Translate('IDCS_RECORD') }}</span>
-                                        <el-button
-                                            class="form_btn"
-                                            size="small"
-                                            @click="pageData.recordIsShow = true"
-                                            >{{ Translate('IDCS_CONFIG') }}
-                                        </el-button>
-                                    </el-row>
+                            <div class="base-ai-linkage-box">
+                                <div class="base-ai-linkage-title">
+                                    <span>{{ Translate('IDCS_RECORD') }}</span>
+                                    <el-button
+                                        size="small"
+                                        @click="pageData.recordIsShow = true"
+                                        >{{ Translate('IDCS_CONFIG') }}
+                                    </el-button>
                                 </div>
                                 <el-table
                                     :show-header="false"
-                                    height="358px"
+                                    height="367px"
                                     :data="pageData.record.chls"
                                     empty-text=" "
                                 >
@@ -315,21 +283,18 @@
                             </div>
 
                             <!-- alarm -->
-                            <div class="trigger_alarm">
-                                <div class="title">
-                                    <el-row>
-                                        <span class="table_cell_span">{{ Translate('IDCS_ALARM_OUT') }}</span>
-                                        <el-button
-                                            class="form_btn"
-                                            size="small"
-                                            @click="pageData.alarmOutIsShow = true"
-                                            >{{ Translate('IDCS_CONFIG') }}
-                                        </el-button>
-                                    </el-row>
+                            <div class="base-ai-linkage-box">
+                                <div class="base-ai-linkage-title">
+                                    <span>{{ Translate('IDCS_ALARM_OUT') }}</span>
+                                    <el-button
+                                        size="small"
+                                        @click="pageData.alarmOutIsShow = true"
+                                        >{{ Translate('IDCS_CONFIG') }}
+                                    </el-button>
                                 </div>
                                 <el-table
                                     :show-header="false"
-                                    height="358px"
+                                    height="367px"
                                     :data="pageData.alarmOut.chls"
                                     empty-text=" "
                                 >
@@ -342,14 +307,19 @@
                             </div>
 
                             <!-- preset -->
-                            <div class="trigger_preset">
-                                <div class="title">
-                                    <span>{{ Translate('IDCS_TRIGGER_ALARM_PRESET') }}</span>
+                            <div
+                                class="base-ai-linkage-box"
+                                :style="{
+                                    width: '350px',
+                                }"
+                            >
+                                <div class="base-ai-linkage-title">
+                                    {{ Translate('IDCS_TRIGGER_ALARM_PRESET') }}
                                 </div>
                                 <el-table
                                     border
                                     stripe
-                                    height="358px"
+                                    height="367px"
                                     :data="pageData.presetSource"
                                 >
                                     <el-table-column
@@ -376,15 +346,14 @@
                                     </el-table-column>
                                 </el-table>
                             </div>
-                            <div class="apply_area">
-                                <el-button
-                                    class="apply_btn"
-                                    :disabled="pageData.applyDisable"
-                                    @click="handleApply"
-                                >
-                                    {{ Translate('IDCS_APPLY') }}
-                                </el-button>
-                            </div>
+                        </div>
+                        <div class="base-btn-box fixed">
+                            <el-button
+                                :disabled="pageData.applyDisable"
+                                @click="handleApply"
+                            >
+                                {{ Translate('IDCS_APPLY') }}
+                            </el-button>
                         </div>
                     </div>
                 </el-tab-pane>
@@ -395,295 +364,13 @@
 
 <script lang="ts" src="./Cdd.v.ts"></script>
 
+<style lang="scss">
+@import '@/views/UI_PUBLIC/publicStyle/aiAndEvent.scss';
+</style>
+
 <style lang="scss" scoped>
-.el-divider--vertical {
-    border-right-width: 3px;
-    height: 30px;
-    color: #999;
-    width: 3px;
-    margin: 0;
-    border-left: 3px solid #999;
-    padding-left: 5px;
-}
-#draw_tip {
-    color: #8d8d8d;
-    font-size: 12px;
-}
-.el-form {
-    --el-form-label-font-size: 15px;
-    .el-checkbox {
-        color: black;
-        --el-checkbox-font-size: 15px;
-    }
-}
-.el-table {
-    .el-checkbox {
-        color: black;
-        --el-checkbox-font-size: 15px;
-    }
-}
-#n9web .el-form .el-form-item {
-    padding: 1px 0px 2px 12px;
-    margin-bottom: 0;
-}
-.form > .form_span:first-child {
-    padding-bottom: 10px;
-}
-.form > .form_span:not(:first-child) {
-    padding: 10px 0;
-}
-.el-form-item > .el-select {
-    width: 300px;
-}
-.form_btn {
-    width: 80px;
-    height: 25px;
-}
-.alert_surface_btn {
-    width: 50px;
-    height: 22px;
-    margin-right: 0 15px 0 0;
-    padding: 0;
-    background-color: white;
-    color: black;
-}
-.ChannelPtzCtrlPanel {
-    padding: 0 10px;
-}
-.lock_row {
-    margin: 10px 0 0 14px;
-}
-.lock_btn {
-    width: 80px;
-    height: 25px;
-    margin-right: 5px;
-}
-.triggerTrack_checkBox {
-    margin-left: 14px;
-}
-.apply_btn {
-    width: 80px;
-    height: 25px;
-}
-.dropdown_btn {
-    width: 80px;
-    height: 25px;
-    right: -20px;
-}
-#n9web .el-form .el-checkbox + * {
-    margin-left: 5px;
-}
-.el-form-item {
-    --font-size: 15px;
-}
-#n9web .el-form .el-slider {
-    margin-left: 15px;
-}
-.table_cell_span {
-    margin-right: 5px;
-    font-size: 15px;
-}
-:deep(.el-dropdown-menu__item) {
-    cursor: default;
-    width: 300px;
-    height: 180px;
-    background-color: #e5e5e5;
-}
-
-.moreDropDownBox {
-    width: 300px;
-    height: 180px;
-    background-color: #e5e5e5;
-    .dropDownHeader {
-        margin-top: 5px;
-    }
-    .checkboxes {
-        margin-left: 10px;
-    }
-    .base-btn-box {
-        display: flex;
-        justify-content: flex-end;
-        align-items: flex-end;
-        margin-top: 40px;
-    }
-}
-.clear_btns {
+.table_item {
     display: flex;
-    align-items: center;
-    justify-content: flex-end;
-}
-.showAllArea {
-    display: flex;
-    align-items: center;
     justify-content: flex-start;
-}
-.player_config {
-    margin-top: 5px;
-}
-.notSupportBox {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    background-color: #fff;
-    height: 567px;
-    z-index: 3;
-    font-size: 20px;
-}
-.tripwire_setting_pane {
-    position: relative;
-    :deep(#n9web .el-form .el-input-number.is-without-controls .el-input__wrapper) {
-        padding-left: 9px;
-        padding-right: 9px;
-    }
-    .checkbox_text {
-        margin-left: 5px;
-        width: 100px;
-    }
-    .aiResource {
-        margin-left: 1253px;
-    }
-    .more {
-        position: absolute;
-        top: 41px;
-        right: 12px;
-        z-index: 1;
-    }
-    .left {
-        width: 400px;
-        height: 450px;
-        position: absolute;
-        z-index: 1;
-        top: 84px;
-        .player {
-            margin-top: 5px;
-            width: 400px;
-            height: 300px;
-        }
-    }
-    .function-tabs {
-        :deep(.el-tabs__item.is-active) {
-            color: #00bbdb;
-        }
-        .tripwire_param {
-            display: flex;
-            flex-direction: row;
-            min-height: 481px;
-            .right {
-                // height: 480px;
-                margin-left: 500px;
-                width: calc(100% - 500px);
-            }
-            .apply_area {
-                display: flex;
-                justify-content: center;
-                align-items: flex-end;
-            }
-        }
-        .tripwire_target {
-            display: flex;
-            flex-direction: row;
-            min-height: 481px;
-            .right {
-                // height: 480px;
-                margin-left: 500px;
-                width: calc(100% - 500px);
-            }
-            .apply_area {
-                display: flex;
-                justify-content: center;
-                align-items: flex-end;
-            }
-        }
-        .tripwire_trigger {
-            display: flex;
-            flex-direction: column;
-            height: 481px;
-            background-color: #fff;
-
-            .trigger_box {
-                z-index: 3;
-                height: 481px;
-                background-color: #fff;
-            }
-            .audio_row {
-                display: flex;
-                align-items: center;
-                width: 280px;
-                margin-left: 10px;
-                margin-bottom: 5px;
-                .audio_select {
-                    width: 200px;
-                    margin-left: 20px;
-                }
-            }
-            .trigger_content {
-                display: flex;
-                flex-direction: row;
-                padding-left: 10px;
-                height: 100%;
-                .title {
-                    height: 42px;
-                    background-color: #d0d0d0;
-                    color: black;
-                    font-size: 15px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                }
-                .trigger_normal {
-                    width: 250px;
-                    height: 400px;
-                    border: 1px solid #888888;
-                    .title {
-                        .checkbox {
-                            margin-right: -138px;
-                        }
-                    }
-                    .span_text {
-                        margin-left: 5px;
-                    }
-                    .table_item {
-                        display: flex;
-                        justify-content: flex-start;
-                        margin-left: 4px;
-                    }
-                }
-                .trigger_rec {
-                    width: 250px;
-                    height: 400px;
-                    border: 1px solid #888888;
-                    margin-left: 2px;
-                }
-                .trigger_alarm {
-                    width: 250px;
-                    height: 400px;
-                    border: 1px solid #888888;
-                    margin-left: 2px;
-                }
-                .trigger_snap {
-                    width: 250px;
-                    height: 400px;
-                    border: 1px solid #888888;
-                    margin-left: 2px;
-                }
-                .trigger_preset {
-                    width: 350px;
-                    height: 400px;
-                    border: 1px solid #888888;
-                    margin-left: 2px;
-                }
-                .apply_area {
-                    display: flex;
-                    justify-content: center;
-                    align-items: flex-end;
-                    margin-left: 318px;
-                }
-            }
-        }
-        :deep(.el-slider) {
-            width: 515px;
-        }
-    }
 }
 </style>

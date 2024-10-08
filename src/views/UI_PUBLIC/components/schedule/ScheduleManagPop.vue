@@ -104,6 +104,7 @@
 .base-subheading-box {
     .scheduleTitle {
         float: left;
+        color: var(--subheading-text);
     }
     .Sprite {
         float: right;

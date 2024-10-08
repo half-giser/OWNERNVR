@@ -38,7 +38,7 @@ withDefaults(
     border-collapse: collapse;
 
     &.border {
-        border: 1px solid var(--border-color8);
+        border: 1px solid var(--content-border);
     }
 
     ul {

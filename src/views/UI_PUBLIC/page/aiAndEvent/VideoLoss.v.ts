@@ -3,14 +3,15 @@
  * @Date: 2024-08-21 15:34:24
  * @Description: 视频丢失配置
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-27 11:52:08
+ * @LastEditTime: 2024-09-26 10:17:54
  */
-import { cloneDeep } from 'lodash'
+import { cloneDeep } from 'lodash-es'
 import { defineComponent } from 'vue'
 import { ArrowDown } from '@element-plus/icons-vue'
 import { useLangStore } from '@/stores/lang'
 import { tableRowStatus, tableRowStatusToolTip } from '@/utils/const/other'
 import BaseTransferPop from '@/components/BaseTransferPop.vue'
+import BaseTableRowStatus from '@/components/BaseTableRowStatus.vue'
 import BaseTransferDialog from '@/components/BaseTransferDialog.vue'
 import { MotionEventConfig, type PresetItem } from '@/types/apiType/aiAndEvent'
 import { errorCodeMap, ErrorCodeMapping } from '@/utils/constants'
@@ -21,6 +22,7 @@ export default defineComponent({
         BaseTransferPop,
         BaseTransferDialog,
         SetPresetPop,
+        BaseTableRowStatus,
     },
     setup() {
         const chosedList = ref<any[]>([])
@@ -31,7 +33,6 @@ export default defineComponent({
         const presetRef = ref()
 
         const { LoadingTarget, openLoading, closeLoading } = useLoading()
-        const openMessageTipBox = useMessageBox().openMessageTipBox
         const pageData = ref({
             pageIndex: 1,
             pageSize: 10,
@@ -595,7 +596,7 @@ export default defineComponent({
                         <popMsgSwitch>${rowData.msgBoxPopup}</popMsgSwitch>
                         <emailSwitch>${rowData.email}</emailSwitch>
                 </content>`
-            // ftpSnap无效
+            // ftpSnap无效 TODO
             // sendXml += `
             //             <buzzerSwitch>${rowData.beeper}</buzzerSwitch>
             //             <popVideo>
@@ -650,7 +651,6 @@ export default defineComponent({
             chosedList,
             pageData,
             tableData,
-            openMessageTipBox,
             snapRef,
             alarmOutRef,
             presetRef,
@@ -682,6 +682,7 @@ export default defineComponent({
             handleEmailChangeAll,
             setData,
             addEditRow,
+            BaseTableRowStatus,
         }
     },
 })

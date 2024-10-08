@@ -12,6 +12,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const theme = getUiAndTheme()
 
         // 显示文本映射
         const TRANS_MAPPING: Record<string, string> = {
@@ -191,6 +192,7 @@ export default defineComponent({
             displayPortType,
             setData,
             getData,
+            theme,
         }
     },
 })

@@ -2,16 +2,12 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-16 17:19:11
  * @Description: 穿梭下拉框内容
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-22 15:23:27
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-09-26 11:20:32
  */
+
 export default defineComponent({
     props: {
-        // headerTitle: {
-        //     type: String,
-        //     require: true,
-        //     default: '',
-        // },
         sourceTitle: {
             type: String,
             require: true,
@@ -23,14 +19,12 @@ export default defineComponent({
             default: '',
         },
         sourceData: {
-            type: Array<any>,
+            type: Array as PropType<{ value: string; label: string }[]>,
             require: true,
-            default: [],
         },
         linkedList: {
-            type: Array<any>,
+            type: Array as PropType<string[]>,
             require: true,
-            default: [],
         },
         type: {
             type: String,
@@ -49,9 +43,12 @@ export default defineComponent({
     setup(props, ctx) {
         const data = ref<{ value: string; label: string }[]>([])
         const chosedList = ref<string[]>([])
+        const source_title = ref('')
+        const target_title = ref('')
         const MAX_TRIGGER_COUNT = 16
         const { openMessageTipBox } = useMessageBox()
         const { Translate } = useLangStore()
+        const panelWidth = ref(200)
         const typeMapping: Record<string, string> = {
             record: 'IDCS_RECORD_CHANNEL_LIMIT',
             ftpRec: 'IDCS_FTP_RECORD_CHANNEL_LIMIT',
@@ -60,8 +57,10 @@ export default defineComponent({
             alarmOut: 'IDCS_ALARMOUT_LIMIT',
         }
         const genData = () => {
-            data.value = props.sourceData
-            chosedList.value = props.linkedList
+            data.value = props.sourceData!
+            chosedList.value = props.linkedList!
+            source_title.value = Translate(props.sourceTitle)
+            target_title.value = Translate(props.targetTitle)
         }
         /**
          * @description 限制联动通道数量
@@ -89,8 +88,17 @@ export default defineComponent({
         const close = () => {
             ctx.emit('close')
         }
+        const updatePanelWidth = () => {
+            const source_length = source_title.value.length
+            const sourceTitleWidth = source_length * 9
+            const target_length = target_title.value.length
+            const targetTitleWidth = target_length * 9
+            const maxWidth = Math.max(sourceTitleWidth, targetTitleWidth)
+            panelWidth.value = Math.max(maxWidth + 87, panelWidth.value)
+        }
         onMounted(() => {
             genData()
+            updatePanelWidth()
         })
         return {
             data,
@@ -99,6 +107,9 @@ export default defineComponent({
             verify,
             close,
             change,
+            panelWidth,
+            source_title,
+            target_title,
         }
     },
 })

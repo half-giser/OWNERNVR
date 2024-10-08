@@ -107,8 +107,8 @@ onBeforeUnmount(() => {
 
 <style lang="scss" scoped>
 .notification {
-    border: 1px solid var(--border-color8);
-    background-color: var(--page-bg);
+    border: 1px solid var(--content-border);
+    background-color: var(--main-bg);
     position: fixed;
     bottom: 0;
     right: 0;
@@ -122,10 +122,10 @@ onBeforeUnmount(() => {
         font-size: 13px;
         word-wrap: break-word;
         &:hover {
-            background-color: var(--primary--01);
+            background-color: var(--primary-light);
         }
         &.selected {
-            background-color: var(--primary--04);
+            background-color: var(--primary);
         }
     }
 
@@ -135,8 +135,8 @@ onBeforeUnmount(() => {
         font-size: 16px;
         line-height: 24px;
         padding: 8px 8px 8px 13px;
-        color: var(--text-menu-01);
-        border-bottom: 1px solid var(--border-color8);
+        color: var(--header-menu-text);
+        border-bottom: 1px solid var(--content-border);
     }
 
     &-content {

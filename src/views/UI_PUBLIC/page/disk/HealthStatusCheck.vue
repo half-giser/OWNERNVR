@@ -3,7 +3,7 @@
  * @Date: 2024-07-04 16:47:04
  * @Description: 健康状态检测
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-11 17:26:50
+ * @LastEditTime: 2024-09-24 16:39:21
 -->
 <template>
     <div class="HealthStatusCheck">
@@ -112,12 +112,12 @@
 
     .diskcard {
         width: 450px;
-        border: 1px solid var(--border-color2);
+        border: 1px solid var(--content-border);
         border-radius: 6px;
         box-sizing: border-box;
         padding: 15px;
         font-size: 14px;
-        color: var(--text-menu-01);
+        color: var(--main-text);
         height: 200px;
         cursor: pointer;
         margin-right: 40px;
@@ -146,13 +146,13 @@
             font-size: 20px;
             text-align: center;
             font-weight: bold;
-            color: var(--text-nav);
+            color: var(--breadcrumb-text);
             margin: 0;
             line-height: 1;
         }
 
         &:hover {
-            background-color: var(--primary--04);
+            background-color: var(--primary);
             color: white;
 
             .diskcard-status {
@@ -161,7 +161,7 @@
         }
 
         &.warning &-status {
-            color: var(--error--01);
+            color: var(--color-error);
         }
     }
 
@@ -179,7 +179,7 @@
             cursor: pointer;
 
             &:hover {
-                color: var(--primary--04);
+                color: var(--primary);
             }
         }
 
@@ -187,7 +187,7 @@
             display: flex;
             width: 200px;
             font-size: 14px;
-            color: var(--text-menu-01);
+            color: var(--main-text);
         }
 
         &-info {
@@ -203,7 +203,7 @@
             height: 36px;
             line-height: 36px;
             flex-shrink: 0;
-            background-color: var(--primary--04);
+            background-color: var(--primary);
             text-align: center;
             color: #fff;
             font-size: 16px;

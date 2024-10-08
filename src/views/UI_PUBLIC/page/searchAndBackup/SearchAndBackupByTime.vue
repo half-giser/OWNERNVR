@@ -100,7 +100,7 @@
     width: 260px;
     height: 100%;
     flex-shrink: 0;
-    border-right: 1px solid var(--border-color7);
+    border-right: 1px solid var(--input-border);
     display: flex;
     flex-direction: column;
 
@@ -120,7 +120,7 @@
     &-box {
         width: calc(100% - 30px);
         margin: 0 auto 15px;
-        border: 1px solid var(--border-color7);
+        border: 1px solid var(--input-border);
     }
 }
 

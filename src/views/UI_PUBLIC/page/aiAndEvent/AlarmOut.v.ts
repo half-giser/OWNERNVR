@@ -1,7 +1,7 @@
 import { AlarmOut } from '@/types/apiType/aiAndEvent'
 import { tableRowStatus, tableRowStatusToolTip } from '@/utils/const/other'
 import { defineComponent } from 'vue'
-import { cloneDeep } from 'lodash'
+import { cloneDeep } from 'lodash-es'
 import { editAlarmOutParam } from '@/api/aiAndEvent'
 
 export default defineComponent({
@@ -186,7 +186,6 @@ export default defineComponent({
             if (value === curAlarmoutType.value) return
             openMessageTipBox({
                 type: 'question',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_ALARMOUT_TYPE_EDIT_AFTER_REBOOT'),
             }).then(async () => {
                 openLoading(LoadingTarget.FullScreen)

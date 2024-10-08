@@ -3,7 +3,7 @@
  * @Date: 2024-07-02 18:02:44
  * @Description: POS显示设置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 15:10:43
+ * @LastEditTime: 2024-09-23 19:59:06
 -->
 <template>
     <el-dialog
@@ -283,7 +283,7 @@
 
             &.active {
                 color: #fff;
-                background-color: #00bbdb;
+                background-color: var(--primary);
             }
         }
     }

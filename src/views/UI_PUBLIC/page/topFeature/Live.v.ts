@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 18:07:29
  * @Description: 现场预览
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-20 15:54:07
+ * @LastEditTime: 2024-09-26 09:53:45
  */
 import { cloneDeep } from 'lodash-es'
 import { type LiveChannelList, type LiveCustomViewChlList, LiveSharedWinData } from '@/types/apiType/live'
@@ -540,6 +540,19 @@ export default defineComponent({
         }
 
         /**
+         * @description 获取OSD配置
+         */
+        const getDeviceOSDDisplayConfig = async () => {
+            const result = await queryDevOsdDisplayCfg()
+            const $ = queryXml(result)
+            const nameSwitch = $('//content/nameSwitch').text().toBoolean()
+            const iconSwitch = $('//content/iconSwitch').text().toBoolean()
+            const addressSwitch = $('//content/addressSwitch').text().toBoolean()
+            const sendXML = OCX_XML_SetPropertyOSD(nameSwitch, iconSwitch, addressSwitch)
+            plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+        }
+
+        /**
          * @description 更新播放器回调的页面窗口状态
          * @param {number} index
          * @param {Object} winData
@@ -586,6 +599,11 @@ export default defineComponent({
                         setTimeout(() => {
                             playSplitVideo(1)
                         }, 100)
+                    }
+                    if (mode.value === 'ocx') {
+                        if (theme.name === 'UI1-E') {
+                            getDeviceOSDDisplayConfig()
+                        }
                     }
                     stopInitialPlay()
                 })
@@ -652,8 +670,16 @@ export default defineComponent({
                         plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                     }
                     {
-                        const sendXML = OCX_XML_SetViewChannelID(chlID, pageData.value.chlMap[chlID].value)
-                        plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                        if (theme.name === 'UI1-E') {
+                            const sendXML = OCX_XML_SetViewChannelID(chlID, pageData.value.chlMap[chlID].value, {
+                                chlIp: pageData.value.chlMap[chlID].chlIp,
+                                poeSwitch: pageData.value.chlMap[chlID].poeSwitch,
+                            })
+                            plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                        } else {
+                            const sendXML = OCX_XML_SetViewChannelID(chlID, pageData.value.chlMap[chlID].value)
+                            plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                        }
                     }
                 })
             }
@@ -1038,11 +1064,24 @@ export default defineComponent({
                 }
             } else {
                 if (bool) {
-                    // TODO
+                    const chlIds = (chlRef.value?.getOnlineChlList() || []).slice(0, pageData.value.split)
+                    const chlNames = chlIds.map((item) => pageData.value.chlMap[item].value)
+                    if (theme.name === 'UI1-E') {
+                        const chlPoe = chlIds.map((item) => {
+                            return {
+                                chlIp: pageData.value.chlMap[item].chlIp,
+                                poeSwitch: pageData.value.chlMap[item].poeSwitch,
+                            }
+                        })
+                        const sendXML = OCX_XML_SetAllViewChannelId(chlIds, chlNames, chlPoe)
+                        plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    } else {
+                        const sendXML = OCX_XML_SetAllViewChannelId(chlIds, chlNames)
+                        plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    }
                 } else {
                     const sendXML = OCX_XML_StopPreview('ALL')
                     plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                    // TODO
                 }
             }
             pageData.value.allPreview = bool
@@ -1573,9 +1612,11 @@ export default defineComponent({
             // 通知抓图结果
             else if ($('statenotify[@type="TakePhoto"]').length) {
                 if ($('statenotify[@type="TakePhoto"]/status').text() === 'success') {
-                    if (!window.localStorage.getItem('snapPicNotEncrypted')) {
-                        pageData.value.notification.push(Translate('IDCS_IMG_UNENCRYPTED_TIP'))
-                        window.localStorage.setItem('snapPicNotEncrypted', 'true')
+                    if (theme.name !== 'UI1-E') {
+                        if (!window.localStorage.getItem('snapPicNotEncrypted')) {
+                            pageData.value.notification.push(Translate('IDCS_IMG_UNENCRYPTED_TIP'))
+                            window.localStorage.setItem('snapPicNotEncrypted', 'true')
+                        }
                     }
                     pageData.value.notification.push(Translate('IDCS_SNAP_SUCCESS_PATH') + $('statenotify[@type="TakePhoto"]/dir').text())
                 } else {
@@ -1586,9 +1627,11 @@ export default defineComponent({
             // 通知手动录像结果
             else if ($('statenotify[@type="RecComplete"]').length) {
                 if ($('statenotify[@type="RecComplete"]/status').text() == 'success') {
-                    if (!window.localStorage.getItem('localAviNotEncrypted')) {
-                        pageData.value.notification.push(Translate('IDCS_AVI_UNENCRYPTED_TIP'))
-                        window.localStorage.setItem('localAviNotEncrypted', 'true')
+                    if (theme.name !== 'UI1-E') {
+                        if (!window.localStorage.getItem('localAviNotEncrypted')) {
+                            pageData.value.notification.push(Translate('IDCS_AVI_UNENCRYPTED_TIP'))
+                            window.localStorage.setItem('localAviNotEncrypted', 'true')
+                        }
                     }
                     pageData.value.notification.push(Translate('IDCS_REC_SUCCESS_PATH') + $('statenotify[@type="RecComplete"]/dir').text())
                 } else {

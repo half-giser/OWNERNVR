@@ -2,8 +2,8 @@
  * @Description: AI/事件——事件通知——蜂鸣器
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-07-30 15:55:28
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-12 15:16:17
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-29 13:34:58
 -->
 <template>
     <el-form
@@ -44,5 +44,3 @@
 </template>
 
 <script lang="ts" src="./Buzzer.v.ts"></script>
-
-<style scoped></style>

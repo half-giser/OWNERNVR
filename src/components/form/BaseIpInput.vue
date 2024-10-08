@@ -3,7 +3,7 @@
  * @Date: 2024-06-04 10:26:32
  * @Description: IPv4地址输入框
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-22 20:03:00
+ * @LastEditTime: 2024-09-25 11:04:22
 -->
 <template>
     <div
@@ -214,7 +214,7 @@ const handleBlur = () => {
     --el-input-inner-height: 28px;
 
     align-items: left;
-    border: 1px solid var(--border-color7);
+    border: 1px solid var(--input-border);
     border-radius: var(--el-input-border-radius, var(--el-border-radius-base));
     box-shadow: 0 0 0 1px var(--el-input-border-color, var(--el-border-color)) inset;
     cursor: text;
@@ -232,19 +232,24 @@ const handleBlur = () => {
     &:hover,
     &.is-focus {
         box-shadow: 0 0 0 1px var(--el-input-hover-border-color) inset;
-        border-color: var(--primary--04);
+        border-color: var(--primary);
 
         &.disabled {
-            background-color: var(--bg-color-disabled);
+            background-color: var(--input-bg-disabled);
             border-color: var(--border-color-disabled);
         }
     }
 
     &.disabled {
-        background-color: var(--bg-color-disabled);
+        box-shadow: none;
+        background-color: var(--input-bg-disabled);
         border-color: var(--border-color-disabled);
         cursor: not-allowed;
         color: var(--el-disabled-text-color);
+
+        span {
+            color: var(--el-disabled-text-color);
+        }
     }
 
     input {
@@ -264,6 +269,10 @@ const handleBlur = () => {
             color: var(--el-disabled-text-color);
             cursor: not-allowed;
         }
+    }
+
+    span {
+        color: var(--input-text);
     }
 }
 </style>

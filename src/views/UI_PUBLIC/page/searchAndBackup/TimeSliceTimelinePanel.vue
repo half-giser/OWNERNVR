@@ -208,7 +208,7 @@
     height: 100%;
     flex-shrink: 0;
     padding: 20px;
-    border-right: 1px solid var(--border-color7);
+    border-right: 1px solid var(--input-border);
 
     h3 {
         font-size: 14px;
@@ -249,14 +249,14 @@
 
 .time-btn {
     padding: 0 20px;
-    border: 1px solid var(--border-color8);
+    border: 1px solid var(--content-border);
     cursor: pointer;
     line-height: 30px;
     color: var(--text-menu-0);
     font-size: 14px;
 
     &.active {
-        background-color: var(--primary--04);
+        background-color: var(--primary);
         color: var(--color-white);
     }
 }
@@ -272,11 +272,11 @@
         width: 100%;
         box-sizing: border-box;
         flex-shrink: 0;
-        border-bottom: 1px solid var(--border-color7);
+        border-bottom: 1px solid var(--input-border);
     }
 
     &-timeline {
-        border: 1px solid var(--border-color7);
+        border: 1px solid var(--input-border);
         margin-bottom: 10px;
 
         &-view {
@@ -285,7 +285,7 @@
     }
 
     &-legend {
-        border-top: 1px solid var(--border-color7);
+        border-top: 1px solid var(--input-border);
         height: 20px;
         width: 100%;
         display: flex;

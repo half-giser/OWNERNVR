@@ -1,7 +1,7 @@
 import { type CombinedAlarm, type CombinedAlarmItem, type faceMatchObj, type PresetItem } from '@/types/apiType/aiAndEvent'
 // tableRowStatus
 import { tableRowStatusToolTip } from '@/utils/const/other'
-import { cloneDeep, isEqual } from 'lodash'
+import { cloneDeep, isEqual } from 'lodash-es'
 import BaseTransferPop from '@/components/BaseTransferPop.vue'
 import BaseTransferDialog from '@/components/BaseTransferDialog.vue'
 import SetPresetPop from './SetPresetPop.vue'
@@ -422,18 +422,14 @@ export default defineComponent({
             if (!checkChlName(name)) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS'),
-                    showCancelButton: false,
                 })
                 row.name = tempName.value
             } else {
                 if (!name) {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_PROMPT_NAME_EMPTY'),
-                        showCancelButton: false,
                     })
                     row.name = tempName.value
                 }
@@ -441,9 +437,7 @@ export default defineComponent({
                     if (item.id != row.id && name == item.name) {
                         openMessageTipBox({
                             type: 'info',
-                            title: Translate('IDCS_INFO_TIP'),
                             message: Translate('IDCS_NAME_SAME'),
-                            showCancelButton: false,
                         })
                         row.name = tempName.value
                     }
@@ -961,8 +955,6 @@ export default defineComponent({
         )
 
         return {
-            BaseTransferPop,
-            BaseTransferDialog,
             SetPresetPop,
             CombinationAlarmPop,
             recordRef,

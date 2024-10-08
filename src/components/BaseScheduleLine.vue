@@ -21,7 +21,6 @@
                 class="time-selector, readonly"
                 :width="canvasWidth"
                 height="20"
-                :style="{ backgroundColor: `${timeSpanBgColor}` }"
             ></canvas>
             <canvas
                 v-else
@@ -29,7 +28,6 @@
                 class="time-selector"
                 :width="canvasWidth"
                 height="20"
-                :style="{ backgroundColor: `${timeSpanBgColor}` }"
                 @mousedown="selectStart"
                 @mousemove="selecting"
                 @mouseup="selectEnd"
@@ -93,11 +91,6 @@ import { ref } from 'vue'
 export interface Props {
     width: number
     timeMode?: number
-    scaleColor?: string
-    scaleFont?: string
-    timeSpanColor?: string
-    timeSpanSelectingColor?: string
-    timeSpanBgColor?: string
     readonly?: boolean
     dragAction?: 'add' | 'del'
 }
@@ -105,14 +98,14 @@ export interface Props {
 const props = withDefaults(defineProps<Props>(), {
     width: 300,
     timeMode: 24,
-    scaleColor: '#000',
-    scaleFont: '11px Arial',
-    timeSpanColor: '#18C0DD',
-    timeSpanSelectingColor: '#89E9F9',
-    timeSpanBgColor: '#F2F2F3',
     readonly: false,
     dragAction: 'add',
 })
+
+const scaleFont = '11px Arial'
+let scaleColor = '#000'
+let timeSpanColor = '#18C0DD'
+let timeSpanSelectingColor = '#89E9F9'
 
 const { Translate } = inject('appGlobalProp') as appGlobalProp
 
@@ -153,6 +146,16 @@ const manualTimeSpan = ref<[Date, Date]>([new Date(2016, 9, 10, 0, 0), new Date(
 const manualTimeInputShow = ref(false)
 
 /**
+ * @description 初始化样式值
+ */
+const initStyle = () => {
+    const style = getComputedStyle(scaleRef.value!)
+    scaleColor = style.getPropertyValue('--schedule-scale')
+    timeSpanColor = style.getPropertyValue('--schedule-time-span-bg-active')
+    timeSpanSelectingColor = style.getPropertyValue('--schedule-time-span-bg-selection')
+}
+
+/**
  * 挂载完成后设置基础元素和属性
  */
 const setBasicProp = () => {
@@ -172,6 +175,8 @@ const setBasicProp = () => {
 }
 
 onMounted(() => {
+    // 从CSS中获取样式
+    initStyle()
     //挂载完成后设置基础元素和属性
     setBasicProp()
     //画刻度
@@ -457,7 +462,7 @@ const drawScale = () => {
     const ctx = scaleCanvasBase.getContext()
     const lineStyle = {
         lineWidth: 1,
-        strokeStyle: props.scaleColor,
+        strokeStyle: scaleColor,
     }
 
     const scaleTextArr = props.timeMode === 12 ? scaleTextArr12 : scaleTextArr24
@@ -471,8 +476,8 @@ const drawScale = () => {
                 text: scaleTextArr[i],
                 startX: x - ctx.measureText(scaleTextArr[i]).width / 2,
                 startY: 2,
-                fillStyle: props.scaleColor,
-                font: props.scaleFont,
+                fillStyle: scaleColor,
+                font: scaleFont,
             })
             scaleCanvasBase.Line(x, 13, x, canvasHeight, lineStyle)
         } else {
@@ -489,7 +494,7 @@ const drawTimeSpan = () => {
     selectedTimeSpans.value.forEach((item) => {
         const x1 = timeToX(item[0])
         const x2 = timeToX(item[1]) - x1
-        timeSelectorCanvasBase.FillRect(x1, 0, x2, canvasHeight, props.timeSpanColor)
+        timeSelectorCanvasBase.FillRect(x1, 0, x2, canvasHeight, timeSpanColor)
     })
 }
 
@@ -517,7 +522,7 @@ const selecting = (event: MouseEvent) => {
     const timeNum2 = xToTime(selectEndX)
     selectTip.value = timeStrSpanShowText(timeNum1 > timeNum2 ? [numToTimeStr(timeNum2), numToTimeStr(timeNum1)] : [numToTimeStr(timeNum1), numToTimeStr(timeNum2)])
     drawTimeSpan()
-    timeSelectorCanvasBase.FillRect(selectStartX, 0, selectEndX - selectStartX, canvasHeight, props.timeSpanSelectingColor)
+    timeSelectorCanvasBase.FillRect(selectStartX, 0, selectEndX - selectStartX, canvasHeight, timeSpanSelectingColor)
 }
 
 const selectEnd = (event: MouseEvent) => {
@@ -545,8 +550,12 @@ defineExpose({
 </script>
 
 <style lang="scss" scoped>
+.border {
+    user-select: none;
+}
+
 .timeline-border {
-    border: solid 1px var(--border-color1);
+    border: solid 1px var(--main-border);
 
     canvas {
         display: block;
@@ -554,6 +563,7 @@ defineExpose({
 
     .time-selector {
         cursor: text;
+        background-color: var(--schedule-time-span-bg);
 
         &.readonly {
             cursor: default;
@@ -565,11 +575,10 @@ defineExpose({
     display: flex;
     height: 22px;
     line-height: 22px;
-    // background-color: aquamarine;
 
     .valueShowText {
         font-size: 12px;
-        color: var(--text-primary);
+        color: var(--main-text);
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -581,7 +590,7 @@ defineExpose({
         font-size: 12px;
         padding: 0px 2px;
         height: 16px;
-        background-color: var(--primary--01);
+        background-color: var(--primary-light);
     }
 
     .btn-panel {
@@ -593,16 +602,16 @@ defineExpose({
             margin-left: 15px;
             text-decoration: none;
             cursor: pointer;
-            color: var(--text-timeline-button);
+            color: var(--schedule-btn);
 
             &:hover {
                 text-decoration: underline;
-                color: var(--primary--04);
+                color: var(--primary);
             }
 
             &.disabled {
                 cursor: default;
-                color: var(--text-disabled);
+                color: var(--input-text-disabled);
                 text-decoration: none;
             }
         }
@@ -617,8 +626,8 @@ defineExpose({
     right: 0px;
     padding: 2px;
     border-radius: 5px;
-    border: solid 1px var(--border-color1);
-    background-color: var(--bg-color5);
+    border: solid 1px var(--main-border);
+    background-color: var(--table-stripe);
     z-index: 1000;
 }
 </style>

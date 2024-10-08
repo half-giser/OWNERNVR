@@ -3,7 +3,7 @@
  * @Date: 2024-05-04 12:58:39
  * @Description: 查看或更改用户
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 18:20:10
+ * @LastEditTime: 2024-09-23 11:39:01
 -->
 <template>
     <div class="User">
@@ -220,7 +220,7 @@
         margin-top: 12px;
 
         .title {
-            border-left: 3px solid var(--border-color2);
+            border-left: 3px solid var(--content-border);
             height: 30px;
             line-height: 30px;
             padding-left: 15px;
@@ -254,7 +254,7 @@
         ul {
             display: flex;
             justify-content: center;
-            border: 1px solid var(--border-color6);
+            border: 1px solid var(--content-border);
             margin: 0;
             padding: 5px;
             flex-shrink: 0;

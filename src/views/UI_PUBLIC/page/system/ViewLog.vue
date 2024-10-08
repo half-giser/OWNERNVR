@@ -3,7 +3,7 @@
  * @Date: 2024-07-01 11:01:04
  * @Description: 查看日志
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-04 18:18:58
+ * @LastEditTime: 2024-09-23 15:21:43
 -->
 <template>
     <div class="ViewLog base-flex-box">
@@ -166,10 +166,10 @@
 .ViewLog {
     :deep(.el-button) {
         &.is-link {
-            color: var(--text-primary);
+            color: var(--main-text);
 
             &.el-button--primary {
-                color: var(--primary--04);
+                color: var(--primary);
             }
 
             &:hover {
@@ -226,7 +226,6 @@
 
     .sub-types {
         width: fit-content;
-        background-color: white;
         max-height: 50vh;
         overflow: auto;
         padding-right: 20px;
@@ -237,23 +236,6 @@
             display: block;
             display: flex;
             align-items: center;
-        }
-
-        &::-webkit-scrollbar {
-            width: 2px;
-            background-color: #f5f5f5;
-        }
-
-        &::-webkit-scrollbar-track {
-            -webkit-box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.3);
-            border-radius: 10px;
-            background-color: #f5f5f5;
-        }
-
-        &::-webkit-scrollbar-thumb {
-            border-radius: 10px;
-            -webkit-box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.3);
-            background-color: #999;
         }
     }
 }

@@ -3,7 +3,7 @@
  * @Date: 2024-07-22 16:45:57
  * @Description: 现场预览-目标检测面板-渲染单个结构化抓拍元素
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-23 11:41:04
+ * @LastEditTime: 2024-09-27 13:35:06
 -->
 <template>
     <div
@@ -94,12 +94,12 @@
     width: 235px;
     margin: 5px auto;
     padding: 5px;
-    border: 1px solid var(--border-dark);
+    border: 1px solid var(--panel-snap-border);
     box-sizing: border-box;
     font-size: 12px;
 
     &.border {
-        border-color: var(--border-snap-history);
+        border-color: var(--panel-snap-history-border);
     }
 
     &-top {
@@ -136,7 +136,7 @@
         align-items: center;
         justify-content: center;
         opacity: 0;
-        background-color: var(--bg-color-opacity2);
+        background-color: var(--panel-snap-btn-bg);
 
         span {
             margin: 0 1px;

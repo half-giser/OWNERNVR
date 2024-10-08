@@ -3,7 +3,7 @@
  * @Date: 2024-06-04 10:17:30
  * @Description: 不支持WebSocket或未安装插件时的占位弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-28 18:56:35
+ * @LastEditTime: 2024-09-25 16:43:10
 -->
 <template>
     <teleport
@@ -12,14 +12,17 @@
     >
         <div
             v-show="pluginStore.showPluginNoResponse"
-            class="pluginNotic"
+            class="PluginNotice"
             :class="{
                 warning: notice.warning,
                 fixed: container === 'body',
             }"
         >
             <div v-clean-html="notice.html"></div>
-            <div class="pluginError"></div>
+            <BaseImgSprite
+                file="plugin_error"
+                class="PluginNotice-icon"
+            />
         </div>
     </teleport>
 </template>
@@ -34,7 +37,7 @@ const Plugin = inject('Plugin') as PluginType
  * @param {String} langKey
  */
 const getPluginLoadLang = (langKey: keyof typeof OCX_Plugin_Notice_Map) => {
-    const langId = lang.getLangId // $.webSession('lang_id')
+    const langId = lang.langId // $.webSession('lang_id')
     if (langId in OCX_Plugin_Notice_Map && langKey in OCX_Plugin_Load_Lang[langId]) {
         let langValue = OCX_Plugin_Load_Lang[langId][langKey]
         if (!langValue) langValue = OCX_Plugin_Load_Lang['0x0409'][langKey]
@@ -71,7 +74,7 @@ const container = computed(() => {
 </script>
 
 <style lang="scss" scoped>
-.pluginNotic {
+.PluginNotice {
     background-color: #fff;
     position: absolute;
     top: 0;
@@ -82,18 +85,23 @@ const container = computed(() => {
     box-sizing: border-box;
     padding: 10px;
     z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
+    padding: 30px;
 
     a {
         color: #327eee;
 
         &:hover {
-            color: #00bbdb;
+            color: var(--primary);
         }
     }
 
     &.warning {
         font-size: 20px;
-        color: #d90000;
+        color: var(--color-error-01);
     }
 
     &.fixed {
@@ -104,6 +112,10 @@ const container = computed(() => {
         height: 100vh;
         z-index: 9999;
         overflow: hidden;
+    }
+
+    &-icon {
+        margin-top: 30px;
     }
 }
 </style>

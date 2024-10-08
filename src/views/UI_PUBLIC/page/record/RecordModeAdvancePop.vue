@@ -66,7 +66,7 @@
     }
 
     label.el-checkbox:nth-child(even) {
-        background-color: var(--bg-color5);
+        background-color: var(--table-stripe);
     }
 }
 </style>

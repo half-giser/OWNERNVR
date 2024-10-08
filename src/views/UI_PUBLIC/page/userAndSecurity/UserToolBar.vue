@@ -67,11 +67,11 @@ export default defineComponent({
 }
 
 .toolBarBtn {
-    background-color: var(--bg-color2);
+    background-color: var(--btn-bg);
     margin-left: 5px;
 
     &:hover {
-        background-color: var(--bg-color3);
+        background-color: var(--btn-bg-hover);
     }
 }
 </style>

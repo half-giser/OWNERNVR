@@ -307,6 +307,7 @@ export default defineComponent({
             tableRowStatusToolTip,
             popOpen,
             setData,
+            ScheduleManagPop,
         }
     },
 })

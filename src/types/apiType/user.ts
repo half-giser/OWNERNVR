@@ -3,7 +3,7 @@
  * @Date: 2024-05-24 17:12:55
  * @Description:
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-20 17:59:18
+ * @LastEditTime: 2024-09-24 14:34:34
  */
 
 /**
@@ -30,6 +30,7 @@ export class LoginReqData {
 export class AuthCodeLoginForm {
     sn = ''
     code = ''
+    calendarType = ''
 }
 
 /**
@@ -46,5 +47,15 @@ export class ChangePasswordForm {
  */
 export class ChangePasswordReqData {
     oldPassword = ''
+    password = ''
+}
+
+export class UserCheckAuthForm {
+    userName = ''
+    password = '' // 明文密码用于与插件的鉴权交互
+    hexHash = '' // 密文密码
+}
+
+export class UserInputEncryptPwdForm {
     password = ''
 }

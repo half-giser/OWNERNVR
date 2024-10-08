@@ -3,7 +3,7 @@
  * @Date: 2024-09-20 09:10:11
  * @Description: P2P授权码登录
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-20 16:47:44
+ * @LastEditTime: 2024-09-29 13:33:10
 -->
 <template>
     <div class="authCodeLogin">
@@ -71,7 +71,7 @@
                             </div>
                         </div>
                     </el-form-item>
-                    <div>
+                    <el-form-item>
                         <el-button
                             class="authCodeLogin-submit"
                             size="large"
@@ -81,26 +81,38 @@
                         >
                             {{ Translate('IDCS_LOGIN_NBSP') }}
                         </el-button>
-                    </div>
+                    </el-form-item>
                     <div
                         class="authCodeLogin-error"
                         v-text="pageData.errorMsg"
                     ></div>
                 </el-form>
             </div>
-            <el-select
-                v-model="pageData.langId"
-                class="authCodeLogin-lang"
-                @change="changeLang"
-            >
-                <el-option
-                    v-for="(item, key) in lang.langTypes.value"
-                    :key="key"
-                    :label="item.name"
-                    :value="item.id"
-                />
-            </el-select>
-            <div class="authCodeLogin-footer">
+            <div class="authCodeLogin-lang">
+                <el-select
+                    v-model="pageData.langId"
+                    @change="changeLang"
+                >
+                    <el-option
+                        v-for="(item, key) in lang.langTypes.value"
+                        :key="key"
+                        :label="item.name"
+                        :value="item.id"
+                    />
+                </el-select>
+                <el-select
+                    v-show="pageData.calendarOptions.length"
+                    v-model="formData.calendarType"
+                >
+                    <el-option
+                        v-for="item in pageData.calendarOptions"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value"
+                    />
+                </el-select>
+            </div>
+            <!-- <div class="authCodeLogin-footer">
                 <p>{{ pageData.copyright }}</p>
                 <a
                     v-if="pageData.icp"
@@ -108,28 +120,33 @@
                     target="_blank"
                     ><p>{{ pageData.icp }}</p></a
                 >
-            </div>
+            </div> -->
         </div>
     </div>
 </template>
 
 <script lang="ts" src="./AuthCodeLogin.v.ts"></script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .authCodeLogin {
     position: relative;
     width: 100vw;
     height: 100vh;
+    background-color: var(--authcode-bg);
 
     &-lang {
         position: absolute;
         top: 20px;
         right: 30px;
         width: 180px;
+
+        .el-select {
+            margin-bottom: 10px;
+        }
     }
 
     &-bg {
-        background: url('/mainBg.png') no-repeat;
+        background: var(--img-authcodelogin-bg) no-repeat;
         background-size: 100% 100%;
         height: 467px;
         width: 100%;
@@ -140,7 +157,7 @@
     }
 
     &-mask {
-        background: url('/mainBgMask.png') no-repeat;
+        background: var(--img-authcodelogin-mask) no-repeat;
         background-size: 100% 100%;
         height: 318px;
         width: 100%;
@@ -164,16 +181,15 @@
 
 .authCodeLogin-item {
     position: relative;
-    width: 300px;
+    width: 290px;
     height: 50px;
-    // margin-bottom: 30px;
     font-size: 16px;
-    border: 1px solid var(--border-color1);
+    border: 1px solid var(--color-black);
     display: flex;
-    background-color: var(--bg-color);
+    background-color: var(--input-bg);
 
     &.disabled {
-        background-color: var(--bg-button-disabled);
+        background-color: var(--authcode-input-bg-disabled);
     }
 }
 
@@ -183,8 +199,8 @@
     width: 50px;
     height: 100%;
     flex-shrink: 0;
-    background: url('/loginIcon.png');
-    border-right: 1px solid var(--border-color1);
+    background: var(--img-authcodelogin-icon);
+    border-right: 1px solid var(--color-black);
 
     &.icon-code {
         background-position: 0 -134px;
@@ -203,23 +219,29 @@
     position: relative;
     width: 693px;
     height: 262px;
-    background: no-repeat url('/AuthCodeLoginContent.png');
+    background: no-repeat var(--img-authcodelogin-content);
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-color: var(--authcode-content-bg);
+    padding-inline: 10px;
 
     #n9web & {
         .el-form {
-            margin-top: 38px;
-            margin-left: 400px;
+            margin-top: 30px;
+            margin-left: 390px;
         }
 
         .el-input {
+            --el-disabled-text-color: var(--authcode-input-text-disabled);
+
             width: 240px;
 
-            .el-input__wrapper {
+            :deep(.el-input__wrapper) {
                 background: transparent;
             }
         }
 
-        .el-input__wrapper {
+        :deep(.el-input__wrapper) {
             box-shadow: none;
         }
 
@@ -229,24 +251,30 @@
             font-size: 16px;
         }
 
-        .el-form-item__error {
+        :deep(.el-form-item__error) {
             margin: 2px 0px 0px 55px;
         }
 
         .authCodeLogin-submit {
-            --el-button-border-color: var(--primary--04);
-            --el-button-bg-color: var(--primary--03);
-            --el-button-text-color: var(--page-bg);
-            --el-button-hover-text-color: var(--page-bg);
-            --el-button-hover-bg-color: var(--primary--02);
-            --el-button-hover-border-color: var(--primary--03);
-            --el-button-active-text-color: var(--page-bg);
-            --el-button-active-border-color: var(--primary--05);
-            --el-button-active-bg-color: var(--primary--04);
+            --el-button-border-color: transparent;
+            --el-button-hover-border-color: transparent;
+            --el-button-active-border-color: transparent;
+            --el-button-text-color: var(--authcode-btn-text);
+            --el-button-hover-text-color: var(--authcode-btn-text);
 
-            width: 300px;
+            width: 290px;
             height: 50px;
             font-size: 18px;
+            transition: none;
+            background: var(--img-login-btn);
+
+            &:hover {
+                background-position: 0 -50px;
+            }
+
+            &.is-disabled {
+                background-position: 0 -150px;
+            }
         }
     }
 }
@@ -256,15 +284,21 @@
     height: 100%;
     width: 200px;
     display: flex;
-    left: 300px;
     align-items: center;
+
+    @if $GLOBAL_UI_TYPE == UI1-E {
+        left: 310px;
+    } @else {
+        left: 300px;
+    }
 
     .el-button.is-link {
         margin-left: 10px;
         font-size: 18px;
-        color: var(--primary--04);
+        color: var(--primary);
         &:hover {
-            color: var(--primary--02);
+            color: var(--primary);
+            opacity: 0.8;
         }
     }
 }
@@ -272,39 +306,46 @@
 .authCodeLogin-question {
     width: 20px;
     height: 20px;
-    background: url(/question.png);
+    background: var(--img-authcodelogin-question);
     margin-left: 10px;
 }
 
 .authCodeLogin-expiretime {
     font-size: 18px;
-    color: var(--primary--04);
+    color: var(--primary);
 }
 
-.authCodeLogin-footer {
-    position: absolute;
-    left: 0;
-    bottom: 10px;
-    width: 100%;
-    color: var(--text-menu-01);
+// .authCodeLogin-footer {
+//     position: absolute;
+//     left: 0;
+//     bottom: 10px;
+//     width: 100%;
+//     color: var(--header-menu-text);
 
-    p {
-        width: 100%;
-        margin: 0;
-        padding: 0;
-        text-align: center;
-        font-size: 13px;
-    }
+//     p {
+//         width: 100%;
+//         margin: 0;
+//         padding: 0;
+//         text-align: center;
+//         font-size: 13px;
+//     }
 
-    a {
-        color: var(--primary--04);
-    }
-}
+//     a {
+//         color: var(--primary);
+//     }
+// }
 
 .authCodeLogin-error {
-    position: relative;
-    margin-top: 20px;
-    color: var(--error--01);
+    position: absolute;
+    color: var(--color-error);
     font-size: 18px;
+
+    @if $GLOBAL_UI_TYPE == UI1-E {
+        top: calc(100% + 30px);
+        left: 0;
+    } @else {
+        top: calc(100% - 5px);
+        left: 400px;
+    }
 }
 </style>

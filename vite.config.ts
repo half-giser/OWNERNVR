@@ -23,6 +23,7 @@ export default defineConfig(({ mode }) => {
     const env = loadEnv(split[0], envDir)
 
     env.VITE_UI_TYPE = split[1] || env.VITE_UI_TYPE
+    console.log(env.VITE_UI_TYPE)
 
     const { VITE_APP_IP, VITE_UI_TYPE } = env
 
@@ -49,7 +50,6 @@ export default defineConfig(({ mode }) => {
             'import.meta.env.VITE_APP_KEYWORDS': JSON.stringify(env.VITE_APP_KEYWORDS),
             'import.meta.env.VITE_APP_TYPE': JSON.stringify(env.VITE_APP_TYPE),
             'import.meta.env.VITE_APP_COPYRIGHT': JSON.stringify(env.VITE_APP_COPYRIGHT),
-            'import.meta.env.VITE_APP_ICP_NUMBER': JSON.stringify(env.VITE_APP_ICP_NUMBER),
         },
         base: env.VITE_DEPLOY_BASE_URL,
         server: {

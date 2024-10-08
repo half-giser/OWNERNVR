@@ -11,7 +11,7 @@
                 class="inline-message narrow"
                 :style="{
                     '--form-input-width': '200px',
-                    '--form-label-width': '100px',
+                    '--form-label-width': '150px',
                 }"
             >
                 <el-form-item>

@@ -3,7 +3,7 @@
  * @Date: 2024-06-25 13:55:36
  * @Description: 分屏模版
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-26 17:39:49
+ * @LastEditTime: 2024-09-27 10:44:31
 -->
 <template>
     <div
@@ -53,12 +53,12 @@
     width: 100%;
     height: 100%;
     display: grid;
-    background-color: #fff;
+    background-color: var(--main-bg);
 
     & > div {
         justify-items: center;
         align-content: center;
-        border: 1px solid #3d3a3a;
+        border: 1px solid var(--content-border);
 
         div {
             width: 100%;
@@ -67,22 +67,22 @@
     }
 
     &.screen {
-        background-color: black;
-        color: white;
+        background-color: var(--color-black);
+        color: var(--color-white);
 
         & > div {
             &:hover,
             &.active {
-                border-color: var(--primary--03);
+                border-color: var(--primary);
             }
         }
     }
 
     &.thumbail > div {
-        border-color: var(--border-color8);
+        border-color: var(--content-border);
 
         &.active {
-            border-color: var(--primary--03);
+            border-color: var(--primary);
         }
     }
 
@@ -208,8 +208,8 @@
         line-height: 30px;
         cursor: pointer;
         z-index: 10;
-        background-color: white;
-        color: black;
+        background-color: var(--main-bg);
+        color: var(--main-text);
     }
 }
 </style>

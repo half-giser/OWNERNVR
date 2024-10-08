@@ -3,7 +3,7 @@
  * @Date: 2024-08-12 16:25:05
  * @Description: 按时间切片搜索
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-04 18:04:45
+ * @LastEditTime: 2024-09-27 16:41:39
 -->
 <template>
     <div class="time-slice">
@@ -68,7 +68,7 @@
     height: 40px;
     line-height: 40px;
     width: 100%;
-    border-bottom: 1px solid var(--border-color7);
+    border-bottom: 1px solid var(--input-border);
     display: flex;
     align-items: center;
     box-sizing: border-box;
@@ -80,7 +80,7 @@
         cursor: pointer;
 
         &:not(:last-child):hover {
-            color: var(--primary--04);
+            color: var(--primary);
         }
 
         &:not(:last-child)::after {
@@ -102,8 +102,8 @@
 }
 
 .legend {
-    background-color: var(--timeline-legend-bg-color);
-    color: var(--timeline-scale-text-color);
+    background-color: var(--timeline-legend-bg);
+    color: var(--timeline-scale-text-01);
     height: 20px;
     width: 100%;
     display: flex;

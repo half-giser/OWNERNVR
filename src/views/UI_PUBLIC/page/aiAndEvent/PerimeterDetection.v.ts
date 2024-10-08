@@ -3,7 +3,7 @@
  * @Date: 2024-08-27 15:43:32
  * @Description: 周界防范/人车检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-20 11:23:22
+ * @LastEditTime: 2024-09-24 11:47:08
  */
 import { type TabsPaneContext } from 'element-plus'
 import { useLangStore } from '@/stores/lang'
@@ -337,6 +337,7 @@ export default defineComponent({
         const handleChangeChannel = async () => {
             pageData.value.chlData = pageData.value.chlCaps[pageData.value.currChlId]
             pageData.value.tabKey += 1
+            console.log('pageData.value.chlData', pageData.value.chlData)
             initPageData()
         }
         // 大tab点击事件,切换功能 Tripwire/Pea
@@ -373,6 +374,8 @@ export default defineComponent({
             pageData,
             handleChangeChannel,
             handleTabClick,
+            Tripwire,
+            Pea,
         }
     },
 })

@@ -224,7 +224,7 @@
     position: relative;
     width: 960px;
     height: 500px;
-    border: 1px solid var(--border-color8);
+    border: 1px solid var(--content-border);
 
     img {
         width: 100%;
@@ -284,7 +284,7 @@
                 text-align: center;
                 font-size: 14px;
                 display: block;
-                color: var(--primary--04);
+                color: var(--primary);
             }
         }
 

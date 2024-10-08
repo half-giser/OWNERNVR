@@ -523,7 +523,7 @@
 .face-pic {
     width: 152px;
     height: 174px;
-    border: 1px solid var(--border-color8);
+    border: 1px solid var(--content-border);
     flex-shrink: 0;
 
     &-add {
@@ -538,15 +538,15 @@
         height: 22px;
         display: flex;
         justify-content: flex-end;
-        background-color: var(--bg-color2);
+        background-color: var(--btn-bg);
 
         :deep(.el-button) {
             &.is-link {
-                color: var(--text-primary);
+                color: var(--main-text);
 
                 &:hover {
                     text-decoration: underline;
-                    color: var(--primary--04);
+                    color: var(--primary);
                 }
             }
 

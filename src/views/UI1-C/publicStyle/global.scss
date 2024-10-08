@@ -1,0 +1,231 @@
+/*
+ * @Author: yejiahao yejiahao@tvt.net.cn
+ * @Date: 2024-09-23 17:41:52
+ * @Description: UI1-C 主题样式
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-30 14:01:18
+ */
+
+#n9web {
+    --img-login-content: url('@ui/publicStyle/img/LoginContent.png');
+    --img-logo: url('@ui/publicStyle/img/appName.png');
+    --img-login-btn: url('@ui/publicStyle/img/loginBtn.png');
+    --img-motion-note: url('@ui/publicStyle/img/motionNote.gif');
+    --img-loading: url('@ui/publicStyle/img/loading.gif');
+    // --img-initview: url('@ui/publicStyle/img/initview.gif');
+    // --img-favicon: url('@ui/publicStyle/img/favicon.ico');
+}
+
+#n9web {
+    --primary-light: #9FE3C1;
+    --primary: #0DC66D;
+
+    --main-text: #CCC;
+    --main-text-light: #8d8d8d;
+    --main-text-active: #fff; 
+    --main-bg: #002026;
+    --main-border: #5F5F5F;
+
+    --content-border: #999;
+
+    --subheading-text: #fff; 
+    --subheading-bg: #173139; 
+
+    --header-bg: var(--main-bg);
+    --header-text: var(--main-text);
+    --header-menu-text: #CCC;
+    --header-menu-text-hover: var(--primary-light);
+    --header-menu-bg: transparent;
+    --header-menu-bg-hover: transparent;
+    --header-menu-bg-active: transparent;
+    --header-menu-border: transparent;
+    --header-menu-border-hover: var(--primary-light);
+    --header-menu-border-active: var(--primary);
+
+    --footer-text: var(--header-menu-text);
+    --footer-bg: unset;
+
+    --input-text: #000;
+    --input-text-disabled: #545454;
+    --input-bg: #fff;
+    --input-bg-disabled: #808080;
+    --input-border: #888;
+    --input-border-disabled: #888;
+    
+    --form-stripe: #0F2829;
+
+    --radio-btn-text: var(--main-text);
+    --radio-btn-text-hover: var(--main-text);
+    --radio-btn-text-active: var(--main-text-active);
+    --radio-btn-bg: transparent;
+    --radio-btn-bg-hover: var(--primary-light);
+    --radio-btn-bg-active: var(--primary);
+
+    --upload-bg-text: #000;
+    --upload-bg: #eee;
+    --upload-bg-hover: #ddd;
+
+    --btn-text: #fff;
+    --btn-text-hover: var(--main-text-active);
+    --btn-text-disabled: #39464A;
+    --btn-bg: #404A53;
+    --btn-bg-hover: var(--primary);
+    --btn-bg-disabled: #2A3336;
+    --btn-border: #404A53;
+    --btn-border-hover: var(--primary);
+    --btn-border-disabled: #2A3336;
+    
+    --table-text-disabled: #39464A;
+    --table-border: #F0F0F0; 
+    --table-bg: #002026; 
+    --table-bg-hover: #043E22;
+    --table-stripe: #0F2829; 
+
+    --table-thead-text: var(--main-text);
+    --table-thead-bg: #173139;
+    --table-thead-border: #666;
+
+    --dialog-title: #fff; 
+    --dialog-bg: var(--main-bg); 
+
+    --popover-bg: var(--main-bg); 
+
+    --config-menu-text: #ccc; 
+    --config-menu-text-hover: #fff; 
+    --config-menu-text-active: var(--primary);
+    --config-menu-bg: #0C2F37;
+    --config-menu-bg-hover: var(--primary);
+    --config-menu-bg-active: unset;
+    --config-menu-border: #0C2F37; 
+    --config-menu-border-hover: var(--primary);
+
+    --config-submenu-text: #ccc; 
+    --config-submenu-text-hover: var(--primary);
+    --config-submenu-text-hover: #fff; 
+    
+    --login-bg: var(--main-bg);
+    --login-content-bg: transparent;
+    --login-btn-text: #fff;
+
+    --login-plugin-text: #9b9b9b;
+
+    --authcode-bg: #fff;
+    --authcode-content-bg: transparent;
+    --authcode-btn-text: #fff;
+    --authcode-input-text-disabled: #454545;
+    --authcode-input-bg-disabled: #ccc;
+    
+    --config-aside-text: #ccc;
+    --config-aside-text-hover: #fff;
+    --config-aside-text-active: #fff;
+    --config-aside-bg: var(--main-bg);
+    --config-aside-item-bg: unset;
+    --config-aside-item-bg-active: var(--primary);
+
+    --breadcrumb-text: #ccc;
+    --breadcrumb-bg: transparent;
+    
+    --ptz-btn: #002026;
+    --ptz-btn-disabled: #fff;
+
+    --ai-linkbox-bg: #5E5E5E;
+    --ai-linkbox-border: #888;
+    --ai-advance-bg: #002026;
+
+    --panel-bg: transparent; 
+    --panel-header-bg: transparent; 
+    --panel-header-text: var(--main-text);
+    --panel-header-text-02: var(--main-text);
+    --panel-menu-bg: #152b31; 
+    --panel-menu-bg-active: #253c42; 
+    --panel-btn-bg: #B7B7B7;
+    --panel-btn-bg-disabled: #284046;
+
+    --panel-snap-border: black;
+    --panel-snap-history-border: #ffcc66;
+    --panel-snap-btn-bg: rgba(0,0,0,.5);
+
+    --panel-event-text: #D5D4D4;
+    --panel-event-bg: #454545;
+    --panel-event-bg-hover: #54DD9B;
+    --panel-event-bg-active: var(--primary);
+    --panel-event-title-text: #D5D4D4;
+    --panel-event-title-bg: #999;
+
+    --tabbar-text: var(--header-menu-text);
+    --tabbar-text-hover: var(--header-menu-text);
+    --tabbar-text-active: #fff;
+    --tabbar-bg: transparent;
+    --tabbar-bg-hover: var(--primary-light);
+    --tabbar-bg-active: var(--primary);
+
+    --sidebar-text: var(--header-menu-text);
+    --sidebar-text-hover: var(--header-menu-text);
+    --sidebar-text-active: var(--main-text-active);
+    --sidebar-bg: transparent;
+    --sidebar-bg-hover: var(--primary-light);
+    --sidebar-bg-active: var(--primary);
+
+    --backup-snap-bg: #555; 
+    --backup-snap-border: #555; 
+    
+    --intel-snap-border: #000; 
+
+    --parklog-label-text: #ccc;
+    --parklog-bg: #002026; 
+    --parklog-box-bg: #173139; 
+    --parklog-title-bg: #002026;
+
+    --player-bg: #4c4c4b; 
+    --player-split-border: #343434; 
+
+    --calendar-bg: #222; 
+    --calendar-header-text: var(--main-text);
+    --calendar-header-bg: #222; 
+    --calendar-thead-bg: #222; 
+    --calendar-text-disabled: #666; 
+    --calendar-border: #7a7776; 
+    --calendar-bg-hover: #404e4a; 
+    --calendar-bg-active: var(--primary);
+    --calendar-bg-today: var(--primary-light);
+    
+    --loading-bg: rgba(255, 255, 255, 0.2);
+
+    --color-online: green;
+    --color-offline: red;
+    --color-error: red;
+    --color-white: #fff;
+    --color-black: #000;
+
+    --scrollbar-track-bg: #f7f7f7; 
+    --scrollbar-track-border: #efefef; 
+    --scrollbar-thumb-bg: #e6e6e6; 
+    --scrollbar-thumb-border: #e0e0e0; 
+    --scrollbar-thumb-bg-hover: #d9d9d9; 
+    --scrollbar-thumb-bg-active: #c2c2c2; 
+
+    --timeline-legend-bg: #666;
+
+    --timeline-bg-02: #000;
+    --timeline-scale-line-02: #aaa;
+    --timeline-scale-text-02: #ddd;
+    --timeline-split-line-color-02: #ccc;
+    --timeline-pointer-02: #409eff;
+    --timeline-pointer-time-02: #ddd;
+    --timeline-moving-pointer-02: #ddd;
+    --timeline-moving-time-bg-02: rgba(255,255,255,.5);
+    --timeline-moving-time-text-02: #000;
+    --timeline-range-mask-02: rgba(13, 198, 109, .5);
+
+    --barchart-text: white;
+    --barchart-line: #ac7e7e;
+    --barchart-item-01: #c94049;
+    --barchart-item-02: #10df63;
+
+    --schedule-form-bg: #173139;
+    --schedule-btn: #CCCCCC; 
+    --schedule-scale: #ccc;
+    --schedule-time-span-bg: #2D3C42;
+    --schedule-time-span-bg-active: #0DC66D;
+    --schedule-time-span-bg-selection: #9FE3C1;
+}

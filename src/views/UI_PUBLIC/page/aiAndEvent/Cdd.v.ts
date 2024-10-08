@@ -2,22 +2,19 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-19 17:51:22
  * @Description: 人群密度检测
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-20 15:17:55
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-30 15:05:24
  */
-import { ArrowDown } from '@element-plus/icons-vue'
 import { type chlCaps } from '@/types/apiType/aiAndEvent'
 import { type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
-import { ElDivider, type TabsPaneContext } from 'element-plus'
+import { type TabsPaneContext } from 'element-plus'
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import BaseTransferDialog from '@/components/BaseTransferDialog.vue'
 import { type XmlResult } from '@/utils/xmlParse'
-import { cloneDeep } from 'lodash'
+import { cloneDeep } from 'lodash-es'
 import CanvasVfd from '@/utils/canvas/canvasVfd'
 export default defineComponent({
     components: {
-        ArrowDown,
-        ElDivider,
         ScheduleManagPop,
         BaseTransferDialog,
     },
@@ -479,7 +476,9 @@ export default defineComponent({
                                         <param/>
                                         <trigger/>
                                     </requireField>`
+            openLoading(LoadingTarget.FullScreen)
             const res = await queryCdd(sendXml)
+            closeLoading(LoadingTarget.FullScreen)
             const $ = queryXml(res)
             if ($('status').text() == 'success') {
                 const holdTimeArr = $('//content/chl/param/holdTimeNote').text().split(',')
@@ -751,7 +750,7 @@ export default defineComponent({
             pageData.value.applyDisable = false
         }
         const LiveNotify2Js = ($: (path: string) => XmlResult) => {
-            const $xmlNote = $("statenotify[type='CddParam']")
+            const $xmlNote = $("statenotify[@type='CddParam']")
             if ($xmlNote.length > 0) {
                 const points: { X1: number; X2: number; Y1: number; Y2: number }[] = []
                 $('statenotify/item').forEach((element) => {
@@ -764,6 +763,19 @@ export default defineComponent({
         }
         onMounted(async () => {
             await initPageData()
+        })
+        onBeforeUnmount(() => {
+            if (plugin?.IsPluginAvailable() && mode.value === 'ocx' && ready.value) {
+                plugin.VideoPluginNotifyEmitter.removeListener(LiveNotify2Js)
+                const sendAreaXML = OCX_XML_SetCddAreaAction('NONE')
+                plugin.GetVideoPlugin().ExecuteCmd(sendAreaXML)
+                const sendXML = OCX_XML_StopPreview('ALL')
+                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.CloseCurPlugin(document.getElementById('player'))
+            }
+            if (mode.value === 'h5') {
+                player.destroy()
+            }
         })
         return {
             pageData,
@@ -780,6 +792,8 @@ export default defineComponent({
             handleApply,
             handleDrawAvailableChange,
             clearArea,
+            ScheduleManagPop,
+            BaseTransferDialog,
         }
     },
 })

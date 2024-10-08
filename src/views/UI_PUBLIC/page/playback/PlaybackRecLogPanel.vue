@@ -3,7 +3,7 @@
  * @Date: 2024-07-31 15:32:00
  * @Description: 回放-事件列表
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 11:16:49
+ * @LastEditTime: 2024-09-23 15:21:52
 -->
 <template>
     <div class="log">
@@ -158,7 +158,6 @@
 
     .sub-types {
         width: fit-content;
-        background-color: white;
         max-height: 50vh;
         overflow: auto;
 
@@ -168,23 +167,6 @@
             display: block;
             display: flex;
             align-items: center;
-        }
-
-        &::-webkit-scrollbar {
-            width: 2px;
-            background-color: #f5f5f5;
-        }
-
-        &::-webkit-scrollbar-track {
-            -webkit-box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.3);
-            border-radius: 10px;
-            background-color: #f5f5f5;
-        }
-
-        &::-webkit-scrollbar-thumb {
-            border-radius: 10px;
-            -webkit-box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.3);
-            background-color: #999;
         }
     }
 }

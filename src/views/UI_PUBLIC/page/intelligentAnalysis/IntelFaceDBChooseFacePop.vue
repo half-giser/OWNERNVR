@@ -106,7 +106,7 @@
     &-left {
         width: 150px;
         height: 460px;
-        border: 1px solid var(--border-color8);
+        border: 1px solid var(--content-border);
         flex-shrink: 0;
         margin-right: 10px;
 
@@ -118,8 +118,8 @@
             cursor: pointer;
 
             &.active {
-                color: var(--text-active);
-                background-color: var(--primary--04);
+                color: var(--main-text-active);
+                background-color: var(--primary);
             }
         }
     }

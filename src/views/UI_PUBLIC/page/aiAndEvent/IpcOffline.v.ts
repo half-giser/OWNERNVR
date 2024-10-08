@@ -5,10 +5,11 @@
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @LastEditTime: 2024-08-27 17:03:59
  */
-import { cloneDeep } from 'lodash'
+import { cloneDeep } from 'lodash-es'
 import { ArrowDown } from '@element-plus/icons-vue'
 import { tableRowStatus, tableRowStatusToolTip } from '@/utils/const/other'
 import BaseTransferPop from '@/components/BaseTransferPop.vue'
+import BaseTableRowStatus from '@/components/BaseTableRowStatus.vue'
 import BaseTransferDialog from '@/components/BaseTransferDialog.vue'
 import { MotionEventConfig, type PresetItem } from '@/types/apiType/aiAndEvent'
 import { errorCodeMap } from '@/utils/constants'
@@ -19,6 +20,7 @@ export default defineComponent({
         BaseTransferPop,
         BaseTransferDialog,
         SetPresetPop,
+        BaseTableRowStatus,
     },
     setup() {
         const chosedList = ref<any[]>([])
@@ -715,6 +717,7 @@ export default defineComponent({
             handleEmailChangeAll,
             setData,
             addEditRow,
+            BaseTableRowStatus,
         }
     },
 })

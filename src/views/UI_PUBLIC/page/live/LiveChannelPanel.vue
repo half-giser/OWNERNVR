@@ -3,7 +3,7 @@
  * @Date: 2024-07-17 11:11:44
  * @Description: 现场预览-通道视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-23 16:17:43
+ * @LastEditTime: 2024-09-26 15:22:40
 -->
 <template>
     <div class="left">
@@ -17,7 +17,12 @@
             >
                 <div>
                     <span>{{ pageData.chlMenu[pageData.activeChlMenu].label }}</span>
-                    <span v-show="pageData.activeChlMenu === 0"> ( {{ pageData.onlineChlList.length }} / {{ pageData.cacheChlList.length }} ) </span>
+                    <span
+                        v-show="pageData.activeChlMenu === 0"
+                        class="left-top-online"
+                    >
+                        ( {{ pageData.onlineChlList.length }} / {{ pageData.cacheChlList.length }} )
+                    </span>
                 </div>
                 <i></i>
             </div>
@@ -197,6 +202,7 @@
 .left {
     height: 100%;
     flex-shrink: 0;
+    background-color: var(--panel-bg);
 
     &-content {
         width: 260px;
@@ -214,14 +220,19 @@
         height: 50px;
         align-items: center;
         justify-content: space-between;
-        color: var(--text-dialog);
+        color: var(--panel-header-text);
+        background-color: var(--panel-header-bg);
 
         & > div {
             margin-left: 10px;
         }
 
+        &-online {
+            color: var(--panel-header-text-02);
+        }
+
         i {
-            border-right: 8px solid #2c3039;
+            border-right: 8px solid var(--panel-header-text);
             border-top: 8px solid transparent;
             border-bottom: 8px solid transparent;
             border-left: 8px solid transparent;
@@ -235,7 +246,7 @@
 
             &:after {
                 content: '';
-                border-right: 4px solid var(--page-bg);
+                border-right: 4px solid var(--panel-header-bg);
                 border-top: 4px solid transparent;
                 border-bottom: 4px solid transparent;
                 border-left: 4px solid transparent;
@@ -253,13 +264,13 @@
         }
 
         &:hover i {
-            border-right-color: var(--primary--04);
+            border-right-color: var(--primary);
         }
     }
 
     &-menu {
         height: 50px;
-        background-color: var(--bg-table);
+        background-color: var(--panel-menu-bg);
         display: flex;
         align-items: flex-end;
         justify-content: center;
@@ -276,8 +287,8 @@
             border-top: 3px solid transparent;
 
             &.active {
-                background-color: var(--bg-color-table-hover);
-                border-top-color: var(--primary--04);
+                background-color: var(--panel-menu-bg-active);
+                border-top-color: var(--primary);
             }
         }
     }
@@ -300,13 +311,13 @@
         }
 
         &-search {
-            background-color: var(--bg-color2);
+            background-color: var(--btn-bg);
             margin-left: 5px;
             cursor: pointer;
             flex-shrink: 0;
 
             &:hover {
-                background-color: var(--bg-color3);
+                background-color: var(--btn-bg-hover);
             }
         }
 
@@ -347,7 +358,7 @@
             padding-bottom: 10px;
             width: 90%;
             height: 1px;
-            border-top: 1px solid var(--border-color8);
+            border-top: 1px solid var(--content-border);
             position: relative;
             margin: 0 auto;
             cursor: n-resize;
@@ -359,7 +370,7 @@
                 left: calc(50% - 15px);
                 width: 30px;
                 height: 1px;
-                border-top: 1px solid var(--border-color8);
+                border-top: 1px solid var(--content-border);
             }
 
             &:after {
@@ -369,7 +380,7 @@
                 left: calc(50% - 15px);
                 width: 30px;
                 height: 1px;
-                border-top: 1px solid var(--border-color8);
+                border-top: 1px solid var(--content-border);
             }
         }
     }

@@ -38,7 +38,7 @@
 <style lang="scss" scoped>
 #configHomeContainer {
     width: 1160px;
-    margin: 35px auto 0px auto;
+    margin: 35px auto 0px;
     display: flex;
     flex-wrap: wrap;
 
@@ -46,13 +46,15 @@
         position: relative;
         padding: 10px 0px 0px 20px;
         overflow: hidden;
-        border: solid 2px var(--border-color3);
+        border: solid 2px var(--config-menu-border);
         height: 135px;
         margin: 0px 8px 10px 0px;
         display: flex;
+        background-color: var(--config-menu-bg);
 
         &:hover {
-            border: solid 2px var(--primary--04);
+            border-color: var(--config-menu-border-hover);
+            background-color: var(--config-menu-bg-hover);
         }
 
         &.md1 {
@@ -71,14 +73,6 @@
             margin: 20px 0px 0px 0px;
             flex-shrink: 0;
         }
-
-        i {
-            width: 60px;
-            height: 60px;
-            margin: 20px 0px 0px 0px;
-            background-color: aqua;
-            flex-shrink: 0;
-        }
     }
 
     .menuContent {
@@ -93,19 +87,23 @@
         font-size: 18px;
         font-weight: bold;
         cursor: pointer;
-        color: var(--text-menu-04);
+        color: var(--config-menu-text);
         margin: 6px 0px 0px 8px;
         max-width: 260px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+
+        &:hover {
+            color: var(--config-menu-text-hover);
+        }
     }
 
     .subMenus {
         position: relative;
         margin: 8px 0px 0px 8px;
         padding: 4px 6px 0px 0px;
-        color: var(--text-menu-05);
+        color: var(--config-submenu-text);
         span {
             font-size: 15px;
             text-decoration: none;
@@ -123,12 +121,12 @@
                 top: 2px;
                 width: 1px;
                 height: 15px;
-                background-color: var(--border-color2);
+                background-color: var(--config-submenu-text);
             }
 
             &:hover {
                 text-decoration: underline;
-                color: var(--primary--04);
+                color: var(--config-submenu-text-hover);
             }
         }
     }

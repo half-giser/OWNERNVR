@@ -2,8 +2,8 @@
  * @Description: 普通事件——组合报警
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-22 16:04:47
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-28 11:38:37
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-29 14:33:36
 -->
 <template>
     <div class="base-flex-box">
@@ -64,7 +64,7 @@
                 <!-- 组合报警 -->
                 <el-table-column
                     :label="Translate('IDCS_COMBINATION_ALARM')"
-                    width="140px"
+                    width="180px"
                 >
                     <template #default="scope">
                         <el-row>
@@ -90,7 +90,7 @@
                 <!-- 录像 -->
                 <el-table-column
                     prop="record"
-                    width="140px"
+                    width="180px"
                 >
                     <template #header>
                         <el-dropdown
@@ -152,7 +152,7 @@
                 <!-- 抓图 -->
                 <el-table-column
                     prop="snap"
-                    width="140px"
+                    width="180px"
                 >
                     <template #header>
                         <el-dropdown
@@ -292,7 +292,7 @@
                 <!-- 报警输出 -->
                 <el-table-column
                     prop="alarmOut"
-                    width="140px"
+                    width="180px"
                 >
                     <template #header>
                         <el-dropdown
@@ -351,7 +351,7 @@
                 <!-- 预置点名称 -->
                 <el-table-column
                     :label="Translate('IDCS_PRESET_NAME')"
-                    width="140px"
+                    width="180px"
                 >
                     <template #default="scope">
                         <el-row>
@@ -535,13 +535,18 @@
                 </el-table-column>
             </el-table>
         </div>
-        <div class="base-btn-box">
-            <span class="tips">{{ pageData.CombinedALarmInfo }}</span>
-            <el-button
-                :disabled="pageData.applyDisabled"
-                @click="setData()"
-                >{{ Translate('IDCS_APPLY') }}</el-button
-            >
+        <div
+            class="base-btn-box"
+            :span="2"
+        >
+            <div>{{ pageData.CombinedALarmInfo }}</div>
+            <div>
+                <el-button
+                    :disabled="pageData.applyDisabled"
+                    @click="setData()"
+                    >{{ Translate('IDCS_APPLY') }}</el-button
+                >
+            </div>
         </div>
         <BaseTransferDialog
             v-model="pageData.recordIsShow"
@@ -599,9 +604,3 @@
 </template>
 
 <script lang="ts" src="./CombinationAlarm.v.ts"></script>
-
-<style scoped>
-.tips {
-    flex: 1;
-}
-</style>

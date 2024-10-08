@@ -3,7 +3,7 @@
  * @Date: 2024-06-03 11:56:43
  * @Description: 插件命令集合
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-09 20:35:22
+ * @LastEditTime: 2024-09-26 09:22:29
  */
 import { APP_SERVER_IP } from '@/utils/constants'
 
@@ -201,8 +201,8 @@ export const OCX_XML_DisplayPlugin = (isShow: boolean) => {
 
 /**
  * @description 设置OCX属性
- * @param properties
- * @param viewType
+ * @param {Record<string, string | Boolean>} properties
+ * @param {string} viewType
  * @returns {string}
  */
 export const OCX_XML_SetProperty = (properties: Record<string, string | Boolean>, viewType?: string) => {
@@ -211,6 +211,25 @@ export const OCX_XML_SetProperty = (properties: Record<string, string | Boolean>
             ${Object.entries(properties)
                 .map(([key, item]) => `<${key}>${item}</${key}>`)
                 .join('')}
+        </cmd>
+    `)
+}
+
+/**
+ * @description 设置OSD属性
+ * @param {boolean} nameSwitch
+ * @param {boolean} iconSwitch
+ * @param {boolean} addressSwitch
+ * @returns {string}
+ */
+export const OCX_XML_SetPropertyOSD = (nameSwitch: boolean, iconSwitch: boolean, addressSwitch: boolean) => {
+    return wrapXml(rawXml`
+        <cmd type="SetProperty">
+            <devOsdDisplay>
+                <nameSwitch>${nameSwitch.toString()}</nameSwitch>
+                <iconSwitch>${iconSwitch.toString()}</iconSwitch>
+                <addressSwitch>${addressSwitch.toString()}</addressSwitch>
+            </devOsdDisplay>
         </cmd>
     `)
 }
@@ -1730,7 +1749,7 @@ export const OCX_XML_SetCpcArea = (points: { X1: number; X2: number; Y1: number;
  * @returns {string}
  */
 export const OCX_XML_SetCpcAreaAction = (action: 'EDIT_ON' | 'EDIT_OFF' | 'NONE') => {
-    return `<cmd type="SetCpcAreaAction">${action}</cmd>`
+    return wrapXml(`<cmd type="SetCpcAreaAction">${action}</cmd>`)
 }
 
 /**
@@ -1739,7 +1758,7 @@ export const OCX_XML_SetCpcAreaAction = (action: 'EDIT_ON' | 'EDIT_OFF' | 'NONE'
  * @returns {string}
  */
 export const OCX_XML_SetPeaAreaAction = (action: 'EDIT_ON' | 'EDIT_OFF' | 'NONE') => {
-    return `<cmd type="SetPeaAreaAction">${action}</cmd>`
+    return wrapXml(`<cmd type="SetPeaAreaAction">${action}</cmd>`)
 }
 
 /**
@@ -1757,7 +1776,7 @@ export const OCX_XML_SetPeaArea = (points: { X: number; Y: number }[], regulatio
             ${lineColor ? `<LineColor>${lineColor}</LineColor>` : ''}
             ${eventType ? `<EventType>${AIEventTypeMap[eventType]}</EventType>` : ''}
             <points>
-                ${points.map((item) => `<item X="${item.X}" Y=${item.Y} />`).join('')}
+                ${points.map((item) => `<item X="${item.X}" Y="${item.Y}" />`).join('')}
             </points>
             ${regulation ? '<type>regulation</type>' : ''}
         </cmd>
@@ -1811,7 +1830,7 @@ export const OCX_XML_SetVsdArea = (points: { X: number; Y: number }[], regulatio
     return wrapXml(rawXml`
         <cmd type="SetVsdArea">
             <points>
-                ${points.map((item) => `<item X="${item.X}" Y=${item.Y} />`).join('')}
+                ${points.map((item) => `<item X="${item.X}" Y="${item.Y}" />`).join('')}
                 <Area>${String(areaIndex)}</Area>
                 <LineColor>${lineColor}</LineColor>
             </points>
@@ -1893,37 +1912,44 @@ export const OCX_XML_SetAllArea = (
     isShowAll?: boolean,
 ) => {
     const cmd = `<cmd type="SetAllArea">
-        <AreaType>${areaType}<AreaType>
-        <EventType>${AIEventTypeMap[eventType]}<EventType>
+        <AreaType>${areaType}</AreaType>
+        <EventType>${AIEventTypeMap[eventType]}</EventType>
         ${isShowAll ? `<IsShowAllArea>${isShowAll}</IsShowAllArea>` : ''}
         ${maxMinXml ?? ''}
     `
 
     if (areaType == 'IrregularPolygon') {
-        const detectAreaInfo = areaInfo.detectAreaInfo?.flat() || []
-        const maskAreaInfo = areaInfo.maskAreaInfo?.flat() || []
+        // const detectAreaInfo = areaInfo.detectAreaInfo?.flat() || []
+        const detectAreaInfo = areaInfo.detectAreaInfo || []
+        // const maskAreaInfo = areaInfo.maskAreaInfo?.flat() || []
+        const maskAreaInfo = areaInfo.maskAreaInfo || []
+        let index = 0
         return wrapXml(rawXml`
             ${cmd}
             ${detectAreaInfo
-                .map(
-                    (item, index) => `
+                .map((item) =>
+                    item.length > 0
+                        ? `
                         <points>
-                            <item X="${item.X}" Y="${item.Y}" />
-                            <Area>${index + 1}</Area>
+                            ${item.map((point) => `<item X="${point.X}" Y="${point.Y}" />`).join('')}
+                            <Area>${++index}</Area>
                             <LineColor>green</LineColor>
                         </points>
-                `,
+                `
+                        : '',
                 )
                 .join('')}
             ${maskAreaInfo
-                .map(
-                    (item, index) => `
+                .map((item) =>
+                    item.length > 0
+                        ? `
                         <points>
-                            <item X="${item.X}" Y="${item.Y}" />
-                            <Area>${index + 1}</Area>
+                            ${item.map((point) => `<item X="${point.X}" Y="${point.Y}" />`).join('')}
+                            <Area>${++index}</Area>
                             <LineColor>red</LineColor>
                         </points>
-                `,
+                `
+                        : '',
                 )
                 .join('')}
             </cmd>

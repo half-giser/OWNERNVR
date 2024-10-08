@@ -2,23 +2,24 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-10 17:50:35
  * @Description: 更多功能页面的框架
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-20 15:36:26
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-30 14:15:33
  */
-// import { cloneDeep } from 'lodash-es'
 import { type chlCaps } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
-import fireDetection from './fireDetection.vue'
+import FireDetection from './FireDetections.vue'
 import TemperatureDetection from './TemperatureDetection.vue'
 import ObjectLeft from './ObjectLeft.vue'
-import passLine from './passLine.vue'
+import PassLine from './PassLines.vue'
 import AbnormalDispose from './AbnormalDispose.vue'
 import Cdd from './Cdd.vue'
+import VideoStructure from './VideoStructure.vue'
 
 export default defineComponent({
     components: {
-        fireDetection,
-        passLine,
+        FireDetection,
+        VideoStructure,
+        PassLine,
         TemperatureDetection,
         ObjectLeft,
         AbnormalDispose,
@@ -326,10 +327,9 @@ export default defineComponent({
         // 切换通道及初始化时判断tab是否可用，若不可用则切换到可用的tab，都不可用再显示提示
         const isTabDisabled = () => {
             pageData.value.fireDetectionDisable = !pageData.value.chlData['supportFire']
-            // pageData.value.videoStructureDisable = !pageData.value.chlData['supportVideoMetadata']
-            pageData.value.videoStructureDisable = false
+            pageData.value.videoStructureDisable = !pageData.value.chlData['supportVideoMetadata']
             pageData.value.passLineDisable = !(pageData.value.chlData['supportPassLine'] || pageData.value.chlData['supportCpc'])
-            // pageData.value.cddDisable = !pageData.value.chlData['supportCdd']
+            pageData.value.cddDisable = !pageData.value.chlData['supportCdd']
             pageData.value.cddDisable = false
             pageData.value.temperatureDetectionDisable = !pageData.value.chlData['supportTemperature']
             pageData.value.objectLeftDisable = !pageData.value.chlData['supportOsc']
@@ -360,6 +360,10 @@ export default defineComponent({
             pageData.value.tabKey += 1
         })
         return {
+            FireDetection,
+            PassLine,
+            Cdd,
+            VideoStructure,
             TemperatureDetection,
             ObjectLeft,
             AbnormalDispose,

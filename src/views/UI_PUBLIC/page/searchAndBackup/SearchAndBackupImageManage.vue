@@ -3,7 +3,7 @@
  * @Date: 2024-08-09 15:02:25
  * @Description: 搜索与备份-图片管理
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-04 18:10:33
+ * @LastEditTime: 2024-09-23 14:50:15
 -->
 <template>
     <div class="img-mgr base-flex-box">
@@ -275,11 +275,11 @@
 
     :deep(.el-button) {
         &.is-link {
-            color: var(--text-primary);
+            color: var(--main-text);
 
             &:hover {
                 text-decoration: underline;
-                color: var(--primary--04);
+                color: var(--primary);
             }
         }
     }
@@ -289,8 +289,13 @@
     display: flex;
     margin-bottom: 20px;
 
+    & > span:first-child {
+        flex-shrink: 0;
+    }
+
     & > div:last-child {
         margin-left: 15px;
+        color: var(--main-text);
     }
 }
 

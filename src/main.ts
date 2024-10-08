@@ -3,7 +3,7 @@
  * @Date: 2024-04-16 13:47:54
  * @Description: 项目入口
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-20 14:56:43
+ * @LastEditTime: 2024-09-25 09:07:41
  */
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
@@ -13,7 +13,7 @@ import { createPersistedState } from 'pinia-plugin-persistedstate'
 import i18nPlugin from './plugin/i18n'
 import typeEnhance from './plugin/typeEnhance'
 import loadingPlugin from './plugin/loading'
-import cssPlugin from './plugin/css'
+import './plugin/css'
 import datePlugin from './plugin/date'
 import componentPlugin from './plugin/components'
 import { regAllDirective } from './directives'
@@ -23,7 +23,7 @@ export const app = createApp(App)
 // 注册自定义指令
 regAllDirective(app)
 
-app.use(cssPlugin)
+// app.use(cssPlugin)
 
 // 创建 Pinia 实例
 const pinia = createPinia()

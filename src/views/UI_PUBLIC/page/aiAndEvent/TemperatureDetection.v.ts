@@ -2,14 +2,15 @@
  * @Description: AI 事件——更多——温度检测
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-13 09:18:41
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-20 09:27:31
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-30 15:16:26
  */
-import { cloneDeep } from 'lodash'
+import { cloneDeep } from 'lodash-es'
 import { type BoundaryTableDataItem, type chlCaps, type PresetList, TempDetection } from '@/types/apiType/aiAndEvent'
 import CanvasPolygon from '@/utils/canvas/canvasTemperature'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import { type TabPaneName, type CheckboxValueType } from 'element-plus'
+import { type XmlResult } from '@/utils/xmlParse'
 
 export default defineComponent({
     components: {
@@ -39,6 +40,8 @@ export default defineComponent({
         const pluginStore = usePluginStore()
         const systemCaps = useCababilityStore()
         const osType = getSystemInfo().platform
+        const Plugin = inject('Plugin') as PluginType
+
         // 系统配置
         const supportAlarmAudioConfig = systemCaps.supportAlarmAudioConfig
         // 温度检测数据
@@ -288,24 +291,21 @@ export default defineComponent({
             if (!canBeClosed) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_INTERSECT'),
-                    showCancelButton: false,
                 })
             }
         }
         const tempClearCurrentArea = () => {
             openMessageTipBox({
-                type: 'info',
-                title: Translate('IDCS_INFO_TIP'),
+                type: 'question',
                 message: Translate('IDCS_DRAW_CLEAR_TIP'),
-                showCancelButton: true,
             }).then(() => {
                 if (tempDetectionData.value.boundaryData.length == 0) return
+                pageData.value.currRowData.points = []
                 if (mode.value === 'h5') {
                     tempDrawer.clear()
                 } else {
-                    const sendXML = OCX_XML_SetPeaAreaAction('NONE')
+                    const sendXML = OCX_XML_SetOscAreaAction('NONE')
                     plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 }
                 if (pageData.value.isShowAllArea) {
@@ -364,7 +364,9 @@ export default defineComponent({
                 <condition><chlId>${prop.currChlId}</chlId></condition>
                 <requireField><param/><trigger/></requireField>
                 `
+            openLoading(LoadingTarget.FullScreen)
             const result = await queryTemperatureAlarmConfig(sendXml)
+            closeLoading(LoadingTarget.FullScreen)
             commLoadResponseHandler(result, async ($) => {
                 let holdTimeArr = $('/response/content/chl/param/holdTimeNote').text().split(',')
                 const holdTime = $('/response/content/chl/param/alarmHoldTime').text()
@@ -461,8 +463,8 @@ export default defineComponent({
                     boundaryData,
                 }
             }).then(() => {
-                handleTemperatureDetectionData()
                 pageData.value.initComplated = true
+                handleTemperatureDetectionData()
             })
         }
         // 处理温度检测数据
@@ -927,7 +929,6 @@ export default defineComponent({
             if (tempDetectionData.value.preset.length > MAX_TRIGGER_PRESET_COUNT) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_PRESET_LIMIT'),
                 })
             }
@@ -936,12 +937,10 @@ export default defineComponent({
         const verification = () => {
             const count = tempDetectionData.value.boundaryData.length
             for (const item of tempDetectionData.value.boundaryData) {
-                if (count > 2 && !tempDrawer.judgeAreaCanBeClosed(item.points)) {
+                if (count > 2 && !judgeAreaCanBeClosed(item.points)) {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_INTERSECT'),
-                        showCancelButton: false,
                     })
                     return false
                 }
@@ -1043,25 +1042,19 @@ export default defineComponent({
                 pageData.value.applyDisabled = true
                 openMessageTipBox({
                     type: 'success',
-                    title: Translate('IDCS_SUCCESS_TIP'),
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
-                    showCancelButton: false,
                 })
             } else {
                 const errorCode = $('/response/errorCode').text()
                 if (errorCode == '536871053') {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_INPUT_LIMIT_FOUR_POIONT'),
-                        showCancelButton: false,
                     })
                 } else {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_SAVE_DATA_FAIL'),
-                        showCancelButton: false,
                     })
                 }
             }
@@ -1074,7 +1067,36 @@ export default defineComponent({
                 stopWatchFirstPlay()
             }
         })
+
+        const LiveNotify2Js = ($: (path: string) => XmlResult) => {
+            // 温度报警检测
+            // const $xmlNote = $("statenotify[type='OscArea']")
+            const $points = $("statenotify[@type='OscArea']/points")
+            const errorCode = $("statenotify[@type='OscArea']/errorCode").text()
+            // 绘制点线
+            if ($points.length > 0) {
+                const points = [] as { X: number; Y: number }[]
+                $('/statenotify/points/item').forEach((item) => {
+                    points.push({ X: Number(item.attr('X')), Y: Number(item.attr('Y')) })
+                })
+                pageData.value.currRowData.points = points as { X: number; Y: number; isClosed: boolean }[]
+            }
+            // 处理错误码
+            if (errorCode == '517') {
+                // 517-区域已闭合
+                tempClearCurrentArea()
+            } else if (errorCode == '515') {
+                // 515-区域有相交直线，不可闭合
+                openMessageTipBox({
+                    type: 'info',
+                    message: Translate('IDCS_INTERSECT'),
+                })
+            }
+        }
         onMounted(async () => {
+            if (mode.value != 'h5') {
+                Plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
+            }
             await getScheduleData()
             await getRecordList()
             await getAlarmOutData()
@@ -1085,6 +1107,7 @@ export default defineComponent({
 
         onBeforeUnmount(() => {
             if (plugin?.IsPluginAvailable() && mode.value === 'ocx' && ready.value) {
+                Plugin.VideoPluginNotifyEmitter.removeListener(LiveNotify2Js)
                 // 切到其他AI事件页面时清除一下插件显示的（线条/点/矩形/多边形）数据
                 const sendMinXML = OCX_XML_SetOscAreaAction('NONE')
                 plugin.GetVideoPlugin().ExecuteCmd(sendMinXML)

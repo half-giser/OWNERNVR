@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 16:08:14
  * @Description: 现场预览-底部菜单栏视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-11 10:07:23
+ * @LastEditTime: 2024-09-26 09:43:54
  */
 import LiveScreenAlarmOut from './LiveScreenAlarmOut.vue'
 import { type LiveSharedWinData } from '@/types/apiType/live'
@@ -196,6 +196,10 @@ export default defineComponent({
             ctx.emit('streamType', value as number)
         }
 
+        const mainStreamDisabled = computed(() => {
+            return prop.split > 4
+        })
+
         onMounted(() => {
             getRecStatus()
         })
@@ -207,6 +211,7 @@ export default defineComponent({
             isTalk,
             LiveScreenAlarmOut,
             changeStreamType,
+            mainStreamDisabled,
         }
     },
 })

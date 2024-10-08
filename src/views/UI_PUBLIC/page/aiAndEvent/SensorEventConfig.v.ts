@@ -2,13 +2,13 @@
  * @Description: 普通事件——传感器
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-23 10:58:27
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-27 17:45:05
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-09-30 15:15:06
  */
 import { type PresetItem, SensorEvent, type ChlList } from '@/types/apiType/aiAndEvent'
 import { QueryNodeListDto } from '@/types/apiType/channel'
 import { tableRowStatus, tableRowStatusToolTip } from '@/utils/const/other'
-import { cloneDeep, isEqual } from 'lodash'
+import { cloneDeep, isEqual } from 'lodash-es'
 import BaseTransferPop from '@/components/BaseTransferPop.vue'
 import BaseTransferDialog from '@/components/BaseTransferDialog.vue'
 import SetPresetPop from './SetPresetPop.vue'
@@ -428,18 +428,14 @@ export default defineComponent({
             if (!checkChlName(name)) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS'),
-                    showCancelButton: false,
                 })
                 row.name = tempName.value
             } else {
                 if (!name) {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_PROMPT_NAME_EMPTY'),
-                        showCancelButton: false,
                     })
                     row.name = tempName.value
                 }
@@ -447,9 +443,7 @@ export default defineComponent({
                     if (item.id != row.id && name == item.name) {
                         openMessageTipBox({
                             type: 'info',
-                            title: Translate('IDCS_INFO_TIP'),
                             message: Translate('IDCS_NAME_SAME'),
-                            showCancelButton: false,
                         })
                         row.name = tempName.value
                     }
@@ -867,6 +861,8 @@ export default defineComponent({
         )
 
         return {
+            SetPresetPop,
+            ScheduleManagPop,
             recordRef,
             snapRef,
             alarmOutRef,

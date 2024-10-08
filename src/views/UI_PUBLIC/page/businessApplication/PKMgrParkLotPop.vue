@@ -147,7 +147,7 @@
 .panel {
     width: 380px;
     height: 242px;
-    border: 1px solid var(--bg-color4);
+    border: 1px solid var(--subheading-bg);
     margin: 5px;
 
     &-top {
@@ -159,7 +159,7 @@
         box-sizing: border-box;
         font-size: 14px;
         line-height: 28px;
-        background: var(--bg-parklog-title);
+        background: var(--parklog-title-bg);
     }
 
     &-door {
@@ -187,7 +187,7 @@
         padding: 10px 0;
 
         &:not(:last-child) {
-            border-bottom: 1px solid var(--border-color8);
+            border-bottom: 1px solid var(--content-border);
         }
     }
 
@@ -199,7 +199,7 @@
         label {
             width: 150px;
             flex-shrink: 0;
-            color: var(--text-parklog-label);
+            color: var(--parklog-label-text);
         }
 
         span {

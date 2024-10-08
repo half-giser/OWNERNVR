@@ -416,7 +416,7 @@
 
         p {
             font-size: 22px;
-            color: var(--primary--04);
+            color: var(--primary);
             margin: 0;
         }
 

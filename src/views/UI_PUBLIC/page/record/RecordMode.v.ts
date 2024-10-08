@@ -6,7 +6,6 @@ import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import { type ApiResult } from '@/api/api'
 import { type XmlElement } from '@/utils/xmlParse'
 import { getArrayDiffRows } from '@/utils/tools'
-
 export default defineComponent({
     components: {
         RecordModeAdvancePop,
@@ -17,6 +16,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const userSessionStore = useUserSessionStore()
         const { supportPOS } = useCababilityStore()
+        const theme = getUiAndTheme().name
         const openMessageTipBox = useMessageBox().openMessageTipBox
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
 
@@ -130,6 +130,17 @@ export default defineComponent({
                     index: 7,
                 },
             ] as RecMode[],
+            icons: {} as Record<string, string[]>,
+            // icon信息映射
+            iconMap: {
+                MOTION: 'motion',
+                ALARM: 'alarm_1',
+                INTELLIGENT: 'intelligent',
+                POS: 'POS',
+                INTENSIVE: 'record_all',
+            } as Record<string, string>,
+            // 根据UI选择是否显示icon
+            showIcon: theme === 'UI1-E',
         })
 
         // 如果支持POS，才在高级模式选项列表中加入POS
@@ -155,6 +166,7 @@ export default defineComponent({
         })
 
         onMounted(async () => {
+            genIconMap(recAutoModeList.value)
             await getRecModeData()
             await initChlScheduldTb()
             pageData.value.initComplated = true
@@ -189,6 +201,29 @@ export default defineComponent({
             },
         )
 
+        const genIconMap = (modes: RecMode[]) => {
+            pageData.value.icons = {}
+            modes.forEach((item) => {
+                pageData.value.icons[item.id] = []
+                if (item.text.includes(Translate('IDCS_INTENSIVE_RECORD'))) {
+                    pageData.value.icons[item.id].push(pageData.value.iconMap.INTENSIVE)
+                }
+                if (item.text.includes(Translate('IDCS_MOTION_RECORD'))) {
+                    pageData.value.icons[item.id].push(pageData.value.iconMap.MOTION)
+                }
+                if (item.text.includes(Translate('IDCS_ALARM_RECORD'))) {
+                    pageData.value.icons[item.id].push(pageData.value.iconMap.ALARM)
+                }
+                if (item.text.includes(Translate('IDCS_AI_RECORD'))) {
+                    pageData.value.icons[item.id].push(pageData.value.iconMap.INTELLIGENT)
+                }
+                if (item.text.includes(Translate('IDCS_POS_RECORD'))) {
+                    pageData.value.icons[item.id].push(pageData.value.iconMap.POS)
+                }
+                console.log(pageData.value.icons[item.id])
+            })
+            console.log(pageData.value.icons)
+        }
         const recModeChange = async (params: string) => {
             console.log(params)
         }
@@ -226,7 +261,7 @@ export default defineComponent({
                 })
             })
 
-            //绑定手动录像时长下拉
+            //绑定手动录像时长下拉 TODO 无函数
             $('/response/content/urgencyRecDurationNote')
                 .text()
                 .split(',')
@@ -349,6 +384,9 @@ export default defineComponent({
 
             // 存入Store
             userSessionStore.advanceRecModeId = advanceModeCurrent.id
+            genIconMap(recAutoModeList.value.concat([advanceModeCurrent]))
+            console.log(1)
+
             return true
         }
 

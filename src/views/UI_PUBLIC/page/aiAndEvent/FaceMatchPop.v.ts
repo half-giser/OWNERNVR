@@ -3,8 +3,9 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-26 16:19:02
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-27 14:55:04
+ * @LastEditTime: 2024-09-26 15:34:06
  */
+import { type faceMatchObj } from '@/types/apiType/aiAndEvent'
 export default defineComponent({
     props: {
         linkedEntity: {
@@ -12,7 +13,7 @@ export default defineComponent({
             require: true,
         },
         linkedObj: {
-            type: Object,
+            type: Object as PropType<Record<string, faceMatchObj>>,
             require: true,
         },
         handleLinkedObj: {
@@ -26,8 +27,6 @@ export default defineComponent({
         },
     },
     setup(prop, ctx) {
-        // const { Translate } = useLangStore()
-        // const { openMessageTipBox } = useMessageBox()
         const pageData = ref({
             rule: '1',
             duration: 5, // 开始 持续时间

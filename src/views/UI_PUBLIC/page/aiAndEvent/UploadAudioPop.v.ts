@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-14 15:48:05
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-23 15:08:15
+ * @LastEditTime: 2024-09-26 15:38:31
  */
 import { type AudioAlarmOut } from '@/types/apiType/aiAndEvent'
 import { type UploadFile } from 'element-plus'
@@ -68,14 +68,12 @@ export default defineComponent({
                 // 过滤非mp3文件
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_SELECT_MP3_FILE'),
                 })
                 return
             } else if (prop.type == 'ipcAudio' && uploadFile.name.indexOf('.wav') == -1) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_NO_CHOOSE_TDB_FILE').formatForLang('wav'),
                 })
                 return
@@ -87,12 +85,11 @@ export default defineComponent({
 
         const apply = () => {
             const _file = pageData.value.uploadFile.raw
-            // let blob = new Blob([_file], { type: "audio/wav"});
-            const blob = new Blob([_file])
+            const blob = new Blob([_file] as BlobPart[])
             fileToBase64(blob, async (data: string) => {
                 const fileSize = base64FileSize(data)
                 if (prop.type == 'ipcAudio') {
-                    let audioFileLimitSize = prop.ipcRowData.audioFileLimitSize
+                    let audioFileLimitSize = prop?.ipcRowData?.audioFileLimitSize
                     audioFileLimitSize = (parseInt(audioFileLimitSize) / 1024).toFixed(2)
                     if (fileSize > audioFileLimitSize) {
                         showMsg(Translate('IDCS_OUT_FILE_SIZE'))
@@ -152,9 +149,7 @@ export default defineComponent({
         const showMsg = (msg: string) => {
             openMessageTipBox({
                 type: 'info',
-                title: Translate('IDCS_INFO_TIP'),
                 message: msg,
-                showCancelButton: false,
             })
         }
 
