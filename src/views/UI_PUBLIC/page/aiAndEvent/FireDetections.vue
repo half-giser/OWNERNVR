@@ -266,7 +266,7 @@
                             <div class="base-ai-linkage-box">
                                 <el-checkbox
                                     v-model="pageData.triggerSwitch"
-                                    class="base-ai-linkage-title"
+                                    class="base-ai-linkage-title base-ai-linkage-title-checkbox"
                                     @change="handleTriggerSwitch"
                                     >{{ Translate('IDCS_TRIGGER_NOMAL') }}</el-checkbox
                                 >

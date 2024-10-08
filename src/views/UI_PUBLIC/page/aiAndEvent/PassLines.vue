@@ -596,4 +596,10 @@
     display: flex;
     align-items: center;
 }
+.base-ai-linkage-title-checkbox {
+    padding-left: 15px;
+    :deep(.el-checkbox__label) {
+        padding-left: 3px;
+    }
+}
 </style>
