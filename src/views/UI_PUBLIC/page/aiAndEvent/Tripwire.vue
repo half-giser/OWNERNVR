@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 11:11:35
  * @Description:  越界
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-08 11:09:35
+ * @LastEditTime: 2024-10-09 14:05:23
 -->
 
 <template>
@@ -391,6 +391,7 @@
                             :model="tripwireData"
                             label-position="left"
                             label-width="auto"
+                            class="form"
                             :style="{
                                 '--form-input-width': '300px',
                             }"
