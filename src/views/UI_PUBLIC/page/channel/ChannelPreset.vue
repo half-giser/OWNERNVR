@@ -2,8 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-20 13:57:01
  * @Description: 云台-预置点
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-22 20:07:37
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-09 15:51:43
 -->
 <template>
     <div class="preset">
@@ -29,6 +29,8 @@
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
                     <el-select
                         v-model="pageData.tableIndex"
+                        max-height="200px"
+                        popper-class="custom-select"
                         @change="changeChl"
                     >
                         <el-option
@@ -141,6 +143,13 @@
 </template>
 
 <script lang="ts" src="./ChannelPreset.v.ts"></script>
+
+<style>
+.custom-select {
+    max-height: 180px;
+    overflow-y: auto;
+}
+</style>
 
 <style lang="scss" scoped>
 .preset {

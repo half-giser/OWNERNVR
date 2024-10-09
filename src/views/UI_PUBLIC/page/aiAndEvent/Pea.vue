@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 13:35:56
  * @Description:  区域入侵
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-08 11:11:18
+ * @LastEditTime: 2024-10-09 17:48:58
 -->
 <template>
     <div class="pea_setting_pane">
@@ -171,55 +171,6 @@
                     </div>
                 </div>
             </el-popover>
-            <!-- <el-dropdown
-                v-if="peaData.areaCfgData[peaData.activity_type].pictureAvailable"
-                height="180px"
-                class="more"
-                trigger="click"
-                :hide-on-click="false"
-                placement="bottom-end"
-            >
-                <span class="el-dropdown-link">
-                    {{ Translate('IDCS_ADVANCED') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
-                </span>
-                <template #dropdown>
-                    <el-dropdown-menu
-                        :style="{
-                            '--el-dropdown-menuItem-hover-color': 'black',
-                            '--el-dropdown-menuItem-hover-fill': '#e5e5e5',
-                            '--el-text-color-regular': 'black',
-                        }"
-                    >
-                        <el-dropdown-item>
-                            <div class="moreDropDownBox">
-                                <div class="dropDownHeader">
-                                    <ElDivider direction="vertical"></ElDivider>
-                                    <span>{{ Translate('IDCS_VIDEO_SAVE_PIC') }}</span>
-                                </div>
-                                <div class="checkboxes">
-                                    <el-row>
-                                        
-                                        <span></span>
-                                    </el-row>
-                                    <el-row>
-                                        <el-checkbox
-                                        ></el-checkbox>
-                                        <span>{{ Translate('IDCS_SMART_SAVE_TARGET_PIC') }}</span>
-                                    </el-row>
-                                </div>
-                                <el-row class="base-btn-box">
-                                    <el-button
-                                        class="dropdown_btn"
-                                        @click="peaData.moreDropDown = false"
-                                    >
-                                        {{ Translate('IDCS_CLOSE') }}
-                                    </el-button>
-                                </el-row>
-                            </div>
-                        </el-dropdown-item>
-                    </el-dropdown-menu>
-                </template>
-            </el-dropdown> -->
             <!-- 只存在一个播放器，因此放于tab区域外 -->
             <div
                 v-show="peaData.peaFunction !== 'pea_trigger'"
@@ -476,8 +427,8 @@
                                             <el-checkbox
                                                 v-model="peaData.areaCfgData[peaData.activity_type].person"
                                                 @change="peaData.applyDisable = false"
-                                            ></el-checkbox>
-                                            <span>{{ Translate('IDCS_DETECTION_PERSON') }}</span>
+                                                >{{ Translate('IDCS_DETECTION_PERSON') }}</el-checkbox
+                                            >
                                         </el-row>
                                     </template>
                                     <template #default>
@@ -498,8 +449,8 @@
                                             <el-checkbox
                                                 v-model="peaData.areaCfgData[peaData.activity_type].car"
                                                 @change="peaData.applyDisable = false"
-                                            ></el-checkbox>
-                                            <span>{{ Translate('IDCS_DETECTION_VEHICLE') }}</span>
+                                                >{{ Translate('IDCS_DETECTION_VEHICLE') }}</el-checkbox
+                                            >
                                         </div>
                                     </template>
                                     <template #default>
@@ -520,8 +471,8 @@
                                             <el-checkbox
                                                 v-model="peaData.areaCfgData[peaData.activity_type].motorcycle"
                                                 @change="peaData.applyDisable = false"
-                                            ></el-checkbox>
-                                            <span>{{ Translate('IDCS_NON_VEHICLE') }}</span>
+                                                >{{ Translate('IDCS_NON_VEHICLE') }}</el-checkbox
+                                            >
                                         </div>
                                     </template>
                                     <template #default>

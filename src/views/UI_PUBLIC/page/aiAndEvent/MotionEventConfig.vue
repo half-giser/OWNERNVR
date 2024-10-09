@@ -3,7 +3,7 @@
  * @Date: 2024-08-16 18:13:47
  * @Description: 移动侦测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-25 17:53:34
+ * @LastEditTime: 2024-10-09 11:29:27
 -->
 <template>
     <div class="base-flex-box">
@@ -142,19 +142,17 @@
                             </span>
                             <template #dropdown>
                                 <el-dropdown-menu>
-                                    <el-dropdown-item>
-                                        <BaseTransferPop
-                                            v-if="pageData.recordIsShowAll"
-                                            :source-title="pageData.recordSourceTitle"
-                                            :target-title="pageData.recordTargetTitle"
-                                            :source-data="pageData.recordList"
-                                            :linked-list="pageData.recordChosedIdsAll"
-                                            :type="pageData.recordType"
-                                            @confirm="recordConfirmAll"
-                                            @close="recordCloseAll"
-                                        >
-                                        </BaseTransferPop>
-                                    </el-dropdown-item>
+                                    <BaseTransferPop
+                                        v-if="pageData.recordIsShowAll"
+                                        :source-title="pageData.recordSourceTitle"
+                                        :target-title="pageData.recordTargetTitle"
+                                        :source-data="pageData.recordList"
+                                        :linked-list="pageData.recordChosedIdsAll"
+                                        :type="pageData.recordType"
+                                        @confirm="recordConfirmAll"
+                                        @close="recordCloseAll"
+                                    >
+                                    </BaseTransferPop>
                                 </el-dropdown-menu>
                             </template>
                         </el-dropdown>
@@ -199,19 +197,17 @@
                             </span>
                             <template #dropdown>
                                 <el-dropdown-menu>
-                                    <el-dropdown-item>
-                                        <BaseTransferPop
-                                            v-if="pageData.snapIsShowAll"
-                                            :source-title="pageData.snapSourceTitle"
-                                            :target-title="pageData.snapTargetTitle"
-                                            :source-data="pageData.snapList"
-                                            :linked-list="pageData.snapChosedIdsAll"
-                                            :type="pageData.snapType"
-                                            @confirm="snapConfirmAll"
-                                            @close="snapCloseAll"
-                                        >
-                                        </BaseTransferPop>
-                                    </el-dropdown-item>
+                                    <BaseTransferPop
+                                        v-if="pageData.snapIsShowAll"
+                                        :source-title="pageData.snapSourceTitle"
+                                        :target-title="pageData.snapTargetTitle"
+                                        :source-data="pageData.snapList"
+                                        :linked-list="pageData.snapChosedIdsAll"
+                                        :type="pageData.snapType"
+                                        @confirm="snapConfirmAll"
+                                        @close="snapCloseAll"
+                                    >
+                                    </BaseTransferPop>
                                 </el-dropdown-menu>
                             </template>
                         </el-dropdown>
@@ -345,19 +341,17 @@
                             </span>
                             <template #dropdown>
                                 <el-dropdown-menu>
-                                    <el-dropdown-item>
-                                        <BaseTransferPop
-                                            v-if="pageData.alarmOutIsShowAll"
-                                            :source-title="pageData.alarmOutSourceTitle"
-                                            :target-title="pageData.alarmOutTargetTitle"
-                                            :source-data="pageData.alarmOutList"
-                                            :linked-list="pageData.alarmOutChosedIdsAll"
-                                            :type="pageData.alarmOutType"
-                                            @confirm="alarmOutConfirmAll"
-                                            @close="alarmOutCloseAll"
-                                        >
-                                        </BaseTransferPop>
-                                    </el-dropdown-item>
+                                    <BaseTransferPop
+                                        v-if="pageData.alarmOutIsShowAll"
+                                        :source-title="pageData.alarmOutSourceTitle"
+                                        :target-title="pageData.alarmOutTargetTitle"
+                                        :source-data="pageData.alarmOutList"
+                                        :linked-list="pageData.alarmOutChosedIdsAll"
+                                        :type="pageData.alarmOutType"
+                                        @confirm="alarmOutConfirmAll"
+                                        @close="alarmOutCloseAll"
+                                    >
+                                    </BaseTransferPop>
                                 </el-dropdown-menu>
                             </template>
                         </el-dropdown>
