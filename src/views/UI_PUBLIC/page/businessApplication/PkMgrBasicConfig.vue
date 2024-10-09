@@ -19,7 +19,7 @@
             class="inline-message"
         >
             <div class="limit">{{ Translate('IDCS_PARKING_LOT_MANAGE_TIPS').formatForLang(1) }}</div>
-            <div class="title">{{ Translate('IDCS_PARKING_LOT_NAME') }}</div>
+            <div class="base-business-subheading">{{ Translate('IDCS_PARKING_LOT_NAME') }}</div>
             <el-form-item
                 prop="parkName"
                 :label="Translate('IDCS_NAME')"
@@ -30,9 +30,9 @@
                 />
             </el-form-item>
 
-            <div class="title">
+            <div class="base-business-subheading">
                 <span>{{ Translate('IDCS_VEHICLE_NUM') }}</span>
-                <span class="title-tip">{{ Translate('IDCS_VEHICLE_NUM_TIPS') }}</span>
+                <span class="base-business-subheading-tip">{{ Translate('IDCS_VEHICLE_NUM_TIPS') }}</span>
             </div>
             <el-form-item
                 prop="totalNum"
@@ -67,6 +67,10 @@
 
 <script lang="ts" src="./PkMgrBasicConfig.v.ts"></script>
 
+<style>
+@import '@/views/UI_PUBLIC/publicStyle/businessApplication.scss';
+</style>
+
 <style lang="scss" scoped>
 .manage {
     padding: 25px 20px;
@@ -75,28 +79,5 @@
 .limit {
     margin: 10px 0 20px 10px;
     font-size: 14px;
-}
-
-.title {
-    margin: 10px 0 10px;
-    display: flex;
-    align-items: center;
-    height: 23px;
-    border-left: 2px solid var(--main-text);
-    color: var(--main-text);
-    font-size: 16px;
-    font-weight: bold;
-    padding-left: 10px;
-
-    &-tip {
-        color: var(--main-text-light);
-        font-size: 14px;
-        margin-left: 40px;
-        font-weight: normal;
-    }
-
-    & > span:first-child {
-        flex-shrink: 0;
-    }
 }
 </style>

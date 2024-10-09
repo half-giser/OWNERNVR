@@ -3,7 +3,7 @@
  * @Date: 2024-09-29 09:12:33
  * @Description: ai与事件版块的一些公共样式，仅在需要用到的ai与事件版块下import
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-08 11:09:15
+ * @LastEditTime: 2024-10-09 09:56:41
  */
 
 .base-ai-menu-tabs {
@@ -77,8 +77,8 @@
             background-color: transparent;
         }
 
-        .el-tabs__item:first-child {
-            margin-left: 30px;
+        .el-tabs__item:nth-child(2) {
+            margin-left: 20px;
         }
 
         /* 鼠标选中时样式 */
@@ -122,7 +122,7 @@
 
     &-left {
         width: 400px;
-        height: 100%;
+        min-height: 450px;
         padding: 8px 100px 0 20px;
         flex-shrink: 0;
         display: flex;

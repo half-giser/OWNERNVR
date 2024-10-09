@@ -94,7 +94,7 @@
                 </el-table-column>
             </el-table>
         </div>
-        <div class="base-btn-box">
+        <div class="base-btn-box padding">
             <el-button @click="apply()">{{ Translate('IDCS_APPLY') }}</el-button>
         </div>
     </div>
@@ -106,11 +106,6 @@
 .manager {
     width: 100%;
     height: calc(var(--content-height) + 10px);
-}
-
-.base-btn-box {
-    box-sizing: border-box;
-    padding: 0 15px;
 }
 
 .online {

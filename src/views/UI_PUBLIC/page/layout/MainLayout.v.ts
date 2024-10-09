@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 顶层布局页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-19 16:28:50
+ * @LastEditTime: 2024-09-30 17:49:36
  */
 
 import { type RouteLocationMatched } from 'vue-router'
@@ -25,6 +25,7 @@ export default defineComponent({
         const Plugin = inject('Plugin') as PluginType
         const systemInfo = getSystemInfo()
         const layoutStore = useLayoutStore()
+        const pluginStore = usePluginStore()
 
         const menu1Item = computed(() => layoutStore.menu1Item)
         const allMenu1Items = computed(() => layoutStore.menu1Items)
@@ -40,11 +41,11 @@ export default defineComponent({
             // 顶部插件icon状态
             hoverPluginIconIndex: 1,
             // 是否显示插件下载
-            isPluginDownloadBtn: true,
+            isPluginDownloadBtn: false,
             // 插件下载URL
             pluginDownloadURL: '',
             // 是否显示本地配置按钮
-            isLocalConfigBtn: true,
+            isLocalConfigBtn: false,
         })
 
         const closeChangePwdPop = () => {
@@ -232,20 +233,26 @@ export default defineComponent({
             }
         }
 
-        // 设置插件下载的链接
-        const setPluginURL = () => {
-            Plugin.TogglePageByPlugin()
-            // mac操作系统仅支持H5，插件下载按钮隐藏
-            if (systemInfo.platform === 'mac') {
-                pageData.value.isPluginDownloadBtn = false
-            }
-            // 去插件方式不支持本地配置,显示插件下载按钮
-            if (Plugin.IsSupportH5()) {
-                pageData.value.isLocalConfigBtn = false
-                const path = getPluginPath()
-                pageData.value.pluginDownloadURL = path.ClientPluDownLoadPath
-            }
-        }
+        watch(
+            () => pluginStore.currPluginMode,
+            (mode) => {
+                // 去插件方式不支持本地配置,显示插件下载按钮
+                if (mode !== 'ocx') {
+                    const path = getPluginPath()
+                    pageData.value.pluginDownloadURL = path.ClientPluDownLoadPath
+                    // mac操作系统仅支持H5，插件下载按钮隐藏
+                    if (systemInfo.platform !== 'mac') {
+                        pageData.value.isPluginDownloadBtn = true
+                    }
+                } else if (mode === 'ocx') {
+                    pageData.value.isLocalConfigBtn = true
+                    pageData.value.isPluginDownloadBtn = false
+                }
+            },
+            {
+                immediate: true,
+            },
+        )
 
         // 执行插件下载
         const handleDownloadPlugin = () => {
@@ -277,6 +284,7 @@ export default defineComponent({
         onMounted(async () => {
             const title = Translate('IDCS_WEB_CLIENT')
             document.title = title === 'IDCS_WEB_CLIENT' ? '' : title
+
             await showProductModel(() => {
                 checkForDefaultPwd()
                 if (userSession.loginCheck === 'check') {
@@ -284,7 +292,7 @@ export default defineComponent({
                     userSession.loginCheck = 'notCheck'
                 }
             })
-            setPluginURL()
+            Plugin.TogglePageByPlugin()
         })
 
         return {

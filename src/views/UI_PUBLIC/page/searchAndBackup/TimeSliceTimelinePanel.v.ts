@@ -3,7 +3,7 @@
  * @Date: 2024-08-14 16:50:21
  * @Description: 时间切片-时间线界面
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-19 14:05:49
+ * @LastEditTime: 2024-09-30 17:19:05
  */
 import dayjs from 'dayjs'
 import TimeSliceChlCard from './TimeSliceChlCard.vue'
@@ -529,9 +529,9 @@ export default defineComponent({
 
         /**
          * @description 改变切片模式
-         * @param {string} mode
          */
-        const changeMode = (mode: string) => {
+        const changeMode = () => {
+            const mode = pageData.value.mode
             const pointerTime = timelineRef.value!.getPointerTime() * 1000
             const currentTime = getRecTime(mode, pointerTime)
             if (!currentTime) {
