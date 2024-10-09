@@ -3,25 +3,26 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 二级类型1布局页--适用于所有配置页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-10 18:17:07
+ * @LastEditTime: 2024-10-08 16:49:04
  */
 
-import { type RouteRecordRaw } from 'vue-router'
 import { getMenuItem } from '@/router'
 
 export default defineComponent({
     setup() {
         const route = useRoute()
         const router = useRouter()
-        const menu = useMenuStore()
         const chilComponent = ref()
         const layoutStore = useLayoutStore()
+        const userSession = useUserSessionStore()
 
         const menu2Item = computed(() => layoutStore.menu2Item)
         const menu3Items = computed(() => layoutStore.menu3Items)
         const menu3Item = computed(() => layoutStore.menu3Item)
 
-        //排序后的菜单分组
+        /**
+         * @description 排序后的菜单分组
+         */
         const sortedGroups = computed(() => {
             if (!menu2Item.value?.meta?.groups) {
                 return []
@@ -38,7 +39,9 @@ export default defineComponent({
 
         const navList = ref<RouteRecordRawExtends[]>([])
 
-        //生成面包屑导航条
+        /**
+         * @description 生成面包屑导航条
+         */
         const getBreadCrumb = () => {
             navList.value = []
 
@@ -74,19 +77,59 @@ export default defineComponent({
             })
         }
 
-        const toDefault = (menuGroup: string) => {
-            const defaultMenu = groupMenuMap.value[menuGroup]?.find((o) => o.meta?.default === true) as RouteRecordRaw
+        /**
+         * @description 点击主菜单，跳转默认子菜单
+         * @param {string} menuGroup
+         */
+        const goToDefaultPage = (menuGroup: string) => {
+            const defaultMenu = groupMenuMap.value[menuGroup]?.find((o) => o.meta.default === true && !getMenuDisabled(o))
             if (defaultMenu) {
-                router.push(defaultMenu?.meta?.fullPath as string)
+                router.push(defaultMenu.meta.fullPath)
+            } else {
+                const defaultMenu = groupMenuMap.value[menuGroup].find((item) => !getMenuDisabled(item))
+                if (defaultMenu) {
+                    router.push(defaultMenu.meta.fullPath)
+                }
             }
         }
 
         /**
-         * 透传顶部工具栏事件，需要视图组件实现handleToolBarEvent方法
-         * @param toolBarEvent
+         * @description 路由跳转
+         * @param {RouteRecordRawExtends} route
+         */
+        const goToPath = (route: RouteRecordRawExtends) => {
+            if (getMenuDisabled(route)) {
+                return
+            }
+            router.push({
+                path: route.meta.fullPath,
+            })
+        }
+
+        /**
+         * @description 透传顶部工具栏事件，需要视图组件实现handleToolBarEvent方法
+         * @param {ConfigToolBarEvent} toolBarEvent
          */
         const handleToolBarEvent = (toolBarEvent: ConfigToolBarEvent<any>) => {
             chilComponent.value?.handleToolBarEvent(toolBarEvent)
+        }
+
+        /**
+         * @description 是否禁用菜单
+         * @param {RouteRecordRawExtends} route
+         * @returns {boolean}
+         */
+        const getMenuDisabled = (route: RouteRecordRawExtends) => {
+            return typeof route.meta.enabled !== 'undefined' && !userSession.hasAuth(route.meta.enabled)
+        }
+
+        /**
+         * @description 是否禁用菜单组
+         * @param {RouteRecordRawExtends} group
+         * @returns {boolean}
+         */
+        const getMenuGroupDisabled = (group: string) => {
+            return groupMenuMap.value[group]?.every((item) => getMenuDisabled(item)) || false
         }
 
         watch(
@@ -117,11 +160,13 @@ export default defineComponent({
             menu3Items,
             sortedGroups,
             groupMenuMap,
-            menu,
             chilComponent,
             navList,
             handleToolBarEvent,
-            toDefault,
+            goToDefaultPage,
+            getMenuDisabled,
+            getMenuGroupDisabled,
+            goToPath,
         }
     },
 })

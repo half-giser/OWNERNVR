@@ -3,7 +3,7 @@
  * @Date: 2024-09-23 17:41:52
  * @Description: UI1-D 主题样式
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 13:57:57
+ * @LastEditTime: 2024-10-08 16:02:52
  */
 
 #n9web {
@@ -98,13 +98,18 @@
     --config-menu-text: #fff; 
     --config-menu-text-hover: #fff;
     --config-menu-text-active: #fff;
-    --config-menu-bg: #2B2B2B;
+    --config-menu-text-disabled: #939494;
+    --config-menu-bg: #6a6a6a;
     --config-menu-bg-hover: #C50325;
     --config-menu-bg-active: #C50325; 
-    --config-menu-border: #999; 
+    --config-menu-bg-disabled: #6A6A6A;
+    --config-menu-border: #999;
+    --config-menu-border-hover: #999;
+    --config-menu-border-disabled: #999;
 
     --config-submenu-text: #fff; 
     --config-submenu-text-hover: #C50325; 
+    --config-submenu-text-disabled: #444;
     --config-submenu-bg: #2B2B2B;
 
     --login-bg: var(--main-bg);
@@ -122,6 +127,7 @@
     --config-aside-text: #fff; 
     --config-aside-text-hover: #fff;
     --config-aside-text-active: #fff;
+    --config-aside-text-disabled: #444;
     --config-aside-bg: var(--main-bg); 
     --config-aside-item-bg: #6A6A6A;
     --config-aside-item-bg-active: var(--primary);
@@ -163,7 +169,7 @@
     --tabbar-bg-hover: var(--primary-light);
     --tabbar-bg-active: var(--primary);
 
-    --sidebar-text: var(--header-menu-text);
+    --sidebar-text: #fff; 
     --sidebar-text-hover: var(--main-text-active);
     --sidebar-text-active: var(--main-text-active);
     --sidebar-bg: transparent;

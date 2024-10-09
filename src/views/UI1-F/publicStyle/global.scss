@@ -3,7 +3,7 @@
  * @Date: 2024-09-23 17:41:52
  * @Description: UI1-F 主题样式
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 13:58:29
+ * @LastEditTime: 2024-10-08 16:03:26
  */
 
 #n9web {
@@ -93,14 +93,18 @@
     --config-menu-text: #555; 
     --config-menu-text-hover: #6e6e6e; 
     --config-menu-text-active: var(--primary);
+    --config-menu-text-disabled: #D9D9D9;
     --config-menu-bg: #fff;
     --config-menu-bg-hover: #fff;
     --config-menu-bg-active: unset;
+    --config-menu-bg-disabled: unset;
     --config-menu-border: #AEAEAE; 
     --config-menu-border-hover: var(--primary);
+    --config-menu-border-disabled: #D9D9D9;
 
     --config-submenu-text: #3c3c3c; 
-    --config-submenu-text-hover: #6e6e6e; 
+    --config-submenu-text-hover: #6e6e6e;
+    --config-submenu-text-disabled: #D9D9D9;
     --config-submenu-bg: unset;
 
     --login-bg: var(--main-bg);
@@ -118,6 +122,7 @@
     --config-aside-text: #555; 
     --config-aside-text-hover: #6e6e6e;
     --config-aside-text-active: #6e6e6e;
+    --config-aside-text-disabled: #D9D9D9;
     --config-aside-bg: var(--main-bg); 
     --config-aside-item-bg: unset;
     --config-aside-item-bg-active: #eee;

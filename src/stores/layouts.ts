@@ -3,7 +3,7 @@
  * @Date: 2024-06-19 17:28:37
  * @Description: Layout的一些状态
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-18 19:41:43
+ * @LastEditTime: 2024-10-08 13:49:31
  */
 export const useLayoutStore = defineStore('layout', () => {
     // 当前打开的弹窗数量
@@ -26,6 +26,8 @@ export const useLayoutStore = defineStore('layout', () => {
     const menu3Items = ref<RouteRecordRawExtends[]>([])
     // //当前进入的三级菜单项
     const menu3Item = ref<RouteRecordRawExtends | null>(null)
+    // 配置页菜单
+    const configMenu = ref<RouteRecordRawExtends | null>(null)
 
     return {
         messageBoxCount,
@@ -39,5 +41,6 @@ export const useLayoutStore = defineStore('layout', () => {
         menu2Item,
         menu3Items,
         menu3Item,
+        configMenu,
     }
 })
