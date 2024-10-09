@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-21 15:34:24
  * @Description: 异常报警
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-29 15:02:22
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-09 11:32:28
 -->
 <template>
     <div class="base-flex-box">
@@ -136,7 +136,7 @@
                             ref="alarmOutRef"
                             trigger="click"
                             :hide-on-click="false"
-                            placement="bottom-end"
+                            placement="bottom"
                         >
                             <span
                                 class="el-dropdown-link"
@@ -146,19 +146,17 @@
                             </span>
                             <template #dropdown>
                                 <el-dropdown-menu>
-                                    <el-dropdown-item>
-                                        <BaseTransferPop
-                                            v-if="pageData.alarmOutIsShowAll"
-                                            :source-title="pageData.alarmOutSourceTitle"
-                                            :target-title="pageData.alarmOutTargetTitle"
-                                            :source-data="pageData.alarmOutList"
-                                            :linked-list="pageData.alarmOutChosedIdsAll"
-                                            :type="pageData.alarmOutType"
-                                            @confirm="alarmOutConfirmAll"
-                                            @close="alarmOutCloseAll"
-                                        >
-                                        </BaseTransferPop>
-                                    </el-dropdown-item>
+                                    <BaseTransferPop
+                                        v-if="pageData.alarmOutIsShowAll"
+                                        :source-title="pageData.alarmOutSourceTitle"
+                                        :target-title="pageData.alarmOutTargetTitle"
+                                        :source-data="pageData.alarmOutList"
+                                        :linked-list="pageData.alarmOutChosedIdsAll"
+                                        :type="pageData.alarmOutType"
+                                        @confirm="alarmOutConfirmAll"
+                                        @close="alarmOutCloseAll"
+                                    >
+                                    </BaseTransferPop>
                                 </el-dropdown-menu>
                             </template>
                         </el-dropdown>

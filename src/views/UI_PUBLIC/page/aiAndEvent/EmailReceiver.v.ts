@@ -3,13 +3,13 @@
  * @Date: 2024-08-12 14:21:22
  * @Description: email通知
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-27 16:47:53
+ * @LastEditTime: 2024-10-09 11:50:26
  */
 import { defineComponent } from 'vue'
 import { ArrowDown } from '@element-plus/icons-vue'
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import { EmailReceiver } from '@/types/apiType/aiAndEvent'
-import { type FormInstance, type FormRules } from 'element-plus'
+import { type FormInstance, type FormRules, type TableInstance } from 'element-plus'
 
 export default defineComponent({
     components: {
@@ -23,6 +23,7 @@ export default defineComponent({
         const { LoadingTarget, openLoading, closeLoading } = useLoading()
         const openMessageTipBox = useMessageBox().openMessageTipBox
         const tableData = ref<EmailReceiver[]>([])
+        const tableRef = ref<TableInstance>()
         const maxEmailCount = ref(16)
         const rules = reactive<FormRules>({
             recipient: [
@@ -139,6 +140,15 @@ export default defineComponent({
                 }
             })
         }
+        const handleScheduleChange = function (row: EmailReceiver) {
+            tableRef.value?.setCurrentRow(row)
+            row.rowClicked = true
+            tableData.value.forEach((item) => {
+                if (item != row) {
+                    item.rowClicked = false
+                }
+            })
+        }
         const handleScheduleChangeAll = function (value: string) {
             tableData.value.forEach((item) => {
                 item.schedule = value
@@ -237,6 +247,7 @@ export default defineComponent({
             pageData,
             Translate,
             tableData,
+            tableRef,
             formRef,
             rules,
             handleDelReceiver,
@@ -245,6 +256,7 @@ export default defineComponent({
             getIconStatus,
             maskShow,
             handleSenderEdit,
+            handleScheduleChange,
             handleScheduleChangeAll,
             handleScheduleManage,
             handleApply,

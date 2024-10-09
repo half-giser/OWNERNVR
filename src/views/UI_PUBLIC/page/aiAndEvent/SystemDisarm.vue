@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-23 10:54:01
  * @Description: 系统撤防
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 10:59:43
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-09 11:40:46
 -->
 <template>
     <el-dialog
@@ -185,44 +185,41 @@
                             ref="dropDownRef"
                             trigger="click"
                             :hide-on-click="false"
-                            placement="bottom-end"
+                            placement="top"
                         >
                             <span class="el-dropdown-link">
                                 {{ Translate('IDCS_CONFIG') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
                             </span>
                             <template #dropdown>
                                 <el-dropdown-menu>
-                                    <el-dropdown-item>
-                                        <div>
-                                            <el-table
-                                                class="cfg_table"
-                                                stripe
-                                                show-overflow-tooltip
-                                                height="250px"
-                                                :data="pageData.totalDefenseParamList"
-                                                @selection-change="handleSelectedDropDown"
+                                    <div class="cfg_table">
+                                        <el-table
+                                            stripe
+                                            show-overflow-tooltip
+                                            height="250px"
+                                            :data="pageData.totalDefenseParamList"
+                                            @selection-change="handleSelectedDropDown"
+                                        >
+                                            <el-table-column
+                                                type="selection"
+                                                width="55"
                                             >
-                                                <el-table-column
-                                                    type="selection"
-                                                    width="55"
-                                                >
-                                                </el-table-column>
-                                                <el-table-column :label="Translate('IDCS_RECOVER_LINK_ITEM')">
-                                                    <template #default="scope">
-                                                        <span>{{ scope.row.value }}</span>
-                                                    </template>
-                                                </el-table-column>
-                                            </el-table>
-                                            <el-row class="base-btn-box">
-                                                <el-button @click="disarmCfgAll">
-                                                    {{ Translate('IDCS_OK') }}
-                                                </el-button>
-                                                <el-button @click="dropDownRef?.handleClose()">
-                                                    {{ Translate('IDCS_CANCEL') }}
-                                                </el-button>
-                                            </el-row>
-                                        </div>
-                                    </el-dropdown-item>
+                                            </el-table-column>
+                                            <el-table-column :label="Translate('IDCS_RECOVER_LINK_ITEM')">
+                                                <template #default="scope">
+                                                    <span>{{ scope.row.value }}</span>
+                                                </template>
+                                            </el-table-column>
+                                        </el-table>
+                                        <el-row class="base-btn-box">
+                                            <el-button @click="disarmCfgAll">
+                                                {{ Translate('IDCS_OK') }}
+                                            </el-button>
+                                            <el-button @click="dropDownRef?.handleClose()">
+                                                {{ Translate('IDCS_CANCEL') }}
+                                            </el-button>
+                                        </el-row>
+                                    </div>
                                 </el-dropdown-menu>
                             </template>
                         </el-dropdown>
@@ -286,6 +283,7 @@
 }
 
 .cfg_table {
-    width: 400px;
+    width: 480px;
+    padding: 10px;
 }
 </style>

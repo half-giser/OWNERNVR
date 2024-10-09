@@ -2,8 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-29 09:12:33
  * @Description: ai与事件版块的一些公共样式，仅在需要用到的ai与事件版块下import
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-08 09:42:07
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-09 09:56:41
  */
 
 .base-ai-menu-tabs {
@@ -167,7 +167,12 @@
         margin-right: 5px;
     }
 }
-
+.base-ai-linkage-title-checkbox {
+    padding-left: 15px;
+    .el-checkbox__label {
+        padding-left: 3px;
+    }
+}
 .base-ai-linkage-box {
     width: 250px;
     height: 400px;
