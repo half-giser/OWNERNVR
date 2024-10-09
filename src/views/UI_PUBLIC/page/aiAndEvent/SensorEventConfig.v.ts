@@ -7,7 +7,6 @@
  */
 import { type PresetItem, SensorEvent, type ChlList } from '@/types/apiType/aiAndEvent'
 import { QueryNodeListDto } from '@/types/apiType/channel'
-import { tableRowStatus, tableRowStatusToolTip } from '@/utils/const/other'
 import { cloneDeep, isEqual } from 'lodash-es'
 import BaseTransferPop from '@/components/BaseTransferPop.vue'
 import BaseTransferDialog from '@/components/BaseTransferDialog.vue'
@@ -270,7 +269,7 @@ export default defineComponent({
                         row.id = item.attr('id')!
                         row.alarmInType = item.attr('alarmInType')!
                         row.nodeIndex = item.attr('index')!
-                        row.status = tableRowStatus.loading
+                        row.status = 'loading'
                         tableData.value.push(row)
                     })
                     tableData.value.forEach(async (item) => {
@@ -866,7 +865,6 @@ export default defineComponent({
             recordRef,
             snapRef,
             alarmOutRef,
-            tableRowStatusToolTip,
             pageData,
             tableData,
             changePaginationSize,
