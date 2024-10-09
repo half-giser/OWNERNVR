@@ -11,6 +11,7 @@
     --el-text-color-regular: var(--input-text);
     --el-disabled-text-color: var(--input-text-disabled);
     --el-text-color-primary: var(--input-text);
+    --el-text-color-secondary: var(--main-text-light);
 }
 
 #n9web {
@@ -505,6 +506,10 @@
     .el-transfer {
         --el-transfer-border-color: var(--table-border);
         --el-transfer-panel-header-bg-color: var(--table-thead-bg);
+
+        &-panel {
+            --el-bg-color-overlay: var(--main-bg);
+        }
 
         &-panel .el-transfer-panel__header .el-checkbox .el-checkbox__label {
             color: var(--table-thead-text);

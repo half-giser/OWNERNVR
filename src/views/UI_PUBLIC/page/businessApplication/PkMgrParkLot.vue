@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 18:39:25
  * @Description: 实时过车记录
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-25 16:09:11
+ * @LastEditTime: 2024-09-30 16:29:07
 -->
 <template>
     <div class="lot">
@@ -112,7 +112,7 @@
                 </div>
             </div>
             <div
-                class="base-btn-box"
+                class="base-btn-box padding"
                 :span="2"
             >
                 <div>{{ Translate('IDCS_MORE_VEHICLE_RECORD') }}</div>
@@ -310,7 +310,6 @@
 .panel {
     width: 664px;
     height: 365px;
-    // border: 1px solid var(--subheading-bg);
     margin: 5px;
     background-color: var(--parklog-box-bg);
 
@@ -374,8 +373,6 @@
 }
 
 .base-btn-box {
-    padding: 0 10px;
-    box-sizing: border-box;
     margin-bottom: 10px;
 }
 

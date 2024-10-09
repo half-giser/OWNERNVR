@@ -3,7 +3,7 @@
  * @Date: 2024-08-14 16:59:30
  * @Description: 时间切片-概览界面(按通道/按时间)
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:23:40
+ * @LastEditTime: 2024-09-30 17:53:33
  */
 import dayjs from 'dayjs'
 import { type PlaybackTimeSliceChlList, type PlaybackTimeSliceList } from '@/types/apiType/playback'
@@ -227,6 +227,13 @@ export default defineComponent({
          */
         const getThumbnailForTimeSlice = () => {
             if (pageData.value.timesliceCount > MAX_THUMBNAIL_SHOW_COUNTS) {
+                // 创建一个虚拟的task id，供组件渲染
+                pageData.value.chlTimeSliceList.forEach((item, index) => {
+                    item.chlList.forEach((chl, chlIndex) => {
+                        chl.taskId = getNonce() + ''
+                        timesliceMap[chl.taskId] = [index, chlIndex]
+                    })
+                })
                 return
             }
             if (timesliceFlag) {

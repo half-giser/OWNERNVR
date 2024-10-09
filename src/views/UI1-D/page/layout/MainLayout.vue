@@ -3,7 +3,7 @@
  * @Date: 2024-09-24 15:16:31
  * @Description: UI1-D 客制化 顶层布局页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-27 09:43:42
+ * @LastEditTime: 2024-09-30 16:38:10
 -->
 <template>
     <el-container id="layoutMain">
@@ -271,7 +271,7 @@
     box-sizing: border-box;
     width: 100%;
     height: 100%;
-    overflow-y: auto;
+    // overflow-y: auto;
     flex-shrink: 1;
 }
 

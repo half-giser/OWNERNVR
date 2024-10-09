@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 顶层布局页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-27 13:42:29
+ * @LastEditTime: 2024-09-30 16:12:34
 -->
 <template>
     <el-container id="layoutMain">
@@ -22,11 +22,10 @@
                 </div>
                 <div id="topRight">
                     <div
-                        v-show="pageData.isPluginDownloadBtn"
+                        v-if="pageData.isPluginDownloadBtn"
                         class="nav-item"
                     >
                         <span
-                            id="http_dlPlugin"
                             class="dlPlugin effective"
                             @click="handleDownloadPlugin"
                         >
@@ -285,7 +284,7 @@
     box-sizing: border-box;
     width: 100%;
     height: 100%;
-    overflow-y: auto;
+    // overflow-y: auto;
     flex-shrink: 1;
 }
 

@@ -131,24 +131,16 @@
             </el-table>
         </div>
         <div
-            class="base-btn-box"
+            class="base-btn-box padding"
             :span="2"
         >
             <div>
-                <el-text
-                    class="tip"
-                    :title="Translate('IDCS_VEHICLE_NUM_TIPS')"
-                    truncated
-                >
+                <el-text>
                     {{ Translate('IDCS_VEHICLE_NUM_TIPS') }}
                 </el-text>
             </div>
             <div>
-                <el-button
-                    class="apply"
-                    type="primary"
-                    @click="apply()"
-                >
+                <el-button @click="apply()">
                     {{ Translate('IDCS_APPLY') }}
                 </el-button>
             </div>
@@ -162,10 +154,5 @@
 .manage {
     width: 100%;
     height: calc(var(--content-height) + 10px);
-}
-
-.base-btn-box {
-    box-sizing: border-box;
-    padding: 0 15px;
 }
 </style>

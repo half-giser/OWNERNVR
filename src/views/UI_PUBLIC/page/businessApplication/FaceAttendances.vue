@@ -127,7 +127,7 @@
                     </el-form-item>
                 </el-form-item>
             </el-form>
-            <div class="base-btn-box">
+            <div class="base-btn-box padding">
                 <el-button @click="searchData">{{ Translate('IDCS_SEARCH') }}</el-button>
                 <el-button @click="exportData">{{ Translate('IDCS_EXPORT') }}</el-button>
             </div>
@@ -212,7 +212,7 @@
                 </el-table-column>
             </el-table>
         </div>
-        <div class="base-btn-box">
+        <div class="base-btn-box padding">
             <el-pagination
                 v-model:current-page="formData.currentPage"
                 v-model:page-size="formData.pageSize"
@@ -250,6 +250,10 @@
 <script lang="ts" src="./FaceAttendances.v.ts"></script>
 
 <style lang="scss" scoped>
+.face {
+    height: calc(var(--content-height) + 10px);
+}
+
 .form {
     display: flex;
 
@@ -280,11 +284,6 @@
         align-items: flex-end;
         padding-bottom: 10px;
     }
-}
-
-.base-btn-box {
-    padding-right: 10px;
-    box-sizing: border-box;
 }
 
 .end-time {

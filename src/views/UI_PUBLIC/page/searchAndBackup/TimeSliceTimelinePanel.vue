@@ -3,7 +3,7 @@
  * @Date: 2024-08-13 09:09:24
  * @Description: 时间切片-时间线界面
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 11:26:39
+ * @LastEditTime: 2024-09-30 17:25:25
 -->
 <template>
     <div class="content">
@@ -104,18 +104,19 @@
                         :span="24"
                         class="el-col-flex-end"
                     >
-                        <div
-                            v-for="item in pageData.modeOptions"
-                            v-show="item.hidden !== pageData.mode"
-                            :key="item.value"
-                            class="time-btn"
-                            :class="{
-                                active: pageData.mode === item.value,
-                            }"
-                            @click="changeMode(item.value)"
+                        <el-radio-group
+                            v-model="pageData.mode"
+                            class="always-border"
+                            @change="changeMode"
                         >
-                            {{ item.label }}
-                        </div>
+                            <el-radio-button
+                                v-for="item in pageData.modeOptions"
+                                v-show="item.hidden !== pageData.mode"
+                                :key="item.value"
+                                :value="item.value"
+                                >{{ item.label }}</el-radio-button
+                            >
+                        </el-radio-group>
                     </el-col>
                 </el-row>
             </div>
@@ -162,7 +163,7 @@
                     />
                 </div>
             </div>
-            <div class="base-btn-box">
+            <div class="base-btn-box padding">
                 <el-button
                     :disabled="formData.size === 0"
                     @click="backUp"
@@ -247,20 +248,6 @@
     text-align: center;
 }
 
-.time-btn {
-    padding: 0 20px;
-    border: 1px solid var(--content-border);
-    cursor: pointer;
-    line-height: 30px;
-    color: var(--text-menu-0);
-    font-size: 14px;
-
-    &.active {
-        background-color: var(--primary);
-        color: var(--color-white);
-    }
-}
-
 .right {
     width: 100%;
     height: 100%;
@@ -333,10 +320,7 @@
 }
 
 .base-btn-box {
-    width: 100%;
-    box-sizing: border-box;
     margin-bottom: 10px;
-    padding-right: 10px;
 }
 
 .list-box {
