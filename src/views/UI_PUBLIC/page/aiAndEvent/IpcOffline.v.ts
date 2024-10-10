@@ -2,12 +2,11 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-21 15:34:24
  * @Description: 前端掉线
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-27 17:03:59
+ * @LastEditors: luoyiming a11593@tvt.net.cn
+ * @LastEditTime: 2024-10-09 16:22:39
  */
 import { cloneDeep } from 'lodash-es'
 import { ArrowDown } from '@element-plus/icons-vue'
-import { tableRowStatus, tableRowStatusToolTip } from '@/utils/const/other'
 import BaseTransferPop from '@/components/BaseTransferPop.vue'
 import BaseTableRowStatus from '@/components/BaseTableRowStatus.vue'
 import BaseTransferDialog from '@/components/BaseTransferDialog.vue'
@@ -211,7 +210,7 @@ export default defineComponent({
                     const row = new MotionEventConfig()
                     row.id = item.attr('id')!
                     row.name = $ele('name').text()
-                    row.status = tableRowStatus.loading
+                    row.status = 'loading'
                     tableData.value.push(row)
                 })
                 for (let i = 0; i < tableData.value.length; i++) {
@@ -680,8 +679,6 @@ export default defineComponent({
             changePagination,
             changePaginationSize,
             Translate,
-            tableRowStatus,
-            tableRowStatusToolTip,
             chosedList,
             pageData,
             tableData,

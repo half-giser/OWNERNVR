@@ -7,7 +7,6 @@
  */
 import { cloneDeep } from 'lodash-es'
 import { ArrowDown } from '@element-plus/icons-vue'
-import { tableRowStatus, tableRowStatusToolTip } from '@/utils/const/other'
 import BaseTransferPop from '@/components/BaseTransferPop.vue'
 import BaseTransferDialog from '@/components/BaseTransferDialog.vue'
 import BaseTableRowStatus from '@/components/BaseTableRowStatus.vue'
@@ -210,7 +209,7 @@ export default defineComponent({
                     row.name = $ele('name').text()
                     row.poeIndex = $ele('poeIndex').text()
                     row.productModel = { value: $ele('productModel').text(), factoryName: $ele('productModel').attr('factoryName') }
-                    row.status = tableRowStatus.loading
+                    row.status = 'loading'
                     tableData.value.push(row)
                 })
                 for (let i = 0; i < tableData.value.length; i++) {
@@ -752,8 +751,6 @@ export default defineComponent({
             changePaginationSize,
             Translate,
             scheduleList,
-            tableRowStatus,
-            tableRowStatusToolTip,
             chosedList,
             pageData,
             tableData,

@@ -1100,6 +1100,7 @@ export default defineComponent({
          * @param {IntelSearchFaceList} row
          */
         const handleTableRowClick = (row: IntelSearchFaceList) => {
+            play(row)
             tableRef.value!.clearSelection()
             tableRef.value!.toggleRowSelection(row, true)
         }
