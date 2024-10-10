@@ -116,7 +116,10 @@
                         class-name="custom_cell"
                     >
                         <template #default="scope">
-                            <BaseTableRowStatus :icon="scope.row.status"></BaseTableRowStatus>
+                            <BaseTableRowStatus
+                                :icon="scope.row.status"
+                                :error-text="scope.row.statusTip"
+                            ></BaseTableRowStatus>
                         </template>
                     </el-table-column>
                     <el-table-column
@@ -347,7 +350,7 @@
                         v-model:current-page="pageIndex"
                         v-model:page-size="pageSize"
                         :page-sizes="DefaultPagerSizeOptions"
-                        small
+                        size="small"
                         :background="false"
                         :layout="DefaultPagerLayout"
                         :total="pageTotal"

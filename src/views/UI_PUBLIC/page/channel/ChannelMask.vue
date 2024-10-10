@@ -1,0 +1,226 @@
+<!--
+ * @Author: linguifan linguifan@tvt.net.cn
+ * @Date: 2024-07-16 17:39:53
+ * @Description:
+-->
+<template>
+    <div id="ChannelMask">
+        <div class="main">
+            <div class="left">
+                <div class="playerWrap">
+                    <BaseVideoPlayer
+                        ref="playerRef"
+                        :split="1"
+                        @onready="onReady"
+                    />
+                </div>
+                <el-row class="row_operation">
+                    <el-col class="el-col-flex-end">
+                        <el-button
+                            :disabled="formData.disabled"
+                            @click="editStatus = !editStatus"
+                            >{{ editStatus ? Translate('IDCS_STOP_DRAW') : Translate('IDCS_DRAW_AREA') }}</el-button
+                        >
+                        <el-button
+                            :disabled="formData.disabled"
+                            @click="handleClearArea"
+                            >{{ Translate('IDCS_CLEAR_AREA') }}</el-button
+                        >
+                    </el-col>
+                </el-row>
+                <el-form
+                    ref="formRef"
+                    :model="formData"
+                    label-width="160px"
+                    label-position="left"
+                >
+                    <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
+                        <el-select
+                            v-model="selectedChlId"
+                            placeholder=" "
+                            @change="handleChlSel"
+                        >
+                            <el-option
+                                v-for="(item, index) in tableData"
+                                :key="index"
+                                :value="item.id"
+                                :label="item.name || ' '"
+                            >
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item :label="Translate('IDCS_VIDEO_MASK')">
+                        <el-select
+                            v-if="formData.isSpeco"
+                            :disabled="formData.disabled"
+                            @change="handleChangeSwitch"
+                        ></el-select>
+                        <el-select
+                            v-else
+                            v-model="formData.switch"
+                            :disabled="formData.disabled"
+                            placeholder=" "
+                            @change="handleChangeSwitch"
+                        >
+                            <el-option
+                                :value="true"
+                                :label="Translate('IDCS_ON')"
+                            />
+                            <el-option
+                                :value="false"
+                                :label="Translate('IDCS_OFF')"
+                            />
+                        </el-select>
+                    </el-form-item>
+                </el-form>
+            </div>
+            <div class="right">
+                <el-table
+                    ref="tableRef"
+                    border
+                    stripe
+                    :data="tableData"
+                    table-layout="fixed"
+                    show-overflow-tooltip
+                    empty-text=" "
+                    highlight-current-row
+                    :row-class-name="(data) => (data.row.disabled ? 'disabled' : '')"
+                    @row-click="handleRowClick"
+                >
+                    <el-table-column
+                        label=" "
+                        width="50px"
+                        class-name="custom_cell"
+                    >
+                        <template #default="scope">
+                            <BaseTableRowStatus
+                                :icon="scope.row.status"
+                                :error-text="scope.row.statusTip"
+                            ></BaseTableRowStatus>
+                        </template>
+                    </el-table-column>
+                    <el-table-column
+                        prop="name"
+                        :label="Translate('IDCS_CHANNEL_NAME')"
+                        min-width="180px"
+                    />
+                    <el-table-column
+                        :label="Translate('IDCS_VIDEO_MASK')"
+                        min-width="180px"
+                    >
+                        <template #header>
+                            <el-dropdown trigger="click">
+                                <span class="el-dropdown-link">
+                                    {{ Translate('IDCS_WATER_MARK') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
+                                </span>
+                                <template #dropdown>
+                                    <el-dropdown-menu>
+                                        <el-dropdown-item @click="changeSwitchAll(true)">{{ Translate('IDCS_ON') }}</el-dropdown-item>
+                                        <el-dropdown-item @click="changeSwitchAll(false)">{{ Translate('IDCS_OFF') }}</el-dropdown-item>
+                                    </el-dropdown-menu>
+                                </template>
+                            </el-dropdown>
+                        </template>
+                        <template #default="scope">
+                            <el-select
+                                v-if="!scope.row.isSpeco"
+                                v-model="scope.row.switch"
+                                :disabled="scope.row.disabled"
+                                size="small"
+                                placeholder=" "
+                                @focus="handleRowClick(scope.row)"
+                                @change="handleChangeSwitch()"
+                            >
+                                <el-option
+                                    :value="true"
+                                    :label="Translate('IDCS_ON')"
+                                />
+                                <el-option
+                                    :value="false"
+                                    :label="Translate('IDCS_OFF')"
+                                />
+                            </el-select>
+                        </template>
+                    </el-table-column>
+                    <el-table-column
+                        :label="Translate('IDCS_COLOR')"
+                        min-width="120px"
+                    >
+                        <template #default="scope">
+                            <span v-if="!scope.row.isSpeco">{{ colorMap[scope.row.color] }}</span>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <el-row class="row_pagination">
+                    <el-pagination
+                        v-model:current-page="pageIndex"
+                        v-model:page-size="pageSize"
+                        :page-sizes="DefaultPagerSizeOptions"
+                        size="small"
+                        :background="false"
+                        :layout="DefaultPagerLayout"
+                        :total="pageTotal"
+                        @size-change="handleSizeChange"
+                        @current-change="handleCurrentChange"
+                    />
+                </el-row>
+                <el-row class="row_operation_btn">
+                    <el-col class="el-col-flex-end">
+                        <el-button
+                            :disabled="btnOKDisabled"
+                            @click="save"
+                            >{{ Translate('IDCS_APPLY') }}
+                        </el-button>
+                    </el-col>
+                </el-row>
+            </div>
+        </div>
+        <div></div>
+    </div>
+</template>
+
+<script lang="ts" src="./ChannelMask.v.ts"></script>
+
+<style scoped lang="scss">
+#ChannelMask {
+    .main {
+        display: flex;
+        width: 100%;
+
+        .left {
+            width: 400px;
+            margin-right: 10px;
+
+            .playerWrap {
+                width: 400px;
+                height: 300px;
+            }
+
+            .row_operation {
+                padding: 5px 15px;
+            }
+        }
+        .right {
+            width: calc(100% - 410px);
+            flex-grow: 1;
+
+            :deep(.el-table) {
+                width: 100%;
+                height: calc(100vh - 335px);
+            }
+
+            .row_operation_btn {
+                margin-top: 30px;
+            }
+
+            :deep(.custom_cell) {
+                .cell {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                }
+            }
+        }
+    }
+}
+</style>

@@ -18,7 +18,7 @@
             <canvas
                 v-if="readonly"
                 ref="timeSelectorRef"
-                class="time-selector, readonly"
+                class="time-selector readonly"
                 :width="canvasWidth"
                 height="20"
             ></canvas>
