@@ -3,7 +3,7 @@
  * @Date: 2024-06-28 11:45:28
  * @Description: 报警状态
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 14:24:15
+ * @LastEditTime: 2024-10-09 15:49:07
  */
 import { type XMLQuery } from '@/utils/xmlParse'
 import type { SystemAlarmStatusListData, SystemAlarmStatusList } from '@/types/apiType/system'
@@ -685,10 +685,10 @@ export default defineComponent({
                 let errorNote = ''
                 const errorCode = Number($item('errorCode').text())
                 switch (errorCode) {
-                    case 536870948:
+                    case ErrorCode.USER_ERROR_PWD_ERR:
                         errorNote = `(${Translate('IDCS_DEVICE_PWD_ERROR')})`
                         break
-                    case 536870935:
+                    case ErrorCode.USER_ERROR_NODE_NET_OFFLINE:
                         errorNote = `(${Translate('IDCS_NODE_NOT_ONLINE')})`
                         break
                     default:

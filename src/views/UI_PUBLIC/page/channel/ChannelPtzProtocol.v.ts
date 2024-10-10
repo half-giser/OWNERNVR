@@ -3,7 +3,7 @@
  * @Date: 2024-08-23 10:36:12
  * @Description: 云台-协议
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-14 16:12:24
+ * @LastEditTime: 2024-10-09 15:38:33
  */
 import { cloneDeep } from 'lodash-es'
 import { type TableInstance } from 'element-plus'
@@ -12,7 +12,7 @@ import { type ChannelPtzProtocolDto } from '@/types/apiType/channel'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const playerRef = ref<PlayerInstance>()
 
         const pageData = ref({
@@ -164,7 +164,7 @@ export default defineComponent({
                 })
             })
 
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             for (let i = 0; i < edits.length; i++) {
                 const item = edits[i]
@@ -192,14 +192,14 @@ export default defineComponent({
             }
 
             cacheTableData = cloneDeep(tableData.value)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         /**
          * @description 获取数据
          */
         const getData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const result = await getChlList({
                 pageIndex: 1,
@@ -208,7 +208,7 @@ export default defineComponent({
             })
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 tableData.value = $('//content/item').map((item) => {

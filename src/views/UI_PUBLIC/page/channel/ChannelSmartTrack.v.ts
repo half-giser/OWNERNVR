@@ -12,7 +12,7 @@ import { type ChannelPtzSmartTrackDto } from '@/types/apiType/channel'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const playerRef = ref<PlayerInstance>()
 
         const pageData = ref({
@@ -160,7 +160,7 @@ export default defineComponent({
                 })
             })
 
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             for (let i = 0; i < edits.length; i++) {
                 const item = edits[i]
@@ -187,14 +187,14 @@ export default defineComponent({
             }
 
             cacheTableData = cloneDeep(tableData.value)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         /**
          * @description 获取数据
          */
         const getData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const result = await getChlList({
                 pageIndex: 1,
@@ -203,7 +203,7 @@ export default defineComponent({
             })
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 tableData.value = $('//content/item').map((item) => {

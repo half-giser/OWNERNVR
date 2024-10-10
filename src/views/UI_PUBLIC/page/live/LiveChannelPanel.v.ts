@@ -3,7 +3,7 @@
  * @Date: 2024-07-26 17:03:07
  * @Description: 现场预览-通道视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-25 18:26:26
+ * @LastEditTime: 2024-10-09 18:32:23
  */
 import ChannelGroupEditPop from '../channel/ChannelGroupEditPop.vue'
 import ChannelGroupAddPop from '../channel/ChannelGroupAddPop.vue'
@@ -65,7 +65,7 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const theme = getUiAndTheme()
 
         const pageData = ref({
@@ -256,14 +256,14 @@ export default defineComponent({
          * @description 刷新通道列表
          */
         const refreshChl = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             pageData.value.chlKeyword = ''
             await getChlsList()
             await getChlTreeStatus()
             ctx.emit('refresh', chlMap)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         /**
@@ -400,7 +400,7 @@ export default defineComponent({
                     type: 'question',
                     message: Translate('IDCS_DELETE_MP_GROUP_S').formatForLang(getShortString(findItem.value, 10)),
                 }).then(async () => {
-                    openLoading(LoadingTarget.FullScreen)
+                    openLoading()
                     const sendXml = rawXml`
                         <condition>
                             <chlGroupIds type="list">
@@ -410,7 +410,7 @@ export default defineComponent({
                     `
                     const result = await delChlGroup(getXmlWrapData(sendXml))
                     const $ = queryXml(result)
-                    closeLoading(LoadingTarget.FullScreen)
+                    closeLoading()
                     if ($('//status').text() === 'success') {
                         openMessageTipBox({
                             type: 'success',

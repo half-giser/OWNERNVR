@@ -1,7 +1,7 @@
 <!--
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-06-18 14:20:44
- * @Description: 
+ * @Description: 通道组 - 编辑弹窗
 -->
 <template>
     <el-dialog
@@ -34,9 +34,9 @@
                 <el-select v-model="formData.dwellTime">
                     <el-option
                         v-for="item in timeList"
-                        :key="item.value"
-                        :value="item.value"
-                        :label="item.text"
+                        :key="item"
+                        :value="item"
+                        :label="getTranslateForSecond(item)"
                     />
                 </el-select>
             </el-form-item>

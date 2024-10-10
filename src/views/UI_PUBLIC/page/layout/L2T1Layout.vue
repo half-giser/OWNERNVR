@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 二级类型1布局页--适用于所有配置页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-08 16:52:05
+ * @LastEditTime: 2024-10-09 13:41:49
 -->
 <template>
     <el-container id="layout2">
@@ -249,70 +249,54 @@
     position: relative;
     padding: 0px;
     background-color: var(--main-bg);
+}
 
-    #layout2RightTopBar {
-        display: flex;
-        width: 100%;
-        height: 35px;
-        border-bottom: solid 1px var(--content-border);
-        background-color: var(--breadcrumb-bg);
+#layout2RightTopBar {
+    display: flex;
+    width: 100%;
+    height: 35px;
+    border-bottom: solid 1px var(--content-border);
+    background-color: var(--breadcrumb-bg);
+}
 
-        #layout2RightTopBarNav {
-            display: flex;
-            height: 100%;
-            width: 50%;
-            align-items: center;
-            padding: 0 10px;
-            box-sizing: border-box;
+#layout2RightTopBarNav {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    align-items: center;
+    padding: 0 10px;
+    box-sizing: border-box;
 
-            a {
-                font-size: 15px;
-                text-decoration: none;
-                margin: 0 3px 0 3px;
-                display: inline-block;
-                color: var(--breadcrumb-text);
+    a {
+        font-size: 15px;
+        text-decoration: none;
+        margin: 0 3px 0 3px;
+        display: inline-block;
+        color: var(--breadcrumb-text);
 
-                &:hover {
-                    color: var(--primary);
-                }
-
-                span {
-                    margin-left: 5px;
-                }
-            }
+        &:hover {
+            color: var(--primary);
         }
 
-        #layout2RightTopBarToolBar {
-            display: flex;
-            width: 50%;
-            height: 100%;
-            align-items: center;
-            justify-content: flex-end;
-            padding: 0 10px;
-            box-sizing: border-box;
-
-            .toolBarText {
-                width: 200px;
-                height: 25px;
-                float: left;
-
-                :deep(.el-input__inner) {
-                    height: 25px;
-                }
-            }
-            .toolBarIconBtn {
-                width: 25px;
-                height: 25px;
-                float: left;
-                margin: 0 0 0 5px;
-                padding: 0;
-            }
+        span {
+            margin-left: 5px;
         }
     }
+}
 
-    #layout2Content {
-        position: relative;
-        padding: 10px;
-    }
+#layout2RightTopBarToolBar {
+    display: flex;
+    // width: 50%;
+    height: 100%;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 10px;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+#layout2Content {
+    position: relative;
+    padding: 10px;
 }
 </style>

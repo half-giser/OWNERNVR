@@ -1,11 +1,13 @@
-import { ChannelInfoDto, type ChlGroup } from '@/types/apiType/channel'
-import { cloneDeep } from 'lodash-es'
-
 /*
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-06-18 18:07:21
- * @Description:
+ * @Description: 通道组 - 新增通道弹窗
  */
+
+import { ChannelInfoDto, type ChlGroup } from '@/types/apiType/channel'
+import { type TableInstance } from 'element-plus'
+import { cloneDeep } from 'lodash-es'
+
 export default defineComponent({
     props: {
         popVisiable: Boolean,
@@ -21,27 +23,27 @@ export default defineComponent({
     },
     setup(props, { emit }) {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const { openMessageTipBox } = useMessageBox()
 
         let tmpEditItem: ChlGroup
-        const tableRef = ref()
+        const tableRef = ref<TableInstance>()
         const tableData = ref<ChannelInfoDto[]>([])
-        const baseLivePopRef = ref()
+        const baseLivePopRef = ref<LivePopInstance>()
         const selNum = ref(0)
         const total = ref(0)
 
-        const handleRowClick = function (rowData: ChannelInfoDto) {
-            tableRef.value.clearSelection()
-            tableRef.value.toggleRowSelection(rowData, true)
+        const handleRowClick = (rowData: ChannelInfoDto) => {
+            tableRef.value!.clearSelection()
+            tableRef.value!.toggleRowSelection(rowData, true)
         }
 
         const handleSelectionChange = () => {
-            selNum.value = tableRef.value.getSelectionRows().length
+            selNum.value = tableRef.value!.getSelectionRows().length
         }
 
         const handlePreview = (rowData: ChannelInfoDto) => {
-            baseLivePopRef.value.openLiveWin(rowData.id, rowData.name, rowData.chlIndex, rowData.chlType)
+            baseLivePopRef.value!.openLiveWin(rowData.id, rowData.name)
         }
 
         const opened = () => {
@@ -57,9 +59,9 @@ export default defineComponent({
                     <chlIndex/>
                     <chlType/>
                 </requireField>`
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             queryDevList(getXmlWrapData(data)).then((res) => {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
                     const chlList: ChannelInfoDto[] = []
@@ -111,19 +113,19 @@ export default defineComponent({
                         <action type='actionType'>add</action>
                         <id>${tmpEditItem.id}</id>
                         <chls type='list'>`
-            tableRef.value.getSelectionRows().forEach((ele: ChannelInfoDto) => {
+            tableRef.value!.getSelectionRows().forEach((ele: ChannelInfoDto) => {
                 data += `<item id='${ele.id}'></item>`
             })
             data += rawXml`
                         </chls>
                     </chlGroup>
                 </content>`
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             editSetAndElementRelation(getXmlWrapData(data)).then((res) => {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
-                    tableRef.value.getSelectionRows().forEach((ele: ChannelInfoDto) => {
+                    tableRef.value!.getSelectionRows().forEach((ele: ChannelInfoDto) => {
                         tmpEditItem.chls.push({
                             value: ele.id,
                             text: ele.name,
@@ -133,7 +135,7 @@ export default defineComponent({
                     emit('close', true)
                 } else {
                     const errorCdoe = $('errorCode').text()
-                    if (Number(errorCdoe) == errorCodeMap.outOfRange) {
+                    if (Number(errorCdoe) == ErrorCode.USER_ERROR_OVER_LIMIT) {
                         openMessageTipBox({
                             type: 'info',
                             message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT'),

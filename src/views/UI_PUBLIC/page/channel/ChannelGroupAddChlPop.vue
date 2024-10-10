@@ -1,7 +1,7 @@
 <!--
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-06-18 18:05:25
- * @Description:
+ * @Description: 通道组 - 新增通道弹窗
 -->
 <template>
     <el-dialog
@@ -82,5 +82,3 @@
 </template>
 
 <script lang="ts" src="./ChannelGroupAddChlPop.v.ts"></script>
-
-<style scoped lang="scss"></style>

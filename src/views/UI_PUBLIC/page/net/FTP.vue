@@ -3,7 +3,7 @@
  * @Date: 2024-07-12 18:20:28
  * @Description: FTP
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-25 10:58:38
+ * @LastEditTime: 2024-10-10 14:10:59
 -->
 <template>
     <div class="base-flex-box">
@@ -459,7 +459,7 @@
         </div>
         <ScheduleManagPop
             v-model="pageData.isSchedulePop"
-            @close="pageData.isSchedulePop = false"
+            @close="confirmManageSchedule"
         />
     </div>
 </template>

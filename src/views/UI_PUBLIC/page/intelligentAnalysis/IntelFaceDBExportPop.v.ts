@@ -3,7 +3,7 @@
  * @Date: 2024-08-30 18:46:39
  * @Description: 导出人脸库弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-12 20:25:29
+ * @LastEditTime: 2024-10-09 15:43:05
  */
 import WebsocketFaceLib, { type WebsocketFaceLibFaceDataDatum } from '@/utils/websocket/websocketFacelib'
 
@@ -85,7 +85,7 @@ export default defineComponent({
                 onsuccess(data) {
                     // 数据接收完毕, 执行导出
                     if (typeof data === 'number') {
-                        if (data === 536870961) {
+                        if (data === ErrorCode.USER_ERROR_FILE_STREAM_COMPLETED) {
                             downloadZip({
                                 zipName: getZipName(),
                                 files: exportData,

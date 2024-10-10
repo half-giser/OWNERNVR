@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 15:58:44
  * @Description: 现场预览-云台视图-巡航线组
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:10:52
+ * @LastEditTime: 2024-10-09 18:34:05
  */
 import ChannelCruiseGroupAddPop from '../channel/ChannelCruiseGroupAddPop.vue'
 import { type ChannelPtzCruiseDto } from '@/types/apiType/channel'
@@ -31,7 +31,6 @@ export default defineComponent({
     setup(prop) {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const systemCaps = useCababilityStore()
 
         // 巡航线最大数量
@@ -111,8 +110,6 @@ export default defineComponent({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_CRUISE_BY_GROUP_S').formatForLang(getShortString(name, 10)),
             }).then(async () => {
-                openLoading(LoadingTarget.FullScreen)
-
                 const sendXml = rawXml`
                     <content>
                         <chlId>${prop.chlId}</chlId>
@@ -127,8 +124,6 @@ export default defineComponent({
                 `
                 const result = await editChlPtzGroup(sendXml)
                 const $ = queryXml(result)
-
-                closeLoading(LoadingTarget.FullScreen)
 
                 if ($('//status').text() === 'success') {
                     openMessageTipBox({

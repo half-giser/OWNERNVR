@@ -1,10 +1,10 @@
 /*
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-05-23 10:00:43
- * @Description:
+ * @Description: 通道 - 编辑IPC密码弹窗
  */
 import { type ChannelInfoDto } from '@/types/apiType/channel'
-import { type FormInstance } from 'element-plus'
+import { type TableInstance, type FormInstance } from 'element-plus'
 import { type RuleItem } from 'async-validator'
 
 export default defineComponent({
@@ -25,10 +25,10 @@ export default defineComponent({
     },
     setup(props, { emit }) {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const userSessionStore = useUserSessionStore()
         const { openMessageTipBox } = useMessageBox()
-        const tableRef = ref()
+        const tableRef = ref<TableInstance>()
         const tableData = ref([] as Array<ChannelInfoDto>)
         const formRef = ref<FormInstance>()
         const formData = ref({} as Record<string, string>)
@@ -56,8 +56,8 @@ export default defineComponent({
         })
 
         const handleRowClick = (rowData: ChannelInfoDto) => {
-            tableRef.value.clearSelection()
-            tableRef.value.toggleRowSelection(rowData, true)
+            tableRef.value!.clearSelection()
+            tableRef.value!.toggleRowSelection(rowData, true)
         }
 
         const opened = () => {
@@ -80,14 +80,14 @@ export default defineComponent({
                 }
                 return result
             })
-            tableRef.value.toggleAllSelection()
+            tableRef.value!.toggleAllSelection()
         }
 
         const save = () => {
             if (!formRef) return false
             formRef.value?.validate((valid) => {
                 if (valid) {
-                    const rows = tableRef.value.getSelectionRows()
+                    const rows = tableRef.value!.getSelectionRows()
                     const total = rows.length
                     let count = 0
                     let successCount = 0
@@ -108,7 +108,7 @@ export default defineComponent({
                                 saveFailIpc += `${props.nameMapping[ele.id]},`
                             }
                             if (count == total) {
-                                closeLoading(LoadingTarget.FullScreen)
+                                closeLoading()
                                 emit('close')
                                 if (successCount == total) {
                                     openMessageTipBox({
@@ -125,7 +125,7 @@ export default defineComponent({
                         })
                     }
 
-                    openLoading(LoadingTarget.FullScreen)
+                    openLoading()
                     rows.forEach((ele: ChannelInfoDto) => {
                         sendData(ele)
                     })

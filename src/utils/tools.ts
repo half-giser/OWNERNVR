@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2023-04-28 17:57:48
  * @Description: 工具方法
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-25 09:36:32
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-09 16:58:07
  */
 
 import { type QueryNodeListDto } from '@/types/apiType/channel'
@@ -621,7 +621,6 @@ export const commSaveResponseHadler = ($response: ApiResult, successHandler?: (r
         if ($('//status').text() == 'success') {
             openMessageTipBox({
                 type: 'success',
-                title: Translate('IDCS_SUCCESS_TIP'),
                 message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 showCancelButton: false,
             }).then(() => {
@@ -631,7 +630,6 @@ export const commSaveResponseHadler = ($response: ApiResult, successHandler?: (r
         } else {
             openMessageTipBox({
                 type: 'info',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_SAVE_DATA_FAIL'),
                 showCancelButton: false,
             }).then(() => {
@@ -671,7 +669,6 @@ export const commMutiSaveResponseHadler = (
         if (allSuccess) {
             openMessageTipBox({
                 type: 'success',
-                title: Translate('IDCS_SUCCESS_TIP'),
                 message: Translate('IDCS_SAVE_DATA_SUCCESS'),
             }).then(() => {
                 successHandler && successHandler(responseXmlList)
@@ -680,7 +677,6 @@ export const commMutiSaveResponseHadler = (
         } else {
             openMessageTipBox({
                 type: 'info',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_SAVE_DATA_FAIL'),
             }).then(() => {
                 failedHandler && failedHandler(responseXmlList)
@@ -717,6 +713,7 @@ export const getArrayDiffRows = (arr1: Record<string, any>[], arr2: Record<strin
 }
 
 /**
+ * @deprecated use dayjs
  * @description 公历转换成波斯日历
  * @param {any} date 公历日期对象
  * @return {object} 波斯历日期对象
@@ -752,6 +749,7 @@ export const parseDateToPersianCalendar = (date: any) => {
 }
 
 /**
+ * @description use dayjs
  * @description 波斯日历转换成公历
  * @param {any} persianDate 波斯历日期对象
  * @return {Date} 公历日期对象
@@ -784,94 +782,96 @@ export const parsePersianCalendartoDate = (persianDate: any) => {
 }
 
 /**
+ * @deprecated use dayjs
  * @description 根据某个日期，获取某月的最后一天
  * @param {string} timeFormat 某个日期时间字符串：yyyy/MM/dd
  * @return {Date} 某月最后一天的日期
  */
-export const getOneMonthLastDay = (timeFormat: string) => {
-    const oneDayMilliseconds = 24 * 60 * 60 * 1000
-    // 解决IE不能new Date("year/month")的问题
-    const timeFormatArr = timeFormat.replace(/-/g, '/').split('/')
-    if (timeFormatArr.length === 2) {
-        timeFormatArr.push('01')
-    }
-    // new Date("year/month/day")
-    const currentDate = new Date(timeFormatArr.join('/'))
-    const nextMonth = currentDate.getMonth() + 1
-    const nextMonthFirstDay = new Date(currentDate.getFullYear(), nextMonth, 1).getTime()
-    return new Date(nextMonthFirstDay - oneDayMilliseconds)
-}
+// export const getOneMonthLastDay = (timeFormat: string) => {
+//     const oneDayMilliseconds = 24 * 60 * 60 * 1000
+//     // 解决IE不能new Date("year/month")的问题
+//     const timeFormatArr = timeFormat.replace(/-/g, '/').split('/')
+//     if (timeFormatArr.length === 2) {
+//         timeFormatArr.push('01')
+//     }
+//     // new Date("year/month/day")
+//     const currentDate = new Date(timeFormatArr.join('/'))
+//     const nextMonth = currentDate.getMonth() + 1
+//     const nextMonthFirstDay = new Date(currentDate.getFullYear(), nextMonth, 1).getTime()
+//     return new Date(nextMonthFirstDay - oneDayMilliseconds)
+// }
 
 /**
+ * @deprecated use dayjs
  * @description 获取某月的所有天（若当月还没过完，则获取的是当月至今所有的天）
  * @param {string, string} (day1, day2, attendanceCycleDayArr) 日期时间字符串：yyyy/MM/dd
  * @return {Array} 某月所有的日期组成的数组
  */
-export const getOneMonthAllDay = (day1: string, day2: string, attendanceCycleDayArr?: number[]) => {
-    const getDate = (str: string) => {
-        const tempDate = new Date()
-        const list = str.replace(/-/g, '/').split('/')
-        tempDate.setFullYear(Number(list[0]))
-        tempDate.setMonth(Number(list[1]) - 1)
-        tempDate.setDate(Number(list[2]))
-        return tempDate
-    }
+// export const getOneMonthAllDay = (day1: string, day2: string, attendanceCycleDayArr?: number[]) => {
+//     const getDate = (str: string) => {
+//         const tempDate = new Date()
+//         const list = str.replace(/-/g, '/').split('/')
+//         tempDate.setFullYear(Number(list[0]))
+//         tempDate.setMonth(Number(list[1]) - 1)
+//         tempDate.setDate(Number(list[2]))
+//         return tempDate
+//     }
 
-    let date1 = getDate(day1)
-    let date2 = getDate(day2)
-    if (date1 > date2) {
-        const tempDate = date1
-        date1 = date2
-        date2 = tempDate
-    }
-    date1.setDate(date1.getDate() + 1)
+//     let date1 = getDate(day1)
+//     let date2 = getDate(day2)
+//     if (date1 > date2) {
+//         const tempDate = date1
+//         date1 = date2
+//         date2 = tempDate
+//     }
+//     date1.setDate(date1.getDate() + 1)
 
-    let dateArr: any[] = []
-    let i = 0
-    let temp = 0
-    if (day1 === day2) {
-        dateArr.push(day1)
-    } else {
-        while (!(date1.getFullYear() === date2.getFullYear() && date1.getMonth() === date2.getMonth() && date1.getDate() === date2.getDate())) {
-            if (temp > 1000) {
-                break
-            }
-            let dayStr = date1.getDate().toString()
-            if (dayStr.length === 1) {
-                dayStr = '0' + dayStr
-            }
-            dateArr[i] = date1.getFullYear() + '/' + (date1.getMonth() + 1) + '/' + dayStr
-            i++
-            date1.setDate(date1.getDate() + 1)
-            temp++
-        }
-        dateArr.splice(0, 0, day1)
-        dateArr.push(day2)
-        const dateArr1: any[] = []
-        dateArr.forEach((element) => {
-            if (new Date(element.replace(/-/g, '/')).getTime() - new Date().getTime() < 0) {
-                dateArr1.push(element.replace(/-/g, '/'))
-            }
-        })
-        dateArr = dateArr1
-    }
-    // attendanceCycleDayArr: 考勤周期[0, 1, 2, 3, 4, 5, 6]
-    if (attendanceCycleDayArr) {
-        const dateArr1: any[] = []
-        dateArr.forEach((element) => {
-            const _dateArr = element.replace(/-/g, '/').split('/')
-            const _month = _dateArr[1] < 10 && _dateArr[1].length === 1 ? '0' + _dateArr[1] : _dateArr[1]
-            _dateArr[1] = _month
-            const _date = _dateArr.join('/')
-            const _day = new Date(_date.replace(/-/g, '/')).getDay()
-            if (attendanceCycleDayArr.indexOf(_day) > -1) {
-                dateArr1.push(_date.replace(/-/g, '/'))
-            }
-        })
-        dateArr = dateArr1
-    }
-    return dateArr
-}
+//     let dateArr: any[] = []
+//     let i = 0
+//     let temp = 0
+//     if (day1 === day2) {
+//         dateArr.push(day1)
+//     } else {
+//         while (!(date1.getFullYear() === date2.getFullYear() && date1.getMonth() === date2.getMonth() && date1.getDate() === date2.getDate())) {
+//             if (temp > 1000) {
+//                 break
+//             }
+//             let dayStr = date1.getDate().toString()
+//             if (dayStr.length === 1) {
+//                 dayStr = '0' + dayStr
+//             }
+//             dateArr[i] = date1.getFullYear() + '/' + (date1.getMonth() + 1) + '/' + dayStr
+//             i++
+//             date1.setDate(date1.getDate() + 1)
+//             temp++
+//         }
+//         dateArr.splice(0, 0, day1)
+//         dateArr.push(day2)
+//         const dateArr1: any[] = []
+//         dateArr.forEach((element) => {
+//             if (new Date(element.replace(/-/g, '/')).getTime() - new Date().getTime() < 0) {
+//                 dateArr1.push(element.replace(/-/g, '/'))
+//             }
+//         })
+//         dateArr = dateArr1
+//     }
+//     // attendanceCycleDayArr: 考勤周期[0, 1, 2, 3, 4, 5, 6]
+//     if (attendanceCycleDayArr) {
+//         const dateArr1: any[] = []
+//         dateArr.forEach((element) => {
+//             const _dateArr = element.replace(/-/g, '/').split('/')
+//             const _month = _dateArr[1] < 10 && _dateArr[1].length === 1 ? '0' + _dateArr[1] : _dateArr[1]
+//             _dateArr[1] = _month
+//             const _date = _dateArr.join('/')
+//             const _day = new Date(_date.replace(/-/g, '/')).getDay()
+//             if (attendanceCycleDayArr.indexOf(_day) > -1) {
+//                 dateArr1.push(_date.replace(/-/g, '/'))
+//             }
+//         })
+//         dateArr = dateArr1
+//     }
+//     return dateArr
+// }
 
 /**
  * @description 检测重启

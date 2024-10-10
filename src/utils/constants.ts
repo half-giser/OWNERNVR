@@ -31,6 +31,9 @@ export * as ErrorCode from './const/errorcode'
 /** 用户错误都需要这个位为1 */
 // const USER_ERROR_FLAG = 0x20000000
 
+/**
+ * @deprecated 统一使用ErrorCode
+ */
 export const errorCodeMap = {
     nodeExist: 536870913, //0x20000000+0x01 // 节点已存在（目前用于判断ip 端口重复）
     resourceNotExist: 536870923, //0x20000000+0x0B // 资源不存在

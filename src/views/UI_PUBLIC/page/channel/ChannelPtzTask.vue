@@ -3,12 +3,12 @@
  * @Date: 2024-08-20 13:58:09
  * @Description: 云台-任务
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-22 18:04:30
+ * @LastEditTime: 2024-10-09 14:58:43
 -->
 <template>
-    <div class="task">
-        <div class="left">
-            <div class="player">
+    <div class="base-chl-box">
+        <div class="base-chl-box-left">
+            <div class="base-chl-box-player">
                 <BaseVideoPlayer
                     ref="playerRef"
                     type="live"
@@ -95,7 +95,7 @@
                 </div>
             </el-form>
         </div>
-        <div class="right">
+        <div class="base-chl-box-right">
             <div class="base-flex-box">
                 <el-table
                     ref="tableRef"
@@ -122,12 +122,14 @@
                                 highlight-current-row
                                 border
                                 stripe
+                                show-overflow-tooltip
                                 height="300px"
                                 class="expand-table"
                             >
                                 <el-table-column
-                                    :label="Translate('IDCS_SEQUENCE')"
+                                    :label="Translate('IDCS_SERIAL_NUMBER')"
                                     type="index"
+                                    width="60px"
                                 >
                                 </el-table-column>
                                 <el-table-column
@@ -219,32 +221,11 @@
 
 <script lang="ts" src="./ChannelPtzTask.v.ts"></script>
 
+<style lang="scss">
+@import '@/views/UI_PUBLIC/publicStyle/channel.scss';
+</style>
+
 <style lang="scss" scoped>
-.task {
-    width: 100%;
-    height: var(--content-height);
-    display: flex;
-}
-
-.left {
-    width: 400px;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
-.player {
-    width: 400px;
-    height: 300px;
-    flex-shrink: 0;
-}
-
-.right {
-    width: 100%;
-    height: 100%;
-    margin-left: 10px;
-}
-
 .el-table :deep(.cell) {
     width: 100%;
 }

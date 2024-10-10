@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 16:07:46
  * @Description: 现场预览-云台视图-轨迹
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:11:29
+ * @LastEditTime: 2024-10-09 18:34:50
  */
 import ChannelTraceAddPop from '../channel/ChannelTraceAddPop.vue'
 import { type ChannelPtzTraceDto } from '@/types/apiType/channel'
@@ -45,7 +45,6 @@ export default defineComponent({
     setup(prop) {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const systemCaps = useCababilityStore()
 
         // 最大的巡航线数量
@@ -184,7 +183,6 @@ export default defineComponent({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_TRACE_S').formatForLang(Translate('IDCS_CHANNEL'), getShortString(name, 10)),
             }).then(async () => {
-                openLoading(LoadingTarget.FullScreen)
                 checkTraceRecord(prop.chlId)
 
                 const sendXml = rawXml`
@@ -219,8 +217,6 @@ export default defineComponent({
                 } else {
                     getList()
                 }
-
-                closeLoading(LoadingTarget.FullScreen)
             })
         }
 

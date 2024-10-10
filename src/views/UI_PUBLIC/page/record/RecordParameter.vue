@@ -2,8 +2,8 @@
  * @Description: 录像——参数配置
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-02 16:12:01
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-09 11:33:25
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-09 16:38:47
 -->
 <template>
     <div class="base-flex-box">
@@ -244,17 +244,16 @@
                 </el-table-column>
             </el-table>
         </div>
-        <div class="base-btn-box">
-            <span
-                class="tips"
-                :hidden="!supportANR"
-                >{{ Translate('IDCS_OFFLINE_RECORDING_TIPS') }}</span
-            >
-            <el-button
-                class="btn-ok"
-                @click="setData"
-                >{{ Translate('IDCS_APPLY') }}</el-button
-            >
+        <div
+            class="base-btn-box"
+            :span="2"
+        >
+            <div>
+                <span v-show="supportANR">{{ Translate('IDCS_OFFLINE_RECORDING_TIPS') }}</span>
+            </div>
+            <div>
+                <el-button @click="setData">{{ Translate('IDCS_APPLY') }}</el-button>
+            </div>
         </div>
         <RecParamCustomizationPop
             v-model="pageData.isSetCustomization"

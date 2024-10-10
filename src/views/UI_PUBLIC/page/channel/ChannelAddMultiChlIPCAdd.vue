@@ -1,7 +1,7 @@
 <!--
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-06-06 18:00:58
- * @Description:
+ * @Description: 添加通道 - 添加多通道IPC
 -->
 <template>
     <el-dialog
@@ -13,7 +13,6 @@
         @opened="opened"
     >
         <el-table
-            ref="tableRef"
             border
             stripe
             :data="tableData"

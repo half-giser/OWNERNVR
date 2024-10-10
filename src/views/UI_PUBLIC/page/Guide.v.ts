@@ -3,7 +3,7 @@
  * @Date: 2024-09-18 09:33:12
  * @Description: 开机向导
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-20 16:51:49
+ * @LastEditTime: 2024-10-09 18:40:10
  */
 import { SystemGuideLangForm, SysmteGuidePrivacyForm, SystemGuideUserForm, SystemGuideDateTimeForm, SystemGuideQuestionForm, type SystemGuideDiskList } from '@/types/apiType/system'
 import dayjs from 'dayjs'
@@ -221,16 +221,16 @@ export default defineComponent({
                     privacyFormData.value.checked = false
                 }
                 if (current === 'dateAndTimezone') {
-                    openLoading(LoadingTarget.FullScreen)
+                    openLoading()
                     await getTimeConfig()
                     await getDefaultDate()
-                    closeLoading(LoadingTarget.FullScreen)
+                    closeLoading()
                 }
                 if (current === 'user') {
                     clearInterval(interval)
-                    openLoading(LoadingTarget.FullScreen)
+                    openLoading()
                     await getPasswordSecurityStrength()
-                    closeLoading(LoadingTarget.FullScreen)
+                    closeLoading()
                 }
                 if (current === 'questionAndAnswer') {
                     const flag = checkUserForm()
@@ -289,7 +289,7 @@ export default defineComponent({
          * @description 激活设备
          */
         const setData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             renderTime()
 
             const psw = MD5_encrypt(userFormData.value.password)
@@ -360,7 +360,7 @@ export default defineComponent({
             const result = await activateDev(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 openMessageTipBox({
@@ -387,12 +387,12 @@ export default defineComponent({
          * @description 获取激活状态
          */
         const getActivationStatus = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const result = await queryActivationStatus()
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             // 检查设备是否已经激活
             const activated = $('//content/activated').text().toBoolean()
@@ -874,7 +874,7 @@ export default defineComponent({
                 type: 'question',
                 message: Translate('IDCS_FORMAT_MP_DISK_RESULT'),
             }).then(async () => {
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
 
                 const sendXml = rawXml`
                     <condition>
@@ -886,7 +886,7 @@ export default defineComponent({
                 await formatDisk(sendXml, false)
                 diskTableData.value[index].diskStatus = 'hasFormat'
 
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
             })
         }
 
@@ -902,7 +902,7 @@ export default defineComponent({
                         message: Translate('IDCS_INFO_TIP'),
                     })
                         .then(async () => {
-                            openLoading(LoadingTarget.FullScreen)
+                            openLoading()
                             const sendXml = rawXml`
                                 <condition>
                                     <diskIds>
@@ -911,7 +911,7 @@ export default defineComponent({
                                 </condition>
                             `
                             await formatDisk(sendXml, false)
-                            closeLoading(LoadingTarget.FullScreen)
+                            closeLoading()
                             resolve(void 0)
                         })
                         .catch(() => {

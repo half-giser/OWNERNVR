@@ -32,6 +32,9 @@ export default {
                 icon: 'diskInfo_s',
             },
         },
+        auth(systemCaps, ui) {
+            return ui !== 'UI3-A'
+        },
     },
     children: {
         diskManagement: {

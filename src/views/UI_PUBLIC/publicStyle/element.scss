@@ -208,6 +208,11 @@
                 justify-content: center;
             }
         }
+
+        &__expand-icon {
+            color: var(--main-text);
+        }
+
         .el-table__row {
             &.disabled {
                 color: var(--table-text-disabled);
@@ -216,11 +221,14 @@
                 }
             }
             &.current-row {
-                color: var(--color-white);
+                color: var(--main-text-active);
                 &:hover {
                     .el-table__cell {
                         background-color: var(--primary);
                     }
+                }
+                .el-table__expand-icon {
+                    color: var(--main-text-active);
                 }
             }
             &.el-table__row--striped {
