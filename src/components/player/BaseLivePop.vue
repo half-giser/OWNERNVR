@@ -44,8 +44,6 @@ let isOnline: boolean
 const openLiveWin = (_chlId: string, _chlName: string, _isOnline = true) => {
     chlId = _chlId
     chlName = _chlName
-    // chlIndex = _chlIndex
-    // chlType = _chlType
     isOnline = _isOnline // 如果传入isOnline，则使用此状态，否则默认在线
     dialogOpened.value = true
 }
@@ -63,19 +61,7 @@ const play = () => {
             supportRecStatus: false,
         })
         playerRef.value.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-        // if (osType == 'mac') {
-        //     const sendXML = OCX_XML_Preview({
-        //         winIndexList: [0],
-        //         chlIdList: [chlId],
-        //         chlNameList: [chlName],
-        //         streamType: 'main',
-        //         chlIndexList: [chlIndex],
-        //         chlTypeList: [chlType],
-        //     })
-        //     playerRef.value.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-        // } else {
-        nextTick(() => playerRef.value!.plugin.RetryStartChlView(chlId, chlName))
-        // }
+        playerRef.value!.plugin.RetryStartChlView(chlId, chlName)
     } else {
         playerRef.value.player.play({
             chlID: chlId,
@@ -97,6 +83,13 @@ const opened = () => {
  * @description 关闭弹窗
  */
 const close = () => {
+    playerOpened.value = false
+    if (playerRef.value && playerRef.value.ready) {
+        if (playerRef.value.mode === 'ocx') {
+            const sendXML = OCX_XML_StopPreview('CURRENT')
+            playerRef.value.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+        }
+    }
     playerOpened.value = false
     dialogOpened.value = false
 }

@@ -910,11 +910,11 @@ export const OCX_XML_SetMotionAreaAction = (action: 'ADD' | 'DEL' | 'ALL' | 'NON
  * @param motion
  * @returns {string}
  */
-export const OCX_XML_SetMotionArea = (motion: { column: string; row: string; areaInfo: string[] }) => {
+export const OCX_XML_SetMotionArea = (motion: { column: number; row: number; areaInfo: string[] }) => {
     return wrapXml(rawXml`
         <cmd type="SetMotionArea">
-            <column>${motion.column}</column>
-            <row>${motion.row}</row>
+            <column>${String(motion.column)}</column>
+            <row>${String(motion.row)}</row>
             <areaInfo>
                 ${motion.areaInfo.map((item) => `<item>${item}</item>`).join('')}
             </areaInfo>
@@ -961,7 +961,7 @@ export const OCX_XML_SetOSDInfo = (osd: OcxXmlSetOSDInfo) => {
         <cmd type="SetOSDInfo">
             ${
                 (osd.timeStamp
-                    ? `<timestamp>${Object.keys(osd.timeStamp)
+                    ? `<timeStamp>${Object.keys(osd.timeStamp)
                           .map((key) => {
                               if (key === 'X') {
                                   return `<X min="${osd.timeStamp!.XMinValue}" max="${osd.timeStamp!.XMaxValue}">${osd.timeStamp.X}</X>`
@@ -971,7 +971,7 @@ export const OCX_XML_SetOSDInfo = (osd: OcxXmlSetOSDInfo) => {
                                   return `<${key}>${osd.timeStamp![key]}</${key}>`
                               } else return ''
                           })
-                          .join('')}</timestamp>`
+                          .join('')}</timeStamp>`
                     : '') +
                 (osd.deviceName
                     ? `<deviceName>${Object.keys(osd.deviceName!)
@@ -1290,8 +1290,8 @@ export const OCX_XML_SetRecList = (chlId: string, winIndex: number, list: OcxXml
             <recList timeZone="${timeZone}">
                 ${list
                     .map(
-                        (item) => rawXml`<item 
-                            chlId="${item.chlId}" 
+                        (item) => rawXml`<item
+                            chlId="${item.chlId}"
                             chlName="${item.chlName}"
                             event="${item.event}"
                             startTime="${item.startTime}"
@@ -1341,8 +1341,8 @@ export const OCX_XML_BackUpRecList = (format: string, path: string, groupby = 'c
             <backupRecList groupby='${groupby}'>
                 ${list
                     .map(
-                        (item) => rawXml`<item 
-                            chlId="${item.chlId}" 
+                        (item) => rawXml`<item
+                            chlId="${item.chlId}"
                             chlName="${item.chlName}"
                             chlIndex="${item.chlIndex.toString()}"
                             event="${item.event}"
