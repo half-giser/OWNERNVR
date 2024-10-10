@@ -3,7 +3,7 @@
  * @Date: 2024-08-23 10:59:14
  * @Description: 系统撤防
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-27 17:10:18
+ * @LastEditTime: 2024-10-10 14:10:24
  */
 import { ArrowDown } from '@element-plus/icons-vue'
 import { SystemDisarm } from '@/types/apiType/aiAndEvent'
@@ -74,6 +74,7 @@ export default defineComponent({
             } as Record<string, string>,
 
             addDialogTitle: Translate('IDCS_CHANNEL') + '/' + Translate('IDCS_SENSOR'),
+            popoverVisible: false,
         })
         const tableData = ref([] as SystemDisarm[])
         const cfgTableData = ref([] as { id: string; value: string; selected: boolean }[])

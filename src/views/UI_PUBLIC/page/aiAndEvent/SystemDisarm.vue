@@ -3,7 +3,7 @@
  * @Date: 2024-08-23 10:54:01
  * @Description: 系统撤防
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-09 11:40:46
+ * @LastEditTime: 2024-10-10 14:14:08
 -->
 <template>
     <el-dialog
@@ -181,7 +181,47 @@
                 </el-table-column>
                 <el-table-column>
                     <template #header>
-                        <el-dropdown
+                        <el-popover
+                            v-model:visible="pageData.popoverVisible"
+                            trigger="click"
+                            width="fit-content"
+                            popper-class="no-padding"
+                        >
+                            <template #reference>
+                                <span class="base-popover-icon">
+                                    {{ Translate('IDCS_CONFIG') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
+                                </span>
+                            </template>
+                            <div class="cfg_table">
+                                <el-table
+                                    stripe
+                                    show-overflow-tooltip
+                                    height="250px"
+                                    :data="pageData.totalDefenseParamList"
+                                    @selection-change="handleSelectedDropDown"
+                                >
+                                    <el-table-column
+                                        type="selection"
+                                        width="55"
+                                    >
+                                    </el-table-column>
+                                    <el-table-column :label="Translate('IDCS_RECOVER_LINK_ITEM')">
+                                        <template #default="scope">
+                                            <span>{{ scope.row.value }}</span>
+                                        </template>
+                                    </el-table-column>
+                                </el-table>
+                                <el-row class="base-btn-box">
+                                    <el-button @click="disarmCfgAll">
+                                        {{ Translate('IDCS_OK') }}
+                                    </el-button>
+                                    <el-button @click="dropDownRef?.handleClose()">
+                                        {{ Translate('IDCS_CANCEL') }}
+                                    </el-button>
+                                </el-row>
+                            </div>
+                        </el-popover>
+                        <!-- <el-dropdown
                             ref="dropDownRef"
                             trigger="click"
                             :hide-on-click="false"
@@ -222,7 +262,7 @@
                                     </div>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </el-dropdown> -->
                     </template>
                     <template #default="scope">
                         <el-button @click="disarmCfg(scope.$index)">
@@ -271,6 +311,10 @@
 </template>
 
 <script lang="ts" src="./SystemDisarm.v.ts"></script>
+
+<style>
+@import '@/views/UI_PUBLIC/publicStyle/aiAndEvent.scss';
+</style>
 
 <style lang="scss" scoped>
 .txt {
