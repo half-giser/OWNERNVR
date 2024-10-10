@@ -2,8 +2,8 @@
  * @Description: 普通事件——组合报警
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-22 16:04:47
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-29 14:33:36
+ * @LastEditors: luoyimingyimingyimingyiming a11593@tvt.net.cn
+ * @LastEditTime: 2024-10-09 16:12:42
 -->
 <template>
     <div class="base-flex-box">
@@ -22,25 +22,7 @@
                     class-name="custom_cell"
                 >
                     <template #default="scope">
-                        <div
-                            v-if="scope.row.status === 'loading'"
-                            class="table_status_col_loading"
-                            :title="tableRowStatusToolTip[scope.row.statusTip]"
-                        ></div>
-                        <BaseImgSprite
-                            v-else-if="scope.row.status === 'success'"
-                            file="success"
-                            :chunk="1"
-                            :index="0"
-                            :title="tableRowStatusToolTip[scope.row.statusTip]"
-                        />
-                        <BaseImgSprite
-                            v-else-if="scope.row.status === 'error'"
-                            file="error"
-                            :chunk="1"
-                            :index="0"
-                            :title="tableRowStatusToolTip[scope.row.statusTip]"
-                        />
+                        <BaseTableRowStatus :icon="scope.row.status"></BaseTableRowStatus>
                     </template>
                 </el-table-column>
 

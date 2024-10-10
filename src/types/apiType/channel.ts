@@ -455,6 +455,42 @@ export class PrivacyMask {
     height = 0
 }
 
+export class ChannelFisheye extends ChannelRowStatus {
+    id = ''
+    name = ''
+    chlIndex = ''
+    chlType = ''
+    fishEyeMode = ''
+    installType = ''
+    fishEyeEnable = false
+    supportFishEyeEnable = false
+    fishEyeModelList: Record<string, string>[] = []
+    installTypeList: Record<string, string>[] = []
+    HIKVISION = false
+    privateProtocol = false
+    reqCfgFail = false
+}
+
+export class ChannelMotion extends ChannelRowStatus {
+    id = ''
+    name = ''
+    chlIndex = ''
+    chlType = ''
+    switch = false
+    sensitivity = 1
+    sensitivityMinValue = NaN
+    sensitivityMaxValue = NaN
+    holdTime = ''
+    holdTimeList: Record<string, string>[] = []
+    supportSMD = false
+    isOnvifChl = false
+    objectFilterCar: boolean | undefined = undefined
+    objectFilterPerson: boolean | undefined = undefined
+    column = 0
+    row = 0
+    areaInfo: string[] = []
+}
+
 export class ChannelPtzPresetChlDto {
     chlId = ''
     chlName = ''

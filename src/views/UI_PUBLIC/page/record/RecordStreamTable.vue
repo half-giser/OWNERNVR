@@ -4,7 +4,7 @@
  * @Date: 2024-07-31 10:29:37
  * @Description: 录像码流通用表格组件
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-26 15:37:49
+ * @LastEditTime: 2024-10-09 18:15:27
 -->
 <template>
     <div class="base-flex-box">
@@ -90,88 +90,83 @@
                     width="170px"
                 >
                     <template #header>
-                        <el-dropdown
-                            ref="resolutionDropdownRef"
+                        <el-popover
+                            v-model:visible="pageData.resolutionHeaderVisble"
                             trigger="click"
-                            :hide-on-click="false"
-                            max-height="400px"
+                            width="430px"
+                            popper-class="no-padding"
                         >
-                            <span class="el-dropdown-link">
-                                {{ Translate('IDCS_RESOLUTION_RATE') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
-                            </span>
-                            <template #dropdown>
-                                <el-dropdown-menu>
-                                    <el-dropdown-item>
-                                        <div id="resolutionContainer">
-                                            <el-table
-                                                ref="resolutionTableRef"
-                                                :data="pageData.resolutionGroups"
-                                                :show-header="pageData.headerVisble"
-                                                :row-key="getRowKey"
-                                                :expand-row-keys="pageData.expands"
-                                                stripe
-                                                @expand-change="handleExpandChange($event, pageData.expands)"
-                                            >
-                                                <el-table-column
-                                                    prop="res"
-                                                    width="220px"
-                                                >
-                                                    <template #default="scope">
-                                                        <el-select
-                                                            v-model="scope.row.res"
-                                                            :options="scope.row.resGroup"
-                                                        >
-                                                            <el-option
-                                                                v-for="item in scope.row.resGroup"
-                                                                :key="item.value"
-                                                                :label="item.label"
-                                                                :value="item.value"
-                                                                @click="keepDropDownOpen(scope.row)"
-                                                            >
-                                                            </el-option>
-                                                        </el-select>
-                                                    </template>
-                                                </el-table-column>
-                                                <el-table-column
-                                                    prop="chls"
-                                                    width="190px"
-                                                    type="expand"
-                                                >
-                                                    <template #default="scope">
-                                                        <div class="chl_area">
-                                                            <el-row>
-                                                                <el-col
-                                                                    v-for="(item, index) in scope.row.chls.data"
-                                                                    :key="index"
-                                                                    :span="12"
-                                                                    class="fit-content-height"
-                                                                >
-                                                                    <div class="device-item">
-                                                                        <BaseImgSprite
-                                                                            file="chl_icon"
-                                                                            :index="0"
-                                                                            :hover-index="1"
-                                                                            :chunk="4"
-                                                                        />
-                                                                        <span class="device-name">{{ item.text }}</span>
-                                                                    </div>
-                                                                </el-col>
-                                                            </el-row>
-                                                        </div>
-                                                    </template>
-                                                </el-table-column>
-                                            </el-table>
-                                            <el-row class="res_btn">
-                                                <el-col :span="12">
-                                                    <el-button @click="handleSetResolutionAll()">{{ Translate('IDCS_OK') }}</el-button>
-                                                    <el-button @click="handleSetResolutionCancel">{{ Translate('IDCS_CANCEL') }}</el-button>
-                                                </el-col>
-                                            </el-row>
-                                        </div>
-                                    </el-dropdown-item>
-                                </el-dropdown-menu>
+                            <template #reference>
+                                <span class="pop">
+                                    {{ Translate('IDCS_RESOLUTION_RATE') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
+                                </span>
                             </template>
-                        </el-dropdown>
+                            <div id="resolutionContainer">
+                                <el-table
+                                    ref="resolutionTableRef"
+                                    max-height="400px"
+                                    :data="pageData.resolutionGroups"
+                                    :show-header="pageData.headerVisble"
+                                    :row-key="getRowKey"
+                                    :expand-row-keys="pageData.expands"
+                                    stripe
+                                    @expand-change="handleExpandChange($event, pageData.expands)"
+                                >
+                                    <el-table-column
+                                        prop="res"
+                                        width="220px"
+                                    >
+                                        <template #default="scope">
+                                            <el-select
+                                                v-model="scope.row.res"
+                                                :options="scope.row.resGroup"
+                                            >
+                                                <el-option
+                                                    v-for="item in scope.row.resGroup"
+                                                    :key="item.value"
+                                                    :label="item.label"
+                                                    :value="item.value"
+                                                    @click="keepDropDownOpen(scope.row)"
+                                                >
+                                                </el-option>
+                                            </el-select>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column
+                                        prop="chls"
+                                        width="190px"
+                                        type="expand"
+                                    >
+                                        <template #default="scope">
+                                            <div class="chl_area">
+                                                <el-row>
+                                                    <el-col
+                                                        v-for="(item, index) in scope.row.chls.data"
+                                                        :key="index"
+                                                        :span="12"
+                                                        class="fit-content-height"
+                                                    >
+                                                        <div class="device-item">
+                                                            <BaseImgSprite
+                                                                file="chl_icon"
+                                                                :index="0"
+                                                                :hover-index="1"
+                                                                :chunk="4"
+                                                            />
+                                                            <span class="device-name">{{ item.text }}</span>
+                                                        </div>
+                                                    </el-col>
+                                                </el-row>
+                                            </div>
+                                        </template>
+                                    </el-table-column>
+                                </el-table>
+                                <el-row class="base-btn-box">
+                                    <el-button @click="handleSetResolutionAll">{{ Translate('IDCS_OK') }}</el-button>
+                                    <el-button @click="handleSetResolutionCancel">{{ Translate('IDCS_CANCEL') }}</el-button>
+                                </el-row>
+                            </div>
+                        </el-popover>
                     </template>
                     <template #default="scope">
                         <el-select
@@ -495,48 +490,70 @@
                     width="90px"
                 >
                     <template #header>
-                        <el-dropdown
+                        <el-popover
+                            v-model:visible="pageData.gopHeaderVisble"
+                            trigger="click"
+                            popper-class="no-padding"
+                            width="300"
+                            placement="bottom-start"
+                        >
+                            <template #reference>
+                                <span class="pop">
+                                    {{ Translate('IDCS_GOP') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
+                                </span>
+                            </template>
+                            <div class="GOP_dropDown">
+                                <div class="GOP_input">
+                                    <span>GOP</span>
+                                    <el-input
+                                        v-model="pageData.gopSetAll"
+                                        placeholder=""
+                                        @input="GOPhandleFocus(pageData.gopSetAll)"
+                                    />
+                                </div>
+
+                                <el-row class="base-btn-box">
+                                    <el-button @click="handleSetGopAll(pageData.gopSetAll)">{{ Translate('IDCS_OK') }}</el-button>
+                                    <el-button @click="handleGopCancel">{{ Translate('IDCS_CANCEL') }}</el-button>
+                                </el-row>
+                            </div>
+                        </el-popover>
+                        <!-- <el-dropdown
                             ref="gopDropdownRef"
                             trigger="click"
                             :hide-on-click="false"
                             placement="bottom-end"
-                            class="gop_input"
                         >
                             <span class="el-dropdown-link">
                                 {{ Translate('IDCS_GOP') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
                             </span>
                             <template #dropdown>
-                                <el-dropdown-menu class="GOP_dropDown">
-                                    <el-dropdown-item class="GOP_dropDown">
-                                        <div>
+                                <el-dropdown-menu>
+                                    <div class="GOP_dropDown">
+                                        <div class="GOP_input">
+                                            <span>GOP</span>
                                             <el-input
                                                 v-model="pageData.gopSetAll"
                                                 placeholder=""
-                                                @focus="GOPhandleFocus(pageData.gopSetAll)"
-                                                @blur="GOPhandleBlur(pageData.gopSetAll)"
-                                                @keydown.enter="GOPhandleKeydownAll(pageData.gopSetAll)"
-                                            ></el-input>
-                                            <el-row class="gop_btn">
-                                                <el-col :span="12">
-                                                    <el-button @click="handleSetGopAll(pageData.gopSetAll)">{{ Translate('IDCS_OK') }}</el-button>
-                                                    <el-button @click="handleGopCancel">{{ Translate('IDCS_CANCEL') }}</el-button>
-                                                </el-col>
-                                            </el-row>
+                                                @input="GOPhandleFocus(pageData.gopSetAll)"
+                                            />
                                         </div>
-                                    </el-dropdown-item>
+
+                                        <el-row class="base-btn-box">
+                                            <el-button @click="handleSetGopAll(pageData.gopSetAll)">{{ Translate('IDCS_OK') }}</el-button>
+                                            <el-button @click="handleGopCancel">{{ Translate('IDCS_CANCEL') }}</el-button>
+                                        </el-row>
+                                    </div>
                                 </el-dropdown-menu>
                             </template>
-                        </el-dropdown>
+                        </el-dropdown> -->
                     </template>
                     <template #default="scope">
                         <el-input
                             v-model="scope.row.GOP"
                             placeholder=""
                             :disabled="scope.row.GOPDisable"
-                            :max="480"
-                            :min="1"
-                            @focus="GOPhandleFocus(scope.row.GOP)"
-                            @blur="GOPhandleBlur(scope.row.GOP)"
+                            @input="GOPhandleFocus(scope.row)"
                             @keydown.enter="GOPhandleKeydown(scope.row)"
                         ></el-input>
                     </template>
@@ -581,11 +598,9 @@
 import { ArrowDown } from '@element-plus/icons-vue'
 import { RecordStreamInfoDto } from '@/types/apiType/record'
 import { ElMessageBox } from 'element-plus'
-import type { DropdownInstance, TableInstance } from 'element-plus'
+import type { TableInstance } from 'element-plus'
 
 // 用于控制下拉菜单的打开关闭
-const gopDropdownRef = ref<DropdownInstance>()
-const resolutionDropdownRef = ref<DropdownInstance>()
 const resolutionTableRef = ref<TableInstance>()
 const theme = getUiAndTheme().name
 const prop = withDefaults(
@@ -686,6 +701,9 @@ const pageData = ref({
     editeRows: [] as RecordStreamInfoDto[], // 编辑的行
     expands: [] as string[], // 展开的行
     firstInit: true, // 是否第一次初始化
+
+    resolutionHeaderVisble: false, // 分辨率下拉框表头是否显示
+    gopHeaderVisble: false, // GOP下拉框表头是否显示
 })
 
 // TODO 获取UI，设置visible属性
@@ -1252,15 +1270,11 @@ const handleSetResolutionAll = function (): void {
             }
         })
     })
-    if (resolutionDropdownRef.value) {
-        resolutionDropdownRef.value.handleClose()
-    }
+    pageData.value.resolutionHeaderVisble = false
 }
 // 取消分辨率下拉框表头
 const handleSetResolutionCancel = function () {
-    if (resolutionDropdownRef.value) {
-        resolutionDropdownRef.value.handleClose()
-    }
+    pageData.value.resolutionHeaderVisble = false
 }
 // 展开或者收起分辨率下拉框的方法
 const handleExpandChange = function (row: { res: string; resGroup: { value: string; label: string }[]; chls: { expand: boolean; data: { value: string; text: string }[] } }, expandedRows: string[]) {
@@ -1280,9 +1294,7 @@ const getRowKey = (row: { res: string; resGroup: { value: string; label: string 
 }
 // 保持dropdown打开,以及保持展开行不收起
 const keepDropDownOpen = function (row: { res: string; resGroup: { value: string; label: string }[]; chls: { expand: boolean; data: { value: string; text: string }[] } }) {
-    if (resolutionDropdownRef.value) {
-        resolutionDropdownRef.value.handleOpen()
-    }
+    pageData.value.resolutionHeaderVisble = true
     if (row.chls.expand && resolutionTableRef.value) {
         row.chls.expand = true
         resolutionTableRef.value.toggleRowExpansion(row, true)
@@ -1393,33 +1405,32 @@ const handleAudioOptionsChangeAll = function (audio: { value: string; label: str
 }
 
 // 限制GOP
-const GOPhandleFocus = (value: string) => {
+const GOPhandleFocus = (value: string | RecordStreamInfoDto) => {
     const maxValue = 480
-    if (parseInt(value) > maxValue) {
-        value = maxValue.toString()
-    } else if (parseInt(value) < 1) {
-        value = '1'
-    }
-}
-// 失去焦点后限制GOP
-const GOPhandleBlur = (value: string) => {
-    if (value == '') {
-        value = '1'
-    }
-    if (parseInt(value) < 1) {
-        value = '1'
-    }
-    if (parseInt(value) > 480) {
-        value = '480'
+    if (typeof value == 'object') {
+        // 使用正则表达式去掉非数字字符
+        value.GOP = value.GOP.replace(/[^\d]/g, '')
+        if (parseInt(value.GOP) > maxValue) {
+            value.GOP = maxValue.toString()
+        } else if (parseInt(value.GOP) < 1) {
+            value.GOP = '1'
+        }
+    } else {
+        // 使用正则表达式去掉非数字字符
+        pageData.value.gopSetAll = value.replace(/[^\d]/g, '')
+        if (isNaN(parseInt(value))) {
+            pageData.value.gopSetAll = '1'
+        }
+        if (parseInt(value) > maxValue) {
+            pageData.value.gopSetAll = maxValue.toString()
+        } else if (parseInt(value) < 1) {
+            pageData.value.gopSetAll = '1'
+        }
     }
 }
 // 回车设置GOP
 const GOPhandleKeydown = (rowData: RecordStreamInfoDto) => {
-    GOPhandleBlur(rowData.GOP)
     addEditeRows(rowData)
-}
-const GOPhandleKeydownAll = (gop: string) => {
-    GOPhandleBlur(gop)
 }
 // 设置整列的GOP
 const handleSetGopAll = function (gop: string): void {
@@ -1429,16 +1440,12 @@ const handleSetGopAll = function (gop: string): void {
             addEditeRows(rowData)
         }
     })
-    if (gopDropdownRef.value) {
-        gopDropdownRef.value.handleClose()
-    }
+    pageData.value.gopHeaderVisble = false
 }
 // 取消设置整列的GOP
 const handleGopCancel = function (): void {
-    // 收起设置GOP的输入框
-    if (gopDropdownRef.value) {
-        gopDropdownRef.value.handleClose()
-    }
+    pageData.value.gopSetAll = ''
+    pageData.value.gopHeaderVisble = false
 }
 
 // 设置单个设备的recordStream
@@ -1912,14 +1919,11 @@ watch(
 }
 
 #resolutionContainer {
+    padding: 10px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    .res_btn {
-        margin-top: 10px;
-        right: -139px;
-    }
 }
 .device-item {
     margin-left: 20px;
@@ -1931,5 +1935,31 @@ watch(
     height: 30px;
     display: flex;
     align-items: center;
+}
+.pop {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--el-table-header-text-color);
+    .el-icon {
+        cursor: pointer;
+        &:hover {
+            color: var(--input-text);
+        }
+    }
+}
+.GOP_dropDown {
+    width: 280px;
+    height: 80px;
+    padding: 20px 10px 0px 10px;
+}
+.GOP_input {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    font-size: 13px;
+    color: var(--main-text);
 }
 </style>

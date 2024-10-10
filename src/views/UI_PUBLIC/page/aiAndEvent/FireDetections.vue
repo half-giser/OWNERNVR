@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-11 14:16:29
  * @Description: 火点检测
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 14:16:33
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-09-30 16:26:22
 -->
 <template>
     <div class="tripwire_setting_pane">
@@ -266,7 +266,7 @@
                             <div class="base-ai-linkage-box">
                                 <el-checkbox
                                     v-model="pageData.triggerSwitch"
-                                    class="base-ai-linkage-title"
+                                    class="base-ai-linkage-title base-ai-linkage-title-checkbox"
                                     @change="handleTriggerSwitch"
                                     >{{ Translate('IDCS_TRIGGER_NOMAL') }}</el-checkbox
                                 >

@@ -2,8 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-20 13:57:42
  * @Description: 云台-轨迹
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-22 19:31:46
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-09 15:54:37
 -->
 <template>
     <div class="trace">
@@ -26,6 +26,7 @@
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
                     <el-select
                         v-model="pageData.tableIndex"
+                        popper-class="custom-select"
                         @change="changeChl"
                     >
                         <el-option
@@ -180,6 +181,13 @@
 </template>
 
 <script lang="ts" src="./ChannelTrace.v.ts"></script>
+
+<style>
+.custom-select {
+    max-height: 180px;
+    overflow-y: auto;
+}
+</style>
 
 <style lang="scss" scoped>
 .trace {

@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-12 15:34:24
  * @Description: email通知
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-29 15:00:36
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-09 11:49:02
 -->
 <template>
     <div>
@@ -44,6 +44,7 @@
         </el-form>
         <div class="main">
             <el-table
+                ref="tableRef"
                 :data="tableData"
                 stripe
                 border
@@ -99,6 +100,7 @@
                             prop="schedule"
                             value-key="value"
                             :options="pageData.scheduleList"
+                            @focus="handleScheduleChange(scope.row)"
                         >
                             <el-option
                                 v-for="item in pageData.scheduleList"
