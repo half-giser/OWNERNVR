@@ -3,7 +3,7 @@
  * @Date: 2024-08-21 15:34:24
  * @Description: 视频丢失配置
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-09 11:35:58
+ * @LastEditTime: 2024-10-10 13:42:23
 -->
 <template>
     <div class="base-flex-box">
@@ -72,34 +72,29 @@
                     width="195px"
                 >
                     <template #header>
-                        <el-dropdown
-                            ref="snapRef"
+                        <el-popover
+                            v-model:visible="pageData.snapPopoverVisible"
                             trigger="click"
-                            :hide-on-click="false"
-                            placement="bottom-start"
+                            width="fit-content"
+                            popper-class="no-padding"
                         >
-                            <span
-                                class="el-dropdown-link"
-                                @click="snapDropdownOpen"
-                            >
-                                {{ Translate('IDCS_SNAP') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
-                            </span>
-                            <template #dropdown>
-                                <el-dropdown-menu>
-                                    <BaseTransferPop
-                                        v-if="pageData.snapIsShowAll"
-                                        :source-title="pageData.snapSourceTitle"
-                                        :target-title="pageData.snapTargetTitle"
-                                        :source-data="pageData.snapList"
-                                        :linked-list="pageData.snapChosedIdsAll"
-                                        :type="pageData.snapType"
-                                        @confirm="snapConfirmAll"
-                                        @close="snapCloseAll"
-                                    >
-                                    </BaseTransferPop>
-                                </el-dropdown-menu>
+                            <template #reference>
+                                <span class="base-popover-icon">
+                                    {{ Translate('IDCS_SNAP') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
+                                </span>
                             </template>
-                        </el-dropdown>
+                            <BaseTransferPop
+                                v-if="pageData.snapPopoverVisible"
+                                :source-title="pageData.snapSourceTitle"
+                                :target-title="pageData.snapTargetTitle"
+                                :source-data="pageData.snapList"
+                                :linked-list="pageData.snapChosedIdsAll"
+                                :type="pageData.snapType"
+                                @confirm="snapConfirmAll"
+                                @close="snapCloseAll"
+                            >
+                            </BaseTransferPop>
+                        </el-popover>
                     </template>
                     <template #default="scope">
                         <el-row class="row-together">
@@ -168,34 +163,29 @@
                     width="195px"
                 >
                     <template #header>
-                        <el-dropdown
-                            ref="alarmOutRef"
+                        <el-popover
+                            v-model:visible="pageData.alarmOutPopoverVisible"
                             trigger="click"
-                            :hide-on-click="false"
-                            placement="bottom-end"
+                            width="fit-content"
+                            popper-class="no-padding"
                         >
-                            <span
-                                class="el-dropdown-link"
-                                @click="alarmOutDropdownOpen"
-                            >
-                                {{ Translate('IDCS_ALARM_OUT') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
-                            </span>
-                            <template #dropdown>
-                                <el-dropdown-menu>
-                                    <BaseTransferPop
-                                        v-if="pageData.alarmOutIsShowAll"
-                                        :source-title="pageData.alarmOutSourceTitle"
-                                        :target-title="pageData.alarmOutTargetTitle"
-                                        :source-data="pageData.alarmOutList"
-                                        :linked-list="pageData.alarmOutChosedIdsAll"
-                                        :type="pageData.alarmOutType"
-                                        @confirm="alarmOutConfirmAll"
-                                        @close="alarmOutCloseAll"
-                                    >
-                                    </BaseTransferPop>
-                                </el-dropdown-menu>
+                            <template #reference>
+                                <span class="base-popover-icon">
+                                    {{ Translate('IDCS_ALARM_OUT') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
+                                </span>
                             </template>
-                        </el-dropdown>
+                            <BaseTransferPop
+                                v-if="pageData.alarmOutPopoverVisible"
+                                :source-title="pageData.alarmOutSourceTitle"
+                                :target-title="pageData.alarmOutTargetTitle"
+                                :source-data="pageData.alarmOutList"
+                                :linked-list="pageData.alarmOutChosedIdsAll"
+                                :type="pageData.alarmOutType"
+                                @confirm="alarmOutConfirmAll"
+                                @close="alarmOutCloseAll"
+                            >
+                            </BaseTransferPop>
+                        </el-popover>
                     </template>
                     <template #default="scope">
                         <el-row class="row-together">
@@ -489,13 +479,11 @@
 
 <script lang="ts" src="./VideoLoss.v.ts"></script>
 
+<style>
+@import '@/views/UI_PUBLIC/publicStyle/aiAndEvent.scss';
+</style>
+
 <style lang="scss" scoped>
-.row-together {
-    width: fit-content;
-    .table_btn {
-        margin-left: 5px;
-    }
-}
 :deep(.el-table .cell) {
     display: flex;
     align-items: center;
