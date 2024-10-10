@@ -7,7 +7,6 @@
  */
 import { cloneDeep } from 'lodash-es'
 import { ArrowDown } from '@element-plus/icons-vue'
-import { tableRowStatus, tableRowStatusToolTip } from '@/utils/const/other'
 import BaseTransferPop from '@/components/BaseTransferPop.vue'
 import BaseTransferDialog from '@/components/BaseTransferDialog.vue'
 import { ExceptionAlarmRow } from '@/types/apiType/aiAndEvent'
@@ -382,8 +381,6 @@ export default defineComponent({
         })
         return {
             Translate,
-            tableRowStatus,
-            tableRowStatusToolTip,
             chosedList,
             pageData,
             tableData,

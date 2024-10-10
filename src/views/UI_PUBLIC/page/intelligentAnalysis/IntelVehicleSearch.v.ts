@@ -2,8 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-10 09:15:27
  * @Description: 智能分析 - 车辆搜索
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-14 09:51:28
+ * @LastEditors: luoyiming a11593@tvt.net.cn
+ * @LastEditTime: 2024-10-09 16:09:02
  */
 import { type IntelSearchCollectList, type IntelSearchList, IntelSnapImgDto, IntelSearchVehicleForm, type IntelSnapPopList } from '@/types/apiType/intelligentAnalysis'
 import IntelBaseChannelSelector from './IntelBaseChannelSelector.vue'
@@ -599,6 +599,7 @@ export default defineComponent({
          * @param {IntelSearchList} row
          */
         const handleTableRowClick = (row: IntelSearchList) => {
+            play(row)
             tableRef.value!.clearSelection()
             tableRef.value!.toggleRowSelection(row, true)
         }

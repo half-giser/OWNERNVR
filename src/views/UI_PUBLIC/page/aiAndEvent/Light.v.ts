@@ -2,12 +2,11 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-13 15:58:57
  * @Description:闪灯
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-27 16:50:12
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-09 16:35:31
  */
 import { ArrowDown } from '@element-plus/icons-vue'
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
-import { tableRowStatus, tableRowStatusToolTip } from '@/utils/const/other'
 import { whiteLightInfo } from '@/types/apiType/aiAndEvent'
 export default defineComponent({
     components: {
@@ -54,7 +53,7 @@ export default defineComponent({
                     const row = new whiteLightInfo()
                     row.id = item.attr('id')!
                     row.name = xmlParse('./name', item.element).text()
-                    row.status = tableRowStatus.loading
+                    row.status = 'loading'
                     tableData.value.push(row)
                 })
                 let completeCount = 0
@@ -304,7 +303,6 @@ export default defineComponent({
             handleDurationTimeBlur,
             handleDurationTimeKeydown,
             handleScheduleChange,
-            tableRowStatusToolTip,
             popOpen,
             setData,
             ScheduleManagPop,

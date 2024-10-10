@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-08-10 11:05:51
  * @Description: 报警输出
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-29 13:34:34
+ * @LastEditors: luoyiming a11593@tvt.net.cn
+ * @LastEditTime: 2024-10-09 16:14:28
 -->
 <template>
     <div class="base-flex-box">
@@ -20,25 +20,7 @@
                     class-name="custom_cell"
                 >
                     <template #default="scope">
-                        <div
-                            v-if="scope.row.status === 'loading'"
-                            class="table_status_col_loading"
-                            :title="tableRowStatusToolTip[scope.row.statusTip]"
-                        ></div>
-                        <BaseImgSprite
-                            v-else-if="scope.row.status === 'success'"
-                            file="success"
-                            :chunk="1"
-                            :index="0"
-                            :title="tableRowStatusToolTip[scope.row.statusTip]"
-                        />
-                        <BaseImgSprite
-                            v-else-if="scope.row.status === 'error'"
-                            file="error"
-                            :chunk="1"
-                            :index="0"
-                            :title="tableRowStatusToolTip[scope.row.statusTip]"
-                        />
+                        <BaseTableRowStatus :icon="scope.row.status"></BaseTableRowStatus>
                     </template>
                 </el-table-column>
 
