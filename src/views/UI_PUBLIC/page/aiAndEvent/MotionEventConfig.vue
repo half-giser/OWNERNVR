@@ -3,7 +3,7 @@
  * @Date: 2024-08-16 18:13:47
  * @Description: 移动侦测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-09 11:29:27
+ * @LastEditTime: 2024-10-10 14:07:25
 -->
 <template>
     <div class="base-flex-box">
@@ -128,52 +128,44 @@
                     width="180px"
                 >
                     <template #header>
-                        <el-dropdown
-                            ref="recordRef"
+                        <el-popover
+                            v-model:visible="pageData.recordPopoverVisible"
                             trigger="click"
-                            :hide-on-click="false"
-                            placement="bottom-start"
+                            width="fit-content"
+                            popper-class="no-padding"
                         >
-                            <span
-                                class="el-dropdown-link"
-                                @click="recordDropdownOpen"
-                            >
-                                {{ Translate('IDCS_RECORD') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
-                            </span>
-                            <template #dropdown>
-                                <el-dropdown-menu>
-                                    <BaseTransferPop
-                                        v-if="pageData.recordIsShowAll"
-                                        :source-title="pageData.recordSourceTitle"
-                                        :target-title="pageData.recordTargetTitle"
-                                        :source-data="pageData.recordList"
-                                        :linked-list="pageData.recordChosedIdsAll"
-                                        :type="pageData.recordType"
-                                        @confirm="recordConfirmAll"
-                                        @close="recordCloseAll"
-                                    >
-                                    </BaseTransferPop>
-                                </el-dropdown-menu>
+                            <template #reference>
+                                <span class="base-popover-icon">
+                                    {{ Translate('IDCS_RECORD') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
+                                </span>
                             </template>
-                        </el-dropdown>
+                            <BaseTransferPop
+                                v-if="pageData.recordPopoverVisible"
+                                :source-title="pageData.recordSourceTitle"
+                                :target-title="pageData.recordTargetTitle"
+                                :source-data="pageData.recordList"
+                                :linked-list="pageData.recordChosedIdsAll"
+                                :type="pageData.recordType"
+                                @confirm="recordConfirmAll"
+                                @close="recordCloseAll"
+                            >
+                            </BaseTransferPop>
+                        </el-popover>
                     </template>
                     <template #default="scope">
-                        <el-row>
-                            <el-col :span="6">
-                                <el-checkbox
-                                    v-model="scope.row.record.switch"
-                                    :disabled="scope.row.rowDisable"
-                                    @change="recordSwitchChange(scope.row)"
-                                ></el-checkbox>
-                            </el-col>
-                            <el-col :span="18">
-                                <el-button
-                                    :disabled="!scope.row.record.switch || scope.row.rowDisable"
-                                    @click="setRecord(scope.$index)"
-                                >
-                                    {{ Translate('IDCS_CONFIG') }}
-                                </el-button>
-                            </el-col>
+                        <el-row class="row-together">
+                            <el-checkbox
+                                v-model="scope.row.record.switch"
+                                :disabled="scope.row.rowDisable"
+                                @change="recordSwitchChange(scope.row)"
+                            ></el-checkbox>
+                            <el-button
+                                :disabled="!scope.row.record.switch || scope.row.rowDisable"
+                                class="table_btn"
+                                @click="setRecord(scope.$index)"
+                            >
+                                {{ Translate('IDCS_CONFIG') }}
+                            </el-button>
                         </el-row>
                     </template>
                 </el-table-column>
@@ -183,52 +175,44 @@
                     width="180px"
                 >
                     <template #header>
-                        <el-dropdown
-                            ref="snapRef"
+                        <el-popover
+                            v-model:visible="pageData.snapPopoverVisible"
                             trigger="click"
-                            :hide-on-click="false"
-                            placement="bottom-start"
+                            width="fit-content"
+                            popper-class="no-padding"
                         >
-                            <span
-                                class="el-dropdown-link"
-                                @click="snapDropdownOpen"
-                            >
-                                {{ Translate('IDCS_SNAP') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
-                            </span>
-                            <template #dropdown>
-                                <el-dropdown-menu>
-                                    <BaseTransferPop
-                                        v-if="pageData.snapIsShowAll"
-                                        :source-title="pageData.snapSourceTitle"
-                                        :target-title="pageData.snapTargetTitle"
-                                        :source-data="pageData.snapList"
-                                        :linked-list="pageData.snapChosedIdsAll"
-                                        :type="pageData.snapType"
-                                        @confirm="snapConfirmAll"
-                                        @close="snapCloseAll"
-                                    >
-                                    </BaseTransferPop>
-                                </el-dropdown-menu>
+                            <template #reference>
+                                <span class="base-popover-icon">
+                                    {{ Translate('IDCS_SNAP') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
+                                </span>
                             </template>
-                        </el-dropdown>
+                            <BaseTransferPop
+                                v-if="pageData.snapPopoverVisible"
+                                :source-title="pageData.snapSourceTitle"
+                                :target-title="pageData.snapTargetTitle"
+                                :source-data="pageData.snapList"
+                                :linked-list="pageData.snapChosedIdsAll"
+                                :type="pageData.snapType"
+                                @confirm="snapConfirmAll"
+                                @close="snapCloseAll"
+                            >
+                            </BaseTransferPop>
+                        </el-popover>
                     </template>
                     <template #default="scope">
-                        <el-row>
-                            <el-col :span="6">
-                                <el-checkbox
-                                    v-model="scope.row.snap.switch"
-                                    :disabled="scope.row.rowDisable"
-                                    @change="snapSwitchChange(scope.row)"
-                                ></el-checkbox>
-                            </el-col>
-                            <el-col :span="18">
-                                <el-button
-                                    :disabled="!scope.row.snap.switch || scope.row.rowDisable"
-                                    @click="setSnap(scope.$index)"
-                                >
-                                    {{ Translate('IDCS_CONFIG') }}
-                                </el-button>
-                            </el-col>
+                        <el-row class="row-together">
+                            <el-checkbox
+                                v-model="scope.row.snap.switch"
+                                :disabled="scope.row.rowDisable"
+                                @change="snapSwitchChange(scope.row)"
+                            ></el-checkbox>
+                            <el-button
+                                :disabled="!scope.row.snap.switch || scope.row.rowDisable"
+                                class="table_btn"
+                                @click="setSnap(scope.$index)"
+                            >
+                                {{ Translate('IDCS_CONFIG') }}
+                            </el-button>
                         </el-row>
                     </template>
                 </el-table-column>
@@ -327,52 +311,44 @@
                     width="180px"
                 >
                     <template #header>
-                        <el-dropdown
-                            ref="alarmOutRef"
+                        <el-popover
+                            v-model:visible="pageData.alarmOutPopoverVisible"
                             trigger="click"
-                            :hide-on-click="false"
-                            placement="bottom-end"
+                            width="fit-content"
+                            popper-class="no-padding"
                         >
-                            <span
-                                class="el-dropdown-link"
-                                @click="alarmOutDropdownOpen"
-                            >
-                                {{ Translate('IDCS_ALARM_OUT') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
-                            </span>
-                            <template #dropdown>
-                                <el-dropdown-menu>
-                                    <BaseTransferPop
-                                        v-if="pageData.alarmOutIsShowAll"
-                                        :source-title="pageData.alarmOutSourceTitle"
-                                        :target-title="pageData.alarmOutTargetTitle"
-                                        :source-data="pageData.alarmOutList"
-                                        :linked-list="pageData.alarmOutChosedIdsAll"
-                                        :type="pageData.alarmOutType"
-                                        @confirm="alarmOutConfirmAll"
-                                        @close="alarmOutCloseAll"
-                                    >
-                                    </BaseTransferPop>
-                                </el-dropdown-menu>
+                            <template #reference>
+                                <span class="base-popover-icon">
+                                    {{ Translate('IDCS_ALARM_OUT') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
+                                </span>
                             </template>
-                        </el-dropdown>
+                            <BaseTransferPop
+                                v-if="pageData.alarmOutPopoverVisible"
+                                :source-title="pageData.alarmOutSourceTitle"
+                                :target-title="pageData.alarmOutTargetTitle"
+                                :source-data="pageData.alarmOutList"
+                                :linked-list="pageData.alarmOutChosedIdsAll"
+                                :type="pageData.alarmOutType"
+                                @confirm="alarmOutConfirmAll"
+                                @close="alarmOutCloseAll"
+                            >
+                            </BaseTransferPop>
+                        </el-popover>
                     </template>
                     <template #default="scope">
-                        <el-row>
-                            <el-col :span="6">
-                                <el-checkbox
-                                    v-model="scope.row.alarmOut.switch"
-                                    :disabled="scope.row.rowDisable"
-                                    @change="alarmOutSwitchChange(scope.row)"
-                                ></el-checkbox>
-                            </el-col>
-                            <el-col :span="18">
-                                <el-button
-                                    :disabled="!scope.row.alarmOut.switch || scope.row.rowDisable"
-                                    @click="setAlarmOut(scope.$index)"
-                                >
-                                    {{ Translate('IDCS_CONFIG') }}
-                                </el-button>
-                            </el-col>
+                        <el-row class="row-together">
+                            <el-checkbox
+                                v-model="scope.row.alarmOut.switch"
+                                :disabled="scope.row.rowDisable"
+                                @change="alarmOutSwitchChange(scope.row)"
+                            ></el-checkbox>
+                            <el-button
+                                :disabled="!scope.row.alarmOut.switch || scope.row.rowDisable"
+                                class="table_btn"
+                                @click="setAlarmOut(scope.$index)"
+                            >
+                                {{ Translate('IDCS_CONFIG') }}
+                            </el-button>
                         </el-row>
                     </template>
                 </el-table-column>
@@ -383,22 +359,19 @@
                     :label="Translate('IDCS_PRESET_NAME')"
                 >
                     <template #default="scope">
-                        <el-row>
-                            <el-col :span="6">
-                                <el-checkbox
-                                    v-model="scope.row.preset.switch"
-                                    :disabled="scope.row.rowDisable"
-                                    @change="presetSwitchChange(scope.row)"
-                                ></el-checkbox>
-                            </el-col>
-                            <el-col :span="18">
-                                <el-button
-                                    :disabled="!scope.row.preset.switch || scope.row.rowDisable"
-                                    @click="openPresetPop(scope.row)"
-                                >
-                                    {{ Translate('IDCS_CONFIG') }}
-                                </el-button>
-                            </el-col>
+                        <el-row class="row-together">
+                            <el-checkbox
+                                v-model="scope.row.preset.switch"
+                                :disabled="scope.row.rowDisable"
+                                @change="presetSwitchChange(scope.row)"
+                            ></el-checkbox>
+                            <el-button
+                                :disabled="!scope.row.preset.switch || scope.row.rowDisable"
+                                class="table_btn"
+                                @click="openPresetPop(scope.row)"
+                            >
+                                {{ Translate('IDCS_CONFIG') }}
+                            </el-button>
                         </el-row>
                     </template>
                 </el-table-column>
@@ -564,3 +537,15 @@
 </template>
 
 <script lang="ts" src="./MotionEventConfig.v.ts"></script>
+
+<style>
+@import '@/views/UI_PUBLIC/publicStyle/aiAndEvent.scss';
+</style>
+
+<style lang="scss" scoped>
+:deep(.el-table .cell) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+</style>

@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-21 15:34:24
  * @Description: 异常报警
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 15:07:35
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-10 13:45:39
  */
 import { cloneDeep } from 'lodash-es'
 import { ArrowDown } from '@element-plus/icons-vue'
@@ -24,7 +24,6 @@ export default defineComponent({
         const chosedList = ref<any[]>([])
         const { Translate } = useLangStore()
         const tableData = ref<ExceptionAlarmRow[]>([])
-        const alarmOutRef = ref()
         const { LoadingTarget, openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
         const openMessageTipBox = useMessageBox().openMessageTipBox
@@ -61,12 +60,12 @@ export default defineComponent({
             alarmOutChosedIdsAll: [] as string[],
             // 表头选中的数据
             alarmOutChosedListAll: [] as { value: string; label: string }[],
-            alarmOutIsShowAll: false,
             alarmOutIsShow: false,
             alarmOutType: 'alarmOut',
 
             // disable
             applyDisable: true,
+            alarmOutPopoverVisible: false,
         })
         const getAudioList = async () => {
             pageData.value.supportAudio = systemCaps.supportAlarmAudioConfig
@@ -174,10 +173,6 @@ export default defineComponent({
             return Translate(pageData.value.eventTypeMapping[eventType as keyof typeof pageData.value.eventTypeMapping])
         }
         // 下列为alarmOut穿梭框相关
-        const alarmOutDropdownOpen = () => {
-            alarmOutRef.value.handleOpen()
-            pageData.value.alarmOutIsShowAll = true
-        }
         const alarmOutConfirmAll = (e: any[]) => {
             if (e.length !== 0) {
                 pageData.value.alarmOutChosedListAll = cloneDeep(e)
@@ -204,14 +199,12 @@ export default defineComponent({
             }
             pageData.value.alarmOutChosedListAll = []
             pageData.value.alarmOutChosedIdsAll = []
-            pageData.value.alarmOutIsShowAll = false
-            alarmOutRef.value.handleClose()
+            pageData.value.alarmOutPopoverVisible = false
         }
         const alarmOutCloseAll = () => {
             pageData.value.alarmOutChosedListAll = []
             pageData.value.alarmOutChosedIdsAll = []
-            pageData.value.alarmOutIsShowAll = false
-            alarmOutRef.value.handleClose()
+            pageData.value.alarmOutPopoverVisible = false
         }
         const setAlarmOut = function (index: number) {
             pageData.value.alarmOutIsShow = true
@@ -388,9 +381,7 @@ export default defineComponent({
             pageData,
             tableData,
             openMessageTipBox,
-            alarmOutRef,
             formatEventType,
-            alarmOutDropdownOpen,
             alarmOutConfirmAll,
             alarmOutCloseAll,
             setAlarmOut,

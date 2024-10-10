@@ -3,7 +3,7 @@
  * @Date: 2024-08-21 15:34:24
  * @Description: 前端掉线
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-08-27 17:03:59
+ * @LastEditTime: 2024-10-10 11:54:18
  */
 import { cloneDeep } from 'lodash-es'
 import { ArrowDown } from '@element-plus/icons-vue'
@@ -26,9 +26,6 @@ export default defineComponent({
         const chosedList = ref<any[]>([])
         const { Translate } = useLangStore()
         const tableData = ref<MotionEventConfig[]>([])
-        const snapRef = ref()
-        const alarmOutRef = ref()
-        const presetRef = ref()
 
         // ;(snapRef.value as InstanceType<typeof ElDropdown>).handleOpen()
         // ;(alarmOutRef.value as InstanceType<typeof ElDropdown>).handleOpen()
@@ -61,7 +58,6 @@ export default defineComponent({
             snapChosedIdsAll: [] as string[],
             // 表头选中的数据
             snapChosedListAll: [] as { value: string; label: string }[],
-            snapIsShowAll: false,
             snapIsShow: false,
             snapType: 'snap',
 
@@ -74,7 +70,6 @@ export default defineComponent({
             alarmOutChosedIdsAll: [] as string[],
             // 表头选中的数据
             alarmOutChosedListAll: [] as { value: string; label: string }[],
-            alarmOutIsShowAll: false,
             alarmOutIsShow: false,
             alarmOutType: 'alarmOut',
 
@@ -89,6 +84,9 @@ export default defineComponent({
             // disable
             applyDisable: true,
             editRows: [] as MotionEventConfig[],
+
+            snapPopoverVisible: false,
+            alarmOutPopoverVisible: false,
         })
         const getAudioList = async () => {
             pageData.value.supportAudio = systemCaps.supportAlarmAudioConfig
@@ -298,10 +296,6 @@ export default defineComponent({
         }
 
         // 下列为snap穿梭框相关
-        const snapDropdownOpen = () => {
-            snapRef.value.handleOpen()
-            pageData.value.snapIsShowAll = true
-        }
         const snapConfirmAll = (e: any[]) => {
             if (e.length !== 0) {
                 pageData.value.snapChosedListAll = cloneDeep(e)
@@ -331,14 +325,12 @@ export default defineComponent({
             }
             pageData.value.snapChosedListAll = []
             pageData.value.snapChosedIdsAll = []
-            pageData.value.snapIsShowAll = false
-            snapRef.value.handleClose()
+            pageData.value.snapPopoverVisible = false
         }
         const snapCloseAll = () => {
             pageData.value.snapChosedListAll = []
             pageData.value.snapChosedIdsAll = []
-            pageData.value.snapIsShowAll = false
-            snapRef.value.handleClose()
+            pageData.value.snapPopoverVisible = false
         }
         const setSnap = function (index: number) {
             pageData.value.snapIsShow = true
@@ -367,10 +359,6 @@ export default defineComponent({
         }
 
         // 下列为alarmOut穿梭框相关
-        const alarmOutDropdownOpen = () => {
-            alarmOutRef.value.handleOpen()
-            pageData.value.alarmOutIsShowAll = true
-        }
         const alarmOutConfirmAll = (e: any[]) => {
             if (e.length !== 0) {
                 pageData.value.alarmOutChosedListAll = cloneDeep(e)
@@ -401,14 +389,12 @@ export default defineComponent({
             }
             pageData.value.alarmOutChosedListAll = []
             pageData.value.alarmOutChosedIdsAll = []
-            pageData.value.alarmOutIsShowAll = false
-            alarmOutRef.value.handleClose()
+            pageData.value.alarmOutPopoverVisible = false
         }
         const alarmOutCloseAll = () => {
             pageData.value.alarmOutChosedListAll = []
             pageData.value.alarmOutChosedIdsAll = []
-            pageData.value.alarmOutIsShowAll = false
-            alarmOutRef.value.handleClose()
+            pageData.value.alarmOutPopoverVisible = false
         }
         const setAlarmOut = function (index: number) {
             pageData.value.alarmOutIsShow = true
@@ -499,7 +485,7 @@ export default defineComponent({
                 }
             })
         }
-        // ftpSnap 未传值
+        // ftpSnap 未传值 TODO
         // const handleFtpSnapChangeAll = function (ftpSnap: string) {
         //     tableData.value.forEach((item) => {
         //         if (!item.rowDisable) {
@@ -686,18 +672,13 @@ export default defineComponent({
             pageData,
             tableData,
             openMessageTipBox,
-            snapRef,
-            alarmOutRef,
-            presetRef,
             getAlarmOutListSingle,
             getSnapListSingle,
-            snapDropdownOpen,
             snapConfirmAll,
             snapCloseAll,
             setSnap,
             snapConfirm,
             snapClose,
-            alarmOutDropdownOpen,
             alarmOutConfirmAll,
             alarmOutCloseAll,
             setAlarmOut,
