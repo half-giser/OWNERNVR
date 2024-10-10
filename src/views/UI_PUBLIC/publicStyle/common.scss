@@ -326,6 +326,10 @@ input[type='number'] {
                 }
             }
         }
+
+        &.el-popover {
+            color: var(--main-text);
+        }
     }
 
     // .el-slider 公共样式

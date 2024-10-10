@@ -3,7 +3,7 @@
  * @Date: 2024-08-05 16:00:46
  * @Description: 回放
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-10 18:24:58
+ * @LastEditTime: 2024-10-10 18:27:15
  */
 import PlaybackChannelPanel from '../playback/PlaybackChannelPanel.vue'
 import PlaybackEventPanel from '../playback/PlaybackEventPanel.vue'
@@ -235,30 +235,33 @@ export default defineComponent({
          * @param {Array} chlList
          */
         const getRecSection = async (chlList: string[]) => {
-            const year = dayjs().year()
-            const startTime = dayjs(`${year - 10}-01-01 00:00:00`, 'YYYY-MM-DD HH:mm:ss')
-            const endTime = dayjs(`${year + 10}-01-01 00:00:00`, 'YYYY-MM-DD HH:mm:ss')
-            const spaceTime = 60 * 60 * 24
-            const spaceNum = (endTime.valueOf() - startTime.valueOf()) / 1000 / spaceTime
-
-            const sendXml = rawXml`
-                <condition>
-                    <startTime>${localToUtc(startTime)}</startTime>
-                    <spaceTime>${spaceTime.toString()}</spaceTime>
-                    <spaceNum>${spaceNum.toString()}</spaceNum>
-                    <chlId type="list">
-                        ${chlList.map((item) => `<item>${item}</item>`).join('')}
-                    </chlId>
-                </condition>
-            `
-            const result = await queryRecSection(sendXml)
-            const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                pageData.value.recTimeList = $('//content/item').map((item) => {
-                    const index = Number(item.text())
-                    const utcTime = startTime.add(index, 'day')
-                    return utcTime.valueOf()
-                })
+            if (chlList.length) {
+                const year = dayjs().year()
+                const startTime = dayjs(`${year - 10}-01-01 00:00:00`, 'YYYY-MM-DD HH:mm:ss')
+                const endTime = dayjs(`${year + 10}-01-01 00:00:00`, 'YYYY-MM-DD HH:mm:ss')
+                const spaceTime = 60 * 60 * 24
+                const spaceNum = (endTime.valueOf() - startTime.valueOf()) / 1000 / spaceTime
+                const sendXml = rawXml`
+                    <condition>
+                        <startTime>${localToUtc(startTime)}</startTime>
+                        <spaceTime>${spaceTime.toString()}</spaceTime>
+                        <spaceNum>${spaceNum.toString()}</spaceNum>
+                        <chlId type="list">
+                            ${chlList.map((item) => `<item>${item}</item>`).join('')}
+                        </chlId>
+                    </condition>
+                `
+                const result = await queryRecSection(sendXml)
+                const $ = queryXml(result)
+                if ($('//status').text() === 'success') {
+                    pageData.value.recTimeList = $('//content/item').map((item) => {
+                        const index = Number(item.text())
+                        const utcTime = startTime.add(index, 'day')
+                        return utcTime.valueOf()
+                    })
+                }
+            } else {
+                pageData.value.recTimeList = []
             }
         }
 
@@ -1247,24 +1250,14 @@ export default defineComponent({
          * @param {Object} row
          */
         const handleRecLogDownload = (row: PlaybackRecLogList) => {
-            const startTime = startTimeStamp.value + pageData.value.timelineClipRange[0] * 1000
-            const endTime = startTimeStamp.value + pageData.value.timelineClipRange[1] * 1000
-            const events: string[] = []
-            const find = pageData.value.legend.find((legend) => legend.value === row.event)
-            if (find) {
-                if (find.children) {
-                    events.push(...find.children)
-                } else events.push(find.value)
-            }
-
             pageData.value.backupRecList = [
                 {
                     chlId: row.chlId,
                     chlName: row.chlName,
-                    startTime,
-                    endTime,
+                    startTime: row.startTime,
+                    endTime: row.endTime,
                     streamType: pageData.value.mainStreamTypeChl === row.chlId ? 0 : 1,
-                    events,
+                    events: [row.event],
                 },
             ]
             pageData.value.isBackUpPop = true
