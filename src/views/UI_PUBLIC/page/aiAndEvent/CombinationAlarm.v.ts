@@ -1,6 +1,4 @@
 import { type CombinedAlarm, type CombinedAlarmItem, type faceMatchObj, type PresetItem } from '@/types/apiType/aiAndEvent'
-// tableRowStatus
-import { tableRowStatusToolTip } from '@/utils/const/other'
 import { cloneDeep, isEqual } from 'lodash-es'
 import BaseTransferPop from '@/components/BaseTransferPop.vue'
 import BaseTransferDialog from '@/components/BaseTransferDialog.vue'
@@ -960,7 +958,6 @@ export default defineComponent({
             recordRef,
             snapRef,
             alarmOutRef,
-            tableRowStatusToolTip,
             pageData,
             tableData,
             // 组合报警提示

@@ -3,7 +3,7 @@
  * @Date: 2024-09-26 15:31:53
  * @Description: UI2-A 客制化功能面板
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-26 16:24:49
+ * @LastEditTime: 2024-10-08 15:47:58
 -->
 <template>
     <div class="config-home">
@@ -14,6 +14,7 @@
                     :key="moduleItem.meta.fullPath"
                     :class="{
                         active: key === pageData.mainMenuIndex,
+                        disabled: getMenuDisabled(moduleItem),
                     }"
                     @click="changeMainMenu(key)"
                 >
@@ -43,6 +44,9 @@
                 <div
                     v-for="item in triMenu"
                     :key="item.meta.fullPath"
+                    :class="{
+                        disabled: getMenuDisabled(item),
+                    }"
                     @click="goToPage(item)"
                 >
                     {{ Translate(item.meta.lk || '') }}
@@ -91,6 +95,13 @@
                 background-color: var(--primary);
             }
 
+            &.disabled,
+            &.disabled:hover {
+                cursor: not-allowed;
+                background-color: transparent;
+                color: var(--config-menu-text-disabled);
+            }
+
             div {
                 margin-left: 40px;
                 font-size: 18px;
@@ -132,7 +143,13 @@
             line-height: 2;
 
             &:hover {
-                color: var(--primary);
+                color: var(--config-submenu-text-hover);
+            }
+
+            &.disabled,
+            &.disabled:hover {
+                cursor: not-allowed;
+                color: var(--config-submenu-text-disabled);
             }
         }
     }

@@ -15,23 +15,6 @@
 }
 
 #n9web {
-    .el-menu {
-        --el-menu-text-color: var(--header-menu-text);
-        --el-menu-active-color: var(--primary);
-        --el-menu-hover-bg-color: var(--main-bg);
-        --el-menu-hover-text-color: var(--primary);
-        background-color: var(--main-bg);
-        &.el-menu--horizontal>.el-menu-item.is-active {
-            color: var(--tabbar-text-active);
-            &:hover {
-                color: var(--sidebar-text-hover);
-            }
-        }
-        &.tab-style .el-menu-item:hover {
-            color: var(--sidebar-text-hover);
-        }
-    }
-
     .el-text {
         --el-text-color: var(--main-text);
     }

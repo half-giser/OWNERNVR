@@ -516,6 +516,7 @@ export default defineComponent({
          * @param {IntelSearchList} row
          */
         const handleTableRowClick = (row: IntelSearchList) => {
+            play(row)
             tableRef.value!.clearSelection()
             tableRef.value!.toggleRowSelection(row, true)
         }

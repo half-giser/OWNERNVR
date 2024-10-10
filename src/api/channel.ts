@@ -83,6 +83,12 @@ export const cameraLensCtrlCall = (data: string, config?: AxiosRequestConfig) =>
 export const queryPrivacyMask = (data: string, config?: AxiosRequestConfig) => http.fetch('queryPrivacyMask', data, config)
 // 编辑通道遮挡配置
 export const editPrivacyMask = (data: string, config?: AxiosRequestConfig) => http.fetch('editPrivacyMask', data, config)
+// 编辑鱼眼通道配置
+export const editIPChlORChlFishEye = (data: string, config?: AxiosRequestConfig) => http.fetch('editIPChlORChlFishEye', data, config)
+// 查询鱼眼启用状态
+export const queryFishEyeEnable = (data: string, config?: AxiosRequestConfig) => http.fetch('queryFishEyeEnable', data, config)
+// 编辑鱼眼启用状态
+export const editFishEyeEnable = (data: string, config?: AxiosRequestConfig) => http.fetch('editFishEyeEnable', data, config)
 
 /**
  * @description 查询预置点列表

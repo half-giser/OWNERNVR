@@ -3,7 +3,7 @@
  * @Date: 2024-09-24 15:16:31
  * @Description: UI1-D 客制化 顶层布局页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 16:38:10
+ * @LastEditTime: 2024-10-08 14:12:17
 -->
 <template>
     <el-container id="layoutMain">
@@ -94,25 +94,23 @@
                     :router="true"
                     :ellipsis="false"
                 >
-                    <template v-for="(route, key) in allMenu1Items">
-                        <el-menu-item
-                            v-if="menu.isMenuItemShow(route)"
-                            :key
-                            :index="route.meta.fullPath"
-                            :class="{
-                                'is-active': isMenu1Active(route),
-                            }"
-                            @click="goToPath(route)"
-                        >
-                            <BaseImgSprite
-                                :file="route.meta.icon"
-                                :index="isMenu1Active(route) ? 1 : 0"
-                                :chunk="2"
-                            />
-                            {{ Translate(String(route?.meta?.lk)) }}
-                            <!-- <span class="menu-split"></span> -->
-                        </el-menu-item>
-                    </template>
+                    <el-menu-item
+                        v-for="(route, key) in allMenu1Items"
+                        :key
+                        :index="route.meta.fullPath"
+                        :class="{
+                            'is-active': isMenu1Active(route),
+                        }"
+                        @click="goToPath(route)"
+                    >
+                        <BaseImgSprite
+                            :file="route.meta.icon"
+                            :index="isMenu1Active(route) ? 1 : 0"
+                            :chunk="2"
+                        />
+                        {{ Translate(String(route?.meta?.lk)) }}
+                        <!-- <span class="menu-split"></span> -->
+                    </el-menu-item>
                 </el-menu>
             </div>
         </el-header>
@@ -169,6 +167,8 @@
     .el-menu--horizontal {
         border-bottom: none;
         height: 33px;
+        background-color: var(--header-bg);
+        --el-menu-active-color: var(--header-menu-text-active);
 
         & > .el-menu-item {
             margin: 0px 2px;
@@ -184,16 +184,19 @@
             background-color: var(--header-menu-bg);
             display: flex;
             justify-content: flex-start;
+            border-bottom: 2px solid var(--header-menu-border);
 
             &:hover {
                 color: var(--header-menu-text-hover);
                 background-color: var(--header-menu-bg);
+                border-bottom-color: var(--header-menu-border-hover);
             }
 
             &.is-active,
             &.is-active:hover {
                 background-color: var(--header-menu-bg-active);
                 color: var(--header-menu-text-active);
+                border-bottom-color: var(--header-menu-border-active);
             }
         }
     }

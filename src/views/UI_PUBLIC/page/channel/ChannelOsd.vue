@@ -116,25 +116,10 @@
                         class-name="custom_cell"
                     >
                         <template #default="scope">
-                            <div
-                                v-if="scope.row.status === 'loading'"
-                                class="table_status_col_loading"
-                                :title="scope.row.statusTip"
-                            ></div>
-                            <BaseImgSprite
-                                v-else-if="scope.row.status === 'success'"
-                                file="success"
-                                :chunk="1"
-                                :index="0"
-                                :title="scope.row.statusTip"
-                            />
-                            <BaseImgSprite
-                                v-else-if="scope.row.status === 'error'"
-                                file="error"
-                                :chunk="1"
-                                :index="0"
-                                :title="scope.row.statusTip"
-                            />
+                            <BaseTableRowStatus
+                                :icon="scope.row.status"
+                                :error-text="scope.row.statusTip"
+                            ></BaseTableRowStatus>
                         </template>
                     </el-table-column>
                     <el-table-column
@@ -365,7 +350,7 @@
                         v-model:current-page="pageIndex"
                         v-model:page-size="pageSize"
                         :page-sizes="DefaultPagerSizeOptions"
-                        small
+                        size="small"
                         :background="false"
                         :layout="DefaultPagerLayout"
                         :total="pageTotal"

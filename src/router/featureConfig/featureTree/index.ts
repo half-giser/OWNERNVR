@@ -24,19 +24,25 @@ export default {
         // 登录
         path: '/login',
         component: 'Login.vue',
-        meta: {},
+        meta: {
+            enabled: '',
+        },
     },
     authCodeLogin: {
         // authCode登录
         path: '/authCodeLogin',
         component: 'AuthCodeLogin.vue',
-        meta: {},
+        meta: {
+            enabled: '',
+        },
     },
     guide: {
         // 开机向导
         path: '/guide',
         component: 'Guide.vue',
-        meta: {},
+        meta: {
+            enabled: '',
+        },
     },
     root: {
         path: '',
@@ -76,7 +82,7 @@ export default {
             auth(systemCaps) {
                 return !systemCaps.IntelAndFaceConfigHide
             },
-            disabled: 'parkingLotMgr',
+            enabled: 'parkingLotMgr',
         },
     },
 } as FeatureTree

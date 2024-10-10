@@ -7,6 +7,7 @@
 import type { AxiosRequestConfig } from 'axios'
 import http from './api'
 import router from '../router'
+import { removeAsyncRoutes } from '../router'
 
 /**
  * @description 预登录
@@ -47,6 +48,7 @@ export const Logout = async () => {
         userSession.clearSession()
         pluginStore.showPluginNoResponse = false
         router.push('/login')
+        removeAsyncRoutes()
     } else {
         userSession.clearSession()
         window.location.href = '/index.html'

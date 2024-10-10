@@ -17,8 +17,6 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const { openMessageTipBox } = useMessageBox()
-        const userSessionStore = useUserSessionStore()
-        const Plugin = inject('Plugin') as PluginType
         const osType = getSystemInfo().platform
 
         const playerRef = ref<PlayerInstance>()
@@ -552,29 +550,43 @@ export default defineComponent({
             setDateTime()
         }
 
-        const onReady = () => {
-            if (!Plugin.IsSupportH5() && !Plugin.IsPluginAvailable()) {
-                Plugin.SetPluginNoResponse()
-                Plugin.ShowPluginNoResponse()
+        // 播放模式
+        const mode = computed(() => {
+            if (!playerRef.value) {
+                return ''
             }
-            if (!Plugin.IsSupportH5()) Plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
+            return playerRef.value.mode
+        })
 
-            if (playerRef.value?.mode === 'h5') {
+        const ready = computed(() => {
+            return playerRef.value?.ready || false
+        })
+
+        let player: PlayerInstance['player']
+        let plugin: PlayerInstance['plugin']
+
+        const onReady = () => {
+            player = playerRef.value!.player
+            plugin = playerRef.value!.plugin
+
+            if (mode.value === 'h5') {
                 osdDrawer = new CanvasOSD({
-                    el: playerRef.value?.player.getDrawbordCanvas(0) as HTMLCanvasElement,
+                    el: player.getDrawbordCanvas(0) as HTMLCanvasElement,
                     onchange: handleOSDChange,
                 })
             } else {
-                let sendXML = OCX_XML_SetPluginModel(osType == 'mac' ? 'OSDConfig' : 'ReadOnly', 'Live')
-                playerRef.value?.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                if (osType == 'mac') {
-                    sendXML = OCX_XML_SetProperty({
-                        calendarType: userSessionStore.calendarType,
-                    })
-                    playerRef.value?.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                if (!plugin.IsInstallPlugin()) {
+                    plugin.SetPluginNotice('#layout2Content')
+                    return
                 }
+                if (!plugin.IsPluginAvailable()) {
+                    plugin.SetPluginNoResponse()
+                    plugin.ShowPluginNoResponse()
+                }
+                plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
+                const sendXML = OCX_XML_SetPluginModel(osType == 'mac' ? 'OSDConfig' : 'ReadOnly', 'Live')
+                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
-            play()
         }
 
         const onTime = (winIndex: number, data: TVTPlayerWinDataListItem, timeStamp: number) => {
@@ -595,81 +607,91 @@ export default defineComponent({
          */
         const play = () => {
             if (!selectedChlId.value) return
-            if (!playerRef.value || !playerRef.value.ready) return
+            if (!ready.value) return
             const channelOsd = getRowById(selectedChlId.value)
-            if (playerRef.value.mode === 'h5') {
-                playerRef.value.player.play({
+            if (mode.value === 'h5') {
+                player.play({
                     chlID: channelOsd.id,
                     streamType: 2,
                 })
             } else {
                 if (osType == 'mac') {
                 } else {
-                    playerRef.value.plugin.RetryStartChlView(channelOsd.id, channelOsd.name)
+                    plugin.RetryStartChlView(channelOsd.id, channelOsd.name)
                 }
             }
             setOcxData(channelOsd)
         }
 
+        // 首次加载成功 播放视频
+        const stopWatchFirstPlay = watchEffect(() => {
+            if (ready.value && tableData.value.length) {
+                nextTick(() => play())
+                stopWatchFirstPlay()
+            }
+        })
+
         const setOcxData = (rowData: ChannelOsd) => {
             if (supportSHDB) return
-            if (playerRef.value?.mode === 'h5') {
+            if (mode.value === 'h5') {
                 setCanvasDrawerData(rowData)
             } else {
-                if (osType == 'mac') {
-                    const osdList: OcxXmlSetOsdListDatum[] = [
-                        {
-                            winIndex: 0,
-                            dateFormat: rowData.dateFormat,
-                            timeFormat: rowData.timeFormat,
-                            x: rowData.timeX,
-                            y: rowData.timeY,
-                            xMin: rowData.timeXMinValue,
-                            xMax: rowData.timeXMaxValue,
-                            yMin: rowData.timeYMinValue,
-                            yMax: rowData.timeXMaxValue,
-                            status: rowData.displayTime ? 'ON' : 'OFF',
-                        },
-                        {
-                            winIndex: 0,
-                            osd: rowData.name,
-                            x: rowData.nameX,
-                            y: rowData.nameY,
-                            xMin: rowData.nameXMinValue,
-                            xMax: rowData.nameXMaxValue,
-                            yMin: rowData.nameYMinValue,
-                            yMax: rowData.nameYMaxValue,
-                            status: rowData.displayTime ? 'ON' : 'OFF',
-                        },
-                    ]
-                    const sendXML = OCX_XML_SetOSD('ON', osdList)
-                    playerRef.value?.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                } else {
-                    const osd: OcxXmlSetOSDInfo = {
-                        timeStamp: {
-                            switch: rowData.displayTime,
-                            X: rowData.timeX,
-                            XMinValue: rowData.timeXMinValue,
-                            XMaxValue: rowData.timeXMaxValue,
-                            Y: rowData.timeY,
-                            YMinValue: rowData.timeYMinValue,
-                            YMaxValue: rowData.timeYMaxValue,
-                            dateFormat: rowData.dateFormat,
-                            timeFormat: rowData.timeFormat,
-                        },
-                        deviceName: {
-                            switch: rowData.displayName,
-                            value: rowData.name,
-                            X: rowData.nameX,
-                            XMinValue: rowData.nameXMinValue,
-                            XMaxValue: rowData.nameXMaxValue,
-                            Y: rowData.nameY,
-                            YMinValue: rowData.nameYMinValue,
-                            YMaxValue: rowData.nameYMaxValue,
-                        },
+                if (rowData.timeX) {
+                    if (osType == 'mac') {
+                        const osdList: OcxXmlSetOsdListDatum[] = [
+                            {
+                                winIndex: 0,
+                                dateFormat: rowData.dateFormat,
+                                timeFormat: rowData.timeFormat,
+                                x: rowData.timeX,
+                                y: rowData.timeY,
+                                xMin: rowData.timeXMinValue,
+                                xMax: rowData.timeXMaxValue,
+                                yMin: rowData.timeYMinValue,
+                                yMax: rowData.timeXMaxValue,
+                                status: rowData.displayTime ? 'ON' : 'OFF',
+                            },
+                            {
+                                winIndex: 0,
+                                osd: rowData.name,
+                                x: rowData.nameX,
+                                y: rowData.nameY,
+                                xMin: rowData.nameXMinValue,
+                                xMax: rowData.nameXMaxValue,
+                                yMin: rowData.nameYMinValue,
+                                yMax: rowData.nameYMaxValue,
+                                status: rowData.displayTime ? 'ON' : 'OFF',
+                            },
+                        ]
+                        const sendXML = OCX_XML_SetOSD('ON', osdList)
+                        plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    } else {
+                        const osd: OcxXmlSetOSDInfo = {
+                            timeStamp: {
+                                switch: rowData.displayTime,
+                                X: rowData.timeX,
+                                XMinValue: rowData.timeXMinValue,
+                                XMaxValue: rowData.timeXMaxValue,
+                                Y: rowData.timeY,
+                                YMinValue: rowData.timeYMinValue,
+                                YMaxValue: rowData.timeYMaxValue,
+                                dateFormat: rowData.dateFormat,
+                                timeFormat: rowData.timeFormat,
+                            },
+                            deviceName: {
+                                switch: rowData.displayName,
+                                value: rowData.name,
+                                X: rowData.nameX,
+                                XMinValue: rowData.nameXMinValue,
+                                XMaxValue: rowData.nameXMaxValue,
+                                Y: rowData.nameY,
+                                YMinValue: rowData.nameYMinValue,
+                                YMaxValue: rowData.nameYMaxValue,
+                            },
+                        }
+                        const sendXML = OCX_XML_SetOSDInfo(osd)
+                        plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                     }
-                    const sendXML = OCX_XML_SetOSDInfo(osd)
-                    playerRef.value?.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 }
             }
         }
@@ -703,7 +725,6 @@ export default defineComponent({
         watch(selectedChlId, play)
 
         onMounted(() => {
-            Plugin.SetPluginNotice('#layout2Content')
             formData.value.remarkDisabled = false
             formData.value.supportTimeFormat = true
             formData.value.supportDateFormat = true
@@ -711,10 +732,13 @@ export default defineComponent({
         })
 
         onBeforeUnmount(() => {
-            if (playerRef.value?.mode === 'ocx') {
-                Plugin.VideoPluginNotifyEmitter.removeListener(LiveNotify2Js)
+            if (mode.value === 'ocx') {
+                plugin?.VideoPluginNotifyEmitter.removeListener(LiveNotify2Js)
                 const sendXML = OCX_XML_StopPreview('ALL')
-                playerRef.value?.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin?.GetVideoPlugin().ExecuteCmd(sendXML)
+            } else {
+                osdDrawer?.destroy()
+                osdDrawer = undefined
             }
         })
 

@@ -13,7 +13,7 @@
     --img-initview: url('@/views/UI_PUBLIC/publicStyle/img/initview.gif');
     --img-loading: url('@/views/UI_PUBLIC/publicStyle/img/loading.gif');
     --img-motion-note: url('@/views/UI_PUBLIC/publicStyle/img/motionNote.gif');
-    
+
     /**
      * 授权码登录素材 （请求服务器的素材）
      */
@@ -99,10 +99,10 @@
     --upload-bg-text: #000; // 上传框文本
     --upload-bg: #eee; // 上传框背景
     --upload-bg-hover: #ddd; // 上传框背景 (hover)
-    
+
     /**
      * 按钮
-     */ 
+     */
     --btn-text: #fff; // 按钮文本颜色
     --btn-text-hover: var(--main-text-active); // 按钮文本颜色 (hover)
     --btn-text-disabled: #fff; // 按钮文本颜色 (disabled)
@@ -140,14 +140,18 @@
     --config-menu-text: #3c3c3c; // 功能面板页-主菜单-文本
     --config-menu-text-hover: var(--primary); // 功能面板页-主菜单-文本 (hover)
     --config-menu-text-active: var(--primary); // 功能面板页-主菜单-文本 (active)
+    --config-menu-text-disabled: #D9D9D9; // 功能面板页-主菜单-文本 (disabled)
     --config-menu-bg: unset; // 功能面板页-主菜单-背景
     --config-menu-bg-hover: unset; // 功能面板页-主菜单-背景 （hover）
     --config-menu-bg-active: unset; // 功能面板页-主菜单-背景 （active）
+    --config-menu-bg-disabled: unset; // 功能面板页-主菜单-背景 (disabled)
     --config-menu-border: #aeaeae; // 功能面板页-主菜单-border
     --config-menu-border-hover: var(--primary); // 功能面板页-主菜单-border (hover)
+    --config-menu-border-disabled: #D9D9D9; // 功能面板页-主菜单-border (disabled)
 
     --config-submenu-text: #8f8f8f; // 功能面板-子菜单-文本
     --config-submenu-text-hover: var(--primary); // 功能面板-子菜单-文本 (hover)
+    --config-submenu-text-disabled: #D9D9D9; // 功能面板-子菜单-文本 (disabled)
     --config-submenu-bg: unset; // 功能面板-子菜单-背景
 
     /**
@@ -161,7 +165,7 @@
 
     /**
      * 授权码登录
-     */ 
+     */
     --authcode-bg: #fff; // 授权码登录-背景
     --authcode-content-bg: transparent; // 授权码登录-容器-背景
     --authcode-btn-text: #fff; // 授权码登录-登录按钮-文本
@@ -174,13 +178,14 @@
     --config-aside-text: #8d8d8d; // 配置页-左侧菜单栏-文本
     --config-aside-text-hover: var(--primary); // 配置页-左侧菜单栏-文本 (hover)
     --config-aside-text-active: #8d8d8d; // 配置页-左侧菜单栏-文本 (active)
+    --config-aside-text-disabled: #D9D9D9; // 配置页-左侧菜单栏-文本 (disabled)
     --config-aside-bg: unset; // 配置页-左侧菜单栏-背景
     --config-aside-item-bg: unset; // 配置页-左侧菜单栏菜单项-背景
     --config-aside-item-bg-active: #eee; // 配置页-左侧菜单栏菜单项-背景 (active)
 
     --breadcrumb-text: #454545; // 面包屑-文本
     --breadcrumb-bg: transparent; // 面包屑-背景
-    
+
     --ptz-btn: #f0f0f0; // 云台-ICON按钮-背景色
     --ptz-btn-disabled: #fff; // 云台-ICON按钮-背景色 （disabled）
 
@@ -227,12 +232,12 @@
     --sidebar-bg: transparent; // 侧边菜单-背景
     --sidebar-bg-hover: var(--primary-light); // 侧边菜单-背景（hover）
     --sidebar-bg-active: var(--primary); // 侧边菜单-背景（active）
-    
+
     --backup-snap-bg: #555; // 按时间切片缩略图背景色
     --backup-snap-border: #ccc; // 按时间切片缩略图border颜色
-    
+
     --intel-snap-border: #000; // 智能搜索-抓拍卡片border颜色
-    
+
     /**
      * 停车场
      */
@@ -243,8 +248,8 @@
 
     /**
      * 播放器
-     */ 
-    --player-bg: #4c4c4b; // 播放器背景色 
+     */
+    --player-bg: #4c4c4b; // 播放器背景色
     --player-split-border: #343434; // 播放器分屏分割线颜色
 
     // 日历
@@ -262,7 +267,7 @@
      * Loading
      */
     --loading-bg: rgba(255, 255, 255, 0.2); // Loading背景色
-    
+
     /**
      * 状态
      */
@@ -300,7 +305,7 @@
     --timeline-moving-time-bg-01: rgba(0,0,0,.5); // 鼠标跟随时间背景色
     --timeline-moving-time-text-01: #eee; // 鼠标跟随时间文本颜色
     --timeline-range-mask-01: rgba(0, 187, 219, .5); // 时间范围遮罩颜色
-    
+
     /**
      * 时间轴组件颜色集2 （搜索与备份页面的时间轴颜色）
      */
@@ -334,7 +339,13 @@
     --schedule-time-span-bg: #F2F2F3; // 排程时间背景色
     --schedule-time-span-bg-active: #18C0DD; // 排程时间选中背景色
     --schedule-time-span-bg-selection: #89E9F9; // 排程时间选择背景色
-    
+
+    /**
+     * 浮动错误提示框
+     */
+     --float-ok-color: #006400;
+     --float-error-color: #ff0000;
+
     // Success
     // --success--01: #edf9eb;
     // --success--02: #e4f2e1;
@@ -352,8 +363,8 @@
     // --danger--07: #cf2923;
 
     // --border-color9: #006400;
-    // --main-border0: #808080;
-    // --main-border1: #dcdcdc;
+    --main-border0: #808080;
+    --main-border1: #dcdcdc;
     // --main-border2: #626262;
     // --border-light: #e9efff;
     // --table-split: #ebeef5; 表格分割线

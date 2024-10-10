@@ -9,7 +9,6 @@ import { cloneDeep } from 'lodash-es'
 import { defineComponent } from 'vue'
 import { ArrowDown } from '@element-plus/icons-vue'
 import { useLangStore } from '@/stores/lang'
-import { tableRowStatus, tableRowStatusToolTip } from '@/utils/const/other'
 import BaseTransferPop from '@/components/BaseTransferPop.vue'
 import BaseTableRowStatus from '@/components/BaseTableRowStatus.vue'
 import BaseTransferDialog from '@/components/BaseTransferDialog.vue'
@@ -185,7 +184,7 @@ export default defineComponent({
                     const row = new MotionEventConfig()
                     row.id = item.attr('id')!
                     row.name = $ele('name').text()
-                    row.status = tableRowStatus.loading
+                    row.status = 'loading'
                     tableData.value.push(row)
                 })
                 for (let i = 0; i < tableData.value.length; i++) {
@@ -632,8 +631,6 @@ export default defineComponent({
             changePagination,
             changePaginationSize,
             Translate,
-            tableRowStatus,
-            tableRowStatusToolTip,
             chosedList,
             pageData,
             tableData,
