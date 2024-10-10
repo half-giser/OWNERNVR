@@ -3,24 +3,24 @@
  * @Date: 2024-05-07 20:42:33
  * @Description: 功能面板
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-27 11:30:30
+ * @LastEditTime: 2024-10-08 16:32:08
  */
 
-import { config } from '@/router/featureConfig/RouteUtil'
 import { getMenuItems } from '@/router'
-import { type RouteRecordRaw } from 'vue-router'
 
 export default defineComponent({
     setup() {
         const router = useRouter()
         //去掉在控制面板不需要显示的菜单项，并排序
         const configModules = ref<RouteRecordRawExtends[]>([])
+        const userSession = useUserSessionStore()
+        const layoutStore = useLayoutStore()
 
         /**
          * @description 获取功能面板的菜单列表
          */
         const getConfigModule = () => {
-            const modules = getMenuItems(config.children as RouteRecordRawExtends[]).filter((item) => !!item.meta?.groups)
+            const modules = getMenuItems(layoutStore.configMenu?.children || []).filter((item) => !!item.meta?.groups)
             modules.forEach((item) => {
                 item.children = item.children.filter((subItem) => subItem.meta.inHome)
                 item.children.forEach((subItem) => {
@@ -36,17 +36,45 @@ export default defineComponent({
                 return a.meta.sort! - b.meta.sort!
             })
             configModules.value = modules
+
+            const menuIndex = configModules.value.findIndex((item) => !getMenuDisabled(item))
+            if (menuIndex > -1) {
+                pageData.value.mainMenuIndex = menuIndex
+            }
         }
 
         /**
          * @description 点击主菜单，跳转默认子菜单
          * @param {RouteRecordRawExtends} moduleItem
          */
-        const toDefault = (moduleItem: RouteRecordRawExtends) => {
-            const defaultMenu = moduleItem.children?.find((o) => o.meta?.default === true) as RouteRecordRaw
-            if (defaultMenu) {
-                router.push(defaultMenu?.meta?.fullPath as string)
+        const goToDefaultPage = (moduleItem: RouteRecordRawExtends) => {
+            if (moduleItem.meta.enabled && !userSession.hasAuth(moduleItem.meta.enabled)) {
+                return
             }
+            const defaultMenu = moduleItem.children.find((o) => o.meta.default === true && !getMenuDisabled(o))
+            if (defaultMenu) {
+                router.push(defaultMenu.meta.fullPath)
+            } else {
+                const defaultMenu = moduleItem.children.find((item) => !getMenuDisabled(item))
+                if (defaultMenu) {
+                    router.push(defaultMenu.meta.fullPath)
+                }
+            }
+        }
+
+        /**
+         * @description 跳转子菜单页面
+         * @param {RouteRecordRawExtends} subMenu
+         * @param {RouteRecordRawExtends} moduleItem
+         */
+        const goToPage = (subMenu: RouteRecordRawExtends, moduleItem: RouteRecordRawExtends) => {
+            if (moduleItem.meta.enabled && !userSession.hasAuth(moduleItem.meta.enabled)) {
+                return
+            }
+            if (subMenu.meta.enabled && !userSession.hasAuth(subMenu.meta.enabled)) {
+                return
+            }
+            router.push(subMenu.meta.fullPath)
         }
 
         const pageData = ref({
@@ -56,19 +84,27 @@ export default defineComponent({
         })
 
         /**
-         * @description 切换主菜单 （UI1-D）
+         * @description 切换主菜单 （UI1-D/UI1-G）
          * @param {number} key
+         * @param {RouteRecordRawExtends} moduleItem
          */
-        const changeMainMenu = (key: number) => {
+        const changeMainMenu = (key: number, moduleItem: RouteRecordRawExtends) => {
+            if (getMenuDisabled(moduleItem)) {
+                return
+            }
             pageData.value.mainMenuIndex = key
         }
 
         /**
-         * @description hover主菜单 （UI1-D）
+         * @description hover主菜单 （UI1-D/UI1-G）
          * @param {number} key
          * @param {boolean} bool
+         * @param {RouteRecordRawExtends} moduleItem
          */
-        const hoverMainMenu = (key: number, bool: boolean) => {
+        const hoverMainMenu = (key: number, bool: boolean, moduleItem: RouteRecordRawExtends) => {
+            if (getMenuDisabled(moduleItem)) {
+                return
+            }
             if (bool) {
                 pageData.value.hoverMenuIndex = key
             } else {
@@ -76,17 +112,34 @@ export default defineComponent({
             }
         }
 
-        onMounted(() => {
-            getConfigModule()
-        })
+        /**
+         * @description 是否禁用菜单
+         * @param {RouteRecordRawExtends} route
+         * @returns {boolean}
+         */
+        const getMenuDisabled = (route: RouteRecordRawExtends) => {
+            return typeof route.meta.enabled !== 'undefined' && !userSession.hasAuth(route.meta.enabled)
+        }
+
+        watch(
+            () => layoutStore.configMenu,
+            () => {
+                getConfigModule()
+            },
+            {
+                immediate: true,
+            },
+        )
 
         return {
             configModules,
-            toDefault,
+            goToDefaultPage,
+            goToPage,
             router,
             pageData,
             changeMainMenu,
             hoverMainMenu,
+            getMenuDisabled,
         }
     },
 })

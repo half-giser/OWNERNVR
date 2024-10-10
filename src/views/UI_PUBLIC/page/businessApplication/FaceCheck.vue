@@ -3,7 +3,7 @@
  * @Date: 2024-08-27 14:24:19
  * @Description: 业务应用-人脸签到
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-23 11:19:15
+ * @LastEditTime: 2024-09-30 16:35:17
 -->
 <template>
     <div class="base-flex-box face">
@@ -120,7 +120,10 @@
                     </el-form-item>
                 </el-form-item>
             </el-form>
-            <div class="base-btn-box">
+            <div
+                class="base-btn-box padding"
+                span="end"
+            >
                 <el-button @click="searchData">{{ Translate('IDCS_SEARCH') }}</el-button>
                 <el-button @click="exportData">{{ Translate('IDCS_EXPORT') }}</el-button>
             </div>
@@ -208,6 +211,10 @@
 <script lang="ts" src="./FaceCheck.v.ts"></script>
 
 <style lang="scss" scoped>
+.face {
+    height: calc(var(--content-height) + 10px);
+}
+
 .form {
     display: flex;
 
@@ -238,11 +245,6 @@
         align-items: flex-end;
         padding-bottom: 10px;
     }
-}
-
-.base-btn-box {
-    padding-right: 10px;
-    box-sizing: border-box;
 }
 
 .end-time {

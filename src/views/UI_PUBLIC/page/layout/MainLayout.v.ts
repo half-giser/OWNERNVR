@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 顶层布局页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-19 16:28:50
+ * @LastEditTime: 2024-10-08 16:07:04
  */
 
 import { type RouteLocationMatched } from 'vue-router'
@@ -17,7 +17,6 @@ export default defineComponent({
     setup() {
         const route = useRoute()
         const router = useRouter()
-        const menu = useMenuStore()
         const userSession = useUserSessionStore()
         const systemCaps = useCababilityStore()
         const { openMessageTipBox } = useMessageBox()
@@ -25,6 +24,7 @@ export default defineComponent({
         const Plugin = inject('Plugin') as PluginType
         const systemInfo = getSystemInfo()
         const layoutStore = useLayoutStore()
+        const pluginStore = usePluginStore()
 
         const menu1Item = computed(() => layoutStore.menu1Item)
         const allMenu1Items = computed(() => layoutStore.menu1Items)
@@ -40,18 +40,24 @@ export default defineComponent({
             // 顶部插件icon状态
             hoverPluginIconIndex: 1,
             // 是否显示插件下载
-            isPluginDownloadBtn: true,
+            isPluginDownloadBtn: false,
             // 插件下载URL
             pluginDownloadURL: '',
             // 是否显示本地配置按钮
-            isLocalConfigBtn: true,
+            isLocalConfigBtn: false,
         })
 
+        /**
+         * @description 关闭修改密码弹窗
+         */
         const closeChangePwdPop = () => {
             pageData.value.mustBeModifiedPassword = false
             pageData.value.isPasswordDialogVisible = false
         }
 
+        /**
+         * @description 打开修改密码弹窗
+         */
         const showChangePwdPop = () => {
             pageData.value.passwordDialogTitle = 'IDCS_CHANGE_PWD'
             // mustBeModifiedPassword.value = false
@@ -60,17 +66,28 @@ export default defineComponent({
 
         const routeMenu = computed(() => getMenu1(route) as RouteLocationMatched)
 
-        // 是否是焦点菜单
+        /**
+         * @description 是否是焦点菜单
+         * @param {RouteRecordRawExtends} menu1
+         * @returns {boolean}
+         */
         const isMenu1Active = (menu1: RouteRecordRawExtends) => {
             return (menu1.name === 'functionPanel' && routeMenu.value.name === 'config') || menu1.meta.fullPath === routeMenu.value.meta.fullPath
         }
 
+        /**
+         * @description 路由跳转
+         * @param {RouteRecordRawExtends} route
+         */
         const goToPath = (route: RouteRecordRawExtends) => {
             router.push({
                 path: route.meta.fullPath,
             })
         }
 
+        /**
+         * @description 注销登录
+         */
         const doLogout = () => {
             Logout()
         }
@@ -92,6 +109,10 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 获取密码强度要求
+         * @returns {string}
+         */
         const getPasswordSecurityStrength = async () => {
             let strength: keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING = 'weak'
             const result = await queryPasswordSecurity()
@@ -106,13 +127,18 @@ export default defineComponent({
             return strength
         }
 
+        /**
+         * @description 强制修改密码，打开修改密码弹窗
+         */
         const forceModifyPassword = () => {
             pageData.value.mustBeModifiedPassword = true
             pageData.value.passwordDialogTitle = userSession.defaultPwd ? 'IDCS_WARNING_DEFAULT_PASSWORD' : 'IDCS_PWD_STRONG_ERROR'
             pageData.value.isPasswordDialogVisible = true
         }
 
-        // 每次刷新都检测密码
+        /**
+         * @description 每次刷新都检测密码
+         */
         const checkForDefaultPwd = async () => {
             const auInfo = userSession.auInfo_N9K
             if (!auInfo) {
@@ -163,7 +189,11 @@ export default defineComponent({
             }
         }
 
-        // P2P 判断输入栏UI不是设备UI, 则跳转地址回设备UI
+        /**
+         * @description P2P 判断输入栏UI不是设备UI, 则跳转地址回设备UI
+         * @param $basicXml
+         * @returns {boolean}
+         */
         const judgeCurrUI = ($basicXml: XMLDocument | Element) => {
             const devVersion = queryXml($basicXml)('//content/softwareVersion').text()
             const inputUI = getUiAndTheme().name.toLowerCase().replace(/i|-/g, '') // 输入栏UI
@@ -187,7 +217,9 @@ export default defineComponent({
             return true
         }
 
-        // 检测磁盘状态
+        /**
+         * @description 检测磁盘状态
+         */
         const checkIsDiskStatus = async () => {
             const result = await queryDiskStatus()
             const $ = queryXml(result)
@@ -232,22 +264,30 @@ export default defineComponent({
             }
         }
 
-        // 设置插件下载的链接
-        const setPluginURL = () => {
-            Plugin.TogglePageByPlugin()
-            // mac操作系统仅支持H5，插件下载按钮隐藏
-            if (systemInfo.platform === 'mac') {
-                pageData.value.isPluginDownloadBtn = false
-            }
-            // 去插件方式不支持本地配置,显示插件下载按钮
-            if (Plugin.IsSupportH5()) {
-                pageData.value.isLocalConfigBtn = false
-                const path = getPluginPath()
-                pageData.value.pluginDownloadURL = path.ClientPluDownLoadPath
-            }
-        }
+        watch(
+            () => pluginStore.currPluginMode,
+            (mode) => {
+                // 去插件方式不支持本地配置,显示插件下载按钮
+                if (mode !== 'ocx') {
+                    const path = getPluginPath()
+                    pageData.value.pluginDownloadURL = path.ClientPluDownLoadPath
+                    // mac操作系统仅支持H5，插件下载按钮隐藏
+                    if (systemInfo.platform !== 'mac') {
+                        pageData.value.isPluginDownloadBtn = true
+                    }
+                } else if (mode === 'ocx') {
+                    pageData.value.isLocalConfigBtn = true
+                    pageData.value.isPluginDownloadBtn = false
+                }
+            },
+            {
+                immediate: true,
+            },
+        )
 
-        // 执行插件下载
+        /**
+         * @description 执行插件下载
+         */
         const handleDownloadPlugin = () => {
             const pluginName = pageData.value.pluginDownloadURL.slice(pageData.value.pluginDownloadURL.lastIndexOf('/') + 1)
             const link = document.createElement('a')
@@ -261,13 +301,16 @@ export default defineComponent({
             }, 1000)
         }
 
-        // 跳转本地配置页
+        /**
+         * @description 跳转本地配置页
+         */
         const showLocalConfig = () => {
             router.push({
                 path: '/config/local',
             })
         }
 
+        // 用户名显示
         const userName = computed(() => {
             const authInfo = userSession.getAuthInfo()
             if (authInfo) return authInfo[0]
@@ -277,6 +320,7 @@ export default defineComponent({
         onMounted(async () => {
             const title = Translate('IDCS_WEB_CLIENT')
             document.title = title === 'IDCS_WEB_CLIENT' ? '' : title
+
             await showProductModel(() => {
                 checkForDefaultPwd()
                 if (userSession.loginCheck === 'check') {
@@ -284,7 +328,7 @@ export default defineComponent({
                     userSession.loginCheck = 'notCheck'
                 }
             })
-            setPluginURL()
+            Plugin.TogglePageByPlugin()
         })
 
         return {
@@ -292,7 +336,6 @@ export default defineComponent({
             pageData,
             menu1Item, // 当前进入的一级菜单项的二级菜单列表
             allMenu1Items,
-            menu,
             systemCaps,
             userName,
             goToPath,

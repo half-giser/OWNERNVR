@@ -11,26 +11,10 @@
     --el-text-color-regular: var(--input-text);
     --el-disabled-text-color: var(--input-text-disabled);
     --el-text-color-primary: var(--input-text);
+    --el-text-color-secondary: var(--main-text-light);
 }
 
 #n9web {
-    .el-menu {
-        --el-menu-text-color: var(--header-menu-text);
-        --el-menu-active-color: var(--primary);
-        --el-menu-hover-bg-color: var(--main-bg);
-        --el-menu-hover-text-color: var(--primary);
-        background-color: var(--main-bg);
-        &.el-menu--horizontal>.el-menu-item.is-active {
-            color: var(--tabbar-text-active);
-            &:hover {
-                color: var(--sidebar-text-hover);
-            }
-        }
-        &.tab-style .el-menu-item:hover {
-            color: var(--sidebar-text-hover);
-        }
-    }
-
     .el-text {
         --el-text-color: var(--main-text);
     }
@@ -505,6 +489,10 @@
     .el-transfer {
         --el-transfer-border-color: var(--table-border);
         --el-transfer-panel-header-bg-color: var(--table-thead-bg);
+
+        &-panel {
+            --el-bg-color-overlay: var(--main-bg);
+        }
 
         &-panel .el-transfer-panel__header .el-checkbox .el-checkbox__label {
             color: var(--table-thead-text);

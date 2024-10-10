@@ -1,5 +1,4 @@
 import { AlarmOut } from '@/types/apiType/aiAndEvent'
-import { tableRowStatus, tableRowStatusToolTip } from '@/utils/const/other'
 import { defineComponent } from 'vue'
 import { cloneDeep } from 'lodash-es'
 import { editAlarmOutParam } from '@/api/aiAndEvent'
@@ -69,7 +68,7 @@ export default defineComponent({
                     const row = new AlarmOut()
                     row.id = item.attr('id')!
                     row.name = xmlParse('./name', item.element).text()
-                    row.status = tableRowStatus.loading
+                    row.status = 'loading'
                     tableData.value.push(row)
                 })
 
@@ -241,9 +240,7 @@ export default defineComponent({
         return {
             pageData,
             tableData,
-            tableRowStatusToolTip,
             curAlarmoutType,
-
             changePagination,
             changePaginationSize,
             changeAllValue,

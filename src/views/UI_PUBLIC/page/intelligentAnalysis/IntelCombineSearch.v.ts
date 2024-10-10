@@ -2,8 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-10 18:29:15
  * @Description: 智能分析 - 组合搜索
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-14 09:26:44
+ * @LastEditors: luoyiming a11593@tvt.net.cn
+ * @LastEditTime: 2024-10-09 16:06:50
  */
 import { type IntelSearchCollectList, type IntelSearchList, IntelSnapImgDto, IntelSearchCombineForm, type IntelSnapPopList } from '@/types/apiType/intelligentAnalysis'
 import IntelBaseChannelSelector from './IntelBaseChannelSelector.vue'
@@ -493,7 +493,7 @@ export default defineComponent({
                         isNoData: false,
                         imgId: parseInt(split[2], 16) + '',
                         timestamp,
-                        frameTime: localToUtc + ':' + ('0000000' + parseInt(split[1], 16)).slice(-7),
+                        frameTime: localToUtc(timestamp) + ':' + ('0000000' + parseInt(split[1], 16)).slice(-7),
                         guid,
                         chlId,
                         chlName: chlMap[chlId],
@@ -551,6 +551,7 @@ export default defineComponent({
          * @param {IntelSearchList} row
          */
         const handleTableRowClick = (row: IntelSearchList) => {
+            play(row)
             tableRef.value!.clearSelection()
             tableRef.value!.toggleRowSelection(row, true)
         }

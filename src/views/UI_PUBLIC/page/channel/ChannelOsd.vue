@@ -116,25 +116,7 @@
                         class-name="custom_cell"
                     >
                         <template #default="scope">
-                            <div
-                                v-if="scope.row.status === 'loading'"
-                                class="table_status_col_loading"
-                                :title="scope.row.statusTip"
-                            ></div>
-                            <BaseImgSprite
-                                v-else-if="scope.row.status === 'success'"
-                                file="success"
-                                :chunk="1"
-                                :index="0"
-                                :title="scope.row.statusTip"
-                            />
-                            <BaseImgSprite
-                                v-else-if="scope.row.status === 'error'"
-                                file="error"
-                                :chunk="1"
-                                :index="0"
-                                :title="scope.row.statusTip"
-                            />
+                            <BaseTableRowStatus :icon="scope.row.status"></BaseTableRowStatus>
                         </template>
                     </el-table-column>
                     <el-table-column

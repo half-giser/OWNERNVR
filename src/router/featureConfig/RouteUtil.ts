@@ -77,8 +77,8 @@ Object.keys(puglicPages).forEach((prop) => {
     }
 })
 
-let root: RouteRecordRaw
-let config: RouteRecordRaw
+// let root: RouteRecordRaw
+// let config: RouteRecordRaw
 
 /**
  * @description: 基于功能树和UI配置生成路由树
@@ -97,7 +97,7 @@ function buildRouter() {
     // setRouteAuth(routes);
 
     //将第一个有权限的子路由设置为上一级的默认路由，设置父路由的redirct为默认子路由
-    setRouteDefault(routes)
+    // setRouteDefault(routes)
 
     return routes
 }
@@ -125,30 +125,30 @@ function routeSortFun(a: RouteRecordRaw, b: RouteRecordRaw): number {
  * @param {RouteRecordRaw} _routes
  * @return {*}
  */
-function setRouteAuth(_routes: RouteRecordRaw[]) {
-    //TODO: 设置权限
-    console.log(_routes)
-}
+// function setRouteAuth(_routes: RouteRecordRaw[]) {
+//     //TODO: 设置权限
+//     console.log(_routes)
+// }
 
 /**
  * @description: 将第一个有权限的子路由设置为上一级的默认路由，设置父路由的redirct为默认子路由
  * @param {RouteRecordRaw} routes
  * @return {*}
  */
-function setRouteDefault(routes: RouteRecordRaw[]): void {
-    routes.forEach((item) => {
-        if (item.children) {
-            const defaultRoute = item.children.find((o) => {
-                const auth = (<RouteMeta>o.meta).auth
-                return auth === undefined || auth
-            })
-            if (defaultRoute) {
-                item.redirect = (<RouteMeta>defaultRoute.meta).fullPath as string
-            }
-            setRouteDefault(item.children)
-        }
-    })
-}
+// function setRouteDefault(routes: RouteRecordRaw[]): void {
+//     // routes.forEach((item) => {
+//     //     if (item.children) {
+//     //         const defaultRoute = item.children.find((o) => {
+//     //             const auth = (<RouteMeta>o.meta).auth
+//     //             return auth === undefined || auth
+//     //         })
+//     //         if (defaultRoute) {
+//     //             item.redirect = (<RouteMeta>defaultRoute.meta).fullPath as string
+//     //         }
+//     //         setRouteDefault(item.children)
+//     //     }
+//     // })
+// }
 
 /**
  * @description: 解析树/子树
@@ -174,7 +174,7 @@ function resolveRouteTree(tree: FeatureTree, routes: RouteRecordRaw[], parent: R
  * @return {*}
  */
 function resolveRouteItem(featureItem: FeatureItem, routes: RouteRecordRaw[], parent: RouteRecordRaw | null) {
-    const routeRecord: RouteRecordRaw = <RouteRecordRaw>{}
+    const routeRecord = {} as RouteRecordRaw
     routes.push(routeRecord)
     //非叶子节点，菜单页面
     if ('children' in featureItem) {
@@ -207,11 +207,11 @@ function setRouteRecordField(featureItem: FeatureItem, routeRecord: RouteRecordR
     }
     if (featureItem.name) {
         routeRecord.name = featureItem.name
-        if (featureItem.name === 'root') {
-            root = routeRecord
-        } else if (featureItem.name === 'config') {
-            config = routeRecord
-        }
+        // if (featureItem.name === 'root') {
+        //     root = routeRecord
+        // } else if (featureItem.name === 'config') {
+        //     config = routeRecord
+        // }
     }
     if (featureItem.meta) {
         routeRecord.meta = featureItem.meta
@@ -243,7 +243,7 @@ function setRouteRecordField(featureItem: FeatureItem, routeRecord: RouteRecordR
 
 export {
     buildRouter, //基于功能树和UI配置生成路由树
-    setRouteAuth, //设置路由权限
-    root, //登录后的根路由节点
-    config, //配置的根路由节点
+    // setRouteAuth, //设置路由权限
+    // root, //登录后的根路由节点
+    // config, //配置的根路由节点
 }

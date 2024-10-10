@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 顶层布局页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-27 13:42:29
+ * @LastEditTime: 2024-10-08 16:31:54
 -->
 <template>
     <el-container id="layoutMain">
@@ -22,11 +22,10 @@
                 </div>
                 <div id="topRight">
                     <div
-                        v-show="pageData.isPluginDownloadBtn"
+                        v-if="pageData.isPluginDownloadBtn"
                         class="nav-item"
                     >
                         <span
-                            id="http_dlPlugin"
                             class="dlPlugin effective"
                             @click="handleDownloadPlugin"
                         >
@@ -94,23 +93,21 @@
                     :router="true"
                     :ellipsis="false"
                 >
-                    <template v-for="(route, key) in allMenu1Items">
-                        <el-menu-item
-                            v-if="menu.isMenuItemShow(route)"
-                            :key
-                            :index="route.meta.fullPath"
-                            :class="{
-                                'is-active': isMenu1Active(route),
-                            }"
-                            @click="goToPath(route)"
-                        >
-                            <span
-                                :title="Translate(String(route?.meta?.lk))"
-                                v-text="Translate(String(route?.meta?.lk))"
-                            ></span>
-                            <span class="menu-split"></span>
-                        </el-menu-item>
-                    </template>
+                    <el-menu-item
+                        v-for="(route, key) in allMenu1Items"
+                        :key
+                        :index="route.meta.fullPath"
+                        :class="{
+                            'is-active': isMenu1Active(route),
+                        }"
+                        @click="goToPath(route)"
+                    >
+                        <span
+                            :title="Translate(String(route?.meta?.lk))"
+                            v-text="Translate(String(route?.meta?.lk))"
+                        ></span>
+                        <span class="menu-split"></span>
+                    </el-menu-item>
                 </el-menu>
             </div>
         </el-header>
@@ -183,7 +180,7 @@
 
 #topRight {
     font-size: 14px;
-    margin: 20px 60px 0px 0px;
+    margin: 0 60px 0px 0px;
     display: flex;
     color: var(--header-text);
 
@@ -232,6 +229,7 @@
 .el-menu--horizontal {
     background-color: var(--main-bg);
     border-bottom: solid 1px var(--main-border);
+    --el-menu-active-color: var(--header-menu-text-active);
 
     & > .el-menu-item {
         margin: 0px 12px;
@@ -242,18 +240,18 @@
         font-size: 16px;
         color: var(--header-menu-text);
         background-color: var(--header-menu-bg);
-        border-bottom: solid 6px var(--header-menu-border);
+        border-bottom: 6px solid var(--header-menu-border);
 
         &:hover {
             background-color: var(--header-menu-bg-hover);
             color: var(--header-menu-text-hover);
-            border-bottom: solid 6px var(--header-menu-border-hover);
+            border-bottom-color: var(--header-menu-border-hover);
         }
 
         &:focus {
             background-color: var(--header-menu-bg-hover);
             color: var(--header-menu-text-hover);
-            border-bottom: solid 6px var(--header-menu-border-hover);
+            border-bottom-color: var(--header-menu-border-hover);
         }
 
         &:first-of-type {
@@ -268,7 +266,7 @@
         &.is-active:hover {
             background-color: var(--header-menu-bg-active);
             color: var(--header-menu-border-active);
-            border-bottom: solid 6px var(--header-menu-border-active);
+            border-bottom-color: var(--header-menu-border-active);
         }
     }
 }
@@ -285,7 +283,7 @@
     box-sizing: border-box;
     width: 100%;
     height: 100%;
-    overflow-y: auto;
+    // overflow-y: auto;
     flex-shrink: 1;
 }
 

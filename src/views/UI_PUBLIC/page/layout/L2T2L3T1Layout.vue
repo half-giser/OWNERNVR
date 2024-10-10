@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 二级类型2布局页--三级类型1布局页--适用于“智能分析-搜索”、“业务应用-停车场管理”等
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-27 17:04:51
+ * @LastEditTime: 2024-10-08 14:42:20
 -->
 <template>
     <el-container id="layout3">
@@ -13,26 +13,22 @@
                 popper-effect="light"
                 :router="true"
             >
-                <template
+                <el-menu-item
                     v-for="menu3 in menu3Items"
                     :key="menu3.meta.fullPath"
+                    :index="menu3.meta.fullPath"
+                    :route="menu3"
                 >
-                    <el-menu-item
-                        v-if="isMenuItemShow(menu3)"
-                        :index="menu3.meta.fullPath"
-                        :route="menu3"
-                    >
-                        <template #default>
-                            <BaseImgSprite :file="menu3.meta.icon" />
-                        </template>
-                        <template #title>
-                            <span
-                                :title="Translate(menu3.meta.lk || '')"
-                                v-text="Translate(menu3.meta.lk || '')"
-                            ></span>
-                        </template>
-                    </el-menu-item>
-                </template>
+                    <template #default>
+                        <BaseImgSprite :file="menu3.meta.icon" />
+                    </template>
+                    <template #title>
+                        <span
+                            :title="Translate(menu3.meta.lk || '')"
+                            v-text="Translate(menu3.meta.lk || '')"
+                        ></span>
+                    </template>
+                </el-menu-item>
             </el-menu>
         </el-aside>
         <el-main id="layout3Content">
@@ -56,6 +52,7 @@
 
     .el-menu {
         border-right: 0px;
+        background-color: var(--main-bg);
 
         .el-menu-item {
             display: flex;
@@ -65,6 +62,7 @@
             text-align: center;
             padding: 0px !important;
             height: 90px;
+            color: var(--sidebar-text);
             --el-menu-hover-bg-color: var(--sidebar-bg-hover);
             --el-menu-text-color: var(--sidebar-text);
 

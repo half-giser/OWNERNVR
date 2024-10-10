@@ -3,7 +3,7 @@
  * @Date: 2023-05-04 22:08:40
  * @Description: HTTP请求工具类
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-20 15:32:56
+ * @LastEditTime: 2024-09-30 17:50:39
  */
 
 /* axios配置入口文件 */
@@ -116,12 +116,12 @@ class Request {
                         }
                         resolve(xml('/response')[0].element)
                     } else {
-                        console.log('error = xmlDoc is null')
+                        console.trace('error = xmlDoc is null')
                         reject('xmlDoc_is_null')
                     }
                 },
                 (error) => {
-                    console.log('error =', error)
+                    console.trace('error =', error)
                     reject(error)
                 },
             )

@@ -140,14 +140,18 @@
     --config-menu-text: #3c3c3c; // 功能面板页-主菜单-文本
     --config-menu-text-hover: var(--primary); // 功能面板页-主菜单-文本 (hover)
     --config-menu-text-active: var(--primary); // 功能面板页-主菜单-文本 (active)
+    --config-menu-text-disabled: #D9D9D9; // 功能面板页-主菜单-文本 (disabled)
     --config-menu-bg: unset; // 功能面板页-主菜单-背景
     --config-menu-bg-hover: unset; // 功能面板页-主菜单-背景 （hover）
     --config-menu-bg-active: unset; // 功能面板页-主菜单-背景 （active）
+    --config-menu-bg-disabled: unset; // 功能面板页-主菜单-背景 (disabled)
     --config-menu-border: #aeaeae; // 功能面板页-主菜单-border
     --config-menu-border-hover: var(--primary); // 功能面板页-主菜单-border (hover)
+    --config-menu-border-disabled: #D9D9D9; // 功能面板页-主菜单-border (disabled)
 
     --config-submenu-text: #8f8f8f; // 功能面板-子菜单-文本
     --config-submenu-text-hover: var(--primary); // 功能面板-子菜单-文本 (hover)
+    --config-submenu-text-disabled: #D9D9D9; // 功能面板-子菜单-文本 (disabled)
     --config-submenu-bg: unset; // 功能面板-子菜单-背景
 
     /**
@@ -174,6 +178,7 @@
     --config-aside-text: #8d8d8d; // 配置页-左侧菜单栏-文本
     --config-aside-text-hover: var(--primary); // 配置页-左侧菜单栏-文本 (hover)
     --config-aside-text-active: #8d8d8d; // 配置页-左侧菜单栏-文本 (active)
+    --config-aside-text-disabled: #D9D9D9; // 配置页-左侧菜单栏-文本 (disabled)
     --config-aside-bg: unset; // 配置页-左侧菜单栏-背景
     --config-aside-item-bg: unset; // 配置页-左侧菜单栏菜单项-背景
     --config-aside-item-bg-active: #eee; // 配置页-左侧菜单栏菜单项-背景 (active)

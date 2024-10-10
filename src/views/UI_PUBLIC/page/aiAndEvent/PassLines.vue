@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-12 15:00:13
  * @Description: 过线检测
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 14:15:47
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-09 14:06:15
 -->
 <template>
     <div class="tripwire_setting_pane">
@@ -32,22 +32,25 @@
         </div>
         <div v-if="!pageData.notSupportTipShow && !pageData.requireDataFail">
             <!-- 检测开启 -->
-            <el-form class="narrow">
-                <el-form-item v-if="pageData.chlData.supportPassLine">
+            <div
+                class="base-btn-box padding collapse"
+                :span="2"
+            >
+                <div v-if="pageData.chlData.supportPassLine">
                     <el-checkbox
                         v-model="pageData.passLineDetectionEnable"
                         @change="pageData.applyDisable = false"
                         >{{ Translate('IDCS_ENABLE') }}</el-checkbox
                     >
-                </el-form-item>
-                <el-form-item v-if="pageData.chlData.supportCpc">
+                </div>
+                <div v-if="pageData.chlData.supportCpc">
                     <el-checkbox
                         v-model="pageData.cpcDetectionEnable"
                         @change="pageData.applyDisable = false"
                         >{{ Translate('IDCS_ENABLE') }}</el-checkbox
                     >
-                </el-form-item>
-            </el-form>
+                </div>
+            </div>
             <!-- 更多按钮 -->
             <div
                 v-if="pageData.chlData.supportPassLine"
@@ -132,9 +135,9 @@
                     :label="Translate('IDCS_PARAM_SETTING')"
                     name="param"
                 >
-                    <!-- passLine -->
                     <div class="base-ai-param-box">
                         <div class="base-ai-param-box-left"></div>
+                        <!-- passLine -->
                         <div
                             v-if="pageData.chlData.supportPassLine"
                             class="base-ai-param-right"
@@ -143,6 +146,7 @@
                                 :model="pageData"
                                 label-width="150px"
                                 label-position="left"
+                                class="narrow"
                                 :style="{
                                     '--form-input-width': '215px',
                                 }"
@@ -497,8 +501,8 @@
                                             <el-checkbox
                                                 v-model="pageData.objectFilter.person"
                                                 @change="pageData.applyDisable = false"
-                                            ></el-checkbox>
-                                            <span>{{ Translate('IDCS_DETECTION_PERSON') }}</span>
+                                                >{{ Translate('IDCS_DETECTION_PERSON') }}</el-checkbox
+                                            >
                                         </el-row>
                                     </template>
                                     <template #default>
@@ -519,8 +523,8 @@
                                             <el-checkbox
                                                 v-model="pageData.objectFilter.car"
                                                 @change="pageData.applyDisable = false"
-                                            ></el-checkbox>
-                                            <span>{{ Translate('IDCS_DETECTION_VEHICLE') }}</span>
+                                                >{{ Translate('IDCS_DETECTION_VEHICLE') }}</el-checkbox
+                                            >
                                         </div>
                                     </template>
                                     <template #default>
@@ -541,8 +545,8 @@
                                             <el-checkbox
                                                 v-model="pageData.objectFilter.motorcycle"
                                                 @change="pageData.applyDisable = false"
-                                            ></el-checkbox>
-                                            <span>{{ Translate('IDCS_NON_VEHICLE') }}</span>
+                                                >{{ Translate('IDCS_NON_VEHICLE') }}</el-checkbox
+                                            >
                                         </div>
                                     </template>
                                     <template #default>
@@ -584,10 +588,18 @@
 <style lang="scss" scoped>
 .more_wrap {
     position: absolute;
-    top: 61px;
-    right: 22px;
+    top: 42px;
+    right: 13px;
     z-index: 1;
     cursor: pointer;
     z-index: 1;
+    display: flex;
+    align-items: center;
+}
+.base-ai-linkage-title-checkbox {
+    padding-left: 15px;
+    :deep(.el-checkbox__label) {
+        padding-left: 3px;
+    }
 }
 </style>

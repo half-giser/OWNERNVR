@@ -278,7 +278,7 @@ export default defineComponent({
 
                     pageData.value.urgencyRecDurationList.push({
                         value: value,
-                        label: getTimeTranslateString(value),
+                        label: getTranslateForMin(value),
                     })
                 })
 

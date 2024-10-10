@@ -58,13 +58,16 @@
                 <span class="base-ai-tip">{{ Translate('IDCS_DRAW_AREA_TIP').formatForLang(6) }}</span>
             </div>
         </div>
-        <div class="base-btn-box padding">
+        <div
+            class="base-btn-box padding collapse"
+            span="start"
+        >
             <el-checkbox v-model="vsdData.enabledSwitch">{{ Translate('IDCS_ENABLE') }}</el-checkbox>
         </div>
         <div>
             <el-tabs
                 v-model="pageData.tab"
-                class="menu_tab"
+                class="base-ai-tabs"
                 @tab-change="tabChange"
             >
                 <!-- 参数设置 -->
@@ -119,6 +122,7 @@
                                         :key="index"
                                         :label="index + 1"
                                         :value="index"
+                                        :class="{ configured_area: pageData.detectConfiguredArea[index] }"
                                     />
                                 </el-radio-group>
                             </el-form-item>
@@ -508,7 +512,7 @@
 .more_wrap {
     position: absolute;
     right: 20px;
-    top: 50px;
+    top: 48px;
     cursor: pointer;
 }
 
@@ -557,6 +561,19 @@
         padding: 1px;
         font-size: 12px;
         overflow: hidden;
+    }
+}
+.detection_span {
+    width: 30px;
+    height: 20px;
+    line-height: 20px;
+    text-align: center;
+    border: 1px solid var(--input-border);
+}
+.configured_area {
+    :deep(.el-radio-button__inner) {
+        border: 1px solid --primary !important;
+        color: --primary;
     }
 }
 </style>
