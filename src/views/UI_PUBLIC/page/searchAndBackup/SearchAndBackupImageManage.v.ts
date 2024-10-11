@@ -21,7 +21,7 @@ export default defineComponent({
         const Plugin = inject('Plugin') as PluginType
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const browser = getBrowserInfo()
 
         const tableRef = ref<TableInstance>()
@@ -104,7 +104,7 @@ export default defineComponent({
                 return
             }
 
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             tableRef.value?.clearSelection()
             tableData.value = []
@@ -125,7 +125,7 @@ export default defineComponent({
             const result = await searchPictures(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             showMaxSearchLimitTips($)
             pageData.value.totalCount = Number($('//content').attr('total')!)

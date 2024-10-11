@@ -1,3 +1,10 @@
+/*
+ * @Author: linguifan linguifan@tvt.net.cn
+ * @Date: 2024-07-09 18:39:25
+ * @Description: 新增通道
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-09 15:33:03
+ */
 import { trim } from 'lodash-es'
 import { ChannelManualAddDto, DefaultPwdDto } from '@/types/apiType/channel'
 import { ChannelAddRecorderDto, ChannelQuickAddDto } from '@/types/apiType/channel'
@@ -7,6 +14,7 @@ import ChannelAddEditIPCIpPop from './ChannelAddEditIPCIpPop.vue'
 import ChannelAddToAddRecorderPop from './ChannelAddToAddRecorderPop.vue'
 import ChannelAddSetProtocolPop from './ChannelAddSetProtocolPop.vue'
 import ChannelAddMultiChlIPCAdd from './ChannelAddMultiChlIPCAdd.vue'
+import type { TableInstance } from 'element-plus'
 
 export default defineComponent({
     components: {
@@ -19,16 +27,16 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const cababilityStore = useCababilityStore()
         const router = useRouter()
         const { openMessageTipBox } = useMessageBox()
         const supportsIPCActivation = cababilityStore.supportsIPCActivation ? cababilityStore.supportsIPCActivation : true
         const supportRecorder = ref(false)
 
-        const quickAddTableRef = ref()
-        const manualAddTableRef = ref()
-        const addRecorderTableRef = ref()
+        const quickAddTableRef = ref<TableInstance>()
+        const manualAddTableRef = ref<TableInstance>()
+        const addRecorderTableRef = ref<TableInstance>()
         const tabKeys = {
             quickAdd: 'quickAdd',
             manualAdd: 'manualAdd',
@@ -76,13 +84,13 @@ export default defineComponent({
             { value: manualAddTypeKeys.domain, text: Translate('IDCS_DOMAIN') },
         ])
 
-        const getSystemCaps = function () {
-            openLoading(LoadingTarget.FullScreen)
+        const getSystemCaps = () => {
+            openLoading()
             queryRecordDistributeInfo().then((res) => {
                 const $ = queryXml(res)
                 const mode = $('//content/recMode/mode').text()
                 querySystemCaps(getXmlWrapData('')).then((res) => {
-                    closeLoading(LoadingTarget.FullScreen)
+                    closeLoading()
                     const $ = queryXml(res)
                     chlCountLimit.value = Number($('//content/chlMaxCount').text())
                     const totalBandwidth = Number($('//content/totalBandwidth').text())
@@ -96,10 +104,10 @@ export default defineComponent({
             })
         }
 
-        const getDefaultPwd = function (callback?: Function) {
-            openLoading(LoadingTarget.FullScreen)
+        const getDefaultPwd = (callback?: () => void) => {
+            openLoading()
             queryDevDefaultPwd(getXmlWrapData('')).then((res) => {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
                     defaultPwdList.value = []
@@ -121,10 +129,10 @@ export default defineComponent({
             })
         }
 
-        const getLanFreeDevs = function () {
-            openLoading(LoadingTarget.FullScreen)
+        const getLanFreeDevs = () => {
+            openLoading()
             queryLanFreeDeviceList(getXmlWrapData('')).then((res) => {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
                     manufacturerMap.value = {}
@@ -180,7 +188,7 @@ export default defineComponent({
                             newData.activateStatus = eleXml('activateStatus').text()
                             rowData.push(newData)
                         })
-                        rowData.sort(function (ele1: ChannelQuickAddDto, ele2: ChannelQuickAddDto) {
+                        rowData.sort((ele1: ChannelQuickAddDto, ele2: ChannelQuickAddDto) => {
                             const ipArr1 = ele1['ip'].split('.')
                             const ipArr2 = ele2['ip'].split('.')
                             return Number(ipArr1[0]) > Number(ipArr2[0])
@@ -201,7 +209,7 @@ export default defineComponent({
                                               ? -1
                                               : 0
                         })
-                        rowData.sort(function (ele1: ChannelQuickAddDto, ele2: ChannelQuickAddDto) {
+                        rowData.sort((ele1: ChannelQuickAddDto, ele2: ChannelQuickAddDto) => {
                             const activate1 = ele1['activateStatus'] == 'UNACTIVATED' ? 1 : ele1['activateStatus'] == 'UNKNOWN' ? 0 : -1
                             const activate2 = ele2['activateStatus'] == 'UNACTIVATED' ? 1 : ele2['activateStatus'] == 'UNKNOWN' ? 0 : -1
                             return activate2 - activate1
@@ -213,10 +221,10 @@ export default defineComponent({
             })
         }
 
-        const getLanRecorders = function () {
-            openLoading(LoadingTarget.FullScreen)
+        const getLanRecorders = () => {
+            openLoading()
             queryLanRecorderList(getXmlWrapData('')).then((res) => {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
                     const rowData = [] as Array<ChannelAddRecorderDto>
@@ -241,7 +249,7 @@ export default defineComponent({
             })
         }
 
-        const getProtocolList = function (callBack: Function) {
+        const getProtocolList = (callBack: Function) => {
             queryRtspProtocolList(getXmlWrapData('')).then((res) => {
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
@@ -274,7 +282,7 @@ export default defineComponent({
             if (isRefresh) getData()
         }
 
-        const manualAddNewRow = function (rowCount: number) {
+        const manualAddNewRow = (rowCount: number) => {
             const defaultPwdData = defaultPwdList.value[0]
             let defaultPort = 80
             if (defaultPwdData.protocolType == 'TVT_IPCAMERA') {
@@ -299,7 +307,7 @@ export default defineComponent({
             tempManualProtocolData.push(newData.manufacturer)
         }
 
-        const formatDisplayManufacturer = function (rowData: ChannelQuickAddDto) {
+        const formatDisplayManufacturer = (rowData: ChannelQuickAddDto) => {
             if (rowData.productModel.factoryName) {
                 return rowData.productModel.factoryName
             } else {
@@ -307,21 +315,21 @@ export default defineComponent({
             }
         }
 
-        const handleRowClick = function (rowData: ChannelQuickAddDto) {
-            quickAddTableRef.value.clearSelection()
-            quickAddTableRef.value.toggleRowSelection(rowData, true)
+        const handleRowClick = (rowData: ChannelQuickAddDto) => {
+            quickAddTableRef.value!.clearSelection()
+            quickAddTableRef.value!.toggleRowSelection(rowData, true)
         }
 
-        const rowDelClass = function (index: number) {
+        const rowDelClass = (index: number) => {
             return index === manualAddFormData.value.length - 1 ? 'disabled' : ''
         }
 
-        const rowDel = function (index: number) {
+        const rowDel = (index: number) => {
             if (index === manualAddFormData.value.length - 1) return
             manualAddFormData.value.splice(index, 1)
         }
 
-        const cellChange = function (val: any, index: number, row: ChannelManualAddDto, tag?: string) {
+        const cellChange = (val: any, index: number, row: ChannelManualAddDto, tag?: string) => {
             if (tag) {
                 if (tag === 'manufacturer') {
                     if (val === 'ProtocolMgr') {
@@ -362,7 +370,7 @@ export default defineComponent({
             if (index == manualAddFormData.value.length - 1) manualAddNewRow(manualAddFormData.value.length)
         }
 
-        function Trim(str: string, is_global: string) {
+        const Trim = (str: string, is_global: string) => {
             let result
             result = str.replace(/(^\s+)|(\s+$)/g, '')
             if (is_global.toLowerCase() == 'g') {
@@ -371,7 +379,7 @@ export default defineComponent({
             return result
         }
 
-        function in_array(stringToSearch: string, arrayToSearch: string[]) {
+        const in_array = (stringToSearch: string, arrayToSearch: string[]) => {
             for (let s = 0; s < arrayToSearch.length; s++) {
                 const thisEntry = arrayToSearch[s]
                 //解决中间有空格不相等的问题
@@ -382,7 +390,7 @@ export default defineComponent({
             return false
         }
 
-        const handleRefresh = function () {
+        const handleRefresh = () => {
             switch (activeTab.value) {
                 case tabKeys.quickAdd:
                     getDefaultPwd()
@@ -395,8 +403,8 @@ export default defineComponent({
             }
         }
 
-        const activateVerify = function () {
-            const selectedRows: Array<ChannelQuickAddDto> = quickAddTableRef.value.getSelectionRows()
+        const activateVerify = () => {
+            const selectedRows: Array<ChannelQuickAddDto> = quickAddTableRef.value!.getSelectionRows()
             const unActivateData: Array<ChannelQuickAddDto> = []
             if (selectedRows.length == 0) {
                 openMessageTipBox({
@@ -421,10 +429,12 @@ export default defineComponent({
 
         // 激活IPC
         const activateIPCVisable = ref(false)
-        const handleActivate = function () {
+
+        const handleActivate = () => {
             if (!activateVerify()) return
             activateIPCVisable.value = true
         }
+
         const closeActivateIPCPop = () => {
             activateIPCVisable.value = false
         }
@@ -449,7 +459,7 @@ export default defineComponent({
         }
 
         const handleSelectionChange = () => {
-            selNum.value = quickAddTableRef.value.getSelectionRows().length
+            selNum.value = quickAddTableRef.value!.getSelectionRows().length
         }
 
         const handleCancel = () => {
@@ -521,7 +531,7 @@ export default defineComponent({
                         </itemType>`
                 if (activeTab.value == tabKeys.quickAdd) {
                     let numName = Number(localStorage.getItem(LocalCacheKey.defaultChlMaxValue))
-                    quickAddTableRef.value.getSelectionRows().forEach((ele: ChannelQuickAddDto) => {
+                    quickAddTableRef.value!.getSelectionRows().forEach((ele: ChannelQuickAddDto) => {
                         // 处理IPC设备名称为空格的情况
                         const devName = ele.devName ? trim(ele.devName) : ''
                         const defaultName = devName ? devName : Translate('IDCS_IP_CHANNEL')
@@ -611,9 +621,9 @@ export default defineComponent({
         }
 
         const addIPCDev = (sendXml: string) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             createDevList(sendXml).then((res) => {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 const $ = queryXml(res)
                 getSystemCaps()
                 if ($('status').text() == 'success') {
@@ -625,41 +635,41 @@ export default defineComponent({
                     })
                 } else {
                     const errorCode = Number($('errorCode').text())
-                    if (errorCode == errorCodeMap.nodeExist) {
+                    if (errorCode == ErrorCode.USER_ERROR_NODE_ID_EXISTS) {
                         openMessageTipBox({
                             type: 'info',
                             message: Translate('IDCS_PROMPT_CHANNEL_EXIST'),
                         })
-                    } else if (errorCode == 536871004) {
+                    } else if (errorCode == ErrorCode.USER_ERROR_OVER_LIMIT) {
                         openMessageTipBox({
                             type: 'info',
                             message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT'),
                         }).then(() => {
                             router.push('list')
                         })
-                    } else if (errorCode == 536871005) {
+                    } else if (errorCode == ErrorCode.USER_ERROR_OVER_BANDWIDTH_LIMIT) {
                         openMessageTipBox({
                             type: 'info',
                             message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_BANDWIDTH_LIMIT'),
                         })
-                    } else if (errorCode == 536871007) {
+                    } else if (errorCode == ErrorCode.USER_ERROR_SPECIAL_CHAR) {
                         const poePort = $('poePort').text()
                         // POE连接冲突提示
                         openMessageTipBox({
                             type: 'info',
                             message: Translate('IDCS_POE_RESOURCE_CONFLICT_TIP').formatForLang(poePort),
                         })
-                    } else if (errorCode == 536871050) {
+                    } else if (errorCode == ErrorCode.USER_ERROR_LIMITED_PLATFORM_TYPE_MISMATCH) {
                         openMessageTipBox({
                             type: 'info',
                             message: Translate('IDCS_ADD_CHANNEL_FAIL').formatForLang(faceMatchLimitMaxChlNum),
                         })
-                    } else if (errorCode == 536870992) {
+                    } else if (errorCode == ErrorCode.USER_ERROR_INVALID_IP) {
                         openMessageTipBox({
                             type: 'info',
                             message: Translate('IDCS_PROMPT_IPADDRESS_V6_INVALID'),
                         })
-                    } else if (errorCode == 536871052) {
+                    } else if (errorCode == ErrorCode.USER_ERROR_PC_LICENSE_MISMATCH) {
                         const msg = Translate('IDCS_ADD_CHANNEL_FAIL').formatForLang(faceMatchLimitMaxChlNum) + Translate('IDCS_REBOOT_DEVICE').formatForLang(Translate('IDCS_KEEP_ADD'))
                         openMessageTipBox({
                             type: 'question',
@@ -681,7 +691,7 @@ export default defineComponent({
         const getData = () => {
             mapping.value = {}
             defaultPwdList.value = []
-            getDefaultPwd(function () {
+            getDefaultPwd(() => {
                 getLanFreeDevs()
                 getLanRecorders()
             })

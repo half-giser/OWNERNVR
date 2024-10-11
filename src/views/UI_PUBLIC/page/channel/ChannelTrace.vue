@@ -2,13 +2,13 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-20 13:57:42
  * @Description: 云台-轨迹
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-09 15:54:37
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-09 15:27:10
 -->
 <template>
-    <div class="trace">
-        <div class="left">
-            <div class="player">
+    <div class="base-chl-box">
+        <div class="base-chl-box-left">
+            <div class="base-chl-box-player">
                 <BaseVideoPlayer
                     ref="playerRef"
                     type="live"
@@ -54,7 +54,7 @@
                         :content="Translate('IDCS_TRACK_PLAY')"
                     >
                         <BaseImgSprite
-                            class="icon-btn"
+                            class="base-chl-icon-btn"
                             file="play"
                             :index="0"
                             :hover-index="2"
@@ -69,7 +69,7 @@
                         :content="Translate('IDCS_TRACK_STOP')"
                     >
                         <BaseImgSprite
-                            class="icon-btn"
+                            class="base-chl-icon-btn"
                             file="stop"
                             :index="0"
                             :hover-index="2"
@@ -94,7 +94,7 @@
                         :show-after="500"
                     >
                         <BaseImgSprite
-                            class="icon-btn"
+                            class="base-chl-icon-btn"
                             file="save"
                             :index="0"
                             :hover-index="2"
@@ -133,7 +133,7 @@
                 </div>
             </el-form>
         </div>
-        <div class="right">
+        <div class="base-chl-box-right">
             <div class="base-table-box">
                 <el-table
                     ref="tableRef"
@@ -182,58 +182,11 @@
 
 <script lang="ts" src="./ChannelTrace.v.ts"></script>
 
-<style>
-.custom-select {
-    max-height: 180px;
-    overflow-y: auto;
-}
+<style lang="scss">
+@import '@/views/UI_PUBLIC/publicStyle/channel.scss';
 </style>
 
 <style lang="scss" scoped>
-.trace {
-    width: 100%;
-    height: var(--content-height);
-    display: flex;
-}
-
-.left {
-    width: 400px;
-}
-
-.player {
-    width: 400px;
-    height: 300px;
-}
-
-.icon-btn {
-    flex-shrink: 0;
-    background-color: var(--ptz-btn);
-    border: 1px solid var(--ptz-btn);
-
-    &:hover {
-        background-color: var(--ptz-btn);
-        border-color: var(--primary);
-    }
-
-    &.disabled {
-        background-color: var(--ptz-btn-disabled);
-
-        &:hover {
-            border-color: var(--ptz-btn);
-        }
-    }
-
-    & + .icon-btn {
-        margin-left: 5px;
-    }
-}
-
-.right {
-    width: 100%;
-    height: 100%;
-    margin-left: 10px;
-}
-
 .seconds {
     margin: 0;
     width: 50px;

@@ -23,7 +23,7 @@ export default defineComponent({
         const Plugin = inject('Plugin') as PluginType
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const router = useRouter()
         const systemCaps = useCababilityStore()
 
@@ -361,7 +361,7 @@ export default defineComponent({
 
             formData.value.pos = pageData.value.posKeyword
 
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const chls = formData.value.chls.map((chl) => `<item id="${chl}"></item>`).join('')
             const events = formData.value.events
@@ -426,7 +426,7 @@ export default defineComponent({
             const result = await queryChlRecLog(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             showMaxSearchLimitTips($)
 

@@ -3,7 +3,7 @@
  * @Date: 2024-09-20 09:10:22
  * @Description: P2P授权码登录
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-26 19:40:01
+ * @LastEditTime: 2024-10-09 18:40:21
  */
 import type { FormInstance, FormRules } from 'element-plus'
 import { AuthCodeLoginForm } from '@/types/apiType/user'
@@ -12,7 +12,7 @@ export default defineComponent({
     setup() {
         const Plugin = usePlugin()
         const layoutStore = useLayoutStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const lang = useP2PLang()
         const Translate = lang.Translate
         const userSession = useUserSessionStore()
@@ -355,14 +355,14 @@ export default defineComponent({
          * @description 重新获取授权码
          */
         const getAuthCode = () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             pluginStore.manuaClosePlugin = false
             pageData.value.errorMsg = ''
             userSession.p2pSessionId = null
             Plugin.DisposePlugin()
             Plugin.StartV2Process()
             Plugin.SetLoginTypeCallback((loginType, authCodeIndex) => {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 pageData.value.loginType = loginType
                 pageData.value.authCodeIndex = authCodeIndex
                 startCountDownTime()

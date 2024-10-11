@@ -1,20 +1,27 @@
+/*
+ * @Author: yejiahao yejiahao@tvt.net.cn
+ * @Date: 2024-07-09 18:39:25
+ * @Description: 添加通道 - 添加多通道IPC
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-09 15:34:02
+ */
 import { ChannelInfoDto, type DefaultPwdDto, MultiChlCheckedInfoDto, type MultiChlIPCAddDto } from '@/types/apiType/channel'
 
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const userSessionStore = useUserSessionStore()
         const router = useRouter()
         const multiChlIPCCfgDialogVisiable = ref(false)
-        const tableData = ref([] as MultiChlIPCAddDto[])
+        const tableData = ref<MultiChlIPCAddDto[]>([])
 
         const defaultParam =
-            '	<rec per="5" post="10"/>' +
-            '	<snapSwitch>true</snapSwitch>' +
-            '	<buzzerSwitch>false</buzzerSwitch>' +
-            '	<popVideoSwitch>false</popVideoSwitch>' +
-            '	<frontEndOffline_popMsgSwitch>false</frontEndOffline_popMsgSwitch>'
+            '<rec per="5" post="10"/>' +
+            '<snapSwitch>true</snapSwitch>' +
+            '<buzzerSwitch>false</buzzerSwitch>' +
+            '<popVideoSwitch>false</popVideoSwitch>' +
+            '<frontEndOffline_popMsgSwitch>false</frontEndOffline_popMsgSwitch>'
 
         let chlMapping: Record<string, DefaultPwdDto> = {}
         let manufacturerMap: Record<string, string> = {}
@@ -28,7 +35,7 @@ export default defineComponent({
         let multichannelIpcData: MultiChlIPCAddDto[] = [] // 多通道IPC数据（热成像，鱼眼等多通道IPC）
 
         const opened = () => {
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         const init = (
@@ -66,7 +73,7 @@ export default defineComponent({
 
             const chlTypeMap: Record<string, string> = {}
             let curRequestNum = 0
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             nonRTSPData.forEach((item: MultiChlIPCAddDto) => {
                 createLanDeviceRequest(item).then((res) => {
                     const $ = queryXml(res)

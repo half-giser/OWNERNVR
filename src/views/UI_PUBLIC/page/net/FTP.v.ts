@@ -3,7 +3,7 @@
  * @Date: 2024-07-12 18:20:34
  * @Description: FTP配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 15:42:40
+ * @LastEditTime: 2024-10-10 14:10:52
  */
 import { NetFTPForm, type NetFTPList } from '@/types/apiType/net'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -348,7 +348,6 @@ export default defineComponent({
          * @description 修改并关闭排程管理弹窗
          */
         const confirmManageSchedule = () => {
-            // TODO
             pageData.value.isSchedulePop = false
             getScheduleList()
         }

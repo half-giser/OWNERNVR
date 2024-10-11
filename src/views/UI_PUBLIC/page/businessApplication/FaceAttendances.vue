@@ -2,6 +2,8 @@
  * @Author: zhangdongming zhangdongming@tvt.net.cn
  * @Date: 2024-06-05 18:18:24
  * @Description: 业务应用-人脸考勤
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-10 11:34:24
 -->
 <template>
     <div class="base-flex-box face">

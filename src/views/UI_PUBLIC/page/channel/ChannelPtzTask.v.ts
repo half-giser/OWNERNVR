@@ -3,7 +3,7 @@
  * @Date: 2024-08-22 15:15:52
  * @Description: 云台-任务
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 11:54:06
+ * @LastEditTime: 2024-10-09 15:39:02
  */
 import { cloneDeep } from 'lodash-es'
 import { ChannelPtzTaskDto, type ChannelPtzTaskChlDto, ChannelPtzTaskForm } from '@/types/apiType/channel'
@@ -17,7 +17,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
 
         const playerRef = ref<PlayerInstance>()
         const auth = useUserChlAuth(false)
@@ -659,14 +659,14 @@ export default defineComponent({
         )
 
         onMounted(async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             await auth.value.update()
             await getData()
             if (tableData.value.length) {
                 tableRef.value?.setCurrentRow(tableData.value[pageData.value.tableIndex])
                 await renderTaskList()
             }
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         })
 
         onBeforeUnmount(() => {

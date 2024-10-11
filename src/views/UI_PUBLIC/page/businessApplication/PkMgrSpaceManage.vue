@@ -2,15 +2,14 @@
  * @Author: zhangdongming zhangdongming@tvt.net.cn
  * @Date: 2024-05-27 09:38:17
  * @Description: 业务应用-停车场管理-车位管理
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-10 14:18:51
 -->
-
 <template>
     <div class="base-flex-box manage">
         <div class="base-table-box">
             <el-table
-                ref="tableRef"
-                class="tableView"
-                :data="pageData.tableDatas"
+                :data="tableData"
                 empty-text=" "
                 table-layout="fixed"
                 show-overflow-tooltip
@@ -18,7 +17,7 @@
                 border
             >
                 <el-table-column
-                    prop="serialNum"
+                    type="index"
                     width="70"
                     :label="Translate('IDCS_SERIAL_NUMBER')"
                 />
@@ -35,7 +34,6 @@
                         <el-select
                             v-model="scope.row.parkingType"
                             size="small"
-                            collapse-tags-tooltip
                         >
                             <el-option
                                 v-for="item in pageData.parkingTypeList"
@@ -105,7 +103,6 @@
                         <el-select
                             v-model="scope.row.groupSchedule"
                             size="small"
-                            collapse-tags-tooltip
                             @change="changeSingleSchedule(scope.row)"
                         >
                             <el-option
@@ -134,17 +131,20 @@
             class="base-btn-box padding"
             :span="2"
         >
+            <div>{{ Translate('IDCS_VEHICLE_NUM_TIPS') }}</div>
             <div>
-                <el-text>
-                    {{ Translate('IDCS_VEHICLE_NUM_TIPS') }}
-                </el-text>
-            </div>
-            <div>
-                <el-button @click="apply()">
+                <el-button
+                    :disabled="pageData.btnDisabled"
+                    @click="apply()"
+                >
                     {{ Translate('IDCS_APPLY') }}
                 </el-button>
             </div>
         </div>
+        <ScheduleManagPop
+            v-model="pageData.isSchedulePop"
+            @close="confirmManageSchedule"
+        />
     </div>
 </template>
 

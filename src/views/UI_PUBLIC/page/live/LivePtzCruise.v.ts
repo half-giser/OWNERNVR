@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 15:50:48
  * @Description: 现场预览-云台视图-巡航线
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:10:18
+ * @LastEditTime: 2024-10-09 18:33:44
  */
 import ChannelCruiseAddPop from '../channel/ChannelCruiseAddPop.vue'
 import { type ChannelPtzCruiseDto } from '@/types/apiType/channel'
@@ -45,7 +45,6 @@ export default defineComponent({
     setup(prop) {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
 
         const CRUISE_MAX_COUNT = 8
 
@@ -97,8 +96,6 @@ export default defineComponent({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_CRUISE_S').formatForLang(Translate('IDCS_CHANNEL'), getShortString(prop.chlName, 10), getShortString(cruiseName, 10)),
             }).then(async () => {
-                openLoading(LoadingTarget.FullScreen)
-
                 const sendXml = rawXml`
                     <condition>
                         <chlId>${prop.chlId}</chlId>
@@ -109,8 +106,6 @@ export default defineComponent({
                 `
                 const result = await delChlCruise(sendXml)
                 const $ = queryXml(result)
-
-                closeLoading(LoadingTarget.FullScreen)
 
                 if ($('//status').text() === 'success') {
                     openMessageTipBox({

@@ -1,3 +1,10 @@
+/*
+ * @Author: linguifan linguifan@tvt.net.cn
+ * @Date: 2024-07-09 18:39:25
+ * @Description: 添加通道 - 设置通道默认密码弹窗
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-09 15:34:41
+ */
 import { DefaultPwdDto } from '@/types/apiType/channel'
 import { type FormInstance } from 'element-plus'
 import { type RuleItem } from 'async-validator'
@@ -18,14 +25,13 @@ export default defineComponent({
     },
     setup(props, { emit }) {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const userSessionStore = useUserSessionStore()
         const { openMessageTipBox } = useMessageBox()
         const formRef = ref<FormInstance>()
         const formData = ref({
             params: [] as Array<DefaultPwdDto>,
         })
-        const tableRef = ref()
         const passwordInputRef = ref<Array<Element | globalThis.ComponentPublicInstance | null>>([])
 
         const baseCheckAuthPopVisiable = ref(false)
@@ -34,9 +40,9 @@ export default defineComponent({
         }
 
         const getData = () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             queryDevDefaultPwd(getXmlWrapData('')).then((res) => {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
                     const rowData = [] as Array<DefaultPwdDto>
@@ -120,14 +126,14 @@ export default defineComponent({
                     baseCheckAuthPopVisiable.value = false
                     emit('close')
                 } else {
-                    const errorCode = $('errorCode').text()
-                    if (errorCode == '536870948' || errorCode == '536870947') {
+                    const errorCode = Number($('errorCode').text())
+                    if (errorCode == ErrorCode.USER_ERROR_PWD_ERR || errorCode == ErrorCode.USER_ERROR_NO_USER) {
                         // 用户名/密码错误
                         openMessageTipBox({
                             type: 'info',
                             message: Translate('IDCS_DEVICE_PWD_ERROR'),
                         })
-                    } else if (errorCode == '536870953') {
+                    } else if (errorCode == ErrorCode.USER_ERROR_NO_AUTH) {
                         // 鉴权账号无相关权限
                         openMessageTipBox({
                             type: 'info',
@@ -154,7 +160,6 @@ export default defineComponent({
             opened,
             formRef,
             formData,
-            tableRef,
             rules,
             passwordInputRef,
             handlePwdViewChange,
