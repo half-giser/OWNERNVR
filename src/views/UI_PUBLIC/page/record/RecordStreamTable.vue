@@ -4,7 +4,7 @@
  * @Date: 2024-07-31 10:29:37
  * @Description: 录像码流通用表格组件
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-10 13:52:59
+ * @LastEditTime: 2024-10-10 16:19:54
 -->
 <template>
     <div class="base-flex-box">
@@ -1879,10 +1879,6 @@ watch(
 )
 </script>
 
-<style>
-@import '@/views/UI_PUBLIC/publicStyle/aiAndEvent.scss';
-</style>
-
 <style lang="scss" scope>
 .RecordStreamList {
     width: 100%;
@@ -1941,6 +1937,20 @@ watch(
     height: 35px;
     display: flex;
     align-items: center;
+}
+.base-popover-icon {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--el-table-header-text-color);
+    .el-icon {
+        cursor: pointer;
+        &:hover {
+            color: var(--input-text);
+        }
+    }
 }
 .GOP_dropDown {
     width: 280px;
