@@ -4,7 +4,7 @@
  * @Date: 2024-07-31 10:29:37
  * @Description: 录像码流通用表格组件
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-10 16:19:54
+ * @LastEditTime: 2024-10-11 16:51:43
 -->
 <template>
     <div class="base-flex-box">
@@ -120,6 +120,7 @@
                                             <el-select
                                                 v-model="scope.row.res"
                                                 :options="scope.row.resGroup"
+                                                :teleported="false"
                                             >
                                                 <el-option
                                                     v-for="item in scope.row.resGroup"
