@@ -3,7 +3,7 @@
  * @Date: 2024-08-06 20:36:26
  * @Description: 备份录像弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:23:13
+ * @LastEditTime: 2024-10-09 15:50:04
  */
 import BackupRemoteEncryptPop from './BackupRemoteEncryptPop.vue'
 import type { PlaybackBackUpRecList } from '@/types/apiType/playback'
@@ -206,10 +206,10 @@ export default defineComponent({
                     case ErrorCode.USER_ERROR_DISK_SPACE_NO_ENOUGH:
                         errorInfo = Translate('IDCS_DISK_SPACE_NO_ENOUGH')
                         break
-                    case 536870953:
+                    case ErrorCode.USER_ERROR_NO_AUTH:
                         errorInfo = Translate('IDCS_NO_PERMISSION')
                         break
-                    case 536871004:
+                    case ErrorCode.USER_ERROR_OVER_LIMIT:
                         const num = $('//errorDescription').text()
                         errorInfo = Translate('IDCS_BACKUP_TASK_NUM_LIMIT').formatForLang(num)
                         break

@@ -1,7 +1,7 @@
 <!--
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-05-24 14:21:16
- * @Description:
+ * @Description: 添加通道 - 设置通道默认密码弹窗
 -->
 <template>
     <el-dialog
@@ -13,17 +13,15 @@
         <el-form
             ref="formRef"
             :model="formData"
-            class="setDevDefaultPwdForm"
         >
             <el-table
-                ref="tableRef"
-                class="ruleTable"
                 border
                 stripe
                 :data="formData.params"
                 table-layout="fixed"
                 show-overflow-tooltip
                 empty-text=" "
+                height="300px"
             >
                 <el-table-column
                     prop="displayName"
@@ -88,13 +86,3 @@
 </template>
 
 <script lang="ts" src="./ChannelAddSetDefaultPwdPop.v.ts"></script>
-
-<style lang="scss" scoped>
-.setDevDefaultPwdForm {
-    height: 300px;
-
-    .ruleTable {
-        height: 100%;
-    }
-}
-</style>

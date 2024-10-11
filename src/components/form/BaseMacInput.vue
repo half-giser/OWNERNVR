@@ -3,7 +3,7 @@
  * @Date: 2024-06-04 10:26:32
  * @Description: MAC地址输入框
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-25 11:05:02
+ * @LastEditTime: 2024-10-09 11:36:46
 -->
 <template>
     <div
@@ -50,11 +50,13 @@ const prop = withDefaults(
          */
         modelValue: string
         mode?: InputMode
+        size?: string
     }>(),
     {
         disabled: false,
         invalidateMode: 'PREVENT',
         mode: 'MAC',
+        size: '',
     },
 )
 
@@ -235,14 +237,19 @@ const handleBlur = (index: number) => {
 
         &.disabled {
             background-color: var(--input-bg-disabled);
-            border-color: var(--border-color-disabled);
+            border-color: var(--input-border-disabled);
         }
+    }
+
+    &.small {
+        --el-input-inner-height: 20px;
+        font-size: 12px;
     }
 
     &.disabled {
         box-shadow: none;
         background-color: var(--input-bg-disabled);
-        border-color: var(--border-color-disabled);
+        border-color: var(--input-border-disabled);
         color: var(--el-disabled-text-color);
         cursor: not-allowed;
 

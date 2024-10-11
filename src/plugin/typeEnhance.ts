@@ -53,6 +53,7 @@ export default {
         }
 
         /**
+         * @deprecated 统一使用dayjs. 原因：element-plus依赖dayjs，即本项目必须依赖dayjs. 使用dayjs来处理日期格式化，可以更方便地和element-plus的日期组件交互
          * @description: 格式化日期格式
          * @param {string} template yyyy-MM-dd HH:mm:ss tt
          * @return {string} 2024-06-14 10:40:54 AM

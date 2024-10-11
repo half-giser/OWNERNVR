@@ -3,7 +3,7 @@
  * @Date: 2024-08-21 17:50:00
  * @Description: 云台-巡航线
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 11:50:49
+ * @LastEditTime: 2024-10-09 15:35:26
  */
 import { type TableInstance } from 'element-plus'
 import { type ChannelPtzCruiseChlDto, ChannelPtzCruiseDto, type ChannelPtzCruisePresetDto } from '@/types/apiType/channel'
@@ -21,7 +21,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const { openMessageTipBox } = useMessageBox()
         const playerRef = ref<PlayerInstance>()
         const auth = useUserChlAuth(false)
@@ -129,7 +129,7 @@ export default defineComponent({
          * @description 获取通道的巡航线数据
          */
         const getCruise = async (chlId: string) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const index = tableData.value.findIndex((item) => item.chlId === chlId)
             const sendXml = rawXml`
@@ -140,7 +140,7 @@ export default defineComponent({
             const result = await queryChlCruiseList(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 tableData.value[index].cruise = $('//content/cruises/item').map((item) => {
@@ -188,7 +188,7 @@ export default defineComponent({
          * @description 获取数据
          */
         const getData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const result = await getChlList({
                 pageIndex: 1,
@@ -198,7 +198,7 @@ export default defineComponent({
             })
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 tableData.value = $('//content/item')
@@ -299,7 +299,7 @@ export default defineComponent({
                 return
             }
 
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXml = rawXml`
                 <content>
@@ -311,7 +311,7 @@ export default defineComponent({
             const result = await editChlCruise(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 openMessageTipBox({
@@ -482,7 +482,7 @@ export default defineComponent({
          * @description 更新巡航线的预置点数据
          */
         const updatePreset = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const preset = presetTableData.value
                 .map((item) => {
@@ -506,7 +506,7 @@ export default defineComponent({
             const result = await editChlCruise(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             if (presetTableData.value.length) {
                 presetTableRef.value?.setCurrentRow(presetTableData.value[pageData.value.presetIndex])
             }
@@ -527,7 +527,7 @@ export default defineComponent({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_CRUISE_S').formatForLang(Translate('IDCS_CHANNEL'), getShortString(chlName, 10), getShortString(cruise.name, 10)),
             }).then(async () => {
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
 
                 const sendXml = rawXml`
                     <condition>
@@ -539,7 +539,7 @@ export default defineComponent({
                 `
                 const result = await delChlCruise(sendXml)
 
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 commSaveResponseHadler(result, () => {
                     tableData.value[chlIndex].cruise.splice(cruiseIndex, 1)
                     tableData.value[chlIndex].cruiseCount--

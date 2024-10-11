@@ -3,7 +3,7 @@
  * @Date: 2024-08-22 10:15:51
  * @Description: 巡航线组 新增巡航线弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 11:51:57
+ * @LastEditTime: 2024-10-09 15:36:15
  */
 import type { FormInstance, FormRules } from 'element-plus'
 import { type ChannelPtzCruiseDto } from '@/types/apiType/channel'
@@ -43,7 +43,7 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
 
         const pageData = ref({
             // 预置点选项
@@ -116,7 +116,7 @@ export default defineComponent({
          * @description 新增预置点保存数据
          */
         const setData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             let cruiseXml = prop.cruise.map((item) => `<item index="${item.index.toString()}"><name>${wrapCDATA(item.name)}</name></item>`).join('')
             const find = pageData.value.cruiseOptions.find((item) => item.value === formData.value.name)
@@ -135,7 +135,7 @@ export default defineComponent({
             const result = await editChlPtzGroup(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 openMessageTipBox({

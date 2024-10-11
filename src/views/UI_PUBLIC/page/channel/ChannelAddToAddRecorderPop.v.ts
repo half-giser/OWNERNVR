@@ -1,10 +1,10 @@
 /*
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-05-29 20:39:11
- * @Description:
+ * @Description: 添加通道 - 添加录像机通道弹窗
  */
 import { ChannelAddRecorderDto, type DefaultPwdDto, QueryNodeListDto, RecorderAddDto, RecorderDto } from '@/types/apiType/channel'
-import { type FormInstance } from 'element-plus'
+import { type TableInstance, type FormInstance } from 'element-plus'
 import { cloneDeep } from 'lodash-es'
 import { type RuleItem } from 'async-validator'
 
@@ -37,14 +37,13 @@ export default defineComponent({
     },
     setup(props, { emit }) {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const userSessionStore = useUserSessionStore()
         const { openMessageTipBox } = useMessageBox()
         const router = useRouter()
         const formRef = ref<FormInstance>()
         const formData = ref(new RecorderAddDto())
-        const tableRef = ref()
-        const tableData = ref()
+        const tableRef = ref<TableInstance>()
         const selNum = ref(0)
         const total = ref(0)
         const eleChkDomainDisabled = ref(true)
@@ -62,40 +61,25 @@ export default defineComponent({
         defaultRecorderData.httpPort = 80
         defaultRecorderData.channelCount = 8
 
-        const errorMap: Record<string, Record<string, string>> = {
-            '536870947': {
-                errorCode: '536870947',
-                errorDescription: Translate('IDCS_DEVICE_PWD_ERROR'),
-            },
-            '536870948': {
-                errorCode: '536870948',
-                errorDescription: Translate('IDCS_DEVICE_PWD_ERROR'),
-            },
-            '536870951': {
-                errorCode: '536870951',
-                errorDescription: Translate('IDCS_REMOTE_USER_LOCKED'),
-            },
-            '536870953': {
-                errorCode: '536870953',
-                errorDescription: Translate('IDCS_NO_PERMISSION'),
-            },
-            '536871009': {
-                errorCode: '536871009',
-                errorDescription: Translate('IDCS_RECORDER_HTTPPORT_ERR'),
-            },
+        const errorMap: Record<number, string> = {
+            [ErrorCode.USER_ERROR_NO_USER]: Translate('IDCS_DEVICE_PWD_ERROR'),
+            [ErrorCode.USER_ERROR_PWD_ERR]: Translate('IDCS_DEVICE_PWD_ERROR'),
+            [ErrorCode.USER_ERROR_USER_LOCKED]: Translate('IDCS_REMOTE_USER_LOCKED'),
+            [ErrorCode.USER_ERROR_NO_AUTH]: Translate('IDCS_NO_PERMISSION'),
+            [ErrorCode.USER_ERROR_CHECK_FILE_ERROR]: Translate('IDCS_RECORDER_HTTPPORT_ERR'),
         }
 
         const handleRowClick = (rowData: RecorderDto) => {
-            tableRef.value.clearSelection()
-            tableRef.value.toggleRowSelection(rowData, true)
+            tableRef.value!.clearSelection()
+            tableRef.value!.toggleRowSelection(rowData, true)
         }
 
         const handleSelectionChange = () => {
-            selNum.value = tableRef.value.getSelectionRows().length
+            selNum.value = tableRef.value!.getSelectionRows().length
         }
 
         const getData = (showSuccessTip?: boolean) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             if ((props.mapping as Record<string, DefaultPwdDto>)['RECORDER']) {
                 const data = rawXml`<condition>
                                 ${formData.value.chkDomain ? '<domain><![CDATA[' + formData.value.domain + ']]></domain>' : '<ip>' + formData.value.ip + '</ip>'}
@@ -106,7 +90,7 @@ export default defineComponent({
                                 ${formData.value.useDefaultPwd ? '' : '<password' + getSecurityVer() + '><![CDATA[' + AES_encrypt(formData.value.password, userSessionStore.sesionKey) + ']]></password>'}
                             </condition>`
                 queryRecorder(getXmlWrapData(data), undefined, false).then((res) => {
-                    closeLoading(LoadingTarget.FullScreen)
+                    closeLoading()
                     const $ = queryXml(res)
                     if ($('status').text() == 'success') {
                         if (showSuccessTip) {
@@ -147,10 +131,10 @@ export default defineComponent({
                         })
                         total.value = formData.value.recorderList.length
                     } else {
-                        const errorCode = $('errorCode').text()
+                        const errorCode = Number($('errorCode').text())
                         openMessageTipBox({
                             type: 'info',
-                            message: errorMap[errorCode] ? errorMap[errorCode]['errorDescription'] : Translate('IDCS_LOGIN_OVERTIME'),
+                            message: errorMap[errorCode] || Translate('IDCS_LOGIN_OVERTIME'),
                         }).then(() => {
                             formData.value.recorderList = []
                             const chlCount = formData.value.channelCount
@@ -228,21 +212,21 @@ export default defineComponent({
             if (!formRef) return false
             formRef.value?.validate((valid) => {
                 if (valid) {
-                    openLoading(LoadingTarget.FullScreen)
+                    openLoading()
                     testRecorder(getTestData(), undefined, false).then((res) => {
-                        closeLoading(LoadingTarget.FullScreen)
+                        closeLoading()
                         const $ = queryXml(res)
-                        if ($('status').text() == 'success') {
+                        if ($('status').text() === 'success') {
                             if (!editItemBak) editItemBak = new ChannelAddRecorderDto()
                             editItemBak.ip = formData.value.ip
                             editItemBak.port = formData.value.servePort
                             editItemBak.httpPort = defaultRecorderData.httpPort
                             getData(true)
                         } else {
-                            const errorCode = $('errorCode').text()
+                            const errorCode = Number($('errorCode').text())
                             openMessageTipBox({
                                 type: 'info',
-                                message: errorMap[errorCode] ? errorMap[errorCode]['errorDescription'] : Translate('IDCS_LOGIN_OVERTIME'),
+                                message: errorMap[errorCode] || Translate('IDCS_LOGIN_OVERTIME'),
                             }).then(() => {
                                 loadNoRecoderData(Number(formData.value.channelCount))
                             })
@@ -253,7 +237,7 @@ export default defineComponent({
         }
 
         const save = () => {
-            if (tableRef.value.getSelectionRows().length == 0) return
+            if (tableRef.value!.getSelectionRows().length === 0) return
             setData()
         }
 
@@ -262,22 +246,22 @@ export default defineComponent({
             formRef.value?.validate((valid) => {
                 if (valid) {
                     getChlList(new QueryNodeListDto()).then((res) => {
-                        closeLoading(LoadingTarget.FullScreen)
+                        closeLoading()
                         commLoadResponseHandler(res, () => {
                             const $ = queryXml(res)
                             const addedChlNum = $('//content/item').length
-                            if (addedChlNum + tableRef.value.getSelectionRows().length > props.chlCountLimit) {
+                            if (addedChlNum + tableRef.value!.getSelectionRows().length > props.chlCountLimit) {
                                 openMessageTipBox({
                                     type: 'info',
                                     message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT'),
                                 })
                                 return
                             }
-                            openLoading(LoadingTarget.FullScreen)
+                            openLoading()
                             createDevList(getSaveData()).then((res) => {
-                                closeLoading(LoadingTarget.FullScreen)
+                                closeLoading()
                                 const $ = queryXml(res)
-                                if ($('status').text() == 'success') {
+                                if ($('status').text() === 'success') {
                                     openMessageTipBox({
                                         type: 'success',
                                         message: Translate('IDCS_SAVE_DATA_SUCCESS'),
@@ -286,36 +270,36 @@ export default defineComponent({
                                     })
                                 } else {
                                     const errorCdoe = Number($('errorCode').text())
-                                    if (errorCdoe == errorCodeMap.nodeExist) {
+                                    if (errorCdoe == ErrorCode.USER_ERROR_NODE_ID_EXISTS) {
                                         openMessageTipBox({
                                             type: 'info',
                                             message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_CAMERA_EXISTED'),
                                         })
-                                    } else if (errorCdoe === 536871004) {
+                                    } else if (errorCdoe === ErrorCode.USER_ERROR_OVER_LIMIT) {
                                         openMessageTipBox({
                                             type: 'info',
                                             message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT'),
                                         }).then(() => {
                                             emit('close')
                                         })
-                                    } else if (errorCdoe === 536871005) {
+                                    } else if (errorCdoe === ErrorCode.USER_ERROR_OVER_BANDWIDTH_LIMIT) {
                                         openMessageTipBox({
                                             type: 'info',
                                             message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_BANDWIDTH_LIMIT'),
                                         })
-                                    } else if (errorCdoe === 536871007) {
+                                    } else if (errorCdoe === ErrorCode.USER_ERROR_SPECIAL_CHAR) {
                                         const poePort = $('poePort').text()
                                         // POE连接冲突提示
                                         openMessageTipBox({
                                             type: 'info',
                                             message: Translate('IDCS_POE_RESOURCE_CONFLICT_TIP').formatForLang(poePort),
                                         })
-                                    } else if (errorCdoe === 536871050) {
+                                    } else if (errorCdoe === ErrorCode.USER_ERROR_LIMITED_PLATFORM_TYPE_MISMATCH) {
                                         openMessageTipBox({
                                             type: 'info',
                                             message: Translate('IDCS_ADD_CHANNEL_FAIL').formatForLang(props.faceMatchLimitMaxChlNum),
                                         })
-                                    } else if (errorCdoe === 536871052) {
+                                    } else if (errorCdoe === ErrorCode.USER_ERROR_PC_LICENSE_MISMATCH) {
                                         const msg =
                                             Translate('IDCS_ADD_CHANNEL_FAIL').formatForLang(props.faceMatchLimitMaxChlNum) + Translate('IDCS_REBOOT_DEVICE').formatForLang(Translate('IDCS_KEEP_ADD'))
                                         openMessageTipBox({
@@ -361,7 +345,7 @@ export default defineComponent({
                         <protocolType type='protocolType'/>
                         <bandWidth unit='MB'/>
                         </itemType>`
-            tableRef.value.getSelectionRows().forEach((ele: RecorderDto) => {
+            tableRef.value!.getSelectionRows().forEach((ele: RecorderDto) => {
                 data += rawXml`
                     <item>
                         <name>${ele.name || defalutNamePrefix + ele.index}</name>`
@@ -441,7 +425,6 @@ export default defineComponent({
             formData,
             rules,
             tableRef,
-            tableData,
             selNum,
             total,
             handleRowClick,

@@ -3,17 +3,23 @@
  * @Date: 2024-08-22 15:16:17
  * @Description: 云台-任务-编辑弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 11:54:23
+ * @LastEditTime: 2024-10-09 15:02:44
  */
 import { type ChannelPtzTaskDto, ChannelPtzTaskForm } from '@/types/apiType/channel'
 import { type FormInstance, type FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
+        /**
+         * @property 通道ID
+         */
         chlId: {
             type: String,
             required: true,
         },
+        /**
+         * @property 编辑的任务数据
+         */
         data: {
             type: Object as PropType<ChannelPtzTaskDto>,
             required: true,

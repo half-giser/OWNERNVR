@@ -1,15 +1,15 @@
 /*
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-06-13 16:05:05
- * @Description:
+ * @Description: 通道 - IPC升级弹窗
  */
 import { type ChannelInfoDto } from '@/types/apiType/channel'
 import WebsocketState from '@/utils/websocket/websocketState'
 import WebsocketUpload from '@/utils/websocket/websocketUpload'
-import { type UploadFile, type UploadRawFile, genFileId } from 'element-plus'
+import { type UploadFile, type UploadInstance, type UploadRawFile, genFileId } from 'element-plus'
 import { getRandomGUID } from '@/utils/websocket/websocketCmd'
 import type WebsocketPlugin from '@/utils/websocket/websocketPlugin'
-import { type XmlResult } from '@/utils/xmlParse'
+import { type XMLQuery } from '@/utils/xmlParse'
 
 export default defineComponent({
     setup() {
@@ -21,7 +21,7 @@ export default defineComponent({
         const productModelOptionList = ref([] as string[])
         const selectedProductModel = ref('')
         const type = ref<'single' | 'multiple'>('single') // 单个：single, 批量：multiple
-        const upload = ref()
+        const upload = ref<UploadInstance>()
         const fileName = ref('')
         const btnOKDisabled = ref(true)
 
@@ -112,7 +112,7 @@ export default defineComponent({
         }
 
         // 断开websocket状态信息订阅链接
-        function destroyWsState() {
+        const destroyWsState = () => {
             if (wsState) {
                 wsState.destroy()
                 wsState = null
@@ -129,7 +129,7 @@ export default defineComponent({
             wsUpload = null
         }
 
-        const LiveNotify2Js = ($: (path: string) => XmlResult) => {
+        const LiveNotify2Js = ($: XMLQuery) => {
             //升级进度
             if ($("statenotify[@type='FileNetTransportProgress']").length > 0) {
                 const taskGUID = $("statenotify[@type='FileNetTransportProgress']/taskGUID").text().toLowerCase()
@@ -155,24 +155,24 @@ export default defineComponent({
             else if ($("statenotify[@type='FileNetTransport']").length > 0) {
                 if ($("statenotify[@type='FileNetTransport']/errorCode").length > 0) {
                     const taskGUID = $("statenotify[@type='FileNetTransport']/taskGUID").text().toLowerCase()
-                    const errorCode = $("statenotify[@type='FileNetTransport']/errorCode").text()
+                    const errorCode = Number($("statenotify[@type='FileNetTransport']/errorCode").text())
                     if (taskGUIDMap[taskGUID]) handleError(errorCode)
                 }
             }
         }
 
-        const handleError = (errorCode: string) => {
+        const handleError = (errorCode: number) => {
             // 恢复为默认状态
             tempData.forEach((ele: ChannelInfoDto) => {
                 ele.upgradeStatus = 'normal'
             })
-            if (errorCode == '536870945') {
+            if (errorCode === ErrorCode.USER_ERROR_DEVICE_BUSY) {
                 // 设备忙
                 openMessageTipBox({
                     type: 'info',
                     message: Translate('IDCS_DEVICE_BUSY'),
                 })
-            } else if (errorCode == '536871030') {
+            } else if (errorCode === ErrorCode.USER_ERROR_FILE_MISMATCHING) {
                 // 无磁盘
                 openMessageTipBox({
                     type: 'info',
@@ -239,7 +239,7 @@ export default defineComponent({
                         },
                     },
                     error: (errorCode: number) => {
-                        handleError(String(errorCode))
+                        handleError(errorCode)
                     },
                     success: () => {},
                     progress: () => {},

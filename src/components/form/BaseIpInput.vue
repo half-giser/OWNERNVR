@@ -3,13 +3,13 @@
  * @Date: 2024-06-04 10:26:32
  * @Description: IPv4地址输入框
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-25 11:04:22
+ * @LastEditTime: 2024-10-09 11:36:03
 -->
 <template>
     <div
         ref="$IpContainer"
         class="IpInput"
-        :class="{ 'is-focus': isFocus, disabled: prop.disabled }"
+        :class="[{ 'is-focus': isFocus, disabled: prop.disabled }, size]"
     >
         <template
             v-for="(item, index) in address"
@@ -46,10 +46,12 @@ const prop = withDefaults(
          * @property IP地址值
          */
         modelValue: string
+        size?: string
     }>(),
     {
         disabled: false,
         invalidateMode: 'PREVENT',
+        default: '',
     },
 )
 
@@ -229,6 +231,11 @@ const handleBlur = () => {
     box-sizing: border-box;
     background: var(--el-input-bg-color, var(--el-fill-color-blank));
 
+    &.small {
+        --el-input-inner-height: 20px;
+        font-size: 12px;
+    }
+
     &:hover,
     &.is-focus {
         box-shadow: 0 0 0 1px var(--el-input-hover-border-color) inset;
@@ -236,14 +243,14 @@ const handleBlur = () => {
 
         &.disabled {
             background-color: var(--input-bg-disabled);
-            border-color: var(--border-color-disabled);
+            border-color: var(--input-border-disabled);
         }
     }
 
     &.disabled {
         box-shadow: none;
         background-color: var(--input-bg-disabled);
-        border-color: var(--border-color-disabled);
+        border-color: var(--input-border-disabled);
         cursor: not-allowed;
         color: var(--el-disabled-text-color);
 

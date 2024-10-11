@@ -1,7 +1,7 @@
 <!--
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-05-29 20:36:59
- * @Description:
+ * @Description: 添加通道 - 添加录像机通道弹窗
 -->
 <template>
     <el-dialog
@@ -15,110 +15,96 @@
             ref="formRef"
             :model="formData"
             :rules="rules"
-            label-width="130px"
             label-position="left"
+            class="stripe"
+            :style="{
+                '--form-label-width': '120px',
+            }"
         >
-            <el-row>
-                <el-col :span="18">
-                    <el-form-item
-                        prop="ip"
-                        :label="Translate('IDCS_IP_ADDRESS')"
-                    >
-                        <BaseIpInput
-                            v-show="!formData.chkDomain"
-                            v-model="formData.ip"
-                            :disabled="eleIpDisabled"
-                        />
-                        <el-input
-                            v-show="formData.chkDomain"
-                            v-model="formData.domain"
-                        />
-                    </el-form-item>
-                </el-col>
-                <el-col :span="1"></el-col>
-                <el-col :span="5">
-                    <el-form-item
-                        prop="chkDomain"
-                        label-width="0"
-                    >
-                        <el-checkbox
-                            v-model="formData.chkDomain"
-                            :label="Translate('IDCS_DOMAIN')"
-                            :disabled="eleChkDomainDisabled"
-                        />
-                    </el-form-item>
-                </el-col>
-            </el-row>
-            <el-row>
-                <el-col :span="11">
-                    <el-form-item
-                        prop="servePort"
-                        :label="Translate('IDCS_SERVE_PORT')"
-                    >
-                        <el-input-number
-                            v-model="formData.servePort"
-                            :min="10"
-                            :max="65535"
-                            value-on-clear="min"
-                            :controls="false"
-                            :disabled="eleServePortDisabled"
-                        />
-                    </el-form-item>
-                </el-col>
-                <el-col :span="2"></el-col>
-                <el-col :span="11">
-                    <el-form-item
-                        prop="channelCount"
-                        :label="Translate('IDCS_CHANNELS')"
-                    >
-                        <el-input-number
-                            v-model="formData.channelCount"
-                            :min="1"
-                            :max="128"
-                            value-on-clear="min"
-                            :controls="false"
-                            :disabled="eleChlCountDisabled"
-                        />
-                    </el-form-item>
-                </el-col>
-            </el-row>
-            <el-row>
-                <el-col :span="11">
-                    <el-form-item
-                        prop="userName"
-                        :label="Translate('IDCS_USERNAME')"
-                    >
-                        <el-input
-                            v-model="formData.userName"
-                            :disabled="eleUserNameDisabled"
-                        />
-                    </el-form-item>
-                </el-col>
-                <el-col :span="2"></el-col>
-                <el-col :span="11">
-                    <el-form-item
-                        prop="password"
-                        :label="Translate('IDCS_PASSWORD')"
-                    >
-                        <el-input
-                            v-model="formData.password"
-                            type="password"
-                            autocomplete="new-password"
-                            :disabled="formData.useDefaultPwd"
-                            @paste.capture.prevent=""
-                            @copy.capture.prevent=""
-                        />
-                    </el-form-item>
-                </el-col>
-            </el-row>
-            <el-row v-show="showDefaultPwdRow">
-                <el-col :span="13"></el-col>
-                <el-col :span="11">
-                    <el-form-item :label="Translate('IDCS_DEV_DEFAULT_PWD')">
+            <el-form-item>
+                <el-form-item
+                    prop="ip"
+                    :label="Translate('IDCS_IP_ADDRESS')"
+                >
+                    <BaseIpInput
+                        v-show="!formData.chkDomain"
+                        v-model="formData.ip"
+                        :disabled="eleIpDisabled"
+                    />
+                    <el-input
+                        v-show="formData.chkDomain"
+                        v-model="formData.domain"
+                    />
+                </el-form-item>
+                <el-form-item prop="chkDomain">
+                    <el-checkbox
+                        v-model="formData.chkDomain"
+                        :label="Translate('IDCS_DOMAIN')"
+                        :disabled="eleChkDomainDisabled"
+                    />
+                </el-form-item>
+            </el-form-item>
+            <el-form-item>
+                <el-form-item
+                    prop="servePort"
+                    :label="Translate('IDCS_SERVE_PORT')"
+                >
+                    <el-input-number
+                        v-model="formData.servePort"
+                        :min="10"
+                        :max="65535"
+                        value-on-clear="min"
+                        :controls="false"
+                        :disabled="eleServePortDisabled"
+                    />
+                </el-form-item>
+                <el-form-item
+                    prop="channelCount"
+                    :label="Translate('IDCS_CHANNELS')"
+                >
+                    <el-input-number
+                        v-model="formData.channelCount"
+                        :min="1"
+                        :max="128"
+                        value-on-clear="min"
+                        :controls="false"
+                        :disabled="eleChlCountDisabled"
+                    />
+                </el-form-item>
+            </el-form-item>
+            <el-form-item>
+                <el-form-item
+                    prop="userName"
+                    :label="Translate('IDCS_USERNAME')"
+                >
+                    <el-input
+                        v-model="formData.userName"
+                        :disabled="eleUserNameDisabled"
+                    />
+                </el-form-item>
+                <el-form-item
+                    prop="password"
+                    :label="Translate('IDCS_PASSWORD')"
+                >
+                    <el-input
+                        v-model="formData.password"
+                        type="password"
+                        autocomplete="new-password"
+                        :disabled="formData.useDefaultPwd"
+                        @paste.capture.prevent=""
+                        @copy.capture.prevent=""
+                    />
+                </el-form-item>
+            </el-form-item>
+            <el-form-item v-show="showDefaultPwdRow">
+                <el-form-item></el-form-item>
+                <el-form-item>
+                    <template #label>
+                        {{ Translate('IDCS_DEV_DEFAULT_PWD') }}
                         <el-checkbox v-model="formData.useDefaultPwd" />
-                    </el-form-item>
-                </el-col>
-            </el-row>
+                    </template>
+                </el-form-item>
+            </el-form-item>
         </el-form>
         <el-table
             ref="tableRef"

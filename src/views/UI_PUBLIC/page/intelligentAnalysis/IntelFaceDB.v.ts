@@ -3,7 +3,7 @@
  * @Date: 2024-08-30 18:46:48
  * @Description: 人脸库
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-11 18:29:34
+ * @LastEditTime: 2024-10-09 15:49:27
  */
 import { cloneDeep } from 'lodash-es'
 import { IntelFaceDBGroupList, IntelFaceDBFaceInfo } from '@/types/apiType/intelligentAnalysis'
@@ -239,7 +239,7 @@ export default defineComponent({
                 const errorCode = Number($('//errorCode').text())
                 let errorInfo = ''
                 switch (errorCode) {
-                    case 536870953:
+                    case ErrorCode.USER_ERROR_NO_AUTH:
                         errorInfo = Translate('IDCS_NO_PERMISSION')
                         break
                     default:
@@ -573,10 +573,10 @@ export default defineComponent({
                     const errorCode = Number($('//errorCode').text())
                     let errorInfo = ''
                     switch (errorCode) {
-                        case 536870953:
+                        case ErrorCode.USER_ERROR_NO_AUTH:
                             errorInfo = Translate('IDCS_NO_PERMISSION')
                             break
-                        case 536870947:
+                        case ErrorCode.USER_ERROR_NO_USER:
                             errorInfo = Translate('IDCS_FACE_NOT_EXIST')
                             break
                         default:
@@ -646,10 +646,10 @@ export default defineComponent({
                 const errorCode = Number($('//errorCode').text())
                 let errorInfo = ''
                 switch (errorCode) {
-                    case 536870953:
+                    case ErrorCode.USER_ERROR_NO_AUTH:
                         errorInfo = Translate('IDCS_NO_PERMISSION')
                         break
-                    case 536870947:
+                    case ErrorCode.USER_ERROR_NO_USER:
                         errorInfo = Translate('IDCS_FACE_NOT_EXIST')
                         break
                     default:

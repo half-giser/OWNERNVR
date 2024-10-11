@@ -1,7 +1,7 @@
 /*
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-06-24 10:38:27
- * @Description:
+ * @Description: 通道 - OSD配置
  */
 
 import { type XmlResult } from '@/utils/xmlParse'
@@ -10,18 +10,18 @@ import { cloneDeep } from 'lodash-es'
 import CanvasOSD, { type CanvasOSDOptionNameConfig, type CanvasOSDOptionTimeConfig } from '@/utils/canvas/canvasOsd'
 import { type TVTPlayerWinDataListItem } from '@/utils/wasmPlayer/tvtPlayer'
 import { type OcxXmlSetOSDInfo, type OcxXmlSetOsdListDatum } from '@/utils/ocx/ocxCmd'
-import { dateFormatOptions, dateFormatTip, tableRowStatusToolTip, timeFormatTip } from '@/utils/const/other'
+import { type TableInstance } from 'element-plus'
 
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const { openMessageTipBox } = useMessageBox()
         const osType = getSystemInfo().platform
 
         const playerRef = ref<PlayerInstance>()
         const formData = ref(new ChannelOsd())
-        const tableRef = ref()
+        const tableRef = ref<TableInstance>()
         const tableData = ref([] as ChannelOsd[])
         const nameDisabled = ref(true)
         const btnOKDisabled = ref(true)
@@ -32,6 +32,29 @@ export default defineComponent({
         const chlList = ref<ChannelOsd[]>([]) // 作为下拉列表选项来源，只需保证name为最新值即可
         const { supportSHDB } = useCababilityStore() // 是否支持上海地标
         const tempName = ref('')
+
+        const dateFormatTip: Record<string, string> = {
+            'yyyy-MM-dd': Translate('IDCS_DATE_FORMAT_YMD'),
+            'MM-dd-yyyy': Translate('IDCS_DATE_FORMAT_MDY'),
+            'dd-MM-yyyy': Translate('IDCS_DATE_FORMAT_DMY'),
+            'yyyy/MM/dd': Translate('IDCS_DATE_FORMAT_YMD'),
+            'MM/dd/yyyy': Translate('IDCS_DATE_FORMAT_MDY'),
+            'dd/MM/yyyy': Translate('IDCS_DATE_FORMAT_DMY'),
+            'year-month-day': Translate('IDCS_DATE_FORMAT_YMD'),
+            'month-day-year': Translate('IDCS_DATE_FORMAT_MDY'),
+            'day-month-year': Translate('IDCS_DATE_FORMAT_DMY'),
+        }
+
+        const dateFormatOptions: Record<string, string>[] = [
+            { value: 'year-month-day', text: Translate('IDCS_DATE_FORMAT_YMD') },
+            { value: 'month-day-year', text: Translate('IDCS_DATE_FORMAT_MDY') },
+            { value: 'day-month-year', text: Translate('IDCS_DATE_FORMAT_DMY') },
+        ]
+
+        const timeFormatTip: Record<string, string> = {
+            '24': Translate('IDCS_TIME_FORMAT_24'),
+            '12': Translate('IDCS_TIME_FORMAT_12'),
+        }
 
         let nameMapping: Record<string, string> = {}
         let osdDrawer: CanvasOSD | undefined = undefined
@@ -53,7 +76,7 @@ export default defineComponent({
         const handleChlSel = (chlId: string) => {
             const rowData = getRowById(chlId)
             formData.value = cloneDeep(rowData)
-            tableRef.value.setCurrentRow(rowData)
+            tableRef.value!.setCurrentRow(rowData)
             nameDisabled.value = rowData.disabled
             if (!rowData.supportDateFormat) nameDisabled.value = true
         }
@@ -108,7 +131,7 @@ export default defineComponent({
                 nameDisabled.value = rowData.disabled
                 if (!rowData.supportDateFormat) nameDisabled.value = true
             }
-            tableRef.value.setCurrentRow(getRowById(selectedChlId.value))
+            tableRef.value!.setCurrentRow(getRowById(selectedChlId.value))
         }
 
         const handleKeydownEnter = (event: Event) => {
@@ -225,9 +248,9 @@ export default defineComponent({
         }
 
         const getTimeEnabledData = (callback?: Function) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             queryDevList(getXmlWrapData('')).then((res) => {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
                     const rowData: ChannelInfoDto[] = []
@@ -342,14 +365,14 @@ export default defineComponent({
         }
 
         const getDataList = () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             getChlList({
                 pageIndex: pageIndex.value,
                 pageSize: pageSize.value,
                 isSupportOsd: true,
                 requireField: ['ip'],
             }).then((res) => {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
                     editRows.clear()
@@ -364,7 +387,7 @@ export default defineComponent({
                         newData.chlIndex = eleXml('chlIndex').text()
                         newData.chlType = eleXml('chlType').text()
                         newData.status = 'loading'
-                        newData.statusTip = tableRowStatusToolTip['loading']
+                        // newData.statusTip = tableRowStatusToolTip['loading']
                         rowData.push(newData)
                         nameMapping[rowData[rowData.length - 1].id] = rowData[rowData.length - 1].name
                     })
@@ -372,7 +395,7 @@ export default defineComponent({
                     tableData.value = rowData
                     if (rowData.length) {
                         selectedChlId.value = rowData[0].id
-                        tableRef.value.setCurrentRow(rowData[0])
+                        tableRef.value!.setCurrentRow(rowData[0])
                         formData.value = cloneDeep(rowData[0])
                         chlList.value = cloneDeep(rowData)
                         getTimeEnabledData(() => {
@@ -403,7 +426,7 @@ export default defineComponent({
         const checkAllRqReturn = () => {
             returnRqCount++
             if (returnRqCount == editRows.size) {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 editRows.clear()
             }
         }
@@ -413,7 +436,7 @@ export default defineComponent({
             btnOKDisabled.value = true
             returnRqCount = 0
             if (editRows.size == 0) return
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             editRows.forEach((ele) => sendData(ele))
         }
 
@@ -450,7 +473,7 @@ export default defineComponent({
                             }
                             nameMapping[rowData.id] = rowData.name
                             rowData.status = 'success'
-                            rowData.statusTip = tableRowStatusToolTip['saveSuccess']
+                            // rowData.statusTip = tableRowStatusToolTip['saveSuccess']
                             if (rowData.chlType == 'recorder') return
 
                             let editIPChlORChlOSDXml = '<types>'
@@ -495,12 +518,12 @@ export default defineComponent({
                                             if (rowData.name == nameMapping[rowData.id]) {
                                                 checkAllRqReturn()
                                                 rowData.status = 'success'
-                                                rowData.statusTip = tableRowStatusToolTip['saveSuccess']
+                                                // rowData.statusTip = tableRowStatusToolTip['saveSuccess']
                                             }
                                         } else {
                                             checkAllRqReturn()
-                                            let errorInfo = tableRowStatusToolTip['saveFailed']
-                                            if (Number($('errorCode').text()) == errorCodeMap.resourceNotExist) {
+                                            let errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
+                                            if (Number($('errorCode').text()) == ErrorCode.USER_ERROR__CANNOT_FIND_NODE_ERROR) {
                                                 errorInfo = Translate('resourceNotExist').formatForLang(Translate('IDCS_CHANNEL'))
                                             }
                                             rowData.status = 'error'
@@ -513,8 +536,8 @@ export default defineComponent({
                                 alert(error)
                             }
                         } else {
-                            let errorInfo = tableRowStatusToolTip['saveFailed']
-                            if (Number($('errorCode').text()) == errorCodeMap.nameExist) {
+                            let errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
+                            if (Number($('errorCode').text()) == ErrorCode.USER_ERROR_NAME_EXISTED) {
                                 errorInfo = Translate('IDCS_PROMPT_CHANNEL_NAME_EXIST')
                             }
                             rowData.status = 'error'

@@ -31,21 +31,37 @@ export default {
                 lk: 'IDCS_FACE_LIBRARY_SELECT',
                 icon: 'database_s',
             },
+            // 智能事件
+            // smartAlarm: {
+            //     sort: 40,
+            //     lk: 'IDCS_SMART_ALARM',
+            //     icon: 'intelligentAlarm_s',
+            // },
             //普通事件
             generalEvent: {
-                sort: 30,
+                sort: 50,
                 lk: 'IDCS_GENERAL_EVENT',
                 icon: 'motionAlarm_s',
             },
+            // combination: {
+            //     sort: 60,
+            //     lk: 'IDCS_COMBINATION_ALARM',
+            //     icon: 'combinedAlarm_s',
+            // },
+            // abnormal: {
+            //     sort: 70,
+            //     lk: 'IDCS_ABNORMAL_ALARM',
+            //     icon: 'abnormalAlarm_s',
+            // },
             //系统撤防
             systemDisarm: {
-                sort: 40,
+                sort: 80,
                 lk: 'IDCS_SYSTEM_ARM',
                 icon: 'systemDisarm',
             },
             //报警状态
             alarmStatus: {
-                sort: 50,
+                sort: 90,
                 lk: 'IDCS_ALARM_STATE',
                 icon: 'alarmStatus_s',
             },
@@ -141,6 +157,7 @@ export default {
                 },
             },
         },
+        // 以下页面只有在UI3-A才有
         // alaramScheduleAdd: {
         //     //
         //     path: 'schedule/add',
@@ -343,5 +360,109 @@ export default {
                 },
             },
         },
+        // 以下页面只有在UI3-A才有
+        // alarmVfd: {
+        //     path: 'vfd',
+        //     component: 'aiAndEvent/Vfd.vue',
+        //     meta: {
+        //         sort: 10,
+        //         lk: 'IDCS_FACE_DETECTION',
+        //         group: 'smartAlarm',
+        //         auth(systemCaps, ui) {
+        //             return ui === 'UI3-A'
+        //         },
+        //     },
+        // },
+        // alarmCdd: {
+        //     // 人群密度检测
+        //     path: 'cdd',
+        //     component: 'aiAndEvent/Cdd.vue',
+        //     meta: {
+        //         sort: 20,
+        //         lk: 'IDCS_CROWD_DENSITY_DETECTION',
+        //         group: 'smartAlarm',
+        //         auth(systemCaps, ui) {
+        //             return ui === 'UI3-A'
+        //         },
+        //     },
+        // },
+        // alarmIpd: {
+        //     // 人员入侵侦测
+        //     path: 'ipd',
+        //     component: 'aiAndEvent/Ipd.vue',
+        //     meta: {
+        //         sort: 30,
+        //         lk: 'IDCS_PEOPLE_INSTRUSION_DETECTION',
+        //         group: 'smartAlarm',
+        //         auth(systemCaps, ui) {
+        //             return ui === 'UI3-A'
+        //         },
+        //     },
+        // },
+        // alarmCpc: {
+        //     // 人数统计
+        //     path: 'cpc',
+        //     component: 'aiAndEvent/Cpc.vue',
+        //     meta: {
+        //         sort: 40,
+        //         lk: 'IDCS_PEOPLE_COUNT_DETECTION',
+        //         group: 'smartAlarm',
+        //         auth(systemCaps, ui) {
+        //             return ui === 'UI3-A'
+        //         },
+        //     },
+        // },
+        // alarmOsc: {
+        //     // 物品遗留与看护
+        //     path: 'osc',
+        //     component: 'aiAndEvent/Osc.vue',
+        //     meta: {
+        //         sort: 50,
+        //         lk: 'IDCS_WATCH_DETECTION',
+        //         group: 'smartAlarm',
+        //         auth(systemCaps, ui) {
+        //             return ui === 'UI3-A'
+        //         },
+        //     },
+        // },
+        // alarmAvd: {
+        //     // 异常
+        //     path: 'avd',
+        //     component: 'aiAndEvent/Avd.vue',
+        //     meta: {
+        //         sort: 60,
+        //         lk: 'IDCS_ABNORMAL_DETECTION',
+        //         group: 'smartAlarm',
+        //         auth(systemCaps, ui) {
+        //             return ui === 'UI3-A'
+        //         },
+        //     },
+        // },
+        // alarmTripwire: {
+        //     // 越界
+        //     path: 'tripwire',
+        //     component: 'aiAndEvent/Tripwire.vue',
+        //     meta: {
+        //         sort: 70,
+        //         lk: 'IDCS_BEYOND_DETECTION',
+        //         group: 'smartAlarm',
+        //         auth(systemCaps, ui) {
+        //             return ui === 'UI3-A'
+        //         },
+        //     },
+        // },
+        // alarmPea: {
+        //     // 区域入侵
+        //     path: 'pea',
+        //     component: 'aiAndEvent/Pea.vue',
+        //     meta: {
+        //         sort: 80,
+        //         lk: 'IDCS_INVADE_DETECTION',
+        //         group: 'smartAlarm',
+        //         auth(systemCaps, ui) {
+        //             return ui === 'UI3-A'
+        //         },
+        //     },
+        // },
     },
 } as FeatureItem
