@@ -3,7 +3,7 @@
  * @Date: 2024-05-31 16:36:04
  * @Description: canvas绘制osd配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-05-31 17:06:06
+ * @LastEditTime: 2024-10-09 16:23:49
  */
 import CanvasBase from './canvasBase'
 
@@ -50,12 +50,12 @@ export default class CanvasOSD {
     private readonly OSD_FONT_SIZE = 14 // osd字体大小
     private readonly OSD_FONT = this.OSD_FONT_SIZE + 'px Arial'
     private readonly DATE_FORMAT_MAP = {
-        'year-month-day': 'yyyy/MM/dd',
-        'month-day-year': 'MM/dd/yyyy',
-        'day-month-year': 'dd/MM/yyyy',
+        'year-month-day': 'YYYY/MM/DD',
+        'month-day-year': 'MM/DD/yyyy',
+        'day-month-year': 'DD/MM/yyyy',
     }
     private readonly TIME_FORMAT_MAP = {
-        12: 'hh:mm:ss tt',
+        12: 'hh:mm:ss A',
         24: 'HH:mm:ss',
     }
     // 通道名osd参数默认配置
@@ -213,7 +213,7 @@ export default class CanvasOSD {
     drawTime() {
         const ctx = this.ctx
         const format = this.DATE_FORMAT_MAP[this.timeCfg.dateFormat] + ' ' + this.TIME_FORMAT_MAP[this.timeCfg.timeFormat]
-        const text = new Date(this.timeCfg.timestamp).format(format)
+        const text = formatDate(this.timeCfg.timestamp, format)
         const startX = this.getRealSizeByRelative(this.timeCfg.X, 'x')
         const startY = this.getRealSizeByRelative(this.timeCfg.Y, 'y')
         ctx.Text({

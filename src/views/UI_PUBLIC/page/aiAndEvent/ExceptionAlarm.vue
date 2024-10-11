@@ -132,34 +132,29 @@
                     width="215px"
                 >
                     <template #header>
-                        <el-dropdown
-                            ref="alarmOutRef"
+                        <el-popover
+                            v-model:visible="pageData.alarmOutPopoverVisible"
                             trigger="click"
-                            :hide-on-click="false"
-                            placement="bottom"
+                            width="fit-content"
+                            popper-class="no-padding"
                         >
-                            <span
-                                class="el-dropdown-link"
-                                @click="alarmOutDropdownOpen"
-                            >
-                                {{ Translate('IDCS_ALARM_OUT') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
-                            </span>
-                            <template #dropdown>
-                                <el-dropdown-menu>
-                                    <BaseTransferPop
-                                        v-if="pageData.alarmOutIsShowAll"
-                                        :source-title="pageData.alarmOutSourceTitle"
-                                        :target-title="pageData.alarmOutTargetTitle"
-                                        :source-data="pageData.alarmOutList"
-                                        :linked-list="pageData.alarmOutChosedIdsAll"
-                                        :type="pageData.alarmOutType"
-                                        @confirm="alarmOutConfirmAll"
-                                        @close="alarmOutCloseAll"
-                                    >
-                                    </BaseTransferPop>
-                                </el-dropdown-menu>
+                            <template #reference>
+                                <span class="base-popover-icon">
+                                    {{ Translate('IDCS_ALARM_OUT') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
+                                </span>
                             </template>
-                        </el-dropdown>
+                            <BaseTransferPop
+                                v-if="pageData.alarmOutPopoverVisible"
+                                :source-title="pageData.alarmOutSourceTitle"
+                                :target-title="pageData.alarmOutTargetTitle"
+                                :source-data="pageData.alarmOutList"
+                                :linked-list="pageData.alarmOutChosedIdsAll"
+                                :type="pageData.alarmOutType"
+                                @confirm="alarmOutConfirmAll"
+                                @close="alarmOutCloseAll"
+                            >
+                            </BaseTransferPop>
+                        </el-popover>
                     </template>
                     <template #default="scope">
                         <el-row class="row-together">
@@ -333,13 +328,11 @@
 
 <script lang="ts" src="./ExceptionAlarm.v.ts"></script>
 
+<style>
+@import '@/views/UI_PUBLIC/publicStyle/aiAndEvent.scss';
+</style>
+
 <style lang="scss" scoped>
-.row-together {
-    width: fit-content;
-    .table_btn {
-        margin-left: 5px;
-    }
-}
 :deep(.el-table .cell) {
     display: flex;
     align-items: center;

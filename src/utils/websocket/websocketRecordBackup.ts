@@ -3,7 +3,7 @@
  * @Date: 2024-05-30 14:33:04
  * @Description: websocket 备份录像
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-11 09:40:01
+ * @LastEditTime: 2024-10-09 16:15:57
  */
 import WebsocketBase from './websocketBase'
 import RecordBuilder from '../wasmPlayer/recordBuilder'
@@ -214,7 +214,7 @@ export default class WebsocketRecordBackup {
                     firstFrameTime: this.taskIdFrameTimeMap[taskId] || cmd.data.start_time * 1000 + 2000,
                     finished: isFinished && this.taskStatusMap[this.lastTaskId as string] === 'done',
                 })
-            console.log(`record:${taskIndex} -- fileIndex:${fileIndex} complete, frameTime:${new Date(this.frameTime).format('yyyy/MM/dd HH:mm:ss')}`)
+            console.log(`record:${taskIndex} -- fileIndex:${fileIndex} complete, frameTime:${formatDate(this.frameTime, 'YYYY/MM/DD HH:mm:ss')}`)
             if (isFinished) {
                 // 完成一个任务后才开启下一个
                 this.execNextCmd()

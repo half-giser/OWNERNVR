@@ -1,14 +1,15 @@
-import { type ChlSignal } from '@/types/apiType/channel'
-
 /*
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-06-19 15:16:08
- * @Description:
+ * @Description: 通道 - 信号接入配置
  */
+
+import { type ChlSignal } from '@/types/apiType/channel'
+
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const { openMessageTipBox } = useMessageBox()
         const cababilityStore = useCababilityStore()
 
@@ -162,9 +163,9 @@ export default defineComponent({
         }
 
         const getChlListData = () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             getChlList({}).then((res) => {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 commLoadResponseHandler(res, ($) => {
                     $('//content/item').forEach((ele) => {
                         const eleXml = queryXml(ele.element)
@@ -175,9 +176,9 @@ export default defineComponent({
         }
 
         const getSystemCaps = (callback?: Function) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             querySystemCaps(getXmlWrapData('')).then((res) => {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 const $ = queryXml(res)
                 chlSupSignalType = $('//content/chlSupSignalType').text().split(':')
                 ipChlMaxCount.value = cababilityStore.ipChlMaxCount
@@ -190,9 +191,9 @@ export default defineComponent({
         }
 
         const getData = () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             queryBasicCfg(getXmlWrapData('')).then((res) => {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 const $ = queryXml(res)
                 chlSupSignalTypeList.value = []
                 let supportCvi = false
@@ -290,9 +291,9 @@ export default defineComponent({
             console.log(data)
             // return
 
-            // openLoading(LoadingTarget.FullScreen)
+            // openLoading()
             // editBasicCfg(getXmlWrapData(data)).then(() => {
-            //     closeLoading(LoadingTarget.FullScreen)
+            //     closeLoading()
             //     btnOkDisabled.value = true
             // })
         }

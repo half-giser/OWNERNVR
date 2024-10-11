@@ -2,6 +2,8 @@
  * @Author: zhangdongming zhangdongming@tvt.net.cn
  * @Date: 2024-06-05 18:18:35
  * @Description: 业务应用-人脸考勤
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-10 11:34:16
  */
 import { cloneDeep } from 'lodash-es'
 import dayjs from 'dayjs'
@@ -15,7 +17,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const dateTime = useDateTimeStore()
 
         // 周与文本的映射
@@ -523,7 +525,7 @@ export default defineComponent({
         }
 
         onMounted(async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             await getChannelList()
             await getFaceGroupList()
             for (let i = 0; i < pageData.value.faceGroupList.length; i++) {
@@ -531,7 +533,7 @@ export default defineComponent({
                 await getFaceGroupInfo(item.groupId, i)
             }
             formData.value.faceGroup = cloneDeep(pageData.value.faceGroupList)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         })
 
         return {

@@ -1,7 +1,7 @@
 /*
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-06-24 10:38:27
- * @Description:
+ * @Description: 通道 - OSD配置
  */
 
 import { type XmlResult } from '@/utils/xmlParse'
@@ -10,20 +10,18 @@ import { cloneDeep } from 'lodash-es'
 import CanvasOSD, { type CanvasOSDOptionNameConfig, type CanvasOSDOptionTimeConfig } from '@/utils/canvas/canvasOsd'
 import { type TVTPlayerWinDataListItem } from '@/utils/wasmPlayer/tvtPlayer'
 import { type OcxXmlSetOSDInfo, type OcxXmlSetOsdListDatum } from '@/utils/ocx/ocxCmd'
-import { dateFormatOptions, dateFormatTip, tableRowStatusToolTip, timeFormatTip } from '@/utils/const/other'
+import { type TableInstance } from 'element-plus'
 
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const { openMessageTipBox } = useMessageBox()
-        const userSessionStore = useUserSessionStore()
-        const Plugin = inject('Plugin') as PluginType
         const osType = getSystemInfo().platform
 
         const playerRef = ref<PlayerInstance>()
         const formData = ref(new ChannelOsd())
-        const tableRef = ref()
+        const tableRef = ref<TableInstance>()
         const tableData = ref([] as ChannelOsd[])
         const nameDisabled = ref(true)
         const btnOKDisabled = ref(true)
@@ -34,6 +32,29 @@ export default defineComponent({
         const chlList = ref<ChannelOsd[]>([]) // 作为下拉列表选项来源，只需保证name为最新值即可
         const { supportSHDB } = useCababilityStore() // 是否支持上海地标
         const tempName = ref('')
+
+        const dateFormatTip: Record<string, string> = {
+            'yyyy-MM-dd': Translate('IDCS_DATE_FORMAT_YMD'),
+            'MM-dd-yyyy': Translate('IDCS_DATE_FORMAT_MDY'),
+            'dd-MM-yyyy': Translate('IDCS_DATE_FORMAT_DMY'),
+            'yyyy/MM/dd': Translate('IDCS_DATE_FORMAT_YMD'),
+            'MM/dd/yyyy': Translate('IDCS_DATE_FORMAT_MDY'),
+            'dd/MM/yyyy': Translate('IDCS_DATE_FORMAT_DMY'),
+            'year-month-day': Translate('IDCS_DATE_FORMAT_YMD'),
+            'month-day-year': Translate('IDCS_DATE_FORMAT_MDY'),
+            'day-month-year': Translate('IDCS_DATE_FORMAT_DMY'),
+        }
+
+        const dateFormatOptions: Record<string, string>[] = [
+            { value: 'year-month-day', text: Translate('IDCS_DATE_FORMAT_YMD') },
+            { value: 'month-day-year', text: Translate('IDCS_DATE_FORMAT_MDY') },
+            { value: 'day-month-year', text: Translate('IDCS_DATE_FORMAT_DMY') },
+        ]
+
+        const timeFormatTip: Record<string, string> = {
+            '24': Translate('IDCS_TIME_FORMAT_24'),
+            '12': Translate('IDCS_TIME_FORMAT_12'),
+        }
 
         let nameMapping: Record<string, string> = {}
         let osdDrawer: CanvasOSD | undefined = undefined
@@ -55,7 +76,7 @@ export default defineComponent({
         const handleChlSel = (chlId: string) => {
             const rowData = getRowById(chlId)
             formData.value = cloneDeep(rowData)
-            tableRef.value.setCurrentRow(rowData)
+            tableRef.value!.setCurrentRow(rowData)
             nameDisabled.value = rowData.disabled
             if (!rowData.supportDateFormat) nameDisabled.value = true
         }
@@ -110,7 +131,7 @@ export default defineComponent({
                 nameDisabled.value = rowData.disabled
                 if (!rowData.supportDateFormat) nameDisabled.value = true
             }
-            tableRef.value.setCurrentRow(getRowById(selectedChlId.value))
+            tableRef.value!.setCurrentRow(getRowById(selectedChlId.value))
         }
 
         const handleKeydownEnter = (event: Event) => {
@@ -227,9 +248,9 @@ export default defineComponent({
         }
 
         const getTimeEnabledData = (callback?: Function) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             queryDevList(getXmlWrapData('')).then((res) => {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
                     const rowData: ChannelInfoDto[] = []
@@ -344,14 +365,14 @@ export default defineComponent({
         }
 
         const getDataList = () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             getChlList({
                 pageIndex: pageIndex.value,
                 pageSize: pageSize.value,
                 isSupportOsd: true,
                 requireField: ['ip'],
             }).then((res) => {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
                     editRows.clear()
@@ -366,7 +387,7 @@ export default defineComponent({
                         newData.chlIndex = eleXml('chlIndex').text()
                         newData.chlType = eleXml('chlType').text()
                         newData.status = 'loading'
-                        newData.statusTip = tableRowStatusToolTip['loading']
+                        // newData.statusTip = tableRowStatusToolTip['loading']
                         rowData.push(newData)
                         nameMapping[rowData[rowData.length - 1].id] = rowData[rowData.length - 1].name
                     })
@@ -374,7 +395,7 @@ export default defineComponent({
                     tableData.value = rowData
                     if (rowData.length) {
                         selectedChlId.value = rowData[0].id
-                        tableRef.value.setCurrentRow(rowData[0])
+                        tableRef.value!.setCurrentRow(rowData[0])
                         formData.value = cloneDeep(rowData[0])
                         chlList.value = cloneDeep(rowData)
                         getTimeEnabledData(() => {
@@ -405,7 +426,7 @@ export default defineComponent({
         const checkAllRqReturn = () => {
             returnRqCount++
             if (returnRqCount == editRows.size) {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 editRows.clear()
             }
         }
@@ -415,7 +436,7 @@ export default defineComponent({
             btnOKDisabled.value = true
             returnRqCount = 0
             if (editRows.size == 0) return
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             editRows.forEach((ele) => sendData(ele))
         }
 
@@ -452,7 +473,7 @@ export default defineComponent({
                             }
                             nameMapping[rowData.id] = rowData.name
                             rowData.status = 'success'
-                            rowData.statusTip = tableRowStatusToolTip['saveSuccess']
+                            // rowData.statusTip = tableRowStatusToolTip['saveSuccess']
                             if (rowData.chlType == 'recorder') return
 
                             let editIPChlORChlOSDXml = '<types>'
@@ -497,12 +518,12 @@ export default defineComponent({
                                             if (rowData.name == nameMapping[rowData.id]) {
                                                 checkAllRqReturn()
                                                 rowData.status = 'success'
-                                                rowData.statusTip = tableRowStatusToolTip['saveSuccess']
+                                                // rowData.statusTip = tableRowStatusToolTip['saveSuccess']
                                             }
                                         } else {
                                             checkAllRqReturn()
-                                            let errorInfo = tableRowStatusToolTip['saveFailed']
-                                            if (Number($('errorCode').text()) == errorCodeMap.resourceNotExist) {
+                                            let errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
+                                            if (Number($('errorCode').text()) == ErrorCode.USER_ERROR__CANNOT_FIND_NODE_ERROR) {
                                                 errorInfo = Translate('resourceNotExist').formatForLang(Translate('IDCS_CHANNEL'))
                                             }
                                             rowData.status = 'error'
@@ -515,8 +536,8 @@ export default defineComponent({
                                 alert(error)
                             }
                         } else {
-                            let errorInfo = tableRowStatusToolTip['saveFailed']
-                            if (Number($('errorCode').text()) == errorCodeMap.nameExist) {
+                            let errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
+                            if (Number($('errorCode').text()) == ErrorCode.USER_ERROR_NAME_EXISTED) {
                                 errorInfo = Translate('IDCS_PROMPT_CHANNEL_NAME_EXIST')
                             }
                             rowData.status = 'error'
@@ -552,29 +573,43 @@ export default defineComponent({
             setDateTime()
         }
 
-        const onReady = () => {
-            if (!Plugin.IsSupportH5() && !Plugin.IsPluginAvailable()) {
-                Plugin.SetPluginNoResponse()
-                Plugin.ShowPluginNoResponse()
+        // 播放模式
+        const mode = computed(() => {
+            if (!playerRef.value) {
+                return ''
             }
-            if (!Plugin.IsSupportH5()) Plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
+            return playerRef.value.mode
+        })
 
-            if (playerRef.value?.mode === 'h5') {
+        const ready = computed(() => {
+            return playerRef.value?.ready || false
+        })
+
+        let player: PlayerInstance['player']
+        let plugin: PlayerInstance['plugin']
+
+        const onReady = () => {
+            player = playerRef.value!.player
+            plugin = playerRef.value!.plugin
+
+            if (mode.value === 'h5') {
                 osdDrawer = new CanvasOSD({
-                    el: playerRef.value?.player.getDrawbordCanvas(0) as HTMLCanvasElement,
+                    el: player.getDrawbordCanvas(0) as HTMLCanvasElement,
                     onchange: handleOSDChange,
                 })
             } else {
-                let sendXML = OCX_XML_SetPluginModel(osType == 'mac' ? 'OSDConfig' : 'ReadOnly', 'Live')
-                playerRef.value?.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                if (osType == 'mac') {
-                    sendXML = OCX_XML_SetProperty({
-                        calendarType: userSessionStore.calendarType,
-                    })
-                    playerRef.value?.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                if (!plugin.IsInstallPlugin()) {
+                    plugin.SetPluginNotice('#layout2Content')
+                    return
                 }
+                if (!plugin.IsPluginAvailable()) {
+                    plugin.SetPluginNoResponse()
+                    plugin.ShowPluginNoResponse()
+                }
+                plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
+                const sendXML = OCX_XML_SetPluginModel(osType == 'mac' ? 'OSDConfig' : 'ReadOnly', 'Live')
+                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
-            play()
         }
 
         const onTime = (winIndex: number, data: TVTPlayerWinDataListItem, timeStamp: number) => {
@@ -595,81 +630,91 @@ export default defineComponent({
          */
         const play = () => {
             if (!selectedChlId.value) return
-            if (!playerRef.value || !playerRef.value.ready) return
+            if (!ready.value) return
             const channelOsd = getRowById(selectedChlId.value)
-            if (playerRef.value.mode === 'h5') {
-                playerRef.value.player.play({
+            if (mode.value === 'h5') {
+                player.play({
                     chlID: channelOsd.id,
                     streamType: 2,
                 })
             } else {
                 if (osType == 'mac') {
                 } else {
-                    playerRef.value.plugin.RetryStartChlView(channelOsd.id, channelOsd.name)
+                    plugin.RetryStartChlView(channelOsd.id, channelOsd.name)
                 }
             }
             setOcxData(channelOsd)
         }
 
+        // 首次加载成功 播放视频
+        const stopWatchFirstPlay = watchEffect(() => {
+            if (ready.value && tableData.value.length) {
+                nextTick(() => play())
+                stopWatchFirstPlay()
+            }
+        })
+
         const setOcxData = (rowData: ChannelOsd) => {
             if (supportSHDB) return
-            if (playerRef.value?.mode === 'h5') {
+            if (mode.value === 'h5') {
                 setCanvasDrawerData(rowData)
             } else {
-                if (osType == 'mac') {
-                    const osdList: OcxXmlSetOsdListDatum[] = [
-                        {
-                            winIndex: 0,
-                            dateFormat: rowData.dateFormat,
-                            timeFormat: rowData.timeFormat,
-                            x: rowData.timeX,
-                            y: rowData.timeY,
-                            xMin: rowData.timeXMinValue,
-                            xMax: rowData.timeXMaxValue,
-                            yMin: rowData.timeYMinValue,
-                            yMax: rowData.timeXMaxValue,
-                            status: rowData.displayTime ? 'ON' : 'OFF',
-                        },
-                        {
-                            winIndex: 0,
-                            osd: rowData.name,
-                            x: rowData.nameX,
-                            y: rowData.nameY,
-                            xMin: rowData.nameXMinValue,
-                            xMax: rowData.nameXMaxValue,
-                            yMin: rowData.nameYMinValue,
-                            yMax: rowData.nameYMaxValue,
-                            status: rowData.displayTime ? 'ON' : 'OFF',
-                        },
-                    ]
-                    const sendXML = OCX_XML_SetOSD('ON', osdList)
-                    playerRef.value?.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                } else {
-                    const osd: OcxXmlSetOSDInfo = {
-                        timeStamp: {
-                            switch: rowData.displayTime,
-                            X: rowData.timeX,
-                            XMinValue: rowData.timeXMinValue,
-                            XMaxValue: rowData.timeXMaxValue,
-                            Y: rowData.timeY,
-                            YMinValue: rowData.timeYMinValue,
-                            YMaxValue: rowData.timeYMaxValue,
-                            dateFormat: rowData.dateFormat,
-                            timeFormat: rowData.timeFormat,
-                        },
-                        deviceName: {
-                            switch: rowData.displayName,
-                            value: rowData.name,
-                            X: rowData.nameX,
-                            XMinValue: rowData.nameXMinValue,
-                            XMaxValue: rowData.nameXMaxValue,
-                            Y: rowData.nameY,
-                            YMinValue: rowData.nameYMinValue,
-                            YMaxValue: rowData.nameYMaxValue,
-                        },
+                if (rowData.timeX) {
+                    if (osType == 'mac') {
+                        const osdList: OcxXmlSetOsdListDatum[] = [
+                            {
+                                winIndex: 0,
+                                dateFormat: rowData.dateFormat,
+                                timeFormat: rowData.timeFormat,
+                                x: rowData.timeX,
+                                y: rowData.timeY,
+                                xMin: rowData.timeXMinValue,
+                                xMax: rowData.timeXMaxValue,
+                                yMin: rowData.timeYMinValue,
+                                yMax: rowData.timeXMaxValue,
+                                status: rowData.displayTime ? 'ON' : 'OFF',
+                            },
+                            {
+                                winIndex: 0,
+                                osd: rowData.name,
+                                x: rowData.nameX,
+                                y: rowData.nameY,
+                                xMin: rowData.nameXMinValue,
+                                xMax: rowData.nameXMaxValue,
+                                yMin: rowData.nameYMinValue,
+                                yMax: rowData.nameYMaxValue,
+                                status: rowData.displayTime ? 'ON' : 'OFF',
+                            },
+                        ]
+                        const sendXML = OCX_XML_SetOSD('ON', osdList)
+                        plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    } else {
+                        const osd: OcxXmlSetOSDInfo = {
+                            timeStamp: {
+                                switch: rowData.displayTime,
+                                X: rowData.timeX,
+                                XMinValue: rowData.timeXMinValue,
+                                XMaxValue: rowData.timeXMaxValue,
+                                Y: rowData.timeY,
+                                YMinValue: rowData.timeYMinValue,
+                                YMaxValue: rowData.timeYMaxValue,
+                                dateFormat: rowData.dateFormat,
+                                timeFormat: rowData.timeFormat,
+                            },
+                            deviceName: {
+                                switch: rowData.displayName,
+                                value: rowData.name,
+                                X: rowData.nameX,
+                                XMinValue: rowData.nameXMinValue,
+                                XMaxValue: rowData.nameXMaxValue,
+                                Y: rowData.nameY,
+                                YMinValue: rowData.nameYMinValue,
+                                YMaxValue: rowData.nameYMaxValue,
+                            },
+                        }
+                        const sendXML = OCX_XML_SetOSDInfo(osd)
+                        plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                     }
-                    const sendXML = OCX_XML_SetOSDInfo(osd)
-                    playerRef.value?.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 }
             }
         }
@@ -703,7 +748,6 @@ export default defineComponent({
         watch(selectedChlId, play)
 
         onMounted(() => {
-            Plugin.SetPluginNotice('#layout2Content')
             formData.value.remarkDisabled = false
             formData.value.supportTimeFormat = true
             formData.value.supportDateFormat = true
@@ -711,10 +755,13 @@ export default defineComponent({
         })
 
         onBeforeUnmount(() => {
-            if (playerRef.value?.mode === 'ocx') {
-                Plugin.VideoPluginNotifyEmitter.removeListener(LiveNotify2Js)
+            if (mode.value === 'ocx') {
+                plugin?.VideoPluginNotifyEmitter.removeListener(LiveNotify2Js)
                 const sendXML = OCX_XML_StopPreview('ALL')
-                playerRef.value?.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin?.GetVideoPlugin().ExecuteCmd(sendXML)
+            } else {
+                osdDrawer?.destroy()
+                osdDrawer = undefined
             }
         })
 

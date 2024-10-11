@@ -3,7 +3,7 @@
  * @Date: 2024-08-20 19:43:51
  * @Description: 云台-轨迹
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 11:55:20
+ * @LastEditTime: 2024-10-09 15:39:31
  */
 import { type TableInstance } from 'element-plus'
 import ChannelPtzCtrlPanel from './ChannelPtzCtrlPanel.vue'
@@ -22,7 +22,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const auth = useUserChlAuth(false)
         const playerRef = ref<PlayerInstance>()
 
@@ -131,7 +131,7 @@ export default defineComponent({
          * @param {string} chlId
          */
         const getTrace = async (chlId: string) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const index = tableData.value.findIndex((item) => item.chlId === chlId)
             const sendXml = rawXml`
@@ -142,7 +142,7 @@ export default defineComponent({
             const result = await queryLocalChlPtzTraceList(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 tableData.value[index].trace = $('//content/traces/item').map((item) => {
@@ -160,7 +160,7 @@ export default defineComponent({
          * @description 获取数据
          */
         const getData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const result = await getChlList({
                 pageIndex: 1,
@@ -170,7 +170,7 @@ export default defineComponent({
             })
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 tableData.value = $('//content/item')
@@ -327,7 +327,7 @@ export default defineComponent({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_TRACE_S').formatForLang(Translate('IDCS_CHANNEL'), getShortString(chlName, 10), getShortString(trace.name, 10)),
             }).then(async () => {
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
                 cancelRecord()
 
                 const sendXml = rawXml`
@@ -361,7 +361,7 @@ export default defineComponent({
                     }
                 }
 
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
             })
         }
 
@@ -373,7 +373,7 @@ export default defineComponent({
                 return
             }
 
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXml = rawXml`
                 <content>
@@ -385,7 +385,7 @@ export default defineComponent({
             const result = await editChlPtzTrace(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 openMessageTipBox({

@@ -16,7 +16,7 @@ export default defineComponent({
     setup() {
         const router = useRouter()
         const { Translate } = useLangStore()
-        const { LoadingTarget, openLoading, closeLoading } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const { openMessageTipBox } = useMessageBox()
 
         const tableData = ref<ChlGroup[]>()
@@ -45,7 +45,7 @@ export default defineComponent({
             editItem.value!.dwellTime = rowData.dwellTime
         }
 
-        const handleToolBarEvent = function (toolBarEvent: ConfigToolBarEvent<ChannelToolBarEvent>) {
+        const handleToolBarEvent = (toolBarEvent: ConfigToolBarEvent<ChannelToolBarEvent>) => {
             switch (toolBarEvent.type) {
                 case 'addChlGroup':
                     router.push('add')
@@ -56,7 +56,7 @@ export default defineComponent({
         const formatDwellTime = (value: number) => {
             if (value >= 60) {
                 value = value / 60
-                return Translate('IDCS_STAY_TIME_D').formatForLang(value + ' ', value == 1 ? Translate('IDCS_MINUTE') : Translate('IDCS_MINUTES'))
+                return Translate('IDCS_STAY_TIME_D').formatForLang(value + ' ', value === 1 ? Translate('IDCS_MINUTE') : Translate('IDCS_MINUTES'))
             } else {
                 return Translate('IDCS_STAY_TIME_D').formatForLang(value + ' ', Translate('IDCS_SECONDS'))
             }
@@ -74,14 +74,15 @@ export default defineComponent({
                 message: Translate('IDCS_DELETE_MP_GROUP_S').formatForLang(getShortString(rowData.name, 10)),
             }).then(() => {
                 const data = rawXml`
-                        <condition>
-                            <chlGroupIds type='list'>
-                                <item id='${rowData.id}'></item>
-                            </chlGroupIds>
-                        </condition>`
-                openLoading(LoadingTarget.FullScreen)
+                    <condition>
+                        <chlGroupIds type='list'>
+                            <item id='${rowData.id}'></item>
+                        </chlGroupIds>
+                    </condition>
+                `
+                openLoading()
                 delChlGroup(getXmlWrapData(data)).then((res) => {
-                    closeLoading(LoadingTarget.FullScreen)
+                    closeLoading()
                     const $ = queryXml(res)
                     if ($('status').text() == 'success') {
                         openMessageTipBox({
@@ -114,12 +115,13 @@ export default defineComponent({
         const handleExpandChange = (row: ChlGroup, expandedRows: ChlGroup[]) => {
             if (expandedRows.includes(row)) {
                 const data = rawXml`
-                <condition>
-                    <chlGroupId>${row.id}</chlGroupId>
-                </condition>`
-                openLoading(LoadingTarget.FullScreen)
+                    <condition>
+                        <chlGroupId>${row.id}</chlGroupId>
+                    </condition>
+                `
+                openLoading()
                 queryChlGroup(getXmlWrapData(data)).then((res) => {
-                    closeLoading(LoadingTarget.FullScreen)
+                    closeLoading()
                     const $ = queryXml(res)
                     if ($('status').text() == 'success') {
                         const chlList: Record<string, string | boolean>[] = []
@@ -146,10 +148,11 @@ export default defineComponent({
                     <name/>
                     <dwellTime/>
                     <chlCount/>
-                </requireField>`
-            openLoading(LoadingTarget.FullScreen)
+                </requireField>
+            `
+            openLoading()
             queryChlGroupList(getXmlWrapData(data)).then((res) => {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
                     tableData.value = []
@@ -194,10 +197,11 @@ export default defineComponent({
                             <item id='${chlId}'></item>
                         </chls>
                     </chlGroup>
-                </content>`
-            openLoading(LoadingTarget.FullScreen)
+                </content>
+            `
+            openLoading()
             editSetAndElementRelation(getXmlWrapData(data)).then((res) => {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
                     openMessageTipBox({

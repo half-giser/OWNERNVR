@@ -1,7 +1,7 @@
 /*
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-05-22 17:18:32
- * @Description:
+ * @Description: 添加通道 - 激活IPC弹窗
  */
 import { type FormInstance } from 'element-plus'
 import { type RuleItem } from 'async-validator'
@@ -21,7 +21,7 @@ export default defineComponent({
     },
     setup(props, { emit }) {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const userSessionStore = useUserSessionStore()
         const formRef = ref<FormInstance>()
         const formData = ref({} as Record<string, string>)
@@ -67,23 +67,29 @@ export default defineComponent({
             if (!formRef) return false
             formRef.value?.validate((valid) => {
                 if (valid) {
-                    let data = '<content>'
-                    props.activateIpcData.forEach((ele: ChannelQuickAddDto) => {
-                        data += rawXml`<item>
-                                    <userPassword>
-                                        <password type='string' encryptType='md5' maxLen='63'${getSecurityVer()}><![CDATA[${useDefaultPwdSwitch.value ? '' : AES_encrypt(formData.value.password, userSessionStore.sesionKey)}]]></password>
-                                    </userPassword>
-                                    <name>${ele.devName}</name>
-                                    <ip>${ele.ip}</ip>
-                                    <port>${ele.httpPort}</port>
-                                    <protocolType>${ele.protocolType}</protocolType>
-                                    <manufacturer>${ele.manufacturer}</manufacturer>
-                                </item>`
-                    })
-                    data += '</content>'
-                    openLoading(LoadingTarget.FullScreen)
+                    const data = rawXml`
+                        <content>
+                            ${props.activateIpcData
+                                .map((ele) => {
+                                    return rawXml`
+                                        <item>
+                                            <userPassword>
+                                                <password type='string' encryptType='md5' maxLen='63'${getSecurityVer()}><![CDATA[${useDefaultPwdSwitch.value ? '' : AES_encrypt(formData.value.password, userSessionStore.sesionKey)}]]></password>
+                                            </userPassword>
+                                            <name>${ele.devName}</name>
+                                            <ip>${ele.ip}</ip>
+                                            <port>${ele.httpPort}</port>
+                                            <protocolType>${ele.protocolType}</protocolType>
+                                            <manufacturer>${ele.manufacturer}</manufacturer>
+                                        </item>
+                                    `
+                                })
+                                .join('')}
+                        </content>
+                    `
+                    openLoading()
                     activateIPC(getXmlWrapData(data)).then(() => {
-                        closeLoading(LoadingTarget.FullScreen)
+                        closeLoading()
                         // 激活后成功或失败不做提示处理
                         emit('close')
                     })

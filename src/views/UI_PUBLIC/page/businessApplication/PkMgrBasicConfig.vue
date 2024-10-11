@@ -2,14 +2,15 @@
  * @Author: zhangdongming zhangdongming@tvt.net.cn
  * @Date: 2024-05-10 16:49:13
  * @Description: 业务应用-停车场管理-基础配置
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-10 11:35:22
 -->
-
 <template>
     <div class="manage">
         <el-form
-            ref="pkMgrFormRef"
+            ref="formRef"
             :rules="rules"
-            :model="pageData"
+            :model="formData"
             label-position="left"
             hide-required-asterisk
             :style="{
@@ -19,13 +20,14 @@
             class="inline-message"
         >
             <div class="limit">{{ Translate('IDCS_PARKING_LOT_MANAGE_TIPS').formatForLang(1) }}</div>
+
             <div class="base-business-subheading">{{ Translate('IDCS_PARKING_LOT_NAME') }}</div>
             <el-form-item
                 prop="parkName"
                 :label="Translate('IDCS_NAME')"
             >
                 <el-input
-                    v-model="pageData.parkName"
+                    v-model="formData.parkName"
                     maxlength="256"
                 />
             </el-form-item>
@@ -39,7 +41,7 @@
                 :label="Translate('IDCS_TOTAL_VEHICLE_NUM')"
             >
                 <el-input-number
-                    v-model="pageData.totalNum"
+                    v-model="formData.totalNum"
                     :min="1"
                     :max="10000"
                     value-on-clear="min"
@@ -51,7 +53,7 @@
                 :label="Translate('IDCS_REMAIN_VEHICLE_NUM')"
             >
                 <el-input-number
-                    v-model="pageData.remainTotalNum"
+                    v-model="formData.remainTotalNum"
                     :min="0"
                     :max="10000"
                     value-on-clear="min"
@@ -59,7 +61,7 @@
                 />
             </el-form-item>
             <div class="base-btn-box">
-                <el-button @click="apply()">{{ Translate('IDCS_APPLY') }}</el-button>
+                <el-button @click="apply">{{ Translate('IDCS_APPLY') }}</el-button>
             </div>
         </el-form>
     </div>

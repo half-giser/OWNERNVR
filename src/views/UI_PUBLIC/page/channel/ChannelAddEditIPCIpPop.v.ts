@@ -1,3 +1,10 @@
+/*
+ * @Author: linguifan linguifan@tvt.net.cn
+ * @Date: 2024-07-09 18:39:25
+ * @Description: 添加通道 - 编辑IPC IP弹窗
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-09 15:33:51
+ */
 import { type FormInstance } from 'element-plus'
 import { ChannelAddEditIPCIpDto, type ChannelQuickAddDto, type DefaultPwdDto } from '@/types/apiType/channel'
 
@@ -19,7 +26,7 @@ export default defineComponent({
     },
     setup(props, { emit }) {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const userSessionStore = useUserSessionStore()
         const { openMessageTipBox } = useMessageBox()
         const formRef = ref<FormInstance>()
@@ -44,33 +51,34 @@ export default defineComponent({
                 showMsg(Translate('IDCS_PROMPT_PASSWORD_EMPTY'))
                 return
             }
-            const data = rawXml`<content>
-                            <device>
-                                <item id='1'>
-                                    <oldIP>${props.editItem.ip}</oldIP>
-                                    <newIP>${formData.value.ip}</newIP>
-                                    <netmask>${formData.value.mask}</netmask>
-                                    <gateway>${formData.value.gateway}</gateway>
-                                    <username>${formData.value.userName}</username>
-                                    <password${getSecurityVer()}><![CDATA[${AES_encrypt(formData.value.password, userSessionStore.sesionKey)}]]></password>
-                                </item>
-                            </device>
-                        </content>`
-            openLoading(LoadingTarget.FullScreen)
+            const data = rawXml`
+                <content>
+                    <device>
+                        <item id='1'>
+                            <oldIP>${props.editItem.ip}</oldIP>
+                            <newIP>${formData.value.ip}</newIP>
+                            <netmask>${formData.value.mask}</netmask>
+                            <gateway>${formData.value.gateway}</gateway>
+                            <username>${formData.value.userName}</username>
+                            <password${getSecurityVer()}><![CDATA[${AES_encrypt(formData.value.password, userSessionStore.sesionKey)}]]></password>
+                        </item>
+                    </device>
+                </content>`
+            openLoading()
             editDevNetworkList(getXmlWrapData(data)).then((res) => {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
-                    const errorCode = $('//content/item/errorCode').text()
-                    if (errorCode == '0') {
+                    const errorCode = Number($('//content/item/errorCode').text())
+                    if (errorCode === 0) {
                         emit('close')
                     } else {
-                        if (errorCode == '536871063') {
+                        if (errorCode === 536871063) {
                             showMsg(Translate('IDCS_PROMPT_CHANNEL_IPADDRESS_AND_PORT_EXIST'))
-                        } else if (errorCode == '536871000' || errorCode == '536870993') {
+                        } else if (errorCode == ErrorCode.USER_ERROR_MASK_NOT_CONTINE || errorCode == ErrorCode.USER_ERROR_INVALID_SUBMASK) {
                             // 子网掩码无效
                             showMsg(Translate('IDCS_ERROR_MASK_NOT_CONTINE'))
-                        } else if (errorCode == '536871001') {
+                        } else if (errorCode == ErrorCode.USER_ERROR_DIFFERENT_SEGMENT) {
                             // 网关不在由IP地址和子网掩码定义的同一网段上
                             showMsg(Translate('IDCS_ERROR_DIFFERENT_SEGMENT'))
                         } else {

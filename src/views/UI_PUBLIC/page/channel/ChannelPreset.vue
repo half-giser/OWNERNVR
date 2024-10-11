@@ -6,9 +6,9 @@
  * @LastEditTime: 2024-10-09 15:51:43
 -->
 <template>
-    <div class="preset">
-        <div class="left">
-            <div class="player">
+    <div class="base-chl-box">
+        <div class="base-chl-box-left">
+            <div class="base-chl-box-player">
                 <BaseVideoPlayer
                     ref="playerRef"
                     type="live"
@@ -68,7 +68,7 @@
                         :show-after="500"
                     >
                         <BaseImgSprite
-                            class="save"
+                            class="base-chl-icon-btn"
                             file="save"
                             :index="0"
                             :hover-index="2"
@@ -94,7 +94,7 @@
                 </div>
             </el-form>
         </div>
-        <div class="right">
+        <div class="base-chl-box-right">
             <div class="base-table-box">
                 <el-table
                     ref="tableRef"
@@ -144,51 +144,6 @@
 
 <script lang="ts" src="./ChannelPreset.v.ts"></script>
 
-<style>
-.custom-select {
-    max-height: 180px;
-    overflow-y: auto;
-}
-</style>
-
-<style lang="scss" scoped>
-.preset {
-    width: 100%;
-    height: var(--content-height);
-    display: flex;
-}
-
-.left {
-    width: 400px;
-}
-
-.player {
-    width: 400px;
-    height: 300px;
-}
-
-.save {
-    flex-shrink: 0;
-    background-color: var(--ptz-btn);
-    border: 1px solid var(--ptz-btn);
-
-    &:hover {
-        background-color: var(--ptz-btn);
-        border-color: var(--primary);
-    }
-
-    &.disabled {
-        background-color: var(--ptz-btn-disabled);
-
-        &:hover {
-            border-color: var(--ptz-btn);
-        }
-    }
-}
-
-.right {
-    width: 100%;
-    height: 100%;
-    margin-left: 10px;
-}
+<style lang="scss">
+@import '@/views/UI_PUBLIC/publicStyle/channel.scss';
 </style>

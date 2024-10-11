@@ -3,7 +3,7 @@
  * @Date: 2024-08-21 17:51:18
  * @Description: 云台-巡航线-新增弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 11:51:10
+ * @LastEditTime: 2024-10-09 15:35:39
  */
 import { type ChannelPtzCruiseDto, type ChannelPtzCruisePresetDto } from '@/types/apiType/channel'
 import type { FormInstance, FormRules, TableInstance } from 'element-plus'
@@ -47,7 +47,7 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
 
         const PRESET_MAX_COUNT = 16
 
@@ -117,7 +117,7 @@ export default defineComponent({
          * @description 保存数据
          */
         const setData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const presets = tableData.value
                 .map((item) => {
@@ -163,7 +163,7 @@ export default defineComponent({
                 })
             }
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         /**

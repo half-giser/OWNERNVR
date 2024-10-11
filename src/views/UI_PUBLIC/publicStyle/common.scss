@@ -261,6 +261,9 @@ input[type='number'] {
                 }
             }
         }
+        & .el-table__cell{
+            text-align: center;
+        }
 
         .el-table__row {
             &:has(> td.el-table-column--selection > .cell .el-checkbox.is-checked) {
@@ -323,6 +326,10 @@ input[type='number'] {
                 }
             }
         }
+
+        &.el-popover {
+            color: var(--main-text);
+        }
     }
 
     // .el-slider 公共样式
@@ -343,9 +350,11 @@ input[type='number'] {
         margin-bottom: 10px;
         
         .el-form-item {
-            .el-form-item__label {
+            &__label {
                 width: var(--form-label-width);
-                white-space: nowrap;
+                align-items: center;
+                line-height: 1.2;
+                // white-space: nowrap;
 
                 .el-text.label {
                     color: var(--form-input-width);
@@ -664,7 +673,5 @@ input[type='number'] {
 
     &[span='start'] {
         justify-content: flex-start;
-        padding-left: 15px;
-        box-sizing: border-box;
     }
 }

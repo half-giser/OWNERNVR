@@ -25,9 +25,15 @@ export default {
                 lk: 'IDCS_SYSTEM_MAINTENANCE',
                 icon: 'systemMaintenance_s',
             },
+            //磁盘管理
+            diskInfo: {
+                sort: 30,
+                lk: 'IDCS_SYSTEM_INFORMATION',
+                icon: 'diskInfo_s',
+            },
             //系统信息
             info: {
-                sort: 30,
+                sort: 40,
                 lk: 'IDCS_SYSTEM_INFORMATION',
                 icon: 'sysInfo_s',
             },
@@ -74,6 +80,9 @@ export default {
                 lk: 'IDCS_OUTPUT_CONFIG',
                 group: 'basicConfig',
                 enabled: 'remoteSysCfgAndMaintain',
+                auth(systemCaps, ui) {
+                    return ui !== 'UI3-A'
+                },
             },
         },
         posSettings: {
@@ -91,7 +100,7 @@ export default {
             },
         },
         poeSettings: {
-            //
+            // POE电源设置
             path: 'poePower',
             component: 'system/PoeSettings.vue',
             meta: {
@@ -99,8 +108,8 @@ export default {
                 lk: 'IDCS_SYSTEM_POE_SETUP',
                 group: 'basicConfig',
                 enabled: 'remoteSysCfgAndMaintain',
-                auth(systemCaps) {
-                    return systemCaps.supportPoePowerManage
+                auth(systemCaps, ui) {
+                    return systemCaps.supportPoePowerManage && ui !== 'UI3-A'
                 },
             },
         },
@@ -113,6 +122,9 @@ export default {
                 lk: 'IDCS_OSD_CONFIG',
                 group: 'basicConfig',
                 enabled: 'remoteSysCfgAndMaintain',
+                auth(systemCaps, ui) {
+                    return ui !== 'UI3-A'
+                },
             },
         },
         viewLog: {
@@ -186,6 +198,19 @@ export default {
                 enabled: 'remoteSysCfgAndMaintain',
             },
         },
+        upgradeOnline: {
+            //云升级
+            path: 'upgradeOnline',
+            component: 'net/CloudUpgrade.vue',
+            meta: {
+                sort: 70,
+                lk: 'IDCS_ONLINE_UPGRADE',
+                group: 'maintenance',
+                auth(systemCaps, ui) {
+                    return systemCaps.showCloudUpgrade && ui === 'UI3-A'
+                },
+            },
+        },
         basic: {
             //设备基本信息
             path: 'information',
@@ -218,6 +243,9 @@ export default {
                 sort: 30,
                 lk: 'IDCS_ALARM_STATE',
                 group: 'info',
+                auth(systemCaps, ui) {
+                    return ui !== 'UI3-A'
+                },
             },
         },
         recordStatus: {
@@ -231,6 +259,9 @@ export default {
                 sort: 40,
                 lk: 'IDCS_RECORD_STATE',
                 group: 'info',
+                auth(systemCaps, ui) {
+                    return ui !== 'UI3-A'
+                },
             },
         },
         networkStatus: {
@@ -244,6 +275,9 @@ export default {
                 sort: 50,
                 lk: 'IDCS_NETWORK_STATE',
                 group: 'info',
+                auth(systemCaps, ui) {
+                    return ui !== 'UI3-A'
+                },
             },
         },
         diskStatus: {
@@ -257,8 +291,77 @@ export default {
                 sort: 60,
                 lk: 'IDCS_DISK_STATE_TOOLTIP',
                 group: 'info',
+                auth(systemCaps, ui) {
+                    return ui !== 'UI3-A'
+                },
             },
         },
+        systemDiskManagement: {
+            //磁盘管理
+            path: 'disk/management',
+            component: 'disk/DiskManagement.vue',
+            meta: {
+                sort: 10,
+                lk: 'IDCS_DISK_MANAGE',
+                group: 'diskManagement',
+                default: true,
+                inHome: 'self',
+                homeSort: 70,
+                enabled: 'diskMgr',
+                auth(systemCaps, ui) {
+                    return ui === 'UI3-A'
+                },
+            },
+        },
+        systemStorageMode: {
+            //存储模式配置
+            path: 'disk/storage/mode',
+            component: 'disk/StorageMode.vue',
+            meta: {
+                sort: 20,
+                lk: 'IDCS_STORAGE_MODE_SET',
+                group: 'storageMode',
+                inHome: 'self',
+                homeSort: 80,
+                enabled: 'diskMgr',
+                auth(systemCaps, ui) {
+                    return ui === 'UI3-A'
+                },
+            },
+        },
+        systemViewDiskInfo: {
+            //查看磁盘信息
+            path: 'disk/information',
+            components: {
+                toolBar: 'system/SystemToolBar.vue',
+                default: 'system/DiskStatus.vue',
+            },
+            // component: 'disk/ViewDiskInfo.vue',
+            meta: {
+                sort: 30,
+                lk: 'IDCS_VIEW_DISK_INFORMATION',
+                group: 'diskInfo',
+                inHome: 'self',
+                homeSort: 90,
+                auth(systemCaps, ui) {
+                    return ui === 'UI3-A'
+                },
+            },
+        },
+        systemSmartInfo: {
+            //SMART信息
+            path: 'disk/information/smart',
+            component: 'disk/SmartInfo.vue',
+            meta: {
+                sort: 40,
+                lk: 'IDCS_DISK_SMART_INFO',
+                group: 'diskInfo',
+                auth(systemCaps, ui) {
+                    return ui === 'UI3-A'
+                },
+            },
+        },
+        // 以下页面没有在原项目中找到入口
         // platformParam: {
         //     // 地标平台参数
         //     path: 'platform/parameter',

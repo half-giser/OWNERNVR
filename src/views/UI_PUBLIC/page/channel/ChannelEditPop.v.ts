@@ -40,7 +40,7 @@ export default defineComponent({
     setup(props, { emit }) {
         const userSessionStore = useUserSessionStore()
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const { openMessageTipBox } = useMessageBox()
         const formRef = ref<FormInstance>()
         const ipTitle = ref('')
@@ -57,11 +57,11 @@ export default defineComponent({
         let isDomain = false
         let notCheckNameFlag = false
 
-        const getData = function () {
+        const getData = () => {
             const data = getXmlWrapData(`<condition><id>${props.rowData.id}</id></condition>`)
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             queryDev(data).then((res) => {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
                     editItem.value = new ChannelInfoDto()
@@ -124,7 +124,7 @@ export default defineComponent({
                     }
                 } else {
                     let errorInfo = Translate('IDCS_QUERY_DATA_FAIL')
-                    const isNotExit = Number($('errorCode').text()) === errorCodeMap.resourceNotExist
+                    const isNotExit = Number($('errorCode').text()) === ErrorCode.USER_ERROR__CANNOT_FIND_NODE_ERROR
                     if (isNotExit) errorInfo = Translate('IDCS_RESOURCE_NOT_EXIST').formatForLang(Translate('IDCS_CHANNEL'))
                     openMessageTipBox({
                         type: 'info',
@@ -218,7 +218,7 @@ export default defineComponent({
             userName: [{ validator: validate.validateUserName, trigger: 'manual' }],
         })
 
-        const save = function (notCheckName: boolean) {
+        const save = (notCheckName: boolean) => {
             notCheckNameFlag = notCheckName
             if (!formRef) return false
             formRef.value?.validate((valid) => {
@@ -265,24 +265,24 @@ export default defineComponent({
                             })
                         } else {
                             const errorCode = Number($('errorCode').text())
-                            if (errorCode === errorCodeMap.nameExist) {
+                            if (errorCode === ErrorCode.USER_ERROR_NAME_EXISTED) {
                                 openMessageTipBox({
                                     type: 'info',
                                     message: Translate('IDCS_PROMPT_CHANNEL_NAME_EXIST'),
                                 })
-                            } else if (errorCode === errorCodeMap.resourceNotExist) {
+                            } else if (errorCode === ErrorCode.USER_ERROR__CANNOT_FIND_NODE_ERROR) {
                                 openMessageTipBox({
                                     type: 'info',
                                     message: Translate('IDCS_RESOURCE_NOT_EXIST').formatForLang(Translate('IDCS_CHANNEL')),
                                 }).then(() => {
                                     emit('close', true)
                                 })
-                            } else if (errorCode === errorCodeMap.nodeExist) {
+                            } else if (errorCode === ErrorCode.USER_ERROR_NODE_ID_EXISTS) {
                                 openMessageTipBox({
                                     type: 'info',
                                     message: Translate('IDCS_PROMPT_CHANNEL_EXIST'),
                                 })
-                            } else if (errorCode === errorCodeMap.ipError) {
+                            } else if (errorCode === ErrorCode.USER_ERROR_INVALID_IP) {
                                 openMessageTipBox({
                                     type: 'info',
                                     message: Translate('IDCS_ERROR_IP_ROUTE_INVALID'),
@@ -300,7 +300,7 @@ export default defineComponent({
         }
 
         // 检测名字是否已经存在
-        const checkIsNameExit = function (name: string, currId: string) {
+        const checkIsNameExit = (name: string, currId: string) => {
             let isSameName = false
             for (const key in props.nameMapping) {
                 if (key != currId) {
@@ -313,7 +313,7 @@ export default defineComponent({
             return isSameName
         }
 
-        const opened = function () {
+        const opened = () => {
             if (formRef.value) formRef.value.resetFields()
             ipTitle.value = Translate('IPV4')
             showIpInput.value = true

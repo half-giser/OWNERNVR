@@ -46,41 +46,38 @@
             ref="formRef"
             :model="formData"
             :rules="rules"
-            label-width="150px"
             label-position="left"
             class="ruleForm"
         >
-            <el-row class="config-row">
-                <el-form-item
-                    prop="password"
-                    :label="Translate('IDCS_NEW_PASSWORD')"
-                >
-                    <el-input
-                        v-model="formData.password"
-                        :placeholder="Translate('IDCS_PASSWORD_TIP')"
-                        class="passwordInput"
-                    />
-                </el-form-item>
-            </el-row>
-            <el-row class="config-row">
-                <el-form-item
-                    prop="confirmPassword"
-                    :label="Translate('IDCS_CONFIRM_PASSWORD')"
-                >
-                    <el-input
-                        v-model="formData.confirmPassword"
-                        :placeholder="Translate('IDCS_PASSWORD_TIP')"
-                        class="passwordInput"
-                    />
-                </el-form-item>
-            </el-row>
+            <el-form-item
+                prop="password"
+                :label="Translate('IDCS_NEW_PASSWORD')"
+            >
+                <el-input
+                    v-model="formData.password"
+                    :placeholder="Translate('IDCS_PASSWORD_TIP')"
+                    class="passwordInput"
+                />
+            </el-form-item>
+            <el-form-item
+                prop="confirmPassword"
+                :label="Translate('IDCS_CONFIRM_PASSWORD')"
+            >
+                <el-input
+                    v-model="formData.confirmPassword"
+                    :placeholder="Translate('IDCS_PASSWORD_TIP')"
+                    class="passwordInput"
+                />
+            </el-form-item>
         </el-form>
-        <el-row>
-            <el-col class="el-col-flex-end">
-                <el-button @click="save">{{ Translate('IDCS_OK') }}</el-button>
-                <el-button @click="$emit('close')">{{ Translate('IDCS_CANCEL') }}</el-button>
-            </el-col>
-        </el-row>
+        <template #footer>
+            <el-row>
+                <el-col class="el-col-flex-end">
+                    <el-button @click="save">{{ Translate('IDCS_OK') }}</el-button>
+                    <el-button @click="$emit('close')">{{ Translate('IDCS_CANCEL') }}</el-button>
+                </el-col>
+            </el-row>
+        </template>
     </el-dialog>
 </template>
 
@@ -90,9 +87,5 @@
 .ruleForm {
     width: 420px;
     margin: 20px auto;
-
-    .passwordInput {
-        width: 270px;
-    }
 }
 </style>

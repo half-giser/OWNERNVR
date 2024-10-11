@@ -3,7 +3,7 @@
  * @Date: 2024-05-30 09:55:33
  * @Description: websocket基础类
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-13 20:39:53
+ * @LastEditTime: 2024-10-09 16:25:55
  */
 export interface WebsocketBaseOption {
     onopen?: (param: string) => void
@@ -43,7 +43,7 @@ export default class WebsocketBase {
         this.ws = new WebSocket(getWebsocketOpenUrl())
         this.ws.binaryType = this.binaryType
         this.ws.onopen = () => {
-            console.log('websocket success:', new Date().format('yyyy-MM-dd hh:mm:ss'))
+            console.log('websocket success:', formatDate(new Date(), 'YYYY-MM-DD HH:mm:ss'))
         }
 
         this.ws.onmessage = (event) => {
@@ -52,7 +52,7 @@ export default class WebsocketBase {
                 const resData = res.data || {}
                 const code = Number(resData.code)
                 if (res.url === '/device/create_connection#response' && code === 0) {
-                    console.log('websocket authentication success:', new Date().format('yyyy-MM-dd hh:mm:ss'))
+                    console.log('websocket authentication success:', formatDate(new Date(), 'YYYY-MM-dd hh:mm:ss'))
                     this.closeRetryTimer()
                     this.openHeartBeat()
                     this.onopenCb && this.onopenCb(event.data)
@@ -69,7 +69,7 @@ export default class WebsocketBase {
         }
 
         this.ws.onclose = () => {
-            console.log('websocket closed', new Date().format('yyyy-MM-dd hh:mm:ss'))
+            console.log('websocket closed', formatDate(new Date(), 'YYYY-MM-DD HH:mm:ss'))
             this.oncloseCb && this.oncloseCb()
         }
     }

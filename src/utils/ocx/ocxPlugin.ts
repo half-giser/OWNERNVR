@@ -4,7 +4,7 @@
  * @Description: OCX插件模块
  * 原项目中MAC插件和TimeSliderPlugin相关逻辑不保留
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-08 10:42:26
+ * @LastEditTime: 2024-10-09 18:12:44
  */
 import WebsocketPlugin from '@/utils/websocket/websocketPlugin'
 import { ClientPort, P2PClientPort, P2PACCESSTYPE, SERVER_IP, getPluginPath, PluginSizeModeMapping, type OCX_Plugin_Notice_Map } from '@/utils/ocx/ocxUtil'
@@ -995,6 +995,7 @@ const useOCXPlugin = () => {
         //     setPluginSizeForP2PMac(pluginRefDiv, pluginObj as EmbedPlugin)
         //     return
         // }
+
         if (!pluginRefDiv) {
             if (browserEventMap.data.length) {
                 pluginRefDiv = browserEventMap.data[0].element
@@ -1159,7 +1160,7 @@ const useOCXPlugin = () => {
         if (!pluginPlaceholderId) return null
         if (browserEventMap.has(pluginPlaceholderId)) {
             const browserMoveEventObj = browserEventMap.get(pluginPlaceholderId)!
-            document.getElementById('layoutMainContent')?.removeEventListener('scroll', browserMoveEventObj.browserScrollCallback)
+            document.getElementById('layoutMainBody')?.removeEventListener('scroll', browserMoveEventObj.browserScrollCallback)
             window.removeEventListener('scroll', browserMoveEventObj.browserScrollCallback)
             window.removeEventListener('resize', browserMoveEventObj.browserScrollCallback)
             clearInterval(browserMoveEventObj.browserMoveTimer)
@@ -1274,7 +1275,7 @@ const useOCXPlugin = () => {
         })
         resizeObserver.observe(pluginPlaceholderId)
 
-        document.getElementById('layoutMainContent')?.addEventListener('scroll', browserScrollCallback)
+        document.getElementById('layoutMainBody')?.addEventListener('scroll', browserScrollCallback)
         window.addEventListener('scroll', browserScrollCallback)
         window.addEventListener('resize', browserScrollCallback)
         browserEventMap.set({

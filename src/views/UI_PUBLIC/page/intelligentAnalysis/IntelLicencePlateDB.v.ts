@@ -3,7 +3,7 @@
  * @Date: 2024-09-02 14:01:05
  * @Description: 车牌库
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-03 19:44:03
+ * @LastEditTime: 2024-10-09 15:43:25
  */
 import { type TableInstance } from 'element-plus'
 import { IntelPlateDBGroupList, IntelPlateDBPlateInfo } from '@/types/apiType/intelligentAnalysis'
@@ -310,7 +310,7 @@ export default defineComponent({
                     searchPlate(row.groupId, true)
                 } else {
                     const errorCode = Number($('//errorCode').text())
-                    if (errorCode === 536870953) {
+                    if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
                         openMessageTipBox({
                             type: 'info',
                             message: Translate('IDCS_NO_AUTH'),

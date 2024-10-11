@@ -3,11 +3,12 @@
  * @Date: 2024-05-07 19:40:23
  * @Description: 用户板块右上方工具栏
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-23 14:05:05
+ * @LastEditTime: 2024-10-09 13:37:20
 -->
 <template>
     <el-input
         v-model="msg"
+        size="small"
         class="toolBarText"
         :placeholder="Translate('IDCS_SEARCH_USER')"
     ></el-input>
@@ -58,12 +59,7 @@ export default defineComponent({
 <style lang="scss" scoped>
 .toolBarText {
     width: 200px;
-    height: 23px;
     margin-right: 5px;
-
-    :deep(.el-input__inner) {
-        height: 23px;
-    }
 }
 
 .toolBarBtn {

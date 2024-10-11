@@ -1,10 +1,11 @@
 /*
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-06-05 17:19:32
- * @Description:
+ * @Description: 添加通道 - 设置协议弹窗
  */
 import { type RuleItem } from 'async-validator'
 import { ProtocolManageDto, ResourcesPathDto } from '@/types/apiType/channel'
+import type { FormInstance, TableInstance } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -20,13 +21,13 @@ export default defineComponent({
     },
     setup(props, { emit }) {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const { openMessageTipBox } = useMessageBox()
-        const formRef = ref()
+        const formRef = ref<FormInstance>()
         const formData = ref(new ProtocolManageDto())
         const protocolManageList = ref<ProtocolManageDto[]>([])
         const currentProtocolLogo = ref('')
-        const tableRef = ref()
+        const tableRef = ref<TableInstance>()
 
         let tempProtocolLogo: string = ''
         let manufacturerArray: string[] = []
@@ -41,9 +42,9 @@ export default defineComponent({
         }
 
         const getData = () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             queryRtspProtocolList(getXmlWrapData('')).then((res) => {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
                     protocolManageList.value = []
@@ -111,7 +112,7 @@ export default defineComponent({
                 if (ele.enabled && ele.id != tempProtocolLogo) displayNameList.push(ele.displayName)
             })
             if (!formRef) return false
-            const valid = await formRef.value.validate()
+            const valid = await formRef.value!.validate()
             if (valid) {
                 const mainPath = formData.value.resourcesPath[0].path.trim()
                 const subPath = formData.value.resourcesPath[1].path.trim()
@@ -156,16 +157,16 @@ export default defineComponent({
             if (formData.value.enabled) {
                 if (!(await verification())) return
             }
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             editRtspProtocolList(getSaveData()).then((res) => {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
                     emit('close', true)
                 } else {
-                    const errorCdoe = $('errorCode').text()
+                    const errorCdoe = Number($('errorCode').text())
                     let msg = ''
-                    if (errorCdoe == '536870953') {
+                    if (errorCdoe === ErrorCode.USER_ERROR_NO_AUTH) {
                         msg = Translate('IDCS_NO_AUTH')
                     } else {
                         msg = Translate('IDCS_SAVE_DATA_FAIL')
@@ -210,7 +211,7 @@ export default defineComponent({
         }
 
         const opened = () => {
-            formRef.value.clearValidate()
+            formRef.value?.clearValidate()
             manufacturerArray = []
             props.manufacturerList.forEach((ele: Record<string, string>) => {
                 manufacturerArray.push(ele['text'])

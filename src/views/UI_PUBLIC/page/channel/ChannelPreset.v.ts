@@ -3,7 +3,7 @@
  * @Date: 2024-08-20 18:26:51
  * @Description: 云台-预置点
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 11:52:32
+ * @LastEditTime: 2024-10-09 15:38:03
  */
 import { type TableInstance } from 'element-plus'
 import ChannelPtzCtrlPanel from './ChannelPtzCtrlPanel.vue'
@@ -21,7 +21,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const { openMessageTipBox } = useMessageBox()
         const playerRef = ref<PlayerInstance>()
         const auth = useUserChlAuth(false)
@@ -115,7 +115,7 @@ export default defineComponent({
          * @description 获取通道的预置点
          */
         const getPreset = async (chlId: string) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const index = tableData.value.findIndex((item) => item.chlId === chlId)
             const sendXml = rawXml`
@@ -126,7 +126,7 @@ export default defineComponent({
             const result = await queryChlPresetList(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 tableData.value[index].presets = $('//content/presets/item').map((item) => {
@@ -145,7 +145,7 @@ export default defineComponent({
          * @description 获取数据
          */
         const getData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const result = await getChlList({
                 pageIndex: 1,
@@ -155,7 +155,7 @@ export default defineComponent({
             })
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 tableData.value = $('//content/item')
@@ -310,7 +310,7 @@ export default defineComponent({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_PRESET_S').formatForLang(Translate('IDCS_CHANNEL'), getShortString(chlName, 10), getShortString(preset.name, 10)),
             }).then(async () => {
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
 
                 const sendXml = rawXml`
                     <condition>
@@ -322,7 +322,7 @@ export default defineComponent({
                 `
                 const result = await delChlPreset(sendXml)
 
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 commSaveResponseHadler(result, () => {
                     tableData.value[chlIndex].presets.splice(presetIndex, 1)
                     tableData.value[chlIndex].presetCount--
@@ -338,7 +338,7 @@ export default defineComponent({
                 return
             }
 
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXml = rawXml`
                 <content>
@@ -350,7 +350,7 @@ export default defineComponent({
             const result = await editChlPreset(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 openMessageTipBox({
@@ -379,7 +379,7 @@ export default defineComponent({
          * @description 保存预置点位置
          */
         const savePosition = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXml = rawXml`
                 <content>
@@ -389,7 +389,7 @@ export default defineComponent({
             `
             const result = await editChlPresetPosition(sendXml)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             commSaveResponseHadler(result)
         }
 
