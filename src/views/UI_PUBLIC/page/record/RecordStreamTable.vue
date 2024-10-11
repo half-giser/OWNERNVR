@@ -1,10 +1,9 @@
-<!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <!--
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-07-31 10:29:37
  * @Description: 录像码流通用表格组件
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-10 13:52:59
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-11 11:42:46
 -->
 <template>
     <div class="base-flex-box">
@@ -623,7 +622,7 @@ type ChlItem = {
     }
 }
 const { Translate } = useLangStore()
-const { LoadingTarget, openLoading, closeLoading } = useLoading()
+const { openLoading, closeLoading } = useLoading()
 const tableData = ref([] as RecordStreamInfoDto[])
 // const tableRef = ref<FormInstance>()
 
@@ -728,7 +727,7 @@ const getDevRecParamCfgModule = function (callback: Function) {
 }
 // 获取系统宽带容量
 const getSystemCaps = function (callback?: Function) {
-    querySystemCaps(getXmlWrapData('')).then((resb) => {
+    querySystemCaps().then((resb) => {
         const res = queryXml(resb)
         if (res('status').text() === 'success') {
             const totalBandwidth = Number(res('//content/totalBandwidth').text()) * 1
@@ -793,7 +792,7 @@ const getNetCfgModule = function (callback: Function) {
 }
 // 获取表格数据
 const getData = function () {
-    openLoading(LoadingTarget.FullScreen)
+    openLoading()
     getNetCfgModule(function () {
         const sendXml = rawXml`
                                 <requireField>
@@ -810,7 +809,7 @@ const getData = function () {
             commLoadResponseHandler(resb, ($) => {
                 bindCtrlData($)
             })
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         })
     })
 }
@@ -1037,9 +1036,9 @@ const queryRemainRecTimeF = function () {
     })
     sendXml += `</chls>
             </content>`
-    openLoading(LoadingTarget.FullScreen)
+    openLoading()
     queryRemainRecTime(sendXml).then((resb) => {
-        closeLoading(LoadingTarget.FullScreen)
+        closeLoading()
         const res = queryXml(resb)
         if (res('status').text() === 'success') {
             pageData.value.recTime = ''
@@ -1825,10 +1824,10 @@ const getSaveData = function () {
     return sendXml
 }
 const setData = function () {
-    openLoading(LoadingTarget.FullScreen)
+    openLoading()
     editNodeEncodeInfo(getSaveData())
         .then((resb) => {
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             const res = queryXml(resb)
             getSystemCaps()
             if (res('status').text() == 'success') {
@@ -1862,7 +1861,7 @@ const setData = function () {
             }
         })
         .catch(() => {
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         })
 }
 

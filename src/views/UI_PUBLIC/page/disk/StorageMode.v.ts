@@ -3,7 +3,7 @@
  * @Date: 2024-07-08 18:01:29
  * @Description: 存储模式配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-23 15:37:41
+ * @LastEditTime: 2024-10-11 11:08:18
  */
 import type { StorageModeDiskGroupListDatum, StorageModeDiskGroupList } from '@/types/apiType/disk'
 import StorageModeAddDiskPop from './StorageModeAddDiskPop.vue'
@@ -17,7 +17,7 @@ export default defineComponent({
     setup() {
         const { Translate, langId } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
 
         const pageData = ref({
             // 磁盘组列表
@@ -197,7 +197,7 @@ export default defineComponent({
          * @param {string} elementId 通道ID/磁盘ID
          */
         const editRelation = async (elementName: string, elementId: string) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             let chlXml = ''
             if (elementName === 'chls') {
@@ -231,7 +231,7 @@ export default defineComponent({
             const result = await editSetAndElementRelation(getXmlWrapData(sendXml))
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 openMessageTipBox({
@@ -275,12 +275,12 @@ export default defineComponent({
         }
 
         onMounted(async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             await getDiskStatus()
             await getDiskGroupList()
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         })
 
         return {

@@ -9,7 +9,7 @@ import { type SystemDiskStatusList } from '@/types/apiType/system'
 
 export default defineComponent({
     setup() {
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const { Translate } = useLangStore()
         const dateTime = useDateTimeStore()
 
@@ -68,7 +68,7 @@ export default defineComponent({
          * @description 获取列表数据
          */
         const getData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const storageResult = await queryStorageDevInfo()
             const $storage = queryXml(storageResult)
@@ -207,7 +207,7 @@ export default defineComponent({
             // 请求显示设置数据
             const task = tableData.value.map((item, index) => getDetail(item.id, index))
             Promise.all(task).then(() => {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
             })
         }
 

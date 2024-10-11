@@ -3,7 +3,7 @@
  * @Date: 2023-04-28 17:57:48
  * @Description: 工具方法
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 16:58:07
+ * @LastEditTime: 2024-10-11 11:55:45
  */
 
 import { type QueryNodeListDto } from '@/types/apiType/channel'
@@ -489,7 +489,7 @@ export const getChlList = (options: Partial<QueryNodeListDto>) => {
  * @returns {Promise<Boolean>}
  */
 export const checkChlListCaps = async (route: string) => {
-    const { openLoading, closeLoading, LoadingTarget } = useLoading()
+    const { openLoading, closeLoading } = useLoading()
     const systemCaps = useCababilityStore()
 
     if (route.includes('faceRecognition') || route.includes('vehicleRecognition') || route.includes('boundary') || route.includes('more')) {
@@ -501,7 +501,7 @@ export const checkChlListCaps = async (route: string) => {
     const localFaceDectEnabled = systemCaps.localFaceDectMaxCount !== 0
     const localTargetDectEnabled = systemCaps.localTargetDectMaxCount !== 0
 
-    openLoading(LoadingTarget.FullScreen)
+    openLoading()
 
     const resultOnline = await queryOnlineChlList()
     const $online = queryXml(resultOnline)
@@ -526,7 +526,7 @@ export const checkChlListCaps = async (route: string) => {
     })
     const $ = queryXml(result)
 
-    closeLoading(LoadingTarget.FullScreen)
+    closeLoading()
 
     const supportFlag = $('//content/item').some((item) => {
         const $item = queryXml(item.element)
@@ -881,7 +881,7 @@ export const reconnect = () => {
     const { openMessageTipBox } = useMessageBox()
     const { Translate } = useLangStore()
     const pluginStore = usePluginStore()
-    const { closeLoading, LoadingTarget } = useLoading()
+    const { closeLoading } = useLoading()
 
     if (import.meta.env.VITE_APP_TYPE === 'STANDARD') {
         return setTimeout(() => {
@@ -891,7 +891,7 @@ export const reconnect = () => {
                     title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_LOGIN_OVERTIME'),
                 }).then(() => {
-                    closeLoading(LoadingTarget.FullScreen)
+                    closeLoading()
                     Logout()
                 })
             })

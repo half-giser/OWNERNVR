@@ -3,14 +3,14 @@
  * @Date: 2024-07-04 16:47:11
  * @Description: 健康状态检测
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 11:58:39
+ * @LastEditTime: 2024-10-11 10:58:59
  */
 import { type DiskHealthInfoDiskList, type DiskHealthInfoDiskDetailList } from '@/types/apiType/disk'
 
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
 
         // 磁盘健康状态与显示文本的映射
         const DISK_STATUS_MAPPING: Record<string, string> = {
@@ -119,12 +119,12 @@ export default defineComponent({
          * @description 获取数据
          */
         const getData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const result = await queryAllDisksHealthStatus()
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             pageData.value.diskList = $('//content/diskList/item').map((item) => {
                 const $item = queryXml(item.element)

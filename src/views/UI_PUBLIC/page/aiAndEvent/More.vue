@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-10 17:50:24
  * @Description: 更多功能页面的框架
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-08 11:42:37
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-09 18:23:20
 -->
 <template>
     <div>
@@ -158,11 +158,11 @@
 @import '@/views/UI_PUBLIC/publicStyle/aiAndEvent.scss';
 </style>
 
-<style lang="scss" scoped>
+<!-- <style lang="scss" scoped>
 :deep(.el-form-item__label) {
     display: inline-block;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
-</style>
+</style> -->

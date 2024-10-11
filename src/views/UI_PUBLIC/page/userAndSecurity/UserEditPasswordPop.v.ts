@@ -39,7 +39,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const userSession = useUserSessionStore()
         const { openMessageTipBox } = useMessageBox()
-        const { closeLoading, LoadingTarget, openLoading } = useLoading()
+        const { closeLoading, openLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
         const noticeMsg = ref('')
@@ -139,7 +139,7 @@ export default defineComponent({
          * @param {UserCheckAuthForm} e
          */
         const doUpdateUserPassword = async (e: UserCheckAuthForm) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const password = AES_encrypt(MD5_encrypt(formData.value.newPassword), userSession.sesionKey)
             const xml = rawXml`
@@ -156,7 +156,7 @@ export default defineComponent({
             const result = await editOtherUserPassword(xml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 isAuthDialog.value = false

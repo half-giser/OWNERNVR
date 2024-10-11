@@ -3,7 +3,7 @@
  * @Date: 2024-06-18 15:33:50
  * @Description: 编辑权限组弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 14:19:20
+ * @LastEditTime: 2024-10-11 11:33:54
  */
 import { type UserPermissionChannelAuthList, UserPermissionSystemAuthList, UserPermissionGroupAddForm } from '@/types/apiType/userAndSecurity'
 import type { XmlResult } from '@/utils/xmlParse'
@@ -31,10 +31,10 @@ export default defineComponent({
         },
     },
     setup(prop, ctx) {
-        const { Translate } = inject('appGlobalProp') as appGlobalProp
+        const { Translate } = useLangStore()
         const userSession = useUserSessionStore()
         const { openMessageTipBox } = useMessageBox()
-        const { closeLoading, LoadingTarget, openLoading } = useLoading()
+        const { closeLoading, openLoading } = useLoading()
 
         const formData = ref(new UserPermissionGroupAddForm())
 
@@ -63,7 +63,7 @@ export default defineComponent({
          * @param id
          */
         const getAuthGroup = async (id: string) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXml = rawXml`
                 <condition>
@@ -83,7 +83,7 @@ export default defineComponent({
                 formData.value.name = $('//content/name').text()
             })
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         /**
@@ -140,7 +140,7 @@ export default defineComponent({
          * @description 发起编辑权限组请求
          */
         const doEditAuthGroup = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const channelAuthListXml = channelAuthList.value
                 .map((item) => {
@@ -183,7 +183,7 @@ export default defineComponent({
             const result = await editAuthGroup(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 ctx.emit('confirm')

@@ -2,8 +2,8 @@
  * @Description: 录像——录像子码流
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-07-31 10:13:57
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-27 09:32:08
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-11 11:59:26
  */
 
 import { type ResolutionRow, type RecordSubStreamList, type rowNonExistent } from '@/types/apiType/record'
@@ -13,7 +13,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
         // “RecordSubResAdaptive” 为true时:录像子码流界面仅显示不可编辑，为false时录像子码流可以编辑
         const RecordSubResAdaptive = systemCaps.RecordSubResAdaptive
@@ -80,7 +80,7 @@ export default defineComponent({
         }
 
         const getSystemCaps = async () => {
-            const result = await querySystemCaps(getXmlWrapData(''))
+            const result = await querySystemCaps()
             const $ = queryXml(result)
 
             mainStreamLimitFps = Number($('/response/content/mainStreamLimitFps').text()) || mainStreamLimitFps
@@ -680,11 +680,11 @@ export default defineComponent({
         }
 
         onMounted(async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             await getData()
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         })
 
         return {

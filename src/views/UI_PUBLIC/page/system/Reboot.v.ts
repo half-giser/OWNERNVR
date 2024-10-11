@@ -3,7 +3,7 @@
  * @Date: 2024-06-20 15:59:54
  * @Description: 系统重启
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-23 14:41:12
+ * @LastEditTime: 2024-10-11 11:29:16
  */
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import type { UserCheckAuthForm } from '@/types/apiType/user'
@@ -36,7 +36,7 @@ export default defineComponent({
          * @param {UserCheckAuthForm} e
          */
         const confirm = async (e: UserCheckAuthForm) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXml = rawXml`
                 <auth>
@@ -47,7 +47,7 @@ export default defineComponent({
             const result = await reboot(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 pageData.value.isAuthPop = false

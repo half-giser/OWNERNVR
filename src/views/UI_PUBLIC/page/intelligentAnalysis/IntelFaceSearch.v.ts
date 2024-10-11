@@ -3,7 +3,7 @@
  * @Date: 2024-08-29 09:54:23
  * @Description: 智能分析-人脸搜索
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-19 16:38:28
+ * @LastEditTime: 2024-10-11 11:16:52
  */
 import {
     IntelFaceImgDto,
@@ -45,7 +45,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const dateTime = useDateTimeStore()
         const auth = useUserChlAuth()
 
@@ -973,7 +973,7 @@ export default defineComponent({
                 </condition>
             `
 
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             formData.value.searchType = pageData.value.searchType
             formData.value.eventType = pageData.value.searchType === 'face' ? '' : formData.value.event
             formData.value.faceType = pageData.value.searchType === 'face' ? formData.value.face : ''
@@ -986,7 +986,7 @@ export default defineComponent({
 
             const eventType = formData.value.searchType === 'face' ? '' : pageData.value.eventOptions.find((item) => item.value === formData.value.event)!.eventType
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 tableData.value = $('//content/i').map((item) => {
@@ -1301,20 +1301,20 @@ export default defineComponent({
          * @description 下载ZIP
          */
         const createZip = () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             downloadZip({
                 zipName: getZipName(pageData.value.selection[0].chlName),
                 files: downloadData,
             })
                 .then(() => {
-                    closeLoading(LoadingTarget.FullScreen)
+                    closeLoading()
                     openMessageTipBox({
                         type: 'success',
                         message: Translate('IDCS_BACKUP_SUCCESS'),
                     })
                 })
                 .catch(() => {
-                    closeLoading(LoadingTarget.FullScreen)
+                    closeLoading()
                 })
         }
 
@@ -1344,10 +1344,10 @@ export default defineComponent({
         }
 
         onMounted(async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             await getFaceDatabaseList()
             await getChannelList()
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             if (history.state.date) {
                 changeDateRange([dayjs(history.state.date).hour(0).minute(0).second(0).valueOf(), dayjs(history.state.date).hour(23).minute(59).second(59).valueOf()], 'date')
                 delete history.state.date

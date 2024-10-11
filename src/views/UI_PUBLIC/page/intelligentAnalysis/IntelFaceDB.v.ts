@@ -3,7 +3,7 @@
  * @Date: 2024-08-30 18:46:48
  * @Description: 人脸库
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 15:49:27
+ * @LastEditTime: 2024-10-11 11:14:08
  */
 import { cloneDeep } from 'lodash-es'
 import { IntelFaceDBGroupList, IntelFaceDBFaceInfo } from '@/types/apiType/intelligentAnalysis'
@@ -25,7 +25,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const userSession = useUserSessionStore()
         const dateTime = useDateTimeStore()
         const router = useRouter()
@@ -202,7 +202,7 @@ export default defineComponent({
          * @param {IntelFaceDBGroupList} group
          */
         const confirmDeleteGroup = async (group: IntelFaceDBGroupList) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXml = rawXml`
                 <condition>
@@ -214,7 +214,7 @@ export default defineComponent({
             const result = await delFacePersonnalInfoGroups(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 openMessageTipBox({
@@ -306,12 +306,12 @@ export default defineComponent({
          * @description 获取分组数据
          */
         const getGroupList = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const result = await queryFacePersonnalInfoGroupList()
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             tableData.value = $('//content/item').map((item) => {
                 const $item = queryXml(item.element)
@@ -374,7 +374,7 @@ export default defineComponent({
          * @param {boolean} update 是否重新请求列表数据
          */
         const getFace = async (pageIndex: number, groupId: string, force = false, update = true) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             groupTableData.value = []
             formData.value.faceIndex = []
@@ -411,7 +411,7 @@ export default defineComponent({
                 }
             }
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             groupTableData.value = allGroupTableData.value.slice((formData.value.pageIndex - 1) * 16, formData.value.pageIndex * 16)
 
@@ -533,7 +533,7 @@ export default defineComponent({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_S'),
             }).then(async () => {
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
 
                 const group = tableData.value.find((item) => item.groupId === pageData.value.expandRowKey[0])!
                 const items = formData.value.faceIndex
@@ -559,7 +559,7 @@ export default defineComponent({
                 const result = await delFacePersonnalInfo(sendXml)
                 const $ = queryXml(result)
 
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
 
                 if ($('//status').text() === 'success') {
                     if (formData.value.faceIndex.length === groupTableData.value.length) {
@@ -613,7 +613,7 @@ export default defineComponent({
          * @returns {boolean}
          */
         const confirmDeleteAllFace = async (group: IntelFaceDBGroupList) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXml = rawXml`
                 <condition>
@@ -632,7 +632,7 @@ export default defineComponent({
             const result = await delFacePersonnalInfo(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 formData.value.pageIndex = 1
@@ -707,20 +707,12 @@ export default defineComponent({
                 router.push({
                     path: '/config/alarm/faceRecognition',
                 })
-                // if (appInfo.uiName =="UI2-A") {
-                //     $("#config_menu>div").removeClass("selected");
-                //     $("#config_menu>div[routeurl='config/alarm/faceRecognition']").addClass("selected");
-                // }
             } else {
                 const flag = await checkChlListCaps('faceRecognition')
                 if (flag) {
                     router.push({
                         path: '/config/alarm/faceRecognition',
                     })
-                    // if (appInfo.uiName =="UI2-A") {
-                    //     $("#config_menu>div").removeClass("selected");
-                    //     $("#config_menu>div[routeurl='config/alarm/faceRecognition']").addClass("selected");
-                    // }
                 } else {
                     openMessageTipBox({
                         type: 'info',

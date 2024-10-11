@@ -3,13 +3,20 @@
  * @Date: 2024-07-09 18:39:25
  * @Description: 语言相关api
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-27 19:33:54
+ * @LastEditTime: 2024-10-11 11:46:45
  */
 
 import http from './api'
 
-// 获取支持的语言列表
-export const getSupportLangList = (data: string) => http.fetch('getSupportLangList', data)
+/**
+ * @description 获取支持的语言列表
+ * @returns
+ */
+export const getSupportLangList = () => http.fetch('getSupportLangList', getXmlWrapData(''))
 
-// 获取语言翻译
-export const getLangContent = (data: string) => http.fetch('getLangContent', data)
+/**
+ * @description 获取语言翻译
+ * @param {string} data
+ * @returns
+ */
+export const getLangContent = (data: string) => http.fetch('getLangContent', getXmlWrapData(data))
