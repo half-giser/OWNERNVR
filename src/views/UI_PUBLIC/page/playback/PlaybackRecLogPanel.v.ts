@@ -3,7 +3,7 @@
  * @Date: 2024-08-06 20:37:55
  * @Description: 回放-事件列表
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-10 17:17:35
+ * @LastEditTime: 2024-10-11 09:33:44
  */
 import type { PlaybackRecLogList, PlaybackChlList, PlaybackRecList } from '@/types/apiType/playback'
 import dayjs from 'dayjs'
@@ -353,6 +353,13 @@ export default defineComponent({
             },
             {
                 deep: true,
+            },
+        )
+
+        watch(
+            () => prop.startTime,
+            () => {
+                nextTick(() => refresh())
             },
         )
 
