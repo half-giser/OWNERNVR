@@ -3,14 +3,14 @@
  * @Date: 2024-06-18 18:40:47
  * @Description: 密码安全
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 13:42:54
+ * @LastEditTime: 2024-10-11 11:33:27
  */
 import { UserPasswordSecurityForm } from '@/types/apiType/userAndSecurity'
 
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { closeLoading, LoadingTarget, openLoading } = useLoading()
+        const { closeLoading, openLoading } = useLoading()
         const { openMessageTipBox } = useMessageBox()
 
         const formData = ref(new UserPasswordSecurityForm())
@@ -42,12 +42,12 @@ export default defineComponent({
          * @description 获取数据
          */
         const getData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const result = await queryPasswordSecurity()
 
             const $ = queryXml(result)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 formData.value.passwordStrength = $('//content/pwdSecureSetting/pwdSecLevel').text()
@@ -75,7 +75,7 @@ export default defineComponent({
          * @description 保存数据
          */
         const updateData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXml = rawXml`
                 <content>
@@ -88,7 +88,7 @@ export default defineComponent({
             const result = await editPasswordSecurity(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 openMessageTipBox({

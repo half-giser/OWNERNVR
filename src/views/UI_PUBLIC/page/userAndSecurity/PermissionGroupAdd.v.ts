@@ -19,7 +19,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const userSession = useUserSessionStore()
         const { openMessageTipBox } = useMessageBox()
-        const { closeLoading, LoadingTarget, openLoading } = useLoading()
+        const { closeLoading, openLoading } = useLoading()
         const router = useRouter()
 
         const formRef = ref<FormInstance>()
@@ -65,7 +65,7 @@ export default defineComponent({
          * @param id
          */
         const getAuthGroup = async (id: string) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             // 从另存为入口进来，回显数据
             if (id) {
                 const sendXml = rawXml`
@@ -93,7 +93,7 @@ export default defineComponent({
                     getChannelAuth($, false)
                 })
             }
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         /**
@@ -204,7 +204,7 @@ export default defineComponent({
          * @description 发起新建权限组请求
          */
         const doCreateAuthGroup = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const channelAuthListXml = channelAuthList.value
                 .map((item) => {
@@ -241,7 +241,7 @@ export default defineComponent({
             const result = await createAuthGroup(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 goBack()

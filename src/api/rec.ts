@@ -3,7 +3,7 @@
  * @Date: 2024-07-17 17:02:54
  * @Description: 录像与回放
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-27 19:34:52
+ * @LastEditTime: 2024-10-11 11:37:20
  */
 import http from './api'
 
@@ -68,20 +68,6 @@ export const queryChlRecLog = (data: string) => http.fetch('queryChlRecLog', get
  * @returns
  */
 export const createRecBackupTask = (data: string) => http.fetch('createRecBackupTask', getXmlWrapData(data))
-
-/**
- * @description 获取录像分配信息
- * @param
- * @returns
- */
-// export const queryRecordDistributeInfo = () => http.fetch('queryRecordDistributeInfo', getXmlWrapData(''))
-
-/**
- * @description 获取系统宽带容量
- * @param
- * @returns
- * */
-// export const querySystemCaps = () => http.fetch('querySystemCaps', getXmlWrapData(''))
 
 /**
  * @description 获取录像剩余时间

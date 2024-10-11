@@ -37,7 +37,7 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
 
         const formRef = ref<FormInstance>()
         const formData = ref(new SystemOutputSettingAddViewForm())
@@ -72,7 +72,7 @@ export default defineComponent({
          * @description 提交表单
          */
         const setData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXml = rawXml`
                 <content>
@@ -88,7 +88,7 @@ export default defineComponent({
             const result = await addCustomerView(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 ctx.emit('close')

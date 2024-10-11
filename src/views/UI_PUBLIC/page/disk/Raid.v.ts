@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 13:43:11
  * @Description: 磁盘阵列
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 11:59:28
+ * @LastEditTime: 2024-10-11 11:00:19
  */
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import { DiskRaidList } from '@/types/apiType/disk'
@@ -18,7 +18,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
 
         let raidStatusTimer: NodeJS.Timeout | number = 0
 
@@ -133,7 +133,7 @@ export default defineComponent({
          * @param {UserCheckAuthForm} e
          */
         const confirmDeleteRaid = async (e: UserCheckAuthForm) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const item = tableData.value[pageData.value.activeIndex]
             const sendXml = rawXml`
@@ -150,7 +150,7 @@ export default defineComponent({
             const result = await delRaid(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 refreshData()

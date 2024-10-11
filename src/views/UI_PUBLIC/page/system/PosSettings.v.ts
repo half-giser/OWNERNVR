@@ -23,7 +23,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
 
         // 连接类型与显示文本的映射
         const CONNECTION_TYPE_MAPPING: Record<string, string> = {
@@ -83,12 +83,12 @@ export default defineComponent({
          * @description 获取数据
          */
         const getData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const result = await queryPosList()
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 pageData.value.tillNumberMax = Number($('//types/tillNumber').attr('max'))
@@ -204,7 +204,7 @@ export default defineComponent({
         const setData = async () => {
             if (!verify) return
 
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const listXml = tableData.value
                 .map((item) => {
@@ -296,7 +296,7 @@ export default defineComponent({
             const result = await editPosList(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 openMessageTipBox({

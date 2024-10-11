@@ -3,7 +3,7 @@
  * @Date: 2024-06-20 15:59:30
  * @Description: 恢复出厂设置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-23 09:39:44
+ * @LastEditTime: 2024-10-11 11:28:01
  */
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import { SystemFactoryDefaultForm } from '@/types/apiType/system'
@@ -43,7 +43,7 @@ export default defineComponent({
          * @param {UserCheckAuthForm} e
          */
         const confirm = async (e: UserCheckAuthForm) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXml = rawXml`
                 <condition>
@@ -58,7 +58,7 @@ export default defineComponent({
             const result = await restoreDefaults(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 pageData.value.isAuthDialog = false

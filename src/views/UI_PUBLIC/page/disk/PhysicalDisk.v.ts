@@ -3,7 +3,7 @@
  * @Date: 2024-07-08 18:01:02
  * @Description: 物理磁盘
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-23 14:39:44
+ * @LastEditTime: 2024-10-11 10:59:27
  */
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import { type DiskPhysicalList } from '@/types/apiType/disk'
@@ -18,7 +18,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
 
         // 类型与文本的映射
         const TYPE_MAPPING: Record<string, string> = {
@@ -109,7 +109,7 @@ export default defineComponent({
          * @param {UserCheckAuthForm} e
          */
         const confirmTransformDisk = async (e: UserCheckAuthForm) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const item = tableData.value[pageData.value.activeIndex]
             const sendXml = rawXml`
@@ -133,7 +133,7 @@ export default defineComponent({
             }
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 pageData.value.isCheckAuth = false

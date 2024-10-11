@@ -4,7 +4,7 @@
  * @Description: OCX插件模块
  * 原项目中MAC插件和TimeSliderPlugin相关逻辑不保留
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 18:12:44
+ * @LastEditTime: 2024-10-11 11:59:40
  */
 import WebsocketPlugin from '@/utils/websocket/websocketPlugin'
 import { ClientPort, P2PClientPort, P2PACCESSTYPE, SERVER_IP, getPluginPath, PluginSizeModeMapping, type OCX_Plugin_Notice_Map } from '@/utils/ocx/ocxUtil'
@@ -26,7 +26,7 @@ const useOCXPlugin = () => {
     const { Translate, getLangTypes, getLangItems, langItems } = useLangStore()
     const { openMessageTipBox } = useMessageBox()
     const router = useRouter()
-    const { closeLoading, openLoading, LoadingTarget } = useLoading()
+    const { closeLoading, openLoading } = useLoading()
     const userSession = useUserSessionStore()
     const layoutStore = useLayoutStore()
     const route = useRoute()
@@ -1330,7 +1330,7 @@ const useOCXPlugin = () => {
                         type: 'info',
                         message: Translate('IDCS_LOGIN_OVERTIME'),
                     }).then(() => {
-                        closeLoading(LoadingTarget.FullScreen)
+                        closeLoading()
                         Logout()
                     })
                 })

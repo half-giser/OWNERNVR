@@ -41,7 +41,7 @@ export default defineComponent({
         const Plugin = inject('Plugin') as PluginType
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
 
         const DEFAULT_BIRTHDAY = formatDate(new Date(), 'YYYY/MM/DD')
 
@@ -243,7 +243,7 @@ export default defineComponent({
                 return
             }
 
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             const clone = new IntelFaceDBImportFaceDto()
 
             try {
@@ -269,14 +269,14 @@ export default defineComponent({
                     }
                 }
                 ctx.emit('change', resultFile)
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 resetOCXData()
             } catch (e) {
                 openMessageTipBox({
                     type: 'info',
                     message: e as string,
                 })
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 resetOCXData()
                 return
             }
@@ -323,7 +323,7 @@ export default defineComponent({
                     ocxData.fileList = fileList
                     ocxData.fileIndex = 0
                     ocxData.uploadFileList = []
-                    openLoading(LoadingTarget.FullScreen)
+                    openLoading()
                     uploadOCXFile()
                 }
             })
@@ -365,7 +365,7 @@ export default defineComponent({
                     const errorCode = Number($item('errorCode').text())
                     switch (errorCode) {
                         case ErrorCode.USER_ERROR_KEYBOARDINDEX_ERROR:
-                            closeLoading(LoadingTarget.FullScreen)
+                            closeLoading()
                             resetOCXData()
                             openMessageTipBox({
                                 type: 'info',
@@ -373,7 +373,7 @@ export default defineComponent({
                             })
                             break
                         case ErrorCode.USER_ERROR_SPECIAL_CHAR_2:
-                            closeLoading(LoadingTarget.FullScreen)
+                            closeLoading()
                             resetOCXData()
                             openMessageTipBox({
                                 type: 'info',
@@ -384,7 +384,7 @@ export default defineComponent({
                 }
 
                 if (ocxData.fileIndex === ocxData.fileList.length - 1) {
-                    closeLoading(LoadingTarget.FullScreen)
+                    closeLoading()
                     parseFiles(ocxData.uploadFileList)
                 } else {
                     ocxData.fileIndex++
@@ -393,7 +393,7 @@ export default defineComponent({
             }
             //网络断开
             else if ($('statenotify[@type="FileNetTransport"]').length) {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 resetOCXData()
                 if (Number($('statenotify[@type="FileNetTransport"]/errorCode').text()) === ErrorCode.USER_ERROR_NODE_NET_DISCONNECT) {
                     openMessageTipBox({

@@ -11,7 +11,7 @@ import { type FormInstance, type FormRules } from 'element-plus'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
 
         const pageData = ref({
             // 是否显示启用密码复选框
@@ -75,7 +75,7 @@ export default defineComponent({
                     return
                 }
 
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
 
                 const sendXml = rawXml`
                     <content>
@@ -86,7 +86,7 @@ export default defineComponent({
                 `
                 const result = await editPPPoECfg(sendXml)
 
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 commSaveResponseHadler(result)
             })
         }
@@ -101,12 +101,12 @@ export default defineComponent({
         }
 
         onMounted(async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             await getData()
             await getWirelessNetworkData()
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         })
 
         return {

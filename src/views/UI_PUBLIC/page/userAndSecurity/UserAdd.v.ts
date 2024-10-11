@@ -16,7 +16,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { closeLoading, LoadingTarget, openLoading } = useLoading()
+        const { closeLoading, openLoading } = useLoading()
         const systemCaps = useCababilityStore()
         const userSession = useUserSessionStore()
         const router = useRouter()
@@ -180,7 +180,7 @@ export default defineComponent({
          * @param e
          */
         const doCreateUser = async (e: UserCheckAuthForm) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             // TODO 原项目中bindMacSwitch和mac的输入框是隐藏的
             const sendXml = rawXml`
@@ -203,7 +203,7 @@ export default defineComponent({
             const result = await createUser(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 isAuthDialog.value = false

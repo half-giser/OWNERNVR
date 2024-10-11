@@ -167,7 +167,7 @@ export const useUserSessionStore = defineStore(
             await cababilityStore.updateCabability()
 
             // 从设备基本信息获取名称
-            await queryBasicCfg(getXmlWrapData('')).then((result) => {
+            await queryBasicCfg().then((result) => {
                 const $ = queryXml(result)
                 csvDeviceName.value = $('content/name').text()
                 const CustomerID = $('content/CustomerID').text()

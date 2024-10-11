@@ -11,7 +11,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const theme = getUiAndTheme()
 
         // 显示文本映射
@@ -145,7 +145,7 @@ export default defineComponent({
                 return
             }
 
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const portsXml = tableData.value
                 .map((item) => {
@@ -172,17 +172,17 @@ export default defineComponent({
             const result = await editUPnPCfg(sendXml)
             commSaveResponseHadler(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         onMounted(async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             await getWirelessNetworkData()
             await getPPPoEData()
             await getData()
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         })
 
         return {

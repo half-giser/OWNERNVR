@@ -36,7 +36,7 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const userSession = useUserSessionStore()
 
         const formRef = ref<FormInstance>()
@@ -150,7 +150,7 @@ export default defineComponent({
          * @description 创建新用户
          */
         const addUser = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXml = rawXml`
                 <content>
@@ -164,7 +164,7 @@ export default defineComponent({
             const result = await createOnvifUser(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 openMessageTipBox({
@@ -182,7 +182,7 @@ export default defineComponent({
          * @description 编辑用户
          */
         const editUser = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             const sendXml = rawXml`
                 <content>
                     <item id="${prop.userData.id}">
@@ -195,7 +195,7 @@ export default defineComponent({
             const result = await editOnvifUser(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 openMessageTipBox({

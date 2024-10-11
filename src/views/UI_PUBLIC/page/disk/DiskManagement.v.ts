@@ -3,7 +3,7 @@
  * @Date: 2024-07-05 13:42:37
  * @Description: 磁盘管理
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-23 14:39:23
+ * @LastEditTime: 2024-10-11 10:57:46
  */
 import { type DiskManagememtList } from '@/types/apiType/disk'
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
@@ -239,7 +239,7 @@ export default defineComponent({
             const result = await formatDisk(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 pageData.value.isCheckAuth = false
@@ -265,7 +265,6 @@ export default defineComponent({
 
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: errorInfo,
                 })
             }
@@ -283,7 +282,7 @@ export default defineComponent({
          * @param {UserInputEncryptPwdForm} e
          */
         const confirmUnlockDisk = async (e: UserInputEncryptPwdForm) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXml = rawXml`
                 <condition>
@@ -293,7 +292,7 @@ export default defineComponent({
             const result = await unlockDisk(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 pageData.value.isInputEncryptPwd = false
@@ -301,18 +300,17 @@ export default defineComponent({
             } else {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_UNLOCK_DISK_FAIL'),
                 })
             }
         }
 
         onMounted(async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             await getData()
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         })
 
         return {

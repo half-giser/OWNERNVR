@@ -3,7 +3,7 @@
  * @Date: 2024-07-15 17:12:18
  * @Description: 创建私有证书弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 15:58:10
+ * @LastEditTime: 2024-10-11 11:21:45
  */
 import { type FormInstance, type FormRules } from 'element-plus'
 import { NetHTTPSPrivateCertForm } from '@/types/apiType/net'
@@ -28,7 +28,7 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const userSession = useUserSessionStore()
 
         const formRef = ref<FormInstance>()
@@ -96,7 +96,7 @@ export default defineComponent({
          * @description 设置私有证书
          */
         const setPrivateCertificate = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXml = rawXml`
                 <content>
@@ -117,7 +117,7 @@ export default defineComponent({
             commSaveResponseHadler(result, () => {
                 ctx.emit('confirm')
             })
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         /**
@@ -142,7 +142,7 @@ export default defineComponent({
             commSaveResponseHadler(result, () => {
                 ctx.emit('confirm')
             })
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         /**

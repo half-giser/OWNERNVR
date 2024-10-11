@@ -3,7 +3,7 @@
  * @Date: 2024-09-12 11:56:52
  * @Description: 智能分析 - 选择人脸 - 从人脸库选择
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-12 10:40:37
+ * @LastEditTime: 2024-10-12 13:47:53
  */
 import { cloneDeep } from 'lodash-es'
 import { IntelFaceDBFaceInfo, type IntelFaceDBGroupList } from '@/types/apiType/intelligentAnalysis'
@@ -40,7 +40,7 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const dateTime = useDateTimeStore()
 
         // 缓存人脸Base64图片数据 节约请求
@@ -77,12 +77,12 @@ export default defineComponent({
          * @description 获取分组数据
          */
         const getGroupList = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const result = await queryFacePersonnalInfoGroupList()
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             pageData.value.faceGroupList = $('//content/item').map((item) => {
                 const $item = queryXml(item.element)
@@ -161,7 +161,7 @@ export default defineComponent({
          * @param {boolean} update 是否重新请求列表数据
          */
         const getFace = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             formData.value.faceIndex = []
             listData.value = []
@@ -190,7 +190,7 @@ export default defineComponent({
             if (formData.value.faceGroup.length === 0) {
                 listData.value = []
             }
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         /**

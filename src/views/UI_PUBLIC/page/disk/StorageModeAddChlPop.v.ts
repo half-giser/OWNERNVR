@@ -37,7 +37,7 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
 
         const tableData = ref<StorageModeChlList[]>([])
         const pageData = ref({
@@ -105,7 +105,7 @@ export default defineComponent({
                 return
             }
 
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const selections = pageData.value.selection.map((item) => item.id)
             const needRemovechlsAndGroup: string[] = []
@@ -149,7 +149,7 @@ export default defineComponent({
                 ctx.emit('confirm')
             }
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         /**

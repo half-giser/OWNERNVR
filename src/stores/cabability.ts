@@ -3,12 +3,8 @@
  * @Date: 2023-05-09 16:45:59
  * @Description: 服务端能力集全局存储
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-19 11:38:33
+ * @LastEditTime: 2024-10-11 11:42:14
  */
-import { getXmlWrapData } from '@/api/api'
-import { querySystemCaps } from '@/api/system'
-import { queryXml } from '@/utils/xmlParse'
-
 export const useCababilityStore = defineStore(
     'cabability',
     () => {
@@ -78,8 +74,7 @@ export const useCababilityStore = defineStore(
          * @return {*}
          */
         const updateCabability = async () => {
-            const data = getXmlWrapData('')
-            const result = await querySystemCaps(data)
+            const result = await querySystemCaps()
             const $ = queryXml(result)
 
             IntelAndFaceConfigHide.value = $(`content/IntelAndFaceConfigHide`).text().toBoolean()

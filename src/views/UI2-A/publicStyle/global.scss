@@ -3,7 +3,7 @@
  * @Date: 2024-05-29 13:48:55
  * @Description: UI2-A 主题样式
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-08 16:04:24
+ * @LastEditTime: 2024-10-11 14:07:58
  */
 
 #n9web {
@@ -90,7 +90,13 @@
     --dialog-title: #ddd; 
     --dialog-bg: #2D2D2D; 
 
-    --popover-bg: #2D2D2D; 
+    --popover-bg: #2D2D2D;
+
+    --transfer-title-bg: #343434;
+    --transfer-bg: transparent;
+    --transfer-stripe: transparent;
+    --transfer-border: #999;
+    --transfer-text: var(--main-text);
 
     --config-menu-text: #ddd;
     --config-menu-text-hover: #ddd;

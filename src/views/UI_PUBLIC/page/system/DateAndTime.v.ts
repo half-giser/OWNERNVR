@@ -11,7 +11,7 @@ import dayjs from 'dayjs'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const userSession = useUserSessionStore()
         const dateTime = useDateTimeStore()
 
@@ -171,7 +171,7 @@ export default defineComponent({
          * @description 获取表单数据
          */
         const getData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const result = await queryTimeCfg()
             const $ = queryXml(result)
@@ -226,14 +226,14 @@ export default defineComponent({
                 clock()
             })
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         /**
          * @description 提交数据
          */
         const setData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXml = rawXml`
                 <types>
@@ -265,7 +265,7 @@ export default defineComponent({
             `
             const result = await editTimeCfg(sendXml)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             pageData.value.submitDisabled = false
             pageData.value.isSystemTimeChanged = false
