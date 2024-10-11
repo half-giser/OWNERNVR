@@ -3,7 +3,7 @@
  * @Date: 2024-09-29 09:12:33
  * @Description: ai与事件版块的一些公共样式，仅在需要用到的ai与事件版块下import
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-11 15:59:37
+ * @LastEditTime: 2024-10-12 13:46:14
  */
 
 .base-ai-menu-tabs {
@@ -253,7 +253,8 @@
     height: 140px;
     padding: 10px;
     box-sizing: border-box;
-    // overflow-y: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
 
     .el-select-dropdown__list {
         width: 100%;
