@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-10 17:50:35
  * @Description: 更多功能页面的框架
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 14:15:33
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-11 10:55:57
  */
 import { type chlCaps } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
@@ -26,8 +26,6 @@ export default defineComponent({
         Cdd,
     },
     setup() {
-        // const { LoadingTarget, openLoading, closeLoading } = useLoading()
-        // const openMessageTipBox = useMessageBox().openMessageTipBox
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
         const pageData = ref({
@@ -89,7 +87,6 @@ export default defineComponent({
             // tabkey
             tabKey: 0,
         })
-        // const PlayerInstance = ref<PlayerInstance>()
         // 切换通道
         const handleChangeChannel = async () => {
             pageData.value.chlData = pageData.value.chlCaps[pageData.value.currChlId]
@@ -100,7 +97,6 @@ export default defineComponent({
         const handleTabClick = (pane: TabsPaneContext) => {
             pageData.value.chosenFunction = pane.props.name?.toString() ? pane.props.name?.toString() : ''
             pageData.value.tabKey += 1
-            // TODO 刷新对应页面的数据
         }
         // 获取在线通道
         const getOnlineChannel = async () => {
@@ -351,6 +347,14 @@ export default defineComponent({
         const initPage = () => {
             isTabDisabled()
         }
+        watchEffect(() => {
+            if (pageData.value.chosenFunction !== '') {
+                const popper = document.querySelector('.base-ai-chl-option')
+                if (popper) {
+                    ;(popper as HTMLElement).style.height = pageData.value.chosenFunction == 'avd' ? '105px' : '140px'
+                }
+            }
+        })
         onMounted(async () => {
             await getOnlineChannel()
             await getChannelData()
