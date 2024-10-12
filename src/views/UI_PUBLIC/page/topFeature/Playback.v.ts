@@ -2,8 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-05 16:00:46
  * @Description: 回放
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-10 18:27:15
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-11 15:36:48
  */
 import PlaybackChannelPanel from '../playback/PlaybackChannelPanel.vue'
 import PlaybackEventPanel from '../playback/PlaybackEventPanel.vue'
@@ -1109,8 +1109,8 @@ export default defineComponent({
             if (mode.value === 'h5') {
                 const currentTime = timelineRef.value?.getTime() || 0
                 const startTime = startTimeStamp.value / 1000
-                const endTime = startTimeStamp.value / 1000
-                const distTime = currentTime + startTime + seconds
+                const endTime = endTimeStamp.value / 1000
+                const distTime = currentTime + seconds
                 seek(Math.min(endTime, Math.max(startTime, distTime)))
             } else {
                 fisheyeRef.value?.exitAdjust(pageData.value.winData.chlID)

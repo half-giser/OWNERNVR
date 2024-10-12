@@ -2,8 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-03 14:44:11
  * @Description: 智能分析-人员统计
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 17:26:40
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-12 09:15:25
 -->
 <template>
     <div class="base-intel-box">
@@ -40,7 +40,7 @@
                     trigger="click"
                 >
                     <span class="el-dropdown-link">
-                        {{ Translate('IDCS_COLIMNAR_CHART') }}
+                        <el-text>{{ pageData.chartType === 'chart' ? Translate('IDCS_COLIMNAR_CHART') : Translate('IDCS_DETAIL_CHART') }}</el-text>
                         <BaseImgSprite
                             class="ddn"
                             file="ddn"
@@ -60,7 +60,7 @@
                 <el-text v-show="formData.event[0] !== 'faceMatchWhiteList'">{{ Translate('IDCS_COLIMNAR_CHART') }}</el-text>
             </div>
             <div
-                v-show="pageData.chartType === 'chart'"
+                v-if="pageData.chartType === 'chart'"
                 class="base-intel-chart-box"
             >
                 <BaseBarChart

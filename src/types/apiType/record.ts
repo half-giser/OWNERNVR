@@ -3,7 +3,7 @@
  * @Date: 2024-07-03 16:14:27
  * @Description: 录像与回放
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-27 09:25:30
+ * @LastEditTime: 2024-10-11 14:44:55
  */
 
 /**
@@ -54,11 +54,11 @@ export class ChlRecParamList {
     ANRSwitch = ''
     expiration = ''
     expirationUnit = ''
-    expirationDisplay = ''
-    manufacturerEnable = ''
-    week = ''
-    holiday = ''
-    singleExpirationUnit = ''
+    manufacturerEnable = false
+    expirationDisplay? = ''
+    week? = ''
+    holiday? = ''
+    singleExpirationUnit? = ''
 }
 
 // 页面选择项

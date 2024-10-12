@@ -2,8 +2,8 @@
  * @Description: AI 事件——人脸识别
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-28 13:42:09
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 15:10:01
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-11 15:29:49
  */
 import { ArrowDown } from '@element-plus/icons-vue'
 import { cloneDeep } from 'lodash-es'
@@ -164,7 +164,7 @@ export default defineComponent({
             curChl: '',
             faceChlList: [] as Record<string, string>[],
             // 当前选择的tab项
-            faceTab: 'faceDetection',
+            faceTab: '',
             faceDetectionDisabled: false,
             faceCompareDisabled: false,
             faceLibraryDisabled: false,
@@ -581,6 +581,8 @@ export default defineComponent({
                 pageData.value.faceTab = ''
                 pageData.value.notChlSupport = true
                 pageData.value.notSupportTip = Translate('IDCS_FACE_EVENT_UNSUPORT_TIP')
+            } else {
+                pageData.value.faceTab = 'faceDetection'
             }
         }
 
@@ -1732,18 +1734,20 @@ export default defineComponent({
             if (mode.value != 'h5') {
                 Plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
             }
+            getSnapOptions()
+            openLoading(LoadingTarget.FullScreen)
             if (showAIReourceDetail) {
                 await getAIResourceData(false)
             }
             if (supportAlarmAudioConfig) {
                 await getVoiceList()
             }
-            getSnapOptions()
             await getScheduleData()
             await getRecordList()
             await getAlarmOutData()
             await getSnapList()
             await getChlData()
+            closeLoading(LoadingTarget.FullScreen)
             await getPresetData()
         })
 

@@ -2,11 +2,10 @@
  * @Description: AI 事件——车牌识别
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-09 09:56:33
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 15:11:26
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-11 15:31:11
  */
 import { ArrowDown } from '@element-plus/icons-vue'
-// import { cloneDeep } from 'lodash-es'
 import { type CompareTask, VehicleDetection, type VehicleChlItem, VehicleCompare } from '@/types/apiType/aiAndEvent'
 import CanvasPolygon from '@/utils/canvas/canvasPolygon'
 import { type TabPaneName } from 'element-plus'
@@ -200,7 +199,7 @@ export default defineComponent({
             curChl: '',
             vehicleChlList: [] as Record<string, string>[],
             // 当前选择的tab项
-            vehicleTab: 'vehicleDetection',
+            vehicleTab: '',
             vehicleDetectionDisabled: false,
             vehicleCompareDisabled: false,
             vehicleLibraryDisabled: false,
@@ -384,6 +383,7 @@ export default defineComponent({
                 pageData.value.notChlSupport = true
                 pageData.value.notSupportTip = Translate('IDCS_VEHICLE_EVENT_UNSUPORT_TIP')
             } else {
+                pageData.value.vehicleTab = 'vehicleDetection'
                 // 在获取到通道数据后再请求通道的侦测数据
                 await getVehicleDetectionData()
                 // 初始化完成
@@ -1514,12 +1514,14 @@ export default defineComponent({
             if (mode.value != 'h5') {
                 Plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
             }
+            openLoading(LoadingTarget.FullScreen)
             await getVoiceList()
             await getScheduleData()
             await getRecordList()
             await getAlarmOutData()
             await getSnapList()
             await getChlData()
+            closeLoading(LoadingTarget.FullScreen)
         })
 
         onBeforeUnmount(() => {

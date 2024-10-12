@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-07-31 10:13:57
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-27 09:32:08
+ * @LastEditTime: 2024-10-11 16:55:40
  */
 
 import { type ResolutionRow, type RecordSubStreamList, type rowNonExistent } from '@/types/apiType/record'
@@ -34,6 +34,8 @@ export default defineComponent({
             maxQoI: 0,
             videoEncodeTypeUnionList: [] as SelectOption<string, string>[],
             videoEncodeTypeList: [[] as SelectOption<string, string>[]],
+            // 分辨率表头下拉框
+            resolutionHeaderVisble: false,
             resolutionUnionList: [] as string[],
             resolutionGroups: [] as ResolutionRow[],
             resolutionList: [[] as string[]],
@@ -423,6 +425,7 @@ export default defineComponent({
             for (let i = maxFrameRate; i >= minFrameRate; i--) {
                 pageData.value.frameRateUnionList.push(String(i))
             }
+            getResolutionDropdownData()
         }
 
         const setRecSubStreamData = async () => {
@@ -569,42 +572,40 @@ export default defineComponent({
             }
         }
 
-        // 分辨率下拉框打开获取数据
-        const handleResolutionDropdownVisible = (visible: boolean) => {
-            if (visible) {
-                const rowDatas = [] as RecordSubStreamList[]
-                tableData.value.forEach((item, index) => {
-                    if (item.chlType !== 'recorder' && !pageData.value.isRowDisabled[index]) {
-                        rowDatas.push(item)
-                    }
-                })
+        // 获取分辨率下拉框数据
+        const getResolutionDropdownData = () => {
+            const rowDatas = [] as RecordSubStreamList[]
+            tableData.value.forEach((item, index) => {
+                if (item.chlType !== 'recorder' && !pageData.value.isRowDisabled[index]) {
+                    rowDatas.push(item)
+                }
+            })
 
-                const resolutionMapping = {} as Record<string, SelectOption<string, string>[]>
-                pageData.value.resolutionGroups = []
+            const resolutionMapping = {} as Record<string, SelectOption<string, string>[]>
+            pageData.value.resolutionGroups = []
 
-                rowDatas.forEach((item) => {
-                    const resolutionList = item.subCaps.res.map((item) => item['value'])
+            rowDatas.forEach((item) => {
+                const resolutionList = item.subCaps.res.map((item) => item['value'])
 
-                    const mappingKey = resolutionList.join(',')
+                const mappingKey = resolutionList.join(',')
 
-                    if (!resolutionMapping[mappingKey]) {
-                        resolutionMapping[mappingKey] = []
-                        pageData.value.resolutionGroups.push({
-                            res: resolutionList[0],
-                            resGroup: resolutionList,
-                            chls: {
-                                expand: pageData.value.resolutionGroups.length == 0,
-                                data: resolutionMapping[mappingKey],
-                            },
-                        })
-                    }
-
-                    resolutionMapping[mappingKey].push({
-                        value: item.id,
-                        label: item.name,
+                if (!resolutionMapping[mappingKey]) {
+                    resolutionMapping[mappingKey] = []
+                    pageData.value.resolutionGroups.push({
+                        res: resolutionList[0],
+                        resGroup: resolutionList,
+                        chls: {
+                            expand: pageData.value.resolutionGroups.length == 0,
+                            data: resolutionMapping[mappingKey],
+                        },
                     })
+                }
+
+                resolutionMapping[mappingKey].push({
+                    value: item.id,
+                    label: item.name,
                 })
-            }
+            })
         }
 
         // 分辨率下拉框的确定
@@ -620,12 +621,12 @@ export default defineComponent({
                     }
                 })
             })
-            dropdownRef.value.handleClose()
+            pageData.value.resolutionHeaderVisble = false
         }
 
         // 分辨率下拉框关闭
         const close = () => {
-            dropdownRef.value.handleClose()
+            pageData.value.resolutionHeaderVisble = false
         }
 
         const handleExpandChange = function (row: ResolutionRow, expandedRows: string[]) {
@@ -646,7 +647,7 @@ export default defineComponent({
 
         // 在选择项时下拉框保持打开
         const keepDropDownOpen = function (row: ResolutionRow) {
-            dropdownRef.value.handleOpen()
+            pageData.value.resolutionHeaderVisble = true
             if (row.chls.expand && resolutionTableRef.value) {
                 row.chls.expand = true
                 resolutionTableRef.value.toggleRowExpansion(row, true)
@@ -698,7 +699,6 @@ export default defineComponent({
             changeVideoEncodeType,
             changeAllVideoEncodeType,
             changeResolution,
-            handleResolutionDropdownVisible,
             changeAllFrameRate,
             changeAllVideoQuality,
             handleExpandChange,
