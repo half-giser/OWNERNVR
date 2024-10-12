@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-10 17:50:24
  * @Description: 更多功能页面的框架
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 18:23:20
+ * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2024-10-12 10:41:06
 -->
 <template>
     <div>
@@ -146,7 +146,7 @@
                 v-if="pageData.chosenFunction === ''"
                 class="base-ai-not-support-box"
             >
-                {{ Translate('IDCS_CURRENT_INTEL_EVENT_UNSUPORT') }}
+                {{ Translate('IDCS_ADD_INTEL_CHANNEL_TIP').formatForLang(Translate('IDCS_INTELLIGENT')) }}
             </div>
         </el-tabs>
     </div>
