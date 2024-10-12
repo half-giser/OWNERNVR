@@ -3,7 +3,7 @@
  * @Date: 2024-08-21 10:40:04
  * @Description: 新增轨迹弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-22 16:48:30
+ * @LastEditTime: 2024-10-09 15:39:39
  */
 import { type ChannelPtzTraceDto } from '@/types/apiType/channel'
 import type { FormInstance, FormRules } from 'element-plus'
@@ -43,7 +43,7 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
 
         const formRef = ref<FormInstance>()
         const formData = ref({
@@ -95,7 +95,7 @@ export default defineComponent({
          * @description 新增轨迹保存数据
          */
         const setData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXml = rawXml`
                 <content>
@@ -107,7 +107,7 @@ export default defineComponent({
             const result = await createChlPtzTrace(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 openMessageTipBox({

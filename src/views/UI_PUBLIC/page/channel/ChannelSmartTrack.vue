@@ -3,12 +3,12 @@
  * @Date: 2024-08-20 13:58:22
  * @Description: 云台-智能追踪
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-14 15:44:42
+ * @LastEditTime: 2024-10-09 15:25:25
 -->
 <template>
-    <div class="smart-track">
-        <div class="left">
-            <div class="player">
+    <div class="base-chl-box">
+        <div class="base-chl-box-left">
+            <div class="base-chl-box-player">
                 <BaseVideoPlayer
                     ref="playerRef"
                     type="live"
@@ -64,7 +64,7 @@
                 </el-form-item>
             </el-form>
         </div>
-        <div class="right">
+        <div class="base-chl-box-right">
             <div class="base-table-box">
                 <el-table
                     :data="tableData"
@@ -148,36 +148,13 @@
 
 <script lang="ts" src="./ChannelSmartTrack.v.ts"></script>
 
+<style lang="scss">
+@import '@/views/UI_PUBLIC/publicStyle/channel.scss';
+</style>
+
 <style lang="scss" scoped>
-.smart-track {
-    width: 100%;
-    height: var(--content-height);
-    display: flex;
-}
-
-.left {
-    width: 400px;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
-.player {
-    width: 400px;
-    height: 300px;
-    flex-shrink: 0;
-}
-
 .time {
     width: 80px;
     text-align: center;
-}
-
-.right {
-    width: 100%;
-    height: 100%;
-    margin-left: 10px;
-    display: flex;
-    flex-direction: column;
 }
 </style>

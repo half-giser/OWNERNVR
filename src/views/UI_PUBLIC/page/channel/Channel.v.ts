@@ -1,7 +1,7 @@
 /*
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-05-07 17:12:45
- * @Description:
+ * @Description: 通道
  */
 import { ChannelInfoDto } from '@/types/apiType/channel'
 import ChannelEditPop from './ChannelEditPop.vue'
@@ -18,7 +18,7 @@ export default defineComponent({
         const volumn = ref(0)
         const mute = ref(false)
         const { Translate } = useLangStore()
-        const { LoadingTarget, openLoading, closeLoading } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const { browserInfo, serverIp } = inject('appGlobalProp') as appGlobalProp
         const cababilityStore = useCababilityStore()
         const router = useRouter()
@@ -53,7 +53,7 @@ export default defineComponent({
         let ChlStatusRefreshTimer: NodeJS.Timeout | null = null
         const ChlStatusRefreshTimeSpan = 5000 //通道树状态刷新时间间隔
 
-        const handleToolBarEvent = function (toolBarEvent: ConfigToolBarEvent<ChannelToolBarEvent>) {
+        const handleToolBarEvent = (toolBarEvent: ConfigToolBarEvent<ChannelToolBarEvent>) => {
             switch (toolBarEvent.type) {
                 case 'search':
                     getDataList(toolBarEvent.data.searchText)
@@ -64,24 +64,24 @@ export default defineComponent({
             }
         }
 
-        const handlePreview = function (rowData: ChannelInfoDto) {
+        const handlePreview = (rowData: ChannelInfoDto) => {
             baseLivePopRef.value?.openLiveWin(rowData.id, rowData.name, rowData.chlStatus === Translate('IDCS_ONLINE'))
         }
 
         // 编辑通道
-        const handleEditChannel = function (rowData: ChannelInfoDto) {
+        const handleEditChannel = (rowData: ChannelInfoDto) => {
             editRowData.value = rowData
             editNameMapping.value = nameMapping
             channelEditPopVisable.value = true
         }
 
-        const setDataCallBack = function (newData: ChannelInfoDto) {
+        const setDataCallBack = (newData: ChannelInfoDto) => {
             editRowData.value.name = newData.name
             editRowData.value.ip = newData.ip
             editRowData.value.port = newData.port
         }
 
-        const closeEditChannelPop = function (isRefresh = false) {
+        const closeEditChannelPop = (isRefresh = false) => {
             channelEditPopVisable.value = false
             if (isRefresh) getDataList()
         }
@@ -95,8 +95,8 @@ export default defineComponent({
             editIPCPwdPopVisiable.value = false
         }
 
-        const handleDelChannelAll = function () {
-            if (tableData.value.length == 0) return
+        const handleDelChannelAll = () => {
+            if (!tableData.value.length) return
             openMessageTipBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_ALL_ITEMS'),
@@ -112,34 +112,34 @@ export default defineComponent({
                 })
                 data += '</devIds></condition>'
                 const sendXml = getXmlWrapData(data)
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
                 delDevList(sendXml).then(() => {
-                    closeLoading(LoadingTarget.FullScreen)
+                    closeLoading()
                     //删除通道不提示
                     getDataList()
                 })
             })
         }
 
-        const handleDelChannel = function (rowData: ChannelInfoDto) {
+        const handleDelChannel = (rowData: ChannelInfoDto) => {
             openMessageTipBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_CHNANEL_S').formatForLang(getShortString(rowData.name, 10)),
             }).then(() => {
                 let data = '<condition><devIds type="list">' + '<item id="' + rowData.id + '">' + rowData.name
-                if (Number(rowData.poeIndex) * 1 > 0) data += '<poeIndex>' + rowData.poeIndex + '</poeIndex>'
+                if (Number(rowData.poeIndex) > 0) data += '<poeIndex>' + rowData.poeIndex + '</poeIndex>'
                 data += '</item>' + '</devIds></condition>'
                 const sendXml = getXmlWrapData(data)
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
                 delDevList(sendXml).then(() => {
-                    closeLoading(LoadingTarget.FullScreen)
+                    closeLoading()
                     //删除通道不提示
                     getDataList()
                 })
             })
         }
 
-        const handleSettingChannel = function (rowData: ChannelInfoDto) {
+        const handleSettingChannel = (rowData: ChannelInfoDto) => {
             const linkWinMode = browserInfo.type === 'ie' ? '_self' : '_blank'
             if (rowData.poePort && rowData.poePort != '') {
                 const ip = checkIpV6(serverIp) ? '[' + serverIp + ']' : serverIp
@@ -148,9 +148,9 @@ export default defineComponent({
             } else {
                 // 非poe通道跳转时要带上端口号，避免用户改了ipc默认的80端口，导致跳转不成功
                 const data = getXmlWrapData(`<condition><chlId>${rowData.id}</chlId></condition>`)
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
                 queryChlPort(data).then((res) => {
-                    closeLoading(LoadingTarget.FullScreen)
+                    closeLoading()
                     const $ = queryXml(res)
                     const httpPort = $('//content/chl/port/httpPort').length > 0 ? $('//content/chl/port/httpPort').text() : ''
                     // ipv6地址访问格式为：http://[ipv6]
@@ -161,17 +161,17 @@ export default defineComponent({
             }
         }
 
-        const handleShowUpgradeBtn = function (rowData: ChannelInfoDto) {
-            if (rowData.protocolType == 'TVT_IPCAMERA') rowData.showUpgradeBtn = true
+        const handleShowUpgradeBtn = (rowData: ChannelInfoDto) => {
+            if (rowData.protocolType === 'TVT_IPCAMERA') rowData.showUpgradeBtn = true
             return rowData.showUpgradeBtn
         }
 
-        const handleUpgradeIPC = function (rowData: ChannelInfoDto) {
-            if (rowData.upgradeStatus == 'success' || rowData.upgradeDisabled) return
+        const handleUpgradeIPC = (rowData: ChannelInfoDto) => {
+            if (rowData.upgradeStatus === 'success' || rowData.upgradeDisabled) return
             openUpgradePop('single', [rowData])
         }
 
-        const handleBatchUpgradeIPC = function () {
+        const handleBatchUpgradeIPC = () => {
             openUpgradePop('multiple', tableData.value)
         }
 
@@ -188,7 +188,7 @@ export default defineComponent({
             })
         }
 
-        const getDataList = function (chlName?: String) {
+        const getDataList = (chlName?: string) => {
             let data = ''
             if (chlName) data += `<condition><name><![CDATA[${chlName}]]></name></condition>`
             data +=
@@ -206,13 +206,13 @@ export default defineComponent({
                 '<chlNum/>' +
                 '</requireField>'
             const sendXml = getXmlWrapData(data)
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             queryDevList(sendXml).then((res) => {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 const $ = queryXml(res)
                 getIpAnalogCout()
-                getProtocolList(function () {
-                    if ($('status').text() == 'success') {
+                getProtocolList(() => {
+                    if ($('status').text() === 'success') {
                         manufacturerMap = {}
                         $('//types/manufacturer/enum').forEach((ele) => {
                             manufacturerMap[ele.text()] = ele.attr('displayName')!
@@ -260,12 +260,12 @@ export default defineComponent({
                             }
 
                             //UI1-E POE通道可删除，其他UI不能删除
-                            if ((ele.addType == 'poe' && uiName != 'UI1-E') || !ele.ip) {
+                            if ((ele.addType === 'poe' && uiName !== 'UI1-E') || !ele.ip) {
                                 ele.delDisabled = true
                             }
-                            if (ele.addType == 'poe') {
+                            if (ele.addType === 'poe') {
                                 if (!virtualHostEnabled) ele.showSetting = false
-                            } else if (ele.protocolType == 'RTSP') {
+                            } else if (ele.protocolType === 'RTSP') {
                                 ele.showSetting = false
                             }
                             getIPChlInfo(ele)
@@ -280,19 +280,19 @@ export default defineComponent({
             })
         }
 
-        const getIPChlInfo = function (channelInfo: ChannelInfoDto) {
-            const type = channelInfo.productModel.factoryName == 'Recorder'
+        const getIPChlInfo = (channelInfo: ChannelInfoDto) => {
+            const type = channelInfo.productModel.factoryName === 'Recorder'
             const data = getXmlWrapData('<condition><chlId>' + (type ? channelInfo.devID : channelInfo.id) + '</chlId></condition>')
             queryIPChlInfo(data).then((res) => {
                 channelInfo.version = queryXml(res)('//content/chl/detailedSoftwareVersion').text()
             })
         }
 
-        const getOnlineChlList = function () {
+        const getOnlineChlList = () => {
             queryOnlineChlList().then((res) => {
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
-                    if (tableData.value.length == 0) return
+                if ($('status').text() === 'success') {
+                    if (tableData.value.length === 0) return
                     tableData.value.forEach((ele: ChannelInfoDto) => {
                         //模拟通道，状态置为空
                         if (!ele.ip) {
@@ -302,7 +302,7 @@ export default defineComponent({
                         let isOnline = false
                         $('//content/item').forEach((element) => {
                             const chlId = element.attr('id')!
-                            if (ele.id == chlId) {
+                            if (ele.id === chlId) {
                                 ele.chlStatus = Translate('IDCS_ONLINE')
                                 ele.upgradeDisabled = false
                                 //if ($status.hasClass("disableError")) $status.addClass("error").removeClass("disableError");
@@ -325,57 +325,57 @@ export default defineComponent({
             })
         }
 
-        const StartRefreshChlStatus = function () {
+        const StartRefreshChlStatus = () => {
             if (ChlStatusRefreshTimer) {
                 StopRefreshChlStatus()
             }
-            ChlStatusRefreshTimer = setTimeout(function () {
+            ChlStatusRefreshTimer = setTimeout(() => {
                 getOnlineChlList()
             }, ChlStatusRefreshTimeSpan)
         }
 
-        const StopRefreshChlStatus = function () {
+        const StopRefreshChlStatus = () => {
             clearTimeout(ChlStatusRefreshTimer as NodeJS.Timeout)
             ChlStatusRefreshTimer = null
         }
 
-        const getIpAnalogCout = function () {
-            openLoading(LoadingTarget.FullScreen)
+        const getIpAnalogCout = () => {
+            openLoading()
             queryBasicCfg(getXmlWrapData('')).then((res) => {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
+                if ($('status').text() === 'success') {
                     let channelSignalTypeList: string[] = []
                     if ($('//content/channelSignalType').length > 0) channelSignalTypeList = $('//content/channelSignalType').text().split(':')
                     ipChlMaxCountOriginal = 0
                     channelSignalTypeList.forEach((ele: string) => {
-                        if (ele == 'D') ipChlMaxCountOriginal++
+                        if (ele === 'D') ipChlMaxCountOriginal++
                     })
                 }
                 getBandwidth()
             })
         }
 
-        const getBandwidth = function () {
-            openLoading(LoadingTarget.FullScreen)
+        const getBandwidth = () => {
+            openLoading()
             queryRecordDistributeInfo().then((res1) => {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 const $ = queryXml(res1)
                 const mode = $('//content/recMode/mode').text()
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
                 querySystemCaps(getXmlWrapData('')).then((res2) => {
-                    closeLoading(LoadingTarget.FullScreen)
+                    closeLoading()
                     const $ = queryXml(res2)
-                    if ($('status').text() == 'success') {
+                    if ($('status').text() === 'success') {
                         const totalBandwidth = Number($('//content/totalBandwidth').text())
-                        const usedBandwidth = Number($('//content/' + (mode == 'auto' ? 'usedAutoBandwidth' : 'usedManualBandwidth')).text())
+                        const usedBandwidth = Number($('//content/' + (mode === 'auto' ? 'usedAutoBandwidth' : 'usedManualBandwidth')).text())
                         let remainBandwidth = (totalBandwidth * 1024 - usedBandwidth) / 1024
                         const switchableIpChlMaxCount = Number($('//content/switchableIpChlMaxCount').text())
                         ipChlMaxCount = ipChlMaxCountOriginal + Number($('//content/ipChlMaxCount').text())
                         if (remainBandwidth < 0) remainBandwidth = 0
                         txtBrandwidth.value = Translate('IDCS_CURRENT_BANDWIDTH_ALL_D_D').formatForLang(remainBandwidth.toFixed(0), totalBandwidth.toFixed(0))
 
-                        if ((switchableIpChlMaxCount > 0 && cababilityStore.analogChlCount > 0) || cababilityStore.analogChlCount * 1 == 0) {
+                        if ((switchableIpChlMaxCount > 0 && cababilityStore.analogChlCount > 0) || cababilityStore.analogChlCount === 0) {
                             ipNumVisable.value = true
                             ipNum.value = ' : ' + ipChlMaxCount
                         } else {
@@ -386,12 +386,12 @@ export default defineComponent({
             })
         }
 
-        const getProtocolList = function (callback: Function) {
-            openLoading(LoadingTarget.FullScreen)
+        const getProtocolList = (callback: Function) => {
+            openLoading()
             queryRtspProtocolList(getXmlWrapData('')).then((res) => {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
+                if ($('status').text() === 'success') {
                     protocolList.value = []
                     const nodes = $('//content/item')
                     nodes.forEach((ele) => {
@@ -406,7 +406,7 @@ export default defineComponent({
             })
         }
 
-        const saveMaxValueForDefaultChl = function () {
+        const saveMaxValueForDefaultChl = () => {
             let value = 0
             const defaultName = Translate('IDCS_IP_CHANNEL')
             const pattern = defaultName + 'd*'
@@ -420,17 +420,17 @@ export default defineComponent({
             localStorage.setItem(LocalCacheKey.defaultChlMaxValue, value.toString())
         }
 
-        const formatDisplayName = function (rowData: ChannelInfoDto) {
+        const formatDisplayName = (rowData: ChannelInfoDto) => {
             let value = rowData.name
-            if (rowData.chlType == 'recorder') {
+            if (rowData.chlType === 'recorder') {
                 const chlNum = Number(rowData.index) * 1 + 1
                 const chlNumStr = chlNum < 10 ? '0' + chlNum : chlNum
                 value = '[R' + chlNumStr + ']' + value
             }
-            return rowData.addType == 'poe' ? protocolTrasMap['IDCS_POE_PREFIX'].formatForLang(Number(rowData.poeIndex) > 9 ? rowData.poeIndex : '0' + rowData.poeIndex) + value : value
+            return rowData.addType === 'poe' ? protocolTrasMap['IDCS_POE_PREFIX'].formatForLang(Number(rowData.poeIndex) > 9 ? rowData.poeIndex : '0' + rowData.poeIndex) + value : value
         }
 
-        const formatDisplayManufacturer = function (rowData: ChannelInfoDto) {
+        const formatDisplayManufacturer = (rowData: ChannelInfoDto) => {
             const value = rowData.manufacturer
             const filters = filterProperty(protocolList.value, 'index')
             return rowData.productModel.factoryName && rowData.productModel.factoryName.toLowerCase() != ''

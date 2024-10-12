@@ -3,7 +3,7 @@
  * @Date: 2024-08-20 18:26:39
  * @Description: 新增预置点弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 11:52:52
+ * @LastEditTime: 2024-10-09 15:38:13
  */
 import { type ChannelPtzPresetDto } from '@/types/apiType/channel'
 import type { FormInstance, FormRules } from 'element-plus'
@@ -43,7 +43,7 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
 
         const pageData = ref({
             // 预置点选项
@@ -103,7 +103,7 @@ export default defineComponent({
          * @description 新增预置点保存数据
          */
         const setData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXml = rawXml`
                 <content>
@@ -115,7 +115,7 @@ export default defineComponent({
             const result = await createChlPreset(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 openMessageTipBox({

@@ -3,7 +3,7 @@
  * @Date: 2024-08-30 18:47:04
  * @Description: 人脸库 - 添加人脸
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-14 09:27:31
+ * @LastEditTime: 2024-10-09 15:48:17
  */
 import { IntelFaceDBFaceForm, type IntelFaceDBGroupDto, type IntelFaceDBSnapFaceList, type IntelFaceDBImportFaceDto } from '@/types/apiType/intelligentAnalysis'
 import { type FormInstance } from 'element-plus'
@@ -40,13 +40,13 @@ export default defineComponent({
 
         // 错误码与显示文本的映射
         const ERROR_TIP_MAPPING: Record<number, string> = {
-            536871032: Translate('IDCS_TARGET_LIBRARY_GROUP_DATABASE_FULL'),
-            536870953: Translate('IDCS_NO_PERMISSION'),
-            536871043: Translate('IDCS_PICTURE_SIZE_LIMIT_TIP'),
-            536871044: Translate('IDCS_PICTURE_SIZE_LIMIT_TIP'),
-            536871025: Translate('IDCS_OUT_FILE_SIZE'),
-            536871030: Translate('IDCS_NO_DISK'),
-            536871026: Translate('IDCS_UNQUALIFIED_PICTURE'),
+            [ErrorCode.USER_ERROR_CANNOT_DEL_CUR_USER]: Translate('IDCS_TARGET_LIBRARY_GROUP_DATABASE_FULL'),
+            [ErrorCode.USER_ERROR_NO_AUTH]: Translate('IDCS_NO_PERMISSION'),
+            [ErrorCode.USER_ERROR_LIVE_RECONNECT]: Translate('IDCS_PICTURE_SIZE_LIMIT_TIP'),
+            [ErrorCode.USER_ERROR_LICENSEPLATE_EXISTS]: Translate('IDCS_PICTURE_SIZE_LIMIT_TIP'),
+            [ErrorCode.USER_ERROR_MDU_HAVEDEVICE]: Translate('IDCS_OUT_FILE_SIZE'),
+            [ErrorCode.USER_ERROR_FILE_MISMATCHING]: Translate('IDCS_NO_DISK'),
+            [ErrorCode.USER_ERROR_WALL_HAVEDECODER]: Translate('IDCS_UNQUALIFIED_PICTURE'),
         }
 
         const formRef = ref<FormInstance>()

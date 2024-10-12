@@ -3,12 +3,12 @@
  * @Date: 2024-08-20 13:57:26
  * @Description: 巡航线组
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-22 20:06:47
+ * @LastEditTime: 2024-10-09 14:39:34
 -->
 <template>
-    <div class="cruise-group">
-        <div class="left">
-            <div class="player">
+    <div class="base-chl-box">
+        <div class="base-chl-box-left">
+            <div class="base-chl-box-player">
                 <BaseVideoPlayer
                     ref="playerRef"
                     type="live"
@@ -89,7 +89,7 @@
                 <div></div>
             </div>
         </div>
-        <div class="right">
+        <div class="base-chl-box-right">
             <div class="base-table-box">
                 <el-table
                     ref="tableRef"
@@ -139,7 +139,11 @@
 
 <script lang="ts" src="./ChannelCruiseGroup.v.ts"></script>
 
-<style lang="scss" scoped>
+<style lang="scss">
+@import '@/views/UI_PUBLIC/publicStyle/channel.scss';
+</style>
+
+<!-- <style lang="scss" scoped>
 .cruise-group {
     width: 100%;
     height: var(--content-height);
@@ -164,4 +168,4 @@
     height: 100%;
     margin-left: 10px;
 }
-</style>
+</style> -->

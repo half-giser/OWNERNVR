@@ -1,12 +1,14 @@
-import { ChlGroup } from '@/types/apiType/channel'
-import { cloneDeep } from 'lodash-es'
-import { type RuleItem } from 'async-validator'
-
 /*
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-06-18 14:20:56
- * @Description:
+ * @Description: 通道组 - 编辑弹窗
  */
+
+import { ChlGroup } from '@/types/apiType/channel'
+import { cloneDeep } from 'lodash-es'
+import { type RuleItem } from 'async-validator'
+import { type FormInstance } from 'element-plus'
+
 export default defineComponent({
     props: {
         editItem: {
@@ -24,20 +26,11 @@ export default defineComponent({
     },
     setup(props, { emit }) {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const { openMessageTipBox } = useMessageBox()
-        const formRef = ref()
+        const formRef = ref<FormInstance>()
         const formData = ref(new ChlGroup())
-        const timeList = [
-            { text: '5 ' + Translate('IDCS_SECONDS'), value: 5 },
-            { text: '10 ' + Translate('IDCS_SECONDS'), value: 10 },
-            { text: '20 ' + Translate('IDCS_SECONDS'), value: 20 },
-            { text: '30 ' + Translate('IDCS_SECONDS'), value: 30 },
-            { text: '1 ' + Translate('IDCS_MINUTE'), value: 60 },
-            { text: '2 ' + Translate('IDCS_MINUTES'), value: 120 },
-            { text: '5 ' + Translate('IDCS_MINUTES'), value: 300 },
-            { text: '10 ' + Translate('IDCS_MINUTES'), value: 600 },
-        ]
+        const timeList = [5, 10, 20, 30, 60, 120, 300, 600]
 
         const validate: Record<string, RuleItem['validator']> = {
             validateName: (_rule, value, callback) => {
@@ -67,7 +60,7 @@ export default defineComponent({
 
         const verification = async () => {
             if (!formRef) return false
-            return await formRef.value.validate()
+            return await formRef.value!.validate()
         }
 
         const save = async () => {
@@ -78,9 +71,9 @@ export default defineComponent({
                     <name><![CDATA[${formData.value.name}]]></name>
                     <dwellTime unit='s'>${formData.value.dwellTime.toString()}</dwellTime>
                 </content>`
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             editChlGroup(getXmlWrapData(data)).then((res) => {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
                     openMessageTipBox({
@@ -91,7 +84,7 @@ export default defineComponent({
                         emit('close')
                     })
                 } else {
-                    if (Number($('errorCode').text()) == errorCodeMap.nameExist) {
+                    if (Number($('errorCode').text()) == ErrorCode.USER_ERROR_NAME_EXISTED) {
                         openMessageTipBox({
                             type: 'info',
                             message: Translate('IDCS_PROMPT_CHANNEL_GROUP_NAME_EXIST'),
@@ -113,6 +106,7 @@ export default defineComponent({
             rules,
             opened,
             save,
+            getTranslateForSecond,
         }
     },
 })

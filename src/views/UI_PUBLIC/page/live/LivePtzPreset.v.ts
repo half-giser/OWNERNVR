@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 16:07:38
  * @Description: 现场预览-云台视图-预置点
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-21 11:31:45
+ * @LastEditTime: 2024-10-09 18:34:25
  */
 import ChannelPresetAddPop from '../channel/ChannelPresetAddPop.vue'
 import { type ChannelPtzPresetDto } from '@/types/apiType/channel'
@@ -45,7 +45,6 @@ export default defineComponent({
     setup(prop) {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
 
         const pageData = ref({
             // 预置点最大数量
@@ -128,8 +127,6 @@ export default defineComponent({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_PRESET_S').formatForLang(Translate('IDCS_CHANNEL'), getShortString(prop.chlName, 10), getShortString(item.name, 10)),
             }).then(async () => {
-                openLoading(LoadingTarget.FullScreen)
-
                 const sendXml = rawXml`
                     <condition>
                         <chlId>${prop.chlId}</chlId>
@@ -140,8 +137,6 @@ export default defineComponent({
                 `
                 const result = await delChlPreset(sendXml)
                 const $ = queryXml(result)
-
-                closeLoading(LoadingTarget.FullScreen)
 
                 if ($('//status').text() === 'success') {
                     openMessageTipBox({
@@ -176,8 +171,6 @@ export default defineComponent({
                 return
             }
 
-            openLoading(LoadingTarget.FullScreen)
-
             const sendXml = rawXml`
                 <content>
                     <chlId>${prop.chlId}</chlId>
@@ -187,8 +180,6 @@ export default defineComponent({
             const result = await editChlPresetPosition(sendXml)
 
             commSaveResponseHadler(result)
-
-            closeLoading(LoadingTarget.FullScreen)
         }
 
         /**

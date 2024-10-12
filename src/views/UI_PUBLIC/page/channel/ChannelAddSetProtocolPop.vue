@@ -1,7 +1,7 @@
 <!--
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-06-05 17:16:40
- * @Description:
+ * @Description: 添加通道 - 设置协议弹窗
 -->
 <template>
     <el-dialog
@@ -16,60 +16,49 @@
             :model="formData"
             :rules="rules"
             class="protocolManageForm"
-            label-width="150px"
             label-position="left"
         >
-            <el-row>
-                <el-col :span="12">
-                    <el-form-item :label="Translate('IDCS_PROTOCOL_LOGO')">
-                        <el-select
-                            v-model="currentProtocolLogo"
-                            class="col_select_item"
-                            @change="handleProtocolLogoChange"
-                        >
-                            <el-option
-                                v-for="item in protocolManageList"
-                                :key="item.id"
-                                :label="`${Translate('IDCS_CUSTOM_PROTOCOL')} ${item.id}`"
-                                :value="item.id"
-                            />
-                        </el-select>
-                    </el-form-item>
-                </el-col>
-            </el-row>
-            <el-row>
-                <el-col :span="12">
-                    <el-form-item :label="Translate('IDCS_STATE')">
-                        <el-select
-                            v-model="formData.enabled"
-                            class="col_select_item"
-                        >
-                            <el-option
-                                :label="Translate('IDCS_NIC_STATE_DISABLED')"
-                                :value="false"
-                            />
-                            <el-option
-                                :label="Translate('IDCS_ENABLE')"
-                                :value="true"
-                            />
-                        </el-select>
-                    </el-form-item>
-                </el-col>
-                <el-col :span="12">
-                    <el-form-item
-                        prop="displayName"
-                        :label="Translate('IDCS_SHOW_NAME')"
+            <el-form-item>
+                <el-form-item :label="Translate('IDCS_PROTOCOL_LOGO')">
+                    <el-select
+                        v-model="currentProtocolLogo"
+                        @change="handleProtocolLogoChange"
                     >
-                        <el-input
-                            v-model="formData.displayName"
-                            class="col_input_item"
-                            :disabled="!formData.enabled"
-                            maxlength="11"
-                            @input="handleDisplayNameInput"
-                        ></el-input>
-                    </el-form-item>
-                </el-col>
-            </el-row>
+                        <el-option
+                            v-for="item in protocolManageList"
+                            :key="item.id"
+                            :label="`${Translate('IDCS_CUSTOM_PROTOCOL')} ${item.id}`"
+                            :value="item.id"
+                        />
+                    </el-select>
+                </el-form-item>
+                <el-form-item></el-form-item>
+            </el-form-item>
+            <el-form-item>
+                <el-form-item :label="Translate('IDCS_STATE')">
+                    <el-select v-model="formData.enabled">
+                        <el-option
+                            :label="Translate('IDCS_NIC_STATE_DISABLED')"
+                            :value="false"
+                        />
+                        <el-option
+                            :label="Translate('IDCS_ENABLE')"
+                            :value="true"
+                        />
+                    </el-select>
+                </el-form-item>
+                <el-form-item
+                    prop="displayName"
+                    :label="Translate('IDCS_SHOW_NAME')"
+                >
+                    <el-input
+                        v-model="formData.displayName"
+                        :disabled="!formData.enabled"
+                        maxlength="11"
+                        @input="handleDisplayNameInput"
+                    ></el-input>
+                </el-form-item>
+            </el-form-item>
         </el-form>
         <el-table
             ref="tableRef"
@@ -172,15 +161,6 @@
 <script lang="ts" src="./ChannelAddSetProtocolPop.v.ts"></script>
 
 <style scoped lang="scss">
-.protocolManageForm {
-    margin: 10px 0;
-
-    .col_select_item,
-    .col_input_item {
-        width: 200px;
-    }
-}
-
 .elRowTip {
     margin-bottom: 10px;
     font-size: 14px;

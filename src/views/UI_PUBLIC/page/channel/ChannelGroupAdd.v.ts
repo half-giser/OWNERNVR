@@ -3,10 +3,11 @@
  * @Date: 2024-06-19 09:52:27
  * @Description:
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:28:57
+ * @LastEditTime: 2024-10-09 15:37:04
  */
 import { ChannelInfoDto, ChlGroup } from '@/types/apiType/channel'
 import { type RuleItem } from 'async-validator'
+import type { FormInstance, TableInstance } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -25,13 +26,13 @@ export default defineComponent({
     },
     setup(prop, { emit }) {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const { openMessageTipBox } = useMessageBox()
         const router = useRouter()
 
-        const formRef = ref()
+        const formRef = ref<FormInstance>()
         const formData = ref(new ChlGroup())
-        const tableRef = ref()
+        const tableRef = ref<TableInstance>()
         const baseLivePopRef = ref<LivePopInstance>()
         const tableData = ref<ChannelInfoDto[]>([])
         const selNum = ref(0)
@@ -48,13 +49,13 @@ export default defineComponent({
         ]
         const chlGroupCountLimit = 16 // 通道组个数上限
 
-        const handleRowClick = function (rowData: ChannelInfoDto) {
-            tableRef.value.clearSelection()
-            tableRef.value.toggleRowSelection(rowData, true)
+        const handleRowClick = (rowData: ChannelInfoDto) => {
+            tableRef.value!.clearSelection()
+            tableRef.value!.toggleRowSelection(rowData, true)
         }
 
         const handleSelectionChange = () => {
-            selNum.value = tableRef.value.getSelectionRows().length
+            selNum.value = tableRef.value!.getSelectionRows().length
         }
 
         const handlePreview = (rowData: ChannelInfoDto) => {
@@ -85,7 +86,7 @@ export default defineComponent({
 
         const verification = async () => {
             if (!formRef) return false
-            const valid = await formRef.value.validate()
+            const valid = await formRef.value!.validate()
             if (valid) {
                 if (!selNum.value) {
                     openMessageTipBox({
@@ -112,15 +113,15 @@ export default defineComponent({
                     <name><![CDATA[${formData.value.name}]]></name>
                     <dwellTime unit='s'>${formData.value.dwellTime.toString()}</dwellTime>
                     <chlIdList type='list'>`
-            tableRef.value.getSelectionRows().forEach((ele: ChannelInfoDto) => {
+            tableRef.value!.getSelectionRows().forEach((ele: ChannelInfoDto) => {
                 data += `<item>${ele.id}</item>`
             })
             data += rawXml`
                     </chlIdList>
                 </content>`
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             createChlGroup(getXmlWrapData(data)).then((res) => {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
                     openMessageTipBox({
@@ -133,9 +134,9 @@ export default defineComponent({
                 } else {
                     const errorCdoe = Number($('errorCode').text())
                     let msg = Translate('IDCS_SAVE_DATA_FAIL')
-                    if (errorCdoe == errorCodeMap.nameExist) {
+                    if (errorCdoe == ErrorCode.USER_ERROR_NAME_EXISTED) {
                         msg = Translate('IDCS_PROMPT_CHANNEL_GROUP_NAME_EXIST')
-                    } else if (errorCdoe == errorCodeMap.outOfRange) {
+                    } else if (errorCdoe == ErrorCode.USER_ERROR_OVER_LIMIT) {
                         msg = Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT')
                     }
                     openMessageTipBox({
@@ -162,9 +163,9 @@ export default defineComponent({
                     <chlIndex/>
                     <chlType/>
                 </requireField>`
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             queryDevList(getXmlWrapData(data)).then((res) => {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
                     const chlList: ChannelInfoDto[] = []

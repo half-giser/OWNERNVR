@@ -1,67 +1,60 @@
 <!--
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-06-13 16:04:24
- * @Description:
+ * @Description: 通道 - IPC升级弹窗
 -->
 <template>
     <el-dialog
         v-model="ipcUpgradePopVisiable"
         :title="Translate('IDCS_UPGRADE')"
-        width="440"
+        width="470"
         align-center
         draggable
         @opened="opened"
     >
-        <div class="ipcUpgrade">
-            <el-row
+        <el-form
+            label-position="left"
+            inline-message
+            class="inline-message"
+        >
+            <el-form-item
                 v-show="type === 'multiple'"
-                class="elRowProductModel"
+                :label="Translate('IDCS_PRODUCT_MODEL')"
             >
-                <el-col :span="7">{{ Translate('IDCS_PRODUCT_MODEL') }}: </el-col>
-                <el-col :span="12">
-                    <el-select v-model="selectedProductModel">
-                        <el-option
-                            v-for="item in productModelOptionList"
-                            :key="item"
-                            :value="item"
-                            :label="item"
-                        />
-                    </el-select>
-                </el-col>
-            </el-row>
-            <el-row class="elRowFileSel">
-                <el-col :span="7">{{ Translate('IDCS_WEB_UPGRADE_S_1') }}</el-col>
-                <el-col :span="12">
-                    <el-input
-                        v-model="fileName"
-                        readonly
+                <el-select v-model="selectedProductModel">
+                    <el-option
+                        v-for="item in productModelOptionList"
+                        :key="item"
+                        :value="item"
+                        :label="item"
                     />
-                </el-col>
-                <el-col
-                    :span="5"
-                    class="elColImportBtn"
+                </el-select>
+            </el-form-item>
+            <el-form-item :label="Translate('IDCS_WEB_UPGRADE_S_1')">
+                <el-input
+                    v-model="fileName"
+                    readonly
+                />
+                <el-upload
+                    v-if="isSupportH5"
+                    ref="upload"
+                    :limit="1"
+                    :on-exceed="handleExceed"
+                    :auto-upload="false"
+                    :show-file-list="false"
+                    :on-change="handleChange"
                 >
-                    <el-upload
-                        v-if="isSupportH5"
-                        ref="upload"
-                        :limit="1"
-                        :on-exceed="handleExceed"
-                        :auto-upload="false"
-                        :show-file-list="false"
-                        :on-change="handleChange"
-                    >
-                        <template #trigger>
-                            <el-button>{{ Translate('IDCS_BROWSE') }}</el-button>
-                        </template>
-                    </el-upload>
-                    <el-button
-                        v-else
-                        @click="handleOcxBtnClick"
-                        >{{ Translate('IDCS_BROWSE') }}</el-button
-                    >
-                </el-col>
-            </el-row>
-        </div>
+                    <template #trigger>
+                        <el-button>{{ Translate('IDCS_BROWSE') }}</el-button>
+                    </template>
+                </el-upload>
+                <el-button
+                    v-else
+                    @click="handleOcxBtnClick"
+                    >{{ Translate('IDCS_BROWSE') }}</el-button
+                >
+            </el-form-item>
+        </el-form>
         <template #footer>
             <div class="dialog-footer">
                 <el-button
@@ -76,25 +69,3 @@
 </template>
 
 <script lang="ts" src="./ChannelIPCUpgradePop.v.ts"></script>
-
-<style scoped lang="scss">
-.ipcUpgrade {
-    height: 85px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-
-    .elRowProductModel {
-        margin-bottom: 20px;
-        align-items: center;
-    }
-
-    .elRowFileSel {
-        align-items: center;
-
-        .elColImportBtn {
-            padding-left: 5px;
-        }
-    }
-}
-</style>

@@ -3,7 +3,7 @@
  * @Date: 2024-08-22 10:15:06
  * @Description: 巡航线组
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 11:51:37
+ * @LastEditTime: 2024-10-09 15:36:04
  */
 import { type TableInstance } from 'element-plus'
 import { type ChannelPtzCruiseGroupChlDto, ChannelPtzCruiseGroupCruiseDto } from '@/types/apiType/channel'
@@ -20,7 +20,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const playerRef = ref<PlayerInstance>()
         const auth = useUserChlAuth(false)
 
@@ -114,7 +114,7 @@ export default defineComponent({
          * @param {string} chlId
          */
         const getCruise = async (chlId: string) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const index = tableData.value.findIndex((item) => item.chlId === chlId)
             const sendXml = rawXml`
@@ -125,7 +125,7 @@ export default defineComponent({
             const result = await queryLocalChlPtzGroup(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 tableData.value[index].cruise = $('//content/cruises/item').map((item) => {
@@ -145,7 +145,7 @@ export default defineComponent({
          * @description 获取数据
          */
         const getData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const result = await getChlList({
                 pageIndex: 1,
@@ -155,7 +155,7 @@ export default defineComponent({
             })
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 tableData.value = $('//content/item')
@@ -190,7 +190,7 @@ export default defineComponent({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_CRUISE_BY_GROUP_S').formatForLang(Translate('IDCS_CHANNEL'), getShortString(chlName, 10), getShortString(cruise.name, 10)),
             }).then(async () => {
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
 
                 const cruiseXml = tableData.value[chlIndex].cruise
                     .filter((item) => item.index !== cruise.index)
@@ -206,7 +206,7 @@ export default defineComponent({
                 `
                 const result = await editChlPtzGroup(sendXml)
 
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 commSaveResponseHadler(result, () => {
                     tableData.value[chlIndex].cruise.splice(cruiseIndex, 1)
                     tableData.value[chlIndex].cruiseCount--

@@ -2,15 +2,15 @@
  * @Author: zhangdongming zhangdongming@tvt.net.cn
  * @Date: 2024-05-29 21:21:21
  * @Description: 业务应用-停车场管理-出入口
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-10 14:47:52
 -->
-
 <template>
     <div class="base-flex-box manager">
         <div class="base-table-box">
             <el-table
-                ref="tableRef"
                 class="tableView"
-                :data="pageData.tableDatas"
+                :data="tableData"
                 empty-text=" "
                 table-layout="fixed"
                 show-overflow-tooltip
@@ -18,7 +18,7 @@
                 border
             >
                 <el-table-column
-                    prop="serialNum"
+                    type="index"
                     width="70"
                     :label="Translate('IDCS_SERIAL_NUMBER')"
                 />
@@ -56,7 +56,7 @@
                     :label="Translate('IDCS_COMMON_STATE')"
                 >
                     <template #default="scope">
-                        <span :class="[scope.row.ipcStatus]">{{ scope.row.ipcStatus === 'online' ? Translate('IDCS_ONLINE') : Translate('IDCS_OFFLINE') }}</span>
+                        <span :class="getChlStatus(scope.row.id)">{{ getChlStatus(scope.row.id) === 'online' ? Translate('IDCS_ONLINE') : Translate('IDCS_OFFLINE') }}</span>
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -95,7 +95,11 @@
             </el-table>
         </div>
         <div class="base-btn-box padding">
-            <el-button @click="apply()">{{ Translate('IDCS_APPLY') }}</el-button>
+            <el-button
+                :disabled="pageData.btnDisabled"
+                @click="apply()"
+                >{{ Translate('IDCS_APPLY') }}</el-button
+            >
         </div>
     </div>
 </template>

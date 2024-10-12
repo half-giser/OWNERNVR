@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 18:07:29
  * @Description: 现场预览
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-26 09:53:45
+ * @LastEditTime: 2024-10-09 18:39:24
  */
 import { cloneDeep } from 'lodash-es'
 import { type LiveChannelList, type LiveCustomViewChlList, LiveSharedWinData } from '@/types/apiType/live'
@@ -379,7 +379,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
 
         const systemCaps = useCababilityStore()
         const userSession = useUserSessionStore()
@@ -1307,7 +1307,7 @@ export default defineComponent({
                 })
             } else if (mode.value === 'ocx') {
                 if (streamType === 1) {
-                    openLoading(LoadingTarget.FullScreen)
+                    openLoading(document.querySelector('.right-content') as HTMLElement)
 
                     const sendXml = rawXml`
                         <condition>
@@ -1333,7 +1333,7 @@ export default defineComponent({
                     const sendXML = OCX_XML_SetStreamType(pageData.value.winData.winIndex, streamType, mainResolution.replace(/[x|X|*]/g, 'x'))
                     plugin.GetVideoPlugin().ExecuteCmd(sendXML)
 
-                    closeLoading(LoadingTarget.FullScreen)
+                    closeLoading(document.querySelector('.right-content') as HTMLElement)
                 } else {
                     const sendXML = OCX_XML_SetStreamType(pageData.value.winData.winIndex, streamType)
                     plugin.GetVideoPlugin().ExecuteCmd(sendXML)

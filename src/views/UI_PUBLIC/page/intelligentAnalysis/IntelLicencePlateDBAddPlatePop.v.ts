@@ -3,7 +3,7 @@
  * @Date: 2024-09-03 09:09:06
  * @Description: 新增车牌弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-12 20:45:06
+ * @LastEditTime: 2024-10-09 15:41:28
  */
 import { IntelPlateDBAddPlateForm, IntelPlateDBPlateInfo } from '@/types/apiType/intelligentAnalysis'
 import IntelLicenceDBEditPop from './IntelLicencePlateDBEditPop.vue'
@@ -541,7 +541,7 @@ export default defineComponent({
             //网络断开
             else if ($('statenotify[@type="FileNetTransport"]').length) {
                 closeLoading(LoadingTarget.FullScreen)
-                if (Number($('statenotify[@type="FileNetTransport"]/errorCode').text()) === 536870931) {
+                if (Number($('statenotify[@type="FileNetTransport"]/errorCode').text()) === ErrorCode.USER_ERROR_NODE_NET_DISCONNECT) {
                     openMessageTipBox({
                         type: 'info',
                         message: Translate('IDCS_OCX_NET_DISCONNECT'),

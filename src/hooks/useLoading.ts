@@ -3,7 +3,7 @@
  * @Date: 2024-05-30 08:58:30
  * @Description: Loading
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-03 11:04:58
+ * @LastEditTime: 2024-10-09 11:39:23
  */
 import { useLangStore } from '@/stores/lang'
 
@@ -44,7 +44,7 @@ const useLoading = () => {
      * @description: 打开loading
      * @return {*}
      */
-    const openLoading = (target: string | HTMLElement = 'MainContent', text: string = Translate('IDCS_LOADING')) => {
+    const openLoading = (target: string | HTMLElement = 'FullScreen', text: string = Translate('IDCS_LOADING')) => {
         //当前已经打开了全屏loading
         if (fullScreenInst != null) {
             fullScreenCount++
@@ -96,7 +96,7 @@ const useLoading = () => {
      * @description: 关闭loading
      * @return {*}
      */
-    const closeLoading = (target: string | HTMLElement = 'MainContent') => {
+    const closeLoading = (target: string | HTMLElement = 'FullScreen') => {
         //当前已经打开了全屏loading
         if (fullScreenInst != null) {
             if (fullScreenCount !== 0) fullScreenCount--
@@ -149,7 +149,7 @@ const useLoading = () => {
             case LoadingTarget.MainContent:
                 return '#layoutMainBody'
             case LoadingTarget.ConfigContent:
-                return '.configBorder'
+                return '#layout2Content'
             default:
                 return target
         }

@@ -53,12 +53,26 @@ export default {
                 homeSort: 10,
             },
         },
+        // 以下页面只有在UI3-A才有
+        // recordSchedule: {
+        //     // 录像的排程配置
+        //     path: 'schedule',
+        //     component: 'record/RecordSchedule.vue',
+        //     meta: {
+        //         sort: 20,
+        //         lk: 'IDCS_SCHEDULE_OF_RECORD_SET',
+        //         group: 'record',
+        //         auth(systemCaps, ui) {
+        //             return ui === 'UI3-A'
+        //         },
+        //     },
+        // },
         parameter: {
             //参数配置
             path: 'parameter',
             component: 'record/RecordParameter.vue',
             meta: {
-                sort: 20,
+                sort: 30,
                 lk: 'IDCS_PARAM_SET',
                 group: 'record',
             },
@@ -111,6 +125,9 @@ export default {
                 default: true,
                 inHome: 'self',
                 homeSort: 30,
+                auth(systemCaps, ui) {
+                    return ui !== 'UI3-A'
+                },
             },
         },
         // 每个需要配置的排程的地方打开公共的排程管理和编辑的弹窗

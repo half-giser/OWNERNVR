@@ -3,7 +3,7 @@
  * @Date: 2024-08-06 20:36:58
  * @Description: 回放-通道视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-23 16:17:21
+ * @LastEditTime: 2024-10-09 18:36:09
  */
 import ChannelGroupEditPop from '../channel/ChannelGroupEditPop.vue'
 import ChannelGroupAddPop from '../channel/ChannelGroupAddPop.vue'
@@ -48,7 +48,7 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
         // 通道ID与通道名称的映射
@@ -164,12 +164,12 @@ export default defineComponent({
          * @description 刷新通道列表
          */
         const refreshChl = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             pageData.value.chlKeyword = ''
             await getChlsList()
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         /**
@@ -324,7 +324,7 @@ export default defineComponent({
                     type: 'question',
                     message: Translate('IDCS_DELETE_MP_GROUP_S').formatForLang(getShortString(findItem.value, 10)),
                 }).then(async () => {
-                    openLoading(LoadingTarget.FullScreen)
+                    openLoading()
                     const sendXml = rawXml`
                         <condition>
                             <chlGroupIds type="list">
@@ -334,7 +334,7 @@ export default defineComponent({
                     `
                     const result = await delChlGroup(getXmlWrapData(sendXml))
                     const $ = queryXml(result)
-                    closeLoading(LoadingTarget.FullScreen)
+                    closeLoading()
                     if ($('//status').text() === 'success') {
                         openMessageTipBox({
                             type: 'success',

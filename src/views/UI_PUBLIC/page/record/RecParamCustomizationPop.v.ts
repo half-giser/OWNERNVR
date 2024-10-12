@@ -2,8 +2,8 @@
  * @Description: 录像——参数配置——通道录像参数——过期时间自定义
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-05 16:26:27
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-09 11:23:32
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-09 16:51:35
  */
 
 import { ChlRecParamList } from '@/types/apiType/record'
@@ -44,36 +44,30 @@ export default defineComponent({
             { value: '7', label: Translate('IDCS_SUNDAY') },
         ]
 
-        let dateFormat = ''
-
         const pageData = ref({
             expireTime: 1,
             isShowAddDate: false,
             selectDate: '',
             toAddDateList: [] as { date: string }[],
-            weekArr: [] as Number[],
+            weekArr: [] as number[],
             dateFormat: '',
         })
 
         const getTimeCfg = async () => {
             const result = await queryTimeCfg()
             commLoadResponseHandler(result, ($) => {
-                dateFormat = $('/response/content/formatInfo/date').text()
+                const dateFormat = $('/response/content/formatInfo/date').text()
                 switch (dateFormat) {
                     case 'year-month-day':
-                        dateFormat = 'yyyy/MM/dd'
                         pageData.value.dateFormat = 'YYYY/MM/DD'
                         break
                     case 'month-day-year':
-                        dateFormat = 'MM/dd/yyyy'
                         pageData.value.dateFormat = 'MM/DD/YYYY'
                         break
                     case 'day-month-year':
-                        dateFormat = 'dd/MM/yyyy'
                         pageData.value.dateFormat = 'DD/MM/YYYY'
                         break
                     default:
-                        dateFormat = 'yyyy/MM/dd'
                         pageData.value.dateFormat = 'YYYY/MM/DD'
                         break
                 }
@@ -98,9 +92,8 @@ export default defineComponent({
                 const holiday = prop.expirationPopData.expirationData?.holiday
                 if (holiday) {
                     holiday.split(',').forEach((item: string) => {
-                        const day = new Date(item)
                         pageData.value.toAddDateList.push({
-                            date: day.format(dateFormat),
+                            date: formatDate(item, pageData.value.dateFormat, 'YYYY-MM-DD'),
                         })
                     })
                 }
@@ -122,7 +115,6 @@ export default defineComponent({
             if (!pageData.value.expireTime) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_EXPIRE_TIME_EMPTY'),
                 })
                 return
@@ -130,7 +122,6 @@ export default defineComponent({
             if (pageData.value.expireTime < 1 || pageData.value.expireTime > 8760) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_EXPIRE_TIME_INVALID'),
                 })
                 return
@@ -138,7 +129,6 @@ export default defineComponent({
             if (pageData.value.weekArr.length == 7) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_KEEPVIDEO_WEEK_ALL'),
                 })
                 return
@@ -147,13 +137,13 @@ export default defineComponent({
             const tips = pageData.value.expireTime + ' ' + unit
             ctx.emit('close')
             openMessageTipBox({
-                type: 'info',
-                title: Translate('IDCS_INFO_TIP'),
+                type: 'question',
                 message: Translate('IDCS_CHANGE_EXPIRE_TIME_WARNING_D').formatForLang(tips),
             })
                 .then(() => {
                     const week = pageData.value.weekArr.join(',')
-                    const holiday = pageData.value.toAddDateList.map((item) => new Date(item.date).format('yyyy-MM-dd')).join(',')
+                    const holiday = pageData.value.toAddDateList.map((item) => formatDate(item.date, 'YYYY-MM-DD', pageData.value.dateFormat)).join(',')
+
                     if (prop.expirationPopData.expirationType == 'all') {
                         prop.handleGetExpirationData!(week, holiday, pageData.value.expireTime)
                     } else {
@@ -219,7 +209,6 @@ export default defineComponent({
 
         return {
             week,
-            dateFormat,
             pageData,
             open,
             close,

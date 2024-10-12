@@ -4,7 +4,7 @@
  * @Date: 2024-07-31 10:29:37
  * @Description: 录像码流通用表格组件
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-09 18:15:27
+ * @LastEditTime: 2024-10-10 13:52:59
 -->
 <template>
     <div class="base-flex-box">
@@ -97,11 +97,11 @@
                             popper-class="no-padding"
                         >
                             <template #reference>
-                                <span class="pop">
+                                <span class="base-popover-icon">
                                     {{ Translate('IDCS_RESOLUTION_RATE') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
                                 </span>
                             </template>
-                            <div id="resolutionContainer">
+                            <div class="resolutionContainer">
                                 <el-table
                                     ref="resolutionTableRef"
                                     max-height="400px"
@@ -150,7 +150,6 @@
                                                             <BaseImgSprite
                                                                 file="chl_icon"
                                                                 :index="0"
-                                                                :hover-index="1"
                                                                 :chunk="4"
                                                             />
                                                             <span class="device-name">{{ item.text }}</span>
@@ -498,7 +497,7 @@
                             placement="bottom-start"
                         >
                             <template #reference>
-                                <span class="pop">
+                                <span class="base-popover-icon">
                                     {{ Translate('IDCS_GOP') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
                                 </span>
                             </template>
@@ -1880,6 +1879,10 @@ watch(
 )
 </script>
 
+<style>
+@import '@/views/UI_PUBLIC/publicStyle/aiAndEvent.scss';
+</style>
+
 <style lang="scss" scope>
 .RecordStreamList {
     width: 100%;
@@ -1918,7 +1921,7 @@ watch(
     margin: 10px 20px;
 }
 
-#resolutionContainer {
+.resolutionContainer {
     padding: 10px;
     display: flex;
     flex-direction: column;
@@ -1926,29 +1929,18 @@ watch(
     align-items: center;
 }
 .device-item {
-    margin-left: 20px;
+    margin-left: 15px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
 }
 .chl_area {
     min-height: 260px;
 }
 .fit-content-height {
-    height: 30px;
+    height: 35px;
     display: flex;
     align-items: center;
-}
-.pop {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: var(--el-table-header-text-color);
-    .el-icon {
-        cursor: pointer;
-        &:hover {
-            color: var(--input-text);
-        }
-    }
 }
 .GOP_dropDown {
     width: 280px;

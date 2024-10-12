@@ -3,7 +3,7 @@
  * @Date: 2024-08-30 18:47:22
  * @Description: 智能分析 - 选择人脸 - 从外部导入
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-12 15:42:08
+ * @LastEditTime: 2024-10-09 15:42:01
  */
 import { type IntelFaceDBImportImgDto, IntelFaceDBImportFaceDto } from '@/types/apiType/intelligentAnalysis'
 import { type XMLQuery } from '@/utils/tools'
@@ -395,7 +395,7 @@ export default defineComponent({
             else if ($('statenotify[@type="FileNetTransport"]').length) {
                 closeLoading(LoadingTarget.FullScreen)
                 resetOCXData()
-                if (Number($('statenotify[@type="FileNetTransport"]/errorCode').text()) === 536870931) {
+                if (Number($('statenotify[@type="FileNetTransport"]/errorCode').text()) === ErrorCode.USER_ERROR_NODE_NET_DISCONNECT) {
                     openMessageTipBox({
                         type: 'info',
                         message: Translate('IDCS_OCX_NET_DISCONNECT'),

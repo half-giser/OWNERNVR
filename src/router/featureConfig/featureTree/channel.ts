@@ -154,6 +154,7 @@ export default {
                 group: 'image',
             },
         },
+        // 以下页面没有在原项目中找到入口
         // audioSet: {
         //     //
         //     path: 'settings/audio',
@@ -307,83 +308,107 @@ export default {
         },
         // 以下页面只有在UI3-A才有
         // vfd: {
-        //     //
+        //     // 人脸侦测
         //     path: 'intelligence/vfd',
         //     component: 'channel/ChannelVfd.vue',
         //     meta: {
         //         sort: 10,
         //         lk: 'IDCS_FACE_DETECTION',
         //         group: 'intelligence',
+        //         auth(systemCaps, ui) {
+        //             return ui === 'UI3-A'
+        //         },
         //     },
         // },
         // cdd: {
-        //     //
+        //     // 人群密度检测
         //     path: 'intelligence/cdd',
         //     component: 'channel/ChannelCDD.vue',
         //     meta: {
         //         sort: 20,
         //         lk: 'IDCS_CROWD_DENSITY_DETECTION',
         //         group: 'intelligence',
+        //         auth(systemCaps, ui) {
+        //             return ui === 'UI3-A'
+        //         },
         //     },
         // },
         // ipd: {
-        //     //
+        //     // 人员入侵侦测
         //     path: 'intelligence/ipd',
         //     component: 'channel/ChannelIpd.vue',
         //     meta: {
         //         sort: 30,
         //         lk: 'IDCS_PEOPLE_INSTRUSION_DETECTION',
         //         group: 'intelligence',
+        //         auth(systemCaps, ui) {
+        //             return ui === 'UI3-A'
+        //         },
         //     },
         // },
         // cpc: {
-        //     //
+        //     // 人数统计
         //     path: 'intelligence/cpc',
         //     component: 'channel/ChannelCpc.vue',
         //     meta: {
         //         sort: 40,
         //         lk: 'IDCS_PEOPLE_COUNT_DETECTION',
         //         group: 'intelligence',
+        //         auth(systemCaps, ui) {
+        //             return ui === 'UI3-A'
+        //         },
         //     },
         // },
         // osc: {
-        //     //
+        //     // 物品遗留与看护
         //     path: 'intelligence/osc',
         //     component: 'channel/ChannelOSC.vue',
         //     meta: {
         //         sort: 50,
         //         lk: 'IDCS_WATCH_DETECTION',
         //         group: 'intelligence',
+        //         auth(systemCaps, ui) {
+        //             return ui === 'UI3-A'
+        //         },
         //     },
         // },
         // avd: {
-        //     //
+        //     // 异常
         //     path: 'intelligence/avd',
         //     component: 'channel/ChannelAVD.vue',
         //     meta: {
         //         sort: 60,
         //         lk: 'IDCS_ABNORMAL_DETECTION',
         //         group: 'intelligence',
+        //         auth(systemCaps, ui) {
+        //             return ui === 'UI3-A'
+        //         },
         //     },
         // },
         // tripwire: {
-        //     //
+        //     // 越界
         //     path: 'intelligence/tripwire',
         //     component: 'channel/ChannelTripwire.vue',
         //     meta: {
         //         sort: 70,
         //         lk: 'IDCS_BEYOND_DETECTION',
         //         group: 'intelligence',
+        //         auth(systemCaps, ui) {
+        //             return ui === 'UI3-A'
+        //         },
         //     },
         // },
         // pea: {
-        //     //
+        //     // 区域入侵
         //     path: 'intelligence/pea',
         //     component: 'channel/ChannelPEA.vue',
         //     meta: {
         //         sort: 80,
         //         lk: 'IDCS_INVADE_DETECTION',
         //         group: 'intelligence',
+        //         auth(systemCaps, ui) {
+        //             return ui === 'UI3-A'
+        //         },
         //     },
         // },
     },

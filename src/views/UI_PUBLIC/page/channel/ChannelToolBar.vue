@@ -1,11 +1,12 @@
 <!--
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-05-05 09:57:16
- * @Description:
+ * @Description: 通道板块右上方工具栏
 -->
 <template>
     <el-input
         v-model="msg"
+        size="small"
         class="toolBarText"
         :placeholder="Translate('IDCS_SEARCH_CHANNEL')"
         @keydown.enter="search"
@@ -16,7 +17,7 @@
         @click="search"
     />
     <el-button
-        id="btnAddChl"
+        size="small"
         @click="addChl"
         >{{ Translate('IDCS_ADD_CHANNEL') }}</el-button
     >
@@ -46,14 +47,14 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-#btnAddChl {
-    margin-left: 20px;
-    height: 25px;
+.toolBarText {
+    width: 200px;
+    margin-right: 5px;
 }
 
 .toolBarBtn {
     background-color: var(--btn-bg);
-    margin-left: 5px;
+    margin-right: 5px;
     cursor: pointer;
 
     &:hover {
