@@ -2,8 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-29 09:54:23
  * @Description: 智能分析-人脸搜索
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:16:52
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-12 13:50:08
  */
 import {
     IntelFaceImgDto,
@@ -136,7 +136,7 @@ export default defineComponent({
             // 事件选项
             eventOptions: [
                 {
-                    label: Translate('IDCS_OPERATE_SNAPSHOT_MSPB'),
+                    label: Translate('IDCS_ALL_EVENT'),
                     value: 'byAll',
                     eventType: 'faceDetection',
                 },
@@ -1039,7 +1039,6 @@ export default defineComponent({
                     pageData.value.sortType = 'time'
                 }
                 getTrackMapList()
-                changeSortType()
             } else {
                 const errorCode = Number($('//errorCode').text())
                 let errorInfo = ''
@@ -1064,6 +1063,7 @@ export default defineComponent({
                     message: errorInfo,
                 })
             }
+            changeSortType()
         }
 
         /**
