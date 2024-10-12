@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-02 16:12:12
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-09 13:48:10
+ * @LastEditTime: 2024-10-11 14:58:59
  */
 
 import { cloneDeep, isEqual } from 'lodash-es'
@@ -174,10 +174,10 @@ export default defineComponent({
                 const expiration = $dev('/response/content/expiration').text()
                 const expirationUnit = $dev('/response/content/expiration').attr('unit')
 
-                const data: ChlRecParamList[] = $chl('/response/content/item').map((item, index) => {
+                tableData.value = $chl('/response/content/item').map((item, index) => {
                     const $item = queryXml(item.element)
 
-                    const id = item.attr('id')
+                    const id = item.attr('id')!
 
                     return {
                         id,
@@ -194,13 +194,12 @@ export default defineComponent({
                         manufacturerEnable: pageData.value.IPCMap[id as string] == 'true',
                     }
                 })
-
                 $dev('/response/content/chlParam/item').forEach((item) => {
                     const $item = queryXml(item.element)
 
                     const singleExpirationUnit = $item('expiration').attr('unit') ? $item('expiration').attr('unit') : 'd'
 
-                    data.forEach((element) => {
+                    tableData.value.forEach((element) => {
                         if (element.id == item.attr('id')) {
                             element.week = $item('week').text()
                             element.holiday = $item('holiday').text()
@@ -210,9 +209,6 @@ export default defineComponent({
                         }
                     })
                 })
-
-                tableData.value = data
-
                 tableData.value.forEach((item) => {
                     if (!item['expiration']) {
                         item['week'] = ''
@@ -225,10 +221,10 @@ export default defineComponent({
                             item.expirationDisplay = item.expiration
                         }
                     }
-                    oldExpirationArr.push(item.expirationDisplay)
+                    oldExpirationArr.push(item.expirationDisplay!)
                 })
 
-                originalData.value.chlRecData = cloneDeep(tableData)
+                originalData.value.chlRecData = cloneDeep(tableData.value)
                 originalData.value.streamRecSwitch = {
                     doubleStreamSwitch: $dev('/response/content/doubleStreamRecSwitch').text(),
                     loopRecSwitch: $dev('/response/content/loopRecSwitch').text(),
@@ -310,7 +306,7 @@ export default defineComponent({
             } else if (changeList.length > 0 || doubleStreamSwitchChange || loopRecSwitchChange) {
                 devResult = await setDevRecData()
                 chlResult = await setChlRecData(changeList)
-                // 原代码中P2P模式下进行如下处理，recParamCfg.js，444行
+                // todo:原代码中P2P模式下进行如下处理，recParamCfg.js，444行
                 // if (APP_TYPE == "P2P") {
                 //     result1=result1[0];
                 //     result2=result2[0];
@@ -366,7 +362,7 @@ export default defineComponent({
         }
 
         const changeExpirationList = (rowData: ChlRecParamList) => {
-            const value = rowData.expirationDisplay
+            const value = rowData.expirationDisplay!
             if (value == 'customization') {
                 rowData.expirationDisplay = oldExpirationArr[rowData.index]
                 expirationPopData.value.expirationType = 'single'
