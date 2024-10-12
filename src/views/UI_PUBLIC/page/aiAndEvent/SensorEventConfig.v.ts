@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-23 10:58:27
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 15:15:06
+ * @LastEditTime: 2024-10-11 11:43:47
  */
 import { type PresetItem, SensorEvent, type ChlList } from '@/types/apiType/aiAndEvent'
 import { QueryNodeListDto } from '@/types/apiType/channel'
@@ -24,6 +24,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const systemCaps = useCababilityStore()
 
         const recordRef = ref()
         const snapRef = ref()
@@ -52,7 +53,7 @@ export default defineComponent({
             // 持续时间列表
             durationList: [] as SelectOption<string, string>[],
             // 是否支持声音
-            supportAudio: false,
+            supportAudio: systemCaps.supportAlarmAudioConfig,
             // 声音列表
             audioList: [] as SelectOption<string, string>[],
             // 视频弹出列表
@@ -132,14 +133,6 @@ export default defineComponent({
                 pageData.value.pageIndex = totalPage
             }
             getData()
-        }
-
-        // 获取系统配置和基本信息，部分系统配置可用项
-        const getSystemCaps = async () => {
-            const result = await querySystemCaps(getXmlWrapData(''))
-            const $ = queryXml(result)
-
-            pageData.value.supportAudio = $('/response/content/supportAlarmAudioConfig').text() == 'true'
         }
 
         // 获取声音数据
@@ -837,7 +830,6 @@ export default defineComponent({
 
         onMounted(async () => {
             // 相关请求，获取前置数据
-            await getSystemCaps() // 系统配置
             await getAudioData() // 声音数据
             await getChlData('initCtrl') // 通道数据
             // await getChlData('record')  在类型上只判断是否为snap，record请求数据合并在initCtrl中处理

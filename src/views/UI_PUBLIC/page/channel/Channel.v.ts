@@ -341,7 +341,7 @@ export default defineComponent({
 
         const getIpAnalogCout = () => {
             openLoading()
-            queryBasicCfg(getXmlWrapData('')).then((res) => {
+            queryBasicCfg().then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() === 'success') {
@@ -363,7 +363,7 @@ export default defineComponent({
                 const $ = queryXml(res1)
                 const mode = $('//content/recMode/mode').text()
                 openLoading()
-                querySystemCaps(getXmlWrapData('')).then((res2) => {
+                querySystemCaps().then((res2) => {
                     closeLoading()
                     const $ = queryXml(res2)
                     if ($('status').text() === 'success') {

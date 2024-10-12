@@ -13,7 +13,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
         // NAT状态与显示文本的映射
@@ -75,7 +75,7 @@ export default defineComponent({
          * @description 获取二维码 并生成二维码
          */
         const getBasicConfig = async () => {
-            const result = await queryBasicCfg(getXmlWrapData(''))
+            const result = await queryBasicCfg()
             const $ = queryXml(result)
             pageData.value.snCode = await makeQRCode($('//content/qrCodeContent').text())
             pageData.value.snText = $('//content/sn').text()
@@ -115,7 +115,7 @@ export default defineComponent({
          * @description 更新数据
          */
         const setData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXml = rawXml`
                 <content>
@@ -125,7 +125,7 @@ export default defineComponent({
             const result = await editP2PCfg(sendXml)
             commSaveResponseHadler(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             getData()
         }
 
@@ -172,14 +172,14 @@ export default defineComponent({
         }
 
         onMounted(async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             await getBasicConfig()
             await getCloudUpgradeConfig()
             await getData()
             timer = setInterval(() => getP2pStatus(), 5000)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         })
 
         onBeforeUnmount(() => {

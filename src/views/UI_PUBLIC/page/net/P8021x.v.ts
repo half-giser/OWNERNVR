@@ -11,7 +11,7 @@ import { Net8021xForm } from '@/types/apiType/net'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const userSession = useUserSessionStore()
 
         const formRef = ref<FormInstance>()
@@ -52,12 +52,12 @@ export default defineComponent({
          * @description 获取表单数据
          */
         const getData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const result = await query802xCfg()
             const $ = queryXml(queryXml(result)('content')[0].element)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             formData.value.switch = $('Switch').text().toBoolean()
             formData.value.protocal = $('Protocol').text()
@@ -74,7 +74,7 @@ export default defineComponent({
                     return
                 }
 
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
 
                 const password = AES_encrypt(formData.value.password, userSession.sesionKey)
                 const sendXml = rawXml`
@@ -89,7 +89,7 @@ export default defineComponent({
                 const result = await edit802xCfg(sendXml)
                 commSaveResponseHadler(result)
 
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
             })
         }
 

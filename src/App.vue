@@ -3,7 +3,7 @@
  * @Date: 2024-05-24 17:12:55
  * @Description: 
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-08 11:06:18
+ * @LastEditTime: 2024-10-11 11:42:00
 -->
 <template>
     <div>
@@ -64,7 +64,7 @@ const hanedleActivationStatus = async (checkActivationStatus: boolean, isUserAut
 if (import.meta.env.VITE_APP_TYPE === 'STANDARD') {
     let isUserAuth = false
 
-    querySystemCaps(getXmlWrapData(''))
+    querySystemCaps()
         .then((result) => {
             const $ = queryXml(result)
             isUserAuth = $('//status').text() === 'success'

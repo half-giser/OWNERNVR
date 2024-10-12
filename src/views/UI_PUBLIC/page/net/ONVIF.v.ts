@@ -15,7 +15,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
 
         // 用户类型与文本的映射
         const USER_LEVEL_MAPPING: Record<string, string> = {
@@ -98,7 +98,7 @@ export default defineComponent({
                 type: 'info',
                 message: Translate('IDCS_USER_DELETE_USER_S').formatForLang(item.userName),
             }).then(async () => {
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
 
                 const sendXml = rawXml`
                     <content>
@@ -108,7 +108,7 @@ export default defineComponent({
                 await deleteOnivfUser(sendXml)
                 await getUserList()
 
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
             })
         }
 
@@ -120,7 +120,7 @@ export default defineComponent({
                 type: 'info',
                 message: Translate('IDCS_DELETE_ALL_ONVIF_USER_TIP'),
             }).then(async () => {
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
 
                 const itemXml = tableData.value.map((item) => `<item id="${item.id}"></item>`).join('')
                 const sendXml = `<content>${itemXml}</content>`
@@ -128,7 +128,7 @@ export default defineComponent({
                 await deleteOnivfUser(sendXml)
                 await getUserList()
 
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
             })
         }
 
@@ -163,7 +163,7 @@ export default defineComponent({
          * @param {Boolean} isAutoOpenRtsp 是否同步开启rtsp开关
          */
         const setData = async (isAutoOpenRtsp: boolean) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXml = rawXml`
                 <content>
@@ -173,7 +173,7 @@ export default defineComponent({
             `
             await editOnvifCfg(sendXml)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         /**
@@ -202,12 +202,12 @@ export default defineComponent({
         }
 
         onMounted(async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             await getOnvifConfig()
             await getUserList()
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         })
 
         return {

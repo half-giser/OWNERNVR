@@ -20,7 +20,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
 
         let chlMap: Record<string, string> = {}
         let eventMap: Record<string, string> = {}
@@ -150,7 +150,7 @@ export default defineComponent({
             if (!formData.value.chl.length) {
                 return
             }
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             const sendXml = rawXml`
                 <resultLimit>150000</resultLimit>
                 <condition>
@@ -166,7 +166,7 @@ export default defineComponent({
             `
             const result = await faceImgStatistic_v2(sendXml)
             const $ = queryXml(result)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             if ($('//status').text() === 'success') {
                 tableData.value = $('//content/timeStatistic/item').map((item) => {
                     const $item = queryXml(item.element)

@@ -135,6 +135,15 @@
     --popover-bg: var(--main-bg); // popover背景色
 
     /**
+     * 穿梭框
+     */
+    --transfer-title-bg: #e5e5e5; // 穿梭框头部背景色
+    --transfer-bg: #e6e6e6; // 穿梭框背景色
+    --transfer-stripe: #f1f1f1; // 穿梭框斑马线背景色
+    --transfer-border: #999; // 穿梭框边框色
+    --transfer-text: var(--main-text); // 穿梭框文本颜色
+
+    /**
      * 功能面板页
      */
     --config-menu-text: #3c3c3c; // 功能面板页-主菜单-文本

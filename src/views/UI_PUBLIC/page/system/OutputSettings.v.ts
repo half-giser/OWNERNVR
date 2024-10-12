@@ -3,7 +3,7 @@
  * @Date: 2024-06-25 09:59:23
  * @Description: 输出配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-23 14:40:51
+ * @LastEditTime: 2024-10-11 11:28:43
  */
 import { type XmlResult } from '@/utils/xmlParse'
 import OutputSplitTemplate from './OutputSplitTemplate.vue'
@@ -72,7 +72,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
         const cacheChlListOfGroup: Record<string, ChlItem[]> = {}
@@ -505,7 +505,7 @@ export default defineComponent({
                     type: 'question',
                     message: Translate('IDCS_DELETE_MP_GROUP_S').formatForLang(getShortString(findItem.value, 10)),
                 }).then(async () => {
-                    openLoading(LoadingTarget.FullScreen)
+                    openLoading()
                     const sendXml = rawXml`
                         <condition>
                             <chlGroupIds type="list">
@@ -515,7 +515,7 @@ export default defineComponent({
                     `
                     const result = await delChlGroup(getXmlWrapData(sendXml))
                     const $ = queryXml(result)
-                    closeLoading(LoadingTarget.FullScreen)
+                    closeLoading()
                     if ($('//status').text() === 'success') {
                         openMessageTipBox({
                             type: 'success',
@@ -589,7 +589,7 @@ export default defineComponent({
                 return cacheChlListOfGroup[id]
             }
 
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXml = rawXml`
                 <condition>
@@ -599,7 +599,7 @@ export default defineComponent({
             const result = await queryChlGroup(getXmlWrapData(sendXml))
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 cacheChlListOfGroup[id] = [] as ChlItem[]
@@ -898,7 +898,7 @@ export default defineComponent({
          * @param {UserCheckAuthForm} e
          */
         const handleCheckAuthByConfigSwitchChange = async (e: UserCheckAuthForm) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             // TODO: 原项目注释说“开关可编辑只可能是这种情况”，但关闭时，开关并没有隐藏
             // 开关可编辑只可能是这种情况async
@@ -915,7 +915,7 @@ export default defineComponent({
             const result = await editSystemWorkMode(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 pageData.value.isCheckAuth = false
@@ -970,7 +970,7 @@ export default defineComponent({
          * @description 提交轮询信息
          */
         const setDwellData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             // 副输出
             const subOutDataXml: string[] = []
@@ -1060,7 +1060,7 @@ export default defineComponent({
             `
 
             await editDwell(sendXml)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         /**
@@ -1178,7 +1178,7 @@ export default defineComponent({
         }
 
         onMounted(async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             await getChlsList()
             await getChlGroupList()
 
@@ -1190,7 +1190,7 @@ export default defineComponent({
             // 是否支持显示辅输出
             showSecondaryOutput()
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         })
 
         return {

@@ -3,7 +3,7 @@
  * @Date: 2024-08-15 18:19:00
  * @Description: 平台接入
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:01:54
+ * @LastEditTime: 2024-10-11 11:24:30
  */
 import { NetPlatformAccessForm, type NetPlatformSipList, NetPlatformSipCodeList } from '@/types/apiType/net'
 import PlatformAccessCodeIdPop from './PlatformAccessCodeIdPop.vue'
@@ -16,7 +16,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const userSession = useUserSessionStore()
 
         // 平台接入类型与显示文本的映射
@@ -242,11 +242,11 @@ export default defineComponent({
          * @description 获取配置数据
          */
         const getData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const reulst = await queryPlatformCfg()
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             commLoadResponseHandler(reulst, ($) => {
                 formData.value.accessType = $('//content').attr('current')
@@ -421,10 +421,10 @@ export default defineComponent({
                 `
             }
 
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const result = await editPlatformCfg(sendXml)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             commSaveResponseHadler(result)
         }
 

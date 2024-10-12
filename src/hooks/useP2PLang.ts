@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 18:11:35
  * @Description: P2P语言模块
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-20 15:16:27
+ * @LastEditTime: 2024-10-11 11:35:56
  */
 export const useP2PLang = () => {
     type LanguageResultItem = {
@@ -43,7 +43,6 @@ export const useP2PLang = () => {
      * @description 从服务器请求指定语言类型列表
      */
     const requestLangTypes = () => {
-        // const data = getXmlWrapData('')
         if (!langType.value) {
             langType.value = localStorage.getItem(LocalCacheKey.langType) || ''
         }

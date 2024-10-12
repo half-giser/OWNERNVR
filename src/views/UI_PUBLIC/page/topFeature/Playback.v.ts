@@ -3,9 +3,9 @@
  * @Date: 2024-08-05 16:00:46
  * @Description: 回放
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-10 18:27:15
+ * @LastEditTime: 2024-10-11 10:51:24
  */
-import PlaybackChannelPanel from '../playback/PlaybackChannelPanel.vue'
+import PlaybackChannelPanel, { type ChannelPanelExpose } from '../playback/PlaybackChannelPanel.vue'
 import PlaybackEventPanel from '../playback/PlaybackEventPanel.vue'
 import PlaybackAsidePanel from '../playback/PlaybackAsidePanel.vue'
 import PlaybackControlPanel from '../playback/PlaybackControlPanel.vue'
@@ -158,6 +158,7 @@ export default defineComponent({
         const userSession = useUserSessionStore()
 
         const playerRef = ref<PlayerInstance>()
+        const chlRef = ref<ChannelPanelExpose>()
         const timelineRef = ref<TimelineInstance>()
         const fisheyeRef = ref<FishEyePanelExpose>()
 
@@ -359,10 +360,11 @@ export default defineComponent({
          * @description 处理通道搜索回调
          * @param {Array} chls
          */
-        const handleChlSearch = (chls: PlaybackChlList[]) => {
+        const handleChlSearch = async (chls: PlaybackChlList[]) => {
+            stop()
             pageData.value.chls = chls
             pageData.value.startTime = dayjs(calendar.current.value).toDate()
-            getRecSection(pageData.value.chls.map((item) => item.id))
+            await getRecSection(pageData.value.chls.map((item) => item.id))
             if (mode.value === 'ocx') {
                 ocxCacheWinMap.update(pageData.value.chls)
             }
@@ -375,10 +377,10 @@ export default defineComponent({
          * @description 处理通道播放回调
          * @param {Array} chls
          */
-        const handleChlPlay = (chls: PlaybackChlList[]) => {
+        const handleChlPlay = async (chls: PlaybackChlList[]) => {
             pageData.value.mainStreamTypeChl = ''
             pageData.value.playStatus = 'play'
-            handleChlSearch(chls)
+            await handleChlSearch(chls)
             playAll()
         }
 
@@ -661,7 +663,23 @@ export default defineComponent({
          */
         const sortTimelineChlList = () => {
             if (pageData.value.playStatus === 'stop') {
-                return pageData.value.recLogList
+                // return pageData.value.recLogList
+                const chlList = pageData.value.chls
+                const currentList: PlaybackRecList[] = chlList.map((item) => {
+                    const find = pageData.value.recLogList.find((rec) => item.id === rec.chlId)
+                    if (find) {
+                        return toRaw(find)
+                    } else {
+                        return {
+                            chlId: '',
+                            chlName: '',
+                            records: [],
+                            timeZone: '',
+                        }
+                    }
+                }) as PlaybackRecList[]
+
+                return currentList
             }
             if (mode.value === 'ocx') {
                 if (pageData.value.isFullScreen) {
@@ -674,8 +692,9 @@ export default defineComponent({
                                 chlId: '',
                                 chlName: '',
                                 records: [],
+                                timeZone: '',
                             },
-                        ]
+                        ] as PlaybackRecList[]
                     }
                 }
                 const chlList = ocxCacheWinMap.getList()
@@ -691,9 +710,9 @@ export default defineComponent({
                             timeZone: '',
                         }
                     }
-                })
+                }) as PlaybackRecList[]
+
                 return currentList
-                // return pageData.value.recLogList
             }
             const chlList = player.getChlList()
             // if (!playingList.length) return pageData.value.recLogList
@@ -708,8 +727,9 @@ export default defineComponent({
                             chlId: '',
                             chlName: '',
                             records: [],
+                            timeZone: '',
                         },
-                    ]
+                    ] as PlaybackRecList[]
                 }
             }
             chlList.sort((a, b) => {
@@ -727,9 +747,20 @@ export default defineComponent({
                         timeZone: '',
                     }
                 }
-            })
+            }) as PlaybackRecList[]
 
             return currentList
+        }
+
+        /**
+         * @description 移除没有录像的通道
+         */
+        const removeNoRecChl = (currentList: PlaybackRecList[]) => {
+            const currentChlId = currentList.map((item) => item.chlId).filter((item) => !!item)
+            const removeChl = pageData.value.chls.filter((item) => !currentChlId.includes(item.id)).map((item) => item.id)
+            if (removeChl.length) {
+                chlRef.value?.removeChls(removeChl)
+            }
         }
 
         /**
@@ -747,6 +778,7 @@ export default defineComponent({
             timeline.setColorMap(pageData.value.legend)
             timeline.setDstDayTime(formatDate(calendar.current.value))
             timeline.updateChlList(sortChlList, true, 'record')
+            removeNoRecChl(sortChlList)
         }
 
         /**
@@ -762,6 +794,7 @@ export default defineComponent({
             const timeline = timelineRef.value
             const sortChlList = sortTimelineChlList()
             timeline.updateChlList(sortChlList, false, 'record')
+            removeNoRecChl(sortChlList)
         }
 
         /**
@@ -1623,6 +1656,7 @@ export default defineComponent({
             handlePlayerReady,
             playerRef,
             timelineRef,
+            chlRef,
             calendar,
             snap,
             closeImg,

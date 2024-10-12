@@ -18,7 +18,7 @@ export default defineComponent({
         const { supportPOS } = useCababilityStore()
         const theme = getUiAndTheme().name
         const openMessageTipBox = useMessageBox().openMessageTipBox
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
 
         const MODE_MAPPING: Record<string, string> = {
             manually: Translate('IDCS_REPLAY_CUSTOMIZE'),
@@ -235,12 +235,12 @@ export default defineComponent({
         }
 
         const getRecModeData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const result = await queryRecordDistributeInfo()
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('/response/status').text() !== 'success') return
 
@@ -400,7 +400,7 @@ export default defineComponent({
          * 初始化通道的录像排程表格
          */
         const initChlScheduldTb = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             const resultArr = await Promise.all([queryScheduleList(), queryRecordScheduleList()])
 
             const scheduleXml = queryXml(resultArr[0] as ApiResult)
@@ -445,7 +445,7 @@ export default defineComponent({
             formData.value.recordScheduleList = parseTableData()
             recordScheduleListInit = parseTableData()
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         /**
@@ -555,7 +555,7 @@ export default defineComponent({
          * 保存
          */
         const setData = async (isPopMessage: boolean) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const requestList = [setRecModeInfo()]
 
@@ -565,7 +565,7 @@ export default defineComponent({
             }
             const resultList = await Promise.all(requestList)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             if (isPopMessage) commMutiSaveResponseHadler(resultList)
         }
 

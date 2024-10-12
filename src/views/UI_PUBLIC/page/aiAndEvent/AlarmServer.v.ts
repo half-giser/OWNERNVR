@@ -172,7 +172,7 @@ export default defineComponent({
             pageData.value.alarmList = alarmList
         }
         const getBasicCfg = async () => {
-            const result = await queryBasicCfg(getXmlWrapData(''))
+            const result = await queryBasicCfg()
             const res = queryXml(result)
             pageData.value.CustomerID = res('//content/CustomerID').text()
             if (pageData.value.CustomerID == '6') {

@@ -3,7 +3,7 @@
  * @Date: 2024-07-16 16:18:21
  * @Description: 云升级
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-23 14:40:25
+ * @LastEditTime: 2024-10-11 11:18:57
  */
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import { NetCloudUpgradeForm } from '@/types/apiType/net'
@@ -16,7 +16,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
 
         const pageData = ref({
             // 升级选项
@@ -232,7 +232,7 @@ export default defineComponent({
          * @description 版本检测
          */
         const getVersion = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             // checkFromServer为设备端用于向服务器请求的标志,web端默认传true
             const sendXml = rawXml`
@@ -243,7 +243,7 @@ export default defineComponent({
             const result = await checkVersion(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 const $content = queryXml($('//content')[0].element)
@@ -289,14 +289,14 @@ export default defineComponent({
             commSaveResponseHadler(result)
             getData()
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         /**
          * @description 更新配置时，如果nat2.0未打开，弹出框确认是否需要打开
          */
         const setData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             if (formData.value.upgradeType === 'notify') {
                 const status = await getNat2Switch()
@@ -353,7 +353,7 @@ export default defineComponent({
         }
 
         onMounted(async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             await getData()
             const state = await getDownloadProgess()
@@ -374,7 +374,7 @@ export default defineComponent({
                 })
             }
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         })
 
         onBeforeUnmount(() => {

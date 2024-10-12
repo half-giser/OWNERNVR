@@ -3,7 +3,7 @@
  * @Date: 2024-07-12 10:52:55
  * @Description: UPnP上报
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-15 10:29:32
+ * @LastEditTime: 2024-10-11 11:25:24
  */
 import { type FormInstance, type FormRules } from 'element-plus'
 import { NetUPnPReportForm } from '@/types/apiType/net'
@@ -12,7 +12,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
 
         const formRef = ref<FormInstance>()
         const formData = ref(new NetUPnPReportForm())
@@ -64,7 +64,7 @@ export default defineComponent({
                 if (!valid) {
                     return
                 }
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
 
                 const sendXml = rawXml`
                     <content>
@@ -79,7 +79,7 @@ export default defineComponent({
                 const result = await editUPnPCfg(sendXml)
                 commSaveResponseHadler(result)
 
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
             })
         }
 
