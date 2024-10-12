@@ -3,7 +3,7 @@
  * @Date: 2024-08-29 09:54:23
  * @Description: 智能分析-人脸搜索
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-12 13:47:39
+ * @LastEditTime: 2024-10-12 13:50:08
  */
 import {
     IntelFaceImgDto,

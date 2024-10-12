@@ -3,7 +3,7 @@
  * @Date: 2024-08-05 16:00:46
  * @Description: 回放
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-12 13:47:02
+ * @LastEditTime: 2024-10-12 13:50:57
  */
 import PlaybackChannelPanel, { type ChannelPanelExpose } from '../playback/PlaybackChannelPanel.vue'
 import PlaybackEventPanel from '../playback/PlaybackEventPanel.vue'
