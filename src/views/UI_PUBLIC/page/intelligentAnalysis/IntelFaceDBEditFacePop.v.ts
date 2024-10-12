@@ -3,7 +3,7 @@
  * @Date: 2024-08-30 18:48:06
  * @Description: 人脸库 - 编辑人脸弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-14 09:30:13
+ * @LastEditTime: 2024-10-11 11:16:00
  */
 import { IntelFaceDBFaceForm, type IntelFaceDBGroupDto, type IntelFaceDBSnapFaceList, type IntelFaceDBFaceInfo } from '@/types/apiType/intelligentAnalysis'
 import { type FormInstance } from 'element-plus'
@@ -42,7 +42,7 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const dateTime = useDateTimeStore()
 
         const formRef = ref<FormInstance>()
@@ -86,12 +86,12 @@ export default defineComponent({
          * @description 获取人脸分组
          */
         const getFaceGroup = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const result = await queryFacePersonnalInfoGroupList()
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             pageData.value.groupList = $('//content/item').map((item) => {
                 const $item = queryXml(item.element)
@@ -229,7 +229,7 @@ export default defineComponent({
          * @param {string} id
          */
         const editSingleSnapData = async (item: IntelFaceDBFaceForm, id: string) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const group = pageData.value.groupList.find((current) => current.groupId === item.groupId)!
 
@@ -277,7 +277,7 @@ export default defineComponent({
             const result = await editFacePersonnalInfo(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 return -1

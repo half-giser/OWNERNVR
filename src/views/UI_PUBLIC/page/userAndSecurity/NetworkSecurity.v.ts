@@ -10,7 +10,7 @@ import { type UserNetworkSecurityForm } from '@/types/apiType/userAndSecurity'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
 
         const tableData = ref<UserNetworkSecurityForm[]>([])
 
@@ -23,11 +23,11 @@ export default defineComponent({
          * @description 获取数据
          */
         const getData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const result = await queryArpCfg()
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             commLoadResponseHandler(result, ($) => {
                 tableData.value = []
                 $('//content/nicConfigs/item').forEach((item) => {
@@ -56,7 +56,7 @@ export default defineComponent({
          * @description 提交数据
          */
         const setData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const table = tableData.value
                 .map((item) => {
@@ -81,7 +81,7 @@ export default defineComponent({
             `
             const result = await editArpCfg(sendXml)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             commSaveResponseHadler(result)
         }
 

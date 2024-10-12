@@ -3,7 +3,7 @@
  * @Date: 2024-07-10 09:13:17
  * @Description: DDNS
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 15:39:35
+ * @LastEditTime: 2024-10-11 11:19:40
  */
 import { NetDDNSForm, NetDDNSServerTypeList } from '@/types/apiType/net'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -254,12 +254,12 @@ export default defineComponent({
                     return
                 }
 
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
 
                 const result = await editDDNSCfg(getSetDataXml())
 
                 commSaveResponseHadler(result)
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
             })
         }
 
@@ -289,7 +289,7 @@ export default defineComponent({
                     })
                 }
 
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
             })
         }
 
@@ -311,12 +311,12 @@ export default defineComponent({
         }
 
         onMounted(async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             await getNetConfig()
             await getData()
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         })
 
         onBeforeUnmount(() => {

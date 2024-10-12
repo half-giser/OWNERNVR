@@ -496,23 +496,33 @@
 
     .el-transfer {
         --el-transfer-border-color: var(--table-border);
-        --el-transfer-panel-header-bg-color: var(--table-thead-bg);
+        --el-transfer-panel-header-bg-color: var(--transfer-title-bg);
 
         &-panel {
             --el-bg-color-overlay: var(--main-bg);
         }
 
         &-panel .el-transfer-panel__header .el-checkbox .el-checkbox__label {
-            color: var(--table-thead-text);
+            color: var(--transfer-text);
+            font-size: 13px;
         }
+
         .el-checkbox-group .el-transfer-panel__item {
             width: 100%;
-            background-color: var(--table-bg);
+            background-color: var(--transfer-bg);
             margin-right: 0;
             box-sizing: border-box;
 
             &:nth-child(even) {
-                background-color: var(--table-stripe);
+                background-color: var(--transfer-stripe);
+            }
+        }
+
+        &-panel__item {
+            --el-checkbox-font-size: 13px;
+            font-size: 13px;
+            &.el-checkbox {
+                color: var(--transfer-text);
             }
         }
     }

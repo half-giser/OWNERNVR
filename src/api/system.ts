@@ -3,9 +3,9 @@
  * @Date: 2023-06-02 11:57:11
  * @Description: 系统API
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-20 17:55:00
+ * @LastEditTime: 2024-10-11 11:51:59
  */
-import type { AxiosRequestConfig } from 'axios'
+// import type { AxiosRequestConfig } from 'axios'
 import http from './api'
 
 /**
@@ -14,15 +14,13 @@ import http from './api'
  * @param config
  * @returns
  */
-export const querySystemCaps = (data: string, config?: AxiosRequestConfig) => http.fetch('querySystemCaps', data, config)
+export const querySystemCaps = () => http.fetch('querySystemCaps', getXmlWrapData(''))
 
 /**
  * @description 获取设备基本信息
- * @param {string} data
- * @param config
  * @returns
  */
-export const queryBasicCfg = (data: string, config?: AxiosRequestConfig) => http.fetch('queryBasicCfg', data, config)
+export const queryBasicCfg = () => http.fetch('queryBasicCfg', getXmlWrapData(''))
 
 /**
  * @description 修改设备基本信息
@@ -36,7 +34,7 @@ export const editBasicCfg = (data: string) => http.fetch('editBasicCfg', getXmlW
  * @param config
  * @returns
  */
-export const queryActivationStatus = (config?: AxiosRequestConfig) => http.fetch('queryActivationStatus', getXmlWrapData(''), config)
+export const queryActivationStatus = () => http.fetch('queryActivationStatus', getXmlWrapData(''))
 
 /**
  * @description 获取时间配置

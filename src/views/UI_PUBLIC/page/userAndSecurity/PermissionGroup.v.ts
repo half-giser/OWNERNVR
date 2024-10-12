@@ -16,7 +16,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const router = useRouter()
 
         // 权限组数据列表
@@ -49,7 +49,7 @@ export default defineComponent({
          * @description 获取权限组
          */
         const getAuthGroup = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const result = await queryAuthGroupList('')
 
@@ -103,7 +103,7 @@ export default defineComponent({
                 })
             })
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         /**
@@ -194,7 +194,7 @@ export default defineComponent({
                 type: 'question',
                 message: Translate('IDCS_USER_DELETE_USERGROUP_S').formatForLang(replaceWithEntity(row.name)),
             }).then(async () => {
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
 
                 const sendXml = rawXml`
                     <condition>
@@ -206,7 +206,7 @@ export default defineComponent({
                 const result = await delAuthGroup(sendXml)
                 const $ = queryXml(result)
 
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
 
                 if ($('//status').text() === 'success') {
                     openMessageTipBox({

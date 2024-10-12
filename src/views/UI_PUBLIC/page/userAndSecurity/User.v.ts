@@ -19,7 +19,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const userSession = useUserSessionStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
 
         // 用户列表
         const userList = ref<UserList[]>([])
@@ -58,7 +58,7 @@ export default defineComponent({
          * @param id
          */
         const getAuthGroup = async (id: string) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             if (id) {
                 const sendXml = rawXml`
@@ -83,7 +83,7 @@ export default defineComponent({
                 })
             }
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         /**
@@ -152,7 +152,7 @@ export default defineComponent({
          * @param userName
          */
         const getUserList = async (userName: string) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXml = userName
                 ? rawXml`
@@ -194,7 +194,7 @@ export default defineComponent({
                 handleChangeUser(userList.value[0])
             })
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         /**
@@ -237,7 +237,7 @@ export default defineComponent({
                 type: 'question',
                 message: Translate('IDCS_USER_DELETE_USER_S').formatForLang(row.userName),
             }).then(async () => {
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
                 const sendXml = rawXml`
                     <condition>
                         <userIds type="list">
@@ -247,7 +247,7 @@ export default defineComponent({
                 `
                 await delUser(sendXml)
                 await getUserList(pageData.value.searchText)
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
             })
         }
 

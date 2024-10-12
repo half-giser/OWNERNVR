@@ -9,7 +9,7 @@ import { SystemRecorderOSDSettingsForm } from '@/types/apiType/system'
 
 export default defineComponent({
     setup() {
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
 
         const pageData = ref({
             options: DEFAULT_SWITCH_OPTIONS,
@@ -22,7 +22,7 @@ export default defineComponent({
          * @description 获取数据
          */
         const getData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const result = await queryDevOsdDisplayCfg()
             const $ = queryXml(result)
@@ -31,14 +31,14 @@ export default defineComponent({
             formData.value.iconEnable = $('//content/iconSwitch').text()
             formData.value.addressEnable = $('//content/addressSwitch').text()
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         /**
          * @description 提交表单
          */
         const setData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXml = rawXml`
                 <content>
@@ -50,7 +50,7 @@ export default defineComponent({
             const result = await editDevOsdDisplayCfg(sendXml)
 
             commSaveResponseHadler(result)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         onMounted(() => {

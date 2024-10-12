@@ -3,7 +3,7 @@
  * @Date: 2024-07-31 16:36:16
  * @Description:
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:25:04
+ * @LastEditTime: 2024-10-11 12:00:03
  */
 import { defineComponent } from 'vue'
 import BaseScheduleWeek from '@/components/BaseScheduleWeek.vue'
@@ -21,7 +21,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
 
         // 周排程组件引用
         const scheduleWeekRef: Ref<InstanceType<typeof BaseScheduleWeek> | null> = ref(null)
@@ -62,12 +62,12 @@ export default defineComponent({
          * @return {*}
          */
         const queryList = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const result = await queryScheduleList()
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() !== 'success') return
 
@@ -114,7 +114,7 @@ export default defineComponent({
          * @return {*}
          */
         const getScheduleDetail = async (id: string) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXml = rawXml`
             <condition>
@@ -124,7 +124,7 @@ export default defineComponent({
             const result = await querySchedule(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 pageData.value.currentScheduleInfo = new ScheduleInfo()
@@ -172,7 +172,7 @@ export default defineComponent({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_SCHEDULE_S').formatForLang(replaceWithEntity(getShortString(row.name, 10))),
             }).then(async () => {
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
 
                 const sendXml = rawXml`
                 <condition>
@@ -182,7 +182,7 @@ export default defineComponent({
                 </condition>`
 
                 const result = await delSchedule(sendXml)
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
 
                 commSaveResponseHadler(result, () => {
                     queryList()

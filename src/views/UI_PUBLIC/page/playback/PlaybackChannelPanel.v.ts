@@ -3,12 +3,16 @@
  * @Date: 2024-08-06 20:36:58
  * @Description: 回放-通道视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 18:36:09
+ * @LastEditTime: 2024-10-11 10:46:51
  */
 import ChannelGroupEditPop from '../channel/ChannelGroupEditPop.vue'
 import ChannelGroupAddPop from '../channel/ChannelGroupAddPop.vue'
 import { ChlGroup } from '@/types/apiType/channel'
 import { type PlaybackChlList, type PlaybackChannelGroupList } from '@/types/apiType/playback'
+
+export interface ChannelPanelExpose {
+    removeChls(chl: string[]): void
+}
 
 export default defineComponent({
     components: {
@@ -392,10 +396,30 @@ export default defineComponent({
             }
         }
 
+        // 通道数据更新是否执行emit
+        let shouldChange = true
+
+        /**
+         * @description 移除选中的通道
+         * @param {string[]} chls
+         */
+        const removeChls = (chls: string[]) => {
+            const selectedChl = pageData.value.selectedChl.filter((item) => {
+                return !chls.includes(item)
+            })
+            shouldChange = false
+            pageData.value.selectedChl = selectedChl
+        }
+
         watch(
             () => pageData.value.selectedChl,
             () => {
-                ctx.emit('change', sortedSelectedChlList.value)
+                if (shouldChange) {
+                    ctx.emit('change', sortedSelectedChlList.value)
+                }
+                nextTick(() => {
+                    shouldChange = true
+                })
             },
         )
 
@@ -409,6 +433,10 @@ export default defineComponent({
             nextTick(() => {
                 ctx.emit('ready')
             })
+        })
+
+        ctx.expose({
+            removeChls,
         })
 
         return {

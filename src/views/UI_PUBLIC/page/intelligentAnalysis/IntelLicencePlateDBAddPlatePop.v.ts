@@ -3,7 +3,7 @@
  * @Date: 2024-09-03 09:09:06
  * @Description: 新增车牌弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 15:41:28
+ * @LastEditTime: 2024-10-11 11:17:38
  */
 import { IntelPlateDBAddPlateForm, IntelPlateDBPlateInfo } from '@/types/apiType/intelligentAnalysis'
 import IntelLicenceDBEditPop from './IntelLicencePlateDBEditPop.vue'
@@ -140,12 +140,12 @@ export default defineComponent({
          * @description 获取分组选项
          */
         const getGroupList = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const result = await queryPlateLibrary()
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             pageData.value.groupList = $('//content/group/item').map((item) => {
                 const $item = queryXml(item.element)
@@ -196,7 +196,7 @@ export default defineComponent({
          * @description 新增单个车牌
          */
         const addPlate = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const form = formData.value
             const sendXML = rawXml`
@@ -215,7 +215,7 @@ export default defineComponent({
             const result = await addPlateNumber(sendXML)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 openMessageTipBox({
@@ -233,7 +233,7 @@ export default defineComponent({
          * @description 编辑单个车牌
          */
         const editPlate = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const form = formData.value
             const sendXml = rawXml`
@@ -252,7 +252,7 @@ export default defineComponent({
             const result = await editPlateNumber(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 openMessageTipBox({
@@ -360,7 +360,7 @@ export default defineComponent({
                 if (path) {
                     const sendXML = OCX_XML_UploadIPCAudioBase64(path)
                     Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                    openLoading(LoadingTarget.FullScreen)
+                    openLoading()
                 }
             })
         }
@@ -479,10 +479,10 @@ export default defineComponent({
             }
             pageData.value.fileName = file.name
 
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             pageData.value.fileData = await parseDataFile(file, 'csv')
             console.log(pageData.value.fileData)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         const handleDrop = (e: DragEvent) => {
@@ -522,14 +522,14 @@ export default defineComponent({
                     const errorCode = Number($item('errorCode').text())
                     switch (errorCode) {
                         case ErrorCode.USER_ERROR_KEYBOARDINDEX_ERROR:
-                            closeLoading(LoadingTarget.FullScreen)
+                            closeLoading()
                             openMessageTipBox({
                                 type: 'info',
                                 message: Translate('IDCS_ADD_FACE_FAIL'),
                             })
                             break
                         case ErrorCode.USER_ERROR_SPECIAL_CHAR_2:
-                            closeLoading(LoadingTarget.FullScreen)
+                            closeLoading()
                             openMessageTipBox({
                                 type: 'info',
                                 message: Translate('IDCS_IMPORT_FAIL'),
@@ -540,7 +540,7 @@ export default defineComponent({
             }
             //网络断开
             else if ($('statenotify[@type="FileNetTransport"]').length) {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 if (Number($('statenotify[@type="FileNetTransport"]/errorCode').text()) === ErrorCode.USER_ERROR_NODE_NET_DISCONNECT) {
                     openMessageTipBox({
                         type: 'info',
@@ -576,7 +576,7 @@ export default defineComponent({
             ws = new WebsocketImportPlate({
                 plateDataList: plateList,
                 onsuccess() {
-                    closeLoading(LoadingTarget.FullScreen)
+                    closeLoading()
                     ws?.stop()
                     openMessageTipBox({
                         type: 'success',
@@ -586,11 +586,11 @@ export default defineComponent({
                     })
                 },
                 onprogress(step) {
-                    closeLoading(LoadingTarget.FullScreen)
+                    closeLoading()
                     openLoading(LoadingTarget.FullScreen, Translate('IDCS_IMPORT_PROGRESS_NUM_TIP').formatForLang(step))
                 },
                 onerror(errorCode) {
-                    closeLoading(LoadingTarget.FullScreen)
+                    closeLoading()
                     ws?.stop()
 
                     let errorInfo = ''
@@ -619,7 +619,7 @@ export default defineComponent({
                     })
                 },
                 onclose() {
-                    closeLoading(LoadingTarget.FullScreen)
+                    closeLoading()
                 },
             })
         }

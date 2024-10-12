@@ -3,11 +3,12 @@
  * @Date: 2024-07-09 18:39:25
  * @Description: 回放
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-27 16:42:19
+ * @LastEditTime: 2024-10-11 10:07:11
 -->
 <template>
     <div class="playback">
         <PlaybackChannelPanel
+            ref="chlRef"
             :mode="mode"
             @search="handleChlSearch"
             @change="handleChlChange"

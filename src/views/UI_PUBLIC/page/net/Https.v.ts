@@ -3,7 +3,7 @@
  * @Date: 2024-07-12 18:19:55
  * @Description: HTTPS
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-19 14:04:31
+ * @LastEditTime: 2024-10-11 11:21:31
  */
 import WebsocketUpload from '@/utils/websocket/websocketUpload'
 import WebsocketDownload from '@/utils/websocket/websocketDownload'
@@ -20,7 +20,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const Plugin = inject('Plugin') as PluginType
         const userSession = useUserSessionStore()
 
@@ -119,7 +119,7 @@ export default defineComponent({
          * @description 开启/关闭HTTPS
          */
         const setNetPortConfig = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXml = rawXml`
                 <content>
@@ -169,7 +169,7 @@ export default defineComponent({
          * @description 删除证书
          */
         const deleteCertificate = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const result = await delCert()
             const $ = queryXml(result)
@@ -182,7 +182,7 @@ export default defineComponent({
                 certFormData.value.content = ''
             }
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         /**
@@ -251,7 +251,7 @@ export default defineComponent({
          * @description 删除请求证书
          */
         const deleteCertificateRequest = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const result = await delCertReq()
             const $ = queryXml(result)
@@ -263,7 +263,7 @@ export default defineComponent({
                 reqCertFormData.value.reqFileName = ''
             }
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         /**
@@ -345,12 +345,12 @@ export default defineComponent({
          * @description 导入证书文件
          */
         const importCertFile = (param?: NetHTTPSCertPasswordForm) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             if (isSupportH5.value) {
                 const file = formData.value.cert === 1 ? directFile : reqFile
                 if (file.size === 0) {
-                    closeLoading(LoadingTarget.FullScreen)
+                    closeLoading()
 
                     openMessageTipBox({
                         type: 'info',
@@ -371,11 +371,11 @@ export default defineComponent({
                             : {},
                     },
                     success: () => {
-                        closeLoading(LoadingTarget.FullScreen)
+                        closeLoading()
                         getCertificate()
                     },
                     error: (errorCode) => {
-                        closeLoading(LoadingTarget.FullScreen)
+                        closeLoading()
                         handleErrorMsg(errorCode)
                     },
                 })
@@ -433,7 +433,7 @@ export default defineComponent({
                     },
                 })
             } else {
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
                 const param = {
                     filePath: reqCertFormData.value.exportFileName,
                     version: '500',
@@ -496,7 +496,7 @@ export default defineComponent({
                                 commSaveResponseHadler(result)
                                 getCertificate()
                             } else {
-                                closeLoading(LoadingTarget.FullScreen)
+                                closeLoading()
                                 openMessageTipBox({
                                     type: 'info',
                                     message: Translate('IDCS_IMPORT_FAIL'),
@@ -504,7 +504,7 @@ export default defineComponent({
                             }
                         })
                     } else {
-                        closeLoading(LoadingTarget.FullScreen)
+                        closeLoading()
                     }
                 }
             }
@@ -517,7 +517,7 @@ export default defineComponent({
             }
             //网络断开
             else if ($("/statenotify[@type='FileNetTransport']").length > 0) {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 handleErrorMsg(Number($("/statenotify[@type='FileNetTransport']/errorCode").text()))
             }
         }
@@ -544,13 +544,13 @@ export default defineComponent({
             Plugin.VideoPluginNotifyEmitter.addListener(notify)
             Plugin.SetPluginNotice('#layout2Content')
 
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             await getNetPortConfig()
             await getCertificate()
             await getCertificateRequest()
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         })
 
         onBeforeUnmount(() => {

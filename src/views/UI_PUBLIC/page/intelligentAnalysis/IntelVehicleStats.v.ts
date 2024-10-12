@@ -3,7 +3,7 @@
  * @Date: 2024-09-04 14:57:50
  * @Description: 智能分析-车辆统计
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 11:01:24
+ * @LastEditTime: 2024-10-11 11:18:20
  */
 import IntelBaseChannelSelector from './IntelBaseChannelSelector.vue'
 import IntelBaseEventSelector from './IntelBaseEventSelector.vue'
@@ -20,7 +20,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
 
         let chlMap: Record<string, string> = {}
         let eventMap: Record<string, string> = {}
@@ -114,7 +114,7 @@ export default defineComponent({
             if (!formData.value.chl.length) {
                 return
             }
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             const sendXml = rawXml`
                 <resultLimit>150000</resultLimit>
                 <condition>
@@ -129,7 +129,7 @@ export default defineComponent({
             `
             const result = await faceImgStatistic_v2(sendXml)
             const $ = queryXml(result)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             if ($('//status').text() === 'success') {
                 tableData.value = $('//content/timeStatistic/item').map((item) => {
                     const $item = queryXml(item.element)

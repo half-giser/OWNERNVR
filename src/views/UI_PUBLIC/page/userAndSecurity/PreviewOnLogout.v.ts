@@ -10,7 +10,7 @@ import { type UserPreviewOnLogoutChannelList } from '@/types/apiType/userAndSecu
 export default defineComponent({
     setup() {
         const { openMessageTipBox } = useMessageBox()
-        const { closeLoading, LoadingTarget, openLoading } = useLoading()
+        const { closeLoading, openLoading } = useLoading()
         const { Translate } = useLangStore()
 
         const playerRef = ref<PlayerInstance>()
@@ -85,7 +85,7 @@ export default defineComponent({
          * @description 更新数据
          */
         const setData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const channel = channelList.value
                 .map((item) => {
@@ -105,7 +105,7 @@ export default defineComponent({
             const result = await editLogoutChlPreviewAuth(sendXML)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 openMessageTipBox({

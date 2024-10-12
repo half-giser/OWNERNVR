@@ -14,7 +14,7 @@ import { type PlaybackPopList } from '@/components/player/BasePlaybackPop.vue'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
         const dateTime = useDateTimeStore()
 
@@ -92,7 +92,7 @@ export default defineComponent({
          * @description 获取基础配置信息
          */
         const getBasicCfg = async () => {
-            const result = await queryBasicCfg(getXmlWrapData(''))
+            const result = await queryBasicCfg()
             const $ = queryXml(result)
 
             const CustomerID = $('//content/CustomerID').text()
@@ -1123,14 +1123,14 @@ export default defineComponent({
         }
 
         onMounted(async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             await getBasicCfg()
             await getFaceFeatureGroupsName()
             await getPlateLibrary()
 
             renderTable()
             await getAlarmStatus()
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         })
 
         onBeforeUnmount(() => {

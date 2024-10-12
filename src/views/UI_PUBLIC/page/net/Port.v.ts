@@ -12,7 +12,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
         // 认证方式与显示文本的映射
@@ -132,7 +132,7 @@ export default defineComponent({
          * @description 获取数据
          */
         const getData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             await getPortData()
             await getWirelessNetworkData()
@@ -140,7 +140,7 @@ export default defineComponent({
             await getApiServerData()
             await getRtspServerData()
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             nextTick(() => {
                 pageData.value.mounted = true
@@ -179,14 +179,14 @@ export default defineComponent({
                 return
             }
 
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const res1 = await setPortData()
             const res2 = await setApiServerData()
             const res3 = await setRtspServerData()
             const res4 = await setUPnPData()
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if (res1 && res2 && res3 && res4) {
                 openMessageTipBox({

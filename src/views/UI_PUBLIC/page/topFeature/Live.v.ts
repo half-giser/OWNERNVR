@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 18:07:29
  * @Description: 现场预览
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 18:39:24
+ * @LastEditTime: 2024-10-11 11:50:49
  */
 import { cloneDeep } from 'lodash-es'
 import { type LiveChannelList, type LiveCustomViewChlList, LiveSharedWinData } from '@/types/apiType/live'
@@ -535,7 +535,7 @@ export default defineComponent({
          * @description 获取产品型号
          */
         const getDeviceInfo = async () => {
-            const result = await queryBasicCfg(getXmlWrapData(''))
+            const result = await queryBasicCfg()
             return queryXml(result)('//content/productModel').text()
         }
 

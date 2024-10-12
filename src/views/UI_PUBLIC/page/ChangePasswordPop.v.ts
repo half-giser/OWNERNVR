@@ -31,7 +31,7 @@ export default defineComponent({
         },
     },
     setup(prop, ctx) {
-        const { Translate } = inject('appGlobalProp') as appGlobalProp
+        const { Translate } = useLangStore()
         const formRef = ref<FormInstance>()
         const formData = ref(new ChangePasswordForm())
         const noticeMsg = ref('')

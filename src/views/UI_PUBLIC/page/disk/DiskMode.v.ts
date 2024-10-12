@@ -3,7 +3,7 @@
  * @Date: 2024-07-04 16:41:45
  * @Description: 磁盘模式
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-23 09:38:51
+ * @LastEditTime: 2024-10-11 10:58:42
  */
 import { DiskModeForm } from '@/types/apiType/disk'
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
@@ -16,7 +16,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
 
         const pageData = ref({
             // 鉴权弹窗
@@ -44,7 +44,7 @@ export default defineComponent({
          * @description 权限认证通过后，更新数据
          */
         const setData = async (e: UserCheckAuthForm) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXml = rawXml`
                 <content>
@@ -60,7 +60,7 @@ export default defineComponent({
             const result = await editDiskMode(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 pageData.value.isAuthDialog = false

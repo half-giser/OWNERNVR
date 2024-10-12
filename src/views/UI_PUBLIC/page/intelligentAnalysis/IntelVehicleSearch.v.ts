@@ -42,7 +42,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const dateTime = useDateTimeStore()
         const auth = useUserChlAuth()
         const userSession = useUserSessionStore()
@@ -519,14 +519,14 @@ export default defineComponent({
                 </condition>
             `
 
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             formData.value.searchType = pageData.value.searchType
             tableData.value = []
 
             const result = await searchSmartTarget(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 tableData.value = $('//content/i').map((item) => {
@@ -823,20 +823,20 @@ export default defineComponent({
          * @description 下载ZIP
          */
         const createZip = () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             downloadZip({
                 zipName: getZipName(pageData.value.selection[0].chlName),
                 files: downloadData,
             })
                 .then(() => {
-                    closeLoading(LoadingTarget.FullScreen)
+                    closeLoading()
                     openMessageTipBox({
                         type: 'success',
                         message: Translate('IDCS_BACKUP_SUCCESS'),
                     })
                 })
                 .catch(() => {
-                    closeLoading(LoadingTarget.FullScreen)
+                    closeLoading()
                 })
         }
 
