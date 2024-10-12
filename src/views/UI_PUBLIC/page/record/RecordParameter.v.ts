@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-02 16:12:12
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-11 14:58:59
+ * @LastEditTime: 2024-10-12 16:43:40
  */
 
 import { cloneDeep, isEqual } from 'lodash-es'
@@ -32,11 +32,6 @@ export default defineComponent({
 
         const oldExpirationArr = [] as string[]
 
-        const expirationPopData = ref({
-            expirationType: '',
-            expirationData: {} as ChlRecParamList,
-        })
-
         const pageData = ref({
             doubleStreamRecSwitch: '',
             chkDoubleStreamRec: [
@@ -56,6 +51,8 @@ export default defineComponent({
                 { value: 'false', label: Translate('IDCS_OFF') },
             ],
             isSetCustomization: false,
+            expirationType: '',
+            expirationData: {} as ChlRecParamList,
         })
 
         const tableData = ref<ChlRecParamList[]>([])
@@ -365,8 +362,8 @@ export default defineComponent({
             const value = rowData.expirationDisplay!
             if (value == 'customization') {
                 rowData.expirationDisplay = oldExpirationArr[rowData.index]
-                expirationPopData.value.expirationType = 'single'
-                expirationPopData.value.expirationData = rowData
+                pageData.value.expirationType = 'single'
+                pageData.value.expirationData = rowData
                 pageData.value.isSetCustomization = true
             } else {
                 if (value == '0') {
@@ -400,7 +397,7 @@ export default defineComponent({
 
         const changeAllExpirationList = (value: string) => {
             if (value == 'customization') {
-                expirationPopData.value.expirationType = 'all'
+                pageData.value.expirationType = 'all'
                 pageData.value.isSetCustomization = true
             } else if (value == '0') {
                 tableData.value.forEach((item) => {
@@ -439,7 +436,7 @@ export default defineComponent({
         }
 
         const handleGetExpirationData = (week: string, holiday: string, expiration: number, expirationData?: ChlRecParamList) => {
-            if (expirationPopData.value.expirationType == 'all') {
+            if (pageData.value.expirationType == 'all') {
                 tableData.value.forEach((item) => {
                     item.week = week
                     item.holiday = holiday
@@ -470,7 +467,6 @@ export default defineComponent({
 
         return {
             supportANR,
-            expirationPopData,
             tableData,
             pageData,
             setData,
