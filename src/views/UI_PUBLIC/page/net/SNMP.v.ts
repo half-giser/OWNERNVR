@@ -11,7 +11,7 @@ import { type FormInstance, type FormRules } from 'element-plus'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
 
         const formRef = ref<FormInstance>()
         const formData = ref(new NetSNMPForm())
@@ -111,7 +111,7 @@ export default defineComponent({
                     return
                 }
 
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
 
                 const sendXml = rawXml`
                     <content>
@@ -127,7 +127,7 @@ export default defineComponent({
                 const result = await editSNMPCfg(sendXml)
                 commSaveResponseHadler(result)
 
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
             })
         }
 

@@ -3,7 +3,7 @@
  * @Date: 2024-06-17 17:21:49
  * @Description: 编辑用户信息弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:29:05
+ * @LastEditTime: 2024-10-11 11:35:12
  */
 import { UserEditForm, type UserAuthGroupOption } from '@/types/apiType/userAndSecurity'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -30,7 +30,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const userSession = useUserSessionStore()
         const { openMessageTipBox } = useMessageBox()
-        const { closeLoading, LoadingTarget, openLoading } = useLoading()
+        const { closeLoading, openLoading } = useLoading()
 
         const formRef = ref<FormInstance>()
         const formData = ref(new UserEditForm())
@@ -172,7 +172,7 @@ export default defineComponent({
          * @description 确认修改用户信息
          */
         const doEditUser = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXml = rawXml`
                 <content>
@@ -190,7 +190,7 @@ export default defineComponent({
             const result = await editUser(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 ctx.emit('close')

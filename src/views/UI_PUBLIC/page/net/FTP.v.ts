@@ -3,7 +3,7 @@
  * @Date: 2024-07-12 18:20:34
  * @Description: FTP配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-10 14:10:52
+ * @LastEditTime: 2024-10-11 11:21:14
  */
 import { NetFTPForm, type NetFTPList } from '@/types/apiType/net'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -16,7 +16,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const userSession = useUserSessionStore()
 
         const pageData = ref({
@@ -287,7 +287,7 @@ export default defineComponent({
                 if (!valid) {
                     return
                 }
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
 
                 const result = await testFTPCfg(getXmlData(true))
                 const $ = queryXml(result)
@@ -304,7 +304,7 @@ export default defineComponent({
                     })
                 }
 
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
             })
         }
 
@@ -312,12 +312,12 @@ export default defineComponent({
          * @description 提交数据
          */
         const setData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const result = await editFTPCfg(getXmlData())
             commSaveResponseHadler(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         /**
@@ -353,12 +353,12 @@ export default defineComponent({
         }
 
         onMounted(async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             await getScheduleList()
             await getData()
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         })
 
         return {

@@ -3,7 +3,7 @@
  * @Date: 2024-08-30 18:47:04
  * @Description: 人脸库 - 添加人脸
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 15:48:17
+ * @LastEditTime: 2024-10-11 11:15:21
  */
 import { IntelFaceDBFaceForm, type IntelFaceDBGroupDto, type IntelFaceDBSnapFaceList, type IntelFaceDBImportFaceDto } from '@/types/apiType/intelligentAnalysis'
 import { type FormInstance } from 'element-plus'
@@ -35,7 +35,7 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const dateTime = useDateTimeStore()
 
         // 错误码与显示文本的映射
@@ -115,12 +115,12 @@ export default defineComponent({
          * @description 获取人脸分组
          */
         const getFaceGroup = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const result = await queryFacePersonnalInfoGroupList()
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             pageData.value.groupList = $('//content/item').map((item) => {
                 const $item = queryXml(item.element)
@@ -277,7 +277,7 @@ export default defineComponent({
                 return
             }
 
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const importItem = importData[index]
             const group = pageData.value.groupList.find((current) => current.groupId === item.groupId)!
@@ -310,7 +310,7 @@ export default defineComponent({
             const result = await createFacePersonnalInfo(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 pageData.value.errorTip = Translate('IDCS_FACE_ADD_SUCCESS')
@@ -355,7 +355,7 @@ export default defineComponent({
          * @param {boolean} force 是否无视相似度警告，强制上传
          */
         const setSingleSnapData = async (item: IntelFaceDBFaceForm, index: number, force = false) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const snapItem = snapData[0]
             const group = pageData.value.groupList.find((current) => current.groupId === item.groupId)!
@@ -395,7 +395,7 @@ export default defineComponent({
             const result = await createFacePersonnalInfo(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 formData.value[index].success = true

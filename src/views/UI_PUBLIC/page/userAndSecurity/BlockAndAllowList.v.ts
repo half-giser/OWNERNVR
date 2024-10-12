@@ -14,7 +14,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const { openMessageTipBox } = useMessageBox()
 
         const pageData = ref({
@@ -153,7 +153,7 @@ export default defineComponent({
          * @description 保存数据
          */
         const setData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const tableXml = tableData.value
                 .map((item) => {
@@ -193,7 +193,7 @@ export default defineComponent({
             `
             const result = await editBlackAndWhiteList(sendXml)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             commSaveResponseHadler(result, () => {
                 pageData.value.submitDisabled = true
             })

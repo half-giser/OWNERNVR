@@ -3,7 +3,7 @@
  * @Date: 2024-06-24 15:06:48
  * @Description: 基本配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 14:49:14
+ * @LastEditTime: 2024-10-11 11:28:11
  */
 import { type FormInstance, type FormRules } from 'element-plus'
 import { SystemGeneralSettingForm } from '@/types/apiType/system'
@@ -12,7 +12,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
         const formRef = ref<FormInstance>()
@@ -211,8 +211,8 @@ export default defineComponent({
          * @description 获取和回显表单数据
          */
         const getData = async () => {
-            openLoading(LoadingTarget.FullScreen)
-            const result = await queryBasicCfg(getXmlWrapData(''))
+            openLoading()
+            const result = await queryBasicCfg()
             const $ = queryXml(result)
 
             formData.value.deviceName = $('//content/name').text()
@@ -337,7 +337,7 @@ export default defineComponent({
             pageData.value.langType = $('//types/langType/enum').map((item) => item.text())
             pageData.value.resolutionType = $('//types/resolutionType/enum').map((item) => item.text())
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         /**
@@ -352,7 +352,7 @@ export default defineComponent({
         }
 
         const setData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const getDecoderItem = (key: number) => {
                 return Object.keys(formData.value.decoder[key])
@@ -395,7 +395,7 @@ export default defineComponent({
             `
             const result = await editBasicCfg(sendXml)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             commSaveResponseHadler(result)
         }
 

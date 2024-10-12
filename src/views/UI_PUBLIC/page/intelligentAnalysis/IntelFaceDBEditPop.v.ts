@@ -3,7 +3,7 @@
  * @Date: 2024-08-29 10:46:13
  * @Description: 人脸库- 新增/编辑分组
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-12 20:44:06
+ * @LastEditTime: 2024-10-11 11:16:25
  */
 import { IntelFaceDBGroupList } from '@/types/apiType/intelligentAnalysis'
 import { type FormRules, type FormInstance } from 'element-plus'
@@ -36,7 +36,7 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
 
         const formRef = ref<FormInstance>()
 
@@ -77,7 +77,7 @@ export default defineComponent({
          * @description 编辑分组
          */
         const editGroup = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXml = rawXml`
                 <types>
@@ -96,7 +96,7 @@ export default defineComponent({
             const result = await editFacePersonnalInfoGroup(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 openMessageTipBox({
@@ -133,7 +133,7 @@ export default defineComponent({
          * @description 创建分组
          */
         const addGroup = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXml = rawXml`
                 <types>
@@ -147,7 +147,7 @@ export default defineComponent({
             const result = await createFacePersonnalInfoGroup(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 openMessageTipBox({

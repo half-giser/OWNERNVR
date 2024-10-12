@@ -3,7 +3,7 @@
  * @Date: 2024-09-02 14:01:05
  * @Description: 车牌库
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 15:43:25
+ * @LastEditTime: 2024-10-11 11:17:17
  */
 import { type TableInstance } from 'element-plus'
 import { IntelPlateDBGroupList, IntelPlateDBPlateInfo } from '@/types/apiType/intelligentAnalysis'
@@ -20,7 +20,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const userSession = useUserSessionStore()
         const router = useRouter()
 
@@ -132,7 +132,7 @@ export default defineComponent({
                 type: 'question',
                 message: Translate('IDCS_NOTE_DELETE_ALL_LICENSE_PLATE'),
             }).then(async () => {
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
 
                 try {
                     const sendXml = rawXml`
@@ -145,7 +145,7 @@ export default defineComponent({
                     const result = await deletePlateLibrary(sendXml)
                     const $ = queryXml(result)
 
-                    closeLoading(LoadingTarget.FullScreen)
+                    closeLoading()
 
                     if ($('//status').text() === 'success') {
                         if (pageData.value.expandRowKey.length) {
@@ -171,7 +171,7 @@ export default defineComponent({
                         pageData.value.expandRowKey = []
                     }
                     // P2P车牌删除超时兼容处理
-                    closeLoading(LoadingTarget.FullScreen)
+                    closeLoading()
                     getGroupList()
                 }
             })
@@ -292,7 +292,7 @@ export default defineComponent({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_S'),
             }).then(async () => {
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
 
                 const sendXml = rawXml`
                     <condition>
@@ -304,7 +304,7 @@ export default defineComponent({
                 const result = await deletePlateNumber(sendXml)
                 const $ = queryXml(result)
 
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
 
                 if ($('//status').text() === 'success') {
                     searchPlate(row.groupId, true)
@@ -365,7 +365,7 @@ export default defineComponent({
          * @param {string} groupId
          */
         const getPlate = async (pageIndex: number, groupId: string) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             groupTableData.value = []
 
@@ -380,7 +380,7 @@ export default defineComponent({
             const result = await queryPlateNumber(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 groupTableData.value = $('//content/plate/item').map((item) => {
@@ -403,12 +403,12 @@ export default defineComponent({
          * @description 获取分组列表
          */
         const getGroupList = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const result = await queryPlateLibrary()
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             tableData.value = $('//content/group/item').map((item) => {
                 const $item = queryXml(item.element)

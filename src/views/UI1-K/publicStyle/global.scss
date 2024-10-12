@@ -3,7 +3,7 @@
  * @Date: 2024-05-29 13:48:55
  * @Description: UI1-K 主题样式
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-08 16:04:07
+ * @LastEditTime: 2024-10-11 14:07:19
  */
 
 #n9web {
@@ -86,10 +86,16 @@
     --table-thead-bg: #e5e5e5; 
     --table-thead-border: #ccc;
     
-    --dialog-title: #666; 
+    --dialog-title: #666;
+    --dialog-bg: #fff;
 
-    --dialog-bg: #fff; 
-    --popover-bg: #fff; 
+    --popover-bg: #fff;
+
+    --transfer-title-bg: #666;
+    --transfer-bg: transparent;
+    --transfer-stripe: transparent;
+    --transfer-border: #999;
+    --transfer-text: var(--main-text);
 
     --config-menu-text: #3c3c3c;
     --config-menu-text-hover: var(--primary);

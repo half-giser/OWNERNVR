@@ -3,11 +3,6 @@
  * @Date: 2023-05-04 17:27:29
  * @Description:
  */
-import { getXmlWrapData } from '@/api/api'
-import { getLangContent, getSupportLangList } from '@/api/lang'
-import { queryXml } from '@/utils/xmlParse'
-import { LocalCacheKey, LANG_MAPPING } from '@/utils/constants'
-import { convertToTextEntities } from '@/utils/tools'
 import * as elLang from 'element-plus/es/locale/index.mjs'
 
 export const useLangStore = defineStore(
@@ -37,7 +32,7 @@ export const useLangStore = defineStore(
                 langId.value = localStorage.getItem(LocalCacheKey.langId) || ''
             }
 
-            const result = await getSupportLangList(getXmlWrapData(''))
+            const result = await getSupportLangList()
             const $ = queryXml(result)
 
             const langTypesTemp: Record<string, string> = {}
@@ -81,11 +76,11 @@ export const useLangStore = defineStore(
          * @description: 从设备请求指定语言项列表
          */
         const requestLangItems = async () => {
-            const data = getXmlWrapData(rawXml`
+            const data = rawXml`
                 <condition>
                     <langType>${langId.value}</langType>
                 </condition>
-            `)
+            `
             const result = await getLangContent(data)
             const $ = queryXml(result)
             const langItemsTemp: Record<string, string> = {}

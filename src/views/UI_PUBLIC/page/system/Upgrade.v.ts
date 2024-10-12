@@ -3,7 +3,7 @@
  * @Date: 2024-06-27 11:49:04
  * @Description: 系统升级
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-23 09:39:21
+ * @LastEditTime: 2024-10-11 11:30:04
  */
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import BaseInputEncryptPwdPop from '../../components/auth/BaseInputEncryptPwdPop.vue'
@@ -268,7 +268,7 @@ export default defineComponent({
          * @param {UserInputEncryptPwdForm} e
          */
         const confirmBackUpAndUpgrade = async (e: UserInputEncryptPwdForm) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             pageData.value.isEncryptPwd = false
             userInputEncryptPwdForm.password = e.password
@@ -286,7 +286,7 @@ export default defineComponent({
             const result = await exportConfig(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             if ($('//status').text() === 'success') {
                 pageData.value.isCheckAuth = false
                 if (isSupportH5.value) {
@@ -321,7 +321,7 @@ export default defineComponent({
                 authPwd: userCheckAuthForm.password,
                 secPassword: userInputEncryptPwdForm.password, // 加密密码
             }
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             const sendXML = OCX_XML_FileNetTransport('Export', param)
             Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
         }
@@ -339,7 +339,7 @@ export default defineComponent({
          * @param {boolean} noCheckversion
          */
         const upgrade = (noCheckversion = false) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             if (isSupportH5.value) {
                 const obj: CmdUploadFileOpenOption = {
@@ -358,7 +358,7 @@ export default defineComponent({
                     file: file,
                     config: obj,
                     progress: (step) => {
-                        closeLoading(LoadingTarget.FullScreen)
+                        closeLoading()
                         pageData.value.isCheckAuth = false
                         pageData.value.upgradeNote = `${TRANS_MAPPING['uploading']}&nbsp;&nbsp;${step}%`
                         if (step === 100) {
@@ -368,10 +368,10 @@ export default defineComponent({
                         }
                     },
                     success: () => {
-                        closeLoading(LoadingTarget.FullScreen)
+                        closeLoading()
                     },
                     error: (errorCode) => {
-                        closeLoading(LoadingTarget.FullScreen)
+                        closeLoading()
                         pageData.value.upgradeNote = ''
                         handleErrorMsg(errorCode)
                     },
@@ -389,7 +389,7 @@ export default defineComponent({
                     const sendXML = OCX_XML_FileNetTransport('Upgrade', param)
                     Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 } else {
-                    openLoading(LoadingTarget.FullScreen)
+                    openLoading()
                     const sendXML = OCX_XML_CheckUpgradeFile('ImportUpgradeCheckFile', 5120, formData.value.filePath)
                     Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 }

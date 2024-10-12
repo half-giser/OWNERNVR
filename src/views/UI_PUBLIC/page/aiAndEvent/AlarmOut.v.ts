@@ -153,7 +153,7 @@ export default defineComponent({
          * @return {*}
          */
         const getAlarmOutType = async () => {
-            const result = await queryBasicCfg(getXmlWrapData(''))
+            const result = await queryBasicCfg()
             const $ = queryXml(result)
             curAlarmoutType.value = $('/response/content/alarmoutType').text()
             pageData.value.typeList = $('/response/types/alarmoutType/enum').map((typeItem) => {

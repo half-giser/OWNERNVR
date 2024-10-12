@@ -36,7 +36,7 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const { Translate } = useLangStore()
         const dateTime = useDateTimeStore()
 
@@ -112,7 +112,7 @@ export default defineComponent({
          * @description 检索抓怕数据列表
          */
         const searchData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXml = rawXml`
                 <resultLimit>10000</resultLimit>
@@ -128,7 +128,7 @@ export default defineComponent({
             const result = await searchImageByImageV2(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             formData.value.faceIndex = []
             listData.value = $('//content/i')
@@ -149,7 +149,7 @@ export default defineComponent({
                 })
                 .toSorted((a, b) => a.timestamp - b.timestamp)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             changeFacePage(1)
             ctx.emit('change', [])

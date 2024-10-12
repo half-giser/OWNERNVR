@@ -3,7 +3,7 @@
  * @Date: 2024-05-29 13:48:55
  * @Description: UI1-B 主题样式
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-08 16:02:17
+ * @LastEditTime: 2024-10-11 14:02:42
  */
 
 #n9web {
@@ -89,6 +89,12 @@
     --dialog-bg: var(--main-bg);
 
     --popover-bg: var(--main-bg);
+
+    --transfer-title-bg: #666;
+    --transfer-bg: transparent;
+    --transfer-stripe: transparent;
+    --transfer-border: #999;
+    --transfer-text: var(--main-text);
 
     --config-menu-text: #ccc;
     --config-menu-text-hover: var(--primary);

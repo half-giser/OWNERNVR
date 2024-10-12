@@ -89,7 +89,7 @@ export default defineComponent({
             queryRecordDistributeInfo().then((res) => {
                 const $ = queryXml(res)
                 const mode = $('//content/recMode/mode').text()
-                querySystemCaps(getXmlWrapData('')).then((res) => {
+                querySystemCaps().then((res) => {
                     closeLoading()
                     const $ = queryXml(res)
                     chlCountLimit.value = Number($('//content/chlMaxCount').text())

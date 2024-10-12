@@ -17,7 +17,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
         const pageData = ref({
@@ -603,7 +603,7 @@ export default defineComponent({
                 return
             }
 
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             let sendXml = ''
             if (formData.value.netConfig.curWorkMode === 'network_fault_tolerance') {
@@ -722,7 +722,7 @@ export default defineComponent({
             const result = await editNetCfgV3(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 commSaveResponseHadler(result)
@@ -832,13 +832,13 @@ export default defineComponent({
         }
 
         onMounted(async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             await getPPPoeSwitch()
             await getNetConfigV3()
             await getNetStatus()
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         })
 
         return {

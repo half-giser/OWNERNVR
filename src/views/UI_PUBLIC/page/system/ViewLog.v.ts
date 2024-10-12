@@ -3,7 +3,7 @@
  * @Date: 2024-07-01 11:01:12
  * @Description: 查看日志
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 15:30:26
+ * @LastEditTime: 2024-10-11 11:30:38
  */
 import { SystemLogForm, type SystemLogList } from '@/types/apiType/system'
 import dayjs from 'dayjs'
@@ -17,7 +17,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
         const lang = useLangStore()
         const dateTime = useDateTimeStore()
@@ -390,7 +390,7 @@ export default defineComponent({
          * @description 获取表格数据
          */
         const getData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             // 不是翻页时，才根据新的起始时间查询，确保不发生查询之后又修改起始时间导致的翻页问题和导出与查询结果不一致的问题
             if (!pageData.value.isUpadtePagination) {
@@ -399,7 +399,7 @@ export default defineComponent({
             }
 
             const result = await queryLog(getQueryXML(false))
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             commLoadResponseHandler(result, ($) => {
                 pageData.value.totalCount = Number($('//content').attr('total'))
@@ -524,7 +524,7 @@ export default defineComponent({
                 const content = $('//content').text()
 
                 download(new Blob([content]), 'log_' + dayjs(new Date()).format('YYYYMMDDHHmmss') + '.txt')
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
 
                 openMessageTipBox({
                     type: 'success',

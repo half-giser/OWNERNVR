@@ -3,7 +3,7 @@
  * @Date: 2024-07-10 15:00:10
  * @Description: E-mail发送
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 15:40:52
+ * @LastEditTime: 2024-10-11 11:20:45
  */
 import { type FormInstance, type FormRules } from 'element-plus'
 import { NetEmailForm } from '@/types/apiType/net'
@@ -16,7 +16,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const userSession = useUserSessionStore()
         const router = useRouter()
 
@@ -137,7 +137,7 @@ export default defineComponent({
          * @description 获取数据
          */
         const getData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const result = await queryEmailCfg()
             commLoadResponseHandler(result, ($) => {
@@ -152,7 +152,7 @@ export default defineComponent({
                 formData.value.ssl = $('//content/sender/smtp/ssl').text().toBoolean() ? 'SSL' : 'NO'
             })
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         /**
@@ -228,7 +228,7 @@ export default defineComponent({
          * @description 更新数据
          */
         const setData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const password = AES_encrypt(formData.value.password, userSession.sesionKey)
             const sendXml = rawXml`
@@ -250,8 +250,8 @@ export default defineComponent({
                 </content>
             `
             const result = await editEmailCfg(sendXml)
+            closeLoading()
             commSaveResponseHadler(result)
-            closeLoading(LoadingTarget.FullScreen)
         }
 
         onMounted(() => {

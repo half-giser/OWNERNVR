@@ -2,8 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-10 18:29:15
  * @Description: 智能分析 - 组合搜索
- * @LastEditors: luoyiming a11593@tvt.net.cn
- * @LastEditTime: 2024-10-09 16:06:50
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-11 11:13:25
  */
 import { type IntelSearchCollectList, type IntelSearchList, IntelSnapImgDto, IntelSearchCombineForm, type IntelSnapPopList } from '@/types/apiType/intelligentAnalysis'
 import IntelBaseChannelSelector from './IntelBaseChannelSelector.vue'
@@ -42,7 +42,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const dateTime = useDateTimeStore()
         const auth = useUserChlAuth()
         const userSession = useUserSessionStore()
@@ -473,13 +473,13 @@ export default defineComponent({
                 </condition>
             `
 
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             tableData.value = []
 
             const result = await searchSmartTarget(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 tableData.value = $('//content/i').map((item) => {
@@ -775,20 +775,20 @@ export default defineComponent({
          * @description 下载ZIP
          */
         const createZip = () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             downloadZip({
                 zipName: getZipName(pageData.value.selection[0].chlName),
                 files: downloadData,
             })
                 .then(() => {
-                    closeLoading(LoadingTarget.FullScreen)
+                    closeLoading()
                     openMessageTipBox({
                         type: 'success',
                         message: Translate('IDCS_BACKUP_SUCCESS'),
                     })
                 })
                 .catch(() => {
-                    closeLoading(LoadingTarget.FullScreen)
+                    closeLoading()
                 })
         }
 

@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 13:43:11
  * @Description: 磁盘阵列重建弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-23 17:04:39
+ * @LastEditTime: 2024-10-11 11:00:44
  */
 import { DiskRaidList, DiskRaidRebuildForm } from '@/types/apiType/disk'
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
@@ -32,7 +32,7 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
 
         const pageData = ref({
             // 物理磁盘列表
@@ -62,12 +62,12 @@ export default defineComponent({
          * @description 获取物理磁盘数据
          */
         const getPhysicalDiskData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const result = await queryPhysicalDiskInfo()
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             pageData.value.physicalDiskList = $('//content/physicalDisk/item')
                 .filter((item) => {
@@ -97,7 +97,7 @@ export default defineComponent({
          * @param {UserCheckAuthForm} e
          */
         const confirmRebuildRaid = async (e: UserCheckAuthForm) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXml = rawXml`
                 <content>
@@ -116,7 +116,7 @@ export default defineComponent({
             const result = await repairRaid(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 const errorCode = Number($('//errorCode').text())
