@@ -77,8 +77,8 @@
             :data="pageData.faceGroupList"
             :current="formData.faceGroup"
             :label-title="Translate('IDCS_ADD_FACE_GROUP')"
-            value=""
-            label=""
+            value="id"
+            label="name"
             @confirm="confirmChangeGroup"
         />
     </div>

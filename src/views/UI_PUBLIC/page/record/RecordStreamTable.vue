@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-07-31 10:29:37
  * @Description: 录像码流通用表格组件
- * @LastEditors: Please set LastEditors
- * @LastEditTime: 2024-10-12 10:40:47
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-12 13:50:38
 -->
 <template>
     <div class="base-flex-box">

@@ -2,8 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-12 11:56:52
  * @Description: 智能分析 - 选择人脸 - 从人脸库选择
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-12 20:23:11
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-12 13:49:47
  */
 import { cloneDeep } from 'lodash-es'
 import { IntelFaceDBFaceInfo, type IntelFaceDBGroupList } from '@/types/apiType/intelligentAnalysis'
@@ -106,6 +106,7 @@ export default defineComponent({
             } else {
                 formData.value.faceGroup = []
             }
+            searchFace()
             ctx.emit('changeGroup', formData.value.faceGroup)
         }
 
@@ -115,6 +116,8 @@ export default defineComponent({
          */
         const confirmChangeGroup = (e: IntelFaceDBGroupList[]) => {
             formData.value.faceGroup = e
+            pageData.value.isAllFaceGroup = formData.value.faceGroup.length === pageData.value.faceGroupList.length
+            searchFace()
             ctx.emit('changeGroup', formData.value.faceGroup)
         }
 
@@ -161,6 +164,7 @@ export default defineComponent({
             openLoading()
 
             formData.value.faceIndex = []
+            listData.value = []
 
             const sendXml = rawXml`
                 <pageIndex>1</pageIndex>
@@ -182,6 +186,9 @@ export default defineComponent({
                     info.name = $item('name').text()
                     return info
                 })
+            }
+            if (formData.value.faceGroup.length === 0) {
+                listData.value = []
             }
             closeLoading()
         }
