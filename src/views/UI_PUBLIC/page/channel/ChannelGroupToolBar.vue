@@ -23,7 +23,7 @@ export default defineComponent({
     emits: ['toolBarEvent'],
     setup(_props, ctx) {
         const { name: uiName } = getUiAndTheme()
-        const addChlGroup = function () {
+        const addChlGroup = () => {
             ctx.emit('toolBarEvent', {
                 type: 'addChlGroup',
             })

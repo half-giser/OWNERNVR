@@ -9,7 +9,7 @@ import { ChannelInfoDto, ChannelOsd } from '@/types/apiType/channel'
 import { cloneDeep } from 'lodash-es'
 import CanvasOSD, { type CanvasOSDOptionNameConfig, type CanvasOSDOptionTimeConfig } from '@/utils/canvas/canvasOsd'
 import { type TVTPlayerWinDataListItem } from '@/utils/wasmPlayer/tvtPlayer'
-import { type OcxXmlSetOSDInfo, type OcxXmlSetOsdListDatum } from '@/utils/ocx/ocxCmd'
+import { type OcxXmlSetOSDInfo } from '@/utils/ocx/ocxCmd'
 import { type TableInstance } from 'element-plus'
 
 export default defineComponent({
@@ -558,7 +558,7 @@ export default defineComponent({
                 if (ele.timeFormat) timeFormat = ele.timeFormat
                 if (ele.dateFormat) dateFormat = ele.dateFormat
             })
-            const data = `
+            const data = rawXml`
                 <content>
                     <formatInfo>
                         <date type='dateFormat'>${dateFormat}</date>
@@ -661,33 +661,33 @@ export default defineComponent({
             } else {
                 if (rowData.timeX) {
                     if (osType == 'mac') {
-                        const osdList: OcxXmlSetOsdListDatum[] = [
-                            {
-                                winIndex: 0,
-                                dateFormat: rowData.dateFormat,
-                                timeFormat: rowData.timeFormat,
-                                x: rowData.timeX,
-                                y: rowData.timeY,
-                                xMin: rowData.timeXMinValue,
-                                xMax: rowData.timeXMaxValue,
-                                yMin: rowData.timeYMinValue,
-                                yMax: rowData.timeXMaxValue,
-                                status: rowData.displayTime ? 'ON' : 'OFF',
-                            },
-                            {
-                                winIndex: 0,
-                                osd: rowData.name,
-                                x: rowData.nameX,
-                                y: rowData.nameY,
-                                xMin: rowData.nameXMinValue,
-                                xMax: rowData.nameXMaxValue,
-                                yMin: rowData.nameYMinValue,
-                                yMax: rowData.nameYMaxValue,
-                                status: rowData.displayTime ? 'ON' : 'OFF',
-                            },
-                        ]
-                        const sendXML = OCX_XML_SetOSD('ON', osdList)
-                        plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                        // const osdList: OcxXmlSetOsdListDatum[] = [
+                        //     {
+                        //         winIndex: 0,
+                        //         dateFormat: rowData.dateFormat,
+                        //         timeFormat: rowData.timeFormat,
+                        //         x: rowData.timeX,
+                        //         y: rowData.timeY,
+                        //         xMin: rowData.timeXMinValue,
+                        //         xMax: rowData.timeXMaxValue,
+                        //         yMin: rowData.timeYMinValue,
+                        //         yMax: rowData.timeXMaxValue,
+                        //         status: rowData.displayTime ? 'ON' : 'OFF',
+                        //     },
+                        //     {
+                        //         winIndex: 0,
+                        //         osd: rowData.name,
+                        //         x: rowData.nameX,
+                        //         y: rowData.nameY,
+                        //         xMin: rowData.nameXMinValue,
+                        //         xMax: rowData.nameXMaxValue,
+                        //         yMin: rowData.nameYMinValue,
+                        //         yMax: rowData.nameYMaxValue,
+                        //         status: rowData.displayTime ? 'ON' : 'OFF',
+                        //     },
+                        // ]
+                        // const sendXML = OCX_XML_SetOSD('ON', osdList)
+                        // plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                     } else {
                         const osd: OcxXmlSetOSDInfo = {
                             timeStamp: {
@@ -755,13 +755,15 @@ export default defineComponent({
         })
 
         onBeforeUnmount(() => {
-            if (mode.value === 'ocx') {
-                plugin?.VideoPluginNotifyEmitter.removeListener(LiveNotify2Js)
-                const sendXML = OCX_XML_StopPreview('ALL')
-                plugin?.GetVideoPlugin().ExecuteCmd(sendXML)
-            } else {
-                osdDrawer?.destroy()
-                osdDrawer = undefined
+            if (ready.value) {
+                if (mode.value === 'ocx') {
+                    plugin?.VideoPluginNotifyEmitter.removeListener(LiveNotify2Js)
+                    const sendXML = OCX_XML_StopPreview('ALL')
+                    plugin?.GetVideoPlugin().ExecuteCmd(sendXML)
+                } else {
+                    osdDrawer?.destroy()
+                    osdDrawer = undefined
+                }
             }
         })
 

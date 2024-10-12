@@ -3,7 +3,7 @@
  * @Date: 2024-08-27 18:22:21
  * @Description: 实时过车记录
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-04 17:14:07
+ * @LastEditTime: 2024-10-11 18:51:52
  */
 import WebsocketSnap, { type WebsocketSnapOnSuccessPlate } from '@/utils/websocket/websocketSnap'
 import { dayjs } from 'element-plus'
@@ -176,7 +176,7 @@ export default defineComponent({
         /**
          * @description 返回
          */
-        const goBack = function () {
+        const goBack = () => {
             router.back()
         }
 

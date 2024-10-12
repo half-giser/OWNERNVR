@@ -11,11 +11,9 @@ import { removeAsyncRoutes } from '../router'
 
 /**
  * @description 预登录
- * @param {string} data
- * @param config
  * @returns
  */
-export const reqLogin = (data: string, config?: AxiosRequestConfig) => http.fetch('reqLogin', data, config)
+export const reqLogin = () => http.fetch('reqLogin', getXmlWrapData(''))
 
 /**
  * @description 登录
@@ -24,7 +22,7 @@ export const reqLogin = (data: string, config?: AxiosRequestConfig) => http.fetc
  * @param checkCommonErrorSwitch
  * @returns
  */
-export const doLogin = (data: string, config?: AxiosRequestConfig, checkCommonErrorSwitch = true) => http.fetch('doLogin', data, config, checkCommonErrorSwitch)
+export const doLogin = (data: string, config?: AxiosRequestConfig, checkCommonErrorSwitch = true) => http.fetch('doLogin', getXmlWrapData(data), config, checkCommonErrorSwitch)
 
 /**
  * @description 退出登录

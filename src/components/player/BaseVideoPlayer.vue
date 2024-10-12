@@ -3,7 +3,7 @@
  * @Date: 2024-06-05 13:35:57
  * @Description: 多分屏WASM播放器控件
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-10 18:12:46
+ * @LastEditTime: 2024-10-12 13:54:28
 -->
 <template>
     <div
@@ -1625,7 +1625,7 @@ const resizeObserver = new ResizeObserver(() => {
 onMounted(() => {
     tryToGetVideoLossLogo(prop.type === 'live')
     splitValue.value = prop.split
-    requestAnimationFrame(() => {
+    nextTick(() => {
         setItemSize()
         resizeObserver.observe($screen.value!)
         ready.value = true

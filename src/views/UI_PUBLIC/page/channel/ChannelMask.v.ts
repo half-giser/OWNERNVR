@@ -1,20 +1,22 @@
-import { ArrowDown } from '@element-plus/icons-vue'
+/*
+ * @Author: linguifan linguifan@tvt.net.cn
+ * @Date: 2024-07-16 17:39:53
+ * @Description: 通道 - 视频遮挡配置
+ */
 import { ChannelMask, PrivacyMask } from '@/types/apiType/channel'
 import CanvasMask, { type CanvasMaskMaskItem } from '@/utils/canvas/canvasMask'
 import { type XmlResult } from '@/utils/xmlParse'
+import { type TableInstance } from 'element-plus'
 
 export default defineComponent({
-    components: {
-        ArrowDown,
-    },
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const osType = getSystemInfo().platform
 
         const playerRef = ref<PlayerInstance>()
         const formData = ref(new ChannelMask())
-        const tableRef = ref()
+        const tableRef = ref<TableInstance>()
         const tableData = ref<ChannelMask[]>([])
         const pageIndex = ref(1)
         const pageSize = ref(10)
@@ -52,7 +54,7 @@ export default defineComponent({
         const handleChlSel = (chlId: string) => {
             const rowData = getRowById(chlId)
             formData.value = rowData
-            tableRef.value.setCurrentRow(rowData)
+            tableRef.value!.setCurrentRow(rowData)
         }
 
         const handleRowClick = (rowData: ChannelMask) => {
@@ -60,7 +62,7 @@ export default defineComponent({
                 selectedChlId.value = rowData.id
                 formData.value = rowData
             }
-            tableRef.value.setCurrentRow(getRowById(selectedChlId.value))
+            tableRef.value!.setCurrentRow(getRowById(selectedChlId.value))
         }
 
         const handleChangeSwitch = () => {
@@ -122,15 +124,15 @@ export default defineComponent({
         }
 
         const getData = (chlId: string) => {
-            queryPrivacyMask(getXmlWrapData(`<condition><chlId>${chlId}</chlId></condition>`)).then((res: any) => {
-                res = queryXml(res)
+            queryPrivacyMask(getXmlWrapData(`<condition><chlId>${chlId}</chlId></condition>`)).then((res) => {
+                const $ = queryXml(res)
                 const rowData = getRowById(chlId)
-                if (res('status').text() == 'success') {
+                if ($('status').text() == 'success') {
                     let isSwitch = false
                     let isSpeco = false
-                    if (res('content/chl').length == 0 || chlId != res('content/chl').attr('id')) isSpeco = true
+                    if ($('content/chl').length == 0 || chlId != $('content/chl').attr('id')) isSpeco = true
                     rowData.isSpeco = isSpeco
-                    res('content/chl/privacyMask/item').forEach((ele: any) => {
+                    $('content/chl/privacyMask/item').forEach((ele) => {
                         const eleXml = queryXml(ele.element)
                         const newData = new PrivacyMask()
                         newData.switch = eleXml('switch').text().toBoolean()
@@ -155,22 +157,22 @@ export default defineComponent({
         }
 
         const getDataList = () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             getChlList({
                 pageIndex: pageIndex.value,
                 pageSize: pageSize.value,
                 isSupportMaskSetting: true,
-            }).then((res: any) => {
-                closeLoading(LoadingTarget.FullScreen)
-                res = queryXml(res)
-                if (res('status').text() == 'success') {
+            }).then((res) => {
+                closeLoading()
+                const $ = queryXml(res)
+                if ($('status').text() == 'success') {
                     tableData.value = []
                     editRows.clear()
                     btnOKDisabled.value = true
-                    res('content/item').forEach((ele: any) => {
+                    $('content/item').forEach((ele) => {
                         const eleXml = queryXml(ele.element)
                         const newData = new ChannelMask()
-                        newData.id = ele.attr('id')
+                        newData.id = ele.attr('id')!
                         newData.name = eleXml('name').text()
                         newData.chlIndex = eleXml('chlIndex').text()
                         newData.chlType = eleXml('chlType').text()
@@ -179,11 +181,11 @@ export default defineComponent({
                         newData.statusTip = statusToolTip['loading']
                         tableData.value.push(newData)
                     })
-                    pageTotal.value = Number(res('content').attr('total'))
+                    pageTotal.value = Number($('content').attr('total'))
                     if (!tableData.value.length) return
                     formData.value = tableData.value[0]
                     selectedChlId.value = tableData.value[0].id
-                    tableRef.value.setCurrentRow(tableData.value[0])
+                    tableRef.value!.setCurrentRow(tableData.value[0])
                     tableData.value.forEach((ele) => {
                         if (ele.chlType != 'recorder') {
                             getData(ele.id)
@@ -198,7 +200,7 @@ export default defineComponent({
         }
 
         const getSaveData = (rowData: ChannelMask): string => {
-            let data = `
+            let data = rawXml`
                 <types>
                     <color>
                         <enum>black</enum>
@@ -213,7 +215,7 @@ export default defineComponent({
                                 <color type='color'/>
                             </itemType>`
             if (!rowData.mask.length) {
-                data += `
+                data += rawXml`
                     <item>
                         <switch>false</switch>
                         <rectangle>
@@ -226,20 +228,20 @@ export default defineComponent({
                     </item>`
             } else {
                 rowData.mask.forEach((ele) => {
-                    data += `
+                    data += rawXml`
                         <item>
-                            <switch>${ele.switch ? rowData.switch : false}</switch>
+                            <switch>${ele.switch ? rowData.switch.toString() : 'false'}</switch>
                             <rectangle>
-                                <X>${ele.switch ? ele.X : 0}</X>
-                                <Y>${ele.switch ? ele.Y : 0}</Y>
-                                <width>${ele.switch ? ele.width : 0}</width>
-                                <height>${ele.switch ? ele.height : 0}</height>
+                                <X>${ele.switch ? ele.X.toString() : '0'}</X>
+                                <Y>${ele.switch ? ele.Y.toString() : '0'}</Y>
+                                <width>${ele.switch ? ele.width.toString() : '0'}</width>
+                                <height>${ele.switch ? ele.height.toString() : '0'}</height>
                             </rectangle>
                             <color>${rowData.color}</color>
                         </item>`
                 })
             }
-            data += `
+            data += rawXml`
                         </privacyMask>
                     </chl>
                 </content>`
@@ -251,12 +253,12 @@ export default defineComponent({
             if (total == 0) return
             let count = 0
             const successRows: ChannelMask[] = []
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             tableData.value.forEach((ele) => (ele.status = ''))
             editRows.forEach((ele) => {
-                editPrivacyMask(getXmlWrapData(getSaveData(ele))).then((res: any) => {
-                    res = queryXml(res)
-                    const success = res('status').text() == 'success'
+                editPrivacyMask(getXmlWrapData(getSaveData(ele))).then((res) => {
+                    const $ = queryXml(res)
+                    const success = $('status').text() == 'success'
                     if (success) {
                         ele.status = 'success'
                         ele.statusTip = statusToolTip['saveSuccess']
@@ -272,7 +274,7 @@ export default defineComponent({
                         })
                         if (!editRows.size) btnOKDisabled.value = true
                         editStatus.value = false
-                        closeLoading(LoadingTarget.FullScreen)
+                        closeLoading()
                     }
                 })
             })
@@ -438,13 +440,15 @@ export default defineComponent({
         })
 
         onBeforeUnmount(() => {
-            if (mode.value === 'ocx') {
-                plugin?.VideoPluginNotifyEmitter.removeListener(LiveNotify2Js)
-                const sendXML = OCX_XML_StopPreview('ALL')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-            } else {
-                maskDrawer?.destroy()
-                maskDrawer = undefined
+            if (ready.value) {
+                if (mode.value === 'ocx') {
+                    plugin.VideoPluginNotifyEmitter.removeListener(LiveNotify2Js)
+                    const sendXML = OCX_XML_StopPreview('ALL')
+                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                } else {
+                    maskDrawer?.destroy()
+                    maskDrawer = undefined
+                }
             }
         })
 

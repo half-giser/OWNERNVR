@@ -1,7 +1,7 @@
 <!--
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-06-19 15:15:55
- * @Description:
+ * @Description: 通道 - 信号接入配置
 -->
 <template>
     <div class="base-flex-box">

@@ -2,8 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-03 11:57:44
  * @Description: OCX公共模块
- * @LastEditors: Please set LastEditors
- * @LastEditTime: 2024-06-21 18:15:48
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-11 18:49:24
  */
 import { ENV_MODE } from '@/utils/constants'
 
@@ -975,7 +975,7 @@ export const PluginSizeModeMapping: Record<BrowserType, PluginSizeMode> = {
     safari: 'relativeToDom',
 }
 
-export function OCX_XML_OpenFileBrowser_getpath(xmlStr: string) {
+export const OCX_XML_OpenFileBrowser_getpath = (xmlStr: string) => {
     const $xmlDoc = queryXml(XMLStr2XMLDoc(xmlStr))
     return $xmlDoc("response[@type='OpenFileBrowser']").text()
 }

@@ -28,7 +28,7 @@ export default defineComponent({
     emits: ['toolBarEvent'],
     setup(_props, ctx) {
         const msg = ref('')
-        const search = function () {
+        const search = () => {
             ctx.emit('toolBarEvent', {
                 type: 'search',
                 data: {
@@ -36,7 +36,7 @@ export default defineComponent({
                 },
             })
         }
-        const addChl = function () {
+        const addChl = () => {
             ctx.emit('toolBarEvent', {
                 type: 'addChl',
             })
