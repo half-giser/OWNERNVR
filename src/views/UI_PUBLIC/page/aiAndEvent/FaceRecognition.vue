@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-28 13:41:57
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-08 11:01:49
+ * @LastEditTime: 2024-10-12 16:12:07
 -->
 <template>
     <!-- 通道名称及选择器 -->
@@ -416,26 +416,19 @@
                     class="base-btn-box collapse"
                     :span="2"
                 >
-                    <el-form
-                        label-position="left"
-                        class="narrow"
-                        :style="{
-                            '--form-label-width': 'auto',
-                        }"
-                    >
-                        <el-form-item :label="Translate('IDCS_ENABLE')">
-                            <el-checkbox
-                                v-model="faceMatchData.hitEnable"
-                                @change="getAIResourceData(true)"
-                                >{{ Translate('IDCS_SUCCESSFUL_RECOGNITION') }}</el-checkbox
-                            >
-                            <el-checkbox
-                                v-model="faceMatchData.notHitEnable"
-                                @change="getAIResourceData(true)"
-                                >{{ Translate('IDCS_GROUP_STRANGER') }}</el-checkbox
-                            >
-                        </el-form-item>
-                    </el-form>
+                    <div>
+                        <el-text :style="{ margin: '0 20px' }">{{ Translate('IDCS_ENABLE') }}</el-text>
+                        <el-checkbox
+                            v-model="faceMatchData.hitEnable"
+                            @change="getAIResourceData(true)"
+                            >{{ Translate('IDCS_SUCCESSFUL_RECOGNITION') }}</el-checkbox
+                        >
+                        <el-checkbox
+                            v-model="faceMatchData.notHitEnable"
+                            @change="getAIResourceData(true)"
+                            >{{ Translate('IDCS_GROUP_STRANGER') }}</el-checkbox
+                        >
+                    </div>
                     <div v-show="showAIReourceDetail">
                         <span>{{ `${Translate('IDCS_USAGE_RATE') + pageData.resourceOccupancy}` }}</span>
                         <BaseImgSprite
@@ -733,7 +726,7 @@
 .taskBtn {
     position: absolute;
     right: 20px;
-    top: 58px;
+    top: 35px;
     span {
         font-size: 30px;
         padding: 0 5px;
