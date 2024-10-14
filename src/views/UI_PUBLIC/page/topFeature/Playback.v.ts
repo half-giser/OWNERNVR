@@ -3,7 +3,7 @@
  * @Date: 2024-08-05 16:00:46
  * @Description: 回放
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-12 18:40:05
+ * @LastEditTime: 2024-10-14 14:33:03
  */
 import PlaybackChannelPanel, { type ChannelPanelExpose } from '../playback/PlaybackChannelPanel.vue'
 import PlaybackEventPanel from '../playback/PlaybackEventPanel.vue'
@@ -1308,6 +1308,7 @@ export default defineComponent({
          */
         const handleRecLogError = (error: string[]) => {
             pageData.value.notification.push(...error)
+            pageData.value.isBackUpPop = false
         }
 
         /**
