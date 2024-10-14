@@ -6,7 +6,6 @@
  * @LastEditTime: 2024-07-31 16:09:04
  */
 import { type RecMode } from '@/types/apiType/record'
-import { defineComponent } from 'vue'
 
 export default defineComponent({
     props: {

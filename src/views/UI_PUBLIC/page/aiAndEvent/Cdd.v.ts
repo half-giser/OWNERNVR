@@ -5,18 +5,15 @@
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
  * @LastEditTime: 2024-09-30 15:05:24
  */
-import { type chlCaps } from '@/types/apiType/aiAndEvent'
-import { type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
+import { type chlCaps, type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
-import BaseTransferDialog from '@/components/BaseTransferDialog.vue'
 import { type XmlResult } from '@/utils/xmlParse'
 import { cloneDeep } from 'lodash-es'
 import CanvasVfd from '@/utils/canvas/canvasVfd'
 export default defineComponent({
     components: {
         ScheduleManagPop,
-        BaseTransferDialog,
     },
     props: {
         /**
@@ -40,7 +37,7 @@ export default defineComponent({
         },
     },
     setup(props) {
-        const { LoadingTarget, openLoading, closeLoading } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const openMessageTipBox = useMessageBox().openMessageTipBox
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
@@ -48,7 +45,7 @@ export default defineComponent({
         const pluginStore = usePluginStore()
         const osType = getSystemInfo().platform
         let cddDrawer: CanvasVfd
-        const pageData: { [key: string]: any } = ref({
+        const pageData = ref<{ [key: string]: any }>({
             // 当前选中的通道
             currChlId: '',
             // 当前选择通道数据
@@ -266,7 +263,7 @@ export default defineComponent({
             })
             const res = queryXml(resb)
             if (res('status').text() == 'success') {
-                res('//content/item').forEach((item: any) => {
+                res('//content/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     pageData.value.recordSource.push({
                         value: item.attr('id'),
@@ -284,7 +281,7 @@ export default defineComponent({
             })
             const res = queryXml(resb)
             if (res('status').text() == 'success') {
-                res('//content/item').forEach((item: any) => {
+                res('//content/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     let name = $item('name').text()
                     if ($item('devDesc').text()) {
@@ -476,9 +473,9 @@ export default defineComponent({
                                         <param/>
                                         <trigger/>
                                     </requireField>`
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             const res = await queryCdd(sendXml)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             const $ = queryXml(res)
             if ($('status').text() == 'success') {
                 const holdTimeArr = $('//content/chl/param/holdTimeNote').text().split(',')
@@ -495,7 +492,7 @@ export default defineComponent({
                     refreshFrequencyList.push({ value: Number(item.text()), label: itemText })
                 })
                 const mutexList: { object: string; status: boolean }[] = []
-                $('//content/trigger/mutexList/item').forEach((item: any) => {
+                $('//content/trigger/mutexList/item').forEach((item) => {
                     mutexList.push({
                         object: item.text(),
                         status: item.attr('status') == 'true',
@@ -531,7 +528,7 @@ export default defineComponent({
                     pageData.value.sysAudio = $item('sysAudio').attr('id') == '' ? $item('sysAudio').attr('id') : ''
                     pageData.value.record = {
                         switch: $item('sysRec/switch').text() == 'true',
-                        chls: $item('sysRec/chls/item').map((item: any) => {
+                        chls: $item('sysRec/chls/item').map((item) => {
                             return {
                                 value: item.attr('id'),
                                 label: item.text(),
@@ -541,7 +538,7 @@ export default defineComponent({
                     pageData.value.recordList = pageData.value.record.chls.map((item: { value: string; label: string }) => item.value)
                     pageData.value.alarmOut = {
                         switch: $item('alarmOut/switch').text() == 'true',
-                        chls: $item('alarmOut/alarmOuts/item').map((item: any) => {
+                        chls: $item('alarmOut/alarmOuts/item').map((item) => {
                             return {
                                 value: item.attr('id'),
                                 label: item.text(),
@@ -551,7 +548,7 @@ export default defineComponent({
                     pageData.value.alarmOutList = pageData.value.alarmOut.chls.map((item: { value: string; label: string }) => item.value)
                     pageData.value.preset = {
                         switch: $item('preset/switch').text() == 'true',
-                        presets: $item('preset/presets/item').map((item: any) => {
+                        presets: $item('preset/presets/item').map((item) => {
                             const $ = queryXml(item.element)
                             return {
                                 index: $('index').text(),
@@ -608,7 +605,7 @@ export default defineComponent({
                                 <chls type="list">
                                     ${pageData.value['record']['chls']
                                         .map(
-                                            (element: { value: string; label: string }) => `
+                                            (element: { value: string; label: string }) => rawXml`
                                         <item id="${element['value']}">
                                             <![CDATA[${element['label']}]]>
                                         </item>
@@ -621,7 +618,7 @@ export default defineComponent({
                                 <alarmOuts type="list">
                                     ${pageData.value['alarmOut']['chls']
                                         .map(
-                                            (element: { value: string; label: string }) => `
+                                            (element: { value: string; label: string }) => rawXml`
                                         <item id="${element['value']}">
                                             <![CDATA[${element['label']}]]>
                                         </item>
@@ -635,7 +632,7 @@ export default defineComponent({
                                     ${pageData.value['presetSource']
                                         .map((element: PresetList) =>
                                             element['preset']['value']
-                                                ? `
+                                                ? rawXml`
                                         <item>
                                             <index>${element['preset']['value']}</index>
                                             <name><![CDATA[${element['preset']['label']}]]></name>
@@ -659,9 +656,9 @@ export default defineComponent({
                     </chl>
                 </content>
             `
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             const res = await editCdd(sendXml)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             const $ = queryXml(res)
             if ($('status').text() == 'success') {
                 // NT-9292 开关为开把originalSwitch置为true避免多次弹出互斥提示
@@ -685,7 +682,6 @@ export default defineComponent({
             if (isSwitchChange && switchChangeType) {
                 openMessageTipBox({
                     type: 'question',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_SIMPLE_CROWD_DETECT_TIPS').formatForLang(
                         Translate('IDCS_CHANNEL') + ':' + pageData.value['chlData']['name'],
                         pageData.value['closeTip'][switchChangeType],
@@ -718,18 +714,18 @@ export default defineComponent({
             }
         }
 
-        const handleDrawAvailableChange = function () {
+        const handleDrawAvailableChange = () => {
             if (pageData.value.isDrawAvailable) {
                 cddDrawer.setEnable(true)
             } else {
                 cddDrawer.setEnable(false)
             }
         }
-        const cddAreaChange = function (data: { X1: number; X2: number; Y1: number; Y2: number }) {
+        const cddAreaChange = (data: { X1: number; X2: number; Y1: number; Y2: number }) => {
             pageData.value.regionInfo = [data]
             pageData.value.applyDisable = false
         }
-        const setOcxData = function () {
+        const setOcxData = () => {
             if (pageData.value['regionInfo'].length > 0) {
                 if (mode.value === 'h5') {
                     cddDrawer.setArea(pageData.value['regionInfo'][0])
@@ -739,7 +735,7 @@ export default defineComponent({
                 }
             }
         }
-        const clearArea = function () {
+        const clearArea = () => {
             if (mode.value === 'h5') {
                 cddDrawer.clear()
             } else {
@@ -793,7 +789,6 @@ export default defineComponent({
             handleDrawAvailableChange,
             clearArea,
             ScheduleManagPop,
-            BaseTransferDialog,
         }
     },
 })

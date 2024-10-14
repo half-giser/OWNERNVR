@@ -1,21 +1,17 @@
 import { type CombinedAlarm, type CombinedAlarmItem, type faceMatchObj, type PresetItem } from '@/types/apiType/aiAndEvent'
 import { cloneDeep, isEqual } from 'lodash-es'
-import BaseTransferPop from '@/components/BaseTransferPop.vue'
-import BaseTransferDialog from '@/components/BaseTransferDialog.vue'
 import SetPresetPop from './SetPresetPop.vue'
 import CombinationAlarmPop from './CombinationAlarmPop.vue'
 
 export default defineComponent({
     components: {
-        BaseTransferPop,
-        BaseTransferDialog,
         SetPresetPop,
         CombinationAlarmPop,
     },
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
         const recordRef = ref()
@@ -220,7 +216,7 @@ export default defineComponent({
             getChlList({
                 requireField: ['device'],
                 nodeType: 'alarmOuts',
-            }).then((result: any) => {
+            }).then((result) => {
                 commLoadResponseHandler(result, ($) => {
                     const rowData = [] as {
                         id: string
@@ -513,7 +509,7 @@ export default defineComponent({
             recordRef.value.handleClose()
         }
         // 打开录像dialog
-        const setRecord = function (index: number) {
+        const setRecord = (index: number) => {
             pageData.value.triggerDialogIndex = index
             pageData.value.recordIsShow = true
         }
@@ -566,7 +562,7 @@ export default defineComponent({
             snapRef.value.handleClose()
         }
         // 打开抓图dialog
-        const setSnap = function (index: number) {
+        const setSnap = (index: number) => {
             pageData.value.triggerDialogIndex = index
             pageData.value.snapIsShow = true
         }
@@ -619,7 +615,7 @@ export default defineComponent({
             alarmOutRef.value.handleClose()
         }
         // 打开报警输出dialog
-        const setAlarmOut = function (index: number) {
+        const setAlarmOut = (index: number) => {
             pageData.value.triggerDialogIndex = index
             pageData.value.alarmOutIsShow = true
         }
@@ -814,7 +810,7 @@ export default defineComponent({
                     </item>
                 `
             })
-            sendXml += `</presets>
+            sendXml += rawXml`</presets>
                 </preset>
                 <msgPushSwitch>${row.msgPush}</msgPushSwitch>
                 <buzzerSwitch>${row.beeper}</buzzerSwitch>
@@ -832,7 +828,7 @@ export default defineComponent({
             const editedRows = getEditedRows(tableData.value, tableDataInit)
             let count = 0
             if (editedRows.length != 0) {
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
                 editedRows.forEach(async (item) => {
                     const sendXml = getSavaData(item)
                     const result = await editCombinedAlarm(sendXml)
@@ -845,7 +841,7 @@ export default defineComponent({
                         pageData.value.applyDisabled = true
                         // 更新表格初始对比值
                         tableDataInit = cloneDeep(tableData.value)
-                        closeLoading(LoadingTarget.FullScreen)
+                        closeLoading()
                     }
                 })
             }

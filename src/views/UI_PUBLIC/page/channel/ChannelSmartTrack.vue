@@ -90,13 +90,9 @@
                     <el-table-column :label="Translate('IDCS_HOMING_AFTER_TARGET_STATIONARY')">
                         <template #header>
                             <el-dropdown trigger="click">
-                                <span class="el-dropdown-link">
+                                <BaseTableDropdownLink>
                                     {{ Translate('IDCS_HOMING_AFTER_TARGET_STATIONARY') }}
-                                    <BaseImgSprite
-                                        class="ddn"
-                                        file="ddn"
-                                    />
-                                </span>
+                                </BaseTableDropdownLink>
                                 <template #dropdown>
                                     <el-dropdown-menu>
                                         <el-dropdown-item

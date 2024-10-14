@@ -308,10 +308,10 @@ export default defineComponent({
                     pageData.value.voiceList = []
                     const res = queryXml(resb)
                     if (res('status').text() == 'success') {
-                        res('//content/audioList/item').forEach((item: any) => {
+                        res('//content/audioList/item').forEach((item) => {
                             const $item = queryXml(item.element)
                             pageData.value.voiceList.push({
-                                value: item.attr('id'),
+                                value: item.attr('id')!,
                                 label: $item('name').text(),
                             })
                         })

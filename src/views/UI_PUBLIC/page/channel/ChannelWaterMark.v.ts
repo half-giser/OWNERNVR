@@ -296,7 +296,7 @@ export default defineComponent({
         const getRowById = (chlId: string) => {
             return pageData.value.chlList.find((element) => element.chlId == chlId) as ChannelWaterMarkDto
         }
-        const addEditRow = function (row: ChannelWaterMarkDto) {
+        const addEditRow = (row: ChannelWaterMarkDto) => {
             // 若该行不存在于编辑行中，则添加
             const isExist = pageData.value.editRows.some((item) => item.chlId === row.chlId)
             if (!isExist) {

@@ -39,13 +39,9 @@
                     v-show="formData.event[0] === 'faceMatchWhiteList'"
                     trigger="click"
                 >
-                    <span class="el-dropdown-link">
-                        <el-text>{{ pageData.chartType === 'chart' ? Translate('IDCS_COLIMNAR_CHART') : Translate('IDCS_DETAIL_CHART') }}</el-text>
-                        <BaseImgSprite
-                            class="ddn"
-                            file="ddn"
-                        />
-                    </span>
+                    <BaseTableDropdownLink>
+                        {{ pageData.chartType === 'chart' ? Translate('IDCS_COLIMNAR_CHART') : Translate('IDCS_DETAIL_CHART') }}
+                    </BaseTableDropdownLink>
                     <template #dropdown>
                         <el-dropdown-menu>
                             <el-dropdown-item

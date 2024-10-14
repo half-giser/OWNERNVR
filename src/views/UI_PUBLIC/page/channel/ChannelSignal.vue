@@ -29,13 +29,9 @@
                 >
                     <template #header>
                         <el-dropdown trigger="click">
-                            <span class="el-dropdown-link">
+                            <BaseTableDropdownLink>
                                 {{ Translate('IDCS_ANALOG_IP') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item @click="handleAnalogIpChangeAll('Analog')">{{ Translate('IDCS_SIGNAL_ANALOG') }}</el-dropdown-item>
@@ -67,13 +63,9 @@
                 >
                     <template #header>
                         <el-dropdown trigger="click">
-                            <span class="el-dropdown-link">
+                            <BaseTableDropdownLink>
                                 {{ Translate('IDCS_SIGNAL') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -112,13 +104,9 @@
                 >
                     <template #header>
                         <el-dropdown trigger="click">
-                            <span class="el-dropdown-link">
+                            <BaseTableDropdownLink>
                                 {{ Translate('IDCS_SUPPORT_LITE') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item @click="handleLiteChangeAll(true)">{{ Translate('IDCS_ON') }}</el-dropdown-item>

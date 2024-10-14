@@ -362,7 +362,6 @@
                             >
                                 <span>{{ Translate('IDCS_ADVANCED') }}</span>
                                 <BaseImgSprite
-                                    class="moreBtn"
                                     file="arrow"
                                     :index="0"
                                     :chunk="4"
@@ -470,13 +469,7 @@
                                                 :hide-on-click="false"
                                                 placement="bottom-start"
                                             >
-                                                <span class="el-dropdown-link">
-                                                    {{ Translate('IDCS_SIMILARITY') }}(%)
-                                                    <BaseImgSprite
-                                                        class="ddn"
-                                                        file="ddn"
-                                                    />
-                                                </span>
+                                                <BaseTableDropdownLink> {{ Translate('IDCS_SIMILARITY') }}(%) </BaseTableDropdownLink>
                                                 <template #dropdown>
                                                     <div class="dropdownBox">
                                                         <el-form

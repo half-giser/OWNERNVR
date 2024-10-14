@@ -70,7 +70,6 @@ export default defineComponent({
         const handleDelChlGroup = (rowData: ChlGroup) => {
             openMessageTipBox({
                 type: 'question',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_DELETE_MP_GROUP_S').formatForLang(getShortString(rowData.name, 10)),
             }).then(() => {
                 const data = rawXml`

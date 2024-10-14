@@ -596,9 +596,7 @@ export const commLoadResponseHandler = ($response: any, successHandler?: (result
         } else {
             openMessageTipBox({
                 type: 'info',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_QUERY_DATA_FAIL'),
-                showCancelButton: false,
             }).then(() => {
                 failedHandler && failedHandler($)
                 reject($)
@@ -749,7 +747,7 @@ export const parseDateToPersianCalendar = (date: any) => {
 }
 
 /**
- * @description use dayjs
+ * @deprecated use dayjs
  * @description 波斯日历转换成公历
  * @param {any} persianDate 波斯历日期对象
  * @return {Date} 公历日期对象
@@ -888,7 +886,6 @@ export const reconnect = () => {
             reconnectStandard(() => {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_LOGIN_OVERTIME'),
                 }).then(() => {
                     closeLoading()

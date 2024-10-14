@@ -70,13 +70,9 @@
                             width="fit-content"
                         >
                             <template #reference>
-                                <span class="el-dropdown-link">
+                                <BaseTableDropdownLink>
                                     {{ Translate('IDCS_EVENT_TYPE') }}
-                                    <BaseImgSprite
-                                        class="ddn"
-                                        file="ddn"
-                                    />
-                                </span>
+                                </BaseTableDropdownLink>
                             </template>
                             <div class="sub-types">
                                 <div class="base-subheading-box">{{ Translate('IDCS_EVENT') }}</div>

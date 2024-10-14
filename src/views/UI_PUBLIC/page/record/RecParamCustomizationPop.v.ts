@@ -82,7 +82,7 @@ export default defineComponent({
                 pageData.value.expireTime = expirationTime
                 const week = prop.expirationData?.week
                 if (week) {
-                    pageData.value.weekArr = week.split(',').map((item: any) => Number(item))
+                    pageData.value.weekArr = week.split(',').map((item) => Number(item))
                 }
                 const holiday = prop.expirationData?.holiday
                 if (holiday) {
@@ -138,7 +138,6 @@ export default defineComponent({
             openMessageTipBox({
                 type: 'question',
                 message: Translate('IDCS_CHANGE_EXPIRE_TIME_WARNING_D').formatForLang(tips),
-                showCancelButton: true,
             })
                 .then(() => {
                     if (prop.expirationType == 'all') {

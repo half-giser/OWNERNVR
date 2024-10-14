@@ -153,13 +153,7 @@
                     >
                         <template #header>
                             <el-dropdown trigger="click">
-                                <span class="el-dropdown-link">
-                                    {{ `${Translate('IDCS_NAME')}OSD` }}
-                                    <BaseImgSprite
-                                        class="ddn"
-                                        file="ddn"
-                                    />
-                                </span>
+                                <BaseTableDropdownLink> {{ Translate('IDCS_NAME') }}OSD </BaseTableDropdownLink>
                                 <template #dropdown>
                                     <el-dropdown-menu>
                                         <el-dropdown-item @click="changeSwitchAll(true, 'displayName')">{{ Translate('IDCS_ON') }}</el-dropdown-item>
@@ -195,13 +189,7 @@
                     >
                         <template #header>
                             <el-dropdown trigger="click">
-                                <span class="el-dropdown-link">
-                                    {{ `${Translate('IDCS_TIME')}OSD` }}
-                                    <BaseImgSprite
-                                        class="ddn"
-                                        file="ddn"
-                                    />
-                                </span>
+                                <BaseTableDropdownLink> {{ Translate('IDCS_TIME') }}OSD </BaseTableDropdownLink>
                                 <template #dropdown>
                                     <el-dropdown-menu>
                                         <el-dropdown-item @click="changeSwitchAll(true, 'displayTime')">{{ Translate('IDCS_ON') }}</el-dropdown-item>
@@ -237,13 +225,9 @@
                     >
                         <template #header>
                             <el-dropdown trigger="click">
-                                <span class="el-dropdown-link">
+                                <BaseTableDropdownLink>
                                     {{ Translate('IDCS_DATE_FORMAT') }}
-                                    <BaseImgSprite
-                                        class="ddn"
-                                        file="ddn"
-                                    />
-                                </span>
+                                </BaseTableDropdownLink>
                                 <template #dropdown>
                                     <el-dropdown-menu>
                                         <el-dropdown-item
@@ -266,13 +250,9 @@
                     >
                         <template #header>
                             <el-dropdown trigger="click">
-                                <span class="el-dropdown-link">
+                                <BaseTableDropdownLink>
                                     {{ Translate('IDCS_TIME_FORMAT') }}
-                                    <BaseImgSprite
-                                        class="ddn"
-                                        file="ddn"
-                                    />
-                                </span>
+                                </BaseTableDropdownLink>
                                 <template #dropdown>
                                     <el-dropdown-menu>
                                         <el-dropdown-item
@@ -300,13 +280,9 @@
                     >
                         <template #header>
                             <el-dropdown trigger="click">
-                                <span class="el-dropdown-link">
+                                <BaseTableDropdownLink>
                                     {{ Translate('IDCS_WATER_MARK') }}
-                                    <BaseImgSprite
-                                        class="ddn"
-                                        file="ddn"
-                                    />
-                                </span>
+                                </BaseTableDropdownLink>
                                 <template #dropdown>
                                     <el-dropdown-menu>
                                         <el-dropdown-item @click="changeSwitchAll(true, 'remarkSwitch')">{{ Translate('IDCS_ON') }}</el-dropdown-item>

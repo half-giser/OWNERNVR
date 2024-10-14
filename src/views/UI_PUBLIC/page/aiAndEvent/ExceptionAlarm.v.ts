@@ -6,24 +6,16 @@
  * @LastEditTime: 2024-10-10 13:45:39
  */
 import { cloneDeep } from 'lodash-es'
-import { ArrowDown } from '@element-plus/icons-vue'
-import BaseTransferPop from '@/components/BaseTransferPop.vue'
-import BaseTransferDialog from '@/components/BaseTransferDialog.vue'
 import { ExceptionAlarmRow } from '@/types/apiType/aiAndEvent'
 import SetPresetPop from './SetPresetPop.vue'
-// import { APP_TYPE } from '@/utils/constants'
 export default defineComponent({
     components: {
-        ArrowDown,
-        BaseTransferPop,
-        BaseTransferDialog,
         SetPresetPop,
     },
     setup() {
-        const chosedList = ref<any[]>([])
         const { Translate } = useLangStore()
         const tableData = ref<ExceptionAlarmRow[]>([])
-        const { LoadingTarget, openLoading, closeLoading } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
         const openMessageTipBox = useMessageBox().openMessageTipBox
         const pageData = ref({
@@ -74,10 +66,10 @@ export default defineComponent({
                     pageData.value.audioList = []
                     const res = queryXml(resb)
                     if (res('status').text() == 'success') {
-                        res('//content/audioList/item').forEach((item: any) => {
+                        res('//content/audioList/item').forEach((item) => {
                             const $item = queryXml(item.element)
                             pageData.value.audioList.push({
-                                value: item.attr('id'),
+                                value: item.attr('id')!,
                                 label: $item('name').text(),
                             })
                         })
@@ -93,14 +85,14 @@ export default defineComponent({
             }).then(async (resb) => {
                 const res = queryXml(resb)
                 if (res('status').text() == 'success') {
-                    res('//content/item').forEach((item: any) => {
+                    res('//content/item').forEach((item) => {
                         const $item = queryXml(item.element)
                         let name = $item('name').text()
                         if ($item('devDesc').text().length) {
                             name = $item('devDesc').text() + '-' + name
                         }
                         pageData.value.alarmOutList.push({
-                            value: item.attr('id'),
+                            value: item.attr('id')!,
                             label: name,
                             device: {
                                 value: $item('device').attr('id'),
@@ -111,9 +103,9 @@ export default defineComponent({
                 }
             })
         }
-        const buildTableData = function () {
+        const buildTableData = () => {
             tableData.value.length = 0
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             queryAbnormalTrigger().then((resb) => {
                 // TODO p2p
@@ -123,7 +115,7 @@ export default defineComponent({
                 const res = queryXml(resb)
                 if (res('status').text() == 'success') {
                     tableData.value = []
-                    res('//content/item').forEach((item: any) => {
+                    res('//content/item').forEach((item) => {
                         const row = new ExceptionAlarmRow()
                         row.rowDisable = false
                         const $item = queryXml(item.element)
@@ -148,9 +140,9 @@ export default defineComponent({
                         }
                         row.msgPush = $item('msgPushSwitch').text()
                         row.alarmOut.switch = $item('triggerAlarmOut/switch').text() == 'true' ? true : false
-                        $item('triggerAlarmOut/alarmOuts/item').forEach((item: any) => {
+                        $item('triggerAlarmOut/alarmOuts/item').forEach((item) => {
                             row.alarmOut.alarmOuts.push({
-                                value: item.attr('id'),
+                                value: item.attr('id')!,
                                 label: item.text(),
                             })
                         })
@@ -165,10 +157,10 @@ export default defineComponent({
                     })
                 }
             })
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
-        const formatEventType = function (eventType: string) {
+        const formatEventType = (eventType: string) => {
             return Translate(pageData.value.eventTypeMapping[eventType as keyof typeof pageData.value.eventTypeMapping])
         }
         // 下列为alarmOut穿梭框相关
@@ -205,7 +197,7 @@ export default defineComponent({
             pageData.value.alarmOutChosedIdsAll = []
             pageData.value.alarmOutPopoverVisible = false
         }
-        const setAlarmOut = function (index: number) {
+        const setAlarmOut = (index: number) => {
             pageData.value.alarmOutIsShow = true
             pageData.value.triggerDialogIndex = index
         }
@@ -231,7 +223,7 @@ export default defineComponent({
             pageData.value.alarmOutIsShow = false
         }
 
-        const alarmOutSwitchChange = function (row: ExceptionAlarmRow) {
+        const alarmOutSwitchChange = (row: ExceptionAlarmRow) => {
             addEditRow()
             if (row.alarmOut.switch === false) {
                 row.alarmOut.alarmOuts = []
@@ -239,7 +231,7 @@ export default defineComponent({
             }
         }
         // 系统音频
-        const handleSysAudioChangeAll = function (sysAudio: string) {
+        const handleSysAudioChangeAll = (sysAudio: string) => {
             tableData.value.forEach((item) => {
                 if (!item.rowDisable) {
                     addEditRow()
@@ -248,7 +240,7 @@ export default defineComponent({
             })
         }
         // 消息推送
-        const handleMsgPushChangeAll = function (msgPush: string) {
+        const handleMsgPushChangeAll = (msgPush: string) => {
             tableData.value.forEach((item) => {
                 if (!item.rowDisable) {
                     addEditRow()
@@ -257,7 +249,7 @@ export default defineComponent({
             })
         }
         // 蜂鸣器
-        const handleBeeperChangeAll = function (beeper: string) {
+        const handleBeeperChangeAll = (beeper: string) => {
             tableData.value.forEach((item) => {
                 if (!item.rowDisable) {
                     addEditRow()
@@ -266,7 +258,7 @@ export default defineComponent({
             })
         }
         // 消息框弹出
-        const handleMsgBoxPopupChangeAll = function (msgBoxPopup: string) {
+        const handleMsgBoxPopupChangeAll = (msgBoxPopup: string) => {
             tableData.value.forEach((item) => {
                 if (!item.rowDisable) {
                     addEditRow()
@@ -275,7 +267,7 @@ export default defineComponent({
             })
         }
         // 邮件
-        const handleEmailChangeAll = function (email: string) {
+        const handleEmailChangeAll = (email: string) => {
             tableData.value.forEach((item) => {
                 if (!item.rowDisable && !item.emailDisable) {
                     addEditRow()
@@ -284,11 +276,11 @@ export default defineComponent({
             })
         }
 
-        const addEditRow = function () {
+        const addEditRow = () => {
             pageData.value.applyDisable = false
         }
 
-        const getSavaData = function () {
+        const getSavaData = () => {
             let sendXml = rawXml`
                 <types>
                     <abnormalType>
@@ -328,7 +320,7 @@ export default defineComponent({
                 if (!(alarmOuts instanceof Array)) {
                     alarmOuts = [alarmOuts]
                 }
-                alarmOuts.forEach((item: any) => {
+                alarmOuts.forEach((item) => {
                     sendXml += rawXml` <item id="${item.value}">
                                 <![CDATA[${item.label}]]>
                             </item>`
@@ -346,8 +338,8 @@ export default defineComponent({
             sendXml += rawXml`</content>`
             return sendXml
         }
-        const setData = function () {
-            openLoading(LoadingTarget.FullScreen)
+        const setData = () => {
+            openLoading()
             const sendXml = getSavaData()
             editAbnormalTrigger(sendXml).then((resb) => {
                 const res = queryXml(resb)
@@ -363,7 +355,7 @@ export default defineComponent({
                     })
                 }
             })
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             pageData.value.applyDisable = true
         }
 
@@ -373,11 +365,8 @@ export default defineComponent({
             buildTableData()
         })
         return {
-            Translate,
-            chosedList,
             pageData,
             tableData,
-            openMessageTipBox,
             formatEventType,
             alarmOutConfirmAll,
             alarmOutCloseAll,

@@ -5,7 +5,6 @@
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
  * @LastEditTime: 2024-10-11 15:29:49
  */
-import { ArrowDown } from '@element-plus/icons-vue'
 import { cloneDeep } from 'lodash-es'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import { type FaceChlItem, type AIResource, FaceDetection, type PresetList, FaceMatch, type FaceGroupTableItem, FaceCompare, type CompareTask } from '@/types/apiType/aiAndEvent'
@@ -16,14 +15,13 @@ import { type XmlResult } from '@/utils/xmlParse'
 
 export default defineComponent({
     components: {
-        ArrowDown,
         SuccessfulRecognition,
         ScheduleManagPop,
     },
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const router = useRouter()
         const pluginStore = usePluginStore()
         const systemCaps = useCababilityStore()
@@ -623,8 +621,13 @@ export default defineComponent({
             const chlData = chlList[pageData.value.curChl]
             if (chlData.supportVfd) {
                 const sendXml = rawXml`
-                <condition><chlId>${chlData.id}</chlId></condition>
-                <requireField><param/><trigger/></requireField>
+                    <condition>
+                        <chlId>${chlData.id}</chlId>
+                    </condition>
+                    <requireField>
+                        <param/>
+                        <trigger/>
+                    </requireField>
                 `
                 const result = await queryVfd(sendXml)
                 commLoadResponseHandler(result, async ($) => {
@@ -716,7 +719,9 @@ export default defineComponent({
                 })
             } else {
                 const sendXml = rawXml`
-                <condition><chlId>${chlData.id}</chlId></condition>
+                    <condition>
+                        <chlId>${chlData.id}</chlId>
+                    </condition>
                 `
                 const result = await queryBackFaceMatch(sendXml)
                 const $ = queryXml(result)
@@ -960,7 +965,7 @@ export default defineComponent({
                 row.eventType.forEach((item) => {
                     sendXml += `<item>${item}</item>`
                 })
-                sendXml += `</param>
+                sendXml += rawXml`</param>
                     </chl>
                 </content>
                 `
@@ -1271,24 +1276,29 @@ export default defineComponent({
         }
         const setFaceDetectionData = async () => {
             const sendXml = getFaceDetectionSaveData()
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             await editVfd(sendXml)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             if (faceDetectionData.value.enabledSwitch) {
                 faceDetectionData.value.originalSwitch = true
             }
             detectionPageData.value.applyDisabled = true
         }
         const setFaceDetectionBackUpData = async () => {
-            const sendXml = rawXml`<content><param><chls>
-                    <item guid='${pageData.value.curChl}' scheduleGuid='${faceDetectionData.value.schedule}'>
-                    <switch>${String(faceDetectionData.value.enabledSwitch)}</switch>
-                    </item>
-                </chls></param></content>
+            const sendXml = rawXml`
+                <content>
+                    <param>
+                        <chls>
+                            <item guid='${pageData.value.curChl}' scheduleGuid='${faceDetectionData.value.schedule}'>
+                                <switch>${String(faceDetectionData.value.enabledSwitch)}</switch>
+                            </item>
+                        </chls>
+                    </param>
+                </content>
             `
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             await editRealFaceMatch(sendXml)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             detectionPageData.value.applyDisabled = true
         }
 
@@ -1480,10 +1490,10 @@ export default defineComponent({
                             </item>`
             })
             sendXml += `</groupId></chl></content>`
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             const result = await editFaceMatchConfig(sendXml)
             const $ = queryXml(result)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('/response/status').text() !== 'success') {
                 const errorCode = Number($('/response/errorCode').text())
@@ -1689,9 +1699,9 @@ export default defineComponent({
 
         const setFaceCompareData = async () => {
             const sendXml = getFaceCompareSaveData()
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             await editFaceMatchAlarmParam(sendXml)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             comparePageData.value.compareTab = 'hit'
             comparePageData.value.applyDisabled = true
         }
@@ -1735,7 +1745,7 @@ export default defineComponent({
                 Plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
             }
             getSnapOptions()
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             if (showAIReourceDetail) {
                 await getAIResourceData(false)
             }
@@ -1747,7 +1757,7 @@ export default defineComponent({
             await getAlarmOutData()
             await getSnapList()
             await getChlData()
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             await getPresetData()
         })
 

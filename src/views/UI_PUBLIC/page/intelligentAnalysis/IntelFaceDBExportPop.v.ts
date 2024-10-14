@@ -25,7 +25,7 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        // const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        // const { openLoading, closeLoading } = useLoading()
 
         const MAX_ZIP_FILE_LENGTH = 5000 // 一个压缩包最大图片文件数量
 

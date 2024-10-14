@@ -131,12 +131,12 @@ export default defineComponent({
                 })
             } else {
                 prop.handlePresetLinkedList!(prop.filterChlId, linkedList)
-                ctx.emit('close', prop.filterChlId as string)
+                ctx.emit('close', prop.filterChlId!)
             }
         }
 
         const close = () => {
-            ctx.emit('close', prop.filterChlId as string)
+            ctx.emit('close', prop.filterChlId!)
         }
         return {
             tableData,

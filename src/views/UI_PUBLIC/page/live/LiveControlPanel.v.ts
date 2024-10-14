@@ -100,7 +100,7 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        // const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        // const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
         const userSession = useUserSessionStore()
         const theme = getUiAndTheme()

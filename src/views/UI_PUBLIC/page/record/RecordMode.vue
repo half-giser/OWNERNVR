@@ -5,7 +5,7 @@
 -->
 
 <template>
-    <div id="RecordModeView">
+    <div>
         <div class="base-subheading-box">{{ Translate('IDCS_RECORD_MODE') }}</div>
 
         <div class="subcontent-box">
@@ -54,13 +54,9 @@
                     <el-table-column width="210px">
                         <template #header>
                             <el-dropdown trigger="click">
-                                <span class="el-dropdown-link">
+                                <BaseTableDropdownLink>
                                     {{ Translate('IDCS_SENSOR_RECORD_SCHEDULE') }}
-                                    <BaseImgSprite
-                                        class="ddn"
-                                        file="ddn"
-                                    />
-                                </span>
+                                </BaseTableDropdownLink>
                                 <template #dropdown>
                                     <el-dropdown-menu>
                                         <el-dropdown-item
@@ -93,13 +89,9 @@
                     <el-table-column width="210px">
                         <template #header>
                             <el-dropdown trigger="click">
-                                <span class="el-dropdown-link">
+                                <BaseTableDropdownLink>
                                     {{ Translate('IDCS_MOTION_RECORD_SCHEDULE') }}
-                                    <BaseImgSprite
-                                        class="ddn"
-                                        file="ddn"
-                                    />
-                                </span>
+                                </BaseTableDropdownLink>
                                 <template #dropdown>
                                     <el-dropdown-menu>
                                         <el-dropdown-item
@@ -132,13 +124,9 @@
                     <el-table-column width="210px">
                         <template #header>
                             <el-dropdown trigger="click">
-                                <span class="el-dropdown-link">
+                                <BaseTableDropdownLink>
                                     {{ Translate('IDCS_AI_RECORD_SCHEDULE') }}
-                                    <BaseImgSprite
-                                        class="ddn"
-                                        file="ddn"
-                                    />
-                                </span>
+                                </BaseTableDropdownLink>
                                 <template #dropdown>
                                     <el-dropdown-menu>
                                         <el-dropdown-item
@@ -174,13 +162,9 @@
                     >
                         <template #header>
                             <el-dropdown trigger="click">
-                                <span class="el-dropdown-link">
+                                <BaseTableDropdownLink>
                                     {{ Translate('IDCS_POS_RECORD_SCHEDULE') }}
-                                    <BaseImgSprite
-                                        class="ddn"
-                                        file="ddn"
-                                    />
-                                </span>
+                                </BaseTableDropdownLink>
                                 <template #dropdown>
                                     <el-dropdown-menu>
                                         <el-dropdown-item
@@ -213,13 +197,9 @@
                     <el-table-column width="210px">
                         <template #header>
                             <el-dropdown trigger="click">
-                                <span class="el-dropdown-link">
+                                <BaseTableDropdownLink>
                                     {{ Translate('IDCS_TIME_RECORD_SCHEDULE') }}
-                                    <BaseImgSprite
-                                        class="ddn"
-                                        file="ddn"
-                                    />
-                                </span>
+                                </BaseTableDropdownLink>
                                 <template #dropdown>
                                     <el-dropdown-menu>
                                         <el-dropdown-item
