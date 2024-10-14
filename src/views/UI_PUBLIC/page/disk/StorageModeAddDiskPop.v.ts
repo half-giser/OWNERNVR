@@ -3,7 +3,7 @@
  * @Date: 2024-07-08 18:02:05
  * @Description: 存储模式新增磁盘弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:08:42
+ * @LastEditTime: 2024-10-14 17:44:35
  */
 import { StorageModeDiskGroupList, type StorageModeDiskList } from '@/types/apiType/disk'
 
@@ -137,7 +137,7 @@ export default defineComponent({
                         </diskGroup>
                     </content>
                 `
-                const result = await editSetAndElementRelation(getXmlWrapData(sendXml))
+                const result = await editSetAndElementRelation(sendXml)
                 const $ = queryXml(result)
 
                 if ($('//status').text() === 'success') {

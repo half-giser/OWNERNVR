@@ -377,6 +377,12 @@
     flex-shrink: 0;
     position: relative;
     justify-content: space-between;
+
+    & > div:not(:nth-child(2)) {
+        width: 200px;
+        display: flex;
+        justify-content: flex-end;
+    }
 }
 
 .manualAddTable {

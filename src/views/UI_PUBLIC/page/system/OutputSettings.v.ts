@@ -3,7 +3,7 @@
  * @Date: 2024-06-25 09:59:23
  * @Description: 输出配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:28:43
+ * @LastEditTime: 2024-10-14 17:43:11
  */
 import { type XmlResult } from '@/utils/xmlParse'
 import OutputSplitTemplate from './OutputSplitTemplate.vue'
@@ -513,7 +513,7 @@ export default defineComponent({
                             </chlGroupIds>
                         </condition>
                     `
-                    const result = await delChlGroup(getXmlWrapData(sendXml))
+                    const result = await delChlGroup(sendXml)
                     const $ = queryXml(result)
                     closeLoading()
                     if ($('//status').text() === 'success') {
@@ -562,7 +562,7 @@ export default defineComponent({
                     <name />
                 </requireField>
             `
-            const result = await queryChlGroupList(getXmlWrapData(sendXml))
+            const result = await queryChlGroupList(sendXml)
             const $ = queryXml(result)
             if ($('//status').text() === 'success') {
                 pageData.value.chlGroupList = []
@@ -596,7 +596,7 @@ export default defineComponent({
                     <chlGroupId>${id}</chlGroupId>
                 </condition>
             `
-            const result = await queryChlGroup(getXmlWrapData(sendXml))
+            const result = await queryChlGroup(sendXml)
             const $ = queryXml(result)
 
             closeLoading()

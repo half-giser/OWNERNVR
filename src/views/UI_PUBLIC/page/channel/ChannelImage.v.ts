@@ -508,7 +508,7 @@ export default defineComponent({
                         <nightTime>${rowData.scheduleInfo.nightTime}</nightTime>
                     </scheduleInfo>`
             data += '</chl></content>'
-            editChlVideoParam(getXmlWrapData(data)).then((res) => {
+            editChlVideoParam(data).then((res) => {
                 const $ = queryXml(res)
                 if ($('status').text() === 'success') {
                     baseFloatErrorRef.value.show('#divTip', Translate('IDCS_SAVE_DATA_SUCCESS'), 'ok')
@@ -618,7 +618,7 @@ export default defineComponent({
                     ${needSchedule ? '<scheduleInfo></scheduleInfo>' : ''}
                     ${cfgFile ? '<cfgFile>' + cfgFile + '</cfgFile>' : ''}
                 </condition>`
-            queryChlVideoParam(getXmlWrapData(data)).then((res) => {
+            queryChlVideoParam(data).then((res) => {
                 const $ = queryXml(res)
                 const rowData = getRowById(chlId)
                 if ($('status').text() == 'success') {
@@ -940,7 +940,7 @@ export default defineComponent({
             }
             data += '</content>'
             openLoading()
-            editChlVideoParam(getXmlWrapData(data)).then((res) => {
+            editChlVideoParam(data).then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
@@ -1013,7 +1013,7 @@ export default defineComponent({
                 <condition>
                     <chlId>${chlId}</chlId>
                 </condition>`
-            queryCameraLensCtrlParam(getXmlWrapData(data)).then((res) => {
+            queryCameraLensCtrlParam(data).then((res) => {
                 const $ = queryXml(res)
                 const newData = new ChannelLensCtrl()
                 newData.id = chlId
@@ -1126,7 +1126,7 @@ export default defineComponent({
                         <timeInterval>${curLensCtrl.value.focusType == 'manual' ? '0' : curLensCtrl.value.timeInterval}</timeInterval>
                     </chl>
                 </content>`
-            editCameraLensCtrlParam(getXmlWrapData(data))
+            editCameraLensCtrlParam(data)
                 .then((res) => {
                     const $ = queryXml(res)
                     if ($('status').text() === 'success' || $('errorCode').text() === '0') {

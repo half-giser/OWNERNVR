@@ -3,7 +3,7 @@
  * @Date: 2024-07-26 17:03:07
  * @Description: 现场预览-通道视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 15:18:22
+ * @LastEditTime: 2024-10-14 17:42:49
  */
 import ChannelGroupEditPop from '../channel/ChannelGroupEditPop.vue'
 import ChannelGroupAddPop from '../channel/ChannelGroupAddPop.vue'
@@ -157,8 +157,7 @@ export default defineComponent({
          */
         const getChlsList = async () => {
             const result = await getChlList({
-                nodeType: 'chls',
-                requireField: ['name', 'chlType', 'protocolType', 'supportPtz', 'supportPTZGroupTraceTask', 'supportAccessControl'],
+                requireField: ['protocolType', 'supportPtz', 'supportPTZGroupTraceTask', 'supportAccessControl'],
             })
             const $ = queryXml(result)
             if ($('//status').text() === 'success') {
@@ -190,8 +189,6 @@ export default defineComponent({
         const getSupportTalkbackChlList = async () => {
             const indexes = pageData.value.cacheChlList.map((item) => item.id)
             const result = await getChlList({
-                nodeType: 'chls',
-                requireField: ['name'],
                 isSupportTalkback: true,
             })
             const $ = queryXml(result)
@@ -301,7 +298,7 @@ export default defineComponent({
                     <name/>
                 </requireField>
             `
-            const result = await queryChlGroupList(getXmlWrapData(sendXml))
+            const result = await queryChlGroupList(sendXml)
             const $ = queryXml(result)
             if ($('//status').text() === 'success') {
                 pageData.value.chlGroupList = $('//content/item').map((item) => {
@@ -334,7 +331,7 @@ export default defineComponent({
                     <chlGroupId>${id}</chlGroupId>
                 </condition>
             `
-            const result = await queryChlGroup(getXmlWrapData(sendXml))
+            const result = await queryChlGroup(sendXml)
             const $ = queryXml(result)
 
             if ($('//status').text() === 'success') {
@@ -434,7 +431,7 @@ export default defineComponent({
                             </chlGroupIds>
                         </condition>
                     `
-                    const result = await delChlGroup(getXmlWrapData(sendXml))
+                    const result = await delChlGroup(sendXml)
                     const $ = queryXml(result)
                     closeLoading()
                     if ($('//status').text() === 'success') {
@@ -528,7 +525,7 @@ export default defineComponent({
                     <ip/>
                 </requireField>
             `
-            const result = await queryDevList(getXmlWrapData(sendXml))
+            const result = await queryDevList(sendXml)
             const $ = queryXml(result)
             $('//content/item').forEach((item) => {
                 const $item = queryXml(item.element)

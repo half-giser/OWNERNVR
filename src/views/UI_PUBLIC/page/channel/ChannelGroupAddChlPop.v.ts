@@ -60,7 +60,7 @@ export default defineComponent({
                     <chlType/>
                 </requireField>`
             openLoading()
-            queryDevList(getXmlWrapData(data)).then((res) => {
+            queryDevList(data).then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
@@ -121,7 +121,7 @@ export default defineComponent({
                     </chlGroup>
                 </content>`
             openLoading()
-            editSetAndElementRelation(getXmlWrapData(data)).then((res) => {
+            editSetAndElementRelation(data).then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {

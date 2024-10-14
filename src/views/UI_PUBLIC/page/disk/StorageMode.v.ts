@@ -3,7 +3,7 @@
  * @Date: 2024-07-08 18:01:29
  * @Description: 存储模式配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 17:05:26
+ * @LastEditTime: 2024-10-14 17:44:16
  */
 import type { StorageModeDiskGroupListDatum, StorageModeDiskGroupList } from '@/types/apiType/disk'
 import StorageModeAddDiskPop from './StorageModeAddDiskPop.vue'
@@ -228,7 +228,7 @@ export default defineComponent({
                 </content>
             `
 
-            const result = await editSetAndElementRelation(getXmlWrapData(sendXml))
+            const result = await editSetAndElementRelation(sendXml)
             const $ = queryXml(result)
 
             closeLoading()

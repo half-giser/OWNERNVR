@@ -100,7 +100,7 @@ export default defineComponent({
                                 <password${getSecurityVer()}><![CDATA[${AES_encrypt(formData.value.password, userSessionStore.sesionKey)}]]></password>
                             </chl>
                         </content>`
-                        editIPChlPassword(getXmlWrapData(data)).then((res) => {
+                        editIPChlPassword(data).then((res) => {
                             count++
                             if (queryXml(res)('status').text() == 'success') {
                                 successCount++

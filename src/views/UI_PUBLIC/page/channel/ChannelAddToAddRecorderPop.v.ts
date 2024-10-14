@@ -89,7 +89,7 @@ export default defineComponent({
                                 <userName>${formData.value.userName}</userName>
                                 ${formData.value.useDefaultPwd ? '' : '<password' + getSecurityVer() + '><![CDATA[' + AES_encrypt(formData.value.password, userSessionStore.sesionKey) + ']]></password>'}
                             </condition>`
-                queryRecorder(getXmlWrapData(data), undefined, false).then((res) => {
+                queryRecorder(data).then((res) => {
                     closeLoading()
                     const $ = queryXml(res)
                     if ($('status').text() == 'success') {
@@ -205,7 +205,7 @@ export default defineComponent({
                 data += `<password${getSecurityVer()}><![CDATA[${AES_encrypt(formData.value.password, userSessionStore.sesionKey)}]]></password>`
             }
             data += '</content>'
-            return getXmlWrapData(data)
+            return data
         }
 
         const test = () => {
@@ -213,7 +213,7 @@ export default defineComponent({
             formRef.value?.validate((valid) => {
                 if (valid) {
                     openLoading()
-                    testRecorder(getTestData(), undefined, false).then((res) => {
+                    testRecorder(getTestData()).then((res) => {
                         closeLoading()
                         const $ = queryXml(res)
                         if ($('status').text() === 'success') {
@@ -306,7 +306,7 @@ export default defineComponent({
                                             type: 'question',
                                             message: msg,
                                         }).then(() => {
-                                            editBasicCfg(getXmlWrapData(`<content><AISwitch>false</AISwitch></content>`))
+                                            editBasicCfg(`<content><AISwitch>false</AISwitch></content>`)
                                         })
                                     } else {
                                         openMessageTipBox({
@@ -380,7 +380,7 @@ export default defineComponent({
                     </item>`
             })
             data += '</content>'
-            return getXmlWrapData(data)
+            return data
         }
 
         const opened = () => {

@@ -494,6 +494,10 @@ input[type='number'] {
         // 不换行
         &.nowrap {
             flex-wrap: nowrap;
+
+            .el-radio-button__inner {
+                padding-inline: 5px;
+            }
         }
 
         // 拉伸铺满

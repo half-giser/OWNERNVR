@@ -292,7 +292,7 @@ export default defineComponent({
             // return
 
             // openLoading()
-            // editBasicCfg(getXmlWrapData(data)).then(() => {
+            // editBasicCfg(data).then(() => {
             //     closeLoading()
             //     btnOkDisabled.value = true
             // })

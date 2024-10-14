@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 15:43:32
  * @Description: 现场预览-镜头控制视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 14:31:49
+ * @LastEditTime: 2024-10-14 17:49:49
  */
 import { LiveLensForm, type LiveSharedWinData } from '@/types/apiType/live'
 
@@ -131,7 +131,7 @@ export default defineComponent({
                     <chlId>${chlID}</chlId>
                 </condition>
             `
-            const result = await queryCameraLensCtrlParam(getXmlWrapData(sendXml))
+            const result = await queryCameraLensCtrlParam(sendXml)
             const $ = queryXml(result)
             if ($('//status').text() === 'fail' || !$('//content/chl').length) {
                 ctx.emit('updateSupportAz', false)

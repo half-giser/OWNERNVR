@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 13:36:26
  * @Description: 区域入侵
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 15:14:10
+ * @LastEditTime: 2024-10-14 17:19:40
  */
 import { type chlCaps, type aiResourceRow, type peaPageData, type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
@@ -815,24 +815,9 @@ export default defineComponent({
         }
         // 获取preset
         const getPresetList = async () => {
-            const sendXml = rawXml`
-                <types>
-                    <nodeType>
-                        <enum>chls</enum>
-                        <enum>sensors</enum>
-                        <enum>alarmOuts</enum>
-                    </nodeType>
-                </types>
-                <nodeType type="nodeType">chls</nodeType>
-                <requireField>
-                    <name/>
-                    <chlType/>
-                </requireField>
-                <condition>
-                    <supportPtz/>
-                </condition>
-            `
-            const result = await queryNodeList(getXmlWrapData(sendXml))
+            const result = await getChlList({
+                isSupportPtz: true,
+            })
 
             let rowData = [] as PresetList[]
             commLoadResponseHandler(result, async ($) => {

@@ -3,7 +3,7 @@
  * @Date: 2024-07-02 15:56:26
  * @Description: POS联动通道设置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 15:21:56
+ * @LastEditTime: 2024-10-14 17:24:53
  */
 import { type SystemPosListChls } from '@/types/apiType/system'
 
@@ -41,21 +41,9 @@ export default defineComponent({
          * @description 获取通道列表数据
          */
         const getData = async () => {
-            const sendXml = rawXml`
-                <types>
-                    <nodeType>
-                        <enum>chls</enum>
-                        <enum>sensors</enum>
-                        <enum>alarmOuts</enum>
-                    </nodeType>
-                </types>
-                <nodeType type="nodeType">chls</nodeType>
-                <requireField>
-                    <name/>
-                    <device/>
-                </requireField>
-            `
-            const result = await queryNodeList(getXmlWrapData(sendXml))
+            const result = await getChlList({
+                requireField: ['device'],
+            })
             commLoadResponseHandler(result, ($) => {
                 chlList.value = $('//content/item').map((item) => {
                     const $item = queryXml(item.element)

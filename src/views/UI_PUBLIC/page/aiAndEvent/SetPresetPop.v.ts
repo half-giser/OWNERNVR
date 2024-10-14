@@ -2,8 +2,8 @@
  * @Description: 预置点名称配置
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-20 17:19:56
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-12 16:38:53
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-14 17:20:06
  */
 import { type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
 
@@ -35,24 +35,9 @@ export default defineComponent({
         const tableData = ref<PresetList[]>([])
 
         const open = async () => {
-            const sendXml = rawXml`
-                <types>
-                    <nodeType>
-                        <enum>chls</enum>
-                        <enum>sensors</enum>
-                        <enum>alarmOuts</enum>
-                    </nodeType>
-                </types>
-                <nodeType type="nodeType">chls</nodeType>
-                <requireField>
-                    <name/>
-                    <chlType/>
-                </requireField>
-                <condition>
-                    <supportPtz/>
-                </condition>
-            `
-            const result = await queryNodeList(getXmlWrapData(sendXml))
+            const result = await getChlList({
+                isSupportPtz: true,
+            })
 
             let rowData = [] as PresetList[]
             commLoadResponseHandler(result, async ($) => {
