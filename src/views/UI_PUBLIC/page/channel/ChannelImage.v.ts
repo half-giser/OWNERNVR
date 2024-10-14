@@ -1096,7 +1096,7 @@ export default defineComponent({
                         <actionType>${cmd}</actionType>
                     </content>`
                 try {
-                    cameraLensCtrlCall(getXmlWrapData(data))
+                    cameraLensCtrlCall(data)
                         .then(() => {
                             handleLensCtrlCmdCb(chlId)
                         })

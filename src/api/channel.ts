@@ -78,7 +78,7 @@ export const queryCameraLensCtrlParam = (data: string, config?: AxiosRequestConf
 // 编辑通道镜头控制参数
 export const editCameraLensCtrlParam = (data: string, config?: AxiosRequestConfig) => http.fetch('editCameraLensCtrlParam', data, config)
 // 下发镜头控制命令
-export const cameraLensCtrlCall = (data: string, config?: AxiosRequestConfig) => http.fetch('cameraLensCtrlCall', data, config)
+export const cameraLensCtrlCall = (data: string) => http.fetch('cameraLensCtrlCall', getXmlWrapData(data))
 // 查询通道遮挡配置
 export const queryPrivacyMask = (data: string, config?: AxiosRequestConfig) => http.fetch('queryPrivacyMask', data, config)
 // 编辑通道遮挡配置
