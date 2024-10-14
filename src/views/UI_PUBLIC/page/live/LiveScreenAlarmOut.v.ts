@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 16:07:59
  * @Description: 现场预览-底部视图-手动报警
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-15 17:39:23
+ * @LastEditTime: 2024-10-14 16:17:30
  */
 import { type LiveAlarmList } from '@/types/apiType/live'
 
@@ -98,13 +98,7 @@ export default defineComponent({
             if (time === 0) {
                 return Translate('IDCS_MANUAL')
             }
-            if (time === 60) {
-                return 1 + ' ' + Translate('IDCS_MINUTE')
-            }
-            if (time >= 60) {
-                return time / 60 + ' ' + Translate('IDCS_MINUTES')
-            }
-            return time + ' ' + Translate('IDCS_SECONDS')
+            return getTranslateForSecond(time)
         }
 
         /**
