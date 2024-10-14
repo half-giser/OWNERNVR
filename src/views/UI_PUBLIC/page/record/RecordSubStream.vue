@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-07-31 10:12:26
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-11 16:48:00
+ * @LastEditTime: 2024-10-12 17:29:11
 -->
 <template>
     <div class="base-flex-box">
@@ -327,5 +327,11 @@
 
 .device-item {
     margin: 5px;
+}
+:deep(.cell) {
+    overflow: visible;
+}
+:deep(.el-table__cell) {
+    z-index: auto;
 }
 </style>

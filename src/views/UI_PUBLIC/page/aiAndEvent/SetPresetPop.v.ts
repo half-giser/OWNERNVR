@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-20 17:19:56
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-23 10:41:54
+ * @LastEditTime: 2024-10-12 16:38:53
  */
 import { type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
 
@@ -14,7 +14,7 @@ export default defineComponent({
             require: true,
         },
         linkedList: {
-            type: Array<PresetItem>,
+            type: Object as PropType<PresetItem[]>,
             require: true,
         },
         handlePresetLinkedList: {

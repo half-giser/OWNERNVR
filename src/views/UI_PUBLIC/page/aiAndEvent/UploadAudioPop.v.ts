@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-14 15:48:05
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-26 15:38:31
+ * @LastEditTime: 2024-10-12 16:41:20
  */
 import { type AudioAlarmOut } from '@/types/apiType/aiAndEvent'
 import { type UploadFile } from 'element-plus'
@@ -13,7 +13,7 @@ export default defineComponent({
         type: String,
         ipcAudioChl: String,
         ipcRowData: {
-            type: Object,
+            type: Object as PropType<AudioAlarmOut>,
             require: true,
         },
         handleAddVoiceList: {
@@ -90,7 +90,7 @@ export default defineComponent({
                 const fileSize = base64FileSize(data)
                 if (prop.type == 'ipcAudio') {
                     let audioFileLimitSize = prop?.ipcRowData?.audioFileLimitSize
-                    audioFileLimitSize = (parseInt(audioFileLimitSize) / 1024).toFixed(2)
+                    audioFileLimitSize = (parseInt(audioFileLimitSize!) / 1024).toFixed(2)
                     if (fileSize > audioFileLimitSize) {
                         showMsg(Translate('IDCS_OUT_FILE_SIZE'))
                         return
