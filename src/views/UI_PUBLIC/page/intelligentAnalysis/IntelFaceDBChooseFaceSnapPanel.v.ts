@@ -2,8 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-30 18:47:52
  * @Description: 智能分析 - 选择人脸 - 从抓拍库选择
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-14 09:29:04
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-12 10:32:06
  */
 import { cloneDeep } from 'lodash-es'
 import { type IntelFaceDBSnapFaceList } from '@/types/apiType/intelligentAnalysis'
@@ -87,8 +87,10 @@ export default defineComponent({
         const changeAllChl = () => {
             if (pageData.value.isAllChl) {
                 formData.value.chls = cloneDeep(pageData.value.chlList)
+                searchData()
             } else {
                 formData.value.chls = []
+                searchData()
             }
         }
 
