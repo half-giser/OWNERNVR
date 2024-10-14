@@ -49,13 +49,9 @@
                             v-else
                             trigger="click"
                         >
-                            <span class="el-dropdown-link">
+                            <BaseTableDropdownLink>
                                 {{ Translate('IDCS_VIDEO_ENCT') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -105,13 +101,9 @@
                             popper-class="no-padding"
                         >
                             <template #reference>
-                                <span class="pop">
+                                <BaseTableDropdownLink>
                                     {{ Translate('IDCS_RESOLUTION_RATE') }}
-                                    <BaseImgSprite
-                                        class="ddn"
-                                        file="ddn"
-                                    />
-                                </span>
+                                </BaseTableDropdownLink>
                             </template>
                             <div id="resolutionContainer">
                                 <el-table
@@ -212,13 +204,9 @@
                             trigger="click"
                             max-height="400px"
                         >
-                            <span class="el-dropdown-link">
+                            <BaseTableDropdownLink>
                                 {{ Translate('IDCS_FRAME_RATE') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -264,13 +252,9 @@
                             v-else
                             trigger="click"
                         >
-                            <span class="el-dropdown-link">
+                            <BaseTableDropdownLink>
                                 {{ Translate('IDCS_VIDEO_QUALITY') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item

@@ -31,13 +31,9 @@
                         trigger="click"
                         :max-height="400"
                     >
-                        <span class="el-dropdown-link">
+                        <BaseTableDropdownLink>
                             {{ Translate('IDCS_VIDEO_ENCT') }}
-                            <BaseImgSprite
-                                class="ddn"
-                                file="ddn"
-                            />
-                        </span>
+                        </BaseTableDropdownLink>
                         <template #dropdown>
                             <el-dropdown-menu>
                                 <el-dropdown-item
@@ -82,13 +78,9 @@
                         :hide-after="0"
                     >
                         <template #reference>
-                            <div>
+                            <BaseTableDropdownLink>
                                 {{ Translate('IDCS_RESOLUTION_RATE') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </div>
+                            </BaseTableDropdownLink>
                         </template>
                         <el-table
                             :height="400"
@@ -159,13 +151,9 @@
                         trigger="click"
                         :max-height="400"
                     >
-                        <span class="el-dropdown-link">
+                        <BaseTableDropdownLink>
                             {{ Translate('IDCS_FRAME_RATE') }}
-                            <BaseImgSprite
-                                class="ddn"
-                                file="ddn"
-                            />
-                        </span>
+                        </BaseTableDropdownLink>
                         <template #dropdown>
                             <el-dropdown-menu>
                                 <el-dropdown-item
@@ -209,13 +197,9 @@
             >
                 <template #header>
                     <el-dropdown trigger="click">
-                        <span class="el-dropdown-link">
+                        <BaseTableDropdownLink>
                             {{ Translate('IDCS_BITRATE_TYPE') }}
-                            <BaseImgSprite
-                                class="ddn"
-                                file="ddn"
-                            />
-                        </span>
+                        </BaseTableDropdownLink>
                         <template #dropdown>
                             <el-dropdown-menu>
                                 <el-dropdown-item
@@ -255,13 +239,9 @@
             >
                 <template #header>
                     <el-dropdown trigger="click">
-                        <span class="el-dropdown-link">
+                        <BaseTableDropdownLink>
                             {{ Translate('IDCS_IMAGE_QUALITY') }}
-                            <BaseImgSprite
-                                class="ddn"
-                                file="ddn"
-                            />
-                        </span>
+                        </BaseTableDropdownLink>
                         <template #dropdown>
                             <el-dropdown-menu :disabled="isAllLevelDisabled()">
                                 <el-dropdown-item
@@ -294,13 +274,9 @@
             <el-table-column :label="Translate('IDCS_VIDEO_QUALITY')">
                 <template #header>
                     <el-dropdown trigger="click">
-                        <span class="el-dropdown-link">
+                        <BaseTableDropdownLink>
                             {{ Translate('IDCS_VIDEO_QUALITY') }}
-                            <BaseImgSprite
-                                class="ddn"
-                                file="ddn"
-                            />
-                        </span>
+                        </BaseTableDropdownLink>
                         <template #dropdown>
                             <el-dropdown-menu>
                                 <el-dropdown-item
@@ -351,13 +327,9 @@
                         :width="250"
                     >
                         <template #reference>
-                            <div>
+                            <BaseTableDropdownLink>
                                 {{ Translate('IDCS_GOP') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </div>
+                            </BaseTableDropdownLink>
                         </template>
                         <el-form
                             label-position="left"

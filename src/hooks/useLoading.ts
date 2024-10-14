@@ -3,10 +3,8 @@
  * @Date: 2024-05-30 08:58:30
  * @Description: Loading
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 11:39:23
+ * @LastEditTime: 2024-10-12 14:06:50
  */
-import { useLangStore } from '@/stores/lang'
-
 interface LoadingItem {
     inst: any
     count: number
@@ -19,7 +17,6 @@ interface LoadingItem {
  */
 const loadingInstMap = new Map() as Map<string | HTMLElement, LoadingItem>
 let fullScreenInst: null | ReturnType<typeof ElLoading.service> = null
-let fullScreenCount = 0
 
 /**
  *  openLoading()：打开loading，默认仅遮盖#layoutMainBody
@@ -40,14 +37,17 @@ const useLoading = () => {
     }
 
     const { Translate } = useLangStore()
+    const layoutStore = useLayoutStore()
+
     /**
      * @description: 打开loading
-     * @return {*}
+     * @param {string | HTMLElement} target
+     * @param {string} text
      */
-    const openLoading = (target: string | HTMLElement = 'FullScreen', text: string = Translate('IDCS_LOADING')) => {
+    const openLoading = (target: string | HTMLElement = 'FullScreen', text = Translate('IDCS_LOADING')) => {
         //当前已经打开了全屏loading
         if (fullScreenInst != null) {
-            fullScreenCount++
+            layoutStore.loadingCount++
             // console.log("fullscreen loading already opend, other loading not open", target, gbp.fullScreenCount)
             return
         }
@@ -61,10 +61,10 @@ const useLoading = () => {
                 background: 'rgba(255, 255, 255, 0.8)',
                 text: text,
             })
-            fullScreenCount = 1
+            layoutStore.loadingCount = 1
             // 将其他局部loading的count都加到全屏loading的count，后面打开关闭任何loading都是对全局loading计数
             loadingInstMap.forEach((value: LoadingItem) => {
-                fullScreenCount += value.count
+                layoutStore.loadingCount += value.count
             })
             // console.log("open fullscreen loading, close all part loading...", target, gbp.fullScreenCount)
             closeAllPartLoading()
@@ -85,6 +85,9 @@ const useLoading = () => {
         }
     }
 
+    /**
+     * @description
+     */
     const closeAllPartLoading = () => {
         loadingInstMap.forEach((value: LoadingItem) => {
             closeInst(value.inst)
@@ -93,14 +96,13 @@ const useLoading = () => {
     }
 
     /**
-     * @description: 关闭loading
-     * @return {*}
+     * @description 关闭loading
      */
     const closeLoading = (target: string | HTMLElement = 'FullScreen') => {
         //当前已经打开了全屏loading
         if (fullScreenInst != null) {
-            if (fullScreenCount !== 0) fullScreenCount--
-            if (fullScreenCount === 0) {
+            if (layoutStore.loadingCount !== 0) layoutStore.loadingCount--
+            if (layoutStore.loadingCount === 0) {
                 const inst = fullScreenInst
                 closeInst(inst)
                 fullScreenInst = null
@@ -125,15 +127,22 @@ const useLoading = () => {
         }
     }
 
+    /**
+     * @description 关闭所有loading
+     */
     const closeAllLoading = () => {
         // console.log('closeAllLoading')
         if (fullScreenInst != null) {
             closeInst(fullScreenInst)
-            fullScreenCount = 0
+            layoutStore.loadingCount = 0
         }
         closeAllPartLoading()
     }
 
+    /**
+     * @description
+     * @param inst
+     */
     const closeInst = (inst: any) => {
         nextTick(() => {
             // Loading should be closed asynchronously
@@ -141,6 +150,11 @@ const useLoading = () => {
         })
     }
 
+    /**
+     * @description
+     * @param {string | HTMLElement} target
+     * @returns {string | HTMLElement}
+     */
     const getTarget = (target: string | HTMLElement) => {
         if (target instanceof HTMLElement) {
             return target

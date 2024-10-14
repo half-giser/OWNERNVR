@@ -6,7 +6,6 @@
  * @LastEditTime: 2024-09-24 11:47:08
  */
 import { type TabsPaneContext } from 'element-plus'
-import { useLangStore } from '@/stores/lang'
 import { type chlCaps } from '@/types/apiType/aiAndEvent'
 import Tripwire from './Tripwire.vue'
 import Pea from './Pea.vue'
@@ -320,10 +319,10 @@ export default defineComponent({
                     pageData.value.voiceList = []
                     const res = queryXml(resb)
                     if (res('status').text() == 'success') {
-                        res('//content/audioList/item').forEach((item: any) => {
+                        res('//content/audioList/item').forEach((item) => {
                             const $item = queryXml(item.element)
                             pageData.value.voiceList.push({
-                                value: item.attr('id'),
+                                value: item.attr('id')!,
                                 label: $item('name').text(),
                             })
                         })

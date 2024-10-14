@@ -421,7 +421,6 @@
                     <div class="more_wrap">
                         <span>{{ Translate('IDCS_ADVANCED') }}</span>
                         <BaseImgSprite
-                            class="moreBtn"
                             file="arrow"
                             :index="0"
                             :chunk="4"

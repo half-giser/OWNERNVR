@@ -116,7 +116,7 @@ export default defineComponent({
                         const audioId = $('/response/content/param/id').text()
                         prop.handleAddVoiceList!(audioId, pageData.value.uploadFileName)
                     } else {
-                        const errorCode = $('/response/errorCode').text()
+                        const errorCode = Number($('/response/errorCode').text())
                         handleErrorMsg(errorCode)
                     }
                 } else {
@@ -139,7 +139,7 @@ export default defineComponent({
                     if ($('/response/status').text() == 'success') {
                         ctx.emit('close')
                     } else {
-                        const errorCode = $('/response/errorCode').text()
+                        const errorCode = Number($('/response/errorCode').text())
                         handleErrorMsg(errorCode)
                     }
                 }
@@ -153,14 +153,14 @@ export default defineComponent({
             })
         }
 
-        const handleErrorMsg = (errorCode: string) => {
-            if (errorCode == '536871048') {
+        const handleErrorMsg = (errorCode: number) => {
+            if (errorCode == ErrorCode.USER_ERROR_CLIENT_LIMITED_BY_LITE_TYPE) {
                 showMsg(Translate('IDCS_OUT_FILE_SIZE'))
-            } else if (errorCode == '536870970') {
+            } else if (errorCode == ErrorCode.USER_ERROR_NAME_EXISTED) {
                 showMsg(Translate('IDCS_NAME_SAME'))
-            } else if (errorCode == '536870982') {
+            } else if (errorCode == ErrorCode.USER_ERROR_DEV_RESOURCE_LIMITED) {
                 showMsg(Translate('IDCS_CONFIG_SPACE_NOT_ENOUGH'))
-            } else if (errorCode == '536870931') {
+            } else if (errorCode == ErrorCode.USER_ERROR_NODE_NET_DISCONNECT) {
                 showMsg(Translate('IDCS_OCX_NET_DISCONNECT'))
             } else {
                 showMsg(Translate('IDCS_AUDIO_FILE_TASK_ERROR').formatForLang(pageData.value.uploadFileName))

@@ -3,7 +3,7 @@
  * @Date: 2024-04-23 11:52:48
  * @Description: 登录界面
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 16:16:50
+ * @LastEditTime: 2024-10-12 14:51:09
  */
 import { type FormRules, type FormInstance } from 'element-plus'
 import { LoginForm, LoginReqData } from '@/types/apiType/user'
@@ -120,7 +120,7 @@ export default defineComponent({
          * @description 登录
          */
         const fnReqLogin = async () => {
-            const result = await reqLogin(getXmlWrapData(''))
+            const result = await reqLogin()
             const $ = queryXml(result)
             if ($('//status').text() === 'success') {
                 userSessionStore.updataByReqLogin(result)
@@ -128,7 +128,7 @@ export default defineComponent({
                 const md5Pwd = MD5_encrypt(formData.value.password)
                 reqData.userName = formData.value.userName
                 const nonce = userSessionStore.nonce ? userSessionStore.nonce : ''
-                reqData.password = '' + sha512_encrypt(md5Pwd + '#' + nonce)
+                reqData.password = sha512_encrypt(md5Pwd + '#' + nonce)
                 reqData.passwordMd5 = md5Pwd
                 fnDoLogin(reqData)
             } else {
@@ -151,7 +151,7 @@ export default defineComponent({
                 </content>
             `
             try {
-                const result = await doLogin(getXmlWrapData(sendXml))
+                const result = await doLogin(sendXml)
                 const $ = queryXml(result)
                 if ($('//status').text() == 'success') {
                     // doLogin后更新用户会话信息
@@ -209,7 +209,7 @@ export default defineComponent({
         }
 
         /**
-         * 是否展示隐私政策弹窗
+         * @description 是否展示隐私政策弹窗
          */
         const getIsShowPrivacy = async () => {
             const result = await queryShowPrivacyView()
@@ -243,6 +243,8 @@ export default defineComponent({
             }
             await langStore.getLangItems(true)
             updateCalendar()
+            const title = Translate('IDCS_WEB_CLIENT')
+            document.title = title === 'IDCS_WEB_CLIENT' ? '' : title
         }
 
         /**

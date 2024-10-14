@@ -2,8 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-05 16:00:46
  * @Description: 回放
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-12 13:50:57
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-12 18:40:05
  */
 import PlaybackChannelPanel, { type ChannelPanelExpose } from '../playback/PlaybackChannelPanel.vue'
 import PlaybackEventPanel from '../playback/PlaybackEventPanel.vue'
@@ -755,11 +755,18 @@ export default defineComponent({
         /**
          * @description 移除没有录像的通道
          */
-        const removeNoRecChl = (currentList: PlaybackRecList[]) => {
-            const currentChlId = currentList.map((item) => item.chlId).filter((item) => !!item)
-            const removeChl = pageData.value.chls.filter((item) => !currentChlId.includes(item.id)).map((item) => item.id)
+        const removeNoRecChl = () => {
+            const recChlId = pageData.value.recLogList.map((item) => item.chlId)
+            const removeChl = pageData.value.chls.filter((item) => {
+                return !recChlId.find((rec) => rec === item.id)
+            })
             if (removeChl.length) {
-                chlRef.value?.removeChls(removeChl)
+                chlRef.value?.removeChls(
+                    removeChl.map((item) => {
+                        pageData.value.notification.push(`${item.value}: ${Translate('IDCS_NO_REC_DATA')}`)
+                        return item.id
+                    }),
+                )
             }
         }
 
@@ -778,7 +785,6 @@ export default defineComponent({
             timeline.setColorMap(pageData.value.legend)
             timeline.setDstDayTime(formatDate(calendar.current.value))
             timeline.updateChlList(sortChlList, true, 'record')
-            removeNoRecChl(sortChlList)
         }
 
         /**
@@ -793,8 +799,8 @@ export default defineComponent({
             }
             const timeline = timelineRef.value
             const sortChlList = sortTimelineChlList()
+            console.trace('updateTimeline', sortChlList)
             timeline.updateChlList(sortChlList, false, 'record')
-            removeNoRecChl(sortChlList)
         }
 
         /**
@@ -1640,6 +1646,7 @@ export default defineComponent({
                     return
                 }
                 updateTimeline()
+                removeNoRecChl()
             },
             {
                 deep: true,

@@ -5,11 +5,10 @@
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
  * @LastEditTime: 2024-10-11 12:00:03
  */
-import { defineComponent } from 'vue'
 import BaseScheduleWeek from '@/components/BaseScheduleWeek.vue'
 import ScheduleEditPop from './ScheduleEditPop.vue'
 import { ScheduleInfo, type NameValueItem } from '@/types/apiType/schedule'
-import { type ElTable } from 'element-plus'
+import { type TableInstance } from 'element-plus'
 
 export default defineComponent({
     components: { BaseScheduleWeek, ScheduleEditPop },
@@ -26,7 +25,7 @@ export default defineComponent({
         // 周排程组件引用
         const scheduleWeekRef: Ref<InstanceType<typeof BaseScheduleWeek> | null> = ref(null)
         // 排程表格引用
-        const scheduleTable = ref<InstanceType<typeof ElTable>>()
+        const scheduleTable = ref<TableInstance>()
 
         const pageData = ref({
             //排程编辑弹窗显示状态

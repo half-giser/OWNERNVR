@@ -3,7 +3,7 @@
  * @Date: 2024-06-25 09:59:16
  * @Description: 输出配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-25 16:08:12
+ * @LastEditTime: 2024-10-11 18:32:35
 -->
 <template>
     <div class="OutputSetting">
@@ -321,313 +321,316 @@
     font-size: 15px;
     min-width: 1200px;
     user-select: none;
+}
 
-    .eth_list {
-        width: 100%;
-        height: 50px;
+.eth_list {
+    width: 100%;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    background-color: var(--output-eth-bg);
+    border: 1px solid var(--content-border);
+
+    & > div {
+        padding: 0 20px;
+        cursor: pointer;
+        border-bottom: 5px solid transparent;
+
+        &.active {
+            border-color: var(--primary);
+        }
+    }
+}
+
+.main {
+    height: calc(100vh - 340px);
+    max-height: calc(100vh - 340px);
+    overflow-y: hidden;
+    width: 100%;
+    display: flex;
+    border: 1px solid var(--content-border);
+}
+
+.left {
+    width: 100%;
+    height: 100%;
+    border-right: 1px solid var(--content-border);
+    display: flex;
+    flex-direction: column;
+}
+
+.top {
+    position: relative;
+    border-bottom: 1px solid var(--content-border);
+    display: flex;
+    width: 100%;
+    height: 60px;
+    flex-shrink: 0;
+    background-color: var(--output-tab-bg);
+
+    &-tabs {
         display: flex;
         align-items: center;
-        background-color: var(--table-thead-bg);
-        border: 1px solid var(--content-border);
+        height: 100%;
 
         & > div {
-            padding: 0 20px;
+            display: inline-block;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
             cursor: pointer;
-            border-bottom: 5px solid transparent;
+            padding: 0 20px;
+            margin-left: 10px;
+            background-color: var(--output-tab-btn-bg);
+            border: 1px solid var(--content-border);
 
-            &.active {
-                border-color: var(--primary);
+            &:hover {
+                background-color: var(--primary-light);
+                color: var(--color-white);
+            }
+
+            &.active,
+            &.active:hover {
+                background-color: var(--primary);
+                color: var(--color-white);
             }
         }
     }
 
-    .main {
-        height: calc(100vh - 340px);
-        max-height: calc(100vh - 340px);
-        overflow-y: hidden;
-        width: 100%;
-        display: flex;
-        border: 1px solid var(--content-border);
+    &-config {
+        margin-left: 10px;
     }
 
-    .left {
+    &-hdmi {
+        margin-left: 10px;
+        width: 100px;
+    }
+}
+
+.panel {
+    width: 100%;
+    flex-grow: 1;
+    height: calc(100% - 60px);
+    display: flex;
+    flex-direction: column;
+
+    &-top {
+        display: flex;
         width: 100%;
+        height: calc(100% - 50px);
+        border-bottom: 1px solid var(--content-border);
+    }
+
+    &-left {
+        width: 260px;
+        // flex-grow: 1;
         height: 100%;
         border-right: 1px solid var(--content-border);
         display: flex;
         flex-direction: column;
-    }
-
-    .top {
-        position: relative;
-        border-bottom: 1px solid var(--content-border);
-        display: flex;
-        width: 100%;
-        height: 60px;
+        align-items: center;
         flex-shrink: 0;
-
-        &-tabs {
-            display: flex;
-            align-items: center;
-            height: 100%;
-
-            & > div {
-                display: inline-block;
-                height: 40px;
-                line-height: 40px;
-                text-align: center;
-                cursor: pointer;
-                padding: 0 20px;
-                margin-left: 10px;
-                background-color: var(--table-thead-bg);
-                border: 1px solid var(--content-border);
-
-                &.active {
-                    background-color: var(--primary);
-                    color: white;
-                }
-            }
-        }
-
-        &-config {
-            margin-left: 10px;
-        }
-
-        &-hdmi {
-            margin-left: 10px;
-            width: 100px;
-        }
     }
 
-    .panel {
+    &-title {
+        height: 50px;
+        text-align: center;
+        flex-shrink: 0;
         width: 100%;
-        flex-grow: 1;
-        height: calc(100% - 60px);
-        display: flex;
-        flex-direction: column;
+        line-height: 50px;
+        border-bottom: 1px solid var(--content-border);
+    }
 
-        &-top {
-            display: flex;
-            width: 100%;
-            height: calc(100% - 50px);
-            border-bottom: 1px solid var(--content-border);
+    &-thumbnail {
+        width: 100%;
+        height: calc(100% - 120px);
+        overflow-y: scroll;
+
+        &-item {
+            width: 220px;
+            height: 150px;
+            margin: 10px auto;
+            position: relative;
+
+            &:hover .panel-thumbnail-del {
+                opacity: 1;
+            }
         }
 
-        &-left {
-            width: 260px;
-            // flex-grow: 1;
-            height: 100%;
-            border-right: 1px solid var(--content-border);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            flex-shrink: 0;
-        }
-
-        &-title {
-            height: 50px;
+        &-del {
+            position: absolute;
+            opacity: 0;
+            right: 0;
+            top: 0;
+            width: 20px;
+            height: 20px;
+            line-height: 20px;
             text-align: center;
-            flex-shrink: 0;
-            width: 100%;
-            line-height: 50px;
-            border-bottom: 1px solid var(--content-border);
-        }
-
-        &-thumbnail {
-            width: 100%;
-            height: calc(100% - 120px);
-            overflow-y: scroll;
-
-            &-item {
-                width: 220px;
-                height: 150px;
-                margin: 10px auto;
-                position: relative;
-
-                &:hover .panel-thumbnail-del {
-                    opacity: 1;
-                }
-            }
-
-            &-del {
-                position: absolute;
-                opacity: 0;
-                right: 0;
-                top: 0;
-                width: 20px;
-                height: 20px;
-                line-height: 20px;
-                text-align: center;
-                background-color: var(--table-thead-bg);
-                cursor: pointer;
-            }
-
-            // &:hover &-del {
-            //     opacity: 1;
-            // }
-
-            &-index {
-                position: absolute;
-                top: 5px;
-                left: 5px;
-            }
-        }
-
-        &-thumbnail-add {
-            flex-shrink: 0;
-            height: 30px;
-            align-items: 30px;
-            text-align: center;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 120px;
-            margin: 10px 0;
             background-color: var(--table-thead-bg);
-            border: 1px solid var(--content-border);
             cursor: pointer;
         }
 
-        &-center {
-            position: relative;
-            width: 100%;
-            height: 100%;
-
-            &-index {
-                position: absolute;
-                top: 5px;
-                left: 5px;
-                color: white;
-            }
-        }
-
-        &-bottom {
-            width: 100%;
-            height: 50px;
-            flex-shrink: 0;
-            display: flex;
-        }
-
-        &-dwell {
-            width: 260px;
-            height: 100%;
-            flex-shrink: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        &-btns {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            border-left: 1px solid var(--content-border);
-
-            span {
-                cursor: pointer;
-            }
-        }
-
-        &-collect {
-            margin: 0 10px;
-            flex-shrink: 0;
-        }
-
-        &-seg {
-            display: flex;
-            margin: 0 10px;
-            width: 100%;
-            & > span {
-                margin: 0 5px;
-            }
-        }
-
-        &-dwell-time {
-            width: 100px;
-            margin: 0 10px;
-            flex-shrink: 0;
-        }
-
-        &-clear {
-            margin: 0 10px;
-            flex-shrink: 0;
+        &-index {
+            position: absolute;
+            top: 5px;
+            left: 5px;
         }
     }
 
-    .chl {
+    &-thumbnail-add {
+        flex-shrink: 0;
+        height: 30px;
+        align-items: 30px;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 120px;
+        margin: 10px 0;
+        background-color: var(--output-tab-btn-bg);
+        border: 1px solid var(--content-border);
+        cursor: pointer;
+    }
+
+    &-center {
+        position: relative;
+        width: 100%;
+        height: 100%;
+
+        &-index {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            color: var(--color-white);
+        }
+    }
+
+    &-bottom {
+        width: 100%;
+        height: 50px;
+        flex-shrink: 0;
+        display: flex;
+    }
+
+    &-dwell {
         width: 260px;
+        height: 100%;
+        flex-shrink: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    &-btns {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        border-left: 1px solid var(--content-border);
+
+        span {
+            cursor: pointer;
+        }
+    }
+
+    &-collect {
+        margin: 0 10px;
+        flex-shrink: 0;
+    }
+
+    &-seg {
+        display: flex;
+        margin: 0 10px;
+        width: 100%;
+        & > span {
+            margin: 0 5px;
+        }
+    }
+
+    &-dwell-time {
+        width: 100px;
+        margin: 0 10px;
+        flex-shrink: 0;
+    }
+
+    &-clear {
+        margin: 0 10px;
+        flex-shrink: 0;
+    }
+}
+
+.chl {
+    width: 260px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+
+    &-menu {
+        width: 100%;
+        height: 80px;
+        flex-shrink: 0;
+        cursor: pointer;
+
+        & > div {
+            height: 40px;
+            line-height: 40px;
+            border-bottom: 1px solid var(--content-border);
+            text-align: center;
+
+            &.active {
+                background-color: var(--primary);
+                color: var(--color-white);
+            }
+        }
+    }
+
+    &-wrap {
+        width: 100%;
         height: 100%;
         display: flex;
         flex-direction: column;
+    }
+
+    &-btns {
+        // height: 0px;
         flex-shrink: 0;
+        padding: 10px 0;
+        border-top: 1px solid var(--content-border);
+        border-bottom: 1px solid var(--content-border);
+        display: flex;
+        justify-content: center;
+    }
 
-        &-menu {
-            width: 100%;
-            height: 80px;
-            flex-shrink: 0;
+    &-list {
+        width: 100%;
+        height: calc(100% - 80px);
+        overflow-y: scroll;
+
+        ul {
+            margin: 0;
+            padding: 0;
+        }
+
+        li {
+            list-style: none;
+            padding: 5px;
+            border: 1px solid transparent;
             cursor: pointer;
+            font-size: 13px;
 
-            & > div {
-                height: 40px;
-                line-height: 40px;
-                border-bottom: 1px solid var(--content-border);
-                text-align: center;
-
-                &.active {
-                    background-color: var(--primary);
-                    color: white;
-                }
-            }
-        }
-
-        &-wrap {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-
-        &-btns {
-            // height: 0px;
-            flex-shrink: 0;
-            padding: 10px 0;
-            border-top: 1px solid var(--content-border);
-            border-bottom: 1px solid var(--content-border);
-            display: flex;
-            justify-content: center;
-        }
-
-        &-list {
-            width: 100%;
-            height: calc(100% - 80px);
-            overflow-y: scroll;
-
-            ul {
-                margin: 0;
-                padding: 0;
+            span:last-child {
+                margin-left: 10px;
             }
 
-            li {
-                list-style: none;
-                padding: 5px;
-                border: 1px solid transparent;
-                cursor: pointer;
-                font-size: 13px;
+            &:hover,
+            &.active {
+                border-color: var(--primary);
+            }
 
-                span:last-child {
-                    margin-left: 10px;
-                }
-
-                &:hover,
-                &.active {
-                    border-color: var(--primary);
-                }
-
-                &.active {
-                    background-color: var(--primary);
-                    color: white;
-                }
+            &.active {
+                background-color: var(--primary);
+                color: var(--color-white);
             }
         }
     }

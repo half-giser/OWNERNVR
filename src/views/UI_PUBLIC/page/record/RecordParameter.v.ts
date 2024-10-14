@@ -17,7 +17,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
         const supportANR = systemCaps.supportANR == true
@@ -269,7 +269,7 @@ export default defineComponent({
             let sendXml = rawXml`<content type='list' total='${String(changeList.length)}'\>`
 
             changeList.forEach((item) => {
-                sendXml += `<item id='${item.id}'>
+                sendXml += rawXml`<item id='${item.id}'>
                     <rec per='${item.per}' post='${item.post}'/>`
                 if (supportANR && item.manufacturerEnable) {
                     sendXml += `<ANRSwitch>${item.ANRSwitch}</ANRSwitch>`
@@ -312,7 +312,6 @@ export default defineComponent({
             } else {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_SAVE_DATA_FAIL'),
                 })
             }
@@ -320,12 +319,11 @@ export default defineComponent({
         }
 
         const setData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             if (originalData.value.streamRecSwitch.doubleStreamSwitch != pageData.value.doubleStreamRecSwitch) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_RECORD_MODE_CHANGE_AFTER_REBOOT'),
                 })
                     .then(() => {
@@ -335,7 +333,7 @@ export default defineComponent({
             } else {
                 setRecParamCfgData()
             }
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         const changeAllPerList = (value: string) => {
@@ -375,7 +373,6 @@ export default defineComponent({
                     const tips = value + ' ' + unit
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_CHANGE_EXPIRE_TIME_WARNING_D').formatForLang(tips),
                     })
                         .then(() => {
@@ -411,7 +408,6 @@ export default defineComponent({
                 const tips = value + ' ' + unit
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_CHANGE_EXPIRE_TIME_WARNING_D').formatForLang(tips),
                 })
                     .then(() => {
@@ -458,11 +454,11 @@ export default defineComponent({
         }
 
         onMounted(async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             await getData()
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         })
 
         return {

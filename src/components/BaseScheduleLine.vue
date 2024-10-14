@@ -206,7 +206,7 @@ const timeNumArrSortedAndMerge = (timeNumArr: Array<[number, number]>) => {
         return a[0] - b[0]
     })
 
-    function getMax(a: number, b: number) {
+    const getMax = (a: number, b: number) => {
         return a > b ? a : b
     }
 

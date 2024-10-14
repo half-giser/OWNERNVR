@@ -1636,7 +1636,7 @@ export default defineComponent({
                     pageData.value.notification.push(Translate('IDCS_REC_SUCCESS_PATH') + $('statenotify[@type="RecComplete"]/dir').text())
                 } else {
                     // 延迟100毫秒防止通知过快，导致之前操作状态未设置好
-                    setTimeout(function () {
+                    setTimeout(() => {
                         if (pageData.value.winData.localRecording) {
                             recordLocal(false)
                         }

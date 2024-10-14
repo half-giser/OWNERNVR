@@ -3,7 +3,7 @@
  * @Date: 2024-07-08 18:01:29
  * @Description: 存储模式配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:08:18
+ * @LastEditTime: 2024-10-11 17:05:26
  */
 import type { StorageModeDiskGroupListDatum, StorageModeDiskGroupList } from '@/types/apiType/disk'
 import StorageModeAddDiskPop from './StorageModeAddDiskPop.vue'
@@ -55,7 +55,7 @@ export default defineComponent({
          * @description 获取磁盘组数据
          */
         const getDiskGroupList = async () => {
-            const sendXml = `
+            const sendXml = rawXml`
                 <condition>
                     <langId>${langId}</langId>
                 </condition>

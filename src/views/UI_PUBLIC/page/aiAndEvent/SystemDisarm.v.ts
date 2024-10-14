@@ -5,19 +5,15 @@
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @LastEditTime: 2024-10-10 14:10:24
  */
-import { ArrowDown } from '@element-plus/icons-vue'
 import { SystemDisarm } from '@/types/apiType/aiAndEvent'
 import { type ElDropdown } from 'element-plus'
 
 export default defineComponent({
-    components: {
-        ArrowDown,
-    },
     setup() {
         const { Translate } = useLangStore()
         // const systemCaps = useCababilityStore()
         const openMessageTipBox = useMessageBox().openMessageTipBox
-        const { LoadingTarget, openLoading, closeLoading } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const formData = ref({
             sensorSwitch: false,
             inputSource: '',
@@ -84,8 +80,8 @@ export default defineComponent({
             const onlineChls = await queryOnlineChlList()
             const res = queryXml(onlineChls)
             if (res('status').text() == 'success') {
-                res('//content/item').forEach((item: any) => {
-                    pageData.value.onlineChlList.push(item.attr('id'))
+                res('//content/item').forEach((item) => {
+                    pageData.value.onlineChlList.push(item.attr('id')!)
                 })
             }
         }
@@ -96,9 +92,9 @@ export default defineComponent({
             })
             const res = queryXml(chllist)
             if (res('status').text() == 'success') {
-                res('//content/item').forEach((item: any) => {
+                res('//content/item').forEach((item) => {
                     const $item = queryXml(item.element)
-                    const chlId = item.attr('id')
+                    const chlId = item.attr('id')!
                     const chlName = $item('name').text()
                     const chlType = $item('chlType').text()
                     const supportManualAudio = $item('supportManualAudioAlarmOut').text() == 'true'
@@ -135,14 +131,14 @@ export default defineComponent({
             const res = queryXml(chllist)
             if (res('status').text() == 'success') {
                 let virtualMaxIdx = Number.POSITIVE_INFINITY // alarmInType==virtual节点的最大index
-                res('//content/item').forEach((item: any) => {
+                res('//content/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     let name = $item('name').text()
                     const devId = $item('devID').text()
                     const devDesc = $item('devDesc').text()
-                    const sensorId = item.attr('id')
+                    const sensorId = item.attr('id')!
                     const alarmInType = item.attr('alarmInType')
-                    const alarmIndex = item.attr('index') * 1
+                    const alarmIndex = Number(item.attr('index'))
                     if (devDesc) {
                         name = devDesc + '_' + name
                     }
@@ -203,7 +199,7 @@ export default defineComponent({
                               ? pageData.value.sensorSourcelist[0]['id']
                               : ''
                     pageData.value.defenseParamList = []
-                    res('//types/defenseType/enum').forEach((item: any) => {
+                    res('//types/defenseType/enum').forEach((item) => {
                         const defenseType = item.text()
                         if (defenseType != 'nodeAudioSwitch' && defenseType != 'nodeLightSwitch') {
                             pageData.value.defenseParamList.push({
@@ -213,15 +209,15 @@ export default defineComponent({
                         }
                     })
                     pageData.value.totalDefenseParamList = getTotalDefenseParamList(pageData.value.hasSupportManualAudioChl, pageData.value.hasSupportManualWhiteLightChl)
-                    res('//content/defenseSwitchParam/item').forEach((item: any) => {
+                    res('//content/defenseSwitchParam/item').forEach((item) => {
                         const $item = queryXml(item.element)
                         const row = new SystemDisarm()
-                        const chlId = item.attr('id')
+                        const chlId = item.attr('id')!
                         const nodeType = $item('nodeType').text()
                         // 撤防联动项
                         let disarmItemsStr = ''
                         const disarmItemsList = [] as { id: string; value: string }[]
-                        $item('defenseAttrs/item').forEach((item: any, idx: number) => {
+                        $item('defenseAttrs/item').forEach((item, idx) => {
                             const splicer = idx < $item('defenseAttrs/item').length - 1 ? ', ' : ''
                             disarmItemsStr += pageData.value.defenseParamMap[item.text()] + splicer
                             disarmItemsList.push({
@@ -294,9 +290,9 @@ export default defineComponent({
         }
         const setData = () => {
             const sendXml = getSaveData()
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             editSystemDisArmParam(sendXml).then((resb) => {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 const res = queryXml(resb)
                 if (res('status').text() == 'success') {
                     openMessageTipBox({
@@ -304,8 +300,8 @@ export default defineComponent({
                         message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                     })
                 } else {
-                    const errorCode = res('errorcode').text()
-                    if (errorCode == '536870953') {
+                    const errorCode = Number(res('errorcode').text())
+                    if (errorCode == ErrorCode.USER_ERROR_NO_AUTH) {
                         openMessageTipBox({
                             type: 'info',
                             message: Translate('IDCS_DISARM_SAVE_INVALID'),
@@ -480,7 +476,7 @@ export default defineComponent({
         const cfgItem = () => {
             tableData.value[pageData.value.triggerDialogIndex].disarmItemsList = pageData.value.selectedCfgList
             tableData.value[pageData.value.triggerDialogIndex].disarmItemsStr = ''
-            tableData.value[pageData.value.triggerDialogIndex].disarmItemsList.forEach((item: any, idx: number) => {
+            tableData.value[pageData.value.triggerDialogIndex].disarmItemsList.forEach((item, idx) => {
                 const splicer = idx < tableData.value[pageData.value.triggerDialogIndex].disarmItemsList.length - 1 ? ', ' : ''
                 tableData.value[pageData.value.triggerDialogIndex].disarmItemsStr += pageData.value.defenseParamMap[item.id] + splicer
             })
@@ -581,7 +577,6 @@ export default defineComponent({
             buildData()
         })
         return {
-            Translate,
             formData,
             pageData,
             tableData,

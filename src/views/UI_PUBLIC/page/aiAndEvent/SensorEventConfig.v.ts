@@ -8,22 +8,18 @@
 import { type PresetItem, SensorEvent, type ChlList } from '@/types/apiType/aiAndEvent'
 import { QueryNodeListDto } from '@/types/apiType/channel'
 import { cloneDeep, isEqual } from 'lodash-es'
-import BaseTransferPop from '@/components/BaseTransferPop.vue'
-import BaseTransferDialog from '@/components/BaseTransferDialog.vue'
 import SetPresetPop from './SetPresetPop.vue'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 
 export default defineComponent({
     components: {
-        BaseTransferPop,
-        BaseTransferDialog,
         SetPresetPop,
         ScheduleManagPop,
     },
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
         const recordRef = ref()
@@ -159,7 +155,7 @@ export default defineComponent({
             queryNodeListDto.nodeType = 'chls'
             queryNodeListDto.isSupportSnap = type == 'snap'
 
-            getChlList(queryNodeListDto).then((result: any) => {
+            getChlList(queryNodeListDto).then((result) => {
                 commLoadResponseHandler(result, ($) => {
                     $('/response/content/item').forEach((item) => {
                         const $item = queryXml(item.element)
@@ -205,7 +201,7 @@ export default defineComponent({
             getChlList({
                 requireField: ['device'],
                 nodeType: 'alarmOuts',
-            }).then((result: any) => {
+            }).then((result) => {
                 commLoadResponseHandler(result, ($) => {
                     const rowData = [] as {
                         id: string
@@ -254,7 +250,7 @@ export default defineComponent({
                 pageIndex: pageData.value.pageIndex,
                 pageSize: pageData.value.pageSize,
                 nodeType: 'sensors',
-            }).then((result: any) => {
+            }).then((result) => {
                 commLoadResponseHandler(result, ($) => {
                     pageData.value.totalCount = Number($('/response/content').attr('total'))
                     $('/response/content/item').forEach(async (item) => {
@@ -478,7 +474,7 @@ export default defineComponent({
             recordRef.value.handleClose()
         }
         // 打开录像dialog
-        const setRecord = function (index: number) {
+        const setRecord = (index: number) => {
             pageData.value.triggerDialogIndex = index
             pageData.value.recordIsShow = true
         }
@@ -533,7 +529,7 @@ export default defineComponent({
             snapRef.value.handleClose()
         }
         // 打开抓图dialog
-        const setSnap = function (index: number) {
+        const setSnap = (index: number) => {
             pageData.value.triggerDialogIndex = index
             pageData.value.snapIsShow = true
         }
@@ -588,7 +584,7 @@ export default defineComponent({
             alarmOutRef.value.handleClose()
         }
         // 打开报警输出dialog
-        const setAlarmOut = function (index: number) {
+        const setAlarmOut = (index: number) => {
             pageData.value.triggerDialogIndex = index
             pageData.value.alarmOutIsShow = true
         }
@@ -744,7 +740,7 @@ export default defineComponent({
                             <chls type='list'>
                 `
             row.sysRec.chls.forEach((item) => {
-                sendXml += `<item id='${item.value}'>
+                sendXml += rawXml`<item id='${item.value}'>
                     <![CDATA[${item.label}]]></item>
                 `
             })
@@ -756,7 +752,7 @@ export default defineComponent({
                     <chls type='list'>
                 `
             row.sysSnap.chls.forEach((item) => {
-                sendXml += `<item id='${item.value}'>
+                sendXml += rawXml`<item id='${item.value}'>
                     <![CDATA[${item.label}]]></item>
                 `
             })
@@ -809,7 +805,7 @@ export default defineComponent({
             const editedRows = getEditedRows(tableData.value, tableDataInit)
             let count = 0
             if (editedRows.length != 0) {
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
                 editedRows.forEach(async (item) => {
                     const sendXml = getSavaData(item)
                     const result = await editAlarmIn(sendXml)
@@ -822,7 +818,7 @@ export default defineComponent({
                         pageData.value.applyDisabled = true
                         // 更新表格初始对比值
                         tableDataInit = cloneDeep(tableData.value)
-                        closeLoading(LoadingTarget.FullScreen)
+                        closeLoading()
                     }
                 })
             }

@@ -73,7 +73,6 @@ export default defineComponent({
             if (chosedList.value.length > MAX_TRIGGER_COUNT) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate(typeMapping[props.type]),
                 })
                 chosedList.value.splice(MAX_TRIGGER_COUNT, chosedList.value.length - 1)

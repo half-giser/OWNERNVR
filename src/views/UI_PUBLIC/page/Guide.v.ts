@@ -899,7 +899,7 @@ export default defineComponent({
                 if (needFormatDisk.length > 0) {
                     openMessageTipBox({
                         type: 'question',
-                        message: Translate('IDCS_INFO_TIP'),
+                        message: '<span>' + Translate('IDCS_QUESTION_FORMAT_DISK') + '</span></br><span style="color: red">' + Translate('IDCS_FORMAT_MP_DISK_RESULT') + '</span>',
                     })
                         .then(async () => {
                             openLoading()

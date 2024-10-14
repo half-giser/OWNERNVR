@@ -5,22 +5,19 @@
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @LastEditTime: 2024-10-09 11:50:26
  */
-import { defineComponent } from 'vue'
-import { ArrowDown } from '@element-plus/icons-vue'
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import { EmailReceiver } from '@/types/apiType/aiAndEvent'
 import { type FormInstance, type FormRules, type TableInstance } from 'element-plus'
 
 export default defineComponent({
     components: {
-        ArrowDown,
         ScheduleManagPop,
     },
     setup() {
         const router = useRouter()
         const userSession = useUserSessionStore()
         const { Translate } = useLangStore()
-        const { LoadingTarget, openLoading, closeLoading } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const openMessageTipBox = useMessageBox().openMessageTipBox
         const tableData = ref<EmailReceiver[]>([])
         const tableRef = ref<TableInstance>()
@@ -65,26 +62,26 @@ export default defineComponent({
             //排程管理弹窗显示状态
             scheduleManagePopOpen: false,
         })
-        const checkExist = function (address: string) {
+        const checkExist = (address: string) => {
             const result = tableData.value.filter((item) => item.address == address)
             return result.length > 0
         }
-        const getIconStatus = function () {
+        const getIconStatus = () => {
             if (pageData.value.senderShow) {
                 return 0
             }
             return 2
         }
-        const maskShow = function () {
+        const maskShow = () => {
             pageData.value.senderShow = !pageData.value.senderShow
         }
-        const formatSender = function (sender: string) {
+        const formatSender = (sender: string) => {
             if (pageData.value.senderShow) {
                 return sender
             }
             return hideEmailAddress(sender)
         }
-        const formatAddress = function (rowData: EmailReceiver) {
+        const formatAddress = (rowData: EmailReceiver) => {
             if (rowData.rowClicked) {
                 return rowData.address
             }
@@ -94,7 +91,7 @@ export default defineComponent({
             pageData.value.scheduleList = await buildScheduleList()
             pageData.value.schedule = pageData.value.scheduleList[0].value
         }
-        const getData = function () {
+        const getData = () => {
             getScheduleList().then(() => {
                 // 将scheduleList中value为''的元素转换为' '
                 pageData.value.scheduleList.forEach((item) => {
@@ -102,13 +99,13 @@ export default defineComponent({
                         item.value = ' '
                     }
                 })
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
                 queryEmailCfg().then((resb) => {
-                    closeLoading(LoadingTarget.FullScreen)
+                    closeLoading()
                     const res = queryXml(resb)
                     if (res('status').text() == 'success') {
                         pageData.value.sender = res('//content/sender/address').text()
-                        res('//content/receiver/item').forEach((ele: any) => {
+                        res('//content/receiver/item').forEach((ele) => {
                             const eleXml = queryXml(ele.element)
                             const emailReceiver = new EmailReceiver()
                             if (typeof eleXml('schedule').attr('id') == undefined) {
@@ -128,7 +125,7 @@ export default defineComponent({
             })
         }
         // 原代码中显示了地址后无法隐藏，这里改为再次点击隐藏
-        const handleRowClick = function (row: EmailReceiver) {
+        const handleRowClick = (row: EmailReceiver) => {
             row.rowClicked = !row.rowClicked
             // // 原代码逻辑：若未被点击，则显示
             // if (!row.rowClicked) {
@@ -140,7 +137,7 @@ export default defineComponent({
                 }
             })
         }
-        const handleScheduleChange = function (row: EmailReceiver) {
+        const handleScheduleChange = (row: EmailReceiver) => {
             tableRef.value?.setCurrentRow(row)
             row.rowClicked = true
             tableData.value.forEach((item) => {
@@ -149,31 +146,29 @@ export default defineComponent({
                 }
             })
         }
-        const handleScheduleChangeAll = function (value: string) {
+        const handleScheduleChangeAll = (value: string) => {
             tableData.value.forEach((item) => {
                 item.schedule = value
             })
         }
-        const handleDelReceiver = function (row: EmailReceiver) {
+        const handleDelReceiver = (row: EmailReceiver) => {
             openMessageTipBox({
                 type: 'question',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_DELETE_MP_EMAIL_RECEIVER_S').formatForLang(row['address']),
             }).then(() => {
                 const index = tableData.value.indexOf(row)
                 tableData.value.splice(index, 1)
             })
         }
-        const handleDelReceiverAll = function () {
+        const handleDelReceiverAll = () => {
             openMessageTipBox({
                 type: 'question',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_DELETE_ALL_ITEMS'),
             }).then(() => {
                 tableData.value = []
             })
         }
-        const addRecipient = function () {
+        const addRecipient = () => {
             // 规则验证
             if (!formRef.value) return
             formRef.value.validate((valid) => {
@@ -187,21 +182,20 @@ export default defineComponent({
                 }
             })
         }
-        const handleSenderEdit = function () {
+        const handleSenderEdit = () => {
             if (userSession.hasAuth('net')) {
                 router.push('/config/net/email')
             } else {
                 openMessageTipBox({
                     type: 'question',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_NO_AUTH'),
                 })
             }
         }
-        const handleScheduleManage = function () {
+        const handleScheduleManage = () => {
             pageData.value.scheduleManagePopOpen = true
         }
-        const handleApply = function () {
+        const handleApply = () => {
             let sendXml = rawXml`
             <content>   
                 <receiver type="list">
@@ -218,20 +212,18 @@ export default defineComponent({
             sendXml += rawXml`
                 </receiver>
             </content>`
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             editEmailCfg(sendXml).then((resb) => {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 const res = queryXml(resb)
                 if (res('status').text() == 'success') {
                     openMessageTipBox({
                         type: 'success',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                     })
                 } else {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_SAVE_DATA_FAIL'),
                     })
                 }
@@ -245,7 +237,6 @@ export default defineComponent({
 
         return {
             pageData,
-            Translate,
             tableData,
             tableRef,
             formRef,
@@ -263,6 +254,7 @@ export default defineComponent({
             formatSender,
             formatAddress,
             handleRowClick,
+            ScheduleManagPop,
         }
     },
 })

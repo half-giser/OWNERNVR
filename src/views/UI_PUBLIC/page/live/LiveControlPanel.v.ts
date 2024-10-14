@@ -3,7 +3,7 @@
  * @Date: 2024-07-26 17:04:12
  * @Description: 现场预览-操作视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-26 09:45:14
+ * @LastEditTime: 2024-10-11 17:02:00
  */
 import { type LiveChannelList, type LiveResolutionOptions, type LiveQualityOptions, LiveStreamForm, type LiveSharedWinData } from '@/types/apiType/live'
 
@@ -100,7 +100,7 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        // const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        // const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
         const userSession = useUserSessionStore()
         const theme = getUiAndTheme()
@@ -548,15 +548,14 @@ export default defineComponent({
             if (!chlID.value) {
                 return
             }
+            const res = streamFormData.value.resolution
+            const fps = streamFormData.value.frameRate.toString()
+            const qoi = streamFormData.value.quality
+            const gop = pageData.value.GOP || Number(streamFormData.value.frameRate * 4).toString()
             const sendXml = rawXml`
                 <content type="list" total="1">
                     <item id="${chlID.value}">
-                        <sub 
-                            res="${streamFormData.value.resolution}"
-                            fps="${streamFormData.value.frameRate.toString()}"
-                            QoI="${streamFormData.value.quality}"
-                            GOP="${pageData.value.GOP || Number(streamFormData.value.frameRate * 4).toString()}"
-                        />
+                        <sub res="${res}" fps="${fps}" QoI="${qoi}" GOP="${gop}" />
                     </item>
                 </content>
             `

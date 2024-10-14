@@ -188,9 +188,9 @@
                             popper-class="no-padding"
                         >
                             <template #reference>
-                                <span class="base-popover-icon">
-                                    {{ Translate('IDCS_CONFIG') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
-                                </span>
+                                <BaseTableDropdownLink>
+                                    {{ Translate('IDCS_CONFIG') }}
+                                </BaseTableDropdownLink>
                             </template>
                             <div class="cfg_table">
                                 <el-table
@@ -227,9 +227,9 @@
                             :hide-on-click="false"
                             placement="top"
                         >
-                            <span class="el-dropdown-link">
-                                {{ Translate('IDCS_CONFIG') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
-                            </span>
+                            <BaseTableDropdownLink>
+                                {{ Translate('IDCS_CONFIG') }}
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <div class="cfg_table">
@@ -273,13 +273,13 @@
                 <el-table-column>
                     <template #header>
                         <el-dropdown trigger="click">
-                            <span class="el-dropdown-link">
-                                {{ Translate('IDCS_DELETE') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
-                            </span>
+                            <BaseTableDropdownLink>
+                                {{ Translate('IDCS_DELETE') }}
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
-                                    <el-dropdown-item>
-                                        <span @click="deleteItemAll">{{ Translate('IDCS_DELETE_ALL') }}</span>
+                                    <el-dropdown-item @click="deleteItemAll">
+                                        {{ Translate('IDCS_DELETE_ALL') }}
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>

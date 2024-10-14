@@ -5,21 +5,16 @@
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
  * @LastEditTime: 2024-09-30 15:14:10
  */
-import { ArrowDown } from '@element-plus/icons-vue'
-import { type chlCaps, type aiResourceRow } from '@/types/apiType/aiAndEvent'
-import BaseTransferDialog from '@/components/BaseTransferDialog.vue'
+import { type chlCaps, type aiResourceRow, type peaPageData, type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
 import ChannelPtzCtrlPanel from '@/views/UI_PUBLIC/page/channel/ChannelPtzCtrlPanel.vue'
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import CanvasPolygon from '@/utils/canvas/canvasPolygon'
 import { cloneDeep } from 'lodash-es'
-import { type XmlResult } from '@/utils/xmlParse'
-import { type peaPageData, type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
+import { type XmlElement, type XmlResult } from '@/utils/xmlParse'
 export default defineComponent({
     components: {
-        ArrowDown,
         ScheduleManagPop,
-        BaseTransferDialog,
         ChannelPtzCtrlPanel,
     },
     props: {
@@ -45,7 +40,7 @@ export default defineComponent({
     },
     setup(props) {
         type CanvasPolygonAreaType = 'detectionArea' | 'maskArea' | 'regionArea' // 侦测-"detectionArea"/屏蔽-"maskArea"/矩形-"regionArea"
-        const { LoadingTarget, openLoading, closeLoading } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const openMessageTipBox = useMessageBox().openMessageTipBox
         const systemCaps = useCababilityStore()
         const { Translate } = useLangStore()
@@ -291,15 +286,15 @@ export default defineComponent({
                 if (tempResourceOccupancy * 1 <= 100) {
                     aiResourceTableData.value = []
                     peaData.value.totalResourceOccupancy = tempResourceOccupancy.toFixed(2)
-                    $('//content/chl/item').forEach((element: any) => {
+                    $('//content/chl/item').forEach((element) => {
                         const $item = queryXml(element.element)
                         const id = element.attr('id')
                         let name = $item('name').text()
                         // 通道是否在线
                         const connectState = $item('connectState').text() == 'true'
                         name = connectState ? name : name + '(' + Translate('IDCS_OFFLINE') + ')'
-                        $item('resource/item').forEach((ele: any) => {
-                            const eventType: string[] = ele.attr('eventType') ? ele.attr('eventType').split(',') : ''
+                        $item('resource/item').forEach((ele) => {
+                            const eventType: string[] = ele.attr('eventType') ? ele.attr('eventType')!.split(',') : []
                             const eventTypeText = eventType
                                 .map((item) => {
                                     return peaData.value.eventTypeMapping[item]
@@ -342,9 +337,9 @@ export default defineComponent({
             sendXml += rawXml`</param>
                             </chl>
                         </content>`
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             const res = await freeAIOccupyResource(sendXml)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             const $ = queryXml(res)
             if ($('status').text() == 'success') {
                 aiResourceTableData.value.splice(aiResourceTableData.value.indexOf(row), 1)
@@ -372,9 +367,9 @@ export default defineComponent({
                                         <param/>
                                         <trigger/>
                                     </requireField>`
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             const res = await queryIntelAreaConfig(sendXML)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             const $ = queryXml(res)
             if ($('status').text() == 'success') {
                 peaData.value.applyDisable = true
@@ -518,9 +513,9 @@ export default defineComponent({
                     peaData.value.areaCfgData[activity_type].sysAudio = $item('sysAudio').attr('id') ? $item('sysAudio').attr('id') : ''
                     peaData.value.areaCfgData[activity_type].recordSwitch = $item('sysRec/switch').text() == 'true'
                     if ($item('sysRec/chls/item').text() != '') {
-                        peaData.value.areaCfgData[activity_type].recordChls = $item('sysRec/chls/item').map((item: any) => {
+                        peaData.value.areaCfgData[activity_type].recordChls = $item('sysRec/chls/item').map((item) => {
                             return {
-                                value: item.attr('id'),
+                                value: item.attr('id')!,
                                 label: item.text(),
                             }
                         })
@@ -530,9 +525,9 @@ export default defineComponent({
                     peaData.value.areaCfgData[activity_type].recordList = peaData.value.areaCfgData[activity_type].recordChls.map((item: { value: string; label: string }) => item.value)
                     peaData.value.areaCfgData[activity_type].alarmOutSwitch = $item('alarmOut/switch').text() == 'true'
                     if ($item('alarmOut/alarmOuts/item').text() != '') {
-                        peaData.value.areaCfgData[activity_type].alarmOutChls = $item('alarmOut/alarmOuts/item').map((item: any) => {
+                        peaData.value.areaCfgData[activity_type].alarmOutChls = $item('alarmOut/alarmOuts/item').map((item) => {
                             return {
-                                value: item.attr('id'),
+                                value: item.attr('id')!,
                                 label: item.text(),
                             }
                         })
@@ -542,13 +537,13 @@ export default defineComponent({
                     peaData.value.areaCfgData[activity_type].alarmOutList = peaData.value.areaCfgData[activity_type].alarmOutChls.map((item: { value: string; label: string }) => item.value)
                     peaData.value.areaCfgData[activity_type].presetSwitch = $item('preset/switch').text() == 'true'
                     if ($item('preset/presets/item').text() != '') {
-                        peaData.value.areaCfgData[activity_type].presets = $item('preset/presets/item').map((item: any) => {
+                        peaData.value.areaCfgData[activity_type].presets = $item('preset/presets/item').map((item) => {
                             const $item = queryXml(item.element)
                             return {
                                 index: $item('index').text(),
                                 name: $item('name').text(),
                                 chl: {
-                                    value: $item('chl').attr('id'),
+                                    value: $item('chl').attr('id')!,
                                     label: $item('chl').text(),
                                 },
                             }
@@ -645,7 +640,7 @@ export default defineComponent({
                                             </person>
                                             ${
                                                 peaData.value.chlData['accessType'] == '0'
-                                                    ? `
+                                                    ? rawXml`
                                             <motor>
                                                 <switch>${peaData.value.areaCfgData[type]['motorcycle'].toString()}</switch>
                                                 <sensitivity>${peaData.value.areaCfgData[type]['motorSensitivity'].toString()}</sensitivity>
@@ -714,10 +709,10 @@ export default defineComponent({
             sendXml += rawXml`
                             </chl>
                         </content>`
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             const $ = await editIntelAreaConfig(sendXml)
             const res = queryXml($)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             if (res('status').text() == 'success') {
                 peaData.value.applyDisable = true
                 if (peaData.value.areaCfgData[peaData.value.activity_type].detectionEnable) {
@@ -783,10 +778,10 @@ export default defineComponent({
             })
             const res = queryXml(resb)
             if (res('status').text() == 'success') {
-                res('//content/item').forEach((item: any) => {
+                res('//content/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     peaData.value.recordSource.push({
-                        value: item.attr('id'),
+                        value: item.attr('id')!,
                         label: $item('name').text(),
                     })
                 })
@@ -801,14 +796,14 @@ export default defineComponent({
             })
             const res = queryXml(resb)
             if (res('status').text() == 'success') {
-                res('//content/item').forEach((item: any) => {
+                res('//content/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     let name = $item('name').text()
                     if ($item('devDesc').text()) {
                         name = $item('devDesc').text() + '-' + name
                     }
                     peaData.value.alarmOutSource.push({
-                        value: item.attr('id'),
+                        value: item.attr('id')!,
                         label: name,
                         device: {
                             value: $item('device').attr('id'),
@@ -894,7 +889,7 @@ export default defineComponent({
         }
 
         // 获取mutexobj
-        const getMutexChlNameObj = function () {
+        const getMutexChlNameObj = () => {
             let normalChlName = ''
             let thermalChlName = ''
             const sameIPChlList: { id: string; ip: string; name: string; accessType: string }[] = []
@@ -919,7 +914,7 @@ export default defineComponent({
             }
         }
         // 获取区域
-        const getRegion = function (index: number, element: any, region: { X1: number; Y1: number; X2: number; Y2: number }) {
+        const getRegion = (index: number, element: XmlElement, region: { X1: number; Y1: number; X2: number; Y2: number }) => {
             const $ = queryXml(element.element)
             if (index == 0) {
                 region.X1 = Number($('X').text())
@@ -933,7 +928,7 @@ export default defineComponent({
             }
         }
         // 获取矩形区域点列表
-        const getRegionPoints = function (points: { X1: number; Y1: number; X2: number; Y2: number }) {
+        const getRegionPoints = (points: { X1: number; Y1: number; X2: number; Y2: number }) => {
             const pointList = []
             pointList.push({ X: points.X1, Y: points.Y1, isClosed: true })
             pointList.push({ X: points.X2, Y: points.Y1, isClosed: true })
@@ -942,7 +937,7 @@ export default defineComponent({
             return pointList
         }
         // pea检验区域合法性
-        const verification = function () {
+        const verification = () => {
             // 区域为多边形时，检测区域合法性(区域入侵AI事件中：currentRegulation为false时区域为多边形；currentRegulation为true时区域为矩形-联咏IPC)
             if (!peaData.value.currentRegulation) {
                 const allRegionList: { X: number; Y: number; isClosed?: boolean }[][] = []
@@ -982,7 +977,7 @@ export default defineComponent({
                     peaDrawer.setEnable(true)
                     setPeaOcxData()
                 } else {
-                    setTimeout(function () {
+                    setTimeout(() => {
                         const sendXML1 = OCX_XML_SetPeaArea(boundaryInfo[area]['point'], peaData.value.currentRegulation)
                         peaPlugin.GetVideoPlugin().ExecuteCmd(sendXML1)
                         const sendXML2 = OCX_XML_SetPeaAreaAction('EDIT_ON')
@@ -998,7 +993,7 @@ export default defineComponent({
                     peaDrawer.clear()
                     peaDrawer.setEnable(false)
                 } else {
-                    setTimeout(function () {
+                    setTimeout(() => {
                         const sendXML1 = OCX_XML_SetPeaAreaAction('NONE')
                         peaPlugin.GetVideoPlugin().ExecuteCmd(sendXML1)
                         const sendXML2 = OCX_XML_SetPeaAreaAction('EDIT_OFF')
@@ -1155,11 +1150,11 @@ export default defineComponent({
                                             </param>
                                         </chl>
                                     </content>`
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             editBallIPCPTZLockCfg(sendXML).then((res) => {
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
-                    closeLoading(LoadingTarget.FullScreen)
+                    closeLoading()
                     peaData.value.lockStatus = !peaData.value.lockStatus
                     peaData.value.lockStatus = !peaData.value.lockStatus
                 }
@@ -1241,7 +1236,7 @@ export default defineComponent({
 
         // pea
         // pea绘图
-        const peaChange = function (
+        const peaChange = (
             points:
                 | {
                       X1: number
@@ -1254,7 +1249,7 @@ export default defineComponent({
                       Y: number
                       isClosed?: boolean
                   }[],
-        ) {
+        ) => {
             const type = peaData.value.activity_type
             const area = peaData.value.chosenWarnAreaIndex
             if (peaData.value.areaCfgData[type].regulation) {
@@ -1274,7 +1269,7 @@ export default defineComponent({
             peaData.value.applyDisable = false
         }
         // pea是否显示所有区域
-        const showAllPeaArea = function (isShowAll: boolean) {
+        const showAllPeaArea = (isShowAll: boolean) => {
             peaDrawer && peaDrawer.setEnableShowAll(isShowAll)
             if (isShowAll) {
                 const type = peaData.value.activity_type
@@ -1297,7 +1292,7 @@ export default defineComponent({
                     // 画点
                     const boundaryInfo: { X: number; Y: number; isClosed?: boolean }[][] = []
                     const boundaryInfoList = peaData.value.areaCfgData[type]['boundaryInfo']
-                    boundaryInfoList.forEach(function (ele, idx) {
+                    boundaryInfoList.forEach((ele, idx) => {
                         boundaryInfo[idx] = ele.point.map((item: { X: number; Y: number; isClosed?: boolean }) => {
                             return { X: item.X, Y: item.Y, isClosed: item.isClosed }
                         })
@@ -1332,7 +1327,7 @@ export default defineComponent({
             }
         }
         // pea显示
-        const setPeaOcxData = function () {
+        const setPeaOcxData = () => {
             const type = peaData.value.activity_type
             const area = peaData.value.chosenWarnAreaIndex
             const boundaryInfo = peaData.value.areaCfgData[type]['boundaryInfo']
@@ -1359,13 +1354,13 @@ export default defineComponent({
             }
         }
         // 区域关闭
-        const peaClosePath = function (
+        const peaClosePath = (
             points: {
                 X: number
                 Y: number
                 isClosed?: boolean
             }[],
-        ) {
+        ) => {
             const currType = peaData.value.activity_type
             const area = peaData.value.chosenWarnAreaIndex
             peaData.value.areaCfgData[currType]['boundaryInfo'][area]['point'] = points
@@ -1374,7 +1369,7 @@ export default defineComponent({
             })
         }
         // 提示区域关闭
-        const peaForceClosePath = function (canBeClosed: boolean) {
+        const peaForceClosePath = (canBeClosed: boolean) => {
             if (!canBeClosed) {
                 openMessageTipBox({
                     type: 'info',
@@ -1383,7 +1378,7 @@ export default defineComponent({
             }
         }
         // 清空当前区域对话框
-        const peaClearCurrentArea = function () {
+        const peaClearCurrentArea = () => {
             const currType = peaData.value.activity_type
             const area = peaData.value.chosenWarnAreaIndex
             // const length = cloneDeep(peaData.value.areaCfgData[currType]['boundaryInfo'][area]['point'].length)
@@ -1410,7 +1405,7 @@ export default defineComponent({
             // }
         }
         // 清空当前区域按钮
-        const peaClearCurrentAreaBtn = function () {
+        const peaClearCurrentAreaBtn = () => {
             const currType = peaData.value.activity_type
             const area = peaData.value.chosenWarnAreaIndex
             peaData.value.areaCfgData[currType]['boundaryInfo'][area]['point'] = []
@@ -1430,7 +1425,7 @@ export default defineComponent({
             peaData.value.applyDisable = false
         }
         // 清空所有区域
-        const clearAllPeaArea = function () {
+        const clearAllPeaArea = () => {
             const type = peaData.value.activity_type
             const regionInfoList = peaData.value.areaCfgData[type]['regionInfo']
             const boundaryInfoList = peaData.value.areaCfgData[type]['boundaryInfo']
@@ -1570,7 +1565,6 @@ export default defineComponent({
             peaClearCurrentAreaBtn,
             clearAllPeaArea,
             ScheduleManagPop,
-            BaseTransferDialog,
             ChannelPtzCtrlPanel,
         }
     },

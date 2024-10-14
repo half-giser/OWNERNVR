@@ -5,19 +5,13 @@
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
  * @LastEditTime: 2024-09-30 14:06:54
  */
-import { ArrowDown } from '@element-plus/icons-vue'
-import { type chlCaps, type aiResourceRow } from '@/types/apiType/aiAndEvent'
-import { type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
+import { type chlCaps, type aiResourceRow, type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
-import BaseTransferDialog from '@/components/BaseTransferDialog.vue'
 import { cloneDeep } from 'lodash-es'
-import { queryAIResourceDetail } from '@/api/aiAndEvent'
 export default defineComponent({
     components: {
-        ArrowDown,
         ScheduleManagPop,
-        BaseTransferDialog,
     },
     props: {
         /**
@@ -41,7 +35,7 @@ export default defineComponent({
         },
     },
     setup(props) {
-        const { LoadingTarget, openLoading, closeLoading } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const openMessageTipBox = useMessageBox().openMessageTipBox
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
@@ -50,7 +44,7 @@ export default defineComponent({
         const playerRef = ref<PlayerInstance>()
         const pluginStore = usePluginStore()
         const osType = getSystemInfo().platform
-        const pageData: { [key: string]: any } = ref({
+        const pageData = ref<{ [key: string]: any }>({
             // 当前选中的通道
             currChlId: '',
             // 当前选择通道数据
@@ -274,14 +268,15 @@ export default defineComponent({
         const getAIResourceData = async (isEdit: boolean) => {
             let sendXml = ''
             if (isEdit) {
-                sendXml = rawXml`<content>
-                                    <chl>
-                                        <item id="${pageData.value.currChlId}">
-                                            <eventType>tripwire</eventType>
-                                            <switch>${pageData.value.detectionEnable.toString()}</switch>
-                                        </item>
-                                    </chl>
-                                </content>`
+                sendXml = rawXml`
+                    <content>
+                        <chl>
+                            <item id="${pageData.value.currChlId}">
+                                <eventType>tripwire</eventType>
+                                <switch>${pageData.value.detectionEnable.toString()}</switch>
+                            </item>
+                        </chl>
+                    </content>`
             }
             const res = await queryAIResourceDetail(sendXml)
             const $ = queryXml(res)
@@ -290,15 +285,15 @@ export default defineComponent({
                 if (tempResourceOccupancy * 1 <= 100) {
                     aiResourceTableData.value = []
                     pageData.value.totalResourceOccupancy = tempResourceOccupancy.toFixed(2)
-                    $('//content/chl/item').forEach((element: any) => {
+                    $('//content/chl/item').forEach((element) => {
                         const $item = queryXml(element.element)
                         const id = element.attr('id')
                         let name = $item('name').text()
                         // 通道是否在线
                         const connectState = $item('connectState').text() == 'true'
                         name = connectState ? name : name + '(' + Translate('IDCS_OFFLINE') + ')'
-                        $item('resource/item').forEach((ele: any) => {
-                            const eventType: string[] = ele.attr('eventType') ? ele.attr('eventType').split(',') : ''
+                        $item('resource/item').forEach((ele) => {
+                            const eventType: string[] = ele.attr('eventType') ? ele.attr('eventType')!.split(',') : []
                             const eventTypeText = eventType
                                 .map((item) => {
                                     return pageData.value.eventTypeMapping[item]
@@ -341,9 +336,9 @@ export default defineComponent({
             sendXml += rawXml`</param>
                             </chl>
                         </content>`
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             const res = await freeAIOccupyResource(sendXml)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             const $ = queryXml(res)
             if ($('status').text() == 'success') {
                 aiResourceTableData.value.splice(aiResourceTableData.value.indexOf(row), 1)
@@ -368,10 +363,10 @@ export default defineComponent({
             })
             const res = queryXml(resb)
             if (res('status').text() == 'success') {
-                res('//content/item').forEach((item: any) => {
+                res('//content/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     pageData.value.recordSource.push({
-                        value: item.attr('id'),
+                        value: item.attr('id')!,
                         label: $item('name').text(),
                     })
                 })
@@ -386,7 +381,7 @@ export default defineComponent({
             })
             const res = queryXml(resb)
             if (res('status').text() == 'success') {
-                res('//content/item').forEach((item: any) => {
+                res('//content/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     let name = $item('name').text()
                     if ($item('devDesc').text()) {
@@ -411,7 +406,7 @@ export default defineComponent({
             }).then(async (resb) => {
                 const res = queryXml(resb)
                 if (res('status').text() == 'success') {
-                    res('//content/item').forEach((item: any) => {
+                    res('//content/item').forEach((item) => {
                         const $item = queryXml(item.element)
                         pageData.value.snapSource.push({
                             value: item.attr('id'),
@@ -612,7 +607,7 @@ export default defineComponent({
             return timeList
         }
         // 获取mutexobj
-        const getMutexChlNameObj = function () {
+        const getMutexChlNameObj = () => {
             let normalChlName = ''
             let thermalChlName = ''
             const sameIPChlList: { id: string; ip: string; name: string; accessType: string }[] = []
@@ -638,16 +633,17 @@ export default defineComponent({
         }
         // 获取火点数据
         const getData = async () => {
-            const sendXml = rawXml` <condition>
-                                        <chlId>${pageData.value.currChlId}</chlId>
-                                    </condition>
-                                    <requireField>
-                                        <param/>
-                                        <trigger/>
-                                    </requireField>`
-            openLoading(LoadingTarget.FullScreen)
+            const sendXml = rawXml` 
+                <condition>
+                    <chlId>${pageData.value.currChlId}</chlId>
+                </condition>
+                <requireField>
+                    <param/>
+                    <trigger/>
+                </requireField>`
+            openLoading()
             const res = await querySmartFireConfig(sendXml)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             const $ = queryXml(res)
             if ($('status').text() == 'success') {
                 pageData.value.mutexList = $('//content/chl/param/mutexList/item').map((item) => {
@@ -691,9 +687,9 @@ export default defineComponent({
                     pageData.value.sysAudio = $item('sysAudio').attr('id') == '' ? $item('sysAudio').attr('id') : ''
                     pageData.value.record = {
                         switch: $item('sysRec/switch').text() == 'true',
-                        chls: $item('sysRec/chls/item').map((item: any) => {
+                        chls: $item('sysRec/chls/item').map((item) => {
                             return {
-                                value: item.attr('id'),
+                                value: item.attr('id')!,
                                 label: item.text(),
                             }
                         }),
@@ -701,9 +697,9 @@ export default defineComponent({
                     pageData.value.recordList = pageData.value.record.chls.map((item: { value: string; label: string }) => item.value)
                     pageData.value.alarmOut = {
                         switch: $item('alarmOut/switch').text() == 'true',
-                        chls: $item('alarmOut/alarmOuts/item').map((item: any) => {
+                        chls: $item('alarmOut/alarmOuts/item').map((item) => {
                             return {
-                                value: item.attr('id'),
+                                value: item.attr('id')!,
                                 label: item.text(),
                             }
                         }),
@@ -711,9 +707,9 @@ export default defineComponent({
                     pageData.value.alarmOutList = pageData.value.alarmOut.chls.map((item: { value: string; label: string }) => item.value)
                     pageData.value.snap = {
                         switch: $item('sysSnap/switch').text() == 'true',
-                        chls: $item('sysSnap/chls/item').map((item: any) => {
+                        chls: $item('sysSnap/chls/item').map((item) => {
                             return {
-                                value: item.attr('id'),
+                                value: item.attr('id')!,
                                 label: item.text(),
                             }
                         }),
@@ -721,13 +717,13 @@ export default defineComponent({
                     pageData.value.snapList = pageData.value.snap.chls.map((item: { value: string; label: string }) => item.value)
                     pageData.value.preset = {
                         switch: $item('preset/switch').text() == 'true',
-                        presets: $item('preset/presets/item').map((item: any) => {
+                        presets: $item('preset/presets/item').map((item) => {
                             const $ = queryXml(item.element)
                             return {
                                 index: $('index').text(),
                                 name: $('name').text(),
                                 chl: {
-                                    value: $('chl').attr('id'),
+                                    value: $('chl').attr('id')!,
                                     label: $('chl').text(),
                                 },
                             }
@@ -767,7 +763,7 @@ export default defineComponent({
                                 <chls type="list">
                                     ${pageData.value['record']['chls']
                                         .map(
-                                            (element: { value: string; label: string }) => `
+                                            (element: { value: string; label: string }) => rawXml`
                                         <item id="${element['value']}">
                                             <![CDATA[${element['label']}]]>
                                         </item>
@@ -780,7 +776,7 @@ export default defineComponent({
                                 <chls type="list">
                                     ${pageData.value['snap']['chls']
                                         .map(
-                                            (element: { value: string; label: string }) => `
+                                            (element: { value: string; label: string }) => rawXml`
                                         <item id="${element['value']}">
                                             <![CDATA[${element['label']}]]>
                                         </item>
@@ -793,7 +789,7 @@ export default defineComponent({
                                 <alarmOuts type="list">
                                     ${pageData.value['alarmOut']['chls']
                                         .map(
-                                            (element: { value: string; label: string }) => `
+                                            (element: { value: string; label: string }) => rawXml`
                                         <item id="${element['value']}">
                                             <![CDATA[${element['label']}]]>
                                         </item>
@@ -807,7 +803,7 @@ export default defineComponent({
                                     ${pageData.value['presetSource']
                                         .map((element: PresetList) =>
                                             element['preset']['value']
-                                                ? `
+                                                ? rawXml`
                                         <item>
                                             <index>${element['preset']['value']}</index>
                                             <name><![CDATA[${element['preset']['label']}]]></name>
@@ -833,10 +829,10 @@ export default defineComponent({
                 </content>
             `
 
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             const res = await editSmartFireConfig(sendXml)
             const $ = queryXml(res)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             if ($('status').text() == 'success') {
                 if (pageData.value['detectionEnable']) {
                     // 开关为开把originalSwitch置为true避免多次弹出互斥提示
@@ -922,7 +918,6 @@ export default defineComponent({
             }
         })
         return {
-            Translate,
             pageData,
             aiResourceTableData,
             triggerData,
@@ -940,7 +935,6 @@ export default defineComponent({
             handleFunctionTabClick,
             handleApply,
             ScheduleManagPop,
-            BaseTransferDialog,
         }
     },
 })
