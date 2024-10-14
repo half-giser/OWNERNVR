@@ -3,7 +3,7 @@
  * @Date: 2024-08-30 18:46:48
  * @Description: 人脸库
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:14:08
+ * @LastEditTime: 2024-10-14 11:08:41
  */
 import { cloneDeep } from 'lodash-es'
 import { IntelFaceDBGroupList, IntelFaceDBFaceInfo } from '@/types/apiType/intelligentAnalysis'
@@ -300,6 +300,16 @@ export default defineComponent({
             }
             pageData.value.isAddFacePop = true
             pageData.value.addFaceGroupId = groupId
+        }
+
+        /**
+         * @description 关闭新增人脸弹窗，刷新数据
+         */
+        const confirmAddFace = (isRefresh: boolean) => {
+            pageData.value.isAddFacePop = false
+            if (isRefresh) {
+                searchFace(pageData.value.addFaceGroupId)
+            }
         }
 
         /**
@@ -790,6 +800,7 @@ export default defineComponent({
             getRowKey,
             handleFaceRecognition,
             addFace,
+            confirmAddFace,
             selectFace,
             selectAllFace,
             changeFacePage,

@@ -3,7 +3,7 @@
  * @Date: 2024-08-30 18:47:04
  * @Description: 人脸库 - 添加人脸
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:15:21
+ * @LastEditTime: 2024-10-14 11:06:10
  */
 import { IntelFaceDBFaceForm, type IntelFaceDBGroupDto, type IntelFaceDBSnapFaceList, type IntelFaceDBImportFaceDto } from '@/types/apiType/intelligentAnalysis'
 import { type FormInstance } from 'element-plus'
@@ -28,8 +28,8 @@ export default defineComponent({
         confirm() {
             return true
         },
-        close() {
-            return true
+        close(isRefresh: boolean) {
+            return typeof isRefresh === 'boolean'
         },
     },
     setup(prop, ctx) {
@@ -85,6 +85,8 @@ export default defineComponent({
         })
 
         const formData = ref<IntelFaceDBFaceForm[]>([new IntelFaceDBFaceForm()])
+
+        let isAddedFace = false
 
         // 图片分页数
         const swiperSize = computed(() => {
@@ -153,6 +155,7 @@ export default defineComponent({
          * @description 打开弹窗时重置数据
          */
         const open = async () => {
+            isAddedFace = false
             snapData = []
             importData = []
             formData.value = [new IntelFaceDBFaceForm()]
@@ -315,6 +318,7 @@ export default defineComponent({
             if ($('//status').text() === 'success') {
                 pageData.value.errorTip = Translate('IDCS_FACE_ADD_SUCCESS')
                 formData.value[index].success = true
+                isAddedFace = true
             } else {
                 const errorCode = Number($('//errorCode').text())
                 switch (errorCode) {
@@ -375,7 +379,7 @@ export default defineComponent({
                     <certificateType type="certificateType">${item.certificateType}</certificateType>
                     <certificateNum>${item.certificateNum}</certificateNum>
                     <mobile>${item.mobile?.toString() || ''}</mobile>
-                    <number>$cons{item.number?.toString() || ''}</number>
+                    <number>${item.number?.toString() || ''}</number>
                     <note>${item.note}</note>
                     <groups>
                         <item id="${group.id}">
@@ -400,6 +404,7 @@ export default defineComponent({
             if ($('//status').text() === 'success') {
                 formData.value[index].success = true
                 pageData.value.errorTip = Translate('IDCS_FACE_ADD_SUCCESS')
+                isAddedFace = true
             } else {
                 const errorCode = Number($('//errorCode').text())
                 switch (errorCode) {
@@ -460,7 +465,7 @@ export default defineComponent({
          * @description 关闭弹窗
          */
         const close = () => {
-            ctx.emit('close')
+            ctx.emit('close', isAddedFace)
         }
 
         return {

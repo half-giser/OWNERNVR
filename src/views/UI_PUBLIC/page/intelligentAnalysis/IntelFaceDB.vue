@@ -3,7 +3,7 @@
  * @Date: 2024-08-29 10:06:12
  * @Description: 人脸库
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-25 16:09:55
+ * @LastEditTime: 2024-10-14 11:08:51
 -->
 <template>
     <div class="base-flex-box">
@@ -106,7 +106,7 @@
                                             {{ hideSensitiveInfo(item.name, 'medium', 'name') }}
                                         </IntelBaseFaceItem>
                                     </div>
-                                    <div>
+                                    <div class="row_pagination">
                                         <el-pagination
                                             v-model:current-page="formData.pageIndex"
                                             :page-size="16"
@@ -229,6 +229,7 @@
         <IntelFaceDBAddFacePop
             v-model="pageData.isAddFacePop"
             :group-id="pageData.addFaceGroupId"
+            @close="confirmAddFace"
         />
         <IntelFaceDBEditFacePop
             v-model="pageData.isEditFacePop"
@@ -248,8 +249,10 @@
 
     &-btns {
         width: 100%;
-        padding: 5px 10px;
+        padding: 5px 10px 10px;
         box-sizing: border-box;
+        display: flex;
+        justify-content: flex-start;
 
         .el-input {
             width: 250px;
@@ -270,6 +273,7 @@
         flex-direction: column;
         border: 1px solid var(--content-border);
         justify-content: space-between;
+        margin: 0 10px;
 
         & > div:first-child {
             display: flex;
@@ -288,6 +292,8 @@
     &-info {
         width: 500px;
         border: 1px solid var(--content-border);
+        margin-right: 10px;
+        flex-shrink: 0;
     }
 
     &-avatar {
@@ -304,5 +310,9 @@
             margin: 20px;
         }
     }
+}
+
+.row_pagination {
+    border-top: 1px solid var(--content-border);
 }
 </style>
