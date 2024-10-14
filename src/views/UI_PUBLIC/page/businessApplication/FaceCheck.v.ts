@@ -3,7 +3,7 @@
  * @Date: 2024-08-27 14:27:13
  * @Description: 业务应用-人脸签到
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-10 11:14:08
+ * @LastEditTime: 2024-10-14 12:00:52
  */
 import { cloneDeep } from 'lodash-es'
 import dayjs from 'dayjs'
@@ -375,16 +375,18 @@ export default defineComponent({
                         return
                     }
 
-                    const onTime = dayjs(date + ' ' + formData.value.startTime, 'YYYY-MM-DD HH:mm:ss').valueOf()
-                    const offTime = dayjs(date + ' ' + formData.value.endTime, 'YYYY-MM-DD HH:mm:ss').valueOf()
+                    const onTime = dayjs(date.date + ' ' + formData.value.startTime, 'YYYY-MM-DD HH:mm:ss').valueOf()
+                    const offTime = dayjs(date.date + ' ' + formData.value.endTime, 'YYYY-MM-DD HH:mm:ss').valueOf()
                     const find = item.searchData[date.date].find((data) => {
                         return data.timestamp > onTime && data.timestamp < offTime
                     })
-
+                    if (find) {
+                        tableList[index].checked++
+                    }
                     tableList[index].detail.push({
-                        date: date.format,
+                        date: date.date,
                         day: date.day,
-                        type: find ? Translate('IDCS_ATTENDANCE_CHECK') : Translate('IDCS_ATTENDANCE_UNCHECK'),
+                        type: find ? Translate('IDCS_ATTENDANCE_CHECKED') : Translate('IDCS_ATTENDANCE_UNCHECK'),
                         alarm: !!find,
                         detail: find ? [find] : [],
                     })
