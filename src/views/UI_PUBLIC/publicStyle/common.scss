@@ -224,7 +224,7 @@ input[type='number'] {
             padding: 0px 20px 20px 20px;
         }
     }
-
+    
     // .el-table 公共样式
     .el-table {
         .el-table__header {
@@ -261,8 +261,11 @@ input[type='number'] {
         }
         & .el-table__cell{
             text-align: center;
+            z-index: auto;
         }
-
+        .cell {
+            overflow: visible
+        }
         .el-table__row {
             &:has(> td.el-table-column--selection > .cell .el-checkbox.is-checked) {
                 color: var(--color-white);
