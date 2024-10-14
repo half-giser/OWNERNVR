@@ -3,7 +3,7 @@
  * @Date: 2024-06-05 14:16:36
  * @Description: 集成wasm-player和多分屏功能
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-20 18:35:07
+ * @LastEditTime: 2024-10-11 16:27:21
  */
 
 import { ErrorCode } from '../constants'
@@ -1069,7 +1069,7 @@ export default class TVTPlayer {
      * @description 获取pos配置
      */
     getPosCfg() {
-        queryPosList().then((res: any) => {
+        queryPosList().then((res) => {
             const $ = queryXml(res)
             if ($('//status').text() !== 'success') return
             const $systemX = $('//content/itemType/coordinateSystem/X')

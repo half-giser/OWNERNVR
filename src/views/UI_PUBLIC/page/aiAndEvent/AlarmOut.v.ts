@@ -1,13 +1,18 @@
+/*
+ * @Author: tengxiang tengxiang@tvt.net.cn
+ * @Date: 2024-08-10 11:05:51
+ * @Description: 报警输出
+ * @LastEditors: luoyiming a11593@tvt.net.cn
+ * @LastEditTime: 2024-10-09 16:14:28
+ */
 import { AlarmOut } from '@/types/apiType/aiAndEvent'
-import { defineComponent } from 'vue'
 import { cloneDeep } from 'lodash-es'
-import { editAlarmOutParam } from '@/api/aiAndEvent'
 
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
 
         const pageData = ref({
             delayList: [] as SelectOption<number, string>[],
@@ -187,14 +192,14 @@ export default defineComponent({
                 type: 'question',
                 message: Translate('IDCS_ALARMOUT_TYPE_EDIT_AFTER_REBOOT'),
             }).then(async () => {
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
                 const sendXml = rawXml`
                 <content>
                     <alarmoutType>${value}</alarmoutType>
                 </content>
                 `
                 const result = await editBasicCfg(sendXml)
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 commSaveResponseHadler(result, () => {
                     curAlarmoutType.value = value
                 })
@@ -206,7 +211,7 @@ export default defineComponent({
          * @return {*}
          */
         const setData = () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             const diffRows = getArrayDiffRows(tableData.value, tableDataInit, ['name', 'delayTime', 'scheduleId'])
 
             if (diffRows.length > 0) {
@@ -231,7 +236,7 @@ export default defineComponent({
                         pageData.value.applyDisabled = false
                         // 更新表格初始对比值
                         tableDataInit = cloneDeep(tableData.value)
-                        closeLoading(LoadingTarget.FullScreen)
+                        closeLoading()
                     }
                 })
             }

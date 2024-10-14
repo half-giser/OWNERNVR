@@ -76,9 +76,9 @@
                 >
                     <template #header>
                         <el-dropdown trigger="click">
-                            <span class="el-dropdown-link">
-                                {{ Translate('IDCS_SCHEDULE') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
-                            </span>
+                            <BaseTableDropdownLink>
+                                {{ Translate('IDCS_SCHEDULE') }}
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -118,9 +118,9 @@
                 >
                     <template #header>
                         <el-dropdown trigger="click">
-                            <span class="el-dropdown-link">
-                                {{ Translate('IDCS_DELETE') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
-                            </span>
+                            <BaseTableDropdownLink>
+                                {{ Translate('IDCS_DELETE') }}
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item @click="handleDelReceiverAll()">{{ Translate('IDCS_DELETE_ALL') }}</el-dropdown-item>

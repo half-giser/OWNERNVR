@@ -36,7 +36,7 @@ export default defineComponent({
     setup(prop) {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const pluginStore = usePluginStore()
         const systemCaps = useCababilityStore()
         const Plugin = inject('Plugin') as PluginType
@@ -156,7 +156,7 @@ export default defineComponent({
             getChlList({
                 requireField: ['device'],
                 nodeType: 'alarmOuts',
-            }).then((result: any) => {
+            }).then((result) => {
                 commLoadResponseHandler(result, ($) => {
                     const rowData = [] as {
                         id: string
@@ -319,9 +319,9 @@ export default defineComponent({
                 <condition><chlId>${prop.currChlId}</chlId></condition>
                 <requireField><param/><trigger/></requireField>
                 `
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             const result = await queryOsc(sendXml)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             commLoadResponseHandler(result, async ($) => {
                 const enabledSwitch = $('/response/content/chl/param/switch').text() == 'true'
                 let holdTimeArr = $('/response/content/chl/param/holdTimeNote').text().split(',')
@@ -717,9 +717,9 @@ export default defineComponent({
                         <point type='list' maxCount='6' count='${String(item.points.length)}'>
                 `
                 item.points.forEach((ele) => {
-                    sendXml += `<item>
-                    <X>${ele.X}</X>
-                    <Y>${ele.Y}</Y>
+                    sendXml += rawXml`<item>
+                    <X>${ele.X.toString()}</X>
+                    <Y>${ele.Y.toString()}</Y>
                     </item>`
                 })
                 sendXml += `</point></item>`
@@ -733,7 +733,7 @@ export default defineComponent({
                 sendXml += rawXml`<item id='${item.value}'>
                         <![CDATA[${item.label}]]></item>`
             })
-            sendXml += `</chls></sysRec>
+            sendXml += rawXml`</chls></sysRec>
                 <alarmOut>
                 <alarmOuts type='list'>
             `
@@ -741,7 +741,7 @@ export default defineComponent({
                 sendXml += rawXml`<item id='${item.value}'>
                         <![CDATA[${item.label}]]></item>`
             })
-            sendXml += `</alarmOuts>
+            sendXml += rawXml`</alarmOuts>
                 </alarmOut>
                 <preset>
                 <presets type='list'>
@@ -767,9 +767,9 @@ export default defineComponent({
         }
         const setObjectLeftData = async () => {
             const sendXml = getObjectLeftSaveData()
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             const result = await editOsc(sendXml)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             const $ = queryXml(result)
             if ($('/response/status').text() == 'success') {
                 if (objectLeftData.value.enabledSwitch) {

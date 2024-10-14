@@ -3,7 +3,7 @@
  * @Date: 2024-05-29 13:48:55
  * @Description: UI1-K 主题样式
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 14:07:19
+ * @LastEditTime: 2024-10-12 17:40:47
  */
 
 #n9web {
@@ -64,6 +64,9 @@
     --upload-bg-text: #000;
     --upload-bg: #eee;
     --upload-bg-hover: #ddd;
+
+    --slider-btn-border: #808080;
+    --slider-btn-border-disabled: #DCDCDC;
 
     --btn-text: #fff; 
     --btn-text-hover: #000; 
@@ -143,6 +146,13 @@
     --ai-linkbox-bg: #d0d0d0;
     --ai-linkbox-border: #888;
     --ai-advance-bg: #e5e5e5;
+
+    --output-eth-bg: transparent;
+    --output-tab-bg: #e5e5e5;
+    --output-tab-btn-bg: #e5e5e5;
+
+    --disk-group-text-active: #FFF;
+    --disk-group-bg-active: #F4971A;
 
     --panel-bg: #fff;
     --panel-header-bg: #fff;
@@ -242,4 +252,7 @@
     --schedule-time-span-bg: #f2f2f3;
     --schedule-time-span-bg-active: #FDD24F;
     --schedule-time-span-bg-selection: #FDD24F;
+
+    --float-ok: #006400;
+    --float-error: #ff0000;
 }

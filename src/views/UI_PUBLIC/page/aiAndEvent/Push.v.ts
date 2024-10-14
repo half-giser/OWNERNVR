@@ -15,7 +15,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const pushFormData = ref(new pushForm())
 
         const pageData = ref({
@@ -86,11 +86,11 @@ export default defineComponent({
         }
 
         onMounted(async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             await getData()
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         })
 
         return {

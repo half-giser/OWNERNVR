@@ -1,17 +1,18 @@
-import { ArrowDown } from '@element-plus/icons-vue'
+/*
+ * @Author: yejiahao yejiahao@tvt.net.cn
+ * @Date: 2024-10-10 16:03:56
+ * @Description: 通道 - 移动侦测配置
+ */
 import { ChannelMotion } from '@/types/apiType/channel'
 import CanvasMotion from '@/utils/canvas/canvasMotion'
-import { getChlList, queryXml } from '../../../../utils/tools'
-import { trim } from 'lodash'
+import { trim } from 'lodash-es'
 import { type XmlResult } from '@/utils/xmlParse'
+import { type TableInstance } from 'element-plus'
 
 export default defineComponent({
-    components: {
-        ArrowDown,
-    },
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const { openMessageTipBox } = useMessageBox()
         const userSessionStore = useUserSessionStore()
         const router = useRouter()
@@ -20,7 +21,7 @@ export default defineComponent({
 
         const playerRef = ref<PlayerInstance>()
         const formData = ref(new ChannelMotion())
-        const tableRef = ref()
+        const tableRef = ref<TableInstance>()
         const tableData = ref([] as ChannelMotion[])
         const btnOKDisabled = ref(true)
         const pageIndex = ref(1)
@@ -62,7 +63,7 @@ export default defineComponent({
         const handleChlSel = (chlId: string) => {
             const rowData = getRowById(chlId)
             formData.value = rowData
-            tableRef.value.setCurrentRow(rowData)
+            tableRef.value!.setCurrentRow(rowData)
         }
 
         const handleRowClick = (rowData: ChannelMotion) => {
@@ -70,16 +71,14 @@ export default defineComponent({
                 selectedChlId.value = rowData.id
                 formData.value = rowData
             }
-            tableRef.value.setCurrentRow(getRowById(selectedChlId.value))
+            tableRef.value!.setCurrentRow(getRowById(selectedChlId.value))
         }
 
         const handleDisposeWayClick = () => {
             if (!userSessionStore.hasAuth('alarmMgr')) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_NO_AUTH'),
-                    showCancelButton: false,
                 })
                 return
             }
@@ -113,17 +112,17 @@ export default defineComponent({
         }
 
         const getData = (rowData: ChannelMotion) => {
-            const sendXml = `
+            const sendXml = rawXml`
                 <condition>
                     <chlId>${rowData.id}</chlId>
                 </condition>
                 <requireField>
                     <param/>
                 </requireField>`
-            queryMotion(sendXml).then((res: any) => {
-                res = queryXml(res)
+            queryMotion(sendXml).then((res) => {
+                const $ = queryXml(res)
                 returnDataCount++
-                rowData.isOnvifChl = !(res('content/chl/param/holdTimeNote').length > 0)
+                rowData.isOnvifChl = !($('content/chl/param/holdTimeNote').length > 0)
                 if (!firstLoadNoOnvifData && !rowData.isOnvifChl) {
                     holdTimeList.value = [
                         { value: '5', text: 5 + tSeconds },
@@ -135,13 +134,13 @@ export default defineComponent({
                     ]
                     firstLoadNoOnvifData = true
                 }
-                if (res('status').text() == 'success') {
+                if ($('status').text() == 'success') {
                     const areaInfo: string[] = []
-                    res('content/chl/param/area/item').forEach((ele: any) => {
+                    $('content/chl/param/area/item').forEach((ele) => {
                         areaInfo.push(trim(ele.text()))
                     })
-                    let holdTimeArr: string[] = res('content/chl/param/holdTimeNote').text().split(',')
-                    const holdTime = res('content/chl/param/holdTime').text()
+                    let holdTimeArr: string[] = $('content/chl/param/holdTimeNote').text().split(',')
+                    const holdTime = $('content/chl/param/holdTime').text()
                     // 如果当前的持续时间holdTime不在持续时间列表holdTimeArr中，则添加到持续时间列表中
                     if (!holdTimeArr.includes(holdTime)) {
                         holdTimeArr.push(holdTime)
@@ -155,52 +154,52 @@ export default defineComponent({
                             text: ele == '60' ? '1 ' + tMinite : Number(ele) > 60 ? Number(ele) / 60 + ' ' + tMinites : ele + ' ' + tSeconds,
                         })
                     })
-                    rowData.switch = res('content/chl/param/switch').text().toBoolean()
-                    rowData.sensitivity = Number(res('content/chl/param/sensitivity').text())
-                    rowData.holdTime = res('content/chl/param/holdTime').text()
+                    rowData.switch = $('content/chl/param/switch').text().toBoolean()
+                    rowData.sensitivity = Number($('content/chl/param/sensitivity').text())
+                    rowData.holdTime = $('content/chl/param/holdTime').text()
 
                     if (rowData.isOnvifChl) {
                         rowData.holdTime = ''
                     } else {
-                        rowData.holdTime = res('content/chl/param/holdTime').text()
+                        rowData.holdTime = $('content/chl/param/holdTime').text()
                     }
                     rowData.status = ''
                     rowData.disabled = false
 
-                    if (res('content/chl/param/sensitivity').length) rowData.sensitivityMinValue = Number(res('content/chl/param/sensitivity').attr('min'))
-                    if (res('content/chl/param/objectFilter/car').length) rowData.objectFilterCar = res('content/chl/param/objectFilter/car/switch').text().toBoolean()
-                    if (res('content/chl/param/objectFilter/person').length) rowData.objectFilterPerson = res('content/chl/param/objectFilter/person/switch').text().toBoolean()
-                    let max = res('content/chl/param/sensitivity').length ? Number(res('content/chl/param/sensitivity').attr('max')) : NaN
+                    if ($('content/chl/param/sensitivity').length) rowData.sensitivityMinValue = Number($('content/chl/param/sensitivity').attr('min'))
+                    if ($('content/chl/param/objectFilter/car').length) rowData.objectFilterCar = $('content/chl/param/objectFilter/car/switch').text().toBoolean()
+                    if ($('content/chl/param/objectFilter/person').length) rowData.objectFilterPerson = $('content/chl/param/objectFilter/person/switch').text().toBoolean()
+                    let max = $('content/chl/param/sensitivity').length ? Number($('content/chl/param/sensitivity').attr('max')) : NaN
                     if (uiName == 'UI1-F' && max == 100) max = 120
                     rowData.sensitivityMaxValue = max
-                    rowData.column = Number(res('content/chl/param/area/itemType').attr('maxLen'))
-                    rowData.row = Number(res('content/chl/param/area').attr('count'))
+                    rowData.column = Number($('content/chl/param/area/itemType').attr('maxLen'))
+                    rowData.row = Number($('content/chl/param/area').attr('count'))
                     rowData.areaInfo = areaInfo
                 } else {
                     rowData.status = ''
                 }
-                if (returnDataCount >= res('content/item').length) tableData.value.forEach((ele) => (ele.status = ''))
+                if (returnDataCount >= $('content/item').length) tableData.value.forEach((ele) => (ele.status = ''))
             })
         }
 
         const getDataList = () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             getChlList({
                 pageIndex: pageIndex.value,
                 pageSize: pageSize.value,
                 isSupportMotion: true,
                 requireField: ['supportSMD'],
-            }).then((res: any) => {
-                closeLoading(LoadingTarget.FullScreen)
-                res = queryXml(res)
-                if (res('status').text() == 'success') {
+            }).then((res) => {
+                closeLoading()
+                const $ = queryXml(res)
+                if ($('status').text() == 'success') {
                     tableData.value = []
                     selectedChlId.value = ''
                     firstLoadNoOnvifData = false
-                    res('content/item').forEach((ele: any) => {
+                    $('content/item').forEach((ele) => {
                         const eleXml = queryXml(ele.element)
                         const newData = new ChannelMotion()
-                        newData.id = ele.attr('id')
+                        newData.id = ele.attr('id')!
                         newData.name = eleXml('name').text()
                         newData.chlIndex = eleXml('chlIndex').text()
                         newData.chlType = eleXml('chlType').text()
@@ -209,11 +208,11 @@ export default defineComponent({
                         newData.supportSMD = eleXml('supportSMD').text().toBoolean()
                         tableData.value.push(newData)
                     })
-                    pageTotal.value = Number(res('content').attr('total'))
+                    pageTotal.value = Number($('content').attr('total'))
                     returnDataCount = 0
                     if (tableData.value.length) {
                         selectedChlId.value = tableData.value[0].id
-                        tableRef.value.setCurrentRow(tableData.value[0])
+                        tableRef.value!.setCurrentRow(tableData.value[0])
                         formData.value = tableData.value[0]
                         tableData.value.forEach((ele) => {
                             if (ele.chlType != 'recorder') {
@@ -232,11 +231,11 @@ export default defineComponent({
 
         const getAlarmStatus = () => {
             if (selectedChlId.value) {
-                queryAlarmStatus().then((res: any) => {
-                    res = queryXml(res)
-                    if (res('status').text() == 'success') {
+                queryAlarmStatus().then((res) => {
+                    const $ = queryXml(res)
+                    if ($('status').text() == 'success') {
                         motionAlarmList = []
-                        res('content/motions/item').forEach((ele: any) => {
+                        $('content/motions/item').forEach((ele) => {
                             motionAlarmList.push(queryXml(ele.element)('sourceChl').attr('id'))
                         })
                         showNote.value = motionAlarmList.includes(selectedChlId.value)
@@ -247,26 +246,26 @@ export default defineComponent({
         }
 
         const getSaveData = (rowData: ChannelMotion): string => {
-            let data = `
+            let data = rawXml`
                 <content>
                     <chl id='${rowData.id}'>
                         <param>
-                            <switch>${rowData.switch}</switch>`
+                            <switch>${rowData.switch.toString()}</switch>`
             if (rowData.supportSMD) {
                 data += '<objectFilter>'
                 if (rowData.objectFilterCar !== undefined) data += `<car><switch>${rowData.objectFilterCar}</switch></car>`
                 if (rowData.objectFilterPerson !== undefined) data += `<person><switch>${rowData.objectFilterPerson}</switch></person>`
                 data += '</objectFilter>'
             }
-            data += `
-                <sensitivity min='${rowData.sensitivityMinValue}' max='${rowData.sensitivityMaxValue}'>${rowData.sensitivity}</sensitivity>
+            data += rawXml`
+                <sensitivity min='${rowData.sensitivityMinValue.toString()}' max='${rowData.sensitivityMaxValue.toString()}'>${rowData.sensitivity.toString()}</sensitivity>
                 <holdTime unit='s'>${rowData.holdTime}</holdTime>
-                <area type='list' count='${rowData.row}'>
-                    <itemType minLen='${rowData.column}' maxLen='${rowData.column}'/>`
+                <area type='list' count='${rowData.row.toString()}'>
+                    <itemType minLen='${rowData.column.toString()}' maxLen='${rowData.column.toString()}'/>`
             rowData.areaInfo.forEach((ele) => {
                 data += `<item>${ele}</item>`
             })
-            data += `
+            data += rawXml`
                             </area>
                         </param>
                     </chl>
@@ -279,20 +278,20 @@ export default defineComponent({
             if (total == 0) return
             let count = 0
             const successRows: ChannelMotion[] = []
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             tableData.value.forEach((ele) => (ele.status = ''))
             editRows.forEach((ele) => {
-                editMotion(getSaveData(ele)).then((res: any) => {
-                    res = queryXml(res)
-                    const success = res('status').text() == 'success'
+                editMotion(getSaveData(ele)).then((res) => {
+                    const $ = queryXml(res)
+                    const success = $('status').text() == 'success'
                     if (success) {
                         ele.status = 'success'
                         ele.statusTip = statusToolTip['saveSuccess']
                         successRows.push(ele)
                     } else {
-                        const errorCode = res('errorCode').text()
+                        const errorCode = Number($('errorCode').text())
                         ele.status = 'error'
-                        ele.statusTip = errorCode == '536870953' ? Translate('IDCS_NO_PERMISSION') : statusToolTip['saveFailed']
+                        ele.statusTip = errorCode === ErrorCode.USER_ERROR_NO_AUTH ? Translate('IDCS_NO_PERMISSION') : statusToolTip['saveFailed']
                     }
                     count++
                     if (count >= total) {
@@ -300,7 +299,7 @@ export default defineComponent({
                             editRows.delete(element)
                         })
                         if (!editRows.size) btnOKDisabled.value = true
-                        closeLoading(LoadingTarget.FullScreen)
+                        closeLoading()
                     }
                 })
             })
@@ -453,13 +452,15 @@ export default defineComponent({
         })
 
         onBeforeUnmount(() => {
-            if (mode.value === 'ocx') {
-                plugin.VideoPluginNotifyEmitter.removeListener(LiveNotify2Js)
-                const sendXML = OCX_XML_StopPreview('ALL')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-            } else {
-                motionDrawer?.destroy()
-                motionDrawer = undefined
+            if (ready.value) {
+                if (mode.value === 'ocx') {
+                    plugin.VideoPluginNotifyEmitter.removeListener(LiveNotify2Js)
+                    const sendXML = OCX_XML_StopPreview('ALL')
+                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                } else {
+                    motionDrawer?.destroy()
+                    motionDrawer = undefined
+                }
             }
             if (motionDectionStatusTimer) clearTimeout(motionDectionStatusTimer)
         })

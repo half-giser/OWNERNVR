@@ -36,7 +36,7 @@ export default defineComponent({
     setup(prop) {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const pluginStore = usePluginStore()
         const systemCaps = useCababilityStore()
         const osType = getSystemInfo().platform
@@ -175,7 +175,7 @@ export default defineComponent({
             getChlList({
                 requireField: ['device'],
                 nodeType: 'alarmOuts',
-            }).then((result: any) => {
+            }).then((result) => {
                 commLoadResponseHandler(result, ($) => {
                     const rowData = [] as {
                         id: string
@@ -361,12 +361,17 @@ export default defineComponent({
         // 获取温度检测数据
         const getTemperatureDetectionData = async () => {
             const sendXml = rawXml`
-                <condition><chlId>${prop.currChlId}</chlId></condition>
-                <requireField><param/><trigger/></requireField>
-                `
-            openLoading(LoadingTarget.FullScreen)
+                <condition>
+                    <chlId>${prop.currChlId}</chlId>
+                </condition>
+                <requireField>
+                    <param/>
+                    <trigger/>
+                </requireField>
+            `
+            openLoading()
             const result = await queryTemperatureAlarmConfig(sendXml)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             commLoadResponseHandler(result, async ($) => {
                 let holdTimeArr = $('/response/content/chl/param/holdTimeNote').text().split(',')
                 const holdTime = $('/response/content/chl/param/alarmHoldTime').text()
@@ -988,7 +993,7 @@ export default defineComponent({
                 sendXml += rawXml`<item id='${item.value}'>
                         <![CDATA[${item.label}]]></item>`
             })
-            sendXml += `</chls></sysRec>
+            sendXml += rawXml`</chls></sysRec>
                 <sysSnap>
                 <chls type='list'>
             `
@@ -996,7 +1001,7 @@ export default defineComponent({
                 sendXml += rawXml`<item id='${item.value}'>
                         <![CDATA[${item.label}]]></item>`
             })
-            sendXml += `</chls></sysSnap>
+            sendXml += rawXml`</chls></sysSnap>
                 <alarmOut>
                 <alarmOuts type='list'>
             `
@@ -1004,7 +1009,7 @@ export default defineComponent({
                 sendXml += rawXml`<item id='${item.value}'>
                         <![CDATA[${item.label}]]></item>`
             })
-            sendXml += `</alarmOuts>
+            sendXml += rawXml`</alarmOuts>
                 </alarmOut>
                 <preset>
                 <presets type='list'>
@@ -1032,9 +1037,9 @@ export default defineComponent({
         const applyTempDetectionData = async () => {
             if (!verification()) return
             const sendXml = getTempDetectionSaveData()
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             const result = await editTemperatureAlarmConfig(sendXml)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             const $ = queryXml(result)
             if ($('/response/status').text() == 'success') {
                 // 保存成功后刷新视频区域，四个点时区域没有闭合但保存后也可以闭合（四点已经可以画面）

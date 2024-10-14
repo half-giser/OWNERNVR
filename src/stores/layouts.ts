@@ -3,11 +3,13 @@
  * @Date: 2024-06-19 17:28:37
  * @Description: Layout的一些状态
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-08 13:49:31
+ * @LastEditTime: 2024-10-12 14:01:18
  */
 export const useLayoutStore = defineStore('layout', () => {
     // 当前打开的弹窗数量
     const messageBoxCount = ref(0)
+    // 全屏Loading数量
+    const loadingCount = ref(0)
     // 是否已经初始化
     const isInitial = ref(false)
 
@@ -31,6 +33,7 @@ export const useLayoutStore = defineStore('layout', () => {
 
     return {
         messageBoxCount,
+        loadingCount,
         isInitial,
         liveLastSegNum,
         liveLastChlList,

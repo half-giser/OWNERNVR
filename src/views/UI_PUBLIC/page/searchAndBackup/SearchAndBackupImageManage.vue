@@ -130,13 +130,9 @@
                 >
                     <template #header>
                         <el-dropdown trigger="click">
-                            <span class="el-dropdown-link">
+                            <BaseTableDropdownLink>
                                 {{ Translate('IDCS_EXPORT') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item @click="exportSelectedImg">{{ Translate('IDCS_EXPORT_SELECT') }}</el-dropdown-item>
@@ -160,13 +156,9 @@
                 >
                     <template #header>
                         <el-dropdown trigger="click">
-                            <span class="el-dropdown-link">
+                            <BaseTableDropdownLink>
                                 {{ Translate('IDCS_DELETE') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item @click="deleteSelectedImg">{{ Translate('IDCS_DELETE_SELECT') }}</el-dropdown-item>

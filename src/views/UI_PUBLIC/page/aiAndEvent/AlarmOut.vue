@@ -48,13 +48,9 @@
                 <el-table-column width="210px">
                     <template #header>
                         <el-dropdown trigger="click">
-                            <span class="el-dropdown-link">
+                            <BaseTableDropdownLink>
                                 {{ Translate('IDCS_DELAY') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -87,13 +83,9 @@
                 <el-table-column width="210px">
                     <template #header>
                         <el-dropdown trigger="click">
-                            <span class="el-dropdown-link">
+                            <BaseTableDropdownLink>
                                 {{ Translate('IDCS_SCHEDULE') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -134,13 +126,9 @@
                 >
                     <template #header>
                         <el-dropdown trigger="click">
-                            <span class="el-dropdown-link">
+                            <BaseTableDropdownLink>
                                 {{ Translate('IDCS_TYPE') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu :disabled="pageData.localAlarmOutCount === 0">
                                     <el-dropdown-item

@@ -247,7 +247,7 @@ export default defineComponent({
          * @description 校验数据是否被修改
          * @returns {boolean[]}
          */
-        function compareDataChange() {
+        const compareDataChange = () => {
             let changeDoorCfgFlg = false
             let changeWiegandFlg = false
 

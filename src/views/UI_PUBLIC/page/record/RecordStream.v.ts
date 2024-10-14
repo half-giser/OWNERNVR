@@ -7,8 +7,6 @@
  */
 
 import RecordStreamTable from '@/views/UI_PUBLIC/page/record/RecordStreamTable.vue'
-import { useRoute } from 'vue-router'
-import { defineComponent } from 'vue'
 export default defineComponent({
     components: {
         RecordStreamTable,

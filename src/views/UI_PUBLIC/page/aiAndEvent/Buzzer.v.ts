@@ -10,7 +10,7 @@ import { buzzerForm } from '@/types/apiType/aiAndEvent'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
 
         const formData = ref(new buzzerForm())
 
@@ -47,7 +47,7 @@ export default defineComponent({
         }
 
         const setData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             const sendXml = rawXml`
                 <content>
                     <buzzerDuration>${String(formData.value.buzzerDuration)}</buzzerDuration>
@@ -56,15 +56,15 @@ export default defineComponent({
             const result = await editEventNotifyParam(sendXml)
             commSaveResponseHadler(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         onMounted(async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             await getData()
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         })
 
         return {

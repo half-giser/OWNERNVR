@@ -150,13 +150,9 @@
                             trigger="click"
                             :disabled="!formData.switch"
                         >
-                            <span class="el-dropdown-link">
+                            <BaseTableDropdownLink>
                                 {{ Translate('IDCS_SCHEDULE') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -193,13 +189,9 @@
                             trigger="click"
                             :disabled="!formData.switch"
                         >
-                            <span class="el-dropdown-link">
+                            <BaseTableDropdownLink>
                                 {{ Translate('IDCS_MOTION_DETECTION') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -235,13 +227,9 @@
                             trigger="click"
                             :disabled="!formData.switch"
                         >
-                            <span class="el-dropdown-link">
+                            <BaseTableDropdownLink>
                                 {{ Translate('IDCS_INTELLIGENT') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -277,13 +265,9 @@
                             trigger="click"
                             :disabled="!formData.switch"
                         >
-                            <span class="el-dropdown-link">
+                            <BaseTableDropdownLink>
                                 {{ Translate('IDCS_SENSOR') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -319,13 +303,9 @@
                             trigger="click"
                             :disabled="!formData.switch"
                         >
-                            <span class="el-dropdown-link">
+                            <BaseTableDropdownLink>
                                 {{ Translate('IDCS_CODE_STREAM_TYPE') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -363,13 +343,9 @@
                             trigger="click"
                             :disabled="!formData.switch"
                         >
-                            <span class="el-dropdown-link">
+                            <BaseTableDropdownLink>
                                 {{ Translate('IDCS_SNAP') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -407,13 +383,9 @@
                             trigger="click"
                             :disabled="!formData.switch"
                         >
-                            <span class="el-dropdown-link">
+                            <BaseTableDropdownLink>
                                 {{ Translate('IDCS_ALARM_INFO') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item

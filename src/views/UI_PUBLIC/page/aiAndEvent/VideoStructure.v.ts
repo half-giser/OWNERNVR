@@ -34,7 +34,7 @@ export default defineComponent({
     setup(prop) {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const pluginStore = usePluginStore()
         const osType = getSystemInfo().platform
         const Plugin = inject('Plugin') as PluginType
@@ -582,7 +582,7 @@ export default defineComponent({
                     vsdDrawer.init(true)
                 } else {
                     const osdData = vsdData.value.countOSD ? vsdData.value.countOSD : noneOSD
-                    setTimeout(function () {
+                    setTimeout(() => {
                         const sendXML1 = OCX_XML_SetVsdAreaInfo(osdData, 'vsd')
                         plugin.GetVideoPlugin().ExecuteCmd(sendXML1)
                         const sendXML2 = OCX_XML_SetVsdAreaAction('EDIT_ON')
@@ -600,7 +600,7 @@ export default defineComponent({
                     vsdDrawer.setOSDEnable(false)
                     vsdDrawer.init(true)
                 } else {
-                    setTimeout(function () {
+                    setTimeout(() => {
                         const sendXML1 = OCX_XML_SetVsdAreaInfo(noneOSD, 'vsd')
                         plugin.GetVideoPlugin().ExecuteCmd(sendXML1)
                         const sendXML2 = OCX_XML_SetVsdAreaAction('NONE')
@@ -618,7 +618,7 @@ export default defineComponent({
                     vsdDrawer.setOSDEnable(false)
                     vsdDrawer.init(true)
                 } else {
-                    setTimeout(function () {
+                    setTimeout(() => {
                         const sendXML1 = OCX_XML_SetVsdAreaInfo(noneOSD, 'vsd')
                         plugin.GetVideoPlugin().ExecuteCmd(sendXML1)
                         const sendXML2 = OCX_XML_SetVsdAreaAction('NONE')
@@ -647,7 +647,7 @@ export default defineComponent({
                     vsdDrawer.setCurrAreaIndex(index, currAreaType)
                     vsdDrawer.drawAllPolygon(detectAreaInfo, maskAreaInfo, currAreaType, index, true)
                 } else {
-                    setTimeout(function () {
+                    setTimeout(() => {
                         const sendXML = OCX_XML_SetAllArea({ detectAreaInfo: Object.values(detectAreaInfo), maskAreaInfo: Object.values(maskAreaInfo) }, 'IrregularPolygon', 'TYPE_VSD', '', true)
                         plugin.GetVideoPlugin().ExecuteCmd(sendXML!)
                     }, 100)
@@ -735,7 +735,7 @@ export default defineComponent({
                     } else {
                         // 从侦测区域切换到屏蔽区域时（反之同理），会先执行侦测区域的清空、不可编辑，再执行屏蔽区域的是否可编辑三个命令
                         // 最后执行渲染画线的命令，加延时的目的是这个过程执行命令过多，插件响应不过来
-                        setTimeout(function () {
+                        setTimeout(() => {
                             const sendXML = OCX_XML_SetVsdArea(vsdData.value.detectAreaInfo[index], false, index, 'green')
                             plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                         }, 100)
@@ -748,7 +748,7 @@ export default defineComponent({
                         vsdDrawer.setCurrAreaIndex(index, type)
                         vsdDrawer.setPointList(vsdData.value.maskAreaInfo[index], true)
                     } else {
-                        setTimeout(function () {
+                        setTimeout(() => {
                             const sendXML = OCX_XML_SetVsdArea(vsdData.value.maskAreaInfo[index], false, index, 'red')
                             plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                         }, 100)
@@ -1067,7 +1067,7 @@ export default defineComponent({
                 </person>
                 `
             if (prop.chlData.accessType == '0') {
-                sendXml += `<motor>
+                sendXml += rawXml`<motor>
                 <switch>${String(vsdData.value.objectFilter.motorcycle)}</switch>
                 <sensitivity>${String(vsdData.value.objectFilter.motorSensitivity)}</sensitivity>
                 </motor>
@@ -1128,9 +1128,9 @@ export default defineComponent({
         }
         const setVideoStructureData = async () => {
             const sendXml = getVideoStructureSaveData()
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             const result = await editOsc(sendXml)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             const $ = queryXml(result)
             if ($('/response/status').text() == 'success') {
                 if (vsdData.value.enabledSwitch) {
@@ -1219,10 +1219,10 @@ export default defineComponent({
             if (mode.value != 'h5') {
                 Plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
             }
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             await getScheduleData()
             await getVideoStructureData()
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         })
 
         onBeforeUnmount(() => {

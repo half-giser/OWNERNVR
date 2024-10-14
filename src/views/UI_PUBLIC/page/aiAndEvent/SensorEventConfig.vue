@@ -53,13 +53,9 @@
                 <el-table-column width="100px">
                     <template #header>
                         <el-dropdown trigger="click">
-                            <span class="el-dropdown-link">
+                            <BaseTableDropdownLink>
                                 {{ Translate('IDCS_SCHEDULE') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -93,13 +89,9 @@
                 <el-table-column width="90px">
                     <template #header>
                         <el-dropdown trigger="click">
-                            <span class="el-dropdown-link">
+                            <BaseTableDropdownLink>
                                 {{ Translate('IDCS_TYPE') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -133,13 +125,9 @@
                 <el-table-column width="80px">
                     <template #header>
                         <el-dropdown trigger="click">
-                            <span class="el-dropdown-link">
+                            <BaseTableDropdownLink>
                                 {{ Translate('IDCS_ENABLE') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -173,13 +161,9 @@
                 <el-table-column width="100px">
                     <template #header>
                         <el-dropdown trigger="click">
-                            <span class="el-dropdown-link">
+                            <BaseTableDropdownLink>
                                 {{ Translate('IDCS_DURATION') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -220,16 +204,9 @@
                             :hide-on-click="false"
                             placement="bottom-start"
                         >
-                            <span
-                                class="el-dropdown-link"
-                                @click="recordDropdownOpen"
-                            >
+                            <BaseTableDropdownLink @click="recordDropdownOpen">
                                 {{ Translate('IDCS_RECORD') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <div v-if="pageData.recordIsShowAll">
@@ -282,16 +259,9 @@
                             :hide-on-click="false"
                             placement="bottom-start"
                         >
-                            <span
-                                class="el-dropdown-link"
-                                @click="snapDropdownOpen"
-                            >
+                            <BaseTableDropdownLink @click="snapDropdownOpen">
                                 {{ Translate('IDCS_SNAP') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <div v-if="pageData.snapIsShowAll">
                                     <BaseTransferPop
@@ -336,13 +306,9 @@
                 >
                     <template #header>
                         <el-dropdown trigger="click">
-                            <span class="el-dropdown-link">
+                            <BaseTableDropdownLink>
                                 {{ Translate('IDCS_AUDIO') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -375,13 +341,9 @@
                 <el-table-column width="100px">
                     <template #header>
                         <el-dropdown trigger="click">
-                            <span class="el-dropdown-link">
+                            <BaseTableDropdownLink>
                                 {{ Translate('IDCS_PUSH') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -422,16 +384,9 @@
                             :hide-on-click="false"
                             placement="bottom-start"
                         >
-                            <span
-                                class="el-dropdown-link"
-                                @click="alarmOutDropdownOpen"
-                            >
+                            <BaseTableDropdownLink @click="alarmOutDropdownOpen">
                                 {{ Translate('IDCS_ALARM_OUT') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <div v-if="pageData.alarmOutIsShowAll">
                                     <BaseTransferPop
@@ -499,13 +454,9 @@
                 <el-table-column width="85px">
                     <template #header>
                         <el-dropdown trigger="click">
-                            <span class="el-dropdown-link">
+                            <BaseTableDropdownLink>
                                 {{ Translate('IDCS_BUZZER') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -541,13 +492,9 @@
                             trigger="click"
                             max-height="400px"
                         >
-                            <span class="el-dropdown-link">
+                            <BaseTableDropdownLink>
                                 {{ Translate('IDCS_VIDEO_POPUP') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -581,13 +528,9 @@
                 <el-table-column width="170px">
                     <template #header>
                         <el-dropdown trigger="click">
-                            <span class="el-dropdown-link">
+                            <BaseTableDropdownLink>
                                 {{ Translate('IDCS_MESSAGEBOX_POPUP') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -620,13 +563,7 @@
                 <el-table-column width="75px">
                     <template #header>
                         <el-dropdown trigger="click">
-                            <span class="el-dropdown-link">
-                                {{ 'Email' }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
+                            <BaseTableDropdownLink> Email </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item

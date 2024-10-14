@@ -6,7 +6,7 @@
  * @LastEditTime: 2024-10-09 14:06:15
 -->
 <template>
-    <div class="tripwire_setting_pane">
+    <div>
         <ScheduleManagPop
             v-model="pageData.scheduleManagePopOpen"
             @close="pageData.scheduleManagePopOpen = false"
@@ -57,7 +57,12 @@
                 class="more_wrap"
                 @click="handleMoreClick"
             >
-                {{ Translate('IDCS_ADVANCED') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
+                {{ Translate('IDCS_ADVANCED') }}
+                <BaseImgSprite
+                    file="arrow"
+                    :index="0"
+                    :chunk="4"
+                />
             </div>
             <!-- 只存在一个播放器，因此放于tab区域外 -->
             <div class="base-ai-param-box-left fixed">

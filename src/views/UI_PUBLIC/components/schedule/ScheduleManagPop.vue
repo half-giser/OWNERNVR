@@ -102,6 +102,10 @@
 
 <style lang="scss" scoped>
 .base-subheading-box {
+    width: 600px;
+    height: 35px;
+    margin-bottom: 20px;
+
     .scheduleTitle {
         float: left;
         color: var(--subheading-text);
@@ -111,10 +115,6 @@
         margin: 5px 10px 0px 0px;
         cursor: pointer;
     }
-
-    width: 600px;
-    height: 35px;
-    margin-bottom: 20px;
 }
 #n9web .el-row {
     align-items: start;
