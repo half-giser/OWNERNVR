@@ -3,7 +3,7 @@
  * @Date: 2024-06-04 10:26:32
  * @Description: MAC地址输入框
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 11:36:46
+ * @LastEditTime: 2024-10-15 11:54:12
 -->
 <template>
     <div
@@ -139,6 +139,7 @@ const handleKeyDown = (e: Event, index: number) => {
     switch (keyCode) {
         case 'ArrowRight':
         case '.':
+        case 'Tab':
             if (index < address.value.length - 1) {
                 const $nextInput = getInputElement(index + 1)
                 $nextInput.focus()
