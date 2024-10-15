@@ -3,7 +3,7 @@
  * @Date: 2024-06-18 18:43:27
  * @Description: 登出后预览
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 13:44:50
+ * @LastEditTime: 2024-10-15 13:47:08
  */
 import { type UserPreviewOnLogoutChannelList } from '@/types/apiType/userAndSecurity'
 
@@ -46,8 +46,13 @@ export default defineComponent({
          * @description 获取页面数据
          */
         const getData = async () => {
+            openLoading()
+
             const result = await queryLogoutChlPreviewAuth()
             const $ = queryXml(result)
+
+            closeLoading()
+
             if ($('//status').text() === 'success') {
                 channelList.value = []
                 $('//content/item').forEach((item) => {
@@ -112,6 +117,7 @@ export default defineComponent({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
+                pageData.value.buttonDisabled = true
             } else {
                 openMessageTipBox({
                     type: 'info',
@@ -144,11 +150,8 @@ export default defineComponent({
             getData()
         })
 
-        /**
-         * @description 注销页面时停止接收数据
-         */
         onBeforeUnmount(() => {
-            if (playerRef.value?.mode === 'ocx') {
+            if (playerRef.value && playerRef.value.mode === 'ocx' && playerRef.value.ready) {
                 const sendXML = OCX_XML_StopPreview('ALL')
                 playerRef.value?.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }

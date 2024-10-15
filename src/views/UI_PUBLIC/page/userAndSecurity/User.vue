@@ -3,7 +3,7 @@
  * @Date: 2024-05-04 12:58:39
  * @Description: 查看或更改用户
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-23 11:39:01
+ * @LastEditTime: 2024-10-15 09:34:17
 -->
 <template>
     <div class="User">
@@ -29,6 +29,7 @@
                     <ul class="list">
                         <li
                             v-for="authItem in auth.value"
+                            v-show="!authItem.hidden"
                             :key="authItem.key"
                         >
                             <BaseImgSprite
@@ -81,7 +82,7 @@
                                 :label="Translate(item.label)"
                             >
                                 <template #default="{ $index }">
-                                    <el-text>{{ displayChannelAuth(channelAuthList[$index][item.value]) }}</el-text>
+                                    {{ displayChannelAuth(channelAuthList[$index][item.value]) }}
                                 </template>
                             </el-table-column>
                         </el-table>
@@ -110,7 +111,7 @@
                                 :label="Translate(item.label)"
                             >
                                 <template #default="{ $index }">
-                                    <el-text>{{ displayChannelAuth(channelAuthList[$index][item.value]) }}</el-text>
+                                    {{ displayChannelAuth(channelAuthList[$index][item.value]) }}
                                 </template>
                             </el-table-column>
                         </el-table>
@@ -254,7 +255,7 @@
         ul {
             display: flex;
             justify-content: center;
-            border: 1px solid var(--content-border);
+            border: 1px solid var(--table-border);
             margin: 0;
             padding: 5px;
             flex-shrink: 0;

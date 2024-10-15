@@ -3,7 +3,7 @@
  * @Date: 2024-06-18 18:42:59
  * @Description: 黑白名单
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 14:01:56
+ * @LastEditTime: 2024-10-15 11:49:08
  */
 import BlockAndAllowEditPop from './BlockAndAllowEditPop.vue'
 import { UserBlackAllowListForm, UserEditBlackAllowListForm } from '@/types/apiType/userAndSecurity'
@@ -24,9 +24,6 @@ export default defineComponent({
             editIndex: -1,
             // 编辑数据
             editData: new UserEditBlackAllowListForm(),
-            // 是否禁用提交表单按钮
-            submitDisabled: true,
-            mounted: false,
         })
 
         // 表单数据
@@ -115,39 +112,8 @@ export default defineComponent({
                         mac: $item('mac').text() || '',
                     })
                 })
-                nextTick(() => {
-                    pageData.value.mounted = true
-                })
             })
         }
-
-        const stopFormDataWatch = watch(
-            formData,
-            () => {
-                if (pageData.value.mounted) {
-                    pageData.value.submitDisabled = false
-                    stopFormDataWatch()
-                    stopTableDataWatch()
-                }
-            },
-            {
-                deep: true,
-            },
-        )
-
-        const stopTableDataWatch = watch(
-            tableData,
-            () => {
-                if (pageData.value.mounted) {
-                    pageData.value.submitDisabled = false
-                    stopFormDataWatch()
-                    stopTableDataWatch()
-                }
-            },
-            {
-                deep: true,
-            },
-        )
 
         /**
          * @description 保存数据
@@ -194,9 +160,7 @@ export default defineComponent({
             const result = await editBlackAndWhiteList(sendXml)
 
             closeLoading()
-            commSaveResponseHadler(result, () => {
-                pageData.value.submitDisabled = true
-            })
+            commSaveResponseHadler(result)
         }
 
         /**
@@ -215,8 +179,10 @@ export default defineComponent({
             }
         }
 
-        onMounted(() => {
-            getData()
+        onMounted(async () => {
+            openLoading()
+            await getData()
+            closeLoading()
         })
 
         return {
