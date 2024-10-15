@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 17:29:31
  * @Description: POE电源管理
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:57:01
+ * @LastEditTime: 2024-10-15 17:53:00
  */
 import type { SystemPoeList } from '@/types/apiType/system'
 
@@ -18,16 +18,12 @@ export default defineComponent({
 
         const pageData = ref({
             // 开关选项
-            switchOptions: [
-                {
-                    label: Translate('IDCS_ON'),
-                    value: 'true',
-                },
-                {
-                    label: Translate('IDCS_OFF'),
-                    value: 'false',
-                },
-            ],
+            switchOptions: DEFAULT_SWITCH_OPTIONS.map((item) => {
+                return {
+                    value: item.value,
+                    label: Translate(item.label),
+                }
+            }),
             // 总功率
             totalPower: '0.00',
             // 剩余功率

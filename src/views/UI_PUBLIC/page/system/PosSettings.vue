@@ -3,7 +3,7 @@
  * @Date: 2024-07-02 09:08:21
  * @Description: POS配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-11 17:53:59
+ * @LastEditTime: 2024-10-15 17:15:37
 -->
 <template>
     <div class="base-flex-box">
@@ -197,9 +197,13 @@
             @confirm="confirmSetConnection"
             @close="pageData.isConnectionDialog = false"
         />
-        <PosTriggerChannelPop
+        <BaseTransferDialog
             v-model="pageData.isTriggerChannelDialog"
-            :chls="tableData[pageData.triggerChannelDialogIndex]?.triggerChl.chls || []"
+            header-title="IDCS_CHANNEL_TRGGER"
+            source-title="IDCS_CHANNEL"
+            target-title="IDCS_CHANNEL_TRGGER"
+            :source-data="filterChlList"
+            :linked-list="pageData.triggerChannels"
             @confirm="confirmSetTriggerChannel"
             @close="closeTriggerChannel"
         />

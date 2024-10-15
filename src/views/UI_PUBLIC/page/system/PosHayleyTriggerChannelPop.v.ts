@@ -3,7 +3,7 @@
  * @Date: 2024-07-02 17:13:17
  * @Description: POS联动通道设置（Hayley）
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 17:24:23
+ * @LastEditTime: 2024-10-15 16:51:32
  */
 import { type SystemPosListChls } from '@/types/apiType/system'
 
@@ -58,8 +58,8 @@ export default defineComponent({
                 chlList.value = $('//content/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
-                        id: item.attr('id')!,
-                        text: $item('name').text(),
+                        value: item.attr('id')!,
+                        label: $item('name').text(),
                         till: '',
                     }
                 })
@@ -73,18 +73,18 @@ export default defineComponent({
             if (!chlList.value.length) {
                 await getData()
             }
-            const selectedList = (prop.chls as SystemPosListChls[]).map((item) => item.id)
+            const selectedList = (prop.chls as SystemPosListChls[]).map((item) => item.value)
 
             // 需把源数据的通道从选中通道移除掉
             tableData.value = chlList.value
                 .filter((item) => {
-                    if (prop.linkChls.includes(item.id) && !selectedList.includes(item.id)) {
+                    if (prop.linkChls.includes(item.value) && !selectedList.includes(item.value)) {
                         return false
                     }
                     return true
                 })
                 .map((item) => {
-                    const index = selectedList.indexOf(item.id)
+                    const index = selectedList.indexOf(item.value)
                     if (index > -1) {
                         return {
                             ...item,

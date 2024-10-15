@@ -3,7 +3,7 @@
  * @Date: 2024-06-24 15:09:06
  * @Description: 日期与时间
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 14:27:47
+ * @LastEditTime: 2024-10-15 15:25:43
  */
 import { SystemDateTimeForm } from '@/types/apiType/system'
 import dayjs from 'dayjs'
@@ -12,74 +12,9 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
-        const userSession = useUserSessionStore()
         const dateTime = useDateTimeStore()
 
         let interval: NodeJS.Timeout | number = 0
-
-        // 时区及是否支持夏令时
-        const TIME_ZONE = [
-            { timeZone: 'GMT+12', enableDst: false },
-            { timeZone: 'GMT+11', enableDst: false },
-            { timeZone: 'HAST10HADT,M3.2.0,M11.1.0', enableDst: true },
-            { timeZone: 'AKST9AKDT,M3.2.0,M11.1.0', enableDst: true },
-            { timeZone: 'PST8PDT,M3.2.0,M11.1.0', enableDst: true },
-            { timeZone: 'MST7MDT,M3.2.0,M11.1.0', enableDst: true },
-            { timeZone: 'CST6CDT,M3.2.0,M11.1.0', enableDst: true },
-            { timeZone: 'CST6CDT,M4.1.0,M10.5.0', enableDst: true },
-            { timeZone: 'CST5CDT,M3.2.0/0,M11.1.0/1', enableDst: true },
-            { timeZone: 'EST5EDT,M3.2.0,M11.1.0', enableDst: true },
-            { timeZone: 'VET4:30', enableDst: false },
-            { timeZone: 'CST4CDT,M3.2.0,M11.1.0', enableDst: true },
-            { timeZone: 'AMT4AMST,M10.3.0/0,M2.3.0/0', enableDst: true },
-            { timeZone: 'AST4', enableDst: false },
-            { timeZone: 'PYT4PYST,M10.1.0/0,M4.2.0/0', enableDst: true },
-            { timeZone: 'CLT4CLST,M10.2.0/0,M3.2.0/0', enableDst: true },
-            { timeZone: 'NST3:30NDT,M3.2.0,M11.1.0', enableDst: true },
-            { timeZone: 'BRT3BRST,M10.3.0/0,M2.3.0/0', enableDst: true },
-            { timeZone: 'ART3', enableDst: false },
-            { timeZone: 'WGT3WGST,M3.5.6/22,M10.5.6/23', enableDst: true },
-            { timeZone: 'UYT3UYST,M10.1.0,M3.2.0', enableDst: true },
-            { timeZone: 'FNT2', enableDst: false },
-            { timeZone: 'AZOT1AZOST,M3.5.0/0,M10.5.0/1', enableDst: true },
-            { timeZone: 'GMT0BST,M3.5.0/1,M10.5.0', enableDst: true },
-            { timeZone: 'CET-1CEST,M3.5.0,M10.5.0/3', enableDst: true },
-            { timeZone: 'WAT-1WAST,M9.1.0,M4.1.0', enableDst: true },
-            { timeZone: 'EET-2EEST,M3.5.0/3,M10.5.0/4', enableDst: true },
-            { timeZone: 'EET-2', enableDst: false },
-            { timeZone: 'IST-2IDT,M3.5.5/2,M10.5.0/2', enableDst: true },
-            { timeZone: 'SAST-2', enableDst: false },
-            { timeZone: 'EET-2EEST,M3.5.0/0,M10.5.0/0', enableDst: true },
-            { timeZone: 'EET-2EEST,M3.5.5/0,M10.5.5/0', enableDst: true },
-            { timeZone: 'AST-3', enableDst: false },
-            { timeZone: 'MSK-3', enableDst: false },
-            { timeZone: 'IRST-3:30IRDT-4:30,J80/0,J264/0', enableDst: true },
-            { timeZone: 'AZT-4AZST,M3.5.0/4,M10.5.0/5', enableDst: true },
-            { timeZone: 'GST-4', enableDst: false },
-            { timeZone: 'AFT-4:30', enableDst: false },
-            { timeZone: 'PKT-5', enableDst: false },
-            { timeZone: 'IST-5:30', enableDst: false },
-            { timeZone: 'NPT-5:45', enableDst: false },
-            { timeZone: 'ALMT-6', enableDst: false },
-            { timeZone: 'MMT-6:30', enableDst: false },
-            { timeZone: 'WIT-7', enableDst: false },
-            { timeZone: 'CST-8', enableDst: false },
-            { timeZone: 'WST-8', enableDst: false },
-            { timeZone: 'JST-9', enableDst: false },
-            { timeZone: 'CST-9:30', enableDst: false },
-            { timeZone: 'CST-9:30CST,M10.1.0,M4.1.0/3', enableDst: true },
-            { timeZone: 'YAKT-10', enableDst: false },
-            { timeZone: 'EST-10EST,M10.1.0,M4.1.0/3', enableDst: true },
-            { timeZone: 'SBT-11', enableDst: false },
-            { timeZone: 'NFT-11:30', enableDst: false },
-            { timeZone: 'NZST-12NZDT,M9.5.0,M4.1.0/3', enableDst: true },
-            { timeZone: 'FJT-12FJST,M10.5.0,M1.3.0/3', enableDst: true },
-            { timeZone: 'PETT-12PETST,M3.5.0,M10.5.0/3', enableDst: true },
-            { timeZone: 'MHT-12', enableDst: false },
-            { timeZone: 'CHAST-12:45CHADT,M9.5.0/2:45,M4.1.0/3:45', enableDst: true },
-            { timeZone: 'TOT-13', enableDst: false },
-            { timeZone: 'SST-13SDT,M9.5.0/3,M4.1.0/4', enableDst: true },
-        ]
 
         const formData = ref(new SystemDateTimeForm())
 
@@ -112,7 +47,7 @@ export default defineComponent({
             // 时间服务器选项
             timeServerOptions: [] as SelectOption<string, string>[],
             // 时区选项
-            timeZoneOption: TIME_ZONE,
+            timeZoneOption: DEFAULT_TIME_ZONE,
             // 系统时间最小值
             serverTimeStart: new Date(2010, 0, 1),
             // 系统时间最大值
@@ -127,6 +62,8 @@ export default defineComponent({
             startTime: 0,
         })
 
+        let isTimePickerChange = false
+
         // 显示时间格式
         const formatSystemTime = computed(() => {
             return DEFAULT_MOMENT_MAPPING[formData.value.dateFormat] + ' ' + DEFAULT_MOMENT_MAPPING[formData.value.timeFormat]
@@ -140,21 +77,32 @@ export default defineComponent({
                 pageData.value.isSystemTimeChanged = true
                 formData.value.systemTime = dayjs(new Date()).format(formatSystemTime.value)
             } else {
+                isTimePickerChange = false
             }
             clock()
+        }
+
+        /**
+         * @description 同步方式改变时回调
+         */
+        const handleSyncTypeChange = () => {
+            isTimePickerChange = false
         }
 
         /**
          * @description 定时更新时间
          */
         const renderTime = () => {
-            if (formData.value.isSync) {
-                formData.value.systemTime = dayjs(new Date()).format(formatSystemTime.value)
-            } else {
+            // 与Internet时间同步时，使用返回的系统时间计时
+            if (formData.value.syncType === 'NTP') {
                 const now = performance.now()
                 formData.value.systemTime = dayjs(pageData.value.systemTime, formatSystemTime.value)
                     .add(now - pageData.value.startTime, 'millisecond')
                     .format(formatSystemTime.value)
+            }
+            // 计算机时间同步时，使用计算时间计时
+            else {
+                formData.value.systemTime = dayjs(new Date()).format(formatSystemTime.value)
             }
         }
 
@@ -276,26 +224,10 @@ export default defineComponent({
 
         // 禁用夏令时勾选
         const isDSTDisabled = computed(() => {
-            const findItem = TIME_ZONE.find((item) => formData.value.timeZone === item.timeZone)
+            const findItem = DEFAULT_TIME_ZONE.find((item) => formData.value.timeZone === item.timeZone)
             if (findItem) return !findItem.enableDst
             return true
         })
-
-        /**
-         * @description 日历周末高亮
-         * @param {Date} date
-         * @returns
-         */
-        const handleCalendarCellHighLight = (date: Date) => {
-            if (userSession.calendarType === 'Persian') {
-                return ''
-            }
-            const day = dayjs(date).day()
-            if (day === 0 || day === 6) {
-                return 'highlight'
-            }
-            return ''
-        }
 
         /**
          * @description 时区文本显示
@@ -311,7 +243,24 @@ export default defineComponent({
          */
         const handleSystemTimeChange = () => {
             pageData.value.isSystemTimeChanged = true
-            clearInterval(interval)
+            isTimePickerChange = true
+        }
+
+        /**
+         * @description 更改系统时间时，停止定时器
+         * @param {boolean} bool
+         */
+        const pendingSystemTimeChange = (bool: boolean) => {
+            if (bool) {
+                clearInterval(interval)
+            } else {
+                // 如果系统时间没有手动改变，重新开启定时器
+                nextTick(() => {
+                    if (!isTimePickerChange) {
+                        clock()
+                    }
+                })
+            }
         }
 
         watch(formatSystemTime, (newFormat, oldFormat) => {
@@ -334,9 +283,11 @@ export default defineComponent({
             isDSTDisabled,
             setData,
             handleIsSyncChange,
-            handleCalendarCellHighLight,
+            highlightWeekend,
+            pendingSystemTimeChange,
             displayTimeZone,
             handleSystemTimeChange,
+            handleSyncTypeChange,
         }
     },
 })

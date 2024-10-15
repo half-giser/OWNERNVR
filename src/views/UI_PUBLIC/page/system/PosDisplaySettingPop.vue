@@ -3,7 +3,7 @@
  * @Date: 2024-07-02 18:02:44
  * @Description: POS显示设置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-23 19:59:06
+ * @LastEditTime: 2024-10-15 16:31:07
 -->
 <template>
     <el-dialog
@@ -125,8 +125,8 @@
                                     <template #default="scope">
                                         <BaseImgSprite
                                             file="del"
-                                            :index="2"
-                                            :hover-index="0"
+                                            :index="0"
+                                            :hover-index="2"
                                             :disabled-index="3"
                                             :disabled="scope.$index === ignoreChareTableList.length - 1"
                                             :chunk="4"

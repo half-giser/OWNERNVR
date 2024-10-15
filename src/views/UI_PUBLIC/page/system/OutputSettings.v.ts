@@ -3,7 +3,7 @@
  * @Date: 2024-06-25 09:59:23
  * @Description: 输出配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 17:43:11
+ * @LastEditTime: 2024-10-15 16:22:34
  */
 import { type XmlResult } from '@/utils/xmlParse'
 import OutputSplitTemplate from './OutputSplitTemplate.vue'
@@ -190,13 +190,12 @@ export default defineComponent({
 
         // 当前窗口项
         const activeViewItem = computed(() => {
-            if (currentViewList.value.chlGroups.length) {
-                return currentViewList.value.chlGroups[pageData.value.activeView]
-            }
-            return {
-                segNum: 1,
-                chls: [],
-            }
+            return (
+                currentViewList.value.chlGroups[pageData.value.activeView] || {
+                    segNum: 1,
+                    chls: [],
+                }
+            )
         })
 
         // 当前视图窗口的数据
@@ -274,8 +273,7 @@ export default defineComponent({
             }
             nextTick(() => {
                 // 选中最后一个
-                pageData.value.activeView = currentViewList.value.chlGroups.length - 1
-                pageData.value.activeWinIndex = 0
+                changeView(currentViewList.value.chlGroups.length - 1)
             })
         }
 
@@ -287,7 +285,7 @@ export default defineComponent({
             pageData.value.activeView = key
             nextTick(() => {
                 if (pageData.value.activeWinIndex > currentViewList.value.chlGroups.length - 1) {
-                    pageData.value.activeWinIndex = 0
+                    changeWinIndex(0)
                 }
             })
         }
@@ -299,6 +297,9 @@ export default defineComponent({
         const delView = (viewIndex: number) => {
             if (outputType.value === 'main') {
                 mainOutputData.value.chlGroups.splice(viewIndex, 1)
+                if (mainOutputData.value.chlGroups.length && pageData.value.activeView >= mainOutputData.value.chlGroups.length - 1) {
+                    changeView(mainOutputData.value.chlGroups.length - 1)
+                }
             } else if (outputType.value === 'dwell') {
                 if (pageData.value.tabId !== 0) {
                     decoderCardMap.value[pageData.value.tabId].decoderDwellData[pageData.value.decoderIdx].chlGroups.splice(viewIndex, 1)
@@ -688,12 +689,12 @@ export default defineComponent({
 
             // 解码卡排序
             const decoderResXml = $('//decoderContent/decoder')
-            const decoderArrXml = $('//decoderContent/decoder').sort((a, b) => {
+            decoderResXml.sort((a, b) => {
                 return Number(a.attr('id')) - Number(b.attr('id'))
             })
             const decorderOutputXml: Record<number, XmlResult> = {}
             // 解码卡输出排序
-            decoderArrXml.forEach((item) => {
+            decoderResXml.forEach((item) => {
                 const $item = queryXml(item.element)
                 const decoderId = Number(item.attr('id'))
                 const onlineStatus = item.attr('onlineStatus')!.toBoolean()
@@ -1125,6 +1126,7 @@ export default defineComponent({
                 pageData.value.dwellCheckbox = decoderCardMap.value[pageData.value.tabId].decoderDwellData[pageData.value.decoderIdx].mode === 'dwell'
             }
             decoderCardMap.value = decoderCardMap.value
+            changeWinIndex(0)
         }
 
         /**
@@ -1137,6 +1139,7 @@ export default defineComponent({
                 pageData.value.dwellCheckbox = subOutputDwellData.value[pageData.value.outputIdx].mode === 'dwell'
             }
             subOutputDwellData.value = subOutputDwellData.value
+            changeWinIndex(0)
         }
 
         /**
