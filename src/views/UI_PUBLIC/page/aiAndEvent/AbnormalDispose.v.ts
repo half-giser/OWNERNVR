@@ -30,7 +30,7 @@ export default defineComponent({
     setup(prop) {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const pluginStore = usePluginStore()
         const systemCaps = useCababilityStore()
         const osType = getSystemInfo().platform
@@ -100,7 +100,7 @@ export default defineComponent({
             getChlList({
                 requireField: ['device'],
                 nodeType: 'alarmOuts',
-            }).then((result: any) => {
+            }).then((result) => {
                 commLoadResponseHandler(result, ($) => {
                     const rowData = [] as {
                         id: string
@@ -204,9 +204,9 @@ export default defineComponent({
                 <condition><chlId>${prop.currChlId}</chlId></condition>
                 <requireField><param/><trigger/></requireField>
                 `
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             const result = await queryAvd(sendXml)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             commLoadResponseHandler(result, async ($) => {
                 let holdTimeArr = $('/response/content/chl/param/holdTimeNote').text().split(',')
                 const holdTime = $('/response/content/chl/param/holdTime').text()
@@ -442,7 +442,7 @@ export default defineComponent({
                 sendXml += rawXml`<item id='${item.value}'>
                         <![CDATA[${item.label}]]></item>`
             })
-            sendXml += `</chls></sysRec>
+            sendXml += rawXml`</chls></sysRec>
                 <alarmOut>
                 <alarmOuts type='list'>
             `
@@ -450,17 +450,18 @@ export default defineComponent({
                 sendXml += rawXml`<item id='${item.value}'>
                         <![CDATA[${item.label}]]></item>`
             })
-            sendXml += `</alarmOuts>
+            sendXml += rawXml`</alarmOuts>
                 </alarmOut>
                 <preset>
                 <presets type='list'>
             `
             abnormalDisposeData.value.preset.forEach((item) => {
-                sendXml += rawXml`<item>
-                    <index>${item.index}</index>
+                sendXml += rawXml`
+                    <item>
+                        <index>${item.index}</index>
                         <name><![CDATA[${item.name}]]></name>
                         <chl id='${item.chl.value}'><![CDATA[${item.chl.label}]]></chl>
-                        </item>`
+                    </item>`
             })
             sendXml += rawXml`</presets>
                 </preset>
@@ -477,9 +478,9 @@ export default defineComponent({
 
         const applyAbnormalDisposeData = async () => {
             const sendXml = getAbnormalDisposeSaveData()
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             const result = await editAvd(sendXml)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             const $ = queryXml(result)
             if ($('/response/status').text() == 'success') {
                 pageData.value.applyDisabled = true

@@ -465,23 +465,17 @@ export default defineComponent({
                 if (count == 1) {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_SIMPLE_SMART_ENCODE_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + chlName, Translate('IDCS_FACE_DETECTION')),
+                    }).then(() => {
+                        setRecSubStreamData()
                     })
-                        .then(() => {
-                            setRecSubStreamData()
-                        })
-                        .catch(() => {})
                 } else {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_SIMPLE_SMART_ENCODE_TIPS').formatForLang(null, Translate('IDCS_FACE_DETECTION')),
+                    }).then(() => {
+                        setRecSubStreamData()
                     })
-                        .then(() => {
-                            setRecSubStreamData()
-                        })
-                        .catch(() => {})
                 }
             } else {
                 setRecSubStreamData()
@@ -629,7 +623,7 @@ export default defineComponent({
             pageData.value.resolutionHeaderVisble = false
         }
 
-        const handleExpandChange = function (row: ResolutionRow, expandedRows: string[]) {
+        const handleExpandChange = (row: ResolutionRow, expandedRows: string[]) => {
             if (expandedRows.includes(row.chls.data[0].value) && resolutionTableRef.value) {
                 resolutionTableRef.value.toggleRowExpansion(row, false)
                 row.chls.expand = false
@@ -646,7 +640,7 @@ export default defineComponent({
         }
 
         // 在选择项时下拉框保持打开
-        const keepDropDownOpen = function (row: ResolutionRow) {
+        const keepDropDownOpen = (row: ResolutionRow) => {
             pageData.value.resolutionHeaderVisble = true
             if (row.chls.expand && resolutionTableRef.value) {
                 row.chls.expand = true

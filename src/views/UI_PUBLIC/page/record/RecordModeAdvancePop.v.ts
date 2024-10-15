@@ -6,18 +6,20 @@
  * @LastEditTime: 2024-08-02 14:39:57
  */
 import { type RecMode } from '@/types/apiType/record'
-import { defineComponent } from 'vue'
 
 export default defineComponent({
     props: {
-        advanceRecModes: Array<RecMode>,
+        advanceRecModes: {
+            type: Array as PropType<Array<RecMode>>,
+            required: true,
+        },
     },
     emits: ['confirm', 'close'],
     setup() {
         const userSessionStore = useUserSessionStore()
 
         //选择的值
-        const selectedEvents = ref([] as string[])
+        const selectedEvents = ref<string[]>([])
 
         // 选中当前生效的高级模式的时间
         if (userSessionStore.advanceRecModeId) {

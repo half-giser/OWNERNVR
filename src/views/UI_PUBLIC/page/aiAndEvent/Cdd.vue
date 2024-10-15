@@ -6,7 +6,7 @@
  * @LastEditTime: 2024-09-30 16:26:02
 -->
 <template>
-    <div class="tripwire_setting_pane">
+    <div>
         <ScheduleManagPop
             v-model="pageData.scheduleManagePopOpen"
             @close="pageData.scheduleManagePopOpen = false"

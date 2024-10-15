@@ -3,7 +3,7 @@
  * @Date: 2024-06-07 15:00:44
  * @Description: 加密密码弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-20 18:21:35
+ * @LastEditTime: 2024-10-12 09:47:41
  */
 import { type FormInstance, type FormRules } from 'element-plus'
 import { UserInputEncryptPwdForm } from '@/types/apiType/user'
@@ -89,7 +89,7 @@ export default defineComponent({
                     if (prop.encrypt === 'md5') {
                         password = MD5_encrypt(formData.value.password)
                     } else {
-                        password = '' + sha512_encrypt(MD5_encrypt(formData.value.password))
+                        password = sha512_encrypt(MD5_encrypt(formData.value.password))
                     }
                     ctx.emit('confirm', { password })
                 }

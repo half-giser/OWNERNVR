@@ -3,7 +3,7 @@
  * @Date: 2024-06-04 20:56:11
  * @Description: 格式化工具模块
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-16 17:57:00
+ * @LastEditTime: 2024-10-11 18:52:57
  */
 
 /**
@@ -252,7 +252,7 @@ export const hideSensitiveInfo = (value: string, level: 'low' | 'high' | 'medium
         for (let index = 0; index < separator.length; index++) {
             if (separator[index]['type'].test(value)) {
                 const tmpArr = value.split(separator[index].value)
-                tmpArr.forEach(function (e, i) {
+                tmpArr.forEach((e, i) => {
                     nameArr.push(e)
                     i < tmpArr.length - 1 && nameArr.push(separator[index].value)
                 })
@@ -262,14 +262,14 @@ export const hideSensitiveInfo = (value: string, level: 'low' | 'high' | 'medium
         if (!nameArr.length) {
             nameArr.push(value)
         }
-        const spaceCharArr = nameArr.filter(function (item) {
+        const spaceCharArr = nameArr.filter((item) => {
             return item == '·' || item == ' ' || item == '.'
         })
         if (spaceCharArr.length == 0) {
             const nameLevel = nameArr[0].length >= 3 ? 'medium' : 'tail'
             result = hideSensitiveInfo(nameArr[0], nameLevel)
         } else if (spaceCharArr.length == 1) {
-            nameArr.forEach(function (e, i) {
+            nameArr.forEach((e, i) => {
                 if (i == 0 || i == nameArr.length - 1) {
                     result += hideSensitiveInfo(e, 'medium', 'name')
                 } else {
@@ -277,7 +277,7 @@ export const hideSensitiveInfo = (value: string, level: 'low' | 'high' | 'medium
                 }
             })
         } else {
-            nameArr.forEach(function (e, i) {
+            nameArr.forEach((e, i) => {
                 if (i == 0 || i == nameArr.length - 1) {
                     result += hideSensitiveInfo(e, 'medium', 'name')
                 } else {

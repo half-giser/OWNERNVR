@@ -1,11 +1,9 @@
 import { type RecMode, RecordDistributeInfo, type RecordSchedule } from '@/types/apiType/record'
-import { defineComponent } from 'vue'
 import RecordModeAdvancePop from './RecordModeAdvancePop.vue'
 import RecordModeStreamPop from './RecordModeStreamPop.vue'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import { type ApiResult } from '@/api/api'
 import { type XmlElement } from '@/utils/xmlParse'
-import { getArrayDiffRows } from '@/utils/tools'
 export default defineComponent({
     components: {
         RecordModeAdvancePop,
@@ -331,7 +329,6 @@ export default defineComponent({
             if (events.length === 1 && intensiveIndex > -1) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_ONLY_INTENSIVE_TIP'),
                 })
                 return false
@@ -368,7 +365,6 @@ export default defineComponent({
             ) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_RECORD_MODE_EXIST'),
                 })
                 return false
@@ -410,7 +406,7 @@ export default defineComponent({
             pageData.value.scheduleList = scheduleXml('/response/content/item').map((item) => {
                 return {
                     label: item.text(),
-                    value: item.attr('id') as string,
+                    value: item.attr('id')!,
                 }
             })
             pageData.value.scheduleList.push({
@@ -426,7 +422,7 @@ export default defineComponent({
             const parseTableData = () => {
                 return recScheduleXml('/response/content/item').map((item) => {
                     return {
-                        id: item.attr('id') as string,
+                        id: item.attr('id')!,
                         name: xmlParse('./name', item.element).text(),
                         alarmRec: getRecScheduleSelectValue(item, './alarmRec'),
                         motionRec: getRecScheduleSelectValue(item, './motionRec'),
@@ -517,7 +513,7 @@ export default defineComponent({
             let sendXml = rawXml`
             <content type="list" total="${editRows.length.toString()}">`
             editRows.forEach((row) => {
-                sendXml += `
+                sendXml += rawXml`
                 <item id="${row.id}">
                     <name><![CDATA[IPCamera]]></name>
                     <scheduleRec>

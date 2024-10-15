@@ -3,7 +3,7 @@
  * @Date: 2024-05-29 13:48:55
  * @Description: UI1-B 主题样式
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 14:02:42
+ * @LastEditTime: 2024-10-12 17:38:28
  */
 
 #n9web {
@@ -64,6 +64,9 @@
     --upload-bg-text: #000;
     --upload-bg: #eee;
     --upload-bg-hover: #ddd;
+
+    --slider-btn-border: #808080;
+    --slider-btn-border-disabled: #DCDCDC;
 
     --btn-text: #fff;
     --btn-text-hover: var(--main-text-active);
@@ -143,6 +146,13 @@
     --ai-linkbox-border: #888;
     --ai-advance-bg: #333333;
 
+    --output-eth-bg: transparent;
+    --output-tab-bg: #666;
+    --output-tab-btn-bg: #666;
+
+    --disk-group-text-active: #FFF;
+    --disk-group-bg-active: #F4971A;
+    
     --panel-bg: #666;
     --panel-header-bg: #fff; 
     --panel-header-text: #000;
@@ -241,4 +251,7 @@
     --schedule-time-span-bg: #666;
     --schedule-time-span-bg-active: #F4971A;
     --schedule-time-span-bg-selection: #805B29;
+
+    --float-ok: #006400;
+    --float-error: #ff0000;
 }

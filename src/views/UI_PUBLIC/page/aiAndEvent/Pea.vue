@@ -6,7 +6,7 @@
  * @LastEditTime: 2024-10-10 09:35:14
 -->
 <template>
-    <div class="pea_setting_pane">
+    <div>
         <ScheduleManagPop
             v-model="peaData.scheduleManagePopOpen"
             @close="peaData.scheduleManagePopOpen = false"
@@ -141,7 +141,6 @@
                     >
                         <span>{{ Translate('IDCS_ADVANCED') }}</span>
                         <BaseImgSprite
-                            class="moreBtn"
                             file="arrow"
                             :index="0"
                             :chunk="4"

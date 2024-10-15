@@ -252,10 +252,8 @@ input[type='number'] {
                         align-items: center;
                         color: var(--el-table-header-text-color);
                         .el-icon {
+                            margin-right: 5px;
                             cursor: pointer;
-                            &:hover {
-                                color: var(--input-text);
-                            }
                         }
                     }
                 }

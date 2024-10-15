@@ -3,12 +3,12 @@
  * @Date: 2024-05-24 17:12:55
  * @Description: 
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:42:00
+ * @LastEditTime: 2024-10-12 14:46:54
 -->
 <template>
     <div>
         <el-config-provider :locale="langStore.elLocale">
-            <router-view />
+            <router-view :key="route.path" />
         </el-config-provider>
         <transition name="intitial-view">
             <div

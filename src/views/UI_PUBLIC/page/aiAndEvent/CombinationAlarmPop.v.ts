@@ -90,7 +90,7 @@ export default defineComponent({
         const tableData = ref<CombinedAlarmItem[]>([])
 
         const getChls = () => {
-            getChlList({ requireField: ['protocolType'] }).then((result: any) => {
+            getChlList({ requireField: ['protocolType'] }).then((result) => {
                 commLoadResponseHandler(result, ($) => {
                     $('/response/content/item').forEach((item) => {
                         const $item = queryXml(item.element)
@@ -118,7 +118,7 @@ export default defineComponent({
             })
         }
         const getSensors = () => {
-            getChlList({ nodeType: 'sensors' }).then((result: any) => {
+            getChlList({ nodeType: 'sensors' }).then((result) => {
                 commLoadResponseHandler(result, ($) => {
                     $('/response/content/item').forEach((item) => {
                         const $item = queryXml(item.element)
@@ -139,7 +139,7 @@ export default defineComponent({
                 nodeType: 'chls',
                 isSupportVfd: true,
                 requireField: ['protocolType'],
-            }).then((result: any) => {
+            }).then((result) => {
                 commLoadResponseHandler(result, ($) => {
                     $('/response/content/item').forEach((item) => {
                         const $item = queryXml(item.element)
@@ -522,9 +522,7 @@ export default defineComponent({
                     } else {
                         openMessageTipBox({
                             type: 'info',
-                            title: Translate('IDCS_INFO_TIP'),
                             message: Translate('IDCS_ALARM_SOURCE_SAME_ERROR'),
-                            showCancelButton: false,
                         })
                         isSameId = true
                         break

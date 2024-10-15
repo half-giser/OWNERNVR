@@ -6,7 +6,7 @@
  * @LastEditTime: 2024-09-30 09:29:19
 -->
 <template>
-    <div class="abnormal_dispose">
+    <div>
         <div>
             <el-tabs
                 v-model="pageData.tab"

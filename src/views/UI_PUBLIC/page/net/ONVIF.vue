@@ -57,13 +57,9 @@
                 <el-table-column :label="Translate('IDCS_DELETE')">
                     <template #header>
                         <el-dropdown trigger="click">
-                            <span class="el-dropdown-link">
+                            <BaseTableDropdownLink>
                                 {{ Translate('IDCS_DELETE') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item @click="deleteAllUser">{{ Translate('IDCS_DELETE_ALL') }} </el-dropdown-item>

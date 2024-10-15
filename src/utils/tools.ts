@@ -596,9 +596,7 @@ export const commLoadResponseHandler = ($response: any, successHandler?: (result
         } else {
             openMessageTipBox({
                 type: 'info',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_QUERY_DATA_FAIL'),
-                showCancelButton: false,
             }).then(() => {
                 failedHandler && failedHandler($)
                 reject($)
@@ -749,7 +747,7 @@ export const parseDateToPersianCalendar = (date: any) => {
 }
 
 /**
- * @description use dayjs
+ * @deprecated use dayjs
  * @description 波斯日历转换成公历
  * @param {any} persianDate 波斯历日期对象
  * @return {Date} 公历日期对象
@@ -888,7 +886,6 @@ export const reconnect = () => {
             reconnectStandard(() => {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_LOGIN_OVERTIME'),
                 }).then(() => {
                     closeLoading()
@@ -912,7 +909,7 @@ const reconnectStandard = async (callback?: () => void) => {
             if (callback) callback()
         })
         .catch(() => {
-            setTimeout(function () {
+            setTimeout(() => {
                 reconnectStandard(callback)
             }, 5000)
         })
@@ -1075,7 +1072,7 @@ export const getBitrateRange = (options: GetBitRateRangeOption) => {
 // 将IPC音频文件转换为base64-导入摄像机声音/本地音频使用
 export const fileToBase64 = (file: Blob, callback: Function) => {
     const reader = new FileReader()
-    reader.onload = function (e) {
+    reader.onload = (e) => {
         const data = (e.target?.result as string).split(',')
         const base64 = data[1]
         const base64Str = formatBase64(base64)

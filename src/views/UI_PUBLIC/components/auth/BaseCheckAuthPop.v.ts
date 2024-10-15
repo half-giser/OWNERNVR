@@ -3,7 +3,7 @@
  * @Date: 2024-06-07 15:00:44
  * @Description: 账号密码权限认证弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-23 14:38:50
+ * @LastEditTime: 2024-10-12 09:47:34
  */
 import { type FormInstance, type FormRules } from 'element-plus'
 import { UserCheckAuthForm } from '@/types/apiType/user'
@@ -78,7 +78,7 @@ export default defineComponent({
             formRef.value!.validate(async (valid: boolean) => {
                 if (valid) {
                     const nonce = userSession.nonce ? userSession.nonce : ''
-                    formData.value.hexHash = '' + sha512_encrypt(MD5_encrypt(formData.value.password) + '#' + nonce)
+                    formData.value.hexHash = sha512_encrypt(MD5_encrypt(formData.value.password) + '#' + nonce)
                     ctx.emit('confirm', formData.value)
                 }
             })

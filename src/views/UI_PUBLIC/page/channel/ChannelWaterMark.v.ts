@@ -2,19 +2,15 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-29 11:48:59
  * @Description: 水印设置
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-30 14:51:03
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-11 16:23:05
  */
-import { ArrowDown } from '@element-plus/icons-vue'
 import { type ChannelWaterMarkDto } from '@/types/apiType/channel'
 import { type DropdownInstance, type TableInstance } from 'element-plus'
 import { cloneDeep } from 'lodash-es'
 export default defineComponent({
-    components: {
-        ArrowDown,
-    },
     setup() {
-        const { LoadingTarget, openLoading, closeLoading } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const { Translate } = useLangStore()
         // const systemCaps = useCababilityStore()
         const playerRef = ref<PlayerInstance>()
@@ -266,7 +262,7 @@ export default defineComponent({
             return getXmlWrapData(sendXml)
         }
         const setData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             pageData.value.editRows.forEach(async (item) => {
                 const sendXml = getSaveData(item)
                 const res = await editChlWaterMark(sendXml)
@@ -277,7 +273,7 @@ export default defineComponent({
                     item.status = 'error'
                 }
             })
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             pageData.value.editRows = []
             pageData.value.applyDisabled = true
         }
@@ -300,7 +296,7 @@ export default defineComponent({
         const getRowById = (chlId: string) => {
             return pageData.value.chlList.find((element) => element.chlId == chlId) as ChannelWaterMarkDto
         }
-        const addEditRow = function (row: ChannelWaterMarkDto) {
+        const addEditRow = (row: ChannelWaterMarkDto) => {
             // 若该行不存在于编辑行中，则添加
             const isExist = pageData.value.editRows.some((item) => item.chlId === row.chlId)
             if (!isExist) {
@@ -334,7 +330,6 @@ export default defineComponent({
         return {
             pageData,
             handlePlayerReady,
-            ArrowDown,
             playerRef,
             dropdownRef,
             tableRef,

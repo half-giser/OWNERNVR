@@ -46,9 +46,9 @@
                 >
                     <template #header>
                         <el-dropdown trigger="click">
-                            <span class="el-dropdown-link">
-                                {{ Translate('IDCS_VIDEO_ENCT') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
-                            </span>
+                            <BaseTableDropdownLink>
+                                {{ Translate('IDCS_VIDEO_ENCT') }}
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -96,9 +96,9 @@
                             popper-class="no-padding"
                         >
                             <template #reference>
-                                <span class="base-popover-icon">
-                                    {{ Translate('IDCS_RESOLUTION_RATE') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
-                                </span>
+                                <BaseTableDropdownLink>
+                                    {{ Translate('IDCS_RESOLUTION_RATE') }}
+                                </BaseTableDropdownLink>
                             </template>
                             <div class="resolutionContainer">
                                 <el-table
@@ -198,9 +198,9 @@
                             trigger="click"
                             max-height="400px"
                         >
-                            <span class="el-dropdown-link">
-                                {{ Translate('IDCS_FRAME_RATE') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
-                            </span>
+                            <BaseTableDropdownLink>
+                                {{ Translate('IDCS_FRAME_RATE') }}
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -247,9 +247,9 @@
                             trigger="click"
                             :disabled="pageData.bitTypeDropDisable"
                         >
-                            <span class="el-dropdown-link">
-                                {{ Translate('IDCS_BITRATE_TYPE') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
-                            </span>
+                            <BaseTableDropdownLink>
+                                {{ Translate('IDCS_BITRATE_TYPE') }}
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -296,9 +296,9 @@
                             trigger="click"
                             :disabled="pageData.levelDropDisable"
                         >
-                            <span class="el-dropdown-link">
-                                {{ Translate('IDCS_IMAGE_QUALITY') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
-                            </span>
+                            <BaseTableDropdownLink>
+                                {{ Translate('IDCS_IMAGE_QUALITY') }}
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -341,9 +341,9 @@
                 >
                     <template #header>
                         <el-dropdown trigger="click">
-                            <span class="el-dropdown-link">
-                                {{ Translate('IDCS_VIDEO_QUALITY') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
-                            </span>
+                            <BaseTableDropdownLink>
+                                {{ Translate('IDCS_VIDEO_QUALITY') }}
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -397,9 +397,9 @@
                 >
                     <template #header>
                         <el-dropdown trigger="click">
-                            <span class="el-dropdown-link">
-                                {{ Translate('IDCS_AUDIO_FREQUENCY') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
-                            </span>
+                            <BaseTableDropdownLink>
+                                {{ Translate('IDCS_AUDIO_FREQUENCY') }}
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -444,9 +444,9 @@
                 >
                     <template #header>
                         <el-dropdown trigger="click">
-                            <span class="el-dropdown-link">
-                                {{ Translate('IDCS_RECORD_CODE_STREAM') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
-                            </span>
+                            <BaseTableDropdownLink>
+                                {{ Translate('IDCS_RECORD_CODE_STREAM') }}
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -497,9 +497,9 @@
                             placement="bottom-end"
                         >
                             <template #reference>
-                                <span class="base-popover-icon">
-                                    {{ Translate('IDCS_GOP') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
-                                </span>
+                                <BaseTableDropdownLink>
+                                    {{ Translate('IDCS_GOP') }}
+                                </BaseTableDropdownLink>
                             </template>
                             <div class="GOP_dropDown">
                                 <div class="GOP_input">
@@ -636,20 +636,20 @@
     display: flex;
     align-items: center;
 }
-.base-popover-icon {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: var(--el-table-header-text-color);
-    .el-icon {
-        cursor: pointer;
-        &:hover {
-            color: var(--input-text);
-        }
-    }
-}
+// .base-popover-icon {
+//     width: 100%;
+//     height: 100%;
+//     display: flex;
+//     justify-content: center;
+//     align-items: center;
+//     color: var(--el-table-header-text-color);
+//     .el-icon {
+//         cursor: pointer;
+//         &:hover {
+//             color: var(--input-text);
+//         }
+//     }
+// }
 .GOP_dropDown {
     width: 280px;
     height: 80px;

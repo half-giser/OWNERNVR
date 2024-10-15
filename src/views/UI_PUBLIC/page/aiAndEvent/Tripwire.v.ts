@@ -5,21 +5,16 @@
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
  * @LastEditTime: 2024-09-30 13:47:44
  */
-import { ArrowDown } from '@element-plus/icons-vue'
-import { type chlCaps, type aiResourceRow } from '@/types/apiType/aiAndEvent'
-import BaseTransferDialog from '@/components/BaseTransferDialog.vue'
+import { type chlCaps, type aiResourceRow, type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import CanvasPassline from '@/utils/canvas/canvasPassline'
 import ChannelPtzCtrlPanel from '@/views/UI_PUBLIC/page/channel/ChannelPtzCtrlPanel.vue'
 import { cloneDeep } from 'lodash-es'
 import { type XmlResult } from '@/utils/xmlParse'
-import { type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
 export default defineComponent({
     components: {
-        ArrowDown,
         ScheduleManagPop,
-        BaseTransferDialog,
         ChannelPtzCtrlPanel,
     },
     props: {
@@ -45,7 +40,7 @@ export default defineComponent({
     },
     setup(props) {
         type CanvasPasslineDirection = 'none' | 'rightortop' | 'leftorbotton'
-        const { LoadingTarget, openLoading, closeLoading } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const openMessageTipBox = useMessageBox().openMessageTipBox
         const systemCaps = useCababilityStore()
         const { Translate } = useLangStore()
@@ -335,15 +330,15 @@ export default defineComponent({
                 if (tempResourceOccupancy * 1 <= 100) {
                     aiResourceTableData.value = []
                     tripwireData.value.totalResourceOccupancy = tempResourceOccupancy.toFixed(2)
-                    $('//content/chl/item').forEach((element: any) => {
+                    $('//content/chl/item').forEach((element) => {
                         const $item = queryXml(element.element)
                         const id = element.attr('id')
                         let name = $item('name').text()
                         // 通道是否在线
                         const connectState = $item('connectState').text() == 'true'
                         name = connectState ? name : name + '(' + Translate('IDCS_OFFLINE') + ')'
-                        $item('resource/item').forEach((ele: any) => {
-                            const eventType: string[] = ele.attr('eventType') ? ele.attr('eventType').split(',') : ''
+                        $item('resource/item').forEach((ele) => {
+                            const eventType: string[] = ele.attr('eventType') ? ele.attr('eventType')!.split(',') : []
                             const eventTypeText = eventType
                                 .map((item) => {
                                     return tripwireData.value.eventTypeMapping[item]
@@ -386,9 +381,9 @@ export default defineComponent({
             sendXml += rawXml`</param>
                             </chl>
                         </content>`
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             const res = await freeAIOccupyResource(sendXml)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             const $ = queryXml(res)
             if ($('status').text() == 'success') {
                 aiResourceTableData.value.splice(aiResourceTableData.value.indexOf(row), 1)
@@ -406,7 +401,7 @@ export default defineComponent({
         }
         // 获取越界检测数据
         const getTripwireData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             if (!tripwireData.value.chlData['supportTripwire'] && !tripwireData.value.chlData['supportBackTripwire'] && tripwireData.value.chlData['supportPeaTrigger']) {
                 const sendXML = rawXml` <condition>
                                             <chlId>${tripwireData.value.currChlId}</chlId>
@@ -415,7 +410,7 @@ export default defineComponent({
                                             <trigger/>
                                         </requireField>`
                 const res = await queryTripwire(sendXML)
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
                     tripwireData.value.applyDisable = true
@@ -436,7 +431,7 @@ export default defineComponent({
                         tripwireData.value.sysAudio = $item('sysAudio').attr('id') ? $item('sysAudio').attr('id') : ''
                         tripwireData.value.record = {
                             switch: $item('sysRec/switch').text() == 'true',
-                            chls: $item('sysRec/chls/item').map((item: any) => {
+                            chls: $item('sysRec/chls/item').map((item) => {
                                 return {
                                     value: item.attr('id'),
                                     label: item.text(),
@@ -446,7 +441,7 @@ export default defineComponent({
                         tripwireData.value.recordList = tripwireData.value.record.chls.map((item: { value: string; label: string }) => item.value)
                         tripwireData.value.alarmOut = {
                             switch: $item('alarmOut/switch').text() == 'true',
-                            chls: $item('alarmOut/alarmOuts/item').map((item: any) => {
+                            chls: $item('alarmOut/alarmOuts/item').map((item) => {
                                 return {
                                     value: item.attr('id'),
                                     label: item.text(),
@@ -456,7 +451,7 @@ export default defineComponent({
                         tripwireData.value.alarmOutList = tripwireData.value.alarmOut.chls.map((item: { value: string; label: string }) => item.value)
                         tripwireData.value.preset = {
                             switch: $item('preset/switch').text() == 'true',
-                            presets: $item('preset/presets/item').map((item: any) => {
+                            presets: $item('preset/presets/item').map((item) => {
                                 const $item = queryXml(item.element)
                                 return {
                                     index: $item('index').text(),
@@ -488,7 +483,7 @@ export default defineComponent({
                                             <trigger/>
                                         </requireField>`
                 const res = await queryTripwire(sendXML)
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
                     tripwireData.value.applyDisable = true
@@ -571,7 +566,7 @@ export default defineComponent({
                         tripwireData.value.sysAudio = $item('sysAudio').attr('id') ? $item('sysAudio').attr('id') : ''
                         tripwireData.value.record = {
                             switch: $item('sysRec/switch').text() == 'true',
-                            chls: $item('sysRec/chls/item').map((item: any) => {
+                            chls: $item('sysRec/chls/item').map((item) => {
                                 return {
                                     value: item.attr('id'),
                                     label: item.text(),
@@ -581,7 +576,7 @@ export default defineComponent({
                         tripwireData.value.recordList = tripwireData.value.record.chls.map((item: { value: string; label: string }) => item.value)
                         tripwireData.value.alarmOut = {
                             switch: $item('alarmOut/switch').text() == 'true',
-                            chls: $item('alarmOut/alarmOuts/item').map((item: any) => {
+                            chls: $item('alarmOut/alarmOuts/item').map((item) => {
                                 return {
                                     value: item.attr('id'),
                                     label: item.text(),
@@ -591,7 +586,7 @@ export default defineComponent({
                         tripwireData.value.alarmOutList = tripwireData.value.alarmOut.chls.map((item: { value: string; label: string }) => item.value)
                         tripwireData.value.preset = {
                             switch: $item('preset/switch').text() == 'true',
-                            presets: $item('preset/presets/item').map((item: any) => {
+                            presets: $item('preset/presets/item').map((item) => {
                                 const $item = queryXml(item.element)
                                 return {
                                     index: $item('index').text(),
@@ -704,11 +699,11 @@ export default defineComponent({
                                     <chls type="list">
                                         ${tripwireData.value['record'].chls
                                             .map(
-                                                (element: { value: string; label: string }) => `
-                                            <item id="${element['value']}">
-                                                <![CDATA[${element['label']}]]>
-                                            </item>
-                                        `,
+                                                (element: { value: string; label: string }) => rawXml`
+                                                    <item id="${element['value']}">
+                                                        <![CDATA[${element['label']}]]>
+                                                    </item>
+                                                `,
                                             )
                                             .join('')}
                                     </chls>
@@ -717,11 +712,11 @@ export default defineComponent({
                                     <alarmOuts type="list">
                                         ${tripwireData.value['alarmOut'].chls
                                             .map(
-                                                (element: { value: string; label: string }) => `
-                                            <item id="${element['value']}">
-                                                <![CDATA[${element['label']}]]>
-                                            </item>
-                                        `,
+                                                (element: { value: string; label: string }) => rawXml`
+                                                    <item id="${element['value']}">
+                                                        <![CDATA[${element['label']}]]>
+                                                    </item>
+                                                `,
                                             )
                                             .join('')}
                                     </alarmOuts>
@@ -731,15 +726,15 @@ export default defineComponent({
                                         ${tripwireData.value['presetSource']
                                             .map((element: PresetList) =>
                                                 element['preset']['value']
-                                                    ? `
-                                            <item>
-                                                <index>${element['preset']['value']}</index>
-                                                <name><![CDATA[${element['preset']['label']}]]></name>
-                                                <chl id="${element['id']}">
-                                                    <![CDATA[${element['name']}]]>
-                                                </chl>
-                                            </item>
-                                        `
+                                                    ? rawXml`
+                                                        <item>
+                                                            <index>${element['preset']['value']}</index>
+                                                            <name><![CDATA[${element['preset']['label']}]]></name>
+                                                            <chl id="${element['id']}">
+                                                                <![CDATA[${element['name']}]]>
+                                                            </chl>
+                                                        </item>
+                                                    `
                                                     : '',
                                             )
                                             .join('')}
@@ -754,10 +749,10 @@ export default defineComponent({
                             </trigger>
                             </chl>
                         </content>`
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             const $ = await editTripwire(sendXml)
             const res = queryXml($)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             if (res('status').text() == 'success') {
                 if (tripwireData.value.detectionEnable) {
                     tripwireData.value.originalEnable = true
@@ -767,7 +762,7 @@ export default defineComponent({
             }
         }
         // 执行保存tripwire数据
-        const handleTripwireApply = function () {
+        const handleTripwireApply = () => {
             if (!tripwireData.value.chlData['supportTripwire'] && !tripwireData.value.chlData['supportBackTripwire'] && tripwireData.value.chlData['supportPeaTrigger']) {
                 saveTripwireData()
             } else {
@@ -820,10 +815,10 @@ export default defineComponent({
             })
             const res = queryXml(resb)
             if (res('status').text() == 'success') {
-                res('//content/item').forEach((item: any) => {
+                res('//content/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     tripwireData.value.recordSource.push({
-                        value: item.attr('id'),
+                        value: item.attr('id')!,
                         label: $item('name').text(),
                     })
                 })
@@ -838,7 +833,7 @@ export default defineComponent({
             })
             const res = queryXml(resb)
             if (res('status').text() == 'success') {
-                res('//content/item').forEach((item: any) => {
+                res('//content/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     let name = $item('name').text()
                     if ($item('devDesc').text()) {
@@ -929,7 +924,7 @@ export default defineComponent({
         }
 
         // 获取mutexobj
-        const getMutexChlNameObj = function () {
+        const getMutexChlNameObj = () => {
             let normalChlName = ''
             let thermalChlName = ''
             const sameIPChlList: { id: string; ip: string; name: string; accessType: string }[] = []
@@ -1099,11 +1094,11 @@ export default defineComponent({
                                             </param>
                                         </chl>
                                     </content>`
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             editBallIPCPTZLockCfg(sendXML).then((res) => {
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
-                    closeLoading(LoadingTarget.FullScreen)
+                    closeLoading()
                     tripwireData.value.lockStatus = !tripwireData.value.lockStatus
                 }
             })
@@ -1188,7 +1183,7 @@ export default defineComponent({
         }
 
         // tripwire绘图
-        const tripwireChange = function (passline: { startX: number; startY: number; endX: number; endY: number }) {
+        const tripwireChange = (passline: { startX: number; startY: number; endX: number; endY: number }) => {
             const surface = tripwireData.value.chosenSurfaceIndex
             tripwireData.value['lineInfo'][surface]['startPoint'] = {
                 X: passline.startX,
@@ -1205,7 +1200,7 @@ export default defineComponent({
             tripwireData.value.applyDisable = false
         }
         // tripwire是否显示所有区域
-        const showAllTripwireArea = function (isShowAll: boolean) {
+        const showAllTripwireArea = (isShowAll: boolean) => {
             tripwireDrawer && tripwireDrawer.setEnableShowAll(isShowAll)
             if (isShowAll) {
                 const lineInfoList = tripwireData.value.lineInfo
@@ -1232,7 +1227,7 @@ export default defineComponent({
             }
         }
         // tripwire显示
-        const setTripwireOcxData = function () {
+        const setTripwireOcxData = () => {
             if (tripwireData.value.tripwireFunction == 'tripwire_param') {
                 const surface = tripwireData.value.chosenSurfaceIndex
                 if (tripwireData.value.lineInfo.length > 0) {
@@ -1258,7 +1253,7 @@ export default defineComponent({
             }
         }
         // 清空当前区域
-        const clearTripwireArea = function () {
+        const clearTripwireArea = () => {
             if (tripwiremode.value === 'h5') {
                 tripwireDrawer.clear()
             } else {
@@ -1273,7 +1268,7 @@ export default defineComponent({
             tripwireData.value.applyDisable = false
         }
         // 清空所有区域
-        const clearAllTripwireArea = function () {
+        const clearAllTripwireArea = () => {
             tripwireData.value.lineInfo.forEach((lineInfo: { direction: string; startPoint: { X: number; Y: number }; endPoint: { X: number; Y: number }; configured: boolean }) => {
                 lineInfo.startPoint = { X: 0, Y: 0 }
                 lineInfo.endPoint = { X: 0, Y: 0 }
@@ -1358,7 +1353,6 @@ export default defineComponent({
             clearTripwireArea,
             clearAllTripwireArea,
             ScheduleManagPop,
-            BaseTransferDialog,
             ChannelPtzCtrlPanel,
         }
     },

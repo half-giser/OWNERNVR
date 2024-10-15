@@ -1,4 +1,3 @@
-import { defineComponent } from 'vue'
 import BaseScheduleWeek from '@/components/BaseScheduleWeek.vue'
 import { ScheduleInfo } from '@/types/apiType/schedule'
 import { type FormInstance, type FormRules } from 'element-plus'

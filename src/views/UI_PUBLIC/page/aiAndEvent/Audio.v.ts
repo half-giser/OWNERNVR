@@ -18,7 +18,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
         const Plugin = inject('Plugin') as PluginType
@@ -109,7 +109,7 @@ export default defineComponent({
             const queryNodeListDto = new QueryNodeListDto()
             queryNodeListDto.isSupportAudioAlarmOut = true
             queryNodeListDto.nodeType = 'chls'
-            getChlList(queryNodeListDto).then((result: any) => {
+            getChlList(queryNodeListDto).then((result) => {
                 commLoadResponseHandler(result, ($) => {
                     if ($('/response/content').attr('total') == '0') {
                         audioAlarmPageData.value.chlDisabled = true
@@ -416,9 +416,7 @@ export default defineComponent({
             } else {
                 openMessageTipBox({
                     type: 'error',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_DELETE_FAIL'),
-                    showCancelButton: false,
                 })
             }
         }
@@ -439,9 +437,9 @@ export default defineComponent({
             const $ = queryXml(result)
 
             if ($('/response/status').text() != 'success') {
-                const errorCode = $('/response/errorCode').text()
+                const errorCode = Number($('/response/errorCode').text())
                 let msg = audioAlarmOutData[ipcAudioFormData.value.audioChl].name + Translate('IDCS_AUDITION_FAILED')
-                if (errorCode === '536870962') msg += Translate('IDCS_GET_CFG_FAIL')
+                if (errorCode === ErrorCode.USER_ERROR_GET_CONFIG_INFO_FAIL) msg += Translate('IDCS_GET_CFG_FAIL')
                 openMessageTipBox({
                     type: 'info',
                     message: msg,
@@ -484,7 +482,7 @@ export default defineComponent({
         const getAudioDeviceData = async () => {
             getChlList({
                 isSupportAudioDev: true,
-            }).then((result: any) => {
+            }).then((result) => {
                 commLoadResponseHandler(result, ($) => {
                     changeAudioDeviceDataDisabled(true) // "声音设备"配置默认全置灰
                     $('/response/content/item').forEach((item) => {
@@ -688,7 +686,7 @@ export default defineComponent({
 
         const setAudiDeviceData = async () => {
             if (audioDeviceData[ipcAudioFormData.value.deviceChl].successFlag && audioDeviceData[ipcAudioFormData.value.deviceChl].editFlag) {
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
                 let sendXml = rawXml`
                 <content>
                 <chl id='${ipcAudioFormData.value.deviceChl}'>
@@ -714,7 +712,7 @@ export default defineComponent({
                 `
                 const result = await editAudioStreamConfig(sendXml)
                 commSaveResponseHadler(result)
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 audioDeviceData[ipcAudioFormData.value.deviceChl].editFlag = false
             }
         }
@@ -754,7 +752,7 @@ export default defineComponent({
                 }
             })
 
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             const sendXml = rawXml`
                 <content>
                     <triggerChannelAudioSchedule id='${pageData.value.audioSchedule}'>${audioName}</triggerChannelAudioSchedule>
@@ -763,7 +761,7 @@ export default defineComponent({
             await editEventNotifyParam(sendXml)
             // commSaveResponseHadler(result)
             pageData.value.btnApplyDisabled = true
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         // 获取本地声音报警数据
@@ -816,7 +814,7 @@ export default defineComponent({
         }
 
         onMounted(async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             await getAudioAlarmData()
             await getAudioDeviceData()
@@ -826,7 +824,7 @@ export default defineComponent({
             }
             await getLocalTableData()
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         })
 
         return {

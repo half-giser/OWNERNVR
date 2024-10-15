@@ -194,7 +194,7 @@ export default defineComponent({
             } else {
                 data += `<ip>${formData.value.ip}</ip>`
             }
-            data += `<port>${formData.value.servePort}</port>
+            data += rawXml`<port>${formData.value.servePort ? formData.value.servePort.toString() : ''}</port>
                     <userName>${formData.value.userName}</userName>`
             if (showDefaultPwdRow) {
                 if (!formData.value.useDefaultPwd) {

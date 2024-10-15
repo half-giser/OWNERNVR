@@ -3,7 +3,7 @@
  * @Date: 2024-07-31 11:11:05
  * @Description: 自动模式通道码流参数配置
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-15 16:22:15
+ * @LastEditTime: 2024-10-15 16:31:55
  */
 import { type RecMode } from '@/types/apiType/record'
 import { defineComponent } from 'vue'

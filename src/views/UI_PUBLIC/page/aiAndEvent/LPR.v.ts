@@ -5,7 +5,6 @@
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
  * @LastEditTime: 2024-10-11 15:31:11
  */
-import { ArrowDown } from '@element-plus/icons-vue'
 import { type CompareTask, VehicleDetection, type VehicleChlItem, VehicleCompare } from '@/types/apiType/aiAndEvent'
 import CanvasPolygon from '@/utils/canvas/canvasPolygon'
 import { type TabPaneName } from 'element-plus'
@@ -16,14 +15,13 @@ import { type XmlResult } from '@/utils/xmlParse'
 
 export default defineComponent({
     components: {
-        ArrowDown,
         SuccessfulRecognition,
         ScheduleManagPop,
     },
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const router = useRouter()
         const pluginStore = usePluginStore()
         const systemCaps = useCababilityStore()
@@ -274,7 +272,7 @@ export default defineComponent({
             getChlList({
                 requireField: ['device'],
                 nodeType: 'alarmOuts',
-            }).then((result: any) => {
+            }).then((result) => {
                 commLoadResponseHandler(result, ($) => {
                     const rowData = [] as {
                         id: string
@@ -339,7 +337,7 @@ export default defineComponent({
 
             getChlList({
                 requireField: ['supportVehiclePlate'],
-            }).then((result: any) => {
+            }).then((result) => {
                 commLoadResponseHandler(result, async ($) => {
                     $('/response/content/item').forEach((item) => {
                         const $item = queryXml(item.element)
@@ -1130,9 +1128,9 @@ export default defineComponent({
         }
         const setVehicleDetectionData = async () => {
             const sendXml = getVehilceDetectionSaveData()
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             const result = await editVehicleConfig(sendXml)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             const $ = queryXml(result)
             if ($('/response/status').text() == 'success') {
                 if (vehicleDetectionData.value.enabledSwitch) {
@@ -1448,9 +1446,9 @@ export default defineComponent({
         // 提交车牌识别数据
         const setVehicleCompareData = async () => {
             const sendXml = getVehicleCompareSaveData()
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             await editVehicleMatchAlarm(sendXml)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             comparePageData.value.compareTab = 'whitelist'
             comparePageData.value.applyDisabled = true
         }
@@ -1514,14 +1512,14 @@ export default defineComponent({
             if (mode.value != 'h5') {
                 Plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
             }
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             await getVoiceList()
             await getScheduleData()
             await getRecordList()
             await getAlarmOutData()
             await getSnapList()
             await getChlData()
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         })
 
         onBeforeUnmount(() => {

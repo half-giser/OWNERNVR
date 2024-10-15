@@ -72,13 +72,9 @@
                             width="fit-content"
                         >
                             <template #reference>
-                                <span class="el-dropdown-link">
+                                <BaseTableDropdownLink>
                                     {{ Translate('IDCS_CONTENT') }}
-                                    <BaseImgSprite
-                                        class="ddn"
-                                        file="ddn"
-                                    />
-                                </span>
+                                </BaseTableDropdownLink>
                             </template>
                             <div class="sub-types">
                                 <el-checkbox-group
