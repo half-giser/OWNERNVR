@@ -2,26 +2,26 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-16 17:19:02
  * @Description: 穿梭框弹窗
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-30 18:05:35
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-15 17:18:44
 -->
 <template>
     <el-dialog
         draggable
         center
-        width="615px"
+        :width="(panelWidth - 200) * 2 + 615"
         :title="Translate(props.headerTitle)"
-        :style="{ '--el-dialog-width': `${(panelWidth - 200) * 2 + 615}px` }"
         @open="open"
         @close="close"
     >
-        <div class="PosTriggerChannel">
+        <div>
             <el-transfer
                 v-model="chosedList"
                 :data="data"
                 :props="{
                     key: 'value',
                     label: 'label',
+                    disabled: 'disabled',
                 }"
                 :titles="[source_title, target_title]"
                 :style="{ '--el-transfer-panel-width': `${panelWidth}px` }"
