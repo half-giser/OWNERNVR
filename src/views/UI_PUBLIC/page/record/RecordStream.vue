@@ -10,6 +10,7 @@
         <RecordStreamTable
             :v-model="pageData.init"
             :mode="pageData.mode"
+            :pop="false"
         ></RecordStreamTable>
     </div>
 </template>

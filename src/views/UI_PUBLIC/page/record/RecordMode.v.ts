@@ -188,7 +188,6 @@ export default defineComponent({
             },
             (newValue: string, oldValue: string) => {
                 if (!pageData.value.initComplated) return
-
                 const isBack = pageData.value.autoModeIdOld === newValue
                 pageData.value.autoModeIdOld = oldValue
 
@@ -220,9 +219,7 @@ export default defineComponent({
                 if (item.text.includes(Translate('IDCS_POS_RECORD'))) {
                     pageData.value.icons[item.id].push(pageData.value.iconMap.POS)
                 }
-                console.log(pageData.value.icons[item.id])
             })
-            console.log(pageData.value.icons)
         }
         const recModeChange = async (params: string) => {
             console.log(params)
@@ -385,7 +382,6 @@ export default defineComponent({
             // 存入Store
             userSessionStore.advanceRecModeId = advanceModeCurrent.id
             genIconMap(recAutoModeList.value.concat([advanceModeCurrent]))
-            console.log(1)
 
             return true
         }
@@ -460,7 +456,7 @@ export default defineComponent({
             if (!isConfirm) {
                 formData.value.autoModeId = pageData.value.autoModeIdOld
             } else {
-                pageData.value.autoModeIdOld = ''
+                pageData.value.autoModeIdOld = formData.value.autoModeId
             }
             pageData.value.recModeStreamPopOpen = false
         }
@@ -574,14 +570,15 @@ export default defineComponent({
             pageData,
             recAutoModeList,
             advanceRecModeMap,
+            RecordModeAdvancePop,
+            RecordModeStreamPop,
+            ScheduleManagPop,
             supportPOS,
             recModeChange,
             changeAllSchedule,
             advancePopConfirm,
             streamPopClose,
             setData,
-
-            RecordModeAdvancePop,
         }
     },
 })

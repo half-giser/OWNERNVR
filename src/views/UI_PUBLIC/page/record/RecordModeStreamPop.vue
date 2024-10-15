@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-07-29 14:15:40
  * @Description: 自动模式通道码流参数配置
- * @LastEditors: tengxiang tengxiang@tvt.net.cn
- * @LastEditTime: 2024-07-31 16:18:20
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-15 16:23:05
 -->
 <template>
     <el-dialog
@@ -14,6 +14,7 @@
         :close-on-click-modal="false"
         :destroy-on-close="true"
         @open="onOpen"
+        @close="$emit('close', false)"
     >
         <el-menu
             v-show="pageData.tabs.length > 1"
@@ -30,16 +31,44 @@
                 {{ item.label }}
             </el-menu-item>
         </el-menu>
-        <!-- TODO: 引用录像码流配置公共组件 -->
+        <RecordStreamTable
+            ref="recordStreamTableRef"
+            v-model="pageData.initComplete"
+            :mode="pageData.currenMode"
+            :pop="true"
+            :initkey="pageData.key"
+            class="streamTable"
+            @bandwidth="getBandwidth"
+            @rec-time="getRecTime"
+        ></RecordStreamTable>
         <template #footer>
-            <el-row>
-                <el-col
-                    :span="24"
-                    class="el-col-flex-end"
-                >
+            <el-row class="bottom_row">
+                <div>
+                    <span
+                        id="txtBandwidth"
+                        class="row_bandwidth"
+                        >{{ pageData.txtBandwidth }}</span
+                    >
+                    <span
+                        id="bandwidthDetail"
+                        class="detailBtn"
+                    ></span>
+                    <span
+                        v-if="pageData.PredictVisible"
+                        id="txRecTime"
+                        >{{ pageData.recTime }}</span
+                    >
+                    <el-button
+                        v-if="pageData.CalculateVisible"
+                        id="btnActivate"
+                        @click="handleCalculate"
+                        >{{ Translate('IDCS_CALCULATE') }}</el-button
+                    >
+                </div>
+                <div>
                     <el-button @click="setData">{{ Translate('IDCS_OK') }}</el-button>
                     <el-button @click="$emit('close', false)">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </el-col>
+                </div>
             </el-row>
         </template>
     </el-dialog>
@@ -50,5 +79,26 @@
 <style lang="scss" scoped>
 .el-menu {
     --el-menu-horizontal-height: 30px;
+}
+.streamTable {
+    max-height: 500px;
+    overflow-y: auto;
+    overflow-x: auto;
+}
+.bottom_row {
+    margin-top: 10px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+#txRecTime {
+    margin-left: 20px;
+    margin-top: 10px;
+}
+#btnActivate {
+    margin-left: 20px;
+}
+.row_bandwidth {
+    margin-top: 10px;
 }
 </style>
