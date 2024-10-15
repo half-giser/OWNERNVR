@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-09 09:56:33
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-11 15:31:11
+ * @LastEditTime: 2024-10-14 18:11:53
  */
 import { type CompareTask, VehicleDetection, type VehicleChlItem, VehicleCompare } from '@/types/apiType/aiAndEvent'
 import CanvasPolygon from '@/utils/canvas/canvasPolygon'
@@ -197,7 +197,7 @@ export default defineComponent({
             curChl: '',
             vehicleChlList: [] as Record<string, string>[],
             // 当前选择的tab项
-            vehicleTab: '',
+            vehicleTab: 'vehicleDetection',
             vehicleDetectionDisabled: false,
             vehicleCompareDisabled: false,
             vehicleLibraryDisabled: false,

@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-28 13:42:09
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-11 15:29:49
+ * @LastEditTime: 2024-10-14 18:05:48
  */
 import { cloneDeep } from 'lodash-es'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
@@ -162,7 +162,7 @@ export default defineComponent({
             curChl: '',
             faceChlList: [] as Record<string, string>[],
             // 当前选择的tab项
-            faceTab: '',
+            faceTab: 'faceDetection',
             faceDetectionDisabled: false,
             faceCompareDisabled: false,
             faceLibraryDisabled: false,

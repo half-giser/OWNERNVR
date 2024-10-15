@@ -2,8 +2,8 @@
  * @Description: 普通事件——传感器
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-23 10:58:27
- * @LastEditors: luoyiming a11593@tvt.net.cn
- * @LastEditTime: 2024-10-09 16:13:38
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-15 15:49:34
 -->
 <template>
     <div class="base-flex-box">
@@ -212,10 +212,10 @@
                                     <div v-if="pageData.recordIsShowAll">
                                         <BaseTransferPop
                                             v-model="pageData.recordIsShowAll"
-                                            :source-title="pageData.recordSourceTitle"
-                                            :target-title="pageData.recordTargetTitle"
+                                            source-title="IDCS_CHANNEL"
+                                            target-title="IDCS_CHANNEL_TRGGER"
                                             :source-data="pageData.recordList"
-                                            :type="pageData.recordType"
+                                            type="record"
                                             :linked-list="pageData.recordChosedIdsAll"
                                             @confirm="recordConfirmAll"
                                             @close="recordCloseAll"
@@ -266,11 +266,11 @@
                                 <div v-if="pageData.snapIsShowAll">
                                     <BaseTransferPop
                                         v-model="pageData.snapIsShowAll"
-                                        :source-title="pageData.snapSourceTitle"
-                                        :target-title="pageData.snapTargetTitle"
+                                        source-title="IDCS_CHANNEL"
+                                        target-title="IDCS_CHANNEL_TRGGER"
                                         :source-data="pageData.snapList"
                                         :linked-list="pageData.snapChosedIdsAll"
-                                        :type="pageData.snapType"
+                                        type="snap"
                                         @confirm="snapConfirmAll"
                                         @close="snapCloseAll"
                                     />
@@ -391,11 +391,11 @@
                                 <div v-if="pageData.alarmOutIsShowAll">
                                     <BaseTransferPop
                                         v-model="pageData.alarmOutIsShowAll"
-                                        :source-title="pageData.alarmOutSourceTitle"
-                                        :target-title="pageData.alarmOutTargetTitle"
+                                        source-title="IDCS_ALARM_OUT"
+                                        target-title="IDCS_TRIGGER_ALARM_OUT"
                                         :source-data="pageData.alarmOutList"
                                         :linked-list="pageData.alarmOutChosedIdsAll"
-                                        :type="pageData.alarmOutType"
+                                        type="alarmOut"
                                         @confirm="alarmOutConfirmAll"
                                         @close="alarmOutCloseAll"
                                     />
@@ -451,7 +451,7 @@
                 </el-table-column>
 
                 <!-- 蜂鸣器 -->
-                <el-table-column width="85px">
+                <el-table-column width="90px">
                     <template #header>
                         <el-dropdown trigger="click">
                             <BaseTableDropdownLink>
@@ -614,36 +614,36 @@
         </div>
         <BaseTransferDialog
             v-model="pageData.recordIsShow"
-            :header-title="pageData.recordHeaderTitle"
-            :source-title="pageData.recordSourceTitle"
-            :target-title="pageData.recordTargetTitle"
+            header-title="IDCS_TRIGGER_CHANNEL_RECORD"
+            source-title="IDCS_CHANNEL"
+            target-title="IDCS_CHANNEL_TRGGER"
             :source-data="pageData.recordList"
             :linked-list="tableData[pageData.triggerDialogIndex]?.recordList || []"
-            :type="pageData.recordType"
+            type="record"
             @confirm="recordConfirm"
             @close="recordClose"
         >
         </BaseTransferDialog>
         <BaseTransferDialog
             v-model="pageData.snapIsShow"
-            :header-title="pageData.snapHeaderTitle"
-            :source-title="pageData.snapSourceTitle"
-            :target-title="pageData.snapTargetTitle"
+            header-title="IDCS_TRIGGER_CHANNEL_SNAP"
+            source-title="IDCS_CHANNEL"
+            target-title="IDCS_CHANNEL_TRGGER"
             :source-data="pageData.snapList"
             :linked-list="tableData[pageData.triggerDialogIndex]?.snapList || []"
-            :type="pageData.snapType"
+            type="snap"
             @confirm="snapConfirm"
             @close="snapClose"
         >
         </BaseTransferDialog>
         <BaseTransferDialog
             v-model="pageData.alarmOutIsShow"
-            :header-title="pageData.alarmOutHeaderTitle"
-            :source-title="pageData.alarmOutSourceTitle"
-            :target-title="pageData.alarmOutTargetTitle"
+            header-title="IDCS_TRIGGER_ALARM_OUT"
+            source-title="IDCS_ALARM_OUT"
+            target-title="IDCS_TRIGGER_ALARM_OUT"
             :source-data="pageData.alarmOutList"
             :linked-list="tableData[pageData.triggerDialogIndex]?.alarmOutList || []"
-            :type="pageData.alarmOutType"
+            type="alarmOut"
             @confirm="alarmOutConfirm"
             @close="alarmOutClose"
         >

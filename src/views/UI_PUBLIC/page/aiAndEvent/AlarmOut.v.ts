@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-08-10 11:05:51
  * @Description: 报警输出
- * @LastEditors: luoyiming a11593@tvt.net.cn
- * @LastEditTime: 2024-10-09 16:14:28
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-15 15:22:51
  */
 import { AlarmOut } from '@/types/apiType/aiAndEvent'
 import { cloneDeep } from 'lodash-es'
@@ -34,6 +34,8 @@ export default defineComponent({
         const tableData = ref<AlarmOut[]>([])
         // 缓存表格初始数据，保存时对比变化了的行
         let tableDataInit = [] as AlarmOut[]
+        // 名称被修改时保存原始名称
+        const originalName = ref('')
         // 当前告警输出的常开/常闭类型
         const curAlarmoutType = ref('')
 
@@ -171,6 +173,45 @@ export default defineComponent({
         }
 
         /**
+         * @description 名称被修改时校验是否合法
+         */
+        const nameFocus = (name: string) => {
+            originalName.value = name
+        }
+        // 失去焦点时检查名称是否合法
+        const nameBlur = (row: AlarmOut) => {
+            const name = row.name
+            if (!checkChlName(name)) {
+                openMessageTipBox({
+                    type: 'info',
+                    message: Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS'),
+                })
+                row.name = originalName.value
+            } else {
+                if (!name) {
+                    openMessageTipBox({
+                        type: 'info',
+                        message: Translate('IDCS_PROMPT_NAME_EMPTY'),
+                    })
+                    row.name = originalName.value
+                }
+                for (const item of tableData.value) {
+                    if (item.id != row.id && name == item.name) {
+                        openMessageTipBox({
+                            type: 'info',
+                            message: Translate('IDCS_NAME_SAME'),
+                        })
+                        row.name = originalName.value
+                        break
+                    }
+                }
+            }
+        }
+        // 回车键失去焦点
+        const enterBlur = (event: { target: { blur: () => void } }) => {
+            event.target.blur()
+        }
+        /**
          * @description: 改变所有项的值
          * @param {string} value 值
          * @param {string} field 字段名
@@ -249,6 +290,9 @@ export default defineComponent({
             changePagination,
             changePaginationSize,
             changeAllValue,
+            nameFocus,
+            nameBlur,
+            enterBlur,
             changeType,
             setData,
         }

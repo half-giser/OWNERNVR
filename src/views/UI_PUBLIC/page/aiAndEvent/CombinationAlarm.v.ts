@@ -17,7 +17,8 @@ export default defineComponent({
         const recordRef = ref()
         const snapRef = ref()
         const alarmOutRef = ref()
-        const tempName = ref('')
+        // 名称被修改时保存原始名称
+        const originalName = ref('')
         const defaultAudioId = '{00000000-0000-0000-0000-000000000000}'
 
         const COMBINED_ALARM_TYPES_MAPPING: Record<string, string> = {
@@ -50,50 +51,37 @@ export default defineComponent({
             // 应用是否禁用
             applyDisabled: true,
 
-            // 初始化时只请求一次相关列表数据
-            initData: false,
+            // 初始化
             totalCount: 0,
             initComplated: false,
             CombinedALarmInfo: '',
 
             // record穿梭框数据源
             recordList: [] as { value: string; label: string }[],
-            recordHeaderTitle: 'IDCS_TRIGGER_CHANNEL_RECORD',
-            recordSourceTitle: 'IDCS_CHANNEL',
-            recordTargetTitle: 'IDCS_CHANNEL_TRGGER',
             // 表头选中id
             recordChosedIdsAll: [] as string[],
             // 表头选中的数据
             recordChosedListAll: [] as { value: string; label: string }[],
             recordIsShowAll: false,
             recordIsShow: false,
-            recordType: 'record',
 
             // snap穿梭框数据源
             snapList: [] as { value: string; label: string }[],
-            snapHeaderTitle: 'IDCS_TRIGGER_CHANNEL_SNAP',
-            snapSourceTitle: 'IDCS_CHANNEL',
-            snapTargetTitle: 'IDCS_CHANNEL_TRGGER',
             // 表头选中id
             snapChosedIdsAll: [] as string[],
             // 表头选中的数据
             snapChosedListAll: [] as { value: string; label: string }[],
             snapIsShowAll: false,
             snapIsShow: false,
-            snapType: 'snap',
 
             // alarmOut穿梭框数据源
             alarmOutList: [] as { value: string; label: string }[],
-            alarmOutHeaderTitle: 'IDCS_TRIGGER_ALARM_OUT',
-            alarmOutSourceTitle: 'IDCS_ALARM_OUT',
-            alarmOutTargetTitle: 'IDCS_TRIGGER_ALARM_OUT',
             // 表头选中id
             alarmOutChosedIdsAll: [] as string[],
             // 表头选中的数据
             alarmOutChosedListAll: [] as { value: string; label: string }[],
             alarmOutIsShowAll: false,
             alarmOutIsShow: false,
-            alarmOutType: 'alarmOut',
 
             // 当前打开dialog行的index
             triggerDialogIndex: 0,
@@ -408,7 +396,7 @@ export default defineComponent({
 
         // 名称修改时的处理
         const nameFocus = (name: string) => {
-            tempName.value = name
+            originalName.value = name
         }
 
         const nameBlur = (row: CombinedAlarm) => {
@@ -418,24 +406,25 @@ export default defineComponent({
                     type: 'info',
                     message: Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS'),
                 })
-                row.name = tempName.value
+                row.name = originalName.value
             } else {
                 if (!name) {
                     openMessageTipBox({
                         type: 'info',
                         message: Translate('IDCS_PROMPT_NAME_EMPTY'),
                     })
-                    row.name = tempName.value
+                    row.name = originalName.value
                 }
-                tableData.value.forEach((item) => {
+                for (const item of tableData.value) {
                     if (item.id != row.id && name == item.name) {
                         openMessageTipBox({
                             type: 'info',
                             message: Translate('IDCS_NAME_SAME'),
                         })
-                        row.name = tempName.value
+                        row.name = originalName.value
+                        break
                     }
-                })
+                }
             }
         }
 
@@ -679,6 +668,7 @@ export default defineComponent({
                         setRecord(index)
                     } else {
                         tableData.value[index].sysRec.chls = []
+                        tableData.value[index].recordList = []
                     }
                     break
                 case 'snap':
@@ -686,6 +676,7 @@ export default defineComponent({
                         setSnap(index)
                     } else {
                         tableData.value[index].sysSnap.chls = []
+                        tableData.value[index].snapList = []
                     }
                     break
                 case 'alarmOut':
@@ -693,6 +684,7 @@ export default defineComponent({
                         setAlarmOut(index)
                     } else {
                         tableData.value[index].alarmOut.alarmOuts = []
+                        tableData.value[index].alarmOutList = []
                     }
                     break
                 default:
@@ -846,9 +838,7 @@ export default defineComponent({
                 })
             }
             const sendXml1 = getSaveFaceData()
-            const result1 = await editCombinedAlarmFaceMatch(sendXml1)
-            // const $1 = queryXml(result1)
-            console.log(result1)
+            await editCombinedAlarmFaceMatch(sendXml1)
         }
 
         const getSaveFaceData = () => {
