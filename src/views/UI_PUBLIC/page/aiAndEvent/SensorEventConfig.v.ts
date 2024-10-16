@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-23 10:58:27
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-15 17:05:05
+ * @LastEditTime: 2024-10-16 11:19:22
  */
 import { type PresetItem, SensorEvent, type ChlList } from '@/types/apiType/aiAndEvent'
 import { QueryNodeListDto } from '@/types/apiType/channel'
@@ -22,9 +22,6 @@ export default defineComponent({
         const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
-        const recordRef = ref()
-        const snapRef = ref()
-        const alarmOutRef = ref()
         // 名称被修改时保存原始名称
         const originalName = ref('')
         const defaultAudioId = '{00000000-0000-0000-0000-000000000000}'
@@ -434,11 +431,6 @@ export default defineComponent({
         }
 
         // 录像配置相关处理
-        const recordDropdownOpen = () => {
-            recordRef.value.handleOpen()
-            pageData.value.recordIsShowAll = true
-        }
-
         const recordConfirmAll = (e: any[]) => {
             if (e.length !== 0) {
                 pageData.value.recordChosedListAll = cloneDeep(e)
@@ -454,13 +446,11 @@ export default defineComponent({
             pageData.value.recordChosedListAll = []
             pageData.value.recordChosedIdsAll = []
             pageData.value.recordIsShowAll = false
-            recordRef.value.handleClose()
         }
         const recordCloseAll = () => {
             pageData.value.recordChosedListAll = []
             pageData.value.recordChosedIdsAll = []
             pageData.value.recordIsShowAll = false
-            recordRef.value.handleClose()
         }
         // 打开录像dialog
         const setRecord = (index: number) => {
@@ -489,11 +479,6 @@ export default defineComponent({
         }
 
         // 抓图配置相关处理
-        const snapDropdownOpen = () => {
-            snapRef.value.handleOpen()
-            pageData.value.snapIsShowAll = true
-        }
-
         const snapConfirmAll = (e: any[]) => {
             if (e.length !== 0) {
                 pageData.value.snapChosedListAll = cloneDeep(e)
@@ -509,13 +494,11 @@ export default defineComponent({
             pageData.value.snapChosedListAll = []
             pageData.value.snapChosedIdsAll = []
             pageData.value.snapIsShowAll = false
-            snapRef.value.handleClose()
         }
         const snapCloseAll = () => {
             pageData.value.snapChosedListAll = []
             pageData.value.snapChosedIdsAll = []
             pageData.value.snapIsShowAll = false
-            snapRef.value.handleClose()
         }
         // 打开抓图dialog
         const setSnap = (index: number) => {
@@ -544,11 +527,6 @@ export default defineComponent({
         }
 
         // 报警输出相关处理
-        const alarmOutDropdownOpen = () => {
-            alarmOutRef.value.handleOpen()
-            pageData.value.alarmOutIsShowAll = true
-        }
-
         const alarmOutConfirmAll = (e: any[]) => {
             if (e.length !== 0) {
                 pageData.value.alarmOutChosedListAll = cloneDeep(e)
@@ -564,13 +542,11 @@ export default defineComponent({
             pageData.value.alarmOutChosedListAll = []
             pageData.value.alarmOutChosedIdsAll = []
             pageData.value.alarmOutIsShowAll = false
-            alarmOutRef.value.handleClose()
         }
         const alarmOutCloseAll = () => {
             pageData.value.alarmOutChosedListAll = []
             pageData.value.alarmOutChosedIdsAll = []
             pageData.value.alarmOutIsShowAll = false
-            alarmOutRef.value.handleClose()
         }
         // 打开报警输出dialog
         const setAlarmOut = (index: number) => {
@@ -841,9 +817,6 @@ export default defineComponent({
         return {
             SetPresetPop,
             ScheduleManagPop,
-            recordRef,
-            snapRef,
-            alarmOutRef,
             pageData,
             tableData,
             changePaginationSize,
@@ -857,21 +830,18 @@ export default defineComponent({
             changeScheduleAll,
             changeSchedule,
             // 录像
-            recordDropdownOpen,
             recordConfirmAll,
             recordCloseAll,
             setRecord,
             recordConfirm,
             recordClose,
             // 抓图
-            snapDropdownOpen,
             snapConfirmAll,
             snapCloseAll,
             setSnap,
             snapConfirm,
             snapClose,
             // 报警输出
-            alarmOutDropdownOpen,
             alarmOutConfirmAll,
             alarmOutCloseAll,
             setAlarmOut,

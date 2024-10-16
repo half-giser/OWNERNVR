@@ -382,6 +382,7 @@
                                                 size="small"
                                                 :empty-values="[undefined, null]"
                                                 :options="scope.row.presetList"
+                                                @visible-change="getPresetById(scope.row)"
                                                 @change="pageData.applyDisable = false"
                                             >
                                                 <el-option

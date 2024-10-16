@@ -332,6 +332,7 @@
                                                     v-model="scope.row.preset.value"
                                                     size="small"
                                                     :empty-values="[undefined, null]"
+                                                    @visible-change="getPresetById(scope.row)"
                                                     @change="presetChange(scope.row)"
                                                 >
                                                     <el-option
@@ -642,7 +643,6 @@
         </div>
     </el-dialog>
     <!-- 排程管理弹窗 -->
-    <!-- close写成赋值语句导致下面格式有点问题，用函数包一下 -->
     <ScheduleManagPop
         v-model="pageData.scheduleManagPopOpen"
         @close="

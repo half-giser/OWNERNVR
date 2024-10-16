@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-22 16:04:47
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-15 15:44:44
+ * @LastEditTime: 2024-10-16 11:16:04
 -->
 <template>
     <div class="base-flex-box">
@@ -75,33 +75,28 @@
                     width="180px"
                 >
                     <template #header>
-                        <el-dropdown
-                            ref="recordRef"
+                        <el-popover
+                            v-model:visible="pageData.recordIsShowAll"
                             trigger="click"
-                            :hide-on-click="false"
-                            placement="bottom-start"
+                            width="fit-content"
+                            popper-class="no-padding"
                         >
-                            <BaseTableDropdownLink @click="recordDropdownOpen">
-                                {{ Translate('IDCS_RECORD') }}
-                            </BaseTableDropdownLink>
-                            <template #dropdown>
-                                <el-dropdown-menu>
-                                    <div v-if="pageData.recordIsShowAll">
-                                        <BaseTransferPop
-                                            v-model="pageData.recordIsShowAll"
-                                            source-title="IDCS_CHANNEL"
-                                            target-title="IDCS_CHANNEL_TRGGER"
-                                            :source-data="pageData.recordList"
-                                            type="record"
-                                            :linked-list="pageData.recordChosedIdsAll"
-                                            @confirm="recordConfirmAll"
-                                            @close="recordCloseAll"
-                                        >
-                                        </BaseTransferPop>
-                                    </div>
-                                </el-dropdown-menu>
+                            <template #reference>
+                                <BaseTableDropdownLink>
+                                    {{ Translate('IDCS_RECORD') }}
+                                </BaseTableDropdownLink>
                             </template>
-                        </el-dropdown>
+                            <BaseTransferPop
+                                v-if="pageData.recordIsShowAll"
+                                source-title="IDCS_CHANNEL"
+                                target-title="IDCS_CHANNEL_TRGGER"
+                                :source-data="pageData.recordList"
+                                type="record"
+                                :linked-list="pageData.recordChosedIdsAll"
+                                @confirm="recordConfirmAll"
+                                @close="recordCloseAll"
+                            />
+                        </el-popover>
                     </template>
                     <template #default="scope">
                         <el-row>
@@ -130,30 +125,28 @@
                     width="180px"
                 >
                     <template #header>
-                        <el-dropdown
-                            ref="snapRef"
+                        <el-popover
+                            v-model:visible="pageData.snapIsShowAll"
                             trigger="click"
-                            :hide-on-click="false"
-                            placement="bottom-start"
+                            width="fit-content"
+                            popper-class="no-padding"
                         >
-                            <BaseTableDropdownLink @click="snapDropdownOpen">
-                                {{ Translate('IDCS_SNAP') }}
-                            </BaseTableDropdownLink>
-                            <template #dropdown>
-                                <div v-if="pageData.snapIsShowAll">
-                                    <BaseTransferPop
-                                        v-model="pageData.snapIsShowAll"
-                                        source-title="IDCS_CHANNEL"
-                                        target-title="IDCS_CHANNEL_TRGGER"
-                                        :source-data="pageData.snapList"
-                                        :linked-list="pageData.snapChosedIdsAll"
-                                        type="snap"
-                                        @confirm="snapConfirmAll"
-                                        @close="snapCloseAll"
-                                    />
-                                </div>
+                            <template #reference>
+                                <BaseTableDropdownLink>
+                                    {{ Translate('IDCS_SNAP') }}
+                                </BaseTableDropdownLink>
                             </template>
-                        </el-dropdown>
+                            <BaseTransferPop
+                                v-if="pageData.snapIsShowAll"
+                                source-title="IDCS_CHANNEL"
+                                target-title="IDCS_CHANNEL_TRGGER"
+                                :source-data="pageData.snapList"
+                                :linked-list="pageData.snapChosedIdsAll"
+                                type="snap"
+                                @confirm="snapConfirmAll"
+                                @close="snapCloseAll"
+                            />
+                        </el-popover>
                     </template>
                     <template #default="scope">
                         <el-row>
@@ -255,30 +248,28 @@
                     width="180px"
                 >
                     <template #header>
-                        <el-dropdown
-                            ref="alarmOutRef"
+                        <el-popover
+                            v-model:visible="pageData.alarmOutIsShowAll"
                             trigger="click"
-                            :hide-on-click="false"
-                            placement="bottom-start"
+                            width="fit-content"
+                            popper-class="no-padding"
                         >
-                            <BaseTableDropdownLink @click="alarmOutDropdownOpen">
-                                {{ Translate('IDCS_ALARM_OUT') }}
-                            </BaseTableDropdownLink>
-                            <template #dropdown>
-                                <div v-if="pageData.alarmOutIsShowAll">
-                                    <BaseTransferPop
-                                        v-model="pageData.alarmOutIsShowAll"
-                                        source-title="IDCS_ALARM_OUT"
-                                        target-title="IDCS_TRIGGER_ALARM_OUT"
-                                        :source-data="pageData.alarmOutList"
-                                        :linked-list="pageData.alarmOutChosedIdsAll"
-                                        type="alarmOut"
-                                        @confirm="alarmOutConfirmAll"
-                                        @close="alarmOutCloseAll"
-                                    />
-                                </div>
+                            <template #reference>
+                                <BaseTableDropdownLink>
+                                    {{ Translate('IDCS_ALARM_OUT') }}
+                                </BaseTableDropdownLink>
                             </template>
-                        </el-dropdown>
+                            <BaseTransferPop
+                                v-if="pageData.alarmOutIsShowAll"
+                                source-title="IDCS_ALARM_OUT"
+                                target-title="IDCS_TRIGGER_ALARM_OUT"
+                                :source-data="pageData.alarmOutList"
+                                :linked-list="pageData.alarmOutChosedIdsAll"
+                                type="alarmOut"
+                                @confirm="alarmOutConfirmAll"
+                                @close="alarmOutCloseAll"
+                            />
+                        </el-popover>
                     </template>
                     <template #default="scope">
                         <el-row>

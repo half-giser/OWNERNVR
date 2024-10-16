@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 13:35:56
  * @Description:  区域入侵
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-10 09:35:14
+ * @LastEditTime: 2024-10-16 11:53:36
 -->
 <template>
     <div>
@@ -629,6 +629,7 @@
                                             size="small"
                                             :empty-values="[undefined, null]"
                                             :options="scope.row.presetList"
+                                            @visible-change="getPresetById(scope.row)"
                                             @change="peaData.applyDisable = false"
                                         >
                                             <el-option
