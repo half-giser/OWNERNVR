@@ -3,7 +3,7 @@
  * @Date: 2024-06-03 11:56:43
  * @Description: 插件命令集合
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 17:57:13
+ * @LastEditTime: 2024-10-14 15:48:27
  */
 import { APP_SERVER_IP } from '@/utils/constants'
 
@@ -528,7 +528,7 @@ export const OCX_XML_TakePhotoByWinIndex = (winIndex: number) => {
  * @param chlId
  * @returns {string}
  */
-export const OCX_XML_TalkSwitch = (status: 'ON' | 'OFF', chlId?: number) => {
+export const OCX_XML_TalkSwitch = (status: 'ON' | 'OFF', chlId?: string) => {
     return wrapXml(rawXml`
         <cmd type="TalkSwitch" ${chlId ? `chlId="${chlId}"` : ''}>${status}</cmd>
     `)

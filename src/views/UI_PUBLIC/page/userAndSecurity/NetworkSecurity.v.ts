@@ -3,7 +3,7 @@
  * @Date: 2024-06-18 18:41:51
  * @Description: 网络安全
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 13:42:25
+ * @LastEditTime: 2024-10-15 13:57:40
  */
 import { type UserNetworkSecurityForm } from '@/types/apiType/userAndSecurity'
 
@@ -33,11 +33,11 @@ export default defineComponent({
                 $('//content/nicConfigs/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     const autoGetGatewayMac = $item('autoGetGatewayMac').text().toBoolean()
-                    const gatewayMac = item.attr('gatewayMac') as string
+                    const gatewayMac = item.attr('gatewayMac')!
                     const manualInputGatewayMac = $item('manualInputGatewayMac').text()
                     tableData.value.push({
-                        id: item.attr('id') as string,
-                        gateway: item.attr('gateway') as string,
+                        id: item.attr('id')!,
+                        gateway: item.attr('gateway')!,
                         gatewayMac,
                         arpSwitch: $item('arpSwitch').text().toBoolean(),
                         autoGetGatewayMac,

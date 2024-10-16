@@ -3,7 +3,7 @@
  * @Date: 2024-06-04 10:26:32
  * @Description: IPv4地址输入框
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 11:36:03
+ * @LastEditTime: 2024-10-15 11:53:47
 -->
 <template>
     <div
@@ -142,6 +142,7 @@ const handleKeyDown = (e: Event, index: number) => {
         // 选中下一个输入框
         case 'ArrowRight':
         case '.':
+        case 'Tab':
             if (index < address.value.length - 1) {
                 const $nextInput = getInputElement(index + 1)
                 $nextInput.focus()

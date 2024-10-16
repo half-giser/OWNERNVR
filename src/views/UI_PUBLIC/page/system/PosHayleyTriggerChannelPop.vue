@@ -13,7 +13,7 @@
         center
         @open="open"
     >
-        <div class="PosHayleyTriggerChannel">
+        <div>
             <el-table
                 stripe
                 border

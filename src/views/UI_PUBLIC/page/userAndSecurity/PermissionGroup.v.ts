@@ -3,11 +3,11 @@
  * @Date: 2024-06-17 20:32:14
  * @Description: 权限组列表
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 13:41:33
+ * @LastEditTime: 2024-10-15 10:29:12
  */
 import PermissionGroupEditPop from './PermissionGroupEditPop.vue'
 import { delAuthGroup } from '@/api/userAndSecurity'
-import { type UserAuthGroupList, type UserPermissionChannelAuthList, UserPermissionSystemAuthList } from '@/types/apiType/userAndSecurity'
+import { type UserAuthGroupList, UserPermissionChannelAuthList, UserPermissionSystemAuthList } from '@/types/apiType/userAndSecurity'
 
 export default defineComponent({
     components: {
@@ -17,6 +17,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
+        const systemCaps = useCababilityStore()
         const router = useRouter()
 
         // 权限组数据列表
@@ -127,7 +128,7 @@ export default defineComponent({
 
             const currentItem = currentAuthGroup.value.chlAuth
             channelAuthList.value = currentItem.map((item) => {
-                const arrayItem: Record<string, any> = {}
+                const arrayItem = new UserPermissionChannelAuthList()
                 arrayItem.id = item.id
                 arrayItem.name = item.name
                 DEFAULT_CHANNEL_AUTH_LIST.forEach((key) => {
@@ -137,7 +138,7 @@ export default defineComponent({
                         arrayItem[key] = 'false'
                     }
                 })
-                return arrayItem as UserPermissionChannelAuthList
+                return arrayItem
             })
         }
 
@@ -284,6 +285,9 @@ export default defineComponent({
         }
 
         onMounted(() => {
+            if (!systemCaps.supportFaceMatch && !systemCaps.supportPlateMatch) {
+                systemAuthList.value.configurations.value.facePersonnalInfoMgr.hidden = true
+            }
             getAuthGroup()
         })
 

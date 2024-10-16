@@ -139,7 +139,7 @@ export default defineComponent({
                     pageSize: pageSize.value,
                     isSupportFishEye: true,
                 }),
-                queryDevList(getXmlWrapData('')),
+                queryDevList(''),
             ]).then((resultArr) => {
                 closeLoading()
                 const res1 = queryXml(resultArr[0])
@@ -269,7 +269,7 @@ export default defineComponent({
                 sendXml += `<chlId>${ele.id}</chlId>`
             })
             sendXml += '</condition>'
-            queryFishEyeEnable(getXmlWrapData(sendXml)).then((res) => {
+            queryFishEyeEnable(sendXml).then((res) => {
                 const $ = queryXml(res)
                 $('content/chl').forEach((ele) => {
                     const eleXml = queryXml(ele.element)
@@ -326,7 +326,7 @@ export default defineComponent({
             openLoading()
             editRows.forEach((ele) => {
                 if (!ele.reqCfgFail) {
-                    editIPChlORChlFishEye(getXmlWrapData(getSaveData(ele))).then((res) => {
+                    editIPChlORChlFishEye(getSaveData(ele)).then((res) => {
                         const $ = queryXml(res)
                         const success = $('status').text() === 'success'
                         if (success) {
@@ -356,7 +356,7 @@ export default defineComponent({
             })
 
             if (editEnableRows.length) {
-                editFishEyeEnable(getXmlWrapData(getFishEyeEnableSaveData(editEnableRows))).then((res) => {
+                editFishEyeEnable(getFishEyeEnableSaveData(editEnableRows)).then((res) => {
                     const $ = queryXml(res)
                     const success = $('status').text() === 'success'
                     if (success) btnOKDisabled.value = true

@@ -2,38 +2,35 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-16 17:19:11
  * @Description: 穿梭下拉框内容
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-26 11:20:32
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-15 17:19:17
  */
 
 export default defineComponent({
     props: {
         sourceTitle: {
             type: String,
-            require: true,
             default: '',
         },
         targetTitle: {
             type: String,
-            require: true,
             default: '',
         },
         sourceData: {
-            type: Array as PropType<{ value: string; label: string }[]>,
-            require: true,
+            type: Array as PropType<{ label: string; value: string; disabled?: boolean }[]>,
+            required: true,
         },
         linkedList: {
             type: Array as PropType<string[]>,
-            require: true,
+            required: true,
         },
         type: {
             type: String,
-            require: true,
             default: '',
         },
     },
     emits: {
-        confirm(e: { value: string; label: string }[]) {
+        confirm(e: SelectOption<string, string>[]) {
             return e
         },
         close() {
@@ -41,7 +38,7 @@ export default defineComponent({
         },
     },
     setup(props, ctx) {
-        const data = ref<{ value: string; label: string }[]>([])
+        const data = ref<SelectOption<string, string>[]>([])
         const chosedList = ref<string[]>([])
         const source_title = ref('')
         const target_title = ref('')
@@ -57,8 +54,8 @@ export default defineComponent({
             alarmOut: 'IDCS_ALARMOUT_LIMIT',
         }
         const genData = () => {
-            data.value = props.sourceData!
-            chosedList.value = props.linkedList!
+            data.value = props.sourceData
+            chosedList.value = props.linkedList
             source_title.value = Translate(props.sourceTitle)
             target_title.value = Translate(props.targetTitle)
         }

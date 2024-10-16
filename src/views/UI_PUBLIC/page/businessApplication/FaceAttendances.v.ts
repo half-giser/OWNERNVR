@@ -3,7 +3,7 @@
  * @Date: 2024-06-05 18:18:35
  * @Description: 业务应用-人脸考勤
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-10 11:34:16
+ * @LastEditTime: 2024-10-14 14:03:41
  */
 import { cloneDeep } from 'lodash-es'
 import dayjs from 'dayjs'
@@ -445,25 +445,29 @@ export default defineComponent({
                             date: date.date,
                             day: date.day,
                             alarm: false,
-                            detail: [item.searchData[date.date][0]], // formatDate(item.searchData[date.date][0].timestamp, dateTime.timeFormat.value),
+                            detail: [item.searchData[date.date][0]],
                         })
                         return
                     }
+
                     const types: string[] = []
-                    const onTime = dayjs(date + ' ' + formData.value.startTime, 'YYYY-MM-DD HH:mm:ss').valueOf()
-                    const offTime = dayjs(date + ' ' + formData.value.endTime, 'YYYY-MM-DD HH:mm:ss').valueOf()
+                    const onTime = dayjs(date.date + ' ' + formData.value.startTime, 'YYYY-MM-DD HH:mm:ss').valueOf()
+                    const offTime = dayjs(date.date + ' ' + formData.value.endTime, 'YYYY-MM-DD HH:mm:ss').valueOf()
+
                     if (item.searchData[date.date][0].timestamp > onTime) {
+                        tableList[index].late++
                         types.push(Translate('IDCS_LATE'))
                     }
                     if (item.searchData[date.date][item.searchData[date.date].length - 1].timestamp < offTime) {
+                        tableList[index].leftEarly++
                         types.push(Translate('IDCS_LEFT_EARLY'))
                     }
                     tableList[index].detail.push({
-                        date: date.format,
+                        date: date.date,
                         day: date.day,
                         type: !types.length ? Translate('IDCS_NORMAL') : types.join(', '),
                         alarm: types.includes(Translate('IDCS_LEFT_EARLY')),
-                        detail: [item.searchData[date.date][0], item.searchData[date.date][date.date.length - 1]],
+                        detail: [item.searchData[date.date][0], item.searchData[date.date][item.searchData[date.date].length - 1]],
                     })
                 })
             })

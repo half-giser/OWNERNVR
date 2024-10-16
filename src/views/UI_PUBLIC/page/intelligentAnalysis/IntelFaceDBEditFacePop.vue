@@ -3,7 +3,7 @@
  * @Date: 2024-08-30 09:26:20
  * @Description: 人脸库 - 编辑人脸弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 16:37:21
+ * @LastEditTime: 2024-10-14 10:40:31
 -->
 <template>
     <el-dialog
@@ -129,6 +129,7 @@
                 v-model="pageData.isChooseFacePop"
                 type="snap"
                 @choose="confirmChooseFace"
+                @close="pageData.isChooseFacePop = false"
             />
         </div>
         <template #footer>

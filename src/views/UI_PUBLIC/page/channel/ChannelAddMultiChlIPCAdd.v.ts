@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 18:39:25
  * @Description: 添加通道 - 添加多通道IPC
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 15:34:02
+ * @LastEditTime: 2024-10-14 17:37:27
  */
 import { ChannelInfoDto, type DefaultPwdDto, MultiChlCheckedInfoDto, type MultiChlIPCAddDto } from '@/types/apiType/channel'
 
@@ -173,7 +173,7 @@ export default defineComponent({
                     <userName><![CDATA[${cutStringByByte(element.userName, nameByteMaxLen)}]]></userName>
                     ${element.password == '******' ? '' : '<password' + getSecurityVer() + '><![CDATA[' + AES_encrypt(element.password, userSessionStore.sesionKey) + ']]></password>'}
                 </content>`
-            return queryLanDevice(getXmlWrapData(data), undefined, false)
+            return queryLanDevice(data)
         }
 
         /**
@@ -195,7 +195,7 @@ export default defineComponent({
                     <chlType/>
                     <chlNum/>
                 </requireField>`
-            queryDevList(getXmlWrapData(data)).then((res) => {
+            queryDevList(data).then((res) => {
                 const $ = queryXml(res)
                 const rowData: ChannelInfoDto[] = []
                 if ($('status').text() == 'success') {
@@ -264,7 +264,7 @@ export default defineComponent({
                 router.push('list')
             } else {
                 data += tmpSendXml + '</content>'
-                callback(getXmlWrapData(data))
+                callback(data)
             }
         }
 

@@ -3,7 +3,7 @@
  * @Date: 2024-07-18 14:45:58
  * @Description: 现场预览-操作视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-11 10:00:04
+ * @LastEditTime: 2024-10-14 16:05:34
 -->
 <template>
     <div class="ctrl">
@@ -121,6 +121,7 @@
                 <BaseImgSprite
                     v-show="mode === 'ocx'"
                     :file="winData.talk ? 'ipcTalkBacking' : 'ipcTalkBack'"
+                    :index="winData.talk ? 2 : 0"
                     :hover-index="1"
                     :disabled-index="3"
                     :disabled="talkDisabled"
@@ -173,6 +174,7 @@
         <!-- 码流控制 -->
         <div class="stream-menu">
             <el-radio-group
+                class="nowrap"
                 :model-value="winData.streamType"
                 :disabled="streamTypeDisabled || pageData.isRTSP || winData.PLAY_STATUS !== 'play'"
                 @update:model-value="changeStreamType"

@@ -3,7 +3,7 @@
  * @Date: 2024-08-06 20:35:59
  * @Description: 本地备份任务 进度弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-09 17:57:17
+ * @LastEditTime: 2024-10-14 10:25:06
  */
 import type { PlaybackBackUpRecList } from '@/types/apiType/playback'
 import WebsocketRecordBackup, { type WebsocketRecordBackupOnMessageParam } from '@/utils/websocket/websocketRecordBackup'
@@ -96,6 +96,7 @@ export default defineComponent({
                 onFrameTime: handleFrameTime,
                 onerror: handleError,
             })
+            console.log('backuplist', prop.backupList)
             const list = prop.backupList.map((item) => {
                 return {
                     chlID: item.chlId,
@@ -177,7 +178,9 @@ export default defineComponent({
          */
         const handleFrameTime = (frameTime: number, taskIndex: number) => {
             const item = prop.backupList[taskIndex]
-            pageData.value.progress = Math.floor(((frameTime - item.startTime) / (item.endTime - item.startTime)) * 100)
+            const progress = Math.floor(((frameTime - item.startTime) / (item.endTime - item.startTime)) * 100)
+            // 返回的frameTime值可能小于startTime或大于endTime，因此这里需要clamp
+            pageData.value.progress = Math.min(100, Math.max(0, progress))
             pageData.value.currentTask = taskIndex + 1
         }
 

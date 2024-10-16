@@ -72,7 +72,7 @@ export default defineComponent({
                     <dwellTime unit='s'>${formData.value.dwellTime.toString()}</dwellTime>
                 </content>`
             openLoading()
-            editChlGroup(getXmlWrapData(data)).then((res) => {
+            editChlGroup(data).then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {

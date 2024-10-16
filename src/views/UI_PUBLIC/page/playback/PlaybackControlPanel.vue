@@ -3,7 +3,7 @@
  * @Date: 2024-07-30 10:36:43
  * @Description: 回放-操作视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-11 10:00:32
+ * @LastEditTime: 2024-10-14 14:10:04
 -->
 <template>
     <div class="ctrl">
@@ -99,6 +99,7 @@
             <el-radio-group
                 :model-value="winData.streamType"
                 :disabled="streamTypeDisabled"
+                class="nowrap"
                 @update:model-value="changeStreamType"
             >
                 <el-radio-button

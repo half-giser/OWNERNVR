@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 18:39:25
  * @Description: 添加通道 - 编辑IPC IP弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 15:33:51
+ * @LastEditTime: 2024-10-14 17:01:10
  */
 import { type FormInstance } from 'element-plus'
 import { ChannelAddEditIPCIpDto, type ChannelQuickAddDto, type DefaultPwdDto } from '@/types/apiType/channel'
@@ -65,7 +65,7 @@ export default defineComponent({
                     </device>
                 </content>`
             openLoading()
-            editDevNetworkList(getXmlWrapData(data)).then((res) => {
+            editDevNetworkList(data).then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {

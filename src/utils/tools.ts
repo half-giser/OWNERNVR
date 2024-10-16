@@ -3,7 +3,7 @@
  * @Date: 2023-04-28 17:57:48
  * @Description: 工具方法
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:55:45
+ * @LastEditTime: 2024-10-14 17:16:17
  */
 
 import { type QueryNodeListDto } from '@/types/apiType/channel'
@@ -433,6 +433,11 @@ export const getChlList = (options: Partial<QueryNodeListDto>) => {
                 <enum>sensors</enum>
                 <enum>alarmOuts</enum>
             </nodeType>
+            <chlType>
+                <enum>analog</enum>
+                <enum>digital</enum>
+                <enum>all</enum>
+            </chlType>
         </types>
         ${ternary(options.pageIndex, `<pageIndex>${options.pageIndex}</pageIndex>`)}
         ${ternary(options.pageSize, `<pageSize>${options.pageSize}</pageSize>`)}
@@ -480,7 +485,7 @@ export const getChlList = (options: Partial<QueryNodeListDto>) => {
             ${options.requireField ? options.requireField.map((ele) => `<${ele}/>`).join('') : ''}
         </requireField>
     `
-    return queryNodeList(getXmlWrapData(data))
+    return queryNodeList(data)
 }
 
 /**

@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 18:39:25
  * @Description: 添加通道 - 设置通道默认密码弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 15:34:41
+ * @LastEditTime: 2024-10-14 17:00:31
  */
 import { DefaultPwdDto } from '@/types/apiType/channel'
 import { type FormInstance } from 'element-plus'
@@ -41,7 +41,7 @@ export default defineComponent({
 
         const getData = () => {
             openLoading()
-            queryDevDefaultPwd(getXmlWrapData('')).then((res) => {
+            queryDevDefaultPwd().then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
@@ -108,7 +108,7 @@ export default defineComponent({
                         <userName>${e.userName}</userName>
                         <password>${e.hexHash}</password>
                     </auth>`
-            editDevDefaultPwd(getXmlWrapData(data)).then((res) => {
+            editDevDefaultPwd(data).then((res) => {
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
                     const defaultPwdData: Array<DefaultPwdDto> = []

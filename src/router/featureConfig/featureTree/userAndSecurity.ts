@@ -91,7 +91,7 @@ export default {
         },
         blockAndAllowList: {
             //黑白名单
-            path: 'security/rule/filter',
+            path: 'rule/filter',
             component: 'userAndSecurity/BlockAndAllowList.vue',
             meta: {
                 sort: 10,
@@ -104,7 +104,7 @@ export default {
         },
         previewOnLogout: {
             //登出后预览
-            path: 'security/preview/logout',
+            path: 'preview/logout',
             component: 'userAndSecurity/PreviewOnLogout.vue',
             meta: {
                 sort: 20,
@@ -114,7 +114,7 @@ export default {
         },
         networkSecurity: {
             //网络安全
-            path: 'security/network/security',
+            path: 'network/security',
             component: 'userAndSecurity/NetworkSecurity.vue',
             meta: {
                 sort: 30,
@@ -124,7 +124,7 @@ export default {
         },
         passwordSecurity: {
             //密码安全
-            path: 'security/passwordSecurity',
+            path: 'passwordSecurity',
             component: 'userAndSecurity/PasswordSecurity.vue',
             meta: {
                 sort: 40,
@@ -137,7 +137,7 @@ export default {
         },
         onlineUser: {
             //在线用户
-            path: 'security/user/status',
+            path: 'user/status',
             component: 'userAndSecurity/OnlineUser.vue',
             meta: {
                 sort: 10,

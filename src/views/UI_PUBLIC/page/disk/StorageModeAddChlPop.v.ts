@@ -3,7 +3,7 @@
  * @Date: 2024-07-08 18:01:51
  * @Description: 存储模式新增通道弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 12:00:23
+ * @LastEditTime: 2024-10-14 17:44:26
  */
 import { StorageModeDiskGroupList, type StorageModeChlList } from '@/types/apiType/disk'
 
@@ -58,7 +58,7 @@ export default defineComponent({
                     <chlType/>
                 </requireField>
             `
-            const result = await queryDevList(getXmlWrapData(sendXml))
+            const result = await queryDevList(sendXml)
             const $ = queryXml(result)
 
             if ($('//status').text() === 'success') {
@@ -142,7 +142,7 @@ export default defineComponent({
                     </diskGroup>
                 </content>
             `
-            const result = await editSetAndElementRelation(getXmlWrapData(sendXml))
+            const result = await editSetAndElementRelation(sendXml)
             const $ = queryXml(result)
 
             if ($('//status').text() === 'success') {

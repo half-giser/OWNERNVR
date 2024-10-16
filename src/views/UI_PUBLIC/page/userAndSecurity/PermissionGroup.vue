@@ -3,7 +3,7 @@
  * @Date: 2024-06-17 20:26:14
  * @Description: 权限组列表
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-25 16:09:00
+ * @LastEditTime: 2024-10-15 10:04:58
 -->
 <template>
     <div class="Perm">
@@ -20,6 +20,7 @@
                     <ul class="list">
                         <li
                             v-for="authItem in auth.value"
+                            v-show="!authItem.hidden"
                             :key="authItem.key"
                         >
                             <BaseImgSprite

@@ -34,6 +34,7 @@
                         :class="{
                             disabled: getMenuDisabled(subMenu),
                         }"
+                        :title="Translate(subMenu.meta.lk || '')"
                         @click.stop="goToPage(subMenu, moduleItem)"
                         v-text="Translate(subMenu.meta.lk || '')"
                     ></span>
@@ -116,7 +117,7 @@
     .menuContent {
         display: flex;
         flex-direction: column;
-        width: 100%;
+        width: calc(100% - 70px);
         box-sizing: border-box;
         padding-right: 5px;
     }
@@ -141,6 +142,7 @@
         position: relative;
         margin: 8px 0px 0px 8px;
         padding: 4px 6px 0px 0px;
+        width: 100%;
 
         span {
             font-size: 15px;
@@ -151,6 +153,7 @@
             text-overflow: ellipsis;
             white-space: nowrap;
             color: var(--config-submenu-text);
+            max-width: 100%;
 
             &:not(:last-of-type):after {
                 content: '';

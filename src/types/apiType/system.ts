@@ -3,7 +3,7 @@
  * @Date: 2024-06-21 18:15:30
  * @Description: 系统
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-20 17:40:42
+ * @LastEditTime: 2024-10-15 16:49:40
  */
 
 /**
@@ -244,8 +244,8 @@ export interface SystemPosListStartEndChar {
  * @description POS 通道列表
  */
 export interface SystemPosListChls {
-    id: string
-    text: string
+    value: string
+    label: string
     till?: string
 }
 

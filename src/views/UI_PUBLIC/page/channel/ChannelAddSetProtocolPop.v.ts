@@ -43,7 +43,7 @@ export default defineComponent({
 
         const getData = () => {
             openLoading()
-            queryRtspProtocolList(getXmlWrapData('')).then((res) => {
+            queryRtspProtocolList().then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
@@ -202,7 +202,7 @@ export default defineComponent({
                 data += `</resourcesPath></item>`
             })
             data += `</content>`
-            return getXmlWrapData(data)
+            return data
         }
 
         const handleDisplayNameInput = (val: string) => {
