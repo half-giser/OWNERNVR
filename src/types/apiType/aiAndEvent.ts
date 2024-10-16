@@ -3,7 +3,7 @@
  * @Date: 2024-08-10 12:08:57
  * @Description: AI/事件
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-25 10:26:43
+ * @LastEditTime: 2024-10-16 09:17:05
  */
 const { Translate } = useLangStore()
 
@@ -326,6 +326,8 @@ export class PresetList {
         label: '',
     }
     presetList = [] as SelectOption<string, string>[]
+    // 在点击select获取option数据，阻止重复获取请求
+    isGetPresetList = false
 }
 /**
  * @description: 组合报警
