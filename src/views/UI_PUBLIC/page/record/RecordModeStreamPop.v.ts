@@ -2,12 +2,17 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-07-31 11:11:05
  * @Description: 自动模式通道码流参数配置
- * @LastEditors: tengxiang tengxiang@tvt.net.cn
- * @LastEditTime: 2024-07-31 16:09:04
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-15 16:31:55
  */
 import { type RecMode } from '@/types/apiType/record'
-
+import { defineComponent } from 'vue'
+import RecordStreamTable from './RecordStreamTable.vue'
+import { cloneDeep } from 'lodash-es'
 export default defineComponent({
+    components: {
+        RecordStreamTable,
+    },
     props: {
         advanceRecModeMap: Object as PropType<Record<string, RecMode>>,
         autoModeId: String,
@@ -15,15 +20,30 @@ export default defineComponent({
     emits: ['confirm', 'close'],
     setup(props, ctx) {
         const { Translate } = useLangStore()
-
+        const theme = getUiAndTheme().name
+        const recordStreamTableRef = ref()
         const pageData = ref({
             mainTitle: '',
             tabs: [] as SelectOption<string, string>[],
+            currenMode: '',
+            modeMapping: {
+                EVENT: 'event',
+                INTENSIVE: 'timing',
+            } as Record<string, string>,
+            txtBandwidth: '',
+            recTime: '',
+            PredictVisible: false,
+            CalculateVisible: false,
+            initComplete: false,
+            key: '',
         })
 
         onMounted(() => {})
 
         const onOpen = () => {
+            pageData.value.key = props.autoModeId!
+            pageData.value.initComplete = false
+            // console.log(props.autoModeId)
             if (!props.autoModeId) return
             const events = props.autoModeId!.split('_')
             pageData.value.mainTitle = events
@@ -49,21 +69,52 @@ export default defineComponent({
                     })
                     .join('+'),
             })
+            pageData.value.currenMode = pageData.value.modeMapping[pageData.value.tabs[0].value]
+            if (theme === 'UI1-E') {
+                pageData.value.PredictVisible = true
+                pageData.value.CalculateVisible = true
+            }
+            pageData.value.initComplete = true
         }
-
         const tabSeleced = (key: string) => {
             console.log(key)
+            if (key === REC_MODE_TYPE.INTENSIVE) {
+                pageData.value.currenMode = 'timing'
+            } else {
+                pageData.value.currenMode = 'event'
+            }
         }
-
+        const getBandwidth = (e: string) => {
+            const text = cloneDeep(e)
+            pageData.value.txtBandwidth = text
+        }
+        const getRecTime = (e: string) => {
+            const text = cloneDeep(e)
+            pageData.value.recTime = text
+        }
+        const handleCalculate = () => {
+            if (recordStreamTableRef.value) {
+                recordStreamTableRef.value.queryRemainRecTimeF()
+            }
+        }
         const setData = () => {
+            if (recordStreamTableRef.value) {
+                recordStreamTableRef.value.setData()
+            }
             ctx.emit('close', true)
         }
 
         return {
+            recordStreamTableRef,
             pageData,
             onOpen,
             tabSeleced,
             setData,
+            RecordStreamTable,
+            handleCalculate,
+            getBandwidth,
+            getRecTime,
+            props,
         }
     },
 })

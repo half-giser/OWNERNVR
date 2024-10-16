@@ -40,6 +40,9 @@
                         <el-input
                             v-model="scope.row.name"
                             size="small"
+                            @focus="nameFocus(scope.row.name)"
+                            @blur="nameBlur(scope.row)"
+                            @keyup.enter="enterBlur($event)"
                         />
                     </template>
                 </el-table-column>
