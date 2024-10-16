@@ -1,4 +1,3 @@
-import { defineComponent } from 'vue'
 import BaseScheduleWeek from '@/components/BaseScheduleWeek.vue'
 import { ScheduleInfo } from '@/types/apiType/schedule'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -16,7 +15,7 @@ export default defineComponent({
     setup(props, ctx) {
         const { Translate } = useLangStore()
         const openMessageTipBox = useMessageBox().openMessageTipBox
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const scheduleWeekRef: Ref<InstanceType<typeof BaseScheduleWeek> | null> = ref(null)
 
         const pageData = ref({
@@ -174,9 +173,9 @@ export default defineComponent({
 
                 const saveFun = props.scheduleDtail ? editSchedule : createSchedule
 
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
                 const result = await saveFun(sendXml)
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 commSaveResponseHadler(result, () => {
                     ctx.emit('close', true)
                 })

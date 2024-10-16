@@ -3,7 +3,7 @@
  * @Date: 2024-07-05 10:10:29
  * @Description: 存储模式配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-23 15:41:44
+ * @LastEditTime: 2024-10-11 18:43:57
 -->
 <template>
     <div class="StorageMode">
@@ -192,8 +192,8 @@
             }
 
             &.active {
-                background-color: var(--primary);
-                color: var(--tabbar-text-active);
+                background-color: var(--disk-group-bg-active);
+                color: var(--disk-group-text-active);
             }
         }
     }

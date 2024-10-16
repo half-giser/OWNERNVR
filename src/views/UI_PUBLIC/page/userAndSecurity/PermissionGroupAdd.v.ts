@@ -3,9 +3,9 @@
  * @Date: 2024-06-17 20:32:26
  * @Description: 添加权限组
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 13:43:44
+ * @LastEditTime: 2024-10-15 11:28:29
  */
-import { UserPermissionSystemAuthList, type UserPermissionChannelAuthList } from '@/types/apiType/userAndSecurity'
+import { UserPermissionSystemAuthList, UserPermissionChannelAuthList } from '@/types/apiType/userAndSecurity'
 import { UserPermissionGroupAddForm } from '@/types/apiType/userAndSecurity'
 import { type FormInstance, type FormRules } from 'element-plus'
 import type { XMLQuery } from '@/utils/xmlParse'
@@ -19,8 +19,9 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const userSession = useUserSessionStore()
         const { openMessageTipBox } = useMessageBox()
-        const { closeLoading, LoadingTarget, openLoading } = useLoading()
+        const { closeLoading, openLoading } = useLoading()
         const router = useRouter()
+        const systemCaps = useCababilityStore()
 
         const formRef = ref<FormInstance>()
         const formData = ref(new UserPermissionGroupAddForm())
@@ -53,7 +54,12 @@ export default defineComponent({
             // 当前选中的通道权限Tab
             activeChannelTab: DEFAULT_CHANNEL_AUTH_TABS[0],
             // 通道权限选项
-            channelOption: DEFAULT_SWITCH_OPTIONS,
+            channelOption: DEFAULT_SWITCH_OPTIONS.map((item) => {
+                return {
+                    value: item.value,
+                    label: Translate(item.label),
+                }
+            }),
             // 本地通道权限列表
             localChannelIds: DEFAULT_LOCAL_CHANNEL_AUTH_LIST,
             // 远程通道权限列表
@@ -65,7 +71,7 @@ export default defineComponent({
          * @param id
          */
         const getAuthGroup = async (id: string) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             // 从另存为入口进来，回显数据
             if (id) {
                 const sendXml = rawXml`
@@ -93,7 +99,7 @@ export default defineComponent({
                     getChannelAuth($, false)
                 })
             }
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         /**
@@ -150,30 +156,30 @@ export default defineComponent({
         const getChannelAuth = ($: XMLQuery, isQueryFromGroupID: boolean) => {
             if (isQueryFromGroupID) {
                 channelAuthList.value = $('//content/chlAuth/item').map((item) => {
-                    const arrayItem: Record<string, any> = {}
+                    const arrayItem = new UserPermissionChannelAuthList()
                     const $item = queryXml(item.element)
-                    arrayItem.id = item.attr('id') as string
+                    arrayItem.id = item.attr('id')!
                     arrayItem.name = $item('name').text()
                     const auth = $item('auth').text()
                     DEFAULT_CHANNEL_AUTH_LIST.forEach((key) => {
                         if (auth.includes(key)) {
-                            arrayItem[key] = 'true'
+                            arrayItem[key] = Translate('IDCS_ON') // 'true'
                         } else {
-                            arrayItem[key] = 'false'
+                            arrayItem[key] = Translate('IDCS_OFF') // 'false'
                         }
                     })
-                    return arrayItem as UserPermissionChannelAuthList
+                    return arrayItem
                 })
             } else {
                 channelAuthList.value = $('//content/item').map((item) => {
-                    const arrayItem: Record<string, any> = {}
+                    const arrayItem = new UserPermissionChannelAuthList()
                     const $item = queryXml(item.element)
-                    arrayItem.id = item.attr('id') as string
+                    arrayItem.id = item.attr('id')!
                     arrayItem.name = $item('name').text()
                     DEFAULT_CHANNEL_AUTH_LIST.forEach((key) => {
-                        arrayItem[key] = 'false'
+                        arrayItem[key] = Translate('IDCS_OFF') // 'false'
                     })
-                    return arrayItem as UserPermissionChannelAuthList
+                    return arrayItem
                 })
             }
         }
@@ -204,13 +210,13 @@ export default defineComponent({
          * @description 发起新建权限组请求
          */
         const doCreateAuthGroup = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const channelAuthListXml = channelAuthList.value
                 .map((item) => {
                     return rawXml`
                         <item id="${item.id}">
-                            ${wrapCDATA(DEFAULT_CHANNEL_AUTH_LIST.filter((key) => item[key] === 'true').join(','))}
+                            ${wrapCDATA(DEFAULT_CHANNEL_AUTH_LIST.filter((key) => item[key] === Translate('IDCS_ON')).join(','))}
                         </item>
                     `
                 })
@@ -241,7 +247,7 @@ export default defineComponent({
             const result = await createAuthGroup(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 goBack()
@@ -276,6 +282,9 @@ export default defineComponent({
         }
 
         onMounted(() => {
+            if (!systemCaps.supportFaceMatch && !systemCaps.supportPlateMatch) {
+                systemAuthList.value.configurations.value.facePersonnalInfoMgr.hidden = true
+            }
             const id = history.state.group_id || ''
             getAuthGroup(id)
             if (history.state.group_id) {

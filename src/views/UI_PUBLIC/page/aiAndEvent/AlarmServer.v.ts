@@ -5,20 +5,18 @@
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
  * @LastEditTime: 2024-09-30 15:01:59
  */
-import { ArrowDown } from '@element-plus/icons-vue'
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import { type FormInstance, type FormRules } from 'element-plus'
 import { type AlarmTypeInfo } from '@/types/apiType/aiAndEvent'
 export default defineComponent({
     components: {
-        ArrowDown,
         ScheduleManagPop,
     },
     setup() {
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
         const openMessageTipBox = useMessageBox().openMessageTipBox
-        const { LoadingTarget, openLoading, closeLoading } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const formRef = ref<FormInstance>()
         const formData = ref({
             enable: false,
@@ -150,7 +148,7 @@ export default defineComponent({
             130: Translate('IDCS_FACE_MATCH'), // 人脸识别
             140: Translate('IDCS_PLATE_MATCH'), // 车牌比对
         }
-        const genAlarmList = function () {
+        const genAlarmList = () => {
             // 排除阵列报警类型
             const supportRaidArr = [69, 70, 77, 78]
             // 排除人脸识别类型
@@ -172,7 +170,7 @@ export default defineComponent({
             pageData.value.alarmList = alarmList
         }
         const getBasicCfg = async () => {
-            const result = await queryBasicCfg(getXmlWrapData(''))
+            const result = await queryBasicCfg()
             const res = queryXml(result)
             pageData.value.CustomerID = res('//content/CustomerID').text()
             if (pageData.value.CustomerID == '6') {
@@ -183,7 +181,7 @@ export default defineComponent({
         const getScheduleList = async () => {
             pageData.value.scheduleList = await buildScheduleList()
         }
-        const getData = async function () {
+        const getData = async () => {
             getScheduleList().then(() => {
                 pageData.value.scheduleList.forEach((item) => {
                     if (item.value == '') {
@@ -202,7 +200,7 @@ export default defineComponent({
                     formData.value.port = Number(res('//content/port').text())
                     formData.value.heartEnable = res('//content/heartbeat/switch').text() == 'true'
                     formData.value.protocol = res('//content/dataFormat').text()
-                    res('//types/dataFormat/enum').forEach((ele: any) => {
+                    res('//types/dataFormat/enum').forEach((ele) => {
                         pageData.value.protocolOptions.push({ value: ele.text(), label: ele.text() })
                     })
                     formData.value.interval = Number(res('//content/heartbeat/interval').text())
@@ -220,7 +218,7 @@ export default defineComponent({
                 }
             })
         }
-        const setFormByProtocol = function () {
+        const setFormByProtocol = () => {
             pageData.value.isProtocolXML = formData.value.protocol == 'XML'
             pageData.value.isArisanProtocol = formData.value.protocol == 'ARISAN'
             pageData.value.isJSONProtocol = formData.value.protocol == 'JSON' || Trim(formData.value.protocol, 'g') == Trim('VIDEO GUARD', 'g')
@@ -233,7 +231,7 @@ export default defineComponent({
             pageData.value.isAnothorUI = pageData.value.supportAdditionalServerSetting == true && pageData.value.isArisanProtocol ? true : false
             pageData.value.deviceIdShow = pageData.value.isJSONProtocol ? true : false
         }
-        const setAlarmTypes = function () {
+        const setAlarmTypes = () => {
             if (pageData.value.linkedAlarmList.length === 0) {
                 tableData.value = []
                 pageData.value.showAlarmTransfer = false
@@ -245,14 +243,14 @@ export default defineComponent({
                 })
             }
         }
-        const checkRule = function (value: string, reg: RegExp) {
+        const checkRule = (value: string, reg: RegExp) => {
             if (reg.test(value)) {
                 return value.replace(reg, '')
             } else {
                 return value
             }
         }
-        const Trim = function (str: string, is_global: string) {
+        const Trim = (str: string, is_global: string) => {
             if (!str) return ''
             let result
             result = str.replace(/(^\s+)|(\s+$)/g, '')
@@ -261,7 +259,7 @@ export default defineComponent({
             }
             return result
         }
-        const getSavaData = function (url: string) {
+        const getSavaData = (url: string) => {
             const schedule = formData.value.schedule == ' ' ? '{00000000-0000-0000-0000-000000000000}' : formData.value.schedule
             let scheduleLabel = ''
             pageData.value.scheduleList.forEach((item) => {
@@ -291,7 +289,7 @@ export default defineComponent({
             sendXml += rawXml`</content>`
             return sendXml
         }
-        const setData = function (url: string) {
+        const setData = (url: string) => {
             if (!formRef.value) return
             if (url == 'testAlarmServerParam') {
                 pageData.value.isTestAlarmServer = true
@@ -299,9 +297,9 @@ export default defineComponent({
             formRef.value.validate((valid) => {
                 if (valid) {
                     if (url == 'testAlarmServerParam') {
-                        openLoading(LoadingTarget.FullScreen)
+                        openLoading()
                         testAlarmServerParam(getSavaData(url)).then((resb) => {
-                            closeLoading(LoadingTarget.FullScreen)
+                            closeLoading()
                             const res = queryXml(resb)
                             if (res('status').text() == 'success') {
                                 openMessageTipBox({
@@ -318,9 +316,9 @@ export default defineComponent({
                         pageData.value.isTestAlarmServer = false
                     } else if (url == 'editAlarmServerParam') {
                         pageData.value.isTestAlarmServer = false
-                        openLoading(LoadingTarget.FullScreen)
+                        openLoading()
                         editAlarmServerParam(getSavaData(url)).then((resb) => {
-                            closeLoading(LoadingTarget.FullScreen)
+                            closeLoading()
                             const res = queryXml(resb)
                             if (res('status').text() == 'success') {
                                 openMessageTipBox({
@@ -350,13 +348,13 @@ export default defineComponent({
                 }
             })
         }
-        const testAlarmServer = function () {
+        const testAlarmServer = () => {
             setData('testAlarmServerParam')
         }
-        const applyAlarmSever = function () {
+        const applyAlarmSever = () => {
             setData('editAlarmServerParam')
         }
-        const handleProtocolChange = function () {
+        const handleProtocolChange = () => {
             setFormByProtocol()
         }
         onMounted(async () => {
@@ -374,7 +372,6 @@ export default defineComponent({
             },
         )
         return {
-            Translate,
             formData,
             pageData,
             formRef,

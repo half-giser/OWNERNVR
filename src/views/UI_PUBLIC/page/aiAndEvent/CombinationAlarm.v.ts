@@ -1,27 +1,21 @@
 import { type CombinedAlarm, type CombinedAlarmItem, type faceMatchObj, type PresetItem } from '@/types/apiType/aiAndEvent'
 import { cloneDeep, isEqual } from 'lodash-es'
-import BaseTransferPop from '@/components/BaseTransferPop.vue'
-import BaseTransferDialog from '@/components/BaseTransferDialog.vue'
 import SetPresetPop from './SetPresetPop.vue'
 import CombinationAlarmPop from './CombinationAlarmPop.vue'
 
 export default defineComponent({
     components: {
-        BaseTransferPop,
-        BaseTransferDialog,
         SetPresetPop,
         CombinationAlarmPop,
     },
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
-        const recordRef = ref()
-        const snapRef = ref()
-        const alarmOutRef = ref()
-        const tempName = ref('')
+        // 名称被修改时保存原始名称
+        const originalName = ref('')
         const defaultAudioId = '{00000000-0000-0000-0000-000000000000}'
 
         const COMBINED_ALARM_TYPES_MAPPING: Record<string, string> = {
@@ -54,50 +48,37 @@ export default defineComponent({
             // 应用是否禁用
             applyDisabled: true,
 
-            // 初始化时只请求一次相关列表数据
-            initData: false,
+            // 初始化
             totalCount: 0,
             initComplated: false,
             CombinedALarmInfo: '',
 
             // record穿梭框数据源
             recordList: [] as { value: string; label: string }[],
-            recordHeaderTitle: 'IDCS_TRIGGER_CHANNEL_RECORD',
-            recordSourceTitle: 'IDCS_CHANNEL',
-            recordTargetTitle: 'IDCS_CHANNEL_TRGGER',
             // 表头选中id
             recordChosedIdsAll: [] as string[],
             // 表头选中的数据
             recordChosedListAll: [] as { value: string; label: string }[],
             recordIsShowAll: false,
             recordIsShow: false,
-            recordType: 'record',
 
             // snap穿梭框数据源
             snapList: [] as { value: string; label: string }[],
-            snapHeaderTitle: 'IDCS_TRIGGER_CHANNEL_SNAP',
-            snapSourceTitle: 'IDCS_CHANNEL',
-            snapTargetTitle: 'IDCS_CHANNEL_TRGGER',
             // 表头选中id
             snapChosedIdsAll: [] as string[],
             // 表头选中的数据
             snapChosedListAll: [] as { value: string; label: string }[],
             snapIsShowAll: false,
             snapIsShow: false,
-            snapType: 'snap',
 
             // alarmOut穿梭框数据源
             alarmOutList: [] as { value: string; label: string }[],
-            alarmOutHeaderTitle: 'IDCS_TRIGGER_ALARM_OUT',
-            alarmOutSourceTitle: 'IDCS_ALARM_OUT',
-            alarmOutTargetTitle: 'IDCS_TRIGGER_ALARM_OUT',
             // 表头选中id
             alarmOutChosedIdsAll: [] as string[],
             // 表头选中的数据
             alarmOutChosedListAll: [] as { value: string; label: string }[],
             alarmOutIsShowAll: false,
             alarmOutIsShow: false,
-            alarmOutType: 'alarmOut',
 
             // 当前打开dialog行的index
             triggerDialogIndex: 0,
@@ -199,28 +180,11 @@ export default defineComponent({
                 })
             })
         }
-
-        // 获取人脸库列表
-        const getFaceGroupData = async () => {
-            const result = await queryFacePersonnalInfoGroupList()
-            const $ = queryXml(result)
-
-            return $
-        }
-
-        // 获取已配置的人脸库分组
-        const getFaceMatchData = async () => {
-            const result = await queryCombinedAlarmFaceMatch()
-            const $ = queryXml(result)
-
-            return $
-        }
-
         const getAlarmOutData = async () => {
             getChlList({
                 requireField: ['device'],
                 nodeType: 'alarmOuts',
-            }).then((result: any) => {
+            }).then((result) => {
                 commLoadResponseHandler(result, ($) => {
                     const rowData = [] as {
                         id: string
@@ -251,10 +215,26 @@ export default defineComponent({
                             label: item.name,
                         }
                     })
+                    console.log('alarmOutList', pageData.value.alarmOutList)
                 })
             })
         }
 
+        // 获取人脸库列表
+        const getFaceGroupData = async () => {
+            const result = await queryFacePersonnalInfoGroupList()
+            const $ = queryXml(result)
+
+            return $
+        }
+
+        // 获取已配置的人脸库分组
+        const getFaceMatchData = async () => {
+            const result = await queryCombinedAlarmFaceMatch()
+            const $ = queryXml(result)
+
+            return $
+        }
         const getData = async () => {
             pageData.value.initComplated = false
             const $faceGroup = await getFaceGroupData()
@@ -412,7 +392,7 @@ export default defineComponent({
 
         // 名称修改时的处理
         const nameFocus = (name: string) => {
-            tempName.value = name
+            originalName.value = name
         }
 
         const nameBlur = (row: CombinedAlarm) => {
@@ -422,24 +402,25 @@ export default defineComponent({
                     type: 'info',
                     message: Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS'),
                 })
-                row.name = tempName.value
+                row.name = originalName.value
             } else {
                 if (!name) {
                     openMessageTipBox({
                         type: 'info',
                         message: Translate('IDCS_PROMPT_NAME_EMPTY'),
                     })
-                    row.name = tempName.value
+                    row.name = originalName.value
                 }
-                tableData.value.forEach((item) => {
+                for (const item of tableData.value) {
                     if (item.id != row.id && name == item.name) {
                         openMessageTipBox({
                             type: 'info',
                             message: Translate('IDCS_NAME_SAME'),
                         })
-                        row.name = tempName.value
+                        row.name = originalName.value
+                        break
                     }
-                })
+                }
             }
         }
 
@@ -486,11 +467,6 @@ export default defineComponent({
         }
 
         // 录像配置相关处理
-        const recordDropdownOpen = () => {
-            recordRef.value.handleOpen()
-            pageData.value.recordIsShowAll = true
-        }
-
         const recordConfirmAll = (e: any[]) => {
             if (e.length !== 0) {
                 pageData.value.recordChosedListAll = cloneDeep(e)
@@ -504,16 +480,14 @@ export default defineComponent({
             pageData.value.recordChosedListAll = []
             pageData.value.recordChosedIdsAll = []
             pageData.value.recordIsShowAll = false
-            recordRef.value.handleClose()
         }
         const recordCloseAll = () => {
             pageData.value.recordChosedListAll = []
             pageData.value.recordChosedIdsAll = []
             pageData.value.recordIsShowAll = false
-            recordRef.value.handleClose()
         }
         // 打开录像dialog
-        const setRecord = function (index: number) {
+        const setRecord = (index: number) => {
             pageData.value.triggerDialogIndex = index
             pageData.value.recordIsShow = true
         }
@@ -539,11 +513,6 @@ export default defineComponent({
         }
 
         // 抓图配置相关处理
-        const snapDropdownOpen = () => {
-            snapRef.value.handleOpen()
-            pageData.value.snapIsShowAll = true
-        }
-
         const snapConfirmAll = (e: any[]) => {
             if (e.length !== 0) {
                 pageData.value.snapChosedListAll = cloneDeep(e)
@@ -557,16 +526,14 @@ export default defineComponent({
             pageData.value.snapChosedListAll = []
             pageData.value.snapChosedIdsAll = []
             pageData.value.snapIsShowAll = false
-            snapRef.value.handleClose()
         }
         const snapCloseAll = () => {
             pageData.value.snapChosedListAll = []
             pageData.value.snapChosedIdsAll = []
             pageData.value.snapIsShowAll = false
-            snapRef.value.handleClose()
         }
         // 打开抓图dialog
-        const setSnap = function (index: number) {
+        const setSnap = (index: number) => {
             pageData.value.triggerDialogIndex = index
             pageData.value.snapIsShow = true
         }
@@ -592,11 +559,6 @@ export default defineComponent({
         }
 
         // 报警输出相关处理
-        const alarmOutDropdownOpen = () => {
-            alarmOutRef.value.handleOpen()
-            pageData.value.alarmOutIsShowAll = true
-        }
-
         const alarmOutConfirmAll = (e: any[]) => {
             if (e.length !== 0) {
                 pageData.value.alarmOutChosedListAll = cloneDeep(e)
@@ -610,16 +572,14 @@ export default defineComponent({
             pageData.value.alarmOutChosedListAll = []
             pageData.value.alarmOutChosedIdsAll = []
             pageData.value.alarmOutIsShowAll = false
-            alarmOutRef.value.handleClose()
         }
         const alarmOutCloseAll = () => {
             pageData.value.alarmOutChosedListAll = []
             pageData.value.alarmOutChosedIdsAll = []
             pageData.value.alarmOutIsShowAll = false
-            alarmOutRef.value.handleClose()
         }
         // 打开报警输出dialog
-        const setAlarmOut = function (index: number) {
+        const setAlarmOut = (index: number) => {
             pageData.value.triggerDialogIndex = index
             pageData.value.alarmOutIsShow = true
         }
@@ -683,6 +643,7 @@ export default defineComponent({
                         setRecord(index)
                     } else {
                         tableData.value[index].sysRec.chls = []
+                        tableData.value[index].recordList = []
                     }
                     break
                 case 'snap':
@@ -690,6 +651,7 @@ export default defineComponent({
                         setSnap(index)
                     } else {
                         tableData.value[index].sysSnap.chls = []
+                        tableData.value[index].snapList = []
                     }
                     break
                 case 'alarmOut':
@@ -697,6 +659,7 @@ export default defineComponent({
                         setAlarmOut(index)
                     } else {
                         tableData.value[index].alarmOut.alarmOuts = []
+                        tableData.value[index].alarmOutList = []
                     }
                     break
                 default:
@@ -814,7 +777,7 @@ export default defineComponent({
                     </item>
                 `
             })
-            sendXml += `</presets>
+            sendXml += rawXml`</presets>
                 </preset>
                 <msgPushSwitch>${row.msgPush}</msgPushSwitch>
                 <buzzerSwitch>${row.beeper}</buzzerSwitch>
@@ -832,7 +795,7 @@ export default defineComponent({
             const editedRows = getEditedRows(tableData.value, tableDataInit)
             let count = 0
             if (editedRows.length != 0) {
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
                 editedRows.forEach(async (item) => {
                     const sendXml = getSavaData(item)
                     const result = await editCombinedAlarm(sendXml)
@@ -845,14 +808,12 @@ export default defineComponent({
                         pageData.value.applyDisabled = true
                         // 更新表格初始对比值
                         tableDataInit = cloneDeep(tableData.value)
-                        closeLoading(LoadingTarget.FullScreen)
+                        closeLoading()
                     }
                 })
             }
             const sendXml1 = getSaveFaceData()
-            const result1 = await editCombinedAlarmFaceMatch(sendXml1)
-            // const $1 = queryXml(result1)
-            console.log(result1)
+            await editCombinedAlarmFaceMatch(sendXml1)
         }
 
         const getSaveFaceData = () => {
@@ -955,9 +916,6 @@ export default defineComponent({
         return {
             SetPresetPop,
             CombinationAlarmPop,
-            recordRef,
-            snapRef,
-            alarmOutRef,
             pageData,
             tableData,
             // 组合报警提示
@@ -973,21 +931,18 @@ export default defineComponent({
             combinedAlarmClose,
             combinedAlarmCheckChange,
             // 录像
-            recordDropdownOpen,
             recordConfirmAll,
             recordCloseAll,
             setRecord,
             recordConfirm,
             recordClose,
             // 抓图
-            snapDropdownOpen,
             snapConfirmAll,
             snapCloseAll,
             setSnap,
             snapConfirm,
             snapClose,
             // 报警输出
-            alarmOutDropdownOpen,
             alarmOutConfirmAll,
             alarmOutCloseAll,
             setAlarmOut,

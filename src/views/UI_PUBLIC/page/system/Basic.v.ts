@@ -30,7 +30,7 @@ export default defineComponent({
          * @description 获取表格数据
          */
         const getData = async () => {
-            const result = await queryBasicCfg(getXmlWrapData(''))
+            const result = await queryBasicCfg()
             const $ = queryXml(result)
             formData.value.name = $('//content/name').text()
             formData.value.deviceNumber = $('//content/deviceNumber').text()

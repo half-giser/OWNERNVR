@@ -100,6 +100,9 @@
     --upload-bg: #eee; // 上传框背景
     --upload-bg-hover: #ddd; // 上传框背景 (hover)
 
+    --slider-btn-border: #808080; // Slider左右切换按钮颜色
+    --slider-btn-border-disabled: #DCDCDC; // Slider左右切换按钮颜色 (disabled)
+
     /**
      * 按钮
      */
@@ -133,6 +136,15 @@
     --dialog-bg: var(--main-bg); // 对话框背景色
 
     --popover-bg: var(--main-bg); // popover背景色
+
+    /**
+     * 穿梭框
+     */
+    --transfer-title-bg: #e5e5e5; // 穿梭框头部背景色
+    --transfer-bg: #e6e6e6; // 穿梭框背景色
+    --transfer-stripe: #f1f1f1; // 穿梭框斑马线背景色
+    --transfer-border: #999; // 穿梭框边框色
+    --transfer-text: var(--main-text); // 穿梭框文本颜色
 
     /**
      * 功能面板页
@@ -192,6 +204,13 @@
     --ai-linkbox-bg: #d0d0d0; // AI与事件-联动窗标题背景色
     --ai-linkbox-border: #888; // AI与事件-联动窗边框色
     --ai-advance-bg: #e5e5e5; // AI与事件-高级配置背景
+
+    --output-eth-bg: #e5e5e5; // 输出配置-头部-背景色
+    --output-tab-bg: var(--main-bg); // 输出配置-输出按钮栏-背景色
+    --output-tab-btn-bg: #e5e5e5; // 输出配置-按钮-背景色
+
+    --disk-group-text-active: var(--main-text); // 存储模式磁盘-文本色（active）
+    --disk-group-bg-active: #AFE8FF; // 存储模式磁盘-背景色（active）
 
     /**
      * 现场预览、回放的侧边栏面板
@@ -343,8 +362,8 @@
     /**
      * 浮动错误提示框
      */
-     --float-ok-color: #006400;
-     --float-error-color: #ff0000;
+    --float-ok: #006400; // 浮动提示 成功 文本和边框色
+    --float-error: #ff0000; // 浮动提示 错误 文本和边框色
 
     // Success
     // --success--01: #edf9eb;
@@ -363,8 +382,8 @@
     // --danger--07: #cf2923;
 
     // --border-color9: #006400;
-    --main-border0: #808080;
-    --main-border1: #dcdcdc;
+    // --main-border0: #808080;
+    // --main-border1: #dcdcdc;
     // --main-border2: #626262;
     // --border-light: #e9efff;
     // --table-split: #ebeef5; 表格分割线

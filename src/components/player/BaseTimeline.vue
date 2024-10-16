@@ -575,7 +575,7 @@ const getTimeRangeMask = () => {
 /**
  * 根据秒时间戳范围, 绘制遮罩层
  */
-// const enableTimeRangeMask = function (enable) {
+// const enableTimeRangeMask = (enable) => {
 //     this.enableMask = enable
 // }
 

@@ -3,7 +3,7 @@
  * @Date: 2024-09-10 17:50:24
  * @Description: 更多功能页面的框架
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-08 11:42:37
+ * @LastEditTime: 2024-10-12 13:49:17
 -->
 <template>
     <div>
@@ -146,7 +146,7 @@
                 v-if="pageData.chosenFunction === ''"
                 class="base-ai-not-support-box"
             >
-                {{ Translate('IDCS_CURRENT_INTEL_EVENT_UNSUPORT') }}
+                {{ Translate('IDCS_ADD_INTEL_CHANNEL_TIP').formatForLang(Translate('IDCS_INTELLIGENT')) }}
             </div>
         </el-tabs>
     </div>
@@ -158,11 +158,11 @@
 @import '@/views/UI_PUBLIC/publicStyle/aiAndEvent.scss';
 </style>
 
-<style lang="scss" scoped>
+<!-- <style lang="scss" scoped>
 :deep(.el-form-item__label) {
     display: inline-block;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
-</style>
+</style> -->

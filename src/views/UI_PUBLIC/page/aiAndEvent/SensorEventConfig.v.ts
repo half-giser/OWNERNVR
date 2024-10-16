@@ -2,33 +2,28 @@
  * @Description: 普通事件——传感器
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-23 10:58:27
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 15:15:06
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-16 11:19:22
  */
 import { type PresetItem, SensorEvent, type ChlList } from '@/types/apiType/aiAndEvent'
 import { QueryNodeListDto } from '@/types/apiType/channel'
 import { cloneDeep, isEqual } from 'lodash-es'
-import BaseTransferPop from '@/components/BaseTransferPop.vue'
-import BaseTransferDialog from '@/components/BaseTransferDialog.vue'
 import SetPresetPop from './SetPresetPop.vue'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 
 export default defineComponent({
     components: {
-        BaseTransferPop,
-        BaseTransferDialog,
         SetPresetPop,
         ScheduleManagPop,
     },
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
+        const systemCaps = useCababilityStore()
 
-        const recordRef = ref()
-        const snapRef = ref()
-        const alarmOutRef = ref()
-        const tempName = ref('')
+        // 名称被修改时保存原始名称
+        const originalName = ref('')
         const defaultAudioId = '{00000000-0000-0000-0000-000000000000}'
 
         const pageData = ref({
@@ -52,7 +47,7 @@ export default defineComponent({
             // 持续时间列表
             durationList: [] as SelectOption<string, string>[],
             // 是否支持声音
-            supportAudio: false,
+            supportAudio: systemCaps.supportAlarmAudioConfig,
             // 声音列表
             audioList: [] as SelectOption<string, string>[],
             // 视频弹出列表
@@ -62,49 +57,36 @@ export default defineComponent({
 
             // 初始化时只请求一次相关列表数据
             initData: false,
-
             initComplated: false,
 
             chls: [] as ChlList[],
 
             // record穿梭框数据源
             recordList: [] as { value: string; label: string }[],
-            recordHeaderTitle: 'IDCS_TRIGGER_CHANNEL_RECORD',
-            recordSourceTitle: 'IDCS_CHANNEL',
-            recordTargetTitle: 'IDCS_CHANNEL_TRGGER',
             // 表头选中id
             recordChosedIdsAll: [] as string[],
             // 表头选中的数据
             recordChosedListAll: [] as { value: string; label: string }[],
             recordIsShowAll: false,
             recordIsShow: false,
-            recordType: 'record',
 
             // snap穿梭框数据源
             snapList: [] as { value: string; label: string }[],
-            snapHeaderTitle: 'IDCS_TRIGGER_CHANNEL_SNAP',
-            snapSourceTitle: 'IDCS_CHANNEL',
-            snapTargetTitle: 'IDCS_CHANNEL_TRGGER',
             // 表头选中id
             snapChosedIdsAll: [] as string[],
             // 表头选中的数据
             snapChosedListAll: [] as { value: string; label: string }[],
             snapIsShowAll: false,
             snapIsShow: false,
-            snapType: 'snap',
 
             // alarmOut穿梭框数据源
             alarmOutList: [] as { value: string; label: string }[],
-            alarmOutHeaderTitle: 'IDCS_TRIGGER_ALARM_OUT',
-            alarmOutSourceTitle: 'IDCS_ALARM_OUT',
-            alarmOutTargetTitle: 'IDCS_TRIGGER_ALARM_OUT',
             // 表头选中id
             alarmOutChosedIdsAll: [] as string[],
             // 表头选中的数据
             alarmOutChosedListAll: [] as { value: string; label: string }[],
             alarmOutIsShowAll: false,
             alarmOutIsShow: false,
-            alarmOutType: 'alarmOut',
 
             // 当前打开dialog行的index
             triggerDialogIndex: 0,
@@ -134,14 +116,6 @@ export default defineComponent({
             getData()
         }
 
-        // 获取系统配置和基本信息，部分系统配置可用项
-        const getSystemCaps = async () => {
-            const result = await querySystemCaps(getXmlWrapData(''))
-            const $ = queryXml(result)
-
-            pageData.value.supportAudio = $('/response/content/supportAlarmAudioConfig').text() == 'true'
-        }
-
         // 获取声音数据
         const getAudioData = async () => {
             const result = await queryAlarmAudioCfg()
@@ -166,7 +140,7 @@ export default defineComponent({
             queryNodeListDto.nodeType = 'chls'
             queryNodeListDto.isSupportSnap = type == 'snap'
 
-            getChlList(queryNodeListDto).then((result: any) => {
+            getChlList(queryNodeListDto).then((result) => {
                 commLoadResponseHandler(result, ($) => {
                     $('/response/content/item').forEach((item) => {
                         const $item = queryXml(item.element)
@@ -212,7 +186,7 @@ export default defineComponent({
             getChlList({
                 requireField: ['device'],
                 nodeType: 'alarmOuts',
-            }).then((result: any) => {
+            }).then((result) => {
                 commLoadResponseHandler(result, ($) => {
                     const rowData = [] as {
                         id: string
@@ -261,7 +235,7 @@ export default defineComponent({
                 pageIndex: pageData.value.pageIndex,
                 pageSize: pageData.value.pageSize,
                 nodeType: 'sensors',
-            }).then((result: any) => {
+            }).then((result) => {
                 commLoadResponseHandler(result, ($) => {
                     pageData.value.totalCount = Number($('/response/content').attr('total'))
                     $('/response/content/item').forEach(async (item) => {
@@ -274,7 +248,7 @@ export default defineComponent({
                     })
                     tableData.value.forEach(async (item) => {
                         await getDataById(item)
-                        if (tableDataInit.length == pageData.value.pageSize) {
+                        if (tableDataInit.length == tableData.value.length) {
                             // 数据获取完成，用于打开对tabledata的监听，判断applyBtn是否可用
                             pageData.value.initComplated = true
                         }
@@ -419,7 +393,7 @@ export default defineComponent({
 
         // 名称修改时的处理
         const nameFocus = (name: string) => {
-            tempName.value = name
+            originalName.value = name
         }
 
         const nameBlur = (row: SensorEvent) => {
@@ -429,24 +403,25 @@ export default defineComponent({
                     type: 'info',
                     message: Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS'),
                 })
-                row.name = tempName.value
+                row.name = originalName.value
             } else {
                 if (!name) {
                     openMessageTipBox({
                         type: 'info',
                         message: Translate('IDCS_PROMPT_NAME_EMPTY'),
                     })
-                    row.name = tempName.value
+                    row.name = originalName.value
                 }
-                tableData.value.forEach((item) => {
+                for (const item of tableData.value) {
                     if (item.id != row.id && name == item.name) {
                         openMessageTipBox({
                             type: 'info',
                             message: Translate('IDCS_NAME_SAME'),
                         })
-                        row.name = tempName.value
+                        row.name = originalName.value
+                        break
                     }
-                })
+                }
             }
         }
 
@@ -456,11 +431,6 @@ export default defineComponent({
         }
 
         // 录像配置相关处理
-        const recordDropdownOpen = () => {
-            recordRef.value.handleOpen()
-            pageData.value.recordIsShowAll = true
-        }
-
         const recordConfirmAll = (e: any[]) => {
             if (e.length !== 0) {
                 pageData.value.recordChosedListAll = cloneDeep(e)
@@ -476,16 +446,14 @@ export default defineComponent({
             pageData.value.recordChosedListAll = []
             pageData.value.recordChosedIdsAll = []
             pageData.value.recordIsShowAll = false
-            recordRef.value.handleClose()
         }
         const recordCloseAll = () => {
             pageData.value.recordChosedListAll = []
             pageData.value.recordChosedIdsAll = []
             pageData.value.recordIsShowAll = false
-            recordRef.value.handleClose()
         }
         // 打开录像dialog
-        const setRecord = function (index: number) {
+        const setRecord = (index: number) => {
             pageData.value.triggerDialogIndex = index
             pageData.value.recordIsShow = true
         }
@@ -511,11 +479,6 @@ export default defineComponent({
         }
 
         // 抓图配置相关处理
-        const snapDropdownOpen = () => {
-            snapRef.value.handleOpen()
-            pageData.value.snapIsShowAll = true
-        }
-
         const snapConfirmAll = (e: any[]) => {
             if (e.length !== 0) {
                 pageData.value.snapChosedListAll = cloneDeep(e)
@@ -531,16 +494,14 @@ export default defineComponent({
             pageData.value.snapChosedListAll = []
             pageData.value.snapChosedIdsAll = []
             pageData.value.snapIsShowAll = false
-            snapRef.value.handleClose()
         }
         const snapCloseAll = () => {
             pageData.value.snapChosedListAll = []
             pageData.value.snapChosedIdsAll = []
             pageData.value.snapIsShowAll = false
-            snapRef.value.handleClose()
         }
         // 打开抓图dialog
-        const setSnap = function (index: number) {
+        const setSnap = (index: number) => {
             pageData.value.triggerDialogIndex = index
             pageData.value.snapIsShow = true
         }
@@ -566,11 +527,6 @@ export default defineComponent({
         }
 
         // 报警输出相关处理
-        const alarmOutDropdownOpen = () => {
-            alarmOutRef.value.handleOpen()
-            pageData.value.alarmOutIsShowAll = true
-        }
-
         const alarmOutConfirmAll = (e: any[]) => {
             if (e.length !== 0) {
                 pageData.value.alarmOutChosedListAll = cloneDeep(e)
@@ -586,16 +542,14 @@ export default defineComponent({
             pageData.value.alarmOutChosedListAll = []
             pageData.value.alarmOutChosedIdsAll = []
             pageData.value.alarmOutIsShowAll = false
-            alarmOutRef.value.handleClose()
         }
         const alarmOutCloseAll = () => {
             pageData.value.alarmOutChosedListAll = []
             pageData.value.alarmOutChosedIdsAll = []
             pageData.value.alarmOutIsShowAll = false
-            alarmOutRef.value.handleClose()
         }
         // 打开报警输出dialog
-        const setAlarmOut = function (index: number) {
+        const setAlarmOut = (index: number) => {
             pageData.value.triggerDialogIndex = index
             pageData.value.alarmOutIsShow = true
         }
@@ -659,6 +613,7 @@ export default defineComponent({
                         setRecord(index)
                     } else {
                         tableData.value[index].sysRec.chls = []
+                        tableData.value[index].recordList = []
                     }
                     break
                 case 'snap':
@@ -666,6 +621,7 @@ export default defineComponent({
                         setSnap(index)
                     } else {
                         tableData.value[index].sysSnap.chls = []
+                        tableData.value[index].snapList = []
                     }
                     break
                 case 'alarmOut':
@@ -673,6 +629,7 @@ export default defineComponent({
                         setAlarmOut(index)
                     } else {
                         tableData.value[index].alarmOut.alarmOuts = []
+                        tableData.value[index].alarmOutList = []
                     }
                     break
                 default:
@@ -751,7 +708,7 @@ export default defineComponent({
                             <chls type='list'>
                 `
             row.sysRec.chls.forEach((item) => {
-                sendXml += `<item id='${item.value}'>
+                sendXml += rawXml`<item id='${item.value}'>
                     <![CDATA[${item.label}]]></item>
                 `
             })
@@ -763,7 +720,7 @@ export default defineComponent({
                     <chls type='list'>
                 `
             row.sysSnap.chls.forEach((item) => {
-                sendXml += `<item id='${item.value}'>
+                sendXml += rawXml`<item id='${item.value}'>
                     <![CDATA[${item.label}]]></item>
                 `
             })
@@ -816,7 +773,7 @@ export default defineComponent({
             const editedRows = getEditedRows(tableData.value, tableDataInit)
             let count = 0
             if (editedRows.length != 0) {
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
                 editedRows.forEach(async (item) => {
                     const sendXml = getSavaData(item)
                     const result = await editAlarmIn(sendXml)
@@ -824,12 +781,11 @@ export default defineComponent({
                     const isSuccess = $('/response/status').text() === 'success'
                     item.status = isSuccess ? 'success' : 'error'
                     count++
-
                     if (count >= editedRows.length) {
-                        pageData.value.applyDisabled = true
                         // 更新表格初始对比值
                         tableDataInit = cloneDeep(tableData.value)
-                        closeLoading(LoadingTarget.FullScreen)
+                        closeLoading()
+                        pageData.value.applyDisabled = true
                     }
                 })
             }
@@ -837,7 +793,6 @@ export default defineComponent({
 
         onMounted(async () => {
             // 相关请求，获取前置数据
-            await getSystemCaps() // 系统配置
             await getAudioData() // 声音数据
             await getChlData('initCtrl') // 通道数据
             // await getChlData('record')  在类型上只判断是否为snap，record请求数据合并在initCtrl中处理
@@ -862,9 +817,6 @@ export default defineComponent({
         return {
             SetPresetPop,
             ScheduleManagPop,
-            recordRef,
-            snapRef,
-            alarmOutRef,
             pageData,
             tableData,
             changePaginationSize,
@@ -878,21 +830,18 @@ export default defineComponent({
             changeScheduleAll,
             changeSchedule,
             // 录像
-            recordDropdownOpen,
             recordConfirmAll,
             recordCloseAll,
             setRecord,
             recordConfirm,
             recordClose,
             // 抓图
-            snapDropdownOpen,
             snapConfirmAll,
             snapCloseAll,
             setSnap,
             snapConfirm,
             snapClose,
             // 报警输出
-            alarmOutDropdownOpen,
             alarmOutConfirmAll,
             alarmOutCloseAll,
             setAlarmOut,

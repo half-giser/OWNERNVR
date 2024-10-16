@@ -4,7 +4,7 @@
  * @Description: OCX插件模块
  * 原项目中MAC插件和TimeSliderPlugin相关逻辑不保留
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 18:12:44
+ * @LastEditTime: 2024-10-12 14:08:49
  */
 import WebsocketPlugin from '@/utils/websocket/websocketPlugin'
 import { ClientPort, P2PClientPort, P2PACCESSTYPE, SERVER_IP, getPluginPath, PluginSizeModeMapping, type OCX_Plugin_Notice_Map } from '@/utils/ocx/ocxUtil'
@@ -26,7 +26,7 @@ const useOCXPlugin = () => {
     const { Translate, getLangTypes, getLangItems, langItems } = useLangStore()
     const { openMessageTipBox } = useMessageBox()
     const router = useRouter()
-    const { closeLoading, openLoading, LoadingTarget } = useLoading()
+    const { closeLoading, openLoading } = useLoading()
     const userSession = useUserSessionStore()
     const layoutStore = useLayoutStore()
     const route = useRoute()
@@ -247,7 +247,7 @@ const useOCXPlugin = () => {
                             const userInfoArr = userSession.getAuthInfo()
                             const sendXML = OCX_XML_SetLang()
                             getVideoPlugin().ExecuteCmd(sendXML)
-                            const result = await doLogin(getXmlWrapData(''), {}, false)
+                            const result = await doLogin('', {}, false)
                             if (queryXml(result)('//status').text() === 'success') {
                                 if (userInfoArr) {
                                     setCookie('lastSN', userInfoArr[2], 36500)
@@ -270,7 +270,7 @@ const useOCXPlugin = () => {
                         case ErrorCode.USER_ERROR_NODE_NET_DISCONNECT: //SN掉线，重新连接
                             setVideoPluginStatus('Reconnecting')
                             openLoading()
-                            VideoPluginReconnectTimeoutId = setTimeout(function () {
+                            VideoPluginReconnectTimeoutId = setTimeout(() => {
                                 videoPluginLogin()
                             }, VideoPluginReconnectTimeout)
                             return
@@ -920,7 +920,7 @@ const useOCXPlugin = () => {
     const retryStartChlView = (chlId: string, chlName: string, callback?: () => void) => {
         const pluginStatus = getVideoPluginStatus()
         if (pluginStatus !== 'Connected') {
-            setTimeout(function () {
+            setTimeout(() => {
                 retryStartChlView(chlId, chlName, callback)
             }, 50)
             return
@@ -942,6 +942,7 @@ const useOCXPlugin = () => {
         //     return
         // }
         if (isShow && layoutStore.messageBoxCount) return
+        if (isShow && layoutStore.loadingCount) return
         /**
          * 大回放页面事件模式窗口、任务备份表格、事件录像记录表格显示时;
          */
@@ -1320,6 +1321,21 @@ const useOCXPlugin = () => {
         },
     )
 
+    // 全屏Loading时，隐藏OCX
+    watch(
+        () => layoutStore.loadingCount,
+        (newVal) => {
+            if (!getIsInstallPlugin()) return
+            if (newVal) {
+                displayOCX(false)
+            } else {
+                setTimeout(() => {
+                    if (browserEventMap.data.length && !forcedHidden) displayOCX(true)
+                }, 500)
+            }
+        },
+    )
+
     // 检测登录重连
     watch(
         () => pluginStore.isReconn,
@@ -1330,7 +1346,7 @@ const useOCXPlugin = () => {
                         type: 'info',
                         message: Translate('IDCS_LOGIN_OVERTIME'),
                     }).then(() => {
-                        closeLoading(LoadingTarget.FullScreen)
+                        closeLoading()
                         Logout()
                     })
                 })

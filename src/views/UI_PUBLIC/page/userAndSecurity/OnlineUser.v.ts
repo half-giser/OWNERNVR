@@ -3,14 +3,14 @@
  * @Date: 2024-06-18 18:42:30
  * @Description: 在线用户
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-04 18:20:32
+ * @LastEditTime: 2024-10-11 11:33:17
  */
 import type { UserOnlineList } from '@/types/apiType/userAndSecurity'
 
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const dateTime = useDateTimeStore()
 
         const pageData = ref({
@@ -33,11 +33,11 @@ export default defineComponent({
          * @description 获取数据
          */
         const getData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const result = await queryOnlineUserInfo()
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             commLoadResponseHandler(result, async ($) => {
                 tableData.value = $('//content/item').map((item) => {
                     const $item = queryXml(item.element)

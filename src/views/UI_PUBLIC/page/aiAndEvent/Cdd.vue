@@ -2,11 +2,11 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-19 17:51:14
  * @Description: 人群密度检测
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-30 16:26:02
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-16 11:48:30
 -->
 <template>
-    <div class="tripwire_setting_pane">
+    <div>
         <ScheduleManagPop
             v-model="pageData.scheduleManagePopOpen"
             @close="pageData.scheduleManagePopOpen = false"
@@ -333,6 +333,7 @@
                                                 size="small"
                                                 :empty-values="[undefined, null]"
                                                 :options="scope.row.presetList"
+                                                @visible-change="getPresetById(scope.row)"
                                                 @change="pageData.applyDisable = false"
                                             >
                                                 <el-option

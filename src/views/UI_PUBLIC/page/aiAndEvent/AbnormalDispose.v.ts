@@ -2,8 +2,8 @@
  * @Description: AI 事件——更多——异常侦测
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-19 09:27:33
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 15:01:07
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-16 10:41:22
  */
 import { cloneDeep } from 'lodash-es'
 import { AbnormalDispose, type PresetList, type chlCaps } from '@/types/apiType/aiAndEvent'
@@ -30,7 +30,7 @@ export default defineComponent({
     setup(prop) {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const pluginStore = usePluginStore()
         const systemCaps = useCababilityStore()
         const osType = getSystemInfo().platform
@@ -100,7 +100,7 @@ export default defineComponent({
             getChlList({
                 requireField: ['device'],
                 nodeType: 'alarmOuts',
-            }).then((result: any) => {
+            }).then((result) => {
                 commLoadResponseHandler(result, ($) => {
                     const rowData = [] as {
                         id: string
@@ -204,9 +204,9 @@ export default defineComponent({
                 <condition><chlId>${prop.currChlId}</chlId></condition>
                 <requireField><param/><trigger/></requireField>
                 `
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             const result = await queryAvd(sendXml)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             commLoadResponseHandler(result, async ($) => {
                 let holdTimeArr = $('/response/content/chl/param/holdTimeNote').text().split(',')
                 const holdTime = $('/response/content/chl/param/holdTime').text()
@@ -322,24 +322,9 @@ export default defineComponent({
         }
         // 获取联动预置点数据
         const getPresetData = async () => {
-            const sendXml = rawXml`
-                <types>
-                    <nodeType>
-                        <enum>chls</enum>
-                        <enum>sensors</enum>
-                        <enum>alarmOuts</enum>
-                    </nodeType>
-                </types>
-                <nodeType type='nodeType'>chls</nodeType>
-                <requireField>
-                    <name/>
-                    <chlType/>
-                </requireField>
-                <condition>
-                    <supportPtz/>
-                </condition>
-            `
-            const result = await queryNodeList(getXmlWrapData(sendXml))
+            const result = await getChlList({
+                isSupportPtz: true,
+            })
             let rowData = [] as PresetList[]
             commLoadResponseHandler(result, async ($) => {
                 rowData = $('/response/content/item').map((item) => {
@@ -350,12 +335,14 @@ export default defineComponent({
                         chlType: $item('chlType').text(),
                         preset: { value: '', label: Translate('IDCS_NULL') },
                         presetList: [{ value: '', label: Translate('IDCS_NULL') }],
+                        isGetPresetList: false,
                     }
                 })
                 rowData.forEach((row) => {
                     abnormalDisposeData.value.preset?.forEach((item) => {
                         if (row.id == item.chl.value) {
                             row.preset = { value: item.index, label: item.name }
+                            row.presetList.push({ value: item.index, label: item.name })
                         }
                     })
                 })
@@ -364,29 +351,31 @@ export default defineComponent({
                     //预置点里过滤掉recorder通道
                     if (rowData[i].chlType == 'recorder') {
                         rowData.splice(i, 1)
-                    } else {
-                        await getPresetById(rowData[i])
                     }
                 }
-
                 PresetTableData.value = rowData
             })
         }
+        // 预置点选择框下拉时获取预置点列表数据
         const getPresetById = async (row: PresetList) => {
-            const sendXml = rawXml`
+            if (!row.isGetPresetList) {
+                row.presetList.splice(1)
+                const sendXml = rawXml`
                 <condition>
                     <chlId>${row.id}</chlId>
                 </condition>
             `
-            const result = await queryChlPresetList(sendXml)
-            commLoadResponseHandler(result, ($) => {
-                $('/response/content/presets/item').forEach((item) => {
-                    row.presetList.push({
-                        value: item.attr('index')!,
-                        label: item.text(),
+                const result = await queryChlPresetList(sendXml)
+                commLoadResponseHandler(result, ($) => {
+                    $('/response/content/presets/item').forEach((item) => {
+                        row.presetList.push({
+                            value: item.attr('index')!,
+                            label: item.text(),
+                        })
                     })
                 })
-            })
+                row.isGetPresetList = true
+            }
         }
         const presetChange = (row: PresetList) => {
             const ids = abnormalDisposeData.value.preset.map((item) => item.chl.value)
@@ -442,7 +431,7 @@ export default defineComponent({
                 sendXml += rawXml`<item id='${item.value}'>
                         <![CDATA[${item.label}]]></item>`
             })
-            sendXml += `</chls></sysRec>
+            sendXml += rawXml`</chls></sysRec>
                 <alarmOut>
                 <alarmOuts type='list'>
             `
@@ -450,17 +439,18 @@ export default defineComponent({
                 sendXml += rawXml`<item id='${item.value}'>
                         <![CDATA[${item.label}]]></item>`
             })
-            sendXml += `</alarmOuts>
+            sendXml += rawXml`</alarmOuts>
                 </alarmOut>
                 <preset>
                 <presets type='list'>
             `
             abnormalDisposeData.value.preset.forEach((item) => {
-                sendXml += rawXml`<item>
-                    <index>${item.index}</index>
+                sendXml += rawXml`
+                    <item>
+                        <index>${item.index}</index>
                         <name><![CDATA[${item.name}]]></name>
                         <chl id='${item.chl.value}'><![CDATA[${item.chl.label}]]></chl>
-                        </item>`
+                    </item>`
             })
             sendXml += rawXml`</presets>
                 </preset>
@@ -477,9 +467,9 @@ export default defineComponent({
 
         const applyAbnormalDisposeData = async () => {
             const sendXml = getAbnormalDisposeSaveData()
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             const result = await editAvd(sendXml)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             const $ = queryXml(result)
             if ($('/response/status').text() == 'success') {
                 pageData.value.applyDisabled = true
@@ -533,6 +523,7 @@ export default defineComponent({
             alarmOutConfirm,
             alarmOutClose,
             presetChange,
+            getPresetById,
             // 提交异常侦测数据
             applyAbnormalDisposeData,
         }

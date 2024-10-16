@@ -30,7 +30,7 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const dateTime = useDateTimeStore()
 
         const pageData = ref({
@@ -85,12 +85,12 @@ export default defineComponent({
          * @description 获取人脸数据库列表
          */
         const getFaceDatabaseList = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const result = await queryFacePersonnalInfoGroupList()
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             pageData.value.faceDatabaseList = $('//content/item').map((item) => {
                 const $item = queryXml(item.element)
@@ -136,7 +136,7 @@ export default defineComponent({
          * @description 注册
          */
         const register = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const groupItemId = pageData.value.faceDatabaseList.find((item) => item.groupId === formData.value.groupId)!.id
             const sendXml = rawXml`
@@ -165,7 +165,7 @@ export default defineComponent({
             const result = await createFacePersonnalInfo(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             pageData.value.forceCreate = false
 
             if ($('//status').text() === 'success') {

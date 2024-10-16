@@ -3,7 +3,7 @@
  * @Date: 2024-06-24 15:08:21
  * @Description: 日期与时间
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 14:29:31
+ * @LastEditTime: 2024-10-15 15:23:43
 -->
 <template>
     <div>
@@ -23,11 +23,12 @@
                     :disabled="formData.isSync || formData.syncType === 'NTP'"
                     :value-format="formatSystemTime"
                     :format="formatSystemTime"
-                    :cell-class-name="handleCalendarCellHighLight"
+                    :cell-class-name="highlightWeekend"
                     clear-icon=""
                     type="datetime"
                     :placeholder="Translate('IDCS_SYSTEM_TIME')"
                     @change="handleSystemTimeChange"
+                    @visible-change="pendingSystemTimeChange"
                 />
                 <el-checkbox
                     v-model="formData.isSync"
@@ -58,7 +59,10 @@
                 </el-select>
             </el-form-item>
             <el-form-item :label="Translate('IDCS_SYNC_WAY')">
-                <el-select v-model="formData.syncType">
+                <el-select
+                    v-model="formData.syncType"
+                    @change="handleSyncTypeChange"
+                >
                     <el-option
                         v-for="item in pageData.syncTypeOptions"
                         :key="item.value"

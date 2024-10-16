@@ -3,7 +3,7 @@
  * @Date: 2024-06-07 15:00:44
  * @Description: 加密密码弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-20 18:20:55
+ * @LastEditTime: 2024-10-15 09:52:14
 -->
 <template>
     <el-dialog
@@ -21,6 +21,7 @@
             :rules="rules"
             label-width="150px"
             label-position="left"
+            hide-required-asterisk
         >
             <el-form-item
                 prop="pass"

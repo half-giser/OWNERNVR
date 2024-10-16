@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-07-31 10:12:26
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-09 17:24:33
+ * @LastEditTime: 2024-10-12 17:29:11
 -->
 <template>
     <div class="base-flex-box">
@@ -49,13 +49,9 @@
                             v-else
                             trigger="click"
                         >
-                            <span class="el-dropdown-link">
+                            <BaseTableDropdownLink>
                                 {{ Translate('IDCS_VIDEO_ENCT') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -97,95 +93,85 @@
                 >
                     <template #header>
                         <div v-if="RecordSubResAdaptive">{{ Translate('IDCS_RESOLUTION_RATE') }}</div>
-                        <el-dropdown
+                        <el-popover
                             v-else
-                            ref="dropdownRef"
+                            v-model:visible="pageData.resolutionHeaderVisble"
                             trigger="click"
-                            :hide-on-click="false"
-                            max-height="400px"
-                            @visible-change="handleResolutionDropdownVisible"
+                            width="430px"
+                            popper-class="no-padding"
                         >
-                            <span class="el-dropdown-link">
-                                {{ Translate('IDCS_RESOLUTION_RATE') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
-                            <template #dropdown>
-                                <el-dropdown-menu>
-                                    <template #default>
-                                        <div id="resolutionContainer">
-                                            <el-table
-                                                ref="resolutionTableRef"
-                                                :data="pageData.resolutionGroups"
-                                                :show-header="false"
-                                                :row-key="getRowKey"
-                                                :expand-row-keys="pageData.expands"
-                                                stripe
-                                                border
-                                                @expand-change="handleExpandChange($event, pageData.expands)"
-                                            >
-                                                <el-table-column
-                                                    prop="res"
-                                                    width="220px"
-                                                >
-                                                    <template #default="scope">
-                                                        <el-select v-model="scope.row.res">
-                                                            <el-option
-                                                                v-for="item in scope.row.resGroup"
-                                                                :key="item"
-                                                                :label="item"
-                                                                :value="item"
-                                                                @click="keepDropDownOpen(scope.row)"
-                                                            >
-                                                            </el-option>
-                                                        </el-select>
-                                                    </template>
-                                                </el-table-column>
-                                                <el-table-column
-                                                    prop="chls"
-                                                    width="190px"
-                                                    type="expand"
-                                                >
-                                                    <template #default="scope">
-                                                        <div :style="{ height: '260px' }">
-                                                            <el-row>
-                                                                <el-col
-                                                                    v-for="(item, index) in scope.row.chls.data"
-                                                                    :key="index"
-                                                                    :span="12"
-                                                                >
-                                                                    <div class="device-item">
-                                                                        <BaseImgSprite
-                                                                            file="chl_icon"
-                                                                            :index="0"
-                                                                            :hover-index="1"
-                                                                            :chunk="4"
-                                                                            :style="{ margin: '0 3px 0 5px' }"
-                                                                        />
-                                                                        <span class="device-name">{{ item.label }}</span>
-                                                                    </div>
-                                                                </el-col>
-                                                            </el-row>
-                                                        </div>
-                                                    </template>
-                                                </el-table-column>
-                                            </el-table>
-                                        </div>
-                                        <el-row :style="{ margin: '5px' }">
-                                            <el-col
-                                                :span="24"
-                                                class="el-col-flex-end"
-                                            >
-                                                <el-button @click="apply">{{ Translate('IDCS_OK') }}</el-button>
-                                                <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
-                                            </el-col>
-                                        </el-row>
-                                    </template>
-                                </el-dropdown-menu>
+                            <template #reference>
+                                <BaseTableDropdownLink>
+                                    {{ Translate('IDCS_RESOLUTION_RATE') }}
+                                </BaseTableDropdownLink>
                             </template>
-                        </el-dropdown>
+                            <div id="resolutionContainer">
+                                <el-table
+                                    ref="resolutionTableRef"
+                                    max-height="400px"
+                                    :data="pageData.resolutionGroups"
+                                    :show-header="false"
+                                    :row-key="getRowKey"
+                                    :expand-row-keys="pageData.expands"
+                                    stripe
+                                    border
+                                    @expand-change="handleExpandChange($event, pageData.expands)"
+                                >
+                                    <el-table-column
+                                        prop="res"
+                                        width="220px"
+                                    >
+                                        <template #default="scope">
+                                            <el-select
+                                                v-model="scope.row.res"
+                                                :teleported="false"
+                                            >
+                                                <el-option
+                                                    v-for="item in scope.row.resGroup"
+                                                    :key="item"
+                                                    :label="item"
+                                                    :value="item"
+                                                    @click="keepDropDownOpen(scope.row)"
+                                                >
+                                                </el-option>
+                                            </el-select>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column
+                                        prop="chls"
+                                        width="190px"
+                                        type="expand"
+                                    >
+                                        <template #default="scope">
+                                            <div :style="{ height: '260px' }">
+                                                <el-row>
+                                                    <el-col
+                                                        v-for="(item, index) in scope.row.chls.data"
+                                                        :key="index"
+                                                        :span="12"
+                                                    >
+                                                        <div class="device-item">
+                                                            <BaseImgSprite
+                                                                file="chl_icon"
+                                                                :index="0"
+                                                                :hover-index="1"
+                                                                :chunk="4"
+                                                                :style="{ margin: '0 3px 0 5px' }"
+                                                            />
+                                                            <span class="device-name">{{ item.label }}</span>
+                                                        </div>
+                                                    </el-col>
+                                                </el-row>
+                                            </div>
+                                        </template>
+                                    </el-table-column>
+                                </el-table>
+                                <el-row class="base-btn-box">
+                                    <el-button @click="apply">{{ Translate('IDCS_OK') }}</el-button>
+                                    <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
+                                </el-row>
+                            </div>
+                        </el-popover>
                     </template>
                     <template #default="scope">
                         <div v-if="RecordSubResAdaptive">{{ scope.row.resolution || '--' }}</div>
@@ -218,13 +204,9 @@
                             trigger="click"
                             max-height="400px"
                         >
-                            <span class="el-dropdown-link">
+                            <BaseTableDropdownLink>
                                 {{ Translate('IDCS_FRAME_RATE') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -270,13 +252,9 @@
                             v-else
                             trigger="click"
                         >
-                            <span class="el-dropdown-link">
+                            <BaseTableDropdownLink>
                                 {{ Translate('IDCS_VIDEO_QUALITY') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -333,5 +311,11 @@
 
 .device-item {
     margin: 5px;
+}
+:deep(.cell) {
+    overflow: visible;
+}
+:deep(.el-table__cell) {
+    z-index: auto;
 }
 </style>

@@ -9,7 +9,7 @@ import { ChannelInfoDto, ChannelOsd } from '@/types/apiType/channel'
 import { cloneDeep } from 'lodash-es'
 import CanvasOSD, { type CanvasOSDOptionNameConfig, type CanvasOSDOptionTimeConfig } from '@/utils/canvas/canvasOsd'
 import { type TVTPlayerWinDataListItem } from '@/utils/wasmPlayer/tvtPlayer'
-import { type OcxXmlSetOSDInfo, type OcxXmlSetOsdListDatum } from '@/utils/ocx/ocxCmd'
+import { type OcxXmlSetOSDInfo } from '@/utils/ocx/ocxCmd'
 import { type TableInstance } from 'element-plus'
 
 export default defineComponent({
@@ -18,6 +18,7 @@ export default defineComponent({
         const { openLoading, closeLoading } = useLoading()
         const { openMessageTipBox } = useMessageBox()
         const osType = getSystemInfo().platform
+        const dateTime = useDateTimeStore()
 
         const playerRef = ref<PlayerInstance>()
         const formData = ref(new ChannelOsd())
@@ -249,7 +250,7 @@ export default defineComponent({
 
         const getTimeEnabledData = (callback?: Function) => {
             openLoading()
-            queryDevList(getXmlWrapData('')).then((res) => {
+            queryDevList('').then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
@@ -275,7 +276,7 @@ export default defineComponent({
                 <condition>
                     <chlId>${chlId}</chlId>
                 </condition>`
-            queryChlWaterMark(getXmlWrapData(data)).then((res) => {
+            queryChlWaterMark(data).then((res) => {
                 const $ = queryXml(res)
                 let flag = false
                 if ($('status').text() == 'success') {
@@ -293,7 +294,7 @@ export default defineComponent({
                 <condition>
                     <chlId>${chlId}</chlId>
                 </condition>`
-            queryIPChlORChlOSD(getXmlWrapData(data)).then((res) => {
+            queryIPChlORChlOSD(data).then((res) => {
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
                     let isSpeco = false
@@ -454,7 +455,7 @@ export default defineComponent({
                     <name><![CDATA[${rowData.name}]]></name>
                 </content>`
             try {
-                editDev(getXmlWrapData(data))
+                editDev(data)
                     .then((res) => {
                         checkAllRqReturn()
                         const $ = queryXml(res)
@@ -469,7 +470,7 @@ export default defineComponent({
                                         </watermark>
                                     </chl>
                                 </content>`
-                                editChlWaterMark(getXmlWrapData(watermarkXml))
+                                editChlWaterMark(watermarkXml)
                             }
                             nameMapping[rowData.id] = rowData.name
                             rowData.status = 'success'
@@ -511,7 +512,7 @@ export default defineComponent({
                                 </chl>
                             </content>`
                             try {
-                                editIPChlORChlOSD(getXmlWrapData(editIPChlORChlOSDXml))
+                                editIPChlORChlOSD(editIPChlORChlOSDXml)
                                     .then((res) => {
                                         const $ = queryXml(res)
                                         if ($('status').text() == 'success') {
@@ -551,21 +552,22 @@ export default defineComponent({
             }
         }
 
-        const setDateTime = () => {
+        const setDateTime = async () => {
             let timeFormat = ''
             let dateFormat = ''
             tableData.value.forEach((ele) => {
                 if (ele.timeFormat) timeFormat = ele.timeFormat
                 if (ele.dateFormat) dateFormat = ele.dateFormat
             })
-            const data = `
+            const data = rawXml`
                 <content>
                     <formatInfo>
                         <date type='dateFormat'>${dateFormat}</date>
                         <time type='timeFormat'>${timeFormat}</time>
                     </formatInfo>
                 </content>`
-            editTimeCfg(getXmlWrapData(data))
+            await editTimeCfg(data)
+            dateTime.getTimeConfig(true)
         }
 
         const save = () => {
@@ -661,33 +663,33 @@ export default defineComponent({
             } else {
                 if (rowData.timeX) {
                     if (osType == 'mac') {
-                        const osdList: OcxXmlSetOsdListDatum[] = [
-                            {
-                                winIndex: 0,
-                                dateFormat: rowData.dateFormat,
-                                timeFormat: rowData.timeFormat,
-                                x: rowData.timeX,
-                                y: rowData.timeY,
-                                xMin: rowData.timeXMinValue,
-                                xMax: rowData.timeXMaxValue,
-                                yMin: rowData.timeYMinValue,
-                                yMax: rowData.timeXMaxValue,
-                                status: rowData.displayTime ? 'ON' : 'OFF',
-                            },
-                            {
-                                winIndex: 0,
-                                osd: rowData.name,
-                                x: rowData.nameX,
-                                y: rowData.nameY,
-                                xMin: rowData.nameXMinValue,
-                                xMax: rowData.nameXMaxValue,
-                                yMin: rowData.nameYMinValue,
-                                yMax: rowData.nameYMaxValue,
-                                status: rowData.displayTime ? 'ON' : 'OFF',
-                            },
-                        ]
-                        const sendXML = OCX_XML_SetOSD('ON', osdList)
-                        plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                        // const osdList: OcxXmlSetOsdListDatum[] = [
+                        //     {
+                        //         winIndex: 0,
+                        //         dateFormat: rowData.dateFormat,
+                        //         timeFormat: rowData.timeFormat,
+                        //         x: rowData.timeX,
+                        //         y: rowData.timeY,
+                        //         xMin: rowData.timeXMinValue,
+                        //         xMax: rowData.timeXMaxValue,
+                        //         yMin: rowData.timeYMinValue,
+                        //         yMax: rowData.timeXMaxValue,
+                        //         status: rowData.displayTime ? 'ON' : 'OFF',
+                        //     },
+                        //     {
+                        //         winIndex: 0,
+                        //         osd: rowData.name,
+                        //         x: rowData.nameX,
+                        //         y: rowData.nameY,
+                        //         xMin: rowData.nameXMinValue,
+                        //         xMax: rowData.nameXMaxValue,
+                        //         yMin: rowData.nameYMinValue,
+                        //         yMax: rowData.nameYMaxValue,
+                        //         status: rowData.displayTime ? 'ON' : 'OFF',
+                        //     },
+                        // ]
+                        // const sendXML = OCX_XML_SetOSD('ON', osdList)
+                        // plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                     } else {
                         const osd: OcxXmlSetOSDInfo = {
                             timeStamp: {
@@ -755,13 +757,15 @@ export default defineComponent({
         })
 
         onBeforeUnmount(() => {
-            if (mode.value === 'ocx') {
-                plugin?.VideoPluginNotifyEmitter.removeListener(LiveNotify2Js)
-                const sendXML = OCX_XML_StopPreview('ALL')
-                plugin?.GetVideoPlugin().ExecuteCmd(sendXML)
-            } else {
-                osdDrawer?.destroy()
-                osdDrawer = undefined
+            if (ready.value) {
+                if (mode.value === 'ocx') {
+                    plugin?.VideoPluginNotifyEmitter.removeListener(LiveNotify2Js)
+                    const sendXML = OCX_XML_StopPreview('ALL')
+                    plugin?.GetVideoPlugin().ExecuteCmd(sendXML)
+                } else {
+                    osdDrawer?.destroy()
+                    osdDrawer = undefined
+                }
             }
         })
 

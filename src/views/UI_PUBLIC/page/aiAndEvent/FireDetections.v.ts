@@ -3,21 +3,15 @@
  * @Date: 2024-09-11 14:16:37
  * @Description: 火点检测
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 14:06:54
+ * @LastEditTime: 2024-10-14 17:18:49
  */
-import { ArrowDown } from '@element-plus/icons-vue'
-import { type chlCaps, type aiResourceRow } from '@/types/apiType/aiAndEvent'
-import { type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
+import { type chlCaps, type aiResourceRow, type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
-import BaseTransferDialog from '@/components/BaseTransferDialog.vue'
 import { cloneDeep } from 'lodash-es'
-import { queryAIResourceDetail } from '@/api/aiAndEvent'
 export default defineComponent({
     components: {
-        ArrowDown,
         ScheduleManagPop,
-        BaseTransferDialog,
     },
     props: {
         /**
@@ -41,7 +35,7 @@ export default defineComponent({
         },
     },
     setup(props) {
-        const { LoadingTarget, openLoading, closeLoading } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const openMessageTipBox = useMessageBox().openMessageTipBox
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
@@ -50,7 +44,7 @@ export default defineComponent({
         const playerRef = ref<PlayerInstance>()
         const pluginStore = usePluginStore()
         const osType = getSystemInfo().platform
-        const pageData: { [key: string]: any } = ref({
+        const pageData = ref<{ [key: string]: any }>({
             // 当前选中的通道
             currChlId: '',
             // 当前选择通道数据
@@ -274,14 +268,15 @@ export default defineComponent({
         const getAIResourceData = async (isEdit: boolean) => {
             let sendXml = ''
             if (isEdit) {
-                sendXml = rawXml`<content>
-                                    <chl>
-                                        <item id="${pageData.value.currChlId}">
-                                            <eventType>tripwire</eventType>
-                                            <switch>${pageData.value.detectionEnable.toString()}</switch>
-                                        </item>
-                                    </chl>
-                                </content>`
+                sendXml = rawXml`
+                    <content>
+                        <chl>
+                            <item id="${pageData.value.currChlId}">
+                                <eventType>tripwire</eventType>
+                                <switch>${pageData.value.detectionEnable.toString()}</switch>
+                            </item>
+                        </chl>
+                    </content>`
             }
             const res = await queryAIResourceDetail(sendXml)
             const $ = queryXml(res)
@@ -290,15 +285,15 @@ export default defineComponent({
                 if (tempResourceOccupancy * 1 <= 100) {
                     aiResourceTableData.value = []
                     pageData.value.totalResourceOccupancy = tempResourceOccupancy.toFixed(2)
-                    $('//content/chl/item').forEach((element: any) => {
+                    $('//content/chl/item').forEach((element) => {
                         const $item = queryXml(element.element)
                         const id = element.attr('id')
                         let name = $item('name').text()
                         // 通道是否在线
                         const connectState = $item('connectState').text() == 'true'
                         name = connectState ? name : name + '(' + Translate('IDCS_OFFLINE') + ')'
-                        $item('resource/item').forEach((ele: any) => {
-                            const eventType: string[] = ele.attr('eventType') ? ele.attr('eventType').split(',') : ''
+                        $item('resource/item').forEach((ele) => {
+                            const eventType: string[] = ele.attr('eventType') ? ele.attr('eventType')!.split(',') : []
                             const eventTypeText = eventType
                                 .map((item) => {
                                     return pageData.value.eventTypeMapping[item]
@@ -341,9 +336,9 @@ export default defineComponent({
             sendXml += rawXml`</param>
                             </chl>
                         </content>`
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             const res = await freeAIOccupyResource(sendXml)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             const $ = queryXml(res)
             if ($('status').text() == 'success') {
                 aiResourceTableData.value.splice(aiResourceTableData.value.indexOf(row), 1)
@@ -368,10 +363,10 @@ export default defineComponent({
             })
             const res = queryXml(resb)
             if (res('status').text() == 'success') {
-                res('//content/item').forEach((item: any) => {
+                res('//content/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     pageData.value.recordSource.push({
-                        value: item.attr('id'),
+                        value: item.attr('id')!,
                         label: $item('name').text(),
                     })
                 })
@@ -386,7 +381,7 @@ export default defineComponent({
             })
             const res = queryXml(resb)
             if (res('status').text() == 'success') {
-                res('//content/item').forEach((item: any) => {
+                res('//content/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     let name = $item('name').text()
                     if ($item('devDesc').text()) {
@@ -411,7 +406,7 @@ export default defineComponent({
             }).then(async (resb) => {
                 const res = queryXml(resb)
                 if (res('status').text() == 'success') {
-                    res('//content/item').forEach((item: any) => {
+                    res('//content/item').forEach((item) => {
                         const $item = queryXml(item.element)
                         pageData.value.snapSource.push({
                             value: item.attr('id'),
@@ -426,24 +421,9 @@ export default defineComponent({
         }
         // 获取preset
         const getPresetList = async () => {
-            const sendXml = rawXml`
-                <types>
-                    <nodeType>
-                        <enum>chls</enum>
-                        <enum>sensors</enum>
-                        <enum>alarmOuts</enum>
-                    </nodeType>
-                </types>
-                <nodeType type="nodeType">chls</nodeType>
-                <requireField>
-                    <name/>
-                    <chlType/>
-                </requireField>
-                <condition>
-                    <supportPtz/>
-                </condition>
-            `
-            const result = await queryNodeList(getXmlWrapData(sendXml))
+            const result = await getChlList({
+                isSupportPtz: true,
+            })
 
             let rowData = [] as PresetList[]
             commLoadResponseHandler(result, async ($) => {
@@ -455,47 +435,48 @@ export default defineComponent({
                         chlType: $item('chlType').text(),
                         preset: { value: '', label: Translate('IDCS_NULL') },
                         presetList: [{ value: '', label: Translate('IDCS_NULL') }],
+                        isGetPresetList: false,
                     }
                 })
                 rowData.forEach((row) => {
                     pageData.value.preset.presets.forEach((item: PresetItem) => {
                         if (row.id == item.chl.value) {
                             row.preset = { value: item.index, label: item.name }
+                            row.presetList.push({ value: item.index, label: item.name })
                         }
                     })
                 })
-
                 for (let i = rowData.length - 1; i >= 0; i--) {
                     //预置点里过滤掉recorder通道
                     if (rowData[i].chlType == 'recorder') {
                         rowData.splice(i, 1)
-                    } else {
-                        await getPresetById(rowData[i])
-                        rowData[i].presetList.push({ value: '', label: Translate('IDCS_NULL') })
                     }
                 }
-
                 pageData.value.presetSource = rowData
             })
         }
-        // 获取预置点
+        // 预置点选择框下拉时获取预置点列表数据
         const getPresetById = async (row: PresetList) => {
-            const sendXml = rawXml`
+            if (!row.isGetPresetList) {
+                row.presetList.splice(1)
+                const sendXml = rawXml`
                 <condition>
                     <chlId>${row.id}</chlId>
                 </condition>
             `
-            row.presetList = []
-            const result = await queryChlPresetList(sendXml)
-            commLoadResponseHandler(result, ($) => {
-                $('/response/content/presets/item').forEach((item) => {
-                    row.presetList.push({
-                        value: item.attr('index')!,
-                        label: item.text(),
+                const result = await queryChlPresetList(sendXml)
+                commLoadResponseHandler(result, ($) => {
+                    $('/response/content/presets/item').forEach((item) => {
+                        row.presetList.push({
+                            value: item.attr('index')!,
+                            label: item.text(),
+                        })
                     })
                 })
-            })
+                row.isGetPresetList = true
+            }
         }
+
         // tripwire常规联动全选/全不选
         const handleTriggerSwitch = () => {
             pageData.value.applyDisable = false
@@ -612,7 +593,7 @@ export default defineComponent({
             return timeList
         }
         // 获取mutexobj
-        const getMutexChlNameObj = function () {
+        const getMutexChlNameObj = () => {
             let normalChlName = ''
             let thermalChlName = ''
             const sameIPChlList: { id: string; ip: string; name: string; accessType: string }[] = []
@@ -638,16 +619,17 @@ export default defineComponent({
         }
         // 获取火点数据
         const getData = async () => {
-            const sendXml = rawXml` <condition>
-                                        <chlId>${pageData.value.currChlId}</chlId>
-                                    </condition>
-                                    <requireField>
-                                        <param/>
-                                        <trigger/>
-                                    </requireField>`
-            openLoading(LoadingTarget.FullScreen)
+            const sendXml = rawXml` 
+                <condition>
+                    <chlId>${pageData.value.currChlId}</chlId>
+                </condition>
+                <requireField>
+                    <param/>
+                    <trigger/>
+                </requireField>`
+            openLoading()
             const res = await querySmartFireConfig(sendXml)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             const $ = queryXml(res)
             if ($('status').text() == 'success') {
                 pageData.value.mutexList = $('//content/chl/param/mutexList/item').map((item) => {
@@ -691,9 +673,9 @@ export default defineComponent({
                     pageData.value.sysAudio = $item('sysAudio').attr('id') == '' ? $item('sysAudio').attr('id') : ''
                     pageData.value.record = {
                         switch: $item('sysRec/switch').text() == 'true',
-                        chls: $item('sysRec/chls/item').map((item: any) => {
+                        chls: $item('sysRec/chls/item').map((item) => {
                             return {
-                                value: item.attr('id'),
+                                value: item.attr('id')!,
                                 label: item.text(),
                             }
                         }),
@@ -701,9 +683,9 @@ export default defineComponent({
                     pageData.value.recordList = pageData.value.record.chls.map((item: { value: string; label: string }) => item.value)
                     pageData.value.alarmOut = {
                         switch: $item('alarmOut/switch').text() == 'true',
-                        chls: $item('alarmOut/alarmOuts/item').map((item: any) => {
+                        chls: $item('alarmOut/alarmOuts/item').map((item) => {
                             return {
-                                value: item.attr('id'),
+                                value: item.attr('id')!,
                                 label: item.text(),
                             }
                         }),
@@ -711,9 +693,9 @@ export default defineComponent({
                     pageData.value.alarmOutList = pageData.value.alarmOut.chls.map((item: { value: string; label: string }) => item.value)
                     pageData.value.snap = {
                         switch: $item('sysSnap/switch').text() == 'true',
-                        chls: $item('sysSnap/chls/item').map((item: any) => {
+                        chls: $item('sysSnap/chls/item').map((item) => {
                             return {
-                                value: item.attr('id'),
+                                value: item.attr('id')!,
                                 label: item.text(),
                             }
                         }),
@@ -721,13 +703,13 @@ export default defineComponent({
                     pageData.value.snapList = pageData.value.snap.chls.map((item: { value: string; label: string }) => item.value)
                     pageData.value.preset = {
                         switch: $item('preset/switch').text() == 'true',
-                        presets: $item('preset/presets/item').map((item: any) => {
+                        presets: $item('preset/presets/item').map((item) => {
                             const $ = queryXml(item.element)
                             return {
                                 index: $('index').text(),
                                 name: $('name').text(),
                                 chl: {
-                                    value: $('chl').attr('id'),
+                                    value: $('chl').attr('id')!,
                                     label: $('chl').text(),
                                 },
                             }
@@ -767,7 +749,7 @@ export default defineComponent({
                                 <chls type="list">
                                     ${pageData.value['record']['chls']
                                         .map(
-                                            (element: { value: string; label: string }) => `
+                                            (element: { value: string; label: string }) => rawXml`
                                         <item id="${element['value']}">
                                             <![CDATA[${element['label']}]]>
                                         </item>
@@ -780,7 +762,7 @@ export default defineComponent({
                                 <chls type="list">
                                     ${pageData.value['snap']['chls']
                                         .map(
-                                            (element: { value: string; label: string }) => `
+                                            (element: { value: string; label: string }) => rawXml`
                                         <item id="${element['value']}">
                                             <![CDATA[${element['label']}]]>
                                         </item>
@@ -793,7 +775,7 @@ export default defineComponent({
                                 <alarmOuts type="list">
                                     ${pageData.value['alarmOut']['chls']
                                         .map(
-                                            (element: { value: string; label: string }) => `
+                                            (element: { value: string; label: string }) => rawXml`
                                         <item id="${element['value']}">
                                             <![CDATA[${element['label']}]]>
                                         </item>
@@ -807,7 +789,7 @@ export default defineComponent({
                                     ${pageData.value['presetSource']
                                         .map((element: PresetList) =>
                                             element['preset']['value']
-                                                ? `
+                                                ? rawXml`
                                         <item>
                                             <index>${element['preset']['value']}</index>
                                             <name><![CDATA[${element['preset']['label']}]]></name>
@@ -833,10 +815,10 @@ export default defineComponent({
                 </content>
             `
 
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             const res = await editSmartFireConfig(sendXml)
             const $ = queryXml(res)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             if ($('status').text() == 'success') {
                 if (pageData.value['detectionEnable']) {
                     // 开关为开把originalSwitch置为true避免多次弹出互斥提示
@@ -922,7 +904,6 @@ export default defineComponent({
             }
         })
         return {
-            Translate,
             pageData,
             aiResourceTableData,
             triggerData,
@@ -937,10 +918,10 @@ export default defineComponent({
             alarmOutClose,
             snapConfirm,
             snapClose,
+            getPresetById,
             handleFunctionTabClick,
             handleApply,
             ScheduleManagPop,
-            BaseTransferDialog,
         }
     },
 })

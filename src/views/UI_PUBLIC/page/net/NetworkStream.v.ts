@@ -3,7 +3,7 @@
  * @Date: 2024-08-15 18:17:14
  * @Description: 网络码流设置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:00:08
+ * @LastEditTime: 2024-10-11 17:04:39
  */
 import { type NetSubStreamList, type NetSubStreamResolutionList } from '@/types/apiType/net'
 import { cloneDeep } from 'lodash-es'
@@ -11,7 +11,7 @@ import { cloneDeep } from 'lodash-es'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const { openMessageTipBox } = useMessageBox()
 
         let cacheTableData: NetSubStreamList[] = []
@@ -586,22 +586,22 @@ export default defineComponent({
                 return
             }
 
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const itemXml = edits
                 .map((item) => {
+                    const res = item.resolution
+                    const fps = item.frameRate.toString()
+                    const qoi = item.videoQuality ? item.videoQuality.toString() : ''
+                    const bittype = item.bitType || 'CBR'
+                    const level = item.level
+                    const enct = item.videoEncodeType
+                    const gop = item.GOP ? item.GOP.toString() : (item.frameRate * 4).toString()
                     return rawXml`
-                    <item id="${item.id}">
-                        <sub
-                            res="${item.resolution}"
-                            fps="${item.frameRate.toString()}"
-                            QoI="${item.videoQuality ? item.videoQuality.toString() : ''}"
-                            bitType="${item.bitType || 'CBR'}"
-                            level="${item.level}"
-                            enct="${item.videoEncodeType}"
-                            GOP="${item.GOP ? item.GOP.toString() : (item.frameRate * 4).toString()}" />
-                    </item>
-                `
+                        <item id="${item.id}">
+                            <sub res="${res}" fps="${fps}" QoI="${qoi}" bitType="${bittype}" level="${level}" enct="${enct}" GOP="${gop}" />
+                        </item>
+                    `
                 })
                 .join('')
 
@@ -609,7 +609,7 @@ export default defineComponent({
             const result = await editNetworkNodeEncodeInfo(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 openMessageTipBox({
@@ -626,12 +626,12 @@ export default defineComponent({
         }
 
         onMounted(async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             // await getChannelList()
             await getData()
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         })
 
         return {

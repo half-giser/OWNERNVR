@@ -3,14 +3,14 @@
  * @Date: 2024-06-18 18:41:51
  * @Description: 网络安全
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 13:42:25
+ * @LastEditTime: 2024-10-15 13:57:40
  */
 import { type UserNetworkSecurityForm } from '@/types/apiType/userAndSecurity'
 
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
 
         const tableData = ref<UserNetworkSecurityForm[]>([])
 
@@ -23,21 +23,21 @@ export default defineComponent({
          * @description 获取数据
          */
         const getData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const result = await queryArpCfg()
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             commLoadResponseHandler(result, ($) => {
                 tableData.value = []
                 $('//content/nicConfigs/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     const autoGetGatewayMac = $item('autoGetGatewayMac').text().toBoolean()
-                    const gatewayMac = item.attr('gatewayMac') as string
+                    const gatewayMac = item.attr('gatewayMac')!
                     const manualInputGatewayMac = $item('manualInputGatewayMac').text()
                     tableData.value.push({
-                        id: item.attr('id') as string,
-                        gateway: item.attr('gateway') as string,
+                        id: item.attr('id')!,
+                        gateway: item.attr('gateway')!,
                         gatewayMac,
                         arpSwitch: $item('arpSwitch').text().toBoolean(),
                         autoGetGatewayMac,
@@ -56,7 +56,7 @@ export default defineComponent({
          * @description 提交数据
          */
         const setData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const table = tableData.value
                 .map((item) => {
@@ -81,7 +81,7 @@ export default defineComponent({
             `
             const result = await editArpCfg(sendXml)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             commSaveResponseHadler(result)
         }
 

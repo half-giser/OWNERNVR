@@ -2,11 +2,11 @@
  * @Description: AI 事件——更多——异常侦测
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-19 09:27:27
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 09:29:19
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-16 10:39:49
 -->
 <template>
-    <div class="abnormal_dispose">
+    <div>
         <div>
             <el-tabs
                 v-model="pageData.tab"
@@ -233,6 +233,7 @@
                                             v-model="scope.row.preset.value"
                                             size="small"
                                             :empty-values="[undefined, null]"
+                                            @visible-change="getPresetById(scope.row)"
                                             @change="presetChange(scope.row)"
                                         >
                                             <el-option

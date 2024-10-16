@@ -3,7 +3,7 @@
  * @Date: 2024-07-10 16:50:11
  * @Description: Email测试发送弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 15:41:32
+ * @LastEditTime: 2024-10-11 11:21:02
  */
 import { type FormInstance, type FormRules } from 'element-plus'
 import { type NetEmailForm, NetEmailTestForm, type NetEmailReceiverDto } from '@/types/apiType/net'
@@ -26,7 +26,7 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const userSession = useUserSessionStore()
 
         const pageData = ref({
@@ -96,7 +96,7 @@ export default defineComponent({
                     return
                 }
 
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
 
                 pageData.value.isReceiver = false
 
@@ -132,7 +132,7 @@ export default defineComponent({
                     const $$ = await editEmailCfg(sendXml)
                     commSaveResponseHadler($$)
 
-                    closeLoading(LoadingTarget.FullScreen)
+                    closeLoading()
                 })
             })
         }
@@ -162,7 +162,7 @@ export default defineComponent({
                     return
                 }
 
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
 
                 const password = AES_encrypt(formData.value.password, userSession.sesionKey)
                 const sendXml = rawXml`
@@ -205,7 +205,7 @@ export default defineComponent({
                     })
                 }
 
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
             })
         }
 

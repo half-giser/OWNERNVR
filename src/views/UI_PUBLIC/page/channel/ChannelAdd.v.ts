@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 18:39:25
  * @Description: 新增通道
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 15:33:03
+ * @LastEditTime: 2024-10-14 17:36:18
  */
 import { trim } from 'lodash-es'
 import { ChannelManualAddDto, DefaultPwdDto } from '@/types/apiType/channel'
@@ -89,7 +89,7 @@ export default defineComponent({
             queryRecordDistributeInfo().then((res) => {
                 const $ = queryXml(res)
                 const mode = $('//content/recMode/mode').text()
-                querySystemCaps(getXmlWrapData('')).then((res) => {
+                querySystemCaps().then((res) => {
                     closeLoading()
                     const $ = queryXml(res)
                     chlCountLimit.value = Number($('//content/chlMaxCount').text())
@@ -106,7 +106,7 @@ export default defineComponent({
 
         const getDefaultPwd = (callback?: () => void) => {
             openLoading()
-            queryDevDefaultPwd(getXmlWrapData('')).then((res) => {
+            queryDevDefaultPwd().then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
@@ -131,7 +131,7 @@ export default defineComponent({
 
         const getLanFreeDevs = () => {
             openLoading()
-            queryLanFreeDeviceList(getXmlWrapData('')).then((res) => {
+            queryLanFreeDeviceList().then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
@@ -223,7 +223,7 @@ export default defineComponent({
 
         const getLanRecorders = () => {
             openLoading()
-            queryLanRecorderList(getXmlWrapData('')).then((res) => {
+            queryLanRecorderList().then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
@@ -250,7 +250,7 @@ export default defineComponent({
         }
 
         const getProtocolList = (callBack: Function) => {
-            queryRtspProtocolList(getXmlWrapData('')).then((res) => {
+            queryRtspProtocolList().then((res) => {
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
                     protocolList.value = []
@@ -560,7 +560,7 @@ export default defineComponent({
                         return
                     }
                     data += '</content>'
-                    addIPCDev(getXmlWrapData(data))
+                    addIPCDev(data)
                 } else {
                     const allDatas: Record<string, any>[] = []
                     for (const element of manualAddFormData.value) {
@@ -676,7 +676,7 @@ export default defineComponent({
                             message: msg,
                         }).then(() => {
                             const data = '<content><AISwitch>false</AISwitch></content>'
-                            editBasicCfg(getXmlWrapData(data))
+                            editBasicCfg(data)
                         })
                     } else {
                         openMessageTipBox({

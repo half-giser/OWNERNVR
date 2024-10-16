@@ -3,7 +3,7 @@
  * @Date: 2024-06-24 15:06:48
  * @Description: 基本配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 14:49:14
+ * @LastEditTime: 2024-10-15 14:45:54
  */
 import { type FormInstance, type FormRules } from 'element-plus'
 import { SystemGeneralSettingForm } from '@/types/apiType/system'
@@ -12,7 +12,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
         const formRef = ref<FormInstance>()
@@ -73,7 +73,7 @@ export default defineComponent({
             deviceNumber: [
                 {
                     validator: (rule, value: string, callback) => {
-                        if (String(value).length === 0) {
+                        if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_DEVICE_NUMBER_EMPTY')))
                             return
                         }
@@ -126,13 +126,7 @@ export default defineComponent({
          * @param {number} value 秒
          */
         const displayWaitTimeOption = (value: number) => {
-            if (value === 60) {
-                return value + ' ' + Translate('IDCS_MINUTE')
-            }
-            if (value > 60) {
-                return value / 60 + ' ' + Translate('IDCS_MINUTES')
-            }
-            return value + ' ' + Translate('IDCS_SECONDS')
+            return getTranslateForSecond(value)
         }
 
         /**
@@ -200,19 +194,20 @@ export default defineComponent({
 
         /**
          * @description 获取解码卡Label
-         * @param key
-         * @param key2
+         * @param {number} key
+         * @param {number} key2
          */
         const displayDecoderLabel = (key: number, key2: number) => {
-            return `${Translate('IDCS_DECODE_CARD')}${key + 1} ${Translate('IDCS_OUTPUT')}${key2 + 1}`
+            console.log(key, key2)
+            return `${Translate('IDCS_DECODE_CARD')}${Number(key) + 1} ${Translate('IDCS_OUTPUT')}${Number(key2) + 1}`
         }
 
         /**
          * @description 获取和回显表单数据
          */
         const getData = async () => {
-            openLoading(LoadingTarget.FullScreen)
-            const result = await queryBasicCfg(getXmlWrapData(''))
+            openLoading()
+            const result = await queryBasicCfg()
             const $ = queryXml(result)
 
             formData.value.deviceName = $('//content/name').text()
@@ -273,12 +268,12 @@ export default defineComponent({
             // TODO 解码卡输出部分需要测试数据才能测试
             // 解码卡输出排序
             const decoderResolutionEnumXml = $('//types/DecoderResolution/decoder')
-            const decoderEnumXml = decoderResolutionEnumXml.sort(($a, $b) => {
+            decoderResolutionEnumXml.sort(($a, $b) => {
                 return Number($a.attr('id')) - Number($b.attr('id'))
             })
             const decoderEnum: Record<number, Record<number, string[]>> = {}
 
-            decoderEnumXml.forEach((item) => {
+            decoderResolutionEnumXml.forEach((item) => {
                 const $item = queryXml(item.element)
                 const id = Number(item.attr('id'))
 
@@ -305,8 +300,7 @@ export default defineComponent({
                 })
             })
 
-            const decodeResolutionXml = $('//content/decoderResolution/decoder')
-            decodeResolutionXml.forEach((item) => {
+            $('//content/decoderResolution/decoder').forEach((item) => {
                 const $item = queryXml(item.element)
                 const decoderId = Number(item.attr('id'))
                 const onlineStatus = item.attr('onlineStatus') === 'true'
@@ -337,7 +331,7 @@ export default defineComponent({
             pageData.value.langType = $('//types/langType/enum').map((item) => item.text())
             pageData.value.resolutionType = $('//types/resolutionType/enum').map((item) => item.text())
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         /**
@@ -351,8 +345,11 @@ export default defineComponent({
             })
         }
 
+        /**
+         * @description 保存数据
+         */
         const setData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const getDecoderItem = (key: number) => {
                 return Object.keys(formData.value.decoder[key])
@@ -395,7 +392,7 @@ export default defineComponent({
             `
             const result = await editBasicCfg(sendXml)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             commSaveResponseHadler(result)
         }
 

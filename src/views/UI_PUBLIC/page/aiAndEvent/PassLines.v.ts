@@ -5,20 +5,16 @@
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
  * @LastEditTime: 2024-09-30 13:47:17
  */
-import { ArrowDown } from '@element-plus/icons-vue'
-import { type chlCaps } from '@/types/apiType/aiAndEvent'
+import { type chlCaps, type regionData, type emailData } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import CanvasPassline from '@/utils/canvas/canvasPassline'
 import CanvasCpc from '@/utils/canvas/canvasCpc'
-import { type emailData } from '@/types/apiType/aiAndEvent'
 import PassLineEmailPop from './PassLinesEmailPop.vue'
 import { cloneDeep } from 'lodash-es'
 import { type XmlResult } from '@/utils/xmlParse'
-import { type regionData } from '@/types/apiType/aiAndEvent'
 export default defineComponent({
     components: {
-        ArrowDown,
         ScheduleManagPop,
         PassLineEmailPop,
     },
@@ -45,7 +41,7 @@ export default defineComponent({
     },
     setup(props) {
         type CanvasPasslineDirection = 'none' | 'rightortop' | 'leftorbotton'
-        const { LoadingTarget, openLoading, closeLoading } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const openMessageTipBox = useMessageBox().openMessageTipBox
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
@@ -385,7 +381,7 @@ export default defineComponent({
         // 对sheduleList进行处理
         const getScheduleList = async () => {
             pageData.value.scheduleList = await buildScheduleList()
-            pageData.value.scheduleList.map((item: any) => {
+            pageData.value.scheduleList.map((item) => {
                 item.value = item.value != '' ? item.value : pageData.value.scheduleDefaultId
             })
         }
@@ -477,8 +473,8 @@ export default defineComponent({
             await editTimingSendEmail(sendXML)
         }
         // 保存passLine排程
-        const setScheduleGuid = function () {
-            const sendXml = `<content>
+        const setScheduleGuid = () => {
+            const sendXml = rawXml`<content>
                                 <chl id="${pageData.value.currChlId}" scheduleGuid="${pageData.value['passLineSchedule']}">
                                 <trigger></trigger>
                                 </chl>
@@ -563,7 +559,7 @@ export default defineComponent({
 
         // 获取数据
         const getData = async (manualResetSwitch?: boolean) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             if (pageData.value.chlData['supportPassLine']) {
                 const sendXml = rawXml`<condition>
                                         <chlId>${pageData.value.currChlId}</chlId>
@@ -572,7 +568,7 @@ export default defineComponent({
                                         <param/>
                                     </requireField>`
                 const res = await queryPls(sendXml)
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
                     const countCycleTypeList: { value: string; label: string }[] = []
@@ -726,7 +722,7 @@ export default defineComponent({
                                             <param/>
                                         </requireField>`
                 const res = await queryCpc(sendXml)
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
                     let holdTimeList: { value: number; label: string }[] = []
@@ -834,12 +830,12 @@ export default defineComponent({
                                 </person>
                                 ${
                                     pageData.value['chlData']['accessType'] == '0'
-                                        ? `
-                                <motor>
-                                    <switch>${pageData.value['objectFilter']['motorcycle'].toString()}</switch>
-                                    <sensitivity>${pageData.value['objectFilter']['motorSensitivity'].toString()}</sensitivity>
-                                </motor>
-                                `
+                                        ? rawXml`
+                                            <motor>
+                                                <switch>${pageData.value['objectFilter']['motorcycle'].toString()}</switch>
+                                                <sensitivity>${pageData.value['objectFilter']['motorSensitivity'].toString()}</sensitivity>
+                                            </motor>
+                                        `
                                         : ''
                                 }
                             </objectFilter>
@@ -864,20 +860,8 @@ export default defineComponent({
                                 <Y>${Math.round(pageData.value['countOSD']['Y']).toString()}</Y>
                                 <osdFormat>${pageData.value['countOSD']['osdFormat']}</osdFormat>
                             </countOSD>
-                            ${
-                                pageData.value['chlData']['supportAudio']
-                                    ? `
-                            <triggerAudio>${pageData.value['triggerAudio']}</triggerAudio>
-                            `
-                                    : ''
-                            }
-                            ${
-                                pageData.value['chlData']['supportWhiteLight']
-                                    ? `
-                            <triggerWhiteLight>${pageData.value['triggerWhiteLight']}</triggerWhiteLight>
-                            `
-                                    : ''
-                            }
+                            ${pageData.value['chlData']['supportAudio'] ? `<triggerAudio>${pageData.value['triggerAudio']}</triggerAudio>` : ''}
+                            ${pageData.value['chlData']['supportWhiteLight'] ? `<triggerWhiteLight>${pageData.value['triggerWhiteLight']}</triggerWhiteLight>` : ''}
                             <saveTargetPicture>${pageData.value['saveTargetPicture'].toString()}</saveTargetPicture>
                             <saveSourcePicture>${pageData.value['saveSourcePicture'].toString()}</saveSourcePicture>
                             <line type="list" count="${pageData.value['lineInfo'].length.toString()}">
@@ -886,19 +870,19 @@ export default defineComponent({
                                 </itemType>
                                 ${pageData.value['lineInfo']
                                     .map(
-                                        (element) => `
-                                <item>
-                                    <direction type="direction">${element['direction']}</direction>
-                                    <startPoint>
-                                        <X>${Math.round(element['startPoint']['X']).toString()}</X>
-                                        <Y>${Math.round(element['startPoint']['Y']).toString()}</Y>
-                                    </startPoint>
-                                    <endPoint>
-                                        <X>${Math.round(element['endPoint']['X']).toString()}</X>
-                                        <Y>${Math.round(element['endPoint']['Y']).toString()}</Y>
-                                    </endPoint>
-                                </item>
-                                `,
+                                        (element) => rawXml`
+                                            <item>
+                                                <direction type="direction">${element['direction']}</direction>
+                                                <startPoint>
+                                                    <X>${Math.round(element['startPoint']['X']).toString()}</X>
+                                                    <Y>${Math.round(element['startPoint']['Y']).toString()}</Y>
+                                                </startPoint>
+                                                <endPoint>
+                                                    <X>${Math.round(element['endPoint']['X']).toString()}</X>
+                                                    <Y>${Math.round(element['endPoint']['Y']).toString()}</Y>
+                                                </endPoint>
+                                            </item>
+                                        `,
                                     )
                                     .join('')}
                             </line>
@@ -907,10 +891,10 @@ export default defineComponent({
                     </chl>
                 </content>
             `
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             const res = await editPls(sendXml)
             const $ = queryXml(res)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             if ($('status').text() == 'success') {
                 setEmailCfg()
                 setTimingSendEmail()
@@ -956,9 +940,9 @@ export default defineComponent({
                             </chl>
                         </content>
                     `
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             const res = await editCpc(sendXml)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             const $ = queryXml(res)
             if ($('status').text() == 'success') {
                 if (pageData.value['cpcDetectionEnable']) {
@@ -1016,7 +1000,7 @@ export default defineComponent({
 
                 const mutexChlNameObj = getMutexChlNameObj()
 
-                pageData.value['cpcMutexList'].forEach((ele: any) => {
+                pageData.value['cpcMutexList'].forEach((ele) => {
                     if (ele['status']) {
                         const prefixName = mutexChlNameObj['normalChlName'] ? joinSpaceForLang(Translate('IDCS_CHANNEL') + ':' + mutexChlNameObj['normalChlName']) : ''
                         const showInfo = prefixName ? prefixName + pageData.value.closeTip[ele['object']].toLowerCase() : pageData.value.closeTip[ele['object']]
@@ -1024,7 +1008,7 @@ export default defineComponent({
                     }
                 })
 
-                pageData.value['cpcMutexListEx'].forEach((ele: any) => {
+                pageData.value['cpcMutexListEx'].forEach((ele) => {
                     if (ele['status']) {
                         const prefixName = mutexChlNameObj['thermalChlName'] ? joinSpaceForLang(Translate('IDCS_CHANNEL') + ':' + mutexChlNameObj['thermalChlName']) : ''
                         const showInfo = prefixName ? prefixName + pageData.value.closeTip[ele['object']].toLowerCase() : pageData.value.closeTip[ele['object']].toLowerCase()
@@ -1180,7 +1164,7 @@ export default defineComponent({
         }
 
         // 获取mutexobj
-        const getMutexChlNameObj = function () {
+        const getMutexChlNameObj = () => {
             let normalChlName = ''
             let thermalChlName = ''
             const sameIPChlList: { id: string; ip: string; name: string; accessType: string }[] = []
@@ -1217,7 +1201,7 @@ export default defineComponent({
         }
 
         // passLine绘图变化
-        const passlineDrawChange = function (
+        const passlineDrawChange = (
             passline: {
                 startX: number
                 startY: number
@@ -1229,7 +1213,7 @@ export default defineComponent({
                 Y: number
                 osdFormat: string
             },
-        ) {
+        ) => {
             const alarmLine = pageData.value.chosenSurfaceIndex
             pageData.value['lineInfo'][alarmLine]['startPoint'] = {
                 X: passline.startX,
@@ -1247,7 +1231,7 @@ export default defineComponent({
             pageData.value.applyDisable = false
         }
         // passLine绘图
-        const passLineSetOcxData = function () {
+        const passLineSetOcxData = () => {
             const alarmLine = pageData.value.chosenSurfaceIndex
             const plugin = playerRef.value!.plugin
             if (pageData.value['lineInfo'].length > 0) {
@@ -1284,7 +1268,7 @@ export default defineComponent({
             passLineShowAllArea(pageData.value.isShowAllArea)
         }
         // passLine显示全部区域
-        const passLineShowAllArea = function (isShowAllArea: boolean) {
+        const passLineShowAllArea = (isShowAllArea: boolean) => {
             passLineDrawer && passLineDrawer.setEnableShowAll(isShowAllArea)
             if (isShowAllArea) {
                 const lineInfoList = pageData.value['lineInfo']
@@ -1312,7 +1296,7 @@ export default defineComponent({
             }
         }
         // passLine清空当前区域
-        const passLineClearArea = function () {
+        const passLineClearArea = () => {
             if (mode.value === 'h5') {
                 passLineDrawer.clear()
             } else {
@@ -1328,7 +1312,7 @@ export default defineComponent({
             pageData.value.applyDisable = false
         }
         // passLine清空所有区域
-        const passLineClearAllArea = function () {
+        const passLineClearAllArea = () => {
             const plugin = playerRef.value!.plugin
 
             const lineInfoList = pageData.value['lineInfo']
@@ -1349,7 +1333,7 @@ export default defineComponent({
             pageData.value.applyDisable = false
         }
         // passLine刷新
-        const passLineRefreshInitPage = function () {
+        const passLineRefreshInitPage = () => {
             const lineInfoList = pageData.value['lineInfo']
             lineInfoList.forEach((lineInfo) => {
                 if (lineInfo && lineInfo['startPoint'].X == 0 && lineInfo['startPoint'].Y == 0 && lineInfo['endPoint'].X == 0 && lineInfo['endPoint'].Y == 0) {
@@ -1369,13 +1353,13 @@ export default defineComponent({
         }
 
         // CPC绘图变化
-        const cpcDrawChange = function (regionInfo: regionData, arrowlineInfo: regionData) {
+        const cpcDrawChange = (regionInfo: regionData, arrowlineInfo: regionData) => {
             pageData.value.regionInfo = regionInfo
             pageData.value.cpcLineInfo = arrowlineInfo
             pageData.value.applyDisable = false
         }
         // CPC绘图
-        const cpcDrawSetOcxData = function () {
+        const cpcDrawSetOcxData = () => {
             if (mode.value === 'h5') {
                 cpcDrawer.setRegionInfo(pageData.value['regionInfo'])
                 cpcDrawer.setLineInfo(pageData.value['cpcLineInfo'])
@@ -1385,7 +1369,7 @@ export default defineComponent({
             }
         }
         // CPC开启绘图
-        const handleCpcDrawAvailableChange = function () {
+        const handleCpcDrawAvailableChange = () => {
             if (mode.value === 'h5') {
                 cpcDrawer.setEnable(pageData.value.isCpcDrawAvailable)
             } else if (mode.value === 'ocx') {
@@ -1394,7 +1378,7 @@ export default defineComponent({
             }
         }
         // CPC清空当前区域
-        const clearCpcArea = function () {
+        const clearCpcArea = () => {
             if (mode.value === 'h5') {
                 cpcDrawer.clear()
             } else if (mode.value === 'ocx') {

@@ -3,7 +3,7 @@
  * @Date: 2024-08-30 18:47:04
  * @Description: 人脸库 - 添加人脸
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 15:48:17
+ * @LastEditTime: 2024-10-14 11:06:10
  */
 import { IntelFaceDBFaceForm, type IntelFaceDBGroupDto, type IntelFaceDBSnapFaceList, type IntelFaceDBImportFaceDto } from '@/types/apiType/intelligentAnalysis'
 import { type FormInstance } from 'element-plus'
@@ -28,14 +28,14 @@ export default defineComponent({
         confirm() {
             return true
         },
-        close() {
-            return true
+        close(isRefresh: boolean) {
+            return typeof isRefresh === 'boolean'
         },
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const dateTime = useDateTimeStore()
 
         // 错误码与显示文本的映射
@@ -86,6 +86,8 @@ export default defineComponent({
 
         const formData = ref<IntelFaceDBFaceForm[]>([new IntelFaceDBFaceForm()])
 
+        let isAddedFace = false
+
         // 图片分页数
         const swiperSize = computed(() => {
             return Math.ceil(formData.value.length / 6)
@@ -115,12 +117,12 @@ export default defineComponent({
          * @description 获取人脸分组
          */
         const getFaceGroup = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const result = await queryFacePersonnalInfoGroupList()
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             pageData.value.groupList = $('//content/item').map((item) => {
                 const $item = queryXml(item.element)
@@ -153,6 +155,7 @@ export default defineComponent({
          * @description 打开弹窗时重置数据
          */
         const open = async () => {
+            isAddedFace = false
             snapData = []
             importData = []
             formData.value = [new IntelFaceDBFaceForm()]
@@ -277,7 +280,7 @@ export default defineComponent({
                 return
             }
 
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const importItem = importData[index]
             const group = pageData.value.groupList.find((current) => current.groupId === item.groupId)!
@@ -310,11 +313,12 @@ export default defineComponent({
             const result = await createFacePersonnalInfo(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 pageData.value.errorTip = Translate('IDCS_FACE_ADD_SUCCESS')
                 formData.value[index].success = true
+                isAddedFace = true
             } else {
                 const errorCode = Number($('//errorCode').text())
                 switch (errorCode) {
@@ -355,7 +359,7 @@ export default defineComponent({
          * @param {boolean} force 是否无视相似度警告，强制上传
          */
         const setSingleSnapData = async (item: IntelFaceDBFaceForm, index: number, force = false) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const snapItem = snapData[0]
             const group = pageData.value.groupList.find((current) => current.groupId === item.groupId)!
@@ -375,7 +379,7 @@ export default defineComponent({
                     <certificateType type="certificateType">${item.certificateType}</certificateType>
                     <certificateNum>${item.certificateNum}</certificateNum>
                     <mobile>${item.mobile?.toString() || ''}</mobile>
-                    <number>$cons{item.number?.toString() || ''}</number>
+                    <number>${item.number?.toString() || ''}</number>
                     <note>${item.note}</note>
                     <groups>
                         <item id="${group.id}">
@@ -395,11 +399,12 @@ export default defineComponent({
             const result = await createFacePersonnalInfo(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 formData.value[index].success = true
                 pageData.value.errorTip = Translate('IDCS_FACE_ADD_SUCCESS')
+                isAddedFace = true
             } else {
                 const errorCode = Number($('//errorCode').text())
                 switch (errorCode) {
@@ -460,7 +465,7 @@ export default defineComponent({
          * @description 关闭弹窗
          */
         const close = () => {
-            ctx.emit('close')
+            ctx.emit('close', isAddedFace)
         }
 
         return {

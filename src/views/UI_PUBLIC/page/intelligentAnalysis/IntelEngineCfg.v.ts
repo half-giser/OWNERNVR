@@ -16,7 +16,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
 
         // 事件与文本的映射
         const EVENT_TYPE_MAPPING: Record<string, string> = {
@@ -110,7 +110,7 @@ export default defineComponent({
          * @param {UserCheckAuthForm} e
          */
         const confirmSetData = async (e: UserCheckAuthForm) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             const sendXml = rawXml`
                 <content>
                     <supportAI>${formData.value.supportAI.toString()}</supportAI>
@@ -124,7 +124,7 @@ export default defineComponent({
             const result = await editSystemWorkMode(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 pageData.value.isCheckAuthPop = false

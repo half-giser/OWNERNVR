@@ -3,7 +3,7 @@
  * @Date: 2024-06-25 09:59:23
  * @Description: 输出配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-23 14:40:51
+ * @LastEditTime: 2024-10-15 16:22:34
  */
 import { type XmlResult } from '@/utils/xmlParse'
 import OutputSplitTemplate from './OutputSplitTemplate.vue'
@@ -72,7 +72,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
         const cacheChlListOfGroup: Record<string, ChlItem[]> = {}
@@ -190,13 +190,12 @@ export default defineComponent({
 
         // 当前窗口项
         const activeViewItem = computed(() => {
-            if (currentViewList.value.chlGroups.length) {
-                return currentViewList.value.chlGroups[pageData.value.activeView]
-            }
-            return {
-                segNum: 1,
-                chls: [],
-            }
+            return (
+                currentViewList.value.chlGroups[pageData.value.activeView] || {
+                    segNum: 1,
+                    chls: [],
+                }
+            )
         })
 
         // 当前视图窗口的数据
@@ -274,8 +273,7 @@ export default defineComponent({
             }
             nextTick(() => {
                 // 选中最后一个
-                pageData.value.activeView = currentViewList.value.chlGroups.length - 1
-                pageData.value.activeWinIndex = 0
+                changeView(currentViewList.value.chlGroups.length - 1)
             })
         }
 
@@ -287,7 +285,7 @@ export default defineComponent({
             pageData.value.activeView = key
             nextTick(() => {
                 if (pageData.value.activeWinIndex > currentViewList.value.chlGroups.length - 1) {
-                    pageData.value.activeWinIndex = 0
+                    changeWinIndex(0)
                 }
             })
         }
@@ -299,6 +297,9 @@ export default defineComponent({
         const delView = (viewIndex: number) => {
             if (outputType.value === 'main') {
                 mainOutputData.value.chlGroups.splice(viewIndex, 1)
+                if (mainOutputData.value.chlGroups.length && pageData.value.activeView >= mainOutputData.value.chlGroups.length - 1) {
+                    changeView(mainOutputData.value.chlGroups.length - 1)
+                }
             } else if (outputType.value === 'dwell') {
                 if (pageData.value.tabId !== 0) {
                     decoderCardMap.value[pageData.value.tabId].decoderDwellData[pageData.value.decoderIdx].chlGroups.splice(viewIndex, 1)
@@ -505,7 +506,7 @@ export default defineComponent({
                     type: 'question',
                     message: Translate('IDCS_DELETE_MP_GROUP_S').formatForLang(getShortString(findItem.value, 10)),
                 }).then(async () => {
-                    openLoading(LoadingTarget.FullScreen)
+                    openLoading()
                     const sendXml = rawXml`
                         <condition>
                             <chlGroupIds type="list">
@@ -513,9 +514,9 @@ export default defineComponent({
                             </chlGroupIds>
                         </condition>
                     `
-                    const result = await delChlGroup(getXmlWrapData(sendXml))
+                    const result = await delChlGroup(sendXml)
                     const $ = queryXml(result)
-                    closeLoading(LoadingTarget.FullScreen)
+                    closeLoading()
                     if ($('//status').text() === 'success') {
                         openMessageTipBox({
                             type: 'success',
@@ -562,7 +563,7 @@ export default defineComponent({
                     <name />
                 </requireField>
             `
-            const result = await queryChlGroupList(getXmlWrapData(sendXml))
+            const result = await queryChlGroupList(sendXml)
             const $ = queryXml(result)
             if ($('//status').text() === 'success') {
                 pageData.value.chlGroupList = []
@@ -589,17 +590,17 @@ export default defineComponent({
                 return cacheChlListOfGroup[id]
             }
 
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXml = rawXml`
                 <condition>
                     <chlGroupId>${id}</chlGroupId>
                 </condition>
             `
-            const result = await queryChlGroup(getXmlWrapData(sendXml))
+            const result = await queryChlGroup(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 cacheChlListOfGroup[id] = [] as ChlItem[]
@@ -688,12 +689,12 @@ export default defineComponent({
 
             // 解码卡排序
             const decoderResXml = $('//decoderContent/decoder')
-            const decoderArrXml = $('//decoderContent/decoder').sort((a, b) => {
+            decoderResXml.sort((a, b) => {
                 return Number(a.attr('id')) - Number(b.attr('id'))
             })
             const decorderOutputXml: Record<number, XmlResult> = {}
             // 解码卡输出排序
-            decoderArrXml.forEach((item) => {
+            decoderResXml.forEach((item) => {
                 const $item = queryXml(item.element)
                 const decoderId = Number(item.attr('id'))
                 const onlineStatus = item.attr('onlineStatus')!.toBoolean()
@@ -898,7 +899,7 @@ export default defineComponent({
          * @param {UserCheckAuthForm} e
          */
         const handleCheckAuthByConfigSwitchChange = async (e: UserCheckAuthForm) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             // TODO: 原项目注释说“开关可编辑只可能是这种情况”，但关闭时，开关并没有隐藏
             // 开关可编辑只可能是这种情况async
@@ -915,7 +916,7 @@ export default defineComponent({
             const result = await editSystemWorkMode(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 pageData.value.isCheckAuth = false
@@ -970,7 +971,7 @@ export default defineComponent({
          * @description 提交轮询信息
          */
         const setDwellData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             // 副输出
             const subOutDataXml: string[] = []
@@ -1060,7 +1061,7 @@ export default defineComponent({
             `
 
             await editDwell(sendXml)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         /**
@@ -1125,6 +1126,7 @@ export default defineComponent({
                 pageData.value.dwellCheckbox = decoderCardMap.value[pageData.value.tabId].decoderDwellData[pageData.value.decoderIdx].mode === 'dwell'
             }
             decoderCardMap.value = decoderCardMap.value
+            changeWinIndex(0)
         }
 
         /**
@@ -1137,6 +1139,7 @@ export default defineComponent({
                 pageData.value.dwellCheckbox = subOutputDwellData.value[pageData.value.outputIdx].mode === 'dwell'
             }
             subOutputDwellData.value = subOutputDwellData.value
+            changeWinIndex(0)
         }
 
         /**
@@ -1178,7 +1181,7 @@ export default defineComponent({
         }
 
         onMounted(async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             await getChlsList()
             await getChlGroupList()
 
@@ -1190,7 +1193,7 @@ export default defineComponent({
             // 是否支持显示辅输出
             showSecondaryOutput()
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         })
 
         return {

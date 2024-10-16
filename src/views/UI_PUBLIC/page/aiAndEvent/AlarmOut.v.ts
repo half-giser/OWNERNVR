@@ -1,13 +1,18 @@
+/*
+ * @Author: tengxiang tengxiang@tvt.net.cn
+ * @Date: 2024-08-10 11:05:51
+ * @Description: 报警输出
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-15 15:22:51
+ */
 import { AlarmOut } from '@/types/apiType/aiAndEvent'
-import { defineComponent } from 'vue'
 import { cloneDeep } from 'lodash-es'
-import { editAlarmOutParam } from '@/api/aiAndEvent'
 
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
 
         const pageData = ref({
             delayList: [] as SelectOption<number, string>[],
@@ -29,6 +34,8 @@ export default defineComponent({
         const tableData = ref<AlarmOut[]>([])
         // 缓存表格初始数据，保存时对比变化了的行
         let tableDataInit = [] as AlarmOut[]
+        // 名称被修改时保存原始名称
+        const originalName = ref('')
         // 当前告警输出的常开/常闭类型
         const curAlarmoutType = ref('')
 
@@ -153,7 +160,7 @@ export default defineComponent({
          * @return {*}
          */
         const getAlarmOutType = async () => {
-            const result = await queryBasicCfg(getXmlWrapData(''))
+            const result = await queryBasicCfg()
             const $ = queryXml(result)
             curAlarmoutType.value = $('/response/content/alarmoutType').text()
             pageData.value.typeList = $('/response/types/alarmoutType/enum').map((typeItem) => {
@@ -165,6 +172,45 @@ export default defineComponent({
             })
         }
 
+        /**
+         * @description 名称被修改时校验是否合法
+         */
+        const nameFocus = (name: string) => {
+            originalName.value = name
+        }
+        // 失去焦点时检查名称是否合法
+        const nameBlur = (row: AlarmOut) => {
+            const name = row.name
+            if (!checkChlName(name)) {
+                openMessageTipBox({
+                    type: 'info',
+                    message: Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS'),
+                })
+                row.name = originalName.value
+            } else {
+                if (!name) {
+                    openMessageTipBox({
+                        type: 'info',
+                        message: Translate('IDCS_PROMPT_NAME_EMPTY'),
+                    })
+                    row.name = originalName.value
+                }
+                for (const item of tableData.value) {
+                    if (item.id != row.id && name == item.name) {
+                        openMessageTipBox({
+                            type: 'info',
+                            message: Translate('IDCS_NAME_SAME'),
+                        })
+                        row.name = originalName.value
+                        break
+                    }
+                }
+            }
+        }
+        // 回车键失去焦点
+        const enterBlur = (event: { target: { blur: () => void } }) => {
+            event.target.blur()
+        }
         /**
          * @description: 改变所有项的值
          * @param {string} value 值
@@ -187,14 +233,14 @@ export default defineComponent({
                 type: 'question',
                 message: Translate('IDCS_ALARMOUT_TYPE_EDIT_AFTER_REBOOT'),
             }).then(async () => {
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
                 const sendXml = rawXml`
                 <content>
                     <alarmoutType>${value}</alarmoutType>
                 </content>
                 `
                 const result = await editBasicCfg(sendXml)
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 commSaveResponseHadler(result, () => {
                     curAlarmoutType.value = value
                 })
@@ -206,7 +252,7 @@ export default defineComponent({
          * @return {*}
          */
         const setData = () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             const diffRows = getArrayDiffRows(tableData.value, tableDataInit, ['name', 'delayTime', 'scheduleId'])
 
             if (diffRows.length > 0) {
@@ -231,7 +277,7 @@ export default defineComponent({
                         pageData.value.applyDisabled = false
                         // 更新表格初始对比值
                         tableDataInit = cloneDeep(tableData.value)
-                        closeLoading(LoadingTarget.FullScreen)
+                        closeLoading()
                     }
                 })
             }
@@ -244,6 +290,9 @@ export default defineComponent({
             changePagination,
             changePaginationSize,
             changeAllValue,
+            nameFocus,
+            nameBlur,
+            enterBlur,
             changeType,
             setData,
         }

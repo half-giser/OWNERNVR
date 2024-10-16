@@ -3,12 +3,16 @@
  * @Date: 2024-08-06 20:36:58
  * @Description: 回放-通道视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 18:36:09
+ * @LastEditTime: 2024-10-14 17:43:00
  */
 import ChannelGroupEditPop from '../channel/ChannelGroupEditPop.vue'
 import ChannelGroupAddPop from '../channel/ChannelGroupAddPop.vue'
 import { ChlGroup } from '@/types/apiType/channel'
 import { type PlaybackChlList, type PlaybackChannelGroupList } from '@/types/apiType/playback'
+
+export interface ChannelPanelExpose {
+    removeChls(chl: string[]): void
+}
 
 export default defineComponent({
     components: {
@@ -220,7 +224,7 @@ export default defineComponent({
                     <name/>
                 </requireField>
             `
-            const result = await queryChlGroupList(getXmlWrapData(sendXml))
+            const result = await queryChlGroupList(sendXml)
             const $ = queryXml(result)
             if ($('//status').text() === 'success') {
                 pageData.value.chlGroupList = $('//content/item').map((item) => {
@@ -265,7 +269,7 @@ export default defineComponent({
                     <chlGroupId>${id}</chlGroupId>
                 </condition>
             `
-            const result = await queryChlGroup(getXmlWrapData(sendXml))
+            const result = await queryChlGroup(sendXml)
             const $ = queryXml(result)
 
             if ($('//status').text() === 'success') {
@@ -332,7 +336,7 @@ export default defineComponent({
                             </chlGroupIds>
                         </condition>
                     `
-                    const result = await delChlGroup(getXmlWrapData(sendXml))
+                    const result = await delChlGroup(sendXml)
                     const $ = queryXml(result)
                     closeLoading()
                     if ($('//status').text() === 'success') {
@@ -392,6 +396,17 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 移除选中的通道
+         * @param {string[]} chls
+         */
+        const removeChls = (chls: string[]) => {
+            const selectedChl = pageData.value.selectedChl.filter((item) => {
+                return !chls.includes(item)
+            })
+            pageData.value.selectedChl = selectedChl
+        }
+
         watch(
             () => pageData.value.selectedChl,
             () => {
@@ -409,6 +424,10 @@ export default defineComponent({
             nextTick(() => {
                 ctx.emit('ready')
             })
+        })
+
+        ctx.expose({
+            removeChls,
         })
 
         return {

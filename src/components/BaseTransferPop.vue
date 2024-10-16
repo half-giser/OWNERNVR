@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-16 17:19:02
  * @Description: 穿梭下拉框内容
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-26 10:25:21
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-15 17:18:54
 -->
 <template>
     <div class="PosTriggerChannel">
@@ -13,6 +13,7 @@
             :props="{
                 key: 'value',
                 label: 'label',
+                disabled: 'disabled',
             }"
             :titles="[source_title, target_title]"
             :style="{ '--el-transfer-panel-width': `${panelWidth}px` }"

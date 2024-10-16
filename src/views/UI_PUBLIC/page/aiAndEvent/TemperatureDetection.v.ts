@@ -2,8 +2,8 @@
  * @Description: AI 事件——更多——温度检测
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-13 09:18:41
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 15:16:26
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-16 13:54:45
  */
 import { cloneDeep } from 'lodash-es'
 import { type BoundaryTableDataItem, type chlCaps, type PresetList, TempDetection } from '@/types/apiType/aiAndEvent'
@@ -36,7 +36,7 @@ export default defineComponent({
     setup(prop) {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const pluginStore = usePluginStore()
         const systemCaps = useCababilityStore()
         const osType = getSystemInfo().platform
@@ -175,7 +175,7 @@ export default defineComponent({
             getChlList({
                 requireField: ['device'],
                 nodeType: 'alarmOuts',
-            }).then((result: any) => {
+            }).then((result) => {
                 commLoadResponseHandler(result, ($) => {
                     const rowData = [] as {
                         id: string
@@ -361,12 +361,17 @@ export default defineComponent({
         // 获取温度检测数据
         const getTemperatureDetectionData = async () => {
             const sendXml = rawXml`
-                <condition><chlId>${prop.currChlId}</chlId></condition>
-                <requireField><param/><trigger/></requireField>
-                `
-            openLoading(LoadingTarget.FullScreen)
+                <condition>
+                    <chlId>${prop.currChlId}</chlId>
+                </condition>
+                <requireField>
+                    <param/>
+                    <trigger/>
+                </requireField>
+            `
+            openLoading()
             const result = await queryTemperatureAlarmConfig(sendXml)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             commLoadResponseHandler(result, async ($) => {
                 let holdTimeArr = $('/response/content/chl/param/holdTimeNote').text().split(',')
                 const holdTime = $('/response/content/chl/param/alarmHoldTime').text()
@@ -479,11 +484,11 @@ export default defineComponent({
                 pageData.value.alarmRuleTypeList[index] = item.ruleType == 'point' ? alarmRuleTypeList2 : alarmRuleTypeList1
             })
             // 常规联动相关选项
-            if (tempDetectionData.value.triggerAudio && prop.chlData.supportAudio) {
+            if (tempDetectionData.value.triggerAudio && prop.chlData.supportAudio && normalParamList.value.findIndex((item) => item.value == 'triggerAudio') == -1) {
                 normalParamList.value.push({ value: 'triggerAudio', label: 'IPC_' + Translate('IDCS_AUDIO') })
                 if (tempDetectionData.value.triggerAudio == 'true') normalParamCheckList.value.push('triggerAudio')
             }
-            if (tempDetectionData.value.triggerWhiteLight && prop.chlData.supportWhiteLight) {
+            if (tempDetectionData.value.triggerWhiteLight && prop.chlData.supportWhiteLight && normalParamList.value.findIndex((item) => item.value == 'triggerWhiteLight') == -1) {
                 normalParamList.value.push({ value: 'triggerWhiteLight', label: 'IPC_' + Translate('IDCS_LIGHT') })
                 if (tempDetectionData.value.triggerWhiteLight == 'true') normalParamCheckList.value.push('triggerWhiteLight')
             }
@@ -845,24 +850,9 @@ export default defineComponent({
         }
         // 获取联动预置点数据
         const getPresetData = async () => {
-            const sendXml = rawXml`
-                <types>
-                    <nodeType>
-                        <enum>chls</enum>
-                        <enum>sensors</enum>
-                        <enum>alarmOuts</enum>
-                    </nodeType>
-                </types>
-                <nodeType type='nodeType'>chls</nodeType>
-                <requireField>
-                    <name/>
-                    <chlType/>
-                </requireField>
-                <condition>
-                    <supportPtz/>
-                </condition>
-            `
-            const result = await queryNodeList(getXmlWrapData(sendXml))
+            const result = await getChlList({
+                isSupportPtz: true,
+            })
             let rowData = [] as PresetList[]
             commLoadResponseHandler(result, async ($) => {
                 rowData = $('/response/content/item').map((item) => {
@@ -873,43 +863,46 @@ export default defineComponent({
                         chlType: $item('chlType').text(),
                         preset: { value: '', label: Translate('IDCS_NULL') },
                         presetList: [{ value: '', label: Translate('IDCS_NULL') }],
+                        isGetPresetList: false,
                     }
                 })
                 rowData.forEach((row) => {
                     tempDetectionData.value.preset?.forEach((item) => {
                         if (row.id == item.chl.value) {
                             row.preset = { value: item.index, label: item.name }
+                            row.presetList.push({ value: item.index, label: item.name })
                         }
                     })
                 })
-
                 for (let i = rowData.length - 1; i >= 0; i--) {
                     //预置点里过滤掉recorder通道
                     if (rowData[i].chlType == 'recorder') {
                         rowData.splice(i, 1)
-                    } else {
-                        await getPresetById(rowData[i])
                     }
                 }
-
                 PresetTableData.value = rowData
             })
         }
+        // 预置点选择框下拉时获取预置点列表数据
         const getPresetById = async (row: PresetList) => {
-            const sendXml = rawXml`
+            if (!row.isGetPresetList) {
+                row.presetList.splice(1)
+                const sendXml = rawXml`
                 <condition>
                     <chlId>${row.id}</chlId>
                 </condition>
             `
-            const result = await queryChlPresetList(sendXml)
-            commLoadResponseHandler(result, ($) => {
-                $('/response/content/presets/item').forEach((item) => {
-                    row.presetList.push({
-                        value: item.attr('index')!,
-                        label: item.text(),
+                const result = await queryChlPresetList(sendXml)
+                commLoadResponseHandler(result, ($) => {
+                    $('/response/content/presets/item').forEach((item) => {
+                        row.presetList.push({
+                            value: item.attr('index')!,
+                            label: item.text(),
+                        })
                     })
                 })
-            })
+                row.isGetPresetList = true
+            }
         }
         const presetChange = (row: PresetList) => {
             const ids = tempDetectionData.value.preset.map((item) => item.chl.value)
@@ -988,7 +981,7 @@ export default defineComponent({
                 sendXml += rawXml`<item id='${item.value}'>
                         <![CDATA[${item.label}]]></item>`
             })
-            sendXml += `</chls></sysRec>
+            sendXml += rawXml`</chls></sysRec>
                 <sysSnap>
                 <chls type='list'>
             `
@@ -996,7 +989,7 @@ export default defineComponent({
                 sendXml += rawXml`<item id='${item.value}'>
                         <![CDATA[${item.label}]]></item>`
             })
-            sendXml += `</chls></sysSnap>
+            sendXml += rawXml`</chls></sysSnap>
                 <alarmOut>
                 <alarmOuts type='list'>
             `
@@ -1004,7 +997,7 @@ export default defineComponent({
                 sendXml += rawXml`<item id='${item.value}'>
                         <![CDATA[${item.label}]]></item>`
             })
-            sendXml += `</alarmOuts>
+            sendXml += rawXml`</alarmOuts>
                 </alarmOut>
                 <preset>
                 <presets type='list'>
@@ -1032,9 +1025,9 @@ export default defineComponent({
         const applyTempDetectionData = async () => {
             if (!verification()) return
             const sendXml = getTempDetectionSaveData()
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             const result = await editTemperatureAlarmConfig(sendXml)
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             const $ = queryXml(result)
             if ($('/response/status').text() == 'success') {
                 // 保存成功后刷新视频区域，四个点时区域没有闭合但保存后也可以闭合（四点已经可以画面）
@@ -1188,6 +1181,7 @@ export default defineComponent({
             snapConfirm,
             snapClose,
             presetChange,
+            getPresetById,
             // 提交温度检测数据
             applyTempDetectionData,
         }

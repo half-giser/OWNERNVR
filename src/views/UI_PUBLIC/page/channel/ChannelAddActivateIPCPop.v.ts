@@ -88,7 +88,7 @@ export default defineComponent({
                         </content>
                     `
                     openLoading()
-                    activateIPC(getXmlWrapData(data)).then(() => {
+                    activateIPC(data).then(() => {
                         closeLoading()
                         // 激活后成功或失败不做提示处理
                         emit('close')

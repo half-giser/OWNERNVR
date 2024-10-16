@@ -3,10 +3,10 @@
  * @Date: 2024-06-18 18:43:21
  * @Description: 登出后预览
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 14:14:33
+ * @LastEditTime: 2024-10-15 13:39:31
 -->
 <template>
-    <div class="PreviewOnLogout base-flex-box">
+    <div class="base-flex-box">
         <div class="main">
             <div class="left">
                 <div class="player">
@@ -60,29 +60,20 @@
                     border
                     stripe
                     flexible
+                    show-overflow-tooltip
                     :row-class-name="(item) => (item.rowIndex === pageData.activeChannelIndex ? 'active' : '')"
                     @cell-click="handleChangeUser"
                 >
-                    <el-table-column :label="Translate('IDCS_CHANNEL_NAME')">
-                        <template #default="scope">
-                            <el-tooltip
-                                :content="scope.row.name"
-                                :show-after="500"
-                            >
-                                <div class="ellipsis">{{ scope.row.name }}</div>
-                            </el-tooltip>
-                        </template>
-                    </el-table-column>
+                    <el-table-column
+                        :label="Translate('IDCS_CHANNEL_NAME')"
+                        prop="name"
+                    />
                     <el-table-column :label="Translate('IDCS_PREVIEW')">
                         <template #header>
                             <el-dropdown trigger="click">
-                                <span class="el-dropdown-link">
+                                <BaseTableDropdownLink>
                                     {{ Translate('IDCS_PREVIEW') }}
-                                    <BaseImgSprite
-                                        class="ddn"
-                                        file="ddn"
-                                    />
-                                </span>
+                                </BaseTableDropdownLink>
                                 <template #dropdown>
                                     <el-dropdown-menu>
                                         <el-dropdown-item

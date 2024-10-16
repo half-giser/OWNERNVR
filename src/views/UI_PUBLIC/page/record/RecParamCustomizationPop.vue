@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-05 16:26:27
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-09 11:23:32
+ * @LastEditTime: 2024-10-12 16:44:25
 -->
 <template>
     <el-dialog
@@ -13,6 +13,7 @@
         align-center
         draggable
         @open="open"
+        @close="close"
     >
         <div class="base-flex-box">
             <el-form
@@ -96,13 +97,9 @@
                     >
                         <template #header>
                             <el-dropdown trigger="click">
-                                <span class="el-dropdown-link">
+                                <BaseTableDropdownLink>
                                     {{ Translate('IDCS_EDIT') }}
-                                    <BaseImgSprite
-                                        class="ddn"
-                                        file="ddn"
-                                    />
-                                </span>
+                                </BaseTableDropdownLink>
                                 <template #dropdown>
                                     <el-dropdown-menu>
                                         <el-dropdown-item @click="handleDelDateAll">{{ Translate('IDCS_DELETE_ALL') }}</el-dropdown-item>

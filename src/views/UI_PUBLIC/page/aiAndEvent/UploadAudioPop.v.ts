@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-14 15:48:05
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-26 15:38:31
+ * @LastEditTime: 2024-10-12 16:41:20
  */
 import { type AudioAlarmOut } from '@/types/apiType/aiAndEvent'
 import { type UploadFile } from 'element-plus'
@@ -13,7 +13,7 @@ export default defineComponent({
         type: String,
         ipcAudioChl: String,
         ipcRowData: {
-            type: Object,
+            type: Object as PropType<AudioAlarmOut>,
             require: true,
         },
         handleAddVoiceList: {
@@ -90,7 +90,7 @@ export default defineComponent({
                 const fileSize = base64FileSize(data)
                 if (prop.type == 'ipcAudio') {
                     let audioFileLimitSize = prop?.ipcRowData?.audioFileLimitSize
-                    audioFileLimitSize = (parseInt(audioFileLimitSize) / 1024).toFixed(2)
+                    audioFileLimitSize = (parseInt(audioFileLimitSize!) / 1024).toFixed(2)
                     if (fileSize > audioFileLimitSize) {
                         showMsg(Translate('IDCS_OUT_FILE_SIZE'))
                         return
@@ -116,7 +116,7 @@ export default defineComponent({
                         const audioId = $('/response/content/param/id').text()
                         prop.handleAddVoiceList!(audioId, pageData.value.uploadFileName)
                     } else {
-                        const errorCode = $('/response/errorCode').text()
+                        const errorCode = Number($('/response/errorCode').text())
                         handleErrorMsg(errorCode)
                     }
                 } else {
@@ -139,7 +139,7 @@ export default defineComponent({
                     if ($('/response/status').text() == 'success') {
                         ctx.emit('close')
                     } else {
-                        const errorCode = $('/response/errorCode').text()
+                        const errorCode = Number($('/response/errorCode').text())
                         handleErrorMsg(errorCode)
                     }
                 }
@@ -153,14 +153,14 @@ export default defineComponent({
             })
         }
 
-        const handleErrorMsg = (errorCode: string) => {
-            if (errorCode == '536871048') {
+        const handleErrorMsg = (errorCode: number) => {
+            if (errorCode == ErrorCode.USER_ERROR_CLIENT_LIMITED_BY_LITE_TYPE) {
                 showMsg(Translate('IDCS_OUT_FILE_SIZE'))
-            } else if (errorCode == '536870970') {
+            } else if (errorCode == ErrorCode.USER_ERROR_NAME_EXISTED) {
                 showMsg(Translate('IDCS_NAME_SAME'))
-            } else if (errorCode == '536870982') {
+            } else if (errorCode == ErrorCode.USER_ERROR_DEV_RESOURCE_LIMITED) {
                 showMsg(Translate('IDCS_CONFIG_SPACE_NOT_ENOUGH'))
-            } else if (errorCode == '536870931') {
+            } else if (errorCode == ErrorCode.USER_ERROR_NODE_NET_DISCONNECT) {
                 showMsg(Translate('IDCS_OCX_NET_DISCONNECT'))
             } else {
                 showMsg(Translate('IDCS_AUDIO_FILE_TASK_ERROR').formatForLang(pageData.value.uploadFileName))

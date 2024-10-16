@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-19 11:11:35
  * @Description:  越界
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-09 14:05:23
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-16 11:37:34
 -->
 
 <template>
@@ -146,7 +146,6 @@
                     >
                         <span>{{ Translate('IDCS_ADVANCED') }}</span>
                         <BaseImgSprite
-                            class="moreBtn"
                             file="arrow"
                             :index="0"
                             :chunk="4"
@@ -605,6 +604,7 @@
                                                 v-model="scope.row.preset.value"
                                                 size="small"
                                                 :empty-values="[undefined, null]"
+                                                @visible-change="getPresetById(scope.row)"
                                                 @change="tripwireData.applyDisable = false"
                                             >
                                                 <el-option

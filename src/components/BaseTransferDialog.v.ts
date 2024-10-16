@@ -2,42 +2,38 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-16 17:19:11
  * @Description: 穿梭框弹窗
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-26 11:19:38
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-15 17:18:09
  */
 export default defineComponent({
     props: {
         headerTitle: {
             type: String,
-            require: true,
             default: '',
         },
         sourceTitle: {
             type: String,
-            require: true,
             default: '',
         },
         targetTitle: {
             type: String,
-            require: true,
             default: '',
         },
         sourceData: {
-            type: Array as PropType<{ value: string; label: string }[]>,
-            require: true,
+            type: Array as PropType<{ label: string; value: string; disabled?: boolean }[]>,
+            required: true,
         },
         linkedList: {
             type: Array as PropType<string[]>,
-            require: true,
+            required: true,
         },
         type: {
             type: String,
-            require: true,
             default: '',
         },
     },
     emits: {
-        confirm(e: { value: string; label: string }[]) {
+        confirm(e: SelectOption<string, string>[]) {
             return e
         },
         close() {
@@ -45,7 +41,7 @@ export default defineComponent({
         },
     },
     setup(props, ctx) {
-        const data = ref<{ value: string; label: string }[]>([])
+        const data = ref<SelectOption<string, string>[]>([])
         const chosedList = ref<string[]>([])
         const MAX_TRIGGER_COUNT = 16
         const source_title = ref('')
@@ -61,8 +57,8 @@ export default defineComponent({
             alarmOut: 'IDCS_ALARMOUT_LIMIT',
         }
         const open = () => {
-            data.value = props.sourceData!
-            chosedList.value = props.linkedList!
+            data.value = props.sourceData
+            chosedList.value = props.linkedList
             source_title.value = Translate(props.sourceTitle)
             target_title.value = Translate(props.targetTitle)
         }
@@ -73,7 +69,6 @@ export default defineComponent({
             if (chosedList.value.length > MAX_TRIGGER_COUNT) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate(typeMapping[props.type]),
                 })
                 chosedList.value.splice(MAX_TRIGGER_COUNT, chosedList.value.length - 1)

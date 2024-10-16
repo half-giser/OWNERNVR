@@ -111,9 +111,8 @@ export default defineComponent({
                     }
                 })
                 data += '</devIds></condition>'
-                const sendXml = getXmlWrapData(data)
                 openLoading()
-                delDevList(sendXml).then(() => {
+                delDevList(data).then(() => {
                     closeLoading()
                     //删除通道不提示
                     getDataList()
@@ -129,9 +128,8 @@ export default defineComponent({
                 let data = '<condition><devIds type="list">' + '<item id="' + rowData.id + '">' + rowData.name
                 if (Number(rowData.poeIndex) > 0) data += '<poeIndex>' + rowData.poeIndex + '</poeIndex>'
                 data += '</item>' + '</devIds></condition>'
-                const sendXml = getXmlWrapData(data)
                 openLoading()
-                delDevList(sendXml).then(() => {
+                delDevList(data).then(() => {
                     closeLoading()
                     //删除通道不提示
                     getDataList()
@@ -147,7 +145,7 @@ export default defineComponent({
                 window.open('http://' + ip + ':' + rowData.poePort, linkWinMode, '')
             } else {
                 // 非poe通道跳转时要带上端口号，避免用户改了ipc默认的80端口，导致跳转不成功
-                const data = getXmlWrapData(`<condition><chlId>${rowData.id}</chlId></condition>`)
+                const data = `<condition><chlId>${rowData.id}</chlId></condition>`
                 openLoading()
                 queryChlPort(data).then((res) => {
                     closeLoading()
@@ -205,9 +203,8 @@ export default defineComponent({
                 '<chlType/>' +
                 '<chlNum/>' +
                 '</requireField>'
-            const sendXml = getXmlWrapData(data)
             openLoading()
-            queryDevList(sendXml).then((res) => {
+            queryDevList(data).then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
                 getIpAnalogCout()
@@ -282,7 +279,7 @@ export default defineComponent({
 
         const getIPChlInfo = (channelInfo: ChannelInfoDto) => {
             const type = channelInfo.productModel.factoryName === 'Recorder'
-            const data = getXmlWrapData('<condition><chlId>' + (type ? channelInfo.devID : channelInfo.id) + '</chlId></condition>')
+            const data = '<condition><chlId>' + (type ? channelInfo.devID : channelInfo.id) + '</chlId></condition>'
             queryIPChlInfo(data).then((res) => {
                 channelInfo.version = queryXml(res)('//content/chl/detailedSoftwareVersion').text()
             })
@@ -341,7 +338,7 @@ export default defineComponent({
 
         const getIpAnalogCout = () => {
             openLoading()
-            queryBasicCfg(getXmlWrapData('')).then((res) => {
+            queryBasicCfg().then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() === 'success') {
@@ -363,7 +360,7 @@ export default defineComponent({
                 const $ = queryXml(res1)
                 const mode = $('//content/recMode/mode').text()
                 openLoading()
-                querySystemCaps(getXmlWrapData('')).then((res2) => {
+                querySystemCaps().then((res2) => {
                     closeLoading()
                     const $ = queryXml(res2)
                     if ($('status').text() === 'success') {
@@ -388,7 +385,7 @@ export default defineComponent({
 
         const getProtocolList = (callback: Function) => {
             openLoading()
-            queryRtspProtocolList(getXmlWrapData('')).then((res) => {
+            queryRtspProtocolList().then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() === 'success') {

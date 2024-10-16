@@ -3,7 +3,7 @@
  * @Date: 2024-06-18 18:42:24
  * @Description: 在线用户
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-11 18:07:39
+ * @LastEditTime: 2024-10-15 11:58:10
 -->
 <template>
     <div class="base-flex-box">
@@ -26,11 +26,13 @@
             <el-table-column
                 prop="ip"
                 :label="Translate('IDCS_IP')"
+                width="180"
             >
             </el-table-column>
             <el-table-column
                 prop="time"
                 :label="Translate('IDCS_LOGIN_TIME')"
+                width="250"
             >
             </el-table-column>
             <el-table-column :label="Translate('IDCS_DETAIL_INFO')">

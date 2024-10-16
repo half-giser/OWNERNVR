@@ -2,8 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-30 18:47:52
  * @Description: 智能分析 - 选择人脸 - 从抓拍库选择
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-14 09:29:04
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-12 10:32:06
  */
 import { cloneDeep } from 'lodash-es'
 import { type IntelFaceDBSnapFaceList } from '@/types/apiType/intelligentAnalysis'
@@ -36,7 +36,7 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const { Translate } = useLangStore()
         const dateTime = useDateTimeStore()
 
@@ -87,8 +87,10 @@ export default defineComponent({
         const changeAllChl = () => {
             if (pageData.value.isAllChl) {
                 formData.value.chls = cloneDeep(pageData.value.chlList)
+                searchData()
             } else {
                 formData.value.chls = []
+                searchData()
             }
         }
 
@@ -110,7 +112,7 @@ export default defineComponent({
          * @description 检索抓怕数据列表
          */
         const searchData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXml = rawXml`
                 <resultLimit>10000</resultLimit>
@@ -126,7 +128,7 @@ export default defineComponent({
             const result = await searchImageByImageV2(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             formData.value.faceIndex = []
             listData.value = $('//content/i')
@@ -147,7 +149,7 @@ export default defineComponent({
                 })
                 .toSorted((a, b) => a.timestamp - b.timestamp)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             changeFacePage(1)
             ctx.emit('change', [])

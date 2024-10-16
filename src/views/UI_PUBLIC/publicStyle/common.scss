@@ -224,7 +224,7 @@ input[type='number'] {
             padding: 0px 20px 20px 20px;
         }
     }
-
+    
     // .el-table 公共样式
     .el-table {
         .el-table__header {
@@ -252,10 +252,8 @@ input[type='number'] {
                         align-items: center;
                         color: var(--el-table-header-text-color);
                         .el-icon {
+                            margin-right: 5px;
                             cursor: pointer;
-                            &:hover {
-                                color: var(--input-text);
-                            }
                         }
                     }
                 }
@@ -264,7 +262,6 @@ input[type='number'] {
         & .el-table__cell{
             text-align: center;
         }
-
         .el-table__row {
             &:has(> td.el-table-column--selection > .cell .el-checkbox.is-checked) {
                 color: var(--color-white);
@@ -493,6 +490,10 @@ input[type='number'] {
         // 不换行
         &.nowrap {
             flex-wrap: nowrap;
+
+            .el-radio-button__inner {
+                padding-inline: 5px;
+            }
         }
 
         // 拉伸铺满

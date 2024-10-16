@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-20 17:19:56
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-23 10:41:54
+ * @LastEditTime: 2024-10-16 10:30:31
  */
 import { type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
 
@@ -14,7 +14,7 @@ export default defineComponent({
             require: true,
         },
         linkedList: {
-            type: Array<PresetItem>,
+            type: Object as PropType<PresetItem[]>,
             require: true,
         },
         handlePresetLinkedList: {
@@ -35,24 +35,9 @@ export default defineComponent({
         const tableData = ref<PresetList[]>([])
 
         const open = async () => {
-            const sendXml = rawXml`
-                <types>
-                    <nodeType>
-                        <enum>chls</enum>
-                        <enum>sensors</enum>
-                        <enum>alarmOuts</enum>
-                    </nodeType>
-                </types>
-                <nodeType type="nodeType">chls</nodeType>
-                <requireField>
-                    <name/>
-                    <chlType/>
-                </requireField>
-                <condition>
-                    <supportPtz/>
-                </condition>
-            `
-            const result = await queryNodeList(getXmlWrapData(sendXml))
+            const result = await getChlList({
+                isSupportPtz: true,
+            })
 
             let rowData = [] as PresetList[]
             commLoadResponseHandler(result, async ($) => {
@@ -64,47 +49,50 @@ export default defineComponent({
                         chlType: $item('chlType').text(),
                         preset: { value: '', label: Translate('IDCS_NULL') },
                         presetList: [{ value: '', label: Translate('IDCS_NULL') }],
+                        isGetPresetList: false,
                     }
                 })
 
                 rowData = rowData.filter((item) => item.id != prop.filterChlId)
-
                 rowData.forEach((row) => {
                     prop.linkedList?.forEach((item) => {
                         if (row.id == item.chl.value) {
+                            console.log(item)
                             row.preset = { value: item.index, label: item.name }
+                            row.presetList.push({ value: item.index, label: item.name })
                         }
                     })
                 })
-
+                console.log(rowData)
                 for (let i = rowData.length - 1; i >= 0; i--) {
                     //预置点里过滤掉recorder通道
                     if (rowData[i].chlType == 'recorder') {
                         rowData.splice(i, 1)
-                    } else {
-                        await getPresetById(rowData[i])
                     }
                 }
-
                 tableData.value = rowData
             })
         }
-
+        // 预置点选择框下拉时获取预置点列表数据
         const getPresetById = async (row: PresetList) => {
-            const sendXml = rawXml`
+            if (!row.isGetPresetList) {
+                row.presetList.splice(1)
+                const sendXml = rawXml`
                 <condition>
                     <chlId>${row.id}</chlId>
                 </condition>
             `
-            const result = await queryChlPresetList(sendXml)
-            commLoadResponseHandler(result, ($) => {
-                $('/response/content/presets/item').forEach((item) => {
-                    row.presetList.push({
-                        value: item.attr('index')!,
-                        label: item.text(),
+                const result = await queryChlPresetList(sendXml)
+                commLoadResponseHandler(result, ($) => {
+                    $('/response/content/presets/item').forEach((item) => {
+                        row.presetList.push({
+                            value: item.attr('index')!,
+                            label: item.text(),
+                        })
                     })
                 })
-            })
+                row.isGetPresetList = true
+            }
         }
 
         const save = () => {
@@ -112,10 +100,12 @@ export default defineComponent({
             const linkedList = [] as PresetItem[]
             tableData.value.forEach((item) => {
                 if (item.preset.value !== '') {
+                    // 选择器绑定了value值但label不会随之改变，从列表中查找对应项
+                    const presetItem = item.presetList.find((ele) => ele.value === item.preset.value) as { value: string; label: string }
                     presetCount++
                     linkedList.push({
-                        index: item.preset.value,
-                        name: item.preset.label,
+                        index: presetItem.value,
+                        name: presetItem.label,
                         chl: {
                             value: item.id,
                             label: item.name,
@@ -131,18 +121,20 @@ export default defineComponent({
                 })
             } else {
                 prop.handlePresetLinkedList!(prop.filterChlId, linkedList)
-                ctx.emit('close', prop.filterChlId as string)
+                close()
             }
         }
 
         const close = () => {
-            ctx.emit('close', prop.filterChlId as string)
+            ctx.emit('close', prop.filterChlId!)
+            tableData.value = []
         }
         return {
             tableData,
             open,
             save,
             close,
+            getPresetById,
         }
     },
 })

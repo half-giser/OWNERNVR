@@ -3,13 +3,13 @@
  * @Date: 2024-06-24 09:19:04
  * @Description: 基本配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-23 19:53:21
+ * @LastEditTime: 2024-10-15 14:39:59
 -->
 <template>
     <div class="Setting">
         <el-form
             ref="formRef"
-            class="stripe"
+            class="stripe narrow"
             label-position="left"
             :rules
             :model="formData"
@@ -39,11 +39,9 @@
             >
                 <el-input-number
                     v-model="formData.deviceNumber"
-                    class="mx-4"
                     :min="0"
                     :max="99999"
                     :controls="false"
-                    controls-position="right"
                 />
             </el-form-item>
             <el-form-item

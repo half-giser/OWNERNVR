@@ -177,7 +177,7 @@ export default defineComponent({
 
         const getSystemCaps = (callback?: Function) => {
             openLoading()
-            querySystemCaps(getXmlWrapData('')).then((res) => {
+            querySystemCaps().then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
                 chlSupSignalType = $('//content/chlSupSignalType').text().split(':')
@@ -192,7 +192,7 @@ export default defineComponent({
 
         const getData = () => {
             openLoading()
-            queryBasicCfg(getXmlWrapData('')).then((res) => {
+            queryBasicCfg().then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
                 chlSupSignalTypeList.value = []
@@ -292,7 +292,7 @@ export default defineComponent({
             // return
 
             // openLoading()
-            // editBasicCfg(getXmlWrapData(data)).then(() => {
+            // editBasicCfg(data).then(() => {
             //     closeLoading()
             //     btnOkDisabled.value = true
             // })

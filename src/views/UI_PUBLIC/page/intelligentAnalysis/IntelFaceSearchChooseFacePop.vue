@@ -3,13 +3,13 @@
  * @Date: 2024-09-12 10:39:32
  * @Description: 智能分析 - 人脸搜索 - 选择人脸弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-25 16:10:44
+ * @LastEditTime: 2024-10-14 14:27:33
 -->
 <template>
     <el-dialog
         :title="Translate('IDCS_ADD')"
         :model-value="modelValue"
-        width="1150"
+        width="1130"
         align-center
         draggable
         append-to-body
@@ -95,16 +95,21 @@
                             </div>
                         </div>
                     </div>
-                    <div v-else-if="type === 'group'">
+                    <div
+                        v-else-if="type === 'group'"
+                        class="current-group"
+                    >
                         <el-table
                             stripe
                             border
                             :data="group"
                             height="460"
+                            show-overflow-tooltip
                         >
                             <el-table-column
                                 type="index"
                                 :label="Translate('IDCS_SERIAL_NUMBER')"
+                                width="80"
                             />
                             <el-table-column
                                 :label="Translate('IDCS_TARGET_GROUP_NAME')"
@@ -177,19 +182,25 @@
 }
 
 .current {
-    width: 100%;
-    height: 100%;
+    width: 922px;
+    height: 450px;
     border: 1px solid var(--content-border);
     margin-top: 10px;
 
     &-list {
-        height: calc(100% - 45px);
+        height: calc(100% - 40px);
         display: flex;
         flex-wrap: wrap;
         border-bottom: 1px solid var(--content-border);
         overflow-y: auto;
         box-sizing: border-box;
         padding: 10px 0;
+    }
+}
+
+.current-group {
+    .el-table {
+        width: 400px;
     }
 }
 </style>

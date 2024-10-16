@@ -8,7 +8,7 @@
         <div
             v-if="visiable"
             class="tip_wrap"
-            :style="{ 'border-color': index === 1 ? 'var(--float-ok-color)' : 'var(--float-error-color)' }"
+            :style="{ 'border-color': index === 1 ? 'var(--float-ok)' : 'var(--float-error)' }"
             @click="handleClick"
         >
             <BaseImgSprite
@@ -18,7 +18,7 @@
             />
             <span
                 class="tip_msg"
-                :style="{ color: index === 1 ? 'var(--float-ok-color)' : 'var(--float-error-color)' }"
+                :style="{ color: index === 1 ? 'var(--float-ok)' : 'var(--float-error)' }"
             >
                 {{ msg }}
             </span>

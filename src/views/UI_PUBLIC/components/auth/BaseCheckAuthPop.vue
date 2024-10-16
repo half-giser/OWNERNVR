@@ -3,7 +3,7 @@
  * @Date: 2024-06-07 15:00:44
  * @Description: 账号密码权限认证弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-23 09:32:33
+ * @LastEditTime: 2024-10-15 09:52:07
 -->
 <template>
     <el-dialog
@@ -21,6 +21,7 @@
             :rules="rules"
             label-width="150px"
             label-position="left"
+            hide-required-asterisk
         >
             <el-form-item
                 prop="user"
@@ -28,7 +29,6 @@
             >
                 <el-input
                     v-model="formData.userName"
-                    type="password"
                     :placeholder="Translate('IDCS_ACCOUNT_TIP')"
                     @paste.capture.prevent=""
                     @copy.capture.prevent=""

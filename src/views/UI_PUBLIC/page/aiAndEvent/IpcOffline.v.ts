@@ -2,24 +2,15 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-21 15:34:24
  * @Description: 前端掉线
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-10 15:59:09
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-14 17:17:40
  */
 import { cloneDeep } from 'lodash-es'
-import { ArrowDown } from '@element-plus/icons-vue'
-import BaseTransferPop from '@/components/BaseTransferPop.vue'
-import BaseTableRowStatus from '@/components/BaseTableRowStatus.vue'
-import BaseTransferDialog from '@/components/BaseTransferDialog.vue'
 import { MotionEventConfig, type PresetItem } from '@/types/apiType/aiAndEvent'
-import { errorCodeMap } from '@/utils/constants'
 import SetPresetPop from './SetPresetPop.vue'
 export default defineComponent({
     components: {
-        ArrowDown,
-        BaseTransferPop,
-        BaseTransferDialog,
         SetPresetPop,
-        BaseTableRowStatus,
     },
     setup() {
         const chosedList = ref<any[]>([])
@@ -28,7 +19,7 @@ export default defineComponent({
 
         // ;(snapRef.value as InstanceType<typeof ElDropdown>).handleOpen()
         // ;(alarmOutRef.value as InstanceType<typeof ElDropdown>).handleOpen()
-        const { LoadingTarget, openLoading, closeLoading } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
         const openMessageTipBox = useMessageBox().openMessageTipBox
         const pageData = ref({
@@ -95,10 +86,10 @@ export default defineComponent({
                     pageData.value.audioList = []
                     const res = queryXml(resb)
                     if (res('status').text() == 'success') {
-                        res('//content/audioList/item').forEach((item: any) => {
+                        res('//content/audioList/item').forEach((item) => {
                             const $item = queryXml(item.element)
                             pageData.value.audioList.push({
-                                value: item.attr('id'),
+                                value: item.attr('id')!,
                                 label: $item('name').text(),
                             })
                         })
@@ -114,10 +105,10 @@ export default defineComponent({
             }).then(async (resb) => {
                 const res = queryXml(resb)
                 if (res('status').text() == 'success') {
-                    res('//content/item').forEach((item: any) => {
+                    res('//content/item').forEach((item) => {
                         const $item = queryXml(item.element)
                         pageData.value.snapList.push({
-                            value: item.attr('id'),
+                            value: item.attr('id')!,
                             label: $item('name').text(),
                         })
                     })
@@ -131,14 +122,14 @@ export default defineComponent({
             }).then(async (resb) => {
                 const res = queryXml(resb)
                 if (res('status').text() == 'success') {
-                    res('//content/item').forEach((item: any) => {
+                    res('//content/item').forEach((item) => {
                         const $item = queryXml(item.element)
                         let name = $item('name').text()
                         if ($item('devDesc').text()) {
                             name = $item('devDesc').text() + '-' + name
                         }
                         pageData.value.alarmOutList.push({
-                            value: item.attr('id'),
+                            value: item.attr('id')!,
                             label: name,
                             device: {
                                 value: $item('device').attr('id'),
@@ -149,12 +140,12 @@ export default defineComponent({
                 }
             })
         }
-        const getSnapListSingle = function (row: MotionEventConfig) {
+        const getSnapListSingle = (row: MotionEventConfig) => {
             return pageData.value.snapList.filter((item) => {
                 return item.value != row.id
             })
         }
-        const getAlarmOutListSingle = function (row: MotionEventConfig) {
+        const getAlarmOutListSingle = (row: MotionEventConfig) => {
             const alarmOutlist = pageData.value.alarmOutList.filter((item) => {
                 return item.device.value != row.id
             })
@@ -167,40 +158,23 @@ export default defineComponent({
             }).then(async (resb) => {
                 const res = queryXml(resb)
                 if (res('status').text() == 'success') {
-                    res('//content/item').forEach((item: any) => {
+                    res('//content/item').forEach((item) => {
                         const $item = queryXml(item.element)
                         pageData.value.videoPopupList.push({
-                            value: item.attr('id'),
+                            value: item.attr('id')!,
                             label: $item('name').text(),
                         })
                     })
                 }
             })
         }
-        const buildTableData = function () {
+        const buildTableData = () => {
             tableData.value.length = 0
-            const xml = rawXml`<types>
-                            <nodeType>
-                                <enum>chls</enum>
-                                <enum>sensors</enum>
-                                <enum>alarmOuts</enum>
-                            </nodeType>
-                            <chlType>
-                                <enum>analog</enum>
-                                <enum>digital</enum>
-                                <enum>all</enum>
-                            </chlType>
-                        </types>
-                        <pageIndex>${pageData.value.pageIndex.toString()}</pageIndex>
-                        <pageSize>${pageData.value.pageSize.toString()}</pageSize>
-                        <nodeType type="nodeType">chls</nodeType>
-                        <requireField>
-                            <name/>
-                        </requireField>
-                        <condition>
-                            <chlType type="chlType">digital</chlType>
-                        </condition>`
-            queryNodeList(getXmlWrapData(xml)).then(async (res) => {
+            getChlList({
+                pageIndex: pageData.value.pageIndex,
+                pageSize: pageData.value.pageSize,
+                chlType: 'digital',
+            }).then(async (res) => {
                 const $chl = queryXml(res)
                 pageData.value.totalCount = Number($chl('//content').attr('total'))
                 $chl('//content/item').forEach(async (item) => {
@@ -224,9 +198,9 @@ export default defineComponent({
                         row.sysAudio = res('//content/sysAudio').attr('id') || pageData.value.defaultAudioId
                         row.snap = {
                             switch: res('//content/sysSnap/switch').text() == 'true' ? true : false,
-                            chls: res('//content/sysSnap/chls/item').map((item: any) => {
+                            chls: res('//content/sysSnap/chls/item').map((item) => {
                                 return {
-                                    value: item.attr('id'),
+                                    value: item.attr('id')!,
                                     label: item.text(),
                                 }
                             }),
@@ -235,9 +209,9 @@ export default defineComponent({
                         row.snapList = row.snap.chls.map((item) => item.value)
                         row.alarmOut = {
                             switch: res('//content/alarmOut/switch').text() == 'true' ? true : false,
-                            chls: res('//content/alarmOut/alarmOuts/item').map((item: any) => {
+                            chls: res('//content/alarmOut/alarmOuts/item').map((item) => {
                                 return {
-                                    value: item.attr('id'),
+                                    value: item.attr('id')!,
                                     label: item.text(),
                                 }
                             }),
@@ -259,13 +233,13 @@ export default defineComponent({
                         })
                         row.msgBoxPopup = res('//content/popMsgSwitch').text()
                         row.preset.switch = res('//content/preset/switch').text() == 'true' ? true : false
-                        res('//content/preset/presets/item').forEach((item: any) => {
+                        res('//content/preset/presets/item').forEach((item) => {
                             const $item = queryXml(item.element)
                             row.preset.presets.push({
                                 index: $item('index').text(),
                                 name: $item('name').text(),
                                 chl: {
-                                    value: $item('chl').attr('id'),
+                                    value: $item('chl').attr('id')!,
                                     label: $item('chl').text(),
                                 },
                             })
@@ -331,7 +305,7 @@ export default defineComponent({
             pageData.value.snapChosedIdsAll = []
             pageData.value.snapPopoverVisible = false
         }
-        const setSnap = function (index: number) {
+        const setSnap = (index: number) => {
             pageData.value.snapIsShow = true
             pageData.value.triggerDialogIndex = index
         }
@@ -395,7 +369,7 @@ export default defineComponent({
             pageData.value.alarmOutChosedIdsAll = []
             pageData.value.alarmOutPopoverVisible = false
         }
-        const setAlarmOut = function (index: number) {
+        const setAlarmOut = (index: number) => {
             pageData.value.alarmOutIsShow = true
             pageData.value.triggerDialogIndex = index
         }
@@ -445,21 +419,21 @@ export default defineComponent({
             })
         }
 
-        const snapSwitchChange = function (row: MotionEventConfig) {
+        const snapSwitchChange = (row: MotionEventConfig) => {
             addEditRow(row)
             if (row.snap.switch === false) {
                 row.snap.chls = []
                 row.snapList = []
             }
         }
-        const alarmOutSwitchChange = function (row: MotionEventConfig) {
+        const alarmOutSwitchChange = (row: MotionEventConfig) => {
             addEditRow(row)
             if (row.alarmOut.switch === false) {
                 row.alarmOut.chls = []
                 row.alarmOutList = []
             }
         }
-        const presetSwitchChange = function (row: MotionEventConfig) {
+        const presetSwitchChange = (row: MotionEventConfig) => {
             addEditRow(row)
             if (row.preset.switch === false) {
                 row.preset.presets = []
@@ -467,7 +441,7 @@ export default defineComponent({
         }
 
         // 系统音频
-        const handleSysAudioChangeAll = function (sysAudio: string) {
+        const handleSysAudioChangeAll = (sysAudio: string) => {
             tableData.value.forEach((item) => {
                 if (!item.rowDisable) {
                     addEditRow(item)
@@ -476,7 +450,7 @@ export default defineComponent({
             })
         }
         // 消息推送
-        const handleMsgPushChangeAll = function (msgPush: string) {
+        const handleMsgPushChangeAll = (msgPush: string) => {
             tableData.value.forEach((item) => {
                 if (!item.rowDisable) {
                     addEditRow(item)
@@ -485,7 +459,7 @@ export default defineComponent({
             })
         }
         // ftpSnap 未传值 TODO
-        // const handleFtpSnapChangeAll = function (ftpSnap: string) {
+        // const handleFtpSnapChangeAll = (ftpSnap: string) => {
         //     tableData.value.forEach((item) => {
         //         if (!item.rowDisable) {
         //             addEditRow(item)
@@ -495,7 +469,7 @@ export default defineComponent({
         // }
 
         // 蜂鸣器
-        const handleBeeperChangeAll = function (beeper: string) {
+        const handleBeeperChangeAll = (beeper: string) => {
             tableData.value.forEach((item) => {
                 if (!item.rowDisable) {
                     addEditRow(item)
@@ -504,7 +478,7 @@ export default defineComponent({
             })
         }
         // 视频弹出
-        const handleVideoPopupChangeAll = function (videoPopup: string) {
+        const handleVideoPopupChangeAll = (videoPopup: string) => {
             tableData.value.forEach((row) => {
                 const values = row.videoPopupList.map((item) => item.value)
                 if (!row.rowDisable) {
@@ -520,7 +494,7 @@ export default defineComponent({
             })
         }
         // 消息框弹出
-        const handleMsgBoxPopupChangeAll = function (msgBoxPopup: string) {
+        const handleMsgBoxPopupChangeAll = (msgBoxPopup: string) => {
             tableData.value.forEach((item) => {
                 if (!item.rowDisable) {
                     addEditRow(item)
@@ -529,7 +503,7 @@ export default defineComponent({
             })
         }
         // 邮件
-        const handleEmailChangeAll = function (email: string) {
+        const handleEmailChangeAll = (email: string) => {
             tableData.value.forEach((item) => {
                 if (!item.rowDisable) {
                     addEditRow(item)
@@ -538,7 +512,7 @@ export default defineComponent({
             })
         }
 
-        const addEditRow = function (row: MotionEventConfig) {
+        const addEditRow = (row: MotionEventConfig) => {
             // 若该行不存在于编辑行中，则添加
             const isExist = pageData.value.editRows.some((item) => item.id === row.id)
             if (!isExist) {
@@ -546,7 +520,7 @@ export default defineComponent({
             }
             pageData.value.applyDisable = false
         }
-        const getSavaData = function (rowData: MotionEventConfig) {
+        const getSavaData = (rowData: MotionEventConfig) => {
             const snapSwitch = rowData.snap.switch
             const alarmOutSwitch = rowData.alarmOut.switch
             const presetSwitch = rowData.preset.switch
@@ -558,7 +532,7 @@ export default defineComponent({
                 rowData.snap = { switch: false, chls: [] }
             }
             const snapChls = rowData.snap.chls
-            snapChls.forEach((item: any) => {
+            snapChls.forEach((item) => {
                 sendXml += rawXml` <item id="${item.value}">
                                 <![CDATA[${item.label}]]>
                             </item>`
@@ -572,7 +546,7 @@ export default defineComponent({
                 rowData.alarmOut = { switch: false, chls: [] }
             }
             const alarmOutChls = rowData.alarmOut.chls
-            alarmOutChls.forEach((item: any) => {
+            alarmOutChls.forEach((item) => {
                 sendXml += rawXml` <item id="${item.value}">
                                 <![CDATA[${item.label}]]>
                             </item>`
@@ -592,7 +566,7 @@ export default defineComponent({
             if (!(presets instanceof Array)) {
                 presets = [presets]
             }
-            presets.forEach((item: any) => {
+            presets.forEach((item) => {
                 if (item.index) {
                     sendXml += rawXml`
                     <item>
@@ -630,8 +604,8 @@ export default defineComponent({
             //     </content>`
             return sendXml
         }
-        const setData = function () {
-            openLoading(LoadingTarget.FullScreen)
+        const setData = () => {
+            openLoading()
             pageData.value.editRows.forEach((item: MotionEventConfig) => {
                 const sendXml = getSavaData(item)
                 editFrontEndOfflineTrigger(sendXml).then((resb) => {
@@ -641,7 +615,7 @@ export default defineComponent({
                     } else {
                         item.status = 'error'
                         const errorCode = Number(res('errorCode').text())
-                        if (errorCode === errorCodeMap.noConfigData) {
+                        if (errorCode === ErrorCode.USER_ERROR_GET_CONFIG_INFO_FAIL) {
                             item.status = 'success'
                         } else {
                             item.status = 'error'
@@ -649,7 +623,7 @@ export default defineComponent({
                     }
                 })
             })
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             pageData.value.editRows = []
             pageData.value.applyDisable = true
         }
@@ -664,7 +638,6 @@ export default defineComponent({
         return {
             changePagination,
             changePaginationSize,
-            Translate,
             chosedList,
             pageData,
             tableData,
@@ -695,7 +668,6 @@ export default defineComponent({
             handleEmailChangeAll,
             setData,
             addEditRow,
-            BaseTableRowStatus,
         }
     },
 })

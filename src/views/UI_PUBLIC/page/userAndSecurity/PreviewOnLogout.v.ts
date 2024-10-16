@@ -3,14 +3,14 @@
  * @Date: 2024-06-18 18:43:27
  * @Description: 登出后预览
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 13:44:50
+ * @LastEditTime: 2024-10-15 13:47:08
  */
 import { type UserPreviewOnLogoutChannelList } from '@/types/apiType/userAndSecurity'
 
 export default defineComponent({
     setup() {
         const { openMessageTipBox } = useMessageBox()
-        const { closeLoading, LoadingTarget, openLoading } = useLoading()
+        const { closeLoading, openLoading } = useLoading()
         const { Translate } = useLangStore()
 
         const playerRef = ref<PlayerInstance>()
@@ -46,8 +46,13 @@ export default defineComponent({
          * @description 获取页面数据
          */
         const getData = async () => {
+            openLoading()
+
             const result = await queryLogoutChlPreviewAuth()
             const $ = queryXml(result)
+
+            closeLoading()
+
             if ($('//status').text() === 'success') {
                 channelList.value = []
                 $('//content/item').forEach((item) => {
@@ -85,7 +90,7 @@ export default defineComponent({
          * @description 更新数据
          */
         const setData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const channel = channelList.value
                 .map((item) => {
@@ -105,13 +110,14 @@ export default defineComponent({
             const result = await editLogoutChlPreviewAuth(sendXML)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 openMessageTipBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
+                pageData.value.buttonDisabled = true
             } else {
                 openMessageTipBox({
                     type: 'info',
@@ -144,11 +150,8 @@ export default defineComponent({
             getData()
         })
 
-        /**
-         * @description 注销页面时停止接收数据
-         */
         onBeforeUnmount(() => {
-            if (playerRef.value?.mode === 'ocx') {
+            if (playerRef.value && playerRef.value.mode === 'ocx' && playerRef.value.ready) {
                 const sendXML = OCX_XML_StopPreview('ALL')
                 playerRef.value?.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }

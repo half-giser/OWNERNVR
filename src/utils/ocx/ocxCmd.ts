@@ -3,11 +3,11 @@
  * @Date: 2024-06-03 11:56:43
  * @Description: 插件命令集合
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-26 09:22:29
+ * @LastEditTime: 2024-10-14 15:48:27
  */
 import { APP_SERVER_IP } from '@/utils/constants'
 
-const wrapXml = (xml: string) => compressXml(`${xmlHeader}${xml}`)
+const wrapXml = (xml: string) => `${xmlHeader}${xml}`
 
 const ui = getUiAndTheme()
 
@@ -355,7 +355,7 @@ export const OCX_XML_SelectScreen = (screenIndex: number) => {
 export const OCX_XML_SetViewChannelID = (chlId: string, chlName: string, chlPoe?: { chlIp?: string; poeSwitch?: boolean }) => {
     return wrapXml(rawXml`
         <cmd type="SetViewChannelId">
-            <item id="${chlId}"  chlIp="${chlPoe?.chlIp || ' '}"  poe="${String(chlPoe?.poeSwitch || false)}">${chlName}</item>
+            <item id="${chlId}" chlIp="${chlPoe?.chlIp || ' '}" poe="${String(chlPoe?.poeSwitch || false)}">${chlName}</item>
         </cmd>
     `)
 }
@@ -528,7 +528,7 @@ export const OCX_XML_TakePhotoByWinIndex = (winIndex: number) => {
  * @param chlId
  * @returns {string}
  */
-export const OCX_XML_TalkSwitch = (status: 'ON' | 'OFF', chlId?: number) => {
+export const OCX_XML_TalkSwitch = (status: 'ON' | 'OFF', chlId?: string) => {
     return wrapXml(rawXml`
         <cmd type="TalkSwitch" ${chlId ? `chlId="${chlId}"` : ''}>${status}</cmd>
     `)
@@ -1052,14 +1052,14 @@ export const OCX_XML_SetMaskArea = (masks: { X: number; Y: number; width: number
         <cmd type="SetMaskArea">
             ${masks
                 .map(
-                    (item, index) => `<item id="${index}">
-                <rectangle>
-                    <X>${item.X}</X>
-                    <Y>${item.Y}</Y>
-                    <width>${item.width}</width>
-                    <height>${item.height}</height>
-                </rectangle>
-            </item>`,
+                    (item, index) => rawXml`<item id="${index.toString()}">
+                        <rectangle>
+                            <X>${item.X.toString()}</X>
+                            <Y>${item.Y.toString()}</Y>
+                            <width>${item.width.toString()}</width>
+                            <height>${item.height.toString()}</height>
+                        </rectangle>
+                    </item>`,
                 )
                 .join('')}
         </cmd>
@@ -1290,15 +1290,8 @@ export const OCX_XML_SetRecList = (chlId: string, winIndex: number, list: OcxXml
             <recList timeZone="${timeZone}">
                 ${list
                     .map(
-                        (item) => rawXml`<item
-                            chlId="${item.chlId}"
-                            chlName="${item.chlName}"
-                            event="${item.event}"
-                            startTime="${item.startTime}"
-                            startTimeEx="${item.startTimeEx}"
-                            endTime="${item.endTime}"
-                            endTimeEx="${item.endTimeEx}"
-                            duration="${item.duration}" />`,
+                        (item) =>
+                            `<item chlId="${item.chlId}" chlName="${item.chlName}" event="${item.event}" startTime="${item.startTime}" startTimeEx="${item.startTimeEx}" endTime="${item.endTime}" endTimeEx="${item.endTimeEx}" duration="${item.duration}" />`,
                     )
                     .join('')}
             </recList>
@@ -1341,16 +1334,8 @@ export const OCX_XML_BackUpRecList = (format: string, path: string, groupby = 'c
             <backupRecList groupby='${groupby}'>
                 ${list
                     .map(
-                        (item) => rawXml`<item
-                            chlId="${item.chlId}"
-                            chlName="${item.chlName}"
-                            chlIndex="${item.chlIndex.toString()}"
-                            event="${item.event}"
-                            startTime="${item.startTime}"
-                            startTimeEx="${item.startTimeEx}"
-                            endTime="${item.endTime}"
-                            endTimeEx="${item.endTimeEx}"
-                            duration="${item.duration}" />`,
+                        (item) =>
+                            `<item chlId="${item.chlId}" chlName="${item.chlName}" chlIndex="${item.chlIndex.toString()}" event="${item.event}" startTime="${item.startTime}" startTimeEx="${item.startTimeEx}" endTime="${item.endTime}" endTimeEx="${item.endTimeEx}" duration="${item.duration}" />`,
                     )
                     .join('')}
             </backupRecList>
@@ -1857,9 +1842,9 @@ export const OCX_XML_SetAllVsdArea = (regulation: boolean, regionInfo: { X: numb
     const maskArea = maskAreaInfo?.length
         ? maskAreaInfo
               .map(
-                  (item, index) => `<points>
-                        <item X="${item.X}" Y="${item.Y}" />
-                        <Area>${index}</Area>
+                  (item, index) => rawXml`<points>
+                        <item X="${item.X.toString()}" Y="${item.Y.toString()}" />
+                        <Area>${index.toString()}</Area>
                         <LineColor>red</LineColor>
                     </points>`,
               )
@@ -1911,9 +1896,9 @@ export const OCX_XML_SetAllArea = (
     maxMinXml?: string,
     isShowAll?: boolean,
 ) => {
-    const cmd = `<cmd type="SetAllArea">
+    const cmd = rawXml`<cmd type="SetAllArea">
         <AreaType>${areaType}</AreaType>
-        <EventType>${AIEventTypeMap[eventType]}</EventType>
+        <EventType>${AIEventTypeMap[eventType].toString()}</EventType>
         ${isShowAll ? `<IsShowAllArea>${isShowAll}</IsShowAllArea>` : ''}
         ${maxMinXml ?? ''}
     `
@@ -1929,10 +1914,10 @@ export const OCX_XML_SetAllArea = (
             ${detectAreaInfo
                 .map((item) =>
                     item.length > 0
-                        ? `
+                        ? rawXml`
                         <points>
                             ${item.map((point) => `<item X="${point.X}" Y="${point.Y}" />`).join('')}
-                            <Area>${++index}</Area>
+                            <Area>${(++index).toString()}</Area>
                             <LineColor>green</LineColor>
                         </points>
                 `
@@ -1942,10 +1927,10 @@ export const OCX_XML_SetAllArea = (
             ${maskAreaInfo
                 .map((item) =>
                     item.length > 0
-                        ? `
+                        ? rawXml`
                         <points>
                             ${item.map((point) => `<item X="${point.X}" Y="${point.Y}" />`).join('')}
-                            <Area>${++index}</Area>
+                            <Area>${(++index).toString()}</Area>
                             <LineColor>red</LineColor>
                         </points>
                 `
@@ -1960,15 +1945,15 @@ export const OCX_XML_SetAllArea = (
             ${cmd}
             ${regionInfo
                 .map(
-                    (item, index) => `
+                    (item, index) => rawXml`
                         <points>
                             <item>
-                                <X1>${item.X1}</X1>
-                                <Y1>${item.Y1}</Y1>
-                                <X2>${item.X2}</X2>
-                                <Y2>${item.Y2}</Y2>
+                                <X1>${item.X1.toString()}</X1>
+                                <Y1>${item.Y1.toString()}</Y1>
+                                <X2>${item.X2.toString()}</X2>
+                                <Y2>${item.Y2.toString()}</Y2>
                             </item>
-                            <Area>${index + 1}</Area>
+                            <Area>${(index + 1).toString()}</Area>
                             <LineColor>green</LineColor>
                         </points>
                 `,
@@ -1988,12 +1973,12 @@ export const OCX_XML_SetAllArea = (
             ${cmd}
             ${lineInfo
                 .map(
-                    (item, index) => `
+                    (item, index) => rawXml`
                         <points>
                             <direction>${directionType[item.direction]}</direction>
-                            <startPoint X="${item.startPoint.X}" Y="${item.startPoint.Y}" />
-                            <endPoint X="${item.endPoint.X}" Y="${item.endPoint.Y}" />
-                            <Area>${index + 1}</Area>
+                            <startPoint X="${item.startPoint.X.toString()}" Y="${item.startPoint.Y.toString()}" />
+                            <endPoint X="${item.endPoint.X.toString()}" Y="${item.endPoint.Y.toString()}" />
+                            <Area>${(index + 1).toString()}</Area>
                             <LineColor>green</LineColor>
                         </points>
                 `,

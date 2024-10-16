@@ -3,7 +3,7 @@
  * @Date: 2024-07-02 09:08:21
  * @Description: POS配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-11 17:53:59
+ * @LastEditTime: 2024-10-15 17:15:37
 -->
 <template>
     <div class="base-flex-box">
@@ -22,13 +22,9 @@
                 <el-table-column width="100px">
                     <template #header>
                         <el-dropdown trigger="click">
-                            <span class="el-dropdown-link">
+                            <BaseTableDropdownLink>
                                 {{ Translate('IDCS_ENABLE') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -57,13 +53,9 @@
                 <el-table-column width="240px">
                     <template #header>
                         <el-dropdown trigger="click">
-                            <span class="el-dropdown-link">
+                            <BaseTableDropdownLink>
                                 {{ Translate('IDCS_CONNECTION') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -101,13 +93,9 @@
                 <el-table-column width="160px">
                     <template #header>
                         <el-dropdown trigger="click">
-                            <span class="el-dropdown-link">
+                            <BaseTableDropdownLink>
                                 {{ Translate('IDCS_PROTOCOL') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -155,13 +143,9 @@
                 <!-- 显示设置 -->
                 <el-table-column width="150px">
                     <template #header>
-                        <span @click="setAllDisplay">
+                        <BaseTableDropdownLink @click="setAllDisplay">
                             {{ Translate('IDCS_DISPLAY_SETTINGS') }}
-                            <BaseImgSprite
-                                class="ddn"
-                                file="ddn"
-                            />
-                        </span>
+                        </BaseTableDropdownLink>
                     </template>
                     <template #default="scope">
                         <el-button @click="setDisplay(scope.$index)">{{ Translate('IDCS_CONFIG') }}</el-button>
@@ -171,13 +155,9 @@
                 <el-table-column width="200px">
                     <template #header>
                         <el-dropdown trigger="click">
-                            <span class="el-dropdown-link">
+                            <BaseTableDropdownLink>
                                 {{ Translate('IDCS_ENCODE_FORMAT') }}
-                                <BaseImgSprite
-                                    class="ddn"
-                                    file="ddn"
-                                />
-                            </span>
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -217,9 +197,13 @@
             @confirm="confirmSetConnection"
             @close="pageData.isConnectionDialog = false"
         />
-        <PosTriggerChannelPop
+        <BaseTransferDialog
             v-model="pageData.isTriggerChannelDialog"
-            :chls="tableData[pageData.triggerChannelDialogIndex]?.triggerChl.chls || []"
+            header-title="IDCS_CHANNEL_TRGGER"
+            source-title="IDCS_CHANNEL"
+            target-title="IDCS_CHANNEL_TRGGER"
+            :source-data="filterChlList"
+            :linked-list="pageData.triggerChannels"
             @confirm="confirmSetTriggerChannel"
             @close="closeTriggerChannel"
         />

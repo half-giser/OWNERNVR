@@ -3,12 +3,12 @@
  * @Date: 2024-07-04 16:45:21
  * @Description: S.M.A.R.T信息
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 09:12:15
+ * @LastEditTime: 2024-10-11 18:44:51
 -->
 <template>
     <div class="base-flex-box">
         <el-form
-            class="form stripe"
+            class="form stripe narrow"
             inline-message
             label-width="250px"
             label-position="left"

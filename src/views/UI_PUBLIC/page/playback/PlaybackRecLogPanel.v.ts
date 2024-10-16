@@ -3,7 +3,7 @@
  * @Date: 2024-08-06 20:37:55
  * @Description: 回放-事件列表
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-10 17:17:35
+ * @LastEditTime: 2024-10-12 18:17:25
  */
 import type { PlaybackRecLogList, PlaybackChlList, PlaybackRecList } from '@/types/apiType/playback'
 import dayjs from 'dayjs'
@@ -337,11 +337,13 @@ export default defineComponent({
          * @description 刷新列表
          */
         const refresh = () => {
+            console.log(prop.chls.length, prop.playStatus)
             if (prop.chls.length) {
                 if (prop.playStatus === 'play' || prop.playStatus === 'pending') {
                     getRecList()
                 }
             } else {
+                tableData.value = []
                 ctx.emit('callback', [], false)
             }
         }
@@ -349,10 +351,18 @@ export default defineComponent({
         watch(
             () => prop.chls,
             () => {
+                console.log('update chl', prop.chls)
                 nextTick(() => refresh())
             },
             {
                 deep: true,
+            },
+        )
+
+        watch(
+            () => prop.startTime,
+            () => {
+                nextTick(() => refresh())
             },
         )
 

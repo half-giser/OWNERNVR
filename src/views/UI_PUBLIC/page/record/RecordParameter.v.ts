@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-02 16:12:12
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-09 13:48:10
+ * @LastEditTime: 2024-10-12 16:43:40
  */
 
 import { cloneDeep, isEqual } from 'lodash-es'
@@ -17,7 +17,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
         const supportANR = systemCaps.supportANR == true
@@ -31,11 +31,6 @@ export default defineComponent({
         })
 
         const oldExpirationArr = [] as string[]
-
-        const expirationPopData = ref({
-            expirationType: '',
-            expirationData: {} as ChlRecParamList,
-        })
 
         const pageData = ref({
             doubleStreamRecSwitch: '',
@@ -56,6 +51,8 @@ export default defineComponent({
                 { value: 'false', label: Translate('IDCS_OFF') },
             ],
             isSetCustomization: false,
+            expirationType: '',
+            expirationData: {} as ChlRecParamList,
         })
 
         const tableData = ref<ChlRecParamList[]>([])
@@ -174,10 +171,10 @@ export default defineComponent({
                 const expiration = $dev('/response/content/expiration').text()
                 const expirationUnit = $dev('/response/content/expiration').attr('unit')
 
-                const data: ChlRecParamList[] = $chl('/response/content/item').map((item, index) => {
+                tableData.value = $chl('/response/content/item').map((item, index) => {
                     const $item = queryXml(item.element)
 
-                    const id = item.attr('id')
+                    const id = item.attr('id')!
 
                     return {
                         id,
@@ -194,13 +191,12 @@ export default defineComponent({
                         manufacturerEnable: pageData.value.IPCMap[id as string] == 'true',
                     }
                 })
-
                 $dev('/response/content/chlParam/item').forEach((item) => {
                     const $item = queryXml(item.element)
 
                     const singleExpirationUnit = $item('expiration').attr('unit') ? $item('expiration').attr('unit') : 'd'
 
-                    data.forEach((element) => {
+                    tableData.value.forEach((element) => {
                         if (element.id == item.attr('id')) {
                             element.week = $item('week').text()
                             element.holiday = $item('holiday').text()
@@ -210,9 +206,6 @@ export default defineComponent({
                         }
                     })
                 })
-
-                tableData.value = data
-
                 tableData.value.forEach((item) => {
                     if (!item['expiration']) {
                         item['week'] = ''
@@ -225,10 +218,10 @@ export default defineComponent({
                             item.expirationDisplay = item.expiration
                         }
                     }
-                    oldExpirationArr.push(item.expirationDisplay)
+                    oldExpirationArr.push(item.expirationDisplay!)
                 })
 
-                originalData.value.chlRecData = cloneDeep(tableData)
+                originalData.value.chlRecData = cloneDeep(tableData.value)
                 originalData.value.streamRecSwitch = {
                     doubleStreamSwitch: $dev('/response/content/doubleStreamRecSwitch').text(),
                     loopRecSwitch: $dev('/response/content/loopRecSwitch').text(),
@@ -276,7 +269,7 @@ export default defineComponent({
             let sendXml = rawXml`<content type='list' total='${String(changeList.length)}'\>`
 
             changeList.forEach((item) => {
-                sendXml += `<item id='${item.id}'>
+                sendXml += rawXml`<item id='${item.id}'>
                     <rec per='${item.per}' post='${item.post}'/>`
                 if (supportANR && item.manufacturerEnable) {
                     sendXml += `<ANRSwitch>${item.ANRSwitch}</ANRSwitch>`
@@ -310,7 +303,7 @@ export default defineComponent({
             } else if (changeList.length > 0 || doubleStreamSwitchChange || loopRecSwitchChange) {
                 devResult = await setDevRecData()
                 chlResult = await setChlRecData(changeList)
-                // 原代码中P2P模式下进行如下处理，recParamCfg.js，444行
+                // todo:原代码中P2P模式下进行如下处理，recParamCfg.js，444行
                 // if (APP_TYPE == "P2P") {
                 //     result1=result1[0];
                 //     result2=result2[0];
@@ -319,7 +312,6 @@ export default defineComponent({
             } else {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_SAVE_DATA_FAIL'),
                 })
             }
@@ -327,12 +319,11 @@ export default defineComponent({
         }
 
         const setData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             if (originalData.value.streamRecSwitch.doubleStreamSwitch != pageData.value.doubleStreamRecSwitch) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_RECORD_MODE_CHANGE_AFTER_REBOOT'),
                 })
                     .then(() => {
@@ -342,7 +333,7 @@ export default defineComponent({
             } else {
                 setRecParamCfgData()
             }
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         const changeAllPerList = (value: string) => {
@@ -366,11 +357,11 @@ export default defineComponent({
         }
 
         const changeExpirationList = (rowData: ChlRecParamList) => {
-            const value = rowData.expirationDisplay
+            const value = rowData.expirationDisplay!
             if (value == 'customization') {
                 rowData.expirationDisplay = oldExpirationArr[rowData.index]
-                expirationPopData.value.expirationType = 'single'
-                expirationPopData.value.expirationData = rowData
+                pageData.value.expirationType = 'single'
+                pageData.value.expirationData = rowData
                 pageData.value.isSetCustomization = true
             } else {
                 if (value == '0') {
@@ -382,7 +373,6 @@ export default defineComponent({
                     const tips = value + ' ' + unit
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_CHANGE_EXPIRE_TIME_WARNING_D').formatForLang(tips),
                     })
                         .then(() => {
@@ -404,7 +394,7 @@ export default defineComponent({
 
         const changeAllExpirationList = (value: string) => {
             if (value == 'customization') {
-                expirationPopData.value.expirationType = 'all'
+                pageData.value.expirationType = 'all'
                 pageData.value.isSetCustomization = true
             } else if (value == '0') {
                 tableData.value.forEach((item) => {
@@ -418,7 +408,6 @@ export default defineComponent({
                 const tips = value + ' ' + unit
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_CHANGE_EXPIRE_TIME_WARNING_D').formatForLang(tips),
                 })
                     .then(() => {
@@ -443,7 +432,7 @@ export default defineComponent({
         }
 
         const handleGetExpirationData = (week: string, holiday: string, expiration: number, expirationData?: ChlRecParamList) => {
-            if (expirationPopData.value.expirationType == 'all') {
+            if (pageData.value.expirationType == 'all') {
                 tableData.value.forEach((item) => {
                     item.week = week
                     item.holiday = holiday
@@ -465,16 +454,15 @@ export default defineComponent({
         }
 
         onMounted(async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             await getData()
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         })
 
         return {
             supportANR,
-            expirationPopData,
             tableData,
             pageData,
             setData,

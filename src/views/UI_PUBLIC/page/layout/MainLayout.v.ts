@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 顶层布局页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-08 16:07:04
+ * @LastEditTime: 2024-10-12 14:46:10
  */
 
 import { type RouteLocationMatched } from 'vue-router'
@@ -96,7 +96,7 @@ export default defineComponent({
         const showProductModelList = [5]
 
         const showProductModel = async (cbk?: () => void) => {
-            const result = await queryBasicCfg(getXmlWrapData(''))
+            const result = await queryBasicCfg()
             const $ = queryXml(result)
             if ($('//status').text() === 'success') {
                 if (import.meta.env.VITE_APP_TYPE === 'P2P' && judgeCurrUI(result)) return
@@ -296,7 +296,7 @@ export default defineComponent({
             link.style.display = 'none'
             document.body.appendChild(link)
             link.click()
-            setTimeout(function () {
+            setTimeout(() => {
                 document.body.removeChild(link)
             }, 1000)
         }

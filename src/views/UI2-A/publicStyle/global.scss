@@ -3,7 +3,7 @@
  * @Date: 2024-05-29 13:48:55
  * @Description: UI2-A 主题样式
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-08 16:04:24
+ * @LastEditTime: 2024-10-12 17:41:02
  */
 
 #n9web {
@@ -67,6 +67,9 @@
     --upload-bg: #eee;
     --upload-bg-hover: #ddd;
 
+    --slider-btn-border: #808080;
+    --slider-btn-border-disabled: #DCDCDC;
+
     --btn-text: #DDD;
     --btn-text-hover: var(--main-text-active);
     --btn-text-disabled: #5f5f5f;
@@ -90,7 +93,13 @@
     --dialog-title: #ddd; 
     --dialog-bg: #2D2D2D; 
 
-    --popover-bg: #2D2D2D; 
+    --popover-bg: #2D2D2D;
+
+    --transfer-title-bg: #343434;
+    --transfer-bg: transparent;
+    --transfer-stripe: transparent;
+    --transfer-border: #999;
+    --transfer-text: var(--main-text);
 
     --config-menu-text: #ddd;
     --config-menu-text-hover: #ddd;
@@ -138,6 +147,13 @@
     --ai-linkbox-bg: #5E5E5E;
     --ai-linkbox-border: #888;
     --ai-advance-bg: #222;
+
+    --output-eth-bg: transparent;
+    --output-tab-bg: transparent;
+    --output-tab-btn-bg: transparent;
+
+    --disk-group-text-active: var(--main-text);
+    --disk-group-bg-active: #D90000;
 
     --panel-bg: #343434; 
     --panel-header-bg: #343434; 
@@ -237,4 +253,7 @@
     --schedule-time-span-bg: #4b4b4b;
     --schedule-time-span-bg-active: #D90000;
     --schedule-time-span-bg-selection: #400000;
+
+    --float-ok: #006400;
+    --float-error: #ff0000;
 }

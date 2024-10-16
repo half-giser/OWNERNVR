@@ -3,7 +3,7 @@
  * @Date: 2024-07-08 18:02:05
  * @Description: 存储模式新增磁盘弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 12:00:34
+ * @LastEditTime: 2024-10-14 17:44:35
  */
 import { StorageModeDiskGroupList, type StorageModeDiskList } from '@/types/apiType/disk'
 
@@ -37,7 +37,7 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate, langId } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
 
         const tableData = ref<StorageModeDiskList[]>([])
         const pageData = ref({
@@ -120,7 +120,7 @@ export default defineComponent({
                 type: 'question',
                 message: Translate('IDCS_HD_CHANGE_GROUP_WARNING'),
             }).then(async () => {
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
 
                 const sendXml = rawXml`
                    <types>
@@ -137,14 +137,14 @@ export default defineComponent({
                         </diskGroup>
                     </content>
                 `
-                const result = await editSetAndElementRelation(getXmlWrapData(sendXml))
+                const result = await editSetAndElementRelation(sendXml)
                 const $ = queryXml(result)
 
                 if ($('//status').text() === 'success') {
                     ctx.emit('comfirm')
                 }
 
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
             })
         }
 

@@ -1,11 +1,9 @@
 import { type RecMode, RecordDistributeInfo, type RecordSchedule } from '@/types/apiType/record'
-import { defineComponent } from 'vue'
 import RecordModeAdvancePop from './RecordModeAdvancePop.vue'
 import RecordModeStreamPop from './RecordModeStreamPop.vue'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import { type ApiResult } from '@/api/api'
 import { type XmlElement } from '@/utils/xmlParse'
-import { getArrayDiffRows } from '@/utils/tools'
 export default defineComponent({
     components: {
         RecordModeAdvancePop,
@@ -18,7 +16,7 @@ export default defineComponent({
         const { supportPOS } = useCababilityStore()
         const theme = getUiAndTheme().name
         const openMessageTipBox = useMessageBox().openMessageTipBox
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
 
         const MODE_MAPPING: Record<string, string> = {
             manually: Translate('IDCS_REPLAY_CUSTOMIZE'),
@@ -188,7 +186,6 @@ export default defineComponent({
             },
             (newValue: string, oldValue: string) => {
                 if (!pageData.value.initComplated) return
-
                 const isBack = pageData.value.autoModeIdOld === newValue
                 pageData.value.autoModeIdOld = oldValue
 
@@ -220,9 +217,7 @@ export default defineComponent({
                 if (item.text.includes(Translate('IDCS_POS_RECORD'))) {
                     pageData.value.icons[item.id].push(pageData.value.iconMap.POS)
                 }
-                console.log(pageData.value.icons[item.id])
             })
-            console.log(pageData.value.icons)
         }
         const recModeChange = async (params: string) => {
             console.log(params)
@@ -235,12 +230,12 @@ export default defineComponent({
         }
 
         const getRecModeData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const result = await queryRecordDistributeInfo()
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('/response/status').text() !== 'success') return
 
@@ -334,7 +329,6 @@ export default defineComponent({
             if (events.length === 1 && intensiveIndex > -1) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_ONLY_INTENSIVE_TIP'),
                 })
                 return false
@@ -371,7 +365,6 @@ export default defineComponent({
             ) {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_RECORD_MODE_EXIST'),
                 })
                 return false
@@ -385,7 +378,6 @@ export default defineComponent({
             // 存入Store
             userSessionStore.advanceRecModeId = advanceModeCurrent.id
             genIconMap(recAutoModeList.value.concat([advanceModeCurrent]))
-            console.log(1)
 
             return true
         }
@@ -400,7 +392,7 @@ export default defineComponent({
          * 初始化通道的录像排程表格
          */
         const initChlScheduldTb = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             const resultArr = await Promise.all([queryScheduleList(), queryRecordScheduleList()])
 
             const scheduleXml = queryXml(resultArr[0] as ApiResult)
@@ -414,7 +406,7 @@ export default defineComponent({
             pageData.value.scheduleList = scheduleXml('/response/content/item').map((item) => {
                 return {
                     label: item.text(),
-                    value: item.attr('id') as string,
+                    value: item.attr('id')!,
                 }
             })
             pageData.value.scheduleList.push({
@@ -430,7 +422,7 @@ export default defineComponent({
             const parseTableData = () => {
                 return recScheduleXml('/response/content/item').map((item) => {
                     return {
-                        id: item.attr('id') as string,
+                        id: item.attr('id')!,
                         name: xmlParse('./name', item.element).text(),
                         alarmRec: getRecScheduleSelectValue(item, './alarmRec'),
                         motionRec: getRecScheduleSelectValue(item, './motionRec'),
@@ -445,7 +437,7 @@ export default defineComponent({
             formData.value.recordScheduleList = parseTableData()
             recordScheduleListInit = parseTableData()
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         /**
@@ -460,7 +452,7 @@ export default defineComponent({
             if (!isConfirm) {
                 formData.value.autoModeId = pageData.value.autoModeIdOld
             } else {
-                pageData.value.autoModeIdOld = ''
+                pageData.value.autoModeIdOld = formData.value.autoModeId
             }
             pageData.value.recModeStreamPopOpen = false
         }
@@ -521,7 +513,7 @@ export default defineComponent({
             let sendXml = rawXml`
             <content type="list" total="${editRows.length.toString()}">`
             editRows.forEach((row) => {
-                sendXml += `
+                sendXml += rawXml`
                 <item id="${row.id}">
                     <name><![CDATA[IPCamera]]></name>
                     <scheduleRec>
@@ -555,7 +547,7 @@ export default defineComponent({
          * 保存
          */
         const setData = async (isPopMessage: boolean) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const requestList = [setRecModeInfo()]
 
@@ -565,7 +557,7 @@ export default defineComponent({
             }
             const resultList = await Promise.all(requestList)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             if (isPopMessage) commMutiSaveResponseHadler(resultList)
         }
 
@@ -574,14 +566,15 @@ export default defineComponent({
             pageData,
             recAutoModeList,
             advanceRecModeMap,
+            RecordModeAdvancePop,
+            RecordModeStreamPop,
+            ScheduleManagPop,
             supportPOS,
             recModeChange,
             changeAllSchedule,
             advancePopConfirm,
             streamPopClose,
             setData,
-
-            RecordModeAdvancePop,
         }
     },
 })

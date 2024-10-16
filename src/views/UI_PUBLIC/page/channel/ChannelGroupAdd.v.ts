@@ -3,7 +3,7 @@
  * @Date: 2024-06-19 09:52:27
  * @Description:
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 15:37:04
+ * @LastEditTime: 2024-10-14 17:45:02
  */
 import { ChannelInfoDto, ChlGroup } from '@/types/apiType/channel'
 import { type RuleItem } from 'async-validator'
@@ -120,7 +120,7 @@ export default defineComponent({
                     </chlIdList>
                 </content>`
             openLoading()
-            createChlGroup(getXmlWrapData(data)).then((res) => {
+            createChlGroup(data).then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
@@ -164,7 +164,7 @@ export default defineComponent({
                     <chlType/>
                 </requireField>`
             openLoading()
-            queryDevList(getXmlWrapData(data)).then((res) => {
+            queryDevList(data).then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {

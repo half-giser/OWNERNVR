@@ -3,10 +3,10 @@
  * @Date: 2024-09-19 13:35:56
  * @Description:  区域入侵
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-10 09:35:14
+ * @LastEditTime: 2024-10-16 11:53:36
 -->
 <template>
-    <div class="pea_setting_pane">
+    <div>
         <ScheduleManagPop
             v-model="peaData.scheduleManagePopOpen"
             @close="peaData.scheduleManagePopOpen = false"
@@ -141,7 +141,6 @@
                     >
                         <span>{{ Translate('IDCS_ADVANCED') }}</span>
                         <BaseImgSprite
-                            class="moreBtn"
                             file="arrow"
                             :index="0"
                             :chunk="4"
@@ -630,6 +629,7 @@
                                             size="small"
                                             :empty-values="[undefined, null]"
                                             :options="scope.row.presetList"
+                                            @visible-change="getPresetById(scope.row)"
                                             @change="peaData.applyDisable = false"
                                         >
                                             <el-option

@@ -176,7 +176,7 @@ export default defineComponent({
          */
         const importFile = () => {
             if (isSupportH5.value) {
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
                 new WebsocketUpload({
                     file: file,
                     config: {
@@ -191,7 +191,7 @@ export default defineComponent({
                         },
                     },
                     progress: (step) => {
-                        closeLoading(LoadingTarget.FullScreen)
+                        closeLoading()
                         pageData.value.isCheckAuth = false
                         pageData.value.importNote = `${TRANS_MAPPING['uploading']}&nbsp;&nbsp;${step}%`
                         if (step === 100) {
@@ -201,7 +201,7 @@ export default defineComponent({
                         }
                     },
                     error: (errorCode) => {
-                        closeLoading(LoadingTarget.FullScreen)
+                        closeLoading()
                         pageData.value.importNote = ''
                         handleErrorMsg(errorCode)
                     },
@@ -216,7 +216,7 @@ export default defineComponent({
                     secPassword: userInputEncryptPwdForm.password,
                 }
                 const sendXML = OCX_XML_FileNetTransport('Import', param)
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
                 Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
         }
@@ -225,7 +225,7 @@ export default defineComponent({
          * @description 导出
          */
         const exportFile = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXml = rawXml`
                 <networkConfigSwitch>${String(exportFormData.value.isIncludeNetworkConfig)}</networkConfigSwitch>
@@ -255,7 +255,7 @@ export default defineComponent({
                         },
                         fileName: 'ConfigurationBackupFile',
                         success: () => {
-                            closeLoading(LoadingTarget.FullScreen)
+                            closeLoading()
                             pageData.value.isCheckAuth = false
 
                             pageData.value.exportNote = TRANS_MAPPING['downloadComplete']
@@ -265,7 +265,7 @@ export default defineComponent({
                             }
                         },
                         error: (errorCode) => {
-                            closeLoading(LoadingTarget.FullScreen)
+                            closeLoading()
                             handleErrorMsg(errorCode)
                         },
                     })
@@ -282,7 +282,7 @@ export default defineComponent({
                     Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 }
             } else {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 const errorCode = Number($('//errorCode').text())
                 handleErrorMsg(errorCode)
             }
@@ -352,7 +352,7 @@ export default defineComponent({
                 const progress = $("/statenotify[@type='FileNetTransportProgress']/progress").text()
                 switch ($("/statenotify[@type='FileNetTransportProgress']/action").text()) {
                     case 'Import':
-                        closeLoading(LoadingTarget.FullScreen)
+                        closeLoading()
                         pageData.value.isCheckAuth = false
                         pageData.value.isEncryptPwd = false
                         if (progress == '100%') {
@@ -366,7 +366,7 @@ export default defineComponent({
                         }
                         break
                     case 'Export':
-                        closeLoading(LoadingTarget.FullScreen)
+                        closeLoading()
                         pageData.value.isCheckAuth = false
                         pageData.value.isEncryptPwd = false
                         if (progress == '100%') {
@@ -382,7 +382,7 @@ export default defineComponent({
             }
             //网络断开
             else if ($("/statenotify[@type='FileNetTransport']").length > 0) {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 pageData.value.isEncryptPwd = false
                 if ($("/statenotify[@type='FileNetTransport']/errorCode").length > 0) {
                     const errorCode = Number($("/statenotify[@type='FileNetTransport']/errorCode").text())

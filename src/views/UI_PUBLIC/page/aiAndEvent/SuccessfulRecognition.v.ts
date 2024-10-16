@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-04 14:23:54
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-09 18:01:39
+ * @LastEditTime: 2024-10-16 10:22:59
  */
 import { cloneDeep } from 'lodash-es'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
@@ -21,34 +21,28 @@ export default defineComponent({
             default: () => {},
         },
         groupData: {
-            type: Array<any>,
+            type: Array as PropType<{ guid: string; name: string }[]>,
             require: true,
-            default: [],
         },
         scheduleList: {
-            type: Array<any>,
+            type: Array as PropType<{ value: string; label: string }[]>,
             require: true,
-            default: [],
         },
         voiceList: {
-            type: Array<any>,
+            type: Array as PropType<{ value: string; label: string }[]>,
             require: true,
-            default: [],
         },
         recordList: {
-            type: Array<any>,
+            type: Array as PropType<{ value: string; label: string }[]>,
             require: true,
-            default: [],
         },
         alarmOutList: {
-            type: Array<any>,
+            type: Array as PropType<{ value: string; label: string }[]>,
             require: true,
-            default: [],
         },
         snapList: {
-            type: Array<any>,
+            type: Array as PropType<{ value: string; label: string }[]>,
             require: true,
-            default: [],
         },
     },
     setup(prop) {
@@ -111,7 +105,7 @@ export default defineComponent({
 
         // 初始化数据
         const initData = () => {
-            pageData.value.selectAll = taskData.groupId.length > 0 && taskData.groupId.length == prop.groupData.length
+            pageData.value.selectAll = taskData.groupId.length > 0 && taskData.groupId.length == prop.groupData?.length
             handleGroupName()
             if (taskData.msgPushSwitch) normalParamCheckList.value.push('msgPushSwitch')
             if (taskData.buzzerSwitch) normalParamCheckList.value.push('buzzerSwitch')
@@ -125,7 +119,7 @@ export default defineComponent({
         // 生成分组选中的数据名称
         const handleGroupName = () => {
             pageData.value.groupName = ''
-            prop.groupData.forEach((item) => {
+            prop.groupData?.forEach((item) => {
                 if (taskData.groupId.includes(item.guid)) {
                     pageData.value.groupName += item.name + '; '
                 }
@@ -134,7 +128,7 @@ export default defineComponent({
         // 分组全选checkbox
         const selectAllCheckChange = (value: CheckboxValueType) => {
             if (value) {
-                taskData.groupId = prop.groupData.map((item) => item.guid)
+                taskData.groupId = prop.groupData?.map((item) => item.guid) as string[]
             } else {
                 taskData.groupId = []
             }
@@ -143,7 +137,7 @@ export default defineComponent({
 
         // 分组弹窗打开/关闭
         const openGroupPop = () => {
-            prop.groupData.forEach((item) => {
+            prop.groupData?.forEach((item) => {
                 if (taskData.groupId.includes(item.guid)) {
                     groupTableRef.value!.toggleRowSelection(item, true)
                 }
@@ -165,7 +159,7 @@ export default defineComponent({
         const saveGroup = () => {
             taskData.groupId = pageData.value.groupSelection.map((item) => item.guid)
             closeGroupPop()
-            pageData.value.selectAll = taskData.groupId.length > 0 && taskData.groupId.length == prop.groupData.length
+            pageData.value.selectAll = taskData.groupId.length > 0 && taskData.groupId.length == prop.groupData?.length
             handleGroupName()
         }
 
@@ -215,24 +209,9 @@ export default defineComponent({
         }
         // 获取联动预置点数据
         const getPresetData = async () => {
-            const sendXml = rawXml`
-                <types>
-                    <nodeType>
-                        <enum>chls</enum>
-                        <enum>sensors</enum>
-                        <enum>alarmOuts</enum>
-                    </nodeType>
-                </types>
-                <nodeType type="nodeType">chls</nodeType>
-                <requireField>
-                    <name/>
-                    <chlType/>
-                </requireField>
-                <condition>
-                    <supportPtz/>
-                </condition>
-            `
-            const result = await queryNodeList(getXmlWrapData(sendXml))
+            const result = await getChlList({
+                isSupportPtz: true,
+            })
 
             let rowData = [] as PresetList[]
             commLoadResponseHandler(result, async ($) => {
@@ -244,43 +223,47 @@ export default defineComponent({
                         chlType: $item('chlType').text(),
                         preset: { value: '', label: Translate('IDCS_NULL') },
                         presetList: [{ value: '', label: Translate('IDCS_NULL') }],
+                        isGetPresetList: false,
                     }
                 })
                 rowData.forEach((row) => {
                     taskData.preset?.forEach((item) => {
                         if (row.id == item.chl.value) {
                             row.preset = { value: item.index, label: item.name }
+                            row.presetList.push({ value: item.index, label: item.name })
                         }
                     })
                 })
-
                 for (let i = rowData.length - 1; i >= 0; i--) {
                     //预置点里过滤掉recorder通道
                     if (rowData[i].chlType == 'recorder') {
                         rowData.splice(i, 1)
-                    } else {
-                        await getPresetById(rowData[i])
                     }
                 }
-
                 PresetTableData.value = rowData
             })
         }
+        // 预置点选择框下拉时获取预置点列表数据
         const getPresetById = async (row: PresetList) => {
-            const sendXml = rawXml`
+            if (!row.isGetPresetList) {
+                // 初始化时将当前预置点数据添加到了列表中用于数据展示，这里获取列表需要清除掉
+                row.presetList.splice(1)
+                const sendXml = rawXml`
                 <condition>
                     <chlId>${row.id}</chlId>
                 </condition>
             `
-            const result = await queryChlPresetList(sendXml)
-            commLoadResponseHandler(result, ($) => {
-                $('/response/content/presets/item').forEach((item) => {
-                    row.presetList.push({
-                        value: item.attr('index')!,
-                        label: item.text(),
+                const result = await queryChlPresetList(sendXml)
+                commLoadResponseHandler(result, ($) => {
+                    $('/response/content/presets/item').forEach((item) => {
+                        row.presetList.push({
+                            value: item.attr('index')!,
+                            label: item.text(),
+                        })
                     })
                 })
-            })
+                row.isGetPresetList = true
+            }
         }
         const presetChange = (row: PresetList) => {
             const ids = taskData.preset.map((item) => item.chl.value)
@@ -337,7 +320,9 @@ export default defineComponent({
             snapClose,
             alarmOutConfirm,
             alarmOutClose,
+            // 预置点
             presetChange,
+            getPresetById,
         }
     },
 })

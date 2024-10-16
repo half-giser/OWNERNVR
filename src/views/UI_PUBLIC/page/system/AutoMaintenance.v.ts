@@ -11,7 +11,7 @@ import { SystemAutoMaintenanceForm } from '@/types/apiType/system'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const dateTime = useDateTimeStore()
 
         const formRef = ref<FormInstance>()
@@ -73,7 +73,7 @@ export default defineComponent({
          * @description 提交数据
          */
         const setData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             const sendXml = rawXml`
                 <content>
                     <autoMaintenanceCfg>
@@ -87,7 +87,7 @@ export default defineComponent({
             commSaveResponseHadler(result, () => {
                 getData()
             })
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
 
         onMounted(() => {

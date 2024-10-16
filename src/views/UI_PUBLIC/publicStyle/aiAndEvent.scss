@@ -2,17 +2,17 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-29 09:12:33
  * @Description: ai与事件版块的一些公共样式，仅在需要用到的ai与事件版块下import
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-10 15:59:23
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-14 15:06:44
  */
 
 .base-ai-menu-tabs {
     width: 100%;
-    min-height: 627px;
     margin-top: 10px;
     & > .el-tabs__header {
         .el-tabs__item {
             min-width: 150px;
+            color: var(--main-text);
             width: fit-content;
             border: 1px solid var(--content-border);
             // border: 2px solid var(--content-border);
@@ -62,6 +62,7 @@
         
         .el-tabs__item {
             width: fit-content;
+            color: var(--main-text);
             font-size: 15px;
             border: none;
             padding: 0 20px;
@@ -251,7 +252,8 @@
     height: 140px;
     padding: 10px;
     box-sizing: border-box;
-    // overflow-y: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
 
     .el-select-dropdown__list {
         width: 100%;

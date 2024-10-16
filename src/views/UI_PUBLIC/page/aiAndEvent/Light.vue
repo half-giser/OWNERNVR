@@ -37,9 +37,9 @@
                 <el-table-column prop="enable">
                     <template #header>
                         <el-dropdown trigger="click">
-                            <span class="el-dropdown-link">
-                                {{ Translate('IDCS_ENABLE') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
-                            </span>
+                            <BaseTableDropdownLink>
+                                {{ Translate('IDCS_ENABLE') }}
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -94,9 +94,9 @@
                 <el-table-column prop="frequencyType">
                     <template #header>
                         <el-dropdown trigger="click">
-                            <span class="el-dropdown-link">
-                                {{ Translate('IDCS_FLASHING_FREQUENCY') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
-                            </span>
+                            <BaseTableDropdownLink>
+                                {{ Translate('IDCS_FLASHING_FREQUENCY') }}
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item

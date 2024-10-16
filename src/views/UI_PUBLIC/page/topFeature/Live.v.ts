@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 18:07:29
  * @Description: 现场预览
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 18:39:24
+ * @LastEditTime: 2024-10-14 16:11:05
  */
 import { cloneDeep } from 'lodash-es'
 import { type LiveChannelList, type LiveCustomViewChlList, LiveSharedWinData } from '@/types/apiType/live'
@@ -535,7 +535,7 @@ export default defineComponent({
          * @description 获取产品型号
          */
         const getDeviceInfo = async () => {
-            const result = await queryBasicCfg(getXmlWrapData(''))
+            const result = await queryBasicCfg()
             return queryXml(result)('//content/productModel').text()
         }
 
@@ -1098,6 +1098,7 @@ export default defineComponent({
             if (mode.value === 'ocx') {
                 if (bool) {
                     toggleTalk(false)
+                    // 打开对讲时，关闭音频
                     setAudio(false)
                 }
                 const sendXML = OCX_XML_TalkSwitch(bool ? 'ON' : 'OFF')
@@ -1416,10 +1417,17 @@ export default defineComponent({
                     return
                 }
                 if (bool) {
-                    const sendXML = OCX_XML_SetVolume(0)
+                    // 打开音频时，先关闭对讲
+                    if (pageData.value.winData.talk) {
+                        toggleTalk(false)
+                    } else if (pageData.value.allTalk) {
+                        toggleAllTalk(false)
+                    }
+
+                    const sendXML = OCX_XML_SetVolume(pageData.value.volume)
                     plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 } else {
-                    const sendXML = OCX_XML_SetVolume(pageData.value.volume)
+                    const sendXML = OCX_XML_SetVolume(0)
                     plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 }
             }
@@ -1438,9 +1446,10 @@ export default defineComponent({
             if (mode.value === 'ocx') {
                 if (bool) {
                     toggleAllTalk(false)
+                    // 打开对讲时，关闭音频
                     setAudio(false)
                 }
-                const sendXML = OCX_XML_TalkSwitch(bool ? 'ON' : 'OFF')
+                const sendXML = OCX_XML_TalkSwitch(bool ? 'ON' : 'OFF', pageData.value.winData.chlID)
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
         }
@@ -1549,10 +1558,10 @@ export default defineComponent({
             // 窗口状态改变通知
             else if ($('statenotify[@type="WindowStatus"]').length) {
                 if (Number($('statenotify[@type="WindowStatus"]/previewingWinNum').text())) {
-                    pageData.value.allPreview = false
-                    pageData.value.winData.PLAY_STATUS = 'stop'
-                } else {
                     pageData.value.allPreview = true
+                    // pageData.value.winData.PLAY_STATUS = 'stop'
+                } else {
+                    pageData.value.allPreview = false
                 }
                 if (Number($('statenotify[@type="WindowStatus"]/recordingWinNum').text())) {
                     pageData.value.winData.localRecording = true
@@ -1636,7 +1645,7 @@ export default defineComponent({
                     pageData.value.notification.push(Translate('IDCS_REC_SUCCESS_PATH') + $('statenotify[@type="RecComplete"]/dir').text())
                 } else {
                     // 延迟100毫秒防止通知过快，导致之前操作状态未设置好
-                    setTimeout(function () {
+                    setTimeout(() => {
                         if (pageData.value.winData.localRecording) {
                             recordLocal(false)
                         }
@@ -1654,6 +1663,7 @@ export default defineComponent({
                     } else {
                         pageData.value.allTalk = true
                     }
+                    // 打开对讲时，关闭音频
                     setAudio(false)
                 } else {
                     const errorCode = Number($('statenotify[@type="TalkSwitch"]/errorCode').text())

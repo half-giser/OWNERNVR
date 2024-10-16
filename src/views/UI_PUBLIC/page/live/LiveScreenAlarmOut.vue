@@ -3,7 +3,7 @@
  * @Date: 2024-07-18 13:37:21
  * @Description: 现场预览-底部视图-手动报警
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-29 16:39:24
+ * @LastEditTime: 2024-10-14 16:16:33
 -->
 <template>
     <div>
@@ -34,6 +34,7 @@
                     border
                     stripe
                     height="400px"
+                    show-overflow-tooltip
                 >
                     <el-table-column
                         :label="Translate('IDCS_ALARM_OUT_NAME')"
@@ -66,13 +67,9 @@
                                 trigger="click"
                                 :disabled
                             >
-                                <span class="el-dropdown-link">
+                                <BaseTableDropdownLink>
                                     {{ Translate('IDCS_DELAY') }}
-                                    <BaseImgSprite
-                                        class="ddn"
-                                        file="ddn"
-                                    />
-                                </span>
+                                </BaseTableDropdownLink>
                                 <template #dropdown>
                                     <el-dropdown-menu>
                                         <el-dropdown-item
@@ -108,13 +105,9 @@
                                 trigger="click"
                                 :disabled
                             >
-                                <span class="el-dropdown-link">
+                                <BaseTableDropdownLink>
                                     {{ Translate('IDCS_CLEAR_AWAY') }}
-                                    <BaseImgSprite
-                                        class="ddn"
-                                        file="ddn"
-                                    />
-                                </span>
+                                </BaseTableDropdownLink>
                                 <template #dropdown>
                                     <el-dropdown-menu>
                                         <el-dropdown-item @click="setStatus('', -1, false)">{{ Translate('IDCS_CLEAR_ALL') }}</el-dropdown-item>

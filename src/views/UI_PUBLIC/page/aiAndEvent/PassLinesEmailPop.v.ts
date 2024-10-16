@@ -99,7 +99,7 @@ export default defineComponent({
             console.log('pageData.value', pageData.value)
         }
         // 原代码中显示了地址后无法隐藏，这里改为再次点击隐藏
-        const handleRowClick = function (row: { address: string; schedule: string; rowClicked: boolean }) {
+        const handleRowClick = (row: { address: string; schedule: string; rowClicked: boolean }) => {
             row.rowClicked = !row.rowClicked
             // // 原代码逻辑：若未被点击，则显示
             // if (!row.rowClicked) {
@@ -112,14 +112,14 @@ export default defineComponent({
             })
         }
         // 隐藏邮箱地址
-        const formatAddress = function (rowData: { address: string; schedule: string; rowClicked: boolean }) {
+        const formatAddress = (rowData: { address: string; schedule: string; rowClicked: boolean }) => {
             if (rowData.rowClicked) {
                 return rowData.address
             }
             return hideEmailAddress(rowData.address)
         }
         // 删除收件人
-        const handleDelReceiver = function (row: { address: string; schedule: string; rowClicked: boolean }) {
+        const handleDelReceiver = (row: { address: string; schedule: string; rowClicked: boolean }) => {
             openMessageTipBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_EMAIL_RECEIVER_S').formatForLang(row['address']),
@@ -129,7 +129,7 @@ export default defineComponent({
             })
         }
         // 新增收件人
-        const handleAddReceiver = function () {
+        const handleAddReceiver = () => {
             // 规则验证
             if (!formRef.value) return
             formRef.value.validate((valid) => {
@@ -145,7 +145,7 @@ export default defineComponent({
                 }
             })
         }
-        const checkExist = function (address: string) {
+        const checkExist = (address: string) => {
             const result = pageData.value.data.receiverData.filter((item) => item.address == address)
             return result.length > 0
         }
@@ -175,7 +175,6 @@ export default defineComponent({
             }
         })
         return {
-            Translate,
             formRef,
             formData,
             error,

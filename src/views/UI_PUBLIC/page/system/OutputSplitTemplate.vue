@@ -3,7 +3,7 @@
  * @Date: 2024-06-25 13:55:36
  * @Description: 分屏模版
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-27 10:44:31
+ * @LastEditTime: 2024-10-15 15:48:08
 -->
 <template>
     <div
@@ -14,8 +14,12 @@
             <div
                 v-for="index in segment"
                 :key="index"
-                :style="{ 'grid-area': `s${index}` }"
-                :class="{ active: activeWin === index - 1 }"
+                :style="{
+                    'grid-area': `s${index}`,
+                }"
+                :class="{
+                    active: activeWin === index - 1,
+                }"
                 @click.prevent="handleClick(index - 1)"
                 @dragover.prevent="handleDragOver(index - 1)"
                 @mousedown="handleMouseDown($event, index - 1)"
@@ -210,6 +214,11 @@
         z-index: 10;
         background-color: var(--main-bg);
         color: var(--main-text);
+
+        &:hover {
+            background-color: var(--primary);
+            color: var(--main-text-active);
+        }
     }
 }
 </style>

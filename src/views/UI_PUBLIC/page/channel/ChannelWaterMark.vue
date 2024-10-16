@@ -2,13 +2,13 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-29 11:48:53
  * @Description: 水印设置
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-30 11:15:39
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-11 16:22:35
 -->
 <template>
-    <div class="waterMark_main">
-        <div class="waterMark_left">
-            <div class="divWaterMarkOCX">
+    <div class="base-chl-box">
+        <div class="base-chl-box-left">
+            <div class="base-chl-box-player">
                 <BaseVideoPlayer
                     id="player"
                     ref="playerRef"
@@ -16,56 +16,55 @@
                     @onready="handlePlayerReady"
                 />
             </div>
-            <div class="settings">
-                <el-form
-                    :model="pageData"
-                    label-width="150px"
-                    label-position="left"
-                >
-                    <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
-                        <el-select
-                            v-model="pageData.currChlId"
-                            value-key="value"
-                            :options="pageData.chlList"
-                            @change="handleChlChange"
-                        >
-                            <el-option
-                                v-for="item in pageData.chlList"
-                                :key="item.chlId"
-                                :label="item.chlName"
-                                :value="item.chlId"
-                            ></el-option>
-                        </el-select>
-                    </el-form-item>
-                    <el-form-item :label="Translate('IDCS_WATER_MARK')">
-                        <el-select
-                            v-model="pageData.chlData.switch"
-                            value-key="value"
-                            placeholder=""
-                            :disabled="pageData.switchDisabled"
-                            :options="pageData.options"
-                            @change="handleSwitchChange"
-                        >
-                            <el-option
-                                v-for="item in pageData.options"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                            ></el-option>
-                        </el-select>
-                    </el-form-item>
-                    <el-form-item :label="Translate('IDCS_INFORMATION')">
-                        <el-input
-                            v-model="pageData.chlData.customText"
-                            @input="handleFocus(pageData.chlData.customText, 'form')"
-                            @blur="handleCustomTextInput(pageData.chlData.customText)"
-                        ></el-input>
-                    </el-form-item>
-                </el-form>
-            </div>
+            <el-form
+                :model="pageData"
+                label-position="left"
+                :style="{
+                    '--form-label-width': '150px',
+                }"
+            >
+                <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
+                    <el-select
+                        v-model="pageData.currChlId"
+                        value-key="value"
+                        :options="pageData.chlList"
+                        @change="handleChlChange"
+                    >
+                        <el-option
+                            v-for="item in pageData.chlList"
+                            :key="item.chlId"
+                            :label="item.chlName"
+                            :value="item.chlId"
+                        ></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item :label="Translate('IDCS_WATER_MARK')">
+                    <el-select
+                        v-model="pageData.chlData.switch"
+                        value-key="value"
+                        placeholder=""
+                        :disabled="pageData.switchDisabled"
+                        :options="pageData.options"
+                        @change="handleSwitchChange"
+                    >
+                        <el-option
+                            v-for="item in pageData.options"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value"
+                        ></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item :label="Translate('IDCS_INFORMATION')">
+                    <el-input
+                        v-model="pageData.chlData.customText"
+                        @input="handleFocus(pageData.chlData.customText, 'form')"
+                        @blur="handleCustomTextInput(pageData.chlData.customText)"
+                    ></el-input>
+                </el-form-item>
+            </el-form>
         </div>
-
-        <div class="base-flex-box">
+        <div class="base-chl-box-right">
             <div class="base-table-box">
                 <el-table
                     ref="tableRef"
@@ -80,7 +79,6 @@
                     <el-table-column
                         label=" "
                         width="50px"
-                        class-name="custom_cell"
                     >
                         <template #default="scope">
                             <BaseTableRowStatus :icon="scope.row.status"></BaseTableRowStatus>
@@ -103,9 +101,9 @@
                     >
                         <template #header>
                             <el-dropdown trigger="click">
-                                <span class="el-dropdown-link">
-                                    {{ Translate('IDCS_WATER_MARK') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
-                                </span>
+                                <BaseTableDropdownLink>
+                                    {{ Translate('IDCS_WATER_MARK') }}
+                                </BaseTableDropdownLink>
                                 <template #dropdown>
                                     <el-dropdown-menu>
                                         <el-dropdown-item
@@ -152,11 +150,10 @@
                                 trigger="click"
                                 :hide-on-click="false"
                                 placement="bottom"
-                                class="customText_input"
                             >
-                                <span class="el-dropdown-link">
-                                    {{ Translate('IDCS_INFORMATION') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
-                                </span>
+                                <BaseTableDropdownLink>
+                                    {{ Translate('IDCS_INFORMATION') }}
+                                </BaseTableDropdownLink>
                                 <template #dropdown>
                                     <el-dropdown-menu>
                                         <el-dropdown-item>
@@ -182,7 +179,7 @@
                     </el-table-column>
                 </el-table>
             </div>
-            <el-row class="row_pagination">
+            <div class="row_pagination">
                 <el-pagination
                     v-model:current-page="pageData.pageIndex"
                     v-model:page-size="pageData.pageSize"
@@ -193,53 +190,21 @@
                     @size-change="changePaginationSize"
                     @current-change="changePagination"
                 />
-            </el-row>
-            <el-row class="base-btn-box">
+            </div>
+            <div class="base-btn-box">
                 <el-button
                     :disabled="pageData.applyDisabled"
                     @click="handleApply"
                 >
                     {{ Translate('IDCS_APPLY') }}
                 </el-button>
-            </el-row>
+            </div>
         </div>
     </div>
 </template>
 
 <script lang="ts" src="./ChannelWaterMark.v.ts"></script>
 
-<style lang="scss" scoped>
-.waterMark_main {
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-}
-
-.waterMark_left {
-    display: flex;
-    flex-direction: column;
-    width: 400px;
-    margin-right: 9px;
-    .divWaterMarkOCX {
-        width: 400px;
-        height: 300px;
-    }
-    .settings {
-        width: 400px;
-        height: 105px;
-    }
-}
-
-.waterMarkGrid {
-    display: flex;
-    flex-direction: column;
-    // width: 50%;
-    height: fit-content;
-    .dropDown_btn {
-        margin-top: 10px;
-        // .el-button {
-        //     margin-right: 10px;
-        // }
-    }
-}
+<style lang="scss">
+@import '@/views/UI_PUBLIC/publicStyle/channel.scss';
 </style>

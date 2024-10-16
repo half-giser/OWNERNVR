@@ -2,23 +2,21 @@
  * @Description: 录像——参数配置——通道录像参数——过期时间自定义
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-05 16:26:27
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 16:51:35
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-12 15:53:27
  */
 
-import { ChlRecParamList } from '@/types/apiType/record'
+import { type ChlRecParamList } from '@/types/apiType/record'
 
 export default defineComponent({
     props: {
-        expirationPopData: {
-            type: Object,
+        expirationType: {
+            type: String,
             require: true,
-            default: () => {
-                return {
-                    expirationType: String,
-                    expirationData: ChlRecParamList,
-                }
-            },
+        },
+        expirationData: {
+            type: Object as PropType<ChlRecParamList>,
+            require: true,
         },
         handleGetExpirationData: {
             type: Function,
@@ -79,17 +77,14 @@ export default defineComponent({
          */
         const open = async () => {
             await getTimeCfg()
-            if (prop.expirationPopData.expirationType != 'all') {
-                const expirationTime =
-                    prop.expirationPopData.expirationData?.singleExpirationUnit == 'd'
-                        ? Number(prop.expirationPopData.expirationData?.expiration) * 24
-                        : Number(prop.expirationPopData.expirationData?.expiration)
+            if (prop.expirationType != 'all') {
+                const expirationTime = prop.expirationData?.singleExpirationUnit == 'd' ? Number(prop.expirationData?.expiration) * 24 : Number(prop.expirationData?.expiration)
                 pageData.value.expireTime = expirationTime
-                const week = prop.expirationPopData.expirationData?.week
+                const week = prop.expirationData?.week
                 if (week) {
-                    pageData.value.weekArr = week.split(',').map((item: any) => Number(item))
+                    pageData.value.weekArr = week.split(',').map((item) => Number(item))
                 }
-                const holiday = prop.expirationPopData.expirationData?.holiday
+                const holiday = prop.expirationData?.holiday
                 if (holiday) {
                     holiday.split(',').forEach((item: string) => {
                         pageData.value.toAddDateList.push({
@@ -135,19 +130,20 @@ export default defineComponent({
             }
             const unit = pageData.value.expireTime == 1 ? Translate('IDCS_HOUR') : Translate('IDCS_HOURS')
             const tips = pageData.value.expireTime + ' ' + unit
+            const week = pageData.value.weekArr.join(',')
+            const holiday = pageData.value.toAddDateList.map((item) => formatDate(item.date, 'YYYY-MM-DD', pageData.value.dateFormat)).join(',')
+            const expiration = pageData.value.expireTime
+
             ctx.emit('close')
             openMessageTipBox({
                 type: 'question',
                 message: Translate('IDCS_CHANGE_EXPIRE_TIME_WARNING_D').formatForLang(tips),
             })
                 .then(() => {
-                    const week = pageData.value.weekArr.join(',')
-                    const holiday = pageData.value.toAddDateList.map((item) => formatDate(item.date, 'YYYY-MM-DD', pageData.value.dateFormat)).join(',')
-
-                    if (prop.expirationPopData.expirationType == 'all') {
-                        prop.handleGetExpirationData!(week, holiday, pageData.value.expireTime)
+                    if (prop.expirationType == 'all') {
+                        prop.handleGetExpirationData!(week, holiday, expiration)
                     } else {
-                        prop.handleGetExpirationData!(week, holiday, pageData.value.expireTime, prop.expirationPopData.expirationData)
+                        prop.handleGetExpirationData!(week, holiday, expiration, prop.expirationData)
                     }
 
                     pageData.value.expireTime = 1

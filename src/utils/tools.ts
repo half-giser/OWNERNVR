@@ -3,7 +3,7 @@
  * @Date: 2023-04-28 17:57:48
  * @Description: 工具方法
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 16:58:07
+ * @LastEditTime: 2024-10-14 17:16:17
  */
 
 import { type QueryNodeListDto } from '@/types/apiType/channel'
@@ -433,6 +433,11 @@ export const getChlList = (options: Partial<QueryNodeListDto>) => {
                 <enum>sensors</enum>
                 <enum>alarmOuts</enum>
             </nodeType>
+            <chlType>
+                <enum>analog</enum>
+                <enum>digital</enum>
+                <enum>all</enum>
+            </chlType>
         </types>
         ${ternary(options.pageIndex, `<pageIndex>${options.pageIndex}</pageIndex>`)}
         ${ternary(options.pageSize, `<pageSize>${options.pageSize}</pageSize>`)}
@@ -480,7 +485,7 @@ export const getChlList = (options: Partial<QueryNodeListDto>) => {
             ${options.requireField ? options.requireField.map((ele) => `<${ele}/>`).join('') : ''}
         </requireField>
     `
-    return queryNodeList(getXmlWrapData(data))
+    return queryNodeList(data)
 }
 
 /**
@@ -489,7 +494,7 @@ export const getChlList = (options: Partial<QueryNodeListDto>) => {
  * @returns {Promise<Boolean>}
  */
 export const checkChlListCaps = async (route: string) => {
-    const { openLoading, closeLoading, LoadingTarget } = useLoading()
+    const { openLoading, closeLoading } = useLoading()
     const systemCaps = useCababilityStore()
 
     if (route.includes('faceRecognition') || route.includes('vehicleRecognition') || route.includes('boundary') || route.includes('more')) {
@@ -501,7 +506,7 @@ export const checkChlListCaps = async (route: string) => {
     const localFaceDectEnabled = systemCaps.localFaceDectMaxCount !== 0
     const localTargetDectEnabled = systemCaps.localTargetDectMaxCount !== 0
 
-    openLoading(LoadingTarget.FullScreen)
+    openLoading()
 
     const resultOnline = await queryOnlineChlList()
     const $online = queryXml(resultOnline)
@@ -526,7 +531,7 @@ export const checkChlListCaps = async (route: string) => {
     })
     const $ = queryXml(result)
 
-    closeLoading(LoadingTarget.FullScreen)
+    closeLoading()
 
     const supportFlag = $('//content/item').some((item) => {
         const $item = queryXml(item.element)
@@ -596,9 +601,7 @@ export const commLoadResponseHandler = ($response: any, successHandler?: (result
         } else {
             openMessageTipBox({
                 type: 'info',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_QUERY_DATA_FAIL'),
-                showCancelButton: false,
             }).then(() => {
                 failedHandler && failedHandler($)
                 reject($)
@@ -749,7 +752,7 @@ export const parseDateToPersianCalendar = (date: any) => {
 }
 
 /**
- * @description use dayjs
+ * @deprecated use dayjs
  * @description 波斯日历转换成公历
  * @param {any} persianDate 波斯历日期对象
  * @return {Date} 公历日期对象
@@ -881,17 +884,16 @@ export const reconnect = () => {
     const { openMessageTipBox } = useMessageBox()
     const { Translate } = useLangStore()
     const pluginStore = usePluginStore()
-    const { closeLoading, LoadingTarget } = useLoading()
+    const { closeLoading } = useLoading()
 
     if (import.meta.env.VITE_APP_TYPE === 'STANDARD') {
         return setTimeout(() => {
             reconnectStandard(() => {
                 openMessageTipBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_LOGIN_OVERTIME'),
                 }).then(() => {
-                    closeLoading(LoadingTarget.FullScreen)
+                    closeLoading()
                     Logout()
                 })
             })
@@ -912,7 +914,7 @@ const reconnectStandard = async (callback?: () => void) => {
             if (callback) callback()
         })
         .catch(() => {
-            setTimeout(function () {
+            setTimeout(() => {
                 reconnectStandard(callback)
             }, 5000)
         })
@@ -1075,7 +1077,7 @@ export const getBitrateRange = (options: GetBitRateRangeOption) => {
 // 将IPC音频文件转换为base64-导入摄像机声音/本地音频使用
 export const fileToBase64 = (file: Blob, callback: Function) => {
     const reader = new FileReader()
-    reader.onload = function (e) {
+    reader.onload = (e) => {
         const data = (e.target?.result as string).split(',')
         const base64 = data[1]
         const base64Str = formatBase64(base64)

@@ -1,24 +1,21 @@
 /*
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-07-18 13:54:46
- * @Description:
+ * @Description: 通道 - 鱼眼设置
  */
-import { ArrowDown } from '@element-plus/icons-vue'
 import { ChannelFisheye } from '@/types/apiType/channel'
+import { type TableInstance } from 'element-plus'
 
 export default defineComponent({
-    components: {
-        ArrowDown,
-    },
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const { openMessageTipBox } = useMessageBox()
         const osType = getSystemInfo().platform
 
         const playerRef = ref<PlayerInstance>()
         const formData = ref(new ChannelFisheye())
-        const tableRef = ref()
+        const tableRef = ref<TableInstance>()
         const tableData = ref([] as ChannelFisheye[])
         const btnOKDisabled = ref(true)
         const pageIndex = ref(1)
@@ -61,7 +58,7 @@ export default defineComponent({
         const handleChlSel = (chlId: string) => {
             const rowData = getRowById(chlId)
             formData.value = rowData
-            tableRef.value.setCurrentRow(rowData)
+            tableRef.value!.setCurrentRow(rowData)
         }
 
         const handleRowClick = (rowData: ChannelFisheye) => {
@@ -69,7 +66,7 @@ export default defineComponent({
                 selectedChlId.value = rowData.id
                 formData.value = rowData
             }
-            tableRef.value.setCurrentRow(getRowById(selectedChlId.value))
+            tableRef.value!.setCurrentRow(getRowById(selectedChlId.value))
         }
 
         const handleChangeVal = (isFishEyeEnable = false) => {
@@ -135,24 +132,24 @@ export default defineComponent({
         }
 
         const getDataList = () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             Promise.all([
                 getChlList({
                     pageIndex: pageIndex.value,
                     pageSize: pageSize.value,
                     isSupportFishEye: true,
                 }),
-                queryDevList(getXmlWrapData('')),
+                queryDevList(''),
             ]).then((resultArr) => {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 const res1 = queryXml(resultArr[0])
                 const res2 = queryXml(resultArr[1])
                 const hikvisionIds: string[] = []
                 const privateProtocolIds: string[] = []
-                res2('content/item').forEach((ele: any) => {
+                res2('content/item').forEach((ele) => {
                     const eleXml = queryXml(ele.element)
-                    if (eleXml('protocolType').text() == 'HIKVISION') hikvisionIds.push(ele.attr('id'))
-                    if (eleXml('manufacturer').text() == 'TVT') privateProtocolIds.push(ele.attr('id'))
+                    if (eleXml('protocolType').text() == 'HIKVISION') hikvisionIds.push(ele.attr('id')!)
+                    if (eleXml('manufacturer').text() == 'TVT') privateProtocolIds.push(ele.attr('id')!)
                 })
                 if (res1('status').text() == 'success') {
                     pageTotal.value = Number(res1('content').attr('total'))
@@ -162,10 +159,10 @@ export default defineComponent({
                     btnOKDisabled.value = true
                     const curPageCount = res1('content/item').length
                     let count = 0
-                    res1('content/item').forEach((ele: any) => {
+                    res1('content/item').forEach((ele) => {
                         const eleXml = queryXml(ele.element)
                         const newData = new ChannelFisheye()
-                        newData.id = ele.attr('id')
+                        newData.id = ele.attr('id')!
                         newData.name = eleXml('name').text()
                         newData.chlIndex = eleXml('chlIndex').text()
                         newData.chlType = eleXml('chlType').text()
@@ -178,18 +175,18 @@ export default defineComponent({
                         // 1.4.5 queryIPChlORChlFishEye协议修改，不会存在ipc不支持鱼眼接口返回失败的情况了
                         // ipc支持鱼眼返回的supportMode为support/notSupport
                         // ipc不支持鱼眼，但通过onvif等协议添加时也可配置鱼眼开关，返回的supportMode为manualSupport/manualNotSupport
-                        const sendXml = `
+                        const sendXml = rawXml`
                             <condition>
                                 <chlId>${newData.id}</chlId>
                             </condition>`
-                        queryIPChlORChlFishEye(sendXml).then((res: any) => {
-                            res = queryXml(res)
+                        queryIPChlORChlFishEye(sendXml).then((res) => {
+                            const $ = queryXml(res)
                             count++
-                            const supportMode = res('content/chl').attr('supportMode')
+                            const supportMode = $('content/chl').attr('supportMode')
                             if (supportMode == 'support') {
-                                newData.fishEyeMode = res('content/chl/fishEyeMode').text()
-                                newData.installType = res('content/chl/installType').text()
-                                res('types/installType/enum').forEach((ele: any) => {
+                                newData.fishEyeMode = $('content/chl/fishEyeMode').text()
+                                newData.installType = $('content/chl/installType').text()
+                                $('types/installType/enum').forEach((ele) => {
                                     const text = installTypeMap[ele.text()]
                                     if (text) {
                                         newData.installTypeList.push({
@@ -199,7 +196,7 @@ export default defineComponent({
                                         installTypeList.value.add(ele.text())
                                     }
                                 })
-                                res('types/fishEyeMode/enum').forEach((ele: any) => {
+                                $('types/fishEyeMode/enum').forEach((ele) => {
                                     const text = fishEyeModeMap[ele.text()]
                                     if (text) {
                                         newData.fishEyeModelList.push({
@@ -256,7 +253,7 @@ export default defineComponent({
                                     })
                                     formData.value = tableData.value[0]
                                     selectedChlId.value = tableData.value[0].id
-                                    tableRef.value.setCurrentRow(tableData.value[0])
+                                    tableRef.value!.setCurrentRow(tableData.value[0])
                                 })
                             }
                         })
@@ -272,11 +269,11 @@ export default defineComponent({
                 sendXml += `<chlId>${ele.id}</chlId>`
             })
             sendXml += '</condition>'
-            queryFishEyeEnable(getXmlWrapData(sendXml)).then((res: any) => {
-                res = queryXml(res)
-                res('content/chl').forEach((ele: any) => {
+            queryFishEyeEnable(sendXml).then((res) => {
+                const $ = queryXml(res)
+                $('content/chl').forEach((ele) => {
                     const eleXml = queryXml(ele.element)
-                    const rowData = getRowById(ele.attr('id'))
+                    const rowData = getRowById(ele.attr('id')!)
                     if (eleXml('fishEyeEnable').length) {
                         rowData.fishEyeEnable = eleXml('fishEyeEnable').text().toBoolean()
                         rowData.supportFishEyeEnable = true
@@ -287,7 +284,7 @@ export default defineComponent({
         }
 
         const getSaveData = (rowData: ChannelFisheye) => {
-            return `
+            return rawXml`
                 <types>
                     <fishEyeMode>
                         <enum>FishEye+Panorama+3PTZ</enum>
@@ -311,9 +308,9 @@ export default defineComponent({
             let data = '<content>'
             rowDatas.forEach((ele) => {
                 if (ele.reqCfgFail) {
-                    data += `
+                    data += rawXml`
                         <chl id='${ele.id}'>
-                            <fishEyeEnable>${ele.fishEyeEnable}</fishEyeEnable>
+                            <fishEyeEnable>${ele.fishEyeEnable.toString()}</fishEyeEnable>
                         </chl>`
                 }
             })
@@ -326,12 +323,12 @@ export default defineComponent({
             let count = 0
             const successRows = new Set<ChannelFisheye>()
             tableData.value.forEach((ele) => (ele.status = ''))
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             editRows.forEach((ele) => {
                 if (!ele.reqCfgFail) {
-                    editIPChlORChlFishEye(getXmlWrapData(getSaveData(ele))).then((res: any) => {
-                        res = queryXml(res)
-                        const success = res('status') == 'success'
+                    editIPChlORChlFishEye(getSaveData(ele)).then((res) => {
+                        const $ = queryXml(res)
+                        const success = $('status').text() === 'success'
                         if (success) {
                             ele.status = 'success'
                             ele.statusTip = statusToolTip['saveSuccess']
@@ -346,7 +343,7 @@ export default defineComponent({
                                 editRows.delete(element)
                             })
                             if (!editRows.size) btnOKDisabled.value = true
-                            closeLoading(LoadingTarget.FullScreen)
+                            closeLoading()
                         }
                     })
                 }
@@ -359,9 +356,9 @@ export default defineComponent({
             })
 
             if (editEnableRows.length) {
-                editFishEyeEnable(getXmlWrapData(getFishEyeEnableSaveData(editEnableRows))).then((res: any) => {
-                    res = queryXml(res)
-                    const success = res('status') == 'success'
+                editFishEyeEnable(getFishEyeEnableSaveData(editEnableRows)).then((res) => {
+                    const $ = queryXml(res)
+                    const success = $('status').text() === 'success'
                     if (success) btnOKDisabled.value = true
                     editEnableRows.forEach((ele) => {
                         if (ele.reqCfgFail) {
@@ -388,7 +385,6 @@ export default defineComponent({
             if (isChangeFishModel) {
                 openMessageTipBox({
                     type: 'question',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_FISHMODE_CHANGE_TIP'),
                 })
                     .then(() => {
@@ -460,7 +456,7 @@ export default defineComponent({
         })
 
         onBeforeUnmount(() => {
-            if (mode.value === 'ocx') {
+            if (mode.value === 'ocx' && ready.value) {
                 const sendXML = OCX_XML_StopPreview('ALL')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }

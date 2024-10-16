@@ -58,7 +58,7 @@ export default defineComponent({
         let notCheckNameFlag = false
 
         const getData = () => {
-            const data = getXmlWrapData(`<condition><id>${props.rowData.id}</id></condition>`)
+            const data = `<condition><id>${props.rowData.id}</id></condition>`
             openLoading()
             queryDev(data).then((res) => {
                 closeLoading()
@@ -249,7 +249,7 @@ export default defineComponent({
                         data += '<userName>' + editItem.value.userName + '</userName>' + (editPwdSwitch.value ? psdXml : '')
                     }
                     data += '</content>'
-                    editDev(getXmlWrapData(data)).then((res) => {
+                    editDev(data).then((res) => {
                         const $ = queryXml(res)
                         if ($('status').text() == 'success') {
                             emit('updateNameMapping', props.rowData.id, editItem.value.name)

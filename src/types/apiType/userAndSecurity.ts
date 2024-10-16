@@ -3,7 +3,7 @@
  * @Date: 2024-06-14 10:33:02
  * @Description: 用户与安全
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-29 09:10:44
+ * @LastEditTime: 2024-10-15 09:22:25
  */
 
 /**
@@ -70,7 +70,7 @@ export class UserList {
 export class UserPermissionSystemAuthList {
     [key: string]: {
         key: string
-        value: Record<string, { key: string; value: boolean }>
+        value: Record<string, { key: string; value: boolean; hidden: boolean }>
     }
     // 设置
     configurations = {
@@ -80,66 +80,79 @@ export class UserPermissionSystemAuthList {
             localChlMgr: {
                 key: 'IDCS_LOCAL_CHANNEL',
                 value: false,
+                hidden: false,
             },
             // 远程通道
             remoteChlMgr: {
                 key: 'IDCS_REMOTE_CHANNEL',
                 value: false,
+                hidden: false,
             },
             // 磁盘
             diskMgr: {
                 key: 'IDCS_DISK',
                 value: false,
+                hidden: false,
             },
             // AI/事件
             alarmMgr: {
                 key: 'IDCS_AI_AND_EVENT',
                 value: false,
+                hidden: false,
             },
             // 网络
             net: {
                 key: 'IDCS_NETWORK',
                 value: false,
+                hidden: false,
             },
             // 排程
             scheduleMgr: {
                 key: 'IDCS_SCHEDULE',
                 value: false,
+                hidden: false,
             },
             // 录像
             rec: {
                 key: 'IDCS_RECORD',
                 value: false,
+                hidden: false,
             },
             // 本地系统
             localSysCfgAndMaintain: {
                 key: 'IDCS_SYSTEM_LOCAL_CONFIG',
                 value: false,
+                hidden: false,
             },
             // 远程系统
             remoteSysCfgAndMaintain: {
                 key: 'IDCS_SYSTEM_REMOTE_CONFIG',
                 value: false,
+                hidden: false,
             },
             // 样本库
             facePersonnalInfoMgr: {
                 key: 'IDCS_SAMPLE_DATABASE',
                 value: false,
+                hidden: false,
             },
             // 停车场管理
             parkingLotMgr: {
                 key: 'IDCS_PARKING_LOT_MANAGEMENT',
                 value: false,
+                hidden: false,
             },
             // 门禁
             AccessControlMgr: {
                 key: 'IDCS_ACCESS_CONTROL_MANAGEMENT',
                 value: false,
+                hidden: false,
             },
             // 账户和安全
             securityMgr: {
                 key: 'IDCS_ACCOUNT_AND_SECURITY',
                 value: false,
+                hidden: false,
             },
         },
     }
@@ -151,11 +164,13 @@ export class UserPermissionSystemAuthList {
             remoteLogin: {
                 key: 'IDCS_AUDIO_TALK',
                 value: false,
+                hidden: false,
             },
             // 语音对讲
             talk: {
                 key: 'IDCS_REMOTE_LOGIN',
                 value: false,
+                hidden: false,
             },
         },
     }

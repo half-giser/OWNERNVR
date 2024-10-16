@@ -3,12 +3,12 @@
  * @Date: 2024-04-16 13:47:54
  * @Description: 路由构建入口文件
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-08 13:51:48
+ * @LastEditTime: 2024-10-12 14:22:36
  */
 import { createRouter, createWebHistory, type RouteLocationNormalized } from 'vue-router'
 import { buildRouter } from './featureConfig/RouteUtil'
 import progress from '@bassist/progress'
-import { APP_NAME } from '@/utils/constants'
+// import { APP_NAME } from '@/utils/constants'
 import { type RouteLocationNormalizedLoaded } from 'vue-router'
 
 progress.configure({ showSpinner: false })
@@ -182,9 +182,9 @@ router.beforeEach(() => {
     progress.start()
 })
 
-router.afterEach((to) => {
-    const title = to.meta.title
-    document.title = title ? `${title} - ${APP_NAME}` : APP_NAME
+router.afterEach(() => {
+    // const title = to.meta.title
+    // document.title = title ? `${title} - ${APP_NAME}` : APP_NAME
     progress.done()
 })
 

@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-07-31 10:13:57
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-27 09:32:08
+ * @LastEditTime: 2024-10-12 13:50:48
  */
 
 import { type ResolutionRow, type RecordSubStreamList, type rowNonExistent } from '@/types/apiType/record'
@@ -13,7 +13,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
         // “RecordSubResAdaptive” 为true时:录像子码流界面仅显示不可编辑，为false时录像子码流可以编辑
         const RecordSubResAdaptive = systemCaps.RecordSubResAdaptive
@@ -34,6 +34,8 @@ export default defineComponent({
             maxQoI: 0,
             videoEncodeTypeUnionList: [] as SelectOption<string, string>[],
             videoEncodeTypeList: [[] as SelectOption<string, string>[]],
+            // 分辨率表头下拉框
+            resolutionHeaderVisble: false,
             resolutionUnionList: [] as string[],
             resolutionGroups: [] as ResolutionRow[],
             resolutionList: [[] as string[]],
@@ -80,7 +82,7 @@ export default defineComponent({
         }
 
         const getSystemCaps = async () => {
-            const result = await querySystemCaps(getXmlWrapData(''))
+            const result = await querySystemCaps()
             const $ = queryXml(result)
 
             mainStreamLimitFps = Number($('/response/content/mainStreamLimitFps').text()) || mainStreamLimitFps
@@ -423,6 +425,7 @@ export default defineComponent({
             for (let i = maxFrameRate; i >= minFrameRate; i--) {
                 pageData.value.frameRateUnionList.push(String(i))
             }
+            getResolutionDropdownData()
         }
 
         const setRecSubStreamData = async () => {
@@ -462,23 +465,17 @@ export default defineComponent({
                 if (count == 1) {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_SIMPLE_SMART_ENCODE_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + chlName, Translate('IDCS_FACE_DETECTION')),
+                    }).then(() => {
+                        setRecSubStreamData()
                     })
-                        .then(() => {
-                            setRecSubStreamData()
-                        })
-                        .catch(() => {})
                 } else {
                     openMessageTipBox({
                         type: 'info',
-                        title: Translate('IDCS_INFO_TIP'),
                         message: Translate('IDCS_SIMPLE_SMART_ENCODE_TIPS').formatForLang(null, Translate('IDCS_FACE_DETECTION')),
+                    }).then(() => {
+                        setRecSubStreamData()
                     })
-                        .then(() => {
-                            setRecSubStreamData()
-                        })
-                        .catch(() => {})
                 }
             } else {
                 setRecSubStreamData()
@@ -569,42 +566,40 @@ export default defineComponent({
             }
         }
 
-        // 分辨率下拉框打开获取数据
-        const handleResolutionDropdownVisible = (visible: boolean) => {
-            if (visible) {
-                const rowDatas = [] as RecordSubStreamList[]
-                tableData.value.forEach((item, index) => {
-                    if (item.chlType !== 'recorder' && !pageData.value.isRowDisabled[index]) {
-                        rowDatas.push(item)
-                    }
-                })
+        // 获取分辨率下拉框数据
+        const getResolutionDropdownData = () => {
+            const rowDatas = [] as RecordSubStreamList[]
+            tableData.value.forEach((item, index) => {
+                if (item.chlType !== 'recorder' && !pageData.value.isRowDisabled[index]) {
+                    rowDatas.push(item)
+                }
+            })
 
-                const resolutionMapping = {} as Record<string, SelectOption<string, string>[]>
-                pageData.value.resolutionGroups = []
+            const resolutionMapping = {} as Record<string, SelectOption<string, string>[]>
+            pageData.value.resolutionGroups = []
 
-                rowDatas.forEach((item) => {
-                    const resolutionList = item.subCaps.res.map((item) => item['value'])
+            rowDatas.forEach((item) => {
+                const resolutionList = item.subCaps.res.map((item) => item['value'])
 
-                    const mappingKey = resolutionList.join(',')
+                const mappingKey = resolutionList.join(',')
 
-                    if (!resolutionMapping[mappingKey]) {
-                        resolutionMapping[mappingKey] = []
-                        pageData.value.resolutionGroups.push({
-                            res: resolutionList[0],
-                            resGroup: resolutionList,
-                            chls: {
-                                expand: pageData.value.resolutionGroups.length == 0,
-                                data: resolutionMapping[mappingKey],
-                            },
-                        })
-                    }
-
-                    resolutionMapping[mappingKey].push({
-                        value: item.id,
-                        label: item.name,
+                if (!resolutionMapping[mappingKey]) {
+                    resolutionMapping[mappingKey] = []
+                    pageData.value.resolutionGroups.push({
+                        res: resolutionList[0],
+                        resGroup: resolutionList,
+                        chls: {
+                            expand: pageData.value.resolutionGroups.length == 0,
+                            data: resolutionMapping[mappingKey],
+                        },
                     })
+                }
+
+                resolutionMapping[mappingKey].push({
+                    value: item.id,
+                    label: item.name,
                 })
-            }
+            })
         }
 
         // 分辨率下拉框的确定
@@ -620,15 +615,15 @@ export default defineComponent({
                     }
                 })
             })
-            dropdownRef.value.handleClose()
+            pageData.value.resolutionHeaderVisble = false
         }
 
         // 分辨率下拉框关闭
         const close = () => {
-            dropdownRef.value.handleClose()
+            pageData.value.resolutionHeaderVisble = false
         }
 
-        const handleExpandChange = function (row: ResolutionRow, expandedRows: string[]) {
+        const handleExpandChange = (row: ResolutionRow, expandedRows: string[]) => {
             if (expandedRows.includes(row.chls.data[0].value) && resolutionTableRef.value) {
                 resolutionTableRef.value.toggleRowExpansion(row, false)
                 row.chls.expand = false
@@ -645,8 +640,8 @@ export default defineComponent({
         }
 
         // 在选择项时下拉框保持打开
-        const keepDropDownOpen = function (row: ResolutionRow) {
-            dropdownRef.value.handleOpen()
+        const keepDropDownOpen = (row: ResolutionRow) => {
+            pageData.value.resolutionHeaderVisble = true
             if (row.chls.expand && resolutionTableRef.value) {
                 row.chls.expand = true
                 resolutionTableRef.value.toggleRowExpansion(row, true)
@@ -680,11 +675,11 @@ export default defineComponent({
         }
 
         onMounted(async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             await getData()
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         })
 
         return {
@@ -698,7 +693,6 @@ export default defineComponent({
             changeVideoEncodeType,
             changeAllVideoEncodeType,
             changeResolution,
-            handleResolutionDropdownVisible,
             changeAllFrameRate,
             changeAllVideoQuality,
             handleExpandChange,

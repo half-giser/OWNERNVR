@@ -3,7 +3,7 @@
  * @Date: 2024-06-17 20:25:35
  * @Description: 添加权限组
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 18:24:14
+ * @LastEditTime: 2024-10-15 11:30:06
 -->
 <template>
     <div class="base-flex-box">
@@ -43,6 +43,7 @@
                 <ul class="list">
                     <li
                         v-for="authItem in auth.value"
+                        v-show="!authItem.hidden"
                         :key="authItem.key"
                     >
                         <el-checkbox v-model="authItem.value">{{ Translate(authItem.key) }}</el-checkbox>
@@ -64,7 +65,9 @@
             <div class="list">
                 <div
                     class="base-table-box"
-                    :class="{ active: pageData.activeChannelTab === 'IDCS_LOCAL_RIGHT' }"
+                    :class="{
+                        active: pageData.activeChannelTab === 'IDCS_LOCAL_RIGHT',
+                    }"
                 >
                     <el-table
                         :data="channelAuthList"
@@ -89,32 +92,31 @@
                         >
                             <template #header>
                                 <el-dropdown trigger="click">
-                                    <span class="el-dropdown-link">
+                                    <BaseTableDropdownLink>
                                         {{ Translate(item.label) }}
-                                        <BaseImgSprite
-                                            class="ddn"
-                                            file="ddn"
-                                        />
-                                    </span>
+                                    </BaseTableDropdownLink>
                                     <template #dropdown>
                                         <el-dropdown-menu>
                                             <el-dropdown-item
                                                 v-for="opt in pageData.channelOption"
                                                 :key="opt.value"
-                                                @click="changeAllChannelAuth(item.value, opt.value)"
+                                                @click="changeAllChannelAuth(item.value, opt.label)"
                                             >
-                                                {{ Translate(opt.label) }}
+                                                {{ opt.label }}
                                             </el-dropdown-item>
                                         </el-dropdown-menu>
                                     </template>
                                 </el-dropdown>
                             </template>
                             <template #default="{ $index }">
-                                <el-select v-model="channelAuthList[$index][item.value]">
+                                <el-select
+                                    v-model="channelAuthList[$index][item.value]"
+                                    :persistent="false"
+                                >
                                     <el-option
                                         v-for="value in pageData.channelOption"
                                         :key="value.value"
-                                        :label="Translate(value.label)"
+                                        :label="value.label"
                                         :value="value.value"
                                     />
                                 </el-select>
@@ -149,32 +151,31 @@
                         >
                             <template #header>
                                 <el-dropdown trigger="click">
-                                    <span class="el-dropdown-link">
+                                    <BaseTableDropdownLink>
                                         {{ Translate(item.label) }}
-                                        <BaseImgSprite
-                                            class="ddn"
-                                            file="ddn"
-                                        />
-                                    </span>
+                                    </BaseTableDropdownLink>
                                     <template #dropdown>
                                         <el-dropdown-menu>
                                             <el-dropdown-item
                                                 v-for="opt in pageData.channelOption"
                                                 :key="opt.value"
-                                                @click="changeAllChannelAuth(item.value, opt.value)"
+                                                @click="changeAllChannelAuth(item.value, opt.label)"
                                             >
-                                                {{ Translate(opt.label) }}
+                                                {{ opt.label }}
                                             </el-dropdown-item>
                                         </el-dropdown-menu>
                                     </template>
                                 </el-dropdown>
                             </template>
                             <template #default="{ $index }">
-                                <el-select v-model="channelAuthList[$index][item.value]">
+                                <el-select
+                                    v-model="channelAuthList[$index][item.value]"
+                                    :persistent="false"
+                                >
                                     <el-option
                                         v-for="value in pageData.channelOption"
                                         :key="value.value"
-                                        :label="Translate(value.label)"
+                                        :label="value.label"
                                         :value="value.value"
                                     />
                                 </el-select>
@@ -239,10 +240,6 @@
     display: flex;
     flex-direction: column;
 
-    .ddn {
-        margin-left: 5px;
-    }
-
     ul {
         display: flex;
         justify-content: center;
@@ -251,14 +248,10 @@
         flex-shrink: 0;
     }
 
-    :deep(.el-table) {
-        height: calc(100vh - 630px);
-    }
-
     .list {
         position: relative;
-        height: calc(100vh - 630px);
         width: 100%;
+        height: 100%;
 
         & > div {
             position: absolute;
@@ -267,7 +260,7 @@
             opacity: 0;
             pointer-events: none;
             width: 100%;
-            height: calc(100vh - 630px);
+            height: 100%;
 
             &.active {
                 opacity: 1;

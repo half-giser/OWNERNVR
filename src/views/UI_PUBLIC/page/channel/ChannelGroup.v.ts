@@ -70,7 +70,6 @@ export default defineComponent({
         const handleDelChlGroup = (rowData: ChlGroup) => {
             openMessageTipBox({
                 type: 'question',
-                title: Translate('IDCS_INFO_TIP'),
                 message: Translate('IDCS_DELETE_MP_GROUP_S').formatForLang(getShortString(rowData.name, 10)),
             }).then(() => {
                 const data = rawXml`
@@ -81,7 +80,7 @@ export default defineComponent({
                     </condition>
                 `
                 openLoading()
-                delChlGroup(getXmlWrapData(data)).then((res) => {
+                delChlGroup(data).then((res) => {
                     closeLoading()
                     const $ = queryXml(res)
                     if ($('status').text() == 'success') {
@@ -120,7 +119,7 @@ export default defineComponent({
                     </condition>
                 `
                 openLoading()
-                queryChlGroup(getXmlWrapData(data)).then((res) => {
+                queryChlGroup(data).then((res) => {
                     closeLoading()
                     const $ = queryXml(res)
                     if ($('status').text() == 'success') {
@@ -151,7 +150,7 @@ export default defineComponent({
                 </requireField>
             `
             openLoading()
-            queryChlGroupList(getXmlWrapData(data)).then((res) => {
+            queryChlGroupList(data).then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
@@ -200,7 +199,7 @@ export default defineComponent({
                 </content>
             `
             openLoading()
-            editSetAndElementRelation(getXmlWrapData(data)).then((res) => {
+            editSetAndElementRelation(data).then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {

@@ -3,7 +3,7 @@
  * @Date: 2024-06-17 20:25:35
  * @Description: 编辑权限组弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-24 18:27:55
+ * @LastEditTime: 2024-10-15 11:26:59
 -->
 <template>
     <el-dialog
@@ -44,6 +44,7 @@
                     <ul class="list">
                         <li
                             v-for="authItem in auth.value"
+                            v-show="!authItem.hidden"
                             :key="authItem.key"
                         >
                             <el-checkbox v-model="authItem.value">{{ Translate(authItem.key) }}</el-checkbox>
@@ -87,33 +88,33 @@
                             >
                                 <template #header>
                                     <el-dropdown trigger="click">
-                                        <span class="el-dropdown-link">
+                                        <BaseTableDropdownLink>
                                             {{ Translate(item.label) }}
-                                            <BaseImgSprite
-                                                class="ddn"
-                                                file="ddn"
-                                            />
-                                        </span>
+                                        </BaseTableDropdownLink>
                                         <template #dropdown>
                                             <el-dropdown-menu>
                                                 <el-dropdown-item
                                                     v-for="opt in pageData.channelOption"
                                                     :key="opt.value"
-                                                    @click="changeAllChannelAuth(item.value, opt.value)"
+                                                    @click="changeAllChannelAuth(item.value, opt.label)"
                                                 >
-                                                    {{ Translate(opt.label) }}
+                                                    {{ opt.label }}
                                                 </el-dropdown-item>
                                             </el-dropdown-menu>
                                         </template>
                                     </el-dropdown>
                                 </template>
                                 <template #default="{ $index }">
-                                    <el-select v-model="channelAuthList[$index][item.value]">
+                                    <!-- 出于el-select的渲染性能考虑，以label作为value值 -->
+                                    <el-select
+                                        v-model="channelAuthList[$index][item.value]"
+                                        :persistent="false"
+                                    >
                                         <el-option
                                             v-for="value in pageData.channelOption"
                                             :key="value.value"
-                                            :label="Translate(value.label)"
-                                            :value="value.value"
+                                            :label="value.label"
+                                            :value="value.label"
                                         />
                                     </el-select>
                                 </template>
@@ -144,33 +145,33 @@
                             >
                                 <template #header>
                                     <el-dropdown trigger="click">
-                                        <span class="el-dropdown-link">
+                                        <BaseTableDropdownLink>
                                             {{ Translate(item.label) }}
-                                            <BaseImgSprite
-                                                class="ddn"
-                                                file="ddn"
-                                            />
-                                        </span>
+                                        </BaseTableDropdownLink>
                                         <template #dropdown>
                                             <el-dropdown-menu>
                                                 <el-dropdown-item
                                                     v-for="opt in pageData.channelOption"
                                                     :key="opt.value"
-                                                    @click="changeAllChannelAuth(item.value, opt.value)"
+                                                    @click="changeAllChannelAuth(item.value, opt.label)"
                                                 >
-                                                    {{ Translate(opt.label) }}
+                                                    {{ opt.label }}
                                                 </el-dropdown-item>
                                             </el-dropdown-menu>
                                         </template>
                                     </el-dropdown>
                                 </template>
                                 <template #default="{ $index }">
-                                    <el-select v-model="channelAuthList[$index][item.value]">
+                                    <!-- 出于el-select的渲染性能考虑，以label作为value值 -->
+                                    <el-select
+                                        v-model="channelAuthList[$index][item.value]"
+                                        :persistent="false"
+                                    >
                                         <el-option
                                             v-for="value in pageData.channelOption"
                                             :key="value.value"
-                                            :label="Translate(value.label)"
-                                            :value="value.value"
+                                            :label="value.label"
+                                            :value="value.label"
                                         />
                                     </el-select>
                                 </template>
@@ -239,10 +240,6 @@
         margin-top: 10px;
         display: flex;
         flex-direction: column;
-
-        .ddn {
-            margin-left: 5px;
-        }
 
         ul {
             display: flex;

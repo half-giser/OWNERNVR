@@ -45,9 +45,9 @@
                 >
                     <template #header>
                         <el-dropdown trigger="click">
-                            <span class="el-dropdown-link">
-                                {{ Translate('IDCS_AUDIO') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
-                            </span>
+                            <BaseTableDropdownLink>
+                                {{ Translate('IDCS_AUDIO') }}
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -89,9 +89,9 @@
                 >
                     <template #header>
                         <el-dropdown trigger="click">
-                            <span class="el-dropdown-link">
-                                {{ Translate('IDCS_PUSH') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
-                            </span>
+                            <BaseTableDropdownLink>
+                                {{ Translate('IDCS_PUSH') }}
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -139,9 +139,9 @@
                             popper-class="no-padding"
                         >
                             <template #reference>
-                                <span class="base-popover-icon">
-                                    {{ Translate('IDCS_ALARM_OUT') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
-                                </span>
+                                <BaseTableDropdownLink>
+                                    {{ Translate('IDCS_ALARM_OUT') }}
+                                </BaseTableDropdownLink>
                             </template>
                             <BaseTransferPop
                                 v-if="pageData.alarmOutPopoverVisible"
@@ -180,9 +180,9 @@
                 >
                     <template #header>
                         <el-dropdown trigger="click">
-                            <span class="el-dropdown-link">
-                                {{ Translate('IDCS_BUZZER') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
-                            </span>
+                            <BaseTableDropdownLink>
+                                {{ Translate('IDCS_BUZZER') }}
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -224,9 +224,9 @@
                 >
                     <template #header>
                         <el-dropdown trigger="click">
-                            <span class="el-dropdown-link">
-                                {{ Translate('IDCS_MESSAGEBOX_POPUP') }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
-                            </span>
+                            <BaseTableDropdownLink>
+                                {{ Translate('IDCS_MESSAGEBOX_POPUP') }}
+                            </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
@@ -268,9 +268,7 @@
                 >
                     <template #header>
                         <el-dropdown trigger="click">
-                            <span class="el-dropdown-link">
-                                Email <el-icon class="el-icon--right"><arrow-down /></el-icon>
-                            </span>
+                            <BaseTableDropdownLink> Email </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item

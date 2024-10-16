@@ -3,13 +3,12 @@
  * @Date: 2024-07-31 16:36:16
  * @Description:
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:25:04
+ * @LastEditTime: 2024-10-11 12:00:03
  */
-import { defineComponent } from 'vue'
 import BaseScheduleWeek from '@/components/BaseScheduleWeek.vue'
 import ScheduleEditPop from './ScheduleEditPop.vue'
 import { ScheduleInfo, type NameValueItem } from '@/types/apiType/schedule'
-import { type ElTable } from 'element-plus'
+import { type TableInstance } from 'element-plus'
 
 export default defineComponent({
     components: { BaseScheduleWeek, ScheduleEditPop },
@@ -21,12 +20,12 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
 
         // 周排程组件引用
         const scheduleWeekRef: Ref<InstanceType<typeof BaseScheduleWeek> | null> = ref(null)
         // 排程表格引用
-        const scheduleTable = ref<InstanceType<typeof ElTable>>()
+        const scheduleTable = ref<TableInstance>()
 
         const pageData = ref({
             //排程编辑弹窗显示状态
@@ -62,12 +61,12 @@ export default defineComponent({
          * @return {*}
          */
         const queryList = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const result = await queryScheduleList()
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() !== 'success') return
 
@@ -114,7 +113,7 @@ export default defineComponent({
          * @return {*}
          */
         const getScheduleDetail = async (id: string) => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXml = rawXml`
             <condition>
@@ -124,7 +123,7 @@ export default defineComponent({
             const result = await querySchedule(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 pageData.value.currentScheduleInfo = new ScheduleInfo()
@@ -172,7 +171,7 @@ export default defineComponent({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_SCHEDULE_S').formatForLang(replaceWithEntity(getShortString(row.name, 10))),
             }).then(async () => {
-                openLoading(LoadingTarget.FullScreen)
+                openLoading()
 
                 const sendXml = rawXml`
                 <condition>
@@ -182,7 +181,7 @@ export default defineComponent({
                 </condition>`
 
                 const result = await delSchedule(sendXml)
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
 
                 commSaveResponseHadler(result, () => {
                     queryList()

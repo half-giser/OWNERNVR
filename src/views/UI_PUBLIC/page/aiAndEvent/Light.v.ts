@@ -5,18 +5,15 @@
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
  * @LastEditTime: 2024-10-09 16:35:31
  */
-import { ArrowDown } from '@element-plus/icons-vue'
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import { whiteLightInfo } from '@/types/apiType/aiAndEvent'
 export default defineComponent({
     components: {
-        ArrowDown,
         ScheduleManagPop,
     },
     setup() {
         const { Translate } = useLangStore()
-        const { LoadingTarget, openLoading, closeLoading } = useLoading()
-        const openMessageTipBox = useMessageBox().openMessageTipBox
+        const { openLoading, closeLoading } = useLoading()
         const scheduleList = buildScheduleList()
         const tableData = ref<whiteLightInfo[]>([])
         const pageData = ref({
@@ -38,7 +35,7 @@ export default defineComponent({
             initComplated: false,
             editRows: [] as whiteLightInfo[],
         })
-        const buildTableData = function () {
+        const buildTableData = () => {
             pageData.value.initComplated = false
             tableData.value.length = 0
             getChlList({
@@ -70,7 +67,7 @@ export default defineComponent({
                     row.status = ''
                     if (res('status').text() == 'success') {
                         if (pageData.value.lightFrequencyList.length === 0) {
-                            res('//types/lightFrequency/enum').forEach((item: any) => {
+                            res('//types/lightFrequency/enum').forEach((item) => {
                                 pageData.value.lightFrequencyList.push({
                                     value: item.text(),
                                     label: getLightFrequencyLang(item.text()),
@@ -95,24 +92,25 @@ export default defineComponent({
                 }
             })
         }
-        const getSaveData = function (rowData: whiteLightInfo) {
+        const getSaveData = (rowData: whiteLightInfo) => {
             if (rowData.durationTime) {
-                const sendXml = rawXml`<content>
-                                            <chl id="${rowData.id}">
-                                                <param>
-                                                    <name>${rowData.name}</name>
-                                                    <lightSwitch>${rowData.enable}</lightSwitch>
-                                                    <durationTime>${rowData.durationTime.toString()}</durationTime>
-                                                    <frequency>${rowData.frequencyType}</frequency>
-                                                </param>
-                                            </chl>
-                                        </content>`
+                const sendXml = rawXml`
+                    <content>
+                        <chl id="${rowData.id}">
+                            <param>
+                                <name>${rowData.name}</name>
+                                <lightSwitch>${rowData.enable}</lightSwitch>
+                                <durationTime>${rowData.durationTime.toString()}</durationTime>
+                                <frequency>${rowData.frequencyType}</frequency>
+                            </param>
+                        </chl>
+                    </content>`
                 return sendXml
             } else {
                 console.log('durationTime is null')
             }
         }
-        const getSchedule = async function () {
+        const getSchedule = async () => {
             queryEventNotifyParam().then((resb) => {
                 const res = queryXml(resb)
                 if (res('status').text() === 'success') {
@@ -125,8 +123,8 @@ export default defineComponent({
             })
             pageData.value.scheduleChanged = false
         }
-        const setData = function () {
-            openLoading(LoadingTarget.FullScreen)
+        const setData = () => {
+            openLoading()
             pageData.value.editRows.forEach((row) => {
                 const sendXml = getSaveData(row)
                 if (sendXml) {
@@ -166,7 +164,7 @@ export default defineComponent({
                     pageData.value.scheduleChanged = false
                 })
             }
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
         const changePagination = () => {
             buildTableData()
@@ -178,7 +176,7 @@ export default defineComponent({
             }
             buildTableData()
         }
-        const getLightFrequencyLang = function (value: string) {
+        const getLightFrequencyLang = (value: string) => {
             switch (value) {
                 case 'high':
                     return Translate('IDCS_HWDR_HIGH')
@@ -190,12 +188,12 @@ export default defineComponent({
                     return value
             }
         }
-        const handleEnabelChange = function (row: whiteLightInfo) {
+        const handleEnabelChange = (row: whiteLightInfo) => {
             setRowDisable(row)
             addEditRows(row)
             pageData.value.applyDisable = false
         }
-        const handleEnabelChangeAll = function (value: string) {
+        const handleEnabelChangeAll = (value: string) => {
             tableData.value.forEach((row) => {
                 if (row['enable']) {
                     row.enable = value
@@ -205,15 +203,15 @@ export default defineComponent({
                 }
             })
         }
-        const handleDurationTimeChange = function (row: whiteLightInfo) {
+        const handleDurationTimeChange = (row: whiteLightInfo) => {
             addEditRows(row)
             if (!row.rowDisable) pageData.value.applyDisable = false
         }
-        const handleFrequencyTypeChange = function (row: whiteLightInfo) {
+        const handleFrequencyTypeChange = (row: whiteLightInfo) => {
             addEditRows(row)
             if (!row.rowDisable) pageData.value.applyDisable = false
         }
-        const handleFrequencyTypeChangeAll = function (value: string) {
+        const handleFrequencyTypeChangeAll = (value: string) => {
             tableData.value.forEach((row) => {
                 if (!row['rowDisable'] && !(row['enable'] && row['enable'] == 'false')) {
                     row.frequencyType = value
@@ -222,7 +220,7 @@ export default defineComponent({
                 }
             })
         }
-        const handleDurationTimeFocus = function (row: whiteLightInfo) {
+        const handleDurationTimeFocus = (row: whiteLightInfo) => {
             if (row.durationTime) {
                 if (row.durationTime <= 1) {
                     row.durationTime = 1
@@ -231,7 +229,7 @@ export default defineComponent({
                 }
             }
         }
-        const handleDurationTimeBlur = function (row: whiteLightInfo) {
+        const handleDurationTimeBlur = (row: whiteLightInfo) => {
             if (!row.durationTime) {
                 row.durationTime = 1
             }
@@ -241,21 +239,21 @@ export default defineComponent({
                 row.durationTime = 60
             }
         }
-        const handleDurationTimeKeydown = function (row: whiteLightInfo) {
+        const handleDurationTimeKeydown = (row: whiteLightInfo) => {
             handleDurationTimeBlur(row)
         }
-        const handleScheduleChange = function () {
+        const handleScheduleChange = () => {
             pageData.value.applyDisable = false
             pageData.value.scheduleChanged = true
         }
-        const addEditRows = function (row: whiteLightInfo) {
+        const addEditRows = (row: whiteLightInfo) => {
             if (!row.rowDisable) {
                 if (!pageData.value.editRows.some((item) => item.id == row.id)) {
                     pageData.value.editRows.push(row)
                 }
             }
         }
-        const setRowDisable = function (rowData: whiteLightInfo) {
+        const setRowDisable = (rowData: whiteLightInfo) => {
             const disabled = rowData['enable'] && rowData['enable'] == 'false' ? true : false
             if (rowData['enable'] == null) {
                 rowData['rowDisable'] = true
@@ -275,7 +273,7 @@ export default defineComponent({
                 rowData['frequencyTypeDisable'] = false
             }
         }
-        const popOpen = function () {
+        const popOpen = () => {
             pageData.value.scheduleManagePopOpen = true
         }
         onMounted(async () => {
@@ -284,11 +282,6 @@ export default defineComponent({
             buildTableData()
         })
         return {
-            Translate,
-            LoadingTarget,
-            openLoading,
-            closeLoading,
-            openMessageTipBox,
             scheduleList,
             pageData,
             tableData,

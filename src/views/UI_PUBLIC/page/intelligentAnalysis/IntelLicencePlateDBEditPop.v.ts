@@ -36,7 +36,7 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
 
         const formRef = ref<FormInstance>()
 
@@ -75,7 +75,7 @@ export default defineComponent({
          * @description 编辑分组
          */
         const editGroup = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXML = rawXml`
                 <content>
@@ -89,7 +89,7 @@ export default defineComponent({
             const result = await editPlateLibrary(sendXML)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 ctx.emit('confirm')
@@ -120,7 +120,7 @@ export default defineComponent({
          * @description 新增分组
          */
         const addGroup = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
 
             const sendXml = rawXml`
                 <content>
@@ -134,7 +134,7 @@ export default defineComponent({
             const result = await addPlateLibrary(sendXml)
             const $ = queryXml(result)
 
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
 
             if ($('//status').text() === 'success') {
                 ctx.emit('confirm')

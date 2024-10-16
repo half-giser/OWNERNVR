@@ -3,7 +3,7 @@
  * @Date: 2024-06-05 14:16:36
  * @Description: 集成wasm-player和多分屏功能
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-20 18:35:07
+ * @LastEditTime: 2024-10-14 16:46:45
  */
 
 import { ErrorCode } from '../constants'
@@ -178,13 +178,13 @@ export default class TVTPlayer {
     private readonly onwinexchange: TVTPlayerOption['onwinexchange']
     private readonly ondblclickchange: TVTPlayerOption['ondblclickchange']
     private readonly ERROR_CODE_MAP: Record<number, string> = {
-        536870961: 'playComplete', // 文件流完成(回放结束时出现)
-        536870942: 'noRecord', // 无录像数据
-        536870945: 'deviceBusy', // 设备忙，不能请求
-        536870982: 'deviceBusy', // 设备忙，设备资源限制
-        536870931: 'offline', // 网络断开，通道离线
-        536870935: 'offline', // 通道不在线
-        536870953: 'noPermission', // 无权限
+        [ErrorCode.USER_ERROR_FILE_STREAM_COMPLETED]: 'playComplete', // 文件流完成(回放结束时出现)
+        [ErrorCode.USER_ERROR_NO_RECORDDATA]: 'noRecord', // 无录像数据
+        [ErrorCode.USER_ERROR_DEVICE_BUSY]: 'deviceBusy', // 设备忙，不能请求
+        [ErrorCode.USER_ERROR_DEV_RESOURCE_LIMITED]: 'deviceBusy', // 设备忙，设备资源限制
+        [ErrorCode.USER_ERROR_NODE_NET_DISCONNECT]: 'offline', // 网络断开，通道离线
+        [ErrorCode.USER_ERROR_NODE_NET_OFFLINE]: 'offline', // 通道不在线
+        [ErrorCode.USER_ERROR_NO_AUTH]: 'noPermission', // 无权限
     }
 
     constructor(options: TVTPlayerOption) {
@@ -1069,7 +1069,7 @@ export default class TVTPlayer {
      * @description 获取pos配置
      */
     getPosCfg() {
-        queryPosList().then((res: any) => {
+        queryPosList().then((res) => {
             const $ = queryXml(res)
             if ($('//status').text() !== 'success') return
             const $systemX = $('//content/itemType/coordinateSystem/X')
@@ -1168,7 +1168,7 @@ export default class TVTPlayer {
             if ($('//status').text() !== 'success') return
             if ($('//content/addressSwitch').text() === 'true') {
                 // 若为true则可以显示ip地址
-                const sendXml = getXmlWrapData('<requireField><ip/></requireField>')
+                const sendXml = '<requireField><ip/></requireField>'
                 queryDevList(sendXml).then((res) => {
                     const $ = queryXml(res)
                     if ($('//status').text() !== 'success') return

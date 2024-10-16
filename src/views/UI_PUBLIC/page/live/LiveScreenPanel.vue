@@ -3,7 +3,7 @@
  * @Date: 2024-07-17 16:16:59
  * @Description: 现场预览-底部菜单栏视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-25 18:39:56
+ * @LastEditTime: 2024-10-14 16:22:28
 -->
 <template>
     <div class="ctrl">
@@ -96,6 +96,7 @@
         </div>
         <div class="ctrl-right">
             <LiveScreenAlarmOut />
+            <!-- 关闭/开启图像 -->
             <el-tooltip
                 :content="preview ? Translate('IDCS_CLOSE_ALL_IMAGE') : Translate('IDCS_PREVIEW_ALL')"
                 :show-after="500"
@@ -108,6 +109,7 @@
                     @click="$emit('update:preview', !preview)"
                 />
             </el-tooltip>
+            <!-- 本地录像 -->
             <el-tooltip
                 :content="clientRecord ? Translate('IDCS_CLIENT_RECORD_ALL_OFF') : Translate('IDCS_CLIENT_RECORD_ALL_ON')"
                 :show-after="500"
@@ -121,6 +123,7 @@
                     @click="$emit('update:clientRecord', !clientRecord)"
                 />
             </el-tooltip>
+            <!-- 远程录像 -->
             <el-tooltip
                 :content="remoteRecord ? Translate('IDCS_REMOTE_MANUAL_RECORD_ALL_OFF') : Translate('IDCS_REMOTE_MANUAL_RECORD_ALL_ON')"
                 :show-after="500"
@@ -135,6 +138,7 @@
                     @click="recordRemote(!remoteRecord)"
                 />
             </el-tooltip>
+            <!-- 对讲 -->
             <el-tooltip
                 :content="talk ? Translate('IDCS_TALKBACK_OFF') : Translate('IDCS_TALKBACK_ON')"
                 :show-after="500"

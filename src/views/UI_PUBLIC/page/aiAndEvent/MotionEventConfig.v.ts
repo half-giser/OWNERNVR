@@ -6,21 +6,12 @@
  * @LastEditTime: 2024-10-10 10:55:23
  */
 import { cloneDeep } from 'lodash-es'
-import { ArrowDown } from '@element-plus/icons-vue'
-import BaseTransferPop from '@/components/BaseTransferPop.vue'
-import BaseTransferDialog from '@/components/BaseTransferDialog.vue'
-import BaseTableRowStatus from '@/components/BaseTableRowStatus.vue'
 import { MotionEventConfig, type PresetItem } from '@/types/apiType/aiAndEvent'
-import { errorCodeMap } from '@/utils/constants'
 import SetPresetPop from './SetPresetPop.vue'
 // import { DropdownInstance } from 'element-plus'
 export default defineComponent({
     components: {
-        ArrowDown,
-        BaseTransferPop,
-        BaseTransferDialog,
         SetPresetPop,
-        BaseTableRowStatus,
     },
     setup() {
         const chosedList = ref<any[]>([])
@@ -30,7 +21,7 @@ export default defineComponent({
         // ;(snapRef.value as InstanceType<typeof ElDropdown>).handleOpen()
         // ;(alarmOutRef.value as InstanceType<typeof ElDropdown>).handleOpen()
         // ;(recordRef.value as InstanceType<typeof ElDropdown>).handleOpen()
-        const { LoadingTarget, openLoading, closeLoading } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const scheduleList = buildScheduleList()
         const systemCaps = useCababilityStore()
         const userSession = useUserSessionStore()
@@ -117,10 +108,10 @@ export default defineComponent({
                     pageData.value.audioList = []
                     const res = queryXml(resb)
                     if (res('status').text() == 'success') {
-                        res('//content/audioList/item').forEach((item: any) => {
+                        res('//content/audioList/item').forEach((item) => {
                             const $item = queryXml(item.element)
                             pageData.value.audioList.push({
-                                value: item.attr('id'),
+                                value: item.attr('id')!,
                                 label: $item('name').text(),
                             })
                         })
@@ -136,10 +127,10 @@ export default defineComponent({
             }).then(async (resb) => {
                 const res = queryXml(resb)
                 if (res('status').text() == 'success') {
-                    res('//content/item').forEach((item: any) => {
+                    res('//content/item').forEach((item) => {
                         const $item = queryXml(item.element)
                         pageData.value.recordList.push({
-                            value: item.attr('id'),
+                            value: item.attr('id')!,
                             label: $item('name').text(),
                         })
                     })
@@ -153,10 +144,10 @@ export default defineComponent({
             }).then(async (resb) => {
                 const res = queryXml(resb)
                 if (res('status').text() == 'success') {
-                    res('//content/item').forEach((item: any) => {
+                    res('//content/item').forEach((item) => {
                         const $item = queryXml(item.element)
                         pageData.value.snapList.push({
-                            value: item.attr('id'),
+                            value: item.attr('id')!,
                             label: $item('name').text(),
                         })
                     })
@@ -170,17 +161,17 @@ export default defineComponent({
             }).then(async (resb) => {
                 const res = queryXml(resb)
                 if (res('status').text() == 'success') {
-                    res('//content/item').forEach((item: any) => {
+                    res('//content/item').forEach((item) => {
                         const $item = queryXml(item.element)
                         let name = $item('name').text()
                         if ($item('devDesc').text()) {
                             name = $item('devDesc').text() + '-' + name
                         }
                         pageData.value.alarmOutList.push({
-                            value: item.attr('id'),
+                            value: item.attr('id')!,
                             label: name,
                             device: {
-                                value: $item('device').attr('id'),
+                                value: $item('device').attr('id')!,
                                 label: $item('device').text(),
                             },
                         })
@@ -188,7 +179,7 @@ export default defineComponent({
                 }
             })
         }
-        const buildTableData = function () {
+        const buildTableData = () => {
             pageData.value.initComplated = false
             tableData.value.length = 0
             getChlList({
@@ -230,10 +221,10 @@ export default defineComponent({
                         }
                         row.oldSchedule = row.schedule
                         row.record = {
-                            switch: res('//content/chl/trigger/sysRec/switch').text() == 'true' ? true : false,
-                            chls: res('//content/chl/trigger/sysRec/chls/item').map((item: any) => {
+                            switch: res('//content/chl/trigger/sysRec/switch').text().toBoolean(),
+                            chls: res('//content/chl/trigger/sysRec/chls/item').map((item) => {
                                 return {
-                                    value: item.attr('id'),
+                                    value: item.attr('id')!,
                                     label: item.text(),
                                 }
                             }),
@@ -242,10 +233,10 @@ export default defineComponent({
                         row.recordList = row.record.chls.map((item) => item.value)
                         row.sysAudio = res('//content/chl/trigger/sysAudio').attr('id') || pageData.value.defaultAudioId
                         row.snap = {
-                            switch: res('//content/chl/trigger/sysSnap/switch').text() == 'true' ? true : false,
-                            chls: res('//content/chl/trigger/sysSnap/chls/item').map((item: any) => {
+                            switch: res('//content/chl/trigger/sysSnap/switch').text().toBoolean(),
+                            chls: res('//content/chl/trigger/sysSnap/chls/item').map((item) => {
                                 return {
-                                    value: item.attr('id'),
+                                    value: item.attr('id')!,
                                     label: item.text(),
                                 }
                             }),
@@ -254,9 +245,9 @@ export default defineComponent({
                         row.snapList = row.snap.chls.map((item) => item.value)
                         row.alarmOut = {
                             switch: res('//content/chl/trigger/alarmOut/switch').text() == 'true' ? true : false,
-                            chls: res('//content/chl/trigger/alarmOut/alarmOuts/item').map((item: any) => {
+                            chls: res('//content/chl/trigger/alarmOut/alarmOuts/item').map((item) => {
                                 return {
-                                    value: item.attr('id'),
+                                    value: item.attr('id')!,
                                     label: item.text(),
                                 }
                             }),
@@ -267,13 +258,13 @@ export default defineComponent({
                         row.msgPush = res('//content/chl/trigger/msgPushSwitch').text()
                         row.videoPopup = res('//content/chl/trigger/popVideoSwitch').text()
                         row.preset.switch = res('//content/chl/trigger/preset/switch').text() == 'true' ? true : false
-                        res('//content/chl/trigger/preset/presets/item').forEach((item: any) => {
+                        res('//content/chl/trigger/preset/presets/item').forEach((item) => {
                             const $item = queryXml(item.element)
                             row.preset.presets.push({
                                 index: $item('index').text(),
                                 name: $item('name').text(),
                                 chl: {
-                                    value: $item('chl').attr('id'),
+                                    value: $item('chl').attr('id')!,
                                     label: $item('chl').text(),
                                 },
                             })
@@ -301,7 +292,7 @@ export default defineComponent({
             }
             buildTableData()
         }
-        const handleScheduleChangeAll = function (schedule: { value: string; label: string }) {
+        const handleScheduleChangeAll = (schedule: { value: string; label: string }) => {
             tableData.value.forEach((item) => {
                 if (!item.rowDisable) {
                     item.schedule = schedule
@@ -342,7 +333,7 @@ export default defineComponent({
             pageData.value.recordChosedIdsAll = []
             pageData.value.recordPopoverVisible = false
         }
-        const setRecord = function (index: number) {
+        const setRecord = (index: number) => {
             pageData.value.recordIsShow = true
             pageData.value.triggerDialogIndex = index
         }
@@ -400,7 +391,7 @@ export default defineComponent({
             pageData.value.snapChosedIdsAll = []
             pageData.value.snapPopoverVisible = false
         }
-        const setSnap = function (index: number) {
+        const setSnap = (index: number) => {
             pageData.value.snapIsShow = true
             pageData.value.triggerDialogIndex = index
         }
@@ -458,7 +449,7 @@ export default defineComponent({
             pageData.value.alarmOutChosedIdsAll = []
             pageData.value.alarmOutPopoverVisible = false
         }
-        const setAlarmOut = function (index: number) {
+        const setAlarmOut = (index: number) => {
             pageData.value.alarmOutIsShow = true
             pageData.value.triggerDialogIndex = index
         }
@@ -508,28 +499,28 @@ export default defineComponent({
             })
         }
         // 四个按钮checkBox切换
-        const recordSwitchChange = function (row: MotionEventConfig) {
+        const recordSwitchChange = (row: MotionEventConfig) => {
             addEditRow(row)
             if (row.record.switch === false) {
                 row.record.chls = []
                 row.recordList = []
             }
         }
-        const snapSwitchChange = function (row: MotionEventConfig) {
+        const snapSwitchChange = (row: MotionEventConfig) => {
             addEditRow(row)
             if (row.snap.switch === false) {
                 row.snap.chls = []
                 row.snapList = []
             }
         }
-        const alarmOutSwitchChange = function (row: MotionEventConfig) {
+        const alarmOutSwitchChange = (row: MotionEventConfig) => {
             addEditRow(row)
             if (row.alarmOut.switch === false) {
                 row.alarmOut.chls = []
                 row.alarmOutList = []
             }
         }
-        const presetSwitchChange = function (row: MotionEventConfig) {
+        const presetSwitchChange = (row: MotionEventConfig) => {
             addEditRow(row)
             if (row.preset.switch === false) {
                 row.preset.presets = []
@@ -537,7 +528,7 @@ export default defineComponent({
         }
 
         // 系统音频
-        const handleSysAudioChangeAll = function (sysAudio: string) {
+        const handleSysAudioChangeAll = (sysAudio: string) => {
             tableData.value.forEach((item) => {
                 if (!item.rowDisable) {
                     addEditRow(item)
@@ -546,7 +537,7 @@ export default defineComponent({
             })
         }
         // 消息推送
-        const handleMsgPushChangeAll = function (msgPush: string) {
+        const handleMsgPushChangeAll = (msgPush: string) => {
             tableData.value.forEach((item) => {
                 if (!item.rowDisable) {
                     addEditRow(item)
@@ -555,7 +546,7 @@ export default defineComponent({
             })
         }
         // 蜂鸣器
-        const handleBeeperChangeAll = function (beeper: string) {
+        const handleBeeperChangeAll = (beeper: string) => {
             tableData.value.forEach((item) => {
                 if (!item.rowDisable) {
                     addEditRow(item)
@@ -564,7 +555,7 @@ export default defineComponent({
             })
         }
         // 视频弹出
-        const handleVideoPopupChangeAll = function (videoPopup: string) {
+        const handleVideoPopupChangeAll = (videoPopup: string) => {
             tableData.value.forEach((item) => {
                 if (!item.rowDisable) {
                     addEditRow(item)
@@ -573,7 +564,7 @@ export default defineComponent({
             })
         }
         // 邮件
-        const handleEmailChangeAll = function (email: string) {
+        const handleEmailChangeAll = (email: string) => {
             tableData.value.forEach((item) => {
                 if (!item.rowDisable) {
                     addEditRow(item)
@@ -582,7 +573,7 @@ export default defineComponent({
             })
         }
 
-        const handleMotionSetting = function () {
+        const handleMotionSetting = () => {
             // 跳转到移动侦测设置页面
             // router.push('/config/channel/settings/motion')
             if (userSession.hasAuth('RemoteChlMgr')) {
@@ -594,7 +585,7 @@ export default defineComponent({
                 })
             }
         }
-        const addEditRow = function (row: MotionEventConfig) {
+        const addEditRow = (row: MotionEventConfig) => {
             // 若该行不存在于编辑行中，则添加
             const isExist = pageData.value.editRows.some((item) => item.id === row.id)
             if (!isExist) {
@@ -602,7 +593,7 @@ export default defineComponent({
             }
             pageData.value.applyDisable = false
         }
-        const getSavaData = function (rowData: MotionEventConfig) {
+        const getSavaData = (rowData: MotionEventConfig) => {
             const recordSwitch = rowData.record.switch
             const snapSwitch = rowData.snap.switch
             const alarmOutSwitch = rowData.alarmOut.switch
@@ -617,7 +608,7 @@ export default defineComponent({
                 rowData.record = { switch: false, chls: [] }
             }
             const recordChls = rowData.record.chls
-            recordChls.forEach((item: any) => {
+            recordChls.forEach((item) => {
                 sendXml += rawXml` <item id="${item.value}">
                                 <![CDATA[${item.label}]]>
                             </item>`
@@ -631,7 +622,7 @@ export default defineComponent({
                 rowData.alarmOut = { switch: false, chls: [] }
             }
             const alarmOutChls = rowData.alarmOut.chls
-            alarmOutChls.forEach((item: any) => {
+            alarmOutChls.forEach((item) => {
                 sendXml += rawXml` <item id="${item.value}">
                                 <![CDATA[${item.label}]]>
                             </item>`
@@ -651,14 +642,14 @@ export default defineComponent({
             if (!(presets instanceof Array)) {
                 presets = [presets]
             }
-            presets.forEach((item: any) => {
+            presets.forEach((item) => {
                 if (item.index) {
                     sendXml += rawXml`
-                    <item>
-                        <index>${item.index}</index>
-                        <name><![CDATA[${item.name}]]></name>
-                        <chl id="${item.chl.value}"><![CDATA[${item.chl.label}]]></chl>
-                    </item>`
+                        <item>
+                            <index>${item.index}</index>
+                            <name><![CDATA[${item.name}]]></name>
+                            <chl id="${item.chl.value}"><![CDATA[${item.chl.label}]]></chl>
+                        </item>`
                 }
             })
             sendXml += rawXml`</presets>
@@ -670,7 +661,7 @@ export default defineComponent({
                 rowData.snap = { switch: false, chls: [] }
             }
             const snapChls = rowData.snap.chls
-            snapChls.forEach((item: any) => {
+            snapChls.forEach((item) => {
                 sendXml += rawXml` <item id="${item.value}">
                                 <![CDATA[${item.label}]]>
                             </item>`
@@ -693,8 +684,8 @@ export default defineComponent({
                 </content>`
             return sendXml
         }
-        const setData = function () {
-            openLoading(LoadingTarget.FullScreen)
+        const setData = () => {
+            openLoading()
             pageData.value.editRows.forEach((item: MotionEventConfig) => {
                 const sendXml = getSavaData(item)
                 editMotion(sendXml).then((resb) => {
@@ -704,7 +695,7 @@ export default defineComponent({
                     } else {
                         item.status = 'error'
                         const errorCode = Number(res('errorCode').text())
-                        if (errorCode === errorCodeMap.noConfigData) {
+                        if (errorCode === ErrorCode.USER_ERROR_GET_CONFIG_INFO_FAIL) {
                             item.status = 'success'
                         } else {
                             item.status = 'error'
@@ -713,7 +704,7 @@ export default defineComponent({
                     // buildTableData()
                 })
             })
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             pageData.value.editRows = []
             pageData.value.applyDisable = true
         }
@@ -729,7 +720,6 @@ export default defineComponent({
         return {
             changePagination,
             changePaginationSize,
-            Translate,
             scheduleList,
             chosedList,
             pageData,
@@ -766,10 +756,7 @@ export default defineComponent({
             handleMotionSetting,
             setData,
             addEditRow,
-            BaseTransferPop,
-            BaseTransferDialog,
             SetPresetPop,
-            BaseTableRowStatus,
         }
     },
 })
