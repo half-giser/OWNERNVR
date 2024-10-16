@@ -3,7 +3,7 @@
  * @Date: 2024-06-21 14:31:21
  * @Description: 通道状态
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 17:40:51
+ * @LastEditTime: 2024-10-16 13:59:16
 -->
 <template>
     <div class="base-flex-box">
@@ -12,6 +12,7 @@
             border
             :data="tableData"
             height="100%"
+            show-overflow-tooltip
         >
             <el-table-column
                 :label="Translate('IDCS_CHANNEL_NAME')"
@@ -25,12 +26,15 @@
             </el-table-column>
             <el-table-column :label="Translate('IDCS_MOTION_DETECTION')">
                 <template #default="scope">
-                    <span>{{ formatMotionStatus(scope.row) }}</span>
+                    {{ formatMotionStatus(scope.row) }}
                 </template>
             </el-table-column>
-            <el-table-column :label="Translate('IDCS_AI')">
+            <el-table-column
+                v-if="systemCaps.ipChlMaxCount > 0"
+                :label="Translate('IDCS_AI')"
+            >
                 <template #default="scope">
-                    <span>{{ formatIntelligentStatus(scope.row) }}</span>
+                    {{ formatIntelligentStatus(scope.row) }}
                 </template>
             </el-table-column>
             <el-table-column :label="Translate('IDCS_RECORD')">

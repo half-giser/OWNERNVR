@@ -3,7 +3,7 @@
  * @Date: 2024-06-21 18:46:23
  * @Description: 磁盘状态
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 14:31:38
+ * @LastEditTime: 2024-10-16 15:04:20
  */
 import { type SystemDiskStatusList } from '@/types/apiType/system'
 
@@ -234,11 +234,9 @@ export default defineComponent({
                 }
                 tableData.value[index].source = TRANS_MAPPING[$('//content/source').text()]
                 tableData.value[index].group = groupName
-                tableData.value[index].gridRowStatus = ''
                 tableData.value[index].gridRowDisabled = false
-            } else {
-                tableData.value[index].gridRowStatusInitTooltip = ''
             }
+            tableData.value[index].gridRowStatus = ''
         }
 
         /**

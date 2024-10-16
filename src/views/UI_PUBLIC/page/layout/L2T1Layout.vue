@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 二级类型1布局页--适用于所有配置页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 13:41:49
+ * @LastEditTime: 2024-10-16 09:51:41
 -->
 <template>
     <el-container id="layout2">
@@ -113,7 +113,7 @@
 .menu-group {
     width: 237px;
     border: solid 1px var(--content-border);
-    padding: 20px;
+    padding: 16px 10px 16px 15px;
     margin: 0px 0px -1px 0px;
     position: relative;
     flex-shrink: 0;
@@ -199,6 +199,8 @@
 }
 
 .sub-menus {
+    margin-top: 5px;
+
     span {
         display: inline-block;
         padding: 2px 0px 0px 0px;

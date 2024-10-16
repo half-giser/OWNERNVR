@@ -3,7 +3,7 @@
  * @Date: 2024-09-24 14:39:30
  * @Description: 隐私政策弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-12 11:41:06
+ * @LastEditTime: 2024-10-16 11:04:25
 -->
 <template>
     <el-dialog
@@ -29,7 +29,10 @@
                     :span="12"
                     class="el-col-flex-start"
                 >
-                    <el-checkbox v-model="pageData.isAllowPrivacy">
+                    <el-checkbox
+                        v-show="forceAllow"
+                        v-model="pageData.isAllowPrivacy"
+                    >
                         {{ Translate('IDCS_PRIVACY_ALLOW') }}
                     </el-checkbox>
                 </el-col>
@@ -38,7 +41,7 @@
                     class="el-col-flex-end"
                 >
                     <el-button
-                        :disabled="!pageData.isAllowPrivacy"
+                        :disabled="forceAllow && !pageData.isAllowPrivacy"
                         @click="closePrivacy()"
                         >{{ Translate('IDCS_OK') }}</el-button
                     >

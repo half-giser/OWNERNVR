@@ -3,7 +3,7 @@
  * @Date: 2024-06-20 17:25:20
  * @Description: 自动维护
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 14:24:46
+ * @LastEditTime: 2024-10-16 10:43:55
  */
 import { type FormInstance, type FormRules } from 'element-plus'
 import { SystemAutoMaintenanceForm } from '@/types/apiType/system'
@@ -16,8 +16,6 @@ export default defineComponent({
 
         const formRef = ref<FormInstance>()
         const pageData = ref({
-            // 是否显示自动重启的提示
-            isAutoResttartTip: false,
             // 自动重启的文案
             autoRestartTip: '',
         })
@@ -26,12 +24,26 @@ export default defineComponent({
             interval: [
                 {
                     validator: (rule, value, callback) => {
-                        if (formData.value.switch && !value) {
+                        console.log(value)
+                        if (formData.value.switch && typeof value !== 'number') {
                             callback(new Error(Translate('IDCS_INTERVAL_DAYS_EMPTY')))
                             return
                         }
                         callback()
                     },
+                    trigger: 'manual',
+                },
+            ],
+            time: [
+                {
+                    validator: (rule, value, callback) => {
+                        if (formData.value.switch && !value) {
+                            callback(new Error(Translate('IDCS_POINT_TIME_EMPTY')))
+                            return
+                        }
+                        callback()
+                    },
+                    trigger: 'manual',
                 },
             ],
         })
@@ -43,17 +55,19 @@ export default defineComponent({
             const result = await queryAutoMaintenance()
             commLoadResponseHandler(result, ($) => {
                 formData.value.switch = $('//content/autoMaintenanceCfg/switch').text().toBoolean()
-                formData.value.interval = $('//content/autoMaintenanceCfg/interval').text()
+                const interval = $('//content/autoMaintenanceCfg/interval').text()
+                if (interval !== '') {
+                    formData.value.interval = Number(interval)
+                }
                 const timeValue = $('//content/autoMaintenanceCfg/time').text().trim().split(':')
-                formData.value.time = new Date(2000, 1, 1, Number(timeValue[0]), Number(timeValue[1]))
+                formData.value.time = new Date(2000, 0, 1, Number(timeValue[0]), Number(timeValue[1]))
 
                 if (formData.value.switch) {
                     const spanTimeFormat = $('//content/autoMaintenanceNote').text().trim() + ':00'
                     const currentTime = formatDate(spanTimeFormat, dateTime.dateTimeFormat)
                     pageData.value.autoRestartTip = Translate('IDCS_REBOOT_TIP').formatForLang(currentTime)
-                    pageData.value.isAutoResttartTip = true
                 } else {
-                    pageData.value.isAutoResttartTip = false
+                    pageData.value.autoRestartTip = ''
                 }
             })
         }
@@ -77,9 +91,9 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <autoMaintenanceCfg>
-                        <switch>${String(formData.value.switch)}</switch>
-                        <interval>${formData.value.interval}</interval>
-                        <time>${String(formData.value.time.getHours())}:${String(formData.value.time.getMinutes())}</time>
+                        <switch>${formData.value.switch.toString()}</switch>
+                        <interval>${formData.value.interval?.toString() || ''}</interval>
+                        <time>${formatDate(formData.value.time, 'HH:mm')}</time>
                     </autoMaintenanceCfg>
                 </content>
             `

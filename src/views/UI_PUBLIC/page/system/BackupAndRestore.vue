@@ -3,7 +3,7 @@
  * @Date: 2024-06-27 11:50:00
  * @Description: 备份与恢复
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 18:07:50
+ * @LastEditTime: 2024-10-16 10:04:50
 -->
 <template>
     <div class="BackupAndRestore">
@@ -32,7 +32,9 @@
                     v-show="isSupportH5"
                     class="el-button"
                     for="h5BrowerImport"
-                    :class="{ 'is-disabled': pageData.isUploadDisabled }"
+                    :class="{
+                        'is-disabled': pageData.isUploadDisabled,
+                    }"
                 >
                     {{ Translate('IDCS_BROWSE') }}
                 </label>
@@ -49,7 +51,7 @@
                     @change="handleH5Upload"
                 />
             </el-form-item>
-            <div class="note">{{ pageData.importNote }}</div>
+            <el-form-item>{{ pageData.importNote }} &nbsp;</el-form-item>
         </el-form>
         <el-form
             class="form"
@@ -80,7 +82,7 @@
                 <el-checkbox v-model="exportFormData.isIncludeNetworkConfig">{{ Translate('IDCS_INCLUDE_NETWORK') }}</el-checkbox>
                 <el-checkbox v-model="exportFormData.isIncludeDataEncryptPwd">{{ Translate('IDCS_INCLUDE_DATA_ENCRYPT_PASSWORD') }}</el-checkbox>
             </el-form-item>
-            <div class="note">{{ pageData.exportNote }}</div>
+            <el-form-item>{{ pageData.exportNote }} &nbsp;</el-form-item>
         </el-form>
         <BasePluginNotice />
         <BaseNotification v-model:notifications="pageData.notifications" />
@@ -101,11 +103,3 @@
 </template>
 
 <script lang="ts" src="./BackupAndRestore.v.ts"></script>
-
-<style lang="scss" scoped>
-.note {
-    font-size: 15px;
-    margin: 10px 0px 0px 0px;
-    height: 35px;
-}
-</style>
