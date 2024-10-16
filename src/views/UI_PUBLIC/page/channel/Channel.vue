@@ -40,7 +40,8 @@
                     width="80px"
                 >
                     <template #default="scope">
-                        <span>{{ scope.row.port === '0' ? '' : scope.row.port }}</span>
+                        <!-- 模拟通道端口置空 -->
+                        <span>{{ scope.row.ip === '' ? '' : scope.row.port }}</span>
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -50,8 +51,8 @@
                     <template #default="scope">
                         <span
                             class="status"
-                            :class="{ online: scope.row.chlStatus === Translate('IDCS_ONLINE'), offline: scope.row.chlStatus === Translate('IDCS_OFFLINE') }"
-                            >{{ scope.row.chlStatus }}</span
+                            :class="{ online: scope.row.isOnline, offline: !scope.row.isOnline }"
+                            >{{ scope.row.ip === '' ? '' : scope.row.isOnline ? Translate('IDCS_ONLINE') : Translate('IDCS_OFFLINE') }}</span
                         >
                     </template>
                 </el-table-column>

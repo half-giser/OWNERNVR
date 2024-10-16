@@ -117,7 +117,7 @@ export default defineComponent({
                         }
                     }
 
-                    if (props.rowData.chlStatus == Translate('IDCS_ONLINE')) {
+                    if (props.rowData.isOnline) {
                         inputDisabled.value = true
                         ipDisabled.value = true
                         portDisabled.value = true
