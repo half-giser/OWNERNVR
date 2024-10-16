@@ -2,8 +2,8 @@
  * @Description: AI 事件——人脸识别
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-28 13:42:09
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 17:14:57
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-16 11:51:07
  */
 import { cloneDeep } from 'lodash-es'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
@@ -162,7 +162,7 @@ export default defineComponent({
             curChl: '',
             faceChlList: [] as Record<string, string>[],
             // 当前选择的tab项
-            faceTab: '',
+            faceTab: 'faceDetection',
             faceDetectionDisabled: false,
             faceCompareDisabled: false,
             faceLibraryDisabled: false,
@@ -602,6 +602,7 @@ export default defineComponent({
             comparePageData.value.applyDisabled = true
             // 获取改变后的通道数据
             await getFaceDetectionData()
+            await getPresetData()
             // 初始化完成
             detectionPageData.value.initComplated = true
             await getFaceGroupData()
@@ -774,11 +775,11 @@ export default defineComponent({
                 detectionPageData.value.faceExpDisabled = faceDetectionData.value.faceExpStrength == 0
                 faceDetectionData.value.faceExpStrength = faceDetectionData.value.faceExpStrength || 50
                 // 常规联动相关选项
-                if (faceDetectionData.value.triggerAudio && chlData.supportAudio) {
+                if (faceDetectionData.value.triggerAudio && chlData.supportAudio && normalParamList.value.findIndex((item) => item.value == 'triggerAudio') == -1) {
                     normalParamList.value.push({ value: 'triggerAudio', label: 'IPC_' + Translate('IDCS_AUDIO') })
                     if (faceDetectionData.value.triggerAudio == 'true') normalParamCheckList.value.push('triggerAudio')
                 }
-                if (faceDetectionData.value.triggerWhiteLight && chlData.supportWhiteLight) {
+                if (faceDetectionData.value.triggerWhiteLight && chlData.supportWhiteLight && normalParamList.value.findIndex((item) => item.value == 'triggerWhiteLight') == -1) {
                     normalParamList.value.push({ value: 'triggerWhiteLight', label: 'IPC_' + Translate('IDCS_LIGHT') })
                     if (faceDetectionData.value.triggerWhiteLight == 'true') normalParamCheckList.value.push('triggerWhiteLight')
                 }
@@ -1045,45 +1046,48 @@ export default defineComponent({
                         chlType: $item('chlType').text(),
                         preset: { value: '', label: Translate('IDCS_NULL') },
                         presetList: [{ value: '', label: Translate('IDCS_NULL') }],
+                        isGetPresetList: false,
                     }
                 })
-
                 rowData.forEach((row) => {
                     faceDetectionData.value.preset?.forEach((item) => {
                         if (row.id == item.chl.value) {
                             row.preset = { value: item.index, label: item.name }
+                            row.presetList.push({ value: item.index, label: item.name })
                         }
                     })
                 })
-
                 for (let i = rowData.length - 1; i >= 0; i--) {
                     //预置点里过滤掉recorder通道
                     if (rowData[i].chlType == 'recorder') {
                         rowData.splice(i, 1)
-                    } else {
-                        await getPresetById(rowData[i])
                     }
                 }
-
                 PresetTableData.value = rowData
             })
         }
+        // 预置点选择框下拉时获取预置点列表数据
         const getPresetById = async (row: PresetList) => {
-            const sendXml = rawXml`
+            if (!row.isGetPresetList) {
+                row.presetList.splice(1)
+                const sendXml = rawXml`
                 <condition>
                     <chlId>${row.id}</chlId>
                 </condition>
             `
-            const result = await queryChlPresetList(sendXml)
-            commLoadResponseHandler(result, ($) => {
-                $('/response/content/presets/item').forEach((item) => {
-                    row.presetList.push({
-                        value: item.attr('index')!,
-                        label: item.text(),
+                const result = await queryChlPresetList(sendXml)
+                commLoadResponseHandler(result, ($) => {
+                    $('/response/content/presets/item').forEach((item) => {
+                        row.presetList.push({
+                            value: item.attr('index')!,
+                            label: item.text(),
+                        })
                     })
                 })
-            })
+                row.isGetPresetList = true
+            }
         }
+
         const presetChange = (row: PresetList) => {
             const ids = faceDetectionData.value.preset.map((item) => item.chl.value)
             if (ids.includes(row.id)) {
@@ -1858,6 +1862,7 @@ export default defineComponent({
             // 联动预置点
             PresetTableData,
             presetChange,
+            getPresetById,
             // 提交人脸侦测数据
             applyFaceDetectionData,
 
