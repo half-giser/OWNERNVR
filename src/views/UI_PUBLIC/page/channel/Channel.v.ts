@@ -256,7 +256,6 @@ export default defineComponent({
                             } else if (ele.protocolType === 'RTSP') {
                                 ele.showSetting = false
                             }
-                            getIPChlInfo(ele)
                         })
 
                         channelIPCUpgradePopRef.value.initWsState(tableData.value)
