@@ -3,7 +3,7 @@
  * @Date: 2024-07-31 10:29:37
  * @Description: 录像码流通用表格组件
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-15 15:00:41
+ * @LastEditTime: 2024-10-17 09:30:06
 -->
 <template>
     <div class="base-flex-box">
@@ -16,6 +16,7 @@
                 table-layout="fixed"
                 show-overflow-tooltip
                 empty-text=" "
+                :row-class-name="(data) => (data.row.rowDisable ? 'disabled' : '')"
                 highlight-current-row
             >
                 <!-- 通道名 -->
@@ -420,7 +421,7 @@
                             v-model="scope.row.audio"
                             prop="audio"
                             value-key="value"
-                            placeholder="开"
+                            :placeholder="Translate('IDCS_ON')"
                             :options="pageData.audioOptions"
                             :disabled="scope.row.audioDisable"
                             @change="handleAudioOptionsChange(scope.row)"
@@ -568,6 +569,10 @@
 </template>
 
 <script lang="ts" src="./RecordStreamTable.v.ts"></script>
+
+<!-- <style lang="scss">
+@import '@/views/UI_PUBLIC/publicStyle/channel.scss';
+</style> -->
 
 <style lang="scss" scoped>
 .RecordStreamList {
