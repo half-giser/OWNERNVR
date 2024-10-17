@@ -3,10 +3,10 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-02 16:12:12
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-12 16:43:40
+ * @LastEditTime: 2024-10-17 10:20:55
  */
 
-import { cloneDeep, isEqual } from 'lodash-es'
+import { cloneDeep } from 'lodash-es'
 import RecParamCustomizationPop from './RecParamCustomizationPop.vue'
 import { type ChlRecParamList, type ItemList } from '@/types/apiType/record'
 
@@ -20,7 +20,7 @@ export default defineComponent({
         const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
-        const supportANR = systemCaps.supportANR == true
+        const supportANR = systemCaps.supportANR
         // 保存原始数据，用来判断数据是否已被修改
         const originalData = ref({
             chlRecData: [] as ChlRecParamList[],
@@ -106,12 +106,11 @@ export default defineComponent({
                     <supportANR/>
                 </requireField>
             `
-            const result = await queryNodeEncodeInfo(sendXML)
-
+            const result = await queryNodeList(sendXML)
             commLoadResponseHandler(result, ($) => {
-                $('/content/item').forEach((item) => {
+                $('content/item').forEach((item) => {
                     const $item = queryXml(item.element)
-                    pageData.value.IPCMap[item.attr('id') as string] = $item('/supportANR').text()
+                    pageData.value.IPCMap[item.attr('id') as string] = $item('supportANR').text()
                 })
             })
         }
@@ -284,11 +283,29 @@ export default defineComponent({
 
         const setRecParamCfgData = async () => {
             // 判断修改过的选项
-            const changeList = [] as ChlRecParamList[]
+            const chlChangeList = [] as ChlRecParamList[]
+            const devChangeList = [] as ChlRecParamList[]
             tableData.value.forEach((item, index) => {
                 const element = originalData.value.chlRecData[index]
-                if (!isEqual(item, element)) {
-                    changeList.push(item)
+                if (item.per != element.per || item.post != element.post || item.ANRSwitch != element.ANRSwitch) {
+                    chlChangeList.push(item)
+                    element.per = item.per
+                    element.post = item.post
+                    element.ANRSwitch = item.ANRSwitch
+                }
+                if (
+                    item.expiration != element.expiration ||
+                    item.expirationUnit != element.expirationUnit ||
+                    item.week != element.week ||
+                    item.holiday != element.holiday ||
+                    item.singleExpirationUnit != element.singleExpirationUnit
+                ) {
+                    devChangeList.push(item)
+                    element.expiration = item.expiration
+                    element.expirationUnit = item.expirationUnit
+                    element.week = item.week
+                    element.holiday = item.holiday
+                    element.singleExpirationUnit = item.singleExpirationUnit
                 }
             })
             const doubleStreamSwitchChange = originalData.value.streamRecSwitch.doubleStreamSwitch !== pageData.value.doubleStreamRecSwitch
@@ -296,18 +313,23 @@ export default defineComponent({
 
             let devResult
             let chlResult
-
-            if (doubleStreamSwitchChange || loopRecSwitchChange) {
+            if (devChangeList.length > 0 || doubleStreamSwitchChange || loopRecSwitchChange) {
                 devResult = await setDevRecData()
-                commSaveResponseHadler(devResult)
-            } else if (changeList.length > 0 || doubleStreamSwitchChange || loopRecSwitchChange) {
-                devResult = await setDevRecData()
-                chlResult = await setChlRecData(changeList)
+            }
+            if (chlChangeList.length > 0) {
+                chlResult = await setChlRecData(chlChangeList)
                 // todo:原代码中P2P模式下进行如下处理，recParamCfg.js，444行
                 // if (APP_TYPE == "P2P") {
                 //     result1=result1[0];
                 //     result2=result2[0];
                 // }
+            }
+            if (devResult && chlResult) {
+                commSaveResponseHadler(chlResult)
+            } else if (devResult) {
+                commSaveResponseHadler(devResult)
+            } else if (chlResult) {
+                // 只有chlResult才会走到这里
                 commSaveResponseHadler(chlResult)
             } else {
                 openMessageTipBox({
@@ -315,7 +337,6 @@ export default defineComponent({
                     message: Translate('IDCS_SAVE_DATA_FAIL'),
                 })
             }
-            await getData()
         }
 
         const setData = async () => {

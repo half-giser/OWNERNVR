@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-04 14:22:06
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-16 09:03:46
+ * @LastEditTime: 2024-10-16 15:28:52
 -->
 <template>
     <!-- 人脸识别——识别成功 -->
@@ -241,7 +241,7 @@
         header-title="IDCS_TRIGGER_CHANNEL_RECORD"
         source-title="IDCS_CHANNEL"
         target-title="IDCS_CHANNEL_TRGGER"
-        :source-data="prop.recordList"
+        :source-data="prop.recordList || []"
         :linked-list="taskData.record?.map((item) => item.value) || []"
         type="record"
         @confirm="recordConfirm"
@@ -253,7 +253,7 @@
         header-title="IDCS_TRIGGER_ALARM_OUT"
         source-title="IDCS_ALARM_OUT"
         target-title="IDCS_TRIGGER_ALARM_OUT"
-        :source-data="prop.alarmOutList"
+        :source-data="prop.alarmOutList || []"
         :linked-list="taskData.alarmOut?.map((item) => item.value) || []"
         type="alarmOut"
         @confirm="alarmOutConfirm"
@@ -265,7 +265,7 @@
         header-title="IDCS_TRIGGER_CHANNEL_SNAP"
         source-title="IDCS_CHANNEL"
         target-title="IDCS_CHANNEL_TRGGER"
-        :source-data="prop.snapList"
+        :source-data="prop.snapList || []"
         :linked-list="taskData.snap?.map((item) => item.value) || []"
         type="snap"
         @confirm="snapConfirm"
