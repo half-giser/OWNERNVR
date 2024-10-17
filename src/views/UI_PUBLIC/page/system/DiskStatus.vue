@@ -3,7 +3,7 @@
  * @Date: 2024-06-21 18:46:16
  * @Description: 磁盘状态
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 17:40:15
+ * @LastEditTime: 2024-10-16 15:01:43
 -->
 <template>
     <div class="base-flex-box">
@@ -12,17 +12,26 @@
             border
             height="100%"
             :data="tableData"
+            :row-class-name="(data) => (data.row.gridRowDisabled ? 'disabled' : '')"
+            show-overflow-tooltip
         >
-            <el-table-column :label="Translate('IDCS_SERIAL_NUMBER')">
+            <el-table-column
+                label=" "
+                width="50"
+            >
                 <template #default="scope">
-                    {{ scope.$index + 1 }}
+                    <BaseTableRowStatus :icon="scope.row.gridRowStatus" />
                 </template>
             </el-table-column>
             <el-table-column
+                :label="Translate('IDCS_SERIAL_NUMBER')"
+                type="index"
+                width="70"
+            />
+            <el-table-column
                 :label="Translate('IDCS_DISK')"
                 prop="diskNum"
-            >
-            </el-table-column>
+            />
             <!-- <el-table-column
                 :label="Translate('IDCS_DISK')"
                 prop="diskNum"
@@ -30,32 +39,29 @@
             </el-table-column> -->
             <el-table-column :label="Translate('IDCS_TYPE')">
                 <template #default="scope">
-                    <span>{{ formatDiskType(scope.row) }}</span>
+                    {{ formatDiskType(scope.row) }}
                 </template>
             </el-table-column>
             <el-table-column :label="Translate('IDCS_DISK_FREE_CAPACITY')">
                 <template #default="scope">
-                    <span>{{ formatSizeAndFreeSpace(scope.row) }}</span>
+                    {{ formatSizeAndFreeSpace(scope.row) }}
                 </template>
             </el-table-column>
             <el-table-column
                 :label="Translate('IDCS_STATE')"
                 prop="combinedStatus"
-            >
-            </el-table-column>
+            />
             <el-table-column
                 :label="Translate('IDCS_SOURCE')"
                 prop="source"
-            >
-            </el-table-column>
+            />
             <el-table-column
                 :label="Translate('IDCS_REEL_GROUP')"
                 prop="group"
-            >
-            </el-table-column>
+            />
             <el-table-column :label="Translate('IDCS_DISK_RECORD_PERIOD')">
                 <template #default="scope">
-                    <span>{{ scope.row.recTime ? scope.row.recTime : '' }}</span>
+                    {{ scope.row.recTime ? scope.row.recTime : '' }}
                 </template>
             </el-table-column>
         </el-table>

@@ -153,6 +153,8 @@
     --disk-group-text-active: #FFF;
     --disk-group-bg-active: rgb(0, 188, 112);
 
+    --upgrade-text-active: #23de1a;
+
     --panel-bg: unset; 
     --panel-header-bg: unset; 
     --panel-header-text: rgb(28, 31, 43);
@@ -254,4 +256,7 @@
 
     --float-ok: #006400;
     --float-error: #ff0000;
+
+    --qrcode-bg: #fff;
+    --qrcode-label-bg: #8f8d8d;
 }

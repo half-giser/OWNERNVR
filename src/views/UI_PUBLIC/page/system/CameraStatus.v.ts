@@ -3,16 +3,17 @@
  * @Date: 2024-06-21 14:31:40
  * @Description: 通道状态
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 14:27:25
+ * @LastEditTime: 2024-10-16 11:39:57
  */
 import { type SystemChannelStatusList } from '@/types/apiType/system'
 
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
+        const systemCaps = useCababilityStore()
 
         // 状态值与显示文案的映射
-        const TransMap: Record<string, string> = {
+        const TRANS_MAPPING: Record<string, string> = {
             noSupport: Translate('IDCS_NONSUPPORT'),
             alarmOff: Translate('IDCS_NO_ALARM'),
             alarming: Translate('IDCS_NOW_ALARM'),
@@ -65,7 +66,7 @@ export default defineComponent({
         const formatMotionStatus = (row: SystemChannelStatusList) => {
             if (!row.online || !row.motionStatus) {
                 return '--'
-            } else return TransMap[row.motionStatus === 'off' ? 'alarmOff' : row.motionStatus]
+            } else return TRANS_MAPPING[row.motionStatus === 'off' ? 'alarmOff' : row.motionStatus]
         }
 
         /**
@@ -76,7 +77,7 @@ export default defineComponent({
         const formatIntelligentStatus = (row: SystemChannelStatusList) => {
             if (!row.online || !row.motionStatus) {
                 return '--'
-            } else return TransMap[row.motionStatus === 'off' ? 'alarmOff' : row.intelligentStatus]
+            } else return TRANS_MAPPING[row.motionStatus === 'off' ? 'alarmOff' : row.intelligentStatus]
         }
 
         /**
@@ -87,7 +88,7 @@ export default defineComponent({
         const formatRecStatus = (row: SystemChannelStatusList) => {
             if (!row.online || !row.motionStatus) {
                 return '--'
-            } else return TransMap[row.motionStatus === 'off' ? 'recordingOff' : row.recStatus]
+            } else return TRANS_MAPPING[row.motionStatus === 'off' ? 'recordingOff' : row.recStatus]
         }
 
         /**
@@ -108,6 +109,7 @@ export default defineComponent({
 
         return {
             handleToolBarEvent,
+            systemCaps,
             tableData,
             formatMotionStatus,
             formatIntelligentStatus,

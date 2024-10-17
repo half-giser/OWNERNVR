@@ -3,7 +3,7 @@
  * @Date: 2024-06-21 18:15:30
  * @Description: 系统
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 16:49:40
+ * @LastEditTime: 2024-10-16 10:33:32
  */
 
 /**
@@ -91,8 +91,8 @@ export class SystemAlarmStatusList {
  */
 export class SystemAutoMaintenanceForm {
     switch = false
-    interval = ''
-    time = new Date(2000, 1, 1, 0, 0)
+    interval = undefined as number | undefined
+    time = new Date(2000, 0, 1, 0, 0)
 }
 
 /**
