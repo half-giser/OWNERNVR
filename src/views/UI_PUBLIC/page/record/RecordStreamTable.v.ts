@@ -1,3 +1,10 @@
+/*
+ * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @Date: 2024-10-15 10:04:36
+ * @Description: 录像码流通用组件
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-15 16:10:27
+ */
 import { ArrowDown } from '@element-plus/icons-vue'
 import { RecordStreamInfoDto } from '@/types/apiType/record'
 import { ElMessageBox } from 'element-plus'

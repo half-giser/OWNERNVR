@@ -64,7 +64,7 @@ export default defineComponent({
             if (formRef.value) formRef.value.resetFields()
             formData.value = {}
             tableData.value = props.editData.filter((ele: ChannelInfoDto) => {
-                return ele.chlStatus == Translate('IDCS_ONLINE') && ele.protocolType == 'TVT_IPCAMERA' && ele.addType != 'poe'
+                return ele.isOnline && ele.protocolType == 'TVT_IPCAMERA' && ele.addType != 'poe'
             })
             tableData.value.sort((a, b) => {
                 //按字符串排序 (NT2-1297)

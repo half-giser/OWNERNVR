@@ -22,6 +22,7 @@
                 show-overflow-tooltip
                 empty-text=" "
                 height="300px"
+                class="ruleTable"
             >
                 <el-table-column
                     prop="displayName"

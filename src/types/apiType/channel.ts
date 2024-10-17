@@ -25,7 +25,7 @@ export class ChannelInfoDto {
     }
     index = ''
     chlIndex = ''
-    chlStatus = ''
+    isOnline = false
     chlType = ''
     version = ''
     delDisabled = false

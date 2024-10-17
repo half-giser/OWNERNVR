@@ -224,7 +224,7 @@ input[type='number'] {
             padding: 0px 20px 20px 20px;
         }
     }
-    
+
     // .el-table 公共样式
     .el-table {
         .el-table__header {
@@ -275,7 +275,7 @@ input[type='number'] {
                 .el-checkbox {
                     &.is-checked {
                         .el-checkbox__inner {
-                            border: var(--el-border-width) var(--el-border-style) var(--border-light);
+                            border: var(--el-border-width) var(--el-border-style) var(--table-checkbox-border-checked);
                         }
                     }
                 }
@@ -345,7 +345,7 @@ input[type='number'] {
     .el-form {
         flex-shrink: 0;
         margin-bottom: 10px;
-        
+
         .el-form-item {
             &__label {
                 width: var(--form-label-width);
@@ -546,7 +546,7 @@ input[type='number'] {
 
                 &__inner {
                     width: 50px;
-                    border: 1px solid var(--btn-border); 
+                    border: 1px solid var(--btn-border);
                 }
 
                 & + .el-radio-button .el-radio-button__inner {
@@ -560,7 +560,7 @@ input[type='number'] {
 
             .el-radio-button {
                 &__inner {
-                    border: 1px solid var(--btn-border); 
+                    border: 1px solid var(--btn-border);
                 }
 
                 & + .el-radio-button .el-radio-button__inner {

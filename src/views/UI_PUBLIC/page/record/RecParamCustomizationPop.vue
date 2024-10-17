@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-05 16:26:27
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-12 16:44:25
+ * @LastEditTime: 2024-10-17 10:19:18
 -->
 <template>
     <el-dialog
@@ -26,8 +26,8 @@
                         type="number"
                         :min="1"
                         :max="8760"
-                        :oninput="inputLimit"
                         :style="{ width: '300px' }"
+                        @input="inputLimit"
                     />
                     <span>{{ Translate('IDCS_HOUR_ALL') }}</span>
                 </el-form-item>
@@ -140,6 +140,7 @@
         >
             <el-date-picker
                 v-model="pageData.selectDate"
+                :clearable="false"
                 :value-format="pageData.dateFormat"
                 :format="pageData.dateFormat"
                 :default-value="new Date()"

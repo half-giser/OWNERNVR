@@ -37,12 +37,6 @@ export default defineComponent({
         let returnDataCount = 0
         let motionAlarmList: string[] = []
 
-        const statusToolTip: Record<string, string> = {
-            loading: Translate('IDCS_DEVC_REQUESTING_DATA'),
-            saveSuccess: Translate('IDCS_SAVE_DATA_SUCCESS'),
-            saveFailed: Translate('IDCS_SAVE_DATA_FAIL'),
-        }
-
         const tSeconds = ' ' + Translate('IDCS_SECONDS')
         const tMinite = ' ' + Translate('IDCS_MINUTE')
         const tMinites = ' ' + Translate('IDCS_MINUTES')
@@ -204,7 +198,6 @@ export default defineComponent({
                         newData.chlIndex = eleXml('chlIndex').text()
                         newData.chlType = eleXml('chlType').text()
                         newData.status = 'loading'
-                        newData.statusTip = statusToolTip['loading']
                         newData.supportSMD = eleXml('supportSMD').text().toBoolean()
                         tableData.value.push(newData)
                     })
@@ -286,12 +279,11 @@ export default defineComponent({
                     const success = $('status').text() == 'success'
                     if (success) {
                         ele.status = 'success'
-                        ele.statusTip = statusToolTip['saveSuccess']
                         successRows.push(ele)
                     } else {
                         const errorCode = Number($('errorCode').text())
                         ele.status = 'error'
-                        ele.statusTip = errorCode === ErrorCode.USER_ERROR_NO_AUTH ? Translate('IDCS_NO_PERMISSION') : statusToolTip['saveFailed']
+                        ele.statusTip = errorCode === ErrorCode.USER_ERROR_NO_AUTH ? Translate('IDCS_NO_PERMISSION') : ''
                     }
                     count++
                     if (count >= total) {
