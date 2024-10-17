@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 14:15:40
  * @Description: 自动模式通道码流参数配置
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-15 16:23:05
+ * @LastEditTime: 2024-10-16 17:51:47
 -->
 <template>
     <el-dialog
@@ -67,7 +67,7 @@
                 </div>
                 <div>
                     <el-button @click="setData">{{ Translate('IDCS_OK') }}</el-button>
-                    <el-button @click="$emit('close', false)">{{ Translate('IDCS_CANCEL') }}</el-button>
+                    <el-button @click.prevent="$emit('close', false)">{{ Translate('IDCS_CANCEL') }}</el-button>
                 </div>
             </el-row>
         </template>
