@@ -65,12 +65,6 @@ export default defineComponent({
             },
         ]
 
-        const statusToolTip: Record<string, string> = {
-            loading: Translate('IDCS_DEVC_REQUESTING_DATA'),
-            saveSuccess: Translate('IDCS_SAVE_DATA_SUCCESS'),
-            saveFailed: Translate('IDCS_SAVE_DATA_FAIL'),
-        }
-
         const configFileTypeMap: Record<string, string> = {
             normal: Translate('IDCS_DEFAULT_ORDINARY'),
             day: Translate('IDCS_DN_DAY'),
@@ -557,7 +551,6 @@ export default defineComponent({
                             newData.name = eleXml('name').text()
                             newData.chlType = eleXml('chlType').text()
                             newData.status = 'loading'
-                            newData.statusTip = statusToolTip['loading']
                             newData.isSupportHallway = isSupportHallway
                             newData.isSupportIRCutMode = eleXml('supportIRCutMode').text().toBoolean()
                             newData.isSupportThermal = eleXml('AccessType').text() === '1'
