@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-19 11:16:22
  * @Description: 周界防范/人车检测
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 13:47:44
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-16 11:26:27
  */
 import { type chlCaps, type aiResourceRow, type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
@@ -852,24 +852,9 @@ export default defineComponent({
         }
         // 获取preset
         const getPresetList = async () => {
-            const sendXml = rawXml`
-                <types>
-                    <nodeType>
-                        <enum>chls</enum>
-                        <enum>sensors</enum>
-                        <enum>alarmOuts</enum>
-                    </nodeType>
-                </types>
-                <nodeType type="nodeType">chls</nodeType>
-                <requireField>
-                    <name/>
-                    <chlType/>
-                </requireField>
-                <condition>
-                    <supportPtz/>
-                </condition>
-            `
-            const result = await queryNodeList(getXmlWrapData(sendXml))
+            const result = await getChlList({
+                isSupportPtz: true,
+            })
 
             let rowData = [] as PresetList[]
             commLoadResponseHandler(result, async ($) => {
@@ -881,46 +866,47 @@ export default defineComponent({
                         chlType: $item('chlType').text(),
                         preset: { value: '', label: Translate('IDCS_NULL') },
                         presetList: [{ value: '', label: Translate('IDCS_NULL') }],
+                        isGetPresetList: false,
                     }
                 })
                 rowData.forEach((row) => {
                     tripwireData.value.preset.presets.forEach((item: PresetItem) => {
                         if (row.id == item.chl.value) {
                             row.preset = { value: item.index, label: item.name }
+                            row.presetList.push({ value: item.index, label: item.name })
                         }
                     })
                 })
-
                 for (let i = rowData.length - 1; i >= 0; i--) {
                     //预置点里过滤掉recorder通道
                     if (rowData[i].chlType == 'recorder') {
                         rowData.splice(i, 1)
-                    } else {
-                        await getPresetById(rowData[i])
-                        rowData[i].presetList.push({ value: '', label: Translate('IDCS_NULL') })
                     }
                 }
-
                 tripwireData.value.presetSource = rowData
             })
         }
-        // 获取预置点
+        // 预置点选择框下拉时获取预置点列表数据
         const getPresetById = async (row: PresetList) => {
-            const sendXml = rawXml`
+            if (!row.isGetPresetList) {
+                // 初始化时将当前预置点数据添加到了列表中用于数据展示，这里获取列表需要清除掉
+                row.presetList.splice(1)
+                const sendXml = rawXml`
                 <condition>
                     <chlId>${row.id}</chlId>
                 </condition>
             `
-            row.presetList = []
-            const result = await queryChlPresetList(sendXml)
-            commLoadResponseHandler(result, ($) => {
-                $('/response/content/presets/item').forEach((item) => {
-                    row.presetList.push({
-                        value: item.attr('index')!,
-                        label: item.text(),
+                const result = await queryChlPresetList(sendXml)
+                commLoadResponseHandler(result, ($) => {
+                    $('/response/content/presets/item').forEach((item) => {
+                        row.presetList.push({
+                            value: item.attr('index')!,
+                            label: item.text(),
+                        })
                     })
                 })
-            })
+                row.isGetPresetList = true
+            }
         }
 
         // 获取mutexobj
@@ -1354,6 +1340,7 @@ export default defineComponent({
             clearAllTripwireArea,
             ScheduleManagPop,
             ChannelPtzCtrlPanel,
+            getPresetById,
         }
     },
 })

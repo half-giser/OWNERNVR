@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-21 15:34:24
  * @Description: 视频丢失配置
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-10 13:44:32
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-14 17:23:00
  */
 import { cloneDeep } from 'lodash-es'
 import { MotionEventConfig, type PresetItem } from '@/types/apiType/aiAndEvent'
@@ -144,28 +144,11 @@ export default defineComponent({
         }
         const buildTableData = () => {
             tableData.value.length = 0
-            const xml = rawXml`<types>
-                            <nodeType>
-                                <enum>chls</enum>
-                                <enum>sensors</enum>
-                                <enum>alarmOuts</enum>
-                            </nodeType>
-                            <chlType>
-                                <enum>analog</enum>
-                                <enum>digital</enum>
-                                <enum>all</enum>
-                            </chlType>
-                        </types>
-                        <pageIndex>${pageData.value.pageIndex.toString()}</pageIndex>
-                        <pageSize>${pageData.value.pageSize.toString()}</pageSize>
-                        <nodeType type="nodeType">chls</nodeType>
-                        <requireField>
-                            <name/>
-                        </requireField>
-                        <condition>
-                            <chlType type="chlType">analog</chlType>
-                        </condition>`
-            queryNodeList(getXmlWrapData(xml)).then(async (res) => {
+            getChlList({
+                pageIndex: pageData.value.pageIndex,
+                pageSize: pageData.value.pageSize,
+                chlType: 'analog',
+            }).then(async (res) => {
                 const $chl = queryXml(res)
                 pageData.value.totalCount = Number($chl('//content').attr('total'))
                 $chl('//content/item').forEach(async (item) => {

@@ -3,7 +3,7 @@
  * @Date: 2024-07-26 17:04:12
  * @Description: 现场预览-操作视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 17:02:00
+ * @LastEditTime: 2024-10-14 16:22:41
  */
 import { type LiveChannelList, type LiveResolutionOptions, type LiveQualityOptions, LiveStreamForm, type LiveSharedWinData } from '@/types/apiType/live'
 
@@ -622,7 +622,7 @@ export default defineComponent({
             if (talkDisabled.value) {
                 return
             }
-            ctx.emit('talk', !bool)
+            ctx.emit('talk', bool)
         }
 
         watch(

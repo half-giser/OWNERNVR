@@ -3,7 +3,7 @@
  * @Date: 2024-06-18 18:42:53
  * @Description: 黑白名单
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 14:02:09
+ * @LastEditTime: 2024-10-15 11:47:42
 -->
 <template>
     <div class="base-flex-box">
@@ -81,11 +81,7 @@
                 @click="handleAddMac"
                 >{{ Translate('IDCS_ADD_MAC') }}</el-button
             >
-            <el-button
-                :disabled="pageData.submitDisabled"
-                @click="setData"
-                >{{ Translate('IDCS_APPLY') }}</el-button
-            >
+            <el-button @click="setData">{{ Translate('IDCS_APPLY') }}</el-button>
         </div>
         <BlockAndAllowEditPop
             v-model="pageData.isEditPop"

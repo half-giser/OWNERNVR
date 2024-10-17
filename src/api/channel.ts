@@ -4,91 +4,91 @@
  * @Description:
  */
 
-import type { AxiosRequestConfig } from 'axios'
+// import type { AxiosRequestConfig } from 'axios'
 import http from './api'
 
 // 查询设备列表
-export const queryDevList = (data: string, config?: AxiosRequestConfig) => http.fetch('queryDevList', data, config)
+export const queryDevList = (data: string) => http.fetch('queryDevList', getXmlWrapData(data))
 // 查询Rtsp协议列表
-export const queryRtspProtocolList = (data: string, config?: AxiosRequestConfig) => http.fetch('queryRtspProtocolList', data, config)
+export const queryRtspProtocolList = () => http.fetch('queryRtspProtocolList', getXmlWrapData(''))
 // 编辑Rtsp协议列表
-export const editRtspProtocolList = (data: string, config?: AxiosRequestConfig) => http.fetch('editRtspProtocolList', data, config)
+export const editRtspProtocolList = (data: string) => http.fetch('editRtspProtocolList', getXmlWrapData(data))
 // 查询通道信息
-export const queryDev = (data: string, config?: AxiosRequestConfig) => http.fetch('queryDev', data, config)
+export const queryDev = (data: string) => http.fetch('queryDev', getXmlWrapData(data))
 // 查询通道信息
-export const queryIPChlInfo = (data: string, config?: AxiosRequestConfig) => http.fetch('queryIPChlInfo', data, config)
+export const queryIPChlInfo = (data: string) => http.fetch('queryIPChlInfo', getXmlWrapData(data))
 // 查询在线通道列表
 export const queryOnlineChlList = () => http.fetch('queryOnlineChlList', getXmlWrapData(''))
 // 删除通道
-export const delDevList = (data: string, config?: AxiosRequestConfig) => http.fetch('delDevList', data, config)
+export const delDevList = (data: string) => http.fetch('delDevList', getXmlWrapData(data))
 // 查询通道端口
-export const queryChlPort = (data: string, config?: AxiosRequestConfig) => http.fetch('queryChlPort', data, config)
+export const queryChlPort = (data: string) => http.fetch('queryChlPort', getXmlWrapData(data))
 // 编辑通道
-export const editDev = (data: string, config?: AxiosRequestConfig) => http.fetch('editDev', data, config)
+export const editDev = (data: string) => http.fetch('editDev', getXmlWrapData(data))
 // 查询局域网内可添加的通道
-export const queryLanFreeDeviceList = (data: string, config?: AxiosRequestConfig) => http.fetch('queryLanFreeDeviceList', data, config)
+export const queryLanFreeDeviceList = () => http.fetch('queryLanFreeDeviceList', getXmlWrapData(''))
 // 查询通道默认密码
-export const queryDevDefaultPwd = (data: string, config?: AxiosRequestConfig) => http.fetch('queryDevDefaultPwd', data, config)
+export const queryDevDefaultPwd = () => http.fetch('queryDevDefaultPwd', getXmlWrapData(''))
 // 查询可添加的录像机
-export const queryLanRecorderList = (data: string, config?: AxiosRequestConfig) => http.fetch('queryLanRecorderList', data, config)
+export const queryLanRecorderList = () => http.fetch('queryLanRecorderList', getXmlWrapData(''))
 // 编辑通道密码
-export const editIPChlPassword = (data: string, config?: AxiosRequestConfig) => http.fetch('editIPChlPassword', data, config)
+export const editIPChlPassword = (data: string) => http.fetch('editIPChlPassword', getXmlWrapData(data))
 // 激活IPC
-export const activateIPC = (data: string, config?: AxiosRequestConfig) => http.fetch('activateIPC', data, config)
+export const activateIPC = (data: string) => http.fetch('activateIPC', getXmlWrapData(data))
 // 编辑设备默认密码
-export const editDevDefaultPwd = (data: string, config?: AxiosRequestConfig) => http.fetch('editDevDefaultPwd', data, config)
+export const editDevDefaultPwd = (data: string) => http.fetch('editDevDefaultPwd', getXmlWrapData(data))
 // 编辑设备网络配置
-export const editDevNetworkList = (data: string, config?: AxiosRequestConfig) => http.fetch('editDevNetworkList', data, config)
+export const editDevNetworkList = (data: string) => http.fetch('editDevNetworkList', getXmlWrapData(data))
 // 查询录像机
-export const queryRecorder = (data: string, config?: AxiosRequestConfig, checkCommonErrorSwitch?: boolean) => http.fetch('queryRecorder', data, config, checkCommonErrorSwitch)
+export const queryRecorder = (data: string) => http.fetch('queryRecorder', getXmlWrapData(data), {}, false)
 // 测试录像机
-export const testRecorder = (data: string, config?: AxiosRequestConfig, checkCommonErrorSwitch?: boolean) => http.fetch('testRecorder', data, config, checkCommonErrorSwitch)
+export const testRecorder = (data: string) => http.fetch('testRecorder', getXmlWrapData(data), {}, false)
 // 查询录像机
-export const queryNodeList = (data: string, config?: AxiosRequestConfig) => http.fetch('queryNodeList', data, config)
+export const queryNodeList = (data: string) => http.fetch('queryNodeList', getXmlWrapData(data))
 // 新增通道
-export const createDevList = (data: string, config?: AxiosRequestConfig) => http.fetch('createDevList', data, config)
+export const createDevList = (data: string) => http.fetch('createDevList', getXmlWrapData(data))
 // 查询当前设备是否多通道设备
-export const queryLanDevice = (data: string, config?: AxiosRequestConfig, checkCommonErrorSwitch?: boolean) => http.fetch('queryLanDevice', data, config, checkCommonErrorSwitch)
+export const queryLanDevice = (data: string) => http.fetch('queryLanDevice', getXmlWrapData(data), {}, false)
 // 查询通道组列表
-export const queryChlGroupList = (data: string, config?: AxiosRequestConfig) => http.fetch('queryChlGroupList', data, config)
+export const queryChlGroupList = (data: string) => http.fetch('queryChlGroupList', getXmlWrapData(data))
 // 编辑通道组
-export const editChlGroup = (data: string, config?: AxiosRequestConfig) => http.fetch('editChlGroup', data, config)
+export const editChlGroup = (data: string) => http.fetch('editChlGroup', getXmlWrapData(data))
 // 删除通道组
-export const delChlGroup = (data: string, config?: AxiosRequestConfig) => http.fetch('delChlGroup', data, config)
+export const delChlGroup = (data: string) => http.fetch('delChlGroup', getXmlWrapData(data))
 // 查询通道组
-export const queryChlGroup = (data: string, config?: AxiosRequestConfig) => http.fetch('queryChlGroup', data, config)
+export const queryChlGroup = (data: string) => http.fetch('queryChlGroup', getXmlWrapData(data))
 // 编辑通道组通道
-export const editSetAndElementRelation = (data: string, config?: AxiosRequestConfig) => http.fetch('editSetAndElementRelation', data, config)
+export const editSetAndElementRelation = (data: string) => http.fetch('editSetAndElementRelation', getXmlWrapData(data))
 // 新增通道组
-export const createChlGroup = (data: string, config?: AxiosRequestConfig) => http.fetch('createChlGroup', data, config)
+export const createChlGroup = (data: string) => http.fetch('createChlGroup', getXmlWrapData(data))
 // 查询osd通道配置
-export const queryIPChlORChlOSD = (data: string, config?: AxiosRequestConfig) => http.fetch('queryIPChlORChlOSD', data, config)
+export const queryIPChlORChlOSD = (data: string) => http.fetch('queryIPChlORChlOSD', getXmlWrapData(data))
 // 编辑osd通道配置
-export const editIPChlORChlOSD = (data: string, config?: AxiosRequestConfig) => http.fetch('editIPChlORChlOSD', data, config)
+export const editIPChlORChlOSD = (data: string) => http.fetch('editIPChlORChlOSD', getXmlWrapData(data))
 // 查询通道水印配置
-export const queryChlWaterMark = (data: string, config?: AxiosRequestConfig) => http.fetch('queryChlWaterMark', data, config)
+export const queryChlWaterMark = (data: string) => http.fetch('queryChlWaterMark', getXmlWrapData(data))
 // 编辑通道水印配置
-export const editChlWaterMark = (data: string, config?: AxiosRequestConfig) => http.fetch('editChlWaterMark', data, config)
+export const editChlWaterMark = (data: string) => http.fetch('editChlWaterMark', getXmlWrapData(data))
 // 查询通道视频参数
-export const queryChlVideoParam = (data: string, config?: AxiosRequestConfig) => http.fetch('queryChlVideoParam', data, config)
+export const queryChlVideoParam = (data: string) => http.fetch('queryChlVideoParam', getXmlWrapData(data))
 // 编辑通道视频参数
-export const editChlVideoParam = (data: string, config?: AxiosRequestConfig) => http.fetch('editChlVideoParam', data, config)
+export const editChlVideoParam = (data: string) => http.fetch('editChlVideoParam', getXmlWrapData(data))
 // 查询通道镜头控制参数
-export const queryCameraLensCtrlParam = (data: string, config?: AxiosRequestConfig) => http.fetch('queryCameraLensCtrlParam', data, config)
+export const queryCameraLensCtrlParam = (data: string) => http.fetch('queryCameraLensCtrlParam', getXmlWrapData(data))
 // 编辑通道镜头控制参数
-export const editCameraLensCtrlParam = (data: string, config?: AxiosRequestConfig) => http.fetch('editCameraLensCtrlParam', data, config)
+export const editCameraLensCtrlParam = (data: string) => http.fetch('editCameraLensCtrlParam', getXmlWrapData(data))
 // 下发镜头控制命令
-export const cameraLensCtrlCall = (data: string, config?: AxiosRequestConfig) => http.fetch('cameraLensCtrlCall', data, config)
+export const cameraLensCtrlCall = (data: string) => http.fetch('cameraLensCtrlCall', getXmlWrapData(data))
 // 查询通道遮挡配置
-export const queryPrivacyMask = (data: string, config?: AxiosRequestConfig) => http.fetch('queryPrivacyMask', data, config)
+export const queryPrivacyMask = (data: string) => http.fetch('queryPrivacyMask', getXmlWrapData(data))
 // 编辑通道遮挡配置
-export const editPrivacyMask = (data: string, config?: AxiosRequestConfig) => http.fetch('editPrivacyMask', data, config)
+export const editPrivacyMask = (data: string) => http.fetch('editPrivacyMask', getXmlWrapData(data))
 // 编辑鱼眼通道配置
-export const editIPChlORChlFishEye = (data: string, config?: AxiosRequestConfig) => http.fetch('editIPChlORChlFishEye', data, config)
+export const editIPChlORChlFishEye = (data: string) => http.fetch('editIPChlORChlFishEye', getXmlWrapData(data))
 // 查询鱼眼启用状态
-export const queryFishEyeEnable = (data: string, config?: AxiosRequestConfig) => http.fetch('queryFishEyeEnable', data, config)
+export const queryFishEyeEnable = (data: string) => http.fetch('queryFishEyeEnable', getXmlWrapData(data))
 // 编辑鱼眼启用状态
-export const editFishEyeEnable = (data: string, config?: AxiosRequestConfig) => http.fetch('editFishEyeEnable', data, config)
+export const editFishEyeEnable = (data: string) => http.fetch('editFishEyeEnable', getXmlWrapData(data))
 
 /**
  * @description 查询预置点列表

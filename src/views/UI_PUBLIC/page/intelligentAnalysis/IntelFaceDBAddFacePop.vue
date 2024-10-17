@@ -3,7 +3,7 @@
  * @Date: 2024-08-30 09:26:01
  * @Description: 人脸库 - 添加人脸
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-04 17:46:30
+ * @LastEditTime: 2024-10-14 11:13:11
 -->
 <template>
     <el-dialog
@@ -144,6 +144,7 @@
                 v-model="pageData.isChooseFacePop"
                 @choose="confirmChooseFace"
                 @import-files="confirmImportFace"
+                @close="pageData.isChooseFacePop = false"
             />
         </div>
         <template #footer>

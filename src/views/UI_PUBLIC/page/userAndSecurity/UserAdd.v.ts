@@ -3,7 +3,7 @@
  * @Date: 2024-06-14 09:47:42
  * @Description: 新增用户
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-23 14:41:29
+ * @LastEditTime: 2024-10-15 09:49:54
  */
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import { UserAddForm, type UserAuthGroupOption } from '@/types/apiType/userAndSecurity'
@@ -69,24 +69,24 @@ export default defineComponent({
         /**
          * @description 获取权限组
          */
-        const getAuthGroup = () => {
+        const getAuthGroup = async () => {
             const sendXml = rawXml`
                 <requireField>
                     <name/>
                 </requireField>
             `
-            queryAuthGroupList(sendXml).then((result) => {
-                commLoadResponseHandler(result, ($) => {
-                    $('//content/item').forEach((element) => {
-                        const $element = queryXml(element.element)
-                        const item = {
-                            id: element.attr('id') as string,
-                            name: $element('name').text(),
-                        }
-                        authGroupOptions.value.push(item)
-                        formData.value.authGroup = item.id
-                    })
+            const result = await queryAuthGroupList(sendXml)
+            commLoadResponseHandler(result, ($) => {
+                authGroupOptions.value = $('//content/item').map((item) => {
+                    const $item = queryXml(item.element)
+                    return {
+                        id: item.attr('id')!,
+                        name: $item('name').text(),
+                    }
                 })
+                if (authGroupOptions.value.length) {
+                    formData.value.authGroup = authGroupOptions.value[0].id
+                }
             })
         }
 
@@ -182,13 +182,12 @@ export default defineComponent({
         const doCreateUser = async (e: UserCheckAuthForm) => {
             openLoading()
 
-            // TODO 原项目中bindMacSwitch和mac的输入框是隐藏的
             const sendXml = rawXml`
                 <content>
                     <userName>${wrapCDATA(formData.value.userName)}</userName>
                     <password ${getSecurityVer()}>${wrapCDATA(AES_encrypt(MD5_encrypt(formData.value.password), userSession.sesionKey))}</password>
                     <email>${wrapCDATA(formData.value.email)}</email>
-                    <modifyPassword>${String(formData.value.allowModifyPassword)}</modifyPassword>
+                    <modifyPassword>${formData.value.allowModifyPassword.toString()}</modifyPassword>
                     <authGroupId>${formData.value.authGroup}</authGroupId>
                     <bindMacSwitch>false</bindMacSwitch>
                     <mac>${wrapCDATA('00:00:00:00:00:00')}</mac>
@@ -218,10 +217,12 @@ export default defineComponent({
                     case ErrorCode.USER_ERROR_OVER_LIMIT:
                         errorInfo = Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT')
                         break
+                    // 密码错误
                     case ErrorCode.USER_ERROR_NO_USER:
                     case ErrorCode.USER_ERROR_PWD_ERR:
                         errorInfo = Translate('IDCS_DEVICE_PWD_ERROR')
                         break
+                    // 鉴权账号无相关权限
                     case ErrorCode.USER_ERROR_NO_AUTH:
                         errorInfo = Translate('IDCS_NO_AUTH')
                         break
@@ -243,9 +244,11 @@ export default defineComponent({
             router.push('/config/security/user/list')
         }
 
-        onMounted(() => {
-            getPasswordSecurityStrength()
-            getAuthGroup()
+        onMounted(async () => {
+            openLoading()
+            await getPasswordSecurityStrength()
+            await getAuthGroup()
+            closeLoading()
         })
 
         return {

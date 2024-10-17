@@ -3,7 +3,7 @@
  * @Date: 2024-06-25 09:59:16
  * @Description: 输出配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 18:32:35
+ * @LastEditTime: 2024-10-15 16:14:15
 -->
 <template>
     <div class="OutputSetting">
@@ -110,7 +110,7 @@
                                     </div>
                                     <div
                                         class="panel-thumbnail-del"
-                                        @click="delView(key)"
+                                        @click.stop="delView(key)"
                                     >
                                         ×
                                     </div>
@@ -162,6 +162,7 @@
                                     v-show="pageData.tabId === 0 && pageData.outputIdx === 0"
                                     class="panel-collect"
                                     :index="0"
+                                    :hover-index="1"
                                     :chunk="4"
                                     file="collect (2)"
                                     @click="collectView"
@@ -173,6 +174,7 @@
                                     :key="seg"
                                     :file="`seg_${seg}`"
                                     :index="currentSegment === seg ? 2 : 0"
+                                    :hover-index="currentSegment === seg ? 2 : 1"
                                     :chunk="4"
                                     @click="changeSplit(seg)"
                                 />
@@ -195,6 +197,7 @@
                                     class="panel-clear"
                                     file="clear"
                                     :index="0"
+                                    :hover-index="1"
                                     :chunk="4"
                                     @click="clearAllSplitData"
                                 />
@@ -466,7 +469,7 @@
             height: 20px;
             line-height: 20px;
             text-align: center;
-            background-color: var(--table-thead-bg);
+            background-color: var(--output-tab-btn-bg);
             cursor: pointer;
         }
 

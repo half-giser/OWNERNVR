@@ -3,7 +3,7 @@
  * @Date: 2024-07-03 15:01:51
  * @Description: POS显示设置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-23 20:08:27
+ * @LastEditTime: 2024-10-15 16:35:23
  */
 import { cloneDeep } from 'lodash-es'
 import { SystemPosDisplaySetting, SystemPosDisplayPosition, type SystemPosListStartEndChar, type SystemPostDisplaySet, type SystemPostColorData } from '@/types/apiType/system'
@@ -167,7 +167,7 @@ export default defineComponent({
          * @param {number} index
          */
         const deleteStartEndChar = (index: number) => {
-            if (startEndCharTableList.value.length === 1) {
+            if (index === startEndCharTableList.value.length - 1) {
                 return
             }
             startEndCharTableList.value.splice(index, 1)
@@ -191,7 +191,7 @@ export default defineComponent({
          * @param {number} index
          */
         const deleteLineBreak = (index: number) => {
-            if (lineBreakTableList.value.length === 1) {
+            if (index === lineBreakTableList.value.length - 1) {
                 return
             }
             lineBreakTableList.value.splice(index, 1)
@@ -215,7 +215,7 @@ export default defineComponent({
          * @param {number} index
          */
         const deleteIgnoreChar = (index: number) => {
-            if (ignoreChareTableList.value.length === 1) {
+            if (index === ignoreChareTableList.value.length - 1) {
                 return
             }
             ignoreChareTableList.value.splice(index, 1)

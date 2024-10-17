@@ -3,20 +3,20 @@
  * @Date: 2024-07-02 09:08:32
  * @Description: POS配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 15:15:25
+ * @LastEditTime: 2024-10-15 17:20:35
  */
 import { cloneDeep } from 'lodash-es'
 import type { SystemPosList, SystemPosListChls, SystemPostColorData, SystemPosConnectionForm, SystemPosDisplaySetting } from '@/types/apiType/system'
 import { SystemPostDisplaySet } from '@/types/apiType/system'
 import PosConnectionSettingsPop from './PosConnectionSettingsPop.vue'
-import PosTriggerChannelPop from './PosTriggerChannelPop.vue'
+// import PosTriggerChannelPop from './PosTriggerChannelPop.vue'
 import PosHayleyTriggerChannelPop from './PosHayleyTriggerChannelPop.vue'
 import PosDisplaySettingPop from './PosDisplaySettingPop.vue'
 
 export default defineComponent({
     components: {
         PosConnectionSettingsPop,
-        PosTriggerChannelPop,
+        // PosTriggerChannelPop,
         PosHayleyTriggerChannelPop,
         PosDisplaySettingPop,
     },
@@ -58,6 +58,8 @@ export default defineComponent({
             isTriggerChannelDialog: false,
             // 联动通道设置选中的索引
             triggerChannelDialogIndex: 0,
+            // 联动通道设置已选的通道
+            triggerChannels: [] as string[],
             // hayley联动通道设置till序号的最大值
             tillNumberMax: Infinity,
             // hayley联动通道设置弹窗
@@ -65,6 +67,8 @@ export default defineComponent({
             mounted: false,
             // 是否禁用提交
             submitDisabled: true,
+            // 通道列表
+            chlList: [] as SelectOption<string, string>[],
         })
 
         // 表格数据
@@ -76,7 +80,18 @@ export default defineComponent({
                 .filter((item) => item.triggerChl.switch)
                 .map((item) => item.triggerChl.chls)
                 .flat()
-                .map((item) => item.id)
+                .map((item) => item.value)
+        })
+
+        // 联通通道可供穿梭框选择的通道列表
+        const filterChlList = computed(() => {
+            return pageData.value.chlList.map((item) => {
+                return {
+                    label: item.label,
+                    value: item.value,
+                    disabled: !pageData.value.triggerChannels.includes(item.value) && linkChls.value.includes(item.value),
+                }
+            })
         })
 
         /**
@@ -183,8 +198,8 @@ export default defineComponent({
                         triggerChl: {
                             switch: $item('trigger/triggerChl/switch').text().toBoolean(),
                             chls: $item('triggerChl/chls/item').map((chl) => ({
-                                id: chl.attr('id')!,
-                                text: chl.text(),
+                                value: chl.attr('id')!,
+                                label: chl.text(),
                                 till: chl.attr('till'),
                             })),
                         },
@@ -210,7 +225,7 @@ export default defineComponent({
                 .map((item) => {
                     const chls = item.triggerChl.chls
                         .map((chl) => {
-                            return `<item id="${chl.id}" ${chl.till && Number(chl.till) > 0 ? `till="${chl.till}"` : ''}>${wrapCDATA(chl.text)}</item>`
+                            return `<item id="${chl.value}" ${chl.till && Number(chl.till) > 0 ? `till="${chl.till}"` : ''}>${wrapCDATA(chl.label)}</item>`
                         })
                         .join('')
                     const startEndChar = item.displaySetting.common.startEndChar
@@ -457,6 +472,7 @@ export default defineComponent({
         const setTriggerChannel = (index: number) => {
             const item = tableData.value[index]
             pageData.value.triggerChannelDialogIndex = index
+            pageData.value.triggerChannels = tableData.value[index].triggerChl.chls.map((item) => item.value)
             nextTick(() => {
                 if (item.manufacturers === 'Hayley' && item.connectionType === 'Multicast') {
                     pageData.value.isHayleyTriggerChannleDialog = true
@@ -548,6 +564,24 @@ export default defineComponent({
             })
         }
 
+        /**
+         * @description 获取联动通道列表
+         */
+        const getChannelList = async () => {
+            const result = await getChlList({
+                requireField: ['device'],
+            })
+            commLoadResponseHandler(result, ($) => {
+                pageData.value.chlList = $('//content/item').map((item) => {
+                    const $item = queryXml(item.element)
+                    return {
+                        value: item.attr('id')!,
+                        label: $item('name').text(),
+                    }
+                })
+            })
+        }
+
         const stopWatchTableData = watch(
             tableData,
             () => {
@@ -563,12 +597,14 @@ export default defineComponent({
 
         onMounted(() => {
             getData()
+            getChannelList()
         })
 
         return {
             pageData,
             tableData,
             linkChls,
+            filterChlList,
             changeAllSwitch,
             changeAllConnectionType,
             changeAllEncodeFormat,
@@ -583,9 +619,8 @@ export default defineComponent({
             setTriggerChannel,
             confirmSetTriggerChannel,
             confirmSetDisplay,
-
             PosConnectionSettingsPop,
-            PosTriggerChannelPop,
+            // PosTriggerChannelPop,
             PosHayleyTriggerChannelPop,
             PosDisplaySettingPop,
         }

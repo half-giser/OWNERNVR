@@ -2,8 +2,8 @@
  * @Description: AI 事件——更多——温度检测
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-13 09:18:41
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 15:16:26
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-16 13:54:45
  */
 import { cloneDeep } from 'lodash-es'
 import { type BoundaryTableDataItem, type chlCaps, type PresetList, TempDetection } from '@/types/apiType/aiAndEvent'
@@ -484,11 +484,11 @@ export default defineComponent({
                 pageData.value.alarmRuleTypeList[index] = item.ruleType == 'point' ? alarmRuleTypeList2 : alarmRuleTypeList1
             })
             // 常规联动相关选项
-            if (tempDetectionData.value.triggerAudio && prop.chlData.supportAudio) {
+            if (tempDetectionData.value.triggerAudio && prop.chlData.supportAudio && normalParamList.value.findIndex((item) => item.value == 'triggerAudio') == -1) {
                 normalParamList.value.push({ value: 'triggerAudio', label: 'IPC_' + Translate('IDCS_AUDIO') })
                 if (tempDetectionData.value.triggerAudio == 'true') normalParamCheckList.value.push('triggerAudio')
             }
-            if (tempDetectionData.value.triggerWhiteLight && prop.chlData.supportWhiteLight) {
+            if (tempDetectionData.value.triggerWhiteLight && prop.chlData.supportWhiteLight && normalParamList.value.findIndex((item) => item.value == 'triggerWhiteLight') == -1) {
                 normalParamList.value.push({ value: 'triggerWhiteLight', label: 'IPC_' + Translate('IDCS_LIGHT') })
                 if (tempDetectionData.value.triggerWhiteLight == 'true') normalParamCheckList.value.push('triggerWhiteLight')
             }
@@ -850,24 +850,9 @@ export default defineComponent({
         }
         // 获取联动预置点数据
         const getPresetData = async () => {
-            const sendXml = rawXml`
-                <types>
-                    <nodeType>
-                        <enum>chls</enum>
-                        <enum>sensors</enum>
-                        <enum>alarmOuts</enum>
-                    </nodeType>
-                </types>
-                <nodeType type='nodeType'>chls</nodeType>
-                <requireField>
-                    <name/>
-                    <chlType/>
-                </requireField>
-                <condition>
-                    <supportPtz/>
-                </condition>
-            `
-            const result = await queryNodeList(getXmlWrapData(sendXml))
+            const result = await getChlList({
+                isSupportPtz: true,
+            })
             let rowData = [] as PresetList[]
             commLoadResponseHandler(result, async ($) => {
                 rowData = $('/response/content/item').map((item) => {
@@ -878,43 +863,46 @@ export default defineComponent({
                         chlType: $item('chlType').text(),
                         preset: { value: '', label: Translate('IDCS_NULL') },
                         presetList: [{ value: '', label: Translate('IDCS_NULL') }],
+                        isGetPresetList: false,
                     }
                 })
                 rowData.forEach((row) => {
                     tempDetectionData.value.preset?.forEach((item) => {
                         if (row.id == item.chl.value) {
                             row.preset = { value: item.index, label: item.name }
+                            row.presetList.push({ value: item.index, label: item.name })
                         }
                     })
                 })
-
                 for (let i = rowData.length - 1; i >= 0; i--) {
                     //预置点里过滤掉recorder通道
                     if (rowData[i].chlType == 'recorder') {
                         rowData.splice(i, 1)
-                    } else {
-                        await getPresetById(rowData[i])
                     }
                 }
-
                 PresetTableData.value = rowData
             })
         }
+        // 预置点选择框下拉时获取预置点列表数据
         const getPresetById = async (row: PresetList) => {
-            const sendXml = rawXml`
+            if (!row.isGetPresetList) {
+                row.presetList.splice(1)
+                const sendXml = rawXml`
                 <condition>
                     <chlId>${row.id}</chlId>
                 </condition>
             `
-            const result = await queryChlPresetList(sendXml)
-            commLoadResponseHandler(result, ($) => {
-                $('/response/content/presets/item').forEach((item) => {
-                    row.presetList.push({
-                        value: item.attr('index')!,
-                        label: item.text(),
+                const result = await queryChlPresetList(sendXml)
+                commLoadResponseHandler(result, ($) => {
+                    $('/response/content/presets/item').forEach((item) => {
+                        row.presetList.push({
+                            value: item.attr('index')!,
+                            label: item.text(),
+                        })
                     })
                 })
-            })
+                row.isGetPresetList = true
+            }
         }
         const presetChange = (row: PresetList) => {
             const ids = tempDetectionData.value.preset.map((item) => item.chl.value)
@@ -1193,6 +1181,7 @@ export default defineComponent({
             snapConfirm,
             snapClose,
             presetChange,
+            getPresetById,
             // 提交温度检测数据
             applyTempDetectionData,
         }

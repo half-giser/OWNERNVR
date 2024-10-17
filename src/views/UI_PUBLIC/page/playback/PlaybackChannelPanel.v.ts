@@ -3,7 +3,7 @@
  * @Date: 2024-08-06 20:36:58
  * @Description: 回放-通道视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-12 18:41:06
+ * @LastEditTime: 2024-10-14 17:43:00
  */
 import ChannelGroupEditPop from '../channel/ChannelGroupEditPop.vue'
 import ChannelGroupAddPop from '../channel/ChannelGroupAddPop.vue'
@@ -224,7 +224,7 @@ export default defineComponent({
                     <name/>
                 </requireField>
             `
-            const result = await queryChlGroupList(getXmlWrapData(sendXml))
+            const result = await queryChlGroupList(sendXml)
             const $ = queryXml(result)
             if ($('//status').text() === 'success') {
                 pageData.value.chlGroupList = $('//content/item').map((item) => {
@@ -269,7 +269,7 @@ export default defineComponent({
                     <chlGroupId>${id}</chlGroupId>
                 </condition>
             `
-            const result = await queryChlGroup(getXmlWrapData(sendXml))
+            const result = await queryChlGroup(sendXml)
             const $ = queryXml(result)
 
             if ($('//status').text() === 'success') {
@@ -336,7 +336,7 @@ export default defineComponent({
                             </chlGroupIds>
                         </condition>
                     `
-                    const result = await delChlGroup(getXmlWrapData(sendXml))
+                    const result = await delChlGroup(sendXml)
                     const $ = queryXml(result)
                     closeLoading()
                     if ($('//status').text() === 'success') {

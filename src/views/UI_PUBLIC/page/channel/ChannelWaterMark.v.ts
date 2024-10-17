@@ -3,7 +3,7 @@
  * @Date: 2024-09-29 11:48:59
  * @Description: 水印设置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 16:23:05
+ * @LastEditTime: 2024-10-14 17:47:03
  */
 import { type ChannelWaterMarkDto } from '@/types/apiType/channel'
 import { type DropdownInstance, type TableInstance } from 'element-plus'
@@ -224,7 +224,7 @@ export default defineComponent({
         }
         const getData = async (item: ChannelWaterMarkDto) => {
             const sendXml = rawXml`<condition><chlId>${item.chlId}</chlId></condition>`
-            const res = await queryChlWaterMark(getXmlWrapData(sendXml))
+            const res = await queryChlWaterMark(sendXml)
             const $ = queryXml(res)
             if ($('status').text() == 'success') {
                 const waterMarkSwitch = $('//content/chl/watermark/switch').text()
@@ -259,7 +259,7 @@ export default defineComponent({
                                 </chl>
                             </content>
                         `
-            return getXmlWrapData(sendXml)
+            return sendXml
         }
         const setData = async () => {
             openLoading()

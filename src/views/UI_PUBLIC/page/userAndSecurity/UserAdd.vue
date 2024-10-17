@@ -3,7 +3,7 @@
  * @Date: 2024-06-14 09:47:30
  * @Description: 添加用户页面
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-24 18:25:48
+ * @LastEditTime: 2024-10-15 09:42:09
 -->
 <template>
     <div class="UserAdd">
@@ -27,7 +27,6 @@
                 <el-input
                     v-model.trim="formData.userName"
                     type="text"
-                    :placeholder="Translate('IDCS_USERNAME')"
                     :formatter="formatInputUserName"
                     :parser="formatInputUserName"
                     :maxlength="nameByteMaxLen"
@@ -41,7 +40,6 @@
                 <el-input
                     v-model="formData.password"
                     type="password"
-                    :placeholder="Translate('IDCS_PASSWORD')"
                     @copy.capture.prevent=""
                     @paste.capture.prevent=""
                 />
@@ -59,7 +57,6 @@
                 <el-input
                     v-model="formData.confirmPassword"
                     type="password"
-                    :placeholder="Translate('IDCS_CONFIRM_PASSWORD')"
                     @copy.capture.prevent=""
                     @paste.capture.prevent=""
                 />
@@ -74,10 +71,7 @@
                 prop="email"
                 :label="Translate('IDCS_EMAIL_ADDRESS')"
             >
-                <BaseSensitiveEmailInput
-                    v-model="formData.email"
-                    :placeholder="Translate('IDCS_EMAIL_ADDRESS')"
-                />
+                <BaseSensitiveEmailInput v-model="formData.email" />
             </el-form-item>
             <el-form-item
                 prop="authGroup"

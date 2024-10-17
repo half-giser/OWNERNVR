@@ -3,7 +3,7 @@
  * @Date: 2024-06-20 10:38:40
  * @Description: 编辑黑白名单弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-22 19:51:37
+ * @LastEditTime: 2024-10-15 11:51:51
 -->
 <template>
     <el-dialog
@@ -21,8 +21,8 @@
             :rules
             :model="formData"
             :style="{
-                '--form-input-width': '250px',
-                '--form-label-width': '100px',
+                '--form-input-width': '220px',
+                '--form-label-width': '80px',
             }"
             hide-required-asterisk
         >

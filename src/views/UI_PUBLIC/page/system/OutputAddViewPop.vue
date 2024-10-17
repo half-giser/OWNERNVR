@@ -3,12 +3,12 @@
  * @Date: 2024-06-25 20:56:15
  * @Description: 收藏视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 14:58:54
+ * @LastEditTime: 2024-10-15 15:40:40
 -->
 <template>
     <el-dialog
         :title="Translate('IDCS_Add_CUSTOM_VIEW')"
-        width="600"
+        width="400"
         align-center
         draggable
         @open="open"
@@ -17,7 +17,6 @@
             ref="formRef"
             :model="formData"
             :rules="rules"
-            label-width="150px"
             label-position="left"
         >
             <el-form-item
@@ -27,7 +26,7 @@
                 <el-input
                     v-model="formData.name"
                     type="text"
-                    :placeholder="Translate('IDCS_CUSTOM_VIEW_NAME')"
+                    maxlength="64"
                 />
             </el-form-item>
         </el-form>

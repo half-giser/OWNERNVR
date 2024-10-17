@@ -124,7 +124,7 @@ export default defineComponent({
         }
 
         const getData = (chlId: string) => {
-            queryPrivacyMask(getXmlWrapData(`<condition><chlId>${chlId}</chlId></condition>`)).then((res) => {
+            queryPrivacyMask(`<condition><chlId>${chlId}</chlId></condition>`).then((res) => {
                 const $ = queryXml(res)
                 const rowData = getRowById(chlId)
                 if ($('status').text() == 'success') {
@@ -256,7 +256,7 @@ export default defineComponent({
             openLoading()
             tableData.value.forEach((ele) => (ele.status = ''))
             editRows.forEach((ele) => {
-                editPrivacyMask(getXmlWrapData(getSaveData(ele))).then((res) => {
+                editPrivacyMask(getSaveData(ele)).then((res) => {
                     const $ = queryXml(res)
                     const success = $('status').text() == 'success'
                     if (success) {

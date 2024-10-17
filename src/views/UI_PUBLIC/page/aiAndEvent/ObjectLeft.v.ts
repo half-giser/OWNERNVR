@@ -2,8 +2,8 @@
  * @Description: AI 事件——更多——物品遗留与看护
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-18 09:43:49
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 15:12:34
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-16 11:55:44
  */
 import { cloneDeep } from 'lodash-es'
 import { type BoundaryItem, ObjectLeft, type PresetList, type chlCaps } from '@/types/apiType/aiAndEvent'
@@ -591,24 +591,9 @@ export default defineComponent({
         }
         // 获取联动预置点数据
         const getPresetData = async () => {
-            const sendXml = rawXml`
-                <types>
-                    <nodeType>
-                        <enum>chls</enum>
-                        <enum>sensors</enum>
-                        <enum>alarmOuts</enum>
-                    </nodeType>
-                </types>
-                <nodeType type='nodeType'>chls</nodeType>
-                <requireField>
-                    <name/>
-                    <chlType/>
-                </requireField>
-                <condition>
-                    <supportPtz/>
-                </condition>
-            `
-            const result = await queryNodeList(getXmlWrapData(sendXml))
+            const result = await getChlList({
+                isSupportPtz: true,
+            })
             let rowData = [] as PresetList[]
             commLoadResponseHandler(result, async ($) => {
                 rowData = $('/response/content/item').map((item) => {
@@ -619,43 +604,46 @@ export default defineComponent({
                         chlType: $item('chlType').text(),
                         preset: { value: '', label: Translate('IDCS_NULL') },
                         presetList: [{ value: '', label: Translate('IDCS_NULL') }],
+                        isGetPresetList: false,
                     }
                 })
                 rowData.forEach((row) => {
                     objectLeftData.value.preset?.forEach((item) => {
                         if (row.id == item.chl.value) {
                             row.preset = { value: item.index, label: item.name }
+                            row.presetList.push({ value: item.index, label: item.name })
                         }
                     })
                 })
-
                 for (let i = rowData.length - 1; i >= 0; i--) {
                     //预置点里过滤掉recorder通道
                     if (rowData[i].chlType == 'recorder') {
                         rowData.splice(i, 1)
-                    } else {
-                        await getPresetById(rowData[i])
                     }
                 }
-
                 PresetTableData.value = rowData
             })
         }
+        // 预置点选择框下拉时获取预置点列表数据
         const getPresetById = async (row: PresetList) => {
-            const sendXml = rawXml`
+            if (!row.isGetPresetList) {
+                row.presetList.splice(1)
+                const sendXml = rawXml`
                 <condition>
                     <chlId>${row.id}</chlId>
                 </condition>
             `
-            const result = await queryChlPresetList(sendXml)
-            commLoadResponseHandler(result, ($) => {
-                $('/response/content/presets/item').forEach((item) => {
-                    row.presetList.push({
-                        value: item.attr('index')!,
-                        label: item.text(),
+                const result = await queryChlPresetList(sendXml)
+                commLoadResponseHandler(result, ($) => {
+                    $('/response/content/presets/item').forEach((item) => {
+                        row.presetList.push({
+                            value: item.attr('index')!,
+                            label: item.text(),
+                        })
                     })
                 })
-            })
+                row.isGetPresetList = true
+            }
         }
         const presetChange = (row: PresetList) => {
             const ids = objectLeftData.value.preset.map((item) => item.chl.value)
@@ -907,6 +895,7 @@ export default defineComponent({
             alarmOutConfirm,
             alarmOutClose,
             presetChange,
+            getPresetById,
             // 提交物品遗留与看护数据
             applyObjectLeftData,
         }

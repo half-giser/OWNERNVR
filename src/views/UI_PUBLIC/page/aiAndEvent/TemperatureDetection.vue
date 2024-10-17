@@ -377,6 +377,7 @@
                                             v-model="scope.row.preset.value"
                                             size="small"
                                             :empty-values="[undefined, null]"
+                                            @visible-change="getPresetById(scope.row)"
                                             @change="presetChange(scope.row)"
                                         >
                                             <el-option

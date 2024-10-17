@@ -3,7 +3,7 @@
  * @Date: 2024-07-26 17:03:07
  * @Description: 现场预览-通道视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 18:32:23
+ * @LastEditTime: 2024-10-14 17:42:49
  */
 import ChannelGroupEditPop from '../channel/ChannelGroupEditPop.vue'
 import ChannelGroupAddPop from '../channel/ChannelGroupAddPop.vue'
@@ -157,8 +157,7 @@ export default defineComponent({
          */
         const getChlsList = async () => {
             const result = await getChlList({
-                nodeType: 'chls',
-                requireField: ['name', 'chlType', 'protocolType', 'supportPtz', 'supportPTZGroupTraceTask', 'supportAccessControl', 'supportTalkback'],
+                requireField: ['protocolType', 'supportPtz', 'supportPTZGroupTraceTask', 'supportAccessControl'],
             })
             const $ = queryXml(result)
             if ($('//status').text() === 'success') {
@@ -172,7 +171,7 @@ export default defineComponent({
                         supportPtz: $item('supportPtz').text().toBoolean(),
                         supportPTZGroupTraceTask: $item('supportPTZGroupTraceTask').text().toBoolean(),
                         supportAccessControl: $item('supportAccessControl').text().toBoolean(),
-                        supportTalkback: $item('supportTalkback').text().toBoolean(),
+                        supportTalkback: false, // $item('supportTalkback').text().toBoolean(),
                         chlIp: '',
                         poeSwitch: false,
                     }
@@ -180,6 +179,29 @@ export default defineComponent({
                         chlMap[item.attr('id')!] = result
                     }
                     return result
+                })
+            }
+        }
+
+        /**
+         * @description 获取支持对讲的通道列表，并更新至通道列表
+         */
+        const getSupportTalkbackChlList = async () => {
+            const indexes = pageData.value.cacheChlList.map((item) => item.id)
+            const result = await getChlList({
+                isSupportTalkback: true,
+            })
+            const $ = queryXml(result)
+            if ($('//status').text() === 'success') {
+                $('//content/item').forEach((item) => {
+                    const $item = queryXml(item.element)
+                    const id = item.attr('id')!
+                    const chlType = $item('productModel').attr('factoryName')!
+                    const index = indexes.indexOf(id)
+                    if (index > -1 && chlType !== 'Recorder') {
+                        pageData.value.cacheChlList[index].supportTalkback = true
+                        chlMap[id].supportTalkback = true
+                    }
                 })
             }
         }
@@ -260,6 +282,7 @@ export default defineComponent({
 
             pageData.value.chlKeyword = ''
             await getChlsList()
+            await getSupportTalkbackChlList()
             await getChlTreeStatus()
             ctx.emit('refresh', chlMap)
 
@@ -275,7 +298,7 @@ export default defineComponent({
                     <name/>
                 </requireField>
             `
-            const result = await queryChlGroupList(getXmlWrapData(sendXml))
+            const result = await queryChlGroupList(sendXml)
             const $ = queryXml(result)
             if ($('//status').text() === 'success') {
                 pageData.value.chlGroupList = $('//content/item').map((item) => {
@@ -308,7 +331,7 @@ export default defineComponent({
                     <chlGroupId>${id}</chlGroupId>
                 </condition>
             `
-            const result = await queryChlGroup(getXmlWrapData(sendXml))
+            const result = await queryChlGroup(sendXml)
             const $ = queryXml(result)
 
             if ($('//status').text() === 'success') {
@@ -408,7 +431,7 @@ export default defineComponent({
                             </chlGroupIds>
                         </condition>
                     `
-                    const result = await delChlGroup(getXmlWrapData(sendXml))
+                    const result = await delChlGroup(sendXml)
                     const $ = queryXml(result)
                     closeLoading()
                     if ($('//status').text() === 'success') {
@@ -502,7 +525,7 @@ export default defineComponent({
                     <ip/>
                 </requireField>
             `
-            const result = await queryDevList(getXmlWrapData(sendXml))
+            const result = await queryDevList(sendXml)
             const $ = queryXml(result)
             $('//content/item').forEach((item) => {
                 const $item = queryXml(item.element)
@@ -539,6 +562,7 @@ export default defineComponent({
 
         onMounted(async () => {
             await getChlsList()
+            await getSupportTalkbackChlList()
             if (theme.name === 'UI1-E') {
                 await getDeviceList()
             }

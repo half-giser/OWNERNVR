@@ -3,12 +3,12 @@
  * @Date: 2024-06-17 17:21:22
  * @Description: 查看或更改用户
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 13:45:27
+ * @LastEditTime: 2024-10-15 09:36:28
  */
 import UserEditPop from './UserEditPop.vue'
 import UserEditPasswordPop from './UserEditPasswordPop.vue'
 import type { XMLQuery } from '@/utils/xmlParse'
-import { type UserList, type UserPermissionChannelAuthList, UserPermissionSystemAuthList } from '@/types/apiType/userAndSecurity'
+import { type UserList, UserPermissionChannelAuthList, UserPermissionSystemAuthList } from '@/types/apiType/userAndSecurity'
 
 export default defineComponent({
     components: {
@@ -20,6 +20,7 @@ export default defineComponent({
         const userSession = useUserSessionStore()
         const { openMessageTipBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
+        const systemCaps = useCababilityStore()
 
         // 用户列表
         const userList = ref<UserList[]>([])
@@ -107,9 +108,9 @@ export default defineComponent({
         const getChannelAuth = ($: XMLQuery, isQueryFromUserID: boolean) => {
             if (isQueryFromUserID) {
                 channelAuthList.value = $('//content/chlAuth/item').map((item) => {
-                    const arrayItem: Record<string, any> = {}
+                    const arrayItem = new UserPermissionChannelAuthList()
                     const $item = queryXml(item.element)
-                    arrayItem.id = item.attr('id') as string
+                    arrayItem.id = item.attr('id')!
                     arrayItem.name = $item('name').text()
                     const auth = $item('auth').text()
                     DEFAULT_CHANNEL_AUTH_LIST.forEach((key) => {
@@ -119,18 +120,18 @@ export default defineComponent({
                             arrayItem[key] = 'false'
                         }
                     })
-                    return arrayItem as UserPermissionChannelAuthList
+                    return arrayItem
                 })
             } else {
                 channelAuthList.value = $('//content/item').map((item) => {
-                    const arrayItem: Record<string, any> = {}
+                    const arrayItem = new UserPermissionChannelAuthList()
                     const $item = queryXml(item.element)
-                    arrayItem.id = item.attr('id') as string
+                    arrayItem.id = item.attr('id')!
                     arrayItem.name = $item('name').text()
                     DEFAULT_CHANNEL_AUTH_LIST.forEach((key) => {
-                        arrayItem[key] = true
+                        arrayItem[key] = 'true'
                     })
-                    return arrayItem as UserPermissionChannelAuthList
+                    return arrayItem
                 })
             }
         }
@@ -322,6 +323,9 @@ export default defineComponent({
         }
 
         onMounted(() => {
+            if (!systemCaps.supportFaceMatch && !systemCaps.supportPlateMatch) {
+                systemAuthList.value.configurations.value.facePersonnalInfoMgr.hidden = true
+            }
             getUserList('')
         })
 

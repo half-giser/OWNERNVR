@@ -2,8 +2,8 @@
  * @Description: 预置点名称配置
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-20 17:19:44
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-29 18:35:06
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-16 10:08:16
 -->
 <template>
     <el-dialog
@@ -36,6 +36,7 @@
                         v-model="scope.row.preset.value"
                         size="small"
                         :empty-values="[undefined, null]"
+                        @visible-change="getPresetById(scope.row)"
                     >
                         <el-option
                             v-for="item in scope.row.presetList"

@@ -2,8 +2,8 @@
  * @Description: 人脸识别——识别成功（0,1,2,3）/陌生人tab页
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-04 14:22:06
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-29 18:35:46
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-16 09:03:46
 -->
 <template>
     <!-- 人脸识别——识别成功 -->
@@ -173,6 +173,7 @@
                             v-model="scope.row.preset.value"
                             size="small"
                             :empty-values="[undefined, null]"
+                            @visible-change="getPresetById(scope.row)"
                             @change="presetChange(scope.row)"
                         >
                             <el-option

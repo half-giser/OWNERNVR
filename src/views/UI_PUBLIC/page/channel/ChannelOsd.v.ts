@@ -18,6 +18,7 @@ export default defineComponent({
         const { openLoading, closeLoading } = useLoading()
         const { openMessageTipBox } = useMessageBox()
         const osType = getSystemInfo().platform
+        const dateTime = useDateTimeStore()
 
         const playerRef = ref<PlayerInstance>()
         const formData = ref(new ChannelOsd())
@@ -249,7 +250,7 @@ export default defineComponent({
 
         const getTimeEnabledData = (callback?: Function) => {
             openLoading()
-            queryDevList(getXmlWrapData('')).then((res) => {
+            queryDevList('').then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
@@ -275,7 +276,7 @@ export default defineComponent({
                 <condition>
                     <chlId>${chlId}</chlId>
                 </condition>`
-            queryChlWaterMark(getXmlWrapData(data)).then((res) => {
+            queryChlWaterMark(data).then((res) => {
                 const $ = queryXml(res)
                 let flag = false
                 if ($('status').text() == 'success') {
@@ -293,7 +294,7 @@ export default defineComponent({
                 <condition>
                     <chlId>${chlId}</chlId>
                 </condition>`
-            queryIPChlORChlOSD(getXmlWrapData(data)).then((res) => {
+            queryIPChlORChlOSD(data).then((res) => {
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
                     let isSpeco = false
@@ -454,7 +455,7 @@ export default defineComponent({
                     <name><![CDATA[${rowData.name}]]></name>
                 </content>`
             try {
-                editDev(getXmlWrapData(data))
+                editDev(data)
                     .then((res) => {
                         checkAllRqReturn()
                         const $ = queryXml(res)
@@ -469,7 +470,7 @@ export default defineComponent({
                                         </watermark>
                                     </chl>
                                 </content>`
-                                editChlWaterMark(getXmlWrapData(watermarkXml))
+                                editChlWaterMark(watermarkXml)
                             }
                             nameMapping[rowData.id] = rowData.name
                             rowData.status = 'success'
@@ -511,7 +512,7 @@ export default defineComponent({
                                 </chl>
                             </content>`
                             try {
-                                editIPChlORChlOSD(getXmlWrapData(editIPChlORChlOSDXml))
+                                editIPChlORChlOSD(editIPChlORChlOSDXml)
                                     .then((res) => {
                                         const $ = queryXml(res)
                                         if ($('status').text() == 'success') {
@@ -551,7 +552,7 @@ export default defineComponent({
             }
         }
 
-        const setDateTime = () => {
+        const setDateTime = async () => {
             let timeFormat = ''
             let dateFormat = ''
             tableData.value.forEach((ele) => {
@@ -565,7 +566,8 @@ export default defineComponent({
                         <time type='timeFormat'>${timeFormat}</time>
                     </formatInfo>
                 </content>`
-            editTimeCfg(getXmlWrapData(data))
+            await editTimeCfg(data)
+            dateTime.getTimeConfig(true)
         }
 
         const save = () => {
