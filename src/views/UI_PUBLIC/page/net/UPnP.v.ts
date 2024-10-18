@@ -3,7 +3,7 @@
  * @Date: 2024-07-11 08:56:08
  * @Description: UPnP配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:07:10
+ * @LastEditTime: 2024-10-17 15:38:53
  */
 import { NetUPnPForm, type NetUPnPPortDto } from '@/types/apiType/net'
 
@@ -94,16 +94,16 @@ export default defineComponent({
         }
 
         const PORT_ERROR_MAPPING: [string, string, string][] = [
-            ['httpPort', 'dataPort', 'IDCS_PROMPT_HTTP_DATA_THE_SAME_PORT'],
-            ['httpPort', 'rtspPort', 'IDCS_PROMPT_HTTP_RTSP_THE_SAME_PORT'],
-            ['dataPort', 'rtspPort', 'IDCS_PROMPT_DATA_RTSP_THE_SAME_PORT'],
-            ['httpPort', 'posPort', 'IDCS_POS_DATA_HTTP_THE_SAME_PORT'],
-            ['httpsPort', 'posPort', 'IDCS_POS_DATA_HTTPS_THE_SAME_PORT'],
-            ['dataPort', 'posPort', 'IDCS_POS_DATA_PROMPT_THE_SAME_PORT'],
-            ['rtspPort', 'posPort', 'IDCS_POS_DATA_RTSP_THE_SAME_PORT'],
-            ['httpPort', 'httpsPort', 'IDCS_PROMPT_HTTPS_HTTP_THE_SAME_PORT'],
-            ['httpsPort', 'dataPort', 'IDCS_PROMPT_HTTPS_DATA_THE_SAME_PORT'],
-            ['httpsPort', 'rtspPort', 'IDCS_PROMPT_HTTPS_RTSP_THE_SAME_PORT'],
+            ['HTTP', 'SERVICE', 'IDCS_PROMPT_HTTP_DATA_THE_SAME_PORT'],
+            ['HTTP', 'RTSP', 'IDCS_PROMPT_HTTP_RTSP_THE_SAME_PORT'],
+            ['SERVICE', 'RTSP', 'IDCS_PROMPT_DATA_RTSP_THE_SAME_PORT'],
+            ['HTTP', 'posPort', 'IDCS_POS_DATA_HTTP_THE_SAME_PORT'],
+            ['HTTPS', 'posPort', 'IDCS_POS_DATA_HTTPS_THE_SAME_PORT'],
+            ['SERVICE', 'posPort', 'IDCS_POS_DATA_PROMPT_THE_SAME_PORT'],
+            ['RTSP', 'posPort', 'IDCS_POS_DATA_RTSP_THE_SAME_PORT'],
+            ['HTTP', 'HTTPS', 'IDCS_PROMPT_HTTPS_HTTP_THE_SAME_PORT'],
+            ['HTTPS', 'SERVICE', 'IDCS_PROMPT_HTTPS_DATA_THE_SAME_PORT'],
+            ['HTTPS', 'RTSP', 'IDCS_PROMPT_HTTPS_RTSP_THE_SAME_PORT'],
         ]
 
         /**
@@ -175,6 +175,28 @@ export default defineComponent({
             closeLoading()
         }
 
+        /**
+         * @description 表格行禁用状态
+         * @returns {stirng}
+         */
+        const handleRowClassName = () => {
+            if (!formData.value.switch || formData.value.mappingType === 'auto') {
+                return 'disabled'
+            }
+            return ''
+        }
+
+        /**
+         * @description Map Type为自动时，外部端口重置为本地端口
+         */
+        const changeMappingType = () => {
+            if (formData.value.mappingType === 'auto') {
+                tableData.value.forEach((item) => {
+                    item.externalPort = Number(item.localPort)
+                })
+            }
+        }
+
         onMounted(async () => {
             openLoading()
 
@@ -190,9 +212,11 @@ export default defineComponent({
             pageData,
             tableData,
             displayPortType,
+            changeMappingType,
             setData,
             getData,
             theme,
+            handleRowClassName,
         }
     },
 })

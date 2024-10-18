@@ -3,7 +3,7 @@
  * @Date: 2024-07-10 15:00:10
  * @Description: E-mail发送
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:20:45
+ * @LastEditTime: 2024-10-17 13:58:14
  */
 import { type FormInstance, type FormRules } from 'element-plus'
 import { NetEmailForm } from '@/types/apiType/net'
@@ -50,11 +50,11 @@ export default defineComponent({
                             return
                         }
                         if (!value.length) {
-                            callback(new Error('IDCS_PROMPT_USERNAME_EMPTY'))
+                            callback(new Error(Translate('IDCS_PROMPT_USERNAME_EMPTY')))
                             return
                         }
                         if (!cutStringByByte(value, nameByteMaxLen)) {
-                            callback(new Error('IDCS_INVALID_CHAR'))
+                            callback(new Error(Translate('IDCS_INVALID_CHAR')))
                             return
                         }
                         callback()
@@ -69,7 +69,7 @@ export default defineComponent({
                             callback()
                         }
                         if (!value.length) {
-                            callback(new Error('IDCS_PROMPT_PASSWORD_EMPTY'))
+                            callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
                         }
                         callback()
@@ -82,7 +82,7 @@ export default defineComponent({
                     validator(rule, value: string, callback) {
                         // smtp服务器格式为 a.b.c.d ,多个点分割，可为数字字母或-，但-不能开头
                         if (!checkStmpServer(value)) {
-                            callback(new Error('IDCS_PROMPT_INVALID_SMTPSERVER'))
+                            callback(new Error(Translate('IDCS_PROMPT_INVALID_SMTPSERVER')))
                             return
                         }
                         callback()
@@ -254,6 +254,15 @@ export default defineComponent({
             commSaveResponseHadler(result)
         }
 
+        /**
+         * @description 约束STMP服务器的输入
+         * @param {string} value
+         * @returns {string}
+         */
+        const formatSTMPServer = (value: string) => {
+            return value.replace(/([\u4e00-\u9fa5]|[^a-zA-Z\d\.\-])/g, '')
+        }
+
         onMounted(() => {
             getData()
         })
@@ -270,6 +279,7 @@ export default defineComponent({
             changeSecurityConnection,
             handleUserNameFocus,
             handleUserNameBlur,
+            formatSTMPServer,
             EmailSenderTestPop,
         }
     },

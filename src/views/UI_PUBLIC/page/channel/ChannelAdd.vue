@@ -310,12 +310,11 @@
             <span v-show="activeTab === tabKeys.quickAdd">{{ Translate('IDCS_SELECT_CHANNEL_COUNT').formatForLang(selNum, total) }}</span>
         </div>
         <div
-            class="base-btn-box"
+            class="base-btn-box collapse"
             :span="2"
         >
             <div>
-                <span id="txtBandwidth">{{ txtBandwidth }}</span>
-                <span class="detailBtn"></span>
+                <span>{{ txtBandwidth }}</span>
             </div>
             <div>
                 <el-button
@@ -379,7 +378,7 @@
     justify-content: space-between;
 
     & > div:not(:nth-child(2)) {
-        width: 200px;
+        width: 100px;
         display: flex;
         justify-content: flex-end;
     }

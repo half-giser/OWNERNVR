@@ -3,12 +3,13 @@
  * @Date: 2024-07-12 18:19:49
  * @Description: HTTPS
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 18:11:31
+ * @LastEditTime: 2024-10-17 17:56:02
 -->
 <template>
     <div>
         <el-form
             :style="{
+                '--form-label-width': '250px',
                 '--form-input-width': '340px',
             }"
             label-position="left"
@@ -26,6 +27,7 @@
         <el-form
             v-show="pageData.hasCert"
             :style="{
+                '--form-label-width': '250px',
                 '--form-input-width': '340px',
             }"
             label-position="left"
@@ -58,6 +60,7 @@
         <el-form
             v-show="!pageData.hasCert"
             :style="{
+                '--form-label-width': '250px',
                 '--form-input-width': '340px',
             }"
             label-position="left"
@@ -69,7 +72,7 @@
             <el-form-item :label="Translate('IDCS_CERT_INSTALLATION')">
                 <el-radio-group
                     v-model="formData.cert"
-                    class="radio-group"
+                    class="line-break"
                 >
                     <el-radio
                         v-for="item in pageData.certOptions"
@@ -84,6 +87,7 @@
         <el-form
             v-show="!pageData.hasCert && formData.cert === pageData.certOptions[0].value"
             :style="{
+                '--form-label-width': '250px',
                 '--form-input-width': '340px',
             }"
             label-position="left"
@@ -97,6 +101,7 @@
         <el-form
             v-show="!pageData.hasCert && formData.cert === pageData.certOptions[1].value"
             :style="{
+                '--form-label-width': '250px',
                 '--form-input-width': '340px',
             }"
             label-position="left"
@@ -142,6 +147,7 @@
         <el-form
             v-show="!pageData.hasCert && formData.cert === pageData.certOptions[2].value"
             :style="{
+                '--form-label-width': '250px',
                 '--form-input-width': '340px',
             }"
             label-position="left"
@@ -218,6 +224,7 @@
         <div
             class="base-btn-box"
             :style="{
+                '--form-label-width': '250px',
                 '--form-input-width': '335px',
             }"
         >
@@ -242,14 +249,6 @@
 <script lang="ts" src="./Https.v.ts"></script>
 
 <style lang="scss" scoped>
-.radio-group {
-    display: block;
-
-    :deep(.el-radio) {
-        display: flex;
-    }
-}
-
 .textarea :deep(.el-textarea__inner) {
     min-height: 100px !important;
 }

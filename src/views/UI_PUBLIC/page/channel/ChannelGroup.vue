@@ -8,7 +8,6 @@
         <div class="base-table-box">
             <el-table
                 ref="tableRef"
-                class="ChannelGroupList"
                 border
                 stripe
                 :data="tableData"

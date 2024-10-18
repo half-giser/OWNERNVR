@@ -3,7 +3,7 @@
  * @Date: 2024-08-15 09:09:46
  * @Description: 平台接入
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-16 18:09:37
+ * @LastEditTime: 2024-10-18 09:18:33
 -->
 <template>
     <div class="base-flex-box">
@@ -14,7 +14,8 @@
             label-position="left"
             inline-message
             :style="{
-                '--form-input-width': '200px',
+                '--form-label-width': '200px',
+                '--form-input-width': '250px',
             }"
             class="stripe"
         >
@@ -53,23 +54,22 @@
                     :label="Translate('IDCS_PORT')"
                     prop="port"
                 >
-                    <el-input-number
+                    <BaseNumberInput
                         v-model="formData.port"
                         :min="10"
                         :max="65535"
-                        :controls="false"
                         :disabled="!formData.nwms5000Switch"
+                        value-on-clear="min"
                     />
                 </el-form-item>
                 <el-form-item
                     :label="Translate('IDCS_REPORT_ID')"
                     prop="reportId"
                 >
-                    <el-input-number
+                    <BaseNumberInput
                         v-model="formData.reportId"
                         :min="0"
                         :max="99999999"
-                        :controls="false"
                         value-on-clear="min"
                         :disabled="!formData.nwms5000Switch"
                     />
@@ -159,24 +159,24 @@
                         :label="Translate('IDCS_SIP_SERVER_PORT')"
                         prop="sipPort"
                     >
-                        <el-input-number
+                        <BaseNumberInput
                             v-model="formData.sipPort"
-                            :controls="false"
                             :disabled="!formData.gb28181Switch"
                             :min="1025"
                             :max="65535"
+                            value-on-clear="min"
                         />
                     </el-form-item>
                     <el-form-item
                         :label="Translate('IDCS_KEEP_ALIVE_CYCLE')"
                         prop="sipExpireTime"
                     >
-                        <el-input-number
+                        <BaseNumberInput
                             v-model="formData.sipExpireTime"
-                            :controls="false"
                             :disabled="!formData.gb28181Switch"
                             :min="5"
                             :max="3600"
+                            value-on-clear="min"
                         />
                     </el-form-item>
                 </el-form-item>
@@ -184,12 +184,12 @@
                     :label="Translate('IDCS_SIP_LOCAL_PORT')"
                     prop="sipLocalPort"
                 >
-                    <el-input-number
+                    <BaseNumberInput
                         v-model="formData.sipLocalPort"
                         :disabled="!formData.gb28181Switch"
                         :min="10"
                         :max="65535"
-                        :controls="false"
+                        value-on-clear="min"
                     />
                 </el-form-item>
             </template>
@@ -212,6 +212,7 @@
                             stripe
                             border
                             class="expand-table"
+                            :row-class-name="handleRowClassName"
                         >
                             <el-table-column
                                 :label="scope.row.value === 'chl' ? Translate('IDCS_CHANNEL_NAME') : Translate('IDCS_NAME')"

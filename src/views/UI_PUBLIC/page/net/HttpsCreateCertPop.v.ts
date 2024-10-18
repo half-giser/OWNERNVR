@@ -3,7 +3,7 @@
  * @Date: 2024-07-15 17:12:18
  * @Description: 创建私有证书弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:21:45
+ * @LastEditTime: 2024-10-17 16:15:55
  */
 import { type FormInstance, type FormRules } from 'element-plus'
 import { NetHTTPSPrivateCertForm } from '@/types/apiType/net'
@@ -69,7 +69,7 @@ export default defineComponent({
             validityPeriod: [
                 {
                     validator(rule, value: string, callback) {
-                        if (prop.type === 2 && value.length === 0) {
+                        if (prop.type !== 2 && !value) {
                             callback(new Error(Translate('IDCS_HTTPS_EMPTY_TIP')))
                             return
                         }
@@ -109,7 +109,7 @@ export default defineComponent({
                         <organizationalUnitName>${formData.value.organizationalUnitName}</organizationalUnitName>
                         <email>${formData.value.email}</email>
                     </DN>
-                    <validityPeriod unit="d">${formData.value.validityPeriod.toString()}</validityPeriod>
+                    <validityPeriod unit="d">${formData.value.validityPeriod?.toString() || ''}</validityPeriod>
                     <password ${getSecurityVer()}>${AES_encrypt(formData.value.password, userSession.sesionKey)}</password>
                 </content>
             `
@@ -164,12 +164,21 @@ export default defineComponent({
             ctx.emit('close')
         }
 
+        /**
+         * @description 打开弹窗时，重置表单
+         */
+        const open = () => {
+            formRef.value?.clearValidate()
+            formRef.value?.resetFields()
+        }
+
         return {
             formRef,
             formRule,
             formData,
             close,
             verify,
+            open,
         }
     },
 })

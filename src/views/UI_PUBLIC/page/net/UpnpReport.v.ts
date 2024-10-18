@@ -28,7 +28,7 @@ export default defineComponent({
                         return
                     }
                     if (!cutStringByByte(value, nameByteMaxLen)) {
-                        callback(new Error('IDCS_INVALID_CHAR'))
+                        callback(new Error(Translate('IDCS_INVALID_CHAR')))
                         return
                     }
                     callback()
