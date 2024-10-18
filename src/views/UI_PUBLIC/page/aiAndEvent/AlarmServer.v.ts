@@ -3,7 +3,7 @@
  * @Date: 2024-08-14 17:06:11
  * @Description: 报警服务器
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-18 17:14:56
+ * @LastEditTime: 2024-10-18 17:47:55
  */
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -278,9 +278,10 @@ export default defineComponent({
         }
         const checkAddress = (value: string) => {
             const reg1 = /([\u4e00-\u9fa5]|[^a-zA-Z\d\.\-:\\/])/g
-            // const reg2 = /(^$|[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+.?$)/g
             const address = checkRule(value, reg1)
-            // address = checkRule(address, reg2)
+            // if(value.length == 60){
+
+            // }
             formData.value.address = address
         }
         const checkUrl = (value: string) => {
@@ -323,6 +324,11 @@ export default defineComponent({
                             </heartbeat>`
             }
             if (pageData.value.supportAdditionalServerSetting) {
+                sendXml += rawXml`
+                                    <deviceId><![CDATA[${formData.value.deviceId}]]></deviceId>
+                                    <token><![CDATA[${formData.value.token}]]></token>
+                                `
+            } else {
                 sendXml += rawXml`<deviceId><![CDATA[${formData.value.deviceId}]]></deviceId>`
             }
             sendXml += rawXml`</content>`
