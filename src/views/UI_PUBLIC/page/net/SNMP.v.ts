@@ -136,6 +136,15 @@ export default defineComponent({
             return !formData.value.snmpv1Switch && !formData.value.snmpv2Switch
         })
 
+        /**
+         * @description 约束readCommunity和writeCommunity的输入
+         * @param {string} value
+         * @returns {string}
+         */
+        const formatCommunity = (value: string) => {
+            return value.replace(/[^A-z|\d!@#$%^&*(){}\|:"`<>?~_\\'./\-\s\[\];,=+]/g, '')
+        }
+
         watch(disabled, () => {
             formRef.value?.clearValidate()
         })
@@ -150,6 +159,7 @@ export default defineComponent({
             formRule,
             disabled,
             setData,
+            formatCommunity,
         }
     },
 })

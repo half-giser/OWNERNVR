@@ -3,7 +3,7 @@
  * @Date: 2024-07-10 15:00:04
  * @Description: E-mail发送
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 11:48:56
+ * @LastEditTime: 2024-10-17 14:11:40
 -->
 <template>
     <div>
@@ -12,6 +12,7 @@
             :model="formData"
             :rules="formRule"
             :style="{
+                '--form-label-width': '200px',
                 '--form-input-width': '340px',
             }"
             label-position="left"
@@ -30,14 +31,19 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_STMP_SERVER')">
-                <el-input v-model="formData.server" />
+                <el-input
+                    v-model="formData.server"
+                    :formatter="formatSTMPServer"
+                    :parser="formatSTMPServer"
+                    maxlength="64"
+                />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_STMP_PORT')">
-                <el-input-number
+                <BaseNumberInput
                     v-model="formData.port"
                     :min="10"
                     :max="65535"
-                    :controls="false"
+                    value-on-clear="min"
                 />
                 <el-button @click="setDefaultPort">{{ Translate('IDCS_USE_DEFAULT') }}</el-button>
             </el-form-item>
@@ -65,7 +71,7 @@
                 </el-select>
             </el-form-item>
             <el-form-item
-                v-show="formData.attachImg === 2"
+                v-if="formData.attachImg === 2"
                 :label="Translate('IDCS_IMAGE_NUMBER')"
             >
                 <el-select v-model="formData.imageNumber">
@@ -81,7 +87,12 @@
                 <el-checkbox v-model="formData.anonymousSwitch">{{ Translate('IDCS_ANONYMOUS_LOGIN') }}</el-checkbox>
             </el-form-item>
             <el-form-item :label="Translate('IDCS_USER_NAME')">
+                <el-input
+                    v-if="formData.anonymousSwitch"
+                    disabled
+                />
                 <BaseSensitiveEmailInput
+                    v-else
                     v-model="formData.userName"
                     :disabled="formData.anonymousSwitch"
                     :show-value="pageData.showUserNameValue"
@@ -89,17 +100,20 @@
                     @blur="handleUserNameBlur"
                 />
             </el-form-item>
-            <el-form-item :label="Translate('IDCS_CHANGE_PWD')">
+            <el-form-item>
+                <template #label>
+                    {{ Translate('IDCS_PASSWORD') }}
+                    <el-checkbox
+                        v-model="pageData.passwordSwitch"
+                        :disabled="formData.anonymousSwitch"
+                    />
+                </template>
                 <el-input
                     v-model="formData.password"
                     type="password"
                     :disabled="!pageData.passwordSwitch || formData.anonymousSwitch"
                     @copy.capture.prevent=""
                     @paste.capture.prevent=""
-                />
-                <el-checkbox
-                    v-model="pageData.passwordSwitch"
-                    :disabled="formData.anonymousSwitch"
                 />
             </el-form-item>
             <div class="base-btn-box">

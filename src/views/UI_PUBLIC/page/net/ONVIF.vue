@@ -30,13 +30,12 @@
                 <el-table-column
                     :label="Translate('IDCS_SERIAL_NUMBER')"
                     type="index"
-                >
-                </el-table-column>
+                    width="70"
+                />
                 <el-table-column
                     :label="Translate('IDCS_USER_NAME')"
                     prop="userName"
-                >
-                </el-table-column>
+                />
                 <el-table-column
                     :label="Translate('IDCS_USER_TYPE')"
                     prop="userLevel"

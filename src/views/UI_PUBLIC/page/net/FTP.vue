@@ -3,7 +3,7 @@
  * @Date: 2024-07-12 18:20:28
  * @Description: FTP
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-10 14:10:59
+ * @LastEditTime: 2024-10-17 17:09:16
 -->
 <template>
     <div class="base-flex-box">
@@ -44,12 +44,12 @@
                     :label="Translate('IDCS_PORT')"
                     prop="port"
                 >
-                    <el-input-number
+                    <BaseNumberInput
                         v-model="formData.port"
                         :disabled="!formData.switch"
                         :min="10"
                         :max="65535"
-                        :controls="false"
+                        value-on-clear="min"
                     />
                 </el-form-item>
             </el-form-item>
@@ -71,10 +71,14 @@
                         :disabled="!formData.switch || formData.anonymousSwitch"
                     />
                 </el-form-item>
-                <el-form-item
-                    :label="Translate('IDCS_CHANGE_PWD')"
-                    prop="password"
-                >
+                <el-form-item prop="password">
+                    <template #label>
+                        {{ Translate('IDCS_PASSWORD') }}
+                        <el-checkbox
+                            v-model="pageData.passwordSwitch"
+                            :disabled="!formData.switch || formData.anonymousSwitch"
+                        />
+                    </template>
                     <el-input
                         v-model="formData.password"
                         type="password"
@@ -83,10 +87,6 @@
                         @paste.capture.prevent=""
                         @copy.capture.prevent=""
                     />
-                    <el-checkbox
-                        v-model="pageData.passwordSwitch"
-                        :disabled="!formData.switch || formData.anonymousSwitch"
-                    />
                 </el-form-item>
             </el-form-item>
             <el-form-item>
@@ -94,12 +94,12 @@
                     :label="Translate('IDCS_MAX_FILE_SIZE')"
                     prop="maxSize"
                 >
-                    <el-input-number
+                    <BaseNumberInput
                         v-model="formData.maxSize"
                         :min="pageData.minFileSize"
                         :max="pageData.maxFileSize"
                         :disabled="!formData.switch"
-                        :controls="false"
+                        value-on-clear="min"
                     />
                     <el-text>M</el-text>
                 </el-form-item>
@@ -122,7 +122,7 @@
                     :disabled="!formData.switch"
                     >{{ Translate('IDCS_DIS_NET_UPLOAD') }}</el-checkbox
                 >
-                <el-text>{{ Translate('IDCS_DIS_NET_UPLOAD_TIP') }}</el-text>
+                <el-text class="tip">{{ Translate('IDCS_DIS_NET_UPLOAD_TIP') }}</el-text>
             </el-form-item>
         </el-form>
         <div class="base-subheading-box">{{ Translate('IDCS_UPLOAD_SET') }}</div>
@@ -131,17 +131,21 @@
             stripe
             border
             :data="tableData"
+            :row-class-name="handleRowClassName"
         >
             <el-table-column>
                 <!-- 通道号 -->
                 <el-table-column
                     :label="Translate('IDCS_CHANNEL_NUMBER')"
                     prop="chlNum"
+                    width="60"
                 />
                 <!-- 通道名称 -->
                 <el-table-column
                     :label="Translate('IDCS_CHANNEL_NAME')"
                     prop="name"
+                    width="150"
+                    show-overflow-tooltip
                 />
                 <!-- 排程 -->
                 <el-table-column>
@@ -437,3 +441,9 @@
 </template>
 
 <script lang="ts" src="./FTP.v.ts"></script>
+
+<style lang="scss" scoped>
+.tip {
+    line-height: 1.4;
+}
+</style>

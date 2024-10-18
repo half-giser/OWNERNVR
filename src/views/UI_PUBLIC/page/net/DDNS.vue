@@ -3,7 +3,7 @@
  * @Date: 2024-07-10 09:13:08
  * @Description: DDNS
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 11:47:47
+ * @LastEditTime: 2024-10-17 14:46:59
 -->
 <template>
     <div>
@@ -56,7 +56,7 @@
                     :disabled="!formData.switch || !current.requireParam.includes('domainName')"
                     :placeholder="Translate('IDCS_DOMAIN_NAME_TIP')"
                 />
-                <el-text>{{ current.suffix }}</el-text>
+                <el-text v-show="current.suffix">{{ current.suffix }}</el-text>
             </el-form-item>
             <el-form-item
                 v-if="!current.hideParam.includes('userName')"
@@ -89,28 +89,29 @@
                 v-if="!current.hideParam.includes('heartbeatTime')"
                 :label="Translate('IDCS_HEARTBEAT_INTERVAL')"
             >
-                <el-input-number
+                <BaseNumberInput
                     v-model="formData.heartbeatTime"
                     :disabled="!formData.switch || !current.requireParam.includes('heartbeatTime')"
                     :placeholder="Translate('IDCS_PLEARSE_ENTER_HEARTBEAT_TIME')"
                     :min="5"
                     :max="3600"
-                    :controls="false"
-                    :value-on-clear="null"
+                    :value-on-clear="current.requireParam.includes('heartbeatTime') ? 'min' : null"
                 />
                 <el-text>s {{ Translate('IDCS_HEARTBEAT_RANGE_TIP').formatForLang(5, 3600) }}</el-text>
             </el-form-item>
             <el-form-item :label="Translate('IDCS_CONNECTION_STATUS')">
-                <el-text>{{ pageData.connectState }}</el-text>
+                {{ pageData.connectState }}
             </el-form-item>
             <div class="base-btn-box">
                 <el-button
                     v-show="current.isRegisterBtn"
+                    :disabled="!formData.switch"
                     @click="test"
                     >{{ Translate('IDCS_REGISTER') }}</el-button
                 >
                 <el-button
                     v-show="current.isTestBtn"
+                    :disabled="!formData.switch"
                     @click="test"
                     >{{ Translate('IDCS_TEST') }}</el-button
                 >

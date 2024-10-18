@@ -3,7 +3,7 @@
  * @Date: 2024-08-16 18:56:00
  * @Description: TCP/IP配置页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-22 19:45:42
+ * @LastEditTime: 2024-10-17 14:34:34
 -->
 <template>
     <div class="tcp-ip">
@@ -33,49 +33,48 @@
                 </el-select>
                 <el-text>{{ Translate('IDCS_WORK_PATTERN_TIP') }}</el-text>
             </el-form-item>
-            <div class="eth_list">
-                <!-- BONDS -->
-                <el-form-item
-                    v-show="formData.netConfig.curWorkMode === 'network_fault_tolerance'"
-                    label="Bonds"
+            <!-- BONDS -->
+            <el-form-item
+                v-show="formData.netConfig.curWorkMode === 'network_fault_tolerance' && formData.bonds.length > 1"
+                :label="Translate('IDCS_BONDS')"
+            >
+                <el-select
+                    v-model="pageData.bondIndex"
+                    :disabled="pageData.pppoeSwitch"
                 >
-                    <el-select
-                        v-model="pageData.bondIndex"
-                        :disabled="pageData.pppoeSwitch"
-                    >
-                        <el-option
-                            v-for="(item, index) in formData.bonds"
-                            :key="item.id"
-                            :value="item.index"
-                            :label="Translate('IDCS_FAULT_ETH_NAME').formatForLang(index + 1)"
-                        />
-                    </el-select>
-                </el-form-item>
-                <!-- 网口 -->
-                <div
-                    v-show="formData.netConfig.curWorkMode === 'multiple_address_setting' && !pageData.toleranceAndPoe"
-                    class="nic"
-                >
-                    <div
-                        v-for="item in formData.nicConfigs"
+                    <el-option
+                        v-for="(item, index) in formData.bonds"
                         :key="item.id"
-                        class="nic_btn"
-                        :class="{
-                            disabled: pageData.pppoeSwitch,
-                            active: item.index === pageData.nicIndex,
-                        }"
-                        @click="pageData.nicIndex = item.index"
-                    >
-                        {{ displayNicName(item) }} ({{ displayNicStatus(item) }})
-                    </div>
+                        :value="item.index"
+                        :label="Translate('IDCS_FAULT_ETH_NAME').formatForLang(index + 1)"
+                    />
+                </el-select>
+            </el-form-item>
+            <!-- 网口 -->
+            <div
+                v-show="formData.netConfig.curWorkMode === 'multiple_address_setting' && !pageData.toleranceAndPoe"
+                class="eth_list"
+            >
+                <div
+                    v-for="item in formData.nicConfigs"
+                    :key="item.id"
+                    class="eth_list_btn"
+                    :class="{
+                        disabled: pageData.pppoeSwitch,
+                        active: item.index === pageData.nicIndex,
+                    }"
+                    @click="pageData.nicIndex = item.index"
+                >
+                    {{ displayNicName(item) }} ({{ displayNicStatus(item) }})
                 </div>
+            </div>
+            <div class="config">
                 <el-button
+                    class="advance-btn"
                     :disabled="pageData.pppoeSwitch"
                     @click="setAdvanceData"
                     >{{ Translate('IDCS_ADVANCED') }}</el-button
                 >
-            </div>
-            <div class="config">
                 <!-- DHCP -->
                 <div class="dhcp">
                     <el-form-item>
@@ -183,13 +182,16 @@
                         </el-form-item>
                         <!-- IPv6子网前缀长度 -->
                         <el-form-item :label="Translate('IDCS_SUBNET_MASK_LENGTH')">
-                            <el-input-number
+                            <el-input
+                                v-if="!current.ipV6Switch || current.dhcpSwitch || !poeEnabled"
+                                disabled
+                            />
+                            <BaseNumberInput
+                                v-else
                                 :model-value="current.subLengthV6"
                                 :min="0"
                                 :max="128"
                                 value-on-clear="min"
-                                :controls="false"
-                                :disabled="!current.ipV6Switch || current.dhcpSwitch || !poeEnabled"
                                 @update:model-value="changeData($event, 'subLengthV6')"
                             />
                         </el-form-item>
@@ -198,7 +200,6 @@
                             <el-input
                                 :model-value="current.gatewayV6"
                                 :disabled="!current.ipV6Switch || current.dhcpSwitch || !poeEnabled"
-                                spellcheck="false"
                                 @update:model-value="changeData($event, 'gatewayV6')"
                             />
                         </el-form-item>
@@ -271,7 +272,7 @@
                 </div>
             </div>
             <el-form-item
-                v-show="formData.netConfig.curWorkMode === 'network_fault_tolerance'"
+                v-show="formData.netConfig.curWorkMode === 'network_fault_tolerance' && formData.bonds.length > 1"
                 :label="Translate('IDCS_PROMPT_DEFAULT_NIC')"
             >
                 <el-select
@@ -325,24 +326,14 @@
 .eth_list {
     display: flex;
     width: 100%;
-    justify-content: space-between;
     background-color: var(--table-stripe);
     align-items: center;
-    border: 1px solid var(--content-border);
+    border: 1px solid var(--table-border);
     box-sizing: border-box;
-    & > div {
-        width: 50%;
-        padding-left: 15px;
-        margin-top: 5px;
-        margin-bottom: 5px;
-    }
-}
-
-.nic {
-    display: flex;
+    padding: 4px 10px;
 
     &_btn {
-        padding: 4px 20px;
+        padding: 4px 10px;
         border-bottom: 5px solid transparent;
         font-size: 15px;
         cursor: pointer;
@@ -353,11 +344,18 @@
     }
 }
 
+.advance-btn {
+    position: absolute;
+    top: -38px;
+    right: 10px;
+}
+
 .config {
-    border: 1px solid var(--content-border);
+    border: 1px solid var(--table-border);
     box-sizing: border-box;
     padding: 5px 0;
     margin-bottom: 5px;
+    position: relative;
 }
 
 .dhcp {

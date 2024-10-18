@@ -3,7 +3,7 @@
  * @Date: 2024-07-10 16:50:11
  * @Description: Email测试发送弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:21:02
+ * @LastEditTime: 2024-10-17 14:06:02
  */
 import { type FormInstance, type FormRules } from 'element-plus'
 import { type NetEmailForm, NetEmailTestForm, type NetEmailReceiverDto } from '@/types/apiType/net'
@@ -26,7 +26,7 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
+        const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const userSession = useUserSessionStore()
 
         const pageData = ref({
@@ -162,7 +162,7 @@ export default defineComponent({
                     return
                 }
 
-                openLoading()
+                openLoading(LoadingTarget.FullScreen, Translate('IDCS_TEST_HOLD_ON'))
 
                 const password = AES_encrypt(formData.value.password, userSession.sesionKey)
                 const sendXml = rawXml`
