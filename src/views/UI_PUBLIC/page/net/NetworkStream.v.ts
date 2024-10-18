@@ -3,7 +3,7 @@
  * @Date: 2024-08-15 18:17:14
  * @Description: 网络码流设置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 17:04:39
+ * @LastEditTime: 2024-10-17 10:17:56
  */
 import { type NetSubStreamList, type NetSubStreamResolutionList } from '@/types/apiType/net'
 import { cloneDeep } from 'lodash-es'
@@ -625,6 +625,10 @@ export default defineComponent({
             }
         }
 
+        const handleRowClassName = (row: NetSubStreamList) => {
+            return row.chlType === 'recorder' || !row.resolution ? 'disabled' : ''
+        }
+
         onMounted(async () => {
             openLoading()
 
@@ -659,6 +663,7 @@ export default defineComponent({
             setData,
             changeAllGOP,
             handleResolutionVisibleChange,
+            handleRowClassName,
         }
     },
 })

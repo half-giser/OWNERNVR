@@ -3,7 +3,7 @@
  * @Date: 2024-07-15 10:08:50
  * @Description: 创建私有证书弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-15 20:07:12
+ * @LastEditTime: 2024-10-17 16:18:49
 -->
 <template>
     <el-dialog
@@ -11,15 +11,16 @@
         width="600"
         align-center
         draggable
+        @open="open"
     >
         <el-form
             ref="formRef"
             :rules="formRule"
             :model="formData"
             label-position="left"
-            label-width="100px"
             :style="{
-                '--form-input-width': '300px',
+                '--form-label-width': '200px',
+                '--form-input-width': '200px',
             }"
         >
             <el-form-item
@@ -41,11 +42,11 @@
                 :label="Translate('IDCS_VALIDITY_PERIOD')"
                 prop="validityPeriod"
             >
-                <el-input-number
+                <BaseNumberInput
                     v-model="formData.validityPeriod"
-                    :controls="false"
                     :min="1"
                     :max="5000"
+                    :value-on-clear="null"
                 />
                 <el-text>{{ Translate('IDCS_DAYS') }} *</el-text>
             </el-form-item>
@@ -79,9 +80,8 @@
         </el-form>
         <template #footer>
             <el-row>
-                <el-col :span="8"> </el-col>
                 <el-col
-                    :span="16"
+                    :span="24"
                     class="el-col-flex-end"
                 >
                     <el-button @click="verify()">{{ Translate('IDCS_OK') }}</el-button>

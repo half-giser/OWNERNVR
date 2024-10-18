@@ -3,7 +3,7 @@
  * @Date: 2024-06-27 11:50:06
  * @Description: 备份与恢复
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-23 14:40:37
+ * @LastEditTime: 2024-10-16 10:10:59
  */
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import BaseInputEncryptPwdPop from '../../components/auth/BaseInputEncryptPwdPop.vue'
@@ -348,7 +348,7 @@ export default defineComponent({
          */
         const notify = ($: XMLQuery) => {
             //导入或导出进度
-            if ($("/statenotify[@type='FileNetTransportProgress']").length > 0) {
+            if ($("/statenotify[@type='FileNetTransportProgress']").length) {
                 const progress = $("/statenotify[@type='FileNetTransportProgress']/progress").text()
                 switch ($("/statenotify[@type='FileNetTransportProgress']/action").text()) {
                     case 'Import':
@@ -378,13 +378,13 @@ export default defineComponent({
                 }
             }
             //连接成功
-            else if ($("/statenotify[@type='connectstate']").length > 0) {
+            else if ($("/statenotify[@type='connectstate']").length) {
             }
             //网络断开
-            else if ($("/statenotify[@type='FileNetTransport']").length > 0) {
+            else if ($("/statenotify[@type='FileNetTransport']").length) {
                 closeLoading()
                 pageData.value.isEncryptPwd = false
-                if ($("/statenotify[@type='FileNetTransport']/errorCode").length > 0) {
+                if ($("/statenotify[@type='FileNetTransport']/errorCode").length) {
                     const errorCode = Number($("/statenotify[@type='FileNetTransport']/errorCode").text())
                     handleErrorMsg(errorCode)
                 }

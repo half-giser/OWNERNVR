@@ -3,7 +3,7 @@
  * @Date: 2024-07-04 11:34:14
  * @Description: 回放弹窗（OCX+H5）
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-10 18:22:02
+ * @LastEditTime: 2024-10-15 18:23:40
 -->
 <template>
     <el-dialog
@@ -63,7 +63,10 @@
             </div>
             <div class="control-btns">
                 <span class="current-time">{{ currentTime }}</span>
-                <el-tooltip :content="Translate('IDCS_PAUSE')">
+                <el-tooltip
+                    :content="Translate('IDCS_PAUSE')"
+                    :show-after="500"
+                >
                     <BaseImgSprite
                         v-show="!pageData.paused"
                         class="btn"
@@ -76,7 +79,10 @@
                         @click="pause"
                     />
                 </el-tooltip>
-                <el-tooltip :content="Translate('IDCS_PLAY')">
+                <el-tooltip
+                    :content="Translate('IDCS_PLAY')"
+                    :show-after="500"
+                >
                     <BaseImgSprite
                         v-show="pageData.paused"
                         class="btn"
@@ -89,7 +95,10 @@
                         @click="play"
                     />
                 </el-tooltip>
-                <el-tooltip :content="Translate('IDCS_STOP')">
+                <el-tooltip
+                    :content="Translate('IDCS_STOP')"
+                    :show-after="500"
+                >
                     <BaseImgSprite
                         file="image_preview_stop"
                         class="btn"

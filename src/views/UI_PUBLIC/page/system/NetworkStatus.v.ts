@@ -3,7 +3,7 @@
  * @Date: 2024-06-21 16:31:50
  * @Description: 网络状态
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 14:50:33
+ * @LastEditTime: 2024-10-16 14:06:29
  */
 import { type SystemNetStatusList } from '@/types/apiType/system'
 
@@ -14,22 +14,22 @@ export default defineComponent({
 
         // 状态值与显示文案的映射
         const DEFAULT_LANG_MAPPING: Record<string, string> = {
-            online: 'IDCS_NIC_STATE_ONLINE',
-            offline: 'IDCS_NIC_STATE_OFFLINE',
-            disabled: 'IDCS_DISABLE',
-            success: 'IDCS_SUCCEED',
-            fail: 'IDCS_FAILED',
-            connected: 'IDCS_CONNECTED',
-            disconnected: 'IDCS_DISCONNECT',
-            enable: 'IDCS_ENABLE',
-            disable: 'IDCS_DISABLE',
+            online: Translate('IDCS_NIC_STATE_ONLINE'),
+            offline: Translate('IDCS_NIC_STATE_OFFLINE'),
+            disabled: Translate('IDCS_DISABLE'),
+            success: Translate('IDCS_SUCCEED'),
+            fail: Translate('IDCS_FAILED'),
+            connected: Translate('IDCS_CONNECTED'),
+            disconnected: Translate('IDCS_DISCONNECT'),
+            enable: Translate('IDCS_ENABLE'),
+            disable: Translate('IDCS_DISABLE'),
         }
 
         // 状态值与显示文案的映射
         const DEFAULT_PHONE_LANG_MAPPING: Record<string, string> = {
-            disabled: 'IDCS_DISABLE',
-            success: 'IDCS_WIRELESS_3G4G_SUCCESS',
-            fail: 'IDCS_WIRELESS_3G4G_FAIL',
+            disabled: Translate('IDCS_DISABLE'),
+            success: Translate('IDCS_WIRELESS_3G4G_SUCCESS'),
+            fail: Translate('IDCS_WIRELESS_3G4G_FAIL'),
         }
 
         const tableData = ref<SystemNetStatusList[]>([])
@@ -47,7 +47,7 @@ export default defineComponent({
             const supportPOS = systemCaps.supportPOS
             const netStatusContentNicPoe = $('//content/nic').attr('poe')
             const poeCount = netStatusContentNicPoe ? 1 : 0
-            const ipGroupSwitch = $('//content/ipGroup/switch').text() === 'true'
+            const ipGroupSwitch = $('//content/ipGroup/switch').text().toBoolean()
             const toleranceAndPoe = ipGroupSwitch && netStatusContentNicPoe // 3535A:即支持网络容错又存在poe网卡
 
             if (ipGroupSwitch) {
@@ -63,14 +63,14 @@ export default defineComponent({
                         array.push({
                             i: 0,
                             k: Translate('IDCS_FAULT_ETH_NAME'),
-                            v: Translate(DEFAULT_LANG_MAPPING[$item('nicStatus').text()]),
+                            v: DEFAULT_LANG_MAPPING[$item('nicStatus').text()],
                         })
                     }
                     array.push(
                         {
                             i: 1,
                             k: 'IPv4 ' + Translate('IDCS_DHCP_STATE'),
-                            v: Translate(DEFAULT_LANG_MAPPING[$item('dhcpStatus').text()]),
+                            v: DEFAULT_LANG_MAPPING[$item('dhcpStatus').text()],
                         },
                         {
                             i: 1,
@@ -100,7 +100,7 @@ export default defineComponent({
                         {
                             i: 1,
                             k: Translate('IDCS_COMMON_STATE'),
-                            v: Translate(DEFAULT_LANG_MAPPING[$item('ipv6Status').text()]),
+                            v: DEFAULT_LANG_MAPPING[$item('ipv6Status').text()],
                         },
                     )
                     if ($item('ipv6Status').text() === 'enable') {
@@ -108,7 +108,7 @@ export default defineComponent({
                             {
                                 i: 1,
                                 k: 'IPv6 ' + Translate('IDCS_DHCP_STATE'),
-                                v: Translate(DEFAULT_LANG_MAPPING[$item('dhcpStatusV6').text()]),
+                                v: DEFAULT_LANG_MAPPING[$item('dhcpStatusV6').text()],
                             },
                             {
                                 i: 1,
@@ -159,7 +159,7 @@ export default defineComponent({
                     array.push({
                         i: 0,
                         k: netStatusContentNicPoe === item.attr('id') ? Translate('IDCS_POE_ETH_NAME') : Translate('IDCS_ETH_NAME').formatForLang(String(index + 1)),
-                        v: Translate(DEFAULT_LANG_MAPPING[$item('nicStatus').text()]),
+                        v: DEFAULT_LANG_MAPPING[$item('nicStatus').text()],
                     })
                     if (!ipGroupSwitch) {
                         if ($item('nicStatus').text() !== 'disabled') {
@@ -167,7 +167,7 @@ export default defineComponent({
                                 array.push({
                                     i: 1,
                                     k: 'IPv4 ' + Translate('IDCS_DHCP_STATE'),
-                                    v: Translate(DEFAULT_LANG_MAPPING[$item('dhcpStatus').text()]),
+                                    v: DEFAULT_LANG_MAPPING[$item('dhcpStatus').text()],
                                 })
                             }
                             array.push({
@@ -201,13 +201,13 @@ export default defineComponent({
                                 array.push({
                                     i: 1,
                                     k: 'IPv6 ' + Translate('IDCS_COMMON_STATE'),
-                                    v: Translate(DEFAULT_LANG_MAPPING[$item('ipv6Status').text()]),
+                                    v: DEFAULT_LANG_MAPPING[$item('ipv6Status').text()],
                                 })
                                 if ($item('ipv6Status').text() === 'enable') {
                                     array.push({
                                         i: 1,
                                         k: 'IPv6 ' + Translate('IDCS_DHCP_STATE'),
-                                        v: Translate(DEFAULT_LANG_MAPPING[$item('dhcpStatusV6').text()]),
+                                        v: DEFAULT_LANG_MAPPING[$item('dhcpStatusV6').text()],
                                     })
                                     array.push({
                                         i: 1,
@@ -275,7 +275,7 @@ export default defineComponent({
             array.push({
                 i: 0,
                 k: Translate('IDCS_PPPOE_STATE'),
-                v: Translate(DEFAULT_LANG_MAPPING[pppoeStatus]),
+                v: DEFAULT_LANG_MAPPING[pppoeStatus],
             })
 
             if (pppoeStatus === 'connected') {
@@ -362,7 +362,7 @@ export default defineComponent({
                 array.push({
                     i: 0,
                     k: Translate('IDCS_AUTO_REPORT_STATUS'),
-                    v: Translate(DEFAULT_LANG_MAPPING[$('//content/reportStatus').text()]),
+                    v: DEFAULT_LANG_MAPPING[$('//content/reportStatus').text()],
                 })
             }
 
@@ -370,7 +370,7 @@ export default defineComponent({
                 array.push({
                     i: 0,
                     k: Translate('IDCS_WIRELESS_3G4G_STATE'),
-                    v: Translate(DEFAULT_PHONE_LANG_MAPPING[$('//content/threeOrFourG/threeOrFourGStatus').text()]),
+                    v: DEFAULT_PHONE_LANG_MAPPING[$('//content/threeOrFourG/threeOrFourGStatus').text()],
                 })
                 array.push({
                     i: 0,

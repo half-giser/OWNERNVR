@@ -3,7 +3,7 @@
  * @Date: 2024-07-12 18:20:34
  * @Description: FTP配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:21:14
+ * @LastEditTime: 2024-10-17 17:08:46
  */
 import { NetFTPForm, type NetFTPList } from '@/types/apiType/net'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -55,7 +55,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_DDNS_SERVER_ADDR_EMPTY')))
                             return
                         }
-                        return
+                        callback()
                     },
                     trigger: 'blur',
                 },
@@ -68,7 +68,6 @@ export default defineComponent({
                             return
                         }
                         callback()
-                        return
                     },
                     trigger: 'blur',
                 },
@@ -81,7 +80,6 @@ export default defineComponent({
                             return
                         }
                         callback()
-                        return
                     },
                     trigger: 'blur',
                 },
@@ -94,7 +92,6 @@ export default defineComponent({
                             return
                         }
                         callback()
-                        return
                     },
                     trigger: 'blur',
                 },
@@ -102,12 +99,11 @@ export default defineComponent({
             maxSize: [
                 {
                     validator: (rule, value: string, callback) => {
-                        if (!value) {
+                        if (value === null || value === '') {
                             callback(new Error(Translate('IDCS_MAX_FILE_SIZE_EMPTY')))
                             return
                         }
                         callback()
-                        return
                     },
                     trigger: 'blur',
                 },
@@ -120,7 +116,6 @@ export default defineComponent({
                             return
                         }
                         callback()
-                        return
                     },
                     trigger: 'blur',
                 },
@@ -213,12 +208,12 @@ export default defineComponent({
                 formData.value.port = Number($content('port').text())
                 formData.value.userName = $content('userName').text()
                 formData.value.anonymousSwitch = $content('anonymousSwitch').text().toBoolean()
-                formData.value.maxSize = Number($content('maxSize').text()) || 64
+                formData.value.maxSize = Number($content('maxSize').text() || '64')
                 formData.value.path = $content('path').text()
                 formData.value.disNetUpLoad = $content('disNetUpLoad').text().toBoolean()
 
-                pageData.value.minFileSize = Number($content('maxSize').attr('min')) || 0
-                pageData.value.maxFileSize = Number($content('maxSize').attr('max')) || 4096
+                pageData.value.minFileSize = Number($content('maxSize').attr('min') || '0')
+                pageData.value.maxFileSize = Number($content('maxSize').attr('max') || '4096')
 
                 tableData.value = $content('chls/item').map((item) => {
                     const $item = queryXml(item.element)
@@ -347,9 +342,19 @@ export default defineComponent({
         /**
          * @description 修改并关闭排程管理弹窗
          */
-        const confirmManageSchedule = () => {
+        const confirmManageSchedule = async () => {
             pageData.value.isSchedulePop = false
-            getScheduleList()
+            await getScheduleList()
+            const scheduleIdList = pageData.value.scheduleOptions.map((item) => item.value)
+            tableData.value.forEach((item) => {
+                if (!scheduleIdList.includes(item.schedule)) {
+                    item.schedule = '{00000000-0000-0000-0000-000000000000}'
+                }
+            })
+        }
+
+        const handleRowClassName = () => {
+            return formData.value.switch ? '' : 'disabled'
         }
 
         onMounted(async () => {
@@ -375,6 +380,7 @@ export default defineComponent({
             formatServerAddress,
             formatDir,
             changeSwitch,
+            handleRowClassName,
             ScheduleManagPop,
         }
     },

@@ -153,6 +153,8 @@
     --disk-group-text-active: #FFF;
     --disk-group-bg-active: #66D49D;
 
+    --upgrade-text-active: #23de1a;
+
     --panel-bg: transparent; 
     --panel-header-bg: transparent; 
     --panel-header-text: var(--main-text);
@@ -252,4 +254,7 @@
 
     --float-ok: #006400;
     --float-error: #ff0000;
+
+    --qrcode-bg: #fff;
+    --qrcode-label-bg: #8f8d8d;
 }

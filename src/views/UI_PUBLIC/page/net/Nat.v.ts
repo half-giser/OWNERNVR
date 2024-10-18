@@ -3,7 +3,7 @@
  * @Date: 2024-07-12 09:40:19
  * @Description: Nat配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 15:59:33
+ * @LastEditTime: 2024-10-17 15:49:12
  */
 import QRCode from 'qrcode'
 import { type QRCodeToDataURLOptions } from 'qrcode'
@@ -85,9 +85,11 @@ export default defineComponent({
          * @description 获取NAT状态
          */
         const getP2pStatus = async () => {
+            clearTimeout(timer)
             const result = await queryP2PCfg()
             const $ = queryXml(result)
             pageData.value.natServerState = STATUS_MAPPING[$('//content/natServerState').text()]
+            timer = setTimeout(() => getP2pStatus(), 5000)
         }
 
         /**
@@ -177,13 +179,13 @@ export default defineComponent({
             await getBasicConfig()
             await getCloudUpgradeConfig()
             await getData()
-            timer = setInterval(() => getP2pStatus(), 5000)
+            timer = setTimeout(() => getP2pStatus(), 5000)
 
             closeLoading()
         })
 
         onBeforeUnmount(() => {
-            clearInterval(timer)
+            clearTimeout(timer)
         })
 
         return {

@@ -3,20 +3,15 @@
  * @Date: 2024-06-20 15:59:48
  * @Description: 系统重启
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 15:23:34
+ * @LastEditTime: 2024-10-16 10:15:21
 -->
 <template>
-    <div
-        class="base-btn-box"
-        span="start"
-    >
-        <el-button
-            class="btn-ok"
-            @click="verify"
-            >{{ Translate('IDCS_SYSTEM_REBOOT') }}</el-button
-        >
-    </div>
-    <p class="tip">{{ Translate('IDCS_REBOOT_NOTE') }}</p>
+    <el-form>
+        <el-form-item>
+            <el-button @click="verify">{{ Translate('IDCS_SYSTEM_REBOOT') }}</el-button>
+        </el-form-item>
+        <el-form-item>{{ Translate('IDCS_REBOOT_NOTE') }}</el-form-item>
+    </el-form>
     <BaseCheckAuthPop
         v-model="pageData.isAuthPop"
         :tip="Translate('IDCS_REBOOT_CONFIRM')"
@@ -25,12 +20,3 @@
 </template>
 
 <script lang="ts" src="./Reboot.v.ts"></script>
-
-<style lang="scss" scoped>
-.tip {
-    margin: 0;
-    padding-top: 20px;
-    padding-left: 15px;
-    font-size: 15px;
-}
-</style>

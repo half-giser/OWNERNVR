@@ -3,7 +3,7 @@
  * @Date: 2024-06-28 11:45:28
  * @Description: 报警状态
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 15:49:07
+ * @LastEditTime: 2024-10-16 13:43:42
  */
 import { type XMLQuery } from '@/utils/xmlParse'
 import type { SystemAlarmStatusListData, SystemAlarmStatusList } from '@/types/apiType/system'
@@ -80,24 +80,13 @@ export default defineComponent({
         let getAlarmStatusTimer: NodeJS.Timeout | number = 0
 
         const pageData = ref({
-            isInw48: false,
+            isInw48: systemCaps.CustomerID === 100,
             activeIndex: -1,
             activeRow: [] as string[],
             // 是否打开回放弹窗
             isRecord: false,
             recordPlayList: [] as PlaybackPopList[],
         })
-
-        /**
-         * @description 获取基础配置信息
-         */
-        const getBasicCfg = async () => {
-            const result = await queryBasicCfg()
-            const $ = queryXml(result)
-
-            const CustomerID = $('//content/CustomerID').text()
-            pageData.value.isInw48 = CustomerID === '100'
-        }
 
         /**
          * @description 获取Face Feature Groups Name
@@ -1101,6 +1090,16 @@ export default defineComponent({
         }
 
         /**
+         * @description 当前行展开后收起
+         * @param {SystemAlarmStatusList} row
+         * @param {SystemAlarmStatusList[]} rows
+         */
+        const handleExpandChange = (row: SystemAlarmStatusList, rows: SystemAlarmStatusList[]) => {
+            pageData.value.activeIndex = tableList.value.findIndex((item) => row.id === item.id)!
+            pageData.value.activeRow = rows.map((item) => item.id)
+        }
+
+        /**
          * @description 回放
          * @param {SystemAlarmStatusListData} row
          */
@@ -1124,7 +1123,6 @@ export default defineComponent({
 
         onMounted(async () => {
             openLoading()
-            await getBasicCfg()
             await getFaceFeatureGroupsName()
             await getPlateLibrary()
 
@@ -1144,6 +1142,7 @@ export default defineComponent({
             getAlarmClassName,
             getAlarmStatusActive,
             handleChangeRow,
+            handleExpandChange,
             playRec,
         }
     },

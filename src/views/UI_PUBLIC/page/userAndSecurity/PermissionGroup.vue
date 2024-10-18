@@ -3,7 +3,7 @@
  * @Date: 2024-06-17 20:26:14
  * @Description: 权限组列表
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 10:04:58
+ * @LastEditTime: 2024-10-16 11:34:07
 -->
 <template>
     <div class="Perm">
@@ -127,8 +127,10 @@
                 <el-table-column
                     prop="name"
                     :label="Translate('IDCS_RIGHT_GROUP')"
-                    :formatter="(row, column, value) => displayAuthGroup(value)"
                 >
+                    <template #default="scope">
+                        {{ displayAuthGroup(scope.row.name) }}
+                    </template>
                 </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_EDIT')"

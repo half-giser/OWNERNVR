@@ -3,7 +3,7 @@
  * @Date: 2024-06-27 11:48:58
  * @Description: 系统升级
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-24 18:31:19
+ * @LastEditTime: 2024-10-16 11:22:30
 -->
 <template>
     <div>
@@ -30,7 +30,9 @@
                     v-show="isSupportH5"
                     class="el-button"
                     for="h5BrowerImport"
-                    :class="{ 'is-disabled': pageData.isUploadDisabled }"
+                    :class="{
+                        'is-disabled': pageData.isUploadDisabled,
+                    }"
                 >
                     {{ Translate('IDCS_BROWSE') }}
                 </label>
@@ -53,25 +55,34 @@
                     @change="handleH5Upload"
                 />
             </el-form-item>
+            <el-form-item>
+                <div class="system-info">
+                    <div
+                        v-for="item in pageData.systemList"
+                        :key="item.id"
+                        :class="{
+                            active: item.id === pageData.currentRunningSystem,
+                        }"
+                    >
+                        <el-tooltip
+                            :content="Translate('IDCS_PRIORITY_BOOT_SYSTEM')"
+                            :show-after="500"
+                        >
+                            <BaseImgSprite
+                                v-show="pageData.currentRunningSystem === item.id"
+                                file="systemStatus"
+                            />
+                        </el-tooltip>
+                        <span>{{ item.label }}</span>
+                        <span>{{ item.value }}</span>
+                    </div>
+                </div>
+            </el-form-item>
+            <el-form-item>{{ Translate('IDCS_UPGRADE_NOTE') }}</el-form-item>
+            <el-form-item>
+                <span class="note">{{ pageData.upgradeNote }}</span>
+            </el-form-item>
         </el-form>
-        <div class="system-info">
-            <div
-                v-for="item in pageData.systemList"
-                :key="item.id"
-                :class="{ active: item.id === pageData.currentRunningSystem }"
-            >
-                <el-tooltip :content="Translate('IDCS_PRIORITY_BOOT_SYSTEM')">
-                    <BaseImgSprite
-                        v-show="pageData.currentRunningSystem === item.id"
-                        file="systemStatus"
-                    />
-                </el-tooltip>
-                <span>{{ item.label }}</span>
-                <span>{{ item.value }}</span>
-            </div>
-        </div>
-        <div class="upgrade-note">{{ Translate('IDCS_UPGRADE_NOTE') }}</div>
-        <div class="upgrade-note">{{ pageData.upgradeNote }}</div>
         <BasePluginNotice />
         <BaseNotification v-model:notifications="pageData.notifications" />
         <BaseCheckAuthPop
@@ -96,24 +107,12 @@
 <script lang="ts" src="./Upgrade.v.ts"></script>
 
 <style lang="scss" scoped>
-// label {
-//     display: inline-block;
-
-//     &.disabled {
-//         cursor: not-allowed;
-//     }
-// }
-
 .system-info {
-    font-size: 15px;
-    margin-left: 15px;
     display: flex;
 
     & > div {
         display: flex;
         align-items: center;
-        height: 35px;
-        line-height: 35px;
         &:not(:first-child) {
             margin-left: 30px;
             position: relative;
@@ -129,7 +128,7 @@
         }
 
         &.active {
-            color: #23de1a;
+            color: var(--upgrade-text-active);
         }
 
         span:not(:last-child) {
@@ -138,8 +137,7 @@
     }
 }
 
-.upgrade-note {
-    font-size: 15px;
-    margin: 10px 0px 0px 15px;
+.note {
+    color: var(--primary);
 }
 </style>

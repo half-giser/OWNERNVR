@@ -3,14 +3,15 @@
  * @Date: 2024-07-12 09:40:12
  * @Description: NAT配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 16:37:03
+ * @LastEditTime: 2024-10-17 15:56:52
 -->
 <template>
     <div>
         <el-form
             class="stripe"
             :style="{
-                '--form-input-width': '340px',
+                '--form-label-width': '200px',
+                '--form-input-width': '200px',
             }"
             label-position="left"
             inline-message
@@ -29,15 +30,15 @@
                 v-if="systemCaps.showNatServerAddress"
                 :label="Translate('IDCS_VISIT_ADDRESS')"
             >
-                <el-text>{{ pageData.visitAddress }}</el-text>
+                {{ pageData.visitAddress }}
             </el-form-item>
             <el-form-item :label="Translate('IDCS_NAT_STATUS')">
-                <el-text>{{ pageData.natServerState }}</el-text>
+                <el-input
+                    :model-value="pageData.natServerState"
+                    readonly
+                />
             </el-form-item>
-            <div
-                class="base-btn-box"
-                span="center"
-            >
+            <div class="base-btn-box">
                 <el-button @click="apply">{{ Translate('IDCS_APPLY') }}</el-button>
             </div>
         </el-form>
@@ -82,13 +83,15 @@
         width: 230px;
         height: 230px;
         flex-shrink: 0;
-        margin-left: 50px;
+        margin-left: 15px;
     }
 
     &-pic {
         position: relative;
         width: 100%;
         height: 100%;
+        padding: 10px;
+        background-color: #fff;
 
         img {
             width: 100%;

@@ -65,7 +65,7 @@ export default defineComponent({
         }
 
         const handlePreview = (rowData: ChannelInfoDto) => {
-            baseLivePopRef.value?.openLiveWin(rowData.id, rowData.name, rowData.chlStatus === Translate('IDCS_ONLINE'))
+            baseLivePopRef.value?.openLiveWin(rowData.id, rowData.name, rowData.isOnline)
         }
 
         // 编辑通道
@@ -241,21 +241,12 @@ export default defineComponent({
                             }
                             channelInfo.index = eleXml('index').text()
                             channelInfo.chlIndex = eleXml('chlIndex').text()
-                            channelInfo.chlStatus = eleXml('chlStatus').text()
                             channelInfo.chlType = eleXml('chlType').text()
 
                             tableData.value.push(channelInfo)
                         })
                         saveMaxValueForDefaultChl()
                         tableData.value.forEach((ele: ChannelInfoDto) => {
-                            //模拟通道，端口和状态置为空
-                            if (!ele.ip) {
-                                ele.chlStatus = ''
-                                ele.port = 0
-                            } else {
-                                ele.chlStatus = Translate('IDCS_OFFLINE')
-                            }
-
                             //UI1-E POE通道可删除，其他UI不能删除
                             if ((ele.addType === 'poe' && uiName !== 'UI1-E') || !ele.ip) {
                                 ele.delDisabled = true
@@ -265,7 +256,6 @@ export default defineComponent({
                             } else if (ele.protocolType === 'RTSP') {
                                 ele.showSetting = false
                             }
-                            getIPChlInfo(ele)
                         })
 
                         channelIPCUpgradePopRef.value.initWsState(tableData.value)
@@ -281,7 +271,8 @@ export default defineComponent({
             const type = channelInfo.productModel.factoryName === 'Recorder'
             const data = '<condition><chlId>' + (type ? channelInfo.devID : channelInfo.id) + '</chlId></condition>'
             queryIPChlInfo(data).then((res) => {
-                channelInfo.version = queryXml(res)('//content/chl/detailedSoftwareVersion').text()
+                const version = queryXml(res)('//content/chl/detailedSoftwareVersion').text()
+                if (version !== channelInfo.version) channelInfo.version = version
             })
         }
 
@@ -292,25 +283,22 @@ export default defineComponent({
                     if (tableData.value.length === 0) return
                     tableData.value.forEach((ele: ChannelInfoDto) => {
                         //模拟通道，状态置为空
-                        if (!ele.ip) {
-                            ele.chlStatus = ''
-                            return
-                        }
+                        if (!ele.ip) return
                         let isOnline = false
                         $('//content/item').forEach((element) => {
                             const chlId = element.attr('id')!
                             if (ele.id === chlId) {
-                                ele.chlStatus = Translate('IDCS_ONLINE')
-                                ele.upgradeDisabled = false
-                                //if ($status.hasClass("disableError")) $status.addClass("error").removeClass("disableError");
+                                if (!ele.isOnline) {
+                                    ele.isOnline = true
+                                    ele.upgradeDisabled = false
+                                }
                                 isOnline = true
                                 getIPChlInfo(ele)
                             }
                         })
-                        if (!isOnline) {
-                            ele.chlStatus = Translate('IDCS_OFFLINE')
+                        if (!isOnline && ele.isOnline) {
+                            ele.isOnline = false
                             ele.upgradeDisabled = true
-                            //if ($status.hasClass("error")) $status.addClass("disableError").removeClass("error");
                         }
                         if (ele.accessType == '1') {
                             ele.upgradeDisabled = true

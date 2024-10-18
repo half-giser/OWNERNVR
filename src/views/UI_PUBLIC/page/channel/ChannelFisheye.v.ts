@@ -27,12 +27,6 @@ export default defineComponent({
         const editRows = new Set<ChannelFisheye>()
         const deviceDatacache: Record<string, Record<string, string>> = {}
 
-        const statusToolTip: Record<string, string> = {
-            loading: Translate('IDCS_DEVC_REQUESTING_DATA'),
-            saveSuccess: Translate('IDCS_SAVE_DATA_SUCCESS'),
-            saveFailed: Translate('IDCS_SAVE_DATA_FAIL'),
-        }
-
         const fishEyeModeMap: Record<string, string> = {
             'FishEye+Panorama+3PTZ': Translate('IDCS_FISHEYE_STREAM_1'),
             'FishEye+4PTZ': Translate('IDCS_FISHEYE_STREAM_2'),
@@ -169,7 +163,6 @@ export default defineComponent({
                         newData.fishEyeMode = 'FishEye+Panorama+3PTZ'
                         newData.installType = 'Wall'
                         newData.status = 'loading'
-                        newData.statusTip = statusToolTip['loading']
                         rowData.push(newData)
 
                         // 1.4.5 queryIPChlORChlFishEye协议修改，不会存在ipc不支持鱼眼接口返回失败的情况了
@@ -331,11 +324,9 @@ export default defineComponent({
                         const success = $('status').text() === 'success'
                         if (success) {
                             ele.status = 'success'
-                            ele.statusTip = statusToolTip['saveSuccess']
                             successRows.add(ele)
                         } else {
                             ele.status = 'error'
-                            ele.statusTip = statusToolTip['saveFailed']
                         }
                         count++
                         if (count >= total) {
@@ -364,12 +355,10 @@ export default defineComponent({
                         if (ele.reqCfgFail) {
                             if (success) {
                                 ele.status = 'success'
-                                ele.statusTip = statusToolTip['saveSuccess']
                                 successRows.add(ele)
                                 updateDeviceDatacache(ele.id, ele.fishEyeMode)
                             } else {
                                 ele.status = 'error'
-                                ele.statusTip = statusToolTip['saveFailed']
                             }
                         }
                     })

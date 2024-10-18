@@ -3,9 +3,9 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-05 16:26:27
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-12 15:53:27
+ * @LastEditTime: 2024-10-16 17:32:17
  */
-
+import dayjs from 'dayjs'
 import { type ChlRecParamList } from '@/types/apiType/record'
 
 export default defineComponent({
@@ -157,15 +157,20 @@ export default defineComponent({
                 })
         }
 
-        const inputLimit = () => {
-            let value = pageData.value.expireTime
-            if (value < 1) value = 1
-            if (value > 8760) value = 8760
-            pageData.value.expireTime = value
+        const inputLimit = (value: string) => {
+            pageData.value.expireTime = parseInt(value.replace(/[^\d]/g, ''))
+            if (value) {
+                if (parseInt(value) > 8760) {
+                    pageData.value.expireTime = 8760
+                } else if (parseInt(value) < 1) {
+                    pageData.value.expireTime = 1
+                }
+            }
         }
 
         // 打开添加日期弹窗
         const openAddDate = () => {
+            pageData.value.selectDate = dayjs(new Date()).format(pageData.value.dateFormat)
             pageData.value.isShowAddDate = true
         }
 

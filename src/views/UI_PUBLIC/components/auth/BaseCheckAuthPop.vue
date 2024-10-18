@@ -3,7 +3,7 @@
  * @Date: 2024-06-07 15:00:44
  * @Description: 账号密码权限认证弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 09:52:07
+ * @LastEditTime: 2024-10-16 09:32:36
 -->
 <template>
     <el-dialog
@@ -19,7 +19,6 @@
             ref="formRef"
             :model="formData"
             :rules="rules"
-            label-width="150px"
             label-position="left"
             hide-required-asterisk
         >
@@ -46,12 +45,9 @@
                     @copy.capture.prevent=""
                 />
             </el-form-item>
-            <div
-                v-show="tip"
-                class="unlockTip"
-            >
+            <el-form-item v-show="tip">
                 {{ tip }}
-            </div>
+            </el-form-item>
         </el-form>
         <template #footer>
             <el-row>
@@ -68,12 +64,3 @@
 </template>
 
 <script lang="ts" src="./BaseCheckAuthPop.v.ts"></script>
-
-<style lang="scss" scoped>
-.unlockTip {
-    width: 100%;
-    margin-top: 5px;
-    height: 60px;
-    overflow: auto;
-}
-</style>

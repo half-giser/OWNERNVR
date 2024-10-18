@@ -3,7 +3,7 @@
  * @Date: 2024-08-15 18:19:00
  * @Description: 平台接入
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:24:30
+ * @LastEditTime: 2024-10-18 09:19:51
  */
 import { NetPlatformAccessForm, type NetPlatformSipList, NetPlatformSipCodeList } from '@/types/apiType/net'
 import PlatformAccessCodeIdPop from './PlatformAccessCodeIdPop.vue'
@@ -454,6 +454,13 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 表格禁用行
+         */
+        const handleRowClassName = () => {
+            return formData.value.gb28181Switch ? '' : 'disabled'
+        }
+
         onMounted(() => {
             getData()
         })
@@ -474,6 +481,7 @@ export default defineComponent({
             sipCodeList,
             handlePasswordFocus,
             changeNWMS5000Switch,
+            handleRowClassName,
         }
     },
 })

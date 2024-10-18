@@ -3,7 +3,7 @@
  * @Date: 2024-07-01 11:01:12
  * @Description: 查看日志
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:30:38
+ * @LastEditTime: 2024-10-16 09:15:53
  */
 import { SystemLogForm, type SystemLogList } from '@/types/apiType/system'
 import dayjs from 'dayjs'
@@ -39,7 +39,7 @@ export default defineComponent({
             LOG_ALARM_TEMPERATURE: 'IDCS_TEMPERATURE_ALARM',
             LOG_ALARM_COMBINED: 'IDCS_COMBINATION_ALARM',
             LOG_OPERATE_ALL: 'IDCS_OPERATION_LOG',
-            LOG_OPERATE_RECORD_SPB: Translate('IDCS_SEARCH') + '/' + Translate('IDCS_REPLAY') + '/' + Translate('IDCS_BACKUP') + systemCaps.supportRecDelete ? '/' + Translate('IDCS_DELETE') : '',
+            LOG_OPERATE_RECORD_SPB: Translate('IDCS_SEARCH') + '/' + Translate('IDCS_REPLAY') + '/' + Translate('IDCS_BACKUP') + (systemCaps.supportRecDelete ? '/' + Translate('IDCS_DELETE') : ''),
             LOG_OPERATE_MANUAL_RECORD: 'IDCS_MANUAL_RECORD',
             LOG_OPERATE_MANUAL_ALARM: 'IDCS_MANUAL_ALARM',
             LOG_OPERATE_SYSTEM_MAINTENANCE: 'IDCS_SYSTEM_MAINTENANCE',
@@ -70,10 +70,10 @@ export default defineComponent({
             LOG_EXCEPTION_IPC_DISCONNECT: 'IDCS_FRONT_OFFLINE',
             LOG_EXCEPTION_ABNORMAL_SHUTDOWN: 'IDCS_SYSTEM_ABNORMAL_SHUTDOWN',
             LOG_EXCEPTION_VIDEO_LOSS: 'IDCS_VIDEO_LOSS',
-            LOG_EXCEPTION_SIGNAL_SHELTER: 'IDCS_SIGNAL_SHELTER',
+            // LOG_EXCEPTION_SIGNAL_SHELTER: 'IDCS_SIGNAL_SHELTER',
             LOG_INFOR_ALL: 'IDCS_INFORMATION_LOG',
-            LOG_INFOR_DISK: 'IDCS_DISK_INFOR',
-            LOG_INFOR_SYSTEM_RUN: 'IDCS_SYSTEM_RUNNINGINFOR',
+            // LOG_INFOR_DISK: 'IDCS_DISK_INFOR',
+            // LOG_INFOR_SYSTEM_RUN: 'IDCS_SYSTEM_RUNNINGINFOR',
             LOG_EXCEPTION_HDD_PULL_OUT: 'IDCS_HDD_PULL_OUT',
             LOG_EXCEPTION_DISK_FAILURE: 'IDCS_DISK_FAILURE',
             LOG_EXCEPTION_ABNORMAL_RAID_SUBHEALTH: 'IDCS_RAID_SUBHEALTH',
@@ -81,14 +81,14 @@ export default defineComponent({
             LOG_OPERATE_HDD_INSERT: 'IDCS_OPERATE_HDD_INSERT',
             LOG_OPERATE_FEATURELIBRARY: 'IDCS_FEATURE_LIBRARY',
             LOG_EXCEPTION_NAT_TRAVERSAL_ABNORMAL: 'IDCS_NAT_TRAVESAL_ABNORMAL',
-            LOG_EXCEPTION_DISCARD_EXTRACT_TASK: 'IDCS_DISCARD_EXTRACT_TASK',
+            // LOG_EXCEPTION_DISCARD_EXTRACT_TASK: 'IDCS_DISCARD_EXTRACT_TASK',
             LOG_ALARM_FACE_MATCH: 'IDCS_FACE_MATCH_ALARM',
             LOG_ALARM_VEHICLE_PLATE_MATCH: 'IDCS_PLATE_MATCH_ALARM',
             LOG_EXCEPTION_ALARM_SERVER_OFFLINE: 'IDCS_ALARM_SERVER_OFFLINE',
             LOG_ALARM_RTC: 'IDCS_RTC_ABNORMAL',
             LOG_OPERATE_PLATELIBRARY: 'IDCS_VEHICLE_DATABASE', //车牌库
             LOG_EXCEPTION_UPGRADE_ERROR: 'IDCS_CLOUD_UPGRADE_FAIED',
-            LOG_OPERATE_INTELLIGENT_ANALYSIS_INFO: 'IDCS_BUSINESS_APPLICATION', // 业务应用
+            // LOG_OPERATE_INTELLIGENT_ANALYSIS_INFO: 'IDCS_BUSINESS_APPLICATION', // 业务应用
             LOG_EXCEPTION_ABNORMAL_RAID_HOT_EXCEPTION: 'IDCS_RAID_HOT_EXCEPTION',
             LOG_INFORMATION_NAT: 'IDCS_NAT',
         }
@@ -184,6 +184,81 @@ export default defineComponent({
             'LOG_ALARM_FIRE_POINT',
             'IDCS_TEMPERATURE_ALARM',
             'LOG_ALARM_COMBINED',
+        ]
+
+        const LOG_ENUMS = [
+            'LOG_ALL',
+            'LOG_ALARM_ALL',
+            'LOG_ALARM_MOTION',
+            'LOG_ALARM_SENSOR',
+            'LOG_ALARM_FACE_MATCH',
+            'LOG_ALARM_VEHICLE_PLATE_MATCH',
+            'LOG_ALARM_ALARMOUTPUT',
+            'LOG_ALARM_OSC',
+            'LOG_ALARM_AVD',
+            'LOG_ALARM_PEA_TRIPWIRE',
+            'LOG_ALARM_PEA_PERIMETER',
+            'LOG_ALARM_VFD',
+            'LOG_ALARM_CDD',
+            'LOG_ALARM_FIRE_POINT',
+            'LOG_ALARM_TEMPERATURE',
+            'LOG_ALARM_COMBINED',
+            'LOG_ALARM_RTC',
+            'LOG_OPERATE_ALL',
+            'LOG_OPERATE_RECORD_SPB',
+            'LOG_OPERATE_MANUAL_RECORD',
+            'LOG_OPERATE_MANUAL_ALARM',
+            'LOG_OPERATE_SYSTEM_MAINTENANCE',
+            'LOG_OPERATE_PTZ_CONTROL',
+            'LOG_OPERATE_AUDIO_TALK',
+            'LOG_OPERATE_SYSTEM_SCR',
+            'LOG_OPERATE_LOGIN_LOGOUT',
+            'LOG_OPERATE_SNAPSHOT_MSPB',
+            'LOG_OPERATE_FORMAT_HD',
+            'LOG_OPERATE_FEATURELIBRARY',
+            'LOG_OPERATE_PLATELIBRARY',
+            'LOG_OPERATE_CHANNEL',
+            'LOG_OPERATE_RECORD',
+            'LOG_OPERATE_ALARM',
+            'LOG_OPERATE_DISK',
+            'LOG_OPERATE_NETWORK',
+            'LOG_OPERATE_SCHEDULE',
+            'LOG_OPERATE_USER',
+            'LOG_OPERATE_BASIC',
+            'LOG_OPERATE_ACCESS_CONTROL',
+            'LOG_OPERATE_PARKINGLOT_CONFIG',
+            'LOG_OPERATE_RECORD',
+            'LOG_EXCEPTION_ALL',
+            'LOG_EXCEPTION_UNLAWFUL_ACCESS',
+            'LOG_EXCEPTION_DISK_FULL',
+            'LOG_EXCEPTION_DISK_IO_ERROR',
+            'LOG_EXCEPTION_IP_COLLISION',
+            'LOG_EXCEPTION_INTERNET_DISCONNECT',
+            'LOG_EXCEPTION_IPC_DISCONNECT',
+            'LOG_EXCEPTION_ABNORMAL_SHUTDOWN',
+            'LOG_EXCEPTION_NO_DISK',
+            'LOG_EXCEPTION_HDD_PULL_OUT',
+            'LOG_EXCEPTION_DISK_FAILURE',
+            'LOG_EXCEPTION_ABNORMAL_RAID_SUBHEALTH',
+            'LOG_EXCEPTION_ABNORMAL_RAID_UNAVAILABLE',
+            'LOG_EXCEPTION_VIDEO_LOSS',
+            'LOG_EXCEPTION_ABNORMAL_RAID_HOT_EXCEPTION',
+            'LOG_EXCEPTION_NAT_TRAVERSAL_ABNORMAL',
+            'LOG_EXCEPTION_ALARM_SERVER_OFFLINE',
+            'LOG_EXCEPTION_SIGNAL_SHELTER',
+            'LOG_EXCEPTION_DISCARD_EXTRACT_TASK',
+            'LOG_EXCEPTION_UPGRADE_ERROR',
+            'LOG_INFOR_ALL',
+            'LOG_INFOR_SCHEDULE_RECORD',
+            'LOG_INFOR_SCHEDULE_SNAP',
+            'LOG_INFOR_DISK',
+            'LOG_INFOR_NETWORK',
+            'LOG_INFOR_SYSTEM_BASE',
+            'LOG_INFOR_SYSTEM_RUN',
+            'LOG_INFOR_CHANNEL_STATE',
+            'LOG_INFOR_ALARM_STATE',
+            'LOG_INFOR_RECORD_STATE',
+            'LOG_INFORMATION_NAT',
         ]
 
         // 导出最大间隔时间（单位：天）
@@ -297,80 +372,7 @@ export default defineComponent({
                 ${!isExport ? `<pageIndex>${String(formData.value.currentPage)}</pageIndex>` : ''}
                 ${!isExport ? `<pageSize>${String(formData.value.pageSize)}</pageSize>` : ''}
                 <types>
-                    <logType>
-                        <enum>LOG_ALL</enum>
-                        <enum>LOG_ALARM_ALL</enum>
-                        <enum>LOG_ALARM_MOTION</enum>
-                        <enum>LOG_ALARM_SENSOR</enum>
-                        <enum>LOG_ALARM_FACE_MATCH</enum>
-                        <enum>LOG_ALARM_VEHICLE_PLATE_MATCH</enum>
-                        <enum>LOG_ALARM_ALARMOUTPUT</enum>
-                        <enum>LOG_ALARM_OSC</enum>
-                        <enum>LOG_ALARM_AVD</enum>
-                        <enum>LOG_ALARM_PEA_TRIPWIRE</enum>
-                        <enum>LOG_ALARM_PEA_PERIMETER</enum>
-                        <enum>LOG_ALARM_VFD</enum>
-                        <enum>LOG_ALARM_CDD</enum>
-                        <enum>LOG_ALARM_FIRE_POINT</enum>
-                        <enum>LOG_ALARM_TEMPERATURE</enum>
-                        <enum>LOG_ALARM_COMBINED</enum>
-                        <enum>LOG_ALARM_RTC</enum>
-                        <enum>LOG_OPERATE_ALL</enum>
-                        <enum>LOG_OPERATE_RECORD_SPB</enum>
-                        <enum>LOG_OPERATE_MANUAL_RECORD</enum>
-                        <enum>LOG_OPERATE_MANUAL_ALARM</enum>
-                        <enum>LOG_OPERATE_SYSTEM_MAINTENANCE</enum>
-                        <enum>LOG_OPERATE_PTZ_CONTROL</enum>
-                        <enum>LOG_OPERATE_AUDIO_TALK</enum>
-                        <enum>LOG_OPERATE_SYSTEM_SCR</enum>
-                        <enum>LOG_OPERATE_LOGIN_LOGOUT</enum>
-                        <enum>LOG_OPERATE_SNAPSHOT_MSPB</enum>
-                        <enum>LOG_OPERATE_FORMAT_HD</enum>
-                        <enum>LOG_OPERATE_FEATURELIBRARY</enum>
-                        <enum>LOG_OPERATE_PLATELIBRARY</enum>
-                        <enum>LOG_OPERATE_CHANNEL</enum>
-                        <enum>LOG_OPERATE_RECORD</enum>
-                        <enum>LOG_OPERATE_ALARM</enum>
-                        <enum>LOG_OPERATE_DISK</enum>
-                        <enum>LOG_OPERATE_NETWORK</enum>
-                        <enum>LOG_OPERATE_SCHEDULE</enum>
-                        <enum>LOG_OPERATE_USER</enum>
-                        <enum>LOG_OPERATE_BASIC</enum>
-                        <enum>LOG_OPERATE_ACCESS_CONTROL</enum>
-                        <enum>LOG_OPERATE_PARKINGLOT_CONFIG</enum>
-                        <enum>LOG_OPERATE_RECORD</enum>
-                        <enum>LOG_EXCEPTION_ALL</enum>
-                        <enum>LOG_EXCEPTION_UNLAWFUL_ACCESS</enum>
-                        <enum>LOG_EXCEPTION_DISK_FULL</enum>
-                        <enum>LOG_EXCEPTION_DISK_IO_ERROR</enum>
-                        <enum>LOG_EXCEPTION_IP_COLLISION</enum>
-                        <enum>LOG_EXCEPTION_INTERNET_DISCONNECT</enum>
-                        <enum>LOG_EXCEPTION_IPC_DISCONNECT</enum>
-                        <enum>LOG_EXCEPTION_ABNORMAL_SHUTDOWN</enum>
-                        <enum>LOG_EXCEPTION_NO_DISK</enum>
-                        <enum>LOG_EXCEPTION_HDD_PULL_OUT</enum>
-                        <enum>LOG_EXCEPTION_DISK_FAILURE</enum>
-                        <enum>LOG_EXCEPTION_ABNORMAL_RAID_SUBHEALTH</enum>
-                        <enum>LOG_EXCEPTION_ABNORMAL_RAID_UNAVAILABLE</enum>
-                        <enum>LOG_EXCEPTION_VIDEO_LOSS</enum>
-                        <enum>LOG_EXCEPTION_ABNORMAL_RAID_HOT_EXCEPTION</enum>
-                        <enum>LOG_EXCEPTION_NAT_TRAVERSAL_ABNORMAL</enum>
-                        <enum>LOG_EXCEPTION_ALARM_SERVER_OFFLINE</enum>
-                        <enum>LOG_EXCEPTION_SIGNAL_SHELTER</enum>
-                        <enum>LOG_EXCEPTION_DISCARD_EXTRACT_TASK</enum>
-                        <enum>LOG_EXCEPTION_UPGRADE_ERROR</enum>
-                        <enum>LOG_INFOR_ALL</enum>
-                        <enum>LOG_INFOR_SCHEDULE_RECORD</enum>
-                        <enum>LOG_INFOR_SCHEDULE_SNAP</enum>
-                        <enum>LOG_INFOR_DISK</enum>
-                        <enum>LOG_INFOR_NETWORK</enum>
-                        <enum>LOG_INFOR_SYSTEM_BASE</enum>
-                        <enum>LOG_INFOR_SYSTEM_RUN</enum>
-                        <enum>LOG_INFOR_CHANNEL_STATE</enum>
-                        <enum>LOG_INFOR_ALARM_STATE</enum>
-                        <enum>LOG_INFOR_RECORD_STATE</enum>
-                        <enum>LOG_INFORMATION_NAT</enum>
-                    </logType>
+                    <logType>${wrapEnums(LOG_ENUMS)}</logType>
                 </types>
                 <condition>
                     <logType type="list">
@@ -576,7 +578,7 @@ export default defineComponent({
             let playList: PlaybackPopList[] = []
             if (row.logType === 'LOG_ALARM_SENSOR' || row.logType === 'LOG_ALARM_COMBINED') {
                 playList = row.triggerRecChls
-                    .filter((item) => item.id !== '{00000000-0000-0000-0000-000000000000}')
+                    .filter((item) => item.id !== EmptyId)
                     .map((item) => ({
                         chlId: item.id,
                         chlName: item.text,
@@ -585,7 +587,7 @@ export default defineComponent({
                         endTime,
                     }))
             } else {
-                if (row.chl.id !== '{00000000-0000-0000-0000-000000000000}') {
+                if (row.chl.id !== EmptyId) {
                     playList.push({
                         chlId: row.chl.id,
                         chlName: row.chl.text,

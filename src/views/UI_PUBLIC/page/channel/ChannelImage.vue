@@ -2,8 +2,8 @@
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-06-27 11:55:36
  * @Description: 通道 - 图像参数配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-12 17:38:50
+ * @LastEditors: linguifan a10989@tvt.net.cn
+ * @LastEditTime: 2024-10-16 17:06:51
 -->
 <template>
     <div class="base-chl-box">
@@ -849,15 +849,25 @@
                                                     v-if="scope.row.isSupportIRCutMode && scope.row.IRCutMode === 'time' && scope.row.IRCutDayTime !== undefined"
                                                     :label="Translate('IDCS_DN_DAY_TIME')"
                                                 >
-                                                    <!--TODO-->
-                                                    <el-input />
+                                                    <el-time-picker
+                                                        v-model="scope.row.IRCutDayTime"
+                                                        :format="timeMode === 24 ? 'HH:mm' : 'hh:mm A'"
+                                                        value-format="HH:mm"
+                                                        :clearable="false"
+                                                        @change="setAZData()"
+                                                    />
                                                 </el-form-item>
                                                 <el-form-item
                                                     v-if="scope.row.isSupportIRCutMode && scope.row.IRCutMode === 'time' && scope.row.IRCutNightTime !== undefined"
                                                     :label="Translate('IDCS_DN_NIGHT_TIME')"
                                                 >
-                                                    <!-- TODO -->
-                                                    <el-input />
+                                                    <el-time-picker
+                                                        v-model="scope.row.IRCutNightTime"
+                                                        :format="timeMode === 24 ? 'HH:mm' : 'hh:mm A'"
+                                                        value-format="HH:mm"
+                                                        :clearable="false"
+                                                        @change="setAZData()"
+                                                    />
                                                 </el-form-item>
                                                 <el-form-item
                                                     v-if="scope.row.smartIrMode || scope.row.smartIrSwitch !== undefined"
@@ -1036,31 +1046,27 @@
                                                     v-if="scope.row.whitelightMode"
                                                     :label="Translate('IDCS_WHITE_LIGHT')"
                                                 >
-                                                    <!-- TODO? -->
                                                     <el-select
                                                         v-model="scope.row.whitelightMode"
                                                         placeholder=" "
                                                         @change="setAZData()"
                                                     >
                                                         <el-option
-                                                            v-if="scope.row.whitelightMode === 'manual'"
                                                             value="off"
                                                             :label="Translate('IDCS_OFF')"
                                                         />
                                                         <el-option
-                                                            v-if="scope.row.whitelightMode === 'manual'"
                                                             value="manual"
                                                             :label="Translate('IDCS_MANUAL')"
                                                         />
                                                         <el-option
-                                                            v-if="scope.row.whitelightMode === 'manual'"
                                                             value="auto"
                                                             :label="Translate('IDCS_AUTO')"
                                                         />
                                                     </el-select>
                                                 </el-form-item>
                                                 <el-form-item
-                                                    v-if="scope.row.whitelightMode"
+                                                    v-if="scope.row.whitelightMode && scope.row.whitelightMode === 'manual'"
                                                     :label="Translate('IDCS_WHITE_STRENGTH')"
                                                 >
                                                     <div class="slider_wrap">
@@ -1068,7 +1074,6 @@
                                                             v-model="scope.row.whitelightStrength"
                                                             :min="isNaN(scope.row.whitelightStrengthMin) ? 0 : scope.row.whitelightStrengthMin"
                                                             :max="isNaN(scope.row.whitelightStrengthMax) ? 100 : scope.row.whitelightStrengthMax"
-                                                            :disabled="scope.row.whiteLightMode !== 'manual'"
                                                             @change="setAZData()"
                                                         />
                                                         <el-input
@@ -1078,18 +1083,28 @@
                                                     </div>
                                                 </el-form-item>
                                                 <el-form-item
-                                                    v-if="scope.row.whitelightMode"
+                                                    v-if="scope.row.whitelightMode && scope.row.whitelightMode === 'manual'"
                                                     :label="Translate('IDCS_START_TIME')"
                                                 >
-                                                    <!-- TODO -->
-                                                    <el-input :disabled="scope.row.whiteLightMode !== 'manual'" />
+                                                    <el-time-picker
+                                                        v-model="scope.row.whitelightOnTime"
+                                                        :format="timeMode === 24 ? 'HH:mm' : 'hh:mm A'"
+                                                        value-format="HH:mm"
+                                                        :clearable="false"
+                                                        @change="setAZData()"
+                                                    />
                                                 </el-form-item>
                                                 <el-form-item
-                                                    v-if="scope.row.whitelightMode"
+                                                    v-if="scope.row.whitelightMode && scope.row.whitelightMode === 'manual'"
                                                     :label="Translate('IDCS_END_TIME')"
                                                 >
-                                                    <!-- TODO -->
-                                                    <el-input :disabled="scope.row.whiteLightMode !== 'manual'" />
+                                                    <el-time-picker
+                                                        v-model="scope.row.whitelightOffTime"
+                                                        :format="timeMode === 24 ? 'HH:mm' : 'hh:mm A'"
+                                                        value-format="HH:mm"
+                                                        :clearable="false"
+                                                        @change="setAZData()"
+                                                    />
                                                 </el-form-item>
                                             </el-form>
                                         </div>
@@ -1456,10 +1471,10 @@
         }
 
         .custom_btn_slider_incr {
-            border-color: transparent transparent transparent var(--slider-btn-bg);
+            border-color: transparent transparent transparent var(--slider-btn-border);
 
             &.disabled {
-                border-color: transparent transparent transparent var(--slider-btn-disabled);
+                border-color: transparent transparent transparent var(--slider-btn-border-disabled);
             }
         }
     }
