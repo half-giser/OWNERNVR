@@ -3,10 +3,8 @@
  * @Date: 2024-07-08 15:48:54
  * @Description: 磁盘阵列
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-11 17:33:54
+ * @LastEditTime: 2024-10-18 11:23:29
 -->
-
-<!-- TODO 此页面需要测试数据 -->
 <template>
     <div class="base-flex-box">
         <el-table
@@ -14,10 +12,12 @@
             border
             stripe
             height="100%"
+            show-overflow-tooltip
         >
             <el-table-column
                 :label="Translate('IDCS_SERIAL_NUMBER')"
                 type="index"
+                width="70"
             >
             </el-table-column>
             <el-table-column
@@ -69,7 +69,6 @@
                     />
                 </template>
             </el-table-column>
-
             <el-table-column
                 :label="Translate('IDCS_DELETE')"
                 prop="del"
@@ -84,12 +83,10 @@
                     />
                 </template>
             </el-table-column>
-
             <el-table-column
                 :label="Translate('IDCS_TASK')"
                 prop="task"
-            >
-            </el-table-column>
+            />
         </el-table>
         <BaseCheckAuthPop
             v-model="pageData.isCheckAuth"

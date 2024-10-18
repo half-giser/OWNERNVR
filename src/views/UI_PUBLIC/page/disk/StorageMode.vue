@@ -3,10 +3,10 @@
  * @Date: 2024-07-05 10:10:29
  * @Description: 存储模式配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 18:43:57
+ * @LastEditTime: 2024-10-18 10:30:05
 -->
 <template>
-    <div class="StorageMode">
+    <div>
         <el-form
             label-position="left"
             :style="{
@@ -128,146 +128,144 @@
 <script lang="ts" src="./StorageMode.v.ts"></script>
 
 <style lang="scss" scoped>
-.StorageMode {
-    :deep(.el-form-item) {
-        margin-bottom: 10px;
-        padding: 10px 0 10px 15px;
-        background-color: var(--subheading-bg);
-    }
+:deep(.el-form-item) {
+    margin-bottom: 10px;
+    padding: 10px 0 10px 15px;
+    background-color: var(--subheading-bg);
+}
 
-    :deep(.el-form-item__label) {
-        color: var(--subheading-text) !important;
-    }
+:deep(.el-form-item__label) {
+    color: var(--subheading-text) !important;
+}
 
-    .el-select {
-        width: 340px;
-    }
+.el-select {
+    width: 340px;
+}
 
-    .group {
-        display: flex;
-        border: 1px solid var(--content-border);
-    }
+.group {
+    display: flex;
+    border: 1px solid var(--content-border);
+}
 
-    .left {
-        width: 20%;
-        border-right: 1px solid var(--content-border);
+.left {
+    width: 20%;
+    border-right: 1px solid var(--content-border);
 
-        .title {
-            border-bottom: 1px solid var(--content-border);
-            height: 30px;
-            line-height: 30px;
-            font-size: 18px;
-            text-align: center;
-        }
-
-        .group-item {
-            width: 100%;
-            height: 107px;
-            color: var(--main-text);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-
-            & > p {
-                font-size: 30px;
-            }
-
-            & > div {
-                margin-left: 20px;
-                font-size: 18px;
-
-                p {
-                    margin: 0;
-                }
-            }
-
-            &:not(:last-child) {
-                border-bottom: 1px solid var(--content-border);
-            }
-
-            &.disabled {
-                color: var(--input-text-disabled);
-                cursor: unset;
-            }
-
-            &.active {
-                background-color: var(--disk-group-bg-active);
-                color: var(--disk-group-text-active);
-            }
-        }
-    }
-
-    .center {
-        width: 15%;
-        border-right: 1px solid var(--content-border);
-    }
-
-    .right {
-        width: 65%;
-    }
-
-    .disk-list,
-    .disk-title {
-        height: 138px;
+    .title {
         border-bottom: 1px solid var(--content-border);
+        height: 30px;
+        line-height: 30px;
+        font-size: 18px;
+        text-align: center;
     }
 
-    .disk-title {
+    .group-item {
+        width: 100%;
+        height: 107px;
+        color: var(--main-text);
         display: flex;
         align-items: center;
         justify-content: center;
-        flex-direction: column;
-        font-size: 18px;
-
-        div:last-child {
-            font-size: 14px;
-            margin-top: 5px;
-        }
-    }
-
-    .chl-list,
-    .chl-title {
-        --h: 1;
-        height: calc(var(--h) * 107px);
-        min-height: 107px;
-    }
-
-    .chl-title {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-        font-size: 18px;
-    }
-
-    .disk-list,
-    .chl-list {
-        box-sizing: border-box;
-        padding: 10px;
-        display: flex;
-        flex-wrap: wrap;
-        overflow-y: auto;
+        cursor: pointer;
 
         & > p {
-            width: 150px;
-            font-size: 15px;
-            margin: 5px 10px;
-            height: 20px;
-            line-height: 20px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            text-wrap: nowrap;
+            font-size: 30px;
+        }
+
+        & > div {
+            margin-left: 20px;
+            font-size: 18px;
+
+            p {
+                margin: 0;
+            }
+        }
+
+        &:not(:last-child) {
+            border-bottom: 1px solid var(--content-border);
+        }
+
+        &.disabled {
+            color: var(--input-text-disabled);
+            cursor: unset;
+        }
+
+        &.active {
+            background-color: var(--disk-group-bg-active);
+            color: var(--disk-group-text-active);
         }
     }
+}
 
-    .del {
-        margin-left: 5px;
-        cursor: pointer;
-    }
+.center {
+    width: 15%;
+    border-right: 1px solid var(--content-border);
+}
 
-    .add {
+.right {
+    width: 65%;
+}
+
+.disk-list,
+.disk-title {
+    height: 138px;
+    border-bottom: 1px solid var(--content-border);
+}
+
+.disk-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    font-size: 18px;
+
+    div:last-child {
+        font-size: 14px;
         margin-top: 5px;
     }
+}
+
+.chl-list,
+.chl-title {
+    --h: 1;
+    height: calc(var(--h) * 107px);
+    min-height: 107px;
+}
+
+.chl-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    font-size: 18px;
+}
+
+.disk-list,
+.chl-list {
+    box-sizing: border-box;
+    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    overflow-y: auto;
+
+    & > p {
+        width: 150px;
+        font-size: 15px;
+        margin: 5px 10px;
+        height: 20px;
+        line-height: 20px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-wrap: nowrap;
+    }
+}
+
+.del {
+    margin-left: 5px;
+    cursor: pointer;
+}
+
+.add {
+    margin-top: 5px;
 }
 </style>

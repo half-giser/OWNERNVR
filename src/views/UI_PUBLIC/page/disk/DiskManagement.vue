@@ -3,7 +3,7 @@
  * @Date: 2024-07-05 10:09:22
  * @Description: 磁盘管理
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-11 17:22:40
+ * @LastEditTime: 2024-10-18 09:36:41
 -->
 <template>
     <div class="base-flex-box">
@@ -12,47 +12,40 @@
                 :data="tableData"
                 border
                 stripe
+                show-overflow-tooltip
             >
                 <el-table-column
                     :label="Translate('IDCS_DISK')"
                     prop="diskNum"
-                >
-                </el-table-column>
+                />
                 <el-table-column
                     :label="Translate('IDCS_DISK_FREE_CAPACITY')"
                     prop="sizeAndFreeSpace"
-                >
-                </el-table-column>
+                />
                 <el-table-column
                     :label="Translate('IDCS_DISK_SERIAL_NUMBER')"
                     prop="serialNum"
-                >
-                </el-table-column>
+                />
                 <el-table-column
                     :label="Translate('IDCS_DISK_TYPE')"
                     prop="model"
-                >
-                </el-table-column>
+                />
                 <el-table-column
                     :label="Translate('IDCS_STATE')"
                     prop="combinedStatus"
-                >
-                </el-table-column>
+                />
                 <el-table-column
                     :label="Translate('IDCS_TYPE')"
                     prop="type"
-                >
-                </el-table-column>
+                />
                 <el-table-column
                     :label="Translate('IDCS_CYCLE_RECORD')"
                     prop="cycleRecord"
-                >
-                </el-table-column>
+                />
                 <el-table-column
                     :label="Translate('IDCS_DISK_RECORD_PERIOD')"
                     prop="recTime"
-                >
-                </el-table-column>
+                />
                 <el-table-column>
                     <template #header>
                         <el-dropdown trigger="click">
@@ -61,7 +54,7 @@
                             </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
-                                    <el-dropdown-item @click="formatAllDisk">{{ Translate('IDCS_FORMATTING') }}</el-dropdown-item>
+                                    <el-dropdown-item @click="formatAllDisk">{{ Translate('IDCS_FORMAT_ALL') }}</el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
                         </el-dropdown>

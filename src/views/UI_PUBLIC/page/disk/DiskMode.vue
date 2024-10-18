@@ -6,12 +6,16 @@
  * @LastEditTime: 2024-07-04 16:41:38
 -->
 <template>
-    <div class="DiskMode">
-        <el-checkbox
-            v-model="formData.enable"
-            @change="changeDiskMode"
-            >{{ Translate('IDCS_RAID_USE') }}</el-checkbox
-        >
+    <div>
+        <el-form>
+            <el-form-item>
+                <el-checkbox
+                    v-model="formData.enable"
+                    @change="changeDiskMode"
+                    >{{ Translate('IDCS_RAID_USE') }}</el-checkbox
+                >
+            </el-form-item>
+        </el-form>
         <BaseCheckAuthPop
             v-model="pageData.isAuthDialog"
             @close="close"

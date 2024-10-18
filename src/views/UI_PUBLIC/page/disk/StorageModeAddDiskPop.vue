@@ -3,7 +3,7 @@
  * @Date: 2024-07-05 17:32:00
  * @Description: 存储模式新增磁盘弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 16:15:58
+ * @LastEditTime: 2024-10-18 10:21:13
 -->
 <template>
     <el-dialog
@@ -24,6 +24,7 @@
                 <el-table-column
                     :label="Translate('IDCS_SERIAL_NUMBER')"
                     type="index"
+                    width="70"
                 />
                 <el-table-column
                     type="selection"
