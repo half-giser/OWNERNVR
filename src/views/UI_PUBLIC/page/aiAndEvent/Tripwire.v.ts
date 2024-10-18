@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-19 11:16:22
  * @Description: 周界防范/人车检测
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-16 11:26:27
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-18 15:12:04
  */
 import { type chlCaps, type aiResourceRow, type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
@@ -309,6 +309,11 @@ export default defineComponent({
          */
         const setTripWireSpeed = (speed: number) => {
             tripwireData.value.tripWirespeed = speed
+        }
+        // 关闭排程管理后刷新排程列表
+        const handleSchedulePopClose = async () => {
+            tripwireData.value.scheduleManagePopOpen = false
+            await getScheduleList()
         }
         // 获取AI资源请求
         const getAIResourceData = async (isEdit: boolean) => {
@@ -1322,6 +1327,7 @@ export default defineComponent({
             tripwireTriggerData,
             tripWirehandlePlayerReady,
             setTripWireSpeed,
+            handleSchedulePopClose,
             handleAIResourceDel,
             handleTripwireApply,
             handleTripwireFunctionTabClick,

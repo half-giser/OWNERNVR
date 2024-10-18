@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-13 15:58:57
  * @Description:闪灯
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-09 16:35:31
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-18 14:19:21
  */
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import { whiteLightInfo } from '@/types/apiType/aiAndEvent'
@@ -14,7 +14,6 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
-        const scheduleList = buildScheduleList()
         const tableData = ref<whiteLightInfo[]>([])
         const pageData = ref({
             pageIndex: 1,
@@ -276,13 +275,16 @@ export default defineComponent({
         const popOpen = () => {
             pageData.value.scheduleManagePopOpen = true
         }
+        const handleSchedulePopClose = async () => {
+            pageData.value.scheduleManagePopOpen = false
+            pageData.value.scheduleList = await buildScheduleList()
+        }
         onMounted(async () => {
             pageData.value.scheduleList = await buildScheduleList()
             await getSchedule()
             buildTableData()
         })
         return {
-            scheduleList,
             pageData,
             tableData,
             changePagination,
@@ -299,6 +301,7 @@ export default defineComponent({
             popOpen,
             setData,
             ScheduleManagPop,
+            handleSchedulePopClose,
         }
     },
 })

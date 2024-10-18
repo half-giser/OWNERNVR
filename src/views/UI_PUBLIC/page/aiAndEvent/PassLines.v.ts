@@ -378,6 +378,11 @@ export default defineComponent({
                 stopWatchFirstPlay()
             }
         })
+        // 关闭排程管理后刷新排程列表
+        const handleSchedulePopClose = async () => {
+            pageData.value.scheduleManagePopOpen = false
+            await getScheduleList()
+        }
         // 对sheduleList进行处理
         const getScheduleList = async () => {
             pageData.value.scheduleList = await buildScheduleList()
@@ -1453,6 +1458,7 @@ export default defineComponent({
             playerRef,
             pageData,
             handlePlayerReady,
+            handleSchedulePopClose,
             handleFunctionTabClick,
             handlePassLineShowAllAreaChange,
             passLineClearArea,

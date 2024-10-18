@@ -2,14 +2,14 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-14 17:06:01
  * @Description: 报警服务器
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-27 18:03:40
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-18 17:14:38
 -->
 <template>
     <div class="base-flex-box">
         <ScheduleManagPop
             v-model="pageData.scheduleManagePopOpen"
-            @close="pageData.scheduleManagePopOpen = false"
+            @close="handleSchedulePopClose"
         >
         </ScheduleManagPop>
         <el-dialog
@@ -61,8 +61,9 @@
                 <el-checkbox v-model="formData.enable">{{ Translate('IDCS_ENABLE') }}</el-checkbox>
             </el-form-item>
             <!-- 多UI -->
+            <!-- deviceId -->
             <el-form-item
-                v-show="pageData.isAnothorUI || pageData.deviceIdShow"
+                v-if="pageData.isAnothorUI || pageData.deviceIdShow"
                 prop="deviceId"
                 :label="Translate('IDCS_ID')"
             >
@@ -72,8 +73,9 @@
                     :disabled="!formData.enable"
                 />
             </el-form-item>
+            <!-- Token -->
             <el-form-item
-                v-show="pageData.isAnothorUI"
+                v-if="pageData.isAnothorUI"
                 prop="Token"
                 :label="Translate('Token')"
             >
@@ -82,6 +84,7 @@
                     :disabled="!formData.enable"
                 />
             </el-form-item>
+            <!-- address -->
             <el-form-item
                 prop="address"
                 :label="Translate('IDCS_SERVER_ADDRESS')"
@@ -89,8 +92,10 @@
                 <el-input
                     v-model="formData.address"
                     :disabled="!formData.enable"
+                    @input="checkAddress"
                 />
             </el-form-item>
+            <!-- url -->
             <el-form-item
                 prop="url"
                 :label="Translate('IDCS_SERVER_URL')"
@@ -98,20 +103,22 @@
                 <el-input
                     v-model="formData.url"
                     :disabled="!(formData.enable && !pageData.urlDisabled)"
+                    @input="checkUrl"
                 />
             </el-form-item>
+            <!-- port -->
             <el-form-item
                 prop="port"
                 :label="Translate('IDCS_PORT')"
             >
-                <el-input-number
+                <BaseNumberInput
                     v-model="formData.port"
                     :disabled="!formData.enable"
                     :min="10"
                     :max="65535"
-                    :controls="false"
                 />
             </el-form-item>
+            <!-- protocol -->
             <el-form-item
                 prop="protocol"
                 :label="Translate('IDCS_PROTOCOL')"
@@ -132,6 +139,7 @@
                 </el-select>
             </el-form-item>
             <br />
+            <!-- heartEnable -->
             <el-form-item
                 prop="heartEnable"
                 label-width="0px"
@@ -142,18 +150,19 @@
                     >{{ Translate('IDCS_SEND_HEARTBEAT') }}</el-checkbox
                 >
             </el-form-item>
+            <!-- interval -->
             <el-form-item
                 prop="interval"
                 :label="Translate('IDCS_INTERVAL_TIME')"
             >
-                <el-input-number
+                <BaseNumberInput
                     v-model="formData.interval"
                     :disabled="!(formData.heartEnable && formData.enable)"
                     :min="5"
                     :max="65535"
-                    :controls="false"
                 />
             </el-form-item>
+            <!-- schedule -->
             <el-form-item
                 prop="schedule"
                 :label="Translate('IDCS_SCHEDULE')"

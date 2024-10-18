@@ -2,15 +2,17 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-14 17:06:11
  * @Description: 报警服务器
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 15:01:59
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-18 17:14:56
  */
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import { type FormInstance, type FormRules } from 'element-plus'
 import { type AlarmTypeInfo } from '@/types/apiType/aiAndEvent'
+import BaseNumberInput from '@/components/form/BaseNumberInput.vue'
 export default defineComponent({
     components: {
         ScheduleManagPop,
+        BaseNumberInput,
     },
     setup() {
         const { Translate } = useLangStore()
@@ -57,9 +59,15 @@ export default defineComponent({
         const rules = reactive<FormRules>({
             address: [
                 {
-                    validator: (rule, value, callback) => {
+                    validator: (_rule, value, callback) => {
                         if (pageData.value.isTestAlarmServer == true && !value) {
-                            callback(new Error(Translate('IDCS_DDNS_SERVER_ADDR_EMPTY')))
+                            ElMessage({
+                                message: Translate('IDCS_DDNS_SERVER_ADDR_EMPTY'),
+                                type: 'error',
+                                customClass: 'errorMsg',
+                                duration: 2000,
+                            })
+                            // callback(new Error(Translate('IDCS_DDNS_SERVER_ADDR_EMPTY')))
                             return
                         }
                         callback()
@@ -67,50 +75,68 @@ export default defineComponent({
                     trigger: 'manual',
                 },
                 {
-                    validator: (rule, value, callback) => {
+                    validator: (_rule, value, callback) => {
                         const reg = /(^$|[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+.?$)/g
-                        formData.value.address = checkRule(formData.value.address, /([\u4e00-\u9fa5]|[^a-zA-Z\d\.\-:\\/])/g)
-                        value = formData.value.address
+                        // formData.value.address = checkRule(formData.value.address, /([\u4e00-\u9fa5]|[^a-zA-Z\d\.\-:\\/])/g)
+                        // value = formData.value.address
                         if (value && value.length > 0) {
                             if (!value.trim().match(reg)) {
-                                callback(new Error(Translate('IDCS_PROMPT_INVALID_SERVER')))
+                                ElMessage({
+                                    message: Translate('IDCS_PROMPT_INVALID_SERVER'),
+                                    type: 'error',
+                                    customClass: 'errorMsg',
+                                    duration: 2000,
+                                })
+                                // callback(new Error(Translate('IDCS_PROMPT_INVALID_SERVER')))
                                 return
                             }
                             callback()
                         }
                         callback()
                     },
-                    trigger: 'blur',
+                    trigger: 'manual',
                 },
             ],
             deviceId: [
                 {
-                    validator: (rule, value, callback) => {
+                    validator: (_rule, value, callback) => {
                         if ((pageData.value.isAnothorUI || pageData.value.deviceIdShow) && formData.value.enable && !formData.value.deviceId.trim()) {
                             if (value.length == 0) {
-                                callback(new Error(Translate('IDCS_PROMPT_ID_OR_TOKEN_EMPTY')))
+                                ElMessage({
+                                    message: Translate('IDCS_PROMPT_ID_OR_TOKEN_EMPTY'),
+                                    type: 'error',
+                                    customClass: 'errorMsg',
+                                    duration: 2000,
+                                })
+                                // callback(new Error(Translate('IDCS_PROMPT_ID_OR_TOKEN_EMPTY')))
                                 return
                             }
                             callback()
                         }
                         callback()
                     },
-                    trigger: 'blur',
+                    trigger: 'manual',
                 },
             ],
             token: [
                 {
-                    validator: (rule, value, callback) => {
+                    validator: (_rule, value, callback) => {
                         if (pageData.value.isAnothorUI && formData.value.enable && !formData.value.token.trim()) {
                             if (value.length == 0) {
-                                callback(new Error(Translate('IDCS_PROMPT_ID_OR_TOKEN_EMPTY')))
+                                ElMessage({
+                                    message: Translate('IDCS_PROMPT_ID_OR_TOKEN_EMPTY'),
+                                    type: 'error',
+                                    customClass: 'errorMsg',
+                                    duration: 2000,
+                                })
+                                // callback(new Error(Translate('IDCS_PROMPT_ID_OR_TOKEN_EMPTY')))
                                 return
                             }
                             callback()
                         }
                         callback()
                     },
-                    trigger: 'blur',
+                    trigger: 'manual',
                 },
             ],
         })
@@ -250,6 +276,19 @@ export default defineComponent({
                 return value
             }
         }
+        const checkAddress = (value: string) => {
+            const reg1 = /([\u4e00-\u9fa5]|[^a-zA-Z\d\.\-:\\/])/g
+            // const reg2 = /(^$|[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+.?$)/g
+            const address = checkRule(value, reg1)
+            // address = checkRule(address, reg2)
+            formData.value.address = address
+        }
+        const checkUrl = (value: string) => {
+            const reg = /([\u4e00-\u9fa5]|[^a-zA-Z\d\.\-:\\/])/g
+            const url = checkRule(value, reg)
+            formData.value.url = url
+        }
+        // 去除字符串前后空格
         const Trim = (str: string, is_global: string) => {
             if (!str) return ''
             let result
@@ -357,6 +396,10 @@ export default defineComponent({
         const handleProtocolChange = () => {
             setFormByProtocol()
         }
+        const handleSchedulePopClose = async () => {
+            pageData.value.scheduleManagePopOpen = false
+            pageData.value.scheduleList = await buildScheduleList()
+        }
         onMounted(async () => {
             pageData.value.scheduleList = await buildScheduleList()
             await getBasicCfg()
@@ -382,6 +425,10 @@ export default defineComponent({
             applyAlarmSever,
             handleProtocolChange,
             ScheduleManagPop,
+            BaseNumberInput,
+            handleSchedulePopClose,
+            checkAddress,
+            checkUrl,
         }
     },
 })

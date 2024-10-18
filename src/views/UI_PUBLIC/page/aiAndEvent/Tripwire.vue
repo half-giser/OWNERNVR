@@ -2,15 +2,15 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-19 11:11:35
  * @Description:  越界
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-16 11:37:34
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-18 15:05:39
 -->
 
 <template>
     <div class="tripwire_setting_pane">
         <ScheduleManagPop
             v-model="tripwireData.scheduleManagePopOpen"
-            @close="tripwireData.scheduleManagePopOpen = false"
+            @close="handleSchedulePopClose"
         >
         </ScheduleManagPop>
         <!-- tripwirerecord弹窗 -->
@@ -235,8 +235,8 @@
                         <el-form
                             :model="tripwireData"
                             label-position="left"
+                            class="narrow"
                             :style="{
-                                '--form-label-width': '200px',
                                 '--form-input-width': '215px',
                             }"
                         >
@@ -291,7 +291,7 @@
                                     @change="handleSurfaceChange()"
                                 >
                                     <el-radio-button
-                                        v-for="(item, index) in tripwireData.lineInfo"
+                                        v-for="(_item, index) in tripwireData.lineInfo"
                                         :key="index"
                                         :value="index"
                                     >

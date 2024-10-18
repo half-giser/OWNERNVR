@@ -3,13 +3,13 @@
  * @Date: 2024-09-11 14:16:29
  * @Description: 火点检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-30 16:26:22
+ * @LastEditTime: 2024-10-18 15:20:37
 -->
 <template>
     <div>
         <ScheduleManagPop
             v-model="pageData.scheduleManagePopOpen"
-            @close="pageData.scheduleManagePopOpen = false"
+            @close="handleSchedulePopClose"
         >
         </ScheduleManagPop>
         <!-- record弹窗 -->
@@ -167,9 +167,8 @@
                         <div class="base-ai-param-box-right">
                             <el-form
                                 :model="pageData"
-                                label-width="200px"
                                 label-position="left"
-                                class="form"
+                                class="narrow"
                                 :style="{
                                     '--form-input-width': '215px',
                                 }"

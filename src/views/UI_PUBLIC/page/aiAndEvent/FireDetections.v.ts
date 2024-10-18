@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-11 14:16:37
  * @Description: 火点检测
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 17:18:49
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-18 15:20:07
  */
 import { type chlCaps, type aiResourceRow, type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
@@ -257,6 +257,11 @@ export default defineComponent({
                 stopWatchFirstPlay()
             }
         })
+        // 关闭排程管理后刷新排程列表
+        const handleSchedulePopClose = async () => {
+            pageData.value.scheduleManagePopOpen = false
+            await getScheduleList()
+        }
         // 对sheduleList进行处理
         const getScheduleList = async () => {
             pageData.value.scheduleList = await buildScheduleList()
@@ -909,6 +914,7 @@ export default defineComponent({
             triggerData,
             playerRef,
             handlePlayerReady,
+            handleSchedulePopClose,
             handleAIResourceDel,
             handleTriggerSwitch,
             handleTrigger,
