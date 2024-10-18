@@ -3,7 +3,7 @@
  * @Date: 2024-07-31 10:29:37
  * @Description: 录像码流通用表格组件
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-17 09:30:06
+ * @LastEditTime: 2024-10-17 11:30:13
 -->
 <template>
     <div class="base-flex-box">
@@ -569,10 +569,6 @@
 </template>
 
 <script lang="ts" src="./RecordStreamTable.v.ts"></script>
-
-<!-- <style lang="scss">
-@import '@/views/UI_PUBLIC/publicStyle/channel.scss';
-</style> -->
 
 <style lang="scss" scoped>
 .RecordStreamList {

@@ -2,14 +2,14 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-19 13:35:56
  * @Description:  区域入侵
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-16 11:53:36
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-18 15:13:25
 -->
 <template>
     <div>
         <ScheduleManagPop
             v-model="peaData.scheduleManagePopOpen"
-            @close="peaData.scheduleManagePopOpen = false"
+            @close="handleSchedulePopClose"
         >
         </ScheduleManagPop>
         <!-- pearecord弹窗 -->
@@ -231,9 +231,9 @@
                             <el-form
                                 :model="peaData"
                                 label-position="left"
+                                class="narrow"
                                 :style="{
                                     '--form-input-width': '215px',
-                                    '--form-label-width': '200px',
                                 }"
                             >
                                 <div class="base-ai-subheading">
@@ -327,7 +327,7 @@
                                         @change="handleWarnAreaChange()"
                                     >
                                         <el-radio-button
-                                            v-for="(item, index) in peaData.areaCfgData[peaData.activity_type].boundaryInfo"
+                                            v-for="(_item, index) in peaData.areaCfgData[peaData.activity_type].boundaryInfo"
                                             :key="index"
                                             :value="index"
                                         >

@@ -3,7 +3,7 @@
  * @Date: 2024-08-16 18:13:56
  * @Description: 移动侦测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-10 10:55:23
+ * @LastEditTime: 2024-10-18 14:30:22
  */
 import { cloneDeep } from 'lodash-es'
 import { MotionEventConfig, type PresetItem } from '@/types/apiType/aiAndEvent'
@@ -94,7 +94,7 @@ export default defineComponent({
             alarmOutPopoverVisible: false,
         })
         const getScheduleList = async () => {
-            pageData.value.scheduleList = await buildScheduleList()
+            pageData.value.scheduleList = await buildScheduleList(true)
             pageData.value.scheduleList.forEach((item) => {
                 if (item.value == '') {
                     item.value = ' '

@@ -3,13 +3,13 @@
  * @Date: 2024-09-12 15:00:13
  * @Description: 过线检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-09 14:06:15
+ * @LastEditTime: 2024-10-18 15:16:26
 -->
 <template>
     <div>
         <ScheduleManagPop
             v-model="pageData.scheduleManagePopOpen"
-            @close="pageData.scheduleManagePopOpen = false"
+            @close="handleSchedulePopClose"
         >
         </ScheduleManagPop>
         <PassLineEmailPop
@@ -149,7 +149,6 @@
                         >
                             <el-form
                                 :model="pageData"
-                                label-width="150px"
                                 label-position="left"
                                 class="narrow"
                                 :style="{
@@ -192,7 +191,7 @@
                                         @change="handleLineChange"
                                     >
                                         <el-radio-button
-                                            v-for="(item, index) in pageData.lineInfo"
+                                            v-for="(_item, index) in pageData.lineInfo"
                                             :key="index"
                                             :value="index"
                                         >

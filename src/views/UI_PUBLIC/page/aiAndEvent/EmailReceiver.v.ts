@@ -3,7 +3,7 @@
  * @Date: 2024-08-12 14:21:22
  * @Description: email通知
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-09 11:50:26
+ * @LastEditTime: 2024-10-18 14:01:26
  */
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import { EmailReceiver } from '@/types/apiType/aiAndEvent'
@@ -26,7 +26,7 @@ export default defineComponent({
             recipient: [
                 { required: true, message: Translate('IDCS_PROMPT_EMAIL_ADDRESS_EMPTY'), trigger: 'blur' },
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (!checkEmail(value)) {
                             callback(new Error(Translate('IDCS_PROMPT_INVALID_EMAIL')))
                             return
@@ -63,8 +63,8 @@ export default defineComponent({
             scheduleManagePopOpen: false,
         })
         const checkExist = (address: string) => {
-            const result = tableData.value.filter((item) => item.address == address)
-            return result.length > 0
+            const result = tableData.value.some((item) => item.address == address)
+            return result
         }
         const getIconStatus = () => {
             if (pageData.value.senderShow) {
@@ -229,6 +229,10 @@ export default defineComponent({
                 }
             })
         }
+        const handleSchedulePopClose = () => {
+            pageData.value.scheduleManagePopOpen = false
+            getScheduleList()
+        }
         onMounted(async () => {
             // pageData.value.scheduleList = await buildScheduleList()
             // pageData.value.schedule = pageData.value.scheduleList[0].value
@@ -255,6 +259,7 @@ export default defineComponent({
             formatAddress,
             handleRowClick,
             ScheduleManagPop,
+            handleSchedulePopClose,
         }
     },
 })

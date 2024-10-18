@@ -3,7 +3,7 @@
  * @Date: 2024-09-13 11:32:17
  * @Description:过线检测邮件设置弹窗
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-25 17:07:07
+ * @LastEditTime: 2024-10-18 15:29:07
  */
 import { type emailData } from '@/types/apiType/aiAndEvent'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -37,7 +37,7 @@ export default defineComponent({
         const rules = reactive<FormRules>({
             address: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (value == '') {
                             callback(new Error(Translate('IDCS_PROMPT_EMAIL_ADDRESS_EMPTY')))
                             error.value = Translate('IDCS_PROMPT_EMAIL_ADDRESS_EMPTY')
@@ -146,8 +146,8 @@ export default defineComponent({
             })
         }
         const checkExist = (address: string) => {
-            const result = pageData.value.data.receiverData.filter((item) => item.address == address)
-            return result.length > 0
+            const result = pageData.value.data.receiverData.some((item) => item.address == address)
+            return result
         }
         const open = () => {
             pageData.value.data.saveTargetPicture = props.emailData.saveTargetPicture

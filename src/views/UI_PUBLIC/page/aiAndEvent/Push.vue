@@ -50,7 +50,7 @@
     <!-- 排程管理弹窗 -->
     <ScheduleManagPop
         v-model="pageData.scheduleManagPopOpen"
-        @close="pageData.scheduleManagPopOpen = false"
+        @close="handleSchedulePopClose"
     />
 </template>
 
