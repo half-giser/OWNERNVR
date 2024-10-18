@@ -3,14 +3,16 @@
  * @Date: 2024-08-14 17:06:11
  * @Description: 报警服务器
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-18 16:50:27
+ * @LastEditTime: 2024-10-18 17:14:56
  */
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import { type FormInstance, type FormRules } from 'element-plus'
 import { type AlarmTypeInfo } from '@/types/apiType/aiAndEvent'
+import BaseNumberInput from '@/components/form/BaseNumberInput.vue'
 export default defineComponent({
     components: {
         ScheduleManagPop,
+        BaseNumberInput,
     },
     setup() {
         const { Translate } = useLangStore()
@@ -286,22 +288,7 @@ export default defineComponent({
             const url = checkRule(value, reg)
             formData.value.url = url
         }
-        const checkPort = (port: number | null | undefined) => {
-            port = Number(port)
-            if (port < 10) {
-                formData.value.port = 10
-            } else if (port > 65535) {
-                formData.value.port = 65535
-            }
-        }
-        const checkInterval = (interval: number | null | undefined) => {
-            interval = Number(interval)
-            if (interval < 5) {
-                formData.value.interval = 5
-            } else if (interval > 65535) {
-                formData.value.interval = 65535
-            }
-        }
+        // 去除字符串前后空格
         const Trim = (str: string, is_global: string) => {
             if (!str) return ''
             let result
@@ -438,11 +425,10 @@ export default defineComponent({
             applyAlarmSever,
             handleProtocolChange,
             ScheduleManagPop,
+            BaseNumberInput,
             handleSchedulePopClose,
             checkAddress,
             checkUrl,
-            checkPort,
-            checkInterval,
         }
     },
 })

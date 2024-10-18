@@ -3,7 +3,7 @@
  * @Date: 2024-08-14 17:06:01
  * @Description: 报警服务器
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-18 16:57:16
+ * @LastEditTime: 2024-10-18 17:14:38
 -->
 <template>
     <div class="base-flex-box">
@@ -111,14 +111,11 @@
                 prop="port"
                 :label="Translate('IDCS_PORT')"
             >
-                <!-- TODO输入框待修改 -->
-                <el-input-number
+                <BaseNumberInput
                     v-model="formData.port"
                     :disabled="!formData.enable"
                     :min="10"
                     :max="65535"
-                    :controls="false"
-                    @input="checkPort($event)"
                 />
             </el-form-item>
             <!-- protocol -->
@@ -158,14 +155,11 @@
                 prop="interval"
                 :label="Translate('IDCS_INTERVAL_TIME')"
             >
-                <!-- TODO输入框待修改 -->
-                <el-input-number
+                <BaseNumberInput
                     v-model="formData.interval"
                     :disabled="!(formData.heartEnable && formData.enable)"
                     :min="5"
                     :max="65535"
-                    :controls="false"
-                    @input="checkInterval($event)"
                 />
             </el-form-item>
             <!-- schedule -->
