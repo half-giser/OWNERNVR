@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2023-04-28 17:57:48
  * @Description: 工具方法
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 17:16:17
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-18 14:14:54
  */
 
 import { type QueryNodeListDto } from '@/types/apiType/channel'
@@ -924,7 +924,7 @@ const reconnectStandard = async (callback?: () => void) => {
  * @description: 构建排程选择列表
  * @return {*}
  */
-export const buildScheduleList = async () => {
+export const buildScheduleList = async (requireManage?: boolean) => {
     const Translate = useLangStore().Translate
     const result = await queryScheduleList()
     let scheduleList = [] as SelectOption<string, string>[]
@@ -935,16 +935,16 @@ export const buildScheduleList = async () => {
                 label: item.text(),
             }
         })
-        scheduleList.push(
-            {
-                value: '',
-                label: `<${Translate('IDCS_NULL')}>`,
-            },
-            {
+        scheduleList.push({
+            value: '',
+            label: `<${Translate('IDCS_NULL')}>`,
+        })
+        if (requireManage) {
+            scheduleList.push({
                 value: 'scheduleMgr',
                 label: Translate('IDCS_SCHEDULE_MANAGE'),
-            },
-        )
+            })
+        }
     })
     return scheduleList
 }

@@ -718,20 +718,13 @@ export default defineComponent({
         }
 
         const getScheduleList = async () => {
-            const result = await queryScheduleList()
-
-            commLoadResponseHandler(result, ($) => {
-                pageData.value.audioScheduleList = $('/response/content/item').map((item) => {
-                    return {
-                        value: item.attr('id') as string,
-                        label: item.text(),
-                    }
-                })
+            pageData.value.audioScheduleList = await buildScheduleList()
+            pageData.value.audioScheduleList.forEach((item) => {
+                if ((item.value = '')) {
+                    item.value = '{00000000-0000-0000-0000-000000000000}'
+                }
             })
-            pageData.value.audioScheduleList.push({
-                value: '{00000000-0000-0000-0000-000000000000}',
-                label: `<${Translate('IDCS_NULL')}>`,
-            })
+            console.log(pageData.value.audioScheduleList)
         }
 
         const getScheduleData = async () => {
@@ -813,6 +806,11 @@ export default defineComponent({
             }
         }
 
+        const handleSchedulePopClose = async () => {
+            pageData.value.scheduleManagPopOpen = false
+            await getScheduleData()
+        }
+
         onMounted(async () => {
             openLoading()
 
@@ -859,6 +857,7 @@ export default defineComponent({
             addLocalAudio,
             deleteLocalAudio,
             setData,
+            handleSchedulePopClose,
         }
     },
 })

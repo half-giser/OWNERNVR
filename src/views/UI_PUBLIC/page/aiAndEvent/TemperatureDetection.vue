@@ -2,8 +2,8 @@
  * @Description: AI 事件——更多——温度检测
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-13 09:18:25
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-08 11:58:54
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-18 15:44:26
 -->
 <template>
     <div>
@@ -278,7 +278,7 @@
                         <div class="base-ai-linkage-box">
                             <el-checkbox
                                 v-model="normalParamCheckAll"
-                                class="base-ai-linkage-title"
+                                class="base-ai-linkage-title base-ai-linkage-title-checkbox"
                                 @change="handleNormalParamCheckAll"
                                 >{{ Translate('IDCS_TRIGGER_NOMAL') }}</el-checkbox
                             >

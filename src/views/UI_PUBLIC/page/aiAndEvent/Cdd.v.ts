@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-19 17:51:22
  * @Description: 人群密度检测
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-16 11:23:01
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-18 17:01:07
  */
 import { type chlCaps, type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
@@ -247,6 +247,11 @@ export default defineComponent({
                 stopWatchFirstPlay()
             }
         })
+        // 关闭排程管理后刷新排程列表
+        const handleSchedulePopClose = async () => {
+            pageData.value.scheduleManagePopOpen = false
+            await getScheduleList()
+        }
         // 对sheduleList进行处理
         const getScheduleList = async () => {
             pageData.value.scheduleList = await buildScheduleList()
@@ -564,7 +569,7 @@ export default defineComponent({
                 pageData.value.originalEnable = enabledSwitch
                 pageData.value.schedule = schedule
             } else {
-                // pageData.value.requireDataFail = true
+                pageData.value.requireDataFail = true
             }
         }
         const saveData = async () => {
@@ -763,6 +768,7 @@ export default defineComponent({
             playerRef,
             triggerData,
             handlePlayerReady,
+            handleSchedulePopClose,
             handleTriggerSwitch,
             handleTrigger,
             recordConfirm,
