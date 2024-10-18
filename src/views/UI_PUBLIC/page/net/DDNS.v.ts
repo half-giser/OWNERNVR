@@ -3,7 +3,7 @@
  * @Date: 2024-07-10 09:13:17
  * @Description: DDNS
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:19:40
+ * @LastEditTime: 2024-10-17 15:00:57
  */
 import { NetDDNSForm, NetDDNSServerTypeList } from '@/types/apiType/net'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -128,6 +128,9 @@ export default defineComponent({
          * @returns {boolean}
          */
         const isParamEnable = (param: string) => {
+            if (!formData.value.switch) {
+                return false
+            }
             return current.value.requireParam.includes(param) && !current.value.hideParam.includes(param)
         }
 
@@ -272,7 +275,7 @@ export default defineComponent({
                     return
                 }
 
-                openLoading(LoadingTarget.FullScreen, current.value.isRegisterBtn ? Translate('IDCS_REGISTER_HOLD_ON') : '')
+                openLoading(LoadingTarget.FullScreen, current.value.isRegisterBtn ? Translate('IDCS_REGISTER_HOLD_ON') : undefined)
 
                 const result = await testDDNSCfg(getSetDataXml())
                 const $ = queryXml(result)

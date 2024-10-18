@@ -45,8 +45,8 @@ export const Logout = async () => {
         await doLogout()
         userSession.clearSession()
         pluginStore.showPluginNoResponse = false
-        router.push('/login')
         removeAsyncRoutes()
+        router.push('/login')
     } else {
         userSession.clearSession()
         window.location.href = '/index.html'

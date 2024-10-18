@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 14:47:05
  * @Description: 网络
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-20 10:34:10
+ * @LastEditTime: 2024-10-17 18:14:16
  */
 
 /**
@@ -295,7 +295,7 @@ export class NetHTTPSPrivateCertForm {
     organizationName = ''
     organizationalUnitName = ''
     email = ''
-    validityPeriod = 0
+    validityPeriod = undefined as number | undefined
     password = ''
 }
 
@@ -457,7 +457,7 @@ export class NetOnvifUserList {
  */
 export class NetOnvifUserForm {
     userName = ''
-    userLevel = ''
+    userLevel = 'video'
     password = ''
     confirmPassword = ''
 }

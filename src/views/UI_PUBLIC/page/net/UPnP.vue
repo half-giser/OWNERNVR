@@ -3,7 +3,7 @@
  * @Date: 2024-07-11 08:56:00
  * @Description: UPnP配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-26 10:02:19
+ * @LastEditTime: 2024-10-17 15:23:59
 -->
 <template>
     <div class="base-flex-box">
@@ -24,7 +24,11 @@
                 >
             </el-form-item>
             <el-form-item :label="Translate('IDCS_MAP_TYPE')">
-                <el-select v-model="formData.mappingType">
+                <el-select
+                    v-model="formData.mappingType"
+                    :disabled="!formData.switch || pageData.wirelessSwitch"
+                    @change="changeMappingType"
+                >
                     <el-option
                         v-for="item in pageData.mapTypeOptions"
                         :key="item.value"
@@ -39,10 +43,11 @@
                 :data="tableData"
                 border
                 stripe
+                :row-class-name="handleRowClassName"
             >
                 <el-table-column :label="Translate('IDCS_PORT_TYPE')">
                     <template #default="scope">
-                        <el-text>{{ displayPortType(scope.row.portType) }}</el-text>
+                        {{ displayPortType(scope.row.portType) }}
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -50,12 +55,11 @@
                     prop="externalPort"
                 >
                     <template #default="scope">
-                        <el-input-number
+                        <BaseNumberInput
                             v-model="scope.row.externalPort"
                             :min="10"
                             :max="65535"
-                            :disabled="!formData.switch || formData.mappingType !== 'manually'"
-                            :controls="false"
+                            :disabled="pageData.wirelessSwitch || !formData.switch || formData.mappingType !== 'manually'"
                         />
                     </template>
                 </el-table-column>

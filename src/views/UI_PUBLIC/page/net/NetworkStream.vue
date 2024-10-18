@@ -3,7 +3,7 @@
  * @Date: 2024-07-17 09:00:44
  * @Description: 网络码流设置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-15 18:18:32
+ * @LastEditTime: 2024-10-17 13:45:53
 -->
 <template>
     <div class="base-flex-box">
@@ -11,20 +11,28 @@
             :data="tableData"
             border
             stripe
+            table-layout="fixed"
+            :row-class-name="(data) => handleRowClassName(data.row)"
+            show-overflow-tooltip
         >
             <!-- 通道名称 -->
             <el-table-column
                 :label="Translate('IDCS_CHANNEL_NAME')"
                 prop="name"
+                width="270"
             />
             <!-- 码流类型 -->
-            <el-table-column :label="Translate('IDCS_CODE_STREAM_TYPE')">
+            <el-table-column
+                :label="Translate('IDCS_CODE_STREAM_TYPE')"
+                width="140"
+            >
                 {{ Translate('IDCS_SUB_STREAM') }}
             </el-table-column>
             <!-- 视频编码 -->
             <el-table-column
                 :label="Translate('IDCS_VIDEO_ENCT')"
                 prop="videoEncodeType"
+                width="140"
             >
                 <template #header>
                     <el-dropdown
@@ -53,6 +61,7 @@
                         v-model="scope.row.videoEncodeType"
                         :disabled="isChlTypeDisabled(scope.$index)"
                         placeholder=""
+                        :persistent="!isChlTypeDisabled(scope.$index)"
                         @change="changeStreamType(scope.$index)"
                     >
                         <el-option
@@ -68,6 +77,7 @@
             <el-table-column
                 :label="Translate('IDCS_RESOLUTION_RATE')"
                 prop="resolution"
+                width="140"
             >
                 <template #header>
                     <el-popover
@@ -93,6 +103,7 @@
                                 <template #default="scope">
                                     <el-select
                                         v-model="scope.row.value"
+                                        :persistent="false"
                                         @visible-change="handleResolutionVisibleChange"
                                     >
                                         <el-option
@@ -133,6 +144,7 @@
                         v-model="scope.row.resolution"
                         :disabled="isChlTypeDisabled(scope.$index)"
                         placeholder=""
+                        :persistent="false"
                         @change="changeResolution(scope.$index)"
                     >
                         <el-option
@@ -145,7 +157,10 @@
                 </template>
             </el-table-column>
             <!-- 帧率 -->
-            <el-table-column :label="Translate('IDCS_FRAME_RATE')">
+            <el-table-column
+                :label="Translate('IDCS_FRAME_RATE')"
+                width="140"
+            >
                 <template #header>
                     <el-dropdown
                         trigger="click"
@@ -174,12 +189,14 @@
                         model-value=""
                         placeholder=""
                         disabled
+                        :persistent="false"
                     ></el-select>
                     <el-select
                         v-else
                         v-model="scope.row.frameRate"
                         placeholder=""
                         :disabled="isChlTypeDisabled(scope.$index)"
+                        :persistent="false"
                     >
                         <el-option
                             v-for="i in getMaxFps(scope.$index)"
@@ -194,6 +211,7 @@
             <el-table-column
                 :label="Translate('IDCS_BITRATE_TYPE')"
                 prop="bitType"
+                width="140"
             >
                 <template #header>
                     <el-dropdown trigger="click">
@@ -221,6 +239,7 @@
                         v-model="scope.row.bitType"
                         placeholder=""
                         :disabled="isBitTypeDisabled(scope.$index)"
+                        :persistent="false"
                         @change="changeBitType(scope.$index)"
                     >
                         <el-option
@@ -236,6 +255,7 @@
             <el-table-column
                 :label="Translate('IDCS_IMAGE_QUALITY')"
                 prop="level"
+                width="140"
             >
                 <template #header>
                     <el-dropdown trigger="click">
@@ -260,6 +280,7 @@
                         v-model="scope.row.level"
                         :disabled="isLevelDisabled(scope.$index)"
                         placeholder=""
+                        :persistent="!isChlTypeDisabled(scope.$index)"
                     >
                         <el-option
                             v-for="item in pageData.levelList"
@@ -271,7 +292,10 @@
                 </template>
             </el-table-column>
             <!-- 码率设置 -->
-            <el-table-column :label="Translate('IDCS_VIDEO_QUALITY')">
+            <el-table-column
+                :label="Translate('IDCS_VIDEO_QUALITY')"
+                width="140"
+            >
                 <template #header>
                     <el-dropdown trigger="click">
                         <BaseTableDropdownLink>
@@ -296,6 +320,7 @@
                         :model-value="scope.row.videoQuality === 0 ? '' : scope.row.videoQuality"
                         disabled
                         placeholder=""
+                        :persistent="false"
                     >
                     </el-select>
                     <el-select
@@ -312,13 +337,17 @@
                 </template>
             </el-table-column>
             <!-- 码率上限推荐范围 -->
-            <el-table-column :label="Translate('IDCS_RATE_RECOMMEND_RANGE')">
+            <el-table-column
+                :label="Translate('IDCS_RATE_RECOMMEND_RANGE')"
+                width="200"
+            >
                 <template #default="scope">{{ getBitRange(scope.row) }}</template>
             </el-table-column>
             <!-- GOP -->
             <el-table-column
                 :label="Translate('IDCS_GOP')"
                 prop="GOP"
+                width="140"
             >
                 <template #header>
                     <el-popover
@@ -339,11 +368,10 @@
                             }"
                         >
                             <el-form-item :label="Translate('IDCS_GOP')">
-                                <el-input-number
+                                <BaseNumberInput
                                     v-model="pageData.GOP"
                                     :min="1"
                                     :max="480"
-                                    :controls="false"
                                     value-on-clear="min"
                                 />
                             </el-form-item>
@@ -360,13 +388,12 @@
                         :model-value="scope.row.GOP === 0 ? '' : scope.row.GOP"
                         disabled
                     />
-                    <el-input-number
+                    <BaseNumberInput
                         v-else
                         v-model="scope.row.GOP"
                         :min="1"
                         :max="480"
                         value-on-clear="min"
-                        :controls="false"
                     />
                 </template>
             </el-table-column>
@@ -400,6 +427,7 @@
     & > div {
         width: 50%;
         margin-bottom: 10px;
+        text-align: left;
 
         span:last-child {
             margin-left: 5px;

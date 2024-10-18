@@ -3,7 +3,7 @@
  * @Date: 2024-08-15 20:09:32
  * @Description: OVNIF 新增/编辑用户弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-16 15:46:55
+ * @LastEditTime: 2024-10-17 18:15:49
 -->
 <template>
     <el-dialog
@@ -17,7 +17,6 @@
             ref="formRef"
             :model="formData"
             :rules="formRule"
-            label-width="150px"
             label-position="left"
         >
             <el-form-item
@@ -27,6 +26,7 @@
                 <el-input
                     v-model="formData.userName"
                     maxlength="32"
+                    :placeholder="Translate('IDCS_ACCOUNT_TIP')"
                 />
             </el-form-item>
             <el-form-item prop="password">
@@ -64,7 +64,10 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_USER_TYPE')">
-                <el-radio-group v-model="formData.userLevel">
+                <el-radio-group
+                    v-model="formData.userLevel"
+                    class="line-break"
+                >
                     <el-radio
                         v-for="item in pageData.levelList"
                         :key="item.value"
@@ -94,11 +97,5 @@
 .tip {
     font-size: 12px;
     line-height: 1.4;
-}
-
-.el-radio-group {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
 }
 </style>

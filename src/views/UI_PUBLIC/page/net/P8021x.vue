@@ -3,7 +3,7 @@
  * @Date: 2024-07-11 08:56:29
  * @Description: 802.1x配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 11:52:09
+ * @LastEditTime: 2024-10-17 15:41:30
 -->
 <template>
     <div>
@@ -12,6 +12,7 @@
             :model="formData"
             :rules="formRule"
             :style="{
+                '--form-label-width': '200px',
                 '--form-input-width': '200px',
             }"
             label-position="left"
@@ -24,13 +25,13 @@
             <el-form-item :label="Translate('IDCS_PROTOCOL')">
                 <el-input
                     v-model="formData.protocal"
-                    :disabled="!formData.switch"
+                    disabled
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_8021X_EAPOL_VERSION')">
                 <el-input
                     v-model="formData.version"
-                    :disabled="!formData.switch"
+                    disabled
                 />
             </el-form-item>
             <el-form-item

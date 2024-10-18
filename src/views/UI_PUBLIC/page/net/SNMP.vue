@@ -3,13 +3,14 @@
  * @Date: 2024-07-12 18:21:02
  * @Description: SNMP配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-22 19:44:35
+ * @LastEditTime: 2024-10-17 17:17:27
 -->
 <template>
     <div>
         <el-form
             ref="formRef"
             :style="{
+                '--form-label-width': '200px',
                 '--form-input-width': '340px',
             }"
             inline-message
@@ -28,10 +29,9 @@
                 :label="Translate('IDCS_SNMP_PORT')"
                 prop="snmpPort"
             >
-                <el-input-number
+                <BaseNumberInput
                     v-model="formData.snmpPort"
                     :disabled
-                    :controls="false"
                     :min="10"
                     :max="65535"
                     value-on-clear="min"
@@ -45,6 +45,8 @@
                     v-model="formData.readCommunity"
                     :disabled
                     maxlength="32"
+                    :formatter="formatCommunity"
+                    :parser="formatCommunity"
                 />
             </el-form-item>
             <el-form-item
@@ -55,6 +57,8 @@
                     v-model="formData.writeCommunity"
                     :disabled
                     maxlength="32"
+                    :formatter="formatCommunity"
+                    :parser="formatCommunity"
                 />
             </el-form-item>
             <el-form-item
@@ -63,7 +67,7 @@
             >
                 <BaseIpInput
                     v-model="formData.trapAddress"
-                    :disabled="disabled"
+                    :disabled
                     invalidate-mode="REPLACE"
                     @change="formRef?.validateField('trapAddress')"
                 />
@@ -72,10 +76,9 @@
                 :label="Translate('IDCS_TRAP_PORT')"
                 prop="trapPort"
             >
-                <el-input-number
+                <BaseNumberInput
                     v-model="formData.trapPort"
                     :disabled
-                    :controls="false"
                     :min="10"
                     :max="65535"
                     value-on-clear="min"

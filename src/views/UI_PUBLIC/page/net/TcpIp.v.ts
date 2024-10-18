@@ -3,7 +3,7 @@
  * @Date: 2024-08-16 18:56:58
  * @Description: TCP/IP配置页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:05:58
+ * @LastEditTime: 2024-10-17 14:42:02
  */
 import { NetTcpIpForm, NetTcpIpDhcpList, NetTcpIpBondsList, type NetTcpIpNicConfigList, type NetTcpIpAdvanceForm } from '@/types/apiType/net'
 import { type CheckboxValueType } from 'element-plus'
@@ -204,7 +204,7 @@ export default defineComponent({
                     subLengthV6: Number($item('subLengthV6').text()),
                     ipv4DnsDhcpSwitch: $item('dhcpSwitch').text().toBoolean() ? $item('ipv4DnsDhcpSwitch').text().toBoolean() : false,
                     dns1: $item('dns1').text(),
-                    dns2: $item('dns2').text(),
+                    dns2: $item('dns2').text() || '0.0.0.0',
                     ipv6DnsDhcpSwitch: $item('dhcpSwitch').text().toBoolean() ? $item('ipv6DnsDhcpSwitch').text().toBoolean() : false,
                     ipv6Dns1: $item('ipv6Dns1').text(),
                     ipv6Dns2: $item('ipv6Dns2').text(),
@@ -236,7 +236,7 @@ export default defineComponent({
                     isOnline: $item('isOnline').text().toBoolean(),
                     ipv4DnsDhcpSwitch: $item('dhcpSwitch').text().toBoolean() ? $item('ipv4DnsDhcpSwitch').text().toBoolean() : false,
                     dns1: $item('dns1').text(),
-                    dns2: $item('dns2').text(),
+                    dns2: $item('dns2').text() || '0.0.0.0',
                     ipv6DnsDhcpSwitch: $item('ipv6DnsDhcpSwitch').text().toBoolean(),
                     ipv6Dns1: $item('ipv6Dns1').text(),
                     ipv6Dns2: $item('ipv6Dns2').text(),
@@ -288,6 +288,11 @@ export default defineComponent({
                     item.ipv6Dns1 = dhcp.ipv6Dns1
                     item.ipv6Dns2 = dhcp.ipv6Dns2
                 }
+            }
+            if (!item.ipV6Switch) {
+                item.ipV6 = ''
+                item.subLengthV6 = 0
+                item.gatewayV6 = ''
             }
             return item
         })
@@ -694,7 +699,7 @@ export default defineComponent({
                                 <subLengthV6>${item.subLengthV6.toString()}</subLengthV6>
                                 <ipv4DnsDhcpSwitch>${item.ipv4DnsDhcpSwitch.toString()}</ipv4DnsDhcpSwitch>
                                 <dns1>${item.dns1}</dns1>
-                                <dns2>${item.dns2}</dns2>
+                                <dns2>${item.dns2 === '0.0.0.0' ? '' : item.dns2}</dns2>
                                 <ipv6DnsDhcpSwitch>${item.ipv6DnsDhcpSwitch.toString()}</ipv6DnsDhcpSwitch>
                                 <ipv6Dns1>${item.ipv6Dns1}</ipv6Dns1>
                                 <ipv6Dns2>${item.ipv6Dns2}</ipv6Dns2>
