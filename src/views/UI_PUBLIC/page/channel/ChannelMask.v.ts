@@ -27,12 +27,6 @@ export default defineComponent({
         const editStatus = ref(false)
         let maskDrawer: CanvasMask | undefined = undefined
 
-        const statusToolTip: Record<string, string> = {
-            loading: Translate('IDCS_DEVC_REQUESTING_DATA'),
-            saveSuccess: Translate('IDCS_SAVE_DATA_SUCCESS'),
-            saveFailed: Translate('IDCS_SAVE_DATA_FAIL'),
-        }
-
         const colorMap: Record<string, string> = {
             black: Translate('IDCS_BLACK'),
             white: Translate('IDCS_WHITE'),
@@ -178,7 +172,6 @@ export default defineComponent({
                         newData.chlType = eleXml('chlType').text()
                         newData.status = 'loading'
                         newData.disabled = true
-                        newData.statusTip = statusToolTip['loading']
                         tableData.value.push(newData)
                     })
                     pageTotal.value = Number($('content').attr('total'))
@@ -261,11 +254,9 @@ export default defineComponent({
                     const success = $('status').text() == 'success'
                     if (success) {
                         ele.status = 'success'
-                        ele.statusTip = statusToolTip['saveSuccess']
                         successRows.push(ele)
                     } else {
                         ele.status = 'error'
-                        ele.statusTip = statusToolTip['saveFailed']
                     }
                     count++
                     if (count >= total) {

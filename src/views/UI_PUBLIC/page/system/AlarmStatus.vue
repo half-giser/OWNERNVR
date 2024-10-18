@@ -3,7 +3,7 @@
  * @Date: 2024-06-28 11:45:24
  * @Description: 报警状态
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-15 18:06:04
+ * @LastEditTime: 2024-10-16 13:40:29
 -->
 <template>
     <div class="base-flex-box">
@@ -18,6 +18,7 @@
             :row-class-name="(item) => (item.rowIndex === pageData.activeIndex ? 'active' : '')"
             :show-header="false"
             @cell-click="handleChangeRow"
+            @expand-change="handleExpandChange"
         >
             <el-table-column prop="type">
                 <template #default="scope">
@@ -27,24 +28,34 @@
             <el-table-column>
                 <template #default="scope">
                     <div class="status">
-                        <div :class="{ active: getAlarmStatusActive(scope.row, scope.$index) }">
+                        <div
+                            :class="{
+                                active: getAlarmStatusActive(scope.row, scope.$index),
+                            }"
+                        >
                             <BaseImgSprite
                                 :index="getAlarmClassName(scope.row, scope.$index)"
                                 file="alarm_status"
                                 :chunk="5"
                             />
-                            <span>{{ scope.row.data.length }}</span>
+                            <span>{{ scope.row.data.length || '' }}</span>
                         </div>
-                        <el-tooltip :content="scope.row.data.length > 0 ? Translate('IDCS_ABNORMAL') : Translate('IDCS_NORMAL')">
-                            <span :class="{ alarm: scope.row.data.length > 0 }">{{ scope.row.data.length > 0 ? Translate('IDCS_ABNORMAL') : Translate('IDCS_NORMAL') }}</span>
-                        </el-tooltip>
+                        <span
+                            :class="{
+                                alarm: scope.row.data.length > 0,
+                            }"
+                            >{{ scope.row.data.length > 0 ? Translate('IDCS_ABNORMAL') : Translate('IDCS_NORMAL') }}</span
+                        >
                     </div>
                 </template>
             </el-table-column>
             <el-table-column type="expand">
                 <template #default="scope">
-                    <div>
-                        <div class="expand">
+                    <div class="expand-box">
+                        <div
+                            v-show="scope.row.data.length"
+                            class="expand"
+                        >
                             <div class="left">
                                 <div
                                     v-for="(item, key) in scope.row.data[scope.row.index - 1]?.data || []"
@@ -75,9 +86,11 @@
                                 />
                             </div>
                         </div>
-                        <div class="pagination">
+                        <div
+                            v-show="scope.row.data.length"
+                            class="row_pagination"
+                        >
                             <el-pagination
-                                v-show="scope.row.data.length"
                                 v-model:current-page="scope.row.index"
                                 :page-size="1"
                                 layout="prev, pager, next, total, jumper"
@@ -105,6 +118,10 @@
     text-align: left;
 }
 
+.el-table {
+    border: 1px solid var(--table-border);
+}
+
 .status {
     display: flex;
 
@@ -116,7 +133,7 @@
 
         &.active {
             span:last-child {
-                color: black;
+                color: var(--color-error);
             }
         }
 
@@ -126,7 +143,7 @@
             left: 0;
             text-align: center;
             line-height: 25px;
-            color: white;
+            color: var(--color-white);
             display: block;
             width: 100%;
             height: 100%;
@@ -135,10 +152,16 @@
     }
 }
 
+.expand-box {
+    padding: 5px;
+}
+
 .expand {
     width: 100%;
     display: flex;
-    margin-bottom: 20px;
+    // margin-bottom: 20px;
+    border: 1px solid var(--table-border);
+    padding: 20px 10px;
 
     .left {
         width: 80%;
@@ -184,9 +207,7 @@
     }
 }
 
-.pagination {
-    width: 100%;
-    display: flex;
+.row_pagination {
     justify-content: center;
 }
 </style>

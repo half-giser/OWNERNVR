@@ -193,7 +193,7 @@ export default defineComponent({
                     // TODO 码流配置设置
                     pageData.value.recModeStreamPopOpen = true
                 } else {
-                    pageData.value.autoModeIdOld = ''
+                    pageData.value.autoModeIdOld = formData.value.autoModeId
                 }
             },
         )

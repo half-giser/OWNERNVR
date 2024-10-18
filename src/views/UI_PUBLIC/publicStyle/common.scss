@@ -224,7 +224,7 @@ input[type='number'] {
             padding: 0px 20px 20px 20px;
         }
     }
-    
+
     // .el-table 公共样式
     .el-table {
         .el-table__header {
@@ -275,7 +275,7 @@ input[type='number'] {
                 .el-checkbox {
                     &.is-checked {
                         .el-checkbox__inner {
-                            border: var(--el-border-width) var(--el-border-style) var(--border-light);
+                            border: var(--el-border-width) var(--el-border-style) var(--table-checkbox-border-checked);
                         }
                     }
                 }
@@ -345,7 +345,7 @@ input[type='number'] {
     .el-form {
         flex-shrink: 0;
         margin-bottom: 10px;
-        
+
         .el-form-item {
             &__label {
                 width: var(--form-label-width);
@@ -487,7 +487,7 @@ input[type='number'] {
     }
 
     .el-radio-group {
-        // 不换行
+        // el-radio-button 不换行
         &.nowrap {
             flex-wrap: nowrap;
 
@@ -496,7 +496,7 @@ input[type='number'] {
             }
         }
 
-        // 拉伸铺满
+        // el-radio-button 拉伸铺满
         &.inline {
             width: 100%;
             flex-wrap: nowrap;
@@ -510,14 +510,14 @@ input[type='number'] {
             }
         }
 
-        // 隐藏border-top
+        // el-radio-button 隐藏border-top
         &.hide-border-top {
             .el-radio-button .el-radio-button__inner {
                 border-top: none;
             }
         }
 
-        // 隐藏border-left和border-right
+        // el-radio-button 隐藏border-left和border-right
         &.hide-border-inline {
             .el-radio-button:first-child .el-radio-button__inner {
                 border-left: none;
@@ -528,7 +528,7 @@ input[type='number'] {
             }
         }
 
-        // 隐藏border-bottom
+        // el-radio-button 隐藏border-bottom
         &.hide-border-bottom {
             .el-radio-button .el-radio-button__inner {
                 border-bottom: none;
@@ -546,7 +546,7 @@ input[type='number'] {
 
                 &__inner {
                     width: 50px;
-                    border: 1px solid var(--btn-border); 
+                    border: 1px solid var(--btn-border);
                 }
 
                 & + .el-radio-button .el-radio-button__inner {
@@ -560,7 +560,7 @@ input[type='number'] {
 
             .el-radio-button {
                 &__inner {
-                    border: 1px solid var(--btn-border); 
+                    border: 1px solid var(--btn-border);
                 }
 
                 & + .el-radio-button .el-radio-button__inner {
@@ -568,9 +568,47 @@ input[type='number'] {
                 }
             }
         }
+
+        // 每个el-radio换行
+        &.line-break {
+            display: block;
+
+            .el-radio {
+                display: flex;
+            }
+        }
+    }
+
+    .el-checkbox-group {
+    
+        // 每个el-checkbox换行
+        &.line-break {
+            display: block;
+    
+            .el-checkbox {
+                display: flex;
+            }
+        }
+    }
+
+    .el-button {
+        // link 类型的button的公共样式
+        &.is-link {
+            color: var(--main-text);
+
+            &.el-button--primary {
+                color: var(--primary);
+            }
+
+            &:hover {
+                text-decoration: underline;
+                color: var(--primary);
+            }
+        }
     }
 }
 
+// 将el-pagination放置在此容器下，以便el-pagination能和el-table贴合在一起
 .row_pagination {
     padding: 5px;
     border-style: none solid solid solid;

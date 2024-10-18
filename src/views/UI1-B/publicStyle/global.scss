@@ -3,7 +3,7 @@
  * @Date: 2024-05-29 13:48:55
  * @Description: UI1-B 主题样式
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-12 17:38:28
+ * @LastEditTime: 2024-10-16 11:11:41
  */
 
 #n9web {
@@ -152,6 +152,8 @@
 
     --disk-group-text-active: #FFF;
     --disk-group-bg-active: #F4971A;
+
+    --upgrade-text-active: #23de1a;
     
     --panel-bg: #666;
     --panel-header-bg: #fff; 
@@ -254,4 +256,7 @@
 
     --float-ok: #006400;
     --float-error: #ff0000;
+
+    --qrcode-bg: #fff;
+    --qrcode-label-bg: #8f8d8d;
 }

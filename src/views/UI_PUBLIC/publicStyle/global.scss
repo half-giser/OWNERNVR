@@ -129,6 +129,8 @@
     --table-thead-bg: #e5e5e5; // 表格头背景色
     --table-thead-border: var(--table-border); // 表格头边框色
 
+    --table-checkbox-border-checked: #e9efff; // 表格checkbox选中边框色
+
     /**
      * 对话框
      */
@@ -211,6 +213,8 @@
 
     --disk-group-text-active: var(--main-text); // 存储模式磁盘-文本色（active）
     --disk-group-bg-active: #AFE8FF; // 存储模式磁盘-背景色（active）
+
+    --upgrade-text-active: #23de1a; // 系统升级-文本色 (active)
 
     /**
      * 现场预览、回放的侧边栏面板
@@ -364,6 +368,12 @@
      */
     --float-ok: #006400; // 浮动提示 成功 文本和边框色
     --float-error: #ff0000; // 浮动提示 错误 文本和边框色
+
+    /**
+     * 二维码
+     */
+    --qrcode-bg: #fff; // 二维码背景色
+    --qrcode-label-bg: #8f8d8d; // 二维码标签背景色
 
     // Success
     // --success--01: #edf9eb;
