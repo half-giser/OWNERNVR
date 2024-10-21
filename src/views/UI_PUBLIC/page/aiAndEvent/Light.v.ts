@@ -3,7 +3,7 @@
  * @Date: 2024-08-13 15:58:57
  * @Description:闪灯
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-21 11:50:43
+ * @LastEditTime: 2024-10-21 15:13:33
  */
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import { whiteLightInfo } from '@/types/apiType/aiAndEvent'
@@ -254,19 +254,19 @@ export default defineComponent({
             }
         }
         const setRowDisable = (rowData: whiteLightInfo) => {
-            const disabled = rowData['enable'] && rowData['enable'] == 'false' ? true : false
-            if (rowData['enable'] == null) {
+            const disabled = rowData['enable'] == 'false'
+            if (rowData['enable'] == '') {
                 rowData['rowDisable'] = true
-                rowData['durationTimeDisable'] = true
-                rowData['frequencyTypeDisable'] = true
-            } else if (rowData['enable']) {
-                rowData['enableDisable'] = false
-            } else if (disabled) {
-                rowData['rowDisable'] = false
+                rowData['enableDisable'] = true
                 rowData['durationTimeDisable'] = true
                 rowData['frequencyTypeDisable'] = true
             } else {
-                rowData['rowDisable'] = false
+                rowData['enableDisable'] = false
+            }
+            if (disabled) {
+                rowData['durationTimeDisable'] = true
+                rowData['frequencyTypeDisable'] = true
+            } else {
                 rowData['durationTimeDisable'] = false
                 rowData['frequencyTypeDisable'] = false
             }

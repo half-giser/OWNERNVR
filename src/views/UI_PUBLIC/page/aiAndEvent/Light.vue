@@ -3,7 +3,7 @@
  * @Date: 2024-08-13 15:58:40
  * @Description: 闪灯
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-21 11:55:26
+ * @LastEditTime: 2024-10-21 15:09:42
 -->
 <template>
     <div class="base-flex-box">
@@ -64,7 +64,7 @@
                             value-key="value"
                             :placeholder="Translate('IDCS_ON')"
                             :options="pageData.enableList"
-                            :disabled="scope.row.enableDisable"
+                            :disabled="scope.row.rowDisable"
                             @change="handleEnabelChange(scope.row)"
                         >
                             <el-option

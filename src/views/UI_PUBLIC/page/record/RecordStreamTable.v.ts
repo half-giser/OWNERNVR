@@ -3,7 +3,7 @@
  * @Date: 2024-10-15 10:04:36
  * @Description: 录像码流通用组件
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-21 11:56:14
+ * @LastEditTime: 2024-10-21 14:57:21
  */
 import { ArrowDown } from '@element-plus/icons-vue'
 import { RecordStreamInfoDto } from '@/types/apiType/record'
@@ -61,7 +61,7 @@ export default defineComponent({
         }
         const { Translate } = useLangStore()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
-        const tableData = ref([] as RecordStreamInfoDto[])
+        const tableData = ref<RecordStreamInfoDto[]>([])
         // const tableRef = ref<FormInstance>()
 
         const streamTypeMapping: Record<string, string> = {
@@ -306,12 +306,12 @@ export default defineComponent({
                     }
                     item.streamType = 'main'
                     // 获取码率类型
-                    eleXml('mainStreamQualityCaps/item').forEach((element: any) => {
+                    eleXml('mainStreamQualityCaps/item').forEach((element) => {
                         item.mainStreamQualityCaps.push({
-                            '@enct': element.attr('enct'),
-                            '@res': element.attr('res'),
-                            '@digitalDefault': element.attr('digitalDefault'),
-                            '@analogDefault': element.attr('analogDefault'),
+                            '@enct': element.attr('enct')!,
+                            '@res': element.attr('res')!,
+                            '@digitalDefault': element.attr('digitalDefault')!,
+                            '@analogDefault': element.attr('analogDefault')!,
                             value: element.text().split(',') ? element.text().split(',') : [],
                         })
                         if (element.attr('enct') == 'h264' && element.attr('res') == '0x0' && pageData.value.videoQualityListFlag === 0) {
@@ -333,7 +333,7 @@ export default defineComponent({
                     item.levelNote = eleXml('levelNote').text() ? eleXml('levelNote').text().split(',') : []
                     if (item.levelNote.length > 0) {
                         pageData.value.levelList = []
-                        item.levelNote.reverse().forEach((element: any) => {
+                        item.levelNote.reverse().forEach((element) => {
                             pageData.value.levelList.push({ value: element, text: Translate(imageLevelMapping[element]) })
                         })
                     }
@@ -364,7 +364,7 @@ export default defineComponent({
                             item['frameRate'] = item['me']['@fps']
                             item['frameRate'] = item['me']['@fps']
                             item['bitType'] = item['me']['@bitType']
-                            item['level'] = item['me']['@level'] ? item['me']['@level'] : '最低'
+                            item['level'] = item['me']['@level'] ? item['me']['@level'] : Translate('IDCS_LOWEST')
                             item['videoQuality'] = item['me']['@QoI']
                             item['audio'] = item['me']['@audio']
                             item['recordStream'] = item['me']['@type']
@@ -385,7 +385,7 @@ export default defineComponent({
                             item['frameRate'] = item['mn']['@fps']
                             item['frameRate'] = item['mn']['@fps']
                             item['bitType'] = item['mn']['@bitType']
-                            item['level'] = item['mn']['@level'] ? item['mn']['@level'] : '最低'
+                            item['level'] = item['mn']['@level'] ? item['mn']['@level'] : Translate('IDCS_LOWEST')
                             item['videoQuality'] = item['mn']['@QoI']
                             item['audio'] = item['mn']['@audio']
                             item['recordStream'] = item['mn']['@type']
@@ -398,7 +398,7 @@ export default defineComponent({
                         item['mainCaps']['res'].sort((a, b) => resolutionSort(a, b))
                     }
                     item['bitRange'] =
-                        item['bitType'] == 'CBR' || !item['bitType']
+                        item['bitType'] == 'CBR' || item['bitType'] == ''
                             ? null
                             : getBitrateRange({
                                   resolution: item['resolution'],
@@ -434,7 +434,7 @@ export default defineComponent({
                 })
                 doCfg(tableData.value)
                 pageData.value.resolutionGroups = getResolutionGroups(tableData.value)
-                queryRemainRecTimeF()
+                if (import.meta.env.VITE_UI_TYPE === 'UI1-E') queryRemainRecTimeF()
                 pageData.value.levelDropDisable = pageData.value.isAllCBR
                 pageData.value.firstInit = false
             }
@@ -462,9 +462,9 @@ export default defineComponent({
             })
             sendXml += `</chls>
             </content>`
-            openLoading()
+            openLoading(LoadingTarget.FullScreen)
             queryRemainRecTime(sendXml).then((resb) => {
-                closeLoading()
+                closeLoading(LoadingTarget.FullScreen)
                 const res = queryXml(resb)
                 if (res('status').text() === 'success') {
                     pageData.value.recTime = ''
