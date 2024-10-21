@@ -3,7 +3,7 @@
  * @Date: 2024-04-23 11:52:48
  * @Description: 登录界面
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-12 14:51:09
+ * @LastEditTime: 2024-10-21 11:51:45
  */
 import { type FormRules, type FormInstance } from 'element-plus'
 import { LoginForm, LoginReqData } from '@/types/apiType/user'
@@ -19,7 +19,6 @@ export default defineComponent({
         const Plugin = inject('Plugin') as PluginType
         const userSessionStore = useUserSessionStore()
         const router = useRouter()
-        const theme = getUiAndTheme()
 
         const pageData = ref({
             langTypes: {} as Record<string, string>,
@@ -158,7 +157,7 @@ export default defineComponent({
                     await userSessionStore.updateByLogin('STANDARD', result, reqData, formData.value)
                     pageData.value.btnDisabled = false
                     // UI1-D / UI1-G 登录默认画质
-                    if (['UI1-D', 'UI1-G'].includes(theme.name)) {
+                    if (import.meta.env.VITE_UI_TYPE === 'UI1-D' || import.meta.env.VITE_UI_TYPE === 'UI1-G') {
                         userSessionStore.defaultStreamType = pageData.value.quality
                     }
                     Plugin.DisposePlugin()

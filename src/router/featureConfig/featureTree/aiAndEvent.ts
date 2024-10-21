@@ -129,8 +129,8 @@ export default {
                 sort: 60,
                 lk: 'IDCS_AUDIO',
                 group: 'eventNotify',
-                auth(systemCaps, ui) {
-                    return ui !== 'UI3-A' || systemCaps.supportAlarmAudioConfig
+                auth(systemCaps) {
+                    return import.meta.env.VITE_UI_TYPE !== 'UI3-A' || systemCaps.supportAlarmAudioConfig
                 },
             },
         },
@@ -342,8 +342,8 @@ export default {
                 lk: 'IDCS_FEATURE_LIBRARY',
                 group: 'database',
                 default: true,
-                auth(systemCaps, ui) {
-                    return systemCaps.supportFaceMatch && ui === 'UI2-A'
+                auth(systemCaps) {
+                    return systemCaps.supportFaceMatch && import.meta.env.VITE_UI_TYPE === 'UI2-A'
                 },
             },
         },
@@ -355,8 +355,8 @@ export default {
                 sort: 10,
                 lk: 'IDCS_VEHICLE_DATABASE',
                 group: 'database',
-                auth(systemCaps, ui) {
-                    return systemCaps.supportPlateMatch && ui === 'UI2-A'
+                auth(systemCaps) {
+                    return systemCaps.supportPlateMatch && import.meta.env.VITE_UI_TYPE === 'UI2-A'
                 },
             },
         },

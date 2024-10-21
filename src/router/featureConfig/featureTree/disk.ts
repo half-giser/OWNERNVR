@@ -32,8 +32,8 @@ export default {
                 icon: 'diskInfo_s',
             },
         },
-        auth(systemCaps, ui) {
-            return ui !== 'UI3-A'
+        auth() {
+            return import.meta.env.VITE_UI_TYPE !== 'UI3-A'
         },
     },
     children: {

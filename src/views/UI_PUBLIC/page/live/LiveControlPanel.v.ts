@@ -3,7 +3,7 @@
  * @Date: 2024-07-26 17:04:12
  * @Description: 现场预览-操作视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 16:22:41
+ * @LastEditTime: 2024-10-21 14:00:55
  */
 import { type LiveChannelList, type LiveResolutionOptions, type LiveQualityOptions, LiveStreamForm, type LiveSharedWinData } from '@/types/apiType/live'
 
@@ -103,7 +103,6 @@ export default defineComponent({
         // const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
         const userSession = useUserSessionStore()
-        const theme = getUiAndTheme()
 
         const pageData = ref({
             // 码流类型1：主码流，2：子码流
@@ -259,7 +258,7 @@ export default defineComponent({
 
         // 是否禁用手动开门
         const openDoorDisabled = computed(() => {
-            if (theme.name === 'UI1-E') {
+            if (import.meta.env.VITE_UI_TYPE === 'UI1-E') {
                 return true
             }
             // 用户权限、通道accessControl能力集、enable
@@ -368,7 +367,7 @@ export default defineComponent({
 
         // 是否禁用码率选项
         const streamQualityDisabled = computed(() => {
-            if (theme.name === 'UI1-E' && prop.mode === 'ocx') {
+            if (import.meta.env.VITE_UI_TYPE === 'UI1-E' && prop.mode === 'ocx') {
                 return false
             }
             return pageData.value.enct === 'h265p'

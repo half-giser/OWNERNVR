@@ -17,7 +17,6 @@ export default defineComponent({
         const userSessionStore = useUserSessionStore()
         const router = useRouter()
         const osType = getSystemInfo().platform
-        const { name: uiName } = getUiAndTheme()
 
         const playerRef = ref<PlayerInstance>()
         const formData = ref(new ChannelMotion())
@@ -164,7 +163,7 @@ export default defineComponent({
                     if ($('content/chl/param/objectFilter/car').length) rowData.objectFilterCar = $('content/chl/param/objectFilter/car/switch').text().toBoolean()
                     if ($('content/chl/param/objectFilter/person').length) rowData.objectFilterPerson = $('content/chl/param/objectFilter/person/switch').text().toBoolean()
                     let max = $('content/chl/param/sensitivity').length ? Number($('content/chl/param/sensitivity').attr('max')) : NaN
-                    if (uiName == 'UI1-F' && max == 100) max = 120
+                    if (import.meta.env.VITE_UI_TYPE == 'UI1-F' && max == 100) max = 120
                     rowData.sensitivityMaxValue = max
                     rowData.column = Number($('content/chl/param/area/itemType').attr('maxLen'))
                     rowData.row = Number($('content/chl/param/area').attr('count'))
@@ -215,7 +214,7 @@ export default defineComponent({
                             }
                         })
                     }
-                    if (uiName != 'UI2-A') {
+                    if (import.meta.env.VITE_UI_TYPE != 'UI2-A') {
                         getAlarmStatus()
                     }
                 }

@@ -43,7 +43,6 @@ export default defineComponent({
         let ipChlMaxCountOriginal = 0
         let manufacturerMap: Record<string, string> = {}
         let nameMapping: Record<string, string> = {}
-        const { name: uiName } = getUiAndTheme()
         const virtualHostEnabled = false
         const protocolTrasMap: Record<string, string> = {
             TVT_IPCAMERA: Translate('IDCS_TVT'),
@@ -104,7 +103,7 @@ export default defineComponent({
                 let data = '<condition><devIds type="list">'
                 tableData.value.forEach((ele: ChannelInfoDto) => {
                     // UI1-E可以删除poe通道
-                    if (uiName == 'UI1-E') {
+                    if (import.meta.env.VITE_UI_TYPE === 'UI1-E') {
                         if (ele.ip) data += '<item id="' + ele.id + '"></item>'
                     } else {
                         if (ele.addType != 'poe' && ele.ip) data += '<item id="' + ele.id + '"></item>'
@@ -248,7 +247,7 @@ export default defineComponent({
                         saveMaxValueForDefaultChl()
                         tableData.value.forEach((ele: ChannelInfoDto) => {
                             //UI1-E POE通道可删除，其他UI不能删除
-                            if ((ele.addType === 'poe' && uiName !== 'UI1-E') || !ele.ip) {
+                            if ((ele.addType === 'poe' && import.meta.env.VITE_UI_TYPE !== 'UI1-E') || !ele.ip) {
                                 ele.delDisabled = true
                             }
                             if (ele.addType === 'poe') {

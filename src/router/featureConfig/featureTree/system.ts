@@ -80,8 +80,8 @@ export default {
                 lk: 'IDCS_OUTPUT_CONFIG',
                 group: 'basicConfig',
                 enabled: 'remoteSysCfgAndMaintain',
-                auth(systemCaps, ui) {
-                    return ui !== 'UI3-A'
+                auth() {
+                    return import.meta.env.VITE_UI_TYPE !== 'UI3-A'
                 },
             },
         },
@@ -108,8 +108,8 @@ export default {
                 lk: 'IDCS_SYSTEM_POE_SETUP',
                 group: 'basicConfig',
                 enabled: 'remoteSysCfgAndMaintain',
-                auth(systemCaps, ui) {
-                    return systemCaps.supportPoePowerManage && ui !== 'UI3-A'
+                auth(systemCaps) {
+                    return systemCaps.supportPoePowerManage && import.meta.env.VITE_UI_TYPE !== 'UI3-A'
                 },
             },
         },
@@ -122,8 +122,8 @@ export default {
                 lk: 'IDCS_OSD_CONFIG',
                 group: 'basicConfig',
                 enabled: 'remoteSysCfgAndMaintain',
-                auth(systemCaps, ui) {
-                    return ui !== 'UI3-A'
+                auth() {
+                    return import.meta.env.VITE_UI_TYPE !== 'UI3-A'
                 },
             },
         },
@@ -206,8 +206,8 @@ export default {
                 sort: 70,
                 lk: 'IDCS_ONLINE_UPGRADE',
                 group: 'maintenance',
-                auth(systemCaps, ui) {
-                    return systemCaps.showCloudUpgrade && ui === 'UI3-A'
+                auth(systemCaps) {
+                    return systemCaps.showCloudUpgrade && import.meta.env.VITE_UI_TYPE === 'UI3-A'
                 },
             },
         },
@@ -243,8 +243,8 @@ export default {
                 sort: 30,
                 lk: 'IDCS_ALARM_STATE',
                 group: 'info',
-                auth(systemCaps, ui) {
-                    return ui !== 'UI3-A'
+                auth() {
+                    return import.meta.env.VITE_UI_TYPE !== 'UI3-A'
                 },
             },
         },
@@ -259,8 +259,8 @@ export default {
                 sort: 40,
                 lk: 'IDCS_RECORD_STATE',
                 group: 'info',
-                auth(systemCaps, ui) {
-                    return ui !== 'UI3-A'
+                auth() {
+                    return import.meta.env.VITE_UI_TYPE !== 'UI3-A'
                 },
             },
         },
@@ -275,8 +275,8 @@ export default {
                 sort: 50,
                 lk: 'IDCS_NETWORK_STATE',
                 group: 'info',
-                auth(systemCaps, ui) {
-                    return ui !== 'UI3-A'
+                auth() {
+                    return import.meta.env.VITE_UI_TYPE !== 'UI3-A'
                 },
             },
         },
@@ -291,8 +291,8 @@ export default {
                 sort: 60,
                 lk: 'IDCS_DISK_STATE_TOOLTIP',
                 group: 'info',
-                auth(systemCaps, ui) {
-                    return ui !== 'UI3-A'
+                auth() {
+                    return import.meta.env.VITE_UI_TYPE !== 'UI3-A'
                 },
             },
         },
@@ -308,8 +308,8 @@ export default {
                 inHome: 'self',
                 homeSort: 70,
                 enabled: 'diskMgr',
-                auth(systemCaps, ui) {
-                    return ui === 'UI3-A'
+                auth() {
+                    return import.meta.env.VITE_UI_TYPE === 'UI3-A'
                 },
             },
         },
@@ -324,8 +324,8 @@ export default {
                 inHome: 'self',
                 homeSort: 80,
                 enabled: 'diskMgr',
-                auth(systemCaps, ui) {
-                    return ui === 'UI3-A'
+                auth() {
+                    return import.meta.env.VITE_UI_TYPE === 'UI3-A'
                 },
             },
         },
@@ -343,8 +343,8 @@ export default {
                 group: 'diskInfo',
                 inHome: 'self',
                 homeSort: 90,
-                auth(systemCaps, ui) {
-                    return ui === 'UI3-A'
+                auth() {
+                    return import.meta.env.VITE_UI_TYPE === 'UI3-A'
                 },
             },
         },
@@ -356,8 +356,8 @@ export default {
                 sort: 40,
                 lk: 'IDCS_DISK_SMART_INFO',
                 group: 'diskInfo',
-                auth(systemCaps, ui) {
-                    return ui === 'UI3-A'
+                auth() {
+                    return import.meta.env.VITE_UI_TYPE === 'UI3-A'
                 },
             },
         },

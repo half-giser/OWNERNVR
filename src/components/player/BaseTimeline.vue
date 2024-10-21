@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 10:41:06
  * @Description: 录像与回放时间轴组件
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-27 16:38:02
+ * @LastEditTime: 2024-10-21 10:39:01
 -->
 <template>
     <div
@@ -1096,7 +1096,7 @@ const drawMovingWithMousePointer = (x: number, y: number) => {
  */
 const play = (step = 1, speed = 1) => {
     clearInterval(timer)
-    // TODO 定时器的时间不可靠
+    // NOTICE 定时器的时间不可靠
     timer = setInterval(() => {
         pointerTime = pointerTime + step
         // 如果当前指针时间超出当前可视区范围，则将起始点时间设为当前指针时间
@@ -1305,7 +1305,7 @@ const updateChlList = (newChlList: ChlList[], newAutoPointer: boolean, pageType:
  * @description 重置画布，清空日志，指针归零
  */
 const clearData = () => {
-    // TODO chlList.splice(0, chlList.length)
+    // chlList.splice(0, chlList.length)
     pointerTime = minTime
     timeRangeMask = [0, 0]
     clipRange.value = []

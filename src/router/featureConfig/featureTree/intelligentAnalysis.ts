@@ -124,8 +124,8 @@ export default {
             meta: {
                 sort: 40,
                 lk: 'IDCS_SAMPLE_DATABASE',
-                auth(systemCaps, ui) {
-                    return ui !== 'UI2-A' && (systemCaps.supportFaceMatch || systemCaps.supportPlateMatch)
+                auth(systemCaps) {
+                    return import.meta.env.VITE_UI_TYPE !== 'UI2-A' && (systemCaps.supportFaceMatch || systemCaps.supportPlateMatch)
                 },
             },
             children: {

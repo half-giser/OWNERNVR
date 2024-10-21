@@ -44,7 +44,6 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const userSession = useUserSessionStore()
         const systemCaps = useCababilityStore()
-        const theme = getUiAndTheme()
 
         const pageData = ref({
             // 菜单选项
@@ -179,12 +178,15 @@ export default defineComponent({
 
         // 是否有权限
         const hasAuth = computed(() => {
-            return theme.name === 'UI1-E' || userSession.hasAuth('remoteChlMgr')
+            return import.meta.env.VITE_UI_TYPE === 'UI1-E' || userSession.hasAuth('remoteChlMgr')
         })
 
         // 是否有巡航线组和轨迹的权限
         const hasTraceAuth = computed(() => {
-            return theme.name === 'UI1-E' || (hasAuth.value && systemCaps.supportPtzGroupAndTrace && prop.chl[prop.winData.chlID]?.supportPtz && prop.chl[prop.winData.chlID]?.supportPTZGroupTraceTask)
+            return (
+                import.meta.env.VITE_UI_TYPE === 'UI1-E' ||
+                (hasAuth.value && systemCaps.supportPtzGroupAndTrace && prop.chl[prop.winData.chlID]?.supportPtz && prop.chl[prop.winData.chlID]?.supportPTZGroupTraceTask)
+            )
         })
 
         // 最大菜单数量

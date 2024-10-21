@@ -62,8 +62,8 @@ export default {
         //         sort: 20,
         //         lk: 'IDCS_SCHEDULE_OF_RECORD_SET',
         //         group: 'record',
-        //         auth(systemCaps, ui) {
-        //             return ui === 'UI3-A'
+        //         auth() {
+        //             return import.meta.env.VITE_UI_TYPE === 'UI3-A'
         //         },
         //     },
         // },
@@ -125,8 +125,8 @@ export default {
                 default: true,
                 inHome: 'self',
                 homeSort: 30,
-                auth(systemCaps, ui) {
-                    return ui !== 'UI3-A'
+                auth() {
+                    return import.meta.env.VITE_UI_TYPE !== 'UI3-A'
                 },
             },
         },

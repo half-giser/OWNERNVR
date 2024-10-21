@@ -5,7 +5,6 @@
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
  * @LastEditTime: 2024-09-03 11:20:36
  */
-import { ENV_MODE, APP_SERVER_IP } from '../constants'
 
 /**
  * @description 获取websocket握手url
@@ -14,12 +13,12 @@ export const getWebsocketOpenUrl = () => {
     const host = window.location.host
     const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
     const userSession = useUserSessionStore()
-    if (ENV_MODE === 'production') {
+    if (import.meta.env.NODE_ENV === 'production') {
         // 正式环境
         return `${wsProtocol}://${host}/requestWebsocketConnection?sessionID=${userSession.sessionId}`
     } else {
         // 调试模式
-        return `ws://${APP_SERVER_IP}/requestWebsocketConnection?sessionID=${userSession.sessionId}`
+        return `ws://${import.meta.env.VITE_APP_IP}/requestWebsocketConnection?sessionID=${userSession.sessionId}`
     }
 }
 
@@ -75,8 +74,8 @@ export const REC_EVENT_TYPES = [
  * @description 生成basic数据
  */
 export const getBasic = () => {
-    // TODO 原项目中 id = $.webSession('requestBasicId') * 1
-    const id = 0
+    const requestBasicId = sessionStorage.getItem('requestBasicId')
+    const id = requestBasicId ? Number(requestBasicId) : 0
     const newId = id && id < Number.MAX_SAFE_INTEGER ? id + 1 : 1
     return {
         ver: '1.0',

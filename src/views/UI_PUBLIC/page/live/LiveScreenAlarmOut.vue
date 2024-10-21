@@ -58,7 +58,7 @@
                         </template>
                     </el-table-column>
                     <el-table-column
-                        v-if="theme.name === 'UI2-A'"
+                        v-if="isDelay"
                         :label="Translate('IDCS_DELAY')"
                         prop="delay"
                     >

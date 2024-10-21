@@ -7,8 +7,6 @@
  */
 const wrapXml = (xml: string) => `${xmlHeader}${xml}`
 
-const ui = getUiAndTheme()
-
 /**
  * @description 获取语言节点
  * @returns string
@@ -105,7 +103,7 @@ export const OCX_XML_Initial = (model: string, notifyFunName: string, viewType: 
             ${notifyFunName ? `<NotifyFunName>${notifyFunName}</NotifyFunName>` : ''}
             <systemType>NVMS-9000</systemType>
             <screenNum>${String(screenNum ? screenNum : 1)}</screenNum>
-            <uiName>${ui.name}</uiName>
+            <uiName>${import.meta.env.VITE_UI_TYPE}</uiName>
         </cmd>`)
 }
 
@@ -131,7 +129,7 @@ export const OCX_XML_Initial_P2P = (model?: string, notifyFunName?: string, view
             ${notifyFunName ? `<NotifyFunName>${notifyFunName}</NotifyFunName>` : ''}
             <systemType>NVMS-9000</systemType>
             <screenNum>${String(screenNum ? screenNum : 1)}</screenNum>
-            <uiName>${ui.name}</uiName>
+            <uiName>${import.meta.env.VITE_UI_TYPE}</uiName>
         </cmd>
     `)
 }

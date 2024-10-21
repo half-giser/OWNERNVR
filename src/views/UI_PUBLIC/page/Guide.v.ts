@@ -17,7 +17,6 @@ export default defineComponent({
         const router = useRouter()
         const Translate = langStore.Translate
         const userSession = useUserSessionStore()
-        const theme = getUiAndTheme().name
 
         // 时区及是否支持夏令时
         const TIME_ZONE = DEFAULT_TIME_ZONE
@@ -146,7 +145,7 @@ export default defineComponent({
 
         // IL03开机向导的密保存在默认的问题，其他UI无此要求
         const isDefeultQuestion = computed(() => {
-            return theme === 'UI2-A'
+            return import.meta.env.VITE_UI_TYPE === 'UI2-A'
         })
 
         /**
@@ -910,7 +909,6 @@ export default defineComponent({
             changeQuestion,
             deleteQuestion,
             formatCurrentDisk,
-            theme,
         }
     },
 })

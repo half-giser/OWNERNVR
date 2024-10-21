@@ -353,3 +353,10 @@ export const queryPtzProtocol = (data: string) => http.fetch('queryPtzProtocol',
  * @returns
  */
 export const editPtzProtocol = (data: string) => http.fetch('editPtzProtocol', getXmlWrapData(data))
+
+/**
+ * @description 云台3D功能
+ * @param {string} data
+ * @returns
+ */
+export const ptz3DControl = (data: string) => http.fetch('ptz3DControl', getXmlWrapData(data))
