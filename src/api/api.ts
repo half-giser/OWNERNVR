@@ -34,10 +34,9 @@ export const getXmlWrapData = (data: string, url = '', refresh = false) => {
         tokenXml = `<token>${userSessionStore.token}</token>`
     }
     if (import.meta.env.VITE_APP_TYPE === 'P2P') {
-        // TODO: CMD_QUEUE.viewFlag
         return rawXml`${xmlHeader}
             <cmd type="NVMS_NAT_CMD">
-                <request version="1.0" systemType="NVMS-9000" clientType="WEB-NAT" url="${url}" flag="CMD_QUEUE.viewFlag" ${refresh ? `refresh="true"` : ''}>
+                <request version="1.0" systemType="NVMS-9000" clientType="WEB-NAT" url="${url}" flag="1" ${refresh ? `refresh="true"` : ''}>
                     ${tokenXml}
                     ${data}
                 </request>
