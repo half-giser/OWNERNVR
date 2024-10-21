@@ -2,8 +2,8 @@
  * @Description: 普通事件——传感器
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-23 10:58:27
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-16 11:19:22
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-18 14:32:40
  */
 import { type PresetItem, SensorEvent, type ChlList } from '@/types/apiType/aiAndEvent'
 import { QueryNodeListDto } from '@/types/apiType/channel'
@@ -222,7 +222,7 @@ export default defineComponent({
         }
 
         const getData = async () => {
-            pageData.value.scheduleList = await buildScheduleList()
+            pageData.value.scheduleList = await buildScheduleList(true)
 
             // 初始化、改变页码、改变单页行数进行数据清空和btn禁用
             tableData.value.length = 0

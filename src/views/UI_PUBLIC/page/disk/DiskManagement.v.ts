@@ -3,7 +3,7 @@
  * @Date: 2024-07-05 13:42:37
  * @Description: 磁盘管理
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 10:57:46
+ * @LastEditTime: 2024-10-18 09:47:05
  */
 import { type DiskManagememtList } from '@/types/apiType/disk'
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
@@ -69,7 +69,7 @@ export default defineComponent({
 
         const pageData = ref({
             // 解锁按钮是否置灰
-            unlockDisabled: false,
+            unlockDisabled: true,
             // 鉴权弹窗是否打开
             isCheckAuth: false,
             // 需要格式化的磁盘索引. -1为全部
@@ -139,7 +139,7 @@ export default defineComponent({
                     model: $item('model').text(),
                     raidType: 'normal',
                     recTime: recStartDate === recEndDate ? recStartDate : recStartDate + '~' + recEndDate,
-                    sizeAndFreeSpace: isUDisk ? size : `${freeSpace === 0 ? freeSpace : freeSpace.toFixed(2)}/${size}`,
+                    sizeAndFreeSpace: isUDisk ? size : `${freeSpace === 0 ? freeSpace : freeSpace.toFixed(2)}/${size}`, // U盘不需要显示空闲空间
                 })
             })
 
@@ -213,7 +213,7 @@ export default defineComponent({
             openMessageTipBox({
                 type: 'question',
                 title: Translate('IDCS_QUESTION_MSG'),
-                message: `${Translate('IDCS_FORMAT_ALL_DISKS')}<br><span style="color:red;">${Translate('IDCS_FORMAT_MP_DISK_RESULT')}</span>`,
+                message: `${Translate('IDCS_FORMAT_ALL_DISKS')}<br><span style="color:var(--color-error);">${Translate('IDCS_FORMAT_MP_DISK_RESULT')}</span>`,
             }).then(() => {
                 pageData.value.isCheckAuth = true
             })
@@ -229,7 +229,7 @@ export default defineComponent({
             const ids = pageData.value.formatDiskIndex === -1 ? tableData.value.map((item) => item.id) : [tableData.value[pageData.value.formatDiskIndex].id]
             const sendXml = rawXml`
                 <condition>
-                    <diskIds type="list">${ids.map((id) => `<item id="${id}">磁盘1</item>`).join('')}</diskIds>
+                    <diskIds type="list">${ids.map((id) => `<item id="${id}"></item>`).join('')}</diskIds>
                 </condition>
                 <auth>
                     <userName>${e.userName}</userName>

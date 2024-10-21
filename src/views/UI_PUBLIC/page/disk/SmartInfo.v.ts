@@ -3,7 +3,7 @@
  * @Date: 2024-07-04 16:45:27
  * @Description: S.M.A.R.T信息
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:07:53
+ * @LastEditTime: 2024-10-18 10:38:52
  */
 import { type DiskSmartInfoList, type DiskSmartInfoDiskList } from '@/types/apiType/disk'
 
@@ -113,8 +113,8 @@ export default defineComponent({
         const tableData = ref<DiskSmartInfoList[]>([])
 
         // 选中的磁盘序号
-        const diskNum = computed(() => {
-            return pageData.value.diskList[pageData.value.diskIndex]?.diskNum || ''
+        const diskSerialNum = computed(() => {
+            return pageData.value.diskList[pageData.value.diskIndex]?.serialNum || ''
         })
 
         // 选中的磁盘Model
@@ -198,7 +198,7 @@ export default defineComponent({
         return {
             pageData,
             tableData,
-            diskNum,
+            diskSerialNum,
             diskModel,
             getDetail,
         }

@@ -2,8 +2,8 @@
  * @Description: AI/事件——事件通知——推送
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-12 15:28:16
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-30 11:35:38
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-18 14:48:44
  */
 import { pushForm } from '@/types/apiType/aiAndEvent'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
@@ -25,15 +25,11 @@ export default defineComponent({
         })
 
         const getScheduleData = async () => {
-            const result = await queryScheduleList()
-
-            commLoadResponseHandler(result, ($) => {
-                pageData.value.scheduleOption = $('/response/content/item').map((item) => {
-                    return {
-                        value: item.attr('id')!,
-                        label: item.text(),
-                    }
-                })
+            pageData.value.scheduleOption = await buildScheduleList()
+            pageData.value.scheduleOption.forEach((item) => {
+                if (item.value == '') {
+                    pageData.value.scheduleOption.splice(pageData.value.scheduleOption.indexOf(item), 1)
+                }
             })
         }
 
@@ -85,6 +81,10 @@ export default defineComponent({
             commSaveResponseHadler(result)
         }
 
+        const handleSchedulePopClose = () => {
+            pageData.value.scheduleManagPopOpen = false
+            getScheduleData()
+        }
         onMounted(async () => {
             openLoading()
 
@@ -98,6 +98,7 @@ export default defineComponent({
             pageData,
             testMobile,
             setData,
+            handleSchedulePopClose,
         }
     },
 })

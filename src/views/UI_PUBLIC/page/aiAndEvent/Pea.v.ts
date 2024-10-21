@@ -259,6 +259,11 @@ export default defineComponent({
         const setPeaSpeed = (speed: number) => {
             peaData.value.peaspeed = speed
         }
+        // 关闭排程管理后刷新排程列表
+        const handleSchedulePopClose = async () => {
+            peaData.value.scheduleManagePopOpen = false
+            await getScheduleList()
+        }
         // 对sheduleList进行处理
         const getScheduleList = async () => {
             peaData.value.scheduleList = await buildScheduleList()
@@ -1533,6 +1538,7 @@ export default defineComponent({
             peaplayerRef,
             peahandlePlayerReady,
             setPeaSpeed,
+            handleSchedulePopClose,
             handleAIResourceDel,
             handlePeaApply,
             handlePeaFunctionTabClick,

@@ -3,7 +3,7 @@
  * @Date: 2024-09-10 17:50:35
  * @Description: 更多功能页面的框架
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-11 10:55:57
+ * @LastEditTime: 2024-10-18 15:24:35
  */
 import { type chlCaps } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'

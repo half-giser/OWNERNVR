@@ -2,14 +2,14 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-19 17:51:14
  * @Description: 人群密度检测
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-16 11:48:30
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-18 15:45:41
 -->
 <template>
     <div>
         <ScheduleManagPop
             v-model="pageData.scheduleManagePopOpen"
-            @close="pageData.scheduleManagePopOpen = false"
+            @close="handleSchedulePopClose"
         >
         </ScheduleManagPop>
         <!-- record弹窗 -->
@@ -112,7 +112,6 @@
                                 label-position="left"
                                 class="narrow"
                                 :style="{
-                                    '--form-label-width': '200px',
                                     '--form-input-width': '215px',
                                 }"
                             >

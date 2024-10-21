@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 13:43:11
  * @Description: 磁盘阵列重建弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:00:44
+ * @LastEditTime: 2024-10-18 11:20:09
  */
 import { DiskRaidList, DiskRaidRebuildForm } from '@/types/apiType/disk'
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
@@ -48,7 +48,7 @@ export default defineComponent({
                 {
                     validator: (rule, value: string, callback) => {
                         if (!value) {
-                            callback(new Error('IDCS_NO_DISK_TO_REBUILD'))
+                            callback(new Error(Translate('IDCS_NO_DISK_TO_REBUILD')))
                             return
                         }
                         callback()
@@ -107,11 +107,11 @@ export default defineComponent({
                             <item>${formData.value.diskId}</item>
                         </disks>
                     </raidRepairInfo>
-                    <auth>
-                        <userName>${e.userName}</userName>
-                        <password>${e.hexHash}</password>
-                    </auth>
                 </content>
+                <auth>
+                    <userName>${e.userName}</userName>
+                    <password>${e.hexHash}</password>
+                </auth>
             `
             const result = await repairRaid(sendXml)
             const $ = queryXml(result)

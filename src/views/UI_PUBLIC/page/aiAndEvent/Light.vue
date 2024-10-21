@@ -9,7 +9,7 @@
     <div class="base-flex-box">
         <ScheduleManagPop
             v-model="pageData.scheduleManagePopOpen"
-            @close="pageData.scheduleManagePopOpen = false"
+            @close="handleSchedulePopClose"
         >
         </ScheduleManagPop>
         <div class="base-subheading-box">{{ Translate('IDCS_LIGHT') }}</div>

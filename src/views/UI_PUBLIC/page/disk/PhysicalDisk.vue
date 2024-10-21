@@ -3,7 +3,7 @@
  * @Date: 2024-07-08 15:30:50
  * @Description: 物理磁盘 
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-11 17:33:04
+ * @LastEditTime: 2024-10-18 11:00:05
 -->
 <template>
     <div class="base-flex-box">
@@ -12,6 +12,7 @@
                 :data="tableData"
                 border
                 stripe
+                show-overflow-tooltip
             >
                 <el-table-column :label="Translate('IDCS_DISK')">
                     <template #default="scope">
@@ -41,6 +42,7 @@
                 <el-table-column
                     :label="Translate('IDCS_DISK_TYPE')"
                     prop="model"
+                    width="210"
                 />
                 <el-table-column :label="Translate('IDCS_HOT_TO_DISK')">
                     <template #default="scope">

@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-08-10 11:05:51
  * @Description: 报警输出
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-15 15:22:51
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-18 14:16:49
  */
 import { AlarmOut } from '@/types/apiType/aiAndEvent'
 import { cloneDeep } from 'lodash-es'
@@ -40,7 +40,7 @@ export default defineComponent({
         const curAlarmoutType = ref('')
 
         onMounted(async () => {
-            pageData.value.scheduleList = await buildScheduleList()
+            pageData.value.scheduleList = await buildScheduleList(true)
             await getAlarmOutType()
             buildTableData()
         })
