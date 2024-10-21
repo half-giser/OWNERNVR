@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-08-10 12:08:57
  * @Description: AI/事件
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-16 09:17:05
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-21 11:54:22
  */
 const { Translate } = useLangStore()
 
@@ -20,6 +20,7 @@ export class AlarmOut {
     delayTime = 0 //延迟时间
     scheduleId = '' //排程ID
     scheduleName = '' //排程名称
+    oldSchedule = '' //记录打开排程管理弹窗前的名称
     type = '' //常开常闭类型--本机报警输出在有效
     status = '' //行状态: loading, success, error
     disabled = true //是否禁用
@@ -73,7 +74,7 @@ export class whiteLightInfo {
     durationTime: number | null = null
     frequencyType = ''
     enableDisable = true
-    rowDisable = true
+    rowDisable = false
     durationTimeDisable = false
     frequencyTypeDisable = false
     status = '' //行状态: loading, success, error
@@ -144,8 +145,8 @@ export class ipcAudioForm {
     audioChl = '' // 通道
     audioChecked = false // 声音是否启用
     voice = '' // 语音
-    number = '' // 次数
-    volume = '' // 音量
+    number = undefined as number | undefined // 次数
+    volume = undefined as number | undefined // 音量
     language = '' // 语言
 
     // 声音设备
@@ -169,8 +170,8 @@ export class AudioAlarmOut {
     langArr = [] as SelectOption<string, string>[]
     audioSwitch = ''
     audioType = ''
-    alarmTimes = ''
-    audioVolume = ''
+    alarmTimes = 1
+    audioVolume = 0
     languageType = ''
     audioFormat = ''
     sampleRate = ''

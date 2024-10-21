@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-07-30 09:23:37
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-08-12 15:00:18
+ * @LastEditTime: 2024-10-18 15:35:12
  */
 import { PopVideoForm, PopMsgForm } from '@/types/apiType/aiAndEvent'
 
@@ -17,27 +17,12 @@ export default defineComponent({
 
         const pageData = ref({
             // 弹出视频持续时间选项
-            popVideoDurationOption: [] as number[],
+            popVideoDurationOption: [] as SelectOption<number, string>[],
             // 弹出视频输出选项
             popVideoOutputOption: [] as SelectOption<string, string>[],
             // 弹出消息框持续时间选项
-            popMsgDurationOption: [] as number[],
+            popMsgDurationOption: [] as SelectOption<number, string>[],
         })
-
-        /**
-         * @description 持续时间选项的格式化
-         * @param {number} value 秒
-         */
-        const displayDurationOption = (value: number) => {
-            if (value == 0) {
-                return Translate('IDCS_ALWAYS_KEEP')
-            } else if (value == 60) {
-                return '1 ' + Translate('IDCS_MINUTE')
-            } else if (value > 60) {
-                return value / 60 + Translate('IDCS_MINUTE')
-            }
-            return value + Translate('IDCS_SECONDS')
-        }
 
         // 获取数据
         const getData = async () => {
@@ -45,13 +30,16 @@ export default defineComponent({
 
             commLoadResponseHandler(result, ($) => {
                 videoFormData.value.popVideoDuration = Number($('/response/content/popVideoDuration').text())
-                $('/response/content/popVideoDurationNote')
+                pageData.value.popVideoDurationOption = $('/response/content/popVideoDurationNote')
                     .text()
                     .split(',')
-                    .forEach((item) => {
-                        pageData.value.popVideoDurationOption.push(Number(item))
+                    .map((item) => {
+                        const value = Number(item)
+                        return {
+                            value: value,
+                            label: value === 0 ? Translate('IDCS_ALWAYS_KEEP') : getTranslateForSecond(value),
+                        }!
                     })
-
                 videoFormData.value.popVideoOutput = $('/response/content/popVideoOutput').text()
                 const popVideoOutputNote = $('/response/content/popVideoOutputNote').text().split(',')
                 if (popVideoOutputNote.length >= 2) {
@@ -72,11 +60,15 @@ export default defineComponent({
                 })
 
                 msgFormData.value.popMsgDuration = Number($('/response/content/popMsgDuration').text())
-                $('/response/content/popMsgDurationNote')
+                pageData.value.popMsgDurationOption = $('/response/content/popMsgDurationNote')
                     .text()
                     .split(',')
-                    .forEach((item) => {
-                        pageData.value.popMsgDurationOption.push(Number(item))
+                    .map((item) => {
+                        const value = Number(item)
+                        return {
+                            value: value,
+                            label: value === 0 ? Translate('IDCS_ALWAYS_KEEP') : getTranslateForSecond(value),
+                        }!
                     })
 
                 msgFormData.value.popMsgShow = $('/response/content/popMsgShow').text() == 'false'
@@ -111,7 +103,6 @@ export default defineComponent({
             pageData,
             videoFormData,
             msgFormData,
-            displayDurationOption,
             setData,
         }
     },

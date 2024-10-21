@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-04 14:22:06
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-16 15:28:52
+ * @LastEditTime: 2024-10-21 10:50:13
 -->
 <template>
     <!-- 人脸识别——识别成功 -->
@@ -74,7 +74,7 @@
         >
             <el-checkbox
                 v-model="normalParamCheckAll"
-                class="base-ai-linkage-title"
+                class="base-ai-linkage-title base-ai-linkage-title-checkbox-input"
                 @change="handleNormalParamCheckAll"
                 >{{ Translate('IDCS_TRIGGER_NOMAL') }}</el-checkbox
             >

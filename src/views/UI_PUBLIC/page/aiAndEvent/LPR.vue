@@ -204,23 +204,21 @@
                                     <!-- 车牌大小(范围) -->
                                     <div class="base-ai-subheading">{{ detectionPageData.plateSizeRangeTitle }}</div>
                                     <el-form-item :label="Translate('IDCS_MIN')">
-                                        <el-input
+                                        <BaseNumberInput
                                             v-model="vehicleDetectionData.plateSize.minWidth"
                                             :min="vehicleDetectionData.plateSize.min"
                                             :max="vehicleDetectionData.plateSize.max"
-                                            type="number"
                                             @blur="minVehicleBlur"
                                         />
                                         <el-text>%</el-text>
                                     </el-form-item>
                                     <el-form-item :label="Translate('IDCS_MAX')">
-                                        <el-input
+                                        <BaseNumberInput
                                             v-model="vehicleDetectionData.plateSize.maxWidth"
                                             :min="vehicleDetectionData.plateSize.min"
                                             :max="vehicleDetectionData.plateSize.max"
-                                            type="number"
                                             @blur="maxVehicleBlur"
-                                        ></el-input>
+                                        ></BaseNumberInput>
                                         <el-text>%</el-text>
                                     </el-form-item>
                                     <el-form-item>

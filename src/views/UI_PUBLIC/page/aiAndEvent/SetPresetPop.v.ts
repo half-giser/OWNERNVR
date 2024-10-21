@@ -57,13 +57,11 @@ export default defineComponent({
                 rowData.forEach((row) => {
                     prop.linkedList?.forEach((item) => {
                         if (row.id == item.chl.value) {
-                            console.log(item)
                             row.preset = { value: item.index, label: item.name }
                             row.presetList.push({ value: item.index, label: item.name })
                         }
                     })
                 })
-                console.log(rowData)
                 for (let i = rowData.length - 1; i >= 0; i--) {
                     //预置点里过滤掉recorder通道
                     if (rowData[i].chlType == 'recorder') {

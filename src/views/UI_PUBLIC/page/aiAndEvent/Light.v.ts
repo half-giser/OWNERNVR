@@ -3,7 +3,7 @@
  * @Date: 2024-08-13 15:58:57
  * @Description:闪灯
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-18 14:19:21
+ * @LastEditTime: 2024-10-21 15:13:33
  */
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import { whiteLightInfo } from '@/types/apiType/aiAndEvent'
@@ -13,7 +13,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
+        const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const tableData = ref<whiteLightInfo[]>([])
         const pageData = ref({
             pageIndex: 1,
@@ -77,6 +77,7 @@ export default defineComponent({
                         row.durationTime = Number(res('//content/chl/param/durationTime').text())
                         row.frequencyType = res('//content/chl/param/frequencyType').text()
                         setRowDisable(row)
+                        row.rowDisable = false
                     } else {
                         row.enableDisable = true
                         row.rowDisable = true
@@ -123,7 +124,7 @@ export default defineComponent({
             pageData.value.scheduleChanged = false
         }
         const setData = () => {
-            openLoading()
+            openLoading(LoadingTarget.FullScreen)
             pageData.value.editRows.forEach((row) => {
                 const sendXml = getSaveData(row)
                 if (sendXml) {
@@ -163,7 +164,7 @@ export default defineComponent({
                     pageData.value.scheduleChanged = false
                 })
             }
-            closeLoading()
+            closeLoading(LoadingTarget.FullScreen)
         }
         const changePagination = () => {
             buildTableData()
@@ -253,21 +254,19 @@ export default defineComponent({
             }
         }
         const setRowDisable = (rowData: whiteLightInfo) => {
-            const disabled = rowData['enable'] && rowData['enable'] == 'false' ? true : false
-            if (rowData['enable'] == null) {
+            const disabled = rowData['enable'] == 'false'
+            if (rowData['enable'] == '') {
                 rowData['rowDisable'] = true
-                rowData['durationTimeDisable'] = true
-                rowData['frequencyTypeDisable'] = true
-            }
-            if (rowData['enable']) {
-                rowData['enableDisable'] = false
-            }
-            if (disabled) {
-                rowData['rowDisable'] = false
+                rowData['enableDisable'] = true
                 rowData['durationTimeDisable'] = true
                 rowData['frequencyTypeDisable'] = true
             } else {
-                rowData['rowDisable'] = false
+                rowData['enableDisable'] = false
+            }
+            if (disabled) {
+                rowData['durationTimeDisable'] = true
+                rowData['frequencyTypeDisable'] = true
+            } else {
                 rowData['durationTimeDisable'] = false
                 rowData['frequencyTypeDisable'] = false
             }

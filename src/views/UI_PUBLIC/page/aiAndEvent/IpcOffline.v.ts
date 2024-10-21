@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-21 15:34:24
  * @Description: 前端掉线
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 17:17:40
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-21 14:16:17
  */
 import { cloneDeep } from 'lodash-es'
 import { MotionEventConfig, type PresetItem } from '@/types/apiType/aiAndEvent'
@@ -169,15 +169,35 @@ export default defineComponent({
             })
         }
         const buildTableData = () => {
-            tableData.value.length = 0
-            getChlList({
-                pageIndex: pageData.value.pageIndex,
-                pageSize: pageData.value.pageSize,
-                chlType: 'digital',
-            }).then(async (res) => {
+            // tableData.value.length = 0
+            tableData.value = []
+            const sendXml = rawXml`
+                                    <types>
+                                        <nodeType>
+                                            <enum>chls</enum>
+                                            <enum>sensors</enum>
+                                            <enum>alarmOuts</enum>
+                                        </nodeType>
+                                        <chlType>
+                                            <enum>analog</enum>
+                                            <enum>digital</enum>
+                                            <enum>all</enum>
+                                        </chlType>
+                                    </types>
+                                    <pageIndex>${pageData.value.pageIndex.toString()}</pageIndex>
+                                    <pageSize>${pageData.value.pageSize.toString()}</pageSize>
+                                    <nodeType type="nodeType">chls</nodeType>
+                                    <requireField>
+                                        <name/>
+                                    </requireField>
+                                    <condition>
+                                        <chlType type="chlType">digital</chlType>
+                                    </condition>
+                                `
+            queryNodeList(sendXml).then(async (res) => {
                 const $chl = queryXml(res)
                 pageData.value.totalCount = Number($chl('//content').attr('total'))
-                $chl('//content/item').forEach(async (item) => {
+                $chl('//content/item').forEach((item) => {
                     const $ele = queryXml(item.element)
                     const row = new MotionEventConfig()
                     row.id = item.attr('id')!
@@ -185,6 +205,7 @@ export default defineComponent({
                     row.status = 'loading'
                     tableData.value.push(row)
                 })
+
                 for (let i = 0; i < tableData.value.length; i++) {
                     const row = tableData.value[i]
                     row.status = ''
@@ -306,8 +327,8 @@ export default defineComponent({
             pageData.value.snapPopoverVisible = false
         }
         const setSnap = (index: number) => {
-            pageData.value.snapIsShow = true
             pageData.value.triggerDialogIndex = index
+            pageData.value.snapIsShow = true
         }
         const snapConfirm = (e: { value: string; label: string }[]) => {
             addEditRow(tableData.value[pageData.value.triggerDialogIndex])
@@ -370,8 +391,8 @@ export default defineComponent({
             pageData.value.alarmOutPopoverVisible = false
         }
         const setAlarmOut = (index: number) => {
-            pageData.value.alarmOutIsShow = true
             pageData.value.triggerDialogIndex = index
+            pageData.value.alarmOutIsShow = true
         }
         const alarmOutConfirm = (e: { value: string; label: string }[]) => {
             addEditRow(tableData.value[pageData.value.triggerDialogIndex])
@@ -419,24 +440,35 @@ export default defineComponent({
             })
         }
 
-        const snapSwitchChange = (row: MotionEventConfig) => {
-            addEditRow(row)
-            if (row.snap.switch === false) {
-                row.snap.chls = []
-                row.snapList = []
-            }
-        }
-        const alarmOutSwitchChange = (row: MotionEventConfig) => {
-            addEditRow(row)
-            if (row.alarmOut.switch === false) {
-                row.alarmOut.chls = []
-                row.alarmOutList = []
-            }
-        }
         const presetSwitchChange = (row: MotionEventConfig) => {
             addEditRow(row)
             if (row.preset.switch === false) {
                 row.preset.presets = []
+            } else {
+                openPresetPop(row)
+            }
+        }
+        const checkChange = (index: number, type: string) => {
+            addEditRow(tableData.value[index])
+            switch (type) {
+                case 'snap':
+                    if (tableData.value[index].snap.switch) {
+                        setSnap(index)
+                    } else {
+                        tableData.value[index].snap.chls = []
+                        tableData.value[index].snapList = []
+                    }
+                    break
+                case 'alarmOut':
+                    if (tableData.value[index].alarmOut.switch) {
+                        setAlarmOut(index)
+                    } else {
+                        tableData.value[index].alarmOut.chls = []
+                        tableData.value[index].alarmOutList = []
+                    }
+                    break
+                default:
+                    break
             }
         }
 
@@ -657,8 +689,7 @@ export default defineComponent({
             openPresetPop,
             handlePresetLinkedList,
             presetClose,
-            snapSwitchChange,
-            alarmOutSwitchChange,
+            checkChange,
             presetSwitchChange,
             handleSysAudioChangeAll,
             handleMsgPushChangeAll,

@@ -3,7 +3,7 @@
  * @Date: 2024-10-15 10:04:36
  * @Description: 录像码流通用组件
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-15 16:10:27
+ * @LastEditTime: 2024-10-21 14:57:21
  */
 import { ArrowDown } from '@element-plus/icons-vue'
 import { RecordStreamInfoDto } from '@/types/apiType/record'
@@ -39,7 +39,6 @@ export default defineComponent({
     setup(props, ctx) {
         // 用于控制下拉菜单的打开关闭
         const resolutionTableRef = ref<TableInstance>()
-        const theme = getUiAndTheme().name
         // const prop = withDefaults(
         //     defineProps<{
         //         mode: string
@@ -61,8 +60,8 @@ export default defineComponent({
             }
         }
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
-        const tableData = ref([] as RecordStreamInfoDto[])
+        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const tableData = ref<RecordStreamInfoDto[]>([])
         // const tableRef = ref<FormInstance>()
 
         const streamTypeMapping: Record<string, string> = {
@@ -223,7 +222,7 @@ export default defineComponent({
         }
         // 获取表格数据
         const getData = async function () {
-            openLoading()
+            openLoading(LoadingTarget.FullScreen)
             const sendXml = rawXml`
                                 <requireField>
                                     <name/>
@@ -236,25 +235,25 @@ export default defineComponent({
                                     <levelNote/>
                                 </requireField>  `
             const res = await queryNodeEncodeInfo(sendXml)
-            const $ = queryXml(res)
-            bindCtrlData($)
-            closeLoading()
+            // const $ = queryXml(res)
+            closeLoading(LoadingTarget.FullScreen)
+            bindCtrlData(res)
         }
         // 绑定数据
-        const bindCtrlData = function (res: any) {
-            // res = queryXml(res)
+        const bindCtrlData = function (resb: XMLDocument | Element) {
+            const res = queryXml(resb)
             if (res('status').text() === 'success') {
                 tableData.value = []
                 // 遍历('//cotent/item')，获取表格数据
-                res('//content/item').forEach((ele: any) => {
+                res('//content/item').forEach((ele) => {
                     const eleXml = queryXml(ele.element)
                     const item = new RecordStreamInfoDto()
-                    item['@id'] = ele.attr('id').trim()
+                    item['@id'] = ele.attr('id')!.trim()
                     item.name = eleXml('name').text()
                     item.chlType = eleXml('chlType').text()
                     const resList: { '@fps': string; value: string }[] = []
-                    eleXml('mainCaps/res').forEach((element: any) => {
-                        resList.push({ '@fps': element.attr('fps'), value: element.text() })
+                    eleXml('mainCaps/res').forEach((element) => {
+                        resList.push({ '@fps': element.attr('fps')!, value: element.text() })
                     })
                     item.mainCaps = {
                         '@supEnct':
@@ -307,12 +306,12 @@ export default defineComponent({
                     }
                     item.streamType = 'main'
                     // 获取码率类型
-                    eleXml('mainStreamQualityCaps/item').forEach((element: any) => {
+                    eleXml('mainStreamQualityCaps/item').forEach((element) => {
                         item.mainStreamQualityCaps.push({
-                            '@enct': element.attr('enct'),
-                            '@res': element.attr('res'),
-                            '@digitalDefault': element.attr('digitalDefault'),
-                            '@analogDefault': element.attr('analogDefault'),
+                            '@enct': element.attr('enct')!,
+                            '@res': element.attr('res')!,
+                            '@digitalDefault': element.attr('digitalDefault')!,
+                            '@analogDefault': element.attr('analogDefault')!,
                             value: element.text().split(',') ? element.text().split(',') : [],
                         })
                         if (element.attr('enct') == 'h264' && element.attr('res') == '0x0' && pageData.value.videoQualityListFlag === 0) {
@@ -334,7 +333,7 @@ export default defineComponent({
                     item.levelNote = eleXml('levelNote').text() ? eleXml('levelNote').text().split(',') : []
                     if (item.levelNote.length > 0) {
                         pageData.value.levelList = []
-                        item.levelNote.reverse().forEach((element: any) => {
+                        item.levelNote.reverse().forEach((element) => {
                             pageData.value.levelList.push({ value: element, text: Translate(imageLevelMapping[element]) })
                         })
                     }
@@ -365,7 +364,7 @@ export default defineComponent({
                             item['frameRate'] = item['me']['@fps']
                             item['frameRate'] = item['me']['@fps']
                             item['bitType'] = item['me']['@bitType']
-                            item['level'] = item['me']['@level'] ? item['me']['@level'] : '最低'
+                            item['level'] = item['me']['@level'] ? item['me']['@level'] : Translate('IDCS_LOWEST')
                             item['videoQuality'] = item['me']['@QoI']
                             item['audio'] = item['me']['@audio']
                             item['recordStream'] = item['me']['@type']
@@ -386,7 +385,7 @@ export default defineComponent({
                             item['frameRate'] = item['mn']['@fps']
                             item['frameRate'] = item['mn']['@fps']
                             item['bitType'] = item['mn']['@bitType']
-                            item['level'] = item['mn']['@level'] ? item['mn']['@level'] : '最低'
+                            item['level'] = item['mn']['@level'] ? item['mn']['@level'] : Translate('IDCS_LOWEST')
                             item['videoQuality'] = item['mn']['@QoI']
                             item['audio'] = item['mn']['@audio']
                             item['recordStream'] = item['mn']['@type']
@@ -399,7 +398,7 @@ export default defineComponent({
                         item['mainCaps']['res'].sort((a, b) => resolutionSort(a, b))
                     }
                     item['bitRange'] =
-                        item['bitType'] == 'CBR' || !item['bitType']
+                        item['bitType'] == 'CBR' || item['bitType'] == ''
                             ? null
                             : getBitrateRange({
                                   resolution: item['resolution'],
@@ -411,7 +410,7 @@ export default defineComponent({
 
                     item['supportAudio'] = true
                     if (pageData.value.audioInNum > 0) {
-                        ele.each(pageData.value.chls, function (chl: ChlItem) {
+                        pageData.value.chls.forEach((chl: ChlItem) => {
                             if (chl['@id'] == item['@id'] && chl['chlIndex'] && parseInt(chl['chlIndex']) * 1 >= pageData.value.audioInNum) {
                                 item['supportAudio'] = false
                                 return false
@@ -435,7 +434,7 @@ export default defineComponent({
                 })
                 doCfg(tableData.value)
                 pageData.value.resolutionGroups = getResolutionGroups(tableData.value)
-                queryRemainRecTimeF()
+                if (import.meta.env.VITE_UI_TYPE === 'UI1-E') queryRemainRecTimeF()
                 pageData.value.levelDropDisable = pageData.value.isAllCBR
                 pageData.value.firstInit = false
             }
@@ -463,9 +462,9 @@ export default defineComponent({
             })
             sendXml += `</chls>
             </content>`
-            openLoading()
+            openLoading(LoadingTarget.FullScreen)
             queryRemainRecTime(sendXml).then((resb) => {
-                closeLoading()
+                closeLoading(LoadingTarget.FullScreen)
                 const res = queryXml(resb)
                 if (res('status').text() === 'success') {
                     pageData.value.recTime = ''
@@ -488,7 +487,7 @@ export default defineComponent({
                         })
                         pageData.value.recTime = recTimeArray.join(';')
                         // 根据UI切换是否显示
-                        if (theme === 'UI1-E') {
+                        if (import.meta.env.VITE_UI_TYPE === 'UI1-E') {
                             pageData.value.PredictVisible = true
                             pageData.value.CalculateVisible = true
                         }
@@ -506,7 +505,7 @@ export default defineComponent({
                                       : remainRecTime + ' ' + Translate('IDCS_DAY_TIME')
                                   : remainRecTime + ' ' + Translate('IDCS_DAY_TIMES')
                         pageData.value.recTime = Translate('IDCS_PREDICT_RECORD_TIME') + '' + recTime + ''
-                        if (theme === 'UI1-E') {
+                        if (import.meta.env.VITE_UI_TYPE === 'UI1-E') {
                             pageData.value.PredictVisible = true
                             pageData.value.CalculateVisible = true
                         }

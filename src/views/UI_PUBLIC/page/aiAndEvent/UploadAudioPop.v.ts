@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-14 15:48:05
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-12 16:41:20
+ * @LastEditTime: 2024-10-21 14:54:12
  */
 import { type AudioAlarmOut } from '@/types/apiType/aiAndEvent'
 import { type UploadFile } from 'element-plus'
@@ -52,14 +52,16 @@ export default defineComponent({
 
             const data = prop.ipcRowData as AudioAlarmOut
             if (prop.type == 'ipcAudio') {
+                pageData.value.isIpcTipsShow = true
+                pageData.value.isLocalTipsShow = false
                 const audioFormat = '*.' + data.audioFormat + ',' + data.audioDepth + ',' + data.sampleRate + ',' + data.audioChannel
                 pageData.value.audioFilesSizeTips = Translate('IDCS_FILE_SIZE_LIMIT_TIP').formatForLang(data.audioFileLimitSize, 10 - data.customeAudioNum)
                 pageData.value.audioFormatTips = Translate('IDCS_FILE_FORMAT_LIMIT_TIP').formatForLang('', audioFormat)
             } else {
                 pageData.value.isIpcTipsShow = false
+                pageData.value.isLocalTipsShow = true
                 pageData.value.localFilesSizeTips = Translate('IDCS_FILE_MAX_SIZE_LIMIT_TIP').formatForLang('1.5MB')
                 pageData.value.audioFormatTips = Translate('IDCS_FILE_FORMAT_LIMIT_TIP').formatForLang('', '*.mp3')
-                pageData.value.isLocalTipsShow = true
             }
         }
 

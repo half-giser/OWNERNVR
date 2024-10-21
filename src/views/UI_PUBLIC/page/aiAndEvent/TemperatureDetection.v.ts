@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-13 09:18:41
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-16 13:54:45
+ * @LastEditTime: 2024-10-21 14:23:49
  */
 import { cloneDeep } from 'lodash-es'
 import { type BoundaryTableDataItem, type chlCaps, type PresetList, TempDetection } from '@/types/apiType/aiAndEvent'
@@ -116,6 +116,7 @@ export default defineComponent({
             // 绘图区域下提示信息
             drawAreaTip: '',
             // 排程
+            scheduleIdNull: '{00000000-0000-0000-0000-000000000000}',
             scheduleList: [] as SelectOption<string, string>[],
             scheduleManagPopOpen: false,
             alarmRuleTypeList: [] as SelectOption<string, string>[][],
@@ -135,24 +136,6 @@ export default defineComponent({
             applyDisabled: true,
             notification: [] as string[],
         })
-
-        // 获取排程数据
-        const getScheduleData = async () => {
-            const result = await queryScheduleList()
-
-            commLoadResponseHandler(result, ($) => {
-                pageData.value.scheduleList = $('/response/content/item').map((item) => {
-                    return {
-                        value: item.attr('id')!,
-                        label: item.text(),
-                    }
-                })
-            })
-            pageData.value.scheduleList.push({
-                value: '{00000000-0000-0000-0000-000000000000}',
-                label: `<${Translate('IDCS_NULL')}>`,
-            })
-        }
         // 获取录像数据
         const getRecordList = async () => {
             getChlList({
@@ -620,6 +603,7 @@ export default defineComponent({
         // 发射率输入限制
         const emissivityInput = (value: string, index: number) => {
             let num = '' + value
+            console.log(value)
             num = num
                 .replace(/[^\d.]/g, '') // 清除“数字”和“.”以外的字符
                 .replace(/\.{2,}/g, '.') // 只保留第一个. 清除多余的
@@ -643,7 +627,7 @@ export default defineComponent({
                     duration: 2000,
                 })
             }
-            tempDetectionData.value.boundaryData[index].emissivity = String(res)
+            tempDetectionData.value.boundaryData[index].emissivity = value != '' ? String(res) : ''
         }
         const emissivityBlur = (row: BoundaryTableDataItem) => {
             const value = Number(row.emissivity)
@@ -924,6 +908,8 @@ export default defineComponent({
                     type: 'info',
                     message: Translate('IDCS_PRESET_LIMIT'),
                 })
+                row.preset.value = ''
+                tempDetectionData.value.preset = tempDetectionData.value.preset.filter((item) => row.id != item.chl.value)
             }
         }
         // 区域为多边形时，检测区域合法性(温度检测页面一个点为画点，两个点为画线，大于两个小于8个为区域，只需要检测区域的合法性)
@@ -1090,7 +1076,10 @@ export default defineComponent({
             if (mode.value != 'h5') {
                 Plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
             }
-            await getScheduleData()
+            pageData.value.scheduleList = await buildScheduleList()
+            pageData.value.scheduleList.forEach((item) => {
+                item.value = item.value != '' ? item.value : pageData.value.scheduleIdNull
+            })
             await getRecordList()
             await getAlarmOutData()
             await getSnapList()

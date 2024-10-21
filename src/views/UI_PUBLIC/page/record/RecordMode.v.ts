@@ -14,7 +14,6 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const userSessionStore = useUserSessionStore()
         const { supportPOS } = useCababilityStore()
-        const theme = getUiAndTheme().name
         const openMessageTipBox = useMessageBox().openMessageTipBox
         const { openLoading, closeLoading } = useLoading()
 
@@ -138,7 +137,7 @@ export default defineComponent({
                 INTENSIVE: 'record_all',
             } as Record<string, string>,
             // 根据UI选择是否显示icon
-            showIcon: theme === 'UI1-E',
+            showIcon: import.meta.env.VITE_UI_TYPE === 'UI1-E',
         })
 
         // 如果支持POS，才在高级模式选项列表中加入POS

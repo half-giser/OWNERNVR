@@ -2,8 +2,8 @@
  * @Description: 普通事件——传感器
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-23 10:58:27
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-18 14:32:40
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-18 14:47:15
  */
 import { type PresetItem, SensorEvent, type ChlList } from '@/types/apiType/aiAndEvent'
 import { QueryNodeListDto } from '@/types/apiType/channel'
@@ -785,7 +785,9 @@ export default defineComponent({
                         // 更新表格初始对比值
                         tableDataInit = cloneDeep(tableData.value)
                         closeLoading()
-                        pageData.value.applyDisabled = true
+                        nextTick(() => {
+                            pageData.value.applyDisabled = true
+                        })
                     }
                 })
             }

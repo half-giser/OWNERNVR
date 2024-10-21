@@ -2,8 +2,8 @@
  * @Description: AI/事件——事件通知——声音
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-13 09:23:25
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 15:04:09
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-21 15:09:17
  */
 import { ipcAudioForm, type AudioAlarmOut, type AudioDevice, type LocalTableRow } from '@/types/apiType/aiAndEvent'
 import { QueryNodeListDto } from '@/types/apiType/channel'
@@ -98,6 +98,8 @@ export default defineComponent({
             btnApplyDisabled: false,
             isImportAudioDialog: false,
             scheduleManagPopOpen: false,
+            // 本页面schedule为''无法提交，<无>转为{00000000-0000-0000-0000-000000000000}处理
+            scheduleIdNull: '{00000000-0000-0000-0000-000000000000}',
             audioSchedule: '',
             originAudioSchedule: '',
             audioScheduleList: [] as SelectOption<string, string>[],
@@ -180,8 +182,8 @@ export default defineComponent({
                 langArr: langArr,
                 audioSwitch: success ? $('/response/content/chl/param/switch').text() : '',
                 audioType: success ? $('/response/content/chl/param/audioType').text() : '',
-                alarmTimes: success ? $('/response/content/chl/param/alarmTimes').text() : '',
-                audioVolume: success ? $('/response/content/chl/param/audioVolume').text() : '',
+                alarmTimes: success ? Number($('/response/content/chl/param/alarmTimes').text()) : 1,
+                audioVolume: success ? Number($('/response/content/chl/param/audioVolume').text()) : 0,
                 languageType: success ? $('/response/content/chl/param/languageType').text() : '',
                 audioFormat: success ? $('/response/content/chl/param/audioParamLimit/audioFormat').text() : '',
                 sampleRate: success ? $('/response/content/chl/param/audioParamLimit/sampleRate').text() : '',
@@ -249,7 +251,7 @@ export default defineComponent({
                     audioAlarmPageData.value.numberDisabled = false
                 } else {
                     audioAlarmPageData.value.numberDisabled = true
-                    ipcAudioFormData.value.number = ''
+                    ipcAudioFormData.value.number = undefined
                 }
 
                 if (data.audioVolume) {
@@ -257,7 +259,7 @@ export default defineComponent({
                     audioAlarmPageData.value.volumeDisabled = false
                 } else {
                     audioAlarmPageData.value.volumeDisabled = true
-                    ipcAudioFormData.value.volume = ''
+                    ipcAudioFormData.value.volume = undefined
                 }
 
                 if (data.languageType) {
@@ -283,8 +285,8 @@ export default defineComponent({
                 })
                 ipcAudioFormData.value.audioChecked = true
                 ipcAudioFormData.value.voice = ''
-                ipcAudioFormData.value.number = ''
-                ipcAudioFormData.value.volume = ''
+                ipcAudioFormData.value.number = undefined
+                ipcAudioFormData.value.volume = undefined
                 ipcAudioFormData.value.language = ''
                 changeAudioAlarmDataDisabled(true)
                 ipcAudioFormData.value.audioChecked = true
@@ -346,13 +348,13 @@ export default defineComponent({
         }
 
         const blurNumber = () => {
-            audioAlarmOutData[ipcAudioFormData.value.audioChl].alarmTimes = ipcAudioFormData.value.number
+            audioAlarmOutData[ipcAudioFormData.value.audioChl].alarmTimes = ipcAudioFormData.value.number as number
             audioAlarmOutData[ipcAudioFormData.value.audioChl].editFlag = true
             pageData.value.btnApplyDisabled = false
         }
 
         const blurVolume = () => {
-            audioAlarmOutData[ipcAudioFormData.value.audioChl].audioVolume = ipcAudioFormData.value.volume
+            audioAlarmOutData[ipcAudioFormData.value.audioChl].audioVolume = ipcAudioFormData.value.volume as number
             if (audioDeviceData[ipcAudioFormData.value.audioChl] && audioDeviceData[ipcAudioFormData.value.audioChl].audioOutEnabled) {
                 audioDeviceData[ipcAudioFormData.value.audioChl].audioOutVolume = Number(ipcAudioFormData.value.volume)
                 if (ipcAudioFormData.value.deviceChl == ipcAudioFormData.value.audioChl) {
@@ -427,7 +429,7 @@ export default defineComponent({
                 <chl id='${ipcAudioFormData.value.audioChl}'>
                 <param>
                     <auditionAudioAlarm>
-                    <id>${String(ipcAudioFormData.value.voice)}</id>
+                    <audioType>${String(ipcAudioFormData.value.voice)}</audioType>
                     </auditionAudioAlarm>
                 </param>
                 </chl>
@@ -464,15 +466,14 @@ export default defineComponent({
                         <name><![CDATA[${audioAlarmOutData[ipcAudioFormData.value.audioChl].name}]]></name>
                         <switch>${String(ipcAudioFormData.value.audioChecked)}</switch>
                         <audioType>${ipcAudioFormData.value.voice}</audioType>
-                        <alarmTimes>${ipcAudioFormData.value.number}</alarmTimes>
-                        <audioVolume>${ipcAudioFormData.value.volume}</audioVolume>
+                        <alarmTimes>${String(ipcAudioFormData.value.number)}</alarmTimes>
+                        <audioVolume>${String(ipcAudioFormData.value.volume)}</audioVolume>
                         <languageType>${Number(ipcAudioFormData.value.voice) >= 100 ? 'customize' : ipcAudioFormData.value.language}</languageType>
                     </param>
                     </chl>
                 </content>
                 `
-                const result = await editAudioAlarmOutCfg(sendXml)
-                commSaveResponseHadler(result)
+                await editAudioAlarmOutCfg(sendXml)
                 audioAlarmOutData[ipcAudioFormData.value.audioChl].editFlag = false
             }
         }
@@ -710,45 +711,32 @@ export default defineComponent({
                     </chl>
                 </content>
                 `
-                const result = await editAudioStreamConfig(sendXml)
-                commSaveResponseHadler(result)
+                await editAudioStreamConfig(sendXml)
                 closeLoading()
                 audioDeviceData[ipcAudioFormData.value.deviceChl].editFlag = false
             }
         }
 
-        const getScheduleList = async () => {
+        const getScheduleData = async () => {
             pageData.value.audioScheduleList = await buildScheduleList()
             pageData.value.audioScheduleList.forEach((item) => {
-                if ((item.value = '')) {
-                    item.value = '{00000000-0000-0000-0000-000000000000}'
-                }
+                item.value = item.value != '' ? item.value : pageData.value.scheduleIdNull
             })
-            console.log(pageData.value.audioScheduleList)
-        }
-
-        const getScheduleData = async () => {
-            await getScheduleList()
             const result = await queryEventNotifyParam()
 
             commLoadResponseHandler(result, ($) => {
-                pageData.value.audioSchedule = $('/response/content/triggerChannelAudioSchedule').attr('id') || '{00000000-0000-0000-0000-000000000000}'
+                pageData.value.audioSchedule = $('/response/content/triggerChannelAudioSchedule').attr('id')
                 pageData.value.originAudioSchedule = pageData.value.audioSchedule
             })
         }
 
         const setScheduleData = async () => {
-            let audioName = ''
-            pageData.value.audioScheduleList.forEach((item) => {
-                if (item.value == pageData.value.audioSchedule) {
-                    audioName = item.label
-                }
-            })
-
             openLoading()
+            // <triggerChannelAudioSchedule id='${pageData.value.audioSchedule}'>${audioName}</triggerChannelAudioSchedule>
+            // 这里删掉了原代码中传的audioName，因为在audioName = <无>的情况下会导致解析错误
             const sendXml = rawXml`
                 <content>
-                    <triggerChannelAudioSchedule id='${pageData.value.audioSchedule}'>${audioName}</triggerChannelAudioSchedule>
+                    <triggerChannelAudioSchedule id='${pageData.value.audioSchedule}'></triggerChannelAudioSchedule>
                 </content>
             `
             await editEventNotifyParam(sendXml)
@@ -767,9 +755,9 @@ export default defineComponent({
                     return {
                         id: item.attr('id') as string,
                         index: item.attr('index') as string,
-                        name: $item('/name').text(),
-                        originalName: $item('/name').text(),
-                        fileValid: $item('/fileValid').text(),
+                        name: $item('name').text(),
+                        originalName: $item('name').text(),
+                        fileValid: $item('fileValid').text(),
                     }
                 })
             })
@@ -788,22 +776,27 @@ export default defineComponent({
         const deleteLocalAudio = async () => {
             const selectedId = localTableRef.value.getSelectionRows().map((item: LocalTableRow) => item.id)
 
-            let sendXml = rawXml`<content>`
-            selectedId.forEach((item: string) => {
-                sendXml += rawXml`<item id='${item}'></item>`
-            })
-            sendXml += rawXml`</content>`
+            if (selectedId.length > 0) {
+                let sendXml = rawXml`<content>`
+                selectedId.forEach((item: string) => {
+                    sendXml += rawXml`<item id='${item}'></item>`
+                })
+                sendXml += rawXml`</content>`
 
-            const result = await deleteAlarmAudio(sendXml)
-            commSaveResponseHadler(result)
+                const result = await deleteAlarmAudio(sendXml)
+                commSaveResponseHadler(result)
+            }
         }
 
         const setData = async () => {
+            openLoading()
             await setAudioAlarmData()
             await setAudiDeviceData()
             if (pageData.value.audioSchedule != pageData.value.originAudioSchedule) {
                 await setScheduleData()
             }
+            pageData.value.btnApplyDisabled = true
+            closeLoading()
         }
 
         const handleSchedulePopClose = async () => {
@@ -814,13 +807,12 @@ export default defineComponent({
         onMounted(async () => {
             openLoading()
 
+            await getScheduleData()
             await getAudioAlarmData()
             await getAudioDeviceData()
-            await getScheduleData()
             if (pageData.value.supportAlarmAudioConfig) {
                 await getLocalTableData()
             }
-            await getLocalTableData()
 
             closeLoading()
         })
