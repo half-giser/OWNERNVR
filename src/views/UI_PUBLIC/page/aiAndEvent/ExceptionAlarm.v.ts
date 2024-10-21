@@ -3,7 +3,7 @@
  * @Date: 2024-08-21 15:34:24
  * @Description: 异常报警
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-10 13:45:39
+ * @LastEditTime: 2024-10-21 10:43:11
  */
 import { cloneDeep } from 'lodash-es'
 import { ExceptionAlarmRow } from '@/types/apiType/aiAndEvent'
@@ -198,8 +198,8 @@ export default defineComponent({
             pageData.value.alarmOutPopoverVisible = false
         }
         const setAlarmOut = (index: number) => {
-            pageData.value.alarmOutIsShow = true
             pageData.value.triggerDialogIndex = index
+            pageData.value.alarmOutIsShow = true
         }
         const alarmOutConfirm = (e: { value: string; label: string }[]) => {
             addEditRow()
@@ -228,6 +228,8 @@ export default defineComponent({
             if (row.alarmOut.switch === false) {
                 row.alarmOut.alarmOuts = []
                 row.alarmOutList = []
+            } else {
+                setAlarmOut(tableData.value.indexOf(row))
             }
         }
         // 系统音频

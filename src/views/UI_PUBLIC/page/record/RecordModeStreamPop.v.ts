@@ -20,7 +20,6 @@ export default defineComponent({
     emits: ['confirm', 'close'],
     setup(props, ctx) {
         const { Translate } = useLangStore()
-        const theme = getUiAndTheme().name
         const recordStreamTableRef = ref()
         const pageData = ref({
             mainTitle: '',
@@ -70,7 +69,7 @@ export default defineComponent({
                     .join('+'),
             })
             pageData.value.currenMode = pageData.value.modeMapping[pageData.value.tabs[0].value]
-            if (theme === 'UI1-E') {
+            if (import.meta.env.VITE_UI_TYPE === 'UI1-E') {
                 pageData.value.PredictVisible = true
                 pageData.value.CalculateVisible = true
             }

@@ -3,7 +3,7 @@
  * @Date: 2024-08-12 14:21:22
  * @Description: email通知
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-18 14:01:26
+ * @LastEditTime: 2024-10-18 18:00:39
  */
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import { EmailReceiver } from '@/types/apiType/aiAndEvent'
@@ -24,7 +24,7 @@ export default defineComponent({
         const maxEmailCount = ref(16)
         const rules = reactive<FormRules>({
             recipient: [
-                { required: true, message: Translate('IDCS_PROMPT_EMAIL_ADDRESS_EMPTY'), trigger: 'blur' },
+                { required: true, message: Translate('IDCS_PROMPT_EMAIL_ADDRESS_EMPTY'), trigger: 'manual' },
                 {
                     validator: (_rule, value: string, callback) => {
                         if (!checkEmail(value)) {
@@ -39,7 +39,7 @@ export default defineComponent({
                         }
                         callback()
                     },
-                    trigger: 'blur',
+                    trigger: 'manual',
                 },
             ],
         })
