@@ -2,8 +2,8 @@
  * @Description: AI/事件——事件通知——蜂鸣器
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-07-30 15:55:28
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-29 13:34:58
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-18 15:45:43
 -->
 <template>
     <el-form
@@ -22,10 +22,10 @@
         >
             <el-select v-model="formData.buzzerDuration">
                 <el-option
-                    v-for="value in pageData.buzzerDurationOption"
-                    :key="value"
-                    :value="value"
-                    :label="displayDurationOption(value)"
+                    v-for="item in pageData.buzzerDurationOption"
+                    :key="item.value"
+                    :value="item.value"
+                    :label="item.label"
                 >
                 </el-option>
             </el-select>

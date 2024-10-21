@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-28 13:42:09
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-16 11:51:07
+ * @LastEditTime: 2024-10-21 14:39:04
  */
 import { cloneDeep } from 'lodash-es'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
@@ -171,6 +171,7 @@ export default defineComponent({
             // AI资源占比
             resourceOccupancy: '',
             // 排程
+            scheduleIdNull: '{00000000-0000-0000-0000-000000000000}',
             scheduleList: [] as SelectOption<string, string>[],
             scheduleManagPopOpen: false,
             // 通知列表
@@ -367,23 +368,6 @@ export default defineComponent({
                         faceMatchData.value.notHitEnable = false
                     }
                 }
-            })
-        }
-        // 获取排程数据
-        const getScheduleData = async () => {
-            const result = await queryScheduleList()
-
-            commLoadResponseHandler(result, ($) => {
-                pageData.value.scheduleList = $('/response/content/item').map((item) => {
-                    return {
-                        value: item.attr('id')!,
-                        label: item.text(),
-                    }
-                })
-            })
-            pageData.value.scheduleList.push({
-                value: '{00000000-0000-0000-0000-000000000000}',
-                label: `<${Translate('IDCS_NULL')}>`,
             })
         }
         // 处理抓图选项
@@ -1442,7 +1426,7 @@ export default defineComponent({
             })
             similarityRef.value.handleClose()
         }
-        const similarityInputBlur = (e: any, index?: number) => {
+        const similarityInputBlur = (e: any, index: number) => {
             // vue的v-model是监听input框的input事件生效的
             // 事件对象e.target.value赋值直接操作dom元素 vue的v-model监听不到
             // e.target.value赋值后 需要手动触发input事件 v-model才能同步更新
@@ -1741,13 +1725,16 @@ export default defineComponent({
             if (supportAlarmAudioConfig) {
                 await getVoiceList()
             }
-            await getScheduleData()
+            pageData.value.scheduleList = await buildScheduleList()
+            pageData.value.scheduleList.forEach((item) => {
+                item.value = item.value != '' ? item.value : pageData.value.scheduleIdNull
+            })
             await getRecordList()
             await getAlarmOutData()
             await getSnapList()
+            await getPresetData()
             await getChlData()
             closeLoading()
-            await getPresetData()
         })
 
         onBeforeUnmount(() => {
