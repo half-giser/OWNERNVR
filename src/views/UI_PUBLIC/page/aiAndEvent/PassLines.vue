@@ -3,7 +3,7 @@
  * @Date: 2024-09-12 15:00:13
  * @Description: 过线检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-18 15:16:26
+ * @LastEditTime: 2024-10-21 17:02:52
 -->
 <template>
     <div>
@@ -570,7 +570,6 @@
                     </div>
                     <div class="base-btn-box fixed">
                         <el-button
-                            size="small"
                             :disabled="pageData.applyDisable"
                             @click="handleApply"
                         >
