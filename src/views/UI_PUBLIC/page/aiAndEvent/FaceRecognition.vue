@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-28 13:41:57
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-12 16:12:07
+ * @LastEditTime: 2024-10-21 14:41:28
 -->
 <template>
     <!-- 通道名称及选择器 -->
@@ -110,7 +110,10 @@
                                     <div class="base-ai-subheading">{{ Translate('IDCS_SCHEDULE') }}</div>
                                     <!-- 排程配置 -->
                                     <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
-                                        <el-select v-model="faceDetectionData.schedule">
+                                        <el-select
+                                            v-model="faceDetectionData.schedule"
+                                            :empty-values="[undefined, null]"
+                                        >
                                             <el-option
                                                 v-for="item in pageData.scheduleList"
                                                 :key="item.value"
@@ -185,23 +188,21 @@
                                         <!-- 人脸大小(范围：3%~50%) -->
                                         <div class="base-ai-subheading">{{ Translate('IDCS_FACE_SIZE_TIP') }}</div>
                                         <el-form-item :label="Translate('IDCS_MIN')">
-                                            <el-input
+                                            <BaseNumberInput
                                                 v-model="faceDetectionData.minFaceFrame"
                                                 :min="3"
                                                 :max="50"
-                                                type="number"
                                                 @blur="minFaceBlur"
-                                            ></el-input
+                                            ></BaseNumberInput
                                             >%
                                         </el-form-item>
                                         <el-form-item :label="Translate('IDCS_MAX')">
-                                            <el-input
+                                            <BaseNumberInput
                                                 v-model="faceDetectionData.maxFaceFrame"
                                                 :min="3"
                                                 :max="50"
-                                                type="number"
                                                 @blur="maxFaceBlur"
-                                            ></el-input
+                                            ></BaseNumberInput
                                             >%
                                         </el-form-item>
                                         <el-form-item label=" ">
@@ -248,7 +249,7 @@
                                 <div class="base-ai-linkage-box">
                                     <el-checkbox
                                         v-model="normalParamCheckAll"
-                                        class="base-ai-linkage-title"
+                                        class="base-ai-linkage-title base-ai-linkage-title-checkbox-input"
                                         @change="handleNormalParamCheckAll"
                                         >{{ Translate('IDCS_TRIGGER_NOMAL') }}</el-checkbox
                                     >
@@ -268,7 +269,6 @@
                                 <!-- 录像 -->
                                 <div class="base-ai-linkage-box">
                                     <div class="base-ai-linkage-title">
-                                        <!-- 在文字后加个空格，和按钮隔开一点距离 -->
                                         <span>{{ `${Translate('IDCS_RECORD')} ` }}</span>
                                         <el-button
                                             size="small"
@@ -483,11 +483,12 @@
                                                             inline-message
                                                         >
                                                             <el-form-item :label="Translate('IDCS_SIMILARITY')">
-                                                                <el-input
+                                                                <BaseNumberInput
                                                                     v-model="comparePageData.similarityNumber"
-                                                                    type="number"
-                                                                    @blur="similarityInputBlur($event)"
-                                                                ></el-input>
+                                                                    :min="1"
+                                                                    :max="100"
+                                                                    value-on-clear="min"
+                                                                ></BaseNumberInput>
                                                                 <span>%</span>
                                                             </el-form-item>
                                                         </el-form>
@@ -500,12 +501,14 @@
                                             </el-dropdown>
                                         </template>
                                         <template #default="scope">
-                                            <el-input
+                                            <BaseNumberInput
                                                 v-model="scope.row.similarity"
-                                                type="number"
+                                                :min="1"
+                                                :max="100"
+                                                value-on-clear="min"
                                                 @blur="similarityInputBlur($event, scope.$index)"
                                                 @keyup.enter="enterBlur($event)"
-                                            ></el-input>
+                                            ></BaseNumberInput>
                                         </template>
                                     </el-table-column>
                                 </el-table>

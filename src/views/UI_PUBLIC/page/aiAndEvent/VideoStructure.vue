@@ -474,11 +474,12 @@
                             v-show="pageData.algoHoldTimeShow"
                             :label="Translate('IDCS_INTERVAL_TIME')"
                         >
-                            <el-input
+                            <BaseNumberInput
                                 v-model="vsdData.intervalCheck"
                                 :disabled="pageData.algoModelDisabled"
-                                type="number"
-                                @blur="algoHoldTimeBlur"
+                                :min="vsdData.intervalCheckMin"
+                                :max="vsdData.intervalCheckMax"
+                                :value-on-clear="!pageData.algoModelDisabled ? 'min' : null"
                             />
                         </el-form-item>
                     </el-form>

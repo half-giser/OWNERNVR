@@ -97,6 +97,7 @@ export default defineComponent({
             isShowAllAreaCheckBox: false,
             isShowAllClearBtn: false,
             // 排程
+            scheduleIdNull: '{00000000-0000-0000-0000-000000000000}',
             scheduleList: [] as SelectOption<string, string>[],
             scheduleManagPopOpen: false,
             warnArea: 0,
@@ -116,24 +117,6 @@ export default defineComponent({
             // 消息提示
             notification: [] as string[],
         })
-
-        // 获取排程数据
-        const getScheduleData = async () => {
-            const result = await queryScheduleList()
-
-            commLoadResponseHandler(result, ($) => {
-                pageData.value.scheduleList = $('/response/content/item').map((item) => {
-                    return {
-                        value: item.attr('id')!,
-                        label: item.text(),
-                    }
-                })
-            })
-            pageData.value.scheduleList.push({
-                value: '{00000000-0000-0000-0000-000000000000}',
-                label: `<${Translate('IDCS_NULL')}>`,
-            })
-        }
         // 获取录像数据
         const getRecordList = async () => {
             getChlList({
@@ -831,7 +814,10 @@ export default defineComponent({
             if (mode.value != 'h5') {
                 Plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
             }
-            await getScheduleData()
+            pageData.value.scheduleList = await buildScheduleList()
+            pageData.value.scheduleList.forEach((item) => {
+                item.value = item.value != '' ? item.value : pageData.value.scheduleIdNull
+            })
             await getRecordList()
             await getAlarmOutData()
             await getObjectLeftData()

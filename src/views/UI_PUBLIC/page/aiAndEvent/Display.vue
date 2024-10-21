@@ -2,8 +2,8 @@
  * @Description: AI/事件——事件通知——显示
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-07-30 09:23:16
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-29 14:42:43
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-18 15:27:06
 -->
 <template>
     <el-form
@@ -22,10 +22,10 @@
         >
             <el-select v-model="videoFormData.popVideoDuration">
                 <el-option
-                    v-for="value in pageData.popVideoDurationOption"
-                    :key="value"
-                    :value="value"
-                    :label="displayDurationOption(value)"
+                    v-for="item in pageData.popVideoDurationOption"
+                    :key="item.value"
+                    :value="item.value"
+                    :label="item.label"
                 >
                 </el-option>
             </el-select>
@@ -66,10 +66,10 @@
         >
             <el-select v-model="msgFormData.popMsgDuration">
                 <el-option
-                    v-for="value in pageData.popMsgDurationOption"
-                    :key="value"
-                    :value="value"
-                    :label="displayDurationOption(value)"
+                    v-for="item in pageData.popMsgDurationOption"
+                    :key="item.value"
+                    :value="item.value"
+                    :label="item.label"
                 >
                 </el-option>
             </el-select>

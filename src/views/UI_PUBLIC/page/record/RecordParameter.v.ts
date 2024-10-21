@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-02 16:12:12
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-17 10:20:55
+ * @LastEditTime: 2024-10-18 14:29:07
  */
 
 import { cloneDeep } from 'lodash-es'
@@ -344,13 +344,11 @@ export default defineComponent({
 
             if (originalData.value.streamRecSwitch.doubleStreamSwitch != pageData.value.doubleStreamRecSwitch) {
                 openMessageTipBox({
-                    type: 'info',
+                    type: 'question',
                     message: Translate('IDCS_RECORD_MODE_CHANGE_AFTER_REBOOT'),
+                }).then(() => {
+                    setRecParamCfgData()
                 })
-                    .then(() => {
-                        setRecParamCfgData()
-                    })
-                    .catch(() => {})
             } else {
                 setRecParamCfgData()
             }

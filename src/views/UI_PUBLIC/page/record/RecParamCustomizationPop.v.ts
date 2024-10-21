@@ -156,18 +156,6 @@ export default defineComponent({
                     pageData.value.weekArr = []
                 })
         }
-
-        const inputLimit = (value: string) => {
-            pageData.value.expireTime = parseInt(value.replace(/[^\d]/g, ''))
-            if (value) {
-                if (parseInt(value) > 8760) {
-                    pageData.value.expireTime = 8760
-                } else if (parseInt(value) < 1) {
-                    pageData.value.expireTime = 1
-                }
-            }
-        }
-
         // 打开添加日期弹窗
         const openAddDate = () => {
             pageData.value.selectDate = dayjs(new Date()).format(pageData.value.dateFormat)
@@ -214,7 +202,6 @@ export default defineComponent({
             open,
             close,
             apply,
-            inputLimit,
             openAddDate,
             closeAddDate,
             addDateToList,

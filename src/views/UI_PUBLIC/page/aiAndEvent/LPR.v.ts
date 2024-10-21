@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-09 09:56:33
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-14 18:11:53
+ * @LastEditTime: 2024-10-21 11:24:40
  */
 import { type CompareTask, VehicleDetection, type VehicleChlItem, VehicleCompare } from '@/types/apiType/aiAndEvent'
 import CanvasPolygon from '@/utils/canvas/canvasPolygon'
@@ -202,6 +202,7 @@ export default defineComponent({
             vehicleCompareDisabled: false,
             vehicleLibraryDisabled: false,
             // 排程
+            scheduleIdNull: '{00000000-0000-0000-0000-000000000000}',
             scheduleList: [] as SelectOption<string, string>[],
             scheduleManagPopOpen: false,
             // 通知列表
@@ -217,24 +218,6 @@ export default defineComponent({
             notChlSupport: false,
             notSupportTip: '',
         })
-
-        // 获取排程数据
-        const getScheduleData = async () => {
-            const result = await queryScheduleList()
-
-            commLoadResponseHandler(result, ($) => {
-                pageData.value.scheduleList = $('/response/content/item').map((item) => {
-                    return {
-                        value: item.attr('id')!,
-                        label: item.text(),
-                    }
-                })
-            })
-            pageData.value.scheduleList.push({
-                value: '{00000000-0000-0000-0000-000000000000}',
-                label: `<${Translate('IDCS_NULL')}>`,
-            })
-        }
         // 获取声音列表数据
         const getVoiceList = async () => {
             const result = await queryAlarmAudioCfg()
@@ -1513,8 +1496,11 @@ export default defineComponent({
                 Plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
             }
             openLoading()
+            pageData.value.scheduleList = await buildScheduleList()
+            pageData.value.scheduleList.forEach((item) => {
+                item.value = item.value != '' ? item.value : pageData.value.scheduleIdNull
+            })
             await getVoiceList()
-            await getScheduleData()
             await getRecordList()
             await getAlarmOutData()
             await getSnapList()
