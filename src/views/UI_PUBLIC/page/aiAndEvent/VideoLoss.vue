@@ -3,7 +3,7 @@
  * @Date: 2024-08-21 15:34:24
  * @Description: 视频丢失配置
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-10 13:42:23
+ * @LastEditTime: 2024-10-21 14:15:02
 -->
 <template>
     <div class="base-flex-box">
@@ -101,7 +101,7 @@
                             <el-checkbox
                                 v-model="scope.row.snap.switch"
                                 :disabled="scope.row.rowDisable"
-                                @change="snapSwitchChange(scope.row)"
+                                @change="checkChange(scope.$index, 'snap')"
                             ></el-checkbox>
                             <el-button
                                 :disabled="!scope.row.snap.switch || scope.row.rowDisable"
@@ -192,7 +192,7 @@
                             <el-checkbox
                                 v-model="scope.row.alarmOut.switch"
                                 :disabled="scope.row.rowDisable"
-                                @change="alarmOutSwitchChange(scope.row)"
+                                @change="checkChange(scope.$index, 'alarmOut')"
                             ></el-checkbox>
                             <el-button
                                 :disabled="!scope.row.alarmOut.switch || scope.row.rowDisable"
@@ -452,7 +452,7 @@
                 </el-table-column>
             </el-table>
         </div>
-        <el-row class="row_pagination">
+        <div class="row_pagination">
             <el-pagination
                 v-model:current-page="pageData.pageIndex"
                 v-model:page-size="pageData.pageSize"
@@ -463,15 +463,15 @@
                 @size-change="changePaginationSize"
                 @current-change="changePagination"
             />
-        </el-row>
-        <el-row class="base-btn-box">
+        </div>
+        <div class="base-btn-box">
             <el-button
                 :disabled="pageData.applyDisable"
                 @click="setData"
             >
                 {{ Translate('IDCS_APPLY') }}
             </el-button>
-        </el-row>
+        </div>
     </div>
 </template>
 

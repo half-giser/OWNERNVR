@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-21 15:34:24
  * @Description: 视频丢失配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 17:23:00
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-21 10:53:49
  */
 import { cloneDeep } from 'lodash-es'
 import { MotionEventConfig, type PresetItem } from '@/types/apiType/aiAndEvent'
@@ -272,8 +272,8 @@ export default defineComponent({
             pageData.value.snapPopoverVisible = false
         }
         const setSnap = (index: number) => {
-            pageData.value.snapIsShow = true
             pageData.value.triggerDialogIndex = index
+            pageData.value.snapIsShow = true
         }
         const snapConfirm = (e: { value: string; label: string }[]) => {
             addEditRow(tableData.value[pageData.value.triggerDialogIndex])
@@ -336,8 +336,8 @@ export default defineComponent({
             pageData.value.alarmOutPopoverVisible = false
         }
         const setAlarmOut = (index: number) => {
-            pageData.value.alarmOutIsShow = true
             pageData.value.triggerDialogIndex = index
+            pageData.value.alarmOutIsShow = true
         }
         const alarmOutConfirm = (e: { value: string; label: string }[]) => {
             addEditRow(tableData.value[pageData.value.triggerDialogIndex])
@@ -385,24 +385,35 @@ export default defineComponent({
             })
         }
 
-        const snapSwitchChange = (row: MotionEventConfig) => {
-            addEditRow(row)
-            if (row.snap.switch === false) {
-                row.snap.chls = []
-                row.snapList = []
-            }
-        }
-        const alarmOutSwitchChange = (row: MotionEventConfig) => {
-            addEditRow(row)
-            if (row.alarmOut.switch === false) {
-                row.alarmOut.chls = []
-                row.alarmOutList = []
-            }
-        }
         const presetSwitchChange = (row: MotionEventConfig) => {
             addEditRow(row)
             if (row.preset.switch === false) {
                 row.preset.presets = []
+            } else {
+                openPresetPop(row)
+            }
+        }
+        const checkChange = (index: number, type: string) => {
+            addEditRow(tableData.value[index])
+            switch (type) {
+                case 'snap':
+                    if (tableData.value[index].snap.switch) {
+                        setSnap(index)
+                    } else {
+                        tableData.value[index].snap.chls = []
+                        tableData.value[index].snapList = []
+                    }
+                    break
+                case 'alarmOut':
+                    if (tableData.value[index].alarmOut.switch) {
+                        setAlarmOut(index)
+                    } else {
+                        tableData.value[index].alarmOut.chls = []
+                        tableData.value[index].alarmOutList = []
+                    }
+                    break
+                default:
+                    break
             }
         }
 
@@ -619,8 +630,7 @@ export default defineComponent({
             openPresetPop,
             handlePresetLinkedList,
             presetClose,
-            snapSwitchChange,
-            alarmOutSwitchChange,
+            checkChange,
             presetSwitchChange,
             handleSysAudioChangeAll,
             handleMsgPushChangeAll,

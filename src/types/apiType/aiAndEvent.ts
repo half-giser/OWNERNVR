@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-08-10 12:08:57
  * @Description: AI/事件
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-16 09:17:05
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-21 11:54:22
  */
 const { Translate } = useLangStore()
 
@@ -74,7 +74,7 @@ export class whiteLightInfo {
     durationTime: number | null = null
     frequencyType = ''
     enableDisable = true
-    rowDisable = true
+    rowDisable = false
     durationTimeDisable = false
     frequencyTypeDisable = false
     status = '' //行状态: loading, success, error

@@ -3,7 +3,7 @@
  * @Date: 2024-08-12 15:34:24
  * @Description: email通知
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-09 11:49:02
+ * @LastEditTime: 2024-10-18 18:01:40
 -->
 <template>
     <div>
@@ -24,7 +24,10 @@
                 :label="Translate('IDCS_RECIPIENT')"
                 prop="recipient"
             >
-                <el-input v-model="pageData.form.recipient" />
+                <el-input
+                    v-model="pageData.form.recipient"
+                    maxlength="63"
+                />
                 <el-select v-model="pageData.schedule">
                     <el-option
                         v-for="item in pageData.scheduleList"
