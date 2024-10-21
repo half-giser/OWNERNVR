@@ -2,13 +2,13 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-16 17:19:02
  * @Description: 穿梭框弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 17:18:44
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-21 10:35:01
 -->
 <template>
     <el-dialog
         draggable
-        center
+        align-center
         :width="(panelWidth - 200) * 2 + 615"
         :title="Translate(props.headerTitle)"
         @open="open"

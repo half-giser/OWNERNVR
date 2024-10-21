@@ -3,7 +3,7 @@
  * @Date: 2024-08-12 15:34:24
  * @Description: email通知
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-18 17:53:29
+ * @LastEditTime: 2024-10-18 18:01:40
 -->
 <template>
     <div>

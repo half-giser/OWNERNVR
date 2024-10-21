@@ -3,7 +3,7 @@
  * @Date: 2024-10-15 10:04:36
  * @Description: 录像码流通用组件
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-15 16:10:27
+ * @LastEditTime: 2024-10-21 11:56:14
  */
 import { ArrowDown } from '@element-plus/icons-vue'
 import { RecordStreamInfoDto } from '@/types/apiType/record'
@@ -39,7 +39,6 @@ export default defineComponent({
     setup(props, ctx) {
         // 用于控制下拉菜单的打开关闭
         const resolutionTableRef = ref<TableInstance>()
-        const theme = getUiAndTheme().name
         // const prop = withDefaults(
         //     defineProps<{
         //         mode: string
@@ -61,7 +60,7 @@ export default defineComponent({
             }
         }
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
+        const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const tableData = ref([] as RecordStreamInfoDto[])
         // const tableRef = ref<FormInstance>()
 
@@ -223,7 +222,7 @@ export default defineComponent({
         }
         // 获取表格数据
         const getData = async function () {
-            openLoading()
+            openLoading(LoadingTarget.FullScreen)
             const sendXml = rawXml`
                                 <requireField>
                                     <name/>
@@ -236,25 +235,25 @@ export default defineComponent({
                                     <levelNote/>
                                 </requireField>  `
             const res = await queryNodeEncodeInfo(sendXml)
-            const $ = queryXml(res)
-            bindCtrlData($)
-            closeLoading()
+            // const $ = queryXml(res)
+            closeLoading(LoadingTarget.FullScreen)
+            bindCtrlData(res)
         }
         // 绑定数据
-        const bindCtrlData = function (res: any) {
-            // res = queryXml(res)
+        const bindCtrlData = function (resb: XMLDocument | Element) {
+            const res = queryXml(resb)
             if (res('status').text() === 'success') {
                 tableData.value = []
                 // 遍历('//cotent/item')，获取表格数据
-                res('//content/item').forEach((ele: any) => {
+                res('//content/item').forEach((ele) => {
                     const eleXml = queryXml(ele.element)
                     const item = new RecordStreamInfoDto()
-                    item['@id'] = ele.attr('id').trim()
+                    item['@id'] = ele.attr('id')!.trim()
                     item.name = eleXml('name').text()
                     item.chlType = eleXml('chlType').text()
                     const resList: { '@fps': string; value: string }[] = []
-                    eleXml('mainCaps/res').forEach((element: any) => {
-                        resList.push({ '@fps': element.attr('fps'), value: element.text() })
+                    eleXml('mainCaps/res').forEach((element) => {
+                        resList.push({ '@fps': element.attr('fps')!, value: element.text() })
                     })
                     item.mainCaps = {
                         '@supEnct':
@@ -411,7 +410,7 @@ export default defineComponent({
 
                     item['supportAudio'] = true
                     if (pageData.value.audioInNum > 0) {
-                        ele.each(pageData.value.chls, function (chl: ChlItem) {
+                        pageData.value.chls.forEach((chl: ChlItem) => {
                             if (chl['@id'] == item['@id'] && chl['chlIndex'] && parseInt(chl['chlIndex']) * 1 >= pageData.value.audioInNum) {
                                 item['supportAudio'] = false
                                 return false
@@ -488,7 +487,7 @@ export default defineComponent({
                         })
                         pageData.value.recTime = recTimeArray.join(';')
                         // 根据UI切换是否显示
-                        if (theme === 'UI1-E') {
+                        if (import.meta.env.VITE_UI_TYPE === 'UI1-E') {
                             pageData.value.PredictVisible = true
                             pageData.value.CalculateVisible = true
                         }
@@ -506,7 +505,7 @@ export default defineComponent({
                                       : remainRecTime + ' ' + Translate('IDCS_DAY_TIME')
                                   : remainRecTime + ' ' + Translate('IDCS_DAY_TIMES')
                         pageData.value.recTime = Translate('IDCS_PREDICT_RECORD_TIME') + '' + recTime + ''
-                        if (theme === 'UI1-E') {
+                        if (import.meta.env.VITE_UI_TYPE === 'UI1-E') {
                             pageData.value.PredictVisible = true
                             pageData.value.CalculateVisible = true
                         }
