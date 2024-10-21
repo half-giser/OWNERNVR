@@ -2,14 +2,15 @@
  * @Description: AI/事件——事件通知——声音
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-13 09:23:15
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-27 18:20:22
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-21 13:39:26
 -->
 <template>
     <el-tabs
         v-model="pageData.audioTab"
         class="audioTabs"
     >
+        <!-- 摄像机声音 -->
         <el-tab-pane
             :name="pageTabs[0].name"
             :label="pageTabs[0].label"
@@ -31,7 +32,9 @@
                         <el-radio-button value="audioDevice">{{ Translate('IDCS_AUDIO_DEVICE') }}</el-radio-button>
                     </el-radio-group>
                 </el-form-item>
+                <!-- 语音播报 -->
                 <template v-if="ipcAudioFormData.ipcRadio === 'audioAlarm'">
+                    <!-- 通道 -->
                     <el-form-item :label="Translate('IDCS_CHANNEL')">
                         <el-select
                             v-model="ipcAudioFormData.audioChl"
@@ -53,6 +56,7 @@
                             >{{ Translate('IDCS_QUERY_DATA_FAIL').replace(/，/g, '') }}</span
                         >
                     </el-form-item>
+                    <!-- 声音 -->
                     <el-form-item :label="Translate('IDCS_AUDIO')">
                         <el-checkbox
                             v-model="ipcAudioFormData.audioChecked"
@@ -61,6 +65,7 @@
                             >{{ Translate('IDCS_ENABLE') }}</el-checkbox
                         >
                     </el-form-item>
+                    <!-- 语音 -->
                     <el-form-item :label="Translate('IDCS_ALERT_VOICE')">
                         <el-select
                             v-model="ipcAudioFormData.voice"
@@ -94,26 +99,29 @@
                             >
                         </div>
                     </el-form-item>
+                    <!-- 次数 -->
                     <el-form-item :label="Translate('IDCS_TIMES')">
-                        <el-input
+                        <BaseNumberInput
                             v-model="ipcAudioFormData.number"
                             :disabled="audioAlarmPageData.numberDisabled"
-                            type="number"
                             :min="1"
                             :max="50"
+                            :value-on-clear="!audioAlarmPageData.numberDisabled ? 'min' : null"
                             @blur="blurNumber"
-                        ></el-input>
+                        ></BaseNumberInput>
                     </el-form-item>
+                    <!-- 音量 -->
                     <el-form-item :label="Translate('IDCS_ALARM_VOLUME')">
-                        <el-input
+                        <BaseNumberInput
                             v-model="ipcAudioFormData.volume"
                             :disabled="audioAlarmPageData.volumeDisabled"
-                            type="number"
                             :min="0"
                             :max="100"
+                            :value-on-clear="!audioAlarmPageData.volumeDisabled ? 'min' : null"
                             @blur="blurVolume"
-                        ></el-input>
+                        ></BaseNumberInput>
                     </el-form-item>
+                    <!-- 语言 -->
                     <el-form-item :label="Translate('IDCS_LANGUAGE')">
                         <el-select
                             v-model="ipcAudioFormData.language"
@@ -131,7 +139,9 @@
                         ></el-select>
                     </el-form-item>
                 </template>
+                <!-- 声音设备 -->
                 <template v-if="ipcAudioFormData.ipcRadio === 'audioDevice'">
+                    <!-- 通道 -->
                     <el-form-item :label="Translate('IDCS_CHANNEL')">
                         <el-select
                             v-model="ipcAudioFormData.deviceChl"
@@ -151,6 +161,7 @@
                             >{{ Translate('IDCS_OFFLINE') }}</span
                         >
                     </el-form-item>
+                    <!-- 声音设备 -->
                     <el-form-item :label="Translate('IDCS_AUDIO_DEVICE')">
                         <el-checkbox
                             v-model="ipcAudioFormData.deviceEnable"
@@ -159,6 +170,7 @@
                             >{{ Translate('IDCS_ENABLE') }}</el-checkbox
                         >
                     </el-form-item>
+                    <!-- 音频输入设备 -->
                     <el-form-item :label="Translate('IDCS_DEVICE_AUDIO_IN')">
                         <el-select
                             v-model="ipcAudioFormData.deviceAudioInput"
@@ -174,6 +186,7 @@
                             ></el-option>
                         </el-select>
                     </el-form-item>
+                    <!-- 音频输入音量 -->
                     <el-form-item :label="Translate('IDCS_IN_VOLUME')">
                         <el-slider
                             v-model="ipcAudioFormData.micOrLinVolume"
@@ -187,6 +200,7 @@
                             >{{ ipcAudioFormData.micOrLinVolume }}</span
                         >
                     </el-form-item>
+                    <!-- 扬声器（内置） -->
                     <el-form-item :label="Translate('IDCS_DEVICE_SPEAKER_BUILT_IN')">
                         <el-select
                             v-model="ipcAudioFormData.loudSpeaker"
@@ -202,6 +216,7 @@
                             ></el-option>
                         </el-select>
                     </el-form-item>
+                    <!-- LOUT（外置） -->
                     <el-form-item :label="Translate('IDCS_DEVICE_SPEAKER_LINE_OUT')">
                         <el-select
                             v-model="ipcAudioFormData.deviceAudioOutput"
@@ -217,6 +232,7 @@
                             ></el-option>
                         </el-select>
                     </el-form-item>
+                    <!-- 音频输出音量 -->
                     <el-form-item :label="Translate('IDCS_AUDIO_OUT_VOLUME')">
                         <el-slider
                             v-model="ipcAudioFormData.outputVolume"
@@ -231,6 +247,7 @@
                             >{{ ipcAudioFormData.outputVolume }}</span
                         >
                     </el-form-item>
+                    <!-- 音频输入编码 -->
                     <el-form-item :label="Translate('IDCS_ENCODE_AUDIO_IN')">
                         <el-select
                             v-model="ipcAudioFormData.audioEncode"
@@ -257,6 +274,7 @@
                 label-position="left"
                 inline-message
             >
+                <!-- 排程 -->
                 <div class="base-subheading-box">{{ Translate('IDCS_AUDIO_LINK_SCHEDULE') }}</div>
                 <el-form-item
                     prop="popMsgDuration"
@@ -264,6 +282,7 @@
                 >
                     <el-select
                         v-model="pageData.audioSchedule"
+                        :empty-values="[undefined, null]"
                         @change="pageData.btnApplyDisabled = false"
                     >
                         <el-option
@@ -292,6 +311,7 @@
                 </div>
             </el-form>
         </el-tab-pane>
+        <!-- 本地声音报警 -->
         <el-tab-pane
             v-if="pageData.supportAlarmAudioConfig"
             :name="pageTabs[1].name"

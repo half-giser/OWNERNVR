@@ -123,6 +123,7 @@ export default defineComponent({
             // 是否显示全部区域
             isShowAllArea: false,
             // 排程
+            scheduleIdNull: '{00000000-0000-0000-0000-000000000000}',
             scheduleList: [] as SelectOption<string, string>[],
             scheduleManagPopOpen: false,
             // 检测区域，屏蔽区域
@@ -157,23 +158,6 @@ export default defineComponent({
             applyDisabled: true,
             notification: [] as string[],
         })
-        // 获取排程数据
-        const getScheduleData = async () => {
-            const result = await queryScheduleList()
-
-            commLoadResponseHandler(result, ($) => {
-                pageData.value.scheduleList = $('/response/content/item').map((item) => {
-                    return {
-                        value: item.attr('id')!,
-                        label: item.text(),
-                    }
-                })
-            })
-            pageData.value.scheduleList.push({
-                value: '{00000000-0000-0000-0000-000000000000}',
-                label: `<${Translate('IDCS_NULL')}>`,
-            })
-        }
         // 播放模式
         const mode = computed(() => {
             if (!playerRef.value) {
@@ -1220,7 +1204,10 @@ export default defineComponent({
                 Plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
             }
             openLoading()
-            await getScheduleData()
+            pageData.value.scheduleList = await buildScheduleList()
+            pageData.value.scheduleList.forEach((item) => {
+                item.value = item.value != '' ? item.value : pageData.value.scheduleIdNull
+            })
             await getVideoStructureData()
             closeLoading()
         })

@@ -2,13 +2,17 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-08-10 11:05:51
  * @Description: 报警输出
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-18 14:16:49
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-21 11:46:44
  */
 import { AlarmOut } from '@/types/apiType/aiAndEvent'
 import { cloneDeep } from 'lodash-es'
+import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 
 export default defineComponent({
+    components: {
+        ScheduleManagPop,
+    },
     setup() {
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
@@ -26,6 +30,8 @@ export default defineComponent({
                 NO: Translate('IDCS_ALWAYS_OPEN'),
             } as Record<string, string>,
             localAlarmOutCount: 0,
+            //排程管理弹窗
+            scheduleManagePopOpen: false,
             applyDisabled: true,
             initComplated: false,
         })
@@ -114,6 +120,7 @@ export default defineComponent({
                         const $schedule = $('/response/content/schedule')
                         row.scheduleId = $schedule.attr('id')
                         row.scheduleName = $schedule.text()
+                        row.oldSchedule = $schedule.attr('id')
                         row.index = $('/response/content/index').text()
                         row.devDesc = $('/response/content/devDesc').text()
                         // devDescTemp不存在表示设备本地报警输出，本地报警输出才能设置报警类型
@@ -123,7 +130,6 @@ export default defineComponent({
                         } else {
                             row.type = '--'
                         }
-
                         tableDataInit.push(cloneDeep(row))
                     }
 
@@ -153,6 +159,27 @@ export default defineComponent({
                 pageData.value.pageIndex = totalPage
             }
             buildTableData()
+        }
+
+        const changeScheduleAll = (value: string) => {
+            console.log(value)
+            if (value == 'scheduleMgr') {
+                pageData.value.scheduleManagePopOpen = true
+            } else {
+                tableData.value.forEach((item) => {
+                    item.scheduleId = value
+                    item.oldSchedule = value
+                })
+            }
+        }
+
+        const changeSchedule = (row: AlarmOut) => {
+            if (row.scheduleId == 'scheduleMgr') {
+                pageData.value.scheduleManagePopOpen = true
+                row.scheduleId = row.oldSchedule
+            } else {
+                row.oldSchedule = row.scheduleId
+            }
         }
 
         /**
@@ -234,6 +261,7 @@ export default defineComponent({
                 message: Translate('IDCS_ALARMOUT_TYPE_EDIT_AFTER_REBOOT'),
             }).then(async () => {
                 openLoading()
+                setData()
                 const sendXml = rawXml`
                 <content>
                     <alarmoutType>${value}</alarmoutType>
@@ -252,11 +280,11 @@ export default defineComponent({
          * @return {*}
          */
         const setData = () => {
-            openLoading()
             const diffRows = getArrayDiffRows(tableData.value, tableDataInit, ['name', 'delayTime', 'scheduleId'])
 
             if (diffRows.length > 0) {
                 let completeCount = 0
+                openLoading()
                 diffRows.forEach(async (row) => {
                     const rowItem = row as AlarmOut
                     const sendXml = rawXml`
@@ -274,16 +302,22 @@ export default defineComponent({
                     completeCount++
 
                     if (completeCount >= diffRows.length) {
-                        pageData.value.applyDisabled = false
                         // 更新表格初始对比值
                         tableDataInit = cloneDeep(tableData.value)
                         closeLoading()
+                        nextTick(() => {
+                            pageData.value.applyDisabled = true
+                        })
                     }
                 })
+            } else {
+                // 比对后无变化
+                pageData.value.applyDisabled = true
             }
         }
 
         return {
+            ScheduleManagPop,
             pageData,
             tableData,
             curAlarmoutType,
@@ -293,6 +327,9 @@ export default defineComponent({
             nameFocus,
             nameBlur,
             enterBlur,
+            // 排程
+            changeScheduleAll,
+            changeSchedule,
             changeType,
             setData,
         }

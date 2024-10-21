@@ -805,10 +805,12 @@ export default defineComponent({
                     count++
 
                     if (count >= editedRows.length) {
-                        pageData.value.applyDisabled = true
                         // 更新表格初始对比值
                         tableDataInit = cloneDeep(tableData.value)
                         closeLoading()
+                        nextTick(() => {
+                            pageData.value.applyDisabled = true
+                        })
                     }
                 })
             }

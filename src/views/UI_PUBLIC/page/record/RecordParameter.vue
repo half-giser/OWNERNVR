@@ -21,7 +21,7 @@
                 v-show="false"
                 :label="Translate('IDCS_MAIN_STREAM_RECORD_TIME')"
             >
-                <el-input
+                <BaseNumberInput
                     v-model="pageData.txtMSRecDuration"
                     type="number"
                     :min="1"

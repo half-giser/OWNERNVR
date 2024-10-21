@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-08-10 11:05:51
  * @Description: 报警输出
- * @LastEditors: luoyiming a11593@tvt.net.cn
- * @LastEditTime: 2024-10-09 16:14:28
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-18 16:27:09
 -->
 <template>
     <div class="base-flex-box">
@@ -94,7 +94,7 @@
                                     <el-dropdown-item
                                         v-for="opt in pageData.scheduleList"
                                         :key="opt.value"
-                                        @click="changeAllValue(opt.value, 'scheduleId')"
+                                        @click="changeScheduleAll(opt.value)"
                                     >
                                         {{ Translate(opt.label) }}
                                     </el-dropdown-item>
@@ -107,6 +107,7 @@
                             v-model="scope.row.scheduleId"
                             size="small"
                             :empty-values="[undefined, null]"
+                            @change="changeSchedule(scope.row)"
                         >
                             <el-option
                                 v-for="opt in pageData.scheduleList"
@@ -168,6 +169,11 @@
             >
         </div>
     </div>
+    <!-- 排程管理弹窗 -->
+    <ScheduleManagPop
+        v-model="pageData.scheduleManagePopOpen"
+        @close="pageData.scheduleManagePopOpen = false"
+    />
 </template>
 
 <script lang="ts" src="./AlarmOut.v.ts"></script>

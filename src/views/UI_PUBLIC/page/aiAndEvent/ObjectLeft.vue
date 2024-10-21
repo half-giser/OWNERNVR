@@ -2,8 +2,8 @@
  * @Description: AI 事件——更多——物品遗留与看护
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-18 09:43:32
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 15:23:13
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-21 10:54:17
 -->
 <template>
     <div>
@@ -187,7 +187,7 @@
                         <div class="base-ai-linkage-box">
                             <el-checkbox
                                 v-model="normalParamCheckAll"
-                                class="base-ai-linkage-title"
+                                class="base-ai-linkage-title base-ai-linkage-title-checkbox-input"
                                 @change="handleNormalParamCheckAll"
                                 >{{ Translate('IDCS_TRIGGER_NOMAL') }}</el-checkbox
                             >

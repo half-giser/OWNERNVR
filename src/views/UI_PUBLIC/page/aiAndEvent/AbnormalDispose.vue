@@ -152,7 +152,7 @@
                         <div class="base-ai-linkage-box">
                             <el-checkbox
                                 v-model="normalParamCheckAll"
-                                class="base-ai-linkage-title"
+                                class="base-ai-linkage-title base-ai-linkage-title-checkbox-input"
                                 @change="handleNormalParamCheckAll"
                                 >{{ Translate('IDCS_TRIGGER_NOMAL') }}</el-checkbox
                             >

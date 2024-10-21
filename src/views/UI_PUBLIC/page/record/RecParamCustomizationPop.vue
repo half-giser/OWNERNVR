@@ -21,13 +21,12 @@
                 label-position="left"
             >
                 <el-form-item :label="Translate('IDCS_EXPIRE_TIME')">
-                    <el-input
+                    <BaseNumberInput
                         v-model="pageData.expireTime"
-                        type="number"
                         :min="1"
                         :max="8760"
+                        value-on-clear="min"
                         :style="{ width: '300px' }"
-                        @input="inputLimit"
                     />
                     <span>{{ Translate('IDCS_HOUR_ALL') }}</span>
                 </el-form-item>
