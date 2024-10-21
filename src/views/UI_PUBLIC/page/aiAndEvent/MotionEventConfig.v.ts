@@ -3,7 +3,7 @@
  * @Date: 2024-08-16 18:13:56
  * @Description: 移动侦测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-18 14:30:22
+ * @LastEditTime: 2024-10-21 14:19:36
  */
 import { cloneDeep } from 'lodash-es'
 import { MotionEventConfig, type PresetItem } from '@/types/apiType/aiAndEvent'
@@ -28,7 +28,6 @@ export default defineComponent({
         const router = useRouter()
         const openMessageTipBox = useMessageBox().openMessageTipBox
         const pageData = ref({
-            initComplated: false,
             pageIndex: 1,
             pageSize: 10,
             totalCount: 0,
@@ -180,7 +179,6 @@ export default defineComponent({
             })
         }
         const buildTableData = () => {
-            pageData.value.initComplated = false
             tableData.value.length = 0
             getChlList({
                 pageIndex: pageData.value.pageIndex,
@@ -189,7 +187,7 @@ export default defineComponent({
             }).then(async (resb) => {
                 const $chl = queryXml(resb)
                 pageData.value.totalCount = Number($chl('//content').attr('total'))
-                $chl('//content/item').forEach(async (item) => {
+                $chl('//content/item').forEach((item) => {
                     const $ele = queryXml(item.element)
                     const row = new MotionEventConfig()
                     row.id = item.attr('id')!
@@ -334,8 +332,8 @@ export default defineComponent({
             pageData.value.recordPopoverVisible = false
         }
         const setRecord = (index: number) => {
-            pageData.value.recordIsShow = true
             pageData.value.triggerDialogIndex = index
+            pageData.value.recordIsShow = true
         }
         const recordConfirm = (e: { value: string; label: string }[]) => {
             addEditRow(tableData.value[pageData.value.triggerDialogIndex])
@@ -392,8 +390,8 @@ export default defineComponent({
             pageData.value.snapPopoverVisible = false
         }
         const setSnap = (index: number) => {
-            pageData.value.snapIsShow = true
             pageData.value.triggerDialogIndex = index
+            pageData.value.snapIsShow = true
         }
         const snapConfirm = (e: { value: string; label: string }[]) => {
             addEditRow(tableData.value[pageData.value.triggerDialogIndex])
@@ -450,8 +448,8 @@ export default defineComponent({
             pageData.value.alarmOutPopoverVisible = false
         }
         const setAlarmOut = (index: number) => {
-            pageData.value.alarmOutIsShow = true
             pageData.value.triggerDialogIndex = index
+            pageData.value.alarmOutIsShow = true
         }
         const alarmOutConfirm = (e: { value: string; label: string }[]) => {
             addEditRow(tableData.value[pageData.value.triggerDialogIndex])
@@ -499,34 +497,45 @@ export default defineComponent({
             })
         }
         // 四个按钮checkBox切换
-        const recordSwitchChange = (row: MotionEventConfig) => {
-            addEditRow(row)
-            if (row.record.switch === false) {
-                row.record.chls = []
-                row.recordList = []
-            }
-        }
-        const snapSwitchChange = (row: MotionEventConfig) => {
-            addEditRow(row)
-            if (row.snap.switch === false) {
-                row.snap.chls = []
-                row.snapList = []
-            }
-        }
-        const alarmOutSwitchChange = (row: MotionEventConfig) => {
-            addEditRow(row)
-            if (row.alarmOut.switch === false) {
-                row.alarmOut.chls = []
-                row.alarmOutList = []
-            }
-        }
         const presetSwitchChange = (row: MotionEventConfig) => {
             addEditRow(row)
             if (row.preset.switch === false) {
                 row.preset.presets = []
+            } else {
+                openPresetPop(row)
             }
         }
-
+        const checkChange = (index: number, type: string) => {
+            addEditRow(tableData.value[index])
+            switch (type) {
+                case 'record':
+                    if (tableData.value[index].record.switch) {
+                        setRecord(index)
+                    } else {
+                        tableData.value[index].record.chls = []
+                        tableData.value[index].recordList = []
+                    }
+                    break
+                case 'snap':
+                    if (tableData.value[index].snap.switch) {
+                        setSnap(index)
+                    } else {
+                        tableData.value[index].snap.chls = []
+                        tableData.value[index].snapList = []
+                    }
+                    break
+                case 'alarmOut':
+                    if (tableData.value[index].alarmOut.switch) {
+                        setAlarmOut(index)
+                    } else {
+                        tableData.value[index].alarmOut.chls = []
+                        tableData.value[index].alarmOutList = []
+                    }
+                    break
+                default:
+                    break
+            }
+        }
         // 系统音频
         const handleSysAudioChangeAll = (sysAudio: string) => {
             tableData.value.forEach((item) => {
@@ -576,7 +585,7 @@ export default defineComponent({
         const handleMotionSetting = () => {
             // 跳转到移动侦测设置页面
             // router.push('/config/channel/settings/motion')
-            if (userSession.hasAuth('RemoteChlMgr')) {
+            if (userSession.hasAuth('remoteChlMgr')) {
                 router.push('/config/channel/settings/motion')
             } else {
                 openMessageTipBox({
@@ -744,10 +753,8 @@ export default defineComponent({
             openPresetPop,
             handlePresetLinkedList,
             presetClose,
-            recordSwitchChange,
-            snapSwitchChange,
-            alarmOutSwitchChange,
             presetSwitchChange,
+            checkChange,
             handleSysAudioChangeAll,
             handleMsgPushChangeAll,
             handleBeeperChangeAll,

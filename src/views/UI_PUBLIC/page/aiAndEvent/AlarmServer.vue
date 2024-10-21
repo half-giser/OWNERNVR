@@ -3,7 +3,7 @@
  * @Date: 2024-08-14 17:06:01
  * @Description: 报警服务器
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-18 17:14:38
+ * @LastEditTime: 2024-10-18 17:40:49
 -->
 <template>
     <div class="base-flex-box">
@@ -69,7 +69,7 @@
             >
                 <el-input
                     v-model="formData.deviceId"
-                    :maxlength="pageData.maxDeviceIdLength"
+                    maxlength="6"
                     :disabled="!formData.enable"
                 />
             </el-form-item>
@@ -82,6 +82,7 @@
                 <el-input
                     v-model="formData.token"
                     :disabled="!formData.enable"
+                    maxlength="256"
                 />
             </el-form-item>
             <!-- address -->
@@ -92,6 +93,7 @@
                 <el-input
                     v-model="formData.address"
                     :disabled="!formData.enable"
+                    maxlength="60"
                     @input="checkAddress"
                 />
             </el-form-item>
@@ -103,6 +105,7 @@
                 <el-input
                     v-model="formData.url"
                     :disabled="!(formData.enable && !pageData.urlDisabled)"
+                    maxlength="60"
                     @input="checkUrl"
                 />
             </el-form-item>

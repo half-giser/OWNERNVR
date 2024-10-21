@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-13 15:58:40
  * @Description: 闪灯
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-29 16:06:25
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-21 15:09:42
 -->
 <template>
     <div class="base-flex-box">
@@ -19,6 +19,7 @@
                 stripe
                 border
                 highlight-current-row
+                :row-class-name="(data) => (data.row.rowDisable ? 'disabled' : '')"
                 show-overflow-tooltip
             >
                 <el-table-column
@@ -34,6 +35,7 @@
                     :label="Translate('IDCS_CHANNEL')"
                 >
                 </el-table-column>
+                <!-- 启用 -->
                 <el-table-column prop="enable">
                     <template #header>
                         <el-dropdown trigger="click">
@@ -62,7 +64,7 @@
                             value-key="value"
                             :placeholder="Translate('IDCS_ON')"
                             :options="pageData.enableList"
-                            :disabled="scope.row.enableDisable"
+                            :disabled="scope.row.rowDisable"
                             @change="handleEnabelChange(scope.row)"
                         >
                             <el-option
@@ -75,6 +77,7 @@
                         </el-select>
                     </template>
                 </el-table-column>
+                <!-- 闪烁时间 -->
                 <el-table-column
                     prop="durationTime"
                     :label="Translate('IDCS_FLASHING_TIME')"
@@ -82,8 +85,7 @@
                     <template #default="scope">
                         <el-input
                             v-model="scope.row.durationTime"
-                            :disabled="scope.row.durationTimeDisable"
-                            placeholder="undefined"
+                            :disabled="scope.row.durationTimeDisable || scope.row.rowDisable"
                             @change="handleDurationTimeChange(scope.row)"
                             @focus="handleDurationTimeFocus(scope.row)"
                             @blur="handleDurationTimeBlur(scope.row)"
@@ -91,6 +93,7 @@
                         />
                     </template>
                 </el-table-column>
+                <!-- 闪烁频率 -->
                 <el-table-column prop="frequencyType">
                     <template #header>
                         <el-dropdown trigger="click">
@@ -119,7 +122,7 @@
                             value-key="value"
                             placeholder=""
                             :options="pageData.lightFrequencyList"
-                            :disabled="scope.row.frequencyTypeDisable"
+                            :disabled="scope.row.frequencyTypeDisable || scope.row.rowDisable"
                             @change="handleFrequencyTypeChange(scope.row)"
                         >
                             <el-option
@@ -134,7 +137,7 @@
                 </el-table-column>
             </el-table>
         </div>
-        <el-row class="row_pagination">
+        <div class="row_pagination">
             <el-pagination
                 v-model:current-page="pageData.pageIndex"
                 v-model:page-size="pageData.pageSize"
@@ -145,7 +148,7 @@
                 @size-change="changePaginationSize"
                 @current-change="changePagination"
             />
-        </el-row>
+        </div>
         <div class="base-subheading-box margin">{{ Translate('IDCS_FLASH_LIGHT_LINK_SCHEDULE') }}</div>
         <el-form
             label-position="left"
