@@ -13,7 +13,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const userSessionStore = useUserSessionStore()
-        const { supportPOS } = useCababilityStore()
+        const { supportPOS, CustomerID } = useCababilityStore()
         const theme = getUiAndTheme().name
         const openMessageTipBox = useMessageBox().openMessageTipBox
         const { openLoading, closeLoading } = useLoading()
@@ -139,6 +139,8 @@ export default defineComponent({
             } as Record<string, string>,
             // 根据UI选择是否显示icon
             showIcon: theme === 'UI1-E',
+            // 特定客户的需求
+            isInw48: CustomerID === 100,
         })
 
         // 如果支持POS，才在高级模式选项列表中加入POS
@@ -244,9 +246,14 @@ export default defineComponent({
             formData.value.autoModeEvents = $('/response/content/recMode/autoMode').attr('eventType').split(',')
             formData.value.urgencyRecDuration = Number($('/response/content/urgencyRecDuration').text())
 
+            //TODO: CustomerID为100代表inw48客户,要求隐藏智能侦测
+            // if (pageData.value.isInw48) {
+            //     pageData.value.advanceRecModes = pageData.value.advanceRecModes.filter((item) => item.id !== 'INTELLIGENT')
+            //     pageData.value.basicRecModes.pop()
+            // }
             //TODO: CustomerID为351代表USE44客户,要求将manual翻译为schedule
-            //  if(CustomerID=="351"){
-            //     recModeTypeMapping.manually = "IDCS_REC_MODE_MANUAL"
+            // if (CustomerID == 351) {
+            //     MODE_MAPPING.manually = Translate('IDCS_REC_MODE_MANUAL')
             // }
             //绑定录像模式下拉
             $('/response/types/recModeType/enum').forEach((item) => {

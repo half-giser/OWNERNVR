@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-28 13:41:57
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-21 14:41:28
+ * @LastEditTime: 2024-10-21 15:35:21
 -->
 <template>
     <!-- 通道名称及选择器 -->
@@ -11,7 +11,6 @@
         class="stripe narrow"
         :style="{
             '--form-input-width': '430px',
-            '--el-form-label-font-size': '15px',
         }"
         label-position="left"
         inline-message
@@ -689,12 +688,6 @@
 <style lang="scss" scoped>
 .table-box {
     width: 500px;
-}
-:deep(.el-form-item__label) {
-    display: inline-block;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 // 高级设置
 .more_wrap {
