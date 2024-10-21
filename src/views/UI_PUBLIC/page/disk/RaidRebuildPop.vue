@@ -3,7 +3,7 @@
  * @Date: 2024-07-08 18:24:54
  * @Description: 磁盘阵列重建弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 16:11:32
+ * @LastEditTime: 2024-10-18 11:20:51
 -->
 <template>
     <el-dialog
@@ -21,13 +21,13 @@
             label-position="left"
         >
             <el-form-item :label="Translate('IDCS_RAID_NAME')">
-                <el-text>{{ current.name }}</el-text>
+                {{ current.name }}
             </el-form-item>
             <el-form-item :label="Translate('IDCS_RAID_TYPE')">
-                <el-text>{{ Translate(`IDCS_${current.raidType.replace('_TYPE', '')}`) }}</el-text>
+                {{ Translate(`IDCS_${current.raidType.replace('_TYPE', '')}`) }}
             </el-form-item>
             <el-form-item :label="Translate('IDCS_RAID_DISK')">
-                <el-text>{{ current.physicalDisk }}</el-text>
+                {{ current.physicalDisk }}
             </el-form-item>
             <el-form-item :label="Translate('IDCS_PHYSICAL_DISK')">
                 <el-radio-group v-model="formData.diskId">

@@ -3,7 +3,7 @@
  * @Date: 2024-07-05 17:32:15
  * @Description: 存储模式新增通道弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 16:15:26
+ * @LastEditTime: 2024-10-18 10:19:43
 -->
 <template>
     <el-dialog
@@ -24,8 +24,12 @@
                 <el-table-column
                     :label="Translate('IDCS_SERIAL_NUMBER')"
                     type="index"
+                    width="70"
                 />
-                <el-table-column type="selection" />
+                <el-table-column
+                    type="selection"
+                    width="55"
+                />
                 <el-table-column
                     :label="Translate('IDCS_CHANNEL_NAME')"
                     prop="name"

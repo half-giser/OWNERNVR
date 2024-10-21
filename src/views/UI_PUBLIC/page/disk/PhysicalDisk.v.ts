@@ -67,7 +67,7 @@ export default defineComponent({
                 return {
                     id: item.attr('id')!,
                     slotIndex: $item('slotIndex').text(),
-                    capacity: Math.floor(Number($item('capacity').text())),
+                    capacity: Math.floor(Number($item('capacity').text()) / 1024),
                     raid: $item('raid').text(),
                     type: $item('type').text(),
                     state: STATE_MAPPING[$item('state').text()],

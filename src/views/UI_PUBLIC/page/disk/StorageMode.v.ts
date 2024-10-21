@@ -3,7 +3,7 @@
  * @Date: 2024-07-08 18:01:29
  * @Description: 存储模式配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 17:44:16
+ * @LastEditTime: 2024-10-18 10:10:58
  */
 import type { StorageModeDiskGroupListDatum, StorageModeDiskGroupList } from '@/types/apiType/disk'
 import StorageModeAddDiskPop from './StorageModeAddDiskPop.vue'
@@ -222,7 +222,7 @@ export default defineComponent({
                         <action type="actionType">add</action>
                         <id>${pageData.value.diskGroupList[0].id}</id>
                         <${elementName} type="list">
-                            <item id="${elementId}"></item>
+                            <item id="${elementId}" />
                         </${elementName}>
                     </diskGroup>
                 </content>

@@ -3,7 +3,7 @@
  * @Date: 2024-06-07 15:00:44
  * @Description: 加密密码弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 09:52:14
+ * @LastEditTime: 2024-10-18 09:33:02
 -->
 <template>
     <el-dialog
@@ -24,7 +24,7 @@
             hide-required-asterisk
         >
             <el-form-item
-                prop="pass"
+                prop="password"
                 :label="Translate('IDCS_PASSWORD')"
             >
                 <el-input

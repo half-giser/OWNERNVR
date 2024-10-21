@@ -129,8 +129,8 @@ export default {
                 sort: 60,
                 lk: 'IDCS_AUDIO',
                 group: 'eventNotify',
-                auth(systemCaps) {
-                    return systemCaps.supportAlarmAudioConfig
+                auth(systemCaps, ui) {
+                    return ui !== 'UI3-A' || systemCaps.supportAlarmAudioConfig
                 },
             },
         },

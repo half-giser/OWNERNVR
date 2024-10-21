@@ -3,7 +3,7 @@
  * @Date: 2024-07-08 18:01:16
  * @Description: 创建磁盘阵列弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 10:59:52
+ * @LastEditTime: 2024-10-18 11:11:26
  */
 import { type DiskPhysicalList, DiskCreateRaidForm } from '@/types/apiType/disk'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -113,7 +113,10 @@ export default defineComponent({
          * @returns {string}
          */
         const formatChar = (str: string) => {
-            return str.replace(/[^a-zA-Z][^-_a-zA-Z0-9]+/, '')
+            if (str.startsWith('-')) {
+                return ''
+            }
+            return str.replace(/[^-_a-zA-Z0-9]/g, '')
         }
 
         /**
@@ -163,7 +166,6 @@ export default defineComponent({
                 </content>
             `
 
-            // TODO 需要测试数据
             const result = await createRaid(sendXml)
             const $ = queryXml(result)
 
