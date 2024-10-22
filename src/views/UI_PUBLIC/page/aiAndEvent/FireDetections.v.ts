@@ -3,7 +3,7 @@
  * @Date: 2024-09-11 14:16:37
  * @Description: 火点检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-18 15:20:07
+ * @LastEditTime: 2024-10-21 16:58:10
  */
 import { type chlCaps, type aiResourceRow, type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
@@ -44,7 +44,7 @@ export default defineComponent({
         const playerRef = ref<PlayerInstance>()
         const pluginStore = usePluginStore()
         const osType = getSystemInfo().platform
-        const pageData = ref<{ [key: string]: any }>({
+        const pageData = ref({
             // 当前选中的通道
             currChlId: '',
             // 当前选择通道数据
@@ -137,8 +137,8 @@ export default defineComponent({
                 switch: false,
                 chls: [] as { value: string; label: string }[],
             },
-            // snap穿梭框数据源
-            snapList: [] as { value: string; label: string }[],
+            // 选中的snap id
+            snapList: [] as string[],
             snapIsShow: false,
             snapHeaderTitle: 'IDCS_TRIGGER_CHANNEL_SNAP',
             snapSourceTitle: 'IDCS_CHANNEL',
@@ -393,7 +393,7 @@ export default defineComponent({
                         name = $item('devDesc').text() + '-' + name
                     }
                     pageData.value.alarmOutSource.push({
-                        value: item.attr('id'),
+                        value: item.attr('id')!,
                         label: name,
                         device: {
                             value: $item('device').attr('id'),
@@ -414,7 +414,7 @@ export default defineComponent({
                     res('//content/item').forEach((item) => {
                         const $item = queryXml(item.element)
                         pageData.value.snapSource.push({
-                            value: item.attr('id'),
+                            value: item.attr('id')!,
                             label: $item('name').text(),
                         })
                     })
@@ -490,6 +490,7 @@ export default defineComponent({
                     item.value = true
                     const property = item.property + ''
                     if (property in pageData.value) {
+                        // @ts-expect-error
                         pageData.value[property] = true
                     }
                 })
@@ -498,6 +499,7 @@ export default defineComponent({
                     item.value = false
                     const property = item.property
                     if (property in pageData.value) {
+                        // @ts-expect-error
                         pageData.value[property] = false
                     }
                 })
@@ -508,6 +510,7 @@ export default defineComponent({
             pageData.value.applyDisable = false
             const property = item.property
             if (property in pageData.value) {
+                // @ts-expect-error
                 pageData.value[property] = item.value
             }
             const triggerSwitch = triggerData.value.every((item) => item.value)
@@ -744,8 +747,8 @@ export default defineComponent({
                 <content>
                     <chl id="${pageData.value.currChlId}" scheduleGuid="${pageData.value['schedule']}">
                         <param>
-                            <switch>${pageData.value['detectionEnable']}</switch>
-                            <alarmHoldTime>${pageData.value['holdTime']}</alarmHoldTime>
+                            <switch>${pageData.value['detectionEnable'].toString()}</switch>
+                            <alarmHoldTime>${pageData.value['holdTime'].toString()}</alarmHoldTime>
                             ${pageData.value.chlData['supportAudio'] && pageData.value['audioSuport'] ? `<triggerAudio>${pageData.value['triggerAudio']}</triggerAudio>` : ''}
                             ${pageData.value.chlData['supportWhiteLight'] && pageData.value['lightSuport'] ? `<triggerWhiteLight>${pageData.value['triggerWhiteLight']}</triggerWhiteLight>` : ''}
                         </param>
@@ -808,12 +811,12 @@ export default defineComponent({
                                         .join('')}
                                 </presets>
                             </preset>
-                            <snapSwitch>${pageData.value['snapSwitch']}</snapSwitch>
-                            <msgPushSwitch>${pageData.value['msgPushSwitch']}</msgPushSwitch>
-                            <buzzerSwitch>${pageData.value['buzzerSwitch']}</buzzerSwitch>
-                            <popVideoSwitch>${pageData.value['popVideoSwitch']}</popVideoSwitch>
-                            <emailSwitch>${pageData.value['emailSwitch']}</emailSwitch>
-                            <popMsgSwitch>${pageData.value['popMsgSwitch']}</popMsgSwitch>
+                            <snapSwitch>${pageData.value['snapSwitch'].toString()}</snapSwitch>
+                            <msgPushSwitch>${pageData.value['msgPushSwitch'].toString()}</msgPushSwitch>
+                            <buzzerSwitch>${pageData.value['buzzerSwitch'].toString()}</buzzerSwitch>
+                            <popVideoSwitch>${pageData.value['popVideoSwitch'].toString()}</popVideoSwitch>
+                            <emailSwitch>${pageData.value['emailSwitch'].toString()}</emailSwitch>
+                            <popMsgSwitch>${pageData.value['popMsgSwitch'].toString()}</popMsgSwitch>
                             <sysAudio id='${pageData.value['sysAudio']}'></sysAudio>
                         </trigger>
                     </chl>

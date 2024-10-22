@@ -309,7 +309,7 @@
             class="base-btn-box"
             :span="2"
         >
-            <div>
+            <div class="tips_text">
                 {{ Translate('IDCS_DISK_FAILURE_TIPS').formatForLang(Translate('IDCS_DISK_FAILURE')) }}
             </div>
             <div>
@@ -335,5 +335,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
+}
+.tips_text {
+    font-size: 14px;
 }
 </style>

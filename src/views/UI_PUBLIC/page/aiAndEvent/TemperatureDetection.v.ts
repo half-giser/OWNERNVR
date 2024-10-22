@@ -2,8 +2,8 @@
  * @Description: AI 事件——更多——温度检测
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-13 09:18:41
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-21 14:23:49
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-22 10:00:33
  */
 import { cloneDeep } from 'lodash-es'
 import { type BoundaryTableDataItem, type chlCaps, type PresetList, TempDetection } from '@/types/apiType/aiAndEvent'
@@ -603,7 +603,6 @@ export default defineComponent({
         // 发射率输入限制
         const emissivityInput = (value: string, index: number) => {
             let num = '' + value
-            console.log(value)
             num = num
                 .replace(/[^\d.]/g, '') // 清除“数字”和“.”以外的字符
                 .replace(/\.{2,}/g, '.') // 只保留第一个. 清除多余的

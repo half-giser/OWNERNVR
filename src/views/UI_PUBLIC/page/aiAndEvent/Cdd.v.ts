@@ -45,7 +45,7 @@ export default defineComponent({
         const pluginStore = usePluginStore()
         const osType = getSystemInfo().platform
         let cddDrawer: CanvasVfd
-        const pageData = ref<{ [key: string]: any }>({
+        const pageData = ref({
             // 当前选中的通道
             currChlId: '',
             // 当前选择通道数据
@@ -271,7 +271,7 @@ export default defineComponent({
                 res('//content/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     pageData.value.recordSource.push({
-                        value: item.attr('id'),
+                        value: item.attr('id')!,
                         label: $item('name').text(),
                     })
                 })
@@ -293,7 +293,7 @@ export default defineComponent({
                         name = $item('devDesc').text() + '-' + name
                     }
                     pageData.value.alarmOutSource.push({
-                        value: item.attr('id'),
+                        value: item.attr('id')!,
                         label: name,
                         device: {
                             value: $item('device').attr('id'),
@@ -368,6 +368,7 @@ export default defineComponent({
                     item.value = true
                     const property = item.property + ''
                     if (property in pageData.value) {
+                        // @ts-expect-error
                         pageData.value[property] = true
                     }
                 })
@@ -376,6 +377,7 @@ export default defineComponent({
                     item.value = false
                     const property = item.property
                     if (property in pageData.value) {
+                        // @ts-expect-error
                         pageData.value[property] = false
                     }
                 })
@@ -386,6 +388,7 @@ export default defineComponent({
             pageData.value.applyDisable = false
             const property = item.property
             if (property in pageData.value) {
+                // @ts-expect-error
                 pageData.value[property] = item.value
             }
             const triggerSwitch = triggerData.value.every((item) => item.value)
@@ -520,7 +523,7 @@ export default defineComponent({
                         switch: $item('sysRec/switch').text() == 'true',
                         chls: $item('sysRec/chls/item').map((item) => {
                             return {
-                                value: item.attr('id'),
+                                value: item.attr('id')!,
                                 label: item.text(),
                             }
                         }),
@@ -530,7 +533,7 @@ export default defineComponent({
                         switch: $item('alarmOut/switch').text() == 'true',
                         chls: $item('alarmOut/alarmOuts/item').map((item) => {
                             return {
-                                value: item.attr('id'),
+                                value: item.attr('id')!,
                                 label: item.text(),
                             }
                         }),

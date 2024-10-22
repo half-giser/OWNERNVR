@@ -3,7 +3,7 @@
  * @Date: 2024-08-14 17:06:01
  * @Description: 报警服务器
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-18 17:40:49
+ * @LastEditTime: 2024-10-22 11:16:02
 -->
 <template>
     <div class="base-flex-box">
@@ -43,6 +43,7 @@
             </template>
         </el-dialog>
         <div class="base-subheading-box">{{ Translate('IDCS_ALARM_SERVER') }}</div>
+        <!-- 表单 -->
         <el-form
             ref="formRef"
             :model="formData"

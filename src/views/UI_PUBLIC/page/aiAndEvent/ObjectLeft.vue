@@ -161,16 +161,14 @@
                     name="linkage"
                 >
                     <el-form
+                        v-if="supportAlarmAudioConfig"
                         class="narrow"
                         :style="{
                             '--form-input-width': '215px',
                         }"
                         label-position="left"
                     >
-                        <el-form-item
-                            v-show="supportAlarmAudioConfig"
-                            :label="Translate('IDCS_VOICE_PROMPT')"
-                        >
+                        <el-form-item :label="Translate('IDCS_VOICE_PROMPT')">
                             <el-select v-model="objectLeftData.sysAudio">
                                 <el-option
                                     v-for="item in pageData.voiceList"

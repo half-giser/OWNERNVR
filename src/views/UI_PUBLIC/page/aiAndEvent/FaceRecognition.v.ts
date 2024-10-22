@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-28 13:42:09
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-21 14:39:04
+ * @LastEditTime: 2024-10-22 14:52:58
  */
 import { cloneDeep } from 'lodash-es'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
@@ -572,7 +572,9 @@ export default defineComponent({
         const chlChange = async () => {
             pageData.value.faceTab = 'faceDetection'
             detectionPageData.value.detectionTab = 'param'
+            // 识别页切换为识别成功，-禁用
             comparePageData.value.compareTab = 'hit'
+            comparePageData.value.removeDisabled = true
             pageData.value.notChlSupport = false
             handleCurrChlData(chlList[pageData.value.curChl])
             // 更换通道时清空上一个通道的数据
@@ -616,9 +618,11 @@ export default defineComponent({
                 `
                 const result = await queryVfd(sendXml)
                 commLoadResponseHandler(result, async ($) => {
-                    const enabledSwitch = $('/response/content/chl/param/switch').text() == 'true'
-                    let holdTimeArr = $('/response/content/chl/param/holdTimeNote').text().split(',')
-                    const holdTime = $('/response/content/chl/param/holdTime').text()
+                    const param = $('/response/content/chl/param')
+                    const $param = queryXml(param[0].element)
+                    const enabledSwitch = $param('switch').text() == 'true'
+                    let holdTimeArr = $param('holdTimeNote').text().split(',')
+                    const holdTime = $param('holdTime').text()
                     if (!holdTimeArr.includes(holdTime)) {
                         holdTimeArr.push(holdTime)
                         holdTimeArr = holdTimeArr.sort((a, b) => Number(a) - Number(b))
@@ -630,7 +634,7 @@ export default defineComponent({
                             label,
                         }
                     })
-                    const regionInfo = $('/response/content/chl/param/regionInfo/item').map((item) => {
+                    const regionInfo = $param('regionInfo/item').map((item) => {
                         const $item = queryXml(item.element)
                         return {
                             X1: Number($item('X1').text()),
@@ -639,27 +643,29 @@ export default defineComponent({
                             Y2: Number($item('Y2').text()),
                         }
                     })
-                    const mutexList = $('/response/content/chl/param/mutexList/item').map((item) => {
+                    const mutexList = $param('mutexList/item').map((item) => {
                         const $item = queryXml(item.element)
                         return { object: $item('object').text(), status: $item('status').text() == 'true' }
                     })
-                    const mutexListEx = $('/response/content/chl/param/mutexListEx/item').map((item) => {
+                    const mutexListEx = $param('mutexListEx/item').map((item) => {
                         const $item = queryXml(item.element)
                         return { object: $item('object').text(), status: $item('status').text() == 'true' }
                     })
-                    const record = $('/response/content/chl/trigger/sysRec/chls/item').map((item) => {
+                    const trigger = $('/response/content/chl/trigger')
+                    const $trigger = queryXml(trigger[0].element)
+                    const record = $trigger('sysRec/chls/item').map((item) => {
                         return {
                             value: item.attr('id')!,
                             label: item.text(),
                         }
                     })
-                    const alarmOut = $('/response/content/chl/trigger/alarmOut/alarmOuts/item').map((item) => {
+                    const alarmOut = $trigger('alarmOut/alarmOuts/item').map((item) => {
                         return {
                             value: item.attr('id')!,
                             label: item.text(),
                         }
                     })
-                    const preset = $('/response/content/chl/trigger/preset/presets/item').map((item) => {
+                    const preset = $trigger('preset/presets/item').map((item) => {
                         const $item = queryXml(item.element)
                         return {
                             index: $item('index').text(),
@@ -678,28 +684,28 @@ export default defineComponent({
                         regionInfo,
                         mutexList,
                         mutexListEx,
-                        saveFacePicture: $('/response/content/chl/param/saveFacePicture').text(),
-                        saveSourcePicture: $('/response/content/chl/param/saveSourcePicture').text(),
-                        snapInterval: $('/response/content/chl/param/senceMode/customize/intervalTime').text(),
-                        captureCycle: $('/response/content/chl/param/senceMode/customize/captureCycle').text(),
-                        minFaceFrame: Number($('/response/content/chl/param/minFaceFrame').text()),
+                        saveFacePicture: $param('saveFacePicture').text(),
+                        saveSourcePicture: $param('saveSourcePicture').text(),
+                        snapInterval: $param('senceMode/customize/intervalTime').text(),
+                        captureCycle: $param('senceMode/customize/captureCycle').text(),
+                        minFaceFrame: Number($param('minFaceFrame').text()),
                         minRegionInfo: [],
-                        maxFaceFrame: Number($('/response/content/chl/param/maxFaceFrame').text()),
+                        maxFaceFrame: Number($param('maxFaceFrame').text()),
                         maxRegionInfo: [],
-                        triggerAudio: $('/response/content/chl/param/triggerAudio').text(),
-                        triggerWhiteLight: $('/response/content/chl/param/triggerWhiteLight').text(),
-                        faceExpSwitch: $('/response/content/chl/param/faceExp/switch').text() == 'true',
-                        faceExpStrength: Number($('/response/content/chl/param/senceMode/customize/faceExpStrength').text()),
+                        triggerAudio: $param('triggerAudio').text(),
+                        triggerWhiteLight: $param('triggerWhiteLight').text(),
+                        faceExpSwitch: $param('faceExp/switch').text() == 'true',
+                        faceExpStrength: Number($param('senceMode/customize/faceExpStrength').text()),
                         schedule: $('/response/content/chl').attr('scheduleGuid'),
                         record,
                         alarmOut,
                         preset,
-                        msgPushSwitch: $('/response/content/chl/trigger/msgPushSwitch').text() == 'true',
-                        buzzerSwitch: $('/response/content/chl/trigger/buzzerSwitch').text() == 'true',
-                        popVideoSwitch: $('/response/content/chl/trigger/popVideoSwitch').text() == 'true',
-                        emailSwitch: $('/response/content/chl/trigger/emailSwitch').text() == 'true',
-                        catchSnapSwitch: $('/response/content/chl/trigger/snapSwitch').text() == 'true',
-                        sysAudio: $('/response/content/chl/trigger/sysAudio').attr('id'),
+                        msgPushSwitch: $trigger('msgPushSwitch').text() == 'true',
+                        buzzerSwitch: $trigger('buzzerSwitch').text() == 'true',
+                        popVideoSwitch: $trigger('popVideoSwitch').text() == 'true',
+                        emailSwitch: $trigger('emailSwitch').text() == 'true',
+                        catchSnapSwitch: $trigger('snapSwitch').text() == 'true',
+                        sysAudio: $trigger('sysAudio').attr('id'),
                     }
                 })
             } else {

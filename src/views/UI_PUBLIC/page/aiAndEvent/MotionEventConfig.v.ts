@@ -3,15 +3,17 @@
  * @Date: 2024-08-16 18:13:56
  * @Description: 移动侦测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-21 14:19:36
+ * @LastEditTime: 2024-10-22 10:32:44
  */
 import { cloneDeep } from 'lodash-es'
 import { MotionEventConfig, type PresetItem } from '@/types/apiType/aiAndEvent'
 import SetPresetPop from './SetPresetPop.vue'
+import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 // import { DropdownInstance } from 'element-plus'
 export default defineComponent({
     components: {
         SetPresetPop,
+        ScheduleManagPop,
     },
     setup() {
         const chosedList = ref<any[]>([])
@@ -39,6 +41,7 @@ export default defineComponent({
             defaultAudioId: '{00000000-0000-0000-0000-000000000000}',
             supportAudio: false,
             scheduleList: [] as [] as SelectOption<string, string>[],
+            scheduleManagePopOpen: false,
             audioList: [] as { value: string; label: string }[],
             // 打开穿梭框时选择行的索引
             triggerDialogIndex: 0,
@@ -217,7 +220,10 @@ export default defineComponent({
                             value: res('//content/chl/trigger/triggerSchedule/schedule').attr('id') == '' ? ' ' : res('//content/chl/trigger/triggerSchedule/schedule').attr('id'),
                             label: res('//content/chl/trigger/triggerSchedule/schedule').text(),
                         }
-                        row.oldSchedule = row.schedule
+                        row.oldSchedule = {
+                            value: row.schedule.value,
+                            label: row.schedule.label,
+                        }
                         row.record = {
                             switch: res('//content/chl/trigger/sysRec/switch').text().toBoolean(),
                             chls: res('//content/chl/trigger/sysRec/chls/item').map((item) => {
@@ -291,6 +297,10 @@ export default defineComponent({
             buildTableData()
         }
         const handleScheduleChangeAll = (schedule: { value: string; label: string }) => {
+            if (schedule.value == 'scheduleMgr') {
+                pageData.value.scheduleManagePopOpen = true
+                return
+            }
             tableData.value.forEach((item) => {
                 if (!item.rowDisable) {
                     item.schedule = schedule
@@ -298,7 +308,21 @@ export default defineComponent({
                 }
             })
         }
-
+        const handleScheduleChangeSingle = (row: MotionEventConfig) => {
+            if (row.schedule.value == 'scheduleMgr') {
+                pageData.value.scheduleManagePopOpen = true
+                row.schedule.value = row.oldSchedule.value
+                row.schedule.label = row.oldSchedule.label
+                return
+            }
+            addEditRow(row)
+            row.oldSchedule.value = row.schedule.value
+            row.oldSchedule.label = row.schedule.label
+        }
+        const handleSchedulePopClose = async () => {
+            pageData.value.scheduleManagePopOpen = false
+            await getScheduleList()
+        }
         // 下列为record穿梭框相关
         const recordConfirmAll = (e: any[]) => {
             if (e.length !== 0) {
@@ -735,6 +759,8 @@ export default defineComponent({
             tableData,
             openMessageTipBox,
             handleScheduleChangeAll,
+            handleScheduleChangeSingle,
+            handleSchedulePopClose,
             recordConfirmAll,
             recordCloseAll,
             setRecord,
@@ -764,6 +790,7 @@ export default defineComponent({
             setData,
             addEditRow,
             SetPresetPop,
+            ScheduleManagPop,
         }
     },
 })
