@@ -25,7 +25,7 @@ export default defineConfig(({ mode }) => {
     env.VITE_UI_TYPE = split[1] || env.VITE_UI_TYPE
     console.log(env.VITE_UI_TYPE)
 
-    const { VITE_APP_IP, VITE_UI_TYPE } = env
+    const { VITE_APP_IP, VITE_UI_TYPE, VITE_APP_TYPE } = env
 
     const devPlugin: PluginOption[] = [
         visualizer({
@@ -85,6 +85,7 @@ export default defineConfig(({ mode }) => {
                 scss: {
                     additionalData: `
                         $GLOBAL_UI_TYPE: ${VITE_UI_TYPE};
+                        $GLOBAL_APP_TYPE: ${VITE_APP_TYPE};
                     `,
                 },
             },

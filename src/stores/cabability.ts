@@ -64,7 +64,6 @@ export const useCababilityStore = defineStore(
         const supportPoePowerManage = ref(false)
 
         const CustomerID = ref(0)
-        const isInw48 = ref(false)
         const AISwitch = ref(false)
 
         const isUseRaid = ref(false)
@@ -174,7 +173,6 @@ export const useCababilityStore = defineStore(
             supportPwdSecurityConfig,
             analogChlCount,
             ipChlMaxCount,
-            isInw48,
             supportLite,
             switchableIpChlMaxCount,
             supportZeroOprAdd,

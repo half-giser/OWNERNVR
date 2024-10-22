@@ -453,7 +453,7 @@ export default defineComponent({
                         Logout()
                     })
                     break
-                // TODO 原项目中 536871017 这个errorcode出现了两次，此处不会执行到
+                // 原项目中 536871017 这个errorcode出现了两次，此处不会执行到
                 // case ErrorCode.USER_ERROR_NO_PARENT_AREA_AUTH:
                 //     // 校验升级包是低版本
                 //     openMessageTipBox({

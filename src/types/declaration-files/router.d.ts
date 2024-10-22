@@ -94,7 +94,7 @@ declare global {
             group?: string
             /** 面包屑导航项列表（路由项的name） */
             navs?: string[]
-            /** TODO 是否默认菜单项 */
+            /** 是否默认菜单项 */
             default?: boolean
             /** 分组元标签 */
             groups?: Record<string, FeatureItemGroupMeta>
