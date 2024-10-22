@@ -3,9 +3,10 @@
  * @Date: 2024-08-23 10:54:01
  * @Description: 系统撤防
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-10 14:14:08
+ * @LastEditTime: 2024-10-21 16:13:32
 -->
 <template>
+    <!-- 添加弹窗 -->
     <el-dialog
         v-model="pageData.showAddDialog"
         :title="Translate('IDCS_ADD')"
@@ -44,6 +45,7 @@
             </div>
         </template>
     </el-dialog>
+    <!-- 配置弹窗 -->
     <el-dialog
         v-model="pageData.showCfgDialog"
         :title="Translate('IDCS_RECOVER_LINK_ITEM')"
@@ -83,6 +85,7 @@
             </el-table-column>
         </el-table>
         <template #footer>
+            <el-row class="tips_text_pop">{{ Translate('IDCS_CLOSE_GUARD_TIP') }}</el-row>
             <el-row class="base-btn-box collapse">
                 <el-button @click="cfgItem">
                     {{ Translate('IDCS_OK') }}
@@ -112,7 +115,7 @@
                 >
             </el-form-item>
             <el-form-item>
-                <span class="tips">{{ Translate('IDCS_ALARM_SWITCH_TIP') }}</span>
+                <span class="tips_text">{{ Translate('IDCS_ALARM_SWITCH_TIP') }}</span>
             </el-form-item>
             <el-form-item
                 prop="inputSource"
@@ -297,7 +300,7 @@
             class="base-btn-box"
             span="start"
         >
-            <span class="tips">{{ Translate('IDCS_CLOSE_GUARD_TIP') }}</span>
+            <span class="tips_text">{{ Translate('IDCS_CLOSE_GUARD_TIP') }}</span>
         </div>
         <div class="base-btn-box collapse">
             <el-button
@@ -329,5 +332,16 @@
 .cfg_table {
     width: 480px;
     padding: 10px;
+}
+
+.tips_text {
+    font-size: 15px;
+    color: var(--main-text-light);
+}
+
+.tips_text_pop {
+    font-size: 14px;
+    color: var(--main-text-light);
+    margin-bottom: 5px;
 }
 </style>

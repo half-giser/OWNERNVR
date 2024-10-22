@@ -2,8 +2,8 @@
  * @Description: AI 事件——更多——异常侦测
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-19 09:27:27
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-16 10:39:49
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-22 11:13:36
 -->
 <template>
     <div>
@@ -126,16 +126,14 @@
                     name="linkage"
                 >
                     <el-form
+                        v-if="supportAlarmAudioConfig"
                         class="narrow"
                         :style="{
                             '--form-input-width': '215px',
                         }"
                         label-position="left"
                     >
-                        <el-form-item
-                            v-show="supportAlarmAudioConfig"
-                            :label="Translate('IDCS_VOICE_PROMPT')"
-                        >
+                        <el-form-item :label="Translate('IDCS_VOICE_PROMPT')">
                             <el-select v-model="abnormalDisposeData.sysAudio">
                                 <el-option
                                     v-for="item in pageData.voiceList"

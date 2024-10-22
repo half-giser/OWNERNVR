@@ -3,7 +3,7 @@
  * @Date: 2024-07-31 10:29:37
  * @Description: 录像码流通用表格组件
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-17 11:30:13
+ * @LastEditTime: 2024-10-21 16:43:12
 -->
 <template>
     <div class="base-flex-box">

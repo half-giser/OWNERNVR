@@ -3,7 +3,7 @@
  * @Date: 2024-08-16 18:13:47
  * @Description: 移动侦测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-21 11:34:45
+ * @LastEditTime: 2024-10-22 10:22:50
 -->
 <template>
     <div class="base-flex-box">
@@ -50,6 +50,11 @@
             :handle-preset-linked-list="handlePresetLinkedList"
             @close="presetClose"
         />
+        <ScheduleManagPop
+            v-model="pageData.scheduleManagePopOpen"
+            @close="handleSchedulePopClose"
+        >
+        </ScheduleManagPop>
         <div class="base-table-box">
             <el-table
                 :data="tableData"
@@ -110,7 +115,7 @@
                             value-key="value"
                             :disabled="scope.row.rowDisable"
                             :options="pageData.scheduleList"
-                            @change="addEditRow(scope.row)"
+                            @change="handleScheduleChangeSingle(scope.row)"
                         >
                             <el-option
                                 v-for="item in pageData.scheduleList"

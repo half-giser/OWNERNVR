@@ -3,7 +3,7 @@
  * @Date: 2024-08-13 15:58:40
  * @Description: 闪灯
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-21 15:09:42
+ * @LastEditTime: 2024-10-22 17:23:18
 -->
 <template>
     <div class="base-flex-box">
@@ -161,7 +161,6 @@
                     v-model="pageData.schedule"
                     prop="schedule"
                     value-key="value"
-                    placeholder="<无>"
                     size="small"
                     :options="pageData.scheduleList"
                     @change="handleScheduleChange()"

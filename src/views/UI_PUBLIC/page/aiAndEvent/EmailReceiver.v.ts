@@ -3,7 +3,7 @@
  * @Date: 2024-08-12 14:21:22
  * @Description: email通知
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-18 18:00:39
+ * @LastEditTime: 2024-10-22 17:47:43
  */
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import { EmailReceiver } from '@/types/apiType/aiAndEvent'
@@ -17,7 +17,7 @@ export default defineComponent({
         const router = useRouter()
         const userSession = useUserSessionStore()
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
+        const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const openMessageTipBox = useMessageBox().openMessageTipBox
         const tableData = ref<EmailReceiver[]>([])
         const tableRef = ref<TableInstance>()
@@ -61,6 +61,7 @@ export default defineComponent({
             scheduleList: [] as [] as SelectOption<string, string>[],
             //排程管理弹窗显示状态
             scheduleManagePopOpen: false,
+            defaultSchedule: '{00000000-0000-0000-0000-000000000000}',
         })
         const checkExist = (address: string) => {
             const result = tableData.value.some((item) => item.address == address)
@@ -89,39 +90,37 @@ export default defineComponent({
         }
         const getScheduleList = async () => {
             pageData.value.scheduleList = await buildScheduleList()
+            pageData.value.scheduleList.forEach((item) => {
+                if (item.value == '') {
+                    item.value = pageData.value.defaultSchedule
+                }
+            })
             pageData.value.schedule = pageData.value.scheduleList[0].value
         }
-        const getData = () => {
-            getScheduleList().then(() => {
-                // 将scheduleList中value为''的元素转换为' '
-                pageData.value.scheduleList.forEach((item) => {
-                    if (item.value == '') {
-                        item.value = ' '
-                    }
-                })
-                openLoading()
-                queryEmailCfg().then((resb) => {
-                    closeLoading()
-                    const res = queryXml(resb)
-                    if (res('status').text() == 'success') {
-                        pageData.value.sender = res('//content/sender/address').text()
-                        res('//content/receiver/item').forEach((ele) => {
-                            const eleXml = queryXml(ele.element)
-                            const emailReceiver = new EmailReceiver()
-                            if (typeof eleXml('schedule').attr('id') == undefined) {
-                                emailReceiver.address = eleXml('address').text()
-                                emailReceiver.schedule = ''
-                                emailReceiver.addressShow = hideEmailAddress(emailReceiver.address)
-                                tableData.value.push(emailReceiver)
-                            } else {
-                                emailReceiver.address = eleXml('address').text()
-                                emailReceiver.schedule = eleXml('schedule').attr('id') == '{00000000-0000-0000-0000-000000000000}' ? ' ' : eleXml('schedule').attr('id')
-                                emailReceiver.addressShow = hideEmailAddress(emailReceiver.address)
-                                tableData.value.push(emailReceiver)
-                            }
-                        })
-                    }
-                })
+        const getData = async () => {
+            openLoading(LoadingTarget.FullScreen)
+            await getScheduleList()
+            queryEmailCfg().then((resb) => {
+                closeLoading(LoadingTarget.FullScreen)
+                const res = queryXml(resb)
+                if (res('status').text() == 'success') {
+                    pageData.value.sender = res('//content/sender/address').text()
+                    res('//content/receiver/item').forEach((ele) => {
+                        const eleXml = queryXml(ele.element)
+                        const emailReceiver = new EmailReceiver()
+                        if (typeof eleXml('schedule').attr('id') == undefined) {
+                            emailReceiver.address = eleXml('address').text()
+                            emailReceiver.schedule = ''
+                            emailReceiver.addressShow = hideEmailAddress(emailReceiver.address)
+                            tableData.value.push(emailReceiver)
+                        } else {
+                            emailReceiver.address = eleXml('address').text()
+                            emailReceiver.schedule = eleXml('schedule').attr('id')
+                            emailReceiver.addressShow = hideEmailAddress(emailReceiver.address)
+                            tableData.value.push(emailReceiver)
+                        }
+                    })
+                }
             })
         }
         // 原代码中显示了地址后无法隐藏，这里改为再次点击隐藏
@@ -201,20 +200,18 @@ export default defineComponent({
                 <receiver type="list">
                 `
             tableData.value.forEach((item) => {
-                const schedule = item.schedule == ' ' ? '{00000000-0000-0000-0000-000000000000}' : item.schedule
                 sendXml += rawXml`
                     <item>
                         <address><![CDATA[${item.address}]]></address>
-                        <schedule id="${schedule}"></schedule>
+                        <schedule id="${item.schedule}"></schedule>
                     </item>
                 `
             })
-            sendXml += rawXml`
-                </receiver>
-            </content>`
-            openLoading()
+            sendXml += rawXml`</receiver>
+                            </content>`
+            openLoading(LoadingTarget.FullScreen)
             editEmailCfg(sendXml).then((resb) => {
-                closeLoading()
+                closeLoading(LoadingTarget.FullScreen)
                 const res = queryXml(resb)
                 if (res('status').text() == 'success') {
                     openMessageTipBox({
@@ -229,13 +226,11 @@ export default defineComponent({
                 }
             })
         }
-        const handleSchedulePopClose = () => {
+        const handleSchedulePopClose = async () => {
             pageData.value.scheduleManagePopOpen = false
-            getScheduleList()
+            await getScheduleList()
         }
         onMounted(async () => {
-            // pageData.value.scheduleList = await buildScheduleList()
-            // pageData.value.schedule = pageData.value.scheduleList[0].value
             getData()
         })
 

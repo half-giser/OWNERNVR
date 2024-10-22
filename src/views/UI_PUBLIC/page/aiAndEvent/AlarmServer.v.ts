@@ -3,7 +3,7 @@
  * @Date: 2024-08-14 17:06:11
  * @Description: 报警服务器
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-18 17:47:55
+ * @LastEditTime: 2024-10-22 17:53:46
  */
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -55,6 +55,7 @@ export default defineComponent({
             heartEnableDisabled: false,
             // 将进行的事件
             isTestAlarmServer: false,
+            defaultSchedule: '{00000000-0000-0000-0000-000000000000}',
         })
         const rules = reactive<FormRules>({
             address: [
@@ -206,15 +207,14 @@ export default defineComponent({
         }
         const getScheduleList = async () => {
             pageData.value.scheduleList = await buildScheduleList()
+            pageData.value.scheduleList.forEach((item) => {
+                if (item.value == '') {
+                    item.value = pageData.value.defaultSchedule
+                }
+            })
         }
         const getData = async () => {
-            getScheduleList().then(() => {
-                pageData.value.scheduleList.forEach((item) => {
-                    if (item.value == '') {
-                        item.value = ' '
-                    }
-                })
-            })
+            await getScheduleList()
             queryAlarmServerParam().then(async (resb) => {
                 const res = queryXml(resb)
                 if (res('status').text() === 'success') {
@@ -230,7 +230,7 @@ export default defineComponent({
                         pageData.value.protocolOptions.push({ value: ele.text(), label: ele.text() })
                     })
                     formData.value.interval = Number(res('//content/heartbeat/interval').text())
-                    formData.value.schedule = res('//content/alarmServerSchedule').text() == '{00000000-0000-0000-0000-000000000000}' ? ' ' : res('//content/alarmServerSchedule').text()
+                    formData.value.schedule = res('//content/alarmServerSchedule').text()
 
                     const alarmServerAlarmTypeValue = res('//content/alarmServerAlarmTypes').text()
                     const alarmTypes = alarmServerAlarmTypeValue ? alarmServerAlarmTypeValue.split(',') : []
@@ -300,13 +300,7 @@ export default defineComponent({
             return result
         }
         const getSavaData = (url: string) => {
-            const schedule = formData.value.schedule == ' ' ? '{00000000-0000-0000-0000-000000000000}' : formData.value.schedule
-            let scheduleLabel = ''
-            pageData.value.scheduleList.forEach((item) => {
-                if (item.value == schedule) {
-                    scheduleLabel = item.label
-                }
-            })
+            const scheduleLabel = formData.value.schedule == pageData.value.defaultSchedule ? '' : pageData.value.scheduleList.find((item) => item.value == formData.value.schedule)!.label
             let sendXml = rawXml`<content>
                                 <address>${formData.value.address}</address>
                                 <url>${formData.value.url}</url>
@@ -404,10 +398,9 @@ export default defineComponent({
         }
         const handleSchedulePopClose = async () => {
             pageData.value.scheduleManagePopOpen = false
-            pageData.value.scheduleList = await buildScheduleList()
+            await getScheduleList()
         }
         onMounted(async () => {
-            pageData.value.scheduleList = await buildScheduleList()
             await getBasicCfg()
             await getData()
         })

@@ -3,7 +3,7 @@
  * @Date: 2024-09-11 14:16:29
  * @Description: 火点检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-18 15:20:37
+ * @LastEditTime: 2024-10-21 17:06:37
 -->
 <template>
     <div>
@@ -222,7 +222,7 @@
                             </el-form>
                         </div>
                     </div>
-                    <div class="base-btn-box">
+                    <div class="base-btn-box fixed">
                         <el-button
                             :disabled="pageData.applyDisable"
                             @click="handleApply"
@@ -236,7 +236,7 @@
                     :label="Translate('IDCS_LINKAGE_MODE')"
                     name="trigger"
                 >
-                    <div>
+                    <div class="trigger_box">
                         <!-- 音频 -->
                         <el-form
                             v-if="pageData.supportAlarmAudioConfig"
@@ -396,7 +396,7 @@
                                 </el-table>
                             </div>
                         </div>
-                        <div class="base-btn-box padding">
+                        <div class="base-btn-box fixed">
                             <el-button
                                 :disabled="pageData.applyDisable"
                                 @click="handleApply"
