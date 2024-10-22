@@ -22,12 +22,11 @@
                 <el-table-column
                     prop="name"
                     label="name"
-                    min-width="300px"
+                    width="300"
                 />
                 <el-table-column
                     prop="dwellTime"
                     label="dwellTime"
-                    min-width="300px"
                 >
                     <template #default="scope">
                         {{ formatDwellTime(scope.row.dwellTime) }}
@@ -36,7 +35,6 @@
                 <el-table-column
                     prop="chlCount"
                     label="chlCount"
-                    min-width="300px"
                 >
                     <template #default="scope">
                         {{ Translate('IDCS_CHANNEL_NUM_D').formatForLang(scope.row.chlCount) }}
@@ -44,7 +42,7 @@
                 </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_EDIT')"
-                    width="60px"
+                    width="60"
                 >
                     <template #default="scope">
                         <BaseImgSprite
@@ -59,7 +57,7 @@
                 </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_DELETE')"
-                    width="60px"
+                    width="60"
                 >
                     <template #default="scope">
                         <BaseImgSprite
@@ -74,36 +72,17 @@
                 </el-table-column>
                 <el-table-column
                     type="expand"
-                    min-width="150px"
+                    width="100"
                 >
                     <template #default="scope">
-                        <div class="expandContent">
-                            <div
+                        <ChannelPtzTableExpandPanel @add="handleAddChl(scope.row)">
+                            <ChannelPtzTableExpandItem
                                 v-for="item in scope.row.chls"
                                 :key="item.value"
-                                :title="item.text"
-                                class="subItem"
-                                @mouseover="item.showDelIcon = true"
-                                @mouseout="item.showDelIcon = false"
-                            >
-                                <div class="subItemText">{{ item.text }}</div>
-                                <BaseImgSprite
-                                    v-show="item.showDelIcon"
-                                    class="subItemIcon"
-                                    file="delItem"
-                                    :chunk="1"
-                                    :index="0"
-                                    @click="handleDelChl(scope.row, item.value)"
-                                />
-                            </div>
-                            <BaseImgSprite
-                                class="addIcon"
-                                file="addItem"
-                                :chunk="2"
-                                :index="0"
-                                @click="handleAddChl(scope.row)"
+                                :text="item.text"
+                                @delete="handleDelChl(scope.row, item.value)"
                             />
-                        </div>
+                        </ChannelPtzTableExpandPanel>
                     </template>
                 </el-table-column>
             </el-table>
@@ -113,7 +92,7 @@
                 v-model:current-page="pageIndex"
                 v-model:page-size="pageSize"
                 :page-sizes="DefaultPagerSizeOptions"
-                small
+                size="small"
                 :background="false"
                 :layout="DefaultPagerLayout"
                 :total="pageTotal"
@@ -122,13 +101,13 @@
             />
         </div>
         <ChannelGroupEditPop
-            v-model="chlGroupEditPopVisiable"
+            v-model="isEditPop"
             :edit-item="editItem"
             @call-back="setDataCallBack"
             @close="closeChlGroupEditPop"
         />
         <ChannelGroupAddChlPop
-            :pop-visiable="chlGroupAddChlPopVisiable"
+            v-model="isAddChlPop"
             :edit-item="editItemForAddChl"
             @close="closeChlGroupAddChlPop"
         />
@@ -136,36 +115,3 @@
 </template>
 
 <script lang="ts" src="./ChannelGroup.v.ts"></script>
-
-<style scoped lang="scss">
-.expandContent {
-    box-sizing: border-box;
-    height: 100px;
-    display: flex;
-    align-items: flex-start;
-    flex-wrap: wrap;
-    padding: 15px;
-    width: 100%;
-
-    .subItem {
-        width: 180px;
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
-
-        .subItemText {
-            max-width: 135px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        .subItemIcon {
-            margin-left: 1px;
-            cursor: pointer;
-        }
-    }
-    .addIcon {
-        cursor: pointer;
-    }
-}
-</style>

@@ -182,40 +182,45 @@ export default defineComponent({
         }
 
         const getSaveData = () => {
-            let data = `<content type='list'>`
-            protocolManageList.value.forEach((ele: ProtocolManageDto) => {
-                data += rawXml`
-                    <item id='${ele.id}'>
-                        <enabled>${ele.enabled.toString()}</enabled>
-                        <displayName><![CDATA[${ele.displayName}]]></displayName>
-                        <resourcesPath>`
-                ele.resourcesPath.forEach((ele: ResourcesPathDto) => {
-                    data += rawXml`
-                        <item>
-                            <streamType>${ele.streamType}</streamType>
-                            <protocol>${ele.protocol}</protocol>
-                            <transportProtocol>${ele.transportProtocol}</transportProtocol>
-                            <port>${ele.port}</port>
-                            <path><![CDATA[${ele.path}]]></path>
-                        </item>`
+            const listXml = protocolManageList.value
+                .map((ele) => {
+                    const pathXml = ele.resourcesPath
+                        .map((ele) => {
+                            return rawXml`
+                                <item>
+                                    <streamType>${ele.streamType}</streamType>
+                                    <protocol>${ele.protocol}</protocol>
+                                    <transportProtocol>${ele.transportProtocol}</transportProtocol>
+                                    <port>${ele.port}</port>
+                                    <path><![CDATA[${ele.path}]]></path>
+                                </item>
+                            `
+                        })
+                        .join('')
+                    return rawXml`
+                        <item id='${ele.id}'>
+                            <enabled>${ele.enabled.toString()}</enabled>
+                            <displayName>${wrapCDATA(ele.displayName)}</displayName>
+                            <resourcesPath>${pathXml}</resourcesPath>
+                        </item>
+                    `
                 })
-                data += `</resourcesPath></item>`
-            })
-            data += `</content>`
-            return data
+                .join('')
+
+            return rawXml`
+                <content type='list'>
+                    ${listXml}
+                </content>
+            `
         }
 
         const handleDisplayNameInput = (val: string) => {
-            const reg = /[^A-z|\d!@#$%^&*(){}\|:"`?~_\\'./\-\s\[\];,=+]/g
-            if (reg.test(val)) formData.value.displayName = val.replace(reg, '')
+            return val.replace(/[^A-z|\d!@#$%^&*(){}\|:"`?~_\\'./\-\s\[\];,=+]/g, '')
         }
 
         const opened = () => {
             formRef.value?.clearValidate()
-            manufacturerArray = []
-            props.manufacturerList.forEach((ele: Record<string, string>) => {
-                manufacturerArray.push(ele['text'])
-            })
+            manufacturerArray = props.manufacturerList.map((ele) => ele.text)
             getData()
         }
 

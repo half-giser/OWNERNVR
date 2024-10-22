@@ -1,7 +1,7 @@
 /*
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-05-07 17:12:45
- * @Description: 通道
+ * @Description: 通道列表
  */
 import { ChannelInfoDto } from '@/types/apiType/channel'
 import ChannelEditPop from './ChannelEditPop.vue'
@@ -82,6 +82,7 @@ export default defineComponent({
 
         const closeEditChannelPop = (isRefresh = false) => {
             channelEditPopVisable.value = false
+            console.log(isRefresh)
             if (isRefresh) getDataList()
         }
 
@@ -124,11 +125,15 @@ export default defineComponent({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_CHNANEL_S').formatForLang(getShortString(rowData.name, 10)),
             }).then(() => {
-                let data = '<condition><devIds type="list">' + '<item id="' + rowData.id + '">' + rowData.name
-                if (Number(rowData.poeIndex) > 0) data += '<poeIndex>' + rowData.poeIndex + '</poeIndex>'
-                data += '</item>' + '</devIds></condition>'
+                const sendXml = rawXml`
+                    <condition>
+                        <devIds type="list">
+                            <item id="${rowData.id}">${rowData.name}${ternary(Number(rowData.poeIndex) > 0, `<poeIndex>${rowData.poeIndex}</poeIndex>`)}</item>
+                        </devIds>
+                    </condition>
+                `
                 openLoading()
-                delDevList(data).then(() => {
+                delDevList(sendXml).then(() => {
                     closeLoading()
                     //删除通道不提示
                     getDataList()
@@ -139,17 +144,21 @@ export default defineComponent({
         const handleSettingChannel = (rowData: ChannelInfoDto) => {
             const linkWinMode = browserInfo.type === 'ie' ? '_self' : '_blank'
             if (rowData.poePort && rowData.poePort != '') {
-                const ip = checkIpV6(serverIp) ? '[' + serverIp + ']' : serverIp
+                const ip = checkIpV6(serverIp) ? `[${serverIp}]` : serverIp
                 browserInfo.type === 'ie' && (pluginStore.showPluginNoResponse = false)
-                window.open('http://' + ip + ':' + rowData.poePort, linkWinMode, '')
+                window.open(`http://${ip}:${rowData.poePort}`, linkWinMode, '')
             } else {
                 // 非poe通道跳转时要带上端口号，避免用户改了ipc默认的80端口，导致跳转不成功
-                const data = `<condition><chlId>${rowData.id}</chlId></condition>`
+                const data = rawXml`
+                    <condition>
+                        <chlId>${rowData.id}</chlId>
+                    </condition>
+                `
                 openLoading()
                 queryChlPort(data).then((res) => {
                     closeLoading()
                     const $ = queryXml(res)
-                    const httpPort = $('//content/chl/port/httpPort').length > 0 ? $('//content/chl/port/httpPort').text() : ''
+                    const httpPort = $('//content/chl/port/httpPort').length ? $('//content/chl/port/httpPort').text() : ''
                     // ipv6地址访问格式为：http://[ipv6]
                     const ip = checkIpV6(rowData.ip) ? '[' + rowData.ip + ']' : rowData.ip
                     browserInfo.type === 'ie' && (pluginStore.showPluginNoResponse = false)
@@ -186,24 +195,32 @@ export default defineComponent({
         }
 
         const getDataList = (chlName?: string) => {
-            let data = ''
-            if (chlName) data += `<condition><name><![CDATA[${chlName}]]></name></condition>`
-            data +=
-                '<requireField>' +
-                '<name/>' +
-                '<ip/>' +
-                '<port/>' +
-                '<userName/>' +
-                '<password/>' +
-                '<protocolType/>' +
-                '<productModel/>' +
-                '<chlIndex/>' +
-                '<index/>' +
-                '<chlType/>' +
-                '<chlNum/>' +
-                '</requireField>'
+            let condition = ''
+            if (chlName) {
+                condition = rawXml`
+                    <condition>
+                        <name><![CDATA[${chlName}]]></name>
+                    </condition>
+                `
+            }
+            const sendXml = rawXml`
+                ${condition}
+                <requireField>
+                    <name/>
+                    <ip/>
+                    <port/>
+                    <userName/>
+                    <password/>
+                    <protocolType/>
+                    <productModel/>
+                    <chlIndex/>
+                    <index/>
+                    <chlType/>
+                    <chlNum/>
+                </requireField>
+            `
             openLoading()
-            queryDevList(data).then((res) => {
+            queryDevList(sendXml).then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
                 getIpAnalogCout()
@@ -430,7 +447,7 @@ export default defineComponent({
             getDataList()
         })
 
-        onUnmounted(() => {
+        onBeforeUnmount(() => {
             StopRefreshChlStatus()
         })
 

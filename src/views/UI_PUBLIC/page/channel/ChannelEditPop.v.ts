@@ -1,10 +1,9 @@
 /*
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-05-09 17:18:09
- * @Description:
+ * @Description: 通道编辑 弹窗
  */
-import { type FormInstance } from 'element-plus'
-import { type RuleItem } from 'async-validator'
+import { type FormRules, type FormInstance } from 'element-plus'
 import { ChannelInfoDto } from '@/types/apiType/channel'
 
 export default defineComponent({
@@ -58,7 +57,11 @@ export default defineComponent({
         let notCheckNameFlag = false
 
         const getData = () => {
-            const data = `<condition><id>${props.rowData.id}</id></condition>`
+            const data = rawXml`
+                <condition>
+                    <id>${props.rowData.id}</id>
+                </condition>
+            `
             openLoading()
             queryDev(data).then((res) => {
                 closeLoading()
@@ -98,10 +101,10 @@ export default defineComponent({
                         }
 
                         if (isIp) {
-                            ipTitle.value = Translate('IPV4')
+                            ipTitle.value = 'IPV4'
                             showIpInput.value = true
                         } else if (isIpv6) {
-                            ipTitle.value = Translate('IPV6')
+                            ipTitle.value = 'IPV6'
                             ipPlaceholder.value = Translate('IDCS_INPUT_IPV6_ADDRESS_TIP')
                             showIpInput.value = false
                         } else {
@@ -129,93 +132,103 @@ export default defineComponent({
                     openMessageTipBox({
                         type: 'info',
                         message: errorInfo,
-                        showCancelButton: false,
                     }).then(() => {
-                        if (isNotExit) {
-                            emit('close', true)
-                        } else {
-                            emit('close')
-                        }
+                        emit('close', true)
+                        // if (isNotExit) {
+                        //     emit('close', true)
+                        // } else {
+                        //     emit('close', true)
+                        // }
                     })
                 }
             })
         }
 
-        const validate: Record<string, RuleItem['validator']> = {
-            validateName: (_rule, value, callback) => {
-                value = value.trim()
-                if (value.length === 0) {
-                    callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
-                    return
-                } else {
-                    editItem.value.name = value = cutStringByByte(value, nameByteMaxLen)
-                    // 应该不可能发生此情况
-                    if (value == 0) {
-                        callback(new Error(Translate('IDCS_INVALID_CHAR')))
-                        return
-                    }
-                }
-                if (!checkChlName(value.replace(' ', ''))) {
-                    openMessageTipBox({
-                        type: 'info',
-                        message: Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS'),
-                    })
-                    return
-                }
-                if (!notCheckNameFlag && checkIsNameExit(value, props.rowData.id)) {
-                    openMessageTipBox({
-                        type: 'question',
-                        message: Translate('IDCS_NAME_EXISTED'),
-                        confirmButtonText: Translate('IDCS_KEEP'),
-                        cancelButtonText: Translate('IDCS_EDIT'),
-                    }).then(() => {
-                        save(true)
-                    })
-                    return
-                }
-                callback()
-            },
-            validateIp: (_rule, value, callback) => {
-                if (!isAnolog.value) {
-                    value = value.trim()
-                    if (isIp && (value.length == 0 || !checkIpV4(value))) {
-                        callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_EMPTY')))
-                        return
-                    }
-                    if (isIp && !checkIpV4(value)) {
-                        callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_INVALID')))
-                        return
-                    }
-                    if (isDomain && value.length == 0) {
-                        callback(new Error(Translate('IDCS_DOMAIN_NAME_EMPTY')))
-                        return
-                    }
-                    if (isIpv6 && value.length == 0) {
-                        callback(new Error(Translate('IDCS_PROMPT_IPV6_ADDRESS_EMPTY')))
-                        return
-                    }
-                    if (isIpv6 && !checkIpV6(value)) {
-                        callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_V6_INVALID')))
-                        return
-                    }
-                }
-                callback()
-            },
-            validateUserName: (_rule, value, callback) => {
-                if (!isAnolog.value) {
-                    value = value.trim()
-                    if (props.rowData.protocolType != 'RTSP' && value.length == 0) {
-                        callback(new Error(Translate('IDCS_PROMPT_USERNAME_EMPTY')))
-                        return
-                    }
-                }
-                callback()
-            },
-        }
-        const rules = ref({
-            name: [{ validator: validate.validateName, trigger: 'manual' }],
-            ip: [{ validator: validate.validateIp, trigger: 'manual' }],
-            userName: [{ validator: validate.validateUserName, trigger: 'manual' }],
+        const rules = ref<FormRules>({
+            name: [
+                {
+                    validator: (_rule, value, callback) => {
+                        value = value.trim()
+                        if (value.length === 0) {
+                            callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
+                            return
+                        } else {
+                            editItem.value.name = value = cutStringByByte(value, nameByteMaxLen)
+                            // 应该不可能发生此情况
+                            if (value == 0) {
+                                callback(new Error(Translate('IDCS_INVALID_CHAR')))
+                                return
+                            }
+                        }
+                        if (!checkChlName(value.replace(' ', ''))) {
+                            openMessageTipBox({
+                                type: 'info',
+                                message: Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS'),
+                            })
+                            return
+                        }
+                        if (!notCheckNameFlag && checkIsNameExit(value, props.rowData.id)) {
+                            openMessageTipBox({
+                                type: 'question',
+                                message: Translate('IDCS_NAME_EXISTED'),
+                                confirmButtonText: Translate('IDCS_KEEP'),
+                                cancelButtonText: Translate('IDCS_EDIT'),
+                            }).then(() => {
+                                save(true)
+                            })
+                            return
+                        }
+                        callback()
+                    },
+                    trigger: 'manual',
+                },
+            ],
+            ip: [
+                {
+                    validator: (_rule, value, callback) => {
+                        if (!isAnolog.value) {
+                            value = value.trim()
+                            if (isIp && (!value.length || !checkIpV4(value))) {
+                                callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_EMPTY')))
+                                return
+                            }
+                            if (isIp && !checkIpV4(value)) {
+                                callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_INVALID')))
+                                return
+                            }
+                            if (isDomain && !value.length) {
+                                callback(new Error(Translate('IDCS_DOMAIN_NAME_EMPTY')))
+                                return
+                            }
+                            if (isIpv6 && !value.length) {
+                                callback(new Error(Translate('IDCS_PROMPT_IPV6_ADDRESS_EMPTY')))
+                                return
+                            }
+                            if (isIpv6 && !checkIpV6(value)) {
+                                callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_V6_INVALID')))
+                                return
+                            }
+                        }
+                        callback()
+                    },
+                    trigger: 'manual',
+                },
+            ],
+            userName: [
+                {
+                    validator: (_rule, value, callback) => {
+                        if (!isAnolog.value) {
+                            value = value.trim()
+                            if (props.rowData.protocolType != 'RTSP' && !value.length) {
+                                callback(new Error(Translate('IDCS_PROMPT_USERNAME_EMPTY')))
+                                return
+                            }
+                        }
+                        callback()
+                    },
+                    trigger: 'manual',
+                },
+            ],
         })
 
         const save = (notCheckName: boolean) => {
@@ -223,33 +236,19 @@ export default defineComponent({
             if (!formRef) return false
             formRef.value?.validate((valid) => {
                 if (valid) {
-                    let data =
-                        '<content>' +
-                        '<id>' +
-                        props.rowData.id +
-                        '</id>' +
-                        '<manufacturer type="manufacturer">' +
-                        editItem.value.manufacturer +
-                        '</manufacturer>' +
-                        '<name><![CDATA[' +
-                        editItem.value.name.trim() +
-                        ']]></name>'
-                    if (!isAnolog.value) {
-                        if (!portDisabled.value) {
-                            data +=
-                                '<ip>' +
-                                (isIp || isIpv6 ? editItem.value.ip : '') +
-                                '</ip>' +
-                                (isDomain ? '<domain><![CDATA[' + editItem.value.ip + ']]></domain>' : '') +
-                                '<port>' +
-                                editItem.value.port +
-                                '</port>'
-                        }
-                        const psdXml = '<password' + getSecurityVer() + '><![CDATA[' + AES_encrypt(editItem.value.password, userSessionStore.sesionKey) + ']]></password>'
-                        data += '<userName>' + editItem.value.userName + '</userName>' + (editPwdSwitch.value ? psdXml : '')
-                    }
-                    data += '</content>'
-                    editDev(data).then((res) => {
+                    const sendXml = rawXml`
+                        <content>
+                            <id>${props.rowData.id}</id>
+                            <manufacturer type="manufacturer">${editItem.value.manufacturer}</manufacturer>
+                            <name>${wrapCDATA(editItem.value.name.trim())}</name>
+                            ${ternary(!isAnolog.value && !portDisabled.value, `<ip>${isIp || isIpv6 ? editItem.value.ip : ''}</ip>`)}
+                            ${ternary(!isAnolog.value && !portDisabled.value && isDomain, `<domain>${wrapCDATA(editItem.value.ip)}</domain>`)}
+                            ${ternary(!isAnolog.value && !portDisabled.value, `<port>${editItem.value.port}</port>`)}
+                            ${ternary(!isAnolog.value && editPwdSwitch.value, `<password ${getSecurityVer()}>${wrapCDATA(AES_encrypt(editItem.value.password, userSessionStore.sesionKey))}`)}
+                            ${ternary(!isAnolog.value, `<userName>${editItem.value.userName}</userName>`)}
+                        </content>
+                    `
+                    editDev(sendXml).then((res) => {
                         const $ = queryXml(res)
                         if ($('status').text() == 'success') {
                             emit('updateNameMapping', props.rowData.id, editItem.value.name)
@@ -261,15 +260,13 @@ export default defineComponent({
                                     editItem.value.ip = ''
                                 }
                                 emit('setDataCallBack', editItem.value)
-                                emit('close')
+                                emit('close', true)
                             })
                         } else {
                             const errorCode = Number($('errorCode').text())
+                            let errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
                             if (errorCode === ErrorCode.USER_ERROR_NAME_EXISTED) {
-                                openMessageTipBox({
-                                    type: 'info',
-                                    message: Translate('IDCS_PROMPT_CHANNEL_NAME_EXIST'),
-                                })
+                                errorInfo = Translate('IDCS_PROMPT_CHANNEL_NAME_EXIST')
                             } else if (errorCode === ErrorCode.USER_ERROR__CANNOT_FIND_NODE_ERROR) {
                                 openMessageTipBox({
                                     type: 'info',
@@ -277,22 +274,16 @@ export default defineComponent({
                                 }).then(() => {
                                     emit('close', true)
                                 })
+                                return
                             } else if (errorCode === ErrorCode.USER_ERROR_NODE_ID_EXISTS) {
-                                openMessageTipBox({
-                                    type: 'info',
-                                    message: Translate('IDCS_PROMPT_CHANNEL_EXIST'),
-                                })
+                                errorInfo = Translate('IDCS_PROMPT_CHANNEL_EXIST')
                             } else if (errorCode === ErrorCode.USER_ERROR_INVALID_IP) {
-                                openMessageTipBox({
-                                    type: 'info',
-                                    message: Translate('IDCS_ERROR_IP_ROUTE_INVALID'),
-                                })
-                            } else {
-                                openMessageTipBox({
-                                    type: 'info',
-                                    message: Translate('IDCS_SAVE_DATA_FAIL'),
-                                })
+                                errorInfo = Translate('IDCS_PROMPT_CHANNEL_EXIST')
                             }
+                            openMessageTipBox({
+                                type: 'info',
+                                message: errorInfo,
+                            })
                         }
                     })
                 }
@@ -301,21 +292,12 @@ export default defineComponent({
 
         // 检测名字是否已经存在
         const checkIsNameExit = (name: string, currId: string) => {
-            let isSameName = false
-            for (const key in props.nameMapping) {
-                if (key != currId) {
-                    if (name == props.nameMapping[key]) {
-                        isSameName = true
-                        break
-                    }
-                }
-            }
-            return isSameName
+            return Object.entries(props.nameMapping).some((item) => item[0] !== currId && item[1] === name)
         }
 
         const opened = () => {
             if (formRef.value) formRef.value.resetFields()
-            ipTitle.value = Translate('IPV4')
+            ipTitle.value = 'IPV4'
             showIpInput.value = true
             ipPlaceholder.value = ''
             editPwdSwitch.value = false

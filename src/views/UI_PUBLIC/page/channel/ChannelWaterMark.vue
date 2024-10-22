@@ -3,7 +3,7 @@
  * @Date: 2024-09-29 11:48:53
  * @Description: 水印设置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 16:22:35
+ * @LastEditTime: 2024-10-22 18:17:01
 -->
 <template>
     <div class="base-chl-box">
@@ -78,7 +78,7 @@
                     <!-- 状态列 -->
                     <el-table-column
                         label=" "
-                        width="50px"
+                        width="50"
                     >
                         <template #default="scope">
                             <BaseTableRowStatus :icon="scope.row.status"></BaseTableRowStatus>
@@ -88,16 +88,16 @@
                     <el-table-column
                         prop="chlName"
                         :label="Translate('IDCS_CHANNEL_NAME')"
-                        width="330px"
+                        width="330"
                     >
                         <template #default="scope">
-                            <span>{{ scope.row.chlName }}</span>
+                            {{ scope.row.chlName }}
                         </template>
                     </el-table-column>
                     <!-- 水印开关   -->
                     <el-table-column
                         prop="switch"
-                        width="365px"
+                        width="365"
                     >
                         <template #header>
                             <el-dropdown trigger="click">
@@ -142,7 +142,7 @@
                     <el-table-column
                         prop="customText"
                         :label="Translate('IDCS_INFORMATION')"
-                        width="330px"
+                        width="330"
                     >
                         <template #header>
                             <el-dropdown
@@ -174,7 +174,7 @@
                             </el-dropdown>
                         </template>
                         <template #default="scope">
-                            <span>{{ scope.row.customText }}</span>
+                            {{ scope.row.customText }}
                         </template>
                     </el-table-column>
                 </el-table>

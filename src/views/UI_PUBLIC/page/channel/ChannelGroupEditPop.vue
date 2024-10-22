@@ -27,10 +27,7 @@
                     maxlength="63"
                 />
             </el-form-item>
-            <el-form-item
-                prop="dwellTime"
-                :label="Translate('IDCS_STAY_TIME')"
-            >
+            <el-form-item :label="Translate('IDCS_STAY_TIME')">
                 <el-select v-model="formData.dwellTime">
                     <el-option
                         v-for="item in timeList"

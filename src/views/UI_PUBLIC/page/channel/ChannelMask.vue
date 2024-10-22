@@ -62,12 +62,10 @@
                         @change="handleChangeSwitch"
                     >
                         <el-option
-                            :value="true"
-                            :label="Translate('IDCS_ON')"
-                        />
-                        <el-option
-                            :value="false"
-                            :label="Translate('IDCS_OFF')"
+                            v-for="item in switchOptions"
+                            :key="item.value"
+                            :value="item.value"
+                            :label="item.label"
                         />
                     </el-select>
                 </el-form-item>
@@ -89,8 +87,7 @@
                 >
                     <el-table-column
                         label=" "
-                        width="50px"
-                        class-name="custom_cell"
+                        width="50"
                     >
                         <template #default="scope">
                             <BaseTableRowStatus
@@ -102,11 +99,11 @@
                     <el-table-column
                         prop="name"
                         :label="Translate('IDCS_CHANNEL_NAME')"
-                        min-width="180px"
+                        min-width="180"
                     />
                     <el-table-column
                         :label="Translate('IDCS_VIDEO_MASK')"
-                        min-width="180px"
+                        min-width="180"
                     >
                         <template #header>
                             <el-dropdown trigger="click">
@@ -115,8 +112,12 @@
                                 </BaseTableDropdownLink>
                                 <template #dropdown>
                                     <el-dropdown-menu>
-                                        <el-dropdown-item @click="changeSwitchAll(true)">{{ Translate('IDCS_ON') }}</el-dropdown-item>
-                                        <el-dropdown-item @click="changeSwitchAll(false)">{{ Translate('IDCS_OFF') }}</el-dropdown-item>
+                                        <el-dropdown-item
+                                            v-for="item in switchOptions"
+                                            :key="item.value"
+                                            @click="changeSwitchAll(item.value)"
+                                            >{{ item.label }}</el-dropdown-item
+                                        >
                                     </el-dropdown-menu>
                                 </template>
                             </el-dropdown>
@@ -132,19 +133,17 @@
                                 @change="handleChangeSwitch()"
                             >
                                 <el-option
-                                    :value="true"
-                                    :label="Translate('IDCS_ON')"
-                                />
-                                <el-option
-                                    :value="false"
-                                    :label="Translate('IDCS_OFF')"
+                                    v-for="item in switchOptions"
+                                    :key="item.value"
+                                    :value="item.value"
+                                    :label="item.label"
                                 />
                             </el-select>
                         </template>
                     </el-table-column>
                     <el-table-column
                         :label="Translate('IDCS_COLOR')"
-                        min-width="120px"
+                        min-width="120"
                     >
                         <template #default="scope">
                             <span v-if="!scope.row.isSpeco">{{ colorMap[scope.row.color] }}</span>

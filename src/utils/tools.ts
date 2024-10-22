@@ -3,7 +3,7 @@
  * @Date: 2023-04-28 17:57:48
  * @Description: 工具方法
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-21 14:01:50
+ * @LastEditTime: 2024-10-22 15:22:27
  */
 
 import { type QueryNodeListDto } from '@/types/apiType/channel'
@@ -716,6 +716,18 @@ export const getArrayDiffRows = (arr1: Record<string, any>[], arr2: Record<strin
 }
 
 /**
+ * @description 返回IP十进制数值
+ * @param {string} ip
+ * @returns {number}
+ */
+export const getIpNumber = (ip: string) => {
+    const split = ip.split('.')
+    return split.reduce((sum, current, index) => {
+        return Number(sum) + Number(current) * Math.pow(Math.pow(2, 8), split.length - 1 - index)
+    }, 0)
+}
+
+/**
  * @deprecated use dayjs
  * @description 公历转换成波斯日历
  * @param {any} date 公历日期对象
@@ -966,7 +978,7 @@ export const getTranslateForMin = (value: number) => {
  */
 export const getTranslateForSecond = (value: number) => {
     const Translate = useLangStore().Translate
-    return getTranslateForTime(value, Translate('IDCS_MINUTE'), Translate('IDCS_MINUTES'), Translate('IDCS_SECONDS'), Translate('IDCS_SECOND'))
+    return getTranslateForTime(value, Translate('IDCS_MINUTE'), Translate('IDCS_MINUTES'), Translate('IDCS_SECOND'), Translate('IDCS_SECONDS'))
 }
 
 /**

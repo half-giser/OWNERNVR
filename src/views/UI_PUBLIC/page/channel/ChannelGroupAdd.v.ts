@@ -1,9 +1,9 @@
 /*
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-06-19 09:52:27
- * @Description:
+ * @Description: 新增通道组
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 17:45:02
+ * @LastEditTime: 2024-10-22 15:38:30
  */
 import { ChannelInfoDto, ChlGroup } from '@/types/apiType/channel'
 import { type RuleItem } from 'async-validator'
@@ -11,6 +11,9 @@ import type { FormInstance, TableInstance } from 'element-plus'
 
 export default defineComponent({
     props: {
+        /**
+         * @property 是否内嵌在弹窗内
+         */
         dialog: {
             type: Boolean,
             default: false,
@@ -36,17 +39,7 @@ export default defineComponent({
         const baseLivePopRef = ref<LivePopInstance>()
         const tableData = ref<ChannelInfoDto[]>([])
         const selNum = ref(0)
-        const total = ref(0)
-        const timeList = [
-            { text: '5 ' + Translate('IDCS_SECONDS'), value: 5 },
-            { text: '10 ' + Translate('IDCS_SECONDS'), value: 10 },
-            { text: '20 ' + Translate('IDCS_SECONDS'), value: 20 },
-            { text: '30 ' + Translate('IDCS_SECONDS'), value: 30 },
-            { text: '1 ' + Translate('IDCS_MINUTE'), value: 60 },
-            { text: '2 ' + Translate('IDCS_MINUTES'), value: 120 },
-            { text: '5 ' + Translate('IDCS_MINUTES'), value: 300 },
-            { text: '10 ' + Translate('IDCS_MINUTES'), value: 600 },
-        ]
+        const timeList = [5, 10, 20, 30, 60, 120, 300, 600]
         const chlGroupCountLimit = 16 // 通道组个数上限
 
         const handleRowClick = (rowData: ChannelInfoDto) => {
@@ -108,19 +101,18 @@ export default defineComponent({
 
         const save = async () => {
             if (!(await verification())) return
-            let data = rawXml`
+            const selection = tableRef.value!.getSelectionRows() as ChannelInfoDto[]
+            const sendXml = rawXml`
                 <content>
                     <name><![CDATA[${formData.value.name}]]></name>
                     <dwellTime unit='s'>${formData.value.dwellTime.toString()}</dwellTime>
-                    <chlIdList type='list'>`
-            tableRef.value!.getSelectionRows().forEach((ele: ChannelInfoDto) => {
-                data += `<item>${ele.id}</item>`
-            })
-            data += rawXml`
+                    <chlIdList type='list'>
+                        ${selection.map((ele) => `<item>${ele.id}</item>`).join('')}
                     </chlIdList>
-                </content>`
+                </content>
+            `
             openLoading()
-            createChlGroup(data).then((res) => {
+            createChlGroup(sendXml).then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
@@ -181,7 +173,6 @@ export default defineComponent({
                         chlList.push(newData)
                     })
                     tableData.value = chlList
-                    total.value = chlList.length
                 }
             })
         }
@@ -200,13 +191,14 @@ export default defineComponent({
             tableRef,
             tableData,
             selNum,
-            total,
             baseLivePopRef,
             handleRowClick,
             handleSelectionChange,
             handlePreview,
             save,
             handleCancel,
+            getTranslateForSecond,
+            chlGroupCountLimit,
         }
     },
 })

@@ -6,7 +6,7 @@
 <template>
     <el-dialog
         :title="Translate('IDCS_PROTOCOL_MANAGE')"
-        width="1000px"
+        width="1000"
         align-center
         draggable
         @opened="opened"
@@ -15,7 +15,6 @@
             ref="formRef"
             :model="formData"
             :rules="rules"
-            class="protocolManageForm"
             label-position="left"
         >
             <el-form-item>
@@ -55,7 +54,8 @@
                         v-model="formData.displayName"
                         :disabled="!formData.enabled"
                         maxlength="11"
-                        @input="handleDisplayNameInput"
+                        :formatter="handleDisplayNameInput"
+                        :parser="handleDisplayNameInput"
                     ></el-input>
                 </el-form-item>
             </el-form-item>
@@ -73,7 +73,7 @@
             <el-table-column
                 prop="streamType"
                 :label="Translate('IDCS_CODE_STREAM_TYPE')"
-                min-width="260px"
+                min-width="260"
             >
                 <template #default="scope">
                     <span>{{ scope.row.streamType === 'Main' ? Translate('IDCS_MAIN_STREAM') : Translate('IDCS_SUB_STREAM') }}</span>
@@ -81,7 +81,7 @@
             </el-table-column>
             <el-table-column
                 :label="Translate('IDCS_TYPE')"
-                width="130px"
+                width="130"
             >
                 <template #default="scope">
                     <el-select
@@ -98,7 +98,7 @@
             </el-table-column>
             <el-table-column
                 :label="Translate('IDCS_TRANSFER_PROTOCOL')"
-                width="130px"
+                width="130"
             >
                 <template #default="scope">
                     <el-select
@@ -115,7 +115,7 @@
             </el-table-column>
             <el-table-column
                 :label="Translate('IDCS_PORT')"
-                width="130px"
+                width="130"
             >
                 <template #default="scope">
                     <el-input-number
@@ -131,7 +131,7 @@
             </el-table-column>
             <el-table-column
                 :label="Translate('IDCS_RESOURCE_PATH')"
-                min-width="210px"
+                min-width="210"
             >
                 <template #default="scope">
                     <el-input

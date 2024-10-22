@@ -5,7 +5,6 @@
 -->
 <template>
     <el-dialog
-        v-model="popVisiable"
         :title="Translate('IDCS_ADD_CHANNEL')"
         width="600"
         align-center
@@ -21,32 +20,32 @@
             show-overflow-tooltip
             empty-text=" "
             highlight-current-row
-            height="500px"
+            height="500"
             @row-click="handleRowClick"
             @selection-change="handleSelectionChange"
         >
             <el-table-column
                 type="index"
                 :label="Translate('IDCS_SERIAL_NUMBER')"
-                width="80px"
+                width="80"
             />
             <el-table-column
                 type="selection"
-                width="50px"
+                width="50"
             />
             <el-table-column
                 prop="name"
                 :label="Translate('IDCS_CHANNEL_NAME')"
-                min-width="140px"
+                min-width="140"
             />
             <el-table-column
                 prop="ip"
                 :label="Translate('IDCS_ADDRESS')"
-                min-width="140px"
+                min-width="140"
             />
             <el-table-column
                 :label="Translate('IDCS_PREVIEW')"
-                width="80px"
+                width="80"
             >
                 <template #default="scope">
                     <BaseImgSprite
@@ -60,13 +59,14 @@
                 </template>
             </el-table-column>
         </el-table>
+        <BaseLivePop ref="baseLivePopRef"></BaseLivePop>
         <template #footer>
             <el-row>
                 <el-col
                     :span="12"
                     class="el-col-flex-start"
                 >
-                    <span>{{ Translate('IDCS_SELECT_CHANNEL_COUNT').formatForLang(selNum, total) }}</span>
+                    <span>{{ Translate('IDCS_SELECT_CHANNEL_COUNT').formatForLang(selNum, tableData.length) }}</span>
                 </el-col>
                 <el-col
                     :span="12"
@@ -78,7 +78,6 @@
             </el-row>
         </template>
     </el-dialog>
-    <BaseLivePop ref="baseLivePopRef"></BaseLivePop>
 </template>
 
 <script lang="ts" src="./ChannelGroupAddChlPop.v.ts"></script>

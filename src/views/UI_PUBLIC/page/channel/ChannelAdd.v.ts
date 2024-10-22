@@ -3,9 +3,8 @@
  * @Date: 2024-07-09 18:39:25
  * @Description: 新增通道
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 17:36:18
+ * @LastEditTime: 2024-10-22 15:47:08
  */
-import { trim } from 'lodash-es'
 import { ChannelManualAddDto, DefaultPwdDto } from '@/types/apiType/channel'
 import { ChannelAddRecorderDto, ChannelQuickAddDto } from '@/types/apiType/channel'
 import ChannelAddActivateIPCPop from './ChannelAddActivateIPCPop.vue'
@@ -13,7 +12,7 @@ import ChannelAddSetDefaultPwdPop from './ChannelAddSetDefaultPwdPop.vue'
 import ChannelAddEditIPCIpPop from './ChannelAddEditIPCIpPop.vue'
 import ChannelAddToAddRecorderPop from './ChannelAddToAddRecorderPop.vue'
 import ChannelAddSetProtocolPop from './ChannelAddSetProtocolPop.vue'
-import ChannelAddMultiChlIPCAdd from './ChannelAddMultiChlIPCAdd.vue'
+import ChannelAddMultiChlIPCAdd, { type channelAddMultiChlIPCAddPop } from './ChannelAddMultiChlIPCAdd.vue'
 import type { TableInstance } from 'element-plus'
 
 export default defineComponent({
@@ -67,21 +66,16 @@ export default defineComponent({
         const faceMatchLimitMaxChlNum = ref(0)
         const activateIpcData = ref([] as Array<ChannelQuickAddDto>)
         const setProtocolPopVisiable = ref(false)
-        const multiChlIPCAddRef = ref()
+        const multiChlIPCAddRef = ref<channelAddMultiChlIPCAddPop>()
 
         let rtspMapping = [] as Array<string>
         const tempManualProtocolData = [] as Array<string>
 
         // 手动添加
-        const manualAddTypeKeys = {
-            ip: 'ip',
-            ipv6: 'ipv6',
-            domain: 'domain',
-        }
         const manualAddTypeOptions = ref([
-            { value: manualAddTypeKeys.ip, text: 'IPv4' },
-            { value: manualAddTypeKeys.ipv6, text: 'IPv6' },
-            { value: manualAddTypeKeys.domain, text: Translate('IDCS_DOMAIN') },
+            { value: 'ip', text: 'IPv4' },
+            { value: 'ipv6', text: 'IPv6' },
+            { value: 'domain', text: Translate('IDCS_DOMAIN') },
         ])
 
         const getSystemCaps = () => {
@@ -131,7 +125,7 @@ export default defineComponent({
 
         const getLanFreeDevs = () => {
             openLoading()
-            queryLanFreeDeviceList().then((res) => {
+            queryLanFreeDeviceList().then(async (res) => {
                 closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
@@ -151,72 +145,52 @@ export default defineComponent({
                             text: text,
                         })
                     })
-                    getProtocolList(() => {
-                        if (cababilityStore.analogChlCount * 1 <= 0) {
-                            manufacturerList.value.push({
-                                value: 'ProtocolMgr',
-                                text: Translate('IDCS_PROTOCOL_MANAGE'),
-                            })
-                            nameList.value.push({
-                                value: 'ProtocolMgr',
-                                text: Translate('IDCS_PROTOCOL_MANAGE'),
-                            })
-                        }
-                        manualAddFormData.value = []
-                        manualAddNewRow(0)
-                        const rowData = [] as Array<ChannelQuickAddDto>
-                        $('//content/item').forEach((ele) => {
-                            const eleXml = queryXml(ele.element)
-                            const newData = new ChannelQuickAddDto()
-                            newData.ip = eleXml('ip').text()
-                            newData.port = eleXml('port').text()
-                            newData.httpPort = eleXml('httpPort').text() // IPC激活时需要
-                            newData.mask = eleXml('mask').text()
-                            newData.gateway = eleXml('gateway').text()
-                            newData.manufacturer = eleXml('manufacturer').text()
-                            newData.poeIndex = eleXml('poeIndex').text()
-                            newData.productModel = {
+                    await getProtocolList()
+                    if (cababilityStore.analogChlCount * 1 <= 0) {
+                        manufacturerList.value.push({
+                            value: 'ProtocolMgr',
+                            text: Translate('IDCS_PROTOCOL_MANAGE'),
+                        })
+                        nameList.value.push({
+                            value: 'ProtocolMgr',
+                            text: Translate('IDCS_PROTOCOL_MANAGE'),
+                        })
+                    }
+                    manualAddFormData.value = []
+                    manualAddNewRow(0)
+                    const rowData: ChannelQuickAddDto[] = $('//content/item').map((ele) => {
+                        const eleXml = queryXml(ele.element)
+                        return {
+                            ip: eleXml('ip').text(),
+                            port: eleXml('port').text(),
+                            httpPort: eleXml('httpPort').text(), // IPC激活时需要
+                            mask: eleXml('mask').text(),
+                            gateway: eleXml('gateway').text(),
+                            manufacturer: eleXml('manufacturer').text(),
+                            poeIndex: eleXml('poeIndex').text(),
+                            productModel: {
                                 factoryName: eleXml('productModel').attr('factoryName'),
                                 identity: eleXml('productModel').attr('identity'),
                                 innerText: eleXml('productModel').text(),
-                            }
-                            newData.devName = eleXml('devName').text()
-                            newData.version = eleXml('version').text()
-                            newData.mac = eleXml('mac').text()
-                            newData.industryProductType = eleXml('industryProductType').text()
-                            newData.protocolType = eleXml('protocolType').text()
-                            newData.activateStatus = eleXml('activateStatus').text()
-                            rowData.push(newData)
-                        })
-                        rowData.sort((ele1: ChannelQuickAddDto, ele2: ChannelQuickAddDto) => {
-                            const ipArr1 = ele1['ip'].split('.')
-                            const ipArr2 = ele2['ip'].split('.')
-                            return Number(ipArr1[0]) > Number(ipArr2[0])
-                                ? 1
-                                : Number(ipArr1[0]) < Number(ipArr2[0])
-                                  ? -1
-                                  : Number(ipArr1[1]) > Number(ipArr2[1])
-                                    ? 1
-                                    : Number(ipArr1[1]) < Number(ipArr2[1])
-                                      ? -1
-                                      : Number(ipArr1[2]) > Number(ipArr2[2])
-                                        ? 1
-                                        : Number(ipArr1[2]) < Number(ipArr2[2])
-                                          ? -1
-                                          : Number(ipArr1[3]) > Number(ipArr2[3])
-                                            ? 1
-                                            : Number(ipArr1[3]) < Number(ipArr2[3])
-                                              ? -1
-                                              : 0
-                        })
-                        rowData.sort((ele1: ChannelQuickAddDto, ele2: ChannelQuickAddDto) => {
-                            const activate1 = ele1['activateStatus'] == 'UNACTIVATED' ? 1 : ele1['activateStatus'] == 'UNKNOWN' ? 0 : -1
-                            const activate2 = ele2['activateStatus'] == 'UNACTIVATED' ? 1 : ele2['activateStatus'] == 'UNKNOWN' ? 0 : -1
-                            return activate2 - activate1
-                        })
-                        quickAddTableData.value = rowData
-                        total.value = rowData.length
+                            },
+                            devName: eleXml('devName').text(),
+                            version: eleXml('version').text(),
+                            mac: eleXml('mac').text(),
+                            industryProductType: eleXml('industryProductType').text(),
+                            protocolType: eleXml('protocolType').text(),
+                            activateStatus: eleXml('activateStatus').text(),
+                        }
                     })
+                    rowData.sort((ele1, ele2) => {
+                        return getIpNumber(ele2.ip) - getIpNumber(ele1.ip)
+                    })
+                    rowData.sort((ele1, ele2) => {
+                        const activate1 = ele1['activateStatus'] == 'UNACTIVATED' ? 1 : ele1['activateStatus'] == 'UNKNOWN' ? 0 : -1
+                        const activate2 = ele2['activateStatus'] == 'UNACTIVATED' ? 1 : ele2['activateStatus'] == 'UNKNOWN' ? 0 : -1
+                        return activate2 - activate1
+                    })
+                    quickAddTableData.value = rowData
+                    total.value = rowData.length
                 }
             })
         }
@@ -227,54 +201,49 @@ export default defineComponent({
                 closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
-                    const rowData = [] as Array<ChannelAddRecorderDto>
-                    $('//content/item').forEach((ele) => {
+                    addRecorderTableData.value = $('//content/item').map((ele) => {
                         const eleXml = queryXml(ele.element)
-                        const newData = new ChannelAddRecorderDto()
-                        newData.ip = eleXml('ip').text()
-                        newData.port = Number(eleXml('port').text())
-                        newData.version = eleXml('version').text()
-                        newData.name = eleXml('name').text()
-                        newData.serialNum = eleXml('serialNum').text()
-                        newData.chlTotalCount = Number(eleXml('chlTotalCount').text())
-                        newData.httpPort = Number(eleXml('httpPort').text())
-                        newData.chlAddedCount = Number(eleXml('chlAddedCount').text())
-                        newData.productModel = eleXml('productModel').text()
-                        newData.displayName =
-                            eleXml('name').text() + (Number(eleXml('chlTotalCount').text()) > 0 ? '(' + eleXml('chlAddedCount').text() + '/' + eleXml('chlTotalCount').text() + ')' : '')
-                        rowData.push(newData)
+                        return {
+                            ip: eleXml('ip').text(),
+                            port: Number(eleXml('port').text()),
+                            version: eleXml('version').text(),
+                            name: eleXml('name').text(),
+                            serialNum: eleXml('serialNum').text(),
+                            chlTotalCount: Number(eleXml('chlTotalCount').text()),
+                            httpPort: Number(eleXml('httpPort').text()),
+                            chlAddedCount: Number(eleXml('chlAddedCount').text()),
+                            productModel: eleXml('productModel').text(),
+                            displayName: eleXml('name').text() + (Number(eleXml('chlTotalCount').text()) > 0 ? '(' + eleXml('chlAddedCount').text() + '/' + eleXml('chlTotalCount').text() + ')' : ''),
+                        }
                     })
-                    addRecorderTableData.value = rowData
                 }
             })
         }
 
-        const getProtocolList = (callBack: Function) => {
-            queryRtspProtocolList().then((res) => {
-                const $ = queryXml(res)
-                if ($('status').text() == 'success') {
-                    protocolList.value = []
-                    rtspMapping = []
-                    $('//content/item').forEach((ele) => {
-                        const eleXml = queryXml(ele.element)
-                        if (eleXml('enabled').text() == 'true') {
-                            // todo key、value相同？
-                            const displayName = eleXml('displayName').text()
-                            manufacturerMap.value[displayName] = displayName
-                            rtspMapping.push(displayName)
-                            manufacturerList.value.push({
-                                value: displayName,
-                                text: displayName,
-                            })
-                            protocolList.value.push({
-                                displayName: displayName,
-                                index: ele.attr('id') as string,
-                            })
-                        }
-                    })
-                    if (callBack) callBack()
-                }
-            })
+        const getProtocolList = async () => {
+            const res = await queryRtspProtocolList()
+            const $ = queryXml(res)
+            if ($('status').text() == 'success') {
+                protocolList.value = []
+                rtspMapping = []
+                $('//content/item').forEach((ele) => {
+                    const eleXml = queryXml(ele.element)
+                    if (eleXml('enabled').text().toBoolean()) {
+                        // todo key、value相同？
+                        const displayName = eleXml('displayName').text()
+                        manufacturerMap.value[displayName] = displayName
+                        rtspMapping.push(displayName)
+                        manufacturerList.value.push({
+                            value: displayName,
+                            text: displayName,
+                        })
+                        protocolList.value.push({
+                            displayName: displayName,
+                            index: ele.attr('id')!,
+                        })
+                    }
+                })
+            }
         }
 
         const closeSetProtocolPop = (isRefresh = false) => {
@@ -321,11 +290,11 @@ export default defineComponent({
         }
 
         const rowDelClass = (index: number) => {
-            return index === manualAddFormData.value.length - 1 ? 'disabled' : ''
+            return index === manualAddFormData.value.length - 1 ? true : false
         }
 
         const rowDel = (index: number) => {
-            if (index === manualAddFormData.value.length - 1) return
+            if (rowDelClass(index)) return
             manualAddFormData.value.splice(index, 1)
         }
 
@@ -512,55 +481,69 @@ export default defineComponent({
 
         const setData = () => {
             getDefaultPwd(() => {
-                let addChlCount = 0
-                let data = `<types><manufacturer>`
-                for (const key in manufacturerMap.value) {
-                    data += `<enum displayName='${manufacturerMap.value[key]}'>${key}</enum>`
-                }
-                data += rawXml`
-                        </manufacturer>
-                        <protocolType>
-                            <enum>TVT_IPCAMERA</enum>
-                            <enum>ONVIF</enum>
-                        </protocolType>
-                    </types>
-                    <content type='list'>
-                        <itemType>
-                            <manufacturer type='manufacturer'/>
-                            <protocolType type='protocolType'/>
-                        </itemType>`
-                if (activeTab.value == tabKeys.quickAdd) {
+                if (activeTab.value === tabKeys.quickAdd) {
+                    let addChlCount = 0
+
+                    const manufacturer = Object.entries(manufacturerMap.value)
+                        .map((item) => {
+                            return `<enum displayName='${item[1]}'>${item[0]}</enum>`
+                        })
+                        .join('')
                     let numName = Number(localStorage.getItem(LocalCacheKey.defaultChlMaxValue))
-                    quickAddTableRef.value!.getSelectionRows().forEach((ele: ChannelQuickAddDto) => {
-                        // 处理IPC设备名称为空格的情况
-                        const devName = ele.devName ? trim(ele.devName) : ''
-                        const defaultName = devName ? devName : Translate('IDCS_IP_CHANNEL')
-                        // 添加IPC时，若设备有名称，则使用设备的名称；若设备无名称，则使用默认的名称+序号(自动计数)
-                        let normalName = defaultName
-                        let thermalName = defaultName
-                        if (!devName) {
-                            numName++
-                            normalName = String(String(numName).length < 2 ? '0' + numName : numName)
-                            thermalName = String(String(numName + 1).length < 2 ? '0' + (numName + 1) : numName + 1)
-                            normalName = defaultName + ' ' + normalName
-                            thermalName = defaultName + ' ' + thermalName
-                        }
-                        if (ele.industryProductType == 'THERMAL_DOUBLE') {
-                            data += getXmlDataByQuickAdd(ele, 'NORMAL', normalName)
-                            data += getXmlDataByQuickAdd(ele, 'THERMAL_DOUBLE', thermalName)
-                            numName++
-                            addChlCount += 2
-                        } else {
-                            data += getXmlDataByQuickAdd(ele, 'NORMAL', normalName)
-                            addChlCount++
-                        }
-                    })
-                    if (addChlCount == 0) {
+                    const selection = quickAddTableRef.value!.getSelectionRows() as ChannelQuickAddDto[]
+                    const items = selection
+                        .map((ele) => {
+                            let data = ''
+                            // 处理IPC设备名称为空格的情况
+                            const devName = ele.devName.trim()
+                            const defaultName = devName ? devName : Translate('IDCS_IP_CHANNEL')
+                            // 添加IPC时，若设备有名称，则使用设备的名称；若设备无名称，则使用默认的名称+序号(自动计数)
+                            let normalName = defaultName
+                            let thermalName = defaultName
+                            if (!devName) {
+                                numName++
+                                normalName = String(String(numName).length < 2 ? '0' + numName : numName)
+                                thermalName = String(String(numName + 1).length < 2 ? '0' + (numName + 1) : numName + 1)
+                                normalName = defaultName + ' ' + normalName
+                                thermalName = defaultName + ' ' + thermalName
+                            }
+                            if (ele.industryProductType == 'THERMAL_DOUBLE') {
+                                data += getXmlDataByQuickAdd(ele, 'NORMAL', normalName)
+                                data += getXmlDataByQuickAdd(ele, 'THERMAL_DOUBLE', thermalName)
+                                numName++
+                                addChlCount += 2
+                            } else {
+                                data += getXmlDataByQuickAdd(ele, 'NORMAL', normalName)
+                                addChlCount++
+                            }
+                            return data
+                        })
+                        .join('')
+
+                    if (!addChlCount) {
                         router.push('list')
                         return
                     }
-                    data += '</content>'
-                    addIPCDev(data)
+
+                    const sendXml = rawXml`
+                        <types>
+                            <manufacturer>
+                                ${manufacturer}
+                            </manufacturer>
+                            <protocolType>
+                                <enum>TVT_IPCAMERA</enum>
+                                <enum>ONVIF</enum>
+                            </protocolType>
+                        </types>
+                        <content type='list'>
+                            <itemType>
+                                <manufacturer type='manufacturer'/>
+                                <protocolType type='protocolType'/>
+                            </itemType>
+                            ${items}
+                        </content>
+                    `
+                    addIPCDev(sendXml)
                 } else {
                     const allDatas: Record<string, any>[] = []
                     for (const element of manualAddFormData.value) {
@@ -579,7 +562,8 @@ export default defineComponent({
                             element: element,
                         })
                     }
-                    multiChlIPCAddRef.value.init(allDatas, mapping.value, manufacturerMap.value, protocolList.value, (sendXml: string) => {
+                    console.log(allDatas, mapping.value, manufacturerMap.value, protocolList.value)
+                    multiChlIPCAddRef.value?.init(allDatas, mapping.value, manufacturerMap.value, protocolList.value, (sendXml: string) => {
                         addIPCDev(sendXml)
                     })
                 }
@@ -587,13 +571,7 @@ export default defineComponent({
         }
 
         const getXmlDataByQuickAdd = (element: ChannelQuickAddDto, supportType: string, chlName: string) => {
-            const defaultParam = rawXml`
-                <rec per='5' post='10'/>
-                    <snapSwitch>true</snapSwitch>
-                    <buzzerSwitch>false</buzzerSwitch>
-                    <popVideoSwitch>false</popVideoSwitch>
-                    <frontEndOffline_popMsgSwitch>false</frontEndOffline_popMsgSwitch>`
-            let data = rawXml`
+            return rawXml`
                 <item>
                     <name>${chlName}</name>
                     <ip>${element.ip}</ip>
@@ -601,23 +579,18 @@ export default defineComponent({
                     <userName>${mapping.value[element.manufacturer].userName}</userName>
                     <index>0</index>
                     <manufacturer>${element.manufacturer}</manufacturer>
-                    <protocolType>${mapping.value[element.manufacturer].protocolType}</protocolType>`
-            if (element.productModel.factoryName) {
-                if (element.productModel.identity) {
-                    data += `<productModel  factoryName='${element.productModel.identity}'>${element.productModel.innerText}</productModel>`
-                } else {
-                    data += `<productModel  factoryName='${element.productModel.factoryName}'>${element.productModel.innerText}</productModel>`
-                }
-            } else {
-                data += `<productModel>${element.productModel.innerText}</productModel>`
-            }
-            if (element.poeIndex) {
-                data += `<poeIndex>${element.poeIndex}</poeIndex>`
-            }
-            const curChlType = supportType == 'THERMAL_DOUBLE' ? 'THERMAL' : 'NORMAL'
-            data += `<accessType>${curChlType}</accessType>`
-            data += `${defaultParam}</item>`
-            return data
+                    <protocolType>${mapping.value[element.manufacturer].protocolType}</protocolType>
+                    <productModel ${element.productModel.factoryName ? `factoryName="${element.productModel.identity || element.productModel.factoryName}"` : ''}>${element.productModel.innerText}</productModel>
+                    ${ternary(!!element.poeIndex, `<poeIndex>${element.poeIndex}</poeIndex>`)}
+                    <accessType>${supportType === 'THERMAL_DOUBLE' ? 'THERMAL' : 'NORMAL'}</accessType>
+                    <rec per='5' post='10'/>
+                        <snapSwitch>true</snapSwitch>
+                        <buzzerSwitch>false</buzzerSwitch>
+                        <popVideoSwitch>false</popVideoSwitch>
+                        <frontEndOffline_popMsgSwitch>false</frontEndOffline_popMsgSwitch>
+                    </rec>
+                </item>
+            `
         }
 
         const addIPCDev = (sendXml: string) => {
@@ -716,10 +689,8 @@ export default defineComponent({
             total,
             supportsIPCActivation,
             txtBandwidth,
-            supportRecorder,
             formatDisplayManufacturer,
             handleRowClick,
-            manualAddTypeKeys,
             manualAddTypeOptions,
             manufacturerList,
             rowDelClass,

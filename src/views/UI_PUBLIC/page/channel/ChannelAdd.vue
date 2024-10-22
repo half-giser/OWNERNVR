@@ -13,15 +13,17 @@
                     v-show="item.show"
                     :key="item.key"
                     :value="item.key"
-                    >{{ Translate(item.text) }}</el-radio-button
                 >
+                    {{ Translate(item.text) }}
+                </el-radio-button>
             </el-radio-group>
             <div>
                 <el-button
                     v-show="activeTab !== tabKeys.manualAdd"
                     @click="handleRefresh"
-                    >{{ Translate('IDCS_REFRESH') }}</el-button
                 >
+                    {{ Translate('IDCS_REFRESH') }}
+                </el-button>
             </div>
         </div>
         <div class="base-table-box">
@@ -31,7 +33,6 @@
                 border
                 stripe
                 :data="quickAddTableData"
-                class="addChlList"
                 table-layout="fixed"
                 show-overflow-tooltip
                 highlight-current-row
@@ -42,17 +43,17 @@
                 <el-table-column
                     type="index"
                     :label="Translate('IDCS_SERIAL_NUMBER')"
-                    width="80px"
+                    width="80"
                 />
                 <el-table-column
                     type="selection"
-                    width="50px"
+                    width="50"
                 />
                 <el-table-column
                     v-if="supportsIPCActivation"
                     prop="activateStatus"
                     :label="Translate('IDCS_IPC_ACTIVATE_STATE')"
-                    min-width="140px"
+                    min-width="140"
                 >
                     <template #default="scope">
                         <span :style="{ color: scope.row.activateStatus === 'UNACTIVATED' ? 'var(--color-offline)' : '' }">{{
@@ -63,20 +64,20 @@
                 <el-table-column
                     prop="ip"
                     :label="Translate('IDCS_ADDRESS')"
-                    min-width="140px"
+                    min-width="140"
                 >
                     <template #default="scope">
-                        <span>{{ scope.row.poeIndex ? Translate('IDCS_POE_PREFIX').formatForLang(scope.row.poeIndex) + scope.row.ip : scope.row.ip }}</span>
+                        {{ scope.row.poeIndex ? Translate('IDCS_POE_PREFIX').formatForLang(scope.row.poeIndex) + scope.row.ip : scope.row.ip }}
                     </template>
                 </el-table-column>
                 <el-table-column
                     prop="port"
                     :label="Translate('IDCS_PORT')"
-                    width="100px"
+                    width="100"
                 />
                 <el-table-column
                     :label="Translate('IDCS_EDIT')"
-                    width="120px"
+                    width="120"
                     align="center"
                 >
                     <template #default="scope">
@@ -93,31 +94,31 @@
                 <el-table-column
                     prop="mask"
                     :label="Translate('IDCS_SUBNET_MASK')"
-                    min-width="140px"
+                    min-width="140"
                 />
                 <el-table-column
                     prop="manufacturer"
                     :label="Translate('IDCS_PROTOCOL')"
-                    min-width="200px"
+                    min-width="200"
                 >
                     <template #default="scope">
-                        <span>{{ formatDisplayManufacturer(scope.row) }}</span>
+                        {{ formatDisplayManufacturer(scope.row) }}
                     </template>
                 </el-table-column>
                 <el-table-column
                     prop="productModel.innerText"
                     :label="Translate('IDCS_PRODUCT_MODEL')"
-                    min-width="200px"
+                    min-width="200"
                 />
                 <el-table-column
                     prop="version"
                     :label="Translate('IDCS_VERSION')"
-                    min-width="140px"
+                    min-width="140"
                 />
                 <el-table-column
                     prop="mac"
                     :label="Translate('IDCS_SERIAL_NO')"
-                    min-width="200px"
+                    min-width="200"
                 />
             </el-table>
             <el-table
@@ -126,7 +127,6 @@
                 border
                 stripe
                 :data="manualAddFormData"
-                class="manualAddTable"
                 table-layout="fixed"
                 show-overflow-tooltip
                 empty-text=" "
@@ -134,51 +134,43 @@
                 <el-table-column
                     prop="ip"
                     :label="Translate('IDCS_ADDRESS')"
-                    width="340px"
+                    width="340"
                     :show-overflow-tooltip="false"
                 >
                     <template #default="scope">
-                        <el-row class="manualAddTableRowIp">
-                            <el-col :span="12">
-                                <el-select
-                                    v-model="scope.row.addrType"
-                                    value-key="id"
-                                    size="small"
-                                    @change="cellChange($event, scope.$index, scope.row, 'addrType')"
-                                >
-                                    <el-option
-                                        v-for="item in manualAddTypeOptions"
-                                        :key="item.value"
-                                        :label="item.text"
-                                        :value="item.value"
-                                    />
-                                </el-select>
-                            </el-col>
-                            <el-col :span="1"></el-col>
-                            <el-col
-                                :span="11"
-                                class="manualAddTableColIp"
+                        <div class="form-wrapper">
+                            <el-select
+                                v-model="scope.row.addrType"
+                                value-key="id"
+                                size="small"
+                                @change="cellChange($event, scope.$index, scope.row, 'addrType')"
                             >
-                                <BaseIpInput
-                                    v-show="scope.row.addrType === 'ip'"
-                                    v-model="scope.row.ip"
-                                    class="ipInput"
-                                    size="small"
-                                    @change="cellChange($event, scope.$index, scope.row, 'ip')"
+                                <el-option
+                                    v-for="item in manualAddTypeOptions"
+                                    :key="item.value"
+                                    :label="item.text"
+                                    :value="item.value"
                                 />
-                                <el-input
-                                    v-show="scope.row.addrType !== 'ip'"
-                                    v-model="scope.row.domain"
-                                    size="small"
-                                    @change="cellChange($event, scope.$index, scope.row, 'ip')"
-                                />
-                            </el-col>
-                        </el-row>
+                            </el-select>
+                            <BaseIpInput
+                                v-show="scope.row.addrType === 'ip'"
+                                v-model="scope.row.ip"
+                                class="ipInput"
+                                size="small"
+                                @change="cellChange($event, scope.$index, scope.row, 'ip')"
+                            />
+                            <el-input
+                                v-show="scope.row.addrType !== 'ip'"
+                                v-model="scope.row.domain"
+                                size="small"
+                                @change="cellChange($event, scope.$index, scope.row, 'ip')"
+                            />
+                        </div>
                     </template>
                 </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_PORT')"
-                    width="150px"
+                    width="150"
                 >
                     <template #default="scope">
                         <el-input-number
@@ -196,7 +188,7 @@
                 <el-table-column
                     prop="userName"
                     :label="Translate('IDCS_USERNAME')"
-                    min-width="300px"
+                    min-width="300"
                 >
                     <template #default="scope">
                         <el-input
@@ -210,7 +202,7 @@
                 <el-table-column
                     prop="password"
                     :label="Translate('IDCS_PASSWORD')"
-                    min-width="300px"
+                    min-width="300"
                 >
                     <template #default="scope">
                         <el-input
@@ -225,7 +217,7 @@
                 <el-table-column
                     prop="manufacturer"
                     :label="Translate('IDCS_PROTOCOL')"
-                    min-width="300px"
+                    min-width="300"
                 >
                     <template #default="scope">
                         <el-select
@@ -245,14 +237,18 @@
                 </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_DELETE')"
-                    width="100px"
+                    width="100"
                 >
                     <template #default="scope">
-                        <div
-                            class="iconDel"
-                            :class="{ disabled: rowDelClass(scope.$index) }"
+                        <BaseImgSprite
+                            file="del"
+                            :index="0"
+                            :hover-index="1"
+                            :chunk="4"
+                            :disabled-index="3"
+                            :disabled="rowDelClass(scope.$index)"
                             @click="rowDel(scope.$index)"
-                        ></div>
+                        />
                     </template>
                 </el-table-column>
             </el-table>
@@ -262,7 +258,6 @@
                 border
                 stripe
                 :data="addRecorderTableData"
-                class="addChlList"
                 table-layout="fixed"
                 show-overflow-tooltip
                 empty-text=" "
@@ -273,33 +268,33 @@
                 <el-table-column
                     type="index"
                     :label="Translate('IDCS_SERIAL_NUMBER')"
-                    width="80px"
+                    width="80"
                 />
                 <el-table-column
                     prop="name"
                     :label="Translate('IDCS_DEVICE_NAME')"
-                    min-width="300px"
+                    min-width="300"
                 />
                 <el-table-column
                     prop="ip"
                     :label="Translate('IDCS_IP_ADDRESS')"
-                    min-width="250px"
+                    min-width="250"
                 />
                 <el-table-column
                     prop="port"
                     :label="Translate('IDCS_PORT')"
-                    width="100px"
+                    width="100"
                 >
                 </el-table-column>
                 <el-table-column
                     prop="productModel"
                     :label="Translate('IDCS_PRODUCT_MODEL')"
-                    min-width="300px"
+                    min-width="300"
                 />
                 <el-table-column
                     prop="serialNum"
                     :label="Translate('IDCS_SERIAL_NO')"
-                    min-width="250px"
+                    min-width="250"
                 />
             </el-table>
         </div>
@@ -384,18 +379,11 @@
     }
 }
 
-.manualAddTable {
-    width: 100%;
-    height: 100%;
+.form-wrapper {
+    display: flex;
 
-    .manualAddTableRowIp {
-        width: 100%;
-
-        .manualAddTableColIp {
-            height: 25px;
-            display: flex;
-            align-items: center;
-        }
+    & > div:first-child {
+        margin-right: 10px;
     }
 }
 </style>

@@ -4,8 +4,7 @@
  * @Description: 通道 - 编辑IPC密码弹窗
  */
 import { type ChannelInfoDto } from '@/types/apiType/channel'
-import { type TableInstance, type FormInstance } from 'element-plus'
-import { type RuleItem } from 'async-validator'
+import { type TableInstance, type FormInstance, type FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -33,26 +32,31 @@ export default defineComponent({
         const formRef = ref<FormInstance>()
         const formData = ref({} as Record<string, string>)
 
-        const validate: Record<string, RuleItem['validator']> = {
-            validatePassword: (_rule, value, callback) => {
-                if (!value) {
-                    callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
-                    return
-                }
-                callback()
-            },
-            validateConfirmPassword: (_rule, value, callback) => {
-                if (formData.value.password != value) {
-                    callback(new Error(Translate('IDCS_PWD_MISMATCH_TIPS')))
-                    return
-                }
-                callback()
-            },
-        }
-
-        const rules = ref({
-            password: [{ validator: validate.validatePassword, trigger: 'manual' }],
-            confirmPassword: [{ validator: validate.validateConfirmPassword, trigger: 'manual' }],
+        const rules = ref<FormRules>({
+            password: [
+                {
+                    validator: (_rule, value, callback) => {
+                        if (!value) {
+                            callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
+                            return
+                        }
+                        callback()
+                    },
+                    trigger: 'manual',
+                },
+            ],
+            confirmPassword: [
+                {
+                    validator: (_rule, value, callback) => {
+                        if (formData.value.password != value) {
+                            callback(new Error(Translate('IDCS_PWD_MISMATCH_TIPS')))
+                            return
+                        }
+                        callback()
+                    },
+                    trigger: 'manual',
+                },
+            ],
         })
 
         const handleRowClick = (rowData: ChannelInfoDto) => {
@@ -83,52 +87,52 @@ export default defineComponent({
             tableRef.value!.toggleAllSelection()
         }
 
+        const sendData = async (ele: ChannelInfoDto) => {
+            const sendXml = rawXml`
+                <content>
+                    <chl id='${ele.id}'>
+                        <password${getSecurityVer()}>${wrapCDATA(AES_encrypt(formData.value.password, userSessionStore.sesionKey))}</password>
+                    </chl>
+                </content>
+            `
+            const res = await editIPChlPassword(sendXml)
+            if (queryXml(res)('status').text() == 'success') {
+                return true
+            } else {
+                return false
+            }
+        }
+
         const save = () => {
-            if (!formRef) return false
-            formRef.value?.validate((valid) => {
+            formRef.value?.validate(async (valid) => {
                 if (valid) {
                     const rows = tableRef.value!.getSelectionRows()
-                    const total = rows.length
-                    let count = 0
-                    let successCount = 0
-                    let saveFailIpc = ''
-                    if (rows.length == 0) return
-
-                    const sendData = (ele: ChannelInfoDto) => {
-                        const data = rawXml`<content>
-                            <chl id='${ele.id}'>
-                                <password${getSecurityVer()}><![CDATA[${AES_encrypt(formData.value.password, userSessionStore.sesionKey)}]]></password>
-                            </chl>
-                        </content>`
-                        editIPChlPassword(data).then((res) => {
-                            count++
-                            if (queryXml(res)('status').text() == 'success') {
-                                successCount++
-                            } else {
-                                saveFailIpc += `${props.nameMapping[ele.id]},`
-                            }
-                            if (count == total) {
-                                closeLoading()
-                                emit('close')
-                                if (successCount == total) {
-                                    openMessageTipBox({
-                                        type: 'success',
-                                        message: Translate('IDCS_SAVE_DATA_SUCCESS'),
-                                    })
-                                } else {
-                                    openMessageTipBox({
-                                        type: 'info',
-                                        message: saveFailIpc + Translate('IDCS_SAVE_DATA_FAIL'),
-                                    })
-                                }
-                            }
-                        })
-                    }
+                    if (!rows.length) return
 
                     openLoading()
-                    rows.forEach((ele: ChannelInfoDto) => {
-                        sendData(ele)
-                    })
+
+                    const saveFailIpc: string[] = []
+                    for (let i = 0; i < rows.length; i++) {
+                        const result = await sendData(rows[i])
+                        if (!result) {
+                            saveFailIpc.push(props.nameMapping[rows[i].id])
+                        }
+                    }
+
+                    closeLoading()
+
+                    emit('close')
+                    if (saveFailIpc.length) {
+                        openMessageTipBox({
+                            type: 'info',
+                            message: saveFailIpc.join(', ') + ' ' + Translate('IDCS_SAVE_DATA_FAIL'),
+                        })
+                    } else {
+                        openMessageTipBox({
+                            type: 'success',
+                            message: Translate('IDCS_SAVE_DATA_SUCCESS'),
+                        })
+                    }
                 }
             })
         }
