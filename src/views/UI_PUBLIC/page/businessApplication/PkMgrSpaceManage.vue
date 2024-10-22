@@ -2,8 +2,8 @@
  * @Author: zhangdongming zhangdongming@tvt.net.cn
  * @Date: 2024-05-27 09:38:17
  * @Description: 业务应用-停车场管理-车位管理
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-10 14:18:51
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-22 15:03:11
 -->
 <template>
     <div class="base-flex-box manage">
@@ -127,7 +127,7 @@
             class="base-btn-box padding"
             :span="2"
         >
-            <div>{{ Translate('IDCS_VEHICLE_NUM_TIPS') }}</div>
+            <div class="tips">{{ Translate('IDCS_VEHICLE_NUM_TIPS') }}</div>
             <div>
                 <el-button
                     :disabled="pageData.btnDisabled"
@@ -150,5 +150,9 @@
 .manage {
     width: 100%;
     height: calc(var(--content-height) + 10px);
+}
+.tips {
+    font-size: 14px;
+    color: var(--main-text-light);
 }
 </style>

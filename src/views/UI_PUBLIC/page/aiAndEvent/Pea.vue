@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 13:35:56
  * @Description:  区域入侵
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-18 15:13:25
+ * @LastEditTime: 2024-10-22 11:04:29
 -->
 <template>
     <div>
@@ -431,7 +431,7 @@
                                         </el-row>
                                     </template>
                                     <template #default>
-                                        <span>{{ Translate('IDCS_SENSITIVITY') }}</span>
+                                        <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
                                         <el-slider
                                             v-model="peaData.areaCfgData[peaData.activity_type].personSensitivity"
                                             size="small"
@@ -453,7 +453,7 @@
                                         </div>
                                     </template>
                                     <template #default>
-                                        <span>{{ Translate('IDCS_SENSITIVITY') }}</span>
+                                        <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
                                         <el-slider
                                             v-model="peaData.areaCfgData[peaData.activity_type].carSensitivity"
                                             size="small"
@@ -475,7 +475,7 @@
                                         </div>
                                     </template>
                                     <template #default>
-                                        <span>{{ Translate('IDCS_SENSITIVITY') }}</span>
+                                        <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
                                         <el-slider
                                             v-model="peaData.areaCfgData[peaData.activity_type].motorSensitivity"
                                             size="small"
@@ -681,6 +681,10 @@
     .el-checkbox {
         display: block;
     }
+}
+
+.slider-text {
+    margin-right: 15px;
 }
 
 .table_item {

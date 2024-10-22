@@ -3,7 +3,7 @@
  * @Date: 2024-09-12 15:00:13
  * @Description: 过线检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-21 17:02:52
+ * @LastEditTime: 2024-10-22 10:56:01
 -->
 <template>
     <div>
@@ -510,7 +510,7 @@
                                         </el-row>
                                     </template>
                                     <template #default>
-                                        <span>{{ Translate('IDCS_SENSITIVITY') }}</span>
+                                        <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
                                         <el-slider
                                             v-model="pageData.objectFilter.personSensitivity"
                                             size="small"
@@ -532,7 +532,7 @@
                                         </div>
                                     </template>
                                     <template #default>
-                                        <span>{{ Translate('IDCS_SENSITIVITY') }}</span>
+                                        <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
                                         <el-slider
                                             v-model="pageData.objectFilter.carSensitivity"
                                             size="small"
@@ -554,7 +554,7 @@
                                         </div>
                                     </template>
                                     <template #default>
-                                        <span>{{ Translate('IDCS_SENSITIVITY') }}</span>
+                                        <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
                                         <el-slider
                                             v-model="pageData.objectFilter.motorSensitivity"
                                             size="small"
@@ -604,5 +604,8 @@
     :deep(.el-checkbox__label) {
         padding-left: 3px;
     }
+}
+.slider-text {
+    margin-right: 15px;
 }
 </style>

@@ -2,8 +2,8 @@
  * @Description: AI 事件——更多——温度检测
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-13 09:18:25
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-21 10:54:42
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-22 11:01:13
 -->
 <template>
     <div>
@@ -252,16 +252,14 @@
                     name="linkage"
                 >
                     <el-form
+                        v-if="supportAlarmAudioConfig"
                         class="narrow"
                         :style="{
                             '--form-input-width': '215px',
                         }"
                         label-position="left"
                     >
-                        <el-form-item
-                            v-show="supportAlarmAudioConfig"
-                            :label="Translate('IDCS_VOICE_PROMPT')"
-                        >
+                        <el-form-item :label="Translate('IDCS_VOICE_PROMPT')">
                             <el-select v-model="tempDetectionData.sysAudio">
                                 <el-option
                                     v-for="item in pageData.voiceList"

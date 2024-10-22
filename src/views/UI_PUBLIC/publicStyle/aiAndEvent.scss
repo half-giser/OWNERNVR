@@ -2,8 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-29 09:12:33
  * @Description: ai与事件版块的一些公共样式，仅在需要用到的ai与事件版块下import
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-14 15:06:44
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-22 11:10:30
  */
 
 .base-ai-menu-tabs {
@@ -137,7 +137,7 @@
 
         &.fixed {
             position: absolute;
-            top: 102px;
+            top: 87px;
             z-index: 1;
         }
     }
