@@ -162,7 +162,6 @@ export default defineComponent({
         }
 
         const changeScheduleAll = (value: string) => {
-            console.log(value)
             if (value == 'scheduleMgr') {
                 pageData.value.scheduleManagePopOpen = true
             } else {
