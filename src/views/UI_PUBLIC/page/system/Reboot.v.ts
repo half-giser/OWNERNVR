@@ -3,7 +3,7 @@
  * @Date: 2024-06-20 15:59:54
  * @Description: 系统重启
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:29:16
+ * @LastEditTime: 2024-10-22 19:46:36
  */
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import type { UserCheckAuthForm } from '@/types/apiType/user'
@@ -47,13 +47,13 @@ export default defineComponent({
             const result = await reboot(sendXml)
             const $ = queryXml(result)
 
-            closeLoading()
-
             if ($('//status').text() === 'success') {
                 pageData.value.isAuthPop = false
                 openLoading(LoadingTarget.FullScreen, Translate('IDCS_REBOOTING'))
                 timer = reconnect()
             } else {
+                closeLoading()
+
                 const errorCode = Number($('//errorCode').text())
                 let errorInfo = ''
                 switch (errorCode) {

@@ -3,7 +3,7 @@
  * @Date: 2024-06-27 11:50:06
  * @Description: 备份与恢复
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-16 10:10:59
+ * @LastEditTime: 2024-10-22 19:50:03
  */
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import BaseInputEncryptPwdPop from '../../components/auth/BaseInputEncryptPwdPop.vue'
@@ -191,13 +191,14 @@ export default defineComponent({
                         },
                     },
                     progress: (step) => {
-                        closeLoading()
                         pageData.value.isCheckAuth = false
                         pageData.value.importNote = `${TRANS_MAPPING['uploading']}&nbsp;&nbsp;${step}%`
                         if (step === 100) {
                             pageData.value.importNote = TRANS_MAPPING['uploadReboot']
                             openLoading(LoadingTarget.FullScreen, TRANS_MAPPING['uploadReboot'])
                             importTimer = reconnect()
+                        } else {
+                            closeLoading()
                         }
                     },
                     error: (errorCode) => {
@@ -352,7 +353,6 @@ export default defineComponent({
                 const progress = $("/statenotify[@type='FileNetTransportProgress']/progress").text()
                 switch ($("/statenotify[@type='FileNetTransportProgress']/action").text()) {
                     case 'Import':
-                        closeLoading()
                         pageData.value.isCheckAuth = false
                         pageData.value.isEncryptPwd = false
                         if (progress == '100%') {
@@ -362,6 +362,7 @@ export default defineComponent({
                             //延时检测重启
                             importTimer = reconnect()
                         } else {
+                            closeLoading()
                             pageData.value.importNote = `${TRANS_MAPPING['uploading']}&nbsp;&nbsp;${progress}`
                         }
                         break

@@ -82,7 +82,6 @@
                     <el-input
                         v-model="formData.name"
                         :disabled="!cruiseOptions.length"
-                        spellcheck="false"
                         :maxlength="nameByteMaxLen"
                         :formatter="formatInputMaxLength"
                         :parser="formatInputMaxLength"

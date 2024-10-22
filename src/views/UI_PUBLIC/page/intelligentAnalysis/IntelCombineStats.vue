@@ -2,8 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-04 15:55:11
  * @Description: 智能分析 - 组合统计
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-15 14:46:38
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-22 20:02:15
 -->
 <template>
     <div class="base-intel-box">
@@ -87,7 +87,7 @@
                 >
                     <el-table-column
                         prop="chlName"
-                        width="150px"
+                        width="150"
                         :label="Translate('IDCS_CHANNEL_NAME')"
                     />
                     <el-table-column

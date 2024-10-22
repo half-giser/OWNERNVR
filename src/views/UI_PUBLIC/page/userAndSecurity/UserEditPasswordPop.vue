@@ -3,7 +3,7 @@
  * @Date: 2024-06-17 16:42:08
  * @Description: 更改其他用户密码的弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 19:42:51
+ * @LastEditTime: 2024-10-22 19:52:46
 -->
 <template>
     <el-dialog
@@ -17,7 +17,7 @@
             ref="formRef"
             :model="formData"
             :rules="rules"
-            label-width="150px"
+            label-width="150"
             label-position="left"
         >
             <el-form-item
@@ -47,7 +47,7 @@
                     @copy.capture.prevent=""
                 />
             </el-form-item>
-            <div class="passwordNotice">
+            <div>
                 {{ noticeMsg }}
             </div>
         </el-form>

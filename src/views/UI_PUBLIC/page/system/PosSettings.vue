@@ -3,7 +3,7 @@
  * @Date: 2024-07-02 09:08:21
  * @Description: POS配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 17:15:37
+ * @LastEditTime: 2024-10-22 19:57:15
 -->
 <template>
     <div class="base-flex-box">
@@ -19,7 +19,7 @@
                 >
                 </el-table-column>
                 <!-- 启用 -->
-                <el-table-column width="100px">
+                <el-table-column width="100">
                     <template #header>
                         <el-dropdown trigger="click">
                             <BaseTableDropdownLink>
@@ -50,7 +50,7 @@
                     </template>
                 </el-table-column>
                 <!-- 连接方式 -->
-                <el-table-column width="240px">
+                <el-table-column width="240">
                     <template #header>
                         <el-dropdown trigger="click">
                             <BaseTableDropdownLink>
@@ -83,14 +83,14 @@
                 <!-- 连接设置 -->
                 <el-table-column
                     :label="Translate('IDCS_CONNECTION_SETTINGS')"
-                    width="150px"
+                    width="150"
                 >
                     <template #default="scope">
                         <el-button @click="setConnection(scope.$index)">{{ Translate('IDCS_CONFIG') }}</el-button>
                     </template>
                 </el-table-column>
                 <!-- 协议 -->
-                <el-table-column width="160px">
+                <el-table-column width="160">
                     <template #header>
                         <el-dropdown trigger="click">
                             <BaseTableDropdownLink>
@@ -123,7 +123,7 @@
                 <!-- 联动通道 -->
                 <el-table-column
                     :label="Translate('IDCS_CHANNEL_TRGGER')"
-                    width="150px"
+                    width="150"
                 >
                     <template #default="scope">
                         <div class="channel-trigger">
@@ -141,7 +141,7 @@
                     </template>
                 </el-table-column>
                 <!-- 显示设置 -->
-                <el-table-column width="150px">
+                <el-table-column width="150">
                     <template #header>
                         <BaseTableDropdownLink @click="setAllDisplay">
                             {{ Translate('IDCS_DISPLAY_SETTINGS') }}
@@ -152,7 +152,7 @@
                     </template>
                 </el-table-column>
                 <!-- 编码格式 -->
-                <el-table-column width="200px">
+                <el-table-column width="200">
                     <template #header>
                         <el-dropdown trigger="click">
                             <BaseTableDropdownLink>

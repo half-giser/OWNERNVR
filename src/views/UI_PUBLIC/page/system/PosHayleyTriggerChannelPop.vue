@@ -18,7 +18,7 @@
                 stripe
                 border
                 :data="tableData"
-                height="400px"
+                height="400"
             >
                 <el-table-column
                     :label="Translate('IDCS_CHANNEL')"

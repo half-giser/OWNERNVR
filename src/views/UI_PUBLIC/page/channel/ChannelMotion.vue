@@ -124,8 +124,7 @@
                 >
                     <el-table-column
                         label=" "
-                        width="50px"
-                        class-name="custom_cell"
+                        width="50"
                     >
                         <template #default="scope">
                             <BaseTableRowStatus
@@ -137,12 +136,12 @@
                     <el-table-column
                         prop="name"
                         :label="Translate('IDCS_CHANNEL_NAME')"
-                        min-width="180px"
+                        min-width="180"
                     >
                     </el-table-column>
                     <el-table-column
                         :label="Translate('IDCS_ENABLE')"
-                        min-width="120px"
+                        min-width="120"
                     >
                         <template #header>
                             <el-dropdown trigger="click">
@@ -182,7 +181,7 @@
                     </el-table-column>
                     <el-table-column
                         :label="Translate('IDCS_SENSITIVITY')"
-                        min-width="180px"
+                        min-width="180"
                     >
                         <template #default="scope">
                             <BaseNumberInput
@@ -198,7 +197,7 @@
                     </el-table-column>
                     <el-table-column
                         :label="Translate('IDCS_DURATION')"
-                        min-width="180px"
+                        min-width="180"
                     >
                         <template #header>
                             <el-dropdown trigger="click">

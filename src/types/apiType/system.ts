@@ -3,7 +3,7 @@
  * @Date: 2024-06-21 18:15:30
  * @Description: 系统
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-16 10:33:32
+ * @LastEditTime: 2024-10-21 17:31:07
  */
 
 /**
@@ -277,7 +277,7 @@ export class SystemPostDisplaySet {
  */
 export class SystemPosConnectionForm {
     ip = ''
-    port = 0
+    port = undefined as number | undefined
     switch = false
 }
 

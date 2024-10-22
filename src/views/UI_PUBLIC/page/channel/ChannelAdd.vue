@@ -173,12 +173,11 @@
                     width="150"
                 >
                     <template #default="scope">
-                        <el-input-number
+                        <BaseNumberInput
                             v-model="scope.row.port"
                             :min="10"
                             :max="65535"
                             value-on-clear="min"
-                            :controls="false"
                             :disabled="scope.row.portDisabled"
                             size="small"
                             @change="cellChange($event, scope.$index, scope.row, 'port')"

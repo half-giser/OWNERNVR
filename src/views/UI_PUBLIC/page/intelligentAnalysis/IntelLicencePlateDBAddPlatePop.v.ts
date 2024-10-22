@@ -3,7 +3,7 @@
  * @Date: 2024-09-03 09:09:06
  * @Description: 新增车牌弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:17:38
+ * @LastEditTime: 2024-10-22 19:48:41
  */
 import { IntelPlateDBAddPlateForm, IntelPlateDBPlateInfo } from '@/types/apiType/intelligentAnalysis'
 import IntelLicenceDBEditPop from './IntelLicencePlateDBEditPop.vue'
@@ -586,7 +586,6 @@ export default defineComponent({
                     })
                 },
                 onprogress(step) {
-                    closeLoading()
                     openLoading(LoadingTarget.FullScreen, Translate('IDCS_IMPORT_PROGRESS_NUM_TIP').formatForLang(step))
                 },
                 onerror(errorCode) {

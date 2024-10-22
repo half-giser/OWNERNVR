@@ -3,7 +3,7 @@
  * @Date: 2024-06-25 09:59:23
  * @Description: 输出配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 16:22:34
+ * @LastEditTime: 2024-10-21 14:19:31
  */
 import { type XmlResult } from '@/utils/xmlParse'
 import OutputSplitTemplate from './OutputSplitTemplate.vue'
@@ -131,8 +131,8 @@ export default defineComponent({
             chlList: [] as ChlItem[],
             // 最大的输出分屏数
             outputScreenCount: 0,
-            // 当前选中的 TODO
-            activeOutputScreen: 0,
+            // 当前选中的
+            // activeOutputScreen: 0,
             // 是否有解码卡
             hasDecoder: false,
             // 打开新增通道组弹窗

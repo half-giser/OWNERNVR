@@ -3,10 +3,10 @@
  * @Date: 2024-06-14 09:47:30
  * @Description: 添加用户页面
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 09:42:09
+ * @LastEditTime: 2024-10-22 20:12:01
 -->
 <template>
-    <div class="UserAdd">
+    <div>
         <el-form
             ref="formRef"
             class="form stripe"
@@ -88,11 +88,7 @@
             </el-form-item>
             <div class="notice">{{ noticeMsg }}</div>
             <div class="base-btn-box">
-                <el-button
-                    class="btn-ok"
-                    @click="verify"
-                    >{{ Translate('IDCS_ADD') }}</el-button
-                >
+                <el-button @click="verify">{{ Translate('IDCS_ADD') }}</el-button>
                 <el-button @click="goBack">{{ Translate('IDCS_CANCEL') }}</el-button>
             </div>
         </el-form>

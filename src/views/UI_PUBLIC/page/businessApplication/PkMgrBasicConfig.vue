@@ -3,7 +3,7 @@
  * @Date: 2024-05-10 16:49:13
  * @Description: 业务应用-停车场管理-基础配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-10 11:35:22
+ * @LastEditTime: 2024-10-21 17:47:38
 -->
 <template>
     <div class="manage">
@@ -40,24 +40,22 @@
                 prop="totalNum"
                 :label="Translate('IDCS_TOTAL_VEHICLE_NUM')"
             >
-                <el-input-number
+                <BaseNumberInput
                     v-model="formData.totalNum"
                     :min="1"
                     :max="10000"
                     value-on-clear="min"
-                    :controls="false"
                 />
             </el-form-item>
             <el-form-item
                 prop="remainTotalNum"
                 :label="Translate('IDCS_REMAIN_VEHICLE_NUM')"
             >
-                <el-input-number
+                <BaseNumberInput
                     v-model="formData.remainTotalNum"
                     :min="0"
                     :max="10000"
                     value-on-clear="min"
-                    :controls="false"
                 />
             </el-form-item>
             <div class="base-btn-box">

@@ -15,7 +15,7 @@
             border
             stripe
             :data="tableData"
-            height="245px"
+            height="245"
             table-layout="fixed"
             show-overflow-tooltip
             highlight-current-row
@@ -34,7 +34,7 @@
             <el-table-column
                 prop="name"
                 :label="Translate('IDCS_CHANNEL_NAME')"
-                min-width="240px"
+                min-width="240"
             />
             <el-table-column
                 prop="chlStatus"

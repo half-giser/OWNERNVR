@@ -109,7 +109,6 @@
                             :chunk="2"
                         />
                         {{ Translate(String(route?.meta?.lk)) }}
-                        <!-- <span class="menu-split"></span> -->
                     </el-menu-item>
                 </el-menu>
             </div>

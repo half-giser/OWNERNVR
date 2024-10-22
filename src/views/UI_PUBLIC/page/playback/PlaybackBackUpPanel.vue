@@ -37,7 +37,7 @@
                 :data="tableData"
                 border
                 stripe
-                height="400px"
+                height="400"
             >
                 <el-table-column
                     :label="Translate('IDCS_SERIAL_NUMBER')"

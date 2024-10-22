@@ -3,7 +3,7 @@
  * @Date: 2024-07-12 10:52:49
  * @Description: UPnP上报
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 11:43:14
+ * @LastEditTime: 2024-10-21 17:39:15
 -->
 <template>
     <div>
@@ -34,10 +34,9 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_SERVER_ADDRESS')">
-                <el-input-number
+                <BaseNumberInput
                     v-model="formData.port"
                     :disabled="!formData.switch"
-                    :controls="false"
                     :min="10"
                     :max="65535"
                     value-on-clear="min"

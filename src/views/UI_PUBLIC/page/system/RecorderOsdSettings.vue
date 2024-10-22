@@ -11,7 +11,7 @@
             class="stripe"
             label-position="left"
             :model="formData"
-            label-width="150px"
+            label-width="150"
             :style="{
                 '--form-input-width': '340px',
             }"

@@ -72,21 +72,19 @@
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_PHONE_NUMBER')">
-                    <el-input-number
+                    <BaseNumberInput
                         v-model="formData.mobile"
                         :min="1"
                         :max="999999999999999"
-                        :controls="false"
                         :value-on-clear="null"
                         :disabled
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_NUMBER')">
-                    <el-input-number
+                    <BaseNumberInput
                         v-model="formData.number"
                         :min="1"
                         :max="999999999999999"
-                        :controls="false"
                         :value-on-clear="null"
                         :disabled
                     />

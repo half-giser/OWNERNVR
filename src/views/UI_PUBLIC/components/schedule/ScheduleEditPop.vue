@@ -3,13 +3,13 @@
  * @Date: 2024-07-31 16:36:16
  * @Description: 排程编辑弹框
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-27 10:30:17
+ * @LastEditTime: 2024-10-22 19:55:18
 -->
 <template>
     <el-dialog
         draggable
         center
-        width="1000px"
+        width="1000"
         :title="pageData.mainTitle"
         :close-on-click-modal="false"
         :destroy-on-close="true"

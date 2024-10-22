@@ -84,7 +84,7 @@
                     <el-table-column
                         prop="date"
                         :label="Translate('IDCS_DATE')"
-                        min-width="355px"
+                        min-width="355"
                     >
                         <template #default="scope">
                             <span>{{ scope.row.date }}</span>
@@ -92,7 +92,7 @@
                     </el-table-column>
                     <el-table-column
                         :label="Translate('IDCS_EDIT')"
-                        width="80px"
+                        width="80"
                     >
                         <template #header>
                             <el-dropdown trigger="click">
