@@ -3,7 +3,7 @@
  * @Date: 2024-08-16 18:58:43
  * @Description: TCP/IP高级配置弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-22 19:45:53
+ * @LastEditTime: 2024-10-21 17:46:44
 -->
 <template>
     <el-dialog
@@ -60,11 +60,11 @@
                     {{ displayTitle(index) }}
                 </div>
                 <el-form-item :label="Translate('IDCS_MTU')">
-                    <el-input-number
+                    <BaseNumberInput
                         v-model="formData.mtu[index]"
                         :min="1280"
                         :max="1500"
-                        :controls="false"
+                        value-on-clear="min"
                     />
                 </el-form-item>
             </template>
