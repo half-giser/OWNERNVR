@@ -1,7 +1,7 @@
 <!--
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-05-04 12:58:39
- * @Description: 通道
+ * @Description: 通道列表
 -->
 <template>
     <div class="base-flex-box">
@@ -19,39 +19,42 @@
                 <el-table-column
                     prop="chlNum"
                     :label="Translate('IDCS_CHANNEL_NUMBER')"
-                    width="80px"
+                    width="80"
                 />
                 <el-table-column
                     prop="name"
                     :label="Translate('IDCS_CHANNEL_NAME')"
-                    min-width="200px"
+                    min-width="200"
                 >
                     <template #default="scope">
-                        <span>{{ formatDisplayName(scope.row) }}</span>
+                        {{ formatDisplayName(scope.row) }}
                     </template>
                 </el-table-column>
                 <el-table-column
                     prop="ip"
                     :label="Translate('IDCS_ADDRESS')"
-                    min-width="140px"
+                    min-width="140"
                 />
                 <el-table-column
                     :label="Translate('IDCS_PORT')"
-                    width="80px"
+                    width="80"
                 >
                     <template #default="scope">
                         <!-- 模拟通道端口置空 -->
-                        <span>{{ scope.row.ip === '' ? '' : scope.row.port }}</span>
+                        {{ scope.row.ip === '' ? '' : scope.row.port }}
                     </template>
                 </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_CONNECT_STATUS')"
-                    width="100px"
+                    width="100"
                 >
                     <template #default="scope">
                         <span
                             class="status"
-                            :class="{ online: scope.row.isOnline, offline: !scope.row.isOnline }"
+                            :class="{
+                                online: scope.row.isOnline,
+                                offline: !scope.row.isOnline,
+                            }"
                             >{{ scope.row.ip === '' ? '' : scope.row.isOnline ? Translate('IDCS_ONLINE') : Translate('IDCS_OFFLINE') }}</span
                         >
                     </template>
@@ -59,20 +62,20 @@
                 <el-table-column
                     prop="manufacturer"
                     :label="Translate('IDCS_PROTOCOL')"
-                    min-width="140px"
+                    min-width="140"
                 >
                     <template #default="scope">
-                        <span>{{ formatDisplayManufacturer(scope.row) }}</span>
+                        {{ formatDisplayManufacturer(scope.row) }}
                     </template>
                 </el-table-column>
                 <el-table-column
                     prop="productModel.innerText"
                     :label="Translate('IDCS_PRODUCT_MODEL')"
-                    min-width="140px"
+                    min-width="140"
                 />
                 <el-table-column
                     :label="Translate('IDCS_PREVIEW')"
-                    width="80px"
+                    width="80"
                 >
                     <template #default="scope">
                         <BaseImgSprite
@@ -87,7 +90,7 @@
                 </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_EDIT')"
-                    width="80px"
+                    width="80"
                 >
                     <template #header>
                         <el-dropdown trigger="click">
@@ -114,7 +117,7 @@
                 </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_DELETE')"
-                    width="80px"
+                    width="80"
                 >
                     <template #header>
                         <el-dropdown trigger="click">
@@ -135,7 +138,9 @@
                             :index="0"
                             :hover-index="1"
                             :active-index="1"
-                            :class="{ disabled: scope.row.delDisabled }"
+                            :class="{
+                                disabled: scope.row.delDisabled,
+                            }"
                             @click="handleDelChannel(scope.row)"
                         />
                     </template>
@@ -143,7 +148,7 @@
                 <el-table-column
                     prop="setting"
                     :label="Translate('IDCS_CONFIGURATION')"
-                    width="80px"
+                    width="80"
                 >
                     <template #default="scope">
                         <BaseImgSprite
@@ -160,7 +165,7 @@
                 <el-table-column
                     prop="upgrade"
                     :label="Translate('IDCS_UPGRADE')"
-                    width="80px"
+                    width="80"
                 >
                     <template #header>
                         <el-dropdown trigger="click">
@@ -206,7 +211,7 @@
                 <el-table-column
                     prop="version"
                     :label="Translate('IDCS_VERSION')"
-                    min-width="140px"
+                    min-width="140"
                 />
             </el-table>
         </div>

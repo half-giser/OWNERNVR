@@ -243,6 +243,11 @@ declare global {
     }
 
     type UserChlAuth = _UserChlAuth
+
+    declare const natIp: string
+    declare const natPort: string
+    declare const natIp_2_0: string
+    declare const natPort_2_0: string
 }
 
 /**

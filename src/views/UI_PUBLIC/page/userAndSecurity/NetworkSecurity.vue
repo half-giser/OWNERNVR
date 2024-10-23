@@ -29,7 +29,7 @@
                 ></el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_AUTO_GATEWAY_MAC')"
-                    width="250px"
+                    width="250"
                 >
                     <template #default="scope">
                         <el-checkbox
@@ -42,7 +42,7 @@
                 </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_GATEWAY_MAC')"
-                    width="250px"
+                    width="250"
                 >
                     <template #default="scope">
                         <BaseMacInput

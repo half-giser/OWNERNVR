@@ -6,7 +6,7 @@
 <template>
     <el-dialog
         :title="Translate('IDCS_ACTIVATE')"
-        width="460"
+        width="600"
         align-center
         @opened="opened"
     >
@@ -15,6 +15,9 @@
             :model="formData"
             :rules="rules"
             label-position="left"
+            :style="{
+                '--form-input-width': '200px',
+            }"
         >
             <el-form-item>
                 <el-checkbox

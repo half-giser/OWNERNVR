@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 15:43:32
  * @Description: 现场预览-镜头控制视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 17:49:49
+ * @LastEditTime: 2024-10-22 17:30:59
  */
 import { LiveLensForm, type LiveSharedWinData } from '@/types/apiType/live'
 
@@ -180,14 +180,30 @@ export default defineComponent({
                 const result = await editCameraLensCtrlParam(sendXml)
                 const $ = queryXml(result)
                 if ($('//status').text() === 'success') {
-                    ElMessage.success(Translate('IDCS_SAVE_DATA_SUCCESS'))
+                    ElMessage({
+                        type: 'success',
+                        message: Translate('IDCS_SAVE_DATA_SUCCESS'),
+                        grouping: true,
+                    })
                 } else if ($('//errorCode').text() === '0') {
-                    ElMessage.success(Translate('IDCS_SAVE_DATA_SUCCESS'))
+                    ElMessage({
+                        type: 'success',
+                        message: Translate('IDCS_SAVE_DATA_SUCCESS'),
+                        grouping: true,
+                    })
                 } else {
-                    ElMessage.error(Translate('IDCS_SAVE_DATA_FAIL'))
+                    ElMessage({
+                        type: 'error',
+                        message: Translate('IDCS_SAVE_DATA_FAIL'),
+                        grouping: true,
+                    })
                 }
             } catch (e) {
-                ElMessage.error(Translate('IDCS_SAVE_DATA_FAIL'))
+                ElMessage({
+                    type: 'error',
+                    message: Translate('IDCS_SAVE_DATA_FAIL'),
+                    grouping: true,
+                })
             }
         }
 

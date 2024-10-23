@@ -2,8 +2,8 @@
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-06-27 11:55:36
  * @Description: 通道 - 图像参数配置
- * @LastEditors: linguifan a10989@tvt.net.cn
- * @LastEditTime: 2024-10-16 17:06:51
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-22 19:54:19
 -->
 <template>
     <div class="base-chl-box">
@@ -177,7 +177,7 @@
                 >
                     <el-table-column
                         label=" "
-                        width="50px"
+                        width="50"
                     >
                         <template #default="scope">
                             <BaseTableRowStatus
@@ -189,22 +189,21 @@
                     <el-table-column
                         prop="name"
                         :label="Translate('IDCS_CHANNEL_NAME')"
-                        min-width="160px"
+                        min-width="160"
                     />
                     <el-table-column
                         :label="Translate('IDCS_BRIGHTNESS')"
-                        min-width="160px"
+                        min-width="160"
                     >
                         <template #default="scope">
                             <span v-if="scope.row.isSpeco"></span>
                             <span v-else-if="scope.row.isSupportThermal">--</span>
-                            <el-input-number
+                            <BaseNumberInput
                                 v-else
                                 v-model="scope.row.bright"
                                 :min="scope.row.brightMinValue"
                                 :max="scope.row.brightMaxValue"
                                 value-on-clear="min"
-                                :controls="false"
                                 size="small"
                                 :disabled="scope.row.disabled"
                                 @change="handleInputChange(scope.row.bright, scope.row.id, 'bright')"
@@ -214,18 +213,17 @@
                     </el-table-column>
                     <el-table-column
                         :label="Translate('IDCS_CONTRAST')"
-                        min-width="160px"
+                        min-width="160"
                     >
                         <template #default="scope">
                             <span v-if="scope.row.isSpeco"></span>
                             <span v-else-if="scope.row.isSupportThermal">--</span>
-                            <el-input-number
+                            <BaseNumberInput
                                 v-else
                                 v-model="scope.row.contrast"
                                 :min="scope.row.contrastMinValue"
                                 :max="scope.row.contrastMaxValue"
                                 value-on-clear="min"
-                                :controls="false"
                                 size="small"
                                 :disabled="scope.row.disabled"
                                 @change="handleInputChange(scope.row.contrast, scope.row.id, 'contrast')"
@@ -235,18 +233,17 @@
                     </el-table-column>
                     <el-table-column
                         :label="Translate('IDCS_SATURATION')"
-                        min-width="160px"
+                        min-width="160"
                     >
                         <template #default="scope">
                             <span v-if="scope.row.isSpeco"></span>
                             <span v-else-if="scope.row.isSupportThermal">--</span>
-                            <el-input-number
+                            <BaseNumberInput
                                 v-else
                                 v-model="scope.row.saturation"
                                 :min="scope.row.saturationMinValue"
                                 :max="scope.row.saturationMaxValue"
                                 value-on-clear="min"
-                                :controls="false"
                                 size="small"
                                 :disabled="scope.row.disabled"
                                 @change="handleInputChange(scope.row.saturation, scope.row.id, 'saturation')"
@@ -256,18 +253,17 @@
                     </el-table-column>
                     <el-table-column
                         :label="Translate('IDCS_TONE')"
-                        min-width="160px"
+                        min-width="160"
                     >
                         <template #default="scope">
                             <span v-if="scope.row.isSpeco"></span>
                             <span v-else-if="scope.row.isSupportThermal || scope.row.hue === -1">--</span>
-                            <el-input-number
+                            <BaseNumberInput
                                 v-else
                                 v-model="scope.row.hue"
                                 :min="scope.row.hueMinValue"
                                 :max="scope.row.hueMaxValue"
                                 value-on-clear="min"
-                                :controls="false"
                                 size="small"
                                 :disabled="scope.row.disabled"
                                 @change="handleInputChange(scope.row.hue, scope.row.id, 'hue')"
@@ -278,7 +274,7 @@
                     <el-table-column
                         type="expand"
                         :label="Translate('IDCS_ADVANCED')"
-                        min-width="160px"
+                        min-width="160"
                     >
                         <template #default="scope">
                             <div class="expandContent">

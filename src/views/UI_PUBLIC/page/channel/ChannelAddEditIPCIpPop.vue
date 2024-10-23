@@ -6,15 +6,21 @@
 <template>
     <el-dialog
         :title="Translate('IDCS_EDIT_IP')"
-        width="450"
+        width="700"
         align-center
         @opened="opened"
     >
         <el-form
             ref="formRef"
             :model="formData"
-            label-width="160px"
             label-position="left"
+            :rules
+            :style="{
+                '--form-label-width': '160px',
+                '--form-input-width': '200px',
+            }"
+            inline-message
+            class="stripe"
         >
             <el-form-item
                 prop="mac"

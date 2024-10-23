@@ -33,6 +33,12 @@ export default defineComponent({
         const chlList = ref<ChannelOsd[]>([]) // 作为下拉列表选项来源，只需保证name为最新值即可
         const { supportSHDB } = useCababilityStore() // 是否支持上海地标
         const tempName = ref('')
+        const switchOptions = DEFAULT_SWITCH_OPTIONS.map((item) => {
+            return {
+                value: item.value.toBoolean(),
+                label: Translate(item.label),
+            }
+        })
 
         const dateFormatTip: Record<string, string> = {
             'yyyy-MM-dd': Translate('IDCS_DATE_FORMAT_YMD'),
@@ -60,7 +66,6 @@ export default defineComponent({
         let nameMapping: Record<string, string> = {}
         let osdDrawer: CanvasOSD | undefined = undefined
         const editRows = new Set<ChannelOsd>()
-        let returnRqCount = 0
 
         const handleSizeChange = (val: number) => {
             pageSize.value = val
@@ -120,9 +125,6 @@ export default defineComponent({
                     chlList.value = cloneDeep(tableData.value)
                 }
             }
-            // setOcxData(rowData)
-            // btnOKDisabled.value = false
-            // editRows.add(rowData)
         }
 
         const handleRowClick = (rowData: ChannelOsd) => {
@@ -165,8 +167,8 @@ export default defineComponent({
         const changeDateFormatAll = (val: string) => {
             if (!tableData.value.length) return
             tableData.value.forEach((ele) => {
-                if (ele.disabled || ele.status == 'loading') return // todo 老代码禁用行也会最下面逻辑，设备端没有看到info提示，暂时加上禁用行判断
-                if (ele.dateEnum.includes(val)) {
+                if (ele.status == 'loading') return
+                if (ele.dateEnum.includes(val) && !ele.disabled) {
                     ele.dateFormat = val
                     editRows.add(ele)
                 } else {
@@ -174,7 +176,7 @@ export default defineComponent({
                         type: 'info',
                         message: Translate('IDCS_NOT_SUPPORT_MODIFY_DATEFORMAT'),
                         grouping: true,
-                    }) // todo 待替换组件
+                    })
                 }
             })
             const rowData = getRowById(selectedChlId.value)
@@ -186,7 +188,7 @@ export default defineComponent({
         const changeTimeFormatAll = (val: string) => {
             if (!tableData.value.length) return
             tableData.value.forEach((ele) => {
-                if (ele.disabled || ele.status == 'loading') return // todo 老代码没此判断
+                if (ele.disabled || ele.status == 'loading') return
                 ele.timeFormat = val
                 editRows.add(ele)
             })
@@ -320,7 +322,7 @@ export default defineComponent({
                     channelOsd.timeFormat = $('content/chl/time/timeFormat').text()
 
                     channelOsd.status = ''
-                    if ($('content/chl').length == 0 || chlId !== $('content/chl').attr('id')) isSpeco = true
+                    if (!$('content/chl').length || chlId !== $('content/chl').attr('id')) isSpeco = true
                     channelOsd.isSpeco = isSpeco
 
                     channelOsd.timeX = Number($('content/chl/time/X').text())
@@ -377,9 +379,8 @@ export default defineComponent({
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
                     editRows.clear()
-                    const rowData: ChannelOsd[] = []
                     nameMapping = {}
-                    $('content/item').forEach((ele) => {
+                    tableData.value = $('content/item').map((ele) => {
                         const eleXml = queryXml(ele.element)
                         const newData = new ChannelOsd()
                         newData.id = ele.attr('id')!
@@ -388,19 +389,17 @@ export default defineComponent({
                         newData.chlIndex = eleXml('chlIndex').text()
                         newData.chlType = eleXml('chlType').text()
                         newData.status = 'loading'
-                        // newData.statusTip = tableRowStatusToolTip['loading']
-                        rowData.push(newData)
-                        nameMapping[rowData[rowData.length - 1].id] = rowData[rowData.length - 1].name
+                        nameMapping[newData.id] = newData.name
+                        return newData
                     })
                     pageTotal.value = Number($('content').attr('total')!)
-                    tableData.value = rowData
-                    if (rowData.length) {
-                        selectedChlId.value = rowData[0].id
-                        tableRef.value!.setCurrentRow(rowData[0])
-                        formData.value = cloneDeep(rowData[0])
-                        chlList.value = cloneDeep(rowData)
+                    if (tableData.value.length) {
+                        selectedChlId.value = tableData.value[0].id
+                        tableRef.value!.setCurrentRow(tableData.value[0])
+                        formData.value = cloneDeep(tableData.value[0])
+                        chlList.value = cloneDeep(tableData.value)
                         getTimeEnabledData(() => {
-                            rowData.forEach((ele) => {
+                            tableData.value.forEach((ele) => {
                                 if (ele.chlType != 'recorder') {
                                     getData(ele.id)
                                 } else {
@@ -424,140 +423,130 @@ export default defineComponent({
             })
         }
 
-        const checkAllRqReturn = () => {
-            returnRqCount++
-            if (returnRqCount == editRows.size) {
-                closeLoading()
-                editRows.clear()
-            }
-        }
-
-        const setData = () => {
+        const setData = async () => {
             tableData.value.forEach((ele) => (ele.status = ''))
             btnOKDisabled.value = true
-            returnRqCount = 0
-            if (editRows.size == 0) return
-            openLoading()
-            editRows.forEach((ele) => sendData(ele))
-        }
+            if (editRows.size === 0) return
 
-        const sendData = (rowData: ChannelOsd) => {
-            if (!rowData.name) {
-                rowData.status = 'error'
-                rowData.statusTip = Translate('IDCS_PROMPT_NAME_EMPTY')
-                checkAllRqReturn()
-                return
+            openLoading()
+
+            for (let i = 0; i < tableData.value.length; i++) {
+                const rowData = tableData.value[i]
+                if (editRows.has(rowData)) {
+                    try {
+                        if (!rowData.name) {
+                            rowData.status = 'error'
+                            rowData.statusTip = Translate('IDCS_PROMPT_NAME_EMPTY')
+                            continue
+                        }
+
+                        const flag = await setDevice(rowData)
+                        if (!flag) continue
+
+                        if (rowData.manufacturer == 'TVT') {
+                            await setChlWaterMark(rowData)
+                        }
+
+                        if (rowData.chlType !== 'recorder') {
+                            await setIPChlORChlOSD(rowData)
+                        }
+
+                        nameMapping[rowData.id] = rowData.name
+                        rowData.status = 'success'
+                    } catch {
+                        rowData.status = 'error'
+                        continue
+                    }
+                }
             }
 
+            closeLoading()
+            editRows.clear()
+        }
+
+        const setDevice = async (rowData: ChannelOsd) => {
             const data = rawXml`
                 <content>
                     <id>${rowData.id}</id>
                     <name><![CDATA[${rowData.name}]]></name>
-                </content>`
-            try {
-                editDev(data)
-                    .then((res) => {
-                        checkAllRqReturn()
-                        const $ = queryXml(res)
-                        if ($('status').text() == 'success') {
-                            if (rowData.manufacturer == 'TVT') {
-                                const watermarkXml = rawXml`
-                                <content>
-                                    <chl id='${rowData.id}'>
-                                        <watermark>
-                                            <value>${rowData.remarkNote}</value>
-                                            <switch>${rowData.remarkSwitch.toString()}</switch>
-                                        </watermark>
-                                    </chl>
-                                </content>`
-                                editChlWaterMark(watermarkXml)
-                            }
-                            nameMapping[rowData.id] = rowData.name
-                            rowData.status = 'success'
-                            // rowData.statusTip = tableRowStatusToolTip['saveSuccess']
-                            if (rowData.chlType == 'recorder') return
+                </content>
+            `
+            const result = await editDev(data)
+            const $ = queryXml(result)
+            if ($('status').text() === 'success') {
+                return true
+            } else {
+                let errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
+                if (Number($('errorCode').text()) === ErrorCode.USER_ERROR_NAME_EXISTED) {
+                    errorInfo = Translate('IDCS_PROMPT_CHANNEL_NAME_EXIST')
+                }
+                rowData.status = 'error'
+                rowData.statusTip = errorInfo
+                return false
+            }
+        }
 
-                            let editIPChlORChlOSDXml = '<types>'
-                            if (rowData.supportDateFormat) {
-                                editIPChlORChlOSDXml += '<dateFormat>'
-                                rowData.dateEnum.forEach((ele) => {
-                                    editIPChlORChlOSDXml += `<enum>${ele}</enum>`
-                                })
-                                editIPChlORChlOSDXml += '</dateFormat>'
-                            }
-                            if (rowData.supportTimeFormat) {
-                                editIPChlORChlOSDXml += '<timeFormat>'
-                                rowData.timeEnum.forEach((ele) => {
-                                    editIPChlORChlOSDXml += `<enum>${ele}</enum>`
-                                })
-                                editIPChlORChlOSDXml += '</timeFormat>'
-                            }
-                            editIPChlORChlOSDXml += rawXml`
-                            </types>
-                            <content>
-                                <chl id='${rowData.id}'>
-                                    <time>
-                                        <switch>${rowData.displayTime.toString()}</switch>
-                                        <X>${rowData.timeX.toString()}</X>
-                                        <Y>${rowData.timeY.toString()}</Y>
-                                        ${rowData.supportDateFormat ? '<dateFormat type="dateFormat">' + rowData.dateFormat + '</dateFormat>' : ''}
-                                        ${rowData.supportTimeFormat ? '<timeFormat type="timeFormat">' + rowData.timeFormat + '</timeFormat>' : ''}
-                                    </time>
-                                    <chlName>
-                                        <switch>${rowData.displayName.toString()}</switch>
-                                        <X>${rowData.nameX.toString()}</X>
-                                        <Y>${rowData.nameY.toString()}</Y>
-                                        <name>${rowData.name}</name>
-                                    </chlName>
-                                </chl>
-                            </content>`
-                            try {
-                                editIPChlORChlOSD(editIPChlORChlOSDXml)
-                                    .then((res) => {
-                                        const $ = queryXml(res)
-                                        if ($('status').text() == 'success') {
-                                            if (rowData.name == nameMapping[rowData.id]) {
-                                                checkAllRqReturn()
-                                                rowData.status = 'success'
-                                                // rowData.statusTip = tableRowStatusToolTip['saveSuccess']
-                                            }
-                                        } else {
-                                            checkAllRqReturn()
-                                            let errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
-                                            if (Number($('errorCode').text()) == ErrorCode.USER_ERROR__CANNOT_FIND_NODE_ERROR) {
-                                                errorInfo = Translate('resourceNotExist').formatForLang(Translate('IDCS_CHANNEL'))
-                                            }
-                                            rowData.status = 'error'
-                                            rowData.statusTip = errorInfo
-                                        }
-                                    })
-                                    .catch(() => checkAllRqReturn())
-                            } catch (error) {
-                                checkAllRqReturn()
-                                alert(error)
-                            }
-                        } else {
-                            let errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
-                            if (Number($('errorCode').text()) == ErrorCode.USER_ERROR_NAME_EXISTED) {
-                                errorInfo = Translate('IDCS_PROMPT_CHANNEL_NAME_EXIST')
-                            }
-                            rowData.status = 'error'
-                            rowData.statusTip = errorInfo
-                        }
-                    })
-                    .catch(() => checkAllRqReturn)
-            } catch (error) {
-                checkAllRqReturn()
-                alert(error)
+        const setChlWaterMark = async (rowData: ChannelOsd) => {
+            const sendXml = rawXml`
+                <content>
+                    <chl id='${rowData.id}'>
+                        <watermark>
+                            <value>${rowData.remarkNote}</value>
+                            <switch>${rowData.remarkSwitch.toString()}</switch>
+                        </watermark>
+                    </chl>
+                </content>
+            `
+            await editChlWaterMark(sendXml)
+        }
+
+        const setIPChlORChlOSD = async (rowData: ChannelOsd) => {
+            const sendXml = rawXml`
+                <types>
+                    ${ternary(rowData.supportDateFormat, `<dateFormat>${wrapEnums(rowData.dateEnum)}</dateFormat>`)}
+                    ${ternary(rowData.supportTimeFormat, `<timeFormat>${wrapEnums(rowData.timeEnum)}</timeFormat>`)}
+                </types>
+                <content>
+                    <chl id='${rowData.id}'>
+                        <time>
+                            <switch>${rowData.displayTime.toString()}</switch>
+                            <X>${rowData.timeX.toString()}</X>
+                            <Y>${rowData.timeY.toString()}</Y>
+                            ${rowData.supportDateFormat ? '<dateFormat type="dateFormat">' + rowData.dateFormat + '</dateFormat>' : ''}
+                            ${rowData.supportTimeFormat ? '<timeFormat type="timeFormat">' + rowData.timeFormat + '</timeFormat>' : ''}
+                        </time>
+                        <chlName>
+                            <switch>${rowData.displayName.toString()}</switch>
+                            <X>${rowData.nameX.toString()}</X>
+                            <Y>${rowData.nameY.toString()}</Y>
+                            <name>${rowData.name}</name>
+                        </chlName>
+                    </chl>
+                </content>
+            `
+            const res = await editIPChlORChlOSD(sendXml)
+            const $ = queryXml(res)
+            if ($('status').text() == 'success') {
+                if (rowData.name == nameMapping[rowData.id]) {
+                    rowData.status = 'success'
+                }
+            } else {
+                let errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
+                if (Number($('errorCode').text()) == ErrorCode.USER_ERROR__CANNOT_FIND_NODE_ERROR) {
+                    errorInfo = Translate('resourceNotExist').formatForLang(Translate('IDCS_CHANNEL'))
+                }
+                rowData.status = 'error'
+                rowData.statusTip = errorInfo
             }
         }
 
         const setDateTime = async () => {
             let timeFormat = ''
             let dateFormat = ''
-            tableData.value.forEach((ele) => {
+            tableData.value.some((ele) => {
                 if (ele.timeFormat) timeFormat = ele.timeFormat
                 if (ele.dateFormat) dateFormat = ele.dateFormat
+                return !!timeFormat && !!dateFormat
             })
             const data = rawXml`
                 <content>
@@ -567,12 +556,12 @@ export default defineComponent({
                     </formatInfo>
                 </content>`
             await editTimeCfg(data)
-            dateTime.getTimeConfig(true)
         }
 
-        const save = () => {
-            setData()
-            setDateTime()
+        const save = async () => {
+            await setData()
+            await setDateTime()
+            dateTime.getTimeConfig(true)
         }
 
         // 播放模式
@@ -663,33 +652,6 @@ export default defineComponent({
             } else {
                 if (rowData.timeX) {
                     if (osType == 'mac') {
-                        // const osdList: OcxXmlSetOsdListDatum[] = [
-                        //     {
-                        //         winIndex: 0,
-                        //         dateFormat: rowData.dateFormat,
-                        //         timeFormat: rowData.timeFormat,
-                        //         x: rowData.timeX,
-                        //         y: rowData.timeY,
-                        //         xMin: rowData.timeXMinValue,
-                        //         xMax: rowData.timeXMaxValue,
-                        //         yMin: rowData.timeYMinValue,
-                        //         yMax: rowData.timeXMaxValue,
-                        //         status: rowData.displayTime ? 'ON' : 'OFF',
-                        //     },
-                        //     {
-                        //         winIndex: 0,
-                        //         osd: rowData.name,
-                        //         x: rowData.nameX,
-                        //         y: rowData.nameY,
-                        //         xMin: rowData.nameXMinValue,
-                        //         xMax: rowData.nameXMaxValue,
-                        //         yMin: rowData.nameYMinValue,
-                        //         yMax: rowData.nameYMaxValue,
-                        //         status: rowData.displayTime ? 'ON' : 'OFF',
-                        //     },
-                        // ]
-                        // const sendXML = OCX_XML_SetOSD('ON', osdList)
-                        // plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                     } else {
                         const osd: OcxXmlSetOSDInfo = {
                             timeStamp: {
@@ -803,6 +765,7 @@ export default defineComponent({
             save,
             onReady,
             onTime,
+            switchOptions,
         }
     },
 })

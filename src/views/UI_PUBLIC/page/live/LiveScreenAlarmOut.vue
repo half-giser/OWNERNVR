@@ -10,7 +10,7 @@
         <el-popover
             v-model:visible="pageData.isAlarmPop"
             placement="top"
-            width="600px"
+            width="600"
             trigger="click"
         >
             <template #reference>
@@ -33,7 +33,7 @@
                     :data="tableData"
                     border
                     stripe
-                    height="400px"
+                    height="400"
                     show-overflow-tooltip
                 >
                     <el-table-column
@@ -58,7 +58,7 @@
                         </template>
                     </el-table-column>
                     <el-table-column
-                        v-if="theme.name === 'UI2-A'"
+                        v-if="isDelay"
                         :label="Translate('IDCS_DELAY')"
                         prop="delay"
                     >

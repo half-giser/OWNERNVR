@@ -16,7 +16,7 @@
         >
             <el-table-column
                 :label="Translate('IDCS_CHANNEL_NAME')"
-                width="250px"
+                width="250"
                 prop="name"
             />
             <el-table-column :label="Translate('IDCS_RECORD_STATE')">

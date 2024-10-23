@@ -46,11 +46,10 @@
                 :label="Translate('IDCS_PORT')"
                 prop="port"
             >
-                <el-input-number
+                <BaseNumberInput
                     v-model="editItem.port"
                     :min="10"
                     :max="65535"
-                    :controls="false"
                     value-on-clear="min"
                     :disabled="portDisabled"
                 />

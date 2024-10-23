@@ -25,6 +25,12 @@ export default defineComponent({
         const btnOKDisabled = ref(true)
         const editRows = new Set<ChannelMask>()
         const editStatus = ref(false)
+        const switchOptions = DEFAULT_SWITCH_OPTIONS.map((item) => {
+            return {
+                ...item,
+                label: Translate(item.label),
+            }
+        })
         let maskDrawer: CanvasMask | undefined = undefined
 
         const colorMap: Record<string, string> = {
@@ -66,7 +72,7 @@ export default defineComponent({
             setOcxData(rowData)
         }
 
-        const changeSwitchAll = (val: boolean) => {
+        const changeSwitchAll = (val: string) => {
             tableData.value.forEach((ele) => {
                 if (!ele.disabled) {
                     ele.switch = val
@@ -83,7 +89,7 @@ export default defineComponent({
             if (playerRef.value.mode === 'h5') {
                 maskDrawer?.setEnable(editStatus.value)
             } else {
-                if (osType == 'mac') {
+                if (osType === 'mac') {
                 } else {
                     const sendXML = OCX_XML_MaskAreaSetSwitch(editStatus.value ? 'EDIT_ON' : 'EDIT_OFF')
                     playerRef.value?.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
@@ -97,7 +103,7 @@ export default defineComponent({
                 maskDrawer?.clear()
                 maskDrawer?.setEnable(false)
             } else {
-                if (osType == 'mac') {
+                if (osType === 'mac') {
                 } else {
                     let sendXML = OCX_XML_MaskAreaSetSwitch('NONE')
                     playerRef.value?.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
@@ -117,33 +123,34 @@ export default defineComponent({
             }
         }
 
-        const getData = (chlId: string) => {
-            queryPrivacyMask(`<condition><chlId>${chlId}</chlId></condition>`).then((res) => {
+        const getData = (chlId: string, index: number) => {
+            const sendXml = rawXml`
+                <condition>
+                    <chlId>${chlId}</chlId>
+                </condition>
+            `
+            queryPrivacyMask(sendXml).then((res) => {
                 const $ = queryXml(res)
-                const rowData = getRowById(chlId)
-                if ($('status').text() == 'success') {
+                const rowData = tableData.value[index]
+                if ($('status').text() === 'success') {
                     let isSwitch = false
                     let isSpeco = false
-                    if ($('content/chl').length == 0 || chlId != $('content/chl').attr('id')) isSpeco = true
+                    if (!$('content/chl').length || chlId != $('content/chl').attr('id')) isSpeco = true
                     rowData.isSpeco = isSpeco
-                    $('content/chl/privacyMask/item').forEach((ele) => {
+                    rowData.mask = $('content/chl/privacyMask/item').map((ele) => {
                         const eleXml = queryXml(ele.element)
-                        const newData = new PrivacyMask()
-                        newData.switch = eleXml('switch').text().toBoolean()
-                        newData.X = Number(eleXml('rectangle/X').text())
-                        newData.Y = Number(eleXml('rectangle/Y').text())
-                        newData.width = Number(eleXml('rectangle/width').text())
-                        newData.height = Number(eleXml('rectangle/height').text())
-                        rowData.mask.push(newData)
                         isSwitch = isSwitch || eleXml('switch').text().toBoolean()
+                        return {
+                            switch: eleXml('switch').text().toBoolean(),
+                            X: Number(eleXml('rectangle/X').text()),
+                            Y: Number(eleXml('rectangle/Y').text()),
+                            width: Number(eleXml('rectangle/width').text()),
+                            height: Number(eleXml('rectangle/height').text()),
+                        }
                     })
-                    rowData.switch = isSwitch
+                    rowData.switch = String(isSwitch)
                     rowData.status = ''
                     rowData.disabled = isSpeco
-
-                    // if (chlId == selectedChlId.value) {
-                    //     formData.value = rowData
-                    // }
                 } else {
                     rowData.status = ''
                 }
@@ -159,11 +166,10 @@ export default defineComponent({
             }).then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
-                    tableData.value = []
+                if ($('status').text() === 'success') {
                     editRows.clear()
                     btnOKDisabled.value = true
-                    $('content/item').forEach((ele) => {
+                    tableData.value = $('content/item').map((ele) => {
                         const eleXml = queryXml(ele.element)
                         const newData = new ChannelMask()
                         newData.id = ele.attr('id')!
@@ -172,16 +178,18 @@ export default defineComponent({
                         newData.chlType = eleXml('chlType').text()
                         newData.status = 'loading'
                         newData.disabled = true
-                        tableData.value.push(newData)
+                        return newData
                     })
                     pageTotal.value = Number($('content').attr('total'))
+
                     if (!tableData.value.length) return
                     formData.value = tableData.value[0]
                     selectedChlId.value = tableData.value[0].id
                     tableRef.value!.setCurrentRow(tableData.value[0])
-                    tableData.value.forEach((ele) => {
+
+                    tableData.value.forEach((ele, index) => {
                         if (ele.chlType != 'recorder') {
-                            getData(ele.id)
+                            getData(ele.id, index)
                         } else {
                             ele.status = ''
                         }
@@ -192,8 +200,25 @@ export default defineComponent({
             })
         }
 
-        const getSaveData = (rowData: ChannelMask): string => {
-            let data = rawXml`
+        const getSaveData = (rowData: ChannelMask) => {
+            const mask = rowData.mask.length ? rowData.mask : [new PrivacyMask()]
+            const maskXml = mask
+                .map((ele) => {
+                    return rawXml`
+                        <item>
+                            <switch>${rowData.switch}</switch>
+                            <rectangle>
+                                <X>${ele.switch ? ele.X.toString() : '0'}</X>
+                                <Y>${ele.switch ? ele.Y.toString() : '0'}</Y>
+                                <width>${ele.switch ? ele.width.toString() : '0'}</width>
+                                <height>${ele.switch ? ele.height.toString() : '0'}</height>
+                            </rectangle>
+                            <color>${!rowData.mask.length ? 'black' : rowData.color}</color>
+                        </item>
+                    `
+                })
+                .join('')
+            const sendXml = rawXml`
                 <types>
                     <color>
                         <enum>black</enum>
@@ -206,44 +231,18 @@ export default defineComponent({
                         <privacyMask type='list' count='4'>
                             <itemType>
                                 <color type='color'/>
-                            </itemType>`
-            if (!rowData.mask.length) {
-                data += rawXml`
-                    <item>
-                        <switch>false</switch>
-                        <rectangle>
-                            <X>0</X>
-                            <Y>0</Y>
-                            <width>0</width>
-                            <height>0</height>
-                        </rectangle>
-                        <color>black</color>
-                    </item>`
-            } else {
-                rowData.mask.forEach((ele) => {
-                    data += rawXml`
-                        <item>
-                            <switch>${ele.switch ? rowData.switch.toString() : 'false'}</switch>
-                            <rectangle>
-                                <X>${ele.switch ? ele.X.toString() : '0'}</X>
-                                <Y>${ele.switch ? ele.Y.toString() : '0'}</Y>
-                                <width>${ele.switch ? ele.width.toString() : '0'}</width>
-                                <height>${ele.switch ? ele.height.toString() : '0'}</height>
-                            </rectangle>
-                            <color>${rowData.color}</color>
-                        </item>`
-                })
-            }
-            data += rawXml`
+                            </itemType>
+                            ${maskXml}
                         </privacyMask>
                     </chl>
-                </content>`
-            return data
+                </content>
+            `
+            return sendXml
         }
 
         const save = () => {
             const total = editRows.size
-            if (total == 0) return
+            if (!total) return
             let count = 0
             const successRows: ChannelMask[] = []
             openLoading()
@@ -251,7 +250,7 @@ export default defineComponent({
             editRows.forEach((ele) => {
                 editPrivacyMask(getSaveData(ele)).then((res) => {
                     const $ = queryXml(res)
-                    const success = $('status').text() == 'success'
+                    const success = $('status').text() === 'success'
                     if (success) {
                         ele.status = 'success'
                         successRows.push(ele)
@@ -272,14 +271,13 @@ export default defineComponent({
         }
 
         const getRowById = (chlId: string) => {
-            return tableData.value.find((element) => element.id == chlId) as ChannelMask
+            return tableData.value.find((element) => element.id === chlId)!
         }
 
         const LiveNotify2Js = ($: (path: string) => XmlResult) => {
             if ($("statenotify[@type='MaskArea']").length > 0) {
                 const preRowData = getRowById(selectedChlId.value)
-                if (osType == 'mac') {
-                    // todo
+                if (osType === 'mac') {
                 } else {
                     if (!preRowData.mask.length) {
                         for (let i = 0; i < 4; i++) {
@@ -345,7 +343,7 @@ export default defineComponent({
             if (mode.value === 'h5') {
                 maskDrawer?.setArea(masks)
             } else {
-                if (osType == 'mac') {
+                if (osType === 'mac') {
                 } else {
                     const sendXML = OCX_XML_SetMaskArea(masks)
                     plugin.GetVideoPlugin().ExecuteCmd(sendXML)
@@ -379,7 +377,7 @@ export default defineComponent({
                 })
             } else {
                 plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
-                const sendXML = OCX_XML_SetPluginModel(osType == 'mac' ? 'VedioMaskConfig' : 'ReadOnly', 'Live')
+                const sendXML = OCX_XML_SetPluginModel(osType === 'mac' ? 'VedioMaskConfig' : 'ReadOnly', 'Live')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
         }
@@ -398,7 +396,7 @@ export default defineComponent({
                 })
                 maskDrawer && maskDrawer.clear()
             } else {
-                if (osType == 'mac') {
+                if (osType === 'mac') {
                 } else {
                     plugin.RetryStartChlView(rowData.id, rowData.name, () => {
                         let sendXML = OCX_XML_MaskAreaSetSwitch('NONE') // todo 只下发none会有问题，可以编辑
@@ -466,6 +464,7 @@ export default defineComponent({
             handleClearArea,
             save,
             onReady,
+            switchOptions,
         }
     },
 })

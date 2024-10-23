@@ -3,7 +3,7 @@
  * @Date: 2024-09-13 11:32:17
  * @Description:过线检测邮件设置弹窗
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-18 15:29:07
+ * @LastEditTime: 2024-10-22 09:59:20
  */
 import { type emailData } from '@/types/apiType/aiAndEvent'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -96,7 +96,6 @@ export default defineComponent({
         const handleTimePickerChange = () => {
             pageData.value.data.sendEmailData.reportHour = parseInt(pageData.value.time.split(':')[0])
             pageData.value.data.sendEmailData.reportMin = parseInt(pageData.value.time.split(':')[1])
-            console.log('pageData.value', pageData.value)
         }
         // 原代码中显示了地址后无法隐藏，这里改为再次点击隐藏
         const handleRowClick = (row: { address: string; schedule: string; rowClicked: boolean }) => {
@@ -160,7 +159,6 @@ export default defineComponent({
                 (props.emailData.sendEmailData.reportMin > 10 ? props.emailData.sendEmailData.reportMin : '0' + props.emailData.sendEmailData.reportMin)
             pageData.value.scheduleList = props.scheduleList
             formData.value.schedule = pageData.value.scheduleList[0].value
-            console.log('pageData.value', pageData.value)
         }
         /**
          * @description 关闭弹窗

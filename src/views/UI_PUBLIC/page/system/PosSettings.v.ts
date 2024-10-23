@@ -3,7 +3,7 @@
  * @Date: 2024-07-02 09:08:32
  * @Description: POS配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 17:20:35
+ * @LastEditTime: 2024-10-21 17:36:24
  */
 import { cloneDeep } from 'lodash-es'
 import type { SystemPosList, SystemPosListChls, SystemPostColorData, SystemPosConnectionForm, SystemPosDisplaySetting } from '@/types/apiType/system'
@@ -450,7 +450,7 @@ export default defineComponent({
          */
         const confirmSetConnection = (e: SystemPosConnectionForm) => {
             tableData.value[pageData.value.connectionDialogIndex].connectionSetting.posIp = e.ip
-            tableData.value[pageData.value.connectionDialogIndex].connectionSetting.posPort = e.port
+            tableData.value[pageData.value.connectionDialogIndex].connectionSetting.posPort = e.port ? e.port : 0
             tableData.value[pageData.value.connectionDialogIndex].connectionSetting.filterPostPortSwitch = e.switch
             pageData.value.isConnectionDialog = false
         }

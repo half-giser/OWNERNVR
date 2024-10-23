@@ -18,7 +18,7 @@
                 ref="formRef"
                 :model="formData"
                 :rules="rules"
-                label-width="150px"
+                label-width="150"
                 label-position="left"
             >
                 <el-form-item

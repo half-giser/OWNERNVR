@@ -270,7 +270,6 @@ export default defineComponent({
                                 name: name,
                                 accessType: accessType,
                             })
-                            // console.log('pageData.value.onlineChannelList', pageData.value.onlineChannelList)
                             pageData.value.chlCaps[id] = {
                                 id: id,
                                 ip: ip,
@@ -336,7 +335,6 @@ export default defineComponent({
         const handleChangeChannel = async () => {
             pageData.value.chlData = pageData.value.chlCaps[pageData.value.currChlId]
             pageData.value.tabKey += 1
-            console.log('pageData.value.chlData', pageData.value.chlData)
             initPageData()
         }
         // 大tab点击事件,切换功能 Tripwire/Pea

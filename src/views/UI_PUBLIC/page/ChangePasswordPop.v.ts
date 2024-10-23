@@ -151,12 +151,14 @@ export default defineComponent({
                         ElMessage({
                             type: 'info',
                             message: Translate('IDCS_PASSWORD_NOT_CORRENT'),
+                            grouping: true,
                         })
                         break
                     case ErrorCode.USER_ERROR_NO_AUTH:
                         ElMessage({
                             type: 'info',
                             message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_NO_PERMISSION'),
+                            grouping: true,
                         })
                         break
                     case ErrorCode.USER_ERROR_NO_USER:
@@ -171,6 +173,7 @@ export default defineComponent({
                         ElMessage({
                             type: 'info',
                             message: Translate('IDCS_SAVE_DATA_FAIL'),
+                            grouping: true,
                         })
                         break
                 }

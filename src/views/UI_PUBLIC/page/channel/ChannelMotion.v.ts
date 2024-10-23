@@ -17,7 +17,6 @@ export default defineComponent({
         const userSessionStore = useUserSessionStore()
         const router = useRouter()
         const osType = getSystemInfo().platform
-        const { name: uiName } = getUiAndTheme()
 
         const playerRef = ref<PlayerInstance>()
         const formData = ref(new ChannelMotion())
@@ -30,17 +29,20 @@ export default defineComponent({
         const selectedChlId = ref('')
         const showNote = ref(false)
         const editRows = new Set<ChannelMotion>()
-        let motionDrawer: CanvasMotion | undefined = undefined
+        const switchOptions = DEFAULT_SWITCH_OPTIONS.map((item) => {
+            return {
+                value: item.value.toBoolean(),
+                label: Translate(item.label),
+            }
+        })
+        let motionDrawer: CanvasMotion
         let motionDectionStatusTimer: NodeJS.Timeout | number = 0
         const refreshInterval = 3000
         let firstLoadNoOnvifData = false
         let returnDataCount = 0
         let motionAlarmList: string[] = []
 
-        const tSeconds = ' ' + Translate('IDCS_SECONDS')
-        const tMinite = ' ' + Translate('IDCS_MINUTE')
-        const tMinites = ' ' + Translate('IDCS_MINUTES')
-        const holdTimeList = ref<Record<string, string>[]>([])
+        const holdTimeList = ref<string[]>([])
 
         const handleSizeChange = (val: number) => {
             pageSize.value = val
@@ -90,7 +92,7 @@ export default defineComponent({
         const handleChangeAll = (type: 'switch' | 'holdTime', val: boolean | string) => {
             tableData.value.forEach((ele) => {
                 if (!ele.disabled) {
-                    if (type == 'switch') {
+                    if (type === 'switch') {
                         ele.switch = val as boolean
                     } else {
                         ele.holdTime = val as string
@@ -102,7 +104,7 @@ export default defineComponent({
         }
 
         const getRowById = (chlId: string) => {
-            return tableData.value.find((element) => element.id == chlId) as ChannelMotion
+            return tableData.value.find((element) => element.id === chlId)!
         }
 
         const getData = (rowData: ChannelMotion) => {
@@ -112,28 +114,22 @@ export default defineComponent({
                 </condition>
                 <requireField>
                     <param/>
-                </requireField>`
+                </requireField>
+            `
             queryMotion(sendXml).then((res) => {
                 const $ = queryXml(res)
                 returnDataCount++
                 rowData.isOnvifChl = !($('content/chl/param/holdTimeNote').length > 0)
                 if (!firstLoadNoOnvifData && !rowData.isOnvifChl) {
-                    holdTimeList.value = [
-                        { value: '5', text: 5 + tSeconds },
-                        { value: '10', text: 10 + tSeconds },
-                        { value: '20', text: 20 + tSeconds },
-                        { value: '30', text: 30 + tSeconds },
-                        { value: '60', text: 1 + tMinite },
-                        { value: '120', text: 2 + tMinites },
-                    ]
+                    holdTimeList.value = ['5', '10', '20', '30', '60', '120']
                     firstLoadNoOnvifData = true
                 }
-                if ($('status').text() == 'success') {
+                if ($('status').text() === 'success') {
                     const areaInfo: string[] = []
                     $('content/chl/param/area/item').forEach((ele) => {
                         areaInfo.push(trim(ele.text()))
                     })
-                    let holdTimeArr: string[] = $('content/chl/param/holdTimeNote').text().split(',')
+                    let holdTimeArr = $('content/chl/param/holdTimeNote').text().split(',')
                     const holdTime = $('content/chl/param/holdTime').text()
                     // 如果当前的持续时间holdTime不在持续时间列表holdTimeArr中，则添加到持续时间列表中
                     if (!holdTimeArr.includes(holdTime)) {
@@ -142,12 +138,7 @@ export default defineComponent({
                             return Number(a) - Number(b)
                         })
                     }
-                    holdTimeArr.forEach((ele) => {
-                        rowData.holdTimeList.push({
-                            value: ele,
-                            text: ele == '60' ? '1 ' + tMinite : Number(ele) > 60 ? Number(ele) / 60 + ' ' + tMinites : ele + ' ' + tSeconds,
-                        })
-                    })
+                    rowData.holdTimeList = holdTimeArr
                     rowData.switch = $('content/chl/param/switch').text().toBoolean()
                     rowData.sensitivity = Number($('content/chl/param/sensitivity').text())
                     rowData.holdTime = $('content/chl/param/holdTime').text()
@@ -164,7 +155,7 @@ export default defineComponent({
                     if ($('content/chl/param/objectFilter/car').length) rowData.objectFilterCar = $('content/chl/param/objectFilter/car/switch').text().toBoolean()
                     if ($('content/chl/param/objectFilter/person').length) rowData.objectFilterPerson = $('content/chl/param/objectFilter/person/switch').text().toBoolean()
                     let max = $('content/chl/param/sensitivity').length ? Number($('content/chl/param/sensitivity').attr('max')) : NaN
-                    if (uiName == 'UI1-F' && max == 100) max = 120
+                    if (import.meta.env.VITE_UI_TYPE === 'UI1-F' && max === 100) max = 120
                     rowData.sensitivityMaxValue = max
                     rowData.column = Number($('content/chl/param/area/itemType').attr('maxLen'))
                     rowData.row = Number($('content/chl/param/area').attr('count'))
@@ -186,11 +177,11 @@ export default defineComponent({
             }).then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
-                    tableData.value = []
+                if ($('status').text() === 'success') {
+                    editRows.clear()
                     selectedChlId.value = ''
                     firstLoadNoOnvifData = false
-                    $('content/item').forEach((ele) => {
+                    tableData.value = $('content/item').map((ele) => {
                         const eleXml = queryXml(ele.element)
                         const newData = new ChannelMotion()
                         newData.id = ele.attr('id')!
@@ -199,7 +190,7 @@ export default defineComponent({
                         newData.chlType = eleXml('chlType').text()
                         newData.status = 'loading'
                         newData.supportSMD = eleXml('supportSMD').text().toBoolean()
-                        tableData.value.push(newData)
+                        return newData
                     })
                     pageTotal.value = Number($('content').attr('total'))
                     returnDataCount = 0
@@ -215,7 +206,7 @@ export default defineComponent({
                             }
                         })
                     }
-                    if (uiName != 'UI2-A') {
+                    if (import.meta.env.VITE_UI_TYPE !== 'UI2-A') {
                         getAlarmStatus()
                     }
                 }
@@ -226,10 +217,9 @@ export default defineComponent({
             if (selectedChlId.value) {
                 queryAlarmStatus().then((res) => {
                     const $ = queryXml(res)
-                    if ($('status').text() == 'success') {
-                        motionAlarmList = []
-                        $('content/motions/item').forEach((ele) => {
-                            motionAlarmList.push(queryXml(ele.element)('sourceChl').attr('id'))
+                    if ($('status').text() === 'success') {
+                        motionAlarmList = $('content/motions/item').map((ele) => {
+                            return queryXml(ele.element)('sourceChl').attr('id')!
                         })
                         showNote.value = motionAlarmList.includes(selectedChlId.value)
                         motionDectionStatusTimer = setTimeout(getAlarmStatus, refreshInterval)
@@ -238,63 +228,60 @@ export default defineComponent({
             }
         }
 
-        const getSaveData = (rowData: ChannelMotion): string => {
-            let data = rawXml`
+        const getSaveData = (rowData: ChannelMotion) => {
+            let objectFilter = ''
+            if (rowData.supportSMD) {
+                objectFilter = rawXml`
+                    <objectFilter>
+                        ${ternary(rowData.objectFilterCar, `<car><switch>${rowData.objectFilterCar}</switch></car>`)}
+                        ${ternary(rowData.objectFilterPerson, `<person><switch>${rowData.objectFilterPerson}</switch></person>`)}
+                    </objectFilter>
+                `
+            }
+            return rawXml`
                 <content>
                     <chl id='${rowData.id}'>
                         <param>
-                            <switch>${rowData.switch.toString()}</switch>`
-            if (rowData.supportSMD) {
-                data += '<objectFilter>'
-                if (rowData.objectFilterCar !== undefined) data += `<car><switch>${rowData.objectFilterCar}</switch></car>`
-                if (rowData.objectFilterPerson !== undefined) data += `<person><switch>${rowData.objectFilterPerson}</switch></person>`
-                data += '</objectFilter>'
-            }
-            data += rawXml`
-                <sensitivity min='${rowData.sensitivityMinValue.toString()}' max='${rowData.sensitivityMaxValue.toString()}'>${rowData.sensitivity.toString()}</sensitivity>
-                <holdTime unit='s'>${rowData.holdTime}</holdTime>
-                <area type='list' count='${rowData.row.toString()}'>
-                    <itemType minLen='${rowData.column.toString()}' maxLen='${rowData.column.toString()}'/>`
-            rowData.areaInfo.forEach((ele) => {
-                data += `<item>${ele}</item>`
-            })
-            data += rawXml`
+                            <switch>${rowData.switch.toString()}</switch>
+                            <sensitivity min='${rowData.sensitivityMinValue.toString()}' max='${rowData.sensitivityMaxValue.toString()}'>${rowData.sensitivity.toString()}</sensitivity>
+                            <holdTime unit='s'>${rowData.holdTime}</holdTime>
+                            ${objectFilter}
+                            <area type='list' count='${rowData.row.toString()}'>
+                                <itemType minLen='${rowData.column.toString()}' maxLen='${rowData.column.toString()}'/>
+                                ${rowData.areaInfo.map((ele) => `<item>${ele}</item>`).join('')}
                             </area>
                         </param>
                     </chl>
-                </content>`
-            return data
+                </content>
+
+            `
         }
 
-        const save = () => {
-            const total = editRows.size
-            if (total == 0) return
-            let count = 0
-            const successRows: ChannelMotion[] = []
+        const save = async () => {
+            if (!editRows.size) return
+
             openLoading()
+
             tableData.value.forEach((ele) => (ele.status = ''))
-            editRows.forEach((ele) => {
-                editMotion(getSaveData(ele)).then((res) => {
+            for (let i = 0; i < tableData.value.length; i++) {
+                const ele = tableData.value[i]
+                if (editRows.has(ele)) {
+                    const res = await editMotion(getSaveData(ele))
                     const $ = queryXml(res)
-                    const success = $('status').text() == 'success'
+                    const success = $('status').text() === 'success'
                     if (success) {
                         ele.status = 'success'
-                        successRows.push(ele)
+                        editRows.delete(ele)
                     } else {
                         const errorCode = Number($('errorCode').text())
                         ele.status = 'error'
                         ele.statusTip = errorCode === ErrorCode.USER_ERROR_NO_AUTH ? Translate('IDCS_NO_PERMISSION') : ''
                     }
-                    count++
-                    if (count >= total) {
-                        successRows.forEach((element) => {
-                            editRows.delete(element)
-                        })
-                        if (!editRows.size) btnOKDisabled.value = true
-                        closeLoading()
-                    }
-                })
-            })
+                }
+            }
+
+            btnOKDisabled.value = true
+            closeLoading()
         }
 
         const LiveNotify2Js = ($: (path: string) => XmlResult) => {
@@ -388,7 +375,7 @@ export default defineComponent({
                 })
             } else {
                 plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
-                const sendXML = OCX_XML_SetPluginModel(osType == 'mac' ? 'MotionConfig' : 'ReadOnly', 'Live')
+                const sendXML = OCX_XML_SetPluginModel(osType === 'mac' ? 'MotionConfig' : 'ReadOnly', 'Live')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
         }
@@ -406,7 +393,7 @@ export default defineComponent({
                     streamType: 2,
                 })
             } else {
-                if (osType == 'mac') {
+                if (osType === 'mac') {
                 } else {
                     plugin.RetryStartChlView(rowData.id, rowData.name)
                 }
@@ -451,10 +438,9 @@ export default defineComponent({
                     plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 } else {
                     motionDrawer?.destroy()
-                    motionDrawer = undefined
                 }
             }
-            if (motionDectionStatusTimer) clearTimeout(motionDectionStatusTimer)
+            clearTimeout(motionDectionStatusTimer)
         })
 
         return {
@@ -483,6 +469,8 @@ export default defineComponent({
             handleSelAll,
             handleSelReverse,
             handleClear,
+            getTranslateForSecond,
+            switchOptions,
         }
     },
 })

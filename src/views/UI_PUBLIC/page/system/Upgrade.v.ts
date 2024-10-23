@@ -101,13 +101,13 @@ export default defineComponent({
             // 升级进度/备份进度
             if ($("/statenotify[@type='FileNetTransportProgress']").length) {
                 const progress = $("/statenotify[@type='FileNetTransportProgress']/progress").text()
-                closeAllLoading()
                 pageData.value.isCheckAuth = false
                 if ($("/statenotify[@type='FileNetTransportProgress']/action").text() == 'Export') {
                     if (progress == '100%' && clickFlag) {
                         upgrade()
                         clickFlag = false
                     }
+                    closeAllLoading()
                 } else {
                     if (progress == '100%') {
                         pageData.value.upgradeNote = TRANS_MAPPING['uploadReboot']
@@ -115,6 +115,7 @@ export default defineComponent({
                         //发送升级指令，但不一定会收到应答，需要延时检测重启
                         uploadTimer = reconnect()
                     } else {
+                        closeAllLoading()
                         pageData.value.upgradeNote = TRANS_MAPPING['uploading'] + '&nbsp;&nbsp;' + progress
                     }
                 }
@@ -358,13 +359,14 @@ export default defineComponent({
                     file: file,
                     config: obj,
                     progress: (step) => {
-                        closeLoading()
                         pageData.value.isCheckAuth = false
                         pageData.value.upgradeNote = `${TRANS_MAPPING['uploading']}&nbsp;&nbsp;${step}%`
                         if (step === 100) {
                             pageData.value.upgradeNote = TRANS_MAPPING['uploadReboot']
                             openLoading(LoadingTarget.FullScreen, TRANS_MAPPING['uploadReboot'])
                             uploadTimer = reconnect()
+                        } else {
+                            closeLoading()
                         }
                     },
                     success: () => {
@@ -453,7 +455,7 @@ export default defineComponent({
                         Logout()
                     })
                     break
-                // TODO 原项目中 536871017 这个errorcode出现了两次，此处不会执行到
+                // 原项目中 536871017 这个errorcode出现了两次，此处不会执行到
                 // case ErrorCode.USER_ERROR_NO_PARENT_AREA_AUTH:
                 //     // 校验升级包是低版本
                 //     openMessageTipBox({

@@ -3,7 +3,7 @@
  * @Date: 2024-08-06 20:38:08
  * @Description: 回放-底部控制视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 15:35:30
+ * @LastEditTime: 2024-10-22 17:31:33
  */
 import { type LiveSharedWinData } from '@/types/apiType/live'
 
@@ -374,7 +374,11 @@ export default defineComponent({
                 return
             }
             if (backUpDisabled.value) {
-                ElMessage.info(Translate('IDCS_SELECT_BACKUP_START_END_TIME'))
+                ElMessage({
+                    type: 'info',
+                    message: Translate('IDCS_SELECT_BACKUP_START_END_TIME'),
+                    grouping: true,
+                })
                 return
             }
             ctx.emit('backUp')

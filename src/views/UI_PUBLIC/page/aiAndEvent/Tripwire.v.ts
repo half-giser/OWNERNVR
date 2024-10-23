@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 11:16:22
  * @Description: 周界防范/人车检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-18 15:12:04
+ * @LastEditTime: 2024-10-21 16:47:38
  */
 import { type chlCaps, type aiResourceRow, type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
@@ -49,7 +49,7 @@ export default defineComponent({
         const aiResourceTableData = ref<aiResourceRow[]>([])
         const tripwireplayerRef = ref<PlayerInstance>()
         let tripwireDrawer: CanvasPassline
-        const tripwireData: { [key: string]: any } = ref({
+        const tripwireData = ref({
             // 当前选中的通道
             currChlId: '',
             // 当前选择通道数据
@@ -438,7 +438,7 @@ export default defineComponent({
                             switch: $item('sysRec/switch').text() == 'true',
                             chls: $item('sysRec/chls/item').map((item) => {
                                 return {
-                                    value: item.attr('id'),
+                                    value: item.attr('id')!,
                                     label: item.text(),
                                 }
                             }),
@@ -448,7 +448,7 @@ export default defineComponent({
                             switch: $item('alarmOut/switch').text() == 'true',
                             chls: $item('alarmOut/alarmOuts/item').map((item) => {
                                 return {
-                                    value: item.attr('id'),
+                                    value: item.attr('id')!,
                                     label: item.text(),
                                 }
                             }),
@@ -573,7 +573,7 @@ export default defineComponent({
                             switch: $item('sysRec/switch').text() == 'true',
                             chls: $item('sysRec/chls/item').map((item) => {
                                 return {
-                                    value: item.attr('id'),
+                                    value: item.attr('id')!,
                                     label: item.text(),
                                 }
                             }),
@@ -583,7 +583,7 @@ export default defineComponent({
                             switch: $item('alarmOut/switch').text() == 'true',
                             chls: $item('alarmOut/alarmOuts/item').map((item) => {
                                 return {
-                                    value: item.attr('id'),
+                                    value: item.attr('id')!,
                                     label: item.text(),
                                 }
                             }),
@@ -845,7 +845,7 @@ export default defineComponent({
                         name = $item('devDesc').text() + '-' + name
                     }
                     tripwireData.value.alarmOutSource.push({
-                        value: item.attr('id'),
+                        value: item.attr('id')!,
                         label: name,
                         device: {
                             value: $item('device').attr('id'),
@@ -1103,6 +1103,7 @@ export default defineComponent({
                     item.value = true
                     const property = item.property
                     if (property in tripwireData.value) {
+                        // @ts-expect-error
                         tripwireData.value[property] = true
                     }
                 })
@@ -1111,6 +1112,7 @@ export default defineComponent({
                     item.value = false
                     const property = item.property
                     if (property in tripwireData.value) {
+                        //@ts-expect-error
                         tripwireData.value[property] = false
                     }
                 })
@@ -1121,6 +1123,7 @@ export default defineComponent({
             tripwireData.value.applyDisable = false
             const property = item.property
             if (property in tripwireData.value) {
+                //@ts-expect-error
                 tripwireData.value[property] = item.value
             }
             const triggerSwitch = tripwireTriggerData.value.every((item) => item.value)

@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 顶层布局页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-12 14:46:10
+ * @LastEditTime: 2024-10-21 15:28:25
  */
 
 import { type RouteLocationMatched } from 'vue-router'
@@ -92,17 +92,13 @@ export default defineComponent({
             Logout()
         }
 
-        let CustomerID = Infinity
-        const showProductModelList = [5]
-
         const showProductModel = async (cbk?: () => void) => {
             const result = await queryBasicCfg()
             const $ = queryXml(result)
             if ($('//status').text() === 'success') {
                 if (import.meta.env.VITE_APP_TYPE === 'P2P' && judgeCurrUI(result)) return
-                CustomerID = Number($('//content/CustomerID').text())
                 cbk && cbk()
-                if (!showProductModelList.includes(CustomerID)) {
+                if (![5].includes(systemCaps.CustomerID)) {
                     return
                 }
                 pageData.value.logoProductModel = $('//content/productModel').text()
@@ -158,7 +154,7 @@ export default defineComponent({
                 // 相关问题单：NVRF-112
                 // IL03客户ID：12
                 // INW48客户ID：100
-                if (CustomerID === 12 || CustomerID === 100) {
+                if (systemCaps.CustomerID === 12 || systemCaps.CustomerID === 100) {
                     forceModifyPassword()
                 } else {
                     // 当前登录密码强度

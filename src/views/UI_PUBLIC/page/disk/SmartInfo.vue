@@ -10,7 +10,7 @@
         <el-form
             class="form narrow"
             inline-message
-            label-width="250px"
+            label-width="250"
             label-position="left"
             :style="{
                 '--form-input-width': '340px',

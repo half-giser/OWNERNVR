@@ -3,7 +3,7 @@
  * @Date: 2024-06-20 15:59:30
  * @Description: 恢复出厂设置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:28:01
+ * @LastEditTime: 2024-10-22 19:51:01
  */
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import { SystemFactoryDefaultForm } from '@/types/apiType/system'
@@ -58,13 +58,13 @@ export default defineComponent({
             const result = await restoreDefaults(sendXml)
             const $ = queryXml(result)
 
-            closeLoading()
-
             if ($('//status').text() === 'success') {
                 pageData.value.isAuthDialog = false
                 openLoading(LoadingTarget.FullScreen, Translate('IDCS_REBOOTING'))
                 timer = reconnect()
             } else {
+                closeLoading()
+
                 const errorCode = Number($('//errorCode').text())
                 let errorInfo = ''
                 switch (errorCode) {

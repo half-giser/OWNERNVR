@@ -3,7 +3,7 @@
  * @Date: 2024-05-27 09:38:17
  * @Description: 业务应用-停车场管理-车位管理
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-10 14:18:51
+ * @LastEditTime: 2024-10-21 17:48:00
 -->
 <template>
     <div class="base-flex-box manage">
@@ -49,11 +49,10 @@
                     :label="Translate('IDCS_TOTAL_VEHICLE_NUM')"
                 >
                     <template #default="scope">
-                        <el-input-number
+                        <BaseNumberInput
                             v-model="scope.row.groupTotalNum"
                             :min="1"
                             :max="10000"
-                            :controls="false"
                             value-on-clear="min"
                             :disabled="scope.row.parkingType !== 'usingGroup'"
                             size="small"
@@ -65,11 +64,10 @@
                     :label="Translate('IDCS_REMAIN_VEHICLE_NUM')"
                 >
                     <template #default="scope">
-                        <el-input-number
+                        <BaseNumberInput
                             v-model="scope.row.groupRemainNum"
                             :min="0"
                             :max="10000"
-                            :controls="false"
                             value-on-clear="min"
                             :disabled="scope.row.parkingType !== 'usingGroup'"
                             size="small"
@@ -127,7 +125,7 @@
             class="base-btn-box padding"
             :span="2"
         >
-            <div>{{ Translate('IDCS_VEHICLE_NUM_TIPS') }}</div>
+            <div class="tips">{{ Translate('IDCS_VEHICLE_NUM_TIPS') }}</div>
             <div>
                 <el-button
                     :disabled="pageData.btnDisabled"
@@ -150,5 +148,9 @@
 .manage {
     width: 100%;
     height: calc(var(--content-height) + 10px);
+}
+.tips {
+    font-size: 14px;
+    color: var(--main-text-light);
 }
 </style>

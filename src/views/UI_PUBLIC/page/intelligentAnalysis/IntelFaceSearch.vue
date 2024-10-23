@@ -3,7 +3,7 @@
  * @Date: 2024-08-29 09:54:18
  * @Description: 智能分析-人脸搜索
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-19 16:50:39
+ * @LastEditTime: 2024-10-21 17:40:51
 -->
 <template>
     <div class="base-intel-box">
@@ -140,11 +140,11 @@
                             v-show="pageData.searchType === 'face'"
                             :label="Translate('IDCS_SIMILARITY')"
                         >
-                            <el-input-number
+                            <BaseNumberInput
                                 v-model="formData.similarity"
-                                :controls="false"
                                 :min="0"
                                 :max="100"
+                                value-on-clear="min"
                             />
                             <el-text>%</el-text>
                         </el-form-item>
@@ -315,7 +315,7 @@
                     />
                     <el-table-column
                         v-if="formData.searchType === 'face'"
-                        width="260px"
+                        width="260"
                     >
                         <template #default="scope">
                             <div

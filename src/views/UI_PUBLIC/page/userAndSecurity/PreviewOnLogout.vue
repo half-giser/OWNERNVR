@@ -19,7 +19,7 @@
                 <el-form
                     class="form stripe"
                     label-position="left"
-                    label-width="100px"
+                    label-width="100"
                     :class="{
                         '--form-input-width': '200px',
                     }"

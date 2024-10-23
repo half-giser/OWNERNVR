@@ -10,7 +10,6 @@ import { cloneDeep } from 'lodash-es'
 
 export default defineComponent({
     props: {
-        popVisiable: Boolean,
         editItem: {
             type: Object as PropType<ChlGroup>,
             required: true,
@@ -31,7 +30,6 @@ export default defineComponent({
         const tableData = ref<ChannelInfoDto[]>([])
         const baseLivePopRef = ref<LivePopInstance>()
         const selNum = ref(0)
-        const total = ref(0)
 
         const handleRowClick = (rowData: ChannelInfoDto) => {
             tableRef.value!.clearSelection()
@@ -83,7 +81,6 @@ export default defineComponent({
                         }
                     })
                     tableData.value = chlList
-                    total.value = chlList.length
                 }
             })
         }
@@ -101,7 +98,8 @@ export default defineComponent({
 
         const save = () => {
             if (!verification()) return
-            let data = rawXml`
+            const selection = tableRef.value!.getSelectionRows() as ChannelInfoDto[]
+            const sendXml = rawXml`
                 <types>
                     <actionType>
                         <enum>add</enum>
@@ -112,16 +110,13 @@ export default defineComponent({
                     <chlGroup>
                         <action type='actionType'>add</action>
                         <id>${tmpEditItem.id}</id>
-                        <chls type='list'>`
-            tableRef.value!.getSelectionRows().forEach((ele: ChannelInfoDto) => {
-                data += `<item id='${ele.id}'></item>`
-            })
-            data += rawXml`
+                        <chls type='list'>
+                            ${selection.map((ele) => `<item id='${ele.id}'></item>`).join('')}
                         </chls>
                     </chlGroup>
                 </content>`
             openLoading()
-            editSetAndElementRelation(data).then((res) => {
+            editSetAndElementRelation(sendXml).then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
@@ -154,7 +149,6 @@ export default defineComponent({
             tableRef,
             tableData,
             selNum,
-            total,
             baseLivePopRef,
             opened,
             handleRowClick,

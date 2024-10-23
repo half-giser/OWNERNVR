@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 18:39:25
  * @Description: 通道 - OSD配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 18:47:38
+ * @LastEditTime: 2024-10-22 16:41:40
 -->
 <template>
     <div class="base-chl-box">
@@ -67,13 +67,13 @@
                     prop="dateFormat"
                     :label="Translate('IDCS_DATE_FORMAT')"
                 >
-                    <span>{{ formData.supportDateFormat ? dateFormatTip[formData.dateFormat] : '--' }}</span>
+                    {{ formData.supportDateFormat ? dateFormatTip[formData.dateFormat] : '--' }}
                 </el-form-item>
                 <el-form-item
                     prop="timeFormat"
                     :label="Translate('IDCS_TIME_FORMAT')"
                 >
-                    <span>{{ formData.supportTimeFormat ? timeFormatTip[formData.timeFormat] : '--' }}</span>
+                    {{ formData.supportTimeFormat ? timeFormatTip[formData.timeFormat] : '--' }}
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_WATER_MARK')">
                     <el-select
@@ -83,12 +83,10 @@
                         @change="handleChangeSwitch(formData.remarkSwitch, formData.id, 'remarkSwitch')"
                     >
                         <el-option
-                            :value="true"
-                            :label="Translate('IDCS_ON')"
-                        />
-                        <el-option
-                            :value="false"
-                            :label="Translate('IDCS_OFF')"
+                            v-for="item in switchOptions"
+                            :key="item.label"
+                            :value="item.value"
+                            :label="item.label"
                         />
                     </el-select>
                 </el-form-item>
@@ -120,8 +118,7 @@
                 >
                     <el-table-column
                         label=" "
-                        width="50px"
-                        class-name="custom_cell"
+                        width="50"
                     >
                         <template #default="scope">
                             <BaseTableRowStatus
@@ -132,7 +129,7 @@
                     </el-table-column>
                     <el-table-column
                         :label="Translate('IDCS_CHANNEL_NAME')"
-                        min-width="120px"
+                        min-width="120"
                     >
                         <template #default="scope">
                             <el-input
@@ -149,15 +146,20 @@
                     </el-table-column>
                     <el-table-column
                         :label="`${Translate('IDCS_NAME')}OSD`"
-                        min-width="120px"
+                        min-width="120"
                     >
                         <template #header>
                             <el-dropdown trigger="click">
                                 <BaseTableDropdownLink> {{ Translate('IDCS_NAME') }}OSD </BaseTableDropdownLink>
                                 <template #dropdown>
                                     <el-dropdown-menu>
-                                        <el-dropdown-item @click="changeSwitchAll(true, 'displayName')">{{ Translate('IDCS_ON') }}</el-dropdown-item>
-                                        <el-dropdown-item @click="changeSwitchAll(false, 'displayName')">{{ Translate('IDCS_OFF') }}</el-dropdown-item>
+                                        <el-dropdown-item
+                                            v-for="item in switchOptions"
+                                            :key="item.label"
+                                            @click="changeSwitchAll(item.value, 'displayName')"
+                                        >
+                                            {{ item.label }}
+                                        </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
                             </el-dropdown>
@@ -173,27 +175,30 @@
                                 @change="handleChangeSwitch(scope.row.displayName, scope.row.id, 'displayName')"
                             >
                                 <el-option
-                                    :value="true"
-                                    :label="Translate('IDCS_ON')"
-                                />
-                                <el-option
-                                    :value="false"
-                                    :label="Translate('IDCS_OFF')"
+                                    v-for="item in switchOptions"
+                                    :key="item.label"
+                                    :value="item.value"
+                                    :label="item.label"
                                 />
                             </el-select>
                         </template>
                     </el-table-column>
                     <el-table-column
                         :label="`${Translate('IDCS_TIME')}OSD`"
-                        min-width="120px"
+                        min-width="120"
                     >
                         <template #header>
                             <el-dropdown trigger="click">
                                 <BaseTableDropdownLink> {{ Translate('IDCS_TIME') }}OSD </BaseTableDropdownLink>
                                 <template #dropdown>
                                     <el-dropdown-menu>
-                                        <el-dropdown-item @click="changeSwitchAll(true, 'displayTime')">{{ Translate('IDCS_ON') }}</el-dropdown-item>
-                                        <el-dropdown-item @click="changeSwitchAll(false, 'displayTime')">{{ Translate('IDCS_OFF') }}</el-dropdown-item>
+                                        <el-dropdown-item
+                                            v-for="item in switchOptions"
+                                            :key="item.label"
+                                            @click="changeSwitchAll(item.value, 'displayTime')"
+                                        >
+                                            {{ item.label }}
+                                        </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
                             </el-dropdown>
@@ -209,19 +214,17 @@
                                 @change="handleChangeSwitch(scope.row.displayTime, scope.row.id, 'displayTime')"
                             >
                                 <el-option
-                                    :value="true"
-                                    :label="Translate('IDCS_ON')"
-                                />
-                                <el-option
-                                    :value="false"
-                                    :label="Translate('IDCS_OFF')"
+                                    v-for="item in switchOptions"
+                                    :key="item.label"
+                                    :value="item.value"
+                                    :label="item.label"
                                 />
                             </el-select>
                         </template>
                     </el-table-column>
                     <el-table-column
                         :label="Translate('IDCS_DATE_FORMAT')"
-                        min-width="120px"
+                        min-width="120"
                     >
                         <template #header>
                             <el-dropdown trigger="click">
@@ -241,12 +244,12 @@
                             </el-dropdown>
                         </template>
                         <template #default="scope">
-                            <span>{{ scope.row.supportDateFormat ? dateFormatTip[scope.row.dateFormat] : '--' }}</span>
+                            {{ scope.row.supportDateFormat ? dateFormatTip[scope.row.dateFormat] : '--' }}
                         </template>
                     </el-table-column>
                     <el-table-column
                         :label="Translate('IDCS_TIME_FORMAT')"
-                        min-width="120px"
+                        min-width="120"
                     >
                         <template #header>
                             <el-dropdown trigger="click">
@@ -266,17 +269,17 @@
                             </el-dropdown>
                         </template>
                         <template #default="scope">
-                            <span>{{ scope.row.supportTimeFormat ? timeFormatTip[scope.row.timeFormat] : '--' }}</span>
+                            {{ scope.row.supportTimeFormat ? timeFormatTip[scope.row.timeFormat] : '--' }}
                         </template>
                     </el-table-column>
                     <el-table-column
                         prop="ip"
                         :label="Translate('IDCS_ADDRESS')"
-                        min-width="140px"
+                        min-width="140"
                     />
                     <el-table-column
                         :label="Translate('IDCS_WATER_MARK')"
-                        min-width="120px"
+                        min-width="120"
                     >
                         <template #header>
                             <el-dropdown trigger="click">
@@ -285,8 +288,13 @@
                                 </BaseTableDropdownLink>
                                 <template #dropdown>
                                     <el-dropdown-menu>
-                                        <el-dropdown-item @click="changeSwitchAll(true, 'remarkSwitch')">{{ Translate('IDCS_ON') }}</el-dropdown-item>
-                                        <el-dropdown-item @click="changeSwitchAll(false, 'remarkSwitch')">{{ Translate('IDCS_OFF') }}</el-dropdown-item>
+                                        <el-dropdown-item
+                                            v-for="item in switchOptions"
+                                            :key="item.label"
+                                            @click="changeSwitchAll(item.value, 'remarkSwitch')"
+                                        >
+                                            {{ item.label }}
+                                        </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
                             </el-dropdown>
@@ -301,19 +309,17 @@
                                 @change="handleChangeSwitch(scope.row.remarkSwitch, scope.row.id, 'remarkSwitch')"
                             >
                                 <el-option
-                                    :value="true"
-                                    :label="Translate('IDCS_ON')"
-                                />
-                                <el-option
-                                    :value="false"
-                                    :label="Translate('IDCS_OFF')"
+                                    v-for="item in switchOptions"
+                                    :key="item.label"
+                                    :value="item.value"
+                                    :label="item.label"
                                 />
                             </el-select>
                         </template>
                     </el-table-column>
                     <el-table-column
                         :label="Translate('IDCS_WATER_MARK_CHAR')"
-                        min-width="200px"
+                        min-width="200"
                     >
                         <template #default="scope">
                             <el-input

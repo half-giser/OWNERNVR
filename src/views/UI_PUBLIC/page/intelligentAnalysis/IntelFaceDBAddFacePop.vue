@@ -3,7 +3,7 @@
  * @Date: 2024-08-30 09:26:01
  * @Description: 人脸库 - 添加人脸
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 11:13:11
+ * @LastEditTime: 2024-10-22 18:56:45
 -->
 <template>
     <el-dialog
@@ -68,7 +68,7 @@
                         />
                     </el-form-item>
                     <el-form-item :label="Translate('IDCS_PHONE_NUMBER')">
-                        <el-input-number
+                        <BaseNumberInput
                             v-model="formData[pageData.formIndex].mobile"
                             :min="1"
                             :max="999999999999999"
@@ -79,7 +79,7 @@
                 </el-form-item>
                 <el-form-item>
                     <el-form-item :label="Translate('IDCS_NUMBER')">
-                        <el-input-number
+                        <BaseNumberInput
                             v-model="formData[pageData.formIndex].number"
                             :min="1"
                             :max="999999999999999"

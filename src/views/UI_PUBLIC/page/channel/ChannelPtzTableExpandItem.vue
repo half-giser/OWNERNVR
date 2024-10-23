@@ -3,7 +3,7 @@
  * @Date: 2024-08-22 09:23:51
  * @Description: 云台 表格展开通用列表项
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-27 09:12:47
+ * @LastEditTime: 2024-10-22 15:31:29
 -->
 <template>
     <div class="expand-item">
@@ -11,7 +11,7 @@
             v-if="file"
             :file="file"
         />
-        <span>{{ text }}</span>
+        <span class="text-ellipsis">{{ text }}</span>
         <BaseImgSprite
             file="delItem"
             class="expand-del"
@@ -24,13 +24,20 @@
 
 <style lang="scss" scoped>
 .expand-item {
+    display: flex;
     width: 200px;
     padding-bottom: 15px;
+    text-align: left;
+    align-items: center;
 
     &:hover {
         .expand-del {
             opacity: 1;
         }
+    }
+
+    .Icon {
+        flex-shrink: 0;
     }
 }
 

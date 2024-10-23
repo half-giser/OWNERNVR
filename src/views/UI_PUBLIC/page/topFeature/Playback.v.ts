@@ -392,7 +392,6 @@ export default defineComponent({
             plugin = playerRef.value!.plugin
 
             if (mode.value === 'h5') {
-                // TODO
             } else if (mode.value === 'ocx') {
                 //设置插件为回放交互模式
                 plugin.VideoPluginNotifyEmitter.addListener(notify)
@@ -608,7 +607,6 @@ export default defineComponent({
                         isEndRec: false,
                         volume: pageData.value.volume,
                         // callback: (winIndex: number) => {
-                        //     // TODO
                         //     console.log(winIndex)
                         // },
                     })
@@ -1614,7 +1612,6 @@ export default defineComponent({
                                         isEndRec: false,
                                         volume: pageData.value.volume,
                                         // callback: (winIndex: number) => {
-                                        //     // TODO
                                         //     console.log(winIndex)
                                         // },
                                     })

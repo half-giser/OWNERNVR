@@ -126,7 +126,7 @@ function routeSortFun(a: RouteRecordRaw, b: RouteRecordRaw): number {
  * @return {*}
  */
 // function setRouteAuth(_routes: RouteRecordRaw[]) {
-//     //TODO: 设置权限
+//     // 设置权限
 //     console.log(_routes)
 // }
 

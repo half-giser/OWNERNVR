@@ -215,7 +215,6 @@ export default defineComponent({
                             label: item.name,
                         }
                     })
-                    console.log('alarmOutList', pageData.value.alarmOutList)
                 })
             })
         }

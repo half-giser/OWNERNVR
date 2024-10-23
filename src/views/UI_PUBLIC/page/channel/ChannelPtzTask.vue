@@ -123,13 +123,13 @@
                                 border
                                 stripe
                                 show-overflow-tooltip
-                                height="300px"
+                                height="300"
                                 class="expand-table"
                             >
                                 <el-table-column
                                     :label="Translate('IDCS_SERIAL_NUMBER')"
                                     type="index"
-                                    width="60px"
+                                    width="60"
                                 >
                                 </el-table-column>
                                 <el-table-column

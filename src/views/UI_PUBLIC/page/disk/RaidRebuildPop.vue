@@ -17,7 +17,7 @@
             ref="formRef"
             :model="formData"
             :rules
-            label-width="150px"
+            label-width="150"
             label-position="left"
         >
             <el-form-item :label="Translate('IDCS_RAID_NAME')">

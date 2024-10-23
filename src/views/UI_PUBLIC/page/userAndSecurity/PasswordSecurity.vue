@@ -3,7 +3,7 @@
  * @Date: 2024-06-18 18:40:41
  * @Description: 密码安全
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 14:06:01
+ * @LastEditTime: 2024-10-22 19:53:49
 -->
 <template>
     <div>
@@ -11,7 +11,7 @@
             label-position="left"
             :model="formData"
             hide-required-asterisk
-            label-width="150px"
+            label-width="150"
             :style="{
                 '--form-input-width': '340px',
             }"

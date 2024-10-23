@@ -1,14 +1,24 @@
 /*
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-09 18:39:25
- * @Description: 添加通道 - 添加多通道IPC
+ * @Description: 添加通道 - 手动添加IPC通道(普通通道+热成像通道)
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 17:37:27
+ * @LastEditTime: 2024-10-22 15:05:39
  */
 import { ChannelInfoDto, type DefaultPwdDto, MultiChlCheckedInfoDto, type MultiChlIPCAddDto } from '@/types/apiType/channel'
 
+export interface channelAddMultiChlIPCAddPop {
+    init: (
+        rowDatas: Record<string, any>[],
+        _mapping: Record<string, DefaultPwdDto>,
+        _manufacturerMap: Record<string, string>,
+        _protocolList: Array<Record<string, string>>,
+        _callback: (sendXml: string) => void,
+    ) => void
+}
+
 export default defineComponent({
-    setup() {
+    setup(prop, ctx) {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
         const userSessionStore = useUserSessionStore()
@@ -26,7 +36,7 @@ export default defineComponent({
         let chlMapping: Record<string, DefaultPwdDto> = {}
         let manufacturerMap: Record<string, string> = {}
         let protocolList: Array<Record<string, string>> = []
-        let callback: Function
+        let callback: (sendXml: string) => void
         let numName = 1
         let RTSPData: MultiChlIPCAddDto[] = [] // RTSP通道类型数据
         let nonRTSPData: MultiChlIPCAddDto[] = [] //非RTSP通道类型数据（包含：热成像通道，鱼眼通道，...）
@@ -43,8 +53,10 @@ export default defineComponent({
             _mapping: Record<string, DefaultPwdDto>,
             _manufacturerMap: Record<string, string>,
             _protocolList: Array<Record<string, string>>,
-            _callback: Function,
+            _callback: (sendXml: string) => void,
         ) => {
+            multiChlIPCCfgDialogVisiable.value = true
+
             chlMapping = _mapping
             manufacturerMap = _manufacturerMap
             protocolList = _protocolList
@@ -66,7 +78,7 @@ export default defineComponent({
                     nonRTSPData.push(element)
                 }
             })
-            if (nonRTSPData.length == 0) {
+            if (!nonRTSPData) {
                 saveData() // 仅添加RTSP通道
                 return
             }
@@ -194,7 +206,8 @@ export default defineComponent({
                     <index/>
                     <chlType/>
                     <chlNum/>
-                </requireField>`
+                </requireField>
+            `
             queryDevList(data).then((res) => {
                 const $ = queryXml(res)
                 const rowData: ChannelInfoDto[] = []
@@ -223,13 +236,42 @@ export default defineComponent({
         }
 
         const saveData = () => {
-            let data = rawXml`
-                <types>
-                    <manufacturer>`
-            for (const key in manufacturerMap) {
-                data += `<enum displayName='${manufacturerMap[key]}'>${key}</enum>`
+            const listXml: string[] = [
+                RTSPData.map((ele) => getSaveData(ele, 'RTSP', '')),
+                normalChlData.map((ele) => getSaveData(ele, 'NON-RTSP', 'NORMAL')),
+                tableData.value
+                    .map((ele) => {
+                        let tmpSendXml = ''
+                        if (ele.type == 'THERMAL_DOUBLE') {
+                            const visibleLight = ele.multichannelCheckedInfoList[0]
+                            const thermal = ele.multichannelCheckedInfoList[1]
+                            if (visibleLight.checked && !visibleLight.disabled) {
+                                tmpSendXml += getSaveData(ele, 'NON-RTSP', 'NORMAL')
+                            }
+                            if (thermal.checked && !thermal.disabled) {
+                                tmpSendXml += getSaveData(ele, 'NON-RTSP', 'THERMAL')
+                            }
+                        }
+                        return tmpSendXml
+                    })
+                    .filter((ele) => !!ele),
+            ].flat()
+
+            if (!listXml.length) {
+                router.push('list')
+                return
             }
-            data += rawXml`
+
+            const manufacturer = Object.entries(manufacturerMap.value)
+                .map((item) => {
+                    return `<enum displayName='${item[1]}'>${item[0]}</enum>`
+                })
+                .join('')
+
+            const sendXml = rawXml`
+                <types>
+                    <manufacturer>
+                        ${manufacturer}
                     </manufacturer>
                     <protocolType>
                         <enum>TVT_IPCAMERA</enum>
@@ -240,37 +282,15 @@ export default defineComponent({
                     <itemType>
                         <manufacturer type='manufacturer'/>
                         <protocolType type='protocolType'/>
-                    </itemType>`
-            let tmpSendXml = ''
-            RTSPData.forEach((ele: MultiChlIPCAddDto) => {
-                tmpSendXml += getSaveData(ele, 'RTSP', '')
-            })
-            normalChlData.forEach((ele: MultiChlIPCAddDto) => {
-                tmpSendXml += getSaveData(ele, 'NON-RTSP', 'NORMAL')
-            })
-            tableData.value.forEach((ele: MultiChlIPCAddDto) => {
-                if (ele.type == 'THERMAL_DOUBLE') {
-                    const visibleLight = ele.multichannelCheckedInfoList[0]
-                    const thermal = ele.multichannelCheckedInfoList[1]
-                    if (visibleLight.checked && !visibleLight.disabled) {
-                        tmpSendXml += getSaveData(ele, 'NON-RTSP', 'NORMAL')
-                    }
-                    if (thermal.checked && !thermal.disabled) {
-                        tmpSendXml += getSaveData(ele, 'NON-RTSP', 'THERMAL')
-                    }
-                }
-            })
-            if (!tmpSendXml) {
-                router.push('list')
-            } else {
-                data += tmpSendXml + '</content>'
-                callback(data)
-            }
+                    </itemType>
+                    ${listXml.join('')}
+                </content>
+            `
+            callback(sendXml)
         }
 
         const getSaveData = (element: MultiChlIPCAddDto, chlType: string, accessType: string) => {
             const name = calChlName()
-            let itemXMLStr = ''
             let ipXmlStr = ''
             let domainXmlStr = ''
             if (element.addrType == 'ip') {
@@ -286,11 +306,15 @@ export default defineComponent({
             }
             if (chlType == 'RTSP') {
                 let manufacturerID = '1'
-                protocolList.forEach((ele: Record<string, string>) => {
-                    //解决中间有空格不相等的问题
-                    if (Trim(ele.displayName, 'g') == Trim(element.manufacturer, 'g')) manufacturerID = ele.index
+                protocolList.some((ele) => {
+                    // 解决中间有空格不相等的问题
+                    if (Trim(ele.displayName, 'g') === Trim(element.manufacturer, 'g')) {
+                        manufacturerID = ele.index
+                        return true
+                    }
+                    return false
                 })
-                itemXMLStr += rawXml`
+                return rawXml`
                     <item>
                         <name><![CDATA[${name}]]></name>
                         ${ipXmlStr}
@@ -305,14 +329,14 @@ export default defineComponent({
                         ${defaultParam}
                     </item>`
             } else {
-                itemXMLStr += rawXml`
+                return rawXml`
                     <item>
                         <name><![CDATA[${name}]]></name>
                         ${ipXmlStr}
                         ${domainXmlStr}
                         <port>${element.port.toString()}</port>
                         <userName><![CDATA[${cutStringByByte(element.userName, nameByteMaxLen)}]]></userName>
-                        ${element.password == '******' ? '' : '<password' + getSecurityVer() + '><![CDATA[' + AES_encrypt(element.password, userSessionStore.sesionKey) + ']]></password>'}
+                        ${element.password == '******' ? '' : `<password ${getSecurityVer()}>${wrapCDATA(AES_encrypt(element.password, userSessionStore.sesionKey))}</password>`}
                         <index>0</index>
                         <manufacturer>${element.manufacturer}</manufacturer>
                         <protocolType>${chlMapping[element.manufacturer]['protocolType']}</protocolType>
@@ -321,7 +345,6 @@ export default defineComponent({
                         ${defaultParam}
                     </item>`
             }
-            return itemXMLStr
         }
 
         const calChlName = () => {
@@ -340,6 +363,10 @@ export default defineComponent({
             }
             return result
         }
+
+        ctx.expose({
+            init,
+        })
 
         return {
             multiChlIPCCfgDialogVisiable,

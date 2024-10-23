@@ -3,7 +3,7 @@
  * @Date: 2024-08-13 15:58:57
  * @Description:闪灯
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-21 15:13:33
+ * @LastEditTime: 2024-10-22 17:41:21
  */
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import { whiteLightInfo } from '@/types/apiType/aiAndEvent'
@@ -33,6 +33,7 @@ export default defineComponent({
             applyDisable: true,
             initComplated: false,
             editRows: [] as whiteLightInfo[],
+            defaultSchedule: '{00000000-0000-0000-0000-000000000000}',
         })
         const buildTableData = () => {
             pageData.value.initComplated = false
@@ -110,14 +111,20 @@ export default defineComponent({
                 console.log('durationTime is null')
             }
         }
+        const getScheduleList = async () => {
+            pageData.value.scheduleList = await buildScheduleList()
+            pageData.value.scheduleList.forEach((item) => {
+                if (item.value == '') {
+                    item.value = pageData.value.defaultSchedule
+                }
+            })
+        }
         const getSchedule = async () => {
+            await getScheduleList()
             queryEventNotifyParam().then((resb) => {
                 const res = queryXml(resb)
                 if (res('status').text() === 'success') {
                     pageData.value.schedule = res('//content/triggerChannelLightSchedule').attr('id')
-                    if (pageData.value.schedule == '{00000000-0000-0000-0000-000000000000}') {
-                        pageData.value.schedule = ''
-                    }
                     pageData.value.scheduleName = res('//content/triggerChannelLightSchedule').text()
                 }
             })
@@ -142,20 +149,11 @@ export default defineComponent({
                 }
             })
             if (pageData.value.scheduleChanged == true) {
-                let scheduleSendXml = ''
-                // 后续可能要改
-                if (pageData.value.schedule == '') {
-                    scheduleSendXml = rawXml`<content>
-                                                <triggerChannelLightSchedule id="{00000000-0000-0000-0000-000000000000}">
-                                                </triggerChannelLightSchedule>
-                                            </content>`
-                } else {
-                    scheduleSendXml = rawXml`<content>
+                const scheduleSendXml = rawXml`<content>
                                                 <triggerChannelLightSchedule id="${pageData.value.schedule}">
                                                     ${pageData.value.scheduleName}
                                                 </triggerChannelLightSchedule>
                                             </content>`
-                }
                 editEventNotifyParam(scheduleSendXml).then((resb) => {
                     const res = queryXml(resb)
                     if (res('status').text() === 'success') {
@@ -245,6 +243,7 @@ export default defineComponent({
         const handleScheduleChange = () => {
             pageData.value.applyDisable = false
             pageData.value.scheduleChanged = true
+            pageData.value.scheduleName = pageData.value.schedule == pageData.value.defaultSchedule ? '' : pageData.value.scheduleList.find((item) => item.value == pageData.value.schedule)!.label
         }
         const addEditRows = (row: whiteLightInfo) => {
             if (!row.rowDisable) {
@@ -276,10 +275,9 @@ export default defineComponent({
         }
         const handleSchedulePopClose = async () => {
             pageData.value.scheduleManagePopOpen = false
-            pageData.value.scheduleList = await buildScheduleList()
+            await getScheduleList()
         }
         onMounted(async () => {
-            pageData.value.scheduleList = await buildScheduleList()
             await getSchedule()
             buildTableData()
         })

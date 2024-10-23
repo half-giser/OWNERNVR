@@ -131,18 +131,6 @@ export default defineComponent({
             ],
         })
 
-        /**
-         * @description 返回IP十进制数值
-         * @param {string} ip
-         * @returns {number}
-         */
-        const getIpNumber = (ip: string) => {
-            const split = ip.split('.')
-            return split.reduce((sum, current, index) => {
-                return Number(sum) + Number(current) * Math.pow(Math.pow(2, 8), split.length - 1 - index)
-            }, 0)
-        }
-
         // 开始IP段的十进制数值
         const startIpNum = computed(() => {
             return getIpNumber(formData.value.startIp)

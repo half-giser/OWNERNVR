@@ -647,7 +647,7 @@ const handleDrop = (newWinIndex: number) => {
     pageData.value[newWinIndex].position = oldIndexPosition
     console.log(pageData.value)
 
-    // TODO 测试时效果没问题
+    // 测试时效果没问题
     // 元素互换位置由逻辑/DOM结构上互换，变更为仅UI坐标互换，逻辑排序不变
 
     // 元素互换位置
@@ -700,7 +700,7 @@ const getWinIndexByPosition = (positionIndex: number) => {
  * @description 设置分屏元素宽高
  */
 const setItemSize = () => {
-    // TODO 这里改为CSS设置，测试似乎没问题
+    // 这里改为CSS设置，测试似乎没问题
     // var row = Math.sqrt(this.split)
     // var precent = row / this.split
     // 取真实的border宽度(如缩放浏览器后, 即使设置border为1px, 最小宽度仍是1.111px)

@@ -3,7 +3,7 @@
  * @Date: 2024-06-17 14:51:27
  * @Description: 编辑用户信息弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-24 18:26:09
+ * @LastEditTime: 2024-10-22 20:11:34
 -->
 <template>
     <el-dialog
@@ -90,15 +90,10 @@
                 >
                     <el-button
                         v-show="pageData.isChangePasswordBtn"
-                        class="btn-ok"
                         @click="changePassword"
                         >{{ Translate('IDCS_CHANGE_PWD') }}</el-button
                     >
-                    <el-button
-                        class="btn-ok"
-                        @click="verify"
-                        >{{ Translate('IDCS_OK') }}</el-button
-                    >
+                    <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
                     <el-button @click="goBack">{{ Translate('IDCS_CANCEL') }}</el-button>
                 </el-col>
             </el-row>

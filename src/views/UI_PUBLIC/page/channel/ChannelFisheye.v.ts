@@ -26,6 +26,14 @@ export default defineComponent({
         const installTypeList = ref<Set<string>>(new Set())
         const editRows = new Set<ChannelFisheye>()
         const deviceDatacache: Record<string, Record<string, string>> = {}
+        const hikvisionIds: string[] = []
+        const privateProtocolIds: string[] = []
+        const switchOptions = DEFAULT_SWITCH_OPTIONS.map((item) => {
+            return {
+                ...item,
+                label: Translate(item.label),
+            }
+        })
 
         const fishEyeModeMap: Record<string, string> = {
             'FishEye+Panorama+3PTZ': Translate('IDCS_FISHEYE_STREAM_1'),
@@ -125,154 +133,147 @@ export default defineComponent({
             deviceDatacache[chlId]['fishEyeMode'] = fishEyeMode
         }
 
-        const getDataList = () => {
-            openLoading()
-            Promise.all([
-                getChlList({
-                    pageIndex: pageIndex.value,
-                    pageSize: pageSize.value,
-                    isSupportFishEye: true,
-                }),
-                queryDevList(''),
-            ]).then((resultArr) => {
-                closeLoading()
-                const res1 = queryXml(resultArr[0])
-                const res2 = queryXml(resultArr[1])
-                const hikvisionIds: string[] = []
-                const privateProtocolIds: string[] = []
-                res2('content/item').forEach((ele) => {
-                    const eleXml = queryXml(ele.element)
-                    if (eleXml('protocolType').text() == 'HIKVISION') hikvisionIds.push(ele.attr('id')!)
-                    if (eleXml('manufacturer').text() == 'TVT') privateProtocolIds.push(ele.attr('id')!)
-                })
-                if (res1('status').text() == 'success') {
-                    pageTotal.value = Number(res1('content').attr('total'))
-                    const rowData: ChannelFisheye[] = []
-                    installTypeList.value.clear()
-                    editRows.clear()
-                    btnOKDisabled.value = true
-                    const curPageCount = res1('content/item').length
-                    let count = 0
-                    res1('content/item').forEach((ele) => {
-                        const eleXml = queryXml(ele.element)
-                        const newData = new ChannelFisheye()
-                        newData.id = ele.attr('id')!
-                        newData.name = eleXml('name').text()
-                        newData.chlIndex = eleXml('chlIndex').text()
-                        newData.chlType = eleXml('chlType').text()
-                        newData.fishEyeMode = 'FishEye+Panorama+3PTZ'
-                        newData.installType = 'Wall'
-                        newData.status = 'loading'
-                        rowData.push(newData)
+        const getDevList = async () => {
+            const result = await queryDevList('')
+            const $ = queryXml(result)
+            $('content/item').forEach((ele) => {
+                const eleXml = queryXml(ele.element)
+                if (eleXml('protocolType').text() == 'HIKVISION') hikvisionIds.push(ele.attr('id')!)
+                if (eleXml('manufacturer').text() == 'TVT') privateProtocolIds.push(ele.attr('id')!)
+            })
+        }
 
+        const getDataList = async () => {
+            openLoading()
+            const result = await getChlList({
+                pageIndex: pageIndex.value,
+                pageSize: pageSize.value,
+                isSupportFishEye: true,
+            })
+            closeLoading()
+            const $ = queryXml(result)
+            if ($('status').text() == 'success') {
+                pageTotal.value = Number($('content').attr('total'))
+                installTypeList.value.clear()
+                editRows.clear()
+                btnOKDisabled.value = true
+                tableData.value = $('content/item').map((ele) => {
+                    const eleXml = queryXml(ele.element)
+                    const newData = new ChannelFisheye()
+                    newData.id = ele.attr('id')!
+                    newData.name = eleXml('name').text()
+                    newData.chlIndex = eleXml('chlIndex').text()
+                    newData.chlType = eleXml('chlType').text()
+                    newData.fishEyeMode = 'FishEye+Panorama+3PTZ'
+                    newData.installType = 'Wall'
+                    newData.status = 'loading'
+                    return newData
+                })
+
+                if (tableData.value.length) {
+                    for (let i = 0; i < tableData.value.length; i++) {
+                        const newData = tableData.value[i]
                         // 1.4.5 queryIPChlORChlFishEye协议修改，不会存在ipc不支持鱼眼接口返回失败的情况了
                         // ipc支持鱼眼返回的supportMode为support/notSupport
                         // ipc不支持鱼眼，但通过onvif等协议添加时也可配置鱼眼开关，返回的supportMode为manualSupport/manualNotSupport
                         const sendXml = rawXml`
                             <condition>
                                 <chlId>${newData.id}</chlId>
-                            </condition>`
-                        queryIPChlORChlFishEye(sendXml).then((res) => {
-                            const $ = queryXml(res)
-                            count++
-                            const supportMode = $('content/chl').attr('supportMode')
-                            if (supportMode == 'support') {
-                                newData.fishEyeMode = $('content/chl/fishEyeMode').text()
-                                newData.installType = $('content/chl/installType').text()
-                                $('types/installType/enum').forEach((ele) => {
-                                    const text = installTypeMap[ele.text()]
-                                    if (text) {
-                                        newData.installTypeList.push({
-                                            value: ele.text(),
-                                            text: text,
-                                        })
-                                        installTypeList.value.add(ele.text())
-                                    }
-                                })
-                                $('types/fishEyeMode/enum').forEach((ele) => {
-                                    const text = fishEyeModeMap[ele.text()]
-                                    if (text) {
-                                        newData.fishEyeModelList.push({
-                                            value: ele.text(),
-                                            text: text,
-                                        })
-                                        fishEyeModelList.value.add(ele.text())
-                                    }
-                                })
-                                updateDeviceDatacache(newData.id, newData.fishEyeMode)
-                                if (hikvisionIds.includes(newData.id)) {
-                                    newData.disabled = true
-                                    newData.HIKVISION = true
-                                } else {
-                                    newData.disabled = false
-                                }
-                            } else if (supportMode == 'manualSupport' || supportMode == 'manualNotSupport') {
-                                //只对海康ipc判断
-                                if (hikvisionIds.includes(newData.id)) {
-                                    newData.disabled = true
-                                    newData.HIKVISION = true
-                                } else {
-                                    newData.disabled = false
-                                    newData.reqCfgFail = true
-                                }
-                            }
-                            // todo
-                            if (!newData.fishEyeModelList.length) {
-                                const text = fishEyeModeMap[newData.fishEyeMode]
-                                if (text) {
-                                    newData.fishEyeModelList.push({
-                                        value: newData.fishEyeMode,
-                                        text: text,
-                                    })
-                                    fishEyeModelList.value.add(newData.fishEyeMode)
-                                }
-                            }
-                            if (!newData.installTypeList.length) {
-                                const text = installTypeMap[newData.installType]
+                            </condition>
+                        `
+                        const result = await queryIPChlORChlFishEye(sendXml)
+                        const $ = queryXml(result)
+                        const supportMode = $('content/chl').attr('supportMode')
+                        if (supportMode == 'support') {
+                            newData.fishEyeMode = $('content/chl/fishEyeMode').text()
+                            newData.installType = $('content/chl/installType').text()
+                            $('types/installType/enum').forEach((ele) => {
+                                const text = installTypeMap[ele.text()]
                                 if (text) {
                                     newData.installTypeList.push({
-                                        value: newData.installType,
+                                        value: ele.text(),
                                         text: text,
                                     })
-                                    installTypeList.value.add(newData.installType)
+                                    installTypeList.value.add(ele.text())
                                 }
-                            }
-
-                            if (count == curPageCount) {
-                                getFishEyeEnableData(() => {
-                                    tableData.value.forEach((ele) => {
-                                        ele.privateProtocol = privateProtocolIds.includes(ele.id) //当以私有协议接入IPC时，禁止
-                                        ele.status = ''
+                            })
+                            $('types/fishEyeMode/enum').forEach((ele) => {
+                                const text = fishEyeModeMap[ele.text()]
+                                if (text) {
+                                    newData.fishEyeModelList.push({
+                                        value: ele.text(),
+                                        text: text,
                                     })
-                                    formData.value = tableData.value[0]
-                                    selectedChlId.value = tableData.value[0].id
-                                    tableRef.value!.setCurrentRow(tableData.value[0])
-                                })
+                                    fishEyeModelList.value.add(ele.text())
+                                }
+                            })
+                            updateDeviceDatacache(newData.id, newData.fishEyeMode)
+                            if (hikvisionIds.includes(newData.id)) {
+                                newData.disabled = true
+                                newData.HIKVISION = true
+                            } else {
+                                newData.disabled = false
                             }
-                        })
+                        } else if (supportMode == 'manualSupport' || supportMode == 'manualNotSupport') {
+                            //只对海康ipc判断
+                            if (hikvisionIds.includes(newData.id)) {
+                                newData.disabled = true
+                                newData.HIKVISION = true
+                            } else {
+                                newData.disabled = false
+                                newData.reqCfgFail = true
+                            }
+                        }
+                        // todo
+                        if (!newData.fishEyeModelList.length) {
+                            const text = fishEyeModeMap[newData.fishEyeMode]
+                            if (text) {
+                                newData.fishEyeModelList.push({
+                                    value: newData.fishEyeMode,
+                                    text: text,
+                                })
+                                fishEyeModelList.value.add(newData.fishEyeMode)
+                            }
+                        }
+                        if (!newData.installTypeList.length) {
+                            const text = installTypeMap[newData.installType]
+                            if (text) {
+                                newData.installTypeList.push({
+                                    value: newData.installType,
+                                    text: text,
+                                })
+                                installTypeList.value.add(newData.installType)
+                            }
+                        }
+                    }
+
+                    await getFishEyeEnableData()
+                    tableData.value.forEach((ele) => {
+                        ele.privateProtocol = privateProtocolIds.includes(ele.id) //当以私有协议接入IPC时，禁止
+                        ele.status = ''
                     })
-                    tableData.value = rowData
+                    formData.value = tableData.value[0]
+                    selectedChlId.value = tableData.value[0].id
+                    tableRef.value!.setCurrentRow(tableData.value[0])
                 }
-            })
+            }
         }
 
-        const getFishEyeEnableData = (callback: Function) => {
-            let sendXml = '<condition>'
-            tableData.value.forEach((ele) => {
-                sendXml += `<chlId>${ele.id}</chlId>`
-            })
-            sendXml += '</condition>'
-            queryFishEyeEnable(sendXml).then((res) => {
-                const $ = queryXml(res)
-                $('content/chl').forEach((ele) => {
-                    const eleXml = queryXml(ele.element)
-                    const rowData = getRowById(ele.attr('id')!)
-                    if (eleXml('fishEyeEnable').length) {
-                        rowData.fishEyeEnable = eleXml('fishEyeEnable').text().toBoolean()
-                        rowData.supportFishEyeEnable = true
-                    }
-                })
-                callback()
+        const getFishEyeEnableData = async () => {
+            const sendXml = rawXml`
+                <condition>
+                    ${tableData.value.map((ele) => `<chlId>${ele.id}</chlId>`).join('')}
+                </condition>
+            `
+            const res = await queryFishEyeEnable(sendXml)
+            const $ = queryXml(res)
+            $('content/chl').forEach((ele) => {
+                const eleXml = queryXml(ele.element)
+                const rowData = getRowById(ele.attr('id')!)
+                if (eleXml('fishEyeEnable').length) {
+                    rowData.fishEyeEnable = eleXml('fishEyeEnable').text().toBoolean()
+                    rowData.supportFishEyeEnable = true
+                }
             })
         }
 
@@ -298,53 +299,47 @@ export default defineComponent({
         }
 
         const getFishEyeEnableSaveData = (rowDatas: ChannelFisheye[]) => {
-            let data = '<content>'
-            rowDatas.forEach((ele) => {
-                if (ele.reqCfgFail) {
-                    data += rawXml`
-                        <chl id='${ele.id}'>
-                            <fishEyeEnable>${ele.fishEyeEnable.toString()}</fishEyeEnable>
-                        </chl>`
-                }
-            })
-            data += '</content>'
-            return data
+            const chlXml = rowDatas
+                .filter((ele) => ele.reqCfgFail)
+                .map((ele) => {
+                    return rawXml`
+                    <chl id='${ele.id}'>
+                        <fishEyeEnable>${ele.fishEyeEnable.toString()}</fishEyeEnable>
+                    </chl>`
+                })
+                .join('')
+            return `<content>${chlXml}</content>`
         }
 
-        const setData = () => {
-            const total = editRows.size
-            let count = 0
-            const successRows = new Set<ChannelFisheye>()
+        const setData = async () => {
             tableData.value.forEach((ele) => (ele.status = ''))
+
+            // 支持开关配置的鱼眼才下发editFishEyeEnable协议
+            const editEnableRows: ChannelFisheye[] = []
+
             openLoading()
-            editRows.forEach((ele) => {
-                if (!ele.reqCfgFail) {
-                    editIPChlORChlFishEye(getSaveData(ele)).then((res) => {
+            for (let i = 0; i < tableData.value.length; i++) {
+                const ele = tableData.value[i]
+                if (editRows.has(ele)) {
+                    if (!ele.reqCfgFail) {
+                        const res = await editIPChlORChlFishEye(getSaveData(ele))
                         const $ = queryXml(res)
                         const success = $('status').text() === 'success'
                         if (success) {
                             ele.status = 'success'
-                            successRows.add(ele)
+                            editRows.delete(ele)
                         } else {
                             ele.status = 'error'
                         }
-                        count++
-                        if (count >= total) {
-                            successRows.forEach((element) => {
-                                editRows.delete(element)
-                            })
-                            if (!editRows.size) btnOKDisabled.value = true
-                            closeLoading()
-                        }
-                    })
+                    }
+                    if (ele.supportFishEyeEnable) {
+                        editEnableRows.push(ele)
+                    }
                 }
-            })
+            }
 
-            // 支持开关配置的鱼眼才下发editFishEyeEnable协议
-            const editEnableRows: ChannelFisheye[] = []
-            editRows.forEach((ele) => {
-                if (ele.supportFishEyeEnable) editEnableRows.push(ele)
-            })
+            if (!editRows.size) btnOKDisabled.value = true
+            closeLoading()
 
             if (editEnableRows.length) {
                 editFishEyeEnable(getFishEyeEnableSaveData(editEnableRows)).then((res) => {
@@ -355,7 +350,7 @@ export default defineComponent({
                         if (ele.reqCfgFail) {
                             if (success) {
                                 ele.status = 'success'
-                                successRows.add(ele)
+                                editRows.delete(ele)
                                 updateDeviceDatacache(ele.id, ele.fishEyeMode)
                             } else {
                                 ele.status = 'error'
@@ -440,8 +435,9 @@ export default defineComponent({
 
         watch(selectedChlId, play)
 
-        onMounted(() => {
-            getDataList()
+        onMounted(async () => {
+            await getDevList()
+            await getDataList()
         })
 
         onBeforeUnmount(() => {
@@ -475,6 +471,7 @@ export default defineComponent({
             handleChangeAll,
             save,
             onReady,
+            switchOptions,
         }
     },
 })

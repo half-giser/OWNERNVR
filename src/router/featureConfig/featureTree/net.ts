@@ -151,8 +151,8 @@ export default {
                 sort: 100,
                 lk: 'FTP',
                 group: 'network',
-                auth(systemCaps, ui) {
-                    return ui !== 'UI1-E' && systemCaps.supportFTP
+                auth(systemCaps) {
+                    return import.meta.env.VITE_UI_TYPE !== 'UI1-E' && systemCaps.supportFTP
                 },
             },
         },
@@ -164,8 +164,8 @@ export default {
                 sort: 110,
                 lk: 'IDCS_SNMP',
                 group: 'network',
-                auth(systemCaps, ui) {
-                    return ui !== 'UI1-E' && systemCaps.supportSnmp
+                auth(systemCaps) {
+                    return import.meta.env.VITE_UI_TYPE !== 'UI1-E' && systemCaps.supportSnmp
                 },
             },
         },

@@ -76,8 +76,7 @@
                     <!-- 状态列 -->
                     <el-table-column
                         label=" "
-                        width="50px"
-                        class-name="custom_cell"
+                        width="50"
                     >
                         <template #default="scope">
                             <BaseTableRowStatus :icon="scope.row.status" />
@@ -122,13 +121,12 @@
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_HOMING_AFTER_TARGET_STATIONARY_TIME')">
                         <template #default="scope">
-                            <el-input-number
+                            <BaseNumberInput
                                 v-model="scope.row.autoBackTime"
                                 :min="0"
                                 :max="100"
                                 :disabled="!scope.row.autoBackSwitch || scope.row.status !== 'success'"
                                 value-on-clear="min"
-                                :controls="false"
                             />
                         </template>
                     </el-table-column>

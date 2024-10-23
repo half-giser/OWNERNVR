@@ -3,12 +3,11 @@
  * @Date: 2024-04-16 13:47:54
  * @Description: 路由构建入口文件
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-12 14:22:36
+ * @LastEditTime: 2024-10-21 13:59:16
  */
 import { createRouter, createWebHistory, type RouteLocationNormalized } from 'vue-router'
 import { buildRouter } from './featureConfig/RouteUtil'
 import progress from '@bassist/progress'
-// import { APP_NAME } from '@/utils/constants'
 import { type RouteLocationNormalizedLoaded } from 'vue-router'
 
 progress.configure({ showSpinner: false })
@@ -33,7 +32,6 @@ let authRoutes: RouteRecordRawExtends[] = []
 export const generateAsyncRoutes = () => {
     const systemCaps = useCababilityStore()
     const userSession = useUserSessionStore()
-    const ui = getUiAndTheme().name
 
     const asyncRoute = (routes as RouteRecordRawExtends[]).filter((item) => {
         return item.meta?.enabled !== ''
@@ -56,7 +54,7 @@ export const generateAsyncRoutes = () => {
                 }
             }
 
-            return !item.meta.auth || item.meta.auth(systemCaps, ui)
+            return !item.meta.auth || item.meta.auth(systemCaps)
         })
     }
 
@@ -183,8 +181,6 @@ router.beforeEach(() => {
 })
 
 router.afterEach(() => {
-    // const title = to.meta.title
-    // document.title = title ? `${title} - ${APP_NAME}` : APP_NAME
     progress.done()
 })
 

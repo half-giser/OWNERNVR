@@ -1,17 +1,21 @@
 /*
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-06-17 21:17:45
- * @Description:
+ * @Description: 通道组
  */
 import { ChlGroup } from '@/types/apiType/channel'
 import { DefaultPagerSizeOptions, DefaultPagerLayout } from '@/utils/constants'
 import ChannelGroupEditPop from './ChannelGroupEditPop.vue'
 import ChannelGroupAddChlPop from './ChannelGroupAddChlPop.vue'
+import ChannelPtzTableExpandPanel from './ChannelPtzTableExpandPanel.vue'
+import ChannelPtzTableExpandItem from './ChannelPtzTableExpandItem.vue'
 
 export default defineComponent({
     components: {
         ChannelGroupEditPop,
         ChannelGroupAddChlPop,
+        ChannelPtzTableExpandPanel,
+        ChannelPtzTableExpandItem,
     },
     setup() {
         const router = useRouter()
@@ -25,16 +29,16 @@ export default defineComponent({
         const pageTotal = ref(0)
         const editItem = ref(new ChlGroup())
         const editItemForAddChl = ref(new ChlGroup())
-        const chlGroupEditPopVisiable = ref(false)
-        const chlGroupAddChlPopVisiable = ref(false)
+        const isEditPop = ref(false)
+        const isAddChlPop = ref(false)
         let tmpExpendedRows: ChlGroup[] = []
 
         const closeChlGroupEditPop = () => {
-            chlGroupEditPopVisiable.value = false
+            isEditPop.value = false
         }
 
         const closeChlGroupAddChlPop = (isRefresh = false) => {
-            chlGroupAddChlPopVisiable.value = false
+            isAddChlPop.value = false
             if (isRefresh) {
                 handleExpandChange(editItemForAddChl.value!, tmpExpendedRows)
             }
@@ -64,7 +68,7 @@ export default defineComponent({
 
         const handleEditChlGroup = (rowData: ChlGroup) => {
             editItem.value = rowData
-            chlGroupEditPopVisiable.value = true
+            isEditPop.value = true
         }
 
         const handleDelChlGroup = (rowData: ChlGroup) => {
@@ -171,7 +175,7 @@ export default defineComponent({
 
         const handleAddChl = (rowData: ChlGroup) => {
             editItemForAddChl.value = rowData
-            chlGroupAddChlPopVisiable.value = true
+            isAddChlPop.value = true
         }
         const handleDelChl = (rowData: ChlGroup, chlId: string) => {
             if (rowData.chlCount <= 1) {
@@ -230,8 +234,8 @@ export default defineComponent({
             pageTotal,
             editItem,
             editItemForAddChl,
-            chlGroupEditPopVisiable,
-            chlGroupAddChlPopVisiable,
+            isEditPop,
+            isAddChlPop,
             closeChlGroupEditPop,
             closeChlGroupAddChlPop,
             setDataCallBack,
@@ -248,6 +252,8 @@ export default defineComponent({
             handleDelChl,
             ChannelGroupEditPop,
             ChannelGroupAddChlPop,
+            ChannelPtzTableExpandPanel,
+            ChannelPtzTableExpandItem,
         }
     },
 })

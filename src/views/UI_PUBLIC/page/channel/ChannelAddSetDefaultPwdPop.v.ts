@@ -3,11 +3,10 @@
  * @Date: 2024-07-09 18:39:25
  * @Description: 添加通道 - 设置通道默认密码弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 17:00:31
+ * @LastEditTime: 2024-10-22 10:55:06
  */
-import { DefaultPwdDto } from '@/types/apiType/channel'
-import { type FormInstance } from 'element-plus'
-import { type RuleItem } from 'async-validator'
+import { type DefaultPwdDto } from '@/types/apiType/channel'
+import { type FormRules, type FormInstance } from 'element-plus'
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import type { UserCheckAuthForm } from '@/types/apiType/user'
 
@@ -45,18 +44,17 @@ export default defineComponent({
                 closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
-                    const rowData = [] as Array<DefaultPwdDto>
-                    $('//content/item').forEach((ele) => {
+                    formData.value.params = $('//content/item').map((ele) => {
                         const eleXml = queryXml(ele.element)
-                        const defaultPwdData = new DefaultPwdDto()
-                        defaultPwdData.id = ele.attr('id') as string
-                        defaultPwdData.userName = eleXml('userName').text()
-                        defaultPwdData.password = '' // 协议修改之后密码不传输
-                        defaultPwdData.displayName = eleXml('displayName').text()
-                        defaultPwdData.protocolType = eleXml('protocolType').text()
-                        rowData.push(defaultPwdData)
+                        return {
+                            id: ele.attr('id')!,
+                            userName: eleXml('userName').text(),
+                            password: '', // 协议修改之后密码不传输
+                            displayName: eleXml('displayName').text(),
+                            protocolType: eleXml('protocolType').text(),
+                            showInput: false,
+                        }
                     })
-                    formData.value.params = rowData
                 }
             })
         }
@@ -70,22 +68,22 @@ export default defineComponent({
             }
         }
 
-        const validate: Record<string, RuleItem['validator']> = {
-            validateUserName: (_rule, value, callback) => {
-                if (value.trim().length == 0) {
-                    callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
-                    return
-                }
-                callback()
-            },
-        }
-
-        const rules = ref({
-            userName: [{ validator: validate.validateUserName, trigger: 'manual' }],
+        const rules = ref<FormRules>({
+            userName: [
+                {
+                    validator: (_rule, value, callback) => {
+                        if (value.trim().length == 0) {
+                            callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
+                            return
+                        }
+                        callback()
+                    },
+                    trigger: 'manual',
+                },
+            ],
         })
 
         const save = () => {
-            if (!formRef) return false
             formRef.value?.validate((valid) => {
                 if (valid) {
                     baseCheckAuthPopVisiable.value = true
@@ -94,33 +92,39 @@ export default defineComponent({
         }
 
         const setData = (e: UserCheckAuthForm) => {
-            let data = `<content type='list'>`
-            formData.value.params.forEach((ele: DefaultPwdDto) => {
-                data += rawXml`<item id='${ele.id}'>
-                            <userName>${cutStringByByte(ele.userName, nameByteMaxLen)}</userName>`
-                if (ele.password != '') {
-                    data += `<password ${getSecurityVer()}><![CDATA[${AES_encrypt(ele.password, userSessionStore.sesionKey)}]]></password>`
-                }
-                data += '</item>'
-            })
-            data += rawXml`</content>
-                    <auth>
-                        <userName>${e.userName}</userName>
-                        <password>${e.hexHash}</password>
-                    </auth>`
-            editDevDefaultPwd(data).then((res) => {
+            const listXml = formData.value.params
+                .map((ele) => {
+                    return rawXml`
+                    <item id='${ele.id}'>
+                        <userName>${ele.userName}</userName>
+                        ${ternary(!!ele.password, `<password ${getSecurityVer()}><![CDATA[${AES_encrypt(ele.password, userSessionStore.sesionKey)}]]></password>`)}
+                    </item>
+                `
+                })
+                .join('')
+            const sendXml = rawXml`
+                <content type='list'>
+                    ${listXml}
+                </content>
+                <auth>
+                    <userName>${e.userName}</userName>
+                    <password>${e.hexHash}</password>
+                </auth>
+            `
+
+            editDevDefaultPwd(sendXml).then((res) => {
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
-                    const defaultPwdData: Array<DefaultPwdDto> = []
-                    $('//content/item').forEach((ele) => {
+                    const defaultPwdData: DefaultPwdDto[] = $('//content/item').map((ele) => {
                         const eleXml = queryXml(ele.element)
-                        const newData = new DefaultPwdDto()
-                        newData.id = ele.attr('id')!
-                        newData.userName = eleXml('userName').text()
-                        newData.password = eleXml('password').text()
-                        newData.displayName = eleXml('displayName').text()
-                        newData.protocolType = eleXml('protocolType').text()
-                        defaultPwdData.push(newData)
+                        return {
+                            id: ele.attr('id')!,
+                            userName: eleXml('userName').text(),
+                            password: eleXml('password').text(),
+                            displayName: eleXml('displayName').text(),
+                            protocolType: eleXml('protocolType').text(),
+                            showInput: false,
+                        }
                     })
                     emit('change', defaultPwdData)
                     baseCheckAuthPopVisiable.value = false
@@ -168,6 +172,8 @@ export default defineComponent({
             handleBaseCheckAuthPopClose,
             setData,
             handleKeydownEnter,
+            formatInputMaxLength,
+            nameByteMaxLen,
         }
     },
 })

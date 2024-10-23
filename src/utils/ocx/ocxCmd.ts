@@ -3,13 +3,9 @@
  * @Date: 2024-06-03 11:56:43
  * @Description: 插件命令集合
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 15:48:27
+ * @LastEditTime: 2024-10-21 11:43:28
  */
-import { APP_SERVER_IP } from '@/utils/constants'
-
 const wrapXml = (xml: string) => `${xmlHeader}${xml}`
-
-const ui = getUiAndTheme()
 
 /**
  * @description 获取语言节点
@@ -107,7 +103,7 @@ export const OCX_XML_Initial = (model: string, notifyFunName: string, viewType: 
             ${notifyFunName ? `<NotifyFunName>${notifyFunName}</NotifyFunName>` : ''}
             <systemType>NVMS-9000</systemType>
             <screenNum>${String(screenNum ? screenNum : 1)}</screenNum>
-            <uiName>${ui.name}</uiName>
+            <uiName>${import.meta.env.VITE_UI_TYPE}</uiName>
         </cmd>`)
 }
 
@@ -120,11 +116,10 @@ export const OCX_XML_Initial = (model: string, notifyFunName: string, viewType: 
  * @return {string}
  */
 export const OCX_XML_Initial_P2P = (model?: string, notifyFunName?: string, viewType?: string, screenNum?: number) => {
-    // TODO 原项目中未有找到这四个值
-    const natIp = ''
-    const natPort = ''
-    const natIp_2_0 = ''
-    const natPort_2_0 = ''
+    // const natIp = ''
+    // const natPort = ''
+    // const natIp_2_0 = ''
+    // const natPort_2_0 = ''
     return wrapXml(rawXml`
         ${viewType == TIMESLIDER_PLUGIN ? '<cmd type="Initial" target="dateCtrl">' : '<cmd type="Initial">' + viewType ? `<viewType>${viewType}</viewType>` : ''}
             ${model ? `<setModel>${model}</setModel>` : ''}
@@ -134,7 +129,7 @@ export const OCX_XML_Initial_P2P = (model?: string, notifyFunName?: string, view
             ${notifyFunName ? `<NotifyFunName>${notifyFunName}</NotifyFunName>` : ''}
             <systemType>NVMS-9000</systemType>
             <screenNum>${String(screenNum ? screenNum : 1)}</screenNum>
-            <uiName>${ui.name}</uiName>
+            <uiName>${import.meta.env.VITE_UI_TYPE}</uiName>
         </cmd>
     `)
 }
@@ -1367,7 +1362,7 @@ interface OcxXmlPreview {
  */
 export const OCX_XML_Preview = ({ chlIdList, chlNameList, streamType, chlIndexList, chlTypeList, poe, winIndexList }: OcxXmlPreview) => {
     const { pluginPort } = usePluginStore()
-    const url = `tvt://${APP_SERVER_IP}:${pluginPort}/`
+    const url = `tvt://${import.meta.env.VITE_APP_IP}:${pluginPort}/`
 
     return wrapXml(rawXml`
         <cmd type="Preview">
@@ -1487,7 +1482,7 @@ export const OCX_XML_RequestRecStream = (option: OcxXmlRequestRecStream) => {
             ${option.modeType ? `<modeType>${option.modeType}</modeType>` : ''}
             ${option.winIndexList
                 .map((item, i) => {
-                    const url = `tvt://${APP_SERVER_IP}:${pluginPort}/`
+                    const url = `tvt://${import.meta.env.VITE_APP_IP}:${pluginPort}/`
                     const param = getURLSearchParams({
                         chlId: option.chlIdList[i],
                         chlIndex: option.chlIndexList ? option.chlIndexList[i] || '0' : null,
@@ -1516,7 +1511,7 @@ export const OCX_XML_RequestRecStream = (option: OcxXmlRequestRecStream) => {
  */
 export const OCX_XML_RecSearch = (chlIdList: number[], chlNameList: string[], startTime: number, endTime: number, eventList: string[]) => {
     const { pluginPort } = usePluginStore()
-    const url = `tvt://${APP_SERVER_IP}:${pluginPort}/`
+    const url = `tvt://${import.meta.env.VITE_APP_IP}:${pluginPort}/`
     return wrapXml(rawXml`
         <cmd type="RecSearchNotBindWin">
             ${chlIdList
@@ -1754,7 +1749,6 @@ export const OCX_XML_SetPeaAreaAction = (action: 'EDIT_ON' | 'EDIT_OFF' | 'NONE'
  * @param eventType
  * @returns {string}
  */
-// TODO
 export const OCX_XML_SetPeaArea = (points: { X: number; Y: number }[], regulation?: boolean, lineColor?: string, eventType?: keyof typeof AIEventTypeMap) => {
     return wrapXml(rawXml`
         <cmd type="SetPeaArea">
