@@ -2,8 +2,8 @@
  * @Description: AI 事件——更多——温度检测
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-13 09:18:25
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-22 11:01:13
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-23 11:34:40
 -->
 <template>
     <div>
@@ -103,6 +103,7 @@
                                     >
                                     </el-option>
                                 </el-select>
+                                <div id="divTip"></div>
                             </el-form-item>
                         </el-form>
 
@@ -401,6 +402,7 @@
             >
         </div>
         <BaseNotification v-model:notifications="pageData.notification" />
+        <BaseFloatError ref="baseFloatErrorRef" />
     </div>
     <!-- 排程管理弹窗 -->
     <ScheduleManagPop
@@ -449,4 +451,10 @@
 
 <style>
 @import '@/views/UI_PUBLIC/publicStyle/aiAndEvent.scss';
+</style>
+
+<style scoped>
+#divTip {
+    line-height: normal;
+}
 </style>

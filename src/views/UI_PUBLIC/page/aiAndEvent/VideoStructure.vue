@@ -458,6 +458,7 @@
                         <el-form-item :label="Translate('IDCS_RECOGNITION_MODE')">
                             <el-select
                                 v-model="vsdData.algoChkModel"
+                                size="small"
                                 :disabled="pageData.algoModelDisabled"
                                 @change="algoModelChange"
                             >
@@ -476,6 +477,7 @@
                         >
                             <BaseNumberInput
                                 v-model="vsdData.intervalCheck"
+                                size="small"
                                 :disabled="pageData.algoModelDisabled"
                                 :min="vsdData.intervalCheckMin"
                                 :max="vsdData.intervalCheckMax"
