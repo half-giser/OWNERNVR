@@ -38,11 +38,11 @@ export default {
                 icon: 'sysInfo_s',
             },
             // 上海地标平台
-            // localPlatform: {
-            //     sort: 40,
-            //     lk: 'IDCS_LOCAL_PLATFORM_MANAGE',
-            //     icon: 'sysLandmark',
-            // },
+            localPlatform: {
+                sort: 40,
+                lk: 'IDCS_LOCAL_PLATFORM_MANAGE',
+                icon: 'sysLandmark',
+            },
         },
     },
     children: {
@@ -361,46 +361,45 @@ export default {
                 },
             },
         },
-        // 以下页面没有在原项目中找到入口
-        // platformParam: {
-        //     // 地标平台参数
-        //     path: 'platform/parameter',
-        //     components: 'system/PlatformParameter.vue',
-        //     meta: {
-        //         sort: 10,
-        //         lk: 'IDCS_PLATFORM_PARAMETER',
-        //         group: 'localPlatform',
-        //     },
-        // },
-        // imageUpload: {
-        //     // 定时图像上传
-        //     path: 'upload/image/timing',
-        //     components: 'system/ImageUpload.vue',
-        //     meta: {
-        //         sort: 20,
-        //         lk: 'IDCS_SCHEDULE_PIC_UPLOAD',
-        //         group: 'localPlatform',
-        //     },
-        // },
-        // imageUploadAlarm: {
-        //     // 报警图像上传
-        //     path: 'upload/image/alarm',
-        //     components: 'system/ImageUploadAlarm.vue',
-        //     meta: {
-        //         sort: 30,
-        //         lk: 'IDCS_ALARM_PIC_UPLOAD',
-        //         group: 'localPlatform',
-        //     },
-        // },
-        // platformOperation: {
-        //     // 平台操作管理
-        //     path: 'platform/operation',
-        //     components: 'system/PlatformOperation.vue',
-        //     meta: {
-        //         sort: 40,
-        //         lk: 'IDCS_PLATFORM_OPERATE_MANAGE',
-        //         group: 'localPlatform',
-        //     },
-        // },
+        platformParam: {
+            // 地标平台参数
+            path: 'platform/parameter',
+            components: 'system/PlatformParameter.vue',
+            meta: {
+                sort: 10,
+                lk: 'IDCS_PLATFORM_PARAMETER',
+                group: 'localPlatform',
+            },
+        },
+        imageUpload: {
+            // 定时图像上传
+            path: 'upload/image/timing',
+            components: 'system/ImageUpload.vue',
+            meta: {
+                sort: 20,
+                lk: 'IDCS_SCHEDULE_PIC_UPLOAD',
+                group: 'localPlatform',
+            },
+        },
+        imageUploadAlarm: {
+            // 报警图像上传
+            path: 'upload/image/alarm',
+            components: 'system/ImageUploadAlarm.vue',
+            meta: {
+                sort: 30,
+                lk: 'IDCS_ALARM_PIC_UPLOAD',
+                group: 'localPlatform',
+            },
+        },
+        platformOperation: {
+            // 平台操作管理
+            path: 'platform/operation',
+            components: 'system/PlatformOperation.vue',
+            meta: {
+                sort: 40,
+                lk: 'IDCS_PLATFORM_OPERATE_MANAGE',
+                group: 'localPlatform',
+            },
+        },
     },
 } as FeatureItem
