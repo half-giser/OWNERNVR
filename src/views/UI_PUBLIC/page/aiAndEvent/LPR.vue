@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-09 09:56:14
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-08 10:09:57
+ * @LastEditTime: 2024-10-23 11:19:41
 -->
 <template>
     <!-- 通道名称及选择器 -->
@@ -51,7 +51,6 @@
             :label="Translate('IDCS_DETECTION')"
             name="vehicleDetection"
             :disabled="pageData.vehicleDetectionDisabled"
-            :style="{ height: 'calc(100vh - 344px)' }"
         >
             <div>
                 <div
@@ -87,8 +86,16 @@
                                             @change="showAllArea"
                                             >{{ Translate('IDCS_DISPLAY_ALL_AREA') }}</el-checkbox
                                         >
-                                        <el-button @click="clearArea">{{ Translate('IDCS_CLEAR') }}</el-button>
-                                        <el-button @click="clearAllArea">{{ Translate('IDCS_FACE_CLEAR_ALL') }}</el-button>
+                                        <el-button
+                                            size="small"
+                                            @click="clearArea"
+                                            >{{ Translate('IDCS_CLEAR') }}</el-button
+                                        >
+                                        <el-button
+                                            size="small"
+                                            @click="clearAllArea"
+                                            >{{ Translate('IDCS_FACE_CLEAR_ALL') }}</el-button
+                                        >
                                     </div>
                                     <span class="base-ai-tip">{{ detectionPageData.drawAreaTip }}</span>
                                 </div>
@@ -106,7 +113,10 @@
                                     <div class="base-ai-subheading">{{ Translate('IDCS_SCHEDULE') }}</div>
                                     <!-- 排程配置 -->
                                     <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
-                                        <el-select v-model="vehicleDetectionData.schedule">
+                                        <el-select
+                                            v-model="vehicleDetectionData.schedule"
+                                            size="small"
+                                        >
                                             <el-option
                                                 v-for="item in pageData.scheduleList"
                                                 :key="item.value"
@@ -115,7 +125,11 @@
                                             >
                                             </el-option>
                                         </el-select>
-                                        <el-button @click="pageData.scheduleManagPopOpen = true">{{ Translate('IDCS_MANAGE') }}</el-button>
+                                        <el-button
+                                            size="small"
+                                            @click="pageData.scheduleManagPopOpen = true"
+                                            >{{ Translate('IDCS_MANAGE') }}</el-button
+                                        >
                                     </el-form-item>
                                     <!-- 区域 -->
                                     <div class="base-ai-subheading">{{ Translate('IDCS_AREA') }}</div>
@@ -157,6 +171,7 @@
                                         <el-select
                                             v-model="detectionPageData.continentValue"
                                             :disabled="detectionPageData.continentDisabled"
+                                            size="small"
                                             :style="{ width: '130px' }"
                                             @change="refreshArea"
                                         >
@@ -171,6 +186,7 @@
                                         <el-select
                                             v-model="vehicleDetectionData.plateSupportArea"
                                             :disabled="detectionPageData.plateAreaDisabled"
+                                            size="small"
                                             :style="{ width: '130px' }"
                                         >
                                             <el-option
@@ -189,6 +205,7 @@
                                             :show-tooltip="false"
                                             :show-input-controls="false"
                                             show-input
+                                            size="small"
                                             :min="detectionPageData.exposureMin"
                                             :max="detectionPageData.exposureMax"
                                             :disabled="!vehicleDetectionData.exposureChecked"
@@ -206,6 +223,7 @@
                                     <el-form-item :label="Translate('IDCS_MIN')">
                                         <BaseNumberInput
                                             v-model="vehicleDetectionData.plateSize.minWidth"
+                                            size="small"
                                             :min="vehicleDetectionData.plateSize.min"
                                             :max="vehicleDetectionData.plateSize.max"
                                             @blur="minVehicleBlur"
@@ -215,6 +233,7 @@
                                     <el-form-item :label="Translate('IDCS_MAX')">
                                         <BaseNumberInput
                                             v-model="vehicleDetectionData.plateSize.maxWidth"
+                                            size="small"
                                             :min="vehicleDetectionData.plateSize.min"
                                             :max="vehicleDetectionData.plateSize.max"
                                             @blur="maxVehicleBlur"
@@ -266,7 +285,10 @@
                                     :label="Translate('IDCS_RECOGNITION_MODE')"
                                     :style="{ padding: '20px 0' }"
                                 >
-                                    <el-select v-model="vehicleDetectionData.direction">
+                                    <el-select
+                                        v-model="vehicleDetectionData.direction"
+                                        size="small"
+                                    >
                                         <el-option
                                             v-for="item in detectionPageData.directionOption"
                                             :key="item.value"
@@ -278,11 +300,7 @@
                                 </el-form-item>
                             </el-form>
                             <div class="base-btn-box">
-                                <el-button
-                                    small
-                                    @click="advancedVisible = false"
-                                    >{{ Translate('IDCS_CLOSE') }}</el-button
-                                >
+                                <el-button @click="advancedVisible = false">{{ Translate('IDCS_CLOSE') }}</el-button>
                             </div>
                         </div>
                     </el-popover>
@@ -301,7 +319,6 @@
             :label="Translate('IDCS_RECOGNITION')"
             name="vehicleCompare"
             :disabled="pageData.vehicleCompareDisabled"
-            :style="{ height: 'calc(100vh - 344px)' }"
         >
             <div>
                 <el-form

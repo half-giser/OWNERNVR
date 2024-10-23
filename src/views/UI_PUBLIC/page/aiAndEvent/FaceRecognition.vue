@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-28 13:41:57
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-21 15:35:21
+ * @LastEditTime: 2024-10-23 11:24:35
 -->
 <template>
     <!-- 通道名称及选择器 -->
@@ -40,6 +40,12 @@
         class="base-ai-menu-tabs"
         @tab-change="faceTabChange"
     >
+        <div
+            v-if="pageData.notChlSupport"
+            class="base-ai-not-support-box"
+        >
+            {{ pageData.notSupportTip }}
+        </div>
         <!-- 侦测 -->
         <el-tab-pane
             :label="Translate('IDCS_DETECTION')"
@@ -91,7 +97,11 @@
                                 </div>
                                 <div v-show="detectionPageData.isPlayerBottomShow">
                                     <div class="base-btn-box">
-                                        <el-button @click="clearDrawArea">{{ Translate('IDCS_CLEAR') }}</el-button>
+                                        <el-button
+                                            size="small"
+                                            @click="clearDrawArea"
+                                            >{{ Translate('IDCS_CLEAR') }}</el-button
+                                        >
                                     </div>
                                     <span class="base-ai-tip">{{ Translate('IDCS_DRAW_RECT_TIP') }}</span>
                                 </div>
@@ -111,6 +121,7 @@
                                     <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
                                         <el-select
                                             v-model="faceDetectionData.schedule"
+                                            size="small"
                                             :empty-values="[undefined, null]"
                                         >
                                             <el-option
@@ -121,7 +132,11 @@
                                             >
                                             </el-option>
                                         </el-select>
-                                        <el-button @click="pageData.scheduleManagPopOpen = true">{{ Translate('IDCS_MANAGE') }}</el-button>
+                                        <el-button
+                                            size="small"
+                                            @click="pageData.scheduleManagPopOpen = true"
+                                            >{{ Translate('IDCS_MANAGE') }}</el-button
+                                        >
                                     </el-form-item>
                                     <div
                                         v-if="detectionPageData.isParamRightShow"
@@ -131,7 +146,10 @@
                                         <div class="base-ai-subheading">{{ Translate('IDCD_RULE') }}</div>
                                         <!-- 持续时间 -->
                                         <el-form-item :label="Translate('IDCS_DURATION')">
-                                            <el-select v-model="faceDetectionData.holdTime">
+                                            <el-select
+                                                v-model="faceDetectionData.holdTime"
+                                                size="small"
+                                            >
                                                 <el-option
                                                     v-for="item in faceDetectionData.holdTimeList"
                                                     :key="item.value"
@@ -146,6 +164,7 @@
                                         <el-form-item :label="Translate('IDCS_SNAPSHOT_INTERVAL')">
                                             <el-select
                                                 v-model="faceDetectionData.snapInterval"
+                                                size="small"
                                                 :disabled="faceDetectionData.snapInterval === ''"
                                             >
                                                 <el-option
@@ -159,10 +178,11 @@
                                         </el-form-item>
                                         <!-- 抓拍次数 -->
                                         <el-form-item :label="Translate('IDCS_SNAPSHOT_NUMBER')">
-                                            <el-input
+                                            <BaseNumberInput
                                                 v-model="detectionPageData.snapNumber"
+                                                size="small"
                                                 :disabled="faceDetectionData.snapInterval === '' || detectionPageData.isSnapNumberDisabled"
-                                            ></el-input>
+                                            />
                                             <el-checkbox
                                                 v-model="detectionPageData.isSnapNumberChecked"
                                                 :disabled="faceDetectionData.snapInterval === ''"
@@ -178,6 +198,7 @@
                                             <el-slider
                                                 v-model="faceDetectionData.faceExpStrength"
                                                 :disabled="detectionPageData.faceExpDisabled"
+                                                size="small"
                                                 show-input
                                                 :show-input-controls="false"
                                                 :min="1"
@@ -189,6 +210,7 @@
                                         <el-form-item :label="Translate('IDCS_MIN')">
                                             <BaseNumberInput
                                                 v-model="faceDetectionData.minFaceFrame"
+                                                size="small"
                                                 :min="3"
                                                 :max="50"
                                                 @blur="minFaceBlur"
@@ -198,6 +220,7 @@
                                         <el-form-item :label="Translate('IDCS_MAX')">
                                             <BaseNumberInput
                                                 v-model="faceDetectionData.maxFaceFrame"
+                                                size="small"
                                                 :min="3"
                                                 :max="50"
                                                 @blur="maxFaceBlur"
@@ -232,7 +255,10 @@
                                     v-show="supportAlarmAudioConfig"
                                     :label="Translate('IDCS_VOICE_PROMPT')"
                                 >
-                                    <el-select v-model="faceDetectionData.sysAudio">
+                                    <el-select
+                                        v-model="faceDetectionData.sysAudio"
+                                        size="small"
+                                    >
                                         <el-option
                                             v-for="item in pageData.voiceList"
                                             :key="item.value"
@@ -385,11 +411,7 @@
                                 >{{ Translate('IDCS_SMART_SAVE_TARGET_PIC') }}</el-checkbox
                             >
                             <div class="base-btn-box">
-                                <el-button
-                                    small
-                                    @click="advancedVisible = false"
-                                    >{{ Translate('IDCS_CLOSE') }}</el-button
-                                >
+                                <el-button @click="advancedVisible = false">{{ Translate('IDCS_CLOSE') }}</el-button>
                             </div>
                         </div>
                     </el-popover>
@@ -568,12 +590,6 @@
             </template>
         </el-tab-pane>
     </el-tabs>
-    <div
-        v-if="pageData.notChlSupport"
-        class="base-ai-not-support-box"
-    >
-        {{ pageData.notSupportTip }}
-    </div>
     <BaseNotification v-model:notifications="pageData.notification" />
     <!-- AI资源的弹窗 -->
     <el-dialog
@@ -637,11 +653,7 @@
             </el-table-column>
         </el-table>
         <div class="base-btn-box">
-            <el-button
-                small
-                @click="AIResourcePopOpen = false"
-                >{{ Translate('IDCS_CLOSE') }}</el-button
-            >
+            <el-button @click="AIResourcePopOpen = false">{{ Translate('IDCS_CLOSE') }}</el-button>
         </div>
     </el-dialog>
     <!-- 排程管理弹窗 -->

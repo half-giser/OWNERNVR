@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-16 18:13:47
  * @Description: 移动侦测
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-22 10:22:50
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-23 11:33:50
 -->
 <template>
     <div class="base-flex-box">
@@ -113,6 +113,7 @@
                             v-model="scope.row.schedule.value"
                             prop="schedule"
                             value-key="value"
+                            size="small"
                             :disabled="scope.row.rowDisable"
                             :options="pageData.scheduleList"
                             @change="handleScheduleChangeSingle(scope.row)"
@@ -187,9 +188,9 @@
                             popper-class="no-padding"
                         >
                             <template #reference>
-                                <span class="base-popover-icon">
+                                <BaseTableDropdownLink>
                                     {{ Translate('IDCS_SNAP') }}
-                                </span>
+                                </BaseTableDropdownLink>
                             </template>
                             <BaseTransferPop
                                 v-if="pageData.snapPopoverVisible"
@@ -252,6 +253,7 @@
                             v-model="scope.row.sysAudio"
                             prop="sysAudio"
                             value-key="value"
+                            size="small"
                             :disabled="scope.row.rowDisable"
                             :options="pageData.audioList"
                             @change="addEditRow(scope.row)"
@@ -296,6 +298,7 @@
                             v-model="scope.row.msgPush"
                             prop="schedule"
                             value-key="value"
+                            size="small"
                             :disabled="scope.row.rowDisable"
                             :options="pageData.enableList"
                             @change="addEditRow(scope.row)"
@@ -410,6 +413,7 @@
                             v-model="scope.row.beeper"
                             prop="beeper"
                             value-key="value"
+                            size="small"
                             :disabled="scope.row.rowDisable"
                             :options="pageData.enableList"
                             @change="addEditRow(scope.row)"
@@ -454,6 +458,7 @@
                             v-model="scope.row.videoPopup"
                             prop="videoPopup"
                             value-key="value"
+                            size="small"
                             :disabled="scope.row.rowDisable"
                             :options="pageData.enableList"
                             @change="addEditRow(scope.row)"
@@ -496,6 +501,7 @@
                             v-model="scope.row.email"
                             prop="email"
                             value-key="value"
+                            size="small"
                             :disabled="scope.row.rowDisable"
                             :options="pageData.enableList"
                             @change="addEditRow(scope.row)"

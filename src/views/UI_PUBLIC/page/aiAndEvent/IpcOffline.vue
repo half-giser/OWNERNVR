@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-21 15:34:24
  * @Description: 前端掉线
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-21 14:09:16
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-23 10:47:26
 -->
 <template>
     <div class="base-flex-box">
@@ -144,6 +144,7 @@
                             v-model="scope.row.sysAudio"
                             prop="sysAudio"
                             value-key="value"
+                            size="small"
                             :disabled="scope.row.rowDisable"
                             :options="pageData.audioList"
                             @change="addEditRow(scope.row)"
@@ -188,6 +189,7 @@
                             v-model="scope.row.msgPush"
                             prop="schedule"
                             value-key="value"
+                            size="small"
                             :disabled="scope.row.rowDisable"
                             :options="pageData.enableList"
                             @change="addEditRow(scope.row)"
@@ -304,6 +306,7 @@
                         v-model="scope.row.ftpSnap"
                         prop="ftpSnap"
                         value-key="value"
+                        size="small"
                         :disabled="scope.row.rowDisable"
                         :options="pageData.enableList"
                         @change="addEditRow(scope.row)"
@@ -348,6 +351,7 @@
                             v-model="scope.row.beeper"
                             prop="beeper"
                             value-key="value"
+                            size="small"
                             :disabled="scope.row.rowDisable"
                             :options="pageData.enableList"
                             @change="addEditRow(scope.row)"
@@ -395,6 +399,7 @@
                             v-model="scope.row.videoPopupInfo.chl.value"
                             prop="videoPopupInfo"
                             value-key="value"
+                            size="small"
                             :disabled="scope.row.rowDisable"
                             :options="scope.row.videoPopupList"
                             @change="addEditRow(scope.row)"
@@ -439,6 +444,7 @@
                             v-model="scope.row.msgBoxPopup"
                             prop="msgBoxPopup"
                             value-key="value"
+                            size="small"
                             :disabled="scope.row.rowDisable"
                             :options="pageData.enableList"
                             @change="addEditRow(scope.row)"
@@ -481,6 +487,7 @@
                             v-model="scope.row.email"
                             prop="email"
                             value-key="value"
+                            size="small"
                             :disabled="scope.row.rowDisable"
                             :options="pageData.enableList"
                             @change="addEditRow(scope.row)"
