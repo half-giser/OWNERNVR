@@ -20,7 +20,11 @@
             v-if="taskData.ruleType === 'hit'"
             :label="Translate('IDCS_FACE_LIBRARY_GROUP')"
         >
-            <el-button @click="pageData.groupPopOpen = true">{{ Translate('IDCS_MORE') }}</el-button>
+            <el-button
+                size="small"
+                @click="pageData.groupPopOpen = true"
+                >{{ Translate('IDCS_MORE') }}</el-button
+            >
             <el-checkbox
                 v-model="pageData.selectAll"
                 :style="{ margin: '0 30px 0 10px' }"
@@ -31,7 +35,10 @@
         </el-form-item>
         <!-- 排程配置 -->
         <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
-            <el-select v-model="taskData.schedule">
+            <el-select
+                v-model="taskData.schedule"
+                size="small"
+            >
                 <el-option
                     v-for="item in prop.scheduleList"
                     :key="item.value"
@@ -40,18 +47,28 @@
                 >
                 </el-option>
             </el-select>
-            <el-button @click="pageData.scheduleManagPopOpen = true">{{ Translate('IDCS_MANAGE') }}</el-button>
+            <el-button
+                size="small"
+                @click="pageData.scheduleManagPopOpen = true"
+                >{{ Translate('IDCS_MANAGE') }}</el-button
+            >
         </el-form-item>
         <!-- 文字提示 -->
         <el-form-item :label="Translate('IDCS_TEXT_PROMPT')">
-            <el-input v-model="taskData.hintword"></el-input>
+            <el-input
+                v-model="taskData.hintword"
+                size="small"
+            ></el-input>
         </el-form-item>
         <!-- 语音提示 -->
         <el-form-item
             v-if="supportAlarmAudioConfig"
             :label="Translate('IDCS_VOICE_PROMPT')"
         >
-            <el-select v-model="taskData.sysAudio">
+            <el-select
+                v-model="taskData.sysAudio"
+                size="small"
+            >
                 <el-option
                     v-for="item in prop.voiceList"
                     :key="item.value"

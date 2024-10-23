@@ -2,8 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-29 09:12:33
  * @Description: ai与事件版块的一些公共样式，仅在需要用到的ai与事件版块下import
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-22 11:10:30
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-23 11:34:56
  */
 
 .base-ai-menu-tabs {
@@ -300,6 +300,7 @@
 .row-together {
     width: fit-content;
     .table_btn {
+        min-width: 80px;
         margin-left: 5px;
     }
 }

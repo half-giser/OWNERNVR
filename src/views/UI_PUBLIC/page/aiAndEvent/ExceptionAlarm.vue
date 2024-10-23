@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-21 15:34:24
  * @Description: 异常报警
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-09 11:32:28
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-23 10:48:09
 -->
 <template>
     <div class="base-flex-box">
@@ -68,6 +68,7 @@
                             v-model="scope.row.sysAudio"
                             prop="sysAudio"
                             value-key="value"
+                            size="small"
                             :disabled="scope.row.rowDisable"
                             :options="pageData.audioList"
                             @change="addEditRow()"
@@ -112,6 +113,7 @@
                             v-model="scope.row.msgPush"
                             prop="schedule"
                             value-key="value"
+                            size="small"
                             :disabled="scope.row.rowDisable"
                             :options="pageData.enableList"
                             @change="addEditRow()"
@@ -203,6 +205,7 @@
                             v-model="scope.row.beeper"
                             prop="beeper"
                             value-key="value"
+                            size="small"
                             :disabled="scope.row.rowDisable"
                             :options="pageData.enableList"
                             @change="addEditRow()"
@@ -247,6 +250,7 @@
                             v-model="scope.row.msgBoxPopup"
                             prop="msgBoxPopup"
                             value-key="value"
+                            size="small"
                             :disabled="scope.row.rowDisable"
                             :options="pageData.enableList"
                             @change="addEditRow()"
@@ -289,6 +293,7 @@
                             v-model="scope.row.email"
                             prop="email"
                             value-key="value"
+                            size="small"
                             :disabled="scope.row.rowDisable || scope.row.emailDisable"
                             :options="pageData.enableList"
                             @change="addEditRow()"
