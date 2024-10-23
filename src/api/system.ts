@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2023-06-02 11:57:11
  * @Description: 系统API
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:51:59
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-23 14:18:58
  */
 // import type { AxiosRequestConfig } from 'axios'
 import http from './api'
@@ -238,3 +238,16 @@ export const queryPoePower = () => http.fetch('queryPoePower', getXmlWrapData(''
  * @returns
  */
 export const editPoePower = (data: string) => http.fetch('editPoePower', getXmlWrapData(data), {}, false)
+
+/**
+ * @description 获取地标平台参数
+ * @returns
+ */
+export const querySHDBParam = () => http.fetch('querySHDBParam', getXmlWrapData(''))
+
+/**
+ * @description 更新地标平台参数
+ * @param {string} data
+ * @returns
+ */
+export const editSHDBParam = (data: string) => http.fetch('editSHDBParam', getXmlWrapData(data))

@@ -3,7 +3,7 @@
  * @Date: 2024-08-12 14:21:22
  * @Description: email通知
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-22 17:47:43
+ * @LastEditTime: 2024-10-23 15:41:01
  */
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import { EmailReceiver } from '@/types/apiType/aiAndEvent'
@@ -210,20 +210,9 @@ export default defineComponent({
             sendXml += rawXml`</receiver>
                             </content>`
             openLoading(LoadingTarget.FullScreen)
-            editEmailCfg(sendXml).then((resb) => {
+            editEmailCfg(sendXml).then((res) => {
                 closeLoading(LoadingTarget.FullScreen)
-                const res = queryXml(resb)
-                if (res('status').text() == 'success') {
-                    openMessageTipBox({
-                        type: 'success',
-                        message: Translate('IDCS_SAVE_DATA_SUCCESS'),
-                    })
-                } else {
-                    openMessageTipBox({
-                        type: 'info',
-                        message: Translate('IDCS_SAVE_DATA_FAIL'),
-                    })
-                }
+                commSaveResponseHadler(res)
             })
         }
         const handleSchedulePopClose = async () => {
