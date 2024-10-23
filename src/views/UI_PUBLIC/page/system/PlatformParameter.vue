@@ -3,7 +3,7 @@
  * @Date: 2024-10-23 11:22:10
  * @Description: 地标平台参数
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-23 15:34:32
+ * @LastEditTime: 2024-10-23 15:47:07
 -->
 <template>
     <div>
@@ -118,5 +118,3 @@
 </template>
 
 <script lang="ts" src="./PlatformParameter.v.ts"></script>
-
-<style lang="scss" scoped></style>

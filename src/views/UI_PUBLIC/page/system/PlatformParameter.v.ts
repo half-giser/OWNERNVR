@@ -59,6 +59,7 @@ export default defineComponent({
                 const resolution = $('//content/snapParam/resolution').text()
                 formData.value.resolution = resolution == '' ? pageData.value.defaultResolution : resolution
                 const resolutionList = $('//content/snapParam/resolutionNote').text()
+                // TODO 后续修改
                 pageData.value.resolutionList =
                     resolutionList !== ''
                         ? resolutionList.split(',').map((item) => ({
@@ -77,6 +78,7 @@ export default defineComponent({
                 const level = $('//content/snapParam/level').text()
                 formData.value.level = level == '' ? pageData.value.defaultLevel : level
                 const levelList = $('//content/snapParam/levelNote').text()
+                // TODO 后续修改
                 pageData.value.levelList =
                     levelList !== ''
                         ? levelList
@@ -100,6 +102,7 @@ export default defineComponent({
                 const holdTimeList = $('//content/snapParam/holdTimeNote').text()
                 // 时间单位,暂无用
                 pageData.value.unit = $('//content/snapParam/holdTime').attr('unit')
+                // TODO 后续修改
                 pageData.value.holdTimeList =
                     holdTimeList !== ''
                         ? holdTimeList.split(',').map((item) => ({

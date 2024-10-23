@@ -251,3 +251,16 @@ export const querySHDBParam = () => http.fetch('querySHDBParam', getXmlWrapData(
  * @returns
  */
 export const editSHDBParam = (data: string) => http.fetch('editSHDBParam', getXmlWrapData(data))
+
+/**
+ * @description 获取报警图像上传数据
+ * @returns
+ */
+export const querySHDBEventUploadCfg = () => http.fetch('querySHDBEventUploadCfg', getXmlWrapData(''))
+
+/**
+ * @description 更新报警图像上传数据
+ * @param {string} data
+ * @returns
+ */
+export const editSHDBEventUploadCfg = (data: string) => http.fetch('editSHDBEventUploadCfg', getXmlWrapData(data))
