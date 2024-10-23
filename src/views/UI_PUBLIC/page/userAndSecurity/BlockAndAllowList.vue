@@ -42,7 +42,7 @@
                 </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_EDIT')"
-                    width="150px"
+                    width="150"
                 >
                     <template #default="scope">
                         <BaseImgSprite
@@ -56,7 +56,7 @@
                 </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_DELETE')"
-                    width="150px"
+                    width="150"
                 >
                     <template #default="scope">
                         <BaseImgSprite

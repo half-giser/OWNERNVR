@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 18:07:29
  * @Description: 现场预览
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 16:11:05
+ * @LastEditTime: 2024-10-21 11:52:39
  */
 import { cloneDeep } from 'lodash-es'
 import { type LiveChannelList, type LiveCustomViewChlList, LiveSharedWinData } from '@/types/apiType/live'
@@ -384,7 +384,6 @@ export default defineComponent({
         const systemCaps = useCababilityStore()
         const userSession = useUserSessionStore()
         const layoutStore = useLayoutStore()
-        const theme = getUiAndTheme()
 
         const playerRef = ref<PlayerInstance>()
         const chlRef = ref<ChannelPanelExpose>()
@@ -487,7 +486,7 @@ export default defineComponent({
                     pageData.value.notification = [formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`)]
                 }
 
-                if (theme.name === 'UI1-E') {
+                if (import.meta.env.VITE_UI_TYPE === 'UI1-E') {
                     player.getChlIp()
                 }
             }
@@ -601,7 +600,7 @@ export default defineComponent({
                         }, 100)
                     }
                     if (mode.value === 'ocx') {
-                        if (theme.name === 'UI1-E') {
+                        if (import.meta.env.VITE_UI_TYPE === 'UI1-E') {
                             getDeviceOSDDisplayConfig()
                         }
                     }
@@ -670,7 +669,7 @@ export default defineComponent({
                         plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                     }
                     {
-                        if (theme.name === 'UI1-E') {
+                        if (import.meta.env.VITE_UI_TYPE === 'UI1-E') {
                             const sendXML = OCX_XML_SetViewChannelID(chlID, pageData.value.chlMap[chlID].value, {
                                 chlIp: pageData.value.chlMap[chlID].chlIp,
                                 poeSwitch: pageData.value.chlMap[chlID].poeSwitch,
@@ -913,13 +912,15 @@ export default defineComponent({
         }
 
         // UI1-D UI1-G 选择高画质登录
-        if (['UI1-D', 'UI1-G'].includes(theme.name) && userSession.defaultStreamType === 'main') {
-            const stopFirstLoadStream = watchEffect(() => {
-                if (pageData.value.split === 1 && pageData.value.playingList.length) {
-                    changeStreamType(1)
-                    stopFirstLoadStream()
-                }
-            })
+        if (import.meta.env.VITE_UI_TYPE === 'UI1-D' || import.meta.env.VITE_UI_TYPE === 'UI1-G') {
+            if (userSession.defaultStreamType === 'main') {
+                const stopFirstLoadStream = watchEffect(() => {
+                    if (pageData.value.split === 1 && pageData.value.playingList.length) {
+                        changeStreamType(1)
+                        stopFirstLoadStream()
+                    }
+                })
+            }
         }
 
         /**
@@ -1066,7 +1067,7 @@ export default defineComponent({
                 if (bool) {
                     const chlIds = (chlRef.value?.getOnlineChlList() || []).slice(0, pageData.value.split)
                     const chlNames = chlIds.map((item) => pageData.value.chlMap[item].value)
-                    if (theme.name === 'UI1-E') {
+                    if (import.meta.env.VITE_UI_TYPE === 'UI1-E') {
                         const chlPoe = chlIds.map((item) => {
                             return {
                                 chlIp: pageData.value.chlMap[item].chlIp,
@@ -1578,7 +1579,7 @@ export default defineComponent({
                 cacheWinMap[winIndex] = { ...cloneWinData }
 
                 let chlID = $item('chlId').text().trim()
-                if (chlID === '{00000000-0000-0000-0000-000000000000}') {
+                if (chlID === EmptyId) {
                     chlID = ''
                 }
 
@@ -1592,7 +1593,7 @@ export default defineComponent({
                 cacheWinMap[winIndex].isPolling = $item('isGroupPlay').text().toBoolean()
                 cacheWinMap[winIndex].isDwellPlay = $item('isDwellPlay').text().toBoolean()
                 let groupID = $item('groupId').text()
-                if (groupID === '{00000000-0000-0000-0000-000000000000}') {
+                if (groupID === EmptyId) {
                     groupID = ''
                 }
                 cacheWinMap[winIndex].groupID = groupID
@@ -1621,7 +1622,7 @@ export default defineComponent({
             // 通知抓图结果
             else if ($('statenotify[@type="TakePhoto"]').length) {
                 if ($('statenotify[@type="TakePhoto"]/status').text() === 'success') {
-                    if (theme.name !== 'UI1-E') {
+                    if (import.meta.env.VITE_UI_TYPE !== 'UI1-E') {
                         if (!window.localStorage.getItem('snapPicNotEncrypted')) {
                             pageData.value.notification.push(Translate('IDCS_IMG_UNENCRYPTED_TIP'))
                             window.localStorage.setItem('snapPicNotEncrypted', 'true')
@@ -1636,7 +1637,7 @@ export default defineComponent({
             // 通知手动录像结果
             else if ($('statenotify[@type="RecComplete"]').length) {
                 if ($('statenotify[@type="RecComplete"]/status').text() == 'success') {
-                    if (theme.name !== 'UI1-E') {
+                    if (import.meta.env.VITE_UI_TYPE !== 'UI1-E') {
                         if (!window.localStorage.getItem('localAviNotEncrypted')) {
                             pageData.value.notification.push(Translate('IDCS_AVI_UNENCRYPTED_TIP'))
                             window.localStorage.setItem('localAviNotEncrypted', 'true')

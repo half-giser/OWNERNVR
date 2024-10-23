@@ -2,7 +2,7 @@
     <el-dialog
         draggable
         center
-        width="960px"
+        width="960"
         :title="Translate('IDCS_SCHEDULE')"
         :close-on-click-modal="false"
         :destroy-on-close="true"
@@ -36,12 +36,12 @@
                     <el-table-column
                         :label="Translate('IDCS_SCHEDULE_NAME')"
                         prop="name"
-                        width="146px"
+                        width="146"
                     />
 
                     <el-table-column
                         :label="Translate('IDCS_EDIT')"
-                        width="80px"
+                        width="80"
                     >
                         <template #default="scope">
                             <BaseImgSprite
@@ -58,7 +58,7 @@
 
                     <el-table-column
                         :label="Translate('IDCS_DELETE')"
-                        width="80px"
+                        width="80"
                     >
                         <template #default="scope">
                             <BaseImgSprite

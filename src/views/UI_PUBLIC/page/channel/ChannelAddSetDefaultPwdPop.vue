@@ -21,17 +21,17 @@
                 table-layout="fixed"
                 show-overflow-tooltip
                 empty-text=" "
-                height="300px"
+                height="300"
                 class="ruleTable"
             >
                 <el-table-column
                     prop="displayName"
                     :label="Translate('IDCS_PROTOCOL')"
-                    width="130px"
+                    width="130"
                 />
                 <el-table-column
                     :label="Translate('IDCS_USERNAME')"
-                    min-width="240px"
+                    min-width="240"
                 >
                     <template #default="scope">
                         <el-form-item
@@ -41,7 +41,9 @@
                             <el-input
                                 v-model="scope.row.userName"
                                 :validate-event="false"
-                                maxlength="63"
+                                :formatter="formatInputMaxLength"
+                                :parser="formatInputMaxLength"
+                                :maxlength="nameByteMaxLen"
                                 @keydown.enter="handleKeydownEnter($event)"
                             />
                         </el-form-item>
@@ -49,19 +51,20 @@
                 </el-table-column>
                 <el-table-column
                     prop="password"
-                    :label="Translate('IDCS_USERNAME')"
-                    width="170px"
+                    :label="Translate('IDCS_PASSWORD')"
+                    width="170"
                 >
                     <template #default="scope">
                         <span
                             v-show="!scope.row.showInput"
                             @click="handlePwdViewChange(scope.$index, scope.row)"
-                            >{{ scope.row.password ? scope.row.password : '******' }}</span
+                            >{{ scope.row.password ? Array(scope.row.password.length).fill('*').join('') : '******' }}</span
                         >
                         <el-input
                             v-show="scope.row.showInput"
                             :ref="(ref) => (passwordInputRef[scope.$index] = ref)"
                             v-model="scope.row.password"
+                            type="password"
                             @blur="handlePwdViewChange(scope.$index, scope.row)"
                         />
                     </template>
@@ -71,6 +74,7 @@
         <BaseCheckAuthPop
             v-model="baseCheckAuthPopVisiable"
             @confirm="setData"
+            @close="baseCheckAuthPopVisiable = false"
         />
         <template #footer>
             <el-row>

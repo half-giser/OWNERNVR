@@ -3,10 +3,10 @@
  * @Date: 2024-06-27 11:50:00
  * @Description: 备份与恢复
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-16 10:04:50
+ * @LastEditTime: 2024-10-22 20:14:42
 -->
 <template>
-    <div class="BackupAndRestore">
+    <div>
         <el-form
             inline-message
             label-position="left"

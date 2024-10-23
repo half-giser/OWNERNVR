@@ -15,7 +15,6 @@
         <el-form
             ref="formRef"
             label-position="left"
-            class=""
             :model="formData"
             :style="{
                 '--form-label-width': '100px',

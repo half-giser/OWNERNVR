@@ -6,8 +6,7 @@
 
 import { ChlGroup } from '@/types/apiType/channel'
 import { cloneDeep } from 'lodash-es'
-import { type RuleItem } from 'async-validator'
-import { type FormInstance } from 'element-plus'
+import { type FormRules, type FormInstance } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -32,25 +31,27 @@ export default defineComponent({
         const formData = ref(new ChlGroup())
         const timeList = [5, 10, 20, 30, 60, 120, 300, 600]
 
-        const validate: Record<string, RuleItem['validator']> = {
-            validateName: (_rule, value, callback) => {
-                value = value.trim()
-                if (value.length === 0) {
-                    callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
-                    return
-                } else {
-                    formData.value.name = value = cutStringByByte(value, nameByteMaxLen)
-                    // 应该不可能发生此情况
-                    if (value == 0) {
-                        callback(new Error(Translate('IDCS_INVALID_CHAR')))
-                        return
-                    }
-                }
-                callback()
-            },
-        }
-        const rules = ref({
-            name: [{ validator: validate.validateName, trigger: 'manual' }],
+        const rules = ref<FormRules>({
+            name: [
+                {
+                    validator: (_rule, value, callback) => {
+                        value = value.trim()
+                        if (value.length === 0) {
+                            callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
+                            return
+                        } else {
+                            formData.value.name = value = cutStringByByte(value, nameByteMaxLen)
+                            // 应该不可能发生此情况
+                            if (value == 0) {
+                                callback(new Error(Translate('IDCS_INVALID_CHAR')))
+                                return
+                            }
+                        }
+                        callback()
+                    },
+                    trigger: 'manual',
+                },
+            ],
         })
 
         const opened = () => {

@@ -3,13 +3,13 @@
  * @Date: 2024-06-20 10:38:40
  * @Description: 编辑黑白名单弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 11:51:51
+ * @LastEditTime: 2024-10-22 20:12:54
 -->
 <template>
     <el-dialog
         draggable
         center
-        width="600px"
+        width="600"
         :title
         @open="handleOpen"
     >
@@ -70,11 +70,7 @@
                     :span="24"
                     class="el-col-flex-end"
                 >
-                    <el-button
-                        class="btn-ok"
-                        @click="verify"
-                        >{{ Translate('IDCS_OK') }}</el-button
-                    >
+                    <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
                     <el-button @click="goBack">{{ Translate('IDCS_CANCEL') }}</el-button>
                 </el-col>
             </el-row>

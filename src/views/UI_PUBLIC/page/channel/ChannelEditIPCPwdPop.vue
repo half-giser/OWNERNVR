@@ -1,7 +1,7 @@
 <!--
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-05-23 10:00:35
- * @Description:
+ * @Description: 通道 - 编辑IPC密码弹窗
 -->
 <template>
     <el-dialog
@@ -15,7 +15,7 @@
             border
             stripe
             :data="tableData"
-            height="245px"
+            height="245"
             table-layout="fixed"
             show-overflow-tooltip
             highlight-current-row
@@ -24,22 +24,22 @@
         >
             <el-table-column
                 type="selection"
-                width="50px"
+                width="50"
             />
             <el-table-column
                 type="index"
                 :label="Translate('IDCS_SERIAL_NUMBER')"
-                width="80px"
+                width="80"
             />
             <el-table-column
                 prop="name"
                 :label="Translate('IDCS_CHANNEL_NAME')"
-                min-width="240px"
+                min-width="240"
             />
             <el-table-column
                 prop="chlStatus"
                 :label="Translate('IDCS_CONNECT_STATUS')"
-                width="120px"
+                width="120"
             />
         </el-table>
         <el-form
@@ -47,7 +47,6 @@
             :model="formData"
             :rules="rules"
             label-position="left"
-            class="ruleForm"
         >
             <el-form-item
                 prop="password"
@@ -56,7 +55,7 @@
                 <el-input
                     v-model="formData.password"
                     :placeholder="Translate('IDCS_PASSWORD_TIP')"
-                    class="passwordInput"
+                    type="password"
                 />
             </el-form-item>
             <el-form-item
@@ -66,7 +65,7 @@
                 <el-input
                     v-model="formData.confirmPassword"
                     :placeholder="Translate('IDCS_PASSWORD_TIP')"
-                    class="passwordInput"
+                    type="password"
                 />
             </el-form-item>
         </el-form>
@@ -84,8 +83,7 @@
 <script lang="ts" src="./ChannelEditIPCPwdPop.v.ts"></script>
 
 <style scoped lang="scss">
-.ruleForm {
-    width: 420px;
+.el-form {
     margin: 20px auto;
 }
 </style>

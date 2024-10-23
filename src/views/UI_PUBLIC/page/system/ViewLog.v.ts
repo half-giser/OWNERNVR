@@ -506,7 +506,7 @@ export default defineComponent({
          * @description 导出数据
          */
         const handleExport = async () => {
-            // TODO 从导出逻辑上看，此处导出是用浏览器原生实现，与插件无关，不明白为何插件未安装或不可用时禁止导出
+            // 从导出逻辑上看，此处导出是用浏览器原生实现，与插件无关，不明白为何插件未安装或不可用时禁止导出
             // if (!Plugin.IsSupportH5() && !Plugin.IsInstallPlugin()) {
             //     openMessageTipBox({
             //         type: 'info',

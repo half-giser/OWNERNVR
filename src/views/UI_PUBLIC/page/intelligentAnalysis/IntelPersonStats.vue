@@ -81,7 +81,7 @@
                 >
                     <el-table-column
                         prop="chlName"
-                        width="150px"
+                        width="150"
                         :label="Translate('IDCS_CHANNEL_NAME')"
                     />
                     <el-table-column

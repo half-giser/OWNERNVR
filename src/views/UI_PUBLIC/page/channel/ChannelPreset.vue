@@ -2,8 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-20 13:57:01
  * @Description: 云台-预置点
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-09 15:51:43
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-22 19:58:13
 -->
 <template>
     <div class="base-chl-box">
@@ -29,7 +29,7 @@
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
                     <el-select
                         v-model="pageData.tableIndex"
-                        max-height="200px"
+                        max-height="200"
                         popper-class="custom-select"
                         @change="changeChl"
                     >

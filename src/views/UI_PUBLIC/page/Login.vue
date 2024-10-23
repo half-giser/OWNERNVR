@@ -3,7 +3,7 @@
  * @Date: 2023-05-10 09:30:08
  * @Description: 登录页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-29 13:32:02
+ * @LastEditTime: 2024-10-22 13:53:51
 -->
 <template>
     <div class="login">
@@ -100,7 +100,7 @@
 .login-content {
     position: relative;
     width: 713px;
-    // height: 296px;
+    height: 296px;
     background-image: var(--img-login-content);
     background-color: var(--login-content-bg, var(--main-bg));
     background-position: center top;

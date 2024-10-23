@@ -5,7 +5,7 @@
 -->
 <template>
     <el-button
-        v-if="uiName !== 'UI2-A'"
+        v-if="isAddGroupBtn"
         id="btnAdd"
         @click="addChlGroup"
         >{{ Translate('IDCS_ADD_GROUP') }}</el-button
@@ -22,13 +22,15 @@
 export default defineComponent({
     emits: ['toolBarEvent'],
     setup(_props, ctx) {
-        const { name: uiName } = getUiAndTheme()
+        const isAddGroupBtn = import.meta.env.VITE_UI_TYPE !== 'UI2-A'
+
         const addChlGroup = () => {
             ctx.emit('toolBarEvent', {
                 type: 'addChlGroup',
             })
         }
-        return { addChlGroup, uiName }
+
+        return { addChlGroup, isAddGroupBtn }
     },
 })
 </script>

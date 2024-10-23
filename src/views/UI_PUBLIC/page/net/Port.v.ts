@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 18:47:07
  * @Description: 网络端口
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-17 11:18:19
+ * @LastEditTime: 2024-10-21 13:46:03
  */
 import { NetPortForm, NetPortUPnPDto, NetPortApiServerForm, NetPortRtspServerForm } from '@/types/apiType/net'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -101,7 +101,7 @@ export default defineComponent({
 
         const pageData = ref({
             // UI1-E客户定制，页面不显示apiserver
-            isUse44: getUiAndTheme().name === 'UI1-E',
+            isAppServer: import.meta.env.VITE_UI_TYPE === 'UI1-E',
             // 系统保留端口
             reservedPort: [] as number[],
             //poe switch功能保留端口范围

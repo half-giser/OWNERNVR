@@ -75,7 +75,7 @@
         </el-form>
         <!-- API SERVER -->
         <el-form
-            v-show="!pageData.isUse44"
+            v-show="!pageData.isAppServer"
             label-position="left"
             :style="{
                 '--form-label-width': '200px',
@@ -119,12 +119,12 @@
             inline-message
         >
             <div
-                v-show="!pageData.isUse44"
+                v-show="!pageData.isAppServer"
                 class="base-subheading-box"
             >
                 {{ Translate('IDCS_RTSP') }}
             </div>
-            <el-form-item v-show="!pageData.isUse44">
+            <el-form-item v-show="!pageData.isAppServer">
                 <el-checkbox
                     v-model="rtspServerFormData.rtspServerSwitch"
                     :disabled="pageData.wirelessSwitch"
@@ -133,7 +133,7 @@
                 >
             </el-form-item>
             <el-form-item
-                v-show="!pageData.isUse44"
+                v-show="!pageData.isAppServer"
                 :label="Translate('IDCS_ENCRYPTION_TYPE')"
             >
                 <el-select

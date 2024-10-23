@@ -4,7 +4,7 @@
  * @Description: OCX插件模块
  * 原项目中MAC插件和TimeSliderPlugin相关逻辑不保留
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-12 14:08:49
+ * @LastEditTime: 2024-10-21 11:47:19
  */
 import WebsocketPlugin from '@/utils/websocket/websocketPlugin'
 import { ClientPort, P2PClientPort, P2PACCESSTYPE, SERVER_IP, getPluginPath, PluginSizeModeMapping, type OCX_Plugin_Notice_Map } from '@/utils/ocx/ocxUtil'
@@ -936,7 +936,7 @@ const useOCXPlugin = () => {
      * @returns
      */
     const displayOCX = (isShow: boolean) => {
-        // TODO effect
+        // effect
         // 有弹框时，不显示视频插件窗口（排除录像回放窗口、通道预览窗口、系统设置-》POS显示弹窗设置窗口）
         // if (isShow && $('.tvt_dialog').length > 0 && $('#popRec_content').length == 0 && $('#popLiveOCX').length == 0 && $('#editDisplaySet').length == 0) {
         //     return
@@ -956,7 +956,7 @@ const useOCXPlugin = () => {
         if (isShow && document.visibilityState == 'hidden') return
         if (!getIsPluginAvailable()) return
         // if (systemInfo.platform === 'mac' && import.meta.env.VITE_APP_TYPE === 'P2P') {
-        //     // TODO effect
+        //     // effect
         //     // if ($('.tvt_dialog').length > 0 && isShow && $('#popRec_content').length == 0) {
         //     //     return
         //     // }
@@ -1383,7 +1383,13 @@ const useOCXPlugin = () => {
                 goToIndex()
                 return
             }
-            startV2Process()
+
+            // siteDictionary.js 在根目录下
+            const script = document.createElement('script')
+            script.onload = () => {
+                startV2Process()
+            }
+            script.src = '/siteDictionary.js'
         }
     })
 

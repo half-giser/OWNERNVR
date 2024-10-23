@@ -3,7 +3,7 @@
  * @Date: 2024-06-24 09:19:04
  * @Description: 基本配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 14:39:59
+ * @LastEditTime: 2024-10-22 20:14:17
 -->
 <template>
     <div class="Setting">
@@ -37,11 +37,10 @@
                 prop="deviceNumber"
                 :label="Translate('IDCS_DEVICE_NUMBER')"
             >
-                <el-input-number
+                <BaseNumberInput
                     v-model="formData.deviceNumber"
                     :min="0"
                     :max="99999"
-                    :controls="false"
                 />
             </el-form-item>
             <el-form-item
@@ -157,11 +156,7 @@
                 <el-checkbox v-model="formData.zeroOrAddIpc">{{ Translate('IDCS_ZERO_OP_ADD_IPC') }}</el-checkbox>
             </el-form-item>
             <div class="base-btn-box">
-                <el-button
-                    class="btn-ok"
-                    @click="verify"
-                    >{{ Translate('IDCS_APPLY') }}</el-button
-                >
+                <el-button @click="verify">{{ Translate('IDCS_APPLY') }}</el-button>
             </div>
         </el-form>
     </div>

@@ -139,7 +139,7 @@
                 </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_PLAY')"
-                    width="60px"
+                    width="60"
                 >
                     <template #default="scope">
                         <BaseImgSprite

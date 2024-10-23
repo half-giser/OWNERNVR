@@ -1,7 +1,7 @@
 <!--
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-06-19 09:52:15
- * @Description:
+ * @Description: 新增通道组
 -->
 <template>
     <div class="base-flex-box">
@@ -29,9 +29,9 @@
                 <el-select v-model="formData.dwellTime">
                     <el-option
                         v-for="item in timeList"
-                        :key="item.value"
-                        :value="item.value"
-                        :label="item.text"
+                        :key="item"
+                        :value="item"
+                        :label="getTranslateForSecond(item)"
                     />
                 </el-select>
             </el-form-item>
@@ -52,25 +52,25 @@
                 <el-table-column
                     type="index"
                     :label="Translate('IDCS_SERIAL_NUMBER')"
-                    width="80px"
+                    width="80"
                 />
                 <el-table-column
                     type="selection"
-                    width="50px"
+                    width="50"
                 />
                 <el-table-column
                     prop="name"
                     :label="Translate('IDCS_CHANNEL_NAME')"
-                    min-width="300px"
+                    min-width="300"
                 />
                 <el-table-column
                     prop="ip"
                     :label="Translate('IDCS_ADDRESS')"
-                    min-width="300px"
+                    min-width="300"
                 />
                 <el-table-column
                     :label="Translate('IDCS_PREVIEW')"
-                    min-width="140px"
+                    min-width="140"
                 >
                     <template #default="scope">
                         <BaseImgSprite
@@ -90,7 +90,7 @@
             :span="2"
         >
             <div>
-                <span>{{ Translate('IDCS_SELECT_CHANNEL_COUNT').formatForLang(selNum, total) }}</span>
+                <span>{{ Translate('IDCS_SELECT_CHANNEL_COUNT').formatForLang(selNum, chlGroupCountLimit) }}</span>
             </div>
             <div>
                 <el-button @click="save()">{{ Translate('IDCS_OK') }}</el-button>

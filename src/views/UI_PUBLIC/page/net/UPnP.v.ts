@@ -3,7 +3,7 @@
  * @Date: 2024-07-11 08:56:08
  * @Description: UPnP配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-17 15:38:53
+ * @LastEditTime: 2024-10-21 11:57:49
  */
 import { NetUPnPForm, type NetUPnPPortDto } from '@/types/apiType/net'
 
@@ -12,7 +12,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
-        const theme = getUiAndTheme()
+        // const theme = import.meta.env.VITE_UI_TYPE
 
         // 显示文本映射
         const TRANS_MAPPING: Record<string, string> = {
@@ -28,6 +28,7 @@ export default defineComponent({
         const formData = ref(new NetUPnPForm())
         const tableData = ref<NetUPnPPortDto[]>([])
         const pageData = ref({
+            btnName: import.meta.env.VITE_UI_TYPE === 'UI1-E' ? Translate('IDCS_TEST') : Translate('IDCS_REFRESH'),
             // 映射类型选项
             mapTypeOptions: [
                 {
@@ -215,7 +216,7 @@ export default defineComponent({
             changeMappingType,
             setData,
             getData,
-            theme,
+            // theme,
             handleRowClassName,
         }
     },

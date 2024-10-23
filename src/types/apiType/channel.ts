@@ -441,7 +441,7 @@ export class ChannelMask extends ChannelRowStatus {
     name = ''
     chlIndex = ''
     chlType = ''
-    switch = false
+    switch = 'false'
     color = 'black'
     isSpeco = false
     mask: PrivacyMask[] = []
@@ -478,10 +478,10 @@ export class ChannelMotion extends ChannelRowStatus {
     chlType = ''
     switch = false
     sensitivity = 1
-    sensitivityMinValue = NaN
-    sensitivityMaxValue = NaN
+    sensitivityMinValue = 1
+    sensitivityMaxValue = 1
     holdTime = ''
-    holdTimeList: Record<string, string>[] = []
+    holdTimeList: string[] = []
     supportSMD = false
     isOnvifChl = false
     objectFilterCar: boolean | undefined = undefined

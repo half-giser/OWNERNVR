@@ -9,7 +9,7 @@
     <el-dialog
         draggable
         center
-        width="1000px"
+        width="1000"
         :title="Translate('IDCS_DISPLAY_SETTINGS')"
         @close="close"
         @open="open"
@@ -35,7 +35,7 @@
                                 stripe
                                 border
                                 :data="startEndCharTableList"
-                                height="300px"
+                                height="300"
                             >
                                 <el-table-column :label="Translate('IDCS_START_CHAR')">
                                     <template #default="scope">
@@ -78,7 +78,7 @@
                                 stripe
                                 border
                                 :data="lineBreakTableList"
-                                height="300px"
+                                height="300"
                             >
                                 <el-table-column :label="Translate('IDCS_WRAP_CHAR')">
                                     <template #default="scope">
@@ -111,7 +111,7 @@
                                 stripe
                                 border
                                 :data="ignoreChareTableList"
-                                height="300px"
+                                height="300"
                             >
                                 <el-table-column :label="Translate('IDCS_IGNORE_CHAR')">
                                     <template #default="scope">
@@ -139,7 +139,7 @@
                     </div>
                     <el-form
                         class="narrow"
-                        label-width="150px"
+                        label-width="150"
                         label-position="left"
                         :style="{
                             '--form-input-width': '340px',
@@ -149,11 +149,11 @@
                             <el-checkbox v-model="formData.upperCase"></el-checkbox>
                         </el-form-item>
                         <el-form-item :label="Translate('IDCS_OVERTIME')">
-                            <el-input-number
+                            <BaseNumberInput
                                 v-model="formData.timeOut"
                                 :min="5"
                                 :max="3600"
-                                :controls="false"
+                                value-on-clear="min"
                             />
                             <span class="overtime">s</span>
                         </el-form-item>

@@ -21,16 +21,14 @@
             empty-text=" "
             highlight-current-row
             :show-header="false"
-            height="300px"
+            height="300"
         >
             <el-table-column
                 prop="name"
-                :label="Translate('IDCS_SERIAL_NUMBER')"
-                width="140px"
+                width="140"
             />
             <el-table-column
-                :label="Translate('IDCS_CHANNEL_CONFIG')"
-                min-width="420px"
+                min-width="420"
                 class-name="custom_cell"
             >
                 <template #default="scope">

@@ -3,7 +3,7 @@
  * @Date: 2024-07-26 17:03:07
  * @Description: 现场预览-通道视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 17:42:49
+ * @LastEditTime: 2024-10-21 11:54:08
  */
 import ChannelGroupEditPop from '../channel/ChannelGroupEditPop.vue'
 import ChannelGroupAddPop from '../channel/ChannelGroupAddPop.vue'
@@ -66,7 +66,6 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
-        const theme = getUiAndTheme()
 
         const pageData = ref({
             // 通道列表是否初始化完毕
@@ -563,7 +562,7 @@ export default defineComponent({
         onMounted(async () => {
             await getChlsList()
             await getSupportTalkbackChlList()
-            if (theme.name === 'UI1-E') {
+            if (import.meta.env.VITE_UI_TYPE === 'UI1-E') {
                 await getDeviceList()
             }
             await getChlTreeStatus()

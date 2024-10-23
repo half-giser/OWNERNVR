@@ -3,17 +3,10 @@
  * @Date: 2024-06-05 14:16:36
  * @Description: 集成wasm-player和多分屏功能
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 16:46:45
+ * @LastEditTime: 2024-10-21 11:01:52
  */
 
-import { ErrorCode } from '../constants'
-import { useCababilityStore } from '@/stores/cabability'
-import { isHttpsLogin, getUiAndTheme, formatHttpsTips } from '../tools'
 import WasmPlayer, { type WasmPlayerVideoFrame } from './wasmPlayer'
-import http from '@/api/api'
-import useNotification from '@/hooks/useNotification'
-import { useLangStore } from '@/stores/lang'
-import { queryXml, rawXml } from '@/utils/xmlParse'
 import type WebGLPlayer from './webglPlayer'
 
 export interface TVTPlayerOption {
@@ -1163,7 +1156,7 @@ export default class TVTPlayer {
      * @description UI1-E 获取通道IP
      */
     getChlIp() {
-        http.fetch('queryDevOsdDisplayCfg', '').then((res: any) => {
+        queryDevOsdDisplayCfg().then((res) => {
             const $ = queryXml(res)
             if ($('//status').text() !== 'success') return
             if ($('//content/addressSwitch').text() === 'true') {
@@ -1200,8 +1193,7 @@ export default class TVTPlayer {
      * @param chlId
      */
     setChlIp(winIndex: number, chlId: string) {
-        const { name } = getUiAndTheme()
-        if (name === 'UI1-E') {
+        if (import.meta.env.VITE_UI_TYPE === 'UI1-E') {
             this.screen.setIpToScreen(winIndex, this.chlIpMap[chlId])
         }
     }
@@ -1220,7 +1212,7 @@ export default class TVTPlayer {
                 <zoom>${String(obj.zoom)}</zoom>
             </content>
         `
-        http.fetch('ptz3DControl', data)
+        ptz3DControl(data)
             .then(() => {
                 callback && callback()
             })
@@ -1242,7 +1234,7 @@ export default class TVTPlayer {
                 <type>${opt.type}</type>
             </content>
         `
-        http.fetch('ptzMoveCall', data)
+        ptzMoveCall(data)
     }
 
     exchangWin(newWinIndex: number, newWinPosition: number, oldWinIndex: number, oldWinPosition: number) {

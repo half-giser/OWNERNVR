@@ -3,7 +3,7 @@
  * @Date: 2024-08-06 20:37:25
  * @Description: 回放-事件类型视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 15:34:11
+ * @LastEditTime: 2024-10-21 11:37:38
  */
 import { type PlaybackEventList } from '@/types/apiType/playback'
 
@@ -25,7 +25,6 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
-        const theme = getUiAndTheme()
 
         // 事件模式索引与key值的映射
         const MODE_INDEX_TYPE_MAP: Record<number, string> = {
@@ -351,7 +350,7 @@ export default defineComponent({
         onMounted(() => {
             pageData.value.eventList = pageData.value.events[0].map((item) => item.value)
             // UI1-B客户不支持选第二种模式
-            if (theme.name === 'UI1-B') {
+            if (import.meta.env.VITE_UI_TYPE === 'UI1-B') {
                 pageData.value.isEventPopBtn = false
             }
         })

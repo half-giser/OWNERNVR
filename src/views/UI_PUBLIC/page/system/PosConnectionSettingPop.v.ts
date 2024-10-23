@@ -3,7 +3,7 @@
  * @Date: 2024-07-02 13:36:25
  * @Description: POS连接设置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 15:05:11
+ * @LastEditTime: 2024-10-21 17:33:21
  */
 import { type FormInstance, type FormRules } from 'element-plus'
 import { SystemPosList, SystemPosConnectionForm } from '@/types/apiType/system'
@@ -53,7 +53,7 @@ export default defineComponent({
                 {
                     validator: (rule, value: string, callback) => {
                         if (formData.value.switch) {
-                            if (value === '') {
+                            if (!value) {
                                 callback(new Error(Translate('IDCS_POS_PORT_EMPTY')))
                                 return
                             }
@@ -66,6 +66,7 @@ export default defineComponent({
                             callback()
                         }
                     },
+                    trigger: 'manual',
                 },
             ],
         })
@@ -97,12 +98,19 @@ export default defineComponent({
          */
         const open = () => {
             formRef.value?.clearValidate()
+            formRef.value?.resetFields()
             formData.value.ip = prop.data.connectionSetting.posIp || '0.0.0.0'
             formData.value.switch = prop.data.connectionSetting.filterPostPortSwitch
             if (prop.data.connectionType === 'TCP-Listen') {
-                formData.value.port = formData.value.switch ? prop.data.connectionSetting.posPort : 0
+                formData.value.port = formData.value.switch ? prop.data.connectionSetting.posPort : undefined
             } else {
                 formData.value.port = prop.data.connectionSetting.posPort
+            }
+        }
+
+        const changeSwitch = () => {
+            if (!formData.value.switch) {
+                formData.value.port = undefined
             }
         }
 
@@ -113,6 +121,7 @@ export default defineComponent({
             verify,
             close,
             rules,
+            changeSwitch,
         }
     },
 })

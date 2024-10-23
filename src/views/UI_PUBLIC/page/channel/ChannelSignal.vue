@@ -19,13 +19,13 @@
                 <el-table-column
                     prop="name"
                     :label="Translate('IDCS_CHANNEL')"
-                    min-width="300px"
+                    min-width="300"
                 />
                 <el-table-column
                     v-if="switchableIpChlMaxCount !== 0"
                     prop="analogIp"
                     :label="Translate('IDCS_ANALOG_IP')"
-                    min-width="220px"
+                    min-width="220"
                 >
                     <template #header>
                         <el-dropdown trigger="click">
@@ -59,7 +59,7 @@
                 <el-table-column
                     prop="signal"
                     :label="Translate('IDCS_SIGNAL')"
-                    min-width="220px"
+                    min-width="220"
                 >
                     <template #header>
                         <el-dropdown trigger="click">
@@ -100,7 +100,7 @@
                     v-if="supportLite"
                     prop="lite"
                     :label="Translate('IDCS_SUPPORT_LITE')"
-                    min-width="220px"
+                    min-width="220"
                 >
                     <template #header>
                         <el-dropdown trigger="click">

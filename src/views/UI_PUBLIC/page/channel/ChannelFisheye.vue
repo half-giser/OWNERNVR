@@ -74,12 +74,10 @@
                         @change="handleChangeVal(true)"
                     >
                         <el-option
-                            :value="true"
-                            :label="Translate('IDCS_ON')"
-                        />
-                        <el-option
-                            :value="false"
-                            :label="Translate('IDCS_OFF')"
+                            v-for="item in switchOptions"
+                            :key="item.value"
+                            :value="item.value"
+                            :label="item.label"
                         />
                     </el-select>
                 </el-form-item>
@@ -101,7 +99,7 @@
                 >
                     <el-table-column
                         label=" "
-                        width="50px"
+                        width="50"
                     >
                         <template #default="scope">
                             <BaseTableRowStatus
@@ -113,12 +111,12 @@
                     <el-table-column
                         prop="name"
                         :label="Translate('IDCS_CHANNEL_NAME')"
-                        min-width="180px"
+                        min-width="180"
                     >
                     </el-table-column>
                     <el-table-column
                         :label="Translate('IDCS_FISHEYE_STREAM_MODE')"
-                        min-width="180px"
+                        min-width="180"
                     >
                         <template #header>
                             <el-dropdown trigger="click">
@@ -132,8 +130,9 @@
                                             :key="index"
                                             :value="item"
                                             @click="handleChangeAll('fishEyeMode', item)"
-                                            >{{ fishEyeModeMap[item] }}</el-dropdown-item
                                         >
+                                            {{ fishEyeModeMap[item] }}
+                                        </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
                             </el-dropdown>
@@ -158,7 +157,7 @@
                     </el-table-column>
                     <el-table-column
                         :label="Translate('IDCS_FISHEYE_MODE')"
-                        min-width="180px"
+                        min-width="180"
                     >
                         <template #header>
                             <el-dropdown trigger="click">
@@ -172,8 +171,9 @@
                                             :key="index"
                                             :value="item"
                                             @click="handleChangeAll('installType', item)"
-                                            >{{ installTypeMap[item] }}</el-dropdown-item
                                         >
+                                            {{ installTypeMap[item] }}
+                                        </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
                             </el-dropdown>
@@ -198,7 +198,7 @@
                     </el-table-column>
                     <el-table-column
                         :label="Translate('IDCS_ENABLE')"
-                        min-width="120px"
+                        min-width="120"
                     >
                         <template #header>
                             <el-dropdown trigger="click">
@@ -207,8 +207,13 @@
                                 </BaseTableDropdownLink>
                                 <template #dropdown>
                                     <el-dropdown-menu>
-                                        <el-dropdown-item @click="handleChangeAll('fishEyeEnable', true)">{{ Translate('IDCS_ON') }}</el-dropdown-item>
-                                        <el-dropdown-item @click="handleChangeAll('fishEyeEnable', false)">{{ Translate('IDCS_OFF') }}</el-dropdown-item>
+                                        <el-dropdown-item
+                                            v-for="item in switchOptions"
+                                            :key="item.label"
+                                            @click="handleChangeAll('fishEyeEnable', item.value)"
+                                        >
+                                            {{ item.label }}
+                                        </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
                             </el-dropdown>
@@ -223,12 +228,10 @@
                                 @change="handleChangeVal(true)"
                             >
                                 <el-option
-                                    :value="true"
-                                    :label="Translate('IDCS_ON')"
-                                />
-                                <el-option
-                                    :value="false"
-                                    :label="Translate('IDCS_OFF')"
+                                    v-for="item in switchOptions"
+                                    :key="item.value"
+                                    :value="item.value"
+                                    :label="item.label"
                                 />
                             </el-select>
                         </template>

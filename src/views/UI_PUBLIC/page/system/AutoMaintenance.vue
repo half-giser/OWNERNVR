@@ -3,7 +3,7 @@
  * @Date: 2024-06-20 17:25:13
  * @Description: 自动维护
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-16 10:43:38
+ * @LastEditTime: 2024-10-22 20:14:55
 -->
 <template>
     <div>
@@ -27,10 +27,12 @@
                 :label="Translate('IDCS_INTERVAL_DAYS')"
                 prop="interval"
             >
-                <el-input-number
+                <BaseNumberInput
                     v-model="formData.interval"
-                    :controls="false"
                     :disabled="!formData.switch"
+                    :min="1"
+                    :max="365"
+                    value-on-clear="min"
                 />
                 <span class="date_span">{{ Translate('IDCS_DAYS') }}</span>
             </el-form-item>
@@ -50,11 +52,7 @@
                 {{ pageData.autoRestartTip }}
             </el-form-item>
             <div class="base-btn-box">
-                <el-button
-                    class="btn-ok"
-                    @click="verify"
-                    >{{ Translate('IDCS_APPLY') }}</el-button
-                >
+                <el-button @click="verify">{{ Translate('IDCS_APPLY') }}</el-button>
             </div>
         </el-form>
     </div>

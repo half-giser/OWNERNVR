@@ -171,10 +171,7 @@ export const useUserSessionStore = defineStore(
                 const $ = queryXml(result)
                 csvDeviceName.value = $('content/name').text()
                 const CustomerID = $('content/CustomerID').text()
-                //CustomerID为100代表inw48客户,要求隐藏智能侦测,包括人脸报警
-                cababilityStore.isInw48 = CustomerID == '100'
                 cababilityStore.CustomerID = Number(CustomerID)
-
                 cababilityStore.AISwitch = $('content/AISwitch').text().toBoolean()
             })
 

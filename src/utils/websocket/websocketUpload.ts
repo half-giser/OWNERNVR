@@ -14,7 +14,6 @@ import { MD5_encrypt } from '../encrypt'
 interface WebsocketUploadOption {
     config: CmdUploadFileOpenOption
     file: Blob
-    // TODO
     success?: (param: any) => void
     progress?: (param: number) => void
     error?: (param: number) => void

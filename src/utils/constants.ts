@@ -6,23 +6,23 @@
 import { type UserPermissionChannelAuthList } from '@/types/apiType/userAndSecurity'
 
 // 当前环境模式
-export const ENV_MODE = import.meta.env.NODE_ENV
+// export const ENV_MODE = import.meta.env.NODE_ENV
 
 // 产品名称
-export const APP_NAME = import.meta.env.VITE_APP_NAME
+// export const APP_NAME = import.meta.env.VITE_APP_NAME
 
 // 网站首页标题
-export const APP_TITLE = import.meta.env.VITE_APP_TITLE
+// export const APP_TITLE = import.meta.env.VITE_APP_TITLE
 
 // 网站描述
-export const APP_DESC = import.meta.env.VITE_APP_DESC
+// export const APP_DESC = import.meta.env.VITE_APP_DESC
 
 // 网站描述
-export const APP_KEYWORDS = import.meta.env.VITE_APP_KEYWORDS
+// export const APP_KEYWORDS = import.meta.env.VITE_APP_KEYWORDS
 
-export const APP_TYPE = import.meta.env.VITE_APP_TYPE
+// export const APP_TYPE = import.meta.env.VITE_APP_TYPE
 
-export const APP_SERVER_IP = import.meta.env.VITE_APP_IP
+// export const APP_SERVER_IP = import.meta.env.VITE_APP_IP
 
 export const EmptyId = '{00000000-0000-0000-0000-000000000000}'
 

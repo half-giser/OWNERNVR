@@ -3,7 +3,7 @@
  * @Date: 2024-07-22 16:34:10
  * @Description: 抓拍注册弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-11 14:45:59
+ * @LastEditTime: 2024-10-21 17:39:48
 -->
 <template>
     <el-dialog
@@ -74,20 +74,18 @@
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_PHONE_NUMBER')">
-                    <el-input-number
+                    <BaseNumberInput
                         v-model="formData.mobile"
                         :min="1"
                         :max="999999999999999"
-                        :controls="false"
                         :value-on-clear="null"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_NUMBER')">
-                    <el-input-number
+                    <BaseNumberInput
                         v-model="formData.number"
                         :min="1"
                         :max="999999999999999"
-                        :controls="false"
                         :value-on-clear="null"
                     />
                 </el-form-item>

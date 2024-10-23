@@ -3,10 +3,8 @@
  * @Date: 2024-05-29 20:39:11
  * @Description: 添加通道 - 添加录像机通道弹窗
  */
-import { ChannelAddRecorderDto, type DefaultPwdDto, QueryNodeListDto, RecorderAddDto, RecorderDto } from '@/types/apiType/channel'
-import { type TableInstance, type FormInstance } from 'element-plus'
-import { cloneDeep } from 'lodash-es'
-import { type RuleItem } from 'async-validator'
+import { type ChannelAddRecorderDto, type DefaultPwdDto, QueryNodeListDto, RecorderAddDto, RecorderDto } from '@/types/apiType/channel'
+import { type TableInstance, type FormInstance, type FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -45,21 +43,15 @@ export default defineComponent({
         const formData = ref(new RecorderAddDto())
         const tableRef = ref<TableInstance>()
         const selNum = ref(0)
-        const total = ref(0)
-        const eleChkDomainDisabled = ref(true)
-        const eleServePortDisabled = ref(true)
-        const eleIpDisabled = ref(true)
+        const disabled = ref(true)
         const eleUserNameDisabled = ref(true)
         const eleChlCountDisabled = ref(true)
         const eleBtnTestDisabled = ref(true)
-        const showDefaultPwdRow = ref(true)
 
-        let editItemBak: ChannelAddRecorderDto | undefined
-        const defaultRecorderData = new RecorderAddDto()
-        defaultRecorderData.ip = '0.0.0.0'
-        defaultRecorderData.servePort = 6036
-        defaultRecorderData.httpPort = 80
-        defaultRecorderData.channelCount = 8
+        const DEFAULT_RECORDER_IP = '0.0.0.0'
+        const DEFAULT_RECORDER_SERVER_PORT = 6036
+        const DEFAULT_RECORDER_HTTP_PORT = 80
+        const DEFAULT_RECORDER_CHANNEL_COUNT = 8
 
         const errorMap: Record<number, string> = {
             [ErrorCode.USER_ERROR_NO_USER]: Translate('IDCS_DEVICE_PWD_ERROR'),
@@ -81,14 +73,16 @@ export default defineComponent({
         const getData = (showSuccessTip?: boolean) => {
             openLoading()
             if ((props.mapping as Record<string, DefaultPwdDto>)['RECORDER']) {
-                const data = rawXml`<condition>
-                                ${formData.value.chkDomain ? '<domain><![CDATA[' + formData.value.domain + ']]></domain>' : '<ip>' + formData.value.ip + '</ip>'}
-                                <port>${formData.value.servePort.toString()}</port>
-                                <version>${editItemBak?.version || ''}</version>
-                                <httpPort>${formData.value.httpPort.toString()}</httpPort>
-                                <userName>${formData.value.userName}</userName>
-                                ${formData.value.useDefaultPwd ? '' : '<password' + getSecurityVer() + '><![CDATA[' + AES_encrypt(formData.value.password, userSessionStore.sesionKey) + ']]></password>'}
-                            </condition>`
+                const data = rawXml`
+                    <condition>
+                        ${formData.value.chkDomain ? `<domain>${formData.value.domain}</domain>` : `<ip>${formData.value.ip}</ip>`}
+                        <port>${formData.value.servePort.toString()}</port>
+                        <version>${props.editItem.version || ''}</version>
+                        <httpPort>${formData.value.httpPort.toString()}</httpPort>
+                        <userName>${formData.value.userName}</userName>
+                        ${formData.value.useDefaultPwd ? '' : '<password' + getSecurityVer() + '><![CDATA[' + AES_encrypt(formData.value.password, userSessionStore.sesionKey) + ']]></password>'}
+                    </condition>
+                `
                 queryRecorder(data).then((res) => {
                     closeLoading()
                     const $ = queryXml(res)
@@ -99,8 +93,8 @@ export default defineComponent({
                                 message: Translate('IDCS_TEST_SUCCESS'),
                             })
                         }
-                        formData.value.ip = $('//content/ip').text() || defaultRecorderData.ip
-                        formData.value.chkDomain = !$('//content/ip').text().toBoolean()
+                        formData.value.ip = $('//content/ip').text() || DEFAULT_RECORDER_IP
+                        formData.value.chkDomain = !!$('//content/ip').text()
                         if ($('//content/domain').text()) {
                             const isIp = checkIpV4($('//content/domain').text())
                             if (isIp) formData.value.ip = $('//content/domain').text()
@@ -114,7 +108,7 @@ export default defineComponent({
                         } else {
                             eleChlCountDisabled.value = false
                         }
-                        const productModel = $('//content/productModel').text() || editItemBak!.productModel
+                        const productModel = $('//content/productModel').text() || props.editItem.productModel
                         formData.value.recorderList = []
                         $('//content/chlList/item').forEach((ele) => {
                             const eleXml = queryXml(ele.element)
@@ -129,7 +123,6 @@ export default defineComponent({
                         formData.value.recorderList.sort((a: RecorderDto, b: RecorderDto) => {
                             return Number(a.index) - Number(b.index)
                         })
-                        total.value = formData.value.recorderList.length
                     } else {
                         const errorCode = Number($('errorCode').text())
                         openMessageTipBox({
@@ -141,10 +134,9 @@ export default defineComponent({
                             for (let i = 0; i < Number(chlCount); i++) {
                                 const newData = new RecorderDto()
                                 newData.index = String(i + 1)
-                                newData.productModel = editItemBak?.productModel as string
+                                newData.productModel = props.editItem.productModel
                                 formData.value.recorderList.push(newData)
                             }
-                            total.value = formData.value.recorderList.length
                             eleUserNameDisabled.value = false
                             eleBtnTestDisabled.value = false
                             eleChlCountDisabled.value = false
@@ -154,27 +146,28 @@ export default defineComponent({
             }
         }
 
-        const validate: Record<string, RuleItem['validator']> = {
-            validateIp: (_rule, _value, callback) => {
-                if (formData.value.chkDomain) {
-                    const domain = formData.value.domain.trim()
-                    if (!domain.length) {
-                        callback(new Error(Translate('IDCS_DOMAIN_NAME_EMPTY')))
-                        return
-                    }
-                } else {
-                    const ip = formData.value.ip.trim()
-                    if (!ip || ip == '0.0.0.0') {
-                        callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_INVALID')))
-                        return
-                    }
-                }
-                callback()
-            },
-        }
-
-        const rules = ref({
-            ip: [{ validator: validate.validateIp, trigger: 'manual' }],
+        const rules = ref<FormRules>({
+            ip: [
+                {
+                    validator: (_rule, _value, callback) => {
+                        if (formData.value.chkDomain) {
+                            const domain = formData.value.domain.trim()
+                            if (!domain.length) {
+                                callback(new Error(Translate('IDCS_DOMAIN_NAME_EMPTY')))
+                                return
+                            }
+                        } else {
+                            const ip = formData.value.ip.trim()
+                            if (!ip || ip == '0.0.0.0') {
+                                callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_INVALID')))
+                                return
+                            }
+                        }
+                        callback()
+                    },
+                    trigger: 'manual',
+                },
+            ],
         })
 
         const loadNoRecoderData = (chlCount: number) => {
@@ -184,32 +177,21 @@ export default defineComponent({
                 newData.index = String(i + 1)
                 formData.value.recorderList.push(newData)
             }
-            total.value = formData.value.recorderList.length
         }
 
         const getTestData = () => {
-            let data = '<content>'
-            if (formData.value.chkDomain) {
-                data += `<domain><![CDATA[${formData.value.domain}]]></domain>`
-            } else {
-                data += `<ip>${formData.value.ip}</ip>`
-            }
-            data += rawXml`<port>${formData.value.servePort ? formData.value.servePort.toString() : ''}</port>
-                    <userName>${formData.value.userName}</userName>`
-            if (showDefaultPwdRow) {
-                if (!formData.value.useDefaultPwd) {
-                    data += `<password${getSecurityVer()}><![CDATA[${AES_encrypt(formData.value.password, userSessionStore.sesionKey)}]]></password>`
-                }
-            } else {
-                // 手动添加没有使用默认密码的选项
-                data += `<password${getSecurityVer()}><![CDATA[${AES_encrypt(formData.value.password, userSessionStore.sesionKey)}]]></password>`
-            }
-            data += '</content>'
-            return data
+            const sendXml = rawXml`
+                <content>
+                    ${ternary(formData.value.chkDomain, `<domain>${wrapCDATA(formData.value.domain)}</domain>`, `<ip>${formData.value.ip}</ip>`)}
+                    <port>${formData.value.servePort ? formData.value.servePort.toString() : ''}</port>
+                    <userName>${formData.value.userName}</userName>
+                    ${ternary(!props.editItem.ip || (props.editItem.ip && !formData.value.useDefaultPwd), `<password${getSecurityVer()}><![CDATA[${AES_encrypt(formData.value.password, userSessionStore.sesionKey)}]]></password>`)}
+                </content>
+            `
+            return sendXml
         }
 
         const test = () => {
-            if (!formRef) return false
             formRef.value?.validate((valid) => {
                 if (valid) {
                     openLoading()
@@ -217,10 +199,6 @@ export default defineComponent({
                         closeLoading()
                         const $ = queryXml(res)
                         if ($('status').text() === 'success') {
-                            if (!editItemBak) editItemBak = new ChannelAddRecorderDto()
-                            editItemBak.ip = formData.value.ip
-                            editItemBak.port = formData.value.servePort
-                            editItemBak.httpPort = defaultRecorderData.httpPort
                             getData(true)
                         } else {
                             const errorCode = Number($('errorCode').text())
@@ -242,7 +220,6 @@ export default defineComponent({
         }
 
         const setData = () => {
-            if (!formRef) return false
             formRef.value?.validate((valid) => {
                 if (valid) {
                     getChlList(new QueryNodeListDto()).then((res) => {
@@ -324,7 +301,31 @@ export default defineComponent({
 
         const getSaveData = () => {
             const defalutNamePrefix = 'Recorder_'
-            let data = rawXml`
+            const selection = tableRef.value!.getSelectionRows() as RecorderDto[]
+
+            const listXml = selection.map((ele) => {
+                return rawXml`
+                    <item>
+                        <name>${ele.name || defalutNamePrefix + ele.index}</name>
+                        ${ternary(formData.value.chkDomain, `<domain>${wrapCDATA(formData.value.domain)}</domain>`, `<ip>${formData.value.ip}</ip>`)}
+                        <port>${formData.value.servePort.toString()}</port>
+                        <userName>${formData.value.userName}</userName>
+                        ${ternary(!props.editItem.ip || (props.editItem.ip && !formData.value.useDefaultPwd), `<password${getSecurityVer()}><![CDATA[${AES_encrypt(formData.value.password, userSessionStore.sesionKey)}]]></password>`)}
+                        <index>${(Number(ele.index) - 1).toString()}</index>
+                        <manufacturer>RECORDER</manufacturer>
+                        <protocolType>RECORDER</protocolType>
+                        <productModel factoryName='Customer'>${ele.productModel}</productModel>
+                        ${ternary(ele.bandWidth, `<bandWidth>${ele.bandWidth}</bandWidth>`)}
+                        <rec per='5' post='10'/>
+                        <snapSwitch>false</snapSwitch>
+                        <buzzerSwitch>false</buzzerSwitch>
+                        <popVideoSwitch>false</popVideoSwitch>
+                        <frontEndOffline_popMsgSwitch>true</frontEndOffline_popMsgSwitch>
+                    </item>
+                `
+            })
+
+            const sendXml = rawXml`
                 <types>
                     <manufacturer>
                         <enum displayName='TVT'>TVT</enum>
@@ -340,82 +341,43 @@ export default defineComponent({
                     </protocolType>
                 </types>
                 <content type='list'>
-                        <itemType>
+                    <itemType>
                         <manufacturer type='manufacturer'/>
                         <protocolType type='protocolType'/>
                         <bandWidth unit='MB'/>
-                        </itemType>`
-            tableRef.value!.getSelectionRows().forEach((ele: RecorderDto) => {
-                data += rawXml`
-                    <item>
-                        <name>${ele.name || defalutNamePrefix + ele.index}</name>`
-                if (formData.value.chkDomain) {
-                    data += `<domain><![CDATA[${formData.value.domain}]]></domain>`
-                } else {
-                    data += `<ip>${formData.value.ip}</ip>`
-                }
-                data += rawXml`
-                    <port>${formData.value.servePort.toString()}</port>
-                    <userName>${formData.value.userName}</userName>`
-                if (editItemBak) {
-                    if (!formData.value.useDefaultPwd) {
-                        data += `<password${getSecurityVer()}><![CDATA[${AES_encrypt(formData.value.password, userSessionStore.sesionKey)}]]></password>`
-                    }
-                } else {
-                    // 手动添加没有使用默认密码的选项
-                    data += `<password${getSecurityVer()}><![CDATA[${AES_encrypt(formData.value.password, userSessionStore.sesionKey)}]]></password>`
-                }
-                data += rawXml`
-                    <index>${(Number(ele.index) - 1).toString()}</index>
-                    <manufacturer>RECORDER</manufacturer>
-                    <protocolType>RECORDER</protocolType>
-                    <productModel factoryName='Customer'>${ele.productModel}</productModel>`
-                if (ele.bandWidth) data += `<bandWidth>${ele.bandWidth}</bandWidth>`
-                data += rawXml`
-                    <rec per='5' post='10'/>
-                    <snapSwitch>false</snapSwitch>
-                    <buzzerSwitch>false</buzzerSwitch>
-                    <popVideoSwitch>false</popVideoSwitch>
-                    <frontEndOffline_popMsgSwitch>true</frontEndOffline_popMsgSwitch>
-                    </item>`
-            })
-            data += '</content>'
-            return data
+                    </itemType>
+                    ${listXml.join('')}
+                </content>
+            `
+
+            return sendXml
         }
 
         const opened = () => {
-            editItemBak = cloneDeep(props.editItem)
             selNum.value = 0
-            total.value = 0
-            eleChkDomainDisabled.value = true
-            eleServePortDisabled.value = true
-            eleIpDisabled.value = true
+            disabled.value = true
             eleChlCountDisabled.value = true
             eleUserNameDisabled.value = true
             eleBtnTestDisabled.value = true
-            showDefaultPwdRow.value = true
             formData.value = new RecorderAddDto()
             formData.value.userName = (props.mapping as Record<string, DefaultPwdDto>)['RECORDER'].userName
-            if (editItemBak) {
-                formData.value.ip = editItemBak?.ip
-                formData.value.servePort = editItemBak?.port
-                formData.value.channelCount = Number(editItemBak?.chlTotalCount) * 1 ? editItemBak?.chlTotalCount : defaultRecorderData.channelCount
-                formData.value.httpPort = editItemBak?.httpPort
+            if (props.editItem.ip) {
+                formData.value.ip = props.editItem.ip
+                formData.value.servePort = props.editItem.port
+                formData.value.channelCount = props.editItem.chlTotalCount ? props.editItem.chlTotalCount : DEFAULT_RECORDER_CHANNEL_COUNT
+                formData.value.httpPort = props.editItem.httpPort
                 formData.value.useDefaultPwd = true
                 getData()
             } else {
-                formData.value.ip = defaultRecorderData.ip
-                formData.value.servePort = defaultRecorderData.servePort
-                formData.value.channelCount = defaultRecorderData.channelCount
-                formData.value.httpPort = defaultRecorderData.httpPort
+                formData.value.ip = DEFAULT_RECORDER_IP
+                formData.value.servePort = DEFAULT_RECORDER_SERVER_PORT
+                formData.value.channelCount = DEFAULT_RECORDER_CHANNEL_COUNT
+                formData.value.httpPort = DEFAULT_RECORDER_HTTP_PORT
                 formData.value.useDefaultPwd = false
-                eleIpDisabled.value = false
-                eleChkDomainDisabled.value = false
-                eleServePortDisabled.value = false
+                disabled.value = false
                 eleChlCountDisabled.value = false
                 eleUserNameDisabled.value = false
                 eleBtnTestDisabled.value = false
-                showDefaultPwdRow.value = false
                 loadNoRecoderData(Number(formData.value.channelCount))
             }
         }
@@ -426,16 +388,12 @@ export default defineComponent({
             rules,
             tableRef,
             selNum,
-            total,
             handleRowClick,
             handleSelectionChange,
             test,
             save,
             opened,
-            eleChkDomainDisabled,
-            eleServePortDisabled,
-            eleIpDisabled,
-            showDefaultPwdRow,
+            disabled,
             eleChlCountDisabled,
             eleUserNameDisabled,
             eleBtnTestDisabled,

@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 顶层布局页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-08 16:31:54
+ * @LastEditTime: 2024-10-21 15:15:45
 -->
 <template>
     <el-container id="layoutMain">
@@ -169,8 +169,15 @@
     margin-left: 14px;
     width: 350px;
     height: 65px;
-    background: var(--img-logo) center left no-repeat;
+    background-position: center left;
+    background-repeat: no-repeat;
     text-align: right;
+
+    @if $GLOBAL_APP_TYPE == P2P {
+        background-image: var(--img-authcodelogin-logo);
+    } @else {
+        background-image: var(--img-logo);
+    }
 
     div {
         overflow: hidden;

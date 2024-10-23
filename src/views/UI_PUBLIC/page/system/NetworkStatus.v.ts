@@ -3,7 +3,7 @@
  * @Date: 2024-06-21 16:31:50
  * @Description: 网络状态
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-16 14:06:29
+ * @LastEditTime: 2024-10-21 14:46:20
  */
 import { type SystemNetStatusList } from '@/types/apiType/system'
 
@@ -51,7 +51,6 @@ export default defineComponent({
             const toleranceAndPoe = ipGroupSwitch && netStatusContentNicPoe // 3535A:即支持网络容错又存在poe网卡
 
             if (ipGroupSwitch) {
-                // TODO ipGroup未有真实数据测试
                 $('//content/ipGroup/bonds/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     array.push({
@@ -143,7 +142,7 @@ export default defineComponent({
                         )
                     }
                     $('//content/nic/item').forEach((nicItem, index) => {
-                        if (nicItem.attr('id') === $('primaryNIC').text()) {
+                        if (nicItem.attr('id') === $item('primaryNIC').text()) {
                             array.push({
                                 i: 1,
                                 k: Translate('IDCS_PRIMARY_NETWORK_CARD'),
@@ -153,7 +152,7 @@ export default defineComponent({
                     })
                 })
             }
-            if ($('//content/nic/item').text()) {
+            if ($('//content/nic/item').length) {
                 $('//content/nic/item').forEach((item, index) => {
                     const $item = queryXml(item.element)
                     array.push({

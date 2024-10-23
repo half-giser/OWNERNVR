@@ -12,7 +12,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openMessageTipBox } = useMessageBox()
 
-        const theme = getUiAndTheme()
+        const isDelay = import.meta.env.VITE_UI_TYPE === 'UI2-A'
         const userSession = useUserSessionStore()
 
         // 报警间隔
@@ -134,7 +134,7 @@ export default defineComponent({
                     console.log(index, tableData.value[index])
                     tableData.value[index].switch = status
 
-                    if (theme.name === 'UI2-A' && status && tableData.value[index].delay > 0) {
+                    if (import.meta.env.VITE_UI_TYPE === 'UI2-A' && status && tableData.value[index].delay > 0) {
                         setTimeout(() => {
                             setStatus(id, index, false)
                         }, tableData.value[index].delay * 1000)
@@ -186,7 +186,7 @@ export default defineComponent({
         return {
             pageData,
             tableData,
-            theme,
+            isDelay,
             disabled,
             displaySwitch,
             setStatus,

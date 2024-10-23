@@ -5,7 +5,6 @@
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
  * @LastEditTime: 2024-10-11 18:49:24
  */
-import { ENV_MODE } from '@/utils/constants'
 
 // 测试环境
 export const ClientPluVerDebug = '2,4,5,1280'
@@ -930,7 +929,6 @@ export const P2PACCESSTYPE = {
 }
 
 export const getPluginPath = () => {
-    const { name } = getUiAndTheme()
     let _ClientPluDownLoadPath = ClientPluDownLoadPath
     let _P2PClientPluDownLoadPath = P2PClientPluDownLoadPath
     let _ClientPluDownLoadPath_MAC = ClientPluDownLoadPath_MAC
@@ -938,11 +936,11 @@ export const getPluginPath = () => {
     let _P2PClientPluVer = P2PClientPluVer
     let _ClientPluVer = ClientPluVer
 
-    if (ENV_MODE === 'development') {
+    if (import.meta.env.NODE_ENV === 'development') {
         _P2PClientPluVer = P2PClientPluVerDebug
         _ClientPluVer = ClientPluVerDebug
     }
-    if (name === 'UI1-E') {
+    if (import.meta.env.VITE_UI_TYPE === 'UI1-E') {
         _ClientPluDownLoadPath = '/OCX/Speco_Technologies_v5.exe'
         _P2PClientPluDownLoadPath = 'OCX/Speco_Technologies_v5_p2p.exe'
         _ClientPluDownLoadPath_MAC = 'OCX/Speco_Technologies_v4.pkg'

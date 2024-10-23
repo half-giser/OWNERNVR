@@ -38,7 +38,7 @@
                 border
                 stripe
                 highlight-current-row
-                height="300px"
+                height="300"
                 @row-click="handleRowClick"
             >
                 <el-table-column

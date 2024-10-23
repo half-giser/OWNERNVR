@@ -38,11 +38,11 @@ export default {
                 icon: 'sysInfo_s',
             },
             // 上海地标平台
-            // localPlatform: {
-            //     sort: 40,
-            //     lk: 'IDCS_LOCAL_PLATFORM_MANAGE',
-            //     icon: 'sysLandmark',
-            // },
+            localPlatform: {
+                sort: 40,
+                lk: 'IDCS_LOCAL_PLATFORM_MANAGE',
+                icon: 'sysLandmark',
+            },
         },
     },
     children: {
@@ -80,8 +80,8 @@ export default {
                 lk: 'IDCS_OUTPUT_CONFIG',
                 group: 'basicConfig',
                 enabled: 'remoteSysCfgAndMaintain',
-                auth(systemCaps, ui) {
-                    return ui !== 'UI3-A'
+                auth() {
+                    return import.meta.env.VITE_UI_TYPE !== 'UI3-A'
                 },
             },
         },
@@ -108,8 +108,8 @@ export default {
                 lk: 'IDCS_SYSTEM_POE_SETUP',
                 group: 'basicConfig',
                 enabled: 'remoteSysCfgAndMaintain',
-                auth(systemCaps, ui) {
-                    return systemCaps.supportPoePowerManage && ui !== 'UI3-A'
+                auth(systemCaps) {
+                    return systemCaps.supportPoePowerManage && import.meta.env.VITE_UI_TYPE !== 'UI3-A'
                 },
             },
         },
@@ -122,8 +122,8 @@ export default {
                 lk: 'IDCS_OSD_CONFIG',
                 group: 'basicConfig',
                 enabled: 'remoteSysCfgAndMaintain',
-                auth(systemCaps, ui) {
-                    return ui !== 'UI3-A'
+                auth() {
+                    return import.meta.env.VITE_UI_TYPE !== 'UI3-A'
                 },
             },
         },
@@ -206,8 +206,8 @@ export default {
                 sort: 70,
                 lk: 'IDCS_ONLINE_UPGRADE',
                 group: 'maintenance',
-                auth(systemCaps, ui) {
-                    return systemCaps.showCloudUpgrade && ui === 'UI3-A'
+                auth(systemCaps) {
+                    return systemCaps.showCloudUpgrade && import.meta.env.VITE_UI_TYPE === 'UI3-A'
                 },
             },
         },
@@ -243,8 +243,8 @@ export default {
                 sort: 30,
                 lk: 'IDCS_ALARM_STATE',
                 group: 'info',
-                auth(systemCaps, ui) {
-                    return ui !== 'UI3-A'
+                auth() {
+                    return import.meta.env.VITE_UI_TYPE !== 'UI3-A'
                 },
             },
         },
@@ -259,8 +259,8 @@ export default {
                 sort: 40,
                 lk: 'IDCS_RECORD_STATE',
                 group: 'info',
-                auth(systemCaps, ui) {
-                    return ui !== 'UI3-A'
+                auth() {
+                    return import.meta.env.VITE_UI_TYPE !== 'UI3-A'
                 },
             },
         },
@@ -275,8 +275,8 @@ export default {
                 sort: 50,
                 lk: 'IDCS_NETWORK_STATE',
                 group: 'info',
-                auth(systemCaps, ui) {
-                    return ui !== 'UI3-A'
+                auth() {
+                    return import.meta.env.VITE_UI_TYPE !== 'UI3-A'
                 },
             },
         },
@@ -291,8 +291,8 @@ export default {
                 sort: 60,
                 lk: 'IDCS_DISK_STATE_TOOLTIP',
                 group: 'info',
-                auth(systemCaps, ui) {
-                    return ui !== 'UI3-A'
+                auth() {
+                    return import.meta.env.VITE_UI_TYPE !== 'UI3-A'
                 },
             },
         },
@@ -308,8 +308,8 @@ export default {
                 inHome: 'self',
                 homeSort: 70,
                 enabled: 'diskMgr',
-                auth(systemCaps, ui) {
-                    return ui === 'UI3-A'
+                auth() {
+                    return import.meta.env.VITE_UI_TYPE === 'UI3-A'
                 },
             },
         },
@@ -324,8 +324,8 @@ export default {
                 inHome: 'self',
                 homeSort: 80,
                 enabled: 'diskMgr',
-                auth(systemCaps, ui) {
-                    return ui === 'UI3-A'
+                auth() {
+                    return import.meta.env.VITE_UI_TYPE === 'UI3-A'
                 },
             },
         },
@@ -343,8 +343,8 @@ export default {
                 group: 'diskInfo',
                 inHome: 'self',
                 homeSort: 90,
-                auth(systemCaps, ui) {
-                    return ui === 'UI3-A'
+                auth() {
+                    return import.meta.env.VITE_UI_TYPE === 'UI3-A'
                 },
             },
         },
@@ -356,51 +356,50 @@ export default {
                 sort: 40,
                 lk: 'IDCS_DISK_SMART_INFO',
                 group: 'diskInfo',
-                auth(systemCaps, ui) {
-                    return ui === 'UI3-A'
+                auth() {
+                    return import.meta.env.VITE_UI_TYPE === 'UI3-A'
                 },
             },
         },
-        // 以下页面没有在原项目中找到入口
-        // platformParam: {
-        //     // 地标平台参数
-        //     path: 'platform/parameter',
-        //     components: 'system/PlatformParameter.vue',
-        //     meta: {
-        //         sort: 10,
-        //         lk: 'IDCS_PLATFORM_PARAMETER',
-        //         group: 'localPlatform',
-        //     },
-        // },
-        // imageUpload: {
-        //     // 定时图像上传
-        //     path: 'upload/image/timing',
-        //     components: 'system/ImageUpload.vue',
-        //     meta: {
-        //         sort: 20,
-        //         lk: 'IDCS_SCHEDULE_PIC_UPLOAD',
-        //         group: 'localPlatform',
-        //     },
-        // },
-        // imageUploadAlarm: {
-        //     // 报警图像上传
-        //     path: 'upload/image/alarm',
-        //     components: 'system/ImageUploadAlarm.vue',
-        //     meta: {
-        //         sort: 30,
-        //         lk: 'IDCS_ALARM_PIC_UPLOAD',
-        //         group: 'localPlatform',
-        //     },
-        // },
-        // platformOperation: {
-        //     // 平台操作管理
-        //     path: 'platform/operation',
-        //     components: 'system/PlatformOperation.vue',
-        //     meta: {
-        //         sort: 40,
-        //         lk: 'IDCS_PLATFORM_OPERATE_MANAGE',
-        //         group: 'localPlatform',
-        //     },
-        // },
+        platformParam: {
+            // 地标平台参数
+            path: 'platform/parameter',
+            components: 'system/PlatformParameter.vue',
+            meta: {
+                sort: 10,
+                lk: 'IDCS_PLATFORM_PARAMETER',
+                group: 'localPlatform',
+            },
+        },
+        imageUpload: {
+            // 定时图像上传
+            path: 'upload/image/timing',
+            components: 'system/ImageUpload.vue',
+            meta: {
+                sort: 20,
+                lk: 'IDCS_SCHEDULE_PIC_UPLOAD',
+                group: 'localPlatform',
+            },
+        },
+        imageUploadAlarm: {
+            // 报警图像上传
+            path: 'upload/image/alarm',
+            components: 'system/ImageUploadAlarm.vue',
+            meta: {
+                sort: 30,
+                lk: 'IDCS_ALARM_PIC_UPLOAD',
+                group: 'localPlatform',
+            },
+        },
+        platformOperation: {
+            // 平台操作管理
+            path: 'platform/operation',
+            components: 'system/PlatformOperation.vue',
+            meta: {
+                sort: 40,
+                lk: 'IDCS_PLATFORM_OPERATE_MANAGE',
+                group: 'localPlatform',
+            },
+        },
     },
 } as FeatureItem

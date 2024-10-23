@@ -27,7 +27,7 @@
         >
             <el-table-column
                 type="selection"
-                width="50px"
+                width="60"
             />
             <el-table-column
                 :label="labelTitle"

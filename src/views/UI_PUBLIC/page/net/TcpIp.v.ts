@@ -3,7 +3,7 @@
  * @Date: 2024-08-16 18:56:58
  * @Description: TCP/IP配置页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-17 14:42:02
+ * @LastEditTime: 2024-10-22 19:15:34
  */
 import { NetTcpIpForm, NetTcpIpDhcpList, NetTcpIpBondsList, type NetTcpIpNicConfigList, type NetTcpIpAdvanceForm } from '@/types/apiType/net'
 import { type CheckboxValueType } from 'element-plus'
@@ -403,6 +403,7 @@ export default defineComponent({
                             })
                         }
                     },
+                    cancel: () => {},
                 },
             ]
 
@@ -414,6 +415,7 @@ export default defineComponent({
                             message: rule[i].message,
                         })
                     } catch {
+                        rule[i].cancel()
                         return false
                     }
                 }
@@ -604,7 +606,8 @@ export default defineComponent({
             if (!verifyParams()) {
                 return
             }
-            if (!verifyRebootParam()) {
+            const flag = await verifyRebootParam()
+            if (!flag) {
                 return
             }
 

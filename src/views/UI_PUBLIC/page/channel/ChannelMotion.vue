@@ -22,12 +22,11 @@
             <el-form
                 ref="formRef"
                 :model="formData"
-                label-width="160px"
                 label-position="left"
                 :style="{
-                    '--form-label-width': '160px',
+                    '--form-label-width': '150px',
                 }"
-                class="narrow"
+                class="narrow stripe"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
                     <el-select
@@ -52,24 +51,21 @@
                         @change="handleChangeVal"
                     >
                         <el-option
-                            :value="true"
-                            :label="Translate('IDCS_ON')"
-                        />
-                        <el-option
-                            :value="false"
-                            :label="Translate('IDCS_OFF')"
+                            v-for="item in switchOptions"
+                            :key="item.label"
+                            :value="item.value"
+                            :label="item.label"
                         />
                     </el-select>
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_SENSITIVITY')">
                     <el-slider
                         v-model="formData.sensitivity"
-                        :min="isNaN(formData.sensitivityMinValue) ? 0 : formData.sensitivityMinValue"
-                        :max="isNaN(formData.sensitivityMaxValue) ? 8 : formData.sensitivityMaxValue"
+                        :min="formData.sensitivityMinValue"
+                        :max="formData.sensitivityMaxValue"
                         :disabled="formData.disabled"
                         show-input
                         :show-input-controls="false"
-                        class="slider"
                         @change="handleChangeVal"
                     />
                 </el-form-item>
@@ -81,10 +77,10 @@
                         @change="handleChangeVal"
                     >
                         <el-option
-                            v-for="(item, index) in formData.holdTimeList"
-                            :key="index"
-                            :value="item.value"
-                            :label="item.text"
+                            v-for="item in formData.holdTimeList"
+                            :key="item"
+                            :value="item"
+                            :label="getTranslateForSecond(Number(item))"
                         />
                     </el-select>
                 </el-form-item>
@@ -128,8 +124,7 @@
                 >
                     <el-table-column
                         label=" "
-                        width="50px"
-                        class-name="custom_cell"
+                        width="50"
                     >
                         <template #default="scope">
                             <BaseTableRowStatus
@@ -141,12 +136,12 @@
                     <el-table-column
                         prop="name"
                         :label="Translate('IDCS_CHANNEL_NAME')"
-                        min-width="180px"
+                        min-width="180"
                     >
                     </el-table-column>
                     <el-table-column
                         :label="Translate('IDCS_ENABLE')"
-                        min-width="120px"
+                        min-width="120"
                     >
                         <template #header>
                             <el-dropdown trigger="click">
@@ -155,8 +150,13 @@
                                 </BaseTableDropdownLink>
                                 <template #dropdown>
                                     <el-dropdown-menu>
-                                        <el-dropdown-item @click="handleChangeAll('switch', true)">{{ Translate('IDCS_ON') }}</el-dropdown-item>
-                                        <el-dropdown-item @click="handleChangeAll('switch', false)">{{ Translate('IDCS_OFF') }}</el-dropdown-item>
+                                        <el-dropdown-item
+                                            v-for="item in switchOptions"
+                                            :key="item.label"
+                                            @click="handleChangeAll('switch', item.value)"
+                                        >
+                                            {{ item.label }}
+                                        </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
                             </el-dropdown>
@@ -171,32 +171,33 @@
                                 @change="handleChangeVal"
                             >
                                 <el-option
-                                    :value="true"
-                                    :label="Translate('IDCS_ON')"
-                                />
-                                <el-option
-                                    :value="false"
-                                    :label="Translate('IDCS_OFF')"
+                                    v-for="item in switchOptions"
+                                    :key="item.label"
+                                    :value="item.value"
+                                    :label="item.label"
                                 />
                             </el-select>
                         </template>
                     </el-table-column>
                     <el-table-column
                         :label="Translate('IDCS_SENSITIVITY')"
-                        min-width="180px"
+                        min-width="180"
                     >
                         <template #default="scope">
-                            <el-input
+                            <BaseNumberInput
                                 v-model="scope.row.sensitivity"
                                 size="small"
+                                :min="scope.row.sensitivityMinValue"
+                                :max="scope.row.sensitivityMaxValue"
                                 :disabled="scope.row.disabled"
+                                value-on-clear="min"
                                 @change="handleChangeVal"
-                            ></el-input>
+                            />
                         </template>
                     </el-table-column>
                     <el-table-column
                         :label="Translate('IDCS_DURATION')"
-                        min-width="180px"
+                        min-width="180"
                     >
                         <template #header>
                             <el-dropdown trigger="click">
@@ -206,11 +207,11 @@
                                 <template #dropdown>
                                     <el-dropdown-menu>
                                         <el-dropdown-item
-                                            v-for="(item, index) in holdTimeList"
-                                            :key="index"
-                                            :value="item.value"
-                                            @click="handleChangeAll('holdTime', item.value)"
-                                            >{{ item.text }}</el-dropdown-item
+                                            v-for="item in holdTimeList"
+                                            :key="item"
+                                            :value="item"
+                                            @click="handleChangeAll('holdTime', item)"
+                                            >{{ getTranslateForSecond(Number(item)) }}</el-dropdown-item
                                         >
                                     </el-dropdown-menu>
                                 </template>
@@ -226,10 +227,10 @@
                                 @change="handleChangeVal"
                             >
                                 <el-option
-                                    v-for="(item, index) in scope.row.holdTimeList"
-                                    :key="index"
-                                    :value="item.value"
-                                    :label="item.text"
+                                    v-for="item in scope.row.holdTimeList"
+                                    :key="item"
+                                    :value="item"
+                                    :label="getTranslateForSecond(Number(item))"
                                 />
                             </el-select>
                         </template>

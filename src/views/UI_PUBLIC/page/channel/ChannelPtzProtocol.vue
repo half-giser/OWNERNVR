@@ -76,12 +76,11 @@
                     </el-select>
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_ADDRESS')">
-                    <el-input-number
+                    <BaseNumberInput
                         v-model="tableData[pageData.tableIndex].address"
                         :min="tableData[pageData.tableIndex].addressMin"
                         :max="tableData[pageData.tableIndex].addressMax"
                         :disabled="tableData[pageData.tableIndex].status !== 'success'"
-                        :controls="false"
                         value-on-clear="min"
                     />
                 </el-form-item>
@@ -100,8 +99,7 @@
                     <!-- 状态列 -->
                     <el-table-column
                         label=" "
-                        width="50px"
-                        class-name="custom_cell"
+                        width="50"
                     >
                         <template #default="scope">
                             <BaseTableRowStatus :icon="scope.row.status" />
@@ -183,13 +181,12 @@
                         prop="address"
                     >
                         <template #default="scope">
-                            <el-input-number
+                            <BaseNumberInput
                                 v-model="scope.row.address"
                                 :min="scope.row.addressMin"
                                 :max="scope.row.addressMax"
                                 value-on-clear="min"
                                 :disabled="scope.row.status !== 'success'"
-                                :controls="false"
                             />
                         </template>
                     </el-table-column>

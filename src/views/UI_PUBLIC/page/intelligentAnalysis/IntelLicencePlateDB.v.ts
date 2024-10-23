@@ -219,7 +219,7 @@ export default defineComponent({
                 router.push({
                     path: '/config/alarm/vehicleRecognition',
                 })
-                // if (appInfo.uiName =="UI2-A") {
+                // if (import.meta.env.VITE_UI_TYPE =="UI2-A") {
                 //     $("#config_menu>div").removeClass("selected");
                 //     $("#config_menu>div[routeurl='config/alarm/faceRecognition']").addClass("selected");
                 // }
@@ -229,7 +229,7 @@ export default defineComponent({
                     router.push({
                         path: '/config/alarm/vehicleRecognition',
                     })
-                    // if (appInfo.uiName =="UI2-A") {
+                    // if (import.meta.env.VITE_UI_TYPE =="UI2-A") {
                     //     $("#config_menu>div").removeClass("selected");
                     //     $("#config_menu>div[routeurl='config/alarm/faceRecognition']").addClass("selected");
                     // }

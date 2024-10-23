@@ -8,7 +8,7 @@
 <template>
     <el-dialog
         :title="Translate('IDCS_ADD_CHANNEL')"
-        width="600px"
+        width="600"
         align-center
         draggable
         @open="open"
@@ -18,7 +18,7 @@
                 :data="tableData"
                 border
                 stripe
-                height="400px"
+                height="400"
                 @selection-change="changeSelection"
             >
                 <el-table-column
