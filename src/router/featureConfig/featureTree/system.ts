@@ -364,7 +364,7 @@ export default {
         platformParam: {
             // 地标平台参数
             path: 'platform/parameter',
-            components: 'system/PlatformParameter.vue',
+            component: 'system/PlatformParameter.vue',
             meta: {
                 sort: 10,
                 lk: 'IDCS_PLATFORM_PARAMETER',
@@ -374,7 +374,7 @@ export default {
         imageUpload: {
             // 定时图像上传
             path: 'upload/image/timing',
-            components: 'system/ImageUpload.vue',
+            component: 'system/ImageUpload.vue',
             meta: {
                 sort: 20,
                 lk: 'IDCS_SCHEDULE_PIC_UPLOAD',
@@ -384,7 +384,7 @@ export default {
         imageUploadAlarm: {
             // 报警图像上传
             path: 'upload/image/alarm',
-            components: 'system/ImageUploadAlarm.vue',
+            component: 'system/ImageUploadAlarm.vue',
             meta: {
                 sort: 30,
                 lk: 'IDCS_ALARM_PIC_UPLOAD',
@@ -394,7 +394,7 @@ export default {
         platformOperation: {
             // 平台操作管理
             path: 'platform/operation',
-            components: 'system/PlatformOperation.vue',
+            component: 'system/PlatformOperation.vue',
             meta: {
                 sort: 40,
                 lk: 'IDCS_PLATFORM_OPERATE_MANAGE',

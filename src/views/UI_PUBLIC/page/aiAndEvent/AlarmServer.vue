@@ -194,6 +194,7 @@
                 </el-button>
             </el-form-item>
         </el-form>
+        <!-- 表格 -->
         <div class="base-table-box">
             <el-table
                 v-show="pageData.showAlarmTypeCfg"
