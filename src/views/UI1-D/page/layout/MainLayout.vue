@@ -3,7 +3,7 @@
  * @Date: 2024-09-24 15:16:31
  * @Description: UI1-D 客制化 顶层布局页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-08 14:12:17
+ * @LastEditTime: 2024-10-24 13:50:15
 -->
 <template>
     <el-container id="layoutMain">
@@ -265,11 +265,12 @@
     padding: 0px;
     flex: auto 1 1;
     overflow-y: auto;
+    margin-block: 25px;
 }
 
 #layoutMainContent {
     position: relative;
-    padding: 25px 49px;
+    padding-inline: 49px;
     box-sizing: border-box;
     width: 100%;
     height: 100%;

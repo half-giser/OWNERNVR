@@ -103,6 +103,7 @@ export default defineComponent({
                     NAME_MAPPING[groupId] = name
                     return
                 }
+
                 if (groupId !== 9) {
                     NAME_MAPPING[groupId] = name
                     return
@@ -186,6 +187,7 @@ export default defineComponent({
                     index: 1,
                 })
             }
+
             if (systemCaps.supportPlateMatch) {
                 // 车辆比对报警
                 rowData.push({
@@ -208,12 +210,15 @@ export default defineComponent({
             if (row.data.length === 0) {
                 return 1
             }
+
             if (index === pageData.value.activeIndex) {
                 return 4
             }
+
             if (row.id === 'motion') {
                 return 2
             }
+
             if (row.id === 'intelligents') {
                 return 3
             }
@@ -230,6 +235,7 @@ export default defineComponent({
             if (row.data.length === 0) {
                 return false
             }
+
             if (index === pageData.value.activeIndex) {
                 return true
             }
@@ -253,9 +259,11 @@ export default defineComponent({
                 if (types.indexOf('intelligents') > -1) {
                     getIntelligentsData($, types.indexOf('intelligents'))
                 }
+
                 if (types.indexOf('faceMatchAlarms') > -1) {
                     getFaceMatchAlaramsData($, types.indexOf('faceMatchAlarms'))
                 }
+
                 if (types.indexOf('vehiclePlateMatchAlarms') > -1) {
                     getVehiclePlateMatchAlarmsData($, types.indexOf('vehiclePlateMatchAlarms'))
                 }
@@ -597,6 +605,7 @@ export default defineComponent({
                     default:
                         break
                 }
+
                 switch (abnormalType) {
                     case 'diskRWError':
                         const text1 = Translate(ABNORMAL_TYPE_MAPPING[abnormalType])
@@ -702,7 +711,7 @@ export default defineComponent({
                         },
                         {
                             key: 'IDCS_STATE',
-                            value: Translate(ABNORMAL_TYPE_MAPPING['frontEndOffline']) + errorNote + ipTips,
+                            value: Translate(ABNORMAL_TYPE_MAPPING.frontEndOffline) + errorNote + ipTips,
                             span: 2,
                         },
                         {
@@ -770,7 +779,7 @@ export default defineComponent({
                         },
                         {
                             key: 'IDCS_STATE',
-                            value: Translate(ABNORMAL_TYPE_MAPPING['videoLoss']),
+                            value: Translate(ABNORMAL_TYPE_MAPPING.videoLoss),
                             span: 2,
                         },
                         {

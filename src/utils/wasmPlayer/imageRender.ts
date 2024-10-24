@@ -60,6 +60,7 @@ export default class ImageRender {
             if (!(data && data.cmd)) {
                 return
             }
+
             switch (data.cmd) {
                 case 'ready':
                     this.decodeWorker!.postMessage({

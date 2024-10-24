@@ -340,6 +340,7 @@ export default defineComponent({
                 })
                 return
             }
+
             if (!formData.value.faceGroup.length) {
                 openMessageTipBox({
                     type: 'info',
@@ -438,6 +439,7 @@ export default defineComponent({
                         })
                         return
                     }
+
                     if (item.searchData[date.date].length === 1) {
                         tableList[index].abnormal++
                         tableList[index].detail.push({
@@ -458,6 +460,7 @@ export default defineComponent({
                         tableList[index].late++
                         types.push(Translate('IDCS_LATE'))
                     }
+
                     if (item.searchData[date.date][item.searchData[date.date].length - 1].timestamp < offTime) {
                         tableList[index].leftEarly++
                         types.push(Translate('IDCS_LEFT_EARLY'))

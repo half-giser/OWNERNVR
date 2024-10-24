@@ -118,10 +118,10 @@ const copyToOk = (index: number) => {
     if (copyToCheckedDay.value.length === 0) return
 
     const selectLines = scheduleLines.value?.filter((item: InstanceType<typeof BaseScheduleLine>) => {
-        return copyToCheckedDay.value.indexOf(Number((item.$attrs['id'] as string).substring(5))) !== -1
+        return copyToCheckedDay.value.indexOf(Number((item.$attrs.id as string).substring(5))) !== -1
     })
     const curLine = scheduleLines.value?.find((item) => {
-        return item.$attrs['id'] === `line-${index}`
+        return item.$attrs.id === `line-${index}`
     })
 
     const curValue = (curLine as any as InstanceType<typeof BaseScheduleLine>).getValue()
@@ -161,6 +161,7 @@ const resetSameValue = (value: [string, string][]) => {
         scheduleLines.value![i].resetValue(value)
     }
 }
+
 /**
  * @description: 给每天手动添加相同的时间段，支持  ['00:30','02:00'] 或 [30,120] 格式
  * @return {*}

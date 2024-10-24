@@ -205,6 +205,7 @@ function setRouteRecordField(featureItem: FeatureItem, routeRecord: RouteRecordR
     } else if (featureItem.component) {
         routeRecord.component = viewComponents[featureItem.component]
     }
+
     if (featureItem.name) {
         routeRecord.name = featureItem.name
         // if (featureItem.name === 'root') {
@@ -213,18 +214,22 @@ function setRouteRecordField(featureItem: FeatureItem, routeRecord: RouteRecordR
         //     config = routeRecord
         // }
     }
+
     if (featureItem.meta) {
         routeRecord.meta = featureItem.meta
     } else {
         routeRecord.meta = {}
     }
+
     routeRecord.name = featureItem.name
     routeRecord.path = featureItem.path === undefined ? camel2Kebab(<string>featureItem.name) : featureItem.path
     routeRecord.meta.parent = parent
+
     let parentPath = ''
     if (parent) {
         parentPath = (<RouteMeta>parent.meta).fullPath as string
     }
+
     if (routeRecord.path === '') {
         routeRecord.meta.fullPath = ''
     } else if (routeRecord.path.startsWith('/')) {
@@ -236,6 +241,7 @@ function setRouteRecordField(featureItem: FeatureItem, routeRecord: RouteRecordR
     if (featureItem.redirect) {
         routeRecord.redirect = featureItem.redirect
     }
+
     if (featureItem.alias) {
         routeRecord.alias = featureItem.alias
     }

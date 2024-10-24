@@ -12,7 +12,7 @@ export default defineComponent({
         const { openLoading, closeLoading } = useLoading()
 
         const pageData = ref({
-            options: DEFAULT_SWITCH_OPTIONS,
+            options: getSwitchOptions(),
             isAddress: getUiAndTheme().name === 'UI1-E',
         })
 

@@ -202,6 +202,7 @@ export default defineComponent({
                     targetUI = infoArr[3] + infoArr[4]
                 }
             }
+
             // TODO: 看不懂原项目这里的意思
             if (targetUI && inputUI !== targetUI) {
                 const urlSplit = window.location.href.split('#')[0].split('/')

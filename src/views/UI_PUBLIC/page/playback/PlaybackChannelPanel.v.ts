@@ -204,6 +204,7 @@ export default defineComponent({
                 if (pageData.value.selectedChl.length >= maxChl.value) {
                     return
                 }
+
                 for (const index in chlList.value) {
                     if (!pageData.value.selectedChl.includes(chlList.value[index])) {
                         pageData.value.selectedChl.push(chlList.value[index])

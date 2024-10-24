@@ -2,8 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-03 16:14:27
  * @Description: 录像与回放
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-11 14:44:55
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-24 20:30:36
  */
 
 /**
@@ -17,6 +17,7 @@ export class RecordDistributeInfo {
     urgencyRecDuration = 0 // 手动录像时长
     recordScheduleList = [] as RecordSchedule[]
 }
+
 /**
  * 通道的录像排程配置
  */
@@ -67,6 +68,14 @@ export class ItemList {
     label = ''
 }
 
+export class RecordSubStreamQualityCaps {
+    enct = ''
+    res = ''
+    digitalDefault = ''
+    analogDefault = ''
+    value = [] as string[]
+}
+
 // 录像子码流列表
 export class RecordSubStreamList {
     id = ''
@@ -87,9 +96,10 @@ export class RecordSubStreamList {
     level = ''
     videoQuality = ''
     videoEncodeType = ''
-    subStreamQualityCaps = []
+    subStreamQualityCaps = [] as RecordSubStreamQualityCaps[]
     qualitys = [] as string[]
 }
+
 // 分辨率数据项
 export class ResolutionRow {
     res = ''
@@ -174,10 +184,10 @@ export class RecordStreamInfoDto {
     bitType = ''
     supportAudio = false
     // 码率可选范围
-    qualitys = [] as { value: string; label: string }[]
+    qualitys = [] as SelectOption<string, string>[]
     // 帧率可选范围
-    frameRates = [] as { value: string; label: string }[]
-    resolutions = [] as { value: string; label: string }[]
+    frameRates = [] as SelectOption<string, string>[]
+    resolutions = [] as SelectOption<string, string>[]
     // 元素禁用
     rowDisable = false
     videoEncodeTypeDisable = false

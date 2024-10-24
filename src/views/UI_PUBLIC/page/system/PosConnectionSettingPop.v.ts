@@ -40,6 +40,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_POS_IP_EMPTY')))
                             return
                         }
+
                         if (!/^([1-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/.test(value)) {
                             callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_INVALID')))
                             return
@@ -57,6 +58,7 @@ export default defineComponent({
                                 callback(new Error(Translate('IDCS_POS_PORT_EMPTY')))
                                 return
                             }
+
                             if (Number(value) < 10 || Number(value) > 65535) {
                                 callback(new Error(Translate('IDCS_PROMPT_PORT_INVALID')))
                                 return

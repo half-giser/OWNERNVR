@@ -25,11 +25,11 @@ export const useLangStore = defineStore(
          */
         const requestLangTypes = async () => {
             if (!langType.value) {
-                langType.value = localStorage.getItem(LocalCacheKey.langType) || ''
+                langType.value = localStorage.getItem(LocalCacheKey.KEY_LANG_TYPE) || ''
             }
 
             if (!langId.value) {
-                langId.value = localStorage.getItem(LocalCacheKey.langId) || ''
+                langId.value = localStorage.getItem(LocalCacheKey.KEY_LANG_ID) || ''
             }
 
             const result = await getSupportLangList()
@@ -50,9 +50,11 @@ export const useLangStore = defineStore(
                     // 如果map中不存在，则尝试只比较前2位
                     langId.value = LANG_MAPPING[langType.value.substring(0, 2)] as string
                 }
+
                 if (!langId.value) {
                     langId.value = devLandId
                 }
+
                 if (!langTypes.value[langId.value]) {
                     langId.value = devLandId
                 }
@@ -68,8 +70,8 @@ export const useLangStore = defineStore(
             langType.value = LANG_TYPE_MAPPING[langId.value] || ''
 
             // 记住用户选择的语言
-            localStorage.setItem(LocalCacheKey.langType, langType.value)
-            localStorage.setItem(LocalCacheKey.langId, langId.value)
+            localStorage.setItem(LocalCacheKey.KEY_LANG_TYPE, langType.value)
+            localStorage.setItem(LocalCacheKey.KEY_LANG_ID, langId.value)
         }
 
         /**
@@ -129,7 +131,7 @@ export const useLangStore = defineStore(
          */
         const updateLangType = (newVal: string) => {
             langType.value = newVal
-            localStorage.setItem(LocalCacheKey.langType, newVal)
+            localStorage.setItem(LocalCacheKey.KEY_LANG_TYPE, newVal)
         }
 
         /**
@@ -138,7 +140,7 @@ export const useLangStore = defineStore(
          */
         const updateLangId = (newVal: string) => {
             langId.value = newVal
-            localStorage.setItem(LocalCacheKey.langId, newVal)
+            localStorage.setItem(LocalCacheKey.KEY_LANG_ID, newVal)
         }
 
         //element国际化资源

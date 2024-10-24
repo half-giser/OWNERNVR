@@ -92,9 +92,11 @@ export default defineComponent({
             if (!chlID.value) {
                 return true
             }
+
             if (prop.winData.PLAY_STATUS === 'stop') {
                 return true
             }
+
             if (prop.winData.PLAY_STATUS === 'play') {
                 return false
             }
@@ -173,6 +175,7 @@ export default defineComponent({
             if (prop.winData.streamType === type) {
                 return
             }
+
             if (streamTypeDisabled.value && type === 0) {
                 return
             }

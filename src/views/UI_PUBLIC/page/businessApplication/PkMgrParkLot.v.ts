@@ -501,6 +501,7 @@ export default defineComponent({
                         tableData.value[i].phoneNum = data.phoneNum
                         tableData.value[i].enterImg = data.img
                     }
+
                     if (item.isExit) {
                         const data = await getParkImg(item.exitChlId, item.exitFrameTime, item.eventType, item.exitVehicleId)
                         tableData.value[i].master = data.master

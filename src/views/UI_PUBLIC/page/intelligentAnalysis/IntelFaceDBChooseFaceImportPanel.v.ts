@@ -188,6 +188,7 @@ export default defineComponent({
                     reject(Translate('IDCS_ADD_FACE_FAIL'))
                     return
                 }
+
                 // 图片小于200KB
                 if (file.size > 200 * 1024) {
                     reject(Translate('IDCS_ADD_FACE_FAIL'))
@@ -229,6 +230,7 @@ export default defineComponent({
                     dataFile = file
                     // csvOrTxtCount++
                 }
+
                 if (!fileType || !supportTypes.includes(fileType)) {
                     hasNotSupportedType = true
                     break
@@ -292,6 +294,7 @@ export default defineComponent({
             if (files === null) {
                 return
             }
+
             if (!checkImportFaceImgCount(files.length)) {
                 return
             }

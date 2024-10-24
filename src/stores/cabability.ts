@@ -62,6 +62,8 @@ export const useCababilityStore = defineStore(
         const supportSnmp = ref(false)
         const supportPlatform = ref(false)
         const supportPoePowerManage = ref(false)
+        const supportLogoSetting = ref(false)
+        const supportFishEye = ref(false)
 
         const CustomerID = ref(0)
         const AISwitch = ref(false)
@@ -131,6 +133,8 @@ export const useCababilityStore = defineStore(
             supportSnmp.value = $(`content/supportSnmp`).text().toBoolean()
             supportPlatform.value = $(`content/supportPlatform`).text().toBoolean()
             supportPoePowerManage.value = $(`content/supportPoePowerManage`).text().toBoolean()
+            supportLogoSetting.value = $(`content/supportLogoSetting`).text().toBoolean()
+            supportFishEye.value = $(`content/supportFishEye`).text().toBoolean()
 
             $('content/FishEyeCaps/installType/enum').forEach((item) => {
                 const text = item.text()
@@ -199,6 +203,8 @@ export const useCababilityStore = defineStore(
             supportSnmp,
             supportPlatform,
             supportPoePowerManage,
+            supportLogoSetting,
+            supportFishEye,
         }
     },
     {

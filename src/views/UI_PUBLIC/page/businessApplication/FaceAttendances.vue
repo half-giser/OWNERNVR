@@ -3,7 +3,7 @@
  * @Date: 2024-06-05 18:18:24
  * @Description: 业务应用-人脸考勤
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-10 11:34:24
+ * @LastEditTime: 2024-10-23 20:49:09
 -->
 <template>
     <div class="base-flex-box face">
@@ -153,55 +153,37 @@
                     :label="Translate('IDCS_FACE_LIBRARY')"
                     prop="groupName"
                 />
-                <el-table-column
-                    :label="Translate('IDCS_NORMAL')"
-                    prop="normal"
-                >
+                <el-table-column :label="Translate('IDCS_NORMAL')">
                     <template #default="scope">
                         {{ displayStatus(scope.row.normal) }}
                     </template>
                 </el-table-column>
 
-                <el-table-column
-                    :label="Translate('IDCS_LATE')"
-                    prop="late"
-                >
+                <el-table-column :label="Translate('IDCS_LATE')">
                     <template #default="scope">
                         {{ displayStatus(scope.row.late) }}
                     </template>
                 </el-table-column>
 
-                <el-table-column
-                    :label="Translate('IDCS_LEFT_EARLY')"
-                    prop="leaveEarly"
-                >
+                <el-table-column :label="Translate('IDCS_LEFT_EARLY')">
                     <template #default="scope">
                         <span class="text-error">{{ displayStatus(scope.row.leftEarly) }}</span>
                     </template>
                 </el-table-column>
 
-                <el-table-column
-                    :label="Translate('IDCS_ATTENDANCE_NONE')"
-                    prop="absenteeism"
-                >
+                <el-table-column :label="Translate('IDCS_ATTENDANCE_NONE')">
                     <template #default="scope">
                         <span class="text-error">{{ displayStatus(scope.row.absenteeism) }}</span>
                     </template>
                 </el-table-column>
 
-                <el-table-column
-                    :label="Translate('IDCS_ABNORMAL')"
-                    prop="abnormal"
-                >
+                <el-table-column :label="Translate('IDCS_ABNORMAL')">
                     <template #default="scope">
                         {{ displayStatus(scope.row.abnormal) }}
                     </template>
                 </el-table-column>
 
-                <el-table-column
-                    :label="Translate('IDCS_DETAIL')"
-                    prop="detail"
-                >
+                <el-table-column :label="Translate('IDCS_DETAIL')">
                     <template #default="scope">
                         <BaseImgSprite
                             file="edit (2)"

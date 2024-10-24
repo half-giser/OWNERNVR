@@ -2,14 +2,14 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-10-23 11:22:10
  * @Description: 地标平台参数
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-23 15:30:55
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-24 10:31:27
  */
 
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const formData = ref({
             enable: false,
             proxyId: '',
@@ -36,9 +36,9 @@ export default defineComponent({
             holdTimeList: [] as SelectOption<string, string>[],
         })
         const getData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             const res = await querySHDBParam()
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             const $ = queryXml(res)
             if ($('status').text() === 'success') {
                 formData.value.enable = $('//content/platformParam/switch').text() === 'true'
@@ -112,6 +112,7 @@ export default defineComponent({
                         : [{ value: '3', label: '3' + Translate('IDCS_SECOND') }]
             }
         }
+
         const setDefault = () => {
             formData.value.proxyId = ''
             setIpValue(pageData.value.defaultServerAddress)
@@ -120,6 +121,7 @@ export default defineComponent({
             formData.value.level = pageData.value.defaultLevel
             formData.value.holdTime = pageData.value.defaultHoldTime
         }
+
         const getSavaData = () => {
             const sendXml = rawXml`
                 <content>
@@ -140,15 +142,17 @@ export default defineComponent({
             `
             return sendXml
         }
+
         const setData = () => {
             if (!verification()) return
             const sendXml = getSavaData()
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             editSHDBParam(sendXml).then((res) => {
                 commSaveResponseHadler(res)
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
             })
         }
+
         // 根据获取到的地址设置ip或者域名
         const setIpValue = (value: string) => {
             if (checkIpV4(value)) {
@@ -159,6 +163,7 @@ export default defineComponent({
                 formData.value.domain = value
             }
         }
+
         // 校验规则
         const verification = () => {
             if (formData.value.isDomain) {
@@ -200,6 +205,7 @@ export default defineComponent({
             }
             return true
         }
+
         const handleIpChange = (value: string) => {
             formData.value.ip = value
         }

@@ -44,6 +44,7 @@ export default class RecordBuilder {
             if (!(data && data.cmd)) {
                 return
             }
+
             switch (data.cmd) {
                 case 'ready':
                     this.decodeWorker!.postMessage({

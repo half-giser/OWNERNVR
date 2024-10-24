@@ -3,7 +3,7 @@
  * @Date: 2024-06-28 11:45:24
  * @Description: 报警状态
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-16 13:40:29
+ * @LastEditTime: 2024-10-24 09:34:59
 -->
 <template>
     <div class="base-flex-box">
@@ -20,7 +20,7 @@
             @cell-click="handleChangeRow"
             @expand-change="handleExpandChange"
         >
-            <el-table-column prop="type">
+            <el-table-column>
                 <template #default="scope">
                     <div class="type">{{ scope.row.type }}</div>
                 </template>

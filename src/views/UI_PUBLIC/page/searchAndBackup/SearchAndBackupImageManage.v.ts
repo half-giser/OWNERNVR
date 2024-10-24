@@ -302,7 +302,7 @@ export default defineComponent({
          */
         const closeBackupTipPop = () => {
             if (pageData.value.isBackUpTipNotAgain) {
-                sessionStorage.setItem('BackUpPictureTipNotAgain', 'true')
+                sessionStorage.setItem(LocalCacheKey.KEY_BACKUP_PIC_MSG, 'true')
             }
             pageData.value.isBackUpTipPop = false
         }
@@ -362,6 +362,7 @@ export default defineComponent({
             if (pageData.value.playerIndex === 0 && formData.value.pageIndex === 1) {
                 return
             }
+
             if (pageData.value.playerIndex === 0) {
                 formData.value.pageIndex--
                 await getData()
@@ -378,6 +379,7 @@ export default defineComponent({
             if (pageData.value.playerIndex === tableData.value.length - 1 && formData.value.pageIndex >= Math.ceil(pageData.value.totalCount / formData.value.pageSize)) {
                 return
             }
+
             if (pageData.value.playerIndex === tableData.value.length - 1) {
                 formData.value.pageIndex++
                 await getData()
@@ -394,6 +396,7 @@ export default defineComponent({
                     Plugin.SetPluginNoResponse()
                     Plugin.ShowPluginNoResponse()
                 }
+
                 if (newVal === 'ocx') {
                     const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Playback')
                     Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
@@ -413,7 +416,7 @@ export default defineComponent({
 
             search()
 
-            if (!sessionStorage.getItem('BackUpPictureTipNotAgain')) {
+            if (!sessionStorage.getItem(LocalCacheKey.KEY_BACKUP_PIC_MSG)) {
                 pageData.value.isBackUpTipPop = true
             }
         })

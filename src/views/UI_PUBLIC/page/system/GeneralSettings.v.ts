@@ -137,6 +137,7 @@ export default defineComponent({
             if (value === 0) {
                 return Translate('IDCS_MAIN_SCREEN')
             }
+
             if (systemCaps.outputScreensCount === 2) {
                 return Translate('IDCS_SECOND_SCREEN')
             }
@@ -151,6 +152,7 @@ export default defineComponent({
             if (value === 0) {
                 return !formData.value.outputAdapt
             }
+
             if (value === 1) {
                 return ['7680x4320(30)', '7680x4320(60)'].includes(formData.value.resolution[0])
             }

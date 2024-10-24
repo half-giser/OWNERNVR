@@ -58,6 +58,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
                             return
                         }
+
                         if (listData.value.map((item) => item.name).includes(value)) {
                             callback(new Error(Translate('IDCS_PROMPT_CHANNEL_NAME_EXIST')))
                             return

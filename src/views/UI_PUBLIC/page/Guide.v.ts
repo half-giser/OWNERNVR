@@ -158,23 +158,27 @@ export default defineComponent({
                 if (current === 'privacy') {
                     privacyFormData.value.checked = false
                 }
+
                 if (current === 'dateAndTimezone') {
                     openLoading()
                     await getTimeConfig()
                     await getDefaultDate()
                     closeLoading()
                 }
+
                 if (current === 'user') {
                     clearInterval(interval)
                     openLoading()
                     await getPasswordSecurityStrength()
                     closeLoading()
                 }
+
                 if (current === 'questionAndAnswer') {
                     const flag = checkUserForm()
                     if (!flag) {
                         return
                     }
+
                     if (isDefeultQuestion.value) {
                         qaFormData.value.id = pageData.value.questionOptions[0]?.id || ''
                         qaTableData.value = cloneDeep(pageData.value.questionOptions)
@@ -184,6 +188,7 @@ export default defineComponent({
                     qaFormData.value.answer = ''
                     qaFormData.value.question = ''
                 }
+
                 if (current === 'disk') {
                     getDiskData()
                 }
@@ -209,9 +214,11 @@ export default defineComponent({
                     privacyFormData.value.checked = false
                 }
             }
+
             if (current === 'dateAndTimezone') {
                 clock()
             }
+
             if (current === 'questionAndAnswer') {
                 if (isDefeultQuestion.value) {
                     qaFormData.value.id = pageData.value.questionOptions[0]?.id || ''
@@ -646,6 +653,7 @@ export default defineComponent({
                 })
                 return false
             }
+
             if (userFormData.value.password !== userFormData.value.confirmPassword) {
                 openMessageTipBox({
                     type: 'info',
@@ -653,6 +661,7 @@ export default defineComponent({
                 })
                 return false
             }
+
             if (DEFAULT_PASSWORD_STREMGTH_MAPPING[pageData.value.passwordStrength] > passwordStrength.value) {
                 openMessageTipBox({
                     type: 'info',

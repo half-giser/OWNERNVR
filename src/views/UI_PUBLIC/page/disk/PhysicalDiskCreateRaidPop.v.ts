@@ -92,6 +92,7 @@ export default defineComponent({
                                     callback(new Error(Translate('IDCS_NOTE_RAID10_DISK_ERROR_MIN')))
                                     return
                                 }
+
                                 if (length % 2 !== 0) {
                                     callback(new Error(Translate('IDCS_NOTE_RAID10_DISK_ERROR_MAX')))
                                     return

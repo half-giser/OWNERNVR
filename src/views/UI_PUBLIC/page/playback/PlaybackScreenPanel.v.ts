@@ -170,6 +170,7 @@ export default defineComponent({
             if (disabled.value) {
                 return
             }
+
             if (prop.playStatus === 'backwards') {
                 ctx.emit('pauseBackwards')
             } else {
@@ -373,6 +374,7 @@ export default defineComponent({
             if (disabled.value) {
                 return
             }
+
             if (backUpDisabled.value) {
                 ElMessage({
                     type: 'info',

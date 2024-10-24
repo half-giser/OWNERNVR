@@ -128,9 +128,11 @@ export default class WebsocketKeyframe {
                 const end = Number(imgBufRange[1]) * 1 + start
                 imgBuf = buffer.slice(start, end)
             }
+
             if (!imgBuf) {
                 return
             }
+
             this.imgRender!.render(imgBuf, (imgUrl, frameTime) => {
                 if (imgUrl !== 'preDecodedFrame') {
                     this.onmessage &&

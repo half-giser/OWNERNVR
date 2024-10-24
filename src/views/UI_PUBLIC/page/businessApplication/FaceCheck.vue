@@ -3,7 +3,7 @@
  * @Date: 2024-08-27 14:24:19
  * @Description: 业务应用-人脸签到
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 16:35:17
+ * @LastEditTime: 2024-10-23 20:49:34
 -->
 <template>
     <div class="base-flex-box face">
@@ -157,10 +157,7 @@
                         <span class="text-error">{{ displayStatus(scope.row.unchecked) }}</span>
                     </template>
                 </el-table-column>
-                <el-table-column
-                    :label="Translate('IDCS_DETAIL')"
-                    prop="detail"
-                >
+                <el-table-column :label="Translate('IDCS_DETAIL')">
                     <template #default="scope">
                         <BaseImgSprite
                             file="edit (2)"

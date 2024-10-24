@@ -40,10 +40,12 @@ export default defineComponent({
             pageData.value.reverseSelect = false
             selectAll()
         }
+
         // 表头全选checkbox点击
         const selectAllChl = (rows: ImageUploadDto[]) => {
             pageData.value.selectAll = rows.length === prop.tableData.length
         }
+
         // 全选
         const selectAll = () => {
             tableRef.value!.clearSelection()
@@ -51,6 +53,7 @@ export default defineComponent({
                 tableRef.value!.toggleAllSelection()
             }
         }
+
         // 反选
         const reverseSelection = () => {
             const selectedRowsIds = tableRef.value!.getSelectionRows().map((row: ImageUploadDto) => row.chlId)
@@ -63,15 +66,18 @@ export default defineComponent({
             })
             pageData.value.selectAll = selectedRowsIds.length === 0
         }
+
         // 行点击事件
         const handleRowClick = (rowData: ImageUploadDto) => {
             pageData.value.selectAll = false
             tableRef.value!.clearSelection()
             tableRef.value!.toggleRowSelection(rowData, true)
         }
+
         const addTime = () => {
             ctx.emit('confirm', tableRef.value!.getSelectionRows(), pageData.value.addTimeData)
         }
+
         const close = () => {
             ctx.emit('close')
         }

@@ -53,6 +53,7 @@ export default defineComponent({
                             callback()
                             return
                         }
+
                         if (!value || value === '0.0.0.0') {
                             callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_EMPTY')))
                             return
@@ -74,14 +75,17 @@ export default defineComponent({
                             callback()
                             return
                         }
+
                         if (startIpNum.value === 0) {
                             callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_EMPTY')))
                             return
                         }
+
                         if (startIpNum.value > endIpNum.value) {
                             callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_COMPARE')))
                             return
                         }
+
                         const findIndex = prop.tableData.findIndex((item) => item.startIp === value && item.endIp === formData.value.endIp)
                         if (findIndex > -1 && findIndex !== prop.index) {
                             callback(new Error(Translate('IDCS_IP_ADDRESS_REPEAT_LIMIT')))
@@ -99,6 +103,7 @@ export default defineComponent({
                             callback()
                             return
                         }
+
                         if (endIpNum.value === 0) {
                             callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_EMPTY')))
                             return
@@ -115,6 +120,7 @@ export default defineComponent({
                             callback()
                             return
                         }
+
                         if (value === '00:00:00:00:00:00') {
                             callback(new Error(Translate('IDCS_PROMPT_MACADDRESS_INVALID')))
                             return

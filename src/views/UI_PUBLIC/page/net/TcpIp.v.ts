@@ -124,6 +124,7 @@ export default defineComponent({
                             data.dns1 = $item('dns1').text()
                             data.dns2 = $item('dns2').text()
                         }
+
                         if (bond.ipV6Switch) {
                             data.ipV6 = $item('ipV6').text()
                             data.gatewayV6 = $item('gatewayV6').text()
@@ -156,6 +157,7 @@ export default defineComponent({
                         data.dns1 = $item('dns1').text()
                         data.dns2 = $item('dns2').text()
                     }
+
                     if (config.ipV6Switch) {
                         data.ipV6 = $item('ipV6').text()
                         data.gatewayV6 = $item('gatewayV6').text()
@@ -272,6 +274,7 @@ export default defineComponent({
             } else {
                 return new NetTcpIpBondsList()
             }
+
             if (item.dhcpSwitch) {
                 item.ip = dhcp.ip
                 item.mask = dhcp.mask
@@ -284,11 +287,13 @@ export default defineComponent({
                     item.dns1 = dhcp.dns1
                     item.dns2 = dhcp.dns2
                 }
+
                 if (item.ipv4DnsDhcpSwitch) {
                     item.ipv6Dns1 = dhcp.ipv6Dns1
                     item.ipv6Dns2 = dhcp.ipv6Dns2
                 }
             }
+
             if (!item.ipV6Switch) {
                 item.ipV6 = ''
                 item.subLengthV6 = 0
@@ -440,6 +445,7 @@ export default defineComponent({
                             })
                             return false
                         }
+
                         if (!checkIpV6(item.ipV6)) {
                             openMessageTipBox({
                                 type: 'info',
@@ -447,6 +453,7 @@ export default defineComponent({
                             })
                             return false
                         }
+
                         if (item.gatewayV6 && !checkIpV6(item.gatewayV6)) {
                             openMessageTipBox({
                                 type: 'info',
@@ -455,6 +462,7 @@ export default defineComponent({
                             return false
                         }
                     }
+
                     // 开启ipv6且dns自动获取未开启
                     if (item.ipV6Switch && !item.ipv6DnsDhcpSwitch) {
                         if (item.ipv6Dns1 && !checkIpV6(item.ipv6Dns1)) {
@@ -464,6 +472,7 @@ export default defineComponent({
                             })
                             return false
                         }
+
                         if (item.ipv6Dns2 && !checkIpV6(item.ipv6Dns2)) {
                             openMessageTipBox({
                                 type: 'info',
@@ -505,6 +514,7 @@ export default defineComponent({
                             }
                             ipv4Arr.push(item.ip)
                         }
+
                         // 开启ipv6且未勾选自动获取校验ipv6相关地址
                         if (item.ipV6Switch && !item.dhcpSwitch) {
                             if (!item.ipV6.trim().length) {
@@ -514,6 +524,7 @@ export default defineComponent({
                                 })
                                 return false
                             }
+
                             if (!checkIpV6(item.ipV6)) {
                                 openMessageTipBox({
                                     type: 'info',
@@ -521,6 +532,7 @@ export default defineComponent({
                                 })
                                 return false
                             }
+
                             if (item.gatewayV6 && !checkIpV6(item.gatewayV6)) {
                                 openMessageTipBox({
                                     type: 'info',
@@ -528,6 +540,7 @@ export default defineComponent({
                                 })
                                 return false
                             }
+
                             if (ipv6Arr.includes(item.ipV6)) {
                                 openMessageTipBox({
                                     type: 'info',
@@ -537,6 +550,7 @@ export default defineComponent({
                             }
                             ipv6Arr.push(item.ipV6)
                         }
+
                         // 开启ipv6且dns自动获取未开启
                         if (item.ipV6Switch && !item.ipv6DnsDhcpSwitch) {
                             if (item.ipv6Dns1 && !checkIpV6(item.ipv6Dns1)) {
@@ -546,6 +560,7 @@ export default defineComponent({
                                 })
                                 return false
                             }
+
                             if (item.ipv6Dns2 && !checkIpV6(item.ipv6Dns2)) {
                                 openMessageTipBox({
                                     type: 'info',
@@ -564,6 +579,7 @@ export default defineComponent({
                             return false
                         }
                     }
+
                     if (item.isSupSecondIP) {
                         if (item.secondIp === item.ip) {
                             openMessageTipBox({
@@ -801,6 +817,7 @@ export default defineComponent({
                 res1.push(parseInt(addr1s[i]) & parseInt(mask1s[i]))
                 res2.push(parseInt(addr2s[i]) & parseInt(mask2s[i]))
             }
+
             if (res1.join('.') === res2.join('.')) {
                 //同一网段
                 return true

@@ -60,6 +60,7 @@ export default defineComponent({
                                 callback(new Error(Translate('IDCS_PROMPT_TRAP_ADDRESS_EMPTY')))
                                 return
                             }
+
                             if (value === '0.0.0.0' || !checkIpV4(value)) {
                                 callback(new Error(Translate('IDCS_PROMPT_TRAP_ADDRESS_INVALID')))
                                 return

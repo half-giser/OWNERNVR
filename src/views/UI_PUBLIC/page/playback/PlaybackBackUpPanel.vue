@@ -3,7 +3,7 @@
  * @Date: 2024-07-30 18:30:11
  * @Description: 回放-备份任务列表
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-10 18:15:03
+ * @LastEditTime: 2024-10-24 09:25:19
 -->
 <template>
     <div class="backup">
@@ -72,16 +72,10 @@
                     :label="Translate('IDCS_PROGRESS')"
                     prop="progress"
                 />
-                <el-table-column
-                    :label="Translate('IDCS_OPERATION')"
-                    prop="operate"
-                >
+                <el-table-column :label="Translate('IDCS_OPERATION')">
                     <template #header>
                         <el-dropdown
                             trigger="click"
-                            :popper-options="{
-                                boundariesElement: '.playback-backup-panel',
-                            }"
                             :teleported="false"
                         >
                             <BaseTableDropdownLink>
@@ -109,16 +103,10 @@
                         <el-text v-else-if="scope.row.status === 'failed'">{{ Translate('IDCS_FAILED') }}</el-text>
                     </template>
                 </el-table-column>
-                <el-table-column
-                    :label="Translate('IDCS_DELETE')"
-                    prop="delete"
-                >
+                <el-table-column :label="Translate('IDCS_DELETE')">
                     <template #header>
                         <el-dropdown
                             trigger="click"
-                            :popper-options="{
-                                boundariesElement: '.playback-backup-panel',
-                            }"
                             :teleported="false"
                         >
                             <BaseTableDropdownLink>

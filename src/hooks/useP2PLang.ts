@@ -44,11 +44,13 @@ export const useP2PLang = () => {
      */
     const requestLangTypes = () => {
         if (!langType.value) {
-            langType.value = localStorage.getItem(LocalCacheKey.langType) || ''
+            langType.value = localStorage.getItem(LocalCacheKey.KEY_LANG_TYPE) || ''
         }
+
         if (!langId.value) {
-            langId.value = localStorage.getItem(LocalCacheKey.langId) || ''
+            langId.value = localStorage.getItem(LocalCacheKey.KEY_LANG_ID) || ''
         }
+
         return fetch(`/public/LanguageInfo/LanguageIndex.js`)
             .then((res) => res.json())
             .then((res: LanguageResult) => {
@@ -69,6 +71,7 @@ export const useP2PLang = () => {
                         // 如果map中不存在，则尝试只比较前2位
                         langId.value = LANG_MAPPING[langType.value.substring(0, 2)]
                     }
+
                     if (!langId.value) {
                         langId.value = '0x0409'
                     }
@@ -77,8 +80,8 @@ export const useP2PLang = () => {
                 langType.value = LANG_TYPE_MAPPING[langId.value] || ''
 
                 // 记住用户选择的语言
-                localStorage.setItem(LocalCacheKey.langType, langType.value)
-                localStorage.setItem(LocalCacheKey.langId, langId.value)
+                localStorage.setItem(LocalCacheKey.KEY_LANG_TYPE, langType.value)
+                localStorage.setItem(LocalCacheKey.KEY_LANG_ID, langId.value)
             })
     }
 
@@ -138,7 +141,7 @@ export const useP2PLang = () => {
      */
     const updateLangType = (newVal: string) => {
         langType.value = newVal
-        localStorage.setItem(LocalCacheKey.langType, newVal)
+        localStorage.setItem(LocalCacheKey.KEY_LANG_TYPE, newVal)
     }
 
     /**
@@ -147,7 +150,7 @@ export const useP2PLang = () => {
      */
     const updateLangId = (newVal: string) => {
         langId.value = newVal
-        localStorage.setItem(LocalCacheKey.langId, newVal)
+        localStorage.setItem(LocalCacheKey.KEY_LANG_ID, newVal)
     }
 
     return {

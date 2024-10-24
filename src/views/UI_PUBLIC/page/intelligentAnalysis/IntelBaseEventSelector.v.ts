@@ -151,6 +151,7 @@ export default defineComponent({
                     }
                 })
             }
+
             if (prop.range.includes('person')) {
                 pageData.value.personOptions.forEach((item) => {
                     if (!item.hidden) {
@@ -158,6 +159,7 @@ export default defineComponent({
                     }
                 })
             }
+
             if (prop.range.includes('vehicle')) {
                 pageData.value.vehicleOptions.forEach((item) => {
                     if (!item.hidden) {

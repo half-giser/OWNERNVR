@@ -56,6 +56,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_SIP_ID_REPEAT')))
                             return
                         }
+
                         if (!/^\d{20}$/.test(value)) {
                             callback(new Error(Translate('IDCS_SIP_ID_INVALID')))
                             return

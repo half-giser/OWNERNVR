@@ -3,7 +3,7 @@
  * @Date: 2024-06-20 17:25:20
  * @Description: 自动维护
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-16 10:43:55
+ * @LastEditTime: 2024-10-24 09:32:09
  */
 import { type FormInstance, type FormRules } from 'element-plus'
 import { SystemAutoMaintenanceForm } from '@/types/apiType/system'
@@ -24,7 +24,6 @@ export default defineComponent({
             interval: [
                 {
                     validator: (rule, value, callback) => {
-                        console.log(value)
                         if (formData.value.switch && typeof value !== 'number') {
                             callback(new Error(Translate('IDCS_INTERVAL_DAYS_EMPTY')))
                             return

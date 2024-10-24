@@ -33,6 +33,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_TOTAL_VEHICLE_NOT_CONFIG')))
                             return
                         }
+
                         if (formData.value.groupTotalNum > value) {
                             callback(new Error(Translate('IDCS_TOTAL_VEHICLE_SPACE_LESS_TIPS')))
                             return
@@ -49,6 +50,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_REMAIN_VEHICLE_NUM_OVER_TIPS')))
                             return
                         }
+
                         if (formData.value.groupRemainTotalNum > value) {
                             callback(new Error(Translate('IDCS_REMAIN_VEHICLE_SPACE_LESS_TIPS')))
                             return

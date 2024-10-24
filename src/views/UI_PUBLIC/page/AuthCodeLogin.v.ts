@@ -3,7 +3,7 @@
  * @Date: 2024-09-20 09:10:22
  * @Description: P2P授权码登录
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 18:40:21
+ * @LastEditTime: 2024-10-24 20:10:44
  */
 import type { FormInstance, FormRules } from 'element-plus'
 import { AuthCodeLoginForm } from '@/types/apiType/user'
@@ -169,7 +169,7 @@ export default defineComponent({
          */
         const clearAuInfo = () => {
             userSession.auInfo_N9K = ''
-            delCookie('auInfo_N9K')
+            delCookie(LocalCacheKey.KEY_AU_INFO_N9K)
         }
 
         /**
@@ -222,6 +222,7 @@ export default defineComponent({
                 }
                 setCookie('loginLockCount', count)
             }
+
             if (count === 0) {
                 if (!isNaN(remainTime)) {
                     lockTime = remainTime
@@ -261,9 +262,11 @@ export default defineComponent({
             if (pageData.value.loginType === P2PACCESSTYPE.P2P_AUTHCODE_LOGIN) {
                 return
             }
+
             if (!getCookie('loginLock')) {
                 setCookie('loginLock', 'false')
             }
+
             if (!getCookie('loginLockCount')) {
                 setCookie('loginLockCount', 5)
             }

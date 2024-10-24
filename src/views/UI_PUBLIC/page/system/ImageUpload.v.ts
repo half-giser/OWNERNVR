@@ -46,6 +46,7 @@ export default defineComponent({
                 return
             }
         }
+
         /**
          * @description 表格项展开回调
          * @param {ImageUploadDto} row
@@ -64,21 +65,25 @@ export default defineComponent({
                 }
             }
         }
+
         // 行标识
         const getRowKey = (row: ImageUploadDto) => {
             return row.chlId
         }
+
         // 24小时制转12小时制
         const _24turn12 = (value: string) => {
             const time = new Date('2024/1/1 ' + value)
             return dayjs(time).format('hh:mm:ss A')
         }
+
         // 获取时间格式
         const getTimeCfg = () => {
             queryTimeCfg().then((res) => {
                 timeMode.value = Number(queryXml(res)('content/formatInfo/time').text())
             })
         }
+
         // 获取数据
         const getData = async () => {
             openLoading()
@@ -107,12 +112,14 @@ export default defineComponent({
             orderChl()
             orderTimeList()
         }
+
         // 排序通道
         const orderChl = () => {
             tableData.value.sort((a, b) => {
                 return a.chlNum - b.chlNum
             })
         }
+
         // 排序时间项
         const orderTimeList = (row?: ImageUploadDto) => {
             if (!row) {
@@ -127,6 +134,7 @@ export default defineComponent({
                 return timeA - timeB
             })
         }
+
         // 清空当前通道所有时间项
         const clearChannelAllTime = (row: ImageUploadDto) => {
             const shortName = row.name.length > 10 ? row.name.slice(0, 10) + '...' : row.name
@@ -138,16 +146,19 @@ export default defineComponent({
                 row.timelist = []
             })
         }
+
         // 删除时间项
         const deleteTimeItem = (row: ImageUploadDto, index: number) => {
             row.timelist.splice(index, 1)
             row.timeCount = row.timelist.length
         }
+
         // 打开添加时间项弹窗
         const openAddTimeDialog = (row: ImageUploadDto) => {
             pageData.value.currentRow = row
             pageData.value.addSignTimeDialogOpen = true
         }
+
         // 添加时间项
         const addTimeItem = () => {
             const timeList = pageData.value.currentRow.timelist
@@ -164,6 +175,7 @@ export default defineComponent({
             pageData.value.addTimeData = '00:00:00'
             pageData.value.addSignTimeDialogOpen = false
         }
+
         // 校验添加时间是否合格
         const checkTime = (timeList: SelectOption<string, string>[], time: string) => {
             if (timeList.length >= 20) {
@@ -173,6 +185,7 @@ export default defineComponent({
                 })
                 return false
             }
+
             for (let i = 0; i < timeList.length; i++) {
                 const distime = (new Date('2017/1/11 ' + timeList[i].value).getTime() - new Date('2017/1/11 ' + time).getTime()) / 1000
                 if (Math.abs(distime) < 5 * 60) {
@@ -186,6 +199,7 @@ export default defineComponent({
 
             return true
         }
+
         // 添加时间项弹窗确认
         const addUploadTime = (data: ImageUploadDto[], addTime: string) => {
             if (data.length === 0) {
@@ -211,6 +225,7 @@ export default defineComponent({
             }
             pageData.value.addUploadTimePopOpen = false
         }
+
         const getSaveData = () => {
             let sendXml = rawXml`<content type='list'>
             <itemType><timeList type='list' /></itemType>`
@@ -225,6 +240,7 @@ export default defineComponent({
             sendXml += `</content>`
             return sendXml
         }
+
         // 提交数据
         const setData = async () => {
             const sendXml = getSaveData()

@@ -125,6 +125,7 @@ export default defineComponent({
             if (!prop.enabled) {
                 return
             }
+
             // 巡航线数量达到上限8个
             if (listData.value.length >= CRUISE_MAX_COUNT) {
                 openMessageTipBox({
@@ -161,6 +162,7 @@ export default defineComponent({
             if (!item) {
                 return
             }
+
             if (prop.chlId) {
                 const sendXml = rawXml`
                     <content>

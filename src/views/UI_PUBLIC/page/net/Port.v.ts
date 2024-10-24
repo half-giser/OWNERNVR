@@ -230,6 +230,7 @@ export default defineComponent({
                     if (regNum.test(item)) {
                         pageData.value.reservedPort.push(Number(item))
                     }
+
                     if (regRange.test(item)) {
                         const temp = item.split('-')
                         pageData.value.reservedPortRange.push([Number(temp[0]), Number(temp[1])])

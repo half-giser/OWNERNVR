@@ -296,10 +296,12 @@ export default defineComponent({
                     csvHead.push(`${Translate('IDCS_DETECTION_PERSON')} (${Translate('IDCS_ENTRANCE')})`, `${Translate('IDCS_DETECTION_PERSON')} (${Translate('IDCS_LEAVE')})`)
                     csvTitle.colspan += 2
                 }
+
                 if (formData.value.vehicleAttribute.includes('car')) {
                     csvHead.push(`${Translate('IDCS_DETECTION_VEHICLE')} (${Translate('IDCS_ENTRANCE')})`, `${Translate('IDCS_DETECTION_VEHICLE')} (${Translate('IDCS_LEAVE')})`)
                     csvTitle.colspan += 2
                 }
+
                 if (formData.value.vehicleAttribute.includes('motor')) {
                     csvHead.push(`${Translate('IDCS_NON_VEHICLE')} (${Translate('IDCS_ENTRANCE')})`, `${Translate('IDCS_NON_VEHICLE')} (${Translate('IDCS_LEAVE')})`)
                     csvTitle.colspan += 2
@@ -319,9 +321,11 @@ export default defineComponent({
                             if (formData.value.personAttribute.includes('')) {
                                 data.push(chl.personIn + '', chl.personOut + '')
                             }
+
                             if (formData.value.vehicleAttribute.includes('car')) {
                                 data.push(chl.vehicleIn + '', chl.vehicleOut + '')
                             }
+
                             if (formData.value.vehicleAttribute.includes('motor')) {
                                 data.push(chl.nonVehicleIn + '', chl.nonVehicleOut + '')
                             }

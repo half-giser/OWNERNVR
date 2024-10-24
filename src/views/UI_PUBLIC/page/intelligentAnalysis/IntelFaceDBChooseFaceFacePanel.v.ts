@@ -149,6 +149,7 @@ export default defineComponent({
                         cacheFaceMap[id].pic.push(pic)
                     }
                 }
+
                 if (index === formData.value.pageIndex) {
                     filterListData.value[i] = cloneDeep(cacheFaceMap[id])
                 } else {
@@ -191,6 +192,7 @@ export default defineComponent({
                     return info
                 })
             }
+
             if (formData.value.faceGroup.length === 0) {
                 listData.value = []
             }

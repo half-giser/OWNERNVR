@@ -3,7 +3,7 @@
  * @Date: 2024-08-15 09:09:46
  * @Description: 平台接入
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-18 09:18:33
+ * @LastEditTime: 2024-10-24 09:21:52
 -->
 <template>
     <div class="base-flex-box">
@@ -167,10 +167,7 @@
                             value-on-clear="min"
                         />
                     </el-form-item>
-                    <el-form-item
-                        :label="Translate('IDCS_KEEP_ALIVE_CYCLE')"
-                        prop="sipExpireTime"
-                    >
+                    <el-form-item :label="Translate('IDCS_KEEP_ALIVE_CYCLE')">
                         <BaseNumberInput
                             v-model="formData.sipExpireTime"
                             :disabled="!formData.gb28181Switch"

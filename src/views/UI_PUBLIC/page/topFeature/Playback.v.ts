@@ -3,7 +3,7 @@
  * @Date: 2024-08-05 16:00:46
  * @Description: 回放
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 14:33:03
+ * @LastEditTime: 2024-10-24 19:49:50
  */
 import PlaybackChannelPanel, { type ChannelPanelExpose } from '../playback/PlaybackChannelPanel.vue'
 import PlaybackEventPanel from '../playback/PlaybackEventPanel.vue'
@@ -114,6 +114,7 @@ const useOCXCacheWinMap = (maxWin: number) => {
                 winMap[i] = ''
                 chls.splice(index, 1)
             }
+
             if (!chls.length) {
                 break
             }
@@ -368,6 +369,7 @@ export default defineComponent({
             if (mode.value === 'ocx') {
                 ocxCacheWinMap.update(pageData.value.chls)
             }
+
             if (pageData.value.playStatus !== 'play') {
                 pageData.value.playStatus = 'pending'
             }
@@ -451,6 +453,7 @@ export default defineComponent({
                 if (!item.records.length) {
                     return
                 }
+
                 if (timestamp >= item.records[item.records.length - 1].endTime) {
                     return
                 }
@@ -586,9 +589,11 @@ export default defineComponent({
             if (!ready.value) {
                 return
             }
+
             if (!pageData.value.chls) {
                 return
             }
+
             if (mode.value === 'h5') {
                 player.stopAll()
                 pageData.value.chls.forEach((item, index) => {
@@ -651,6 +656,7 @@ export default defineComponent({
             if (pageData.value.recLogList.length) {
                 renderTimeline()
             }
+
             if (ready.value && ['play', 'pause'].includes(pageData.value.playStatus)) {
                 playAll()
             }
@@ -679,6 +685,7 @@ export default defineComponent({
 
                 return currentList
             }
+
             if (mode.value === 'ocx') {
                 if (pageData.value.isFullScreen) {
                     const find = pageData.value.recLogList.find((rec) => pageData.value.winData.chlID === rec.chlId)
@@ -775,6 +782,7 @@ export default defineComponent({
             if (!ready.value) {
                 return
             }
+
             if (!timelineRef.value) {
                 return
             }
@@ -792,6 +800,7 @@ export default defineComponent({
             if (!ready.value) {
                 return
             }
+
             if (!timelineRef.value) {
                 return
             }
@@ -808,14 +817,15 @@ export default defineComponent({
             if (!ready.value) {
                 return
             }
+
             if (mode.value === 'h5') {
                 const date = formatDate(new Date(), 'YYYYMMDDHHmmss')
                 const chlName = pageData.value.winData.chlName
                 player.snap(pageData.value.winData.winIndex, `${chlName}_${date}`)
                 // NT-12559 首次本地抓图，提示图片数据未加密
-                if (!localStorage.getItem('snapPicNotEncrypted')) {
+                if (!localStorage.getItem(LocalCacheKey.KEY_SNAP_PIC_NOT_ENCRYPTED)) {
                     pageData.value.notification.push(Translate('IDCS_IMG_UNENCRYPTED_TIP'))
-                    localStorage.setItem('snapPicNotEncrypted', 'true')
+                    localStorage.setItem(LocalCacheKey.KEY_SNAP_PIC_NOT_ENCRYPTED, 'true')
                 }
             } else if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_TakePhotoByWinIndex(pageData.value.winData.winIndex)
@@ -949,6 +959,7 @@ export default defineComponent({
                     pageData.value.notification.push(Translate('IDCS_OPERATE_CLOSE_WIN'))
                     return
                 }
+
                 if (userAuth.value.audio[pageData.value.winData.chlID] === false) {
                     openMessageTipBox({
                         type: 'info',
@@ -991,6 +1002,7 @@ export default defineComponent({
             if (!ready.value) {
                 return
             }
+
             if (mode.value === 'h5') {
                 player.togglePos(bool)
             } else if (mode.value === 'ocx') {
@@ -1027,6 +1039,7 @@ export default defineComponent({
             if (!ready.value) {
                 return
             }
+
             if (mode.value === 'h5') {
                 player.fullscreen()
             } else if (mode.value === 'ocx') {
@@ -1143,6 +1156,7 @@ export default defineComponent({
             if (!ready.value) {
                 return
             }
+
             if (mode.value === 'h5') {
                 const currentTime = timelineRef.value?.getTime() || 0
                 const startTime = startTimeStamp.value / 1000
@@ -1163,6 +1177,7 @@ export default defineComponent({
             if (!ready.value) {
                 return
             }
+
             if (mode.value === 'h5') {
                 player.seek(timestamp)
             } else if (mode.value === 'ocx') {
@@ -1225,6 +1240,7 @@ export default defineComponent({
             if (!ready.value) {
                 return
             }
+
             if (mode.value === 'h5') {
                 pageData.value.winData.streamType = type
                 if (type === 1) {
@@ -1265,6 +1281,7 @@ export default defineComponent({
             if (!ready.value) {
                 return
             }
+
             if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_SetFishEyeMode(installType, fishEyeMode)
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
@@ -1326,6 +1343,7 @@ export default defineComponent({
             if (!ready.value) {
                 return
             }
+
             if (mode.value === 'ocx') {
                 list.map((item, index) => {
                     const recordList = item.records.map((record) => {
@@ -1451,6 +1469,7 @@ export default defineComponent({
                 } else {
                     pageData.value.fullScreenIndex = -1
                 }
+
                 if (pageData.value.winData.streamType === 0) {
                     pageData.value.mainStreamTypeChl = pageData.value.winData.chlID
                 }
@@ -1548,6 +1567,7 @@ export default defineComponent({
                     while (pageData.value.chls.length > splitList[i]) {
                         i++
                     }
+
                     if (['play', 'pause', 'backwards'].includes(pageData.value.playStatus)) {
                     } else {
                         if (pageData.value.split !== splitList[i]) {
@@ -1561,6 +1581,7 @@ export default defineComponent({
                             setSplit(1)
                             return
                         }
+
                         if (newVal.length < oldVal.length) {
                             const newChlIds = newVal.map((item) => item.id)
                             const filterChls = oldVal.filter((item) => !newChlIds.includes(item.id))
@@ -1583,10 +1604,12 @@ export default defineComponent({
                             renderTimeline()
                             return
                         }
+
                         if (!oldVal.length) {
                             playAll(timelineRef.value!.getTime() || startTimeStamp.value / 1000)
                             return
                         }
+
                         if (newVal.length > oldVal.length) {
                             const timestamp = timelineRef.value!.getTime()
                             if (mode.value === 'h5') {
@@ -1639,6 +1662,7 @@ export default defineComponent({
                     renderTimeline()
                     return
                 }
+
                 if (!newVal.length) {
                     renderTimeline()
                     return

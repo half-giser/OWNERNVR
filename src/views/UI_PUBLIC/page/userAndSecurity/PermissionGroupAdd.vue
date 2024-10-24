@@ -3,7 +3,7 @@
  * @Date: 2024-06-17 20:25:35
  * @Description: 添加权限组
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 11:30:06
+ * @LastEditTime: 2024-10-24 09:42:57
 -->
 <template>
     <div class="base-flex-box">
@@ -78,13 +78,8 @@
                         <el-table-column
                             prop="name"
                             :label="Translate('IDCS_CHANNEL')"
-                        >
-                            <template #default="scope">
-                                <el-tooltip :content="scope.row.name">
-                                    <div class="ellipsis">{{ scope.row.name }}</div>
-                                </el-tooltip>
-                            </template>
-                        </el-table-column>
+                            show-overflow-tooltip
+                        />
                         <el-table-column
                             v-for="(item, key) in pageData.localChannelIds"
                             :key
@@ -137,13 +132,8 @@
                         <el-table-column
                             prop="name"
                             :label="Translate('IDCS_CHANNEL')"
-                        >
-                            <template #default="scope">
-                                <el-tooltip :content="scope.row.name">
-                                    <div class="ellipsis">{{ scope.row.name }}</div>
-                                </el-tooltip>
-                            </template>
-                        </el-table-column>
+                            show-overflow-tooltip
+                        />
                         <el-table-column
                             v-for="(item, key) in pageData.remoteChannelIds"
                             :key

@@ -23,7 +23,7 @@
                         v-for="item in pageData.options"
                         :key="item.value"
                         :value="item.value"
-                        :label="Translate(item.label)"
+                        :label="item.label"
                     />
                 </el-select>
             </el-form-item>
@@ -33,7 +33,7 @@
                         v-for="item in pageData.options"
                         :key="item.value"
                         :value="item.value"
-                        :label="Translate(item.label)"
+                        :label="item.label"
                     />
                 </el-select>
             </el-form-item>
@@ -46,7 +46,7 @@
                         v-for="item in pageData.options"
                         :key="item.value"
                         :value="item.value"
-                        :label="Translate(item.label)"
+                        :label="item.label"
                     />
                 </el-select>
             </el-form-item>

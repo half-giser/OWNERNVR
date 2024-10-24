@@ -238,6 +238,7 @@ export default class CanvasCpc {
                     }
                     this.init()
                 }
+
                 const onMouseUp = () => {
                     this.onchange && this.onchange(this.regionInfo, this.arrowlineInfo)
                     document.removeEventListener('mousemove', onMouseMove)

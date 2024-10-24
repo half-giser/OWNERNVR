@@ -222,6 +222,7 @@ export const useOcxBackUp = (cmd: (str: string) => void) => {
                     if (['complete', 'failed'].includes(localTableData.value[i].status)) {
                         localTableData.value.splice(i, 1)
                     }
+
                     if (localTableData.value.length <= LOCAL_TASK_COUNT_LIMIT) {
                         break
                     }

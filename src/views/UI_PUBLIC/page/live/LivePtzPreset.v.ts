@@ -88,6 +88,7 @@ export default defineComponent({
             if (!prop.enabled) {
                 return
             }
+
             if (listData.value.length >= pageData.value.maxCount) {
                 openMessageTipBox({
                     type: 'info',

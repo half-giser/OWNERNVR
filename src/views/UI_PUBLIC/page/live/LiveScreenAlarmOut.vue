@@ -3,7 +3,7 @@
  * @Date: 2024-07-18 13:37:21
  * @Description: 现场预览-底部视图-手动报警
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 16:16:33
+ * @LastEditTime: 2024-10-24 09:16:31
 -->
 <template>
     <div>
@@ -40,10 +40,7 @@
                         :label="Translate('IDCS_ALARM_OUT_NAME')"
                         prop="name"
                     />
-                    <el-table-column
-                        :label="Translate('IDCS_STATE')"
-                        prop="switch"
-                    >
+                    <el-table-column :label="Translate('IDCS_STATE')">
                         <template #default="scope">
                             {{ displaySwitch(scope.row.switch) }}
                         </template>
@@ -60,7 +57,6 @@
                     <el-table-column
                         v-if="isDelay"
                         :label="Translate('IDCS_DELAY')"
-                        prop="delay"
                     >
                         <template #header>
                             <el-dropdown
@@ -96,10 +92,7 @@
                             </el-select>
                         </template>
                     </el-table-column>
-                    <el-table-column
-                        :label="Translate('IDCS_CLEAR_AWAY')"
-                        prop="clear"
-                    >
+                    <el-table-column :label="Translate('IDCS_CLEAR_AWAY')">
                         <template #header>
                             <el-dropdown
                                 trigger="click"
