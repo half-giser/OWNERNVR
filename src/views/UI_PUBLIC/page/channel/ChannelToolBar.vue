@@ -36,6 +36,7 @@ export default defineComponent({
                 },
             })
         }
+
         const addChl = () => {
             ctx.emit('toolBarEvent', {
                 type: 'addChl',

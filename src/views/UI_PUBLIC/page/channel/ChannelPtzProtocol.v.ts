@@ -3,7 +3,7 @@
  * @Date: 2024-08-23 10:36:12
  * @Description: 云台-协议
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 15:38:33
+ * @LastEditTime: 2024-10-24 11:04:49
  */
 import { cloneDeep } from 'lodash-es'
 import { type TableInstance } from 'element-plus'
@@ -18,16 +18,7 @@ export default defineComponent({
         const pageData = ref({
             notification: [] as string[],
             // 云台选项
-            ptzOptions: [
-                {
-                    label: Translate('IDCS_ON'),
-                    value: true,
-                },
-                {
-                    label: Translate('IDCS_OFF'),
-                    value: false,
-                },
-            ],
+            ptzOptions: getBoolSwitchOptions(),
             // 云台索引
             tableIndex: 0,
         })
@@ -64,11 +55,13 @@ export default defineComponent({
                     pageData.value.notification = [formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`)]
                 }
             }
+
             if (mode.value === 'ocx') {
                 if (!plugin.IsInstallPlugin()) {
                     plugin.SetPluginNotice('#layout2Content')
                     return
                 }
+
                 if (!plugin.IsPluginAvailable()) {
                     plugin.SetPluginNoResponse()
                     plugin.ShowPluginNoResponse()
@@ -155,6 +148,7 @@ export default defineComponent({
                     if (!cacheTableData[index]) {
                         return false
                     }
+
                     if (item[param] !== cacheTableData[index][param]) {
                         editIndex.push(index)
                         edits.push(item)

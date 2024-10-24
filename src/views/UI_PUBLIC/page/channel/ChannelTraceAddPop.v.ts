@@ -57,6 +57,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
                             return
                         }
+
                         if (prop.trace.map((item) => item.name).includes(value.trim())) {
                             callback(new Error(Translate('IDCS_PROMPT_CUSTOME_VIEW_NAME_EXIST')))
                             return

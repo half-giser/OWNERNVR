@@ -160,8 +160,8 @@
                     :background="false"
                     :layout="DefaultPagerLayout"
                     :total="pageTotal"
-                    @size-change="handleSizeChange"
-                    @current-change="handleCurrentChange"
+                    @size-change="getDataList"
+                    @current-change="getDataList"
                 />
             </div>
             <div class="base-btn-box">

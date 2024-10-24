@@ -75,11 +75,13 @@ export default defineComponent({
                     pageData.value.notification = [formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`)]
                 }
             }
+
             if (mode.value === 'ocx') {
                 if (!plugin.IsInstallPlugin()) {
                     plugin.SetPluginNotice('#layout2Content')
                     return
                 }
+
                 if (!plugin.IsPluginAvailable()) {
                     plugin.SetPluginNoResponse()
                     plugin.ShowPluginNoResponse()
@@ -151,6 +153,7 @@ export default defineComponent({
                     if (!cacheTableData[index]) {
                         return false
                     }
+
                     if (item[param] !== cacheTableData[index][param]) {
                         edits.push(item)
                         editsIndex.push(index)

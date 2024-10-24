@@ -1,63 +1,82 @@
 <!--
- * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @Date: 2024-09-29 11:48:53
- * @Description: 水印设置
+ * @Author: yejiahao yejiahao@tvt.net.cn
+ * @Date: 2024-10-23 10:36:10
+ * @Description: LOGO设置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 09:12:20
+ * @LastEditTime: 2024-10-23 19:19:36
 -->
 <template>
     <div class="base-chl-box">
         <div class="base-chl-box-left">
             <div class="base-chl-box-player">
                 <BaseVideoPlayer
-                    id="player"
                     ref="playerRef"
                     type="live"
                     @onready="handlePlayerReady"
                 />
             </div>
             <el-form
-                :model="pageData"
                 label-position="left"
                 :style="{
                     '--form-label-width': '150px',
                 }"
+                class="inline-message"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
                     <el-select
-                        v-model="pageData.currChlId"
+                        v-if="tableData.length"
+                        v-model="pageData.tableIndex"
                         placeholder=""
-                        @change="handleChlChange"
+                        @change="changeChl"
                     >
                         <el-option
-                            v-for="item in pageData.chlList"
+                            v-for="(item, index) in tableData"
                             :key="item.chlId"
+                            :value="index"
                             :label="item.chlName"
-                            :value="item.chlId"
                         />
                     </el-select>
-                </el-form-item>
-                <el-form-item :label="Translate('IDCS_WATER_MARK')">
                     <el-select
-                        v-model="pageData.chlData.switch"
+                        v-else
+                        disabled
                         placeholder=""
-                        :disabled="pageData.switchDisabled"
-                        @change="handleSwitchChange"
+                    />
+                </el-form-item>
+                <el-form-item :label="Translate('IDCS_LOGO')">
+                    <el-select
+                        v-if="tableData.length"
+                        v-model="tableData[pageData.tableIndex].switch"
+                        :disabled="tableData[pageData.tableIndex].disabled"
                     >
                         <el-option
-                            v-for="item in pageData.options"
+                            v-for="item in pageData.switchOptions"
                             :key="item.value"
-                            :label="item.label"
                             :value="item.value"
+                            :label="item.label"
                         />
                     </el-select>
+                    <el-select
+                        v-else
+                        placeholder=""
+                        disabled
+                    />
                 </el-form-item>
-                <el-form-item :label="Translate('IDCS_INFORMATION')">
-                    <el-input
-                        v-model="pageData.chlData.customText"
-                        @input="handleFocus(pageData.chlData.customText, 'form')"
-                        @blur="handleCustomTextInput(pageData.chlData.customText)"
-                    ></el-input>
+                <el-form-item :label="Translate('IDCS_TRANSPARENCY')">
+                    <el-slider
+                        v-if="tableData.length"
+                        v-model="tableData[pageData.tableIndex].opacity"
+                        :min="tableData[pageData.tableIndex].minOpacity"
+                        :max="tableData[pageData.tableIndex].maxOpacity"
+                        :disabled="tableData[pageData.tableIndex].disabled"
+                        show-input
+                        :show-input-controls="false"
+                    />
+                    <el-slider
+                        v-else
+                        disabled
+                        show-input
+                        :show-input-controls="false"
+                    />
                 </el-form-item>
             </el-form>
         </div>
@@ -65,11 +84,11 @@
             <div class="base-table-box">
                 <el-table
                     ref="tableRef"
-                    :data="pageData.chlList"
+                    :data="tableData"
                     border
                     stripe
                     highlight-current-row
-                    show-overflow-tooltip
+                    :row-class-name="(data) => (data.row.disabled ? 'disabled' : '')"
                     @row-click="handleRowClick"
                 >
                     <!-- 状态列 -->
@@ -85,22 +104,23 @@
                     <el-table-column
                         prop="chlName"
                         :label="Translate('IDCS_CHANNEL_NAME')"
+                        show-overflow-tooltip
                     />
-                    <!-- 水印开关   -->
-                    <el-table-column>
+                    <!-- LOGO开关   -->
+                    <el-table-column :label="Translate('IDCS_LOGO')">
                         <template #header>
                             <el-dropdown trigger="click">
                                 <BaseTableDropdownLink>
-                                    {{ Translate('IDCS_WATER_MARK') }}
+                                    {{ Translate('IDCS_LOGO') }}
                                 </BaseTableDropdownLink>
                                 <template #dropdown>
                                     <el-dropdown-menu>
                                         <el-dropdown-item
-                                            v-for="item in pageData.options"
+                                            v-for="item in pageData.switchOptions"
                                             :key="item.value"
                                             :value="item.value"
                                             :label="item.label"
-                                            @click="handleSwitchChangeAll(item.value)"
+                                            @click="changeAllSwitch(item.value)"
                                         >
                                             {{ item.label }}
                                         </el-dropdown-item>
@@ -113,46 +133,28 @@
                                 v-model="scope.row.switch"
                                 :disabled="scope.row.disabled"
                                 :placeholder="Translate('IDCS_ON')"
-                                @change="handleTableSwitchChange(scope.row)"
                             >
                                 <el-option
-                                    v-for="item in pageData.options"
+                                    v-for="item in pageData.switchOptions"
                                     :key="item.value"
                                     :value="item.value"
                                     :label="item.label"
-                                />
+                                >
+                                </el-option>
                             </el-select>
                         </template>
                     </el-table-column>
-                    <!-- 信息 -->
-                    <el-table-column
-                        prop="customText"
-                        :label="Translate('IDCS_INFORMATION')"
-                    >
-                        <template #header>
-                            <el-popover
-                                v-model:visible="pageData.informationPop"
-                                trigger="click"
-                                placement="bottom"
-                                width="200"
-                            >
-                                <template #reference>
-                                    <BaseTableDropdownLink>
-                                        {{ Translate('IDCS_INFORMATION') }}
-                                    </BaseTableDropdownLink>
-                                </template>
-                                <div>
-                                    <el-input
-                                        v-model="pageData.customTextSetAll"
-                                        placeholder=""
-                                        @input="handleFocus(pageData.customTextSetAll, 'table')"
-                                    />
-                                    <div class="base-btn-box">
-                                        <el-button @click="handleSetCustomTextAll(pageData.customTextSetAll)">{{ Translate('IDCS_OK') }}</el-button>
-                                        <el-button @click="handleSetCancel">{{ Translate('IDCS_CANCEL') }}</el-button>
-                                    </div>
-                                </div>
-                            </el-popover>
+                    <!-- 透明度 -->
+                    <el-table-column :label="Translate('IDCS_TRANSPARENCY')">
+                        <template #default="scope">
+                            <BaseNumberInput
+                                v-model="scope.row.opacity"
+                                value-on-clear="min"
+                                :disabled="scope.row.disabled"
+                                :min="scope.row.minOpacity"
+                                :max="scope.row.maxOpacity"
+                                @keydown.enter="handleKeydownEnter($event)"
+                            />
                         </template>
                     </el-table-column>
                 </el-table>
@@ -161,28 +163,27 @@
                 <el-pagination
                     v-model:current-page="pageData.pageIndex"
                     v-model:page-size="pageData.pageSize"
-                    :page-sizes="pageData.pageDataCountItems"
+                    :page-sizes="[10, 20, 30]"
                     layout="prev, pager, next, sizes, total, jumper"
-                    :total="pageData.totalCount"
+                    :total="pageData.total"
                     size="small"
-                    @size-change="changePaginationSize"
-                    @current-change="changePagination"
+                    @size-change="getData"
+                    @current-change="getData"
                 />
             </div>
             <div class="base-btn-box">
                 <el-button
-                    :disabled="pageData.applyDisabled"
-                    @click="handleApply"
+                    :disabled="pageData.btnDisabled"
+                    @click="setData"
                 >
                     {{ Translate('IDCS_APPLY') }}
                 </el-button>
             </div>
         </div>
-        <BaseNotification v-model:notifications="pageData.notification" />
     </div>
 </template>
 
-<script lang="ts" src="./ChannelWaterMark.v.ts"></script>
+<script lang="ts" src="./ChannelLogo.v.ts"></script>
 
 <style lang="scss">
 @import '@/views/UI_PUBLIC/publicStyle/channel.scss';

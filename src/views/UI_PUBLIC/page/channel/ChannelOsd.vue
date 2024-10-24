@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 18:39:25
  * @Description: 通道 - OSD配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-22 16:41:40
+ * @LastEditTime: 2024-10-24 09:08:57
 -->
 <template>
     <div class="base-chl-box">
@@ -63,16 +63,10 @@
                         @change="handleInputChange(formData.id)"
                     />
                 </el-form-item>
-                <el-form-item
-                    prop="dateFormat"
-                    :label="Translate('IDCS_DATE_FORMAT')"
-                >
+                <el-form-item :label="Translate('IDCS_DATE_FORMAT')">
                     {{ formData.supportDateFormat ? dateFormatTip[formData.dateFormat] : '--' }}
                 </el-form-item>
-                <el-form-item
-                    prop="timeFormat"
-                    :label="Translate('IDCS_TIME_FORMAT')"
-                >
+                <el-form-item :label="Translate('IDCS_TIME_FORMAT')">
                     {{ formData.supportTimeFormat ? timeFormatTip[formData.timeFormat] : '--' }}
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_WATER_MARK')">
@@ -95,7 +89,8 @@
                         v-model="formData.remarkNote"
                         maxlength="15"
                         :disabled="formData.remarkDisabled"
-                        @input="handleRemarkNoteInput(formData)"
+                        :formatter="handleRemarkNoteInput"
+                        :parser="handleRemarkNoteInput"
                         @blur="handleRemarkNoteBlur(formData.remarkNote, formData.id)"
                         @change="handleInputChange(formData.id)"
                     />
@@ -140,7 +135,6 @@
                                 @focus="tempName = scope.row.name"
                                 @blur="handleNameBlur(scope.row.id, scope.row.name)"
                                 @change="handleInputChange(scope.row.id)"
-                                @keydown.enter="handleKeydownEnter($event)"
                             />
                         </template>
                     </el-table-column>
@@ -327,7 +321,8 @@
                                 :disabled="scope.row.remarkDisabled"
                                 maxlength="15"
                                 size="small"
-                                @input="handleRemarkNoteInput(scope.row)"
+                                :formatter="handleRemarkNoteInput"
+                                :parser="handleRemarkNoteInput"
                                 @blur="handleRemarkNoteBlur(scope.row.remarkNote, scope.row.id)"
                                 @change="handleInputChange(scope.row.id)"
                                 @keydown.enter="handleKeydownEnter($event)"
@@ -345,8 +340,8 @@
                     :background="false"
                     :layout="DefaultPagerLayout"
                     :total="pageTotal"
-                    @size-change="handleSizeChange"
-                    @current-change="handleCurrentChange"
+                    @size-change="getDataList"
+                    @current-change="getDataList"
                 />
             </div>
             <div class="base-btn-box">
