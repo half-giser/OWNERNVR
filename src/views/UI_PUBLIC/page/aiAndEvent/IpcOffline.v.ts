@@ -19,7 +19,7 @@ export default defineComponent({
 
         // ;(snapRef.value as InstanceType<typeof ElDropdown>).handleOpen()
         // ;(alarmOutRef.value as InstanceType<typeof ElDropdown>).handleOpen()
-        const { openLoading, closeLoading } = useLoading()
+        const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const systemCaps = useCababilityStore()
         const openMessageTipBox = useMessageBox().openMessageTipBox
         const pageData = ref({
@@ -637,7 +637,7 @@ export default defineComponent({
             return sendXml
         }
         const setData = () => {
-            openLoading()
+            openLoading(LoadingTarget.FullScreen)
             pageData.value.editRows.forEach((item: MotionEventConfig) => {
                 const sendXml = getSavaData(item)
                 editFrontEndOfflineTrigger(sendXml).then((resb) => {
@@ -655,7 +655,7 @@ export default defineComponent({
                     }
                 })
             })
-            closeLoading()
+            closeLoading(LoadingTarget.FullScreen)
             pageData.value.editRows = []
             pageData.value.applyDisable = true
         }

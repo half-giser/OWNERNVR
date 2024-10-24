@@ -2,8 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-21 18:15:30
  * @Description: 系统
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-21 17:31:07
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-23 16:03:23
  */
 
 /**
@@ -414,4 +414,16 @@ export class SystemPoeList {
     poeName = ''
     switch = ''
     power = ''
+}
+
+/**
+ * @description 报警图像上传表格项
+ */
+export class SystemImageUploadAlarmItem {
+    id = ''
+    chlNum = 0
+    name = ''
+    preTime = ''
+    saveTime = ''
+    rowDisable = false
 }
