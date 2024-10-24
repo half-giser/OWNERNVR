@@ -374,7 +374,10 @@ export default {
         imageUpload: {
             // 定时图像上传
             path: 'upload/image/timing',
-            component: 'system/ImageUpload.vue',
+            components: {
+                toolBar: 'system/ImageUploadToolBar.vue',
+                default: 'system/ImageUpload.vue',
+            },
             meta: {
                 sort: 20,
                 lk: 'IDCS_SCHEDULE_PIC_UPLOAD',

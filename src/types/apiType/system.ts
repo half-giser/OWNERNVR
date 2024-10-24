@@ -2,8 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-21 18:15:30
  * @Description: 系统
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-23 16:03:23
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-24 14:30:26
  */
 
 /**
@@ -426,4 +426,15 @@ export class SystemImageUploadAlarmItem {
     preTime = ''
     saveTime = ''
     rowDisable = false
+}
+
+/**
+ * @description 定时图像上传表格项
+ */
+export class ImageUploadDto {
+    chlId = ''
+    chlNum = 0
+    name = ''
+    timeCount = 0
+    timelist = [] as SelectOption<string, string>[]
 }
