@@ -215,6 +215,7 @@ export default defineComponent({
                         errorInfo = 'IDCS_ADD_FACE_FAIL'
                         break
                 }
+
                 if (errorInfo) {
                     openMessageTipBox({
                         type: 'info',

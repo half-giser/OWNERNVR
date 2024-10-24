@@ -70,9 +70,11 @@ export default defineComponent({
                 if (meta.noMenu) {
                     return
                 }
+
                 if (!groupMenuMap.value[meta.group]) {
                     groupMenuMap.value[meta.group] = [] as RouteRecordRawExtends[]
                 }
+
                 groupMenuMap.value[meta.group].push(value)
             })
         }

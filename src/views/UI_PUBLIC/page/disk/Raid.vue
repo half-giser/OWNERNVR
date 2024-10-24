@@ -3,7 +3,7 @@
  * @Date: 2024-07-08 15:48:54
  * @Description: 磁盘阵列
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-18 11:23:29
+ * @LastEditTime: 2024-10-24 09:13:39
 -->
 <template>
     <div class="base-flex-box">
@@ -36,27 +36,18 @@
                 :label="Translate('IDCS_HOT_DISK_INDEX')"
                 prop="spareHard"
             />
-            <el-table-column
-                :label="Translate('IDCS_STATE')"
-                prop="raidState"
-            >
+            <el-table-column :label="Translate('IDCS_STATE')">
                 <template #default="scope">
                     {{ displayRaidState(scope.row.raidState) }}
                 </template>
             </el-table-column>
 
-            <el-table-column
-                :label="Translate('IDCS_TYPE')"
-                prop="raidType"
-            >
+            <el-table-column :label="Translate('IDCS_TYPE')">
                 <template #default="scope">
                     {{ displayRaidType(scope.row.raidType) }}
                 </template>
             </el-table-column>
-            <el-table-column
-                :label="Translate('IDCS_REPAIR')"
-                prop="repair"
-            >
+            <el-table-column :label="Translate('IDCS_REPAIR')">
                 <template #default="scope">
                     <BaseImgSprite
                         file="repair"
@@ -69,10 +60,7 @@
                     />
                 </template>
             </el-table-column>
-            <el-table-column
-                :label="Translate('IDCS_DELETE')"
-                prop="del"
-            >
+            <el-table-column :label="Translate('IDCS_DELETE')">
                 <template #default="scope">
                     <BaseImgSprite
                         file="del"

@@ -236,9 +236,11 @@ export default defineComponent({
                 })
                 return
             }
+
             if (timesliceFlag) {
                 return
             }
+
             timesliceFlag = true
             keyframe.checkReady(() => {
                 pageData.value.chlTimeSliceList.forEach((item, index) => {
@@ -266,6 +268,7 @@ export default defineComponent({
             if (pageData.value.chlList.length > MAX_THUMBNAIL_SHOW_COUNTS) {
                 return
             }
+
             if (chlFlag) {
                 return
             }

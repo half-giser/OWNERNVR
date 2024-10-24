@@ -87,6 +87,7 @@ export default defineComponent({
             if (formData.value.supportAI === cloneFormData.supportAI) {
                 return
             }
+
             if (pageData.value.disabled) {
                 return
             }

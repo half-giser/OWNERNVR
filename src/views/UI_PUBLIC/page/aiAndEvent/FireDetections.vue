@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-11 14:16:29
  * @Description: 火点检测
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-21 17:06:37
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-24 14:55:35
 -->
 <template>
     <div>
@@ -15,9 +15,9 @@
         <!-- record弹窗 -->
         <BaseTransferDialog
             v-model="pageData.recordIsShow"
-            :header-title="pageData.recordHeaderTitle"
-            :source-title="pageData.recordSourceTitle"
-            :target-title="pageData.recordTargetTitle"
+            header-title="IDCS_TRIGGER_CHANNEL_RECORD"
+            source-title="IDCS_CHANNEL"
+            target-title="IDCS_CHANNEL_TRGGER"
             :source-data="pageData.recordSource"
             :linked-list="pageData.recordList || []"
             :type="pageData.recordType"
@@ -27,9 +27,9 @@
         <!-- alarmOut弹窗 -->
         <BaseTransferDialog
             v-model="pageData.alarmOutIsShow"
-            :header-title="pageData.alarmOutHeaderTitle"
-            :source-title="pageData.alarmOutSourceTitle"
-            :target-title="pageData.alarmOutTargetTitle"
+            header-title="IDCS_TRIGGER_ALARM_OUT"
+            source-title="IDCS_ALARM_OUT"
+            target-title="IDCS_TRIGGER_ALARM_OUT"
             :source-data="pageData.alarmOutSource"
             :linked-list="pageData.alarmOutList || []"
             :type="pageData.alarmOutType"
@@ -39,19 +39,20 @@
         <!-- snap弹窗 -->
         <BaseTransferDialog
             v-model="pageData.snapIsShow"
-            :header-title="pageData.snapHeaderTitle"
-            :source-title="pageData.snapSourceTitle"
-            :target-title="pageData.snapTargetTitle"
+            header-title="IDCS_TRIGGER_CHANNEL_SNAP"
+            source-title="IDCS_CHANNEL"
+            target-title="IDCS_CHANNEL_TRGGER"
             :source-data="pageData.snapSource"
             :linked-list="pageData.snapList || []"
             :type="pageData.snapType"
             @confirm="snapConfirm"
             @close="snapClose"
         ></BaseTransferDialog>
+        <BaseNotification v-model:notifications="pageData.notification" />
         <el-dialog
             v-model="pageData.aiResourcePopOpen"
             :title="Translate('IDCS_DETAIL')"
-            width="600px"
+            width="600"
             center
             draggable
         >
@@ -60,31 +61,31 @@
                 stripe
                 border
                 show-overflow-tooltip
-                height="290px"
+                height="290"
             >
                 <el-table-column
                     prop="name"
                     :label="Translate('IDCS_CHANNEL')"
-                    width="138px"
+                    width="138"
                 ></el-table-column>
                 <el-table-column
                     prop="eventTypeText"
                     :label="Translate('IDCS_EVENT_TYPE')"
-                    width="150px"
+                    width="150"
                 ></el-table-column>
                 <el-table-column
                     prop="percent"
                     :label="Translate('IDCS_USAGE_RATE')"
-                    width="100px"
+                    width="100"
                 ></el-table-column>
                 <el-table-column
                     prop="decodeResource"
                     :label="Translate('IDCS_DECODE_RESOURCE')"
-                    width="100px"
+                    width="100"
                 ></el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_FREE_AI_RESOURCE')"
-                    width="70px"
+                    width="70"
                 >
                     <template #default="scope">
                         <BaseImgSprite
@@ -132,7 +133,7 @@
                 </div>
                 <div v-show="pageData.showAiConfig">
                     <span>{{ Translate('IDCS_USAGE_RATE') }}</span>
-                    <span>{{ ` : ${pageData.totalResourceOccupancy}% ` }}</span>
+                    <span>{{ pageData.totalResourceOccupancy }}%</span>
                     <BaseImgSprite
                         file="detail"
                         :index="0"
@@ -180,8 +181,6 @@
                                 <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
                                     <el-select
                                         v-model="pageData.schedule"
-                                        value-key="value"
-                                        :options="pageData.scheduleList"
                                         size="small"
                                         @change="pageData.applyDisable = false"
                                     >
@@ -206,9 +205,7 @@
                                 <el-form-item :label="Translate('IDCS_DURATION')">
                                     <el-select
                                         v-model="pageData.holdTime"
-                                        value-key="value"
                                         size="small"
-                                        :options="pageData.holdTimeList"
                                         @change="pageData.applyDisable = false"
                                     >
                                         <el-option
@@ -270,7 +267,7 @@
                                     >{{ Translate('IDCS_TRIGGER_NOMAL') }}</el-checkbox
                                 >
                                 <el-table
-                                    height="367px"
+                                    height="367"
                                     :data="triggerData"
                                     :show-header="false"
                                     :header-cell-style="{ 'text-align': 'left' }"
@@ -299,15 +296,11 @@
                                 </div>
                                 <el-table
                                     :show-header="false"
-                                    height="367px"
+                                    height="367"
                                     :data="pageData.record.chls"
                                     empty-text=" "
                                 >
-                                    <el-table-column>
-                                        <template #default="scope">
-                                            <span>{{ scope.row.label }}</span>
-                                        </template>
-                                    </el-table-column>
+                                    <el-table-column prop="label" />
                                 </el-table>
                             </div>
                             <!-- alarm -->
@@ -322,15 +315,11 @@
                                 </div>
                                 <el-table
                                     :show-header="false"
-                                    height="367px"
+                                    height="367"
                                     :data="pageData.alarmOut.chls"
                                     empty-text=" "
                                 >
-                                    <el-table-column>
-                                        <template #default="scope">
-                                            <span>{{ scope.row.label }}</span>
-                                        </template>
-                                    </el-table-column>
+                                    <el-table-column prop="label" />
                                 </el-table>
                             </div>
                             <!-- snap -->
@@ -345,15 +334,11 @@
                                 </div>
                                 <el-table
                                     :show-header="false"
-                                    height="367px"
+                                    height="367"
                                     :data="pageData.snap.chls"
                                     empty-text=" "
                                 >
-                                    <el-table-column>
-                                        <template #default="scope">
-                                            <span>{{ scope.row.label }}</span>
-                                        </template>
-                                    </el-table-column>
+                                    <el-table-column prop="label" />
                                 </el-table>
                             </div>
                             <!-- preset -->
@@ -367,7 +352,7 @@
                                 <el-table
                                     border
                                     stripe
-                                    height="367px"
+                                    height="367"
                                     :data="pageData.presetSource"
                                 >
                                     <el-table-column
@@ -380,7 +365,6 @@
                                                 v-model="scope.row.preset.value"
                                                 size="small"
                                                 :empty-values="[undefined, null]"
-                                                :options="scope.row.presetList"
                                                 @visible-change="getPresetById(scope.row)"
                                                 @change="pageData.applyDisable = false"
                                             >

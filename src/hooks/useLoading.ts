@@ -159,6 +159,7 @@ const useLoading = () => {
         if (target instanceof HTMLElement) {
             return target
         }
+
         switch (target) {
             case LoadingTarget.MainContent:
                 return '#layoutMainBody'

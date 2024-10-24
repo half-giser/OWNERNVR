@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-23 15:02:52
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 09:34:41
+ * @LastEditTime: 2024-10-23 19:34:16
 -->
 <template>
     <el-dialog
@@ -27,12 +27,11 @@
             <el-table-column
                 type="index"
                 :label="Translate('IDCS_SERIAL_NUMBER')"
-                width="80px"
+                width="80"
             />
             <!-- 类型 -->
             <el-table-column
-                prop="name"
-                width="150px"
+                width="150"
                 :label="Translate('IDCS_TYPE')"
             >
                 <template #default="scope">
@@ -52,7 +51,7 @@
             </el-table-column>
             <!-- 报警源 -->
             <el-table-column
-                width="150px"
+                width="150"
                 :label="Translate('IDCS_ALARM_SOURCE')"
             >
                 <template #default="scope">
@@ -73,8 +72,7 @@
             </el-table-column>
             <!-- 操作 -->
             <el-table-column
-                prop="name"
-                width="98px"
+                width="98"
                 :label="Translate('IDCS_OPERATION')"
             >
                 <template #default="scope">

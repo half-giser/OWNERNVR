@@ -104,7 +104,7 @@ export default defineComponent({
                 const $item = queryXml(item.element)
                 let text = $item('name').text()
                 const id = item.attr('id')!
-                if (id === '{00000000-0000-0000-0000-000000000000}') {
+                if (id === DEFAULT_EMPTY_ID) {
                     text = prop.mode === 'channel' ? Translate('IDCS_HISTORY_CHANNEL') : Translate('IDCS_HISTORY_ENTRANCE_EXIT')
                 }
                 chlMap[id] = text

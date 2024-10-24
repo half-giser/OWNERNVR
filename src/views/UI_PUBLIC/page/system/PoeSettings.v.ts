@@ -3,13 +3,12 @@
  * @Date: 2024-09-19 17:29:31
  * @Description: POE电源管理
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 17:53:00
+ * @LastEditTime: 2024-10-24 11:00:31
  */
 import type { SystemPoeList } from '@/types/apiType/system'
 
 export default defineComponent({
     setup() {
-        const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
 
         let timer: NodeJS.Timeout | number = 0
@@ -18,12 +17,7 @@ export default defineComponent({
 
         const pageData = ref({
             // 开关选项
-            switchOptions: DEFAULT_SWITCH_OPTIONS.map((item) => {
-                return {
-                    value: item.value,
-                    label: Translate(item.label),
-                }
-            }),
+            switchOptions: getSwitchOptions(),
             // 总功率
             totalPower: '0.00',
             // 剩余功率

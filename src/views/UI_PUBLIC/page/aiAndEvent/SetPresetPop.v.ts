@@ -41,7 +41,7 @@ export default defineComponent({
 
             let rowData = [] as PresetList[]
             commLoadResponseHandler(result, async ($) => {
-                rowData = $('/response/content/item').map((item) => {
+                rowData = $('//content/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
                         id: item.attr('id')!,
@@ -71,18 +71,19 @@ export default defineComponent({
                 tableData.value = rowData
             })
         }
+
         // 预置点选择框下拉时获取预置点列表数据
         const getPresetById = async (row: PresetList) => {
             if (!row.isGetPresetList) {
                 row.presetList.splice(1)
                 const sendXml = rawXml`
-                <condition>
-                    <chlId>${row.id}</chlId>
-                </condition>
-            `
+                    <condition>
+                        <chlId>${row.id}</chlId>
+                    </condition>
+                `
                 const result = await queryChlPresetList(sendXml)
                 commLoadResponseHandler(result, ($) => {
-                    $('/response/content/presets/item').forEach((item) => {
+                    $('//content/presets/item').forEach((item) => {
                         row.presetList.push({
                             value: item.attr('index')!,
                             label: item.text(),

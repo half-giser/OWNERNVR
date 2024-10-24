@@ -100,6 +100,7 @@ export default defineComponent({
                             callback()
                             return
                         }
+
                         if (!value) {
                             callback(new Error(Translate('IDCS_SELECT_PATH')))
                             return
@@ -134,6 +135,7 @@ export default defineComponent({
             if (prop.mode !== 'ocx') {
                 return
             }
+
             try {
                 Plugin.AsynQueryInfo(Plugin.GetVideoPlugin(), OCX_XML_GetLocalCfg(), (result) => {
                     const $ = queryXml(XMLStr2XMLDoc(result))
@@ -216,6 +218,7 @@ export default defineComponent({
                     default:
                         break
                 }
+
                 if (errorInfo) {
                     openMessageTipBox({
                         type: 'info',

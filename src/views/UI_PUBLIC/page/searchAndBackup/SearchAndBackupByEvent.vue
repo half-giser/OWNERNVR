@@ -139,10 +139,7 @@
                             prop="chlName"
                         >
                         </el-table-column>
-                        <el-table-column
-                            :label="Translate('IDCS_TYPE')"
-                            prop="event"
-                        >
+                        <el-table-column :label="Translate('IDCS_TYPE')">
                             <template #default="scope">
                                 <el-text>{{ displayEvent(scope.row) }}</el-text>
                                 <BaseImgSprite
@@ -151,18 +148,12 @@
                                 />
                             </template>
                         </el-table-column>
-                        <el-table-column
-                            :label="Translate('IDCS_START_TIME')"
-                            prop="startTime"
-                        >
+                        <el-table-column :label="Translate('IDCS_START_TIME')">
                             <template #default="scope">
                                 {{ displayDateTime(scope.row.startTime) }}
                             </template>
                         </el-table-column>
-                        <el-table-column
-                            :label="Translate('IDCS_END_TIME')"
-                            prop="@endTime"
-                        >
+                        <el-table-column :label="Translate('IDCS_END_TIME')">
                             <template #default="scope">
                                 {{ displayDateTime(scope.row.endTime) }}
                             </template>
@@ -177,10 +168,7 @@
                             prop="size"
                         >
                         </el-table-column>
-                        <el-table-column
-                            :label="Translate('IDCS_PLAY')"
-                            prop="play"
-                        >
+                        <el-table-column :label="Translate('IDCS_PLAY')">
                             <template #default="scope">
                                 <BaseImgSprite
                                     file="play (3)"
@@ -191,10 +179,7 @@
                                 />
                             </template>
                         </el-table-column>
-                        <el-table-column
-                            :label="Translate('IDCS_INFORMATION')"
-                            prop="info"
-                        >
+                        <el-table-column :label="Translate('IDCS_INFORMATION')">
                             <template #default="scope">
                                 <BaseImgSprite
                                     v-if="scope.row.event === 'POS'"

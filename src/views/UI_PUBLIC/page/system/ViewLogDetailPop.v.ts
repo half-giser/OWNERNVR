@@ -136,6 +136,7 @@ export default defineComponent({
                         } else {
                             pageData.value.captureImg = ''
                         }
+
                         if (scenesImg) {
                             pageData.value.scenesImg = 'data:image/png;base64,' + scenesImg
                         } else {

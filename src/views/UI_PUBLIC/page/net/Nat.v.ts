@@ -156,6 +156,7 @@ export default defineComponent({
                     })
                 return
             }
+
             // 启用了云升级和nat2.0
             if (formData.value.index === '0' && formData.value.natSwitch && pageData.value.cloudSwitch && systemCaps.showCloudUpgrade) {
                 openMessageTipBox({

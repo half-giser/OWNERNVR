@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-11 14:16:37
  * @Description: 火点检测
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-21 16:58:10
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-24 17:45:50
  */
 import { type chlCaps, type aiResourceRow, type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
@@ -26,7 +26,7 @@ export default defineComponent({
             required: true,
         },
         voiceList: {
-            type: Array as PropType<{ value: string; label: string }[]>,
+            type: Array as PropType<SelectOption<string, string>[]>,
             required: true,
         },
         onlineChannelList: {
@@ -44,17 +44,25 @@ export default defineComponent({
         const playerRef = ref<PlayerInstance>()
         const pluginStore = usePluginStore()
         const osType = getSystemInfo().platform
+
+        const closeTip = getAlarmEventList()
+
+        const eventTypeMapping: Record<string, string> = {
+            faceDetect: Translate('IDCS_FACE_DETECTION') + '+' + Translate('IDCS_FACE_RECOGNITION'),
+            faceMatch: Translate('IDCS_FACE_RECOGNITION'),
+            tripwire: Translate('IDCS_BEYOND_DETECTION'),
+            perimeter: Translate('IDCS_INVADE_DETECTION'),
+        }
+
         const pageData = ref({
             // 当前选中的通道
             currChlId: '',
             // 当前选择通道数据
             chlData: {} as chlCaps,
             // 声音列表
-            voiceList: [] as { value: string; label: string }[],
+            voiceList: [] as SelectOption<string, string>[],
             // 是否支持声音设置
             supportAlarmAudioConfig: true,
-            // 默认声音id
-            defaultAudioId: '{00000000-0000-0000-0000-000000000000}',
             // 不支持功能提示页面是否展示
             notSupportTipShow: false,
             // 请求数据失败显示提示
@@ -70,14 +78,13 @@ export default defineComponent({
             // 排程管理
             schedule: '',
             scheduleManagePopOpen: false,
-            scheduleDefaultId: '{00000000-0000-0000-0000-000000000000}',
             scheduleList: [] as SelectOption<string, string>[],
             // record数据源
-            recordSource: [] as { value: string; label: string }[],
+            recordSource: [] as SelectOption<string, string>[],
             // alarmOut数据源
-            alarmOutSource: [] as { value: string; label: string; device: { value: string; label: string } }[],
+            alarmOutSource: [] as SelectOption<string, string>[],
             // snap数据源
-            snapSource: [] as { value: string; label: string }[],
+            snapSource: [] as SelectOption<string, string>[],
             // 是否启用侦测
             detectionEnable: false,
             // 用于对比
@@ -91,7 +98,7 @@ export default defineComponent({
 
             // 持续时间
             holdTime: 0,
-            holdTimeList: [] as { value: number; label: string }[],
+            holdTimeList: [] as SelectOption<number, string>[],
             // mutex
             mutexList: [] as { object: string; status: boolean }[],
             mutexListEx: [] as { object: string; status: boolean }[],
@@ -111,38 +118,29 @@ export default defineComponent({
             sysAudio: '',
             record: {
                 switch: false,
-                chls: [] as { value: string; label: string }[],
+                chls: [] as SelectOption<string, string>[],
             },
             // 选中的record id
             recordList: [] as string[],
             recordIsShow: false,
-            recordHeaderTitle: 'IDCS_TRIGGER_CHANNEL_RECORD',
-            recordSourceTitle: 'IDCS_CHANNEL',
-            recordTargetTitle: 'IDCS_CHANNEL_TRGGER',
             recordType: 'record',
 
             alarmOut: {
                 switch: false,
-                chls: [] as { value: string; label: string }[],
+                chls: [] as SelectOption<string, string>[],
             },
             // 选中的alarmOut id
             alarmOutList: [] as string[],
             alarmOutIsShow: false,
-            alarmOutHeaderTitle: 'IDCS_TRIGGER_ALARM_OUT',
-            alarmOutSourceTitle: 'IDCS_ALARM_OUT',
-            alarmOutTargetTitle: 'IDCS_TRIGGER_ALARM_OUT',
             alarmOutType: 'alarmOut',
 
             snap: {
                 switch: false,
-                chls: [] as { value: string; label: string }[],
+                chls: [] as SelectOption<string, string>[],
             },
             // 选中的snap id
             snapList: [] as string[],
             snapIsShow: false,
-            snapHeaderTitle: 'IDCS_TRIGGER_CHANNEL_SNAP',
-            snapSourceTitle: 'IDCS_CHANNEL',
-            snapTargetTitle: 'IDCS_CHANNEL_TRGGER',
             snapType: 'snap',
 
             preset: {
@@ -153,33 +151,6 @@ export default defineComponent({
 
             initComplete: false,
             drawInitCount: 0,
-            eventTypeMapping: {
-                faceDetect: Translate('IDCS_FACE_DETECTION') + '+' + Translate('IDCS_FACE_RECOGNITION'),
-                faceMatch: Translate('IDCS_FACE_RECOGNITION'),
-                tripwire: Translate('IDCS_BEYOND_DETECTION'),
-                perimeter: Translate('IDCS_INVADE_DETECTION'),
-            } as Record<string, string>,
-            closeTip: {
-                cdd: Translate('IDCS_CROWD_DENSITY_DETECTION'),
-                cpc: Translate('IDCS_PASS_LINE_COUNT_DETECTION'),
-                ipd: Translate('IDCS_INVADE_DETECTION'),
-                tripwire: Translate('IDCS_BEYOND_DETECTION'),
-                osc: Translate('IDCS_WATCH_DETECTION'),
-                avd: Translate('IDCS_ABNORMAL_DETECTION'),
-                perimeter: Translate('IDCS_INVADE_DETECTION'),
-                vfd: Translate('IDCS_FACE_DETECTION'),
-                aoientry: Translate('IDCS_INVADE_DETECTION'),
-                aoileave: Translate('IDCS_INVADE_DETECTION'),
-                passlinecount: Translate('IDCS_PASS_LINE_COUNT_DETECTION'),
-                vehicle: Translate('IDCS_PLATE_DETECTION'),
-                fire: Translate('IDCS_FIRE_POINT_DETECTION'),
-                vsd: Translate('IDCS_VSD_DETECTION'),
-            } as Record<string, string>,
-            directionTypeTip: {
-                none: 'A<->B',
-                rightortop: 'A->B',
-                leftorbotton: 'A<-B',
-            } as Record<string, string>,
         })
         const triggerData = ref<{ value: boolean; label: string; property: string }[]>([
             { value: pageData.value.msgPushSwitch, label: 'IDCS_PUSH', property: 'msgPushSwitch' },
@@ -209,11 +180,13 @@ export default defineComponent({
                     pageData.value.notification = [formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`)]
                 }
             }
+
             if (mode.value === 'ocx') {
                 if (!plugin.IsInstallPlugin()) {
                     plugin.SetPluginNotice('#layout2Content')
                     return
                 }
+
                 if (!plugin.IsPluginAvailable()) {
                     pluginStore.showPluginNoResponse = true
                     plugin.ShowPluginNoResponse()
@@ -224,6 +197,7 @@ export default defineComponent({
                 plugin.DisplayOCX(true)
             }
         }
+
         //播放视频
         const play = () => {
             const { id, name } = pageData.value.chlData
@@ -236,11 +210,11 @@ export default defineComponent({
                 if (osType == 'mac') {
                     const sendXML = OCX_XML_Preview({
                         winIndexList: [0],
-                        chlIdList: [pageData.value.chlData['id']],
-                        chlNameList: [pageData.value.chlData['name']],
+                        chlIdList: [pageData.value.chlData.id],
+                        chlNameList: [pageData.value.chlData.name],
                         streamType: 'sub',
-                        chlIndexList: [pageData.value.chlData['id']],
-                        chlTypeList: [pageData.value.chlData['chlType']],
+                        chlIndexList: [pageData.value.chlData.id],
+                        chlTypeList: [pageData.value.chlData.chlType],
                     })
                     plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 } else {
@@ -262,13 +236,12 @@ export default defineComponent({
             pageData.value.scheduleManagePopOpen = false
             await getScheduleList()
         }
+
         // 对sheduleList进行处理
         const getScheduleList = async () => {
             pageData.value.scheduleList = await buildScheduleList()
-            pageData.value.scheduleList.map((item: any) => {
-                item.value = item.value != '' ? item.value : pageData.value.scheduleDefaultId
-            })
         }
+
         // 获取AI资源请求
         const getAIResourceData = async (isEdit: boolean) => {
             let sendXml = ''
@@ -301,7 +274,7 @@ export default defineComponent({
                             const eventType: string[] = ele.attr('eventType') ? ele.attr('eventType')!.split(',') : []
                             const eventTypeText = eventType
                                 .map((item) => {
-                                    return pageData.value.eventTypeMapping[item]
+                                    return eventTypeMapping[item]
                                 })
                                 .join('+')
                             const percent = ele.text() + '%'
@@ -330,6 +303,7 @@ export default defineComponent({
                 }
             }
         }
+
         // 删除AI资源请求
         const deleteAIResource = async (row: aiResourceRow) => {
             let sendXml = rawXml`<content>
@@ -349,6 +323,7 @@ export default defineComponent({
                 aiResourceTableData.value.splice(aiResourceTableData.value.indexOf(row), 1)
             }
         }
+
         // 点击释放AI资源
         const handleAIResourceDel = async (row: aiResourceRow) => {
             openMessageTipBox({
@@ -359,71 +334,25 @@ export default defineComponent({
                 pageData.value.applyDisable = false
             })
         }
+
         // 获取recordList
         const getRecordList = async () => {
-            pageData.value.recordSource = []
-            const resb = await getChlList({
-                nodeType: 'chls',
-                isSupportSnap: false,
-            })
-            const res = queryXml(resb)
-            if (res('status').text() == 'success') {
-                res('//content/item').forEach((item) => {
-                    const $item = queryXml(item.element)
-                    pageData.value.recordSource.push({
-                        value: item.attr('id')!,
-                        label: $item('name').text(),
-                    })
-                })
-            }
+            pageData.value.recordSource = await buildRecordChlList()
         }
+
         // 获取alarmOutList
         const getAlarmOutList = async () => {
-            pageData.value.alarmOutSource = []
-            const resb = await getChlList({
-                requireField: ['device'],
-                nodeType: 'alarmOuts',
-            })
-            const res = queryXml(resb)
-            if (res('status').text() == 'success') {
-                res('//content/item').forEach((item) => {
-                    const $item = queryXml(item.element)
-                    let name = $item('name').text()
-                    if ($item('devDesc').text()) {
-                        name = $item('devDesc').text() + '-' + name
-                    }
-                    pageData.value.alarmOutSource.push({
-                        value: item.attr('id')!,
-                        label: name,
-                        device: {
-                            value: $item('device').attr('id'),
-                            label: $item('device').text(),
-                        },
-                    })
-                })
-            }
+            pageData.value.alarmOutSource = await buildAlarmOutChlList()
         }
+
         // 获取snap
         const getSnapList = async () => {
-            getChlList({
-                nodeType: 'chls',
-                isSupportSnap: true,
-            }).then(async (resb) => {
-                const res = queryXml(resb)
-                if (res('status').text() == 'success') {
-                    res('//content/item').forEach((item) => {
-                        const $item = queryXml(item.element)
-                        pageData.value.snapSource.push({
-                            value: item.attr('id')!,
-                            label: $item('name').text(),
-                        })
-                    })
-                }
-                if (pageData.value.snapSource.length > 0) {
-                    pageData.value.snapSwitch = true
-                }
-            })
+            pageData.value.snapSource = await buildSnapChlList()
+            if (pageData.value.snapSource.length) {
+                pageData.value.snapSwitch = true
+            }
         }
+
         // 获取preset
         const getPresetList = async () => {
             const result = await getChlList({
@@ -460,18 +389,19 @@ export default defineComponent({
                 pageData.value.presetSource = rowData
             })
         }
+
         // 预置点选择框下拉时获取预置点列表数据
         const getPresetById = async (row: PresetList) => {
             if (!row.isGetPresetList) {
                 row.presetList.splice(1)
                 const sendXml = rawXml`
-                <condition>
-                    <chlId>${row.id}</chlId>
-                </condition>
-            `
+                    <condition>
+                        <chlId>${row.id}</chlId>
+                    </condition>
+                `
                 const result = await queryChlPresetList(sendXml)
                 commLoadResponseHandler(result, ($) => {
-                    $('/response/content/presets/item').forEach((item) => {
+                    $('//content/presets/item').forEach((item) => {
                         row.presetList.push({
                             value: item.attr('index')!,
                             label: item.text(),
@@ -505,6 +435,7 @@ export default defineComponent({
                 })
             }
         }
+
         // 单个联动选择
         const handleTrigger = (item: { value: boolean; label: string; property: string }) => {
             pageData.value.applyDisable = false
@@ -516,8 +447,9 @@ export default defineComponent({
             const triggerSwitch = triggerData.value.every((item) => item.value)
             pageData.value.triggerSwitch = triggerSwitch
         }
+
         // 设置record
-        const recordConfirm = (e: { value: string; label: string }[]) => {
+        const recordConfirm = (e: SelectOption<string, string>[]) => {
             pageData.value.applyDisable = false
             if (e.length !== 0) {
                 pageData.value.record.chls = cloneDeep(e)
@@ -530,6 +462,7 @@ export default defineComponent({
             }
             pageData.value.recordIsShow = false
         }
+
         // record弹窗关闭
         const recordClose = () => {
             if (!pageData.value.record.chls.length) {
@@ -539,8 +472,9 @@ export default defineComponent({
             }
             pageData.value.recordIsShow = false
         }
+
         // 设置alarmOut
-        const alarmOutConfirm = (e: { value: string; label: string }[]) => {
+        const alarmOutConfirm = (e: SelectOption<string, string>[]) => {
             pageData.value.applyDisable = false
             if (e.length !== 0) {
                 pageData.value.alarmOut.chls = cloneDeep(e)
@@ -553,6 +487,7 @@ export default defineComponent({
             }
             pageData.value.alarmOutIsShow = false
         }
+
         // alarmOut弹窗关闭
         const alarmOutClose = () => {
             if (!pageData.value.alarmOut.chls.length) {
@@ -562,8 +497,9 @@ export default defineComponent({
             }
             pageData.value.alarmOutIsShow = false
         }
+
         // 设置snap
-        const snapConfirm = (e: { value: string; label: string }[]) => {
+        const snapConfirm = (e: SelectOption<string, string>[]) => {
             pageData.value.applyDisable = false
             if (e.length !== 0) {
                 pageData.value.snap.chls = cloneDeep(e)
@@ -576,6 +512,7 @@ export default defineComponent({
             }
             pageData.value.snapIsShow = false
         }
+
         // snap弹窗关闭
         const snapClose = () => {
             if (!pageData.value.snap.chls.length) {
@@ -585,38 +522,41 @@ export default defineComponent({
             }
             pageData.value.snapIsShow = false
         }
+
         // tab点击事件
         const handleFunctionTabClick = async (pane: TabsPaneContext) => {
             pageData.value.fuction = pane.props.name?.toString() ? pane.props.name?.toString() : ''
         }
+
         // 格式化持续时间
         const formatHoldTime = (holdTimeList: string[]) => {
-            const timeList: { value: number; label: string }[] = []
+            const timeList: SelectOption<number, string>[] = []
             holdTimeList.forEach((ele) => {
                 const element = Number(ele)
-                const itemText = element == 60 ? '1 ' + Translate('IDCS_MINUTE') : element > 60 ? element / 60 + ' ' + Translate('IDCS_MINUTES') : element + ' ' + Translate('IDCS_SECONDS')
+                const itemText = getTranslateForSecond(element)
                 timeList.push({ value: element, label: itemText })
             })
             timeList.sort((a, b) => a.value - b.value)
             return timeList
         }
+
         // 获取mutexobj
         const getMutexChlNameObj = () => {
             let normalChlName = ''
             let thermalChlName = ''
             const sameIPChlList: { id: string; ip: string; name: string; accessType: string }[] = []
-            const chlIp = pageData.value.chlData['ip']
+            const chlIp = pageData.value.chlData.ip
             props.onlineChannelList.forEach((chl) => {
-                if (chl['ip'] == chlIp) {
+                if (chl.ip == chlIp) {
                     sameIPChlList.push(chl)
                 }
             })
             if (sameIPChlList.length > 1) {
                 sameIPChlList.forEach((chl) => {
-                    if (chl['accessType'] == '1') {
-                        thermalChlName = chl['name'] == pageData.value.chlData['name'] ? '' : chl['name']
+                    if (chl.accessType == '1') {
+                        thermalChlName = chl.name == pageData.value.chlData.name ? '' : chl.name
                     } else {
-                        normalChlName = chl['name'] == pageData.value.chlData['name'] ? '' : chl['name']
+                        normalChlName = chl.name == pageData.value.chlData.name ? '' : chl.name
                     }
                 })
             }
@@ -625,6 +565,7 @@ export default defineComponent({
                 thermalChlName: thermalChlName,
             }
         }
+
         // 获取火点数据
         const getData = async () => {
             const sendXml = rawXml` 
@@ -659,11 +600,7 @@ export default defineComponent({
                 pageData.value.applyDisable = true
                 const schedule = $('//content/chl').attr('scheduleGuid')
                 pageData.value.schedule =
-                    schedule != ''
-                        ? pageData.value.scheduleList.some((item: { value: string; label: string }) => item.value == schedule)
-                            ? schedule
-                            : pageData.value.scheduleDefaultId
-                        : pageData.value.scheduleDefaultId
+                    schedule != '' ? (pageData.value.scheduleList.some((item: { value: string; label: string }) => item.value == schedule) ? schedule : DEFAULT_EMPTY_ID) : DEFAULT_EMPTY_ID
                 pageData.value.detectionEnable = $('//content/chl/param/switch').text() == 'true'
                 pageData.value.originalEnable = pageData.value.detectionEnable
                 pageData.value.audioSuport = $('//content/chl/param/triggerAudio').text() == '' ? false : true
@@ -731,35 +668,37 @@ export default defineComponent({
                     { value: pageData.value.emailSwitch, label: 'IDCS_EMAIL', property: 'emailSwitch' },
                     { value: pageData.value.popMsgSwitch, label: 'IDCS_MESSAGEBOX_POPUP', property: 'popMsgSwitch' },
                 ]
-                if (pageData.value.audioSuport && pageData.value.chlData['supportAudio']) {
+                if (pageData.value.audioSuport && pageData.value.chlData.supportAudio) {
                     triggerData.value.push({ value: pageData.value.triggerAudio, label: 'IDCS_AUDIO', property: 'triggerAudio' })
                 }
-                if (pageData.value.lightSuport && pageData.value.chlData['supportWhiteLight']) {
+
+                if (pageData.value.lightSuport && pageData.value.chlData.supportWhiteLight) {
                     triggerData.value.push({ value: pageData.value.triggerWhiteLight, label: 'IDCS_LIGHT', property: 'triggerWhiteLight' })
                 }
             } else {
                 pageData.value.requireDataFail = true
             }
         }
+
         // 执行编辑请求
         const saveData = async () => {
             const sendXml = rawXml`
                 <content>
-                    <chl id="${pageData.value.currChlId}" scheduleGuid="${pageData.value['schedule']}">
+                    <chl id="${pageData.value.currChlId}" scheduleGuid="${pageData.value.schedule}">
                         <param>
-                            <switch>${pageData.value['detectionEnable'].toString()}</switch>
-                            <alarmHoldTime>${pageData.value['holdTime'].toString()}</alarmHoldTime>
-                            ${pageData.value.chlData['supportAudio'] && pageData.value['audioSuport'] ? `<triggerAudio>${pageData.value['triggerAudio']}</triggerAudio>` : ''}
-                            ${pageData.value.chlData['supportWhiteLight'] && pageData.value['lightSuport'] ? `<triggerWhiteLight>${pageData.value['triggerWhiteLight']}</triggerWhiteLight>` : ''}
+                            <switch>${pageData.value.detectionEnable.toString()}</switch>
+                            <alarmHoldTime>${pageData.value.holdTime.toString()}</alarmHoldTime>
+                            ${pageData.value.chlData.supportAudio && pageData.value.audioSuport ? `<triggerAudio>${pageData.value.triggerAudio}</triggerAudio>` : ''}
+                            ${pageData.value.chlData.supportWhiteLight && pageData.value.lightSuport ? `<triggerWhiteLight>${pageData.value.triggerWhiteLight}</triggerWhiteLight>` : ''}
                         </param>
                         <trigger>
                             <sysRec>
                                 <chls type="list">
-                                    ${pageData.value['record']['chls']
+                                    ${pageData.value.record.chls
                                         .map(
                                             (element: { value: string; label: string }) => rawXml`
-                                        <item id="${element['value']}">
-                                            <![CDATA[${element['label']}]]>
+                                        <item id="${element.value}">
+                                            <![CDATA[${element.label}]]>
                                         </item>
                                     `,
                                         )
@@ -768,11 +707,11 @@ export default defineComponent({
                             </sysRec>
                             <sysSnap>
                                 <chls type="list">
-                                    ${pageData.value['snap']['chls']
+                                    ${pageData.value.snap.chls
                                         .map(
                                             (element: { value: string; label: string }) => rawXml`
-                                        <item id="${element['value']}">
-                                            <![CDATA[${element['label']}]]>
+                                        <item id="${element.value}">
+                                            <![CDATA[${element.label}]]>
                                         </item>
                                     `,
                                         )
@@ -781,11 +720,11 @@ export default defineComponent({
                             </sysSnap>
                             <alarmOut>
                                 <alarmOuts type="list">
-                                    ${pageData.value['alarmOut']['chls']
+                                    ${pageData.value.alarmOut.chls
                                         .map(
                                             (element: { value: string; label: string }) => rawXml`
-                                        <item id="${element['value']}">
-                                            <![CDATA[${element['label']}]]>
+                                        <item id="${element.value}">
+                                            <![CDATA[${element.label}]]>
                                         </item>
                                     `,
                                         )
@@ -794,15 +733,15 @@ export default defineComponent({
                             </alarmOut>
                             <preset>
                                 <presets type="list">
-                                    ${pageData.value['presetSource']
+                                    ${pageData.value.presetSource
                                         .map((element: PresetList) =>
-                                            element['preset']['value']
+                                            element.preset.value
                                                 ? rawXml`
                                         <item>
-                                            <index>${element['preset']['value']}</index>
-                                            <name><![CDATA[${element['preset']['label']}]]></name>
-                                            <chl id="${element['id']}">
-                                                <![CDATA[${element['name']}]]>
+                                            <index>${element.preset.value}</index>
+                                            <name><![CDATA[${element.preset.label}]]></name>
+                                            <chl id="${element.id}">
+                                                <![CDATA[${element.name}]]>
                                             </chl>
                                         </item>
                                     `
@@ -811,13 +750,13 @@ export default defineComponent({
                                         .join('')}
                                 </presets>
                             </preset>
-                            <snapSwitch>${pageData.value['snapSwitch'].toString()}</snapSwitch>
-                            <msgPushSwitch>${pageData.value['msgPushSwitch'].toString()}</msgPushSwitch>
-                            <buzzerSwitch>${pageData.value['buzzerSwitch'].toString()}</buzzerSwitch>
-                            <popVideoSwitch>${pageData.value['popVideoSwitch'].toString()}</popVideoSwitch>
-                            <emailSwitch>${pageData.value['emailSwitch'].toString()}</emailSwitch>
-                            <popMsgSwitch>${pageData.value['popMsgSwitch'].toString()}</popMsgSwitch>
-                            <sysAudio id='${pageData.value['sysAudio']}'></sysAudio>
+                            <snapSwitch>${pageData.value.snapSwitch.toString()}</snapSwitch>
+                            <msgPushSwitch>${pageData.value.msgPushSwitch.toString()}</msgPushSwitch>
+                            <buzzerSwitch>${pageData.value.buzzerSwitch.toString()}</buzzerSwitch>
+                            <popVideoSwitch>${pageData.value.popVideoSwitch.toString()}</popVideoSwitch>
+                            <emailSwitch>${pageData.value.emailSwitch.toString()}</emailSwitch>
+                            <popMsgSwitch>${pageData.value.popMsgSwitch.toString()}</popMsgSwitch>
+                            <sysAudio id='${pageData.value.sysAudio}'></sysAudio>
                         </trigger>
                     </chl>
                 </content>
@@ -828,9 +767,9 @@ export default defineComponent({
             const $ = queryXml(res)
             closeLoading()
             if ($('status').text() == 'success') {
-                if (pageData.value['detectionEnable']) {
+                if (pageData.value.detectionEnable) {
                     // 开关为开把originalSwitch置为true避免多次弹出互斥提示
-                    pageData.value['originalEnable'] = true
+                    pageData.value.originalEnable = true
                 }
                 pageData.value.applyDisable = true
                 openMessageTipBox({
@@ -844,25 +783,26 @@ export default defineComponent({
                 })
             }
         }
+
         // 应用
         const handleApply = () => {
             let isSwitchChange = false
             const switchChangeTypeArr: string[] = []
             const mutexChlNameObj = getMutexChlNameObj()
-            if (pageData.value['detectionEnable'] && pageData.value['detectionEnable'] != pageData.value['originalEnable']) {
+            if (pageData.value.detectionEnable && pageData.value.detectionEnable != pageData.value.originalEnable) {
                 isSwitchChange = true
             }
             pageData.value.mutexList.forEach((ele: { object: string; status: boolean }) => {
-                if (ele['status']) {
-                    const prefixName = mutexChlNameObj['normalChlName'] ? joinSpaceForLang(Translate('IDCS_CHANNEL') + ':' + mutexChlNameObj['normalChlName']) : ''
-                    const showInfo = prefixName ? prefixName + pageData.value.closeTip[ele['object']].toLowerCase() : pageData.value.closeTip[ele['object']]
+                if (ele.status) {
+                    const prefixName = mutexChlNameObj.normalChlName ? joinSpaceForLang(Translate('IDCS_CHANNEL') + ':' + mutexChlNameObj.normalChlName) : ''
+                    const showInfo = prefixName ? prefixName + closeTip[ele.object].toLowerCase() : closeTip[ele.object]
                     switchChangeTypeArr.push(showInfo)
                 }
             })
             pageData.value.mutexListEx.forEach((ele: { object: string; status: boolean }) => {
-                if (ele['status']) {
-                    const prefixName = mutexChlNameObj['thermalChlName'] ? joinSpaceForLang(Translate('IDCS_CHANNEL') + ':' + mutexChlNameObj['thermalChlName']) : ''
-                    const showInfo = prefixName ? prefixName + pageData.value.closeTip[ele['object']].toLowerCase() : pageData.value.closeTip[ele['object']].toLowerCase()
+                if (ele.status) {
+                    const prefixName = mutexChlNameObj.thermalChlName ? joinSpaceForLang(Translate('IDCS_CHANNEL') + ':' + mutexChlNameObj.thermalChlName) : ''
+                    const showInfo = prefixName ? prefixName + closeTip[ele.object].toLowerCase() : closeTip[ele.object].toLowerCase()
                     switchChangeTypeArr.push(showInfo)
                 }
             })
@@ -870,7 +810,7 @@ export default defineComponent({
                 const switchChangeType = switchChangeTypeArr.join(',')
                 openMessageTipBox({
                     type: 'question',
-                    message: Translate('IDCS_FIRE_POINT_DETECT_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + pageData.value.chlData['name'], switchChangeType),
+                    message: Translate('IDCS_FIRE_POINT_DETECT_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + pageData.value.chlData.name, switchChangeType),
                 }).then(() => {
                     saveData()
                 })
@@ -878,6 +818,7 @@ export default defineComponent({
                 saveData()
             }
         }
+
         // 初始化页面数据
         const initPageData = async () => {
             pageData.value.supportAlarmAudioConfig = systemCaps.supportAlarmAudioConfig
@@ -907,6 +848,7 @@ export default defineComponent({
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 plugin.CloseCurPlugin(document.getElementById('player'))
             }
+
             if (mode.value === 'h5') {
                 player.destroy()
             }

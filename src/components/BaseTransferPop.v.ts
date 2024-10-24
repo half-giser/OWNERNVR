@@ -59,6 +59,7 @@ export default defineComponent({
             source_title.value = Translate(props.sourceTitle)
             target_title.value = Translate(props.targetTitle)
         }
+
         /**
          * @description 限制联动通道数量
          */
@@ -71,6 +72,7 @@ export default defineComponent({
                 chosedList.value.splice(MAX_TRIGGER_COUNT, chosedList.value.length - 1)
             }
         }
+
         /**
          * @description 保存数据
          */
@@ -78,12 +80,14 @@ export default defineComponent({
             const filterList = data.value.filter((item) => chosedList.value.includes(item.value))
             ctx.emit('confirm', filterList)
         }
+
         /**
          * @description 关闭弹窗
          */
         const close = () => {
             ctx.emit('close')
         }
+
         const updatePanelWidth = () => {
             const source_length = source_title.value.length
             const sourceTitleWidth = source_length * 9

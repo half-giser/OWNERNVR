@@ -27,7 +27,7 @@ export default defineComponent({
             required: true,
         },
         voiceList: {
-            type: Array as PropType<{ value: string; label: string }[]>,
+            type: Array as PropType<SelectOption<string, string>[]>,
             required: true,
         },
     },
@@ -123,7 +123,6 @@ export default defineComponent({
             // 是否显示全部区域
             isShowAllArea: false,
             // 排程
-            scheduleIdNull: '{00000000-0000-0000-0000-000000000000}',
             scheduleList: [] as SelectOption<string, string>[],
             scheduleManagPopOpen: false,
             // 检测区域，屏蔽区域
@@ -193,11 +192,13 @@ export default defineComponent({
                     clearCurrentArea: vsdClearCurrentArea,
                 })
             }
+
             if (mode.value === 'ocx') {
                 if (!plugin.IsInstallPlugin()) {
                     plugin.SetPluginNotice('#layout2Content')
                     return
                 }
+
                 if (!plugin.IsPluginAvailable()) {
                     pluginStore.showPluginNoResponse = true
                     plugin.ShowPluginNoResponse()
@@ -206,6 +207,7 @@ export default defineComponent({
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
         }
+
         // vsdDrawer初始化时绑定以下函数
         const vsdAreaChange = (
             area: { X1: number; Y1: number; X2: number; Y2: number } | { X: number; Y: number; isClosed?: boolean }[],
@@ -217,12 +219,14 @@ export default defineComponent({
             } else if (currAreaType == 'maskArea') {
                 vsdData.value.maskAreaInfo[pageData.value.maskArea] = area as { X: number; Y: number; isClosed: boolean }[]
             }
+
             if (osdInfo) {
                 vsdData.value.countOSD.X = osdInfo.X
                 vsdData.value.countOSD.Y = osdInfo.Y
             }
             showAllArea(pageData.value.isShowAllArea)
         }
+
         const vsdClosePath = (area: { X: number; Y: number; isClosed?: boolean }[]) => {
             area.forEach((item) => (item.isClosed = true))
             if (currAreaType == 'detectionArea') {
@@ -231,6 +235,7 @@ export default defineComponent({
                 vsdData.value.maskAreaInfo[pageData.value.maskArea] = area as { X: number; Y: number; isClosed: boolean }[]
             }
         }
+
         const vsdForceClosePath = (canBeClosed: boolean) => {
             if (!canBeClosed) {
                 openMessageTipBox({
@@ -239,6 +244,7 @@ export default defineComponent({
                 })
             }
         }
+
         const vsdClearCurrentArea = () => {
             openMessageTipBox({
                 type: 'question',
@@ -249,6 +255,7 @@ export default defineComponent({
                 } else if (currAreaType == 'maskArea') {
                     vsdData.value.maskAreaInfo[pageData.value.maskArea] = []
                 }
+
                 if (mode.value === 'h5') {
                     vsdDrawer && vsdDrawer.clear()
                 } else {
@@ -258,6 +265,7 @@ export default defineComponent({
                 showAllArea(pageData.value.isShowAllArea)
             })
         }
+
         /**
          * @description 播放视频
          */
@@ -301,11 +309,11 @@ export default defineComponent({
                 `
             const result = await queryVideoMetadata(sendXml)
             commLoadResponseHandler(result, async ($) => {
-                const param = $('/response/content/chl/param')
+                const param = $('//content/chl/param')
                 const $param = queryXml(param[0].element)
                 const enabledSwitch = $param('switch').text() == 'true'
                 // 识别模式选项
-                pageData.value.algoModelList = $('/response/types/algoChkType/enum').map((item) => {
+                pageData.value.algoModelList = $('//types/algoChkType/enum').map((item) => {
                     return {
                         value: item.text(),
                         label: algoChkType[item.text()],
@@ -346,7 +354,7 @@ export default defineComponent({
                     return { object: $item('object').text(), status: $item('status').text() == 'true' }
                 })
                 // 重置信息（循环模式列表）
-                $('/response/types/countCycleType/enum').forEach((item) => {
+                $('//types/countCycleType/enum').forEach((item) => {
                     if (item.text() !== 'off') {
                         pageData.value.countCycleTypeList.push({
                             value: item.text(),
@@ -374,7 +382,7 @@ export default defineComponent({
                     (countOSD.osdCarName ? countOSD.osdCarName + '-# ' : '') +
                     (countOSD.osdBikeName ? countOSD.osdBikeName + '-# ' : '')
                 // 图片叠加(OSD)
-                pageData.value.imgOsdTypeList = $('/response/types/osdEumType/enum').map((item) => {
+                pageData.value.imgOsdTypeList = $('//types/osdEumType/enum').map((item) => {
                     return {
                         value: item.text(),
                         label: imgOsdTypeTip[item.text()],
@@ -441,7 +449,7 @@ export default defineComponent({
                 vsdData.value = {
                     enabledSwitch,
                     originalSwitch: enabledSwitch,
-                    schedule: $('/response/content/chl').attr('scheduleGuid'),
+                    schedule: $('//content/chl').attr('scheduleGuid'),
                     saveSourcePicture: $param('saveSourcePicture').text(),
                     saveTargetPicture: $param('saveTargetPicture').text(),
                     algoChkModel: $param('algoModel/algoChkModel').text(),
@@ -485,6 +493,7 @@ export default defineComponent({
                 handleVideoStructureData()
             })
         }
+
         const handleVideoStructureData = () => {
             refreshInitPage()
             // 这里saveSourcePicture为字符串，"false"判断为真
@@ -496,12 +505,14 @@ export default defineComponent({
             } else {
                 pageData.value.isSavePicDisabled = true
             }
+
             // 识别模式
             if (vsdData.value.algoChkModel && vsdData.value.algoChkModel == 'inter_model') {
                 pageData.value.algoHoldTimeShow = true
             } else {
                 pageData.value.algoHoldTimeShow = false
             }
+
             if (vsdData.value.algoChkModel) {
                 pageData.value.algoModelDisabled = false
             } else {
@@ -529,6 +540,7 @@ export default defineComponent({
 
             setAreaView('detectionArea')
         }
+
         // 检测和屏蔽区域的样式初始化
         const refreshInitPage = () => {
             // 区域状态
@@ -539,6 +551,7 @@ export default defineComponent({
                     pageData.value.detectConfiguredArea[key] = false
                 }
             }
+
             for (const key in vsdData.value.maskAreaInfo) {
                 if (vsdData.value.maskAreaInfo[key].length > 0) {
                     pageData.value.maskConfiguredArea[key] = true
@@ -546,6 +559,7 @@ export default defineComponent({
                     pageData.value.maskConfiguredArea[key] = false
                 }
             }
+
             // OSD状态
             if (vsdData.value.countOSD) {
                 const osdPersonName = vsdData.value.countOSD.osdPersonName
@@ -553,10 +567,12 @@ export default defineComponent({
                 const osdBikeName = vsdData.value.countOSD.osdBikeName
                 vsdData.value.countOSD.osdFormat = (osdPersonName ? osdPersonName + '-# ' : '') + (osdCarName ? osdCarName + '-# ' : '') + (osdBikeName ? osdBikeName + '-# ' : '')
             }
+
             if (pageData.value.tab == 'param') {
                 setEnableOSD()
             }
         }
+
         const tabChange = (name: TabPaneName) => {
             if (name == 'param') {
                 setAreaView(currAreaType)
@@ -574,6 +590,7 @@ export default defineComponent({
                         play()
                     }, 100)
                 }
+
                 if (pageData.value.isShowAllArea) {
                     showAllArea(true)
                 }
@@ -615,6 +632,7 @@ export default defineComponent({
                 showAllArea(false)
             }
         }
+
         // 是否显示全部区域
         const showAllArea = (value: CheckboxValueType) => {
             vsdDrawer && vsdDrawer.setEnableShowAll(value as boolean)
@@ -641,11 +659,13 @@ export default defineComponent({
                     const sendXML = OCX_XML_SetAllArea({ detectAreaInfo: [], maskAreaInfo: [] }, 'IrregularPolygon', 'TYPE_VSD', '', false)
                     plugin.GetVideoPlugin().ExecuteCmd(sendXML!)
                 }
+
                 if (pageData.value.tab == 'param') {
                     changeArea()
                 }
             }
         }
+
         // 清空
         const clearArea = () => {
             if (currAreaType == 'detectionArea') {
@@ -653,24 +673,29 @@ export default defineComponent({
             } else if (currAreaType == 'maskArea') {
                 vsdData.value.maskAreaInfo[pageData.value.maskArea] = []
             }
+
             if (mode.value === 'h5') {
                 vsdDrawer && vsdDrawer.clear()
             } else {
                 const sendXML = OCX_XML_SetVsdAreaAction('NONE')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
+
             if (pageData.value.isShowAllArea) {
                 showAllArea(true)
             }
         }
+
         // 全部清除
         const clearAllArea = () => {
             for (const key in vsdData.value.detectAreaInfo) {
                 vsdData.value.detectAreaInfo[key] = []
             }
+
             for (const key in vsdData.value.maskAreaInfo) {
                 vsdData.value.maskAreaInfo[key] = []
             }
+
             if (mode.value === 'h5') {
                 vsdDrawer && vsdDrawer.clear()
             } else {
@@ -681,21 +706,25 @@ export default defineComponent({
                 const sendXML2 = OCX_XML_SetVsdAreaAction('NONE')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML2)
             }
+
             if (pageData.value.isShowAllArea) {
                 showAllArea(true)
             }
         }
+
         // 区域切换
         const detectAreaChange = () => {
             currAreaType = 'detectionArea'
             pageData.value.maskArea = -1
             changeArea()
         }
+
         const maskAreaChange = () => {
             currAreaType = 'maskArea'
             pageData.value.detectArea = -1
             changeArea()
         }
+
         const changeArea = () => {
             // 切换另一个区域前先封闭其他可闭合的区域（“area”）
             setOtherAreaClosed()
@@ -708,6 +737,7 @@ export default defineComponent({
                 setAreaView('maskArea')
             }
         }
+
         // 设置区域图形
         const setAreaView = (type: string) => {
             if (type == 'detectionArea') {
@@ -739,10 +769,12 @@ export default defineComponent({
                     }
                 }
             }
+
             if (pageData.value.tab == 'param' && pageData.value.isShowAllArea) {
                 showAllArea(true)
             }
         }
+
         // 设置OSD
         const setEnableOSD = () => {
             const enable = vsdData.value.countOSD.switch
@@ -755,12 +787,14 @@ export default defineComponent({
                 vsdDrawer.setOSD(vsdData.value.countOSD)
             }
         }
+
         // 闭合区域
         const setClosed = (poinObjtList: { X: number; Y: number; isClosed: boolean }[]) => {
             poinObjtList?.forEach((item) => {
                 item.isClosed = true
             })
         }
+
         // 闭合其他区域
         const setOtherAreaClosed = () => {
             if (mode.value == 'h5') {
@@ -771,9 +805,11 @@ export default defineComponent({
                 for (const key in detectAreaInfo) {
                     boundaryInfoList.push(detectAreaInfo[key])
                 }
+
                 for (const key in maskAreaInfo) {
                     boundaryInfoList.push(maskAreaInfo[key])
                 }
+
                 if (boundaryInfoList && boundaryInfoList.length > 0) {
                     boundaryInfoList.forEach((boundaryInfo) => {
                         if (boundaryInfo.length >= 3 && judgeAreaCanBeClosed(boundaryInfo)) {
@@ -783,15 +819,18 @@ export default defineComponent({
                 }
             }
         }
+
         // 原图checkbox
         const saveSourcePicChange = (value: CheckboxValueType) => {
             // saveSourcePicture属性被用于判断其是否禁用，接收为string类型，这里手动赋值
             vsdData.value.saveSourcePicture = value ? 'true' : 'false'
         }
+
         // 目标图checkbox
         const saveTargetPicChange = (value: CheckboxValueType) => {
             vsdData.value.saveTargetPicture = value ? 'true' : 'false'
         }
+
         // 识别模式
         const algoModelChange = (value: string) => {
             if (value == 'inter_model') {
@@ -800,6 +839,7 @@ export default defineComponent({
                 pageData.value.algoHoldTimeShow = false
             }
         }
+
         // 时间间隔
         const algoHoldTimeBlur = () => {
             let value = Number(vsdData.value.intervalCheck.toString().replace(/\D/g, ''))
@@ -808,21 +848,25 @@ export default defineComponent({
             } else if (value < vsdData.value.intervalCheckMin) {
                 value = vsdData.value.intervalCheckMin
             }
+
             if (!value) {
                 value = 1
             }
             vsdData.value.intervalCheck = value
         }
+
         // 自动重置
         const autoResetChange = (value: CheckboxValueType) => {
             vsdData.value.countPeriod.countTimeType = value ? pageData.value.timeType : 'off'
         }
+
         // 重置时间模式
         const timeTypeChange = (value: string) => {
             // 自动重置选中时vsdData.value.countPeriod.countTimeType被置为off，不方便直接绑定元素
             // 用pageData.value.timeType绑定页面元素
             vsdData.value.countPeriod.countTimeType = value
         }
+
         // 手动重置
         const manualResetData = async () => {
             openMessageTipBox({
@@ -840,6 +884,7 @@ export default defineComponent({
                 commSaveResponseHadler(result)
             })
         }
+
         // 图片叠加
         const osdTypeChange = (value: string) => {
             if (value == 'person') {
@@ -859,6 +904,7 @@ export default defineComponent({
                 getOsdShowListHtml(vsdData.value.osdBikeCfgList)
             }
         }
+
         const osdCfgCheckListChange = (value: CheckboxValueType[]) => {
             if (vsdData.value.osdType == 'person') {
                 // OSD-人
@@ -883,6 +929,7 @@ export default defineComponent({
                 getOsdShowListHtml(vsdData.value.osdBikeCfgList)
             }
         }
+
         // 页面osd列表
         const getOsdCfgHtml = (list: { index: string; value: string; tagName: string }[]) => {
             pageData.value.osdCfgList = []
@@ -897,10 +944,12 @@ export default defineComponent({
                 }
             })
         }
+
         // 判断是否全选
         const judgeCheckAll = (list: { index: string; value: string; tagName: string }[]) => {
             pageData.value.osdCheckAll = osdCfgCheckedList.value.length == list.length
         }
+
         const getOsdShowListHtml = (list: { index: string; value: string; tagName: string }[]) => {
             pageData.value.osdShowList = []
             list.forEach((item) => {
@@ -909,6 +958,7 @@ export default defineComponent({
                 }
             })
         }
+
         // 全选
         const checkAllOsdType = (value: CheckboxValueType) => {
             osdCfgCheckedList.value = []
@@ -941,6 +991,7 @@ export default defineComponent({
                 getOsdShowListHtml(vsdData.value.osdBikeCfgList)
             }
         }
+
         // 判断osd是否可用
         const checkOsdName = (value: string) => {
             const name = value.replace(' ', '')
@@ -950,6 +1001,7 @@ export default defineComponent({
             if (!reg.test(name)) return true
             else return false
         }
+
         // 区域为多边形时，检测区域合法性(温度检测页面一个点为画点，两个点为画线，大于两个小于8个为区域，只需要检测区域的合法性)
         const verification = () => {
             // 检测区域合法性(视频结构化AI事件中：检测和屏蔽区域都为多边形)
@@ -959,9 +1011,11 @@ export default defineComponent({
             for (const key in detectAreaInfo) {
                 allRegionList.push(detectAreaInfo[key])
             }
+
             for (const key in maskAreaInfo) {
                 allRegionList.push(maskAreaInfo[key])
             }
+
             for (const i in allRegionList) {
                 const count = allRegionList[i].length
                 if (count > 0 && count < 4) {
@@ -991,6 +1045,7 @@ export default defineComponent({
             }
             return true
         }
+
         const getVideoStructureSaveData = () => {
             let sendXml = rawXml`<content>
                 <chl id='${prop.currChlId}' scheduleGuid='${vsdData.value.schedule}'>
@@ -1110,16 +1165,18 @@ export default defineComponent({
             </chl></content>`
             return sendXml
         }
+
         const setVideoStructureData = async () => {
             const sendXml = getVideoStructureSaveData()
             openLoading()
             const result = await editOsc(sendXml)
             closeLoading()
             const $ = queryXml(result)
-            if ($('/response/status').text() == 'success') {
+            if ($('//status').text() == 'success') {
                 if (vsdData.value.enabledSwitch) {
                     vsdData.value.originalSwitch = true
                 }
+
                 // 保存成功后刷新视频区域，四个点时区域没有闭合但保存后也可以闭合（四点已经可以画面）
                 if (currAreaType == 'detectionArea') {
                     setAreaView('detectionArea')
@@ -1130,6 +1187,7 @@ export default defineComponent({
                 pageData.value.applyDisabled = true
             }
         }
+
         const applyVideoStructureData = async () => {
             if (!verification()) return
             let isSwitchChange = false
@@ -1139,7 +1197,7 @@ export default defineComponent({
             }
             vsdData.value.mutexList?.forEach((item) => {
                 if (item.status) {
-                    switchChangeTypeArr.push(closeTip[item['object']])
+                    switchChangeTypeArr.push(closeTip[item.object])
                 }
             })
             if (isSwitchChange && switchChangeTypeArr.length > 0) {
@@ -1181,6 +1239,7 @@ export default defineComponent({
                 vsdData.value.countOSD.X = X
                 vsdData.value.countOSD.Y = Y
             }
+
             // 处理错误码
             if (errorCode == '517') {
                 // 517-区域已闭合
@@ -1200,14 +1259,12 @@ export default defineComponent({
                     label: i.toString(),
                 })
             }
+
             if (mode.value != 'h5') {
                 Plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
             }
             openLoading()
             pageData.value.scheduleList = await buildScheduleList()
-            pageData.value.scheduleList.forEach((item) => {
-                item.value = item.value != '' ? item.value : pageData.value.scheduleIdNull
-            })
             await getVideoStructureData()
             closeLoading()
         })
@@ -1223,6 +1280,7 @@ export default defineComponent({
                 const sendXML = OCX_XML_StopPreview('ALL')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
+
             if (mode.value == 'h5') {
                 vsdDrawer.destroy()
             }

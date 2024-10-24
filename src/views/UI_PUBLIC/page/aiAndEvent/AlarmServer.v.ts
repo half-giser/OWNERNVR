@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-14 17:06:11
  * @Description: 报警服务器
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-23 14:05:03
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-24 11:43:49
  */
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -55,7 +55,6 @@ export default defineComponent({
             heartEnableDisabled: false,
             // 将进行的事件
             isTestAlarmServer: false,
-            defaultSchedule: '{00000000-0000-0000-0000-000000000000}',
         })
         const rules = reactive<FormRules>({
             address: [
@@ -196,6 +195,7 @@ export default defineComponent({
             }
             pageData.value.alarmList = alarmList
         }
+
         const getBasicCfg = async () => {
             const result = await queryBasicCfg()
             const res = queryXml(result)
@@ -205,14 +205,11 @@ export default defineComponent({
                 pageData.value.maxDeviceIdLength = 16
             }
         }
+
         const getScheduleList = async () => {
             pageData.value.scheduleList = await buildScheduleList()
-            pageData.value.scheduleList.forEach((item) => {
-                if (item.value == '') {
-                    item.value = pageData.value.defaultSchedule
-                }
-            })
         }
+
         const getData = async () => {
             await getScheduleList()
             queryAlarmServerParam().then(async (resb) => {
@@ -244,6 +241,7 @@ export default defineComponent({
                 }
             })
         }
+
         const setFormByProtocol = () => {
             pageData.value.isProtocolXML = formData.value.protocol == 'XML'
             pageData.value.isArisanProtocol = formData.value.protocol == 'ARISAN'
@@ -257,6 +255,7 @@ export default defineComponent({
             pageData.value.isAnothorUI = pageData.value.supportAdditionalServerSetting == true && pageData.value.isArisanProtocol ? true : false
             pageData.value.deviceIdShow = pageData.value.isJSONProtocol ? true : false
         }
+
         const setAlarmTypes = () => {
             if (pageData.value.linkedAlarmList.length === 0) {
                 tableData.value = []
@@ -269,6 +268,7 @@ export default defineComponent({
                 })
             }
         }
+
         const checkRule = (value: string, reg: RegExp) => {
             if (reg.test(value)) {
                 return value.replace(reg, '')
@@ -276,6 +276,7 @@ export default defineComponent({
                 return value
             }
         }
+
         const checkAddress = (value: string) => {
             const reg1 = /([\u4e00-\u9fa5]|[^a-zA-Z\d\.\-:\\/])/g
             const address = checkRule(value, reg1)
@@ -284,11 +285,13 @@ export default defineComponent({
             // }
             formData.value.address = address
         }
+
         const checkUrl = (value: string) => {
             const reg = /([\u4e00-\u9fa5]|[^a-zA-Z\d\.\-:\\/])/g
             const url = checkRule(value, reg)
             formData.value.url = url
         }
+
         // 去除字符串前后空格
         const Trim = (str: string, is_global: string) => {
             if (!str) return ''
@@ -299,8 +302,9 @@ export default defineComponent({
             }
             return result
         }
+
         const getSavaData = (url: string) => {
-            const scheduleLabel = formData.value.schedule == pageData.value.defaultSchedule ? '' : pageData.value.scheduleList.find((item) => item.value == formData.value.schedule)!.label
+            const scheduleLabel = formData.value.schedule === DEFAULT_EMPTY_ID ? '' : pageData.value.scheduleList.find((item) => item.value == formData.value.schedule)!.label
             let sendXml = rawXml`<content>
                                 <address>${formData.value.address}</address>
                                 <url>${formData.value.url}</url>
@@ -311,12 +315,14 @@ export default defineComponent({
             if (pageData.value.isProtocolXML) {
                 sendXml += rawXml`<alarmServerAlarmTypes>${pageData.value.linkedAlarmList.join(',')} </alarmServerAlarmTypes>`
             }
+
             if (url == 'editAlarmServerParam') {
                 sendXml += rawXml`<heartbeat>
                                 <switch>${formData.value.heartEnable.toString()}</switch>
                                 <interval>${formData.value.interval.toString()}</interval>
                             </heartbeat>`
             }
+
             if (pageData.value.supportAdditionalServerSetting) {
                 sendXml += rawXml`
                                     <deviceId><![CDATA[${formData.value.deviceId}]]></deviceId>
@@ -328,6 +334,7 @@ export default defineComponent({
             sendXml += rawXml`</content>`
             return sendXml
         }
+
         const setData = (url: string) => {
             if (!formRef.value) return
             if (url == 'testAlarmServerParam') {
@@ -387,15 +394,19 @@ export default defineComponent({
                 }
             })
         }
+
         const testAlarmServer = () => {
             setData('testAlarmServerParam')
         }
+
         const applyAlarmSever = () => {
             setData('editAlarmServerParam')
         }
+
         const handleProtocolChange = () => {
             setFormByProtocol()
         }
+
         const handleSchedulePopClose = async () => {
             pageData.value.scheduleManagePopOpen = false
             await getScheduleList()

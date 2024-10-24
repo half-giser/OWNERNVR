@@ -2,8 +2,8 @@
  * @Description: 录像——参数配置——通道录像参数——过期时间自定义
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-05 16:26:27
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-17 10:19:18
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-23 19:30:07
 -->
 <template>
     <el-dialog
@@ -17,7 +17,7 @@
     >
         <div class="base-flex-box">
             <el-form
-                label-width="100px"
+                label-width="100"
                 label-position="left"
             >
                 <el-form-item :label="Translate('IDCS_EXPIRE_TIME')">
@@ -85,11 +85,7 @@
                         prop="date"
                         :label="Translate('IDCS_DATE')"
                         min-width="355"
-                    >
-                        <template #default="scope">
-                            <span>{{ scope.row.date }}</span>
-                        </template>
-                    </el-table-column>
+                    />
                     <el-table-column
                         :label="Translate('IDCS_EDIT')"
                         width="80"

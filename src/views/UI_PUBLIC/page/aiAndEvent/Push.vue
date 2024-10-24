@@ -3,15 +3,15 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-12 15:28:05
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-29 13:51:53
+ * @LastEditTime: 2024-10-24 14:33:39
 -->
 <template>
     <el-form
         ref="pushRef"
         :model="pushFormData"
-        class="stripe"
         :style="{
             '--form-input-width': '215px',
+            '--form-label-width': '200px',
         }"
         label-position="left"
         inline-message
@@ -20,10 +20,7 @@
         <el-form-item>
             <el-checkbox v-model="pushFormData.chkEnable">{{ Translate('IDCS_ENABLE') }}</el-checkbox>
         </el-form-item>
-        <el-form-item
-            prop="popVideoDuration"
-            :label="Translate('IDCS_PUSH_SCHEDULE')"
-        >
+        <el-form-item :label="Translate('IDCS_PUSH_SCHEDULE')">
             <el-select
                 v-model="pushFormData.pushSchedule"
                 :disabled="!pushFormData.chkEnable"

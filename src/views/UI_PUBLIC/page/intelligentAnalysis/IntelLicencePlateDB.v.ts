@@ -214,6 +214,7 @@ export default defineComponent({
                     message: Translate('IDCS_NO_AUTH'),
                 })
             }
+
             if (history.state.backChlId) {
                 // $.webSession("ignoreAIJudge", true)
                 router.push({
@@ -276,6 +277,7 @@ export default defineComponent({
             if (pageData.value.editPlateType === 'add') {
                 await getGroupList()
             }
+
             if (pageData.value.expandRowKey.length) {
                 searchPlate(pageData.value.expandRowKey[0], true)
             }
@@ -441,10 +443,12 @@ export default defineComponent({
                 const find = tableData.value.find((item) => item.id === expanded[0].id)!
                 tableRef.value?.toggleRowExpansion(find, false)
             }
+
             if (!expanded.length) {
                 groupTableData.value = []
                 pageData.value.expandRowKey = []
             }
+
             if (expanded.some((item) => item.id === row.id)) {
                 tableRef.value?.setCurrentRow(row)
                 groupTableData.value = []

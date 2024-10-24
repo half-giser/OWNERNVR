@@ -205,6 +205,7 @@ export default defineComponent({
         if (systemCaps.ipChlMaxCount) {
             EVENTS.push('INTELLIGENT')
         }
+
         if (systemCaps.supportPOS) {
             EVENTS.push('POS')
         }
@@ -337,6 +338,7 @@ export default defineComponent({
             if (pageData.value.mode === 'year') {
                 return formatDate(time, dateTime.yearMonthFormat)
             }
+
             if (pageData.value.mode === 'month') {
                 return formatDate(time, dateTime.dateFormat)
             }
@@ -689,6 +691,7 @@ export default defineComponent({
             if ($('//status').text() !== 'success') {
                 return
             }
+
             if (startTime !== timelineRef.value!.getMinTime() * 1000) {
                 return
             }
@@ -857,6 +860,7 @@ export default defineComponent({
                     Plugin.SetPluginNoResponse()
                     Plugin.ShowPluginNoResponse()
                 }
+
                 if (newVal === 'ocx') {
                     const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Playback')
                     Plugin.GetVideoPlugin().ExecuteCmd(sendXML)

@@ -578,7 +578,7 @@ export default defineComponent({
             let playList: PlaybackPopList[] = []
             if (row.logType === 'LOG_ALARM_SENSOR' || row.logType === 'LOG_ALARM_COMBINED') {
                 playList = row.triggerRecChls
-                    .filter((item) => item.id !== EmptyId)
+                    .filter((item) => item.id !== DEFAULT_EMPTY_ID)
                     .map((item) => ({
                         chlId: item.id,
                         chlName: item.text,
@@ -587,7 +587,7 @@ export default defineComponent({
                         endTime,
                     }))
             } else {
-                if (row.chl.id !== EmptyId) {
+                if (row.chl.id !== DEFAULT_EMPTY_ID) {
                     playList.push({
                         chlId: row.chl.id,
                         chlName: row.chl.text,
@@ -597,6 +597,7 @@ export default defineComponent({
                     })
                 }
             }
+
             if (!playList.length) {
                 openMessageTipBox({
                     type: 'info',
@@ -624,6 +625,7 @@ export default defineComponent({
             if (REC_LOG_TYPES.includes(row.logType)) {
                 return true
             }
+
             if (row.triggerRecChls.length) {
                 return true
             }
@@ -637,16 +639,20 @@ export default defineComponent({
                 filterLogType('LOG_ALARM_FACE_MATCH')
                 filterLogType('LOG_OPERATE_FEATURELIBRARY')
             }
+
             if (!systemCaps.supportPlateMatch) {
                 filterLogType('LOG_ALARM_VEHICLE_PLATE_MATCH')
                 filterLogType('LOG_OPERATE_PLATELIBRARY')
             }
+
             if (!systemCaps.supportAlarmServerConfig) {
                 filterLogType('LOG_EXCEPTION_ALARM_SERVER_OFFLINE')
             }
+
             if (systemCaps.ipChlMaxCount <= 0) {
                 filterLogType('LOG_EXCEPTION_IPC_DISCONNECT')
             }
+
             if (systemCaps.analogChlCount <= 0) {
                 filterLogType('LOG_EXCEPTION_VIDEO_LOSS')
             }

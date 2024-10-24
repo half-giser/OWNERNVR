@@ -192,10 +192,10 @@ export default defineComponent({
                     },
                     progress: (step) => {
                         pageData.value.isCheckAuth = false
-                        pageData.value.importNote = `${TRANS_MAPPING['uploading']}&nbsp;&nbsp;${step}%`
+                        pageData.value.importNote = `${TRANS_MAPPING.uploading}&nbsp;&nbsp;${step}%`
                         if (step === 100) {
-                            pageData.value.importNote = TRANS_MAPPING['uploadReboot']
-                            openLoading(LoadingTarget.FullScreen, TRANS_MAPPING['uploadReboot'])
+                            pageData.value.importNote = TRANS_MAPPING.uploadReboot
+                            openLoading(LoadingTarget.FullScreen, TRANS_MAPPING.uploadReboot)
                             importTimer = reconnect()
                         } else {
                             closeLoading()
@@ -259,7 +259,7 @@ export default defineComponent({
                             closeLoading()
                             pageData.value.isCheckAuth = false
 
-                            pageData.value.exportNote = TRANS_MAPPING['downloadComplete']
+                            pageData.value.exportNote = TRANS_MAPPING.downloadComplete
                             if (browserInfo.type === 'firefox') {
                                 // 兼容H5 火狐显示 NVR145-142
                                 pageData.value.exportNote = Translate('IDCS_UPGRADE_DOWN_FINISHED')
@@ -309,6 +309,7 @@ export default defineComponent({
             if (![ErrorCode.USER_ERROR_PWD_ERR, ErrorCode.USER_ERROR_NO_USER].includes(errorCode)) {
                 pageData.value.isCheckAuth = false
             }
+
             switch (errorCode) {
                 case ErrorCode.USER_ERROR_PWD_ERR:
                 case ErrorCode.USER_ERROR_NO_USER:
@@ -356,14 +357,14 @@ export default defineComponent({
                         pageData.value.isCheckAuth = false
                         pageData.value.isEncryptPwd = false
                         if (progress == '100%') {
-                            pageData.value.importNote = TRANS_MAPPING['uploadReboot']
-                            openLoading(LoadingTarget.FullScreen, TRANS_MAPPING['uploadReboot'])
+                            pageData.value.importNote = TRANS_MAPPING.uploadReboot
+                            openLoading(LoadingTarget.FullScreen, TRANS_MAPPING.uploadReboot)
                             //发送升级指令，但不一定会收到应答，需要延时检测重启
                             //延时检测重启
                             importTimer = reconnect()
                         } else {
                             closeLoading()
-                            pageData.value.importNote = `${TRANS_MAPPING['uploading']}&nbsp;&nbsp;${progress}`
+                            pageData.value.importNote = `${TRANS_MAPPING.uploading}&nbsp;&nbsp;${progress}`
                         }
                         break
                     case 'Export':
@@ -371,9 +372,9 @@ export default defineComponent({
                         pageData.value.isCheckAuth = false
                         pageData.value.isEncryptPwd = false
                         if (progress == '100%') {
-                            pageData.value.exportNote = TRANS_MAPPING['downloadComplete']
+                            pageData.value.exportNote = TRANS_MAPPING.downloadComplete
                         } else {
-                            pageData.value.exportNote = `${TRANS_MAPPING['downloading']}&nbsp;&nbsp;${progress}`
+                            pageData.value.exportNote = `${TRANS_MAPPING.downloading}&nbsp;&nbsp;${progress}`
                         }
                         break
                 }

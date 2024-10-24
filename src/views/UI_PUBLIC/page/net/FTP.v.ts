@@ -3,7 +3,7 @@
  * @Date: 2024-07-12 18:20:34
  * @Description: FTP配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-17 17:08:46
+ * @LastEditTime: 2024-10-24 11:55:58
  */
 import { NetFTPForm, type NetFTPList } from '@/types/apiType/net'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -40,7 +40,7 @@ export default defineComponent({
                 },
             ] as SelectOption<string, string>[],
             // 开关选项
-            switchOptions: DEFAULT_SWITCH_OPTIONS.map((item) => ({ ...item, label: Translate(item.label) })),
+            switchOptions: getSwitchOptions(),
             // 显示排程管理弹窗
             isSchedulePop: false,
         })
@@ -156,21 +156,7 @@ export default defineComponent({
          * @description 获取排程选项
          */
         const getScheduleList = async () => {
-            const result = await queryScheduleList()
-            const $ = queryXml(result)
-
-            if ($('//status').text() === 'success') {
-                pageData.value.scheduleOptions = $('//content/item').map((item) => {
-                    return {
-                        label: item.text(),
-                        value: item.attr('id')!,
-                    }
-                })
-                pageData.value.scheduleOptions.push({
-                    value: '{00000000-0000-0000-0000-000000000000}',
-                    label: '<' + Translate('IDCS_NULL') + '>',
-                })
-            }
+            pageData.value.scheduleOptions = await buildScheduleList()
         }
 
         /**
@@ -348,7 +334,7 @@ export default defineComponent({
             const scheduleIdList = pageData.value.scheduleOptions.map((item) => item.value)
             tableData.value.forEach((item) => {
                 if (!scheduleIdList.includes(item.schedule)) {
-                    item.schedule = '{00000000-0000-0000-0000-000000000000}'
+                    item.schedule = DEFAULT_EMPTY_ID
                 }
             })
         }

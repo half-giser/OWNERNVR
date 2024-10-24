@@ -2,8 +2,8 @@
  * @Description: AI 事件——车牌识别
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-09 09:56:33
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-22 14:15:57
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-24 18:00:48
  */
 import { type CompareTask, VehicleDetection, type VehicleChlItem, VehicleCompare } from '@/types/apiType/aiAndEvent'
 import CanvasPolygon from '@/utils/canvas/canvasPolygon'
@@ -201,8 +201,6 @@ export default defineComponent({
             vehicleDetectionDisabled: false,
             vehicleCompareDisabled: false,
             vehicleLibraryDisabled: false,
-            // 排程
-            scheduleIdNull: '{00000000-0000-0000-0000-000000000000}',
             scheduleList: [] as SelectOption<string, string>[],
             scheduleManagPopOpen: false,
             // 通知列表
@@ -210,101 +208,33 @@ export default defineComponent({
             // 声音列表
             voiceList: [] as SelectOption<string, string>[],
             // record数据
-            recordList: [] as { value: string; label: string }[],
+            recordList: [] as SelectOption<string, string>[],
             // alarmOut数据
-            alarmOutList: [] as { value: string; label: string }[],
+            alarmOutList: [] as SelectOption<string, string>[],
             // snap数据
-            snapList: [] as { value: string; label: string }[],
+            snapList: [] as SelectOption<string, string>[],
             notChlSupport: false,
             notSupportTip: '',
         })
+
         // 获取声音列表数据
         const getVoiceList = async () => {
-            const result = await queryAlarmAudioCfg()
-
-            commLoadResponseHandler(result, ($) => {
-                pageData.value.voiceList = $('/response/content/audioList/item').map((item) => {
-                    const $item = queryXml(item.element)
-                    return {
-                        value: item.attr('id')!,
-                        label: $item('name').text(),
-                    }
-                })
-            })
-            pageData.value.voiceList.push({ value: '{00000000-0000-0000-0000-000000000000}', label: `<${Translate('IDCS_NULL')}>` })
+            pageData.value.voiceList = await buildAudioList()
         }
+
         // 获取录像数据
         const getRecordList = async () => {
-            getChlList({
-                nodeType: 'chls',
-                isSupportSnap: false,
-            }).then((result) => {
-                commLoadResponseHandler(result, ($) => {
-                    $('content/item').forEach((item) => {
-                        const $item = queryXml(item.element)
-                        pageData.value.recordList.push({
-                            value: item.attr('id')!,
-                            label: $item('name').text(),
-                        })
-                    })
-                })
-            })
+            pageData.value.recordList = await buildRecordChlList()
         }
+
         // 获取报警输出数据
         const getAlarmOutData = async () => {
-            getChlList({
-                requireField: ['device'],
-                nodeType: 'alarmOuts',
-            }).then((result) => {
-                commLoadResponseHandler(result, ($) => {
-                    const rowData = [] as {
-                        id: string
-                        name: string
-                        device: {
-                            id: string
-                            innerText: string
-                        }
-                    }[]
-                    $('/response/content/item').forEach((item) => {
-                        const $item = queryXml(item.element)
-                        let name = $item('name').text()
-                        if ($item('devDesc').text()) {
-                            name = $item('devDesc').text() + '_' + name
-                        }
-                        rowData.push({
-                            id: item.attr('id')!,
-                            name,
-                            device: {
-                                id: $item('device').attr('id'),
-                                innerText: $item('device').text(),
-                            },
-                        })
-                    })
-                    pageData.value.alarmOutList = rowData.map((item) => {
-                        return {
-                            value: item.id,
-                            label: item.name,
-                        }
-                    })
-                })
-            })
+            pageData.value.alarmOutList = await buildAlarmOutChlList()
         }
+
         // 获取抓图数据
         const getSnapList = async () => {
-            getChlList({
-                nodeType: 'chls',
-                isSupportSnap: true,
-            }).then((result) => {
-                commLoadResponseHandler(result, ($) => {
-                    $('content/item').forEach((item) => {
-                        const $item = queryXml(item.element)
-                        pageData.value.snapList.push({
-                            value: item.attr('id')!,
-                            label: $item('name').text(),
-                        })
-                    })
-                })
-            })
+            pageData.value.snapList = await buildSnapChlList()
         }
 
         // 获取通道及相关配置数据
@@ -313,7 +243,7 @@ export default defineComponent({
             const onlineChlList = [] as string[]
             const result = await queryOnlineChlList()
             commLoadResponseHandler(result, ($) => {
-                $('/response/content/item').forEach((item) => {
+                $('//content/item').forEach((item) => {
                     onlineChlList.push(item.attr('id')!)
                 })
             })
@@ -322,7 +252,7 @@ export default defineComponent({
                 requireField: ['supportVehiclePlate'],
             }).then((result) => {
                 commLoadResponseHandler(result, async ($) => {
-                    $('/response/content/item').forEach((item) => {
+                    $('//content/item').forEach((item) => {
                         const $item = queryXml(item.element)
                         const protocolType = $item('protocolType').text()
                         const factoryName = $item('productModel').attr('factoryName')
@@ -354,6 +284,7 @@ export default defineComponent({
                 })
             })
         }
+
         // 处理通道数据
         const handleCurrChlData = async (data: VehicleChlItem) => {
             pageData.value.vehicleDetectionDisabled = !data.supportVehiclePlate
@@ -373,6 +304,7 @@ export default defineComponent({
                 await getVehicleGroupData()
             }
         }
+
         // 通道改变
         const chlChange = () => {
             pageData.value.vehicleTab = 'vehicleDetection'
@@ -417,11 +349,13 @@ export default defineComponent({
                     clearCurrentArea: vehicleClearCurrentArea,
                 })
             }
+
             if (mode.value === 'ocx') {
                 if (!plugin.IsInstallPlugin()) {
                     plugin.SetPluginNotice('#layout2Content')
                     return
                 }
+
                 if (!plugin.IsPluginAvailable()) {
                     pluginStore.showPluginNoResponse = true
                     plugin.ShowPluginNoResponse()
@@ -430,6 +364,7 @@ export default defineComponent({
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
         }
+
         // vehicleDrawer初始化时绑定以下函数
         const areaChange = (area: { X1: number; Y1: number; X2: number; Y2: number } | { X: number; Y: number; isClosed?: boolean }[]) => {
             if (currentRegulation) {
@@ -439,14 +374,17 @@ export default defineComponent({
                 // 屏蔽区域（多边形）
                 vehicleDetectionData.value.maskAreaInfo[detectionPageData.value.maskArea] = area as { X: number; Y: number; isClosed: boolean }[]
             }
+
             if (detectionPageData.value.isShowAllArea) {
                 showAllArea()
             }
         }
+
         const vehicleClosePath = (area: CanvasBasePoint[]) => {
             area.forEach((item) => (item.isClosed = true))
             vehicleDetectionData.value.maskAreaInfo[detectionPageData.value.maskArea] = area as { X: number; Y: number; isClosed: boolean }[]
         }
+
         const vehicleForceClosePath = (canBeClosed: boolean) => {
             if (!canBeClosed) {
                 openMessageTipBox({
@@ -455,6 +393,7 @@ export default defineComponent({
                 })
             }
         }
+
         const vehicleClearCurrentArea = () => {
             openMessageTipBox({
                 type: 'question',
@@ -467,11 +406,13 @@ export default defineComponent({
                     const sendXML = OCX_XML_SetPeaAreaAction('NONE')
                     plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 }
+
                 if (detectionPageData.value.isShowAllArea) {
                     showAllArea()
                 }
             })
         }
+
         /**
          * @description 播放视频
          */
@@ -511,6 +452,7 @@ export default defineComponent({
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
         }
+
         // 获取车牌侦测数据
         const getVehicleDetectionData = async () => {
             const sendXml = rawXml`
@@ -519,18 +461,18 @@ export default defineComponent({
                 `
             const result = await queryVehicleConfig(sendXml)
             commLoadResponseHandler(result, async ($) => {
-                const param = $('/response/content/chl/param')
+                const param = $('//content/chl/param')
                 const $param = queryXml(param[0].element)
                 const enabledSwitch = $param('switch').text() == 'true'
                 // 洲
-                const continentType = $('/response/types/continentType/enum')
+                const continentType = $('//types/continentType/enum')
                 continentType.forEach((item) => {
                     const continent = item.text()
                     continentArea[continent] = []
                 })
                 detectionPageData.value.continentDisabled = !continentType.text()
                 // 区域
-                const plateAreaType = $('/response/types/plateAreaType/enum')
+                const plateAreaType = $('//types/plateAreaType/enum')
                 // 没有大洲，只有区域时,需要显示区域列表
                 if (!continentType.text() && plateAreaType.text()) {
                     detectionPageData.value.noContinentAreaList = plateAreaType.map((item) => item.text())
@@ -543,6 +485,7 @@ export default defineComponent({
                         if (continentArea[continent]) {
                             continentArea[continent].push(area)
                         }
+
                         if (translate) {
                             // continentAreaTrans默认有一套翻译，有translate字段时，优先使用translate
                             continentAreaTrans[area] = translate
@@ -551,7 +494,7 @@ export default defineComponent({
                 }
                 detectionPageData.value.plateAreaDisabled = !plateAreaType.text()
                 // 识别模式
-                const directionOption = $('/response/types/directionType/enum')
+                const directionOption = $('//types/directionType/enum')
                 directionOption.forEach((item) => {
                     detectionPageData.value.directionOption.push({
                         value: item.text(),
@@ -618,7 +561,7 @@ export default defineComponent({
                 vehicleDetectionData.value = {
                     enabledSwitch,
                     originalSwitch: enabledSwitch,
-                    schedule: $('/response/content/chl').attr('scheduleGuid'),
+                    schedule: $('//content/chl').attr('scheduleGuid'),
                     plateSupportArea: $param('plateSupportArea').text(),
                     direction,
                     exposureChecked,
@@ -646,6 +589,7 @@ export default defineComponent({
                 }
             })
         }
+
         // 处理车牌侦测数据
         const handleVehicleDetectionData = () => {
             detectionPageData.value.drawAreaTip = Translate('IDCS_DRAW_RECT_TIP')
@@ -663,6 +607,7 @@ export default defineComponent({
             }
             refreshArea()
         }
+
         // 车辆识别下的tab切换（侦测、识别、车牌库）
         const vehicleTabChange = (name: TabPaneName) => {
             if (name == 'vehicleDetection') {
@@ -673,6 +618,7 @@ export default defineComponent({
                 })
             }
         }
+
         // 是否显示全部区域
         const showAllArea = () => {
             vehicleDrawer && vehicleDrawer.setEnableShowAll(detectionPageData.value.isShowAllArea)
@@ -727,6 +673,7 @@ export default defineComponent({
                 }
             }
         }
+
         // 清空
         const clearArea = () => {
             if (mode.value === 'h5') {
@@ -742,15 +689,18 @@ export default defineComponent({
                     plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 }
             }
+
             if (currAreaType == 'regionArea') {
                 vehicleDetectionData.value.regionInfo[detectionPageData.value.regionArea] = { X1: 0, Y1: 0, X2: 0, Y2: 0 }
             } else if (currAreaType == 'maskArea') {
                 vehicleDetectionData.value.maskAreaInfo[detectionPageData.value.maskArea] = []
             }
+
             if (detectionPageData.value.isShowAllArea) {
                 showAllArea()
             }
         }
+
         // 全部清除
         const clearAllArea = () => {
             vehicleDetectionData.value.regionInfo.forEach((item) => {
@@ -762,6 +712,7 @@ export default defineComponent({
             for (const key in vehicleDetectionData.value.maskAreaInfo) {
                 vehicleDetectionData.value.maskAreaInfo[key] = []
             }
+
             if (mode.value === 'h5') {
                 vehicleDrawer.clear()
             } else {
@@ -772,10 +723,12 @@ export default defineComponent({
                 const sendXML = OCX_XML_SetPeaAreaAction('NONE')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
+
             if (detectionPageData.value.isShowAllArea) {
                 showAllArea()
             }
         }
+
         // 检测区域切换
         const regionAreaChange = () => {
             detectionPageData.value.drawAreaTip = Translate('IDCS_DRAW_RECT_TIP')
@@ -784,6 +737,7 @@ export default defineComponent({
             detectionPageData.value.maskArea = -1
             changeArea()
         }
+
         // 屏蔽区域切换
         const maskAreaChange = () => {
             detectionPageData.value.drawAreaTip = Translate('IDCS_DRAW_AREA_TIP').formatForLang(6)
@@ -792,6 +746,7 @@ export default defineComponent({
             detectionPageData.value.regionArea = -1
             changeArea()
         }
+
         // 设置区域图形
         const setAreaView = (type: string) => {
             if (type == 'regionArea') {
@@ -834,10 +789,12 @@ export default defineComponent({
                     plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 }
             }
+
             if (detectionPageData.value.isShowAllArea) {
                 showAllArea()
             }
         }
+
         // 检测和屏蔽区域的样式初始化
         const refreshInitPage = () => {
             vehicleDetectionData.value.regionInfo.forEach((item, index) => {
@@ -855,12 +812,14 @@ export default defineComponent({
                 }
             }
         }
+
         // 切换洲时，对应的区域随之变化
         const refreshArea = (continent?: boolean) => {
             let areaList = continentArea[detectionPageData.value.continentValue] || []
             if (detectionPageData.value.noContinentAreaList.length > 0) {
                 areaList = detectionPageData.value.noContinentAreaList
             }
+
             // 初始化时不需要更改区域值，改变大洲时需要更改
             if (continent) {
                 vehicleDetectionData.value.plateSupportArea = areaList[0]
@@ -872,6 +831,7 @@ export default defineComponent({
                 }
             })
         }
+
         // 在切换区域时设置区域数据，线条样式，当前绘制格式
         const changeArea = () => {
             if (currAreaType == 'regionArea') {
@@ -915,12 +875,14 @@ export default defineComponent({
                 showDisplayRange()
             }
         }
+
         // 闭合区域
         const setClosed = (poinObjtList: { X: number; Y: number; isClosed: boolean }[]) => {
             poinObjtList?.forEach((item) => {
                 item.isClosed = true
             })
         }
+
         const setOtherAreaClosed = () => {
             if (mode.value == 'h5') {
                 // 画点-区域
@@ -929,6 +891,7 @@ export default defineComponent({
                 }
             }
         }
+
         // 车牌最大小值范围
         const minVehicleBlur = () => {
             const min = vehicleDetectionData.value.plateSize.minWidth
@@ -946,6 +909,7 @@ export default defineComponent({
                 setAreaView('vehicleMin')
             }
         }
+
         const maxVehicleBlur = () => {
             const min = vehicleDetectionData.value.plateSize.minWidth
             const max = vehicleDetectionData.value.plateSize.maxWidth
@@ -962,6 +926,7 @@ export default defineComponent({
                 setAreaView('vehicleMax')
             }
         }
+
         // 是否显示范围框
         const showDisplayRange = () => {
             const detectAreaInfo = {} as Record<number, { X: number; Y: number }[]>
@@ -973,6 +938,7 @@ export default defineComponent({
                 // 当前区域为矩形并且显示全部的时候过滤掉当前区域
                 if (detectAreaInfo[detectionPageData.value.regionArea]) detectAreaInfo[detectionPageData.value.regionArea] = []
             }
+
             if (detectionPageData.value.isDispalyRangeChecked) {
                 if (mode.value === 'h5') {
                     vehicleDrawer.toggleRange(true)
@@ -1024,6 +990,7 @@ export default defineComponent({
                 }
             }
         }
+
         // 计算位置
         const calcRegionInfo = (percent: number) => {
             const X1 = ((100 - percent) * 10000) / 100 / 2
@@ -1038,6 +1005,7 @@ export default defineComponent({
             }
             return regionInfo
         }
+
         // 区域为多边形时，检测区域合法性(车牌识别AI事件中：检测区域为矩形-regionArea；屏蔽区域为多边形-maskArea)
         const verification = () => {
             if (currAreaType == 'maskArea' || vehicleDetectionData.value.maskAreaInfo) {
@@ -1060,6 +1028,7 @@ export default defineComponent({
             }
             return true
         }
+
         const getVehilceDetectionSaveData = () => {
             let sendXml = rawXml`<content>
                 <chl id='${pageData.value.curChl}' scheduleGuid='${vehicleDetectionData.value.schedule}'>
@@ -1114,16 +1083,18 @@ export default defineComponent({
             </chl></content>`
             return sendXml
         }
+
         const setVehicleDetectionData = async () => {
             const sendXml = getVehilceDetectionSaveData()
             openLoading()
             const result = await editVehicleConfig(sendXml)
             closeLoading()
             const $ = queryXml(result)
-            if ($('/response/status').text() == 'success') {
+            if ($('//status').text() == 'success') {
                 if (vehicleDetectionData.value.enabledSwitch) {
                     vehicleDetectionData.value.originalSwitch = true
                 }
+
                 // 保存成功后刷新视频区域，四个点时区域没有闭合但保存后也可以闭合（四点已经可以画面）
                 if (currAreaType == 'maskArea') {
                     setAreaView('maskArea')
@@ -1132,6 +1103,7 @@ export default defineComponent({
                 detectionPageData.value.applyDisabled = true
             }
         }
+
         // 提交车辆识别数据
         const applyVehicleDetectionData = async () => {
             if (!verification()) return
@@ -1142,7 +1114,7 @@ export default defineComponent({
             }
             vehicleDetectionData.value.mutexList?.forEach((item) => {
                 if (item.status) {
-                    switchChangeTypeArr.push(closeTip[item['object']])
+                    switchChangeTypeArr.push(closeTip[item.object])
                 }
             })
             if (isSwitchChange && switchChangeTypeArr.length > 0) {
@@ -1191,8 +1163,8 @@ export default defineComponent({
                 groupId: [],
                 nameId: nameId,
                 hintword: '',
-                sysAudio: '{00000000-0000-0000-0000-000000000000}',
-                schedule: '{00000000-0000-0000-0000-000000000000}',
+                sysAudio: DEFAULT_EMPTY_ID,
+                schedule: DEFAULT_EMPTY_ID,
                 record: [{ value: pageData.value.curChl, label: chlList[pageData.value.curChl].name }], //添加的任务默认联动本通道
                 alarmOut: [],
                 snap: [],
@@ -1204,6 +1176,7 @@ export default defineComponent({
                 popMsgSwitch: false,
             })
         }
+
         // 移除任务项
         const removeTask = () => {
             if (comparePageData.value.removeDisabled) {
@@ -1228,6 +1201,7 @@ export default defineComponent({
                 comparePageData.value.removeDisabled = true
             })
         }
+
         // 识别tab选项切换
         const compareTabChange = (name: TabPaneName) => {
             if (name == 'whitelist' || name == 'stranger') {
@@ -1236,11 +1210,12 @@ export default defineComponent({
                 comparePageData.value.removeDisabled = false
             }
         }
+
         // 获取车牌分组数据
         const getVehicleGroupData = async () => {
             const result = await queryPlateLibrary()
             commLoadResponseHandler(result, ($) => {
-                $('/response/content/group/item').forEach((item) => {
+                $('//content/group/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     const guid = item.attr('id')!
                     const name = $item('name').text()
@@ -1265,9 +1240,9 @@ export default defineComponent({
             `
             const result = await queryVehicleMatchAlarm(sendXml)
             commLoadResponseHandler(result, ($) => {
-                vehicleCompareData.value.hitEnable = $('/response/content/chl/hitEnable').text() == 'true'
-                vehicleCompareData.value.notHitEnable = $('/response/content/chl/notHitEnable').text() == 'true'
-                $('/response/content/chl/task/item').forEach((item) => {
+                vehicleCompareData.value.hitEnable = $('//content/chl/hitEnable').text() == 'true'
+                vehicleCompareData.value.notHitEnable = $('//content/chl/notHitEnable').text() == 'true'
+                $('//content/chl/task/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     const nameId = Number($item('param/nameId').text())
                     haveUseNameId.push(nameId)
@@ -1344,6 +1319,7 @@ export default defineComponent({
                 })
             })
         }
+
         // tab项对应的识别数据
         const compareLinkData = (value: string) => {
             let taskData = {} as CompareTask
@@ -1360,6 +1336,7 @@ export default defineComponent({
             }
             return taskData
         }
+
         // 提交数据参数
         const getVehicleCompareSaveData = () => {
             let sendXml = rawXml`
@@ -1431,6 +1408,7 @@ export default defineComponent({
             sendXml += `</task></chl></content>`
             return sendXml
         }
+
         // 提交车牌识别数据
         const setVehicleCompareData = async () => {
             const sendXml = getVehicleCompareSaveData()
@@ -1440,6 +1418,7 @@ export default defineComponent({
             comparePageData.value.compareTab = 'whitelist'
             comparePageData.value.applyDisabled = true
         }
+
         // 删除车牌识别任务项
         const deleteVehicleCompareData = async (data: CompareTask) => {
             const sendXml = rawXml`
@@ -1452,12 +1431,14 @@ export default defineComponent({
                 </condition>`
             await deleteVehicleMatchAlarm(sendXml)
         }
+
         // 车牌识别应用
         const applyVehicleCompareData = async () => {
             if (vehicleCompareData.value.editFlag) {
                 await setVehicleCompareData()
             }
         }
+
         const LiveNotify2Js = ($: (path: string) => XmlResult) => {
             // todo，未测试
             // 侦测区域
@@ -1502,9 +1483,6 @@ export default defineComponent({
             }
             openLoading()
             pageData.value.scheduleList = await buildScheduleList()
-            pageData.value.scheduleList.forEach((item) => {
-                item.value = item.value != '' ? item.value : pageData.value.scheduleIdNull
-            })
             await getVoiceList()
             await getRecordList()
             await getAlarmOutData()
@@ -1524,6 +1502,7 @@ export default defineComponent({
                 const sendXML = OCX_XML_StopPreview('ALL')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
+
             if (mode.value == 'h5') {
                 vehicleDrawer.destroy()
             }

@@ -295,6 +295,7 @@ export default defineComponent({
                 })
                 return
             }
+
             if (!formData.value.faceGroup.length) {
                 openMessageTipBox({
                     type: 'info',

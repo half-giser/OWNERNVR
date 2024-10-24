@@ -29,8 +29,8 @@ export default defineComponent({
             const result = await queryEventNotifyParam()
 
             commLoadResponseHandler(result, ($) => {
-                videoFormData.value.popVideoDuration = Number($('/response/content/popVideoDuration').text())
-                pageData.value.popVideoDurationOption = $('/response/content/popVideoDurationNote')
+                videoFormData.value.popVideoDuration = Number($('//content/popVideoDuration').text())
+                pageData.value.popVideoDurationOption = $('//content/popVideoDurationNote')
                     .text()
                     .split(',')
                     .map((item) => {
@@ -40,8 +40,8 @@ export default defineComponent({
                             label: value === 0 ? Translate('IDCS_ALWAYS_KEEP') : getTranslateForSecond(value),
                         }!
                     })
-                videoFormData.value.popVideoOutput = $('/response/content/popVideoOutput').text()
-                const popVideoOutputNote = $('/response/content/popVideoOutputNote').text().split(',')
+                videoFormData.value.popVideoOutput = $('//content/popVideoOutput').text()
+                const popVideoOutputNote = $('//content/popVideoOutputNote').text().split(',')
                 if (popVideoOutputNote.length >= 2) {
                     videoFormData.value.popVideoOutputShow = true
                 }
@@ -59,8 +59,8 @@ export default defineComponent({
                     }
                 })
 
-                msgFormData.value.popMsgDuration = Number($('/response/content/popMsgDuration').text())
-                pageData.value.popMsgDurationOption = $('/response/content/popMsgDurationNote')
+                msgFormData.value.popMsgDuration = Number($('//content/popMsgDuration').text())
+                pageData.value.popMsgDurationOption = $('//content/popMsgDurationNote')
                     .text()
                     .split(',')
                     .map((item) => {
@@ -71,7 +71,7 @@ export default defineComponent({
                         }!
                     })
 
-                msgFormData.value.popMsgShow = $('/response/content/popMsgShow').text() == 'false'
+                msgFormData.value.popMsgShow = $('//content/popMsgShow').text() == 'false'
             })
         }
 

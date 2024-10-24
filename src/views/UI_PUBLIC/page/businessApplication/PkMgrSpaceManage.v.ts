@@ -3,7 +3,7 @@
  * @Date: 2024-05-27 09:38:30
  * @Description: 业务应用-停车场管理-车位管理
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-10 14:05:37
+ * @LastEditTime: 2024-10-24 11:51:23
  */
 
 import { type PkMgrSpaceManageList } from '@/types/apiType/business'
@@ -38,8 +38,6 @@ export default defineComponent({
             totalNum: 0,
             // 剩余总车位
             remainTotalNum: 0,
-            // 默认排程Id
-            defaultScheduleId: '{00000000-0000-0000-0000-000000000000}',
             // 排程选项列表
             scheduleList: [] as SelectOption<string, string>[],
             // 排程Id列表
@@ -96,7 +94,7 @@ export default defineComponent({
             pageData.value.isSchedulePop = false
             await getScheduleList()
             tableData.value.forEach((item) => {
-                item.groupSchedule = pageData.value.scheduleIdList.indexOf(item.groupSchedule) > -1 ? item.groupSchedule : pageData.value.defaultScheduleId
+                item.groupSchedule = pageData.value.scheduleIdList.indexOf(item.groupSchedule) > -1 ? item.groupSchedule : DEFAULT_EMPTY_ID
                 item.oldGroupSchedule = item.groupSchedule
             })
         }
@@ -107,28 +105,12 @@ export default defineComponent({
         const getScheduleList = async () => {
             openLoading()
 
-            const result = await queryScheduleList()
-            const $ = queryXml(result)
+            pageData.value.scheduleList = await buildScheduleList({
+                isManager: true,
+            })
+            pageData.value.scheduleIdList = pageData.value.scheduleList.map((item) => item.value)
 
             closeLoading()
-
-            if ($('//status').text() === 'success') {
-                pageData.value.scheduleList = $('//content/item').map((item) => {
-                    return {
-                        value: item.attr('id')!,
-                        label: item.text(),
-                    }
-                })
-                pageData.value.scheduleList.push({
-                    value: '{00000000-0000-0000-0000-000000000000}',
-                    label: `<${Translate('IDCS_NULL')}>`,
-                })
-                pageData.value.scheduleList.push({
-                    value: 'scheduleMgr',
-                    label: Translate('IDCS_SCHEDULE_MANAGE'),
-                })
-                pageData.value.scheduleIdList = pageData.value.scheduleList.map((item) => item.value)
-            }
         }
 
         /**
@@ -147,7 +129,7 @@ export default defineComponent({
                 tableData.value = $('//content/parkingSapce/item').map((item) => {
                     const $item = queryXml(item.element)
                     const groupSchedule = $item('groupSchedule').text()
-                    const schedule = pageData.value.scheduleIdList.indexOf(groupSchedule) > -1 ? groupSchedule : pageData.value.defaultScheduleId
+                    const schedule = pageData.value.scheduleIdList.indexOf(groupSchedule) > -1 ? groupSchedule : DEFAULT_EMPTY_ID
                     return {
                         id: item.attr('id')!,
                         groupName: $item('groupName').text(),
@@ -179,6 +161,7 @@ export default defineComponent({
                     })
                     return false
                 }
+
                 // 分组剩余车位为空
                 if (item.groupRemainNum.toString() === '' && item.parkingType === 'usingGroup') {
                     openMessageTipBox({
@@ -187,6 +170,7 @@ export default defineComponent({
                     })
                     return false
                 }
+
                 // 分组剩余车位超过分组总车位
                 if (item.groupRemainNum > item.groupTotalNum) {
                     openMessageTipBox({
@@ -195,6 +179,7 @@ export default defineComponent({
                     })
                     return false
                 }
+
                 // 邮箱格式错误
                 if (item.linkEmail && !checkEmail(item.linkEmail)) {
                     openMessageTipBox({
@@ -208,6 +193,7 @@ export default defineComponent({
                 if (item.groupTotalNum && item.parkingType === 'usingGroup') {
                     groupTotalNum += item.groupTotalNum
                 }
+
                 if (groupTotalNum > pageData.value.totalNum) {
                     openMessageTipBox({
                         type: 'info',
@@ -220,6 +206,7 @@ export default defineComponent({
                 if (item.groupRemainNum && item.parkingType === 'usingGroup') {
                     groupRemainTotalNum += item.groupRemainNum
                 }
+
                 if (groupRemainTotalNum > pageData.value.remainTotalNum) {
                     openMessageTipBox({
                         type: 'info',

@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-21 15:34:24
  * @Description: 前端掉线
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-21 14:16:17
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-24 17:59:55
  */
 import { cloneDeep } from 'lodash-es'
 import { MotionEventConfig, type PresetItem } from '@/types/apiType/aiAndEvent'
@@ -19,7 +19,7 @@ export default defineComponent({
 
         // ;(snapRef.value as InstanceType<typeof ElDropdown>).handleOpen()
         // ;(alarmOutRef.value as InstanceType<typeof ElDropdown>).handleOpen()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
         const openMessageTipBox = useMessageBox().openMessageTipBox
         const pageData = ref({
@@ -27,27 +27,23 @@ export default defineComponent({
             pageSize: 10,
             totalCount: 0,
             pageDataCountItems: [10, 20, 30],
-            enableList: [
-                { value: 'true', label: Translate('IDCS_ON') },
-                { value: 'false', label: Translate('IDCS_OFF') },
-            ],
-            defaultAudioId: '{00000000-0000-0000-0000-000000000000}',
+            enableList: getSwitchOptions(),
             supportAudio: false,
             // TODO 未传值
             // supportFTP: false,
-            audioList: [] as { value: string; label: string }[],
+            audioList: [] as SelectOption<string, string>[],
             // 打开穿梭框时选择行的索引
             triggerDialogIndex: 0,
 
             // snap穿梭框数据源
-            snapList: [] as { value: string; label: string }[],
+            snapList: [] as SelectOption<string, string>[],
             snapHeaderTitle: 'IDCS_TRIGGER_CHANNEL_SNAP',
             snapSourceTitle: 'IDCS_CHANNEL',
             snapTargetTitle: 'IDCS_CHANNEL_TRGGER',
             // 表头选中id
             snapChosedIdsAll: [] as string[],
             // 表头选中的数据
-            snapChosedListAll: [] as { value: string; label: string }[],
+            snapChosedListAll: [] as SelectOption<string, string>[],
             snapIsShow: false,
             snapType: 'snap',
 
@@ -59,7 +55,7 @@ export default defineComponent({
             // 表头选中id
             alarmOutChosedIdsAll: [] as string[],
             // 表头选中的数据
-            alarmOutChosedListAll: [] as { value: string; label: string }[],
+            alarmOutChosedListAll: [] as SelectOption<string, string>[],
             alarmOutIsShow: false,
             alarmOutType: 'alarmOut',
 
@@ -69,7 +65,7 @@ export default defineComponent({
             presetChlId: '',
             presetLinkedList: [] as PresetItem[],
 
-            videoPopupList: [] as { value: string; label: string }[],
+            videoPopupList: [] as SelectOption<string, string>[],
 
             // disable
             applyDisable: true,
@@ -82,75 +78,31 @@ export default defineComponent({
             pageData.value.supportAudio = systemCaps.supportAlarmAudioConfig
             // pageData.value.supportAudio = true
             if (pageData.value.supportAudio == true) {
-                queryAlarmAudioCfg().then(async (resb) => {
-                    pageData.value.audioList = []
-                    const res = queryXml(resb)
-                    if (res('status').text() == 'success') {
-                        res('//content/audioList/item').forEach((item) => {
-                            const $item = queryXml(item.element)
-                            pageData.value.audioList.push({
-                                value: item.attr('id')!,
-                                label: $item('name').text(),
-                            })
-                        })
-                        pageData.value.audioList.push({ value: pageData.value.defaultAudioId, label: '<' + Translate('IDCS_NULL') + '>' })
-                    }
-                })
+                pageData.value.audioList = await buildAudioList()
             }
         }
+
         const getSnapList = async () => {
-            getChlList({
-                nodeType: 'chls',
-                isSupportSnap: true,
-            }).then(async (resb) => {
-                const res = queryXml(resb)
-                if (res('status').text() == 'success') {
-                    res('//content/item').forEach((item) => {
-                        const $item = queryXml(item.element)
-                        pageData.value.snapList.push({
-                            value: item.attr('id')!,
-                            label: $item('name').text(),
-                        })
-                    })
-                }
-            })
+            pageData.value.snapList = await buildSnapChlList()
         }
+
         const getAlarmOutList = async () => {
-            getChlList({
-                requireField: ['device'],
-                nodeType: 'alarmOuts',
-            }).then(async (resb) => {
-                const res = queryXml(resb)
-                if (res('status').text() == 'success') {
-                    res('//content/item').forEach((item) => {
-                        const $item = queryXml(item.element)
-                        let name = $item('name').text()
-                        if ($item('devDesc').text()) {
-                            name = $item('devDesc').text() + '-' + name
-                        }
-                        pageData.value.alarmOutList.push({
-                            value: item.attr('id')!,
-                            label: name,
-                            device: {
-                                value: $item('device').attr('id'),
-                                label: $item('device').text(),
-                            },
-                        })
-                    })
-                }
-            })
+            pageData.value.alarmOutList = await buildAlarmOutChlList()
         }
+
         const getSnapListSingle = (row: MotionEventConfig) => {
             return pageData.value.snapList.filter((item) => {
                 return item.value != row.id
             })
         }
+
         const getAlarmOutListSingle = (row: MotionEventConfig) => {
             const alarmOutlist = pageData.value.alarmOutList.filter((item) => {
                 return item.device.value != row.id
             })
             return alarmOutlist
         }
+
         const getVideoPopupList = async () => {
             pageData.value.videoPopupList.push({ value: ' ', label: Translate('IDCS_OFF') })
             getChlList({
@@ -168,32 +120,33 @@ export default defineComponent({
                 }
             })
         }
+
         const buildTableData = () => {
             // tableData.value.length = 0
             tableData.value = []
             const sendXml = rawXml`
-                                    <types>
-                                        <nodeType>
-                                            <enum>chls</enum>
-                                            <enum>sensors</enum>
-                                            <enum>alarmOuts</enum>
-                                        </nodeType>
-                                        <chlType>
-                                            <enum>analog</enum>
-                                            <enum>digital</enum>
-                                            <enum>all</enum>
-                                        </chlType>
-                                    </types>
-                                    <pageIndex>${pageData.value.pageIndex.toString()}</pageIndex>
-                                    <pageSize>${pageData.value.pageSize.toString()}</pageSize>
-                                    <nodeType type="nodeType">chls</nodeType>
-                                    <requireField>
-                                        <name/>
-                                    </requireField>
-                                    <condition>
-                                        <chlType type="chlType">digital</chlType>
-                                    </condition>
-                                `
+                <types>
+                    <nodeType>
+                        <enum>chls</enum>
+                        <enum>sensors</enum>
+                        <enum>alarmOuts</enum>
+                    </nodeType>
+                    <chlType>
+                        <enum>analog</enum>
+                        <enum>digital</enum>
+                        <enum>all</enum>
+                    </chlType>
+                </types>
+                <pageIndex>${pageData.value.pageIndex.toString()}</pageIndex>
+                <pageSize>${pageData.value.pageSize.toString()}</pageSize>
+                <nodeType type="nodeType">chls</nodeType>
+                <requireField>
+                    <name/>
+                </requireField>
+                <condition>
+                    <chlType type="chlType">digital</chlType>
+                </condition>
+            `
             queryNodeList(sendXml).then(async (res) => {
                 const $chl = queryXml(res)
                 pageData.value.totalCount = Number($chl('//content').attr('total'))
@@ -209,14 +162,16 @@ export default defineComponent({
                 for (let i = 0; i < tableData.value.length; i++) {
                     const row = tableData.value[i]
                     row.status = ''
-                    const sendXml = rawXml`<condition>
-                                        <chlId>${row.id}</chlId>
-                                    </condition>`
+                    const sendXml = rawXml`
+                        <condition>
+                            <chlId>${row.id}</chlId>
+                        </condition>
+                    `
                     const offLine = await queryFrontEndOfflineTrigger(sendXml)
                     const res = queryXml(offLine)
                     if (res('status').text() == 'success') {
                         row.rowDisable = false
-                        row.sysAudio = res('//content/sysAudio').attr('id') || pageData.value.defaultAudioId
+                        row.sysAudio = res('//content/sysAudio').attr('id') || DEFAULT_EMPTY_ID
                         row.snap = {
                             switch: res('//content/sysSnap/switch').text() == 'true' ? true : false,
                             chls: res('//content/sysSnap/chls/item').map((item) => {
@@ -270,7 +225,7 @@ export default defineComponent({
                             return element.value === row.sysAudio
                         })
                         if (AudioData.length === 0) {
-                            row.sysAudio = pageData.value.defaultAudioId
+                            row.sysAudio = DEFAULT_EMPTY_ID
                         }
                     } else {
                         row.rowDisable = true
@@ -278,9 +233,11 @@ export default defineComponent({
                 }
             })
         }
+
         const changePagination = () => {
             buildTableData()
         }
+
         const changePaginationSize = () => {
             const totalPage = Math.ceil(pageData.value.totalCount / pageData.value.pageSize)
             if (pageData.value.pageIndex > totalPage) {
@@ -321,16 +278,19 @@ export default defineComponent({
             pageData.value.snapChosedIdsAll = []
             pageData.value.snapPopoverVisible = false
         }
+
         const snapCloseAll = () => {
             pageData.value.snapChosedListAll = []
             pageData.value.snapChosedIdsAll = []
             pageData.value.snapPopoverVisible = false
         }
+
         const setSnap = (index: number) => {
             pageData.value.triggerDialogIndex = index
             pageData.value.snapIsShow = true
         }
-        const snapConfirm = (e: { value: string; label: string }[]) => {
+
+        const snapConfirm = (e: SelectOption<string, string>[]) => {
             addEditRow(tableData.value[pageData.value.triggerDialogIndex])
             if (e.length !== 0) {
                 tableData.value[pageData.value.triggerDialogIndex].snap.chls = cloneDeep(e)
@@ -343,6 +303,7 @@ export default defineComponent({
             }
             pageData.value.snapIsShow = false
         }
+
         const snapClose = () => {
             if (!tableData.value[pageData.value.triggerDialogIndex].snap.chls.length) {
                 tableData.value[pageData.value.triggerDialogIndex].snap.switch = false
@@ -385,16 +346,19 @@ export default defineComponent({
             pageData.value.alarmOutChosedIdsAll = []
             pageData.value.alarmOutPopoverVisible = false
         }
+
         const alarmOutCloseAll = () => {
             pageData.value.alarmOutChosedListAll = []
             pageData.value.alarmOutChosedIdsAll = []
             pageData.value.alarmOutPopoverVisible = false
         }
+
         const setAlarmOut = (index: number) => {
             pageData.value.triggerDialogIndex = index
             pageData.value.alarmOutIsShow = true
         }
-        const alarmOutConfirm = (e: { value: string; label: string }[]) => {
+
+        const alarmOutConfirm = (e: SelectOption<string, string>[]) => {
             addEditRow(tableData.value[pageData.value.triggerDialogIndex])
             if (e.length !== 0) {
                 tableData.value[pageData.value.triggerDialogIndex].alarmOut.chls = cloneDeep(e)
@@ -407,6 +371,7 @@ export default defineComponent({
             }
             pageData.value.alarmOutIsShow = false
         }
+
         const alarmOutClose = () => {
             if (!tableData.value[pageData.value.triggerDialogIndex].alarmOut.chls.length) {
                 tableData.value[pageData.value.triggerDialogIndex].alarmOut.switch = false
@@ -431,6 +396,7 @@ export default defineComponent({
                 }
             })
         }
+
         const presetClose = (id: string) => {
             pageData.value.isPresetPopOpen = false
             tableData.value.forEach((item) => {
@@ -448,6 +414,7 @@ export default defineComponent({
                 openPresetPop(row)
             }
         }
+
         const checkChange = (index: number, type: string) => {
             addEditRow(tableData.value[index])
             switch (type) {
@@ -481,6 +448,7 @@ export default defineComponent({
                 }
             })
         }
+
         // 消息推送
         const handleMsgPushChangeAll = (msgPush: string) => {
             tableData.value.forEach((item) => {
@@ -509,6 +477,7 @@ export default defineComponent({
                 }
             })
         }
+
         // 视频弹出
         const handleVideoPopupChangeAll = (videoPopup: string) => {
             tableData.value.forEach((row) => {
@@ -525,6 +494,7 @@ export default defineComponent({
                 }
             })
         }
+
         // 消息框弹出
         const handleMsgBoxPopupChangeAll = (msgBoxPopup: string) => {
             tableData.value.forEach((item) => {
@@ -534,6 +504,7 @@ export default defineComponent({
                 }
             })
         }
+
         // 邮件
         const handleEmailChangeAll = (email: string) => {
             tableData.value.forEach((item) => {
@@ -552,6 +523,7 @@ export default defineComponent({
             }
             pageData.value.applyDisable = false
         }
+
         const getSavaData = (rowData: MotionEventConfig) => {
             const snapSwitch = rowData.snap.switch
             const alarmOutSwitch = rowData.alarmOut.switch
@@ -595,6 +567,7 @@ export default defineComponent({
             if (!presets) {
                 presets = []
             }
+
             if (!(presets instanceof Array)) {
                 presets = [presets]
             }
@@ -636,8 +609,9 @@ export default defineComponent({
             //     </content>`
             return sendXml
         }
+
         const setData = () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             pageData.value.editRows.forEach((item: MotionEventConfig) => {
                 const sendXml = getSavaData(item)
                 editFrontEndOfflineTrigger(sendXml).then((resb) => {
@@ -655,7 +629,7 @@ export default defineComponent({
                     }
                 })
             })
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             pageData.value.editRows = []
             pageData.value.applyDisable = true
         }

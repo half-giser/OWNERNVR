@@ -3,7 +3,7 @@
  * @Date: 2024-09-10 18:29:15
  * @Description: 智能分析 - 组合搜索
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:13:25
+ * @LastEditTime: 2024-10-24 19:54:27
  */
 import { type IntelSearchCollectList, type IntelSearchList, IntelSnapImgDto, IntelSearchCombineForm, type IntelSnapPopList } from '@/types/apiType/intelligentAnalysis'
 import IntelBaseChannelSelector from './IntelBaseChannelSelector.vue'
@@ -420,6 +420,7 @@ export default defineComponent({
                         }
                     }
                 }
+
                 if (getUniqueKey(row) === getUniqueKey(sliceTableData.value[index])) {
                     return true
                 } else {
@@ -521,6 +522,7 @@ export default defineComponent({
                 })
                 showMaxSearchLimitTips($)
             }
+
             if (!tableData.value.length) {
                 openMessageTipBox({
                     type: 'info',
@@ -832,6 +834,7 @@ export default defineComponent({
             attributeRange,
             isSupportCSV,
             getUniqueKey,
+            cacheKey: LocalCacheKey.KEY_COMBINE_SEARCH_COLLECTION,
         }
     },
 })

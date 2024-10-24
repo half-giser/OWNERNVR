@@ -112,9 +112,11 @@ export default defineComponent({
             if (!prop.winData.chlID || prop.winData.PLAY_STATUS !== 'play') {
                 return false
             }
+
             if (!prop.supportAz) {
                 return false
             }
+
             return true
         })
 
@@ -124,9 +126,11 @@ export default defineComponent({
             if (!chlID || prop.winData.PLAY_STATUS !== 'play') {
                 return false
             }
+
             if (prop.chl[chlID]?.supportPtz && !prop.winData.isPolling && (prop.auth.hasAll || prop.auth.ptz[chlID])) {
                 return true
             }
+
             return false
         })
 

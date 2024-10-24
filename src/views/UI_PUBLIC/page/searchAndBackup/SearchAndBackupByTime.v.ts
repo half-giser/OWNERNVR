@@ -31,6 +31,7 @@ export default defineComponent({
         if (systemCaps.ipChlMaxCount) {
             EVENTS.push('INTELLIGENT')
         }
+
         if (systemCaps.supportPOS) {
             EVENTS.push('POS')
         }
@@ -119,6 +120,7 @@ export default defineComponent({
                 })
                 return
             }
+
             if (mode.value === 'ocx' && Plugin.BackUpTask.isExeed(formData.value.chls.length)) {
                 openMessageTipBox({
                     type: 'info',
@@ -180,6 +182,7 @@ export default defineComponent({
                     Plugin.SetPluginNoResponse()
                     Plugin.ShowPluginNoResponse()
                 }
+
                 if (newVal === 'ocx') {
                     const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Playback')
                     Plugin.GetVideoPlugin().ExecuteCmd(sendXML)

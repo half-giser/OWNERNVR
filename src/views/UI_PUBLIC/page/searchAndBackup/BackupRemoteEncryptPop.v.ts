@@ -43,6 +43,7 @@ export default defineComponent({
                             callback()
                             return
                         }
+
                         if (!value.length) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
@@ -59,10 +60,12 @@ export default defineComponent({
                             callback()
                             return
                         }
+
                         if (!value.length) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
                         }
+
                         if (value !== formData.value.password) {
                             callback(new Error(Translate('IDCS_PWD_MISMATCH_TIPS')))
                             return

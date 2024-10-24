@@ -125,6 +125,7 @@ export default defineComponent({
             if (!data.finished) {
                 return
             }
+
             if (prop.downloadType === 'zip') {
                 ctx.emit('recordFile', zipDownloadData)
                 close()
@@ -201,6 +202,7 @@ export default defineComponent({
                     errorInfo = Translate('IDCS_NO_PERMISSION')
                     break
             }
+
             if (errorInfo) {
                 openMessageTipBox({
                     type: 'info',

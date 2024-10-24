@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-16 18:13:56
  * @Description: 移动侦测
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-22 10:32:44
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-24 17:48:55
  */
 import { cloneDeep } from 'lodash-es'
 import { MotionEventConfig, type PresetItem } from '@/types/apiType/aiAndEvent'
@@ -24,7 +24,6 @@ export default defineComponent({
         // ;(alarmOutRef.value as InstanceType<typeof ElDropdown>).handleOpen()
         // ;(recordRef.value as InstanceType<typeof ElDropdown>).handleOpen()
         const { openLoading, closeLoading } = useLoading()
-        const scheduleList = buildScheduleList()
         const systemCaps = useCababilityStore()
         const userSession = useUserSessionStore()
         const router = useRouter()
@@ -34,51 +33,47 @@ export default defineComponent({
             pageSize: 10,
             totalCount: 0,
             pageDataCountItems: [10, 20, 30],
-            enableList: [
-                { value: 'true', label: Translate('IDCS_ON') },
-                { value: 'false', label: Translate('IDCS_OFF') },
-            ],
-            defaultAudioId: '{00000000-0000-0000-0000-000000000000}',
+            enableList: getSwitchOptions(),
             supportAudio: false,
             scheduleList: [] as [] as SelectOption<string, string>[],
             scheduleManagePopOpen: false,
-            audioList: [] as { value: string; label: string }[],
+            audioList: [] as SelectOption<string, string>[],
             // 打开穿梭框时选择行的索引
             triggerDialogIndex: 0,
 
             // record穿梭框数据源
-            recordList: [] as { value: string; label: string }[],
+            recordList: [] as SelectOption<string, string>[],
             recordHeaderTitle: 'IDCS_TRIGGER_CHANNEL_RECORD',
             recordSourceTitle: 'IDCS_CHANNEL',
             recordTargetTitle: 'IDCS_CHANNEL_TRGGER',
             // 表头选中id
             recordChosedIdsAll: [] as string[],
             // 表头选中的数据
-            recordChosedListAll: [] as { value: string; label: string }[],
+            recordChosedListAll: [] as SelectOption<string, string>[],
             recordIsShow: false,
             recordType: 'record',
 
             // snap穿梭框数据源
-            snapList: [] as { value: string; label: string }[],
+            snapList: [] as SelectOption<string, string>[],
             snapHeaderTitle: 'IDCS_TRIGGER_CHANNEL_SNAP',
             snapSourceTitle: 'IDCS_CHANNEL',
             snapTargetTitle: 'IDCS_CHANNEL_TRGGER',
             // 表头选中id
             snapChosedIdsAll: [] as string[],
             // 表头选中的数据
-            snapChosedListAll: [] as { value: string; label: string }[],
+            snapChosedListAll: [] as SelectOption<string, string>[],
             snapIsShow: false,
             snapType: 'snap',
 
             // alarmOut穿梭框数据源
-            alarmOutList: [] as { value: string; label: string; device: { value: string; label: string } }[],
+            alarmOutList: [] as SelectOption<string, string>[],
             alarmOutHeaderTitle: 'IDCS_TRIGGER_ALARM_OUT',
             alarmOutSourceTitle: 'IDCS_ALARM_OUT',
             alarmOutTargetTitle: 'IDCS_TRIGGER_ALARM_OUT',
             // 表头选中id
             alarmOutChosedIdsAll: [] as string[],
             // 表头选中的数据
-            alarmOutChosedListAll: [] as { value: string; label: string }[],
+            alarmOutChosedListAll: [] as SelectOption<string, string>[],
             alarmOutIsShow: false,
             alarmOutType: 'alarmOut',
 
@@ -96,91 +91,31 @@ export default defineComponent({
             alarmOutPopoverVisible: false,
         })
         const getScheduleList = async () => {
-            pageData.value.scheduleList = await buildScheduleList(true)
-            pageData.value.scheduleList.forEach((item) => {
-                if (item.value == '') {
-                    item.value = ' '
-                }
+            pageData.value.scheduleList = await buildScheduleList({
+                isManager: true,
+                defaultValue: ' ',
             })
         }
+
         const getAudioList = async () => {
             pageData.value.supportAudio = systemCaps.supportAlarmAudioConfig
-            if (pageData.value.supportAudio == true) {
-                queryAlarmAudioCfg().then(async (resb) => {
-                    pageData.value.audioList = []
-                    const res = queryXml(resb)
-                    if (res('status').text() == 'success') {
-                        res('//content/audioList/item').forEach((item) => {
-                            const $item = queryXml(item.element)
-                            pageData.value.audioList.push({
-                                value: item.attr('id')!,
-                                label: $item('name').text(),
-                            })
-                        })
-                        pageData.value.audioList.push({ value: pageData.value.defaultAudioId, label: '<' + Translate('IDCS_NULL') + '>' })
-                    }
-                })
+            if (pageData.value.supportAudio) {
+                pageData.value.audioList = await buildAudioList()
             }
         }
+
         const getRecordList = async () => {
-            getChlList({
-                nodeType: 'chls',
-                isSupportSnap: false,
-            }).then(async (resb) => {
-                const res = queryXml(resb)
-                if (res('status').text() == 'success') {
-                    res('//content/item').forEach((item) => {
-                        const $item = queryXml(item.element)
-                        pageData.value.recordList.push({
-                            value: item.attr('id')!,
-                            label: $item('name').text(),
-                        })
-                    })
-                }
-            })
+            pageData.value.recordList = await buildRecordChlList()
         }
+
         const getSnapList = async () => {
-            getChlList({
-                nodeType: 'chls',
-                isSupportSnap: true,
-            }).then(async (resb) => {
-                const res = queryXml(resb)
-                if (res('status').text() == 'success') {
-                    res('//content/item').forEach((item) => {
-                        const $item = queryXml(item.element)
-                        pageData.value.snapList.push({
-                            value: item.attr('id')!,
-                            label: $item('name').text(),
-                        })
-                    })
-                }
-            })
+            pageData.value.snapList = await buildSnapChlList()
         }
+
         const getAlarmOutList = async () => {
-            getChlList({
-                requireField: ['device'],
-                nodeType: 'alarmOuts',
-            }).then(async (resb) => {
-                const res = queryXml(resb)
-                if (res('status').text() == 'success') {
-                    res('//content/item').forEach((item) => {
-                        const $item = queryXml(item.element)
-                        let name = $item('name').text()
-                        if ($item('devDesc').text()) {
-                            name = $item('devDesc').text() + '-' + name
-                        }
-                        pageData.value.alarmOutList.push({
-                            value: item.attr('id')!,
-                            label: name,
-                            device: {
-                                value: $item('device').attr('id')!,
-                                label: $item('device').text(),
-                            },
-                        })
-                    })
-                }
-            })
+            pageData.value.alarmOutList = await buildAlarmOutChlList()
         }
+
         const buildTableData = () => {
             tableData.value.length = 0
             getChlList({
@@ -204,12 +139,13 @@ export default defineComponent({
                 })
                 for (let i = 0; i < tableData.value.length; i++) {
                     const row = tableData.value[i]
-                    const sendXml = rawXml`<condition>
-                                        <chlId>${row.id}</chlId>
-                                    </condition>
-                                    <requireField>
-                                        <trigger/>
-                                    </requireField>`
+                    const sendXml = rawXml`
+                        <condition>
+                            <chlId>${row.id}</chlId>
+                        </condition>
+                        <requireField>
+                            <trigger/>
+                        </requireField>`
                     const motion = await queryMotion(sendXml)
                     const res = queryXml(motion)
                     row.status = ''
@@ -235,7 +171,7 @@ export default defineComponent({
                         }
                         // 获取record中chls的value列表
                         row.recordList = row.record.chls.map((item) => item.value)
-                        row.sysAudio = res('//content/chl/trigger/sysAudio').attr('id') || pageData.value.defaultAudioId
+                        row.sysAudio = res('//content/chl/trigger/sysAudio').attr('id') || DEFAULT_EMPTY_ID
                         row.snap = {
                             switch: res('//content/chl/trigger/sysSnap/switch').text().toBoolean(),
                             chls: res('//content/chl/trigger/sysSnap/chls/item').map((item) => {
@@ -278,7 +214,7 @@ export default defineComponent({
                             return element.value === row.sysAudio
                         })
                         if (AudioData.length === 0) {
-                            row.sysAudio = pageData.value.defaultAudioId
+                            row.sysAudio = DEFAULT_EMPTY_ID
                         }
                     } else {
                         row.rowDisable = true
@@ -286,9 +222,11 @@ export default defineComponent({
                 }
             })
         }
+
         const changePagination = () => {
             buildTableData()
         }
+
         const changePaginationSize = () => {
             const totalPage = Math.ceil(pageData.value.totalCount / pageData.value.pageSize)
             if (pageData.value.pageIndex > totalPage) {
@@ -296,6 +234,7 @@ export default defineComponent({
             }
             buildTableData()
         }
+
         const handleScheduleChangeAll = (schedule: { value: string; label: string }) => {
             if (schedule.value == 'scheduleMgr') {
                 pageData.value.scheduleManagePopOpen = true
@@ -308,6 +247,7 @@ export default defineComponent({
                 }
             })
         }
+
         const handleScheduleChangeSingle = (row: MotionEventConfig) => {
             if (row.schedule.value == 'scheduleMgr') {
                 pageData.value.scheduleManagePopOpen = true
@@ -319,10 +259,12 @@ export default defineComponent({
             row.oldSchedule.value = row.schedule.value
             row.oldSchedule.label = row.schedule.label
         }
+
         const handleSchedulePopClose = async () => {
             pageData.value.scheduleManagePopOpen = false
             await getScheduleList()
         }
+
         // 下列为record穿梭框相关
         const recordConfirmAll = (e: any[]) => {
             if (e.length !== 0) {
@@ -350,16 +292,19 @@ export default defineComponent({
             pageData.value.recordChosedIdsAll = []
             pageData.value.recordPopoverVisible = false
         }
+
         const recordCloseAll = () => {
             pageData.value.recordChosedListAll = []
             pageData.value.recordChosedIdsAll = []
             pageData.value.recordPopoverVisible = false
         }
+
         const setRecord = (index: number) => {
             pageData.value.triggerDialogIndex = index
             pageData.value.recordIsShow = true
         }
-        const recordConfirm = (e: { value: string; label: string }[]) => {
+
+        const recordConfirm = (e: SelectOption<string, string>[]) => {
             addEditRow(tableData.value[pageData.value.triggerDialogIndex])
             if (e.length !== 0) {
                 tableData.value[pageData.value.triggerDialogIndex].record.chls = cloneDeep(e)
@@ -372,6 +317,7 @@ export default defineComponent({
             }
             pageData.value.recordIsShow = false
         }
+
         const recordClose = () => {
             if (!tableData.value[pageData.value.triggerDialogIndex].record.chls.length) {
                 tableData.value[pageData.value.triggerDialogIndex].record.switch = false
@@ -408,16 +354,19 @@ export default defineComponent({
             pageData.value.snapChosedIdsAll = []
             pageData.value.snapPopoverVisible = false
         }
+
         const snapCloseAll = () => {
             pageData.value.snapChosedListAll = []
             pageData.value.snapChosedIdsAll = []
             pageData.value.snapPopoverVisible = false
         }
+
         const setSnap = (index: number) => {
             pageData.value.triggerDialogIndex = index
             pageData.value.snapIsShow = true
         }
-        const snapConfirm = (e: { value: string; label: string }[]) => {
+
+        const snapConfirm = (e: SelectOption<string, string>[]) => {
             addEditRow(tableData.value[pageData.value.triggerDialogIndex])
             if (e.length !== 0) {
                 tableData.value[pageData.value.triggerDialogIndex].snap.chls = cloneDeep(e)
@@ -430,6 +379,7 @@ export default defineComponent({
             }
             pageData.value.snapIsShow = false
         }
+
         const snapClose = () => {
             if (!tableData.value[pageData.value.triggerDialogIndex].snap.chls.length) {
                 tableData.value[pageData.value.triggerDialogIndex].snap.switch = false
@@ -466,16 +416,19 @@ export default defineComponent({
             pageData.value.alarmOutChosedIdsAll = []
             pageData.value.alarmOutPopoverVisible = false
         }
+
         const alarmOutCloseAll = () => {
             pageData.value.alarmOutChosedListAll = []
             pageData.value.alarmOutChosedIdsAll = []
             pageData.value.alarmOutPopoverVisible = false
         }
+
         const setAlarmOut = (index: number) => {
             pageData.value.triggerDialogIndex = index
             pageData.value.alarmOutIsShow = true
         }
-        const alarmOutConfirm = (e: { value: string; label: string }[]) => {
+
+        const alarmOutConfirm = (e: SelectOption<string, string>[]) => {
             addEditRow(tableData.value[pageData.value.triggerDialogIndex])
             if (e.length !== 0) {
                 tableData.value[pageData.value.triggerDialogIndex].alarmOut.chls = cloneDeep(e)
@@ -488,6 +441,7 @@ export default defineComponent({
             }
             pageData.value.alarmOutIsShow = false
         }
+
         const alarmOutClose = () => {
             if (!tableData.value[pageData.value.triggerDialogIndex].alarmOut.chls.length) {
                 tableData.value[pageData.value.triggerDialogIndex].alarmOut.switch = false
@@ -512,6 +466,7 @@ export default defineComponent({
                 }
             })
         }
+
         const presetClose = (id: string) => {
             pageData.value.isPresetPopOpen = false
             tableData.value.forEach((item) => {
@@ -520,6 +475,7 @@ export default defineComponent({
                 }
             })
         }
+
         // 四个按钮checkBox切换
         const presetSwitchChange = (row: MotionEventConfig) => {
             addEditRow(row)
@@ -529,6 +485,7 @@ export default defineComponent({
                 openPresetPop(row)
             }
         }
+
         const checkChange = (index: number, type: string) => {
             addEditRow(tableData.value[index])
             switch (type) {
@@ -560,6 +517,7 @@ export default defineComponent({
                     break
             }
         }
+
         // 系统音频
         const handleSysAudioChangeAll = (sysAudio: string) => {
             tableData.value.forEach((item) => {
@@ -569,6 +527,7 @@ export default defineComponent({
                 }
             })
         }
+
         // 消息推送
         const handleMsgPushChangeAll = (msgPush: string) => {
             tableData.value.forEach((item) => {
@@ -578,6 +537,7 @@ export default defineComponent({
                 }
             })
         }
+
         // 蜂鸣器
         const handleBeeperChangeAll = (beeper: string) => {
             tableData.value.forEach((item) => {
@@ -587,6 +547,7 @@ export default defineComponent({
                 }
             })
         }
+
         // 视频弹出
         const handleVideoPopupChangeAll = (videoPopup: string) => {
             tableData.value.forEach((item) => {
@@ -596,6 +557,7 @@ export default defineComponent({
                 }
             })
         }
+
         // 邮件
         const handleEmailChangeAll = (email: string) => {
             tableData.value.forEach((item) => {
@@ -618,6 +580,7 @@ export default defineComponent({
                 })
             }
         }
+
         const addEditRow = (row: MotionEventConfig) => {
             // 若该行不存在于编辑行中，则添加
             const isExist = pageData.value.editRows.some((item) => item.id === row.id)
@@ -626,6 +589,7 @@ export default defineComponent({
             }
             pageData.value.applyDisable = false
         }
+
         const getSavaData = (rowData: MotionEventConfig) => {
             const recordSwitch = rowData.record.switch
             const snapSwitch = rowData.snap.switch
@@ -672,6 +636,7 @@ export default defineComponent({
             if (!presets) {
                 presets = []
             }
+
             if (!(presets instanceof Array)) {
                 presets = [presets]
             }
@@ -717,6 +682,7 @@ export default defineComponent({
                 </content>`
             return sendXml
         }
+
         const setData = () => {
             openLoading()
             pageData.value.editRows.forEach((item: MotionEventConfig) => {
@@ -753,7 +719,6 @@ export default defineComponent({
         return {
             changePagination,
             changePaginationSize,
-            scheduleList,
             chosedList,
             pageData,
             tableData,

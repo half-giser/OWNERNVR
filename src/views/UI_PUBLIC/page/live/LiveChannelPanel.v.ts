@@ -231,9 +231,11 @@ export default defineComponent({
             if (prop.playingList.includes(id)) {
                 return 2
             }
+
             if (!pageData.value.onlineChlList.includes(id)) {
                 return 3
             }
+
             if (pageData.value.activeChl === id) {
                 return 1
             }

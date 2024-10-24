@@ -2,8 +2,8 @@
  * @Description: AI/事件——事件通知——推送
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-12 15:28:16
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-18 14:48:44
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-24 11:47:18
  */
 import { pushForm } from '@/types/apiType/aiAndEvent'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
@@ -25,11 +25,8 @@ export default defineComponent({
         })
 
         const getScheduleData = async () => {
-            pageData.value.scheduleOption = await buildScheduleList()
-            pageData.value.scheduleOption.forEach((item) => {
-                if (item.value == '') {
-                    pageData.value.scheduleOption.splice(pageData.value.scheduleOption.indexOf(item), 1)
-                }
+            pageData.value.scheduleOption = await buildScheduleList({
+                isDefault: false,
             })
         }
 
@@ -38,12 +35,12 @@ export default defineComponent({
             const result = await queryEventNotifyParam()
 
             commLoadResponseHandler(result, ($) => {
-                pushFormData.value.chkEnable = $('/response/content/mobilePushSwitch').text() == 'true'
+                pushFormData.value.chkEnable = $('//content/mobilePushSwitch').text() == 'true'
 
-                if ($('/response/content/pushSchedule').attr('id')) {
-                    pushFormData.value.pushSchedule = $('/response/content/pushSchedule').attr('id')
+                if ($('//content/pushSchedule').attr('id')) {
+                    pushFormData.value.pushSchedule = $('//content/pushSchedule').attr('id')
                 } else {
-                    const scheduleName = $('/response/content/pushSchedule').text() || '24x7'
+                    const scheduleName = $('//content/pushSchedule').text() || '24x7'
                     pageData.value.scheduleOption.forEach((item) => {
                         if (scheduleName == item.label) {
                             pushFormData.value.pushSchedule = item.value
@@ -57,7 +54,7 @@ export default defineComponent({
         const testMobile = async () => {
             const result = await testMobilePush()
             const $ = queryXml(result)
-            if ($('/response/status').text() == 'success') {
+            if ($('//status').text() == 'success') {
                 openMessageTipBox({
                     type: 'success',
                     message: Translate('IDCS_TEST_PUSH_MOBILE_SUCCESS'),

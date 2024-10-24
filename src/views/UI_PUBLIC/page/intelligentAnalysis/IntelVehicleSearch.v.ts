@@ -2,8 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-10 09:15:27
  * @Description: 智能分析 - 车辆搜索
- * @LastEditors: luoyiming a11593@tvt.net.cn
- * @LastEditTime: 2024-10-09 16:09:02
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-24 19:57:03
  */
 import { type IntelSearchCollectList, type IntelSearchList, IntelSnapImgDto, IntelSearchVehicleForm, type IntelSnapPopList } from '@/types/apiType/intelligentAnalysis'
 import IntelBaseChannelSelector from './IntelBaseChannelSelector.vue'
@@ -458,6 +458,7 @@ export default defineComponent({
                         }
                     }
                 }
+
                 if (getUniqueKey(row) === getUniqueKey(sliceTableData.value[index])) {
                     return true
                 } else {
@@ -503,6 +504,7 @@ export default defineComponent({
             } else {
                 vehicleXml += formData.value.direction.map((item) => `<item directionType="${item.toString()}">plate</item>`).join('')
             }
+
             if (formData.value.plateNumber) {
                 vehicleXml += `<item num="${formData.value.plateNumber}">plate</item>`
             }
@@ -569,6 +571,7 @@ export default defineComponent({
                 })
                 showMaxSearchLimitTips($)
             }
+
             if (!tableData.value.length) {
                 openMessageTipBox({
                     type: 'info',
@@ -883,6 +886,10 @@ export default defineComponent({
             }
         })
 
+        const cacheKey = computed(() => {
+            return pageData.value.searchType === 'event' ? LocalCacheKey.KEY_VEHICLE_SEARCH_COLLECTION : LocalCacheKey.KEY_PARK_SEARCH_COLLECTION
+        })
+
         onBeforeUnmount(() => {
             stop()
         })
@@ -925,6 +932,7 @@ export default defineComponent({
             isSupportCSV,
             addPlate,
             getUniqueKey,
+            cacheKey,
         }
     },
 })

@@ -109,6 +109,7 @@ export default defineComponent({
                     } else {
                         selectedVehicle.value = prop.modelValue[0]
                     }
+
                     if (prop.modelValue[1].length === pageData.value.personOptions.length) {
                         if (selectedPerson.value.length) {
                             selectedPerson.value = prop.modelValue[1]

@@ -17,7 +17,7 @@
     >
         <el-form-item
             :label="Translate('IDCS_CHANNEL_NAME')"
-            label-width="108px"
+            label-width="108"
         >
             <el-select
                 v-model="pageData.curChl"
@@ -277,7 +277,7 @@
                                 :style="{
                                     '--form-input-width': '170px',
                                 }"
-                                label-width="80px"
+                                label-width="80"
                                 label-position="left"
                                 inline-message
                             >

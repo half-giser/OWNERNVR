@@ -181,6 +181,7 @@ export default defineComponent({
             if (pageData.value.tabId === 0 && pageData.value.outputIdx === 0) {
                 return 'main'
             }
+
             if (pageData.value.tabId === 0) {
                 return subOutputDwellData.value[pageData.value.outputIdx].mode
             } else {
@@ -326,6 +327,7 @@ export default defineComponent({
             if (!currentViewList.value.chlGroups.length) {
                 return
             }
+
             if (outputType.value === 'main') {
                 mainOutputData.value.chlGroups[pageData.value.activeView].segNum = segment
             } else if (outputType.value === 'dwell') {
@@ -350,6 +352,7 @@ export default defineComponent({
             if (!currentViewList.value.chlGroups.length) {
                 return
             }
+
             if (outputType.value === 'main') {
                 mainOutputData.value.chlGroups[pageData.value.activeView].chls = []
             } else if (outputType.value === 'dwell') {
@@ -1098,6 +1101,7 @@ export default defineComponent({
             if (i === 1) {
                 return Translate('IDCS_MAIN_SCREEN')
             }
+
             if (i === 2 && pageData.value.outputScreenCount === 2) {
                 return Translate('IDCS_SECOND_SCREEN')
             }
@@ -1165,6 +1169,7 @@ export default defineComponent({
             if (pageData.value.tabId === 0 && pageData.value.outputIdx === 0) {
                 return
             }
+
             if (pageData.value.dwellCheckbox) {
                 if (pageData.value.tabId === 0) {
                     subOutputDwellData.value[pageData.value.outputIdx].mode = 'dwell'

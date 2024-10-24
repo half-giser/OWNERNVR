@@ -83,6 +83,7 @@ export default defineComponent({
             if (pageData.value.currentScheduleId) {
                 selectRow = pageData.value.scheduleList.find((o) => o.id === pageData.value.currentScheduleId)
             }
+
             if (!selectRow) {
                 selectRow = pageData.value.scheduleList[0]
                 pageData.value.currentScheduleId = selectRow.id

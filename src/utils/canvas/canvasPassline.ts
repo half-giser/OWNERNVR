@@ -164,12 +164,12 @@ export default class CanvasPassline {
             } else {
                 this.lineStyle.lineWidth = 1.5
             }
-            const lineDirection = lineInfo['direction']
+            const lineDirection = lineInfo.direction
             const linePoints = {
-                startX: lineInfo['startPoint'].X,
-                startY: lineInfo['startPoint'].Y,
-                endX: lineInfo['endPoint'].X,
-                endY: lineInfo['endPoint'].Y,
+                startX: lineInfo.startPoint.X,
+                startY: lineInfo.startPoint.Y,
+                endX: lineInfo.endPoint.X,
+                endY: lineInfo.endPoint.Y,
             }
             this.setDirection(lineDirection)
             const realItem = this.drawPassline(linePoints)
@@ -177,7 +177,7 @@ export default class CanvasPassline {
         })
         this.lineStyle = lineStyle
         // 设置当前选中区域的越界方向
-        this.setDirection(lineInfoList[currentSurfaceOrAlarmLine]['direction'])
+        this.setDirection(lineInfoList[currentSurfaceOrAlarmLine].direction)
         // 设置OSD
         if (this.enableOSD) {
             this.drawOSD()
@@ -187,12 +187,12 @@ export default class CanvasPassline {
     // 实时绘制全部区域（显示全部区域时，绘制当前区域的同时显示其余区域）
     drawConstantly() {
         if (this.enableShowAll && this.lineInfoList) {
-            this.lineInfoList[this.currentSurfaceOrAlarmLine]['direction'] = this.direction
-            this.lineInfoList[this.currentSurfaceOrAlarmLine]['startPoint'] = {
+            this.lineInfoList[this.currentSurfaceOrAlarmLine].direction = this.direction
+            this.lineInfoList[this.currentSurfaceOrAlarmLine].startPoint = {
                 X: this.passline.startX,
                 Y: this.passline.startY,
             }
-            this.lineInfoList[this.currentSurfaceOrAlarmLine]['endPoint'] = {
+            this.lineInfoList[this.currentSurfaceOrAlarmLine].endPoint = {
                 X: this.passline.endX,
                 Y: this.passline.endY,
             }
@@ -283,6 +283,7 @@ export default class CanvasPassline {
                 },
             })
         }
+
         if (direction === 'B_TO_A') {
             // 箭头画在A点
             this.ctx.Arrow({
@@ -299,6 +300,7 @@ export default class CanvasPassline {
                 },
             })
         }
+
         if (direction === 'NONE') {
             // 双箭头，避免重复绘制文字textCfg
             // 箭头画在B点
@@ -442,6 +444,7 @@ export default class CanvasPassline {
                 if (this.enableOSD && this.ctx.IsInRect(startX, startY, osdRectX, osdRectY, osdRectW, osdRectH)) {
                     isInOSD = true
                 }
+
                 if (!isInOSD && !this.enableLine) {
                     return
                 }

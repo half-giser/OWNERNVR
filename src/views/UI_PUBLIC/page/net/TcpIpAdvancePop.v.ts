@@ -39,10 +39,12 @@ export default defineComponent({
                             callback()
                             return
                         }
+
                         if (!checkIpV4(value)) {
                             callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_INVALID')))
                             return
                         }
+
                         if (pageData.value.ipList.includes(value)) {
                             callback(new Error(Translate('IDCS_IP_USED')))
                             return
@@ -59,6 +61,7 @@ export default defineComponent({
                             callback()
                             return
                         }
+
                         if (!checkIpV4(value)) {
                             callback(new Error(Translate('IDCS_PROMPT_SUBNET_MASK_INVALID')))
                             return

@@ -31,7 +31,6 @@
             <!-- 视频编码 -->
             <el-table-column
                 :label="Translate('IDCS_VIDEO_ENCT')"
-                prop="videoEncodeType"
                 width="140"
             >
                 <template #header>
@@ -76,7 +75,6 @@
             <!-- 分辨率 -->
             <el-table-column
                 :label="Translate('IDCS_RESOLUTION_RATE')"
-                prop="resolution"
                 width="140"
             >
                 <template #header>
@@ -210,7 +208,6 @@
             <!-- 码率类型 -->
             <el-table-column
                 :label="Translate('IDCS_BITRATE_TYPE')"
-                prop="bitType"
                 width="140"
             >
                 <template #header>
@@ -254,7 +251,6 @@
             <!-- 图像质量 -->
             <el-table-column
                 :label="Translate('IDCS_IMAGE_QUALITY')"
-                prop="level"
                 width="140"
             >
                 <template #header>
@@ -346,7 +342,6 @@
             <!-- GOP -->
             <el-table-column
                 :label="Translate('IDCS_GOP')"
-                prop="GOP"
                 width="140"
             >
                 <template #header>

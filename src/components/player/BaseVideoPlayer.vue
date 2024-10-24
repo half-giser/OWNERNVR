@@ -471,9 +471,11 @@ const handleMouseDown = (e: MouseEvent, winIndex: number) => {
             selectedWinIndex.value = winIndex
             player.screen.onselect && player.screen.onselect(winIndex)
         }
+
         if (pageData.value[winIndex].zoomIndex === 0) {
             return
         }
+
         document.body.style.setProperty('cursor', 'grab')
         document.body.style.setProperty('user-select', 'none')
 
@@ -1052,6 +1054,7 @@ const toggleAlarmStatus = (winIndex: number, alarmType: string, bool: boolean) =
             }
         }
     }
+
     if (iconClass === 'motion') {
         pageData.value[winIndex].isMotionIcon = bool || isShowInteligence ? true : false
     } else {
@@ -1260,6 +1263,7 @@ const showErrorTips = (type: string, winIndex: number, winData?: TVTPlayerWinDat
     if (winData?.CHANNEL_INFO?.chlName && type === 'playComplete') {
         pageData.value[winIndex].errorTipsChlName = winData.CHANNEL_INFO.chlName
     }
+
     // 显示视频丢失logo
     if (type !== 'streamOpening') {
         toggleVideoLossLogo(winIndex, true, tips)
@@ -1353,22 +1357,27 @@ const drawPos = (posFrame: Uint8Array, posLength: number, cfg: TVTPlayerPosInfoI
             if (index >= 1) {
                 if (char1 >= 192) isNextLine = false
             }
+
             // 3位 十六进制：\0xE0（转成十进制 224）
             if (index >= 2) {
                 if (char1 >= 224 || char2 >= 224) isNextLine = false
             }
+
             // 4位 十六进制：\0xF0（转成十进制 240）
             if (index >= 3) {
                 if (char1 >= 240 || char2 >= 240 || char3 >= 240) isNextLine = false
             }
+
             // 5位 十六进制：\0xF8（转成十进制 248）
             if (index >= 4) {
                 if (char1 >= 248 || char2 >= 248 || char3 >= 248 || char4 >= 248) isNextLine = false
             }
+
             // 6位 十六进制：\0xFC（转成十进制 252）
             if (index >= 5) {
                 if (char1 >= 252 || char2 >= 252 || char3 >= 252 || char4 >= 252 || char5 >= 252) isNextLine = false
             }
+
             if (isNextLine) {
                 const str = Uint8ArrayToStr(posFrame.slice(flagIndex, i))
                 posList.push(str)
@@ -1433,6 +1442,7 @@ const tryToGetVideoLossLogo = (showVideoLoss: boolean) => {
     img.onload = () => {
         lossLogo.value = '/VideoLossLogo.png'
     }
+
     img.onerror = () => {
         isVideoLossWrap.value = false
     }

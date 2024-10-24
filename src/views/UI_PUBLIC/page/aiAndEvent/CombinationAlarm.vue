@@ -2,8 +2,8 @@
  * @Description: 普通事件——组合报警
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-22 16:04:47
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-23 10:38:31
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-23 19:33:10
 -->
 <template>
     <div class="base-flex-box">
@@ -18,8 +18,7 @@
                 <!-- 状态列 -->
                 <el-table-column
                     label=" "
-                    width="50px"
-                    class-name="custom_cell"
+                    width="50"
                 >
                     <template #default="scope">
                         <BaseTableRowStatus :icon="scope.row.status"></BaseTableRowStatus>
@@ -28,7 +27,7 @@
 
                 <!-- 名称 -->
                 <el-table-column
-                    width="160px"
+                    width="160"
                     :label="Translate('IDCS_NAME')"
                 >
                     <template #default="scope">
@@ -46,7 +45,7 @@
                 <!-- 组合报警 -->
                 <el-table-column
                     :label="Translate('IDCS_COMBINATION_ALARM')"
-                    width="180px"
+                    width="180"
                 >
                     <template #default="scope">
                         <el-row class="row-together">
@@ -66,10 +65,7 @@
                 </el-table-column>
 
                 <!-- 录像 -->
-                <el-table-column
-                    prop="record"
-                    width="180px"
-                >
+                <el-table-column width="180">
                     <template #header>
                         <el-popover
                             v-model:visible="pageData.recordIsShowAll"
@@ -112,10 +108,7 @@
                 </el-table-column>
 
                 <!-- 抓图 -->
-                <el-table-column
-                    prop="snap"
-                    width="180px"
-                >
+                <el-table-column width="180">
                     <template #header>
                         <el-popover
                             v-model:visible="pageData.snapIsShowAll"
@@ -160,7 +153,7 @@
                 <!-- 声音，supportAudio -->
                 <el-table-column
                     v-if="pageData.supportAudio"
-                    width="150px"
+                    width="150"
                 >
                     <template #header>
                         <el-dropdown trigger="click">
@@ -196,7 +189,7 @@
                 </el-table-column>
 
                 <!-- 推送 -->
-                <el-table-column width="150px">
+                <el-table-column width="150">
                     <template #header>
                         <el-dropdown trigger="click">
                             <BaseTableDropdownLink>
@@ -231,10 +224,7 @@
                 </el-table-column>
 
                 <!-- 报警输出 -->
-                <el-table-column
-                    prop="alarmOut"
-                    width="180px"
-                >
+                <el-table-column width="180">
                     <template #header>
                         <el-popover
                             v-model:visible="pageData.alarmOutIsShowAll"
@@ -279,7 +269,7 @@
                 <!-- 预置点名称 -->
                 <el-table-column
                     :label="Translate('IDCS_PRESET_NAME')"
-                    width="180px"
+                    width="180"
                 >
                     <template #default="scope">
                         <el-row class="row-together">
@@ -299,7 +289,7 @@
                 </el-table-column>
 
                 <!-- 蜂鸣器 -->
-                <el-table-column width="100px">
+                <el-table-column width="100">
                     <template #header>
                         <el-dropdown trigger="click">
                             <BaseTableDropdownLink>
@@ -334,11 +324,11 @@
                 </el-table-column>
 
                 <!-- 视频弹出 -->
-                <el-table-column width="125px">
+                <el-table-column width="125">
                     <template #header>
                         <el-dropdown
                             trigger="click"
-                            max-height="400px"
+                            max-height="400"
                         >
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_VIDEO_POPUP') }}
@@ -373,7 +363,7 @@
                 </el-table-column>
 
                 <!-- 消息框弹出 -->
-                <el-table-column width="170px">
+                <el-table-column width="170">
                     <template #header>
                         <el-dropdown trigger="click">
                             <BaseTableDropdownLink>
@@ -408,7 +398,7 @@
                 </el-table-column>
 
                 <!-- Email -->
-                <el-table-column width="100px">
+                <el-table-column width="100">
                     <template #header>
                         <el-dropdown trigger="click">
                             <BaseTableDropdownLink>Email</BaseTableDropdownLink>

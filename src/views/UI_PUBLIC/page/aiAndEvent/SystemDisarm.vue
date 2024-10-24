@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-23 10:54:01
  * @Description: 系统撤防
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-21 16:13:32
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-24 14:29:05
 -->
 <template>
     <!-- 添加弹窗 -->
@@ -12,14 +12,14 @@
         :title="Translate('IDCS_ADD')"
         draggable
         center
-        width="520px"
+        width="520"
         @open="filterChlsSource()"
     >
         <el-table
             stripe
             border
             show-overflow-tooltip
-            height="287px"
+            height="287"
             :data="pageData.filterChlsSourceList"
             @selection-change="handleSelectedAdd"
         >
@@ -30,7 +30,7 @@
             </el-table-column>
             <el-table-column :label="pageData.addDialogTitle">
                 <template #default="scope">
-                    <span>{{ scope.row.value }}</span>
+                    {{ scope.row.value }}
                 </template>
             </el-table-column>
         </el-table>
@@ -51,13 +51,13 @@
         :title="Translate('IDCS_RECOVER_LINK_ITEM')"
         draggable
         center
-        width="520px"
+        width="520"
     >
         <el-table
             stripe
             border
             show-overflow-tooltip
-            height="287px"
+            height="287"
             :data="cfgTableData"
             @select-all="handleSelectCfgAll"
         >
@@ -75,14 +75,7 @@
                     />
                 </template>
             </el-table-column>
-            <el-table-column
-                :label="Translate('IDCS_RECOVER_LINK_ITEM')"
-                prop="value"
-            >
-                <template #default="scope">
-                    <span>{{ scope.row.value }}</span>
-                </template>
-            </el-table-column>
+            <el-table-column :label="Translate('IDCS_RECOVER_LINK_ITEM')"> </el-table-column>
         </el-table>
         <template #footer>
             <el-row class="tips_text_pop">{{ Translate('IDCS_CLOSE_GUARD_TIP') }}</el-row>
@@ -107,7 +100,7 @@
                 '--form-input-width': '250px',
             }"
         >
-            <el-form-item prop="alarmSwitch">
+            <el-form-item>
                 <el-checkbox
                     v-model="formData.sensorSwitch"
                     @change="pageData.applyDisable = false"
@@ -118,16 +111,11 @@
                 <span class="tips_text">{{ Translate('IDCS_ALARM_SWITCH_TIP') }}</span>
             </el-form-item>
             <el-form-item
-                prop="inputSource"
                 :label="Translate('IDCS_INPUT_SOURCE')"
                 label-width="fit-content"
             >
                 <el-select
                     v-model="formData.inputSource"
-                    size="small"
-                    prop="inputSource"
-                    value-key="value"
-                    :options="pageData.sensorSourcelist"
                     @change="pageData.applyDisable = false"
                 >
                     <el-option
@@ -169,13 +157,10 @@
                 highlight-current-row
                 show-overflow-tooltip
             >
-                <el-table-column prop="chlName">
-                    <template #header>
-                        <span>{{ `${Translate('IDCS_CHANNEL')}/${Translate('IDCS_SENSOR')}` }}</span>
-                    </template>
-                    <template #default="scope">
-                        <span>{{ scope.row.chlName }}</span>
-                    </template>
+                <el-table-column
+                    :label="`${Translate('IDCS_CHANNEL')}/${Translate('IDCS_SENSOR')}`"
+                    prop="chlName"
+                >
                 </el-table-column>
                 <el-table-column
                     prop="disarmItemsStr"
@@ -199,7 +184,7 @@
                                 <el-table
                                     stripe
                                     show-overflow-tooltip
-                                    height="250px"
+                                    height="250"
                                     :data="pageData.totalDefenseParamList"
                                     @selection-change="handleSelectedDropDown"
                                 >
@@ -208,11 +193,10 @@
                                         width="55"
                                     >
                                     </el-table-column>
-                                    <el-table-column :label="Translate('IDCS_RECOVER_LINK_ITEM')">
-                                        <template #default="scope">
-                                            <span>{{ scope.row.value }}</span>
-                                        </template>
-                                    </el-table-column>
+                                    <el-table-column
+                                        :label="Translate('IDCS_RECOVER_LINK_ITEM')"
+                                        prop="value"
+                                    />
                                 </el-table>
                                 <el-row class="base-btn-box">
                                     <el-button @click="disarmCfgAll">
@@ -239,7 +223,7 @@
                                         <el-table
                                             stripe
                                             show-overflow-tooltip
-                                            height="250px"
+                                            height="250"
                                             :data="pageData.totalDefenseParamList"
                                             @selection-change="handleSelectedDropDown"
                                         >
@@ -323,10 +307,6 @@
 .txt {
     font-size: 15px;
     margin-right: 45px;
-}
-
-.subTitle2 {
-    margin-top: 36px;
 }
 
 .cfg_table {

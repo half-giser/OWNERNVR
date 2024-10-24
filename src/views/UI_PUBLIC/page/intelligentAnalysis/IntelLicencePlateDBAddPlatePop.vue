@@ -66,11 +66,11 @@
                         maxlength="31"
                     />
                 </el-form-item>
-                <el-form-item :label="Translate('IDCS_ADD_FACE_GROUP')">
-                    <el-select
-                        v-model="formData.groupId"
-                        prop="groupId"
-                    >
+                <el-form-item
+                    :label="Translate('IDCS_ADD_FACE_GROUP')"
+                    prop="groupId"
+                >
+                    <el-select v-model="formData.groupId">
                         <el-option
                             v-for="item in pageData.groupList"
                             :key="item.value"

@@ -19,7 +19,7 @@ export default defineComponent({
 
         const pageData = ref({
             // 通道选项
-            channelOptions: DEFAULT_SWITCH_OPTIONS,
+            channelOptions: getSwitchOptions(),
             // 当前选中的通道
             activeChannelIndex: 0,
             // 是否可提交
@@ -77,6 +77,7 @@ export default defineComponent({
             if (playerRef.value.mode === 'ocx') {
                 playerRef.value.plugin.RetryStartChlView(id, name)
             }
+
             if (playerRef.value.mode === 'h5') {
                 playerRef.value.player.play({
                     chlID: id,
@@ -95,11 +96,11 @@ export default defineComponent({
             const channel = channelList.value
                 .map((item) => {
                     return rawXml`
-                    <item id="${item.id}">
-                        <name>${wrapCDATA(item.name)}</name>
-                        <switch>${item.switch}</switch>
-                    </item>
-                `
+                        <item id="${item.id}">
+                            <name>${wrapCDATA(item.name)}</name>
+                            <switch>${item.switch}</switch>
+                        </item>
+                    `
                 })
                 .join('')
             const sendXML = rawXml`

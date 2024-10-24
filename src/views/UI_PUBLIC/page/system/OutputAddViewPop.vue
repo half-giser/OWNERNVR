@@ -3,7 +3,7 @@
  * @Date: 2024-06-25 20:56:15
  * @Description: 收藏视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 15:40:40
+ * @LastEditTime: 2024-10-24 09:34:23
 -->
 <template>
     <el-dialog
@@ -20,7 +20,7 @@
             label-position="left"
         >
             <el-form-item
-                prop="currentPassword"
+                prop="name"
                 :label="Translate('IDCS_CUSTOM_VIEW_NAME')"
             >
                 <el-input

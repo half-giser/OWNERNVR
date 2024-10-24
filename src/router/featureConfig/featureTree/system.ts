@@ -369,6 +369,10 @@ export default {
                 sort: 10,
                 lk: 'IDCS_PLATFORM_PARAMETER',
                 group: 'localPlatform',
+                enabled: 'remoteSysCfgAndMaintain',
+                auth(systemCaps) {
+                    return systemCaps.supportSHDB
+                },
             },
         },
         imageUpload: {
@@ -382,6 +386,10 @@ export default {
                 sort: 20,
                 lk: 'IDCS_SCHEDULE_PIC_UPLOAD',
                 group: 'localPlatform',
+                enabled: 'remoteSysCfgAndMaintain',
+                auth(systemCaps) {
+                    return systemCaps.supportSHDB
+                },
             },
         },
         imageUploadAlarm: {
@@ -392,6 +400,10 @@ export default {
                 sort: 30,
                 lk: 'IDCS_ALARM_PIC_UPLOAD',
                 group: 'localPlatform',
+                enabled: 'remoteSysCfgAndMaintain',
+                auth(systemCaps) {
+                    return systemCaps.supportSHDB
+                },
             },
         },
         platformOperation: {
@@ -402,6 +414,10 @@ export default {
                 sort: 40,
                 lk: 'IDCS_PLATFORM_OPERATE_MANAGE',
                 group: 'localPlatform',
+                enabled: 'remoteSysCfgAndMaintain',
+                auth(systemCaps) {
+                    return systemCaps.supportSHDB
+                },
             },
         },
     },

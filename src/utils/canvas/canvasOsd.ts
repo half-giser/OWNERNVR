@@ -142,6 +142,7 @@ export default class CanvasOSD {
         if (this.nameCfg.switch) {
             this.drawName()
         }
+
         if (this.timeCfg.switch) {
             this.drawTime()
         }
@@ -257,12 +258,15 @@ export default class CanvasOSD {
                     if (newX <= 0) {
                         newX = 0
                     }
+
                     if (newX + this[targetRect].width >= cavWidth) {
                         newX = cavWidth - this[targetRect].width
                     }
+
                     if (newY <= 0) {
                         newY = 0
                     }
+
                     if (newY + this[targetRect].height >= cavHeight) {
                         newY = cavHeight - this[targetRect].height
                     }
@@ -282,6 +286,7 @@ export default class CanvasOSD {
                 document.addEventListener('mouseup', onMouseUp)
             }
         }
+
         if (!this.onMouseMove) {
             // 监听鼠标移动事件，进入osd覆盖层时改变鼠标形态为move状态
             this.onMouseMove = (e: MouseEvent) => {
@@ -303,6 +308,7 @@ export default class CanvasOSD {
         if (this.onMouseDown) {
             this.canvas.removeEventListener('mousedown', this.onMouseDown)
         }
+
         if (this.onMouseMove) {
             this.canvas.removeEventListener('mousemove', this.onMouseMove)
         }

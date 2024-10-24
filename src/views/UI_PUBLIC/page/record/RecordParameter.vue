@@ -2,8 +2,8 @@
  * @Description: 录像——参数配置
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-02 16:12:01
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-12 15:06:25
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-24 09:27:38
 -->
 <template>
     <div class="base-flex-box">
@@ -17,7 +17,7 @@
             inline-message
         >
             <div class="base-subheading-box">{{ Translate('IDCS_HIGH_RECORD_PARAM') }}</div>
-            <el-form-item
+            <!-- <el-form-item
                 v-show="false"
                 :label="Translate('IDCS_MAIN_STREAM_RECORD_TIME')"
             >
@@ -27,11 +27,11 @@
                     :min="1"
                     :max="31"
                 />
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item>
                 <el-checkbox v-model="pageData.chkLoopRec">{{ Translate('IDCS_CYCLE_RECORD_TIP') }}</el-checkbox>
             </el-form-item>
-            <el-form-item prop="popMsgDuration">
+            <el-form-item>
                 <el-select
                     v-model="pageData.doubleStreamRecSwitch"
                     placeholder=" "
@@ -61,16 +61,13 @@
                 <!-- 通道名称 -->
                 <el-table-column
                     :label="Translate('IDCS_CHANNEL_NAME')"
-                    min-width="280px"
-                >
-                    <template #default="scope">
-                        <span>{{ scope.row.name }}</span>
-                    </template>
-                </el-table-column>
+                    min-width="280"
+                    prop="name"
+                />
                 <!-- 预录像时间 -->
                 <el-table-column
                     :label="Translate('IDCS_BEFOREHAND_RECORD_TIME')"
-                    min-width="180px"
+                    min-width="180"
                 >
                     <template #header>
                         <el-dropdown trigger="click">
@@ -109,7 +106,7 @@
                 <!-- 警后录像时间 -->
                 <el-table-column
                     :label="Translate('IDCS_RECORD_TIME_DELAY')"
-                    min-width="180px"
+                    min-width="180"
                 >
                     <template #header>
                         <el-dropdown trigger="click">
@@ -149,7 +146,7 @@
                 <el-table-column
                     v-if="supportANR"
                     :label="Translate('IDCS_OFFLINE_RECORDING')"
-                    min-width="180px"
+                    min-width="180"
                 >
                     <template #header>
                         <el-dropdown trigger="click">
@@ -189,7 +186,7 @@
                 <!-- 过期时间 -->
                 <el-table-column
                     :label="Translate('IDCS_EXPIRE_TIME')"
-                    min-width="180px"
+                    min-width="180"
                 >
                     <template #header>
                         <el-dropdown trigger="click">

@@ -92,18 +92,21 @@ export default defineComponent({
                 const strangeMsg = prop.data.info.text_tip || Translate('IDCS_GROUP_STRANGER')
                 return strangeMsg
             }
+
             if (prop.data.type === 'vehicle_plate') {
                 const plateNum = prop.data.info.plate || '--'
                 // 车牌比对成功
                 if (prop.data.info.compare_status === 1) {
                     return `(${plateNum})`
                 }
+
                 // 陌生车牌
                 if (prop.data.info.compare_status === 3) {
                     return `(${plateNum})`
                 }
                 return plateNum
             }
+
             if (prop.data.type === 'boundary') {
                 const eventType = EVENT_TYPE_MAPPING[prop.data.info.event_type]
                 const targetType = TARGET_TYPE_MAPPING[prop.data.info.target_type]
@@ -121,6 +124,7 @@ export default defineComponent({
                 if (prop.data.info.compare_status === 1) {
                     return plateTip || plateGroup
                 }
+
                 if (prop.data.info.compare_status === 3) {
                     return plateTip || plateRecognise
                 }
@@ -133,6 +137,7 @@ export default defineComponent({
             if (prop.data.type === 'face_detect' && prop.data.info.compare_status === 4) {
                 return true
             }
+
             if (prop.data.type === 'vehicle_plate' && prop.data.info.compare_status === 3) {
                 return true
             }

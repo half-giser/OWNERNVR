@@ -2,8 +2,8 @@
  * @Description: 人脸识别——识别成功（0,1,2,3）/陌生人tab页
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-04 14:22:06
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-21 10:50:13
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-23 20:22:38
 -->
 <template>
     <!-- 人脸识别——识别成功 -->
@@ -147,7 +147,7 @@
         <!-- 抓图 -->
         <div class="base-ai-linkage-box">
             <div class="base-ai-linkage-title">
-                <span>{{ `${Translate('IDCS_SNAP')} ` }}</span>
+                <span>{{ Translate('IDCS_SNAP') }}</span>
                 <el-button
                     size="small"
                     @click="pageData.snapIsShow = true"
@@ -177,12 +177,12 @@
             >
                 <el-table-column
                     prop="name"
-                    width="180px"
+                    width="180"
                     :label="Translate('IDCS_CHANNEL_NAME')"
                 >
                 </el-table-column>
                 <el-table-column
-                    width="170px"
+                    width="170"
                     :label="Translate('IDCS_PRESET_NAME')"
                 >
                     <template #default="scope">
@@ -220,7 +220,7 @@
             border
             stripe
             highlight-current-row
-            height="300px"
+            height="300"
             @row-click="handleRowClick"
             @selection-change="groupSelect"
         >

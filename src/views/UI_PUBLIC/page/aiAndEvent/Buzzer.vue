@@ -2,8 +2,8 @@
  * @Description: AI/事件——事件通知——蜂鸣器
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-07-30 15:55:28
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-18 15:45:43
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-23 20:38:21
 -->
 <template>
     <el-form
@@ -16,10 +16,7 @@
         label-position="left"
         inline-message
     >
-        <el-form-item
-            prop="popVideoDuration"
-            :label="Translate('IDCS_DELAY')"
-        >
+        <el-form-item :label="Translate('IDCS_DELAY')">
             <el-select v-model="formData.buzzerDuration">
                 <el-option
                     v-for="item in pageData.buzzerDurationOption"
@@ -30,15 +27,8 @@
                 </el-option>
             </el-select>
         </el-form-item>
-        <div
-            class="base-btn-box"
-            :style="{ paddingTop: '10px' }"
-        >
-            <el-button
-                class="btn-ok"
-                @click="setData"
-                >{{ Translate('IDCS_APPLY') }}</el-button
-            >
+        <div class="base-btn-box">
+            <el-button @click="setData">{{ Translate('IDCS_APPLY') }}</el-button>
         </div>
     </el-form>
 </template>

@@ -44,23 +44,23 @@ export default defineComponent({
             // 按钮选项
             buttons: [
                 {
-                    label: DATE_MAPPING['today'],
+                    label: DATE_MAPPING.today,
                     value: 'today',
                 },
                 {
-                    label: DATE_MAPPING['yesterday'],
+                    label: DATE_MAPPING.yesterday,
                     value: 'yesterday',
                 },
                 {
-                    label: DATE_MAPPING['week'],
+                    label: DATE_MAPPING.week,
                     value: 'week',
                 },
                 {
-                    label: DATE_MAPPING['month'],
+                    label: DATE_MAPPING.month,
                     value: 'month',
                 },
                 {
-                    label: DATE_MAPPING['custom'],
+                    label: DATE_MAPPING.custom,
                     value: 'custom',
                 },
             ],

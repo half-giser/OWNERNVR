@@ -33,6 +33,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PROMPT_EMAIL_ADDRESS_EMPTY')))
                             return
                         }
+
                         if (!checkEmail(value)) {
                             callback(new Error(Translate('IDCS_PROMPT_INVALID_EMAIL')))
                             return
@@ -49,10 +50,12 @@ export default defineComponent({
                             callback()
                             return
                         }
+
                         if (!value.length) {
                             callback(new Error(Translate('IDCS_PROMPT_USERNAME_EMPTY')))
                             return
                         }
+
                         if (!cutStringByByte(value, nameByteMaxLen)) {
                             callback(new Error(Translate('IDCS_INVALID_CHAR')))
                             return
@@ -68,6 +71,7 @@ export default defineComponent({
                         if (!formData.value.anonymousSwitch || !pageData.value.passwordSwitch) {
                             callback()
                         }
+
                         if (!value.length) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return

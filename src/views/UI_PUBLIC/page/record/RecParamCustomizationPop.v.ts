@@ -54,7 +54,7 @@ export default defineComponent({
         const getTimeCfg = async () => {
             const result = await queryTimeCfg()
             commLoadResponseHandler(result, ($) => {
-                const dateFormat = $('/response/content/formatInfo/date').text()
+                const dateFormat = $('//content/formatInfo/date').text()
                 switch (dateFormat) {
                     case 'year-month-day':
                         pageData.value.dateFormat = 'YYYY/MM/DD'
@@ -114,6 +114,7 @@ export default defineComponent({
                 })
                 return
             }
+
             if (pageData.value.expireTime < 1 || pageData.value.expireTime > 8760) {
                 openMessageTipBox({
                     type: 'info',
@@ -121,6 +122,7 @@ export default defineComponent({
                 })
                 return
             }
+
             if (pageData.value.weekArr.length == 7) {
                 openMessageTipBox({
                     type: 'info',
@@ -156,6 +158,7 @@ export default defineComponent({
                     pageData.value.weekArr = []
                 })
         }
+
         // 打开添加日期弹窗
         const openAddDate = () => {
             pageData.value.selectDate = dayjs(new Date()).format(pageData.value.dateFormat)
