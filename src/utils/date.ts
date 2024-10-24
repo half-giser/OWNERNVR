@@ -23,9 +23,11 @@ export const formatDate = (date: string | number | Date | dayjs.Dayjs, format: s
     if (date === '') {
         return date
     }
+
     if (typeof date === 'string' && fromFormat) {
         return dayjs(date, fromFormat).format(format)
     }
+
     return dayjs(date).format(format)
 }
 

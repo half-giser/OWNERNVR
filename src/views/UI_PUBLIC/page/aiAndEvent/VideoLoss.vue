@@ -2,17 +2,17 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-21 15:34:24
  * @Description: 视频丢失配置
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-21 14:15:02
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-24 17:32:21
 -->
 <template>
     <div class="base-flex-box">
         <BaseTransferDialog
             v-model="pageData.snapIsShow"
-            :header-title="pageData.snapHeaderTitle"
-            :source-title="pageData.snapSourceTitle"
-            :target-title="pageData.snapTargetTitle"
-            :source-data="getSnapListSingle(tableData[pageData.triggerDialogIndex])"
+            header-title="IDCS_TRIGGER_CHANNEL_SNAP"
+            source-title="IDCS_CHANNEL"
+            target-title="IDCS_CHANNEL_TRGGER"
+            :source-data="getSnapListSingle(tableData[pageData.triggerDialogIndex] || [])"
             :linked-list="tableData[pageData.triggerDialogIndex]?.snapList || []"
             :type="pageData.snapType"
             @confirm="snapConfirm"
@@ -21,10 +21,10 @@
         </BaseTransferDialog>
         <BaseTransferDialog
             v-model="pageData.alarmOutIsShow"
-            :header-title="pageData.alarmOutHeaderTitle"
-            :source-title="pageData.alarmOutSourceTitle"
-            :target-title="pageData.alarmOutTargetTitle"
-            :source-data="getAlarmOutListSingle(tableData[pageData.triggerDialogIndex])"
+            header-title="IDCS_TRIGGER_ALARM_OUT"
+            source-title="IDCS_ALARM_OUT"
+            target-title="pageData.alarmOutTargetTitle"
+            :source-data="getAlarmOutListSingle(tableData[pageData.triggerDialogIndex] || [])"
             :linked-list="tableData[pageData.triggerDialogIndex]?.alarmOutList || []"
             :type="pageData.alarmOutType"
             @confirm="alarmOutConfirm"
@@ -49,8 +49,7 @@
                 <!-- 状态列 -->
                 <el-table-column
                     label=" "
-                    width="50px"
-                    class-name="custom_cell"
+                    width="50"
                 >
                     <template #default="scope">
                         <BaseTableRowStatus :icon="scope.row.status"></BaseTableRowStatus>
@@ -60,17 +59,10 @@
                 <el-table-column
                     prop="name"
                     :label="Translate('IDCS_NAME')"
-                    width="205px"
-                >
-                    <template #default="scope">
-                        <span>{{ scope.row.name }}</span>
-                    </template>
-                </el-table-column>
+                    width="205"
+                />
                 <!-- 抓图   -->
-                <el-table-column
-                    prop="snap"
-                    width="195px"
-                >
+                <el-table-column width="195">
                     <template #header>
                         <el-popover
                             v-model:visible="pageData.snapPopoverVisible"
@@ -85,8 +77,8 @@
                             </template>
                             <BaseTransferPop
                                 v-if="pageData.snapPopoverVisible"
-                                :source-title="pageData.snapSourceTitle"
-                                :target-title="pageData.snapTargetTitle"
+                                source-title="IDCS_TRIGGER_CHANNEL_SNAP"
+                                target-title="IDCS_CHANNEL"
                                 :source-data="pageData.snapList"
                                 :linked-list="pageData.snapChosedIdsAll"
                                 :type="pageData.snapType"
@@ -114,10 +106,7 @@
                     </template>
                 </el-table-column>
                 <!-- 消息推送   -->
-                <el-table-column
-                    prop="msgPush"
-                    width="170px"
-                >
+                <el-table-column width="170">
                     <template #header>
                         <el-dropdown trigger="click">
                             <BaseTableDropdownLink>
@@ -141,10 +130,7 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.msgPush"
-                            prop="schedule"
-                            value-key="value"
                             :disabled="scope.row.rowDisable"
-                            :options="pageData.enableList"
                             @change="addEditRow(scope.row)"
                         >
                             <el-option
@@ -158,10 +144,7 @@
                     </template>
                 </el-table-column>
                 <!-- 报警输出   -->
-                <el-table-column
-                    prop="alarmOut"
-                    width="195px"
-                >
+                <el-table-column width="195">
                     <template #header>
                         <el-popover
                             v-model:visible="pageData.alarmOutPopoverVisible"
@@ -176,8 +159,8 @@
                             </template>
                             <BaseTransferPop
                                 v-if="pageData.alarmOutPopoverVisible"
-                                :source-title="pageData.alarmOutSourceTitle"
-                                :target-title="pageData.alarmOutTargetTitle"
+                                source-title="IDCS_TRIGGER_CHANNEL_SNAP"
+                                target-title="IDCS_CHANNEL"
                                 :source-data="pageData.alarmOutList"
                                 :linked-list="pageData.alarmOutChosedIdsAll"
                                 :type="pageData.alarmOutType"
@@ -207,8 +190,7 @@
                 <!-- 预置点名称   -->
                 <el-table-column
                     align="center"
-                    prop="preset"
-                    width="195px"
+                    width="195"
                     :label="Translate('IDCS_PRESET_NAME')"
                 >
                     <template #default="scope">
@@ -231,8 +213,7 @@
                 <!-- FTPSnap   -->
                 <!-- <el-table-column
                 v-if="pageData.supportFTP"
-                prop="ftpSnap"
-                width="175px"
+                width="175"
             >
                 <template #header>
                     <el-dropdown trigger="click">
@@ -257,10 +238,7 @@
                 <template #default="scope">
                     <el-select
                         v-model="scope.row.ftpSnap"
-                        prop="ftpSnap"
-                        value-key="value"
                         :disabled="scope.row.rowDisable"
-                        :options="pageData.enableList"
                         @change="addEditRow(scope.row)"
                     >
                         <el-option
@@ -274,10 +252,7 @@
                 </template>
             </el-table-column> -->
                 <!-- 蜂鸣器   -->
-                <el-table-column
-                    prop="beeper"
-                    width="124px"
-                >
+                <el-table-column width="124">
                     <template #header>
                         <el-dropdown trigger="click">
                             <BaseTableDropdownLink>
@@ -301,10 +276,7 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.beeper"
-                            prop="beeper"
-                            value-key="value"
                             :disabled="scope.row.rowDisable"
-                            :options="pageData.enableList"
                             @change="addEditRow(scope.row)"
                         >
                             <el-option
@@ -318,14 +290,11 @@
                     </template>
                 </el-table-column>
                 <!-- 视频弹出   -->
-                <el-table-column
-                    prop="videoPopupInfo"
-                    width="140px"
-                >
+                <el-table-column width="140">
                     <template #header>
                         <el-dropdown
                             trigger="click"
-                            max-height="400px"
+                            max-height="400"
                         >
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_VIDEO_POPUP') }}
@@ -348,10 +317,7 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.videoPopupInfo.chl.value"
-                            prop="videoPopupInfo"
-                            value-key="value"
                             :disabled="scope.row.rowDisable"
-                            :options="scope.row.videoPopupList"
                             @change="addEditRow(scope.row)"
                         >
                             <el-option
@@ -365,10 +331,7 @@
                     </template>
                 </el-table-column>
                 <!-- 消息框弹出   -->
-                <el-table-column
-                    prop="msgBoxPopup"
-                    width="175px"
-                >
+                <el-table-column width="175">
                     <template #header>
                         <el-dropdown trigger="click">
                             <BaseTableDropdownLink>
@@ -392,10 +355,7 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.msgBoxPopup"
-                            prop="msgBoxPopup"
-                            value-key="value"
                             :disabled="scope.row.rowDisable"
-                            :options="pageData.enableList"
                             @change="addEditRow(scope.row)"
                         >
                             <el-option
@@ -409,10 +369,7 @@
                     </template>
                 </el-table-column>
                 <!-- email   -->
-                <el-table-column
-                    prop="email"
-                    width="115px"
-                >
+                <el-table-column width="115">
                     <template #header>
                         <el-dropdown trigger="click">
                             <BaseTableDropdownLink> Email </BaseTableDropdownLink>
@@ -434,10 +391,7 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.email"
-                            prop="email"
-                            value-key="value"
                             :disabled="scope.row.rowDisable"
-                            :options="pageData.enableList"
                             @change="addEditRow(scope.row)"
                         >
                             <el-option

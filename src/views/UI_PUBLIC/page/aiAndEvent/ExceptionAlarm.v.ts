@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-21 15:34:24
  * @Description: 异常报警
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-21 10:43:11
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-24 17:44:30
  */
 import { cloneDeep } from 'lodash-es'
 import { ExceptionAlarmRow } from '@/types/apiType/aiAndEvent'
@@ -19,10 +19,7 @@ export default defineComponent({
         const systemCaps = useCababilityStore()
         const openMessageTipBox = useMessageBox().openMessageTipBox
         const pageData = ref({
-            enableList: [
-                { value: 'true', label: Translate('IDCS_ON') },
-                { value: 'false', label: Translate('IDCS_OFF') },
-            ],
+            enableList: getSwitchOptions(),
             eventTypeMapping: {
                 ipConflict: 'IDCS_IP_CONFLICT',
                 diskRWError: 'IDCS_DISK_IO_ERROR',
@@ -36,21 +33,17 @@ export default defineComponent({
                 alarmServerOffline: 'IDCS_ALARM_SERVER_OFFLINE',
                 diskFailure: 'IDCS_DISK_FAILURE',
             },
-            defaultAudioId: '{00000000-0000-0000-0000-000000000000}',
             supportAudio: false,
-            audioList: [] as { value: string; label: string }[],
+            audioList: [] as SelectOption<string, string>[],
             // 打开穿梭框时选择行的索引
             triggerDialogIndex: 0,
 
             // alarmOut穿梭框数据源
-            alarmOutList: [] as { value: string; label: string; device: { value: string; label: string } }[],
-            alarmOutHeaderTitle: 'IDCS_TRIGGER_ALARM_OUT',
-            alarmOutSourceTitle: 'IDCS_ALARM_OUT',
-            alarmOutTargetTitle: 'IDCS_TRIGGER_ALARM_OUT',
+            alarmOutList: [] as SelectOption<string, string>[],
             // 表头选中id
             alarmOutChosedIdsAll: [] as string[],
             // 表头选中的数据
-            alarmOutChosedListAll: [] as { value: string; label: string }[],
+            alarmOutChosedListAll: [] as SelectOption<string, string>[],
             alarmOutIsShow: false,
             alarmOutType: 'alarmOut',
 
@@ -58,51 +51,18 @@ export default defineComponent({
             applyDisable: true,
             alarmOutPopoverVisible: false,
         })
+
         const getAudioList = async () => {
             pageData.value.supportAudio = systemCaps.supportAlarmAudioConfig
-            // pageData.value.supportAudio = true
-            if (pageData.value.supportAudio == true) {
-                queryAlarmAudioCfg().then(async (resb) => {
-                    pageData.value.audioList = []
-                    const res = queryXml(resb)
-                    if (res('status').text() == 'success') {
-                        res('//content/audioList/item').forEach((item) => {
-                            const $item = queryXml(item.element)
-                            pageData.value.audioList.push({
-                                value: item.attr('id')!,
-                                label: $item('name').text(),
-                            })
-                        })
-                        pageData.value.audioList.push({ value: pageData.value.defaultAudioId, label: '<' + Translate('IDCS_NULL') + '>' })
-                    }
-                })
+            if (pageData.value.supportAudio) {
+                pageData.value.audioList = await buildAudioList()
             }
         }
+
         const getAlarmOutList = async () => {
-            getChlList({
-                requireField: ['device'],
-                nodeType: 'alarmOuts',
-            }).then(async (resb) => {
-                const res = queryXml(resb)
-                if (res('status').text() == 'success') {
-                    res('//content/item').forEach((item) => {
-                        const $item = queryXml(item.element)
-                        let name = $item('name').text()
-                        if ($item('devDesc').text().length) {
-                            name = $item('devDesc').text() + '-' + name
-                        }
-                        pageData.value.alarmOutList.push({
-                            value: item.attr('id')!,
-                            label: name,
-                            device: {
-                                value: $item('device').attr('id'),
-                                label: $item('device').text(),
-                            },
-                        })
-                    })
-                }
-            })
+            pageData.value.alarmOutList = await buildAlarmOutChlList()
         }
+
         const buildTableData = () => {
             tableData.value.length = 0
             openLoading()
@@ -123,20 +83,22 @@ export default defineComponent({
                         if (abnormalType == 'RAIDSubHealth' || abnormalType == 'RAIDUnavaiable' || abnormalType == 'signalShelter') {
                             return
                         }
+
                         if (abnormalType == 'raidException' && !systemCaps.supportRaid) {
                             return
                         }
+
                         if (abnormalType == 'alarmServerOffline' && !systemCaps.supportAlarmServerConfig) {
                             return
                         }
                         row.eventType = $item('abnormalType').text()
-                        row.sysAudio = $item('sysAudio').attr('id') || pageData.value.defaultAudioId
+                        row.sysAudio = $item('sysAudio').attr('id') || DEFAULT_EMPTY_ID
                         // 设置的声音文件被删除时，显示为none
                         const AudioData = pageData.value.audioList.filter((element: { value: string; label: string }) => {
                             return element.value === row.sysAudio
                         })
                         if (AudioData.length === 0) {
-                            row.sysAudio = pageData.value.defaultAudioId
+                            row.sysAudio = DEFAULT_EMPTY_ID
                         }
                         row.msgPush = $item('msgPushSwitch').text()
                         row.alarmOut.switch = $item('triggerAlarmOut/switch').text() == 'true' ? true : false
@@ -163,6 +125,7 @@ export default defineComponent({
         const formatEventType = (eventType: string) => {
             return Translate(pageData.value.eventTypeMapping[eventType as keyof typeof pageData.value.eventTypeMapping])
         }
+
         // 下列为alarmOut穿梭框相关
         const alarmOutConfirmAll = (e: any[]) => {
             if (e.length !== 0) {
@@ -192,16 +155,19 @@ export default defineComponent({
             pageData.value.alarmOutChosedIdsAll = []
             pageData.value.alarmOutPopoverVisible = false
         }
+
         const alarmOutCloseAll = () => {
             pageData.value.alarmOutChosedListAll = []
             pageData.value.alarmOutChosedIdsAll = []
             pageData.value.alarmOutPopoverVisible = false
         }
+
         const setAlarmOut = (index: number) => {
             pageData.value.triggerDialogIndex = index
             pageData.value.alarmOutIsShow = true
         }
-        const alarmOutConfirm = (e: { value: string; label: string }[]) => {
+
+        const alarmOutConfirm = (e: SelectOption<string, string>[]) => {
             addEditRow()
             if (e.length != 0) {
                 tableData.value[pageData.value.triggerDialogIndex].alarmOut.alarmOuts = cloneDeep(e)
@@ -214,6 +180,7 @@ export default defineComponent({
             }
             pageData.value.alarmOutIsShow = false
         }
+
         const alarmOutClose = () => {
             if (!tableData.value[pageData.value.triggerDialogIndex].alarmOut.alarmOuts.length) {
                 tableData.value[pageData.value.triggerDialogIndex].alarmOut.switch = false
@@ -232,6 +199,7 @@ export default defineComponent({
                 setAlarmOut(tableData.value.indexOf(row))
             }
         }
+
         // 系统音频
         const handleSysAudioChangeAll = (sysAudio: string) => {
             tableData.value.forEach((item) => {
@@ -241,6 +209,7 @@ export default defineComponent({
                 }
             })
         }
+
         // 消息推送
         const handleMsgPushChangeAll = (msgPush: string) => {
             tableData.value.forEach((item) => {
@@ -250,6 +219,7 @@ export default defineComponent({
                 }
             })
         }
+
         // 蜂鸣器
         const handleBeeperChangeAll = (beeper: string) => {
             tableData.value.forEach((item) => {
@@ -259,6 +229,7 @@ export default defineComponent({
                 }
             })
         }
+
         // 消息框弹出
         const handleMsgBoxPopupChangeAll = (msgBoxPopup: string) => {
             tableData.value.forEach((item) => {
@@ -268,6 +239,7 @@ export default defineComponent({
                 }
             })
         }
+
         // 邮件
         const handleEmailChangeAll = (email: string) => {
             tableData.value.forEach((item) => {
@@ -307,9 +279,9 @@ export default defineComponent({
                 const alarmOutSwitch = item.alarmOut.switch
                 sendXml += rawXml`
                             <item>
-                                <abnormalType>${item['eventType']}</abnormalType>
+                                <abnormalType>${item.eventType}</abnormalType>
                                 <triggerAlarmOut>
-                                    <switch>${item['alarmOut']['switch'].toString()}</switch>
+                                    <switch>${item.alarmOut.switch.toString()}</switch>
                                     <alarmOuts>
                         `
                 if (!alarmOutSwitch) {
@@ -319,6 +291,7 @@ export default defineComponent({
                 if (!alarmOuts) {
                     alarmOuts = []
                 }
+
                 if (!(alarmOuts instanceof Array)) {
                     alarmOuts = [alarmOuts]
                 }
@@ -340,6 +313,7 @@ export default defineComponent({
             sendXml += rawXml`</content>`
             return sendXml
         }
+
         const setData = () => {
             openLoading()
             const sendXml = getSavaData()

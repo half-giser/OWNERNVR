@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-12 15:34:24
  * @Description: email通知
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-18 18:01:40
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-23 20:39:53
 -->
 <template>
     <div>
@@ -51,7 +51,7 @@
                 :data="tableData"
                 stripe
                 border
-                height="343px"
+                height="343"
                 highlight-current-row
                 show-overflow-tooltip
                 @row-click="handleRowClick($event)"
@@ -59,24 +59,18 @@
                 <el-table-column
                     :label="Translate('IDCS_SERIAL_NUMBER')"
                     width="80"
+                    type="index"
                 >
-                    <template #default="{ $index }">
-                        {{ $index + 1 }}
-                    </template>
                 </el-table-column>
                 <el-table-column
-                    prop="addressShow"
-                    width="325px"
+                    width="325"
                     :label="Translate('IDCS_RECIPIENT')"
                 >
                     <template #default="scope">
-                        <span>{{ formatAddress(scope.row) }}</span>
+                        {{ formatAddress(scope.row) }}
                     </template>
                 </el-table-column>
-                <el-table-column
-                    prop="schedule"
-                    width="205px"
-                >
+                <el-table-column width="205">
                     <template #header>
                         <el-dropdown trigger="click">
                             <BaseTableDropdownLink>
@@ -100,9 +94,6 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.schedule"
-                            prop="schedule"
-                            value-key="value"
-                            :options="pageData.scheduleList"
                             @focus="handleScheduleChange(scope.row)"
                         >
                             <el-option
@@ -117,7 +108,7 @@
                 </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_DELETE')"
-                    width="90px"
+                    width="90"
                 >
                     <template #header>
                         <el-dropdown trigger="click">

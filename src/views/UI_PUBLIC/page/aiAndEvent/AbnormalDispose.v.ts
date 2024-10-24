@@ -2,8 +2,8 @@
  * @Description: AI 事件——更多——异常侦测
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-19 09:27:33
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-16 10:41:22
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-24 18:19:53
  */
 import { cloneDeep } from 'lodash-es'
 import { AbnormalDispose, type PresetList, type chlCaps } from '@/types/apiType/aiAndEvent'
@@ -23,7 +23,7 @@ export default defineComponent({
             required: true,
         },
         voiceList: {
-            type: Array as PropType<{ value: string; label: string }[]>,
+            type: Array as PropType<SelectOption<string, string>[]>,
             required: true,
         },
     },
@@ -34,6 +34,7 @@ export default defineComponent({
         const pluginStore = usePluginStore()
         const systemCaps = useCababilityStore()
         const osType = getSystemInfo().platform
+
         // 系统配置
         const supportAlarmAudioConfig = systemCaps.supportAlarmAudioConfig
         // 温度检测数据
@@ -44,7 +45,9 @@ export default defineComponent({
 
         // 常规联动
         const normalParamCheckAll = ref(false)
+
         const normalParamCheckList = ref([] as string[])
+
         // 常规联动多选数据项
         const normalParamList = ref([
             { value: 'catchSnapSwitch', label: Translate('IDCS_SNAP') },
@@ -55,22 +58,20 @@ export default defineComponent({
         ])
         // 联动预置点
         const MAX_TRIGGER_PRESET_COUNT = 16
+
         const PresetTableData = ref<PresetList[]>([])
 
         // 页面数据
         const pageData = ref({
             tab: 'param',
-            enableList: [
-                { value: 'true', label: Translate('IDCS_ON') },
-                { value: 'false', label: Translate('IDCS_OFF') },
-            ],
+            enableList: getSwitchOptions(),
             // 声音列表
             voiceList: prop.voiceList,
             // record穿梭框数据源
-            recordList: [] as { value: string; label: string }[],
+            recordList: [] as SelectOption<string, string>[],
             recordIsShow: false,
             // alarmOut穿梭框数据源
-            alarmOutList: [] as { value: string; label: string }[],
+            alarmOutList: [] as SelectOption<string, string>[],
             alarmOutIsShow: false,
             // 初始化，后判断应用是否可用
             initComplated: false,
@@ -78,61 +79,15 @@ export default defineComponent({
             // 消息提示
             notification: [] as string[],
         })
+
         // 获取录像数据
         const getRecordList = async () => {
-            getChlList({
-                nodeType: 'chls',
-                isSupportSnap: false,
-            }).then((result) => {
-                commLoadResponseHandler(result, ($) => {
-                    $('content/item').forEach((item) => {
-                        const $item = queryXml(item.element)
-                        pageData.value.recordList.push({
-                            value: item.attr('id')!,
-                            label: $item('name').text(),
-                        })
-                    })
-                })
-            })
+            pageData.value.recordList = await buildRecordChlList()
         }
+
         // 获取报警输出数据
         const getAlarmOutData = async () => {
-            getChlList({
-                requireField: ['device'],
-                nodeType: 'alarmOuts',
-            }).then((result) => {
-                commLoadResponseHandler(result, ($) => {
-                    const rowData = [] as {
-                        id: string
-                        name: string
-                        device: {
-                            id: string
-                            innerText: string
-                        }
-                    }[]
-                    $('/response/content/item').forEach((item) => {
-                        const $item = queryXml(item.element)
-                        let name = $item('name').text()
-                        if ($item('devDesc').text()) {
-                            name = $item('devDesc').text() + '_' + name
-                        }
-                        rowData.push({
-                            id: item.attr('id')!,
-                            name,
-                            device: {
-                                id: $item('device').attr('id'),
-                                innerText: $item('device').text(),
-                            },
-                        })
-                    })
-                    pageData.value.alarmOutList = rowData.map((item) => {
-                        return {
-                            value: item.id,
-                            label: item.name,
-                        }
-                    })
-                })
-            })
+            pageData.value.alarmOutList = await buildAlarmOutChlList()
         }
 
         // 播放模式
@@ -142,11 +97,14 @@ export default defineComponent({
             }
             return playerRef.value.mode
         })
+
         const ready = computed(() => {
             return playerRef.value?.ready || false
         })
+
         let player: PlayerInstance['player']
         let plugin: PlayerInstance['plugin']
+
         /**
          * @description 播放器就绪时回调
          */
@@ -159,11 +117,13 @@ export default defineComponent({
                     pageData.value.notification = [formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`)]
                 }
             }
+
             if (mode.value === 'ocx') {
                 if (!plugin.IsInstallPlugin()) {
                     plugin.SetPluginNotice('#layout2Content')
                     return
                 }
+
                 if (!plugin.IsPluginAvailable()) {
                     pluginStore.showPluginNoResponse = true
                     plugin.ShowPluginNoResponse()
@@ -172,6 +132,7 @@ export default defineComponent({
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
         }
+
         /**
          * @description 播放视频
          */
@@ -184,44 +145,50 @@ export default defineComponent({
                 })
             } else if (mode.value === 'ocx') {
                 if (osType == 'mac') {
-                    const sendXML = OCX_XML_Preview({
-                        winIndexList: [0],
-                        chlIdList: [chlData.id],
-                        chlNameList: [chlData.name],
-                        streamType: 'sub',
-                        // chl没有index属性
-                        chlIndexList: ['0'],
-                        chlTypeList: [chlData.chlType],
-                    })
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    // const sendXML = OCX_XML_Preview({
+                    //     winIndexList: [0],
+                    //     chlIdList: [chlData.id],
+                    //     chlNameList: [chlData.name],
+                    //     streamType: 'sub',
+                    //     // chl没有index属性
+                    //     chlIndexList: ['0'],
+                    //     chlTypeList: [chlData.chlType],
+                    // })
+                    // plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 } else {
                     plugin.RetryStartChlView(prop.currChlId, chlData.name)
                 }
             }
         }
+
         const getAbnormalDisposeData = async () => {
             const sendXml = rawXml`
-                <condition><chlId>${prop.currChlId}</chlId></condition>
-                <requireField><param/><trigger/></requireField>
-                `
+                <condition>
+                    <chlId>${prop.currChlId}</chlId>
+                </condition>
+                <requireField>
+                    <param/>
+                    <trigger/>
+                </requireField>
+            `
             openLoading()
             const result = await queryAvd(sendXml)
             closeLoading()
             commLoadResponseHandler(result, async ($) => {
-                let holdTimeArr = $('/response/content/chl/param/holdTimeNote').text().split(',')
-                const holdTime = $('/response/content/chl/param/holdTime').text()
+                let holdTimeArr = $('//content/chl/param/holdTimeNote').text().split(',')
+                const holdTime = $('//content/chl/param/holdTime').text()
                 if (!holdTimeArr.includes(holdTime)) {
                     holdTimeArr.push(holdTime)
                     holdTimeArr = holdTimeArr.sort((a, b) => Number(a) - Number(b))
                 }
                 const holdTimeList = holdTimeArr.map((item) => {
-                    const label = item == '60' ? '1 ' + Translate('IDCS_MINUTE') : Number(item) > 60 ? Number(item) / 60 + ' ' + Translate('IDCS_MINUTES') : item + ' ' + Translate('IDCS_SECONDS')
+                    const label = getTranslateForSecond(Number(item))
                     return {
                         value: item,
                         label,
                     }
                 })
-                const trigger = $('/response/content/chl/trigger')
+                const trigger = $('//content/chl/trigger')
                 const $trigger = queryXml(trigger[0].element)
                 const record = $trigger('sysRec/chls/item').map((item) => {
                     return {
@@ -249,10 +216,10 @@ export default defineComponent({
                 abnormalDisposeData.value = {
                     holdTime,
                     holdTimeList,
-                    sceneChangeSwitch: $('/response/content/chl/param/sceneChangeSwitch').text(),
-                    clarityAbnormalSwitch: $('/response/content/chl/param/clarityAbnormalSwitch').text(),
-                    colorAbnormalSwitch: $('/response/content/chl/param/colorAbnormalSwitch').text(),
-                    sensitivity: Number($('/response/content/chl/param/sensitivity').text()),
+                    sceneChangeSwitch: $('//content/chl/param/sceneChangeSwitch').text(),
+                    clarityAbnormalSwitch: $('//content/chl/param/clarityAbnormalSwitch').text(),
+                    colorAbnormalSwitch: $('//content/chl/param/colorAbnormalSwitch').text(),
+                    sensitivity: Number($('//content/chl/param/sensitivity').text()),
                     record,
                     alarmOut,
                     preset,
@@ -268,6 +235,7 @@ export default defineComponent({
                 pageData.value.initComplated = true
             })
         }
+
         const handleAbnormalDisposeData = () => {
             if (abnormalDisposeData.value.msgPushSwitch) normalParamCheckList.value.push('msgPushSwitch')
             if (abnormalDisposeData.value.buzzerSwitch) normalParamCheckList.value.push('buzzerSwitch')
@@ -278,12 +246,14 @@ export default defineComponent({
                 normalParamCheckAll.value = true
             }
         }
+
         // tab切换
         const tabChange = (name: TabPaneName) => {
             if (name == 'param') {
                 play()
             }
         }
+
         // 常规联动多选
         const handleNormalParamCheckAll = (value: CheckboxValueType) => {
             normalParamCheckList.value = value ? normalParamList.value.map((item) => item.value) : []
@@ -295,6 +265,7 @@ export default defineComponent({
                 abnormalDisposeData.value.emailSwitch = true
             }
         }
+
         const handleNormalParamCheck = (value: CheckboxValueType[]) => {
             normalParamCheckAll.value = value.length === normalParamList.value.length
             abnormalDisposeData.value.catchSnapSwitch = value.includes('catchSnapSwitch')
@@ -305,21 +276,25 @@ export default defineComponent({
         }
 
         // 录像配置相关处理
-        const recordConfirm = (e: { value: string; label: string }[]) => {
+        const recordConfirm = (e: SelectOption<string, string>[]) => {
             abnormalDisposeData.value.record = cloneDeep(e)
             pageData.value.recordIsShow = false
         }
+
         const recordClose = () => {
             pageData.value.recordIsShow = false
         }
+
         // 报警输出相关处理
-        const alarmOutConfirm = (e: { value: string; label: string }[]) => {
+        const alarmOutConfirm = (e: SelectOption<string, string>[]) => {
             abnormalDisposeData.value.alarmOut = cloneDeep(e)
             pageData.value.alarmOutIsShow = false
         }
+
         const alarmOutClose = () => {
             pageData.value.alarmOutIsShow = false
         }
+
         // 获取联动预置点数据
         const getPresetData = async () => {
             const result = await getChlList({
@@ -327,7 +302,7 @@ export default defineComponent({
             })
             let rowData = [] as PresetList[]
             commLoadResponseHandler(result, async ($) => {
-                rowData = $('/response/content/item').map((item) => {
+                rowData = $('//content/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
                         id: item.attr('id')!,
@@ -338,6 +313,7 @@ export default defineComponent({
                         isGetPresetList: false,
                     }
                 })
+
                 rowData.forEach((row) => {
                     abnormalDisposeData.value.preset?.forEach((item) => {
                         if (row.id == item.chl.value) {
@@ -356,18 +332,19 @@ export default defineComponent({
                 PresetTableData.value = rowData
             })
         }
+
         // 预置点选择框下拉时获取预置点列表数据
         const getPresetById = async (row: PresetList) => {
             if (!row.isGetPresetList) {
                 row.presetList.splice(1)
                 const sendXml = rawXml`
-                <condition>
-                    <chlId>${row.id}</chlId>
-                </condition>
-            `
+                    <condition>
+                        <chlId>${row.id}</chlId>
+                    </condition>
+                `
                 const result = await queryChlPresetList(sendXml)
                 commLoadResponseHandler(result, ($) => {
-                    $('/response/content/presets/item').forEach((item) => {
+                    $('//content/presets/item').forEach((item) => {
                         row.presetList.push({
                             value: item.attr('index')!,
                             label: item.text(),
@@ -377,11 +354,13 @@ export default defineComponent({
                 row.isGetPresetList = true
             }
         }
+
         const presetChange = (row: PresetList) => {
             const ids = abnormalDisposeData.value.preset.map((item) => item.chl.value)
             if (ids.includes(row.id)) {
                 abnormalDisposeData.value.preset = abnormalDisposeData.value.preset.filter((item) => row.id != item.chl.value)
             }
+
             if (row.preset.value !== '') {
                 abnormalDisposeData.value.preset.push({
                     index: row.preset.value,
@@ -392,6 +371,7 @@ export default defineComponent({
                     },
                 })
             }
+
             if (abnormalDisposeData.value.preset.length > MAX_TRIGGER_PRESET_COUNT) {
                 openMessageTipBox({
                     type: 'info',
@@ -407,18 +387,21 @@ export default defineComponent({
             }
         })
         const getAbnormalDisposeSaveData = () => {
-            let sendXml = rawXml`<content>
-                <chl id='${prop.currChlId}'>
-                <param>
-                <holdTime unit='s'>${abnormalDisposeData.value.holdTime}</holdTime>
-                <sensitivity>${String(abnormalDisposeData.value.sensitivity)}</sensitivity>
+            let sendXml = rawXml`
+                <content>
+                    <chl id='${prop.currChlId}'>
+                        <param>
+                        <holdTime unit='s'>${abnormalDisposeData.value.holdTime}</holdTime>
+                        <sensitivity>${String(abnormalDisposeData.value.sensitivity)}</sensitivity>
             `
             if (abnormalDisposeData.value.sceneChangeSwitch) {
                 sendXml += rawXml`<sceneChangeSwitch >${abnormalDisposeData.value.sceneChangeSwitch}</sceneChangeSwitch>`
             }
+
             if (abnormalDisposeData.value.clarityAbnormalSwitch) {
                 sendXml += rawXml`<clarityAbnormalSwitch >${abnormalDisposeData.value.clarityAbnormalSwitch}</clarityAbnormalSwitch>`
             }
+
             if (abnormalDisposeData.value.colorAbnormalSwitch) {
                 sendXml += rawXml`<colorAbnormalSwitch >${abnormalDisposeData.value.colorAbnormalSwitch}</colorAbnormalSwitch>`
             }
@@ -427,23 +410,28 @@ export default defineComponent({
                     <sysRec>
                     <chls type='list'>
             `
+
             abnormalDisposeData.value.record.forEach((item) => {
                 sendXml += rawXml`<item id='${item.value}'>
                         <![CDATA[${item.label}]]></item>`
             })
+
             sendXml += rawXml`</chls></sysRec>
                 <alarmOut>
                 <alarmOuts type='list'>
             `
+
             abnormalDisposeData.value.alarmOut.forEach((item) => {
                 sendXml += rawXml`<item id='${item.value}'>
                         <![CDATA[${item.label}]]></item>`
             })
+
             sendXml += rawXml`</alarmOuts>
                 </alarmOut>
                 <preset>
                 <presets type='list'>
             `
+
             abnormalDisposeData.value.preset.forEach((item) => {
                 sendXml += rawXml`
                     <item>
@@ -452,6 +440,7 @@ export default defineComponent({
                         <chl id='${item.chl.value}'><![CDATA[${item.chl.label}]]></chl>
                     </item>`
             })
+
             sendXml += rawXml`</presets>
                 </preset>
                 <snapSwitch>${String(abnormalDisposeData.value.catchSnapSwitch)}</snapSwitch>
@@ -471,7 +460,7 @@ export default defineComponent({
             const result = await editAvd(sendXml)
             closeLoading()
             const $ = queryXml(result)
-            if ($('/response/status').text() == 'success') {
+            if ($('//status').text() == 'success') {
                 pageData.value.applyDisabled = true
             }
         }

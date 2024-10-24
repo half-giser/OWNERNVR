@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-23 15:03:09
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 15:06:48
+ * @LastEditTime: 2024-10-24 15:17:57
  */
 import { type CombinedAlarmItem, type faceMatchObj } from '@/types/apiType/aiAndEvent'
 import FaceMatchPop from './FaceMatchPop.vue'
@@ -53,17 +53,35 @@ export default defineComponent({
             InvadeDetect: Translate('IDCS_INVADE_DETECTION'), //区域入侵
             Tripwire: Translate('IDCS_BEYOND_DETECTION'), //越界
         }
+
         // motion和sensor类型一定会有
         const COMMON_ALARM_TYPES_MAPPING: Record<string, string> = {
             Motion: Translate('IDCS_MOTION_DETECTION'),
             Sensor: Translate('IDCS_SENSOR'),
         }
+
         // 能力集不支持人脸的map类型（支持人车非+人车非，不支持人脸+人脸、人脸+人车非）
         const NO_FACE_ALARM_TYPES_MAPPING: Record<string, string> = {
             Motion: Translate('IDCS_MOTION_DETECTION'),
             Sensor: Translate('IDCS_SENSOR'),
             InvadeDetect: Translate('IDCS_INVADE_DETECTION'),
             Tripwire: Translate('IDCS_BEYOND_DETECTION'),
+        }
+
+        const detectTypeMap: Record<string, string> = {
+            Sensor: Translate('IDCS_SENSOR'),
+            Motion: Translate('IDCS_MOTION_DETECTION'),
+            FaceMatch: Translate('IDCS_FACE_DETECTION'),
+            InvadeDetect: Translate('IDCS_INVADE_DETECTION'),
+            Tripwire: Translate('IDCS_BEYOND_DETECTION'),
+        }
+
+        const detectBtnMap: Record<string, string> = {
+            Sensor: Translate('IDCS_CHANGE_SENSOR'),
+            Motion: Translate('IDCS_CHANGE_MOTION'),
+            FaceMatch: Translate('IDCS_CHANGE_FACE'),
+            InvadeDetect: Translate('IDCS_CHANGE_INVADE'),
+            Tripwire: Translate('IDCS_CHANGE_TRIPWIRE'),
         }
 
         const pageData = ref({
@@ -92,7 +110,7 @@ export default defineComponent({
         const getChls = () => {
             getChlList({ requireField: ['protocolType'] }).then((result) => {
                 commLoadResponseHandler(result, ($) => {
-                    $('/response/content/item').forEach((item) => {
+                    $('//content/item').forEach((item) => {
                         const $item = queryXml(item.element)
                         const protocolType = $item('protocolType').text()
                         const factoryName = $item('productModel').attr('factoryName')
@@ -117,10 +135,11 @@ export default defineComponent({
                 })
             })
         }
+
         const getSensors = () => {
             getChlList({ nodeType: 'sensors' }).then((result) => {
                 commLoadResponseHandler(result, ($) => {
-                    $('/response/content/item').forEach((item) => {
+                    $('//content/item').forEach((item) => {
                         const $item = queryXml(item.element)
                         let name = $item('name').text()
                         if ($item('devDesc').text()) {
@@ -134,6 +153,7 @@ export default defineComponent({
                 })
             })
         }
+
         const getFaceAndPeaAndTripwire = () => {
             getChlList({
                 nodeType: 'chls',
@@ -141,7 +161,7 @@ export default defineComponent({
                 requireField: ['protocolType'],
             }).then((result) => {
                 commLoadResponseHandler(result, ($) => {
-                    $('/response/content/item').forEach((item) => {
+                    $('//content/item').forEach((item) => {
                         const $item = queryXml(item.element)
                         const protocolType = $item('protocolType').text()
                         const factoryName = $item('productModel').attr('factoryName')
@@ -169,6 +189,7 @@ export default defineComponent({
                 })
             })
         }
+
         const open = () => {
             tableData.value = [
                 {
@@ -307,7 +328,7 @@ export default defineComponent({
                     let str = COMBINED_ALARM_TYPES_MAPPING[item.alarmSourceType] + ' ' + (item.alarmSourceEntity.label || '')
 
                     if (pageData.value.faceMatchObj[item.alarmSourceEntity.value]) {
-                        const obj = pageData.value.faceMatchObj[item.alarmSourceEntity.value]['obj']
+                        const obj = pageData.value.faceMatchObj[item.alarmSourceEntity.value].obj
                         const ruleMap: Record<string, string> = {
                             '1': Translate('IDCS_SUCCESSFUL_RECOGNITION'),
                             '0': Translate('IDCS_GROUP_STRANGER'),
@@ -374,23 +395,23 @@ export default defineComponent({
             let isShowDetect = ''
             if (row.alarmSourceType == 'Sensor') {
                 const sendXml = rawXml`
-                <condition>
-                    <alarmInId>${id}</alarmInId>
-                </condition>
+                    <condition>
+                        <alarmInId>${id}</alarmInId>
+                    </condition>
                 `
                 const result = await queryAlarmIn(sendXml)
                 commLoadResponseHandler(result, ($) => {
-                    isShowDetect = $('/response/content/param/switch').text()
+                    isShowDetect = $('//content/param/switch').text()
                 })
                 // 以下几种类型的请求头是一样的
             } else {
                 const sendXml = rawXml`
-                <condition>
-                    <chlId>${id}</chlId>
-                </condition>
-                <requireField>
-                    <param/>
-                </requireField>
+                    <condition>
+                        <chlId>${id}</chlId>
+                    </condition>
+                    <requireField>
+                        <param/>
+                    </requireField>
                 `
                 // 区域入侵
                 if (row.alarmSourceType == 'InvadeDetect') {
@@ -401,9 +422,9 @@ export default defineComponent({
                     const result = await queryIntelAreaConfig(sendXml)
                     const $ = queryXml(result)
                     // 开关包含区域入侵、区域进入、区域离开
-                    const perimeterSwitch = $('/response/content/chl/perimeter/param/switch').text() == 'true'
-                    const entrySwitch = $('/response/content/chl/entry/param/switch').text() == 'true'
-                    const leaveSwitch = $('/response/content/chl/leave/param/switch').text() == 'true'
+                    const perimeterSwitch = $('//content/chl/perimeter/param/switch').text() == 'true'
+                    const entrySwitch = $('//content/chl/entry/param/switch').text() == 'true'
+                    const leaveSwitch = $('//content/chl/leave/param/switch').text() == 'true'
                     isShowDetect = perimeterSwitch || entrySwitch || leaveSwitch ? 'true' : 'false'
                     // 人脸比对
                 } else if (row.alarmSourceType == 'FaceMatch') {
@@ -421,12 +442,12 @@ export default defineComponent({
                     if (isVfdChl) {
                         const result = await queryIntelAreaConfig(sendXml)
                         const $ = queryXml(result)
-                        isShowDetect = $('/response/content/chl/param/switch').text()
+                        isShowDetect = $('//content/chl/param/switch').text()
                     } else {
                         const result = await queryBackFaceMatch()
                         const $ = queryXml(result)
                         isShowDetect = 'false'
-                        $('/response/content/param/chls/item').forEach((item) => {
+                        $('//content/param/chls/item').forEach((item) => {
                             if (item.attr('guid') == id) {
                                 isShowDetect = queryXml(item.element)('switch').text()
                             }
@@ -440,28 +461,15 @@ export default defineComponent({
                     const result = await queryTripwire(sendXml)
                     const $ = queryXml(result)
 
-                    isShowDetect = $('/response/content/chl/param/switch').text()
+                    isShowDetect = $('//content/chl/param/switch').text()
                 } else if (row.alarmSourceType == 'Motion') {
                     const result = await queryMotion(sendXml)
                     const $ = queryXml(result)
 
-                    isShowDetect = $('/response/content/chl/param/switch').text()
+                    isShowDetect = $('//content/chl/param/switch').text()
                 }
             }
-            const detectTypeMap: Record<string, string> = {
-                Sensor: Translate('IDCS_SENSOR'),
-                Motion: Translate('IDCS_MOTION_DETECTION'),
-                FaceMatch: Translate('IDCS_FACE_DETECTION'),
-                InvadeDetect: Translate('IDCS_INVADE_DETECTION'),
-                Tripwire: Translate('IDCS_BEYOND_DETECTION'),
-            }
-            const detectBtnMap: Record<string, string> = {
-                Sensor: Translate('IDCS_CHANGE_SENSOR'),
-                Motion: Translate('IDCS_CHANGE_MOTION'),
-                FaceMatch: Translate('IDCS_CHANGE_FACE'),
-                InvadeDetect: Translate('IDCS_CHANGE_INVADE'),
-                Tripwire: Translate('IDCS_CHANGE_TRIPWIRE'),
-            }
+
             if (isShowDetect == 'false') {
                 pageData.value.isDetectShow = true
                 pageData.value.detectEntity = row.alarmSourceEntity.label
@@ -493,7 +501,7 @@ export default defineComponent({
 
         const handleFaceMatchLinkedObj = (entity: string, obj: faceMatchObj) => {
             pageData.value.faceMatchObj[entity] = {}
-            pageData.value.faceMatchObj[entity]['obj'] = obj
+            pageData.value.faceMatchObj[entity].obj = obj
             changeDescription()
         }
 
@@ -537,7 +545,7 @@ export default defineComponent({
                 if (item.alarmSourceType == 'FaceMatch' && pageData.value.faceMatchObj[item.alarmSourceEntity.value]) {
                     if (pageData.value.faceMatchObj[item.alarmSourceEntity.value]) {
                         entity = item.alarmSourceEntity.value
-                        obj = pageData.value.faceMatchObj[item.alarmSourceEntity.value]['obj']
+                        obj = pageData.value.faceMatchObj[item.alarmSourceEntity.value].obj
                     }
                 }
             })

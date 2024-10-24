@@ -4,12 +4,7 @@
  * @Description: 错误锁定检查
  * 适用于错误指定次数后，锁定指定时间还有解锁的场景
  */
-import { useLangStore } from '@/stores/lang'
 import { type CountDownTime, CountDowner } from './countDowner'
-
-const LocalCacheKey = {
-    lockEndTimestamp: 'lockEndTimestamp',
-}
 
 export class ErrorLockChecker {
     //是否已锁定
@@ -46,11 +41,11 @@ export class ErrorLockChecker {
     setLockTime(lockTime: number) {
         this.lockTime = lockTime
         //每次设置锁定时间，计算锁定结束时间点存入缓存，每次初始化时（如刷新页面）或读取是否有上次锁定的结束时间，重新计算锁定时间，进行读秒
-        localStorage.setItem(`${this.busType}_${LocalCacheKey.lockEndTimestamp}`, '' + (Date.now() + lockTime))
+        localStorage.setItem(`${this.busType}_${LocalCacheKey.KEY_LOCK_END_TIMESTAMP}`, '' + (Date.now() + lockTime))
     }
 
     checkIsLocked() {
-        const lockEndTimestampStr = localStorage.getItem(`${this.busType}_${LocalCacheKey.lockEndTimestamp}`)
+        const lockEndTimestampStr = localStorage.getItem(`${this.busType}_${LocalCacheKey.KEY_LOCK_END_TIMESTAMP}`)
         const currentTime = Date.now()
         if (lockEndTimestampStr) {
             const lockEndTimestamp = Number(lockEndTimestampStr)

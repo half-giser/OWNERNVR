@@ -2,8 +2,8 @@
  * @Description: 录像——参数配置
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-02 16:12:12
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-18 14:29:07
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-24 11:05:24
  */
 
 import { cloneDeep } from 'lodash-es'
@@ -46,10 +46,7 @@ export default defineComponent({
             perList: [] as ItemList[],
             postList: [] as ItemList[],
             // 开关选项列表
-            switchOption: [
-                { value: 'true', label: Translate('IDCS_ON') },
-                { value: 'false', label: Translate('IDCS_OFF') },
-            ],
+            switchOption: getSwitchOptions(),
             isSetCustomization: false,
             expirationType: '',
             expirationData: {} as ChlRecParamList,
@@ -62,7 +59,7 @@ export default defineComponent({
             const $dev = queryXml(result)
 
             commLoadResponseHandler(result, ($) => {
-                pageData.value.doubleStreamRecSwitch = $('/response/content/doubleStreamRecSwitch').text()
+                pageData.value.doubleStreamRecSwitch = $('//content/doubleStreamRecSwitch').text()
                 switch (pageData.value.doubleStreamRecSwitch) {
                     case 'main':
                         break
@@ -72,10 +69,10 @@ export default defineComponent({
                         pageData.value.doubleStreamRecSwitch = 'double'
                 }
 
-                pageData.value.txtMSRecDuration = $('/response/content/mainStreamRecDuration').text()
-                pageData.value.chkLoopRec = $('/response/content/loopRecSwitch').text().toLowerCase() === 'true'
+                pageData.value.txtMSRecDuration = $('//content/mainStreamRecDuration').text()
+                pageData.value.chkLoopRec = $('//content/loopRecSwitch').text().toLowerCase() === 'true'
 
-                pageData.value.expirationList = $('/response/content/expirationNote')
+                pageData.value.expirationList = $('//content/expirationNote')
                     .text()
                     .split(',')
                     .map((item) => {
@@ -129,30 +126,23 @@ export default defineComponent({
             const $chl = queryXml(result)
 
             commLoadResponseHandler(result, ($) => {
-                pageData.value.perList = $('/response/content/item/preRecordTimeNote')
+                pageData.value.perList = $('//content/item/preRecordTimeNote')
                     .text()
                     .split(',')
                     .map((item) => {
                         return {
                             value: item,
-                            label: item == '0' ? Translate('IDCS_NO_BEFOREHAND_RECORD') : item + ' ' + Translate('IDCS_SECONDS'),
+                            label: item == '0' ? Translate('IDCS_NO_BEFOREHAND_RECORD') : getTranslateForSecond(Number(item)),
                         }
                     })
 
-                pageData.value.postList = $('/response/content/item/delayedRecordTimeNote')
+                pageData.value.postList = $('//content/item/delayedRecordTimeNote')
                     .text()
                     .split(',')
                     .map((item) => {
                         return {
                             value: item,
-                            label:
-                                item == '0'
-                                    ? Translate('IDCS_NO_DELAY')
-                                    : item == '60'
-                                      ? '1 ' + Translate('IDCS_MINUTE')
-                                      : Number(item) > 60
-                                        ? Number(item) / 60 + ' ' + Translate('IDCS_MINUTES')
-                                        : item + ' ' + Translate('IDCS_SECONDS'),
+                            label: item == '0' ? Translate('IDCS_NO_DELAY') : getTranslateForSecond(Number(item)),
                         }
                     })
             })
@@ -166,11 +156,11 @@ export default defineComponent({
             const $dev = await getDevRecParamData()
             const $chl = await getChlRecParamData()
 
-            if ($dev('/response/status').text() == 'success' && $chl('/response/status').text() == 'success') {
-                const expiration = $dev('/response/content/expiration').text()
-                const expirationUnit = $dev('/response/content/expiration').attr('unit')
+            if ($dev('//status').text() == 'success' && $chl('//status').text() == 'success') {
+                const expiration = $dev('//content/expiration').text()
+                const expirationUnit = $dev('//content/expiration').attr('unit')
 
-                tableData.value = $chl('/response/content/item').map((item, index) => {
+                tableData.value = $chl('//content/item').map((item, index) => {
                     const $item = queryXml(item.element)
 
                     const id = item.attr('id')!
@@ -190,7 +180,7 @@ export default defineComponent({
                         manufacturerEnable: pageData.value.IPCMap[id as string] == 'true',
                     }
                 })
-                $dev('/response/content/chlParam/item').forEach((item) => {
+                $dev('//content/chlParam/item').forEach((item) => {
                     const $item = queryXml(item.element)
 
                     const singleExpirationUnit = $item('expiration').attr('unit') ? $item('expiration').attr('unit') : 'd'
@@ -206,10 +196,10 @@ export default defineComponent({
                     })
                 })
                 tableData.value.forEach((item) => {
-                    if (!item['expiration']) {
-                        item['week'] = ''
-                        item['holiday'] = ''
-                        item['singleExpirationUnit'] = expirationUnit
+                    if (!item.expiration) {
+                        item.week = ''
+                        item.holiday = ''
+                        item.singleExpirationUnit = expirationUnit
                     } else {
                         if (item.singleExpirationUnit == 'h') {
                             item.expirationDisplay = item.expiration == '1' ? '1 ' + Translate('IDCS_HOUR') : item.expiration + ' ' + Translate('IDCS_HOURS')
@@ -222,8 +212,8 @@ export default defineComponent({
 
                 originalData.value.chlRecData = cloneDeep(tableData.value)
                 originalData.value.streamRecSwitch = {
-                    doubleStreamSwitch: $dev('/response/content/doubleStreamRecSwitch').text(),
-                    loopRecSwitch: $dev('/response/content/loopRecSwitch').text(),
+                    doubleStreamSwitch: $dev('//content/doubleStreamRecSwitch').text(),
+                    loopRecSwitch: $dev('//content/loopRecSwitch').text(),
                 }
             }
         }
@@ -251,11 +241,11 @@ export default defineComponent({
                     <chlParam>
             `
             tableData.value.forEach((item) => {
-                const singleExpirationUnit = item['singleExpirationUnit'] || 'd'
-                sendXml += `<item id='${item['id']}'>`
-                sendXml += item['week'] ? `<week>${item['week']}</week>` : ``
-                sendXml += item['holiday'] ? `<holiday>${item['holiday']}</holiday>` : ``
-                sendXml += item['expiration'] ? `<expiration unit='${singleExpirationUnit}'>${item['expiration']}</expiration>` : ``
+                const singleExpirationUnit = item.singleExpirationUnit || 'd'
+                sendXml += `<item id='${item.id}'>`
+                sendXml += item.week ? `<week>${item.week}</week>` : ``
+                sendXml += item.holiday ? `<holiday>${item.holiday}</holiday>` : ``
+                sendXml += item.expiration ? `<expiration unit='${singleExpirationUnit}'>${item.expiration}</expiration>` : ``
                 sendXml += `</item>`
             })
             sendXml += `</chlParam>`
@@ -293,6 +283,7 @@ export default defineComponent({
                     element.post = item.post
                     element.ANRSwitch = item.ANRSwitch
                 }
+
                 if (
                     item.expiration != element.expiration ||
                     item.expirationUnit != element.expirationUnit ||
@@ -316,6 +307,7 @@ export default defineComponent({
             if (devChangeList.length > 0 || doubleStreamSwitchChange || loopRecSwitchChange) {
                 devResult = await setDevRecData()
             }
+
             if (chlChangeList.length > 0) {
                 chlResult = await setChlRecData(chlChangeList)
                 // todo:原代码中P2P模式下进行如下处理，recParamCfg.js，444行
@@ -324,6 +316,7 @@ export default defineComponent({
                 //     result2=result2[0];
                 // }
             }
+
             if (devResult && chlResult) {
                 commSaveResponseHadler(chlResult)
             } else if (devResult) {

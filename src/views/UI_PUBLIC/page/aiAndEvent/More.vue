@@ -17,7 +17,7 @@
         >
             <el-form-item
                 :label="Translate('IDCS_CHANNEL_NAME')"
-                label-width="108px"
+                label-width="108"
             >
                 <el-select
                     v-model="pageData.currChlId"

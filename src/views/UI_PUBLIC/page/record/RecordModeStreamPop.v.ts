@@ -75,6 +75,7 @@ export default defineComponent({
             }
             pageData.value.initComplete = true
         }
+
         const tabSeleced = (key: string) => {
             console.log(key)
             if (key === REC_MODE_TYPE.INTENSIVE) {
@@ -83,19 +84,23 @@ export default defineComponent({
                 pageData.value.currenMode = 'event'
             }
         }
+
         const getBandwidth = (e: string) => {
             const text = cloneDeep(e)
             pageData.value.txtBandwidth = text
         }
+
         const getRecTime = (e: string) => {
             const text = cloneDeep(e)
             pageData.value.recTime = text
         }
+
         const handleCalculate = () => {
             if (recordStreamTableRef.value) {
                 recordStreamTableRef.value.queryRemainRecTimeF()
             }
         }
+
         const setData = () => {
             if (recordStreamTableRef.value) {
                 recordStreamTableRef.value.setData()

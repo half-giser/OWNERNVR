@@ -3,13 +3,13 @@
  * @Date: 2024-09-13 11:31:56
  * @Description: 过线检测邮件设置弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 14:16:03
+ * @LastEditTime: 2024-10-23 20:44:50
 -->
 <template>
     <el-dialog
         draggable
         center
-        width="600px"
+        width="600"
         :close-on-click-modal="false"
         @close="close"
         @open="open"
@@ -21,7 +21,7 @@
             center
             :close-on-click-modal="false"
             append-to-body
-            width="450px"
+            width="450"
         >
             <el-form
                 ref="formRef"
@@ -48,7 +48,6 @@
                 </el-form-item>
                 <el-form-item
                     :label="Translate('IDCS_SCHEDULE')"
-                    prop="schedule"
                     :style="{
                         '--form-input-width': '210px',
                     }"
@@ -56,7 +55,6 @@
                     <el-select
                         v-model="formData.schedule"
                         size="small"
-                        :options="pageData.scheduleList"
                     >
                         <el-option
                             v-for="item in pageData.scheduleList"
@@ -116,7 +114,6 @@
                         :disabled="pageData.data.sendEmailData.enableSwitch ? !pageData.data.sendEmailData.weeklyReportSwitch : true"
                         value-key="value"
                         class="inputWidth"
-                        :options="pageData.weekOption"
                         size="small"
                     >
                         <el-option
@@ -183,32 +180,23 @@
                         :data="pageData.data.receiverData"
                         stripe
                         border
-                        height="100px"
+                        height="100"
                         show-overflow-tooltip
                         :show-header="false"
                         class="table"
                         @row-click="handleRowClick($event)"
                     >
                         <el-table-column
-                            prop="address"
-                            width="170px"
+                            width="170"
                             :label="Translate('IDCS_RECIPIENT')"
                         >
                             <template #default="scope">
-                                <span>{{ formatAddress(scope.row) }}</span>
+                                {{ formatAddress(scope.row) }}
                             </template>
                         </el-table-column>
-                        <el-table-column
-                            prop="schedule"
-                            width="140px"
-                        >
+                        <el-table-column width="140">
                             <template #default="scope">
-                                <el-select
-                                    v-model="scope.row.schedule"
-                                    prop="schedule"
-                                    value-key="value"
-                                    :options="pageData.scheduleList"
-                                >
+                                <el-select v-model="scope.row.schedule">
                                     <el-option
                                         v-for="item in pageData.scheduleList"
                                         :key="item.value"
@@ -221,7 +209,7 @@
                         </el-table-column>
                         <el-table-column
                             :label="Translate('IDCS_DELETE')"
-                            width="70px"
+                            width="70"
                         >
                             <template #default="scope">
                                 <BaseImgSprite

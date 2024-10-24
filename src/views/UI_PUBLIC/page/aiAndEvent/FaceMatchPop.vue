@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-26 16:18:39
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 09:43:36
+ * @LastEditTime: 2024-10-24 10:00:03
 -->
 <template>
     <el-dialog
@@ -29,17 +29,11 @@
                         <el-form-item :label="Translate('IDCD_RULE')">
                             <el-select v-model="pageData.rule">
                                 <el-option
-                                    value="1"
-                                    :label="Translate('IDCS_SUCCESSFUL_RECOGNITION')"
-                                ></el-option>
-                                <el-option
-                                    value="0"
-                                    :label="Translate('IDCS_GROUP_STRANGER')"
-                                ></el-option>
-                                <el-option
-                                    value="2"
-                                    :label="Translate('IDCS_WORKTIME_MISS_HIT')"
-                                ></el-option>
+                                    v-for="item in pageData.ruleOptions"
+                                    :key="item.value"
+                                    :value="item.value"
+                                    :label="item.label"
+                                />
                             </el-select>
                         </el-form-item>
                         <el-form-item :label="Translate('IDCS_FEATURE_LIBRARY')">
@@ -71,33 +65,21 @@
                         <el-form-item :label="Translate('IDCS_PREALARM_BEFORE')">
                             <el-select v-model="pageData.duration">
                                 <el-option
-                                    :value="5"
-                                    :label="`5${Translate('IDCS_SECONDS')}`"
-                                ></el-option>
-                                <el-option
-                                    :value="1"
-                                    :label="`1${Translate('IDCS_SECONDS')}`"
-                                ></el-option>
-                                <el-option
-                                    :value="3"
-                                    :label="`3${Translate('IDCS_SECONDS')}`"
-                                ></el-option>
+                                    v-for="value in pageData.durationOptions"
+                                    :key="value"
+                                    :value
+                                    :label="getTranslateForSecond(value)"
+                                />
                             </el-select>
                         </el-form-item>
                         <el-form-item :label="Translate('IDCS_PREALARM_AFTER')">
                             <el-select v-model="pageData.delay">
                                 <el-option
-                                    :value="5"
-                                    :label="`5${Translate('IDCS_SECONDS')}`"
-                                ></el-option>
-                                <el-option
-                                    :value="1"
-                                    :label="`1${Translate('IDCS_SECONDS')}`"
-                                ></el-option>
-                                <el-option
-                                    :value="3"
-                                    :label="`3${Translate('IDCS_SECONDS')}`"
-                                ></el-option>
+                                    v-for="value in pageData.durationOptions"
+                                    :key="value"
+                                    :value
+                                    :label="getTranslateForSecond(value)"
+                                />
                             </el-select>
                         </el-form-item>
                     </el-form>

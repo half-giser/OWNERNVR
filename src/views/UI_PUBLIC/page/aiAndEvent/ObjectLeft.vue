@@ -2,8 +2,8 @@
  * @Description: AI 事件——更多——物品遗留与看护
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-18 09:43:32
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-21 10:54:17
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-23 20:21:14
 -->
 <template>
     <div>
@@ -205,7 +205,7 @@
                         <!-- 录像 -->
                         <div class="base-ai-linkage-box">
                             <div class="base-ai-linkage-title">
-                                <span>{{ `${Translate('IDCS_RECORD')} ` }}</span>
+                                <span>{{ Translate('IDCS_RECORD') }}</span>
                                 <el-button
                                     size="small"
                                     @click="pageData.recordIsShow = true"
@@ -222,7 +222,7 @@
                         <!-- 报警输出 -->
                         <div class="base-ai-linkage-box">
                             <div class="base-ai-linkage-title">
-                                <span>{{ `${Translate('IDCS_ALARM_OUT')} ` }}</span>
+                                <span>{{ Translate('IDCS_ALARM_OUT') }}</span>
                                 <el-button
                                     size="small"
                                     @click="pageData.alarmOutIsShow = true"
@@ -251,12 +251,12 @@
                             >
                                 <el-table-column
                                     prop="name"
-                                    width="180px"
+                                    width="180"
                                     :label="Translate('IDCS_CHANNEL_NAME')"
                                 >
                                 </el-table-column>
                                 <el-table-column
-                                    width="170px"
+                                    width="170"
                                     :label="Translate('IDCS_PRESET_NAME')"
                                 >
                                     <template #default="scope">

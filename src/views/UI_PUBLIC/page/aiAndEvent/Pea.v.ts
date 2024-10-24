@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 13:36:26
  * @Description: 区域入侵
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 17:19:40
+ * @LastEditTime: 2024-10-24 15:55:38
  */
 import { type chlCaps, type aiResourceRow, type peaPageData, type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
@@ -30,7 +30,7 @@ export default defineComponent({
             required: true,
         },
         voiceList: {
-            type: Array as PropType<{ value: string; label: string }[]>,
+            type: Array as PropType<SelectOption<string, string>[]>,
             required: true,
         },
         onlineChannelList: {
@@ -49,24 +49,31 @@ export default defineComponent({
         const aiResourceTableData = ref<aiResourceRow[]>([])
         const peaplayerRef = ref<PlayerInstance>()
         let peaDrawer: CanvasPolygon
+
+        const eventTypeMapping: Record<string, string> = {
+            faceDetect: Translate('IDCS_FACE_DETECTION') + '+' + Translate('IDCS_FACE_RECOGNITION'),
+            faceMatch: Translate('IDCS_FACE_RECOGNITION'),
+            tripwire: Translate('IDCS_BEYOND_DETECTION'),
+            perimeter: Translate('IDCS_INVADE_DETECTION'),
+        }
+
+        const closeTip = getAlarmEventList()
+
         const peaData = ref({
             // 当前选中的通道
             currChlId: '',
             // 当前选择通道数据
             chlData: {} as chlCaps,
             // 声音列表
-            voiceList: [] as { value: string; label: string }[],
+            voiceList: [] as SelectOption<string, string>[],
             // 是否支持声音设置
             supportAlarmAudioConfig: true,
-            // 默认声音id
-            defaultAudioId: '{00000000-0000-0000-0000-000000000000}',
             // 不支持功能提示页面是否展示
             notSupportTipShow: false,
             // 请求数据失败显示提示
             requireDataFail: false,
             // 排程管理
             scheduleManagePopOpen: false,
-            scheduleDefaultId: '{00000000-0000-0000-0000-000000000000}',
             scheduleList: [] as SelectOption<string, string>[],
             // 选择的功能:pea_param,pea_target,pea_trigger
             peaFunction: 'pea_param',
@@ -78,40 +85,12 @@ export default defineComponent({
             // apply按钮是否可用
             applyDisable: true,
 
-            eventTypeMapping: {
-                faceDetect: Translate('IDCS_FACE_DETECTION') + '+' + Translate('IDCS_FACE_RECOGNITION'),
-                faceMatch: Translate('IDCS_FACE_RECOGNITION'),
-                tripwire: Translate('IDCS_BEYOND_DETECTION'),
-                perimeter: Translate('IDCS_INVADE_DETECTION'),
-            } as Record<string, string>,
-            closeTip: {
-                cdd: Translate('IDCS_CROWD_DENSITY_DETECTION'),
-                cpc: Translate('IDCS_PASS_LINE_COUNT_DETECTION'),
-                ipd: Translate('IDCS_INVADE_DETECTION'),
-                tripwire: Translate('IDCS_BEYOND_DETECTION'),
-                osc: Translate('IDCS_WATCH_DETECTION'),
-                avd: Translate('IDCS_ABNORMAL_DETECTION'),
-                perimeter: Translate('IDCS_INVADE_DETECTION'),
-                vfd: Translate('IDCS_FACE_DETECTION'),
-                aoientry: Translate('IDCS_INVADE_DETECTION'),
-                aoileave: Translate('IDCS_INVADE_DETECTION'),
-                passlinecount: Translate('IDCS_PASS_LINE_COUNT_DETECTION'),
-                vehicle: Translate('IDCS_PLATE_DETECTION'),
-                fire: Translate('IDCS_FIRE_POINT_DETECTION'),
-                vsd: Translate('IDCS_VSD_DETECTION'),
-            } as Record<string, string>,
-            directionTypeTip: {
-                none: 'A<->B',
-                rightortop: 'A->B',
-                leftorbotton: 'A<-B',
-            } as Record<string, string>,
-
             // 是否启用侦测
             detectionEnable: false,
             // 用于对比
             originalEnable: false,
             // 侦测类型
-            detectionTypeText: Translate('IDCS_DETECTION_BY_DEVICE').formatForLang(props.chlData['supportTripwire'] ? 'IPC' : 'NVR'),
+            detectionTypeText: Translate('IDCS_DETECTION_BY_DEVICE').formatForLang(props.chlData.supportTripwire ? 'IPC' : 'NVR'),
             // activity_type 1:perimeter 2:entry 3:leave
             activity_type: 'perimeter',
             // 选择的警戒面index
@@ -139,18 +118,18 @@ export default defineComponent({
             // 区域活动
             areaActive: '',
             // 区域活动列表
-            areaActiveList: [] as { value: string; label: string }[],
+            areaActiveList: [] as SelectOption<string, string>[],
             // 方向
             direction: '',
             // 方向列表
-            directionList: [] as { value: string; label: string }[],
+            directionList: [] as SelectOption<string, string>[],
             // 区域活动禁用
             areaActiveDisable: false,
             // 方向禁用
             directionDisable: false,
 
-            recordSource: [] as { value: string; label: string }[],
-            alarmOutSource: [] as { value: string; label: string; device: { value: string; label: string } }[],
+            recordSource: [] as SelectOption<string, string>[],
+            alarmOutSource: [] as SelectOption<string, string>[],
             // 三种类型的数据
             areaCfgData: {
                 perimeter: {} as peaPageData,
@@ -196,15 +175,18 @@ export default defineComponent({
                         clearCurrentArea: peaClearCurrentArea,
                     })
                 }
+
                 if (isHttpsLogin()) {
                     peaData.value.notification = [formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`)]
                 }
             }
+
             if (peamode.value === 'ocx') {
                 if (!peaPlugin.IsInstallPlugin()) {
                     peaPlugin.SetPluginNotice('#layout2Content')
                     return
                 }
+
                 if (!peaPlugin.IsPluginAvailable()) {
                     pluginStore.showPluginNoResponse = true
                     peaPlugin.ShowPluginNoResponse()
@@ -215,6 +197,7 @@ export default defineComponent({
                 peaPlugin.DisplayOCX(true)
             }
         }
+
         /**
          * @description 播放视频
          */
@@ -232,11 +215,12 @@ export default defineComponent({
                         chlIdList: [id],
                         chlNameList: [name],
                         streamType: 'sub',
-                        chlIndexList: [peaData.value.chlData['id']],
-                        chlTypeList: [peaData.value.chlData['chlType']],
+                        chlIndexList: [peaData.value.chlData.id],
+                        chlTypeList: [peaData.value.chlData.chlType],
                     })
                     peaPlugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 }
+
                 if (peamode.value === 'ocx') {
                     peaPlugin.RetryStartChlView(id, name)
                 }
@@ -259,30 +243,31 @@ export default defineComponent({
         const setPeaSpeed = (speed: number) => {
             peaData.value.peaspeed = speed
         }
+
         // 关闭排程管理后刷新排程列表
         const handleSchedulePopClose = async () => {
             peaData.value.scheduleManagePopOpen = false
             await getScheduleList()
         }
+
         // 对sheduleList进行处理
         const getScheduleList = async () => {
             peaData.value.scheduleList = await buildScheduleList()
-            peaData.value.scheduleList.map((item) => {
-                item.value = item.value != '' ? item.value : peaData.value.scheduleDefaultId
-            })
         }
+
         // 获取AI资源请求
         const getAIResourceData = async (isEdit: boolean) => {
             let sendXml = ''
             if (isEdit) {
-                sendXml = rawXml`<content>
-                                    <chl>
-                                        <item id="${peaData.value.currChlId}">
-                                            <eventType>tripwire</eventType>
-                                            <switch>${peaData.value.detectionEnable.toString()}</switch>
-                                        </item>
-                                    </chl>
-                                </content>`
+                sendXml = rawXml`
+                    <content>
+                        <chl>
+                            <item id="${peaData.value.currChlId}">
+                                <eventType>tripwire</eventType>
+                                <switch>${peaData.value.detectionEnable.toString()}</switch>
+                            </item>
+                        </chl>
+                    </content>`
             }
             const res = await queryAIResourceDetail(sendXml)
             const $ = queryXml(res)
@@ -302,7 +287,7 @@ export default defineComponent({
                             const eventType: string[] = ele.attr('eventType') ? ele.attr('eventType')!.split(',') : []
                             const eventTypeText = eventType
                                 .map((item) => {
-                                    return peaData.value.eventTypeMapping[item]
+                                    return eventTypeMapping[item]
                                 })
                                 .join('+')
                             const percent = ele.text() + '%'
@@ -331,6 +316,7 @@ export default defineComponent({
                 }
             }
         }
+
         // 删除AI资源请求
         const deleteAIResource = async (row: aiResourceRow) => {
             let sendXml = rawXml`<content>
@@ -350,6 +336,7 @@ export default defineComponent({
                 aiResourceTableData.value.splice(aiResourceTableData.value.indexOf(row), 1)
             }
         }
+
         // 点击释放AI资源
         const handleAIResourceDel = async (row: aiResourceRow) => {
             openMessageTipBox({
@@ -360,18 +347,21 @@ export default defineComponent({
                 peaData.value.applyDisable = false
             })
         }
+
         // 获取区域入侵检测数据
         const getPeaData = async () => {
             peaData.value.supportList = []
             peaData.value.areaActiveList = []
             peaData.value.directionList = []
-            const sendXML = rawXml` <condition>
-                                        <chlId>${peaData.value.currChlId}</chlId>
-                                    </condition>
-                                    <requireField>
-                                        <param/>
-                                        <trigger/>
-                                    </requireField>`
+            const sendXML = rawXml`
+                <condition>
+                    <chlId>${peaData.value.currChlId}</chlId>
+                </condition>
+                <requireField>
+                    <param/>
+                    <trigger/>
+                </requireField>
+            `
             openLoading()
             const res = await queryIntelAreaConfig(sendXML)
             closeLoading()
@@ -379,8 +369,7 @@ export default defineComponent({
             if ($('status').text() == 'success') {
                 peaData.value.applyDisable = true
                 const schedule = $('//content/chl').attr('scheduleGuid')
-                peaData.value.pea_schedule =
-                    schedule != '' ? (peaData.value.scheduleList.some((item) => item.value == schedule) ? schedule : peaData.value.scheduleDefaultId) : peaData.value.scheduleDefaultId
+                peaData.value.pea_schedule = schedule != '' ? (peaData.value.scheduleList.some((item) => item.value == schedule) ? schedule : DEFAULT_EMPTY_ID) : DEFAULT_EMPTY_ID
                 getPeaActivityData('perimeter', res)
                 getPeaActivityData('entry', res)
                 getPeaActivityData('leave', res)
@@ -389,6 +378,7 @@ export default defineComponent({
                 if (peaData.value.supportList.includes('perimeter')) {
                     peaData.value.areaActiveList.push({ value: 'perimeter', label: Translate('IDCS_APPEAR') })
                 }
+
                 if (peaData.value.supportList.includes('entry') || peaData.value.supportList.includes('leave')) {
                     peaData.value.areaActiveList.push({ value: 'crossing', label: Translate('IDCS_CROSSING') })
                     peaData.value.directionList.push({ value: 'entry', label: Translate('IDCS_ENTRANCE') })
@@ -397,14 +387,14 @@ export default defineComponent({
                     peaData.value.directionDisable = true
                     peaData.value.directionList = []
                 }
-                peaData.value.areaActive = peaData.value.areaActiveList[0]['value']
+                peaData.value.areaActive = peaData.value.areaActiveList[0].value
                 if (peaData.value.areaActive == 'perimeter') {
                     peaData.value.activity_type = 'perimeter'
-                    peaData.value.direction = peaData.value.directionList.length > 0 ? peaData.value.directionList[0]['value'] : ''
+                    peaData.value.direction = peaData.value.directionList.length > 0 ? peaData.value.directionList[0].value : ''
                     peaData.value.directionDisable = true
                 } else if (peaData.value.areaActive == 'crossing') {
-                    peaData.value.activity_type = peaData.value.directionList[0]['value']
-                    peaData.value.direction = peaData.value.directionList[0]['value']
+                    peaData.value.activity_type = peaData.value.directionList[0].value
+                    peaData.value.direction = peaData.value.directionList[0].value
                     peaData.value.directionDisable = false
                 }
                 peaData.value.currentRegulation = peaData.value.areaCfgData[peaData.value.activity_type].regulation
@@ -413,6 +403,7 @@ export default defineComponent({
                 peaData.value.requireDataFail = true
             }
         }
+
         // 获取区域活动数据 perimeter/entry/leave
         const getPeaActivityData = (activity_type: string, res: XMLDocument | Element) => {
             const $ = queryXml(res)
@@ -453,7 +444,7 @@ export default defineComponent({
                     const region = { X1: 0, Y1: 0, X2: 0, Y2: 0 }
                     $('point/item').forEach((element, index) => {
                         const $ = queryXml(element.element)
-                        boundary['point'].push({ X: Number($('X').text()), Y: Number($('Y').text()), isClosed: true })
+                        boundary.point.push({ X: Number($('X').text()), Y: Number($('Y').text()), isClosed: true })
                         getRegion(index, element, region)
                     })
                     boundaryInfo.push(boundary)
@@ -564,14 +555,15 @@ export default defineComponent({
                     { value: peaData.value.areaCfgData[activity_type].popVideoSwitch, label: 'IDCS_VIDEO_POPUP', property: 'popVideoSwitch' },
                     { value: peaData.value.areaCfgData[activity_type].emailSwitch, label: 'IDCS_EMAIL', property: 'emailSwitch' },
                 ]
-                if (peaData.value.areaCfgData[activity_type].audioSuport && peaData.value.chlData['supportAudio']) {
+                if (peaData.value.areaCfgData[activity_type].audioSuport && peaData.value.chlData.supportAudio) {
                     peaData.value.areaCfgData[activity_type].peaTriggerData.push({
                         value: peaData.value.areaCfgData[activity_type].triggerAudio,
                         label: 'IDCS_AUDIO',
                         property: 'triggerAudio',
                     })
                 }
-                if (peaData.value.areaCfgData[activity_type].lightSuport && peaData.value.chlData['supportWhiteLight']) {
+
+                if (peaData.value.areaCfgData[activity_type].lightSuport && peaData.value.chlData.supportWhiteLight) {
                     peaData.value.areaCfgData[activity_type].peaTriggerData.push({
                         value: peaData.value.areaCfgData[activity_type].triggerWhiteLight,
                         label: 'IDCS_LIGHT',
@@ -580,26 +572,27 @@ export default defineComponent({
                 }
             }
         }
+
         // 保存区域入侵检测数据
         const savePeaData = async () => {
             let sendXml = rawXml`<content>
-                                        <chl id="${peaData.value.currChlId}" scheduleGuid="${peaData.value['pea_schedule']}">
+                                        <chl id="${peaData.value.currChlId}" scheduleGuid="${peaData.value.pea_schedule}">
                                     `
             peaData.value.supportList.forEach((type: string) => {
                 if (type != peaData.value.activity_type) {
-                    peaData.value.areaCfgData[type]['detectionEnable'] = false
+                    peaData.value.areaCfgData[type].detectionEnable = false
                 }
                 sendXml += rawXml`
                             <${type}>
                                 <param>
-                                    <switch>${peaData.value.areaCfgData[type]['detectionEnable'].toString()}</switch>
-                                    <alarmHoldTime unit="s">${peaData.value.areaCfgData[type]['holdTime'].toString()}</alarmHoldTime>
-                                    <boundary type="list" count="${peaData.value.areaCfgData[type]['boundaryInfo'].length.toString()}">
+                                    <switch>${peaData.value.areaCfgData[type].detectionEnable.toString()}</switch>
+                                    <alarmHoldTime unit="s">${peaData.value.areaCfgData[type].holdTime.toString()}</alarmHoldTime>
+                                    <boundary type="list" count="${peaData.value.areaCfgData[type].boundaryInfo.length.toString()}">
                                         <itemType>
                                             <point type="list"/>
                                         </itemType>
                         `
-                peaData.value.areaCfgData[type]['boundaryInfo'].forEach((element: { point: { X: number; Y: number; isClosed?: boolean }[]; maxCount: number; configured: boolean }) => {
+                peaData.value.areaCfgData[type].boundaryInfo.forEach((element: { point: { X: number; Y: number; isClosed?: boolean }[]; maxCount: number; configured: boolean }) => {
                     sendXml += rawXml`<item>
                                         <point type="list" maxCount="${element.maxCount.toString()}" count="${element.point.length.toString()}">`
                     element.point.forEach((point: { X: number; Y: number; isClosed?: boolean }) => {
@@ -614,41 +607,46 @@ export default defineComponent({
                                     </item>`
                 })
                 sendXml += rawXml`</boundary>`
-                if (peaData.value.areaCfgData[type]['audioSuport'] && peaData.value.chlData['supportAudio']) {
-                    sendXml += rawXml`<triggerAudio>${peaData.value.areaCfgData[type]['triggerAudio'].toString()}</triggerAudio>`
+                if (peaData.value.areaCfgData[type].audioSuport && peaData.value.chlData.supportAudio) {
+                    sendXml += rawXml`<triggerAudio>${peaData.value.areaCfgData[type].triggerAudio.toString()}</triggerAudio>`
                 }
-                if (peaData.value.areaCfgData[type]['lightSuport'] && peaData.value.chlData['supportWhiteLight']) {
-                    sendXml += rawXml`<triggerWhiteLight>${peaData.value.areaCfgData[type]['triggerWhiteLight'].toString()}</triggerWhiteLight>`
+
+                if (peaData.value.areaCfgData[type].lightSuport && peaData.value.chlData.supportWhiteLight) {
+                    sendXml += rawXml`<triggerWhiteLight>${peaData.value.areaCfgData[type].triggerWhiteLight.toString()}</triggerWhiteLight>`
                 }
-                if (peaData.value.areaCfgData[type]['pictureAvailable']) {
+
+                if (peaData.value.areaCfgData[type].pictureAvailable) {
                     sendXml += rawXml`
-                        <saveSourcePicture>${peaData.value.areaCfgData[type]['saveSourcePicture'].toString()}</saveSourcePicture>
-                        <saveTargetPicture>${peaData.value.areaCfgData[type]['saveTargetPicture'].toString()}</saveTargetPicture>
+                        <saveSourcePicture>${peaData.value.areaCfgData[type].saveSourcePicture.toString()}</saveSourcePicture>
+                        <saveTargetPicture>${peaData.value.areaCfgData[type].saveTargetPicture.toString()}</saveTargetPicture>
                     `
                 }
+
                 if (peaData.value.areaCfgData[type].hasAutoTrack) {
-                    sendXml += rawXml`<autoTrack>${peaData.value.areaCfgData[type]['autoTrack'].toString()}</autoTrack>`
+                    sendXml += rawXml`<autoTrack>${peaData.value.areaCfgData[type].autoTrack.toString()}</autoTrack>`
                 }
+
                 if (peaData.value.areaCfgData[type].pea_onlyPreson) {
-                    sendXml += rawXml`<sensitivity>${peaData.value.areaCfgData[type]['onlyPersonSensitivity'].toString()}</sensitivity>`
+                    sendXml += rawXml`<sensitivity>${peaData.value.areaCfgData[type].onlyPersonSensitivity.toString()}</sensitivity>`
                 }
+
                 if (peaData.value.areaCfgData[type].hasObj) {
                     sendXml += rawXml`
                                         <objectFilter>
                                             <car>
-                                                <switch>${peaData.value.areaCfgData[type]['car'].toString()}</switch>
-                                                <sensitivity>${peaData.value.areaCfgData[type]['carSensitivity'].toString()}</sensitivity>
+                                                <switch>${peaData.value.areaCfgData[type].car.toString()}</switch>
+                                                <sensitivity>${peaData.value.areaCfgData[type].carSensitivity.toString()}</sensitivity>
                                             </car>
                                             <person>
-                                                <switch>${peaData.value.areaCfgData[type]['person'].toString()}</switch>
-                                                <sensitivity>${peaData.value.areaCfgData[type]['personSensitivity'].toString()}</sensitivity>
+                                                <switch>${peaData.value.areaCfgData[type].person.toString()}</switch>
+                                                <sensitivity>${peaData.value.areaCfgData[type].personSensitivity.toString()}</sensitivity>
                                             </person>
                                             ${
-                                                peaData.value.chlData['accessType'] == '0'
+                                                peaData.value.chlData.accessType == '0'
                                                     ? rawXml`
                                             <motor>
-                                                <switch>${peaData.value.areaCfgData[type]['motorcycle'].toString()}</switch>
-                                                <sensitivity>${peaData.value.areaCfgData[type]['motorSensitivity'].toString()}</sensitivity>
+                                                <switch>${peaData.value.areaCfgData[type].motorcycle.toString()}</switch>
+                                                <sensitivity>${peaData.value.areaCfgData[type].motorSensitivity.toString()}</sensitivity>
                                             </motor>
                                             `
                                                     : ''
@@ -660,11 +658,11 @@ export default defineComponent({
                             <trigger>
                                 <sysRec>
                                     <chls type="list">`
-                sendXml += peaData.value.areaCfgData[type]['recordChls']
+                sendXml += peaData.value.areaCfgData[type].recordChls
                     .map(
                         (element: { value: string; label: string }) => rawXml`
-                                            <item id="${element['value']}">
-                                                <![CDATA[${element['label']}]]>
+                                            <item id="${element.value}">
+                                                <![CDATA[${element.label}]]>
                                             </item>
                                         `,
                     )
@@ -673,11 +671,11 @@ export default defineComponent({
                                 </sysRec>
                                 <alarmOut>
                                     <alarmOuts type="list">`
-                sendXml += peaData.value.areaCfgData[type]['alarmOutChls']
+                sendXml += peaData.value.areaCfgData[type].alarmOutChls
                     .map(
                         (element: { value: string; label: string }) => rawXml`
-                                            <item id="${element['value']}">
-                                                <![CDATA[${element['label']}]]>
+                                            <item id="${element.value}">
+                                                <![CDATA[${element.label}]]>
                                             </item>
                                         `,
                     )
@@ -686,14 +684,14 @@ export default defineComponent({
                                 </alarmOut>
                                 <preset>
                                     <presets type="list">`
-                peaData.value.areaCfgData[type]['presetSource'].forEach((element: PresetList) => {
-                    if (element['preset']['value']) {
+                peaData.value.areaCfgData[type].presetSource.forEach((element: PresetList) => {
+                    if (element.preset.value) {
                         sendXml += rawXml`
                                             <item>
-                                                <index>${element['preset']['value']}</index>
-                                                <name><![CDATA[${element['preset']['label']}]]></name>
-                                                <chl id="${element['id']}">
-                                                    <![CDATA[${element['name']}]]>
+                                                <index>${element.preset.value}</index>
+                                                <name><![CDATA[${element.preset.label}]]></name>
+                                                <chl id="${element.id}">
+                                                    <![CDATA[${element.name}]]>
                                                 </chl>
                                             </item>
                                         `
@@ -701,12 +699,12 @@ export default defineComponent({
                 })
                 sendXml += rawXml`</presets>
                                 </preset>
-                                <snapSwitch>${peaData.value.areaCfgData[type]['snapSwitch'].toString()}</snapSwitch>
-                                <msgPushSwitch>${peaData.value.areaCfgData[type]['msgPushSwitch'].toString()}</msgPushSwitch>
-                                <buzzerSwitch>${peaData.value.areaCfgData[type]['buzzerSwitch'].toString()}</buzzerSwitch>
-                                <popVideoSwitch>${peaData.value.areaCfgData[type]['popVideoSwitch'].toString()}</popVideoSwitch>
-                                <emailSwitch>${peaData.value.areaCfgData[type]['emailSwitch'].toString()}</emailSwitch>
-                                <sysAudio id='${peaData.value.areaCfgData[type]['sysAudio']}'></sysAudio>
+                                <snapSwitch>${peaData.value.areaCfgData[type].snapSwitch.toString()}</snapSwitch>
+                                <msgPushSwitch>${peaData.value.areaCfgData[type].msgPushSwitch.toString()}</msgPushSwitch>
+                                <buzzerSwitch>${peaData.value.areaCfgData[type].buzzerSwitch.toString()}</buzzerSwitch>
+                                <popVideoSwitch>${peaData.value.areaCfgData[type].popVideoSwitch.toString()}</popVideoSwitch>
+                                <emailSwitch>${peaData.value.areaCfgData[type].emailSwitch.toString()}</emailSwitch>
+                                <sysAudio id='${peaData.value.areaCfgData[type].sysAudio}'></sysAudio>
                             </trigger>
                         </${type}>
                     `
@@ -721,9 +719,9 @@ export default defineComponent({
             if (res('status').text() == 'success') {
                 peaData.value.applyDisable = true
                 if (peaData.value.areaCfgData[peaData.value.activity_type].detectionEnable) {
-                    peaData.value.areaCfgData['perimeter'].originalEnable = true
-                    peaData.value.areaCfgData['entry'].originalEnable = true
-                    peaData.value.areaCfgData['leave'].originalEnable = true
+                    peaData.value.areaCfgData.perimeter.originalEnable = true
+                    peaData.value.areaCfgData.entry.originalEnable = true
+                    peaData.value.areaCfgData.leave.originalEnable = true
                 }
                 // 保存成功后刷新视频区域，四个点时区域没有闭合但保存后也可以闭合（四点已经可以画面） TODO
                 // setPeaOcxData()
@@ -738,6 +736,7 @@ export default defineComponent({
                 }
             }
         }
+
         // 执行保存pea数据
         const handlePeaApply = async () => {
             if (!verification()) return
@@ -749,16 +748,16 @@ export default defineComponent({
             }
             const mutexChlNameObj = getMutexChlNameObj()
             data.mutexList.forEach((ele: { object: string; status: boolean }) => {
-                if (ele['status']) {
-                    const prefixName = mutexChlNameObj['normalChlName'] ? joinSpaceForLang(Translate('IDCS_CHANNEL') + ':' + mutexChlNameObj['normalChlName']) : ''
-                    const showInfo = prefixName ? prefixName + peaData.value.closeTip[ele['object']].toLowerCase() : peaData.value.closeTip[ele['object']]
+                if (ele.status) {
+                    const prefixName = mutexChlNameObj.normalChlName ? joinSpaceForLang(Translate('IDCS_CHANNEL') + ':' + mutexChlNameObj.normalChlName) : ''
+                    const showInfo = prefixName ? prefixName + closeTip[ele.object].toLowerCase() : closeTip[ele.object]
                     switchChangeTypeArr.push(showInfo)
                 }
             })
             data.mutexListEx.forEach((ele: { object: string; status: boolean }) => {
-                if (ele['status']) {
-                    const prefixName = mutexChlNameObj['thermalChlName'] ? joinSpaceForLang(Translate('IDCS_CHANNEL') + ':' + mutexChlNameObj['thermalChlName']) : ''
-                    const showInfo = prefixName ? prefixName + peaData.value.closeTip[ele['object']].toLowerCase() : peaData.value.closeTip[ele['object']]
+                if (ele.status) {
+                    const prefixName = mutexChlNameObj.thermalChlName ? joinSpaceForLang(Translate('IDCS_CHANNEL') + ':' + mutexChlNameObj.thermalChlName) : ''
+                    const showInfo = prefixName ? prefixName + closeTip[ele.object].toLowerCase() : closeTip[ele.object]
                     switchChangeTypeArr.push(showInfo)
                 }
             })
@@ -766,7 +765,7 @@ export default defineComponent({
                 const switchChangeType = switchChangeTypeArr.join(',')
                 openMessageTipBox({
                     type: 'question',
-                    message: Translate('IDCS_SIMPLE_INVADE_DETECT_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + peaData.value.chlData['name'], switchChangeType),
+                    message: Translate('IDCS_SIMPLE_INVADE_DETECT_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + peaData.value.chlData.name, switchChangeType),
                 }).then(async () => {
                     await savePeaData()
                 })
@@ -774,50 +773,17 @@ export default defineComponent({
                 await savePeaData()
             }
         }
+
         // 获取recordList
         const getRecordList = async () => {
-            peaData.value.recordSource = []
-            const resb = await getChlList({
-                nodeType: 'chls',
-                isSupportSnap: false,
-            })
-            const res = queryXml(resb)
-            if (res('status').text() == 'success') {
-                res('//content/item').forEach((item) => {
-                    const $item = queryXml(item.element)
-                    peaData.value.recordSource.push({
-                        value: item.attr('id')!,
-                        label: $item('name').text(),
-                    })
-                })
-            }
+            peaData.value.recordSource = await buildRecordChlList()
         }
+
         // 获取alarmOutList
         const getAlarmOutList = async () => {
-            peaData.value.alarmOutSource = []
-            const resb = await getChlList({
-                requireField: ['device'],
-                nodeType: 'alarmOuts',
-            })
-            const res = queryXml(resb)
-            if (res('status').text() == 'success') {
-                res('//content/item').forEach((item) => {
-                    const $item = queryXml(item.element)
-                    let name = $item('name').text()
-                    if ($item('devDesc').text()) {
-                        name = $item('devDesc').text() + '-' + name
-                    }
-                    peaData.value.alarmOutSource.push({
-                        value: item.attr('id')!,
-                        label: name,
-                        device: {
-                            value: $item('device').attr('id'),
-                            label: $item('device').text(),
-                        },
-                    })
-                })
-            }
+            peaData.value.alarmOutSource = await buildAlarmOutChlList()
         }
+
         // 获取preset
         const getPresetList = async () => {
             const result = await getChlList({
@@ -857,6 +823,7 @@ export default defineComponent({
                 })
             })
         }
+
         // 预置点选择框下拉时获取预置点列表数据
         const getPresetById = async (row: PresetList) => {
             if (!row.isGetPresetList) {
@@ -868,7 +835,7 @@ export default defineComponent({
             `
                 const result = await queryChlPresetList(sendXml)
                 commLoadResponseHandler(result, ($) => {
-                    $('/response/content/presets/item').forEach((item) => {
+                    $('//content/presets/item').forEach((item) => {
                         row.presetList.push({
                             value: item.attr('index')!,
                             label: item.text(),
@@ -884,18 +851,18 @@ export default defineComponent({
             let normalChlName = ''
             let thermalChlName = ''
             const sameIPChlList: { id: string; ip: string; name: string; accessType: string }[] = []
-            const chlIp = peaData.value.chlData['ip']
+            const chlIp = peaData.value.chlData.ip
             props.onlineChannelList.forEach((chl) => {
-                if (chl['ip'] == chlIp) {
+                if (chl.ip == chlIp) {
                     sameIPChlList.push(chl)
                 }
             })
             if (sameIPChlList.length > 1) {
                 sameIPChlList.forEach((chl) => {
-                    if (chl['accessType'] == '1') {
-                        thermalChlName = chl['name'] == peaData.value.chlData['name'] ? '' : chl['name']
+                    if (chl.accessType == '1') {
+                        thermalChlName = chl.name == peaData.value.chlData.name ? '' : chl.name
                     } else {
-                        normalChlName = chl['name'] == peaData.value.chlData['name'] ? '' : chl['name']
+                        normalChlName = chl.name == peaData.value.chlData.name ? '' : chl.name
                     }
                 })
             }
@@ -904,6 +871,7 @@ export default defineComponent({
                 thermalChlName: thermalChlName,
             }
         }
+
         // 获取区域
         const getRegion = (index: number, element: XmlElement, region: { X1: number; Y1: number; X2: number; Y2: number }) => {
             const $ = queryXml(element.element)
@@ -911,13 +879,16 @@ export default defineComponent({
                 region.X1 = Number($('X').text())
                 region.Y1 = Number($('Y').text())
             }
+
             if (index == 1) {
                 region.X2 = Number($('X').text())
             }
+
             if (index == 2) {
                 region.Y2 = Number($('Y').text())
             }
         }
+
         // 获取矩形区域点列表
         const getRegionPoints = (points: { X1: number; Y1: number; X2: number; Y2: number }) => {
             const pointList = []
@@ -927,6 +898,7 @@ export default defineComponent({
             pointList.push({ X: points.X1, Y: points.Y2, isClosed: true })
             return pointList
         }
+
         // pea检验区域合法性
         const verification = () => {
             // 区域为多边形时，检测区域合法性(区域入侵AI事件中：currentRegulation为false时区域为多边形；currentRegulation为true时区域为矩形-联咏IPC)
@@ -963,18 +935,19 @@ export default defineComponent({
             if (peaData.value.peaFunction == 'pea_param') {
                 const type = peaData.value.activity_type
                 const area = peaData.value.chosenWarnAreaIndex
-                const boundaryInfo = peaData.value.areaCfgData[type]['boundaryInfo']
+                const boundaryInfo = peaData.value.areaCfgData[type].boundaryInfo
                 if (peamode.value === 'h5') {
                     peaDrawer.setEnable(true)
                     setPeaOcxData()
                 } else {
                     setTimeout(() => {
-                        const sendXML1 = OCX_XML_SetPeaArea(boundaryInfo[area]['point'], peaData.value.currentRegulation)
+                        const sendXML1 = OCX_XML_SetPeaArea(boundaryInfo[area].point, peaData.value.currentRegulation)
                         peaPlugin.GetVideoPlugin().ExecuteCmd(sendXML1)
                         const sendXML2 = OCX_XML_SetPeaAreaAction('EDIT_ON')
                         peaPlugin.GetVideoPlugin().ExecuteCmd(sendXML2)
                     }, 100)
                 }
+
                 if (peaData.value.isShowAllArea) {
                     showAllPeaArea(true)
                 }
@@ -993,6 +966,7 @@ export default defineComponent({
                 }
             }
         }
+
         // pea刷新页面数据
         const peaRefreshInitPage = () => {
             const type = peaData.value.activity_type
@@ -1034,6 +1008,7 @@ export default defineComponent({
                 }
             }
         }
+
         // 初始化数据
         const initPageData = async () => {
             peaData.value.supportAlarmAudioConfig = systemCaps.supportAlarmAudioConfig
@@ -1047,7 +1022,7 @@ export default defineComponent({
                 if (peamode.value === 'ocx') {
                     peaPlugin?.VideoPluginNotifyEmitter.addListener(peaLiveNotify2Js)
                 }
-                peaData.value.detectionTypeText = Translate('IDCS_DETECTION_BY_DEVICE').formatForLang(peaData.value.chlData['supportPea'] ? 'IPC' : 'NVR')
+                peaData.value.detectionTypeText = Translate('IDCS_DETECTION_BY_DEVICE').formatForLang(peaData.value.chlData.supportPea ? 'IPC' : 'NVR')
                 await getPeaData()
                 peaData.value.currentRegulation = peaData.value.areaCfgData[peaData.value.activity_type].regulation
                 peaData.value.currAreaType = peaData.value.currentRegulation ? 'regionArea' : 'detectionArea'
@@ -1056,6 +1031,7 @@ export default defineComponent({
                 if (peaData.value.chlData.supportAutoTrack) {
                     getPTZLockStatus()
                 }
+
                 if (peamode.value === 'h5') {
                     peaDrawer.setEnable(true)
                 } else {
@@ -1070,26 +1046,29 @@ export default defineComponent({
         // 变更detectionEnable操作
         const handleDectionChange = async () => {
             peaData.value.applyDisable = false
-            if (!peaData.value.chlData['supportTripwire']) {
+            if (!peaData.value.chlData.supportTripwire) {
                 await getAIResourceData(true)
             }
         }
+
         // 格式化持续时间
         const formatHoldTime = (holdTimeList: string[]) => {
-            const timeList: { value: number; label: string }[] = []
+            const timeList: SelectOption<number, string>[] = []
             holdTimeList.forEach((ele) => {
                 const element = Number(ele)
-                const itemText = element == 60 ? '1 ' + Translate('IDCS_MINUTE') : element > 60 ? element / 60 + ' ' + Translate('IDCS_MINUTES') : element + ' ' + Translate('IDCS_SECONDS')
+                const itemText = getTranslateForSecond(element)
                 timeList.push({ value: element, label: itemText })
             })
             timeList.sort((a, b) => a.value - b.value)
             return timeList
         }
+
         // pea执行是否显示全部区域
         const handlePeaShowAllAreaChange = () => {
             peaDrawer && peaDrawer.setEnableShowAll(peaData.value.isShowAllArea)
             showAllPeaArea(peaData.value.isShowAllArea)
         }
+
         // pea切换区域活动操作
         const handleAreaActiveChange = async () => {
             if (peaData.value.areaActive == 'perimeter') {
@@ -1106,6 +1085,7 @@ export default defineComponent({
             peaRefreshInitPage()
             setPeaOcxData()
         }
+
         // pea切换方向操作
         const handlePeaDirectionChange = async () => {
             peaData.value.activity_type = peaData.value.direction
@@ -1115,11 +1095,13 @@ export default defineComponent({
             peaRefreshInitPage()
             setPeaOcxData()
         }
+
         // pea选择警戒区域
         const handleWarnAreaChange = () => {
             // peaData.value.chosenWarnAreaIndex = index
             setPeaOcxData()
         }
+
         // 通用获取云台锁定状态
         const getPTZLockStatus = async () => {
             const sendXML = rawXml`<condition>
@@ -1132,6 +1114,7 @@ export default defineComponent({
                 peaData.value.lockStatus = $('//content/chl/param/PTZLock').text() == 'true'
             }
         }
+
         // 通用修改云台锁定状态
         const editLockStatus = () => {
             const sendXML = rawXml`<content>
@@ -1170,6 +1153,7 @@ export default defineComponent({
                 })
             }
         }
+
         // pea单个联动选择
         const handlePeaTrigger = (item: { value: boolean; label: string; property: string }) => {
             peaData.value.applyDisable = false
@@ -1178,8 +1162,9 @@ export default defineComponent({
             const triggerSwitch = peaData.value.areaCfgData[peaData.value.activity_type].peaTriggerData.every((item) => item.value)
             peaData.value.areaCfgData[peaData.value.activity_type].triggerSwitch = triggerSwitch
         }
+
         // 设置record
-        const recordConfirm = (e: { value: string; label: string }[]) => {
+        const recordConfirm = (e: SelectOption<string, string>[]) => {
             peaData.value.applyDisable = false
             if (e.length !== 0) {
                 peaData.value.areaCfgData[peaData.value.activity_type].recordChls = cloneDeep(e)
@@ -1192,6 +1177,7 @@ export default defineComponent({
             }
             peaData.value.areaCfgData[peaData.value.activity_type].recordIsShow = false
         }
+
         // record弹窗关闭
         const recordClose = () => {
             if (!peaData.value.areaCfgData[peaData.value.activity_type].recordChls.length) {
@@ -1201,8 +1187,9 @@ export default defineComponent({
             }
             peaData.value.areaCfgData[peaData.value.activity_type].recordIsShow = false
         }
+
         // 设置alarmOut
-        const alarmOutConfirm = (e: { value: string; label: string }[]) => {
+        const alarmOutConfirm = (e: SelectOption<string, string>[]) => {
             peaData.value.applyDisable = false
             if (e.length !== 0) {
                 peaData.value.areaCfgData[peaData.value.activity_type].alarmOutChls = cloneDeep(e)
@@ -1215,6 +1202,7 @@ export default defineComponent({
             }
             peaData.value.areaCfgData[peaData.value.activity_type].alarmOutIsShow = false
         }
+
         // alarmOut弹窗关闭
         const alarmOutClose = () => {
             if (!peaData.value.areaCfgData[peaData.value.activity_type].alarmOutChls.length) {
@@ -1245,20 +1233,22 @@ export default defineComponent({
             const area = peaData.value.chosenWarnAreaIndex
             if (peaData.value.areaCfgData[type].regulation) {
                 if (!Array.isArray(points)) {
-                    peaData.value.areaCfgData[type].boundaryInfo[area]['point'] = getRegionPoints(points)
+                    peaData.value.areaCfgData[type].boundaryInfo[area].point = getRegionPoints(points)
                     peaData.value.areaCfgData[type].regionInfo[area] = points
                 }
             } else {
                 if (Array.isArray(points)) {
-                    peaData.value.areaCfgData[type].boundaryInfo[area]['point'] = points
+                    peaData.value.areaCfgData[type].boundaryInfo[area].point = points
                 }
             }
+
             if (peaData.value.isShowAllArea) {
                 showAllPeaArea(true)
             }
             peaRefreshInitPage()
             peaData.value.applyDisable = false
         }
+
         // pea是否显示所有区域
         const showAllPeaArea = (isShowAll: boolean) => {
             peaDrawer && peaDrawer.setEnableShowAll(isShowAll)
@@ -1267,7 +1257,7 @@ export default defineComponent({
                 const index = peaData.value.chosenWarnAreaIndex
                 if (peaData.value.currentRegulation) {
                     // 画矩形
-                    const regionInfoList = peaData.value.areaCfgData[type]['regionInfo']
+                    const regionInfoList = peaData.value.areaCfgData[type].regionInfo
                     if (peamode.value === 'h5') {
                         peaDrawer.setCurrAreaIndex(index, peaData.value.currAreaType)
                         peaDrawer.drawAllRegion(regionInfoList, index)
@@ -1282,7 +1272,7 @@ export default defineComponent({
                 } else {
                     // 画点
                     const boundaryInfo: { X: number; Y: number; isClosed?: boolean }[][] = []
-                    const boundaryInfoList = peaData.value.areaCfgData[type]['boundaryInfo']
+                    const boundaryInfoList = peaData.value.areaCfgData[type].boundaryInfo
                     boundaryInfoList.forEach((ele, idx) => {
                         boundaryInfo[idx] = ele.point.map((item: { X: number; Y: number; isClosed?: boolean }) => {
                             return { X: item.X, Y: item.Y, isClosed: item.isClosed }
@@ -1317,12 +1307,13 @@ export default defineComponent({
                 // setPeaOcxData()
             }
         }
+
         // pea显示
         const setPeaOcxData = () => {
             const type = peaData.value.activity_type
             const area = peaData.value.chosenWarnAreaIndex
-            const boundaryInfo = peaData.value.areaCfgData[type]['boundaryInfo']
-            const regionInfo = peaData.value.areaCfgData[type]['regionInfo']
+            const boundaryInfo = peaData.value.areaCfgData[type].boundaryInfo
+            const regionInfo = peaData.value.areaCfgData[type].regionInfo
             if (boundaryInfo.length > 0) {
                 if (peamode.value === 'h5') {
                     peaDrawer.setCurrAreaIndex(area, peaData.value.currAreaType)
@@ -1331,19 +1322,21 @@ export default defineComponent({
                         peaDrawer.setArea(regionInfo[area])
                     } else {
                         // 画点
-                        peaDrawer.setPointList(boundaryInfo[area]['point'])
+                        peaDrawer.setPointList(boundaryInfo[area].point)
                     }
                 } else {
-                    const sendXML = OCX_XML_SetPeaArea(boundaryInfo[area]['point'], peaData.value.currentRegulation)
+                    const sendXML = OCX_XML_SetPeaArea(boundaryInfo[area].point, peaData.value.currentRegulation)
                     if (sendXML) {
                         peaPlugin.GetVideoPlugin().ExecuteCmd(sendXML)
                     }
                 }
             }
+
             if (peaData.value.isShowAllArea == true) {
                 showAllPeaArea(true)
             }
         }
+
         // 区域关闭
         const peaClosePath = (
             points: {
@@ -1354,11 +1347,12 @@ export default defineComponent({
         ) => {
             const currType = peaData.value.activity_type
             const area = peaData.value.chosenWarnAreaIndex
-            peaData.value.areaCfgData[currType]['boundaryInfo'][area]['point'] = points
-            peaData.value.areaCfgData[currType]['boundaryInfo'][area]['point'].forEach((ele) => {
+            peaData.value.areaCfgData[currType].boundaryInfo[area].point = points
+            peaData.value.areaCfgData[currType].boundaryInfo[area].point.forEach((ele) => {
                 ele.isClosed = true
             })
         }
+
         // 提示区域关闭
         const peaForceClosePath = (canBeClosed: boolean) => {
             if (!canBeClosed) {
@@ -1368,6 +1362,7 @@ export default defineComponent({
                 })
             }
         }
+
         // 清空当前区域对话框
         const peaClearCurrentArea = () => {
             const currType = peaData.value.activity_type
@@ -1378,7 +1373,7 @@ export default defineComponent({
                 type: 'question',
                 message: Translate('IDCS_DRAW_CLEAR_TIP'),
             }).then(() => {
-                peaData.value.areaCfgData[currType]['boundaryInfo'][area]['point'] = []
+                peaData.value.areaCfgData[currType].boundaryInfo[area].point = []
                 if (peamode.value === 'h5') {
                     peaDrawer && peaDrawer.clear()
                 } else {
@@ -1387,7 +1382,7 @@ export default defineComponent({
                         peaPlugin.GetVideoPlugin().ExecuteCmd(sendXML)
                     }
                 }
-                peaData.value.areaCfgData[currType]['boundaryInfo'][area]['configured'] = false
+                peaData.value.areaCfgData[currType].boundaryInfo[area].configured = false
                 if (peaData.value.isShowAllArea) {
                     showAllPeaArea(true)
                 }
@@ -1395,13 +1390,14 @@ export default defineComponent({
             })
             // }
         }
+
         // 清空当前区域按钮
         const peaClearCurrentAreaBtn = () => {
             const currType = peaData.value.activity_type
             const area = peaData.value.chosenWarnAreaIndex
-            peaData.value.areaCfgData[currType]['boundaryInfo'][area]['point'] = []
-            peaData.value.areaCfgData[currType]['boundaryInfo'][area]['configured'] = false
-            peaData.value.areaCfgData[currType]['regionInfo'][area] = { X1: 0, Y1: 0, X2: 0, Y2: 0 }
+            peaData.value.areaCfgData[currType].boundaryInfo[area].point = []
+            peaData.value.areaCfgData[currType].boundaryInfo[area].configured = false
+            peaData.value.areaCfgData[currType].regionInfo[area] = { X1: 0, Y1: 0, X2: 0, Y2: 0 }
             if (peamode.value === 'h5') {
                 peaDrawer.clear()
             } else {
@@ -1410,16 +1406,18 @@ export default defineComponent({
                     peaPlugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 }
             }
+
             if (peaData.value.isShowAllArea) {
                 showAllPeaArea(true)
             }
             peaData.value.applyDisable = false
         }
+
         // 清空所有区域
         const clearAllPeaArea = () => {
             const type = peaData.value.activity_type
-            const regionInfoList = peaData.value.areaCfgData[type]['regionInfo']
-            const boundaryInfoList = peaData.value.areaCfgData[type]['boundaryInfo']
+            const regionInfoList = peaData.value.areaCfgData[type].regionInfo
+            const boundaryInfoList = peaData.value.areaCfgData[type].boundaryInfo
             if (peaData.value.currentRegulation) {
                 // 画矩形
                 regionInfoList.forEach((ele) => {
@@ -1435,6 +1433,7 @@ export default defineComponent({
                     ele.configured = false
                 })
             }
+
             if (peamode.value === 'h5') {
                 peaDrawer.clear()
             } else {
@@ -1456,6 +1455,7 @@ export default defineComponent({
                     peaPlugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 }
             }
+
             if (peaData.value.isShowAllArea) {
                 showAllPeaArea(true)
             }
@@ -1478,19 +1478,20 @@ export default defineComponent({
                 })
                 const area = peaData.value.chosenWarnAreaIndex
                 if (peaData.value.currentRegulation) {
-                    peaData.value.areaCfgData[currType]['boundaryInfo'][area]['point'] = points
-                    peaData.value.areaCfgData[currType]['regionInfo'][area] = {
-                        X1: points[0]['X'],
-                        Y1: points[0]['Y'],
-                        X2: points[1]['X'],
-                        Y2: points[2]['Y'],
+                    peaData.value.areaCfgData[currType].boundaryInfo[area].point = points
+                    peaData.value.areaCfgData[currType].regionInfo[area] = {
+                        X1: points[0].X,
+                        Y1: points[0].Y,
+                        X2: points[1].X,
+                        Y2: points[2].Y,
                     }
                 } else {
-                    peaData.value.areaCfgData[currType]['boundaryInfo'][area]['point'] = points
+                    peaData.value.areaCfgData[currType].boundaryInfo[area].point = points
                 }
                 peaRefreshInitPage()
                 peaData.value.applyDisable = false
             }
+
             // 处理错误码
             if (errorCode == '517') {
                 // 517-区域已闭合
@@ -1528,6 +1529,7 @@ export default defineComponent({
                 peaPlugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 peaPlugin.CloseCurPlugin(document.getElementById('peaplayer'))
             }
+
             if (peamode.value === 'h5') {
                 peaPlayer.destroy()
             }

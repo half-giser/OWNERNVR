@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-14 17:06:01
  * @Description: 报警服务器
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-22 11:16:02
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-23 20:36:54
 -->
 <template>
     <div class="base-flex-box">
@@ -15,7 +15,7 @@
         <el-dialog
             v-model="pageData.showAlarmTransfer"
             :title="Translate('IDCS_ALARM_TYPE')"
-            width="615px"
+            width="615"
             draggable
             center
             :visible="pageData.showAlarmTransfer"
@@ -50,15 +50,12 @@
             :rules="rules"
             class="form narrow inline-message"
             label-position="left"
-            label-width="172px"
+            label-width="172"
             :style="{
                 '--form-input-width': '250px',
             }"
         >
-            <el-form-item
-                prop="enable"
-                label-width="0px"
-            >
+            <el-form-item>
                 <el-checkbox v-model="formData.enable">{{ Translate('IDCS_ENABLE') }}</el-checkbox>
             </el-form-item>
             <!-- 多UI -->
@@ -99,10 +96,7 @@
                 />
             </el-form-item>
             <!-- url -->
-            <el-form-item
-                prop="url"
-                :label="Translate('IDCS_SERVER_URL')"
-            >
+            <el-form-item :label="Translate('IDCS_SERVER_URL')">
                 <el-input
                     v-model="formData.url"
                     :disabled="!(formData.enable && !pageData.urlDisabled)"
@@ -111,10 +105,7 @@
                 />
             </el-form-item>
             <!-- port -->
-            <el-form-item
-                prop="port"
-                :label="Translate('IDCS_PORT')"
-            >
+            <el-form-item :label="Translate('IDCS_PORT')">
                 <BaseNumberInput
                     v-model="formData.port"
                     :disabled="!formData.enable"
@@ -123,15 +114,10 @@
                 />
             </el-form-item>
             <!-- protocol -->
-            <el-form-item
-                prop="protocol"
-                :label="Translate('IDCS_PROTOCOL')"
-            >
+            <el-form-item :label="Translate('IDCS_PROTOCOL')">
                 <el-select
                     v-model="formData.protocol"
                     :disabled="!formData.enable"
-                    value-key="value"
-                    :options="pageData.protocolOptions"
                     @change="handleProtocolChange()"
                 >
                     <el-option
@@ -144,10 +130,7 @@
             </el-form-item>
             <br />
             <!-- heartEnable -->
-            <el-form-item
-                prop="heartEnable"
-                label-width="0px"
-            >
+            <el-form-item prop="heartEnable">
                 <el-checkbox
                     v-model="formData.heartEnable"
                     :disabled="!(formData.enable && !pageData.heartEnableDisabled)"
@@ -173,10 +156,7 @@
             >
                 <el-select
                     v-model="formData.schedule"
-                    prop="schedule"
                     :disabled="!formData.enable"
-                    value-key="value"
-                    :options="pageData.scheduleList"
                 >
                     <el-option
                         v-for="item in pageData.scheduleList"

@@ -2,8 +2,8 @@
  * @Description: 普通事件——传感器
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-23 10:58:27
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-18 14:47:15
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-24 17:50:45
  */
 import { type PresetItem, SensorEvent, type ChlList } from '@/types/apiType/aiAndEvent'
 import { QueryNodeListDto } from '@/types/apiType/channel'
@@ -24,7 +24,6 @@ export default defineComponent({
 
         // 名称被修改时保存原始名称
         const originalName = ref('')
-        const defaultAudioId = '{00000000-0000-0000-0000-000000000000}'
 
         const pageData = ref({
             // 分页有关变量
@@ -35,15 +34,9 @@ export default defineComponent({
             scheduleList: [] as SelectOption<string, string>[],
             scheduleManagePopOpen: false,
             // 类型
-            typeList: [
-                { value: 'NO', label: Translate('IDCS_ALWAYS_OPEN') },
-                { value: 'NC', label: Translate('IDCS_ALWAYS_CLOSE') },
-            ],
+            typeList: getAlwaysOptions(),
             // 启用、推送、蜂鸣器、消息框弹出、email
-            switchList: [
-                { value: 'true', label: Translate('IDCS_ON') },
-                { value: 'false', label: Translate('IDCS_OFF') },
-            ],
+            switchList: getSwitchOptions(),
             // 持续时间列表
             durationList: [] as SelectOption<string, string>[],
             // 是否支持声音
@@ -62,29 +55,29 @@ export default defineComponent({
             chls: [] as ChlList[],
 
             // record穿梭框数据源
-            recordList: [] as { value: string; label: string }[],
+            recordList: [] as SelectOption<string, string>[],
             // 表头选中id
             recordChosedIdsAll: [] as string[],
             // 表头选中的数据
-            recordChosedListAll: [] as { value: string; label: string }[],
+            recordChosedListAll: [] as SelectOption<string, string>[],
             recordIsShowAll: false,
             recordIsShow: false,
 
             // snap穿梭框数据源
-            snapList: [] as { value: string; label: string }[],
+            snapList: [] as SelectOption<string, string>[],
             // 表头选中id
             snapChosedIdsAll: [] as string[],
             // 表头选中的数据
-            snapChosedListAll: [] as { value: string; label: string }[],
+            snapChosedListAll: [] as SelectOption<string, string>[],
             snapIsShowAll: false,
             snapIsShow: false,
 
             // alarmOut穿梭框数据源
-            alarmOutList: [] as { value: string; label: string }[],
+            alarmOutList: [] as SelectOption<string, string>[],
             // 表头选中id
             alarmOutChosedIdsAll: [] as string[],
             // 表头选中的数据
-            alarmOutChosedListAll: [] as { value: string; label: string }[],
+            alarmOutChosedListAll: [] as SelectOption<string, string>[],
             alarmOutIsShowAll: false,
             alarmOutIsShow: false,
 
@@ -118,20 +111,7 @@ export default defineComponent({
 
         // 获取声音数据
         const getAudioData = async () => {
-            const result = await queryAlarmAudioCfg()
-            const $ = queryXml(result)
-
-            pageData.value.audioList = $('/response/content/audioList/item').map((item) => {
-                const $item = queryXml(item.element)
-                return {
-                    value: item.attr('id')!,
-                    label: $item('name').text(),
-                }
-            })
-            pageData.value.audioList.push({
-                value: defaultAudioId,
-                label: '<' + Translate('IDCS_NULL') + '>',
-            })
+            pageData.value.audioList = await buildAudioList()
         }
 
         // 获取chl通道数据
@@ -142,7 +122,7 @@ export default defineComponent({
 
             getChlList(queryNodeListDto).then((result) => {
                 commLoadResponseHandler(result, ($) => {
-                    $('/response/content/item').forEach((item) => {
+                    $('//content/item').forEach((item) => {
                         const $item = queryXml(item.element)
                         pageData.value.chls.push({
                             id: item.attr('id')!,
@@ -183,46 +163,14 @@ export default defineComponent({
         }
 
         const getAlarmOutData = async () => {
-            getChlList({
-                requireField: ['device'],
-                nodeType: 'alarmOuts',
-            }).then((result) => {
-                commLoadResponseHandler(result, ($) => {
-                    const rowData = [] as {
-                        id: string
-                        name: string
-                        device: {
-                            id: string
-                            innerText: string
-                        }
-                    }[]
-                    $('/response/content/item').forEach((item) => {
-                        const $item = queryXml(item.element)
-                        let name = $item('name').text()
-                        if ($item('devDesc').text()) {
-                            name = $item('devDesc').text() + '_' + name
-                        }
-                        rowData.push({
-                            id: item.attr('id')!,
-                            name,
-                            device: {
-                                id: $item('device').attr('id'),
-                                innerText: $item('device').text(),
-                            },
-                        })
-                    })
-                    pageData.value.alarmOutList = rowData.map((item) => {
-                        return {
-                            value: item.id,
-                            label: item.name,
-                        }
-                    })
-                })
-            })
+            pageData.value.alarmOutList = await buildAlarmOutChlList()
         }
 
         const getData = async () => {
-            pageData.value.scheduleList = await buildScheduleList(true)
+            pageData.value.scheduleList = await buildScheduleList({
+                isManager: true,
+                defaultValue: '',
+            })
 
             // 初始化、改变页码、改变单页行数进行数据清空和btn禁用
             tableData.value.length = 0
@@ -237,8 +185,8 @@ export default defineComponent({
                 nodeType: 'sensors',
             }).then((result) => {
                 commLoadResponseHandler(result, ($) => {
-                    pageData.value.totalCount = Number($('/response/content').attr('total'))
-                    $('/response/content/item').forEach(async (item) => {
+                    pageData.value.totalCount = Number($('//content').attr('total'))
+                    $('//content/item').forEach(async (item) => {
                         const row = new SensorEvent()
                         row.id = item.attr('id')!
                         row.alarmInType = item.attr('alarmInType')!
@@ -267,28 +215,21 @@ export default defineComponent({
             rowData.status = '' // 请求完成，取消loading状态
             commLoadResponseHandler(result, ($) => {
                 rowData.disabled = false
-                if (!pageData.value.initData && $('/response/content/param/holdTimeNote').length > 0) {
-                    $('/response/content/param/holdTimeNote')
+                if (!pageData.value.initData && $('//content/param/holdTimeNote').length > 0) {
+                    $('//content/param/holdTimeNote')
                         .text()
                         .split(',')
                         .forEach((item) => {
                             const itemNum = Number(item)
                             pageData.value.durationList.push({
                                 value: item,
-                                label:
-                                    itemNum == 60
-                                        ? '1 ' + Translate('IDCS_MINUTE')
-                                        : itemNum > 60
-                                          ? itemNum / 60 + ' ' + Translate('IDCS_MINUTES')
-                                          : itemNum == 1
-                                            ? itemNum + ' ' + Translate('IDCS_SECOND')
-                                            : itemNum + ' ' + Translate('IDCS_SECONDS'),
+                                label: getTranslateForSecond(itemNum),
                             })
                         })
                     pageData.value.initData = true
                 }
 
-                const content = $('/response/content')[0]
+                const content = $('//content')[0]
                 const $content = queryXml(content.element)
 
                 const index = Number($content('param/index').text()) - 0 + 1
@@ -320,7 +261,7 @@ export default defineComponent({
                     switch: $content('trigger/sysRec/switch').text() == 'true',
                     chls: [],
                 }
-                rowData.sysAudio = $content('trigger/sysAudio').attr('id') || defaultAudioId
+                rowData.sysAudio = $content('trigger/sysAudio').attr('id') || DEFAULT_EMPTY_ID
                 rowData.sysSnap = {
                     switch: $content('trigger/sysSnap/switch').text() == 'true',
                     chls: [],
@@ -349,7 +290,7 @@ export default defineComponent({
                     item.value == rowData.sysAudio
                 })
                 if (audioData.length == 0) {
-                    rowData.sysAudio = defaultAudioId
+                    rowData.sysAudio = DEFAULT_EMPTY_ID
                 }
 
                 $content('trigger/sysRec/chls/item').forEach((item) => {
@@ -412,6 +353,7 @@ export default defineComponent({
                     })
                     row.name = originalName.value
                 }
+
                 for (const item of tableData.value) {
                     if (item.id != row.id && name == item.name) {
                         openMessageTipBox({
@@ -447,17 +389,20 @@ export default defineComponent({
             pageData.value.recordChosedIdsAll = []
             pageData.value.recordIsShowAll = false
         }
+
         const recordCloseAll = () => {
             pageData.value.recordChosedListAll = []
             pageData.value.recordChosedIdsAll = []
             pageData.value.recordIsShowAll = false
         }
+
         // 打开录像dialog
         const setRecord = (index: number) => {
             pageData.value.triggerDialogIndex = index
             pageData.value.recordIsShow = true
         }
-        const recordConfirm = (e: { value: string; label: string }[]) => {
+
+        const recordConfirm = (e: SelectOption<string, string>[]) => {
             const index = pageData.value.triggerDialogIndex
             if (e.length !== 0) {
                 tableData.value[index].sysRec.chls = cloneDeep(e)
@@ -469,6 +414,7 @@ export default defineComponent({
             }
             pageData.value.recordIsShow = false
         }
+
         const recordClose = () => {
             if (!tableData.value[pageData.value.triggerDialogIndex].sysRec.chls.length) {
                 tableData.value[pageData.value.triggerDialogIndex].sysRec.switch = false
@@ -495,17 +441,20 @@ export default defineComponent({
             pageData.value.snapChosedIdsAll = []
             pageData.value.snapIsShowAll = false
         }
+
         const snapCloseAll = () => {
             pageData.value.snapChosedListAll = []
             pageData.value.snapChosedIdsAll = []
             pageData.value.snapIsShowAll = false
         }
+
         // 打开抓图dialog
         const setSnap = (index: number) => {
             pageData.value.triggerDialogIndex = index
             pageData.value.snapIsShow = true
         }
-        const snapConfirm = (e: { value: string; label: string }[]) => {
+
+        const snapConfirm = (e: SelectOption<string, string>[]) => {
             const index = pageData.value.triggerDialogIndex
             if (e.length !== 0) {
                 tableData.value[index].sysSnap.chls = cloneDeep(e)
@@ -517,6 +466,7 @@ export default defineComponent({
             }
             pageData.value.snapIsShow = false
         }
+
         const snapClose = () => {
             if (!tableData.value[pageData.value.triggerDialogIndex].sysSnap.chls.length) {
                 tableData.value[pageData.value.triggerDialogIndex].sysSnap.switch = false
@@ -543,17 +493,20 @@ export default defineComponent({
             pageData.value.alarmOutChosedIdsAll = []
             pageData.value.alarmOutIsShowAll = false
         }
+
         const alarmOutCloseAll = () => {
             pageData.value.alarmOutChosedListAll = []
             pageData.value.alarmOutChosedIdsAll = []
             pageData.value.alarmOutIsShowAll = false
         }
+
         // 打开报警输出dialog
         const setAlarmOut = (index: number) => {
             pageData.value.triggerDialogIndex = index
             pageData.value.alarmOutIsShow = true
         }
-        const alarmOutConfirm = (e: { value: string; label: string }[]) => {
+
+        const alarmOutConfirm = (e: SelectOption<string, string>[]) => {
             const index = pageData.value.triggerDialogIndex
             if (e.length !== 0) {
                 tableData.value[index].alarmOut.alarmOuts = cloneDeep(e)
@@ -565,6 +518,7 @@ export default defineComponent({
             }
             pageData.value.alarmOutIsShow = false
         }
+
         const alarmOutClose = () => {
             if (!tableData.value[pageData.value.triggerDialogIndex].alarmOut.alarmOuts.length) {
                 tableData.value[pageData.value.triggerDialogIndex].alarmOut.switch = false
@@ -778,7 +732,7 @@ export default defineComponent({
                     const sendXml = getSavaData(item)
                     const result = await editAlarmIn(sendXml)
                     const $ = queryXml(result)
-                    const isSuccess = $('/response/status').text() === 'success'
+                    const isSuccess = $('//status').text() === 'success'
                     item.status = isSuccess ? 'success' : 'error'
                     count++
                     if (count >= editedRows.length) {

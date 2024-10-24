@@ -2,8 +2,8 @@
  * @Description: AI 事件——更多——温度检测
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-13 09:18:25
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-23 11:34:40
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-23 20:47:46
 -->
 <template>
     <div>
@@ -120,12 +120,11 @@
                             <el-table-column
                                 type="index"
                                 :label="Translate('IDCS_SERIAL_NUMBER')"
-                                width="60px"
+                                width="60"
                             />
                             <!-- 启用 -->
                             <el-table-column
-                                prop="switch"
-                                width="60px"
+                                width="60"
                                 :label="Translate('IDCS_ENABLE')"
                             >
                                 <template #default="scope">
@@ -134,8 +133,7 @@
                             </el-table-column>
                             <!-- 名称 -->
                             <el-table-column
-                                prop="ruleName"
-                                width="180px"
+                                width="180"
                                 :label="Translate('IDCS_NAME')"
                             >
                                 <template #default="scope">
@@ -143,13 +141,12 @@
                                         v-model="scope.row.ruleName"
                                         @input="ruleNameInput(scope.row.ruleName, scope.$index)"
                                         @keyup.enter="enterBlur($event)"
-                                    ></el-input>
+                                    />
                                 </template>
                             </el-table-column>
                             <!-- 类型 -->
                             <el-table-column
-                                prop="ruleType"
-                                width="110px"
+                                width="110"
                                 :label="Translate('IDCS_TYPE')"
                             >
                                 <template #default="scope">
@@ -168,8 +165,7 @@
                             </el-table-column>
                             <!-- 发射率 -->
                             <el-table-column
-                                prop="emissivity"
-                                width="90px"
+                                width="90"
                                 :label="Translate('IDCS_EMISSIVITY')"
                             >
                                 <template #default="scope">
@@ -184,8 +180,7 @@
                             </el-table-column>
                             <!-- 距离（m） -->
                             <el-table-column
-                                prop="distance"
-                                width="90px"
+                                width="90"
                                 :label="Translate('IDCS_DISTANCE')"
                             >
                                 <template #default="scope">
@@ -199,8 +194,7 @@
                             </el-table-column>
                             <!-- 反射温度（℃） -->
                             <el-table-column
-                                prop="reflectTemper"
-                                width="120px"
+                                width="120"
                                 :label="Translate('IDCS_REFLECTED_TEMPERATURE')"
                             >
                                 <template #default="scope">
@@ -214,8 +208,7 @@
                             </el-table-column>
                             <!-- 报警规则 -->
                             <el-table-column
-                                prop="alarmRule"
-                                width="180px"
+                                width="180"
                                 :label="Translate('IDCS_ALARM_RULES')"
                             >
                                 <template #default="scope">
@@ -231,8 +224,7 @@
                             </el-table-column>
                             <!-- 报警温度（℃） -->
                             <el-table-column
-                                prop="alarmTemper"
-                                width="150px"
+                                width="150"
                                 :label="Translate('IDCS_ALARM_TEMPERATURE')"
                             >
                                 <template #default="scope">
@@ -297,7 +289,7 @@
                         <!-- 录像 -->
                         <div class="base-ai-linkage-box">
                             <div class="base-ai-linkage-title">
-                                <span>{{ `${Translate('IDCS_RECORD')} ` }}</span>
+                                <span>{{ Translate('IDCS_RECORD') }}</span>
                                 <el-button
                                     size="small"
                                     class="form_btn"
@@ -315,7 +307,7 @@
                         <!-- 报警输出 -->
                         <div class="base-ai-linkage-box">
                             <div class="base-ai-linkage-title">
-                                <span>{{ `${Translate('IDCS_ALARM_OUT')} ` }}</span>
+                                <span>{{ Translate('IDCS_ALARM_OUT') }}</span>
                                 <el-button
                                     class="form_btn"
                                     size="small"
@@ -333,7 +325,7 @@
                         <!-- 抓图 -->
                         <div class="base-ai-linkage-box">
                             <div class="base-ai-linkage-title">
-                                <span>{{ `${Translate('IDCS_SNAP')} ` }}</span>
+                                <span>{{ Translate('IDCS_SNAP') }}</span>
                                 <el-button
                                     size="small"
                                     class="form_btn"
@@ -363,12 +355,12 @@
                             >
                                 <el-table-column
                                     prop="name"
-                                    width="180px"
+                                    width="180"
                                     :label="Translate('IDCS_CHANNEL_NAME')"
                                 >
                                 </el-table-column>
                                 <el-table-column
-                                    width="170px"
+                                    width="170"
                                     :label="Translate('IDCS_PRESET_NAME')"
                                 >
                                     <template #default="scope">

@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-16 18:13:47
  * @Description: 移动侦测
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-23 11:33:50
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-23 20:43:16
 -->
 <template>
     <div class="base-flex-box">
@@ -66,8 +66,7 @@
                 <!-- 状态列 -->
                 <el-table-column
                     label=" "
-                    width="50px"
-                    class-name="custom_cell"
+                    width="50"
                 >
                     <template #default="scope">
                         <BaseTableRowStatus :icon="scope.row.status"></BaseTableRowStatus>
@@ -77,17 +76,10 @@
                 <el-table-column
                     prop="name"
                     :label="Translate('IDCS_CHANNEL_NAME')"
-                    width="150px"
-                >
-                    <template #default="scope">
-                        <span>{{ scope.row.name }}</span>
-                    </template>
-                </el-table-column>
+                    width="150"
+                />
                 <!-- 排程   -->
-                <el-table-column
-                    prop="schedule"
-                    width="130px"
-                >
+                <el-table-column width="130">
                     <template #header>
                         <el-dropdown trigger="click">
                             <BaseTableDropdownLink>
@@ -111,11 +103,8 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.schedule.value"
-                            prop="schedule"
-                            value-key="value"
                             size="small"
                             :disabled="scope.row.rowDisable"
-                            :options="pageData.scheduleList"
                             @change="handleScheduleChangeSingle(scope.row)"
                         >
                             <el-option
@@ -129,10 +118,7 @@
                     </template>
                 </el-table-column>
                 <!-- 录像   -->
-                <el-table-column
-                    prop="record"
-                    width="180px"
-                >
+                <el-table-column width="180">
                     <template #header>
                         <el-popover
                             v-model:visible="pageData.recordPopoverVisible"
@@ -176,10 +162,7 @@
                     </template>
                 </el-table-column>
                 <!-- 抓图   -->
-                <el-table-column
-                    prop="snap"
-                    width="180px"
-                >
+                <el-table-column width="180">
                     <template #header>
                         <el-popover
                             v-model:visible="pageData.snapPopoverVisible"
@@ -225,8 +208,7 @@
                 <!-- 音频   -->
                 <el-table-column
                     v-if="pageData.supportAudio"
-                    prop="sysAudio"
-                    width="165px"
+                    width="165"
                 >
                     <template #header>
                         <el-dropdown trigger="click">
@@ -251,11 +233,8 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.sysAudio"
-                            prop="sysAudio"
-                            value-key="value"
                             size="small"
                             :disabled="scope.row.rowDisable"
-                            :options="pageData.audioList"
                             @change="addEditRow(scope.row)"
                         >
                             <el-option
@@ -269,10 +248,7 @@
                     </template>
                 </el-table-column>
                 <!-- 消息推送   -->
-                <el-table-column
-                    prop="msgPush"
-                    width="150px"
-                >
+                <el-table-column width="150">
                     <template #header>
                         <el-dropdown trigger="click">
                             <BaseTableDropdownLink>
@@ -296,11 +272,8 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.msgPush"
-                            prop="schedule"
-                            value-key="value"
                             size="small"
                             :disabled="scope.row.rowDisable"
-                            :options="pageData.enableList"
                             @change="addEditRow(scope.row)"
                         >
                             <el-option
@@ -314,10 +287,7 @@
                     </template>
                 </el-table-column>
                 <!-- 报警输出   -->
-                <el-table-column
-                    prop="alarmOut"
-                    width="180px"
-                >
+                <el-table-column width="180">
                     <template #header>
                         <el-popover
                             v-model:visible="pageData.alarmOutPopoverVisible"
@@ -362,8 +332,7 @@
                 </el-table-column>
                 <!-- 预置点名称   -->
                 <el-table-column
-                    prop="preset"
-                    width="180px"
+                    width="180"
                     :label="Translate('IDCS_PRESET_NAME')"
                 >
                     <template #default="scope">
@@ -384,10 +353,7 @@
                     </template>
                 </el-table-column>
                 <!-- 蜂鸣器   -->
-                <el-table-column
-                    prop="beeper"
-                    width="119px"
-                >
+                <el-table-column width="119">
                     <template #header>
                         <el-dropdown trigger="click">
                             <BaseTableDropdownLink>
@@ -411,11 +377,8 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.beeper"
-                            prop="beeper"
-                            value-key="value"
                             size="small"
                             :disabled="scope.row.rowDisable"
-                            :options="pageData.enableList"
                             @change="addEditRow(scope.row)"
                         >
                             <el-option
@@ -429,10 +392,7 @@
                     </template>
                 </el-table-column>
                 <!-- 视频弹出   -->
-                <el-table-column
-                    prop="videoPopup"
-                    width="135px"
-                >
+                <el-table-column width="135">
                     <template #header>
                         <el-dropdown trigger="click">
                             <BaseTableDropdownLink>
@@ -456,11 +416,8 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.videoPopup"
-                            prop="videoPopup"
-                            value-key="value"
                             size="small"
                             :disabled="scope.row.rowDisable"
-                            :options="pageData.enableList"
                             @change="addEditRow(scope.row)"
                         >
                             <el-option
@@ -474,10 +431,7 @@
                     </template>
                 </el-table-column>
                 <!-- email   -->
-                <el-table-column
-                    prop="email"
-                    width="110px"
-                >
+                <el-table-column width="110">
                     <template #header>
                         <el-dropdown trigger="click">
                             <BaseTableDropdownLink> Email </BaseTableDropdownLink>
@@ -499,11 +453,8 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.email"
-                            prop="email"
-                            value-key="value"
                             size="small"
                             :disabled="scope.row.rowDisable"
-                            :options="pageData.enableList"
                             @change="addEditRow(scope.row)"
                         >
                             <el-option

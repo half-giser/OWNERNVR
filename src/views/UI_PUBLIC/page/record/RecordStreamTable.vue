@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-07-31 10:29:37
  * @Description: 录像码流通用表格组件
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-21 16:43:12
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-24 09:28:49
 -->
 <template>
     <div class="base-flex-box">
@@ -25,13 +25,9 @@
                     :label="Translate('IDCS_CHANNEL_NAME')"
                     min-width="10%"
                 >
-                    <template #default="scope">
-                        <span>{{ scope.row.name }}</span>
-                    </template>
                 </el-table-column>
                 <!-- 码流类型 -->
                 <el-table-column
-                    prop="streamType"
                     :label="Translate('IDCS_CODE_STREAM_TYPE')"
                     min-width="6%"
                 >
@@ -41,7 +37,6 @@
                 </el-table-column>
                 <!-- videoEncodeType -->
                 <el-table-column
-                    prop="videoEncodeType"
                     :label="Translate('IDCS_VIDEO_ENCT')"
                     min-width="8%"
                 >
@@ -67,10 +62,8 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.videoEncodeType"
-                            prop="videoEncodeType"
                             placeholder=""
                             :disabled="scope.row.videoEncodeTypeDisable"
-                            :options="scope.row.mainCaps['@supEnct']"
                             @change="handleVideoEncodeTypeChange(scope.row)"
                         >
                             <el-option
@@ -85,7 +78,6 @@
                 </el-table-column>
                 <!-- resolution -->
                 <el-table-column
-                    prop="resolution"
                     :label="Translate('IDCS_RESOLUTION_RATE')"
                     min-width="11%"
                 >
@@ -93,7 +85,7 @@
                         <el-popover
                             v-model:visible="pageData.resolutionHeaderVisble"
                             trigger="click"
-                            width="430px"
+                            width="430"
                             popper-class="no-padding"
                         >
                             <template #reference>
@@ -104,7 +96,7 @@
                             <div class="resolutionContainer">
                                 <el-table
                                     ref="resolutionTableRef"
-                                    max-height="400px"
+                                    max-height="400"
                                     :data="pageData.resolutionGroups"
                                     :show-header="pageData.headerVisble"
                                     :row-key="getRowKey"
@@ -112,14 +104,10 @@
                                     stripe
                                     @expand-change="handleExpandChange($event, pageData.expands)"
                                 >
-                                    <el-table-column
-                                        prop="res"
-                                        width="220px"
-                                    >
+                                    <el-table-column width="220">
                                         <template #default="scope">
                                             <el-select
                                                 v-model="scope.row.res"
-                                                :options="scope.row.resGroup"
                                                 :teleported="false"
                                             >
                                                 <el-option
@@ -134,8 +122,7 @@
                                         </template>
                                     </el-table-column>
                                     <el-table-column
-                                        prop="chls"
-                                        width="190px"
+                                        width="190"
                                         type="expand"
                                     >
                                         <template #default="scope">
@@ -171,11 +158,9 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.resolution"
-                            prop="resolution"
                             placeholder=""
-                            max-height="400px"
+                            max-height="400"
                             :disabled="scope.row.resolutionDisable"
-                            :options="scope.row.resolutions"
                             @change="handleResolutionChange(scope.row)"
                         >
                             <el-option
@@ -190,14 +175,13 @@
                 </el-table-column>
                 <!-- frameRate -->
                 <el-table-column
-                    prop="frameRate"
                     :label="Translate('IDCS_FRAME_RATE')"
                     min-width="6%"
                 >
                     <template #header>
                         <el-dropdown
                             trigger="click"
-                            max-height="400px"
+                            max-height="400"
                         >
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_FRAME_RATE') }}
@@ -220,11 +204,9 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.frameRate"
-                            prop="frameRate"
                             placeholder=""
-                            max-height="400px"
+                            max-height="400"
                             :disabled="scope.row.frameRateDisable"
-                            :options="scope.row.frameRates"
                             @change="handleFrameRateChange(scope.row)"
                         >
                             <el-option
@@ -239,7 +221,6 @@
                 </el-table-column>
                 <!-- bitType -->
                 <el-table-column
-                    prop="bitType"
                     :label="Translate('IDCS_BITRATE_TYPE')"
                     min-width="8%"
                 >
@@ -269,10 +250,8 @@
                         <el-select
                             v-if="scope.row.bitTypeVisible"
                             v-model="scope.row.bitType"
-                            prop="bitType"
                             placeholder=""
                             :disabled="scope.row.bitTypeDisable"
-                            :options="scope.row.mainCaps['@bitType']"
                             @change="handleBitTypeChange(scope.row)"
                         >
                             <el-option
@@ -288,7 +267,6 @@
                 </el-table-column>
                 <!-- imageLevel -->
                 <el-table-column
-                    prop="level"
                     :label="Translate('IDCS_IMAGE_QUALITY')"
                     min-width="8%"
                 >
@@ -317,11 +295,8 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.level"
-                            prop="level"
                             :placeholder="Translate('IDCS_LOWEST')"
-                            value-key="value"
                             :disabled="scope.row.imageLevelDisable"
-                            :options="scope.row.levelNote"
                             @change="handleLevelChange(scope.row)"
                         >
                             <el-option
@@ -336,7 +311,6 @@
                 </el-table-column>
                 <!-- videoQuality -->
                 <el-table-column
-                    prop="videoQuality"
                     :label="Translate('IDCS_VIDEO_QUALITY')"
                     min-width="11%"
                 >
@@ -363,10 +337,7 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.videoQuality"
-                            prop="videoQuality"
-                            value-key="value"
                             placeholder=""
-                            :options="scope.row.qualitys"
                             :disabled="scope.row.videoQualityDisable"
                             @change="handleVideoQualityChange(scope.row)"
                         >
@@ -382,7 +353,6 @@
                 </el-table-column>
                 <!-- bitRange -->
                 <el-table-column
-                    prop="bitRange"
                     :label="Translate('IDCS_RATE_RECOMMEND_RANGE')"
                     min-width="13%"
                 >
@@ -392,7 +362,6 @@
                 </el-table-column>
                 <!-- audio -->
                 <el-table-column
-                    prop="audio"
                     :label="Translate('IDCS_AUDIO_FREQUENCY')"
                     min-width="7%"
                 >
@@ -419,10 +388,7 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.audio"
-                            prop="audio"
-                            value-key="value"
                             :placeholder="Translate('IDCS_ON')"
-                            :options="pageData.audioOptions"
                             :disabled="scope.row.audioDisable"
                             @change="handleAudioOptionsChange(scope.row)"
                         >
@@ -436,10 +402,9 @@
                         </el-select>
                     </template>
                 </el-table-column>
-                <!-- TODO 原代码中写死了不显示 recordStream -->
-                <el-table-column
+                <!-- 原代码中写死了不显示 recordStream -->
+                <!-- <el-table-column
                     v-if="pageData.recordStreamVisible"
-                    prop="recordStream"
                     :label="Translate('IDCS_RECORD_CODE_STREAM')"
                     min-width="9%"
                 >
@@ -466,10 +431,7 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.recordStream"
-                            prop="recordStream"
-                            value-key="value"
                             placeholder="主码流"
-                            :options="recordStreams"
                             :disabled="scope.row.recordStreamDisable"
                             @change="handleRecordStreamChange(scope.row)"
                         >
@@ -482,10 +444,9 @@
                             </el-option>
                         </el-select>
                     </template>
-                </el-table-column>
+                </el-table-column> -->
                 <!-- GOP -->
                 <el-table-column
-                    prop="GOP"
                     :label="Translate('IDCS_GOP')"
                     min-width="6%"
                 >
@@ -541,11 +502,11 @@
                     class="row_bandwidth"
                     >{{ pageData.txtBandwidth }}</span
                 >
-                <!-- TODO 这个按钮老代码中写死不显示，新代码其他页面也没实现 -->
-                <span
+                <!-- 这个按钮老代码中写死不显示，新代码其他页面也没实现 -->
+                <!-- <span
                     id="bandwidthDetail"
                     class="detailBtn"
-                ></span>
+                ></span> -->
                 <span
                     v-if="pageData.PredictVisible"
                     id="txRecTime"

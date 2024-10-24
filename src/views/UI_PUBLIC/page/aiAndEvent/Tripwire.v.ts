@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-19 11:16:22
  * @Description: 周界防范/人车检测
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-21 16:47:38
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-24 18:02:29
  */
 import { type chlCaps, type aiResourceRow, type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
@@ -30,7 +30,7 @@ export default defineComponent({
             required: true,
         },
         voiceList: {
-            type: Array as PropType<{ value: string; label: string }[]>,
+            type: Array as PropType<SelectOption<string, string>[]>,
             required: true,
         },
         onlineChannelList: {
@@ -49,24 +49,37 @@ export default defineComponent({
         const aiResourceTableData = ref<aiResourceRow[]>([])
         const tripwireplayerRef = ref<PlayerInstance>()
         let tripwireDrawer: CanvasPassline
+
+        const eventTypeMapping: Record<string, string> = {
+            faceDetect: Translate('IDCS_FACE_DETECTION') + '+' + Translate('IDCS_FACE_RECOGNITION'),
+            faceMatch: Translate('IDCS_FACE_RECOGNITION'),
+            tripwire: Translate('IDCS_BEYOND_DETECTION'),
+            perimeter: Translate('IDCS_INVADE_DETECTION'),
+        }
+
+        const closeTip = getAlarmEventList()
+
+        const directionTypeTip: Record<string, string> = {
+            none: 'A<->B',
+            rightortop: 'A->B',
+            leftorbotton: 'A<-B',
+        }
+
         const tripwireData = ref({
             // 当前选中的通道
             currChlId: '',
             // 当前选择通道数据
             chlData: {} as chlCaps,
             // 声音列表
-            voiceList: [] as { value: string; label: string }[],
+            voiceList: [] as SelectOption<string, string>[],
             // 是否支持声音设置
             supportAlarmAudioConfig: true,
-            // 默认声音id
-            defaultAudioId: '{00000000-0000-0000-0000-000000000000}',
             // 不支持功能提示页面是否展示
             notSupportTipShow: false,
             // 请求数据失败显示提示
             requireDataFail: false,
             // 排程管理
             scheduleManagePopOpen: false,
-            scheduleDefaultId: '{00000000-0000-0000-0000-000000000000}',
             scheduleList: [] as SelectOption<string, string>[],
             // 选择的功能:tripwire_param,tripwire_target,tripwire_trigger
             tripwireFunction: 'tripwire_param',
@@ -78,40 +91,12 @@ export default defineComponent({
             // apply按钮是否可用
             applyDisable: true,
 
-            eventTypeMapping: {
-                faceDetect: Translate('IDCS_FACE_DETECTION') + '+' + Translate('IDCS_FACE_RECOGNITION'),
-                faceMatch: Translate('IDCS_FACE_RECOGNITION'),
-                tripwire: Translate('IDCS_BEYOND_DETECTION'),
-                perimeter: Translate('IDCS_INVADE_DETECTION'),
-            } as Record<string, string>,
-            closeTip: {
-                cdd: Translate('IDCS_CROWD_DENSITY_DETECTION'),
-                cpc: Translate('IDCS_PASS_LINE_COUNT_DETECTION'),
-                ipd: Translate('IDCS_INVADE_DETECTION'),
-                tripwire: Translate('IDCS_BEYOND_DETECTION'),
-                osc: Translate('IDCS_WATCH_DETECTION'),
-                avd: Translate('IDCS_ABNORMAL_DETECTION'),
-                perimeter: Translate('IDCS_INVADE_DETECTION'),
-                vfd: Translate('IDCS_FACE_DETECTION'),
-                aoientry: Translate('IDCS_INVADE_DETECTION'),
-                aoileave: Translate('IDCS_INVADE_DETECTION'),
-                passlinecount: Translate('IDCS_PASS_LINE_COUNT_DETECTION'),
-                vehicle: Translate('IDCS_PLATE_DETECTION'),
-                fire: Translate('IDCS_FIRE_POINT_DETECTION'),
-                vsd: Translate('IDCS_VSD_DETECTION'),
-            } as Record<string, string>,
-            directionTypeTip: {
-                none: 'A<->B',
-                rightortop: 'A->B',
-                leftorbotton: 'A<-B',
-            } as Record<string, string>,
-
             // 是否启用侦测
             detectionEnable: false,
             // 用于对比
             originalEnable: false,
             // 侦测类型
-            detectionTypeText: Translate('IDCS_DETECTION_BY_DEVICE').formatForLang(props.chlData['supportTripwire'] ? 'IPC' : 'NVR'),
+            detectionTypeText: Translate('IDCS_DETECTION_BY_DEVICE').formatForLang(props.chlData.supportTripwire ? 'IPC' : 'NVR'),
             // 播放器相关
             // 通知列表
             notification: [] as string[],
@@ -120,7 +105,7 @@ export default defineComponent({
 
             // 持续时间
             holdTime: 0,
-            holdTimeList: [] as { value: number; label: string }[],
+            holdTimeList: [] as SelectOption<number, string>[],
             // 警戒面
             alertSurface: '',
             // 选择的警戒面
@@ -129,7 +114,7 @@ export default defineComponent({
             // 方向
             direction: '' as CanvasPasslineDirection,
             // 方向列表
-            directionList: [] as { value: string; label: string }[],
+            directionList: [] as SelectOption<string, string>[],
 
             // 是否显示全部区域绑定值
             isShowAllArea: false,
@@ -184,28 +169,22 @@ export default defineComponent({
             sysAudio: '',
             record: {
                 switch: false,
-                chls: [] as { value: string; label: string }[],
+                chls: [] as SelectOption<string, string>[],
             },
             // 选中的record id
             recordList: [] as string[],
             recordIsShow: false,
-            recordHeaderTitle: 'IDCS_TRIGGER_CHANNEL_RECORD',
-            recordSourceTitle: 'IDCS_CHANNEL',
-            recordTargetTitle: 'IDCS_CHANNEL_TRGGER',
             // record数据源
-            recordSource: [] as { value: string; label: string }[],
+            recordSource: [] as SelectOption<string, string>[],
             recordType: 'record',
 
             alarmOut: {
                 switch: false,
-                chls: [] as { value: string; label: string }[],
+                chls: [] as SelectOption<string, string>[],
             },
             // 选中的alarmOut id
             alarmOutList: [] as string[],
             alarmOutIsShow: false,
-            alarmOutHeaderTitle: 'IDCS_TRIGGER_ALARM_OUT',
-            alarmOutSourceTitle: 'IDCS_ALARM_OUT',
-            alarmOutTargetTitle: 'IDCS_TRIGGER_ALARM_OUT',
             // alarmOut数据源
             alarmOutSource: [] as { value: string; label: string; device: { value: string; label: string } }[],
             alarmOutType: 'alarmOut',
@@ -246,15 +225,18 @@ export default defineComponent({
                         onchange: tripwireChange,
                     })
                 }
+
                 if (isHttpsLogin()) {
                     tripwireData.value.notification = [formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`)]
                 }
             }
+
             if (tripwiremode.value === 'ocx') {
                 if (!tripwirePlugin.IsInstallPlugin()) {
                     tripwirePlugin.SetPluginNotice('#layout2Content')
                     return
                 }
+
                 if (!tripwirePlugin.IsPluginAvailable()) {
                     pluginStore.showPluginNoResponse = true
                     tripwirePlugin.ShowPluginNoResponse()
@@ -265,6 +247,7 @@ export default defineComponent({
                 tripwirePlugin.DisplayOCX(true)
             }
         }
+
         /**
          * @description 播放视频
          */
@@ -283,8 +266,8 @@ export default defineComponent({
                         chlIdList: [id],
                         chlNameList: [name],
                         streamType: 'sub',
-                        chlIndexList: [tripwireData.value.chlData['id']],
-                        chlTypeList: [tripwireData.value.chlData['chlType']],
+                        chlIndexList: [tripwireData.value.chlData.id],
+                        chlTypeList: [tripwireData.value.chlData.chlType],
                     })
                     tripwirePlugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 } else {
@@ -310,11 +293,13 @@ export default defineComponent({
         const setTripWireSpeed = (speed: number) => {
             tripwireData.value.tripWirespeed = speed
         }
+
         // 关闭排程管理后刷新排程列表
         const handleSchedulePopClose = async () => {
             tripwireData.value.scheduleManagePopOpen = false
             await getScheduleList()
         }
+
         // 获取AI资源请求
         const getAIResourceData = async (isEdit: boolean) => {
             let sendXml = ''
@@ -346,7 +331,7 @@ export default defineComponent({
                             const eventType: string[] = ele.attr('eventType') ? ele.attr('eventType')!.split(',') : []
                             const eventTypeText = eventType
                                 .map((item) => {
-                                    return tripwireData.value.eventTypeMapping[item]
+                                    return eventTypeMapping[item]
                                 })
                                 .join('+')
                             const percent = ele.text() + '%'
@@ -375,6 +360,7 @@ export default defineComponent({
                 }
             }
         }
+
         // 删除AI资源请求
         const deleteAIResource = async (row: aiResourceRow) => {
             let sendXml = rawXml`<content>
@@ -394,6 +380,7 @@ export default defineComponent({
                 aiResourceTableData.value.splice(aiResourceTableData.value.indexOf(row), 1)
             }
         }
+
         // 点击释放AI资源
         const handleAIResourceDel = async (row: aiResourceRow) => {
             openMessageTipBox({
@@ -404,16 +391,18 @@ export default defineComponent({
                 tripwireData.value.applyDisable = false
             })
         }
+
         // 获取越界检测数据
         const getTripwireData = async () => {
             openLoading()
-            if (!tripwireData.value.chlData['supportTripwire'] && !tripwireData.value.chlData['supportBackTripwire'] && tripwireData.value.chlData['supportPeaTrigger']) {
-                const sendXML = rawXml` <condition>
-                                            <chlId>${tripwireData.value.currChlId}</chlId>
-                                        </condition>
-                                        <requireField>
-                                            <trigger/>
-                                        </requireField>`
+            if (!tripwireData.value.chlData.supportTripwire && !tripwireData.value.chlData.supportBackTripwire && tripwireData.value.chlData.supportPeaTrigger) {
+                const sendXML = rawXml`
+                    <condition>
+                        <chlId>${tripwireData.value.currChlId}</chlId>
+                    </condition>
+                    <requireField>
+                        <trigger/>
+                    </requireField>`
                 const res = await queryTripwire(sendXML)
                 closeLoading()
                 const $ = queryXml(res)
@@ -421,11 +410,7 @@ export default defineComponent({
                     tripwireData.value.applyDisable = true
                     const schedule = $('//content/chl').attr('scheduleGuid')
                     tripwireData.value.tripwire_schedule =
-                        schedule != ''
-                            ? tripwireData.value.scheduleList.some((item: { value: string; label: string }) => item.value == schedule)
-                                ? schedule
-                                : tripwireData.value.scheduleDefaultId
-                            : tripwireData.value.scheduleDefaultId
+                        schedule != '' ? (tripwireData.value.scheduleList.some((item: { value: string; label: string }) => item.value == schedule) ? schedule : DEFAULT_EMPTY_ID) : DEFAULT_EMPTY_ID
                     $('//content/chl/trigger').forEach((item) => {
                         const $item = queryXml(item.element)
                         tripwireData.value.snapSwitch = $item('snapSwitch').text() == 'true'
@@ -494,13 +479,9 @@ export default defineComponent({
                     tripwireData.value.applyDisable = true
                     const schedule = $('//content/chl').attr('scheduleGuid')
                     tripwireData.value.tripwire_schedule =
-                        schedule == ''
-                            ? tripwireData.value.scheduleList.some((item: { value: string; label: string }) => item.value == schedule)
-                                ? schedule
-                                : tripwireData.value.scheduleDefaultId
-                            : tripwireData.value.scheduleDefaultId
+                        schedule == '' ? (tripwireData.value.scheduleList.some((item: { value: string; label: string }) => item.value == schedule) ? schedule : DEFAULT_EMPTY_ID) : DEFAULT_EMPTY_ID
                     tripwireData.value.directionList = $('//types/direction/enum').map((item) => {
-                        return { value: item.text(), label: tripwireData.value.directionTypeTip[item.text()] }
+                        return { value: item.text(), label: directionTypeTip[item.text()] }
                     })
                     tripwireData.value.mutexList = $('//content/chl/param/mutexList/item').map((item) => {
                         const $item = queryXml(item.element)
@@ -611,10 +592,11 @@ export default defineComponent({
                         { value: tripwireData.value.popVideoSwitch, label: 'IDCS_VIDEO_POPUP', property: 'popVideoSwitch' },
                         { value: tripwireData.value.emailSwitch, label: 'IDCS_EMAIL', property: 'emailSwitch' },
                     ]
-                    if (tripwireData.value.audioSuport && tripwireData.value.chlData['supportAudio']) {
+                    if (tripwireData.value.audioSuport && tripwireData.value.chlData.supportAudio) {
                         tripwireTriggerData.value.push({ value: tripwireData.value.triggerAudio, label: 'IDCS_AUDIO', property: 'triggerAudio' })
                     }
-                    if (tripwireData.value.lightSuport && tripwireData.value.chlData['supportWhiteLight']) {
+
+                    if (tripwireData.value.lightSuport && tripwireData.value.chlData.supportWhiteLight) {
                         tripwireTriggerData.value.push({ value: tripwireData.value.triggerWhiteLight, label: 'IDCS_LIGHT', property: 'triggerWhiteLight' })
                     }
                 } else {
@@ -623,77 +605,82 @@ export default defineComponent({
             }
             getPresetList()
         }
+
         // 保存越界检测数据
         const saveTripwireData = async () => {
             let sendXml = rawXml`<content>
-                                        <chl id="${tripwireData.value.currChlId}" scheduleGuid="${tripwireData.value['tripwire_schedule']}">
+                                        <chl id="${tripwireData.value.currChlId}" scheduleGuid="${tripwireData.value.tripwire_schedule}">
                                     `
-            if (tripwireData.value.chlData['supportTripwire'] || tripwireData.value.chlData['supportBackTripwire']) {
+            if (tripwireData.value.chlData.supportTripwire || tripwireData.value.chlData.supportBackTripwire) {
                 sendXml += rawXml`
                                 <param>
-                                    <switch>${tripwireData.value['detectionEnable'].toString()}</switch>
-                                    <alarmHoldTime unit="s">${tripwireData.value['holdTime'].toString()}</alarmHoldTime>`
-                if (tripwireData.value['tripwire_onlyPreson']) {
-                    sendXml += rawXml`<sensitivity>${tripwireData.value['onlyPersonSensitivity'].toString()}</sensitivity>`
+                                    <switch>${tripwireData.value.detectionEnable.toString()}</switch>
+                                    <alarmHoldTime unit="s">${tripwireData.value.holdTime.toString()}</alarmHoldTime>`
+                if (tripwireData.value.tripwire_onlyPreson) {
+                    sendXml += rawXml`<sensitivity>${tripwireData.value.onlyPersonSensitivity.toString()}</sensitivity>`
                 }
-                if (tripwireData.value['hasObj']) {
+
+                if (tripwireData.value.hasObj) {
                     sendXml += rawXml`
                                     <objectFilter>
                                         <car>
-                                            <switch>${tripwireData.value['objectFilter'].car.toString()}</switch>
-                                            <sensitivity>${tripwireData.value['objectFilter'].carSensitivity.toString()}</sensitivity>
+                                            <switch>${tripwireData.value.objectFilter.car.toString()}</switch>
+                                            <sensitivity>${tripwireData.value.objectFilter.carSensitivity.toString()}</sensitivity>
                                         </car>
                                         <person>
-                                            <switch>${tripwireData.value['objectFilter'].person.toString()}</switch>
-                                            <sensitivity>${tripwireData.value['objectFilter'].personSensitivity.toString()}</sensitivity>
+                                            <switch>${tripwireData.value.objectFilter.person.toString()}</switch>
+                                            <sensitivity>${tripwireData.value.objectFilter.personSensitivity.toString()}</sensitivity>
                                         </person>`
-                    if (tripwireData.value.chlData['accessType'] == '0') {
+                    if (tripwireData.value.chlData.accessType == '0') {
                         sendXml += rawXml`
                                         <motor>
-                                            <switch>${tripwireData.value['objectFilter']['motorcycle'].toString()}</switch>
-                                            <sensitivity>${tripwireData.value['objectFilter']['motorSensitivity'].toString()}</sensitivity>
+                                            <switch>${tripwireData.value.objectFilter.motorcycle.toString()}</switch>
+                                            <sensitivity>${tripwireData.value.objectFilter.motorSensitivity.toString()}</sensitivity>
                                         </motor>
                                             `
                     }
                     sendXml += rawXml`</objectFilter>`
                 }
-                if (tripwireData.value['hasAutoTrack']) {
+
+                if (tripwireData.value.hasAutoTrack) {
                     sendXml += rawXml`
-                                    <autoTrack>${tripwireData.value['autoTrack'].toString()}</autoTrack>
+                                    <autoTrack>${tripwireData.value.autoTrack.toString()}</autoTrack>
                     `
                 }
                 sendXml += rawXml`
-                                <line type="list" count="${tripwireData.value['lineInfo'].length.toString()}">
+                                <line type="list" count="${tripwireData.value.lineInfo.length.toString()}">
                                     <itemType>
                                         <direction type="direction"/>
                                     </itemType>
                             `
-                tripwireData.value['lineInfo'].forEach((element: { direction: string; startPoint: { X: number; Y: number }; endPoint: { X: number; Y: number }; configured: boolean }) => {
+                tripwireData.value.lineInfo.forEach((element: { direction: string; startPoint: { X: number; Y: number }; endPoint: { X: number; Y: number }; configured: boolean }) => {
                     sendXml += rawXml`
                                     <item>
-                                        <direction type="direction">${element['direction']}</direction>
+                                        <direction type="direction">${element.direction}</direction>
                                         <startPoint>
-                                            <X>${element['startPoint']['X'].toString()}</X>
-                                            <Y>${element['startPoint']['Y'].toString()}</Y>
+                                            <X>${element.startPoint.X.toString()}</X>
+                                            <Y>${element.startPoint.Y.toString()}</Y>
                                         </startPoint>
                                         <endPoint>
-                                            <X>${element['endPoint']['X'].toString()}</X>
-                                            <Y>${element['endPoint']['Y'].toString()}</Y>
+                                            <X>${element.endPoint.X.toString()}</X>
+                                            <Y>${element.endPoint.Y.toString()}</Y>
                                         </endPoint>
                                     </item>
                                 `
                 })
                 sendXml += rawXml`</line>`
-                if (tripwireData.value.audioSuport && tripwireData.value.chlData['supportAudio']) {
-                    sendXml += rawXml`<triggerAudio>${tripwireData.value['triggerAudio'].toString()}</triggerAudio>`
+                if (tripwireData.value.audioSuport && tripwireData.value.chlData.supportAudio) {
+                    sendXml += rawXml`<triggerAudio>${tripwireData.value.triggerAudio.toString()}</triggerAudio>`
                 }
-                if (tripwireData.value.lightSuport && tripwireData.value.chlData['supportWhiteLight']) {
-                    sendXml += rawXml`<triggerWhiteLight>${tripwireData.value['triggerWhiteLight'].toString()}</triggerWhiteLight>`
+
+                if (tripwireData.value.lightSuport && tripwireData.value.chlData.supportWhiteLight) {
+                    sendXml += rawXml`<triggerWhiteLight>${tripwireData.value.triggerWhiteLight.toString()}</triggerWhiteLight>`
                 }
-                if (tripwireData.value['pictureAvailable']) {
+
+                if (tripwireData.value.pictureAvailable) {
                     sendXml += rawXml`
-                        <saveSourcePicture>${tripwireData.value['saveSourcePicture'].toString()}</saveSourcePicture>
-                        <saveTargetPicture>${tripwireData.value['saveTargetPicture'].toString()}</saveTargetPicture>
+                        <saveSourcePicture>${tripwireData.value.saveSourcePicture.toString()}</saveSourcePicture>
+                        <saveTargetPicture>${tripwireData.value.saveTargetPicture.toString()}</saveTargetPicture>
                     `
                 }
                 sendXml += rawXml`</param>`
@@ -702,11 +689,11 @@ export default defineComponent({
                             <trigger>
                                 <sysRec>
                                     <chls type="list">
-                                        ${tripwireData.value['record'].chls
+                                        ${tripwireData.value.record.chls
                                             .map(
                                                 (element: { value: string; label: string }) => rawXml`
-                                                    <item id="${element['value']}">
-                                                        <![CDATA[${element['label']}]]>
+                                                    <item id="${element.value}">
+                                                        <![CDATA[${element.label}]]>
                                                     </item>
                                                 `,
                                             )
@@ -715,11 +702,11 @@ export default defineComponent({
                                 </sysRec>
                                 <alarmOut>
                                     <alarmOuts type="list">
-                                        ${tripwireData.value['alarmOut'].chls
+                                        ${tripwireData.value.alarmOut.chls
                                             .map(
                                                 (element: { value: string; label: string }) => rawXml`
-                                                    <item id="${element['value']}">
-                                                        <![CDATA[${element['label']}]]>
+                                                    <item id="${element.value}">
+                                                        <![CDATA[${element.label}]]>
                                                     </item>
                                                 `,
                                             )
@@ -728,15 +715,15 @@ export default defineComponent({
                                 </alarmOut>
                                 <preset>
                                     <presets type="list">
-                                        ${tripwireData.value['presetSource']
+                                        ${tripwireData.value.presetSource
                                             .map((element: PresetList) =>
-                                                element['preset']['value']
+                                                element.preset.value
                                                     ? rawXml`
                                                         <item>
-                                                            <index>${element['preset']['value']}</index>
-                                                            <name><![CDATA[${element['preset']['label']}]]></name>
-                                                            <chl id="${element['id']}">
-                                                                <![CDATA[${element['name']}]]>
+                                                            <index>${element.preset.value}</index>
+                                                            <name><![CDATA[${element.preset.label}]]></name>
+                                                            <chl id="${element.id}">
+                                                                <![CDATA[${element.name}]]>
                                                             </chl>
                                                         </item>
                                                     `
@@ -745,12 +732,12 @@ export default defineComponent({
                                             .join('')}
                                     </presets>
                                 </preset>
-                                <snapSwitch>${tripwireData.value['snapSwitch'].toString()}</snapSwitch>
-                                <msgPushSwitch>${tripwireData.value['msgPushSwitch'].toString()}</msgPushSwitch>
-                                <buzzerSwitch>${tripwireData.value['buzzerSwitch'].toString()}</buzzerSwitch>
-                                <popVideoSwitch>${tripwireData.value['popVideoSwitch'].toString()}</popVideoSwitch>
-                                <emailSwitch>${tripwireData.value['emailSwitch'].toString()}</emailSwitch>
-                                <sysAudio id='${tripwireData.value['sysAudio'].toString()}'></sysAudio>
+                                <snapSwitch>${tripwireData.value.snapSwitch.toString()}</snapSwitch>
+                                <msgPushSwitch>${tripwireData.value.msgPushSwitch.toString()}</msgPushSwitch>
+                                <buzzerSwitch>${tripwireData.value.buzzerSwitch.toString()}</buzzerSwitch>
+                                <popVideoSwitch>${tripwireData.value.popVideoSwitch.toString()}</popVideoSwitch>
+                                <emailSwitch>${tripwireData.value.emailSwitch.toString()}</emailSwitch>
+                                <sysAudio id='${tripwireData.value.sysAudio.toString()}'></sysAudio>
                             </trigger>
                             </chl>
                         </content>`
@@ -766,28 +753,29 @@ export default defineComponent({
                 tripwireRefreshInitPage()
             }
         }
+
         // 执行保存tripwire数据
         const handleTripwireApply = () => {
-            if (!tripwireData.value.chlData['supportTripwire'] && !tripwireData.value.chlData['supportBackTripwire'] && tripwireData.value.chlData['supportPeaTrigger']) {
+            if (!tripwireData.value.chlData.supportTripwire && !tripwireData.value.chlData.supportBackTripwire && tripwireData.value.chlData.supportPeaTrigger) {
                 saveTripwireData()
             } else {
                 let isSwitchChange = false
                 const switchChangeTypeArr: string[] = []
-                if (tripwireData.value['detectionEnable'] && tripwireData.value['detectionEnable'] != tripwireData.value['originalEnable']) {
+                if (tripwireData.value.detectionEnable && tripwireData.value.detectionEnable != tripwireData.value.originalEnable) {
                     isSwitchChange = true
                 }
                 const mutexChlNameObj = getMutexChlNameObj()
-                tripwireData.value['mutexList'].forEach((ele: { object: string; status: boolean }) => {
-                    if (ele['status']) {
-                        const prefixName = mutexChlNameObj['normalChlName'] ? joinSpaceForLang(Translate('IDCS_CHANNEL') + ':' + mutexChlNameObj['normalChlName']) : ''
-                        const showInfo = prefixName ? prefixName + tripwireData.value.closeTip[ele['object']].toLowerCase() : tripwireData.value.closeTip[ele['object']]
+                tripwireData.value.mutexList.forEach((ele: { object: string; status: boolean }) => {
+                    if (ele.status) {
+                        const prefixName = mutexChlNameObj.normalChlName ? joinSpaceForLang(Translate('IDCS_CHANNEL') + ':' + mutexChlNameObj.normalChlName) : ''
+                        const showInfo = prefixName ? prefixName + closeTip[ele.object].toLowerCase() : closeTip[ele.object]
                         switchChangeTypeArr.push(showInfo)
                     }
                 })
-                tripwireData.value['mutexListEx'].forEach((ele: { object: string; status: boolean }) => {
-                    if (ele['status']) {
-                        const prefixName = mutexChlNameObj['thermalChlName'] ? joinSpaceForLang(Translate('IDCS_CHANNEL') + ':' + mutexChlNameObj['thermalChlName']) : ''
-                        const showInfo = prefixName ? prefixName + tripwireData.value.closeTip[ele['object']].toLowerCase() : tripwireData.value.closeTip[ele['object']]
+                tripwireData.value.mutexListEx.forEach((ele: { object: string; status: boolean }) => {
+                    if (ele.status) {
+                        const prefixName = mutexChlNameObj.thermalChlName ? joinSpaceForLang(Translate('IDCS_CHANNEL') + ':' + mutexChlNameObj.thermalChlName) : ''
+                        const showInfo = prefixName ? prefixName + closeTip[ele.object].toLowerCase() : closeTip[ele.object]
                         switchChangeTypeArr.push(showInfo)
                     }
                 })
@@ -795,7 +783,7 @@ export default defineComponent({
                     const switchChangeType = switchChangeTypeArr.join(',')
                     openMessageTipBox({
                         type: 'question',
-                        message: Translate('IDCS_SIMPLE_TRIPWIRE_DETECT_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + tripwireData.value.chlData['name'], switchChangeType),
+                        message: Translate('IDCS_SIMPLE_TRIPWIRE_DETECT_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + tripwireData.value.chlData.name, switchChangeType),
                     }).then(() => {
                         saveTripwireData()
                     })
@@ -804,57 +792,22 @@ export default defineComponent({
                 }
             }
         }
+
         // 对sheduleList进行处理
         const getScheduleList = async () => {
             tripwireData.value.scheduleList = await buildScheduleList()
-            tripwireData.value.scheduleList.map((item: any) => {
-                item.value = item.value != '' ? item.value : tripwireData.value.scheduleDefaultId
-            })
         }
+
         // 获取recordList
         const getRecordList = async () => {
-            tripwireData.value.recordSource = []
-            const resb = await getChlList({
-                nodeType: 'chls',
-                isSupportSnap: false,
-            })
-            const res = queryXml(resb)
-            if (res('status').text() == 'success') {
-                res('//content/item').forEach((item) => {
-                    const $item = queryXml(item.element)
-                    tripwireData.value.recordSource.push({
-                        value: item.attr('id')!,
-                        label: $item('name').text(),
-                    })
-                })
-            }
+            tripwireData.value.recordSource = await buildRecordChlList()
         }
+
         // 获取alarmOutList
         const getAlarmOutList = async () => {
-            tripwireData.value.alarmOutSource = []
-            const resb = await getChlList({
-                requireField: ['device'],
-                nodeType: 'alarmOuts',
-            })
-            const res = queryXml(resb)
-            if (res('status').text() == 'success') {
-                res('//content/item').forEach((item) => {
-                    const $item = queryXml(item.element)
-                    let name = $item('name').text()
-                    if ($item('devDesc').text()) {
-                        name = $item('devDesc').text() + '-' + name
-                    }
-                    tripwireData.value.alarmOutSource.push({
-                        value: item.attr('id')!,
-                        label: name,
-                        device: {
-                            value: $item('device').attr('id'),
-                            label: $item('device').text(),
-                        },
-                    })
-                })
-            }
+            tripwireData.value.alarmOutSource = await buildAlarmOutChlList()
         }
+
         // 获取preset
         const getPresetList = async () => {
             const result = await getChlList({
@@ -891,19 +844,20 @@ export default defineComponent({
                 tripwireData.value.presetSource = rowData
             })
         }
+
         // 预置点选择框下拉时获取预置点列表数据
         const getPresetById = async (row: PresetList) => {
             if (!row.isGetPresetList) {
                 // 初始化时将当前预置点数据添加到了列表中用于数据展示，这里获取列表需要清除掉
                 row.presetList.splice(1)
                 const sendXml = rawXml`
-                <condition>
-                    <chlId>${row.id}</chlId>
-                </condition>
-            `
+                    <condition>
+                        <chlId>${row.id}</chlId>
+                    </condition>
+                `
                 const result = await queryChlPresetList(sendXml)
                 commLoadResponseHandler(result, ($) => {
-                    $('/response/content/presets/item').forEach((item) => {
+                    $('//content/presets/item').forEach((item) => {
                         row.presetList.push({
                             value: item.attr('index')!,
                             label: item.text(),
@@ -919,18 +873,18 @@ export default defineComponent({
             let normalChlName = ''
             let thermalChlName = ''
             const sameIPChlList: { id: string; ip: string; name: string; accessType: string }[] = []
-            const chlIp = tripwireData.value.chlData['ip']
+            const chlIp = tripwireData.value.chlData.ip
             props.onlineChannelList.forEach((chl) => {
-                if (chl['ip'] == chlIp) {
+                if (chl.ip == chlIp) {
                     sameIPChlList.push(chl)
                 }
             })
             if (sameIPChlList.length > 1) {
                 sameIPChlList.forEach((chl) => {
-                    if (chl['accessType'] == '1') {
-                        thermalChlName = chl['name'] == tripwireData.value.chlData['name'] ? '' : chl['name']
+                    if (chl.accessType == '1') {
+                        thermalChlName = chl.name == tripwireData.value.chlData.name ? '' : chl.name
                     } else {
-                        normalChlName = chl['name'] == tripwireData.value.chlData['name'] ? '' : chl['name']
+                        normalChlName = chl.name == tripwireData.value.chlData.name ? '' : chl.name
                     }
                 })
             }
@@ -949,11 +903,12 @@ export default defineComponent({
                     tripwireDrawer.setEnable('line', true)
                 } else {
                     const surface = tripwireData.value.chosenSurfaceIndex
-                    const sendXML1 = OCX_XML_SetTripwireLine(tripwireData.value['lineInfo'][surface])
+                    const sendXML1 = OCX_XML_SetTripwireLine(tripwireData.value.lineInfo[surface])
                     tripwirePlugin.GetVideoPlugin().ExecuteCmd(sendXML1)
                     const sendXML2 = OCX_XML_SetTripwireLineAction('EDIT_ON')
                     tripwirePlugin.GetVideoPlugin().ExecuteCmd(sendXML2)
                 }
+
                 if (tripwireData.value.isShowAllArea) {
                     showAllTripwireArea(true)
                 }
@@ -970,25 +925,27 @@ export default defineComponent({
                 }
             }
         }
+
         // tripwire刷新页面数据
         const tripwireRefreshInitPage = () => {
             // 区域状态
-            const lineInfoList: { direction: string; startPoint: { X: number; Y: number }; endPoint: { X: number; Y: number }; configured: boolean }[] = tripwireData.value['lineInfo']
+            const lineInfoList: { direction: string; startPoint: { X: number; Y: number }; endPoint: { X: number; Y: number }; configured: boolean }[] = tripwireData.value.lineInfo
             lineInfoList.forEach((lineInfo, surface) => {
-                if (lineInfo && lineInfo['startPoint'].X == 0 && lineInfo['startPoint'].Y == 0 && lineInfo['endPoint'].X == 0 && lineInfo['endPoint'].Y == 0) {
-                    tripwireData.value['lineInfo'][surface].configured = false
+                if (lineInfo && lineInfo.startPoint.X == 0 && lineInfo.startPoint.Y == 0 && lineInfo.endPoint.X == 0 && lineInfo.endPoint.Y == 0) {
+                    tripwireData.value.lineInfo[surface].configured = false
                 } else {
-                    tripwireData.value['lineInfo'][surface].configured = true
+                    tripwireData.value.lineInfo[surface].configured = true
                 }
             })
-            if (tripwireData.value['lineInfo'].length > 1) {
-                tripwireData.value['showAllAreaVisible'] = true
-                tripwireData.value['clearAllVisible'] = true
+            if (tripwireData.value.lineInfo.length > 1) {
+                tripwireData.value.showAllAreaVisible = true
+                tripwireData.value.clearAllVisible = true
             } else {
-                tripwireData.value['showAllAreaVisible'] = false
-                tripwireData.value['clearAllVisible'] = false
+                tripwireData.value.showAllAreaVisible = false
+                tripwireData.value.clearAllVisible = false
             }
         }
+
         const initPageData = async () => {
             tripwireData.value.supportAlarmAudioConfig = systemCaps.supportAlarmAudioConfig
             tripwireData.value.currChlId = props.currChlId
@@ -996,12 +953,12 @@ export default defineComponent({
             tripwireData.value.voiceList = props.voiceList
             tripwireData.value.initComplete = false
             if (
-                tripwireData.value.chlData['supportTripwire'] ||
-                tripwireData.value.chlData['supportAOIEntry'] ||
-                tripwireData.value.chlData['supportAOILeave'] ||
-                tripwireData.value.chlData['supportBackTripwire'] ||
-                tripwireData.value.chlData['supportBackAOIEntry'] ||
-                tripwireData.value.chlData['supportBackAOILeave']
+                tripwireData.value.chlData.supportTripwire ||
+                tripwireData.value.chlData.supportAOIEntry ||
+                tripwireData.value.chlData.supportAOILeave ||
+                tripwireData.value.chlData.supportBackTripwire ||
+                tripwireData.value.chlData.supportBackAOIEntry ||
+                tripwireData.value.chlData.supportBackAOILeave
             ) {
                 const pageTimer = setTimeout(async () => {
                     // 临时方案-NVRUSS44-79（页面快速切换时。。。）
@@ -1009,7 +966,7 @@ export default defineComponent({
                     if (tripwiremode.value !== 'h5') {
                         tripwirePlugin?.VideoPluginNotifyEmitter.addListener(tripwireLiveNotify2Js)
                     }
-                    tripwireData.value.detectionTypeText = Translate('IDCS_DETECTION_BY_DEVICE').formatForLang(tripwireData.value.chlData['supportTripwire'] ? 'IPC' : 'NVR')
+                    tripwireData.value.detectionTypeText = Translate('IDCS_DETECTION_BY_DEVICE').formatForLang(tripwireData.value.chlData.supportTripwire ? 'IPC' : 'NVR')
                     await getTripwireData()
                     // 是否显示控制全部区域按钮
                     tripwireRefreshInitPage()
@@ -1017,6 +974,7 @@ export default defineComponent({
                     if (tripwireData.value.chlData.supportAutoTrack) {
                         getPTZLockStatus()
                     }
+
                     if (tripwiremode.value === 'h5') {
                         tripwireDrawer.setEnable('line', true)
                     } else {
@@ -1034,37 +992,42 @@ export default defineComponent({
         // 变更detectionEnable操作
         const handleDectionChange = async () => {
             tripwireData.value.applyDisable = false
-            if (!tripwireData.value.chlData['supportTripwire']) {
+            if (!tripwireData.value.chlData.supportTripwire) {
                 await getAIResourceData(true)
             }
         }
+
         // 格式化持续时间
         const formatHoldTime = (holdTimeList: string[]) => {
-            const timeList: { value: number; label: string }[] = []
+            const timeList: SelectOption<number, string>[] = []
             holdTimeList.forEach((ele) => {
                 const element = Number(ele)
-                const itemText = element == 60 ? '1 ' + Translate('IDCS_MINUTE') : element > 60 ? element / 60 + ' ' + Translate('IDCS_MINUTES') : element + ' ' + Translate('IDCS_SECONDS')
+                const itemText = getTranslateForSecond(element)
                 timeList.push({ value: element, label: itemText })
             })
             timeList.sort((a, b) => a.value - b.value)
             return timeList
         }
+
         // tripwire执行是否显示全部区域
         const handleTripwireShowAllAreaChange = () => {
             tripwireDrawer && tripwireDrawer.setEnableShowAll(tripwireData.value.isShowAllArea)
             showAllTripwireArea(tripwireData.value.isShowAllArea)
         }
+
         // tripWire选择警戒面
         const handleSurfaceChange = () => {
             // tripwireData.value.chosenSurfaceIndex = index
             tripwireData.value.direction = tripwireData.value.lineInfo[tripwireData.value.chosenSurfaceIndex].direction
             setTripwireOcxData()
         }
+
         // tripwire选择方向
         const handleTripwireDirectionChange = () => {
             tripwireData.value.lineInfo[tripwireData.value.chosenSurfaceIndex].direction = tripwireData.value.direction
             setTripwireOcxData()
         }
+
         // 通用获取云台锁定状态
         const getPTZLockStatus = async () => {
             const sendXML = rawXml`<condition>
@@ -1076,6 +1039,7 @@ export default defineComponent({
                 tripwireData.value.lockStatus = $('//content/chl/param/PTZLock').text() == 'true'
             }
         }
+
         // 通用修改云台锁定状态
         const editLockStatus = () => {
             const sendXML = rawXml`<content>
@@ -1095,6 +1059,7 @@ export default defineComponent({
             })
             tripwireData.value.applyDisable = false
         }
+
         // tripwire常规联动全选/全不选
         const handleTripwireTriggerSwitch = () => {
             tripwireData.value.applyDisable = false
@@ -1118,6 +1083,7 @@ export default defineComponent({
                 })
             }
         }
+
         // tripwire单个联动选择
         const handleTripwireTrigger = (item: { value: boolean; label: string; property: string }) => {
             tripwireData.value.applyDisable = false
@@ -1129,8 +1095,9 @@ export default defineComponent({
             const triggerSwitch = tripwireTriggerData.value.every((item) => item.value)
             tripwireData.value.triggerSwitch = triggerSwitch
         }
+
         // 设置record
-        const recordConfirm = (e: { value: string; label: string }[]) => {
+        const recordConfirm = (e: SelectOption<string, string>[]) => {
             tripwireData.value.applyDisable = false
             if (e.length !== 0) {
                 tripwireData.value.record.chls = cloneDeep(e)
@@ -1143,6 +1110,7 @@ export default defineComponent({
             }
             tripwireData.value.recordIsShow = false
         }
+
         // record弹窗关闭
         const recordClose = () => {
             if (!tripwireData.value.record.chls.length) {
@@ -1152,8 +1120,9 @@ export default defineComponent({
             }
             tripwireData.value.recordIsShow = false
         }
+
         // 设置alarmOut
-        const alarmOutConfirm = (e: { value: string; label: string }[]) => {
+        const alarmOutConfirm = (e: SelectOption<string, string>[]) => {
             tripwireData.value.applyDisable = false
             if (e.length !== 0) {
                 tripwireData.value.alarmOut.chls = cloneDeep(e)
@@ -1166,6 +1135,7 @@ export default defineComponent({
             }
             tripwireData.value.alarmOutIsShow = false
         }
+
         // alarmOut弹窗关闭
         const alarmOutClose = () => {
             if (!tripwireData.value.alarmOut.chls.length) {
@@ -1179,11 +1149,11 @@ export default defineComponent({
         // tripwire绘图
         const tripwireChange = (passline: { startX: number; startY: number; endX: number; endY: number }) => {
             const surface = tripwireData.value.chosenSurfaceIndex
-            tripwireData.value['lineInfo'][surface]['startPoint'] = {
+            tripwireData.value.lineInfo[surface].startPoint = {
                 X: passline.startX,
                 Y: passline.startY,
             }
-            tripwireData.value['lineInfo'][surface]['endPoint'] = {
+            tripwireData.value.lineInfo[surface].endPoint = {
                 X: passline.endX,
                 Y: passline.endY,
             }
@@ -1193,6 +1163,7 @@ export default defineComponent({
             tripwireRefreshInitPage()
             tripwireData.value.applyDisable = false
         }
+
         // tripwire是否显示所有区域
         const showAllTripwireArea = (isShowAll: boolean) => {
             tripwireDrawer && tripwireDrawer.setEnableShowAll(isShowAll)
@@ -1220,6 +1191,7 @@ export default defineComponent({
                 setTripwireOcxData()
             }
         }
+
         // tripwire显示
         const setTripwireOcxData = () => {
             if (tripwireData.value.tripwireFunction == 'tripwire_param') {
@@ -1227,12 +1199,12 @@ export default defineComponent({
                 if (tripwireData.value.lineInfo.length > 0) {
                     if (tripwiremode.value === 'h5') {
                         tripwireDrawer.setCurrentSurfaceOrAlarmLine(surface)
-                        tripwireDrawer.setDirection(tripwireData.value.lineInfo[surface]['direction'])
+                        tripwireDrawer.setDirection(tripwireData.value.lineInfo[surface].direction)
                         tripwireDrawer.setPassline({
-                            startX: tripwireData.value.lineInfo[surface]['startPoint'].X,
-                            startY: tripwireData.value.lineInfo[surface]['startPoint'].Y,
-                            endX: tripwireData.value.lineInfo[surface]['endPoint'].X,
-                            endY: tripwireData.value.lineInfo[surface]['endPoint'].Y,
+                            startX: tripwireData.value.lineInfo[surface].startPoint.X,
+                            startY: tripwireData.value.lineInfo[surface].startPoint.Y,
+                            endX: tripwireData.value.lineInfo[surface].endPoint.X,
+                            endY: tripwireData.value.lineInfo[surface].endPoint.Y,
                         })
                     } else {
                         const sendXML = OCX_XML_SetTripwireLine(tripwireData.value.lineInfo[surface])
@@ -1241,11 +1213,13 @@ export default defineComponent({
                         }
                     }
                 }
+
                 if (tripwireData.value.isShowAllArea) {
                     showAllTripwireArea(true)
                 }
             }
         }
+
         // 清空当前区域
         const clearTripwireArea = () => {
             if (tripwiremode.value === 'h5') {
@@ -1261,6 +1235,7 @@ export default defineComponent({
             tripwireDrawer.clear()
             tripwireData.value.applyDisable = false
         }
+
         // 清空所有区域
         const clearAllTripwireArea = () => {
             tripwireData.value.lineInfo.forEach((lineInfo: { direction: string; startPoint: { X: number; Y: number }; endPoint: { X: number; Y: number }; configured: boolean }) => {
@@ -1280,19 +1255,21 @@ export default defineComponent({
                     tripwirePlugin.GetVideoPlugin().ExecuteCmd(sendXML2)
                 }
             }
+
             if (tripwireData.value.isShowAllArea) {
                 showAllTripwireArea(true)
             }
             tripwireData.value.applyDisable = false
         }
+
         const tripwireLiveNotify2Js = ($: (path: string) => XmlResult) => {
             if ($('/statenotify[@type="TripwireLine"]').length > 0) {
                 const surface = tripwireData.value.chosenSurfaceIndex
-                tripwireData.value['lineInfo'][surface]['startPoint'] = {
+                tripwireData.value.lineInfo[surface].startPoint = {
                     X: parseInt($('/statenotify/startPoint').attr('X')),
                     Y: parseInt($('/statenotify/startPoint').attr('Y')),
                 }
-                tripwireData.value['lineInfo'][surface]['endPoint'] = {
+                tripwireData.value.lineInfo[surface].endPoint = {
                     X: parseInt($('/statenotify/endPoint').attr('X')),
                     Y: parseInt($('/statenotify/endPoint').attr('Y')),
                 }
@@ -1319,6 +1296,7 @@ export default defineComponent({
                 tripwirePlugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 tripwirePlugin.CloseCurPlugin(document.getElementById('tripwireplayer'))
             }
+
             if (tripwiremode.value === 'h5') {
                 tripwirePlayer.destroy()
             }
