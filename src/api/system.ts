@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2023-06-02 11:57:11
  * @Description: 系统API
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-23 14:18:58
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-24 14:29:41
  */
 // import type { AxiosRequestConfig } from 'axios'
 import http from './api'
@@ -264,3 +264,14 @@ export const querySHDBEventUploadCfg = () => http.fetch('querySHDBEventUploadCfg
  * @returns
  */
 export const editSHDBEventUploadCfg = (data: string) => http.fetch('editSHDBEventUploadCfg', getXmlWrapData(data))
+
+/**
+ * @description 获取定时上传图像数据
+ * @returns
+ */
+export const querySHDBNormalUploadCfg = () => http.fetch('querySHDBNormalUploadCfg', getXmlWrapData(''))
+/**
+ * @description 修改定时上传图像数据
+ * @returns
+ */
+export const editSHDBNormalUploadCfg = (data: string) => http.fetch('editSHDBNormalUploadCfg', getXmlWrapData(data))
