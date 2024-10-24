@@ -3,7 +3,7 @@
  * @Date: 2024-10-23 15:30:55
  * @Description: 报警图像上传
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-23 17:56:23
+ * @LastEditTime: 2024-10-24 11:24:41
  */
 import { SystemImageUploadAlarmItem } from '@/types/apiType/system'
 import { cloneDeep } from 'lodash-es'
@@ -59,8 +59,8 @@ export default defineComponent({
             closeLoading(LoadingTarget.FullScreen)
             const $ = queryXml(res)
             if ($('status').text() === 'success') {
-                // pageData.value.alarmType = $('//content/eventType').text().trim() == '' ? 'MOTION' : $('//content/eventType').text()
-                pageData.value.alarmType = $('//content/eventType').text().trim()
+                pageData.value.alarmType = $('//content/eventType').text().trim() == '' ? 'MOTION' : $('//content/eventType').text().trim()
+                // pageData.value.alarmType = $('//content/eventType').text().trim()
                 $('//types/eventType/enum').forEach((item) => {
                     pageData.value.alarmTypeList.push({
                         value: item.text(),
@@ -81,6 +81,7 @@ export default defineComponent({
                         label: pageData.value.evTypeLangMap['MOTION,ALARM'],
                     })
                 }
+                console.log(pageData.value.alarmTypeList)
                 const pretimeList = $('//content/param/preTimeNote').text()
                 pageData.value.pretimeList = pretimeList !== '' ? pretimeList.split(',').map((item) => ({ value: item.trim(), label: item.trim() + Translate('IDCS_SECONDS') })) : []
                 const saveTimeList = $('//content/param/holdTimeNote').text()
@@ -98,7 +99,6 @@ export default defineComponent({
                     tableData.value.push(row)
                 })
                 orderChl()
-                console.log(tableData.value)
             } else {
             }
         }
