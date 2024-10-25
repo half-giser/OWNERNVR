@@ -3,9 +3,10 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-10-24 10:03:25
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-24 14:16:06
+ * @LastEditTime: 2024-10-25 15:58:19
  */
 import { type ImageUploadDto } from '@/types/apiType/system'
+import { type TableInstance } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -23,7 +24,7 @@ export default defineComponent({
         },
     },
     setup(prop, ctx) {
-        const tableRef = ref()
+        const tableRef = ref<TableInstance>()
 
         const pageData = ref({
             // 添加的时间数据
@@ -34,7 +35,6 @@ export default defineComponent({
             reverseSelect: false,
         })
         const open = () => {
-            console.log('open')
             pageData.value.addTimeData = '00:00:00'
             pageData.value.selectAll = true
             pageData.value.reverseSelect = false
@@ -44,6 +44,14 @@ export default defineComponent({
         // 表头全选checkbox点击
         const selectAllChl = (rows: ImageUploadDto[]) => {
             pageData.value.selectAll = rows.length === prop.tableData.length
+        }
+
+        // 手动点击选择行checkbox
+        const handleSelect = (selection: ImageUploadDto[], row: ImageUploadDto) => {
+            if (!selection.some((item) => item.chlId === row.chlId)) {
+                tableRef.value!.setCurrentRow(null)
+            }
+            pageData.value.selectAll = selection.length === prop.tableData.length
         }
 
         // 全选
@@ -57,7 +65,7 @@ export default defineComponent({
         // 反选
         const reverseSelection = () => {
             const selectedRowsIds = tableRef.value!.getSelectionRows().map((row: ImageUploadDto) => row.chlId)
-            tableRef.value!.setCurrentRow()
+            tableRef.value!.setCurrentRow(null)
             tableRef.value!.clearSelection()
             prop.tableData.forEach((row: ImageUploadDto) => {
                 if (!selectedRowsIds.includes(row.chlId)) {
@@ -88,6 +96,8 @@ export default defineComponent({
             pageData,
             open,
             selectAllChl,
+            // 手动点击选择行checkbox
+            handleSelect,
             selectAll,
             reverseSelection,
             handleRowClick,
