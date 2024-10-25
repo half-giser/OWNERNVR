@@ -163,7 +163,7 @@ export default defineComponent({
             closeLoading()
             tableData.value = []
             commLoadResponseHandler(result, async ($) => {
-                $('/response/content/item').forEach((item) => {
+                $('//content/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     const chlId = item.attr('id')!
                     tableData.value.push({
@@ -352,7 +352,7 @@ export default defineComponent({
             openLoading()
             const result = await editSHDBOperationCfg(sendXml)
             const $ = queryXml(result)
-            if ($('/response/status').text() == 'success') {
+            if ($('//status').text() == 'success') {
                 openMessageTipBox({
                     type: 'info',
                     message: Translate('IDCS_PLATFORM_OPERATE_UPLOAD_MSG'),
@@ -360,6 +360,7 @@ export default defineComponent({
             }
             closeLoading()
         }
+
         // 挂载完成获取数据
         onMounted(async () => {
             pageData.value.operationTypeList = pageData.value.operatorTypeList
