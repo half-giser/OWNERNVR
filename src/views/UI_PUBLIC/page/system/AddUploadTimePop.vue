@@ -54,6 +54,7 @@
             table-layout="fixed"
             empty-text=" "
             @row-click="handleRowClick"
+            @select="handleSelect"
             @select-all="selectAllChl"
         >
             <el-table-column

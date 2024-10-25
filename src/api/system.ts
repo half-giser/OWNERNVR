@@ -270,8 +270,15 @@ export const editSHDBEventUploadCfg = (data: string) => http.fetch('editSHDBEven
  * @returns
  */
 export const querySHDBNormalUploadCfg = () => http.fetch('querySHDBNormalUploadCfg', getXmlWrapData(''))
+
 /**
  * @description 修改定时上传图像数据
  * @returns
  */
 export const editSHDBNormalUploadCfg = (data: string) => http.fetch('editSHDBNormalUploadCfg', getXmlWrapData(data))
+
+/**
+ * @description 修改平台操作管理
+ * @returns
+ */
+export const editSHDBOperationCfg = (data: string) => http.fetch('editSHDBOperationCfg', getXmlWrapData(data))

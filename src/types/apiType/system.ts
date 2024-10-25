@@ -3,7 +3,7 @@
  * @Date: 2024-06-21 18:15:30
  * @Description: 系统
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-24 14:30:26
+ * @LastEditTime: 2024-10-24 16:29:01
  */
 
 /**
@@ -437,4 +437,13 @@ export class ImageUploadDto {
     name = ''
     timeCount = 0
     timelist = [] as SelectOption<string, string>[]
+}
+
+/**
+ * @description 平台操作管理表格项
+ */
+export class chlDataItem {
+    chlId = ''
+    chlNum = 0
+    name = ''
 }
