@@ -51,7 +51,6 @@
                 />
                 <el-table-column
                     v-if="supportsIPCActivation"
-                    prop="activateStatus"
                     :label="Translate('IDCS_IPC_ACTIVATE_STATE')"
                     min-width="140"
                 >
@@ -62,7 +61,6 @@
                     </template>
                 </el-table-column>
                 <el-table-column
-                    prop="ip"
                     :label="Translate('IDCS_ADDRESS')"
                     min-width="140"
                 >
@@ -97,7 +95,6 @@
                     min-width="140"
                 />
                 <el-table-column
-                    prop="manufacturer"
                     :label="Translate('IDCS_PROTOCOL')"
                     min-width="200"
                 >
@@ -132,7 +129,6 @@
                 empty-text=" "
             >
                 <el-table-column
-                    prop="ip"
                     :label="Translate('IDCS_ADDRESS')"
                     width="340"
                     :show-overflow-tooltip="false"
@@ -185,7 +181,6 @@
                     </template>
                 </el-table-column>
                 <el-table-column
-                    prop="userName"
                     :label="Translate('IDCS_USERNAME')"
                     min-width="300"
                 >
@@ -199,7 +194,6 @@
                     </template>
                 </el-table-column>
                 <el-table-column
-                    prop="password"
                     :label="Translate('IDCS_PASSWORD')"
                     min-width="300"
                 >
@@ -214,7 +208,6 @@
                     </template>
                 </el-table-column>
                 <el-table-column
-                    prop="manufacturer"
                     :label="Translate('IDCS_PROTOCOL')"
                     min-width="300"
                 >
@@ -308,7 +301,7 @@
             :span="2"
         >
             <div>
-                <span>{{ txtBandwidth }}</span>
+                {{ txtBandwidth }}
             </div>
             <div>
                 <el-button

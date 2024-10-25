@@ -37,7 +37,7 @@
                         :disabled
                     />
                 </el-form-item>
-                <el-form-item prop="chkDomain">
+                <el-form-item>
                     <el-checkbox
                         v-model="formData.chkDomain"
                         :label="Translate('IDCS_DOMAIN')"
@@ -46,10 +46,7 @@
                 </el-form-item>
             </el-form-item>
             <el-form-item>
-                <el-form-item
-                    prop="servePort"
-                    :label="Translate('IDCS_SERVE_PORT')"
-                >
+                <el-form-item :label="Translate('IDCS_SERVE_PORT')">
                     <BaseNumberInput
                         v-model="formData.servePort"
                         :min="10"
@@ -58,10 +55,7 @@
                         :disabled
                     />
                 </el-form-item>
-                <el-form-item
-                    prop="channelCount"
-                    :label="Translate('IDCS_CHANNELS')"
-                >
+                <el-form-item :label="Translate('IDCS_CHANNELS')">
                     <BaseNumberInput
                         v-model="formData.channelCount"
                         :min="1"
@@ -72,19 +66,13 @@
                 </el-form-item>
             </el-form-item>
             <el-form-item>
-                <el-form-item
-                    prop="userName"
-                    :label="Translate('IDCS_USERNAME')"
-                >
+                <el-form-item :label="Translate('IDCS_USERNAME')">
                     <el-input
                         v-model="formData.userName"
                         :disabled="eleUserNameDisabled"
                     />
                 </el-form-item>
-                <el-form-item
-                    prop="password"
-                    :label="Translate('IDCS_PASSWORD')"
-                >
+                <el-form-item :label="Translate('IDCS_PASSWORD')">
                     <el-input
                         v-model="formData.password"
                         type="password"
@@ -125,12 +113,11 @@
                 min-width="170"
             />
             <el-table-column
-                prop="name"
                 :label="Translate('IDCS_IP_CHANNEL')"
                 min-width="150"
             >
                 <template #default="scope">
-                    <span>{{ scope.row.name || '' }}</span>
+                    {{ scope.row.name || '' }}
                 </template>
             </el-table-column>
             <el-table-column

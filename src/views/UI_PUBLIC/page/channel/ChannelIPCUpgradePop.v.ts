@@ -86,11 +86,11 @@ export default defineComponent({
                         ipc_upgrade_state_info: true,
                     },
                     onmessage: (data: any) => {
-                        if (data && data['ipc_upgrade_state_info']) {
-                            data['ipc_upgrade_state_info'].forEach((ele: any) => {
-                                const chlId = ele['node_id']
-                                const status = ele['chl_upgrade_status']
-                                const progress = ele['pack_upload_precent']
+                        if (data && data.ipc_upgrade_state_info) {
+                            data.ipc_upgrade_state_info.forEach((ele: any) => {
+                                const chlId = ele.node_id
+                                const status = ele.chl_upgrade_status
+                                const progress = ele.pack_upload_precent
                                 changeStatus(contextMap[chlId], statusMap[status], progress)
                             })
                         }

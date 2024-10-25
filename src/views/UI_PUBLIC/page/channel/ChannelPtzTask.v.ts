@@ -108,6 +108,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
                             return
                         }
+
                         if (tableData.value[pageData.value.tableIndex].taskItemCount >= TASK_LIMIT) {
                             openMessageTipBox({
                                 type: 'info',
@@ -168,11 +169,13 @@ export default defineComponent({
                     pageData.value.notification = [formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`)]
                 }
             }
+
             if (mode.value === 'ocx') {
                 if (!plugin.IsInstallPlugin()) {
                     plugin.SetPluginNotice('#layout2Content')
                     return
                 }
+
                 if (!plugin.IsPluginAvailable()) {
                     plugin.SetPluginNoResponse()
                     plugin.ShowPluginNoResponse()
@@ -590,6 +593,7 @@ export default defineComponent({
                     },
                 ]
             }
+
             if (pageData.value.nameOptions.length) {
                 formData.value.name = pageData.value.nameOptions[0].value
             }
@@ -634,11 +638,13 @@ export default defineComponent({
                 const find = tableData.value.find((item) => item.chlId === expanded[0].chlId)!
                 tableRef.value?.toggleRowExpansion(find, false)
             }
+
             if (!expanded.length) {
                 taskTableData.value = []
                 pageData.value.expandRowKey = []
                 stopRenderTaskList()
             }
+
             if (expanded.some((item) => item.chlId === row.chlId)) {
                 tableRef.value?.setCurrentRow(row)
                 taskTableData.value = []

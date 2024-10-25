@@ -72,7 +72,7 @@ export default defineComponent({
 
         const getData = (showSuccessTip?: boolean) => {
             openLoading()
-            if ((props.mapping as Record<string, DefaultPwdDto>)['RECORDER']) {
+            if ((props.mapping as Record<string, DefaultPwdDto>).RECORDER) {
                 const data = rawXml`
                     <condition>
                         ${formData.value.chkDomain ? `<domain>${formData.value.domain}</domain>` : `<ip>${formData.value.ip}</ip>`}
@@ -360,7 +360,7 @@ export default defineComponent({
             eleUserNameDisabled.value = true
             eleBtnTestDisabled.value = true
             formData.value = new RecorderAddDto()
-            formData.value.userName = (props.mapping as Record<string, DefaultPwdDto>)['RECORDER'].userName
+            formData.value.userName = (props.mapping as Record<string, DefaultPwdDto>).RECORDER.userName
             if (props.editItem.ip) {
                 formData.value.ip = props.editItem.ip
                 formData.value.servePort = props.editItem.port

@@ -63,6 +63,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
                             return
                         }
+
                         if (prop.presets.map((item) => item.name).includes(value.trim())) {
                             callback(new Error(Translate('IDCS_PROMPT_PRESET_NAME_OR_INDEX_EXIST')))
                             return

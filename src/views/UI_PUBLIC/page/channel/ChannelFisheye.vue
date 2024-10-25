@@ -20,6 +20,7 @@
                 :style="{
                     '--form-label-width': '160px',
                 }"
+                class="stripe"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
                     <el-select
@@ -44,10 +45,10 @@
                         @change="handleChangeVal()"
                     >
                         <el-option
-                            v-for="(item, index) in fishEyeModelList"
+                            v-for="(item, index) in fishEyeModeOption"
                             :key="index"
-                            :value="item"
-                            :label="fishEyeModeMap[item]"
+                            :value="item.value"
+                            :label="item.label"
                         />
                     </el-select>
                 </el-form-item>
@@ -59,10 +60,10 @@
                         @change="handleChangeVal()"
                     >
                         <el-option
-                            v-for="(item, index) in installTypeList"
+                            v-for="(item, index) in installTypeOption"
                             :key="index"
-                            :value="item"
-                            :label="installTypeMap[item]"
+                            :value="item.value"
+                            :label="item.label"
                         />
                     </el-select>
                 </el-form-item>
@@ -75,7 +76,7 @@
                     >
                         <el-option
                             v-for="item in switchOptions"
-                            :key="item.value"
+                            :key="item.label"
                             :value="item.value"
                             :label="item.label"
                         />
@@ -126,12 +127,11 @@
                                 <template #dropdown>
                                     <el-dropdown-menu>
                                         <el-dropdown-item
-                                            v-for="(item, index) in fishEyeModelList"
+                                            v-for="(item, index) in fishEyeModeOption"
                                             :key="index"
-                                            :value="item"
-                                            @click="handleChangeAll('fishEyeMode', item)"
+                                            @click="handleChangeAll('fishEyeMode', item.value)"
                                         >
-                                            {{ fishEyeModeMap[item] }}
+                                            {{ item.label }}
                                         </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
@@ -147,10 +147,10 @@
                                 @change="handleChangeVal()"
                             >
                                 <el-option
-                                    v-for="(item, index) in scope.row.fishEyeModelList"
+                                    v-for="(item, index) in fishEyeModeOption"
                                     :key="index"
                                     :value="item.value"
-                                    :label="item.text"
+                                    :label="item.label"
                                 />
                             </el-select>
                         </template>
@@ -167,12 +167,11 @@
                                 <template #dropdown>
                                     <el-dropdown-menu>
                                         <el-dropdown-item
-                                            v-for="(item, index) in installTypeList"
+                                            v-for="(item, index) in installTypeOption"
                                             :key="index"
-                                            :value="item"
-                                            @click="handleChangeAll('installType', item)"
+                                            @click="handleChangeAll('installType', item.value)"
                                         >
-                                            {{ installTypeMap[item] }}
+                                            {{ item.label }}
                                         </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
@@ -188,10 +187,10 @@
                                 @change="handleChangeVal()"
                             >
                                 <el-option
-                                    v-for="(item, index) in scope.row.installTypeList"
+                                    v-for="(item, index) in installTypeOption"
                                     :key="index"
                                     :value="item.value"
-                                    :label="item.text"
+                                    :label="item.label"
                                 />
                             </el-select>
                         </template>
@@ -229,7 +228,7 @@
                             >
                                 <el-option
                                     v-for="item in switchOptions"
-                                    :key="item.value"
+                                    :key="item.label"
                                     :value="item.value"
                                     :label="item.label"
                                 />
@@ -247,8 +246,8 @@
                     :background="false"
                     :layout="DefaultPagerLayout"
                     :total="pageTotal"
-                    @size-change="handleSizeChange"
-                    @current-change="handleCurrentChange"
+                    @size-change="getDataList"
+                    @current-change="getDataList"
                 />
             </div>
             <div class="base-btn-box">

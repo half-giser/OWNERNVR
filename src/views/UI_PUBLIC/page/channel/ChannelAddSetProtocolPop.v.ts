@@ -93,6 +93,7 @@ export default defineComponent({
                     currentProtocolLogo.value = tempProtocolLogo
                     return
                 }
+
                 if (displayNameList.concat(manufacturerArray).includes(value)) {
                     callback(new Error(Translate('IDCS_SHOW_NAME_SAME')))
                     currentProtocolLogo.value = tempProtocolLogo
@@ -124,6 +125,7 @@ export default defineComponent({
                     currentProtocolLogo.value = tempProtocolLogo
                     return false
                 }
+
                 if (!subPath) {
                     openMessageTipBox({
                         type: 'info',
@@ -141,6 +143,7 @@ export default defineComponent({
                     currentProtocolLogo.value = tempProtocolLogo
                     return false
                 }
+
                 if (reg.test(subPath)) {
                     openMessageTipBox({
                         type: 'info',

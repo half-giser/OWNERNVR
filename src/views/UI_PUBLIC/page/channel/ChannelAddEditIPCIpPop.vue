@@ -22,10 +22,7 @@
             inline-message
             class="stripe"
         >
-            <el-form-item
-                prop="mac"
-                :label="Translate('IDCS_MAC_ADDRESS')"
-            >
+            <el-form-item :label="Translate('IDCS_MAC_ADDRESS')">
                 <el-input
                     v-model="formData.mac"
                     disabled
@@ -55,10 +52,7 @@
                     :disabled="gatewayDisabled"
                 />
             </el-form-item>
-            <el-form-item
-                prop="userName"
-                :label="Translate('IDCS_USERNAME')"
-            >
+            <el-form-item :label="Translate('IDCS_USERNAME')">
                 <el-input
                     v-model="formData.userName"
                     disabled

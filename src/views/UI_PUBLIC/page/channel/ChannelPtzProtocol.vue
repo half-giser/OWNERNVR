@@ -3,7 +3,7 @@
  * @Date: 2024-08-23 10:36:05
  * @Description: 云台-协议
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 14:52:29
+ * @LastEditTime: 2024-10-24 09:09:47
 -->
 <template>
     <div class="base-chl-box">
@@ -176,10 +176,7 @@
                         </template>
                     </el-table-column>
 
-                    <el-table-column
-                        :label="Translate('IDCS_ADDRESS')"
-                        prop="address"
-                    >
+                    <el-table-column :label="Translate('IDCS_ADDRESS')">
                         <template #default="scope">
                             <BaseNumberInput
                                 v-model="scope.row.address"

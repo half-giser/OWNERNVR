@@ -25,12 +25,7 @@ export default defineComponent({
         const btnOKDisabled = ref(true)
         const editRows = new Set<ChannelMask>()
         const editStatus = ref(false)
-        const switchOptions = DEFAULT_SWITCH_OPTIONS.map((item) => {
-            return {
-                ...item,
-                label: Translate(item.label),
-            }
-        })
+        const switchOptions = getSwitchOptions()
         let maskDrawer: CanvasMask | undefined = undefined
 
         const colorMap: Record<string, string> = {
@@ -39,20 +34,8 @@ export default defineComponent({
             gray: Translate('IDCS_GRAY'),
         }
 
-        const handleSizeChange = (val: number) => {
-            pageSize.value = val
-            getDataList()
-            btnOKDisabled.value = true
-        }
-
-        const handleCurrentChange = (val: number) => {
-            pageIndex.value = val
-            getDataList()
-            btnOKDisabled.value = true
-        }
-
         const handleChlSel = (chlId: string) => {
-            const rowData = getRowById(chlId)
+            const rowData = getRowById(chlId)!
             formData.value = rowData
             tableRef.value!.setCurrentRow(rowData)
         }
@@ -66,7 +49,7 @@ export default defineComponent({
         }
 
         const handleChangeSwitch = () => {
-            const rowData = getRowById(selectedChlId.value)
+            const rowData = getRowById(selectedChlId.value)!
             editRows.add(rowData)
             btnOKDisabled.value = false
             setOcxData(rowData)
@@ -112,7 +95,7 @@ export default defineComponent({
                 }
             }
             editStatus.value = false
-            const rowData = getRowById(selectedChlId.value)
+            const rowData = getRowById(selectedChlId.value)!
             if (rowData.mask.length) {
                 rowData.mask.forEach((ele) => {
                     ele.switch = false
@@ -123,15 +106,24 @@ export default defineComponent({
             }
         }
 
-        const getData = (chlId: string, index: number) => {
+        /**
+         * @description 获取行视频遮挡配置信息
+         * @param {string} chlId
+         */
+        const getData = async (chlId: string) => {
             const sendXml = rawXml`
                 <condition>
                     <chlId>${chlId}</chlId>
                 </condition>
             `
-            queryPrivacyMask(sendXml).then((res) => {
+            try {
+                const res = await queryPrivacyMask(sendXml)
                 const $ = queryXml(res)
-                const rowData = tableData.value[index]
+                const rowData = getRowById(chlId)
+                if (!rowData) {
+                    return
+                }
+
                 if ($('status').text() === 'success') {
                     let isSwitch = false
                     let isSpeco = false
@@ -154,50 +146,65 @@ export default defineComponent({
                 } else {
                     rowData.status = ''
                 }
-            })
+            } catch {
+                const rowData = getRowById(chlId)
+                if (!rowData) {
+                    return
+                }
+                rowData.status = ''
+            }
         }
 
-        const getDataList = () => {
+        const getDataList = async () => {
+            btnOKDisabled.value = true
+            editRows.clear()
             openLoading()
-            getChlList({
+
+            const res = await getChlList({
                 pageIndex: pageIndex.value,
                 pageSize: pageSize.value,
                 isSupportMaskSetting: true,
-            }).then((res) => {
-                closeLoading()
-                const $ = queryXml(res)
-                if ($('status').text() === 'success') {
-                    editRows.clear()
-                    btnOKDisabled.value = true
-                    tableData.value = $('content/item').map((ele) => {
-                        const eleXml = queryXml(ele.element)
-                        const newData = new ChannelMask()
-                        newData.id = ele.attr('id')!
-                        newData.name = eleXml('name').text()
-                        newData.chlIndex = eleXml('chlIndex').text()
-                        newData.chlType = eleXml('chlType').text()
-                        newData.status = 'loading'
-                        newData.disabled = true
-                        return newData
-                    })
-                    pageTotal.value = Number($('content').attr('total'))
+            })
+            const $ = queryXml(res)
 
-                    if (!tableData.value.length) return
+            closeLoading()
+
+            if ($('status').text() === 'success') {
+                tableData.value = $('content/item').map((ele) => {
+                    const eleXml = queryXml(ele.element)
+                    const newData = new ChannelMask()
+                    newData.id = ele.attr('id')!
+                    newData.name = eleXml('name').text()
+                    newData.chlIndex = eleXml('chlIndex').text()
+                    newData.chlType = eleXml('chlType').text()
+                    newData.status = 'loading'
+                    newData.disabled = true
+                    return newData
+                })
+                pageTotal.value = Number($('content').attr('total'))
+            } else {
+                tableData.value = []
+                selectedChlId.value = ''
+            }
+
+            for (let i = 0; i < tableData.value.length; i++) {
+                const ele = tableData.value[i]
+                if (ele.chlType !== 'recorder') {
+                    await getData(ele.id)
+                } else {
+                    ele.status = ''
+                }
+
+                if (!getRowById(ele.id)) {
+                    break
+                }
+
+                if (i === 0) {
                     formData.value = tableData.value[0]
                     selectedChlId.value = tableData.value[0].id
                     tableRef.value!.setCurrentRow(tableData.value[0])
-
-                    tableData.value.forEach((ele, index) => {
-                        if (ele.chlType != 'recorder') {
-                            getData(ele.id, index)
-                        } else {
-                            ele.status = ''
-                        }
-                    })
-                } else {
-                    selectedChlId.value = ''
                 }
-            })
+            }
         }
 
         const getSaveData = (rowData: ChannelMask) => {
@@ -240,43 +247,43 @@ export default defineComponent({
             return sendXml
         }
 
-        const save = () => {
-            const total = editRows.size
-            if (!total) return
-            let count = 0
-            const successRows: ChannelMask[] = []
+        const save = async () => {
+            if (!editRows.size) return
+
             openLoading()
             tableData.value.forEach((ele) => (ele.status = ''))
-            editRows.forEach((ele) => {
-                editPrivacyMask(getSaveData(ele)).then((res) => {
-                    const $ = queryXml(res)
-                    const success = $('status').text() === 'success'
-                    if (success) {
-                        ele.status = 'success'
-                        successRows.push(ele)
-                    } else {
+
+            for (let i = 0; i < tableData.value.length; i++) {
+                const ele = tableData.value[i]
+                if (editRows.has(ele)) {
+                    try {
+                        const res = await editPrivacyMask(getSaveData(ele))
+                        const $ = queryXml(res)
+                        if ($('status').text() === 'success') {
+                            ele.status = 'success'
+                            editRows.delete(ele)
+                        } else {
+                            ele.status = 'error'
+                        }
+                    } catch {
                         ele.status = 'error'
                     }
-                    count++
-                    if (count >= total) {
-                        successRows.forEach((element) => {
-                            editRows.delete(element)
-                        })
-                        if (!editRows.size) btnOKDisabled.value = true
-                        editStatus.value = false
-                        closeLoading()
-                    }
-                })
-            })
+                }
+            }
+
+            closeLoading()
+            if (!editRows.size) {
+                btnOKDisabled.value = true
+            }
         }
 
         const getRowById = (chlId: string) => {
-            return tableData.value.find((element) => element.id === chlId)!
+            return tableData.value.find((element) => element.id === chlId)
         }
 
         const LiveNotify2Js = ($: (path: string) => XmlResult) => {
             if ($("statenotify[@type='MaskArea']").length > 0) {
-                const preRowData = getRowById(selectedChlId.value)
+                const preRowData = getRowById(selectedChlId.value)!
                 if (osType === 'mac') {
                 } else {
                     if (!preRowData.mask.length) {
@@ -306,7 +313,7 @@ export default defineComponent({
         }
 
         const handleMaskChange = (maskList: CanvasMaskMaskItem[]) => {
-            const rowData = getRowById(selectedChlId.value)
+            const rowData = getRowById(selectedChlId.value)!
             if (!rowData.mask.length) {
                 for (let i = 0; i < 4; i++) {
                     rowData.mask.push(new PrivacyMask())
@@ -388,7 +395,7 @@ export default defineComponent({
         const play = () => {
             if (!selectedChlId.value) return
             if (!ready.value) return
-            const rowData = getRowById(selectedChlId.value)
+            const rowData = getRowById(selectedChlId.value)!
             if (mode.value === 'h5') {
                 player.play({
                     chlID: rowData.id,
@@ -455,8 +462,6 @@ export default defineComponent({
             selectedChlId,
             colorMap,
             editStatus,
-            handleSizeChange,
-            handleCurrentChange,
             handleChlSel,
             handleRowClick,
             handleChangeSwitch,
@@ -465,6 +470,7 @@ export default defineComponent({
             save,
             onReady,
             switchOptions,
+            getDataList,
         }
     },
 })

@@ -71,7 +71,6 @@
             highlight-current-row
         >
             <el-table-column
-                prop="streamType"
                 :label="Translate('IDCS_CODE_STREAM_TYPE')"
                 min-width="260"
             >

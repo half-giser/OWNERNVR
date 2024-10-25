@@ -145,6 +145,7 @@ export default defineComponent({
             if (!prop.chlId) {
                 return
             }
+
             if (cmdQueue.length > 1000) {
                 return
             }
@@ -172,6 +173,7 @@ export default defineComponent({
             if (!prop.chlId) {
                 return
             }
+
             if (!cmdQueue.length || cmdLock) {
                 return
             }
