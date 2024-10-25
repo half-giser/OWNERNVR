@@ -49,7 +49,7 @@ export default defineComponent({
             editItem.value!.dwellTime = rowData.dwellTime
         }
 
-        const handleToolBarEvent = (toolBarEvent: ConfigToolBarEvent<ChannelToolBarEvent>) => {
+        const handleToolBarEvent = (toolBarEvent: ConfigToolBarEvent<SearchToolBarEvent>) => {
             switch (toolBarEvent.type) {
                 case 'addChlGroup':
                     router.push('add')

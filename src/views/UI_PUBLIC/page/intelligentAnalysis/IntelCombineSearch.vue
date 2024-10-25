@@ -3,7 +3,7 @@
  * @Date: 2024-09-10 18:29:07
  * @Description: 智能分析 - 组合搜索
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 19:54:36
+ * @LastEditTime: 2024-10-25 15:01:47
 -->
 <template>
     <div class="base-intel-box">
@@ -169,6 +169,7 @@
                     ref="tableRef"
                     border
                     stripe
+                    show-overflow-tooltip
                     :data="sliceTableData"
                     @row-click="handleTableRowClick"
                     @selection-change="handleTableSelectionChange"

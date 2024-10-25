@@ -18,7 +18,7 @@ export interface channelAddMultiChlIPCAddPop {
 }
 
 export default defineComponent({
-    setup(prop, ctx) {
+    setup(_, ctx) {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
         const userSessionStore = useUserSessionStore()

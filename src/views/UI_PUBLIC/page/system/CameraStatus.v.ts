@@ -3,7 +3,7 @@
  * @Date: 2024-06-21 14:31:40
  * @Description: 通道状态
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-16 11:39:57
+ * @LastEditTime: 2024-10-25 17:12:31
  */
 import { type SystemChannelStatusList } from '@/types/apiType/system'
 
@@ -96,7 +96,7 @@ export default defineComponent({
          * @param event
          * @returns
          */
-        const handleToolBarEvent = (event: ConfigToolBarEvent<ChannelToolBarEvent>) => {
+        const handleToolBarEvent = (event: ConfigToolBarEvent<SearchToolBarEvent>) => {
             if (event.type === 'refresh') {
                 getData()
                 return

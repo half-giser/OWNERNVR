@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 13:36:26
  * @Description: 区域入侵
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 15:55:38
+ * @LastEditTime: 2024-10-25 10:00:21
  */
 import { type chlCaps, type aiResourceRow, type peaPageData, type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
@@ -194,7 +194,6 @@ export default defineComponent({
                 peaPlugin.AddPluginMoveEvent(document.getElementById('peaplayer')!)
                 const sendXML = OCX_XML_SetPluginModel(osType == 'mac' ? 'PeaConfig' : 'ReadOnly', 'Live')
                 peaPlugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                peaPlugin.DisplayOCX(true)
             }
         }
 
@@ -1527,7 +1526,6 @@ export default defineComponent({
                 }
                 const sendXML = OCX_XML_StopPreview('ALL')
                 peaPlugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                peaPlugin.CloseCurPlugin(document.getElementById('peaplayer'))
             }
 
             if (peamode.value === 'h5') {

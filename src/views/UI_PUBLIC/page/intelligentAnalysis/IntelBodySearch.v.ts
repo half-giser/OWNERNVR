@@ -3,7 +3,7 @@
  * @Date: 2024-09-09 19:21:49
  * @Description: 智能分析 - 人体搜索
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 19:53:03
+ * @LastEditTime: 2024-10-25 16:03:12
  */
 import { type IntelSearchCollectList, type IntelSearchList, IntelSnapImgDto, IntelSearchBodyForm, type IntelSnapPopList } from '@/types/apiType/intelligentAnalysis'
 import IntelBaseChannelSelector from './IntelBaseChannelSelector.vue'
@@ -772,6 +772,15 @@ export default defineComponent({
             auth,
             getUniqueKey,
             cacheKey: LocalCacheKey.KEY_BODY_SEARCH_COLLECTION,
+            IntelBaseChannelSelector,
+            IntelBaseDateTimeSelector,
+            IntelBaseEventSelector,
+            IntelBaseProfileSelector,
+            IntelBaseCollect,
+            IntelBaseSnapItem,
+            IntelBaseSnapPop,
+            BackupPop,
+            BackupLocalPop,
         }
     },
 })

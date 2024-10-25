@@ -3,7 +3,7 @@
  * @Date: 2024-08-20 13:58:09
  * @Description: 云台-任务
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 14:58:43
+ * @LastEditTime: 2024-10-25 11:58:42
 -->
 <template>
     <div class="base-chl-box">
@@ -69,7 +69,7 @@
                         format="HH:mm"
                         value-format="HH:mm"
                         editable
-                        prefix-icon=""
+                        popper-class="base-chl-timepicker"
                         :placeholder="Translate('IDCS_POINT_TIME')"
                     />
                 </el-form-item>
@@ -82,7 +82,7 @@
                         format="HH:mm"
                         value-format="HH:mm"
                         editable
-                        prefix-icon=""
+                        popper-class="base-chl-timepicker"
                         :placeholder="Translate('IDCS_POINT_TIME')"
                     />
                 </el-form-item>

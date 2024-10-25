@@ -3,7 +3,7 @@
  * @Date: 2024-08-22 10:15:51
  * @Description: 巡航线组 新增巡航线弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 15:36:15
+ * @LastEditTime: 2024-10-25 13:53:27
  */
 import type { FormInstance, FormRules } from 'element-plus'
 import { type ChannelPtzCruiseDto } from '@/types/apiType/channel'
@@ -57,7 +57,7 @@ export default defineComponent({
         const formRule = ref<FormRules>({
             name: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
                             return

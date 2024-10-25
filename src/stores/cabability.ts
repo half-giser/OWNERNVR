@@ -3,7 +3,7 @@
  * @Date: 2023-05-09 16:45:59
  * @Description: 服务端能力集全局存储
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:42:14
+ * @LastEditTime: 2024-10-25 10:56:10
  */
 export const useCababilityStore = defineStore(
     'cabability',
@@ -64,6 +64,8 @@ export const useCababilityStore = defineStore(
         const supportPoePowerManage = ref(false)
         const supportLogoSetting = ref(false)
         const supportFishEye = ref(false)
+        const chlSupSignalType = ref<string[]>([])
+        const switchIpChlRange = ref<number[]>([])
 
         const CustomerID = ref(0)
         const AISwitch = ref(false)
@@ -136,6 +138,10 @@ export const useCababilityStore = defineStore(
             supportLogoSetting.value = $(`content/supportLogoSetting`).text().toBoolean()
             supportFishEye.value = $(`content/supportFishEye`).text().toBoolean()
 
+            chlSupSignalType.value = $('content/chlSupSignalType').text().split(':')
+            switchIpChlRange.value.push(Number($('content/switchIpChlRange/start').text()))
+            switchIpChlRange.value.push(Number($('content/switchIpChlRange/end').text()))
+
             $('content/FishEyeCaps/installType/enum').forEach((item) => {
                 const text = item.text()
                 fishEyeCap.value[text] = $(`content/FishEyeCaps/fishEyeMode/group[contains(@installType,'${text}')]/enum`).map((chl) => chl.text())
@@ -205,6 +211,8 @@ export const useCababilityStore = defineStore(
             supportPoePowerManage,
             supportLogoSetting,
             supportFishEye,
+            chlSupSignalType,
+            switchIpChlRange,
         }
     },
     {

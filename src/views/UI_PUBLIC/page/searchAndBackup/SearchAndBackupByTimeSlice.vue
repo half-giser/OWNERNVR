@@ -3,7 +3,7 @@
  * @Date: 2024-08-12 16:25:05
  * @Description: 按时间切片搜索
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-27 16:41:39
+ * @LastEditTime: 2024-10-25 14:30:12
 -->
 <template>
     <div class="time-slice">
@@ -53,7 +53,6 @@
 <style lang="scss" scoped>
 .time-slice {
     width: 100%;
-    height: calc(var(--content-height) + 30px);
     display: flex;
     flex-direction: column;
 }

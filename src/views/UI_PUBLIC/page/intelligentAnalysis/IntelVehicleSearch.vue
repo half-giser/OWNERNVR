@@ -3,7 +3,7 @@
  * @Date: 2024-09-10 09:15:11
  * @Description: 智能分析 - 车辆搜索
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 19:57:59
+ * @LastEditTime: 2024-10-25 15:00:41
 -->
 <template>
     <div class="base-intel-box">
@@ -195,6 +195,7 @@
                     ref="tableRef"
                     border
                     stripe
+                    show-overflow-tooltip
                     :data="sliceTableData"
                     @row-click="handleTableRowClick"
                     @selection-change="handleTableSelectionChange"

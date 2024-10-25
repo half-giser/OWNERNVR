@@ -13,7 +13,6 @@
                 :data="tableData"
                 table-layout="fixed"
                 show-overflow-tooltip
-                empty-text=" "
                 highlight-current-row
             >
                 <el-table-column
@@ -27,7 +26,7 @@
                     min-width="220"
                 >
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_ANALOG_IP') }}
                             </BaseTableDropdownLink>

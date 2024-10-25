@@ -3,10 +3,9 @@
  * @Date: 2024-10-23 14:11:24
  * @Description: LOGO设置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-23 15:18:38
+ * @LastEditTime: 2024-10-25 18:35:05
  */
 import { ChannelLogoSetDto } from '@/types/apiType/channel'
-import { cloneDeep } from 'lodash-es'
 import { type TableInstance } from 'element-plus'
 
 export default defineComponent({
@@ -23,15 +22,13 @@ export default defineComponent({
             pageIndex: 1,
             pageSize: 10,
             total: 10,
-            btnDisabled: true,
-            mounted: false,
         })
 
         const tableRef = ref<TableInstance>()
         const tableData = ref<ChannelLogoSetDto[]>([])
 
-        // 记录一份原数据，在提交时判断修改
-        let cacheTableData: ChannelLogoSetDto[] = []
+        // 编辑行索引
+        const editRows = ref(new Set<number>())
 
         // 播放模式
         const mode = computed(() => {
@@ -127,26 +124,20 @@ export default defineComponent({
         const getData = async () => {
             const timer = savePagination()
 
-            pageData.value.tableIndex = 0
-            pageData.value.btnDisabled = true
+            editRows.value.clear()
 
             await getList()
+
             for (let i = 0; i < tableData.value.length; i++) {
                 await getConfig(tableData.value[i].chlId, i)
+
                 if (isPaginationChanged(timer)) {
                     break
                 }
-            }
 
-            if (!isPaginationChanged(timer)) {
-                cacheTableData = cloneDeep(tableData.value)
-
-                nextTick(() => {
-                    pageData.value.mounted = true
-                })
-
-                if (tableData.value.length) {
-                    tableRef.value?.setCurrentRow(tableData.value[pageData.value.tableIndex])
+                if (i === 0) {
+                    pageData.value.tableIndex = i
+                    tableRef.value?.setCurrentRow(tableData.value[i])
                 }
             }
         }
@@ -211,7 +202,7 @@ export default defineComponent({
                 } else {
                     item.disabled = true
                 }
-            } catch (e) {
+            } catch {
                 item.disabled = true
             } finally {
                 item.status = ''
@@ -222,74 +213,40 @@ export default defineComponent({
          * @description 提交编辑行的数据
          */
         const setData = async () => {
-            // 获取编辑行
-            const edits: ChannelLogoSetDto[] = []
-            const editsIndex: number[] = []
-            tableData.value.forEach((item, index) => {
-                if (item.status === 'loading') {
-                    return
-                }
-                item.status = ''
-
-                const params = ['switch', 'opacity']
-                params.some((param) => {
-                    if (!cacheTableData[index]) {
-                        return false
-                    }
-
-                    if (item[param] !== cacheTableData[index][param]) {
-                        edits.push(item)
-                        editsIndex.push(index)
-                        return true
-                    }
-                    return false
-                })
-            })
-
             openLoading()
 
-            let hasError = false
-
-            for (let i = 0; i < edits.length; i++) {
-                const item = edits[i]
-                const row = tableData.value[editsIndex[i]]
-                const sendXml = rawXml`
-                    <content>
-                        <chl id="${item.chlId}">
-                            <name>${item.chlName}</name>
-                            <logo>
-                                <switch>${item.switch}</switch>
-                                <opacity min="${item.minOpacity.toString()}" max="${item.maxOpacity.toString()}">${item.opacity.toString()}</opacity>
-                                <X min="${item.minX.toString()}" max="${item.maxX.toString()}">${item.X.toString()}</X>
-                                <Y min="${item.minY.toString()}" max="${item.maxY.toString()}">${item.Y.toString()}</Y>
-                            </logo>
-                        </chl>
-                    </content>
-                `
-                try {
-                    const result = await editIPChlORChlLogo(sendXml)
-                    const $ = queryXml(result)
-                    if ($('//status').text() === 'success') {
-                        row.status = 'success'
-                    } else {
-                        row.status = 'error'
-                        hasError = true
+            for (let i = 0; i < tableData.value.length; i++) {
+                if (editRows.value.has(i)) {
+                    const item = tableData.value[i]
+                    const sendXml = rawXml`
+                        <content>
+                            <chl id="${item.chlId}">
+                                <name>${item.chlName}</name>
+                                <logo>
+                                    <switch>${item.switch}</switch>
+                                    <opacity min="${item.minOpacity.toString()}" max="${item.maxOpacity.toString()}">${item.opacity.toString()}</opacity>
+                                    <X min="${item.minX.toString()}" max="${item.maxX.toString()}">${item.X.toString()}</X>
+                                    <Y min="${item.minY.toString()}" max="${item.maxY.toString()}">${item.Y.toString()}</Y>
+                                </logo>
+                            </chl>
+                        </content>
+                    `
+                    try {
+                        const result = await editIPChlORChlLogo(sendXml)
+                        const $ = queryXml(result)
+                        if ($('//status').text() === 'success') {
+                            item.status = 'success'
+                            editRows.value.delete(i)
+                        } else {
+                            item.status = 'error'
+                        }
+                    } catch {
+                        item.status = 'error'
                     }
-                } catch {
-                    row.status = 'error'
-                    hasError = true
                 }
             }
 
             closeLoading()
-            cacheTableData = cloneDeep(tableData.value)
-
-            if (!hasError) {
-                pageData.value.btnDisabled = true
-                nextTick(() => {
-                    pageData.value.mounted = false
-                })
-            }
         }
 
         /**
@@ -304,11 +261,19 @@ export default defineComponent({
          * @param {string} value
          */
         const changeAllSwitch = (value: string) => {
-            tableData.value.forEach((item) => {
+            tableData.value.forEach((item, index) => {
                 if (!item.disabled) {
                     item.switch = value
+                    addEditRow(index)
                 }
             })
+        }
+
+        /**
+         * @description 记录修改行的索引
+         */
+        const addEditRow = (index: number) => {
+            editRows.value.add(index)
         }
 
         /**
@@ -342,23 +307,8 @@ export default defineComponent({
             },
         )
 
-        watch(
-            () => tableData,
-            () => {
-                if (pageData.value.mounted) {
-                    pageData.value.btnDisabled = false
-                }
-            },
-            {
-                deep: true,
-            },
-        )
-
-        onMounted(async () => {
-            await getData()
-            if (tableData.value.length) {
-                tableRef.value?.setCurrentRow(tableData.value[pageData.value.tableIndex])
-            }
+        onMounted(() => {
+            getData()
         })
 
         onBeforeUnmount(() => {
@@ -379,6 +329,8 @@ export default defineComponent({
             handleRowClick,
             changeAllSwitch,
             handleKeydownEnter,
+            editRows,
+            addEditRow,
         }
     },
 })

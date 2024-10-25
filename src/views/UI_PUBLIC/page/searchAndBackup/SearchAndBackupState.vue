@@ -3,7 +3,7 @@
  * @Date: 2024-08-08 16:33:15
  * @Description: 备份状态
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 09:31:28
+ * @LastEditTime: 2024-10-25 14:48:45
 -->
 <template>
     <div class="base-flex-box">
@@ -12,23 +12,28 @@
                 :data="tableData"
                 border
                 stripe
+                show-overflow-tooltip
                 width="100%"
             >
                 <el-table-column
                     :label="Translate('IDCS_SERIAL_NUMBER')"
                     type="index"
+                    width="60"
                 />
                 <el-table-column
                     :label="Translate('IDCS_TIME_SEGMENT')"
                     prop="startEndTime"
+                    min-width="300"
                 />
                 <el-table-column
                     :label="Translate('IDCS_RECORD_TIME')"
                     prop="duration"
+                    min-width="100"
                 />
                 <el-table-column
                     :label="Translate('IDCS_BIG_SMALL')"
                     prop="dataSize"
+                    min-width="100"
                 />
                 <el-table-column :label="Translate('IDCS_DESTINATION')">
                     <template #default="scope">
@@ -38,14 +43,17 @@
                 <el-table-column
                     :label="Translate('IDCS_PATH')"
                     prop="backupPath"
+                    min-width="150"
                 />
                 <el-table-column
                     :label="Translate('IDCS_CREATE_USER')"
                     prop="creator"
+                    min-width="100"
                 />
                 <el-table-column
                     :label="Translate('IDCS_PROGRESS')"
                     prop="progress"
+                    width="100"
                 />
                 <el-table-column :label="Translate('IDCS_OPERATION')">
                     <template #header>

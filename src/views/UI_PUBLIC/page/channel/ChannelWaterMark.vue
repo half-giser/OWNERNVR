@@ -3,7 +3,7 @@
  * @Date: 2024-09-29 11:48:53
  * @Description: 水印设置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 09:12:20
+ * @LastEditTime: 2024-10-25 18:06:05
 -->
 <template>
     <div class="base-chl-box">
@@ -18,7 +18,6 @@
             </div>
             <el-form
                 :model="pageData"
-                label-position="left"
                 :style="{
                     '--form-label-width': '150px',
                 }"
@@ -26,7 +25,6 @@
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
                     <el-select
                         v-model="pageData.currChlId"
-                        placeholder=""
                         @change="handleChlChange"
                     >
                         <el-option
@@ -40,7 +38,6 @@
                 <el-form-item :label="Translate('IDCS_WATER_MARK')">
                     <el-select
                         v-model="pageData.chlData.switch"
-                        placeholder=""
                         :disabled="pageData.switchDisabled"
                         @change="handleSwitchChange"
                     >
@@ -55,9 +52,11 @@
                 <el-form-item :label="Translate('IDCS_INFORMATION')">
                     <el-input
                         v-model="pageData.chlData.customText"
-                        @input="handleFocus(pageData.chlData.customText, 'form')"
+                        :formatter="formatInput"
+                        :parser="formatInput"
+                        :disabled="pageData.switchDisabled"
                         @blur="handleCustomTextInput(pageData.chlData.customText)"
-                    ></el-input>
+                    />
                 </el-form-item>
             </el-form>
         </div>
@@ -70,6 +69,7 @@
                     stripe
                     highlight-current-row
                     show-overflow-tooltip
+                    :row-class-name="(data) => (data.row.disabled ? 'disabled' : '')"
                     @row-click="handleRowClick"
                 >
                     <!-- 状态列 -->
@@ -145,7 +145,8 @@
                                     <el-input
                                         v-model="pageData.customTextSetAll"
                                         placeholder=""
-                                        @input="handleFocus(pageData.customTextSetAll, 'table')"
+                                        :formatter="formatInput"
+                                        :parser="formatInput"
                                     />
                                     <div class="base-btn-box">
                                         <el-button @click="handleSetCustomTextAll(pageData.customTextSetAll)">{{ Translate('IDCS_OK') }}</el-button>
@@ -161,17 +162,14 @@
                 <el-pagination
                     v-model:current-page="pageData.pageIndex"
                     v-model:page-size="pageData.pageSize"
-                    :page-sizes="pageData.pageDataCountItems"
-                    layout="prev, pager, next, sizes, total, jumper"
                     :total="pageData.totalCount"
-                    size="small"
-                    @size-change="changePaginationSize"
-                    @current-change="changePagination"
+                    @size-change="getDataList"
+                    @current-change="getDataList"
                 />
             </div>
             <div class="base-btn-box">
                 <el-button
-                    :disabled="pageData.applyDisabled"
+                    :disabled="!pageData.editRows.size"
                     @click="handleApply"
                 >
                     {{ Translate('IDCS_APPLY') }}

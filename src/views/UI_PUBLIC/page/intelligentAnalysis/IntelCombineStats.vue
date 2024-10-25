@@ -3,7 +3,7 @@
  * @Date: 2024-09-04 15:55:11
  * @Description: 智能分析 - 组合统计
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-22 20:02:15
+ * @LastEditTime: 2024-10-25 15:17:58
 -->
 <template>
     <div class="base-intel-box">
@@ -45,7 +45,7 @@
                     v-show="formData.event[0] === 'faceMatchWhiteList'"
                     trigger="click"
                 >
-                    <BaseTableDropdownLink>
+                    <BaseTableDropdownLink effect="plain">
                         {{ pageData.chartType === 'chart' ? Translate('IDCS_COLIMNAR_CHART') : Translate('IDCS_DETAIL_CHART') }}
                     </BaseTableDropdownLink>
                     <template #dropdown>
@@ -88,12 +88,14 @@
                     <el-table-column
                         prop="chlName"
                         width="150"
+                        show-overflow-tooltip
                         :label="Translate('IDCS_CHANNEL_NAME')"
                     />
                     <el-table-column
                         v-for="(label, index) in pageData.tableData.label"
                         :key="label"
                         :label="label"
+                        width="80"
                     >
                         <template #default="scope">
                             <span :class="{ 'text-error': scope.row.data[index] }">{{ scope.row.data[index] }}</span>

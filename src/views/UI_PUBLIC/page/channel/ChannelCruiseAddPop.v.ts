@@ -3,7 +3,7 @@
  * @Date: 2024-08-21 17:51:18
  * @Description: 云台-巡航线-新增弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 15:35:39
+ * @LastEditTime: 2024-10-25 11:38:00
  */
 import { type ChannelPtzCruiseDto, type ChannelPtzCruisePresetDto } from '@/types/apiType/channel'
 import type { FormInstance, FormRules, TableInstance } from 'element-plus'
@@ -69,7 +69,7 @@ export default defineComponent({
         const formRule = ref<FormRules>({
             name: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_, value: string, callback) {
                         if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
                             return
@@ -101,7 +101,7 @@ export default defineComponent({
             const cruiseIndex = prop.cruise.map((item) => item.index)
             const cruiseOptions = Array(prop.max)
                 .fill(0)
-                .map((item, index) => {
+                .map((_, index) => {
                     return index + 1
                 })
                 .filter((item) => {
@@ -123,11 +123,11 @@ export default defineComponent({
             const presets = tableData.value
                 .map((item) => {
                     return rawXml`
-                    <item index="${item.index.toString()}">
-                        <speed>${item.speed.toString()}</speed>
-                        <holdTime>${item.holdTime.toString()}</holdTime>
-                    </item>
-                `
+                        <item index="${item.index.toString()}">
+                            <speed>${item.speed.toString()}</speed>
+                            <holdTime>${item.holdTime.toString()}</holdTime>
+                        </item>
+                    `
                 })
                 .join('')
             const sendXml = rawXml`
