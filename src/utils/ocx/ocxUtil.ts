@@ -940,6 +940,7 @@ export const getPluginPath = () => {
         _P2PClientPluVer = P2PClientPluVerDebug
         _ClientPluVer = ClientPluVerDebug
     }
+
     if (import.meta.env.VITE_UI_TYPE === 'UI1-E') {
         _ClientPluDownLoadPath = '/OCX/Speco_Technologies_v5.exe'
         _P2PClientPluDownLoadPath = 'OCX/Speco_Technologies_v5_p2p.exe'

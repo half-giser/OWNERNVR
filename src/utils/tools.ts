@@ -3,7 +3,7 @@
  * @Date: 2023-04-28 17:57:48
  * @Description: 工具方法
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-22 15:22:27
+ * @LastEditTime: 2024-10-24 17:54:07
  */
 
 import { type QueryNodeListDto } from '@/types/apiType/channel'
@@ -140,14 +140,15 @@ export const getBrowserInfo = (): BrowserInfo => {
             { name: 'safari', reg: /version\/(\d+(\.\d+)*).*safari/i },
         ]
         for (let i = 0; i < simpleBrowserList.length; i++) {
-            matches = userAgent.match(simpleBrowserList[i]['reg'])
+            matches = userAgent.match(simpleBrowserList[i].reg)
             if (matches) {
-                browserInfo.type = simpleBrowserList[i]['name'] as BrowserType
+                browserInfo.type = simpleBrowserList[i].name as BrowserType
                 browserInfo.version = matches[1]
                 break
             }
         }
     }
+
     if (browserInfo.version) {
         browserInfo.majorVersion = (browserInfo.version as any).split('.')[0] * 1
     }
@@ -738,6 +739,7 @@ export const parseDateToPersianCalendar = (date: any) => {
         const dateParts = date.match(new RegExp('^(\\d{1,4})-(\\d{1,2})-(\\d{1,2})$'))
         date = dateParts && dateParts.length === 4 ? new Date(Number(dateParts[1]), Number(dateParts[2]) - 1, Number(dateParts[3])) : null
     }
+
     if (!(date instanceof Date)) {
         return null
     }
@@ -781,7 +783,8 @@ export const parsePersianCalendartoDate = (persianDate: any) => {
                   }
                 : null
     }
-    if (typeof persianDate !== 'object' || typeof persianDate['year'] !== 'number' || typeof persianDate['month'] !== 'number' || typeof persianDate['day'] !== 'number') {
+
+    if (typeof persianDate !== 'object' || typeof persianDate.year !== 'number' || typeof persianDate.month !== 'number' || typeof persianDate.day !== 'number') {
         return null
     }
 
@@ -790,7 +793,7 @@ export const parsePersianCalendartoDate = (persianDate: any) => {
         const b = a - 2820 * Math.floor(a / 2820) + 474
         return 1948321 - 1 + 1029983 * Math.floor(a / 2820) + 365 * (b - 1) + Math.floor((682 * b - 110) / 2816) + (month > 6 ? 30 * month + 6 : 31 * month) + day
     }
-    const julianDay = pj(persianDate['year'] > 0 ? persianDate['year'] : persianDate['year'] + 1, persianDate['month'], persianDate['day'])
+    const julianDay = pj(persianDate.year > 0 ? persianDate.year : persianDate.year + 1, persianDate.month, persianDate.day)
     const date = new Date()
     const baseTime = new Date(date.getFullYear(), date.getMonth() + 1, date.getDate(), 8, 1, 1).getTime()
     return new Date(julianDay * 24 * 60 * 60 * 1000 + (baseTime + 210866803200000 - 24 * 60 * 60 * 1000 * Math.floor((baseTime + 210866803200000) / (24 * 60 * 60 * 1000))) - 210866803200000)
@@ -932,33 +935,132 @@ const reconnectStandard = async (callback?: () => void) => {
         })
 }
 
+type ScheduleListOption = {
+    isManager: boolean
+    isDefault: boolean
+    defaultValue: string
+}
+
 /**
- * @description: 构建排程选择列表
- * @return {*}
+ * @description 构建排程选择列表
+ * @return {SelectOption<string, string>[]}
  */
-export const buildScheduleList = async (requireManage?: boolean) => {
+export const buildScheduleList = async (option: Partial<ScheduleListOption> = {}) => {
+    const options = {
+        isManager: false,
+        isDefault: true,
+        defaultValue: DEFAULT_EMPTY_ID,
+        ...option,
+    }
     const Translate = useLangStore().Translate
     const result = await queryScheduleList()
-    let scheduleList = [] as SelectOption<string, string>[]
-    commLoadResponseHandler(result, async ($) => {
-        scheduleList = $('//content/item').map((item) => {
-            return {
-                value: item.attr('id')!,
-                label: item.text(),
-            }
-        })
-        scheduleList.push({
-            value: '',
-            label: `<${Translate('IDCS_NULL')}>`,
-        })
-        if (requireManage) {
-            scheduleList.push({
-                value: 'scheduleMgr',
-                label: Translate('IDCS_SCHEDULE_MANAGE'),
-            })
+    const $ = await commLoadResponseHandler(result)
+    const scheduleList = $('//content/item').map((item) => {
+        return {
+            value: item.attr('id')!,
+            label: item.text(),
         }
     })
+    if (options.isDefault) {
+        scheduleList.push({
+            value: options.defaultValue,
+            label: `<${Translate('IDCS_NULL')}>`,
+        })
+    }
+
+    if (options.isManager) {
+        scheduleList.push({
+            value: 'scheduleMgr',
+            label: Translate('IDCS_SCHEDULE_MANAGE'),
+        })
+    }
     return scheduleList
+}
+
+/**
+ * @description 构建语音播报列表
+ */
+export const buildAudioList = async () => {
+    const Translate = useLangStore().Translate
+    const result = await queryAlarmAudioCfg()
+    const $ = await commLoadResponseHandler(result)
+    const audioList = $('//content/audioList/item').map((item) => {
+        return {
+            value: item.attr('id')!,
+            label: item.text(),
+        }
+    })
+    audioList.push({
+        value: DEFAULT_EMPTY_ID,
+        label: `<${Translate('IDCS_NULL')}>`,
+    })
+    return audioList
+}
+
+/**
+ * @description 构建报警输出通道列表
+ */
+export const buildAlarmOutChlList = async () => {
+    // const Translate = useLangStore().Translate
+    const result = await getChlList({
+        requireField: ['device'],
+        nodeType: 'alarmOuts',
+    })
+    const $ = await commLoadResponseHandler(result)
+    const alarmOutList = $('//content/item').map((item) => {
+        const $item = queryXml(item.element)
+        let label = $item('name').text()
+        if ($item('devDesc').text()) {
+            label = $item('devDesc').text() + '_' + label
+        }
+        return {
+            value: item.attr('id')!,
+            label,
+            device: {
+                value: $item('device').attr('id'),
+                label: $item('device').text(),
+            },
+        }
+    })
+    return alarmOutList
+}
+
+/**
+ * @description 获取录像通道列表
+ */
+export const buildRecordChlList = async () => {
+    const result = await getChlList({
+        nodeType: 'chls',
+        isSupportSnap: false,
+    })
+    const $ = await commLoadResponseHandler(result)
+    const chlList = $('//content/item').map((item) => {
+        const $item = queryXml(item.element)
+        return {
+            label: $item('name').text(),
+            value: item.attr('id')!,
+        }
+    })
+    return chlList
+}
+
+/**
+ * @description 获取抓图通道列表
+ */
+export const buildSnapChlList = async () => {
+    const result = await getChlList({
+        nodeType: 'chls',
+        isSupportSnap: true,
+    })
+    const $ = await commLoadResponseHandler(result)
+    const chlList = $('//content/item').map((item) => {
+        const $item = queryXml(item.element)
+        return {
+            label: $item('name').text(),
+            value: item.attr('id')!,
+        }
+    })
+    return chlList
 }
 
 /**
@@ -994,10 +1096,62 @@ const getTranslateForTime = (value: number, unit1: string, unit1s: string, unit2
     if (t1 > 0) {
         label += `${t1} ${t1 === 1 ? unit1 : unit1s}`
     }
+
     if (t2 > 0) {
         label += (t1 > 0 ? ' ' : '') + `${t2} ${t2 === 1 ? unit2 : unit2s}`
     }
     return label
+}
+
+/**
+ * @description 获取通用的开关选项
+ * @returns {SelectOption<string, string>[]}
+ */
+export const getSwitchOptions = () => {
+    const Translate = useLangStore().Translate
+    return DEFAULT_SWITCH_OPTIONS.map((item) => {
+        return {
+            label: Translate(item.label),
+            value: item.value,
+        }
+    })
+}
+
+/**
+ * @description 获取通用的开关选项
+ * @returns {SelectOption<boolean, string>[]}
+ */
+export const getBoolSwitchOptions = () => {
+    const Translate = useLangStore().Translate
+    return DEFAULT_SWITCH_OPTIONS.map((item) => {
+        return {
+            label: Translate(item.label),
+            value: item.value.toBoolean(),
+        }
+    })
+}
+
+/**
+ * @description 获取常开常闭选项
+ * @returns {SelectOption<string, string>[]}
+ */
+export const getAlwaysOptions = () => {
+    const Translate = useLangStore().Translate
+    return DEFAULT_ALWAYS_OPTIONS.map((item) => {
+        return {
+            label: Translate(item.label),
+            value: item.value,
+        }
+    })
+}
+
+export const getAlarmEventList = () => {
+    const Translate = useLangStore().Translate
+    const obj: Record<string, string> = {}
+    for (const i in DEFAULT_ALARM_EVENT) {
+        obj[i] = Translate(DEFAULT_ALARM_EVENT[i])
+    }
+    return obj
 }
 
 /**
@@ -1079,6 +1233,7 @@ export const getBitrateRange = (options: GetBitRateRangeOption) => {
     } else {
         min = Math.floor(min)
     }
+
     if (!min || !max) {
         return null
     }
@@ -1174,6 +1329,7 @@ const IsIntersect = (pointA: CanvasBasePoint, pointB: CanvasBasePoint, pointC: C
     const isBothSideAB = (vectorCA.X * vectorCD.Y - vectorCA.Y * vectorCD.X) * (vectorCB.X * vectorCD.Y - vectorCB.Y * vectorCD.X) < 0
     return isBothSideCD && isBothSideAB
 }
+
 // 判断画点多边形区域是否可闭合（通过判断区域中的第一个点和最后一个点的连线是否与其他线相交）- true:可闭合; false:不可闭合
 export const judgeAreaCanBeClosed = (pointList: CanvasBasePoint[]) => {
     let flag = true

@@ -140,17 +140,21 @@ const displayDateValue = (timestamp: number) => {
         if (dayjs().isSame(timestamp, 'day')) {
             return Translate('IDCS_CALENDAR_TODAY')
         }
+
         if (dayjs().subtract(1, 'day').isSame(timestamp, 'day')) {
             return Translate('IDCS_CALENDAR_YESTERDAY')
         }
         return formatDate(timestamp, dateTime.dateFormat)
     }
+
     if (props.type === 'month' || props.type === 'quarter') {
         return formatDate(timestamp, dateTime.yearMonthFormat)
     }
+
     if (props.type === 'week') {
         return formatDate(timestamp, dateTime.dateFormat)
     }
+
     return formatDate(timestamp, dateTime.dateTimeFormat)
 }
 </script>

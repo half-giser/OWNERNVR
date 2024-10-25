@@ -33,6 +33,7 @@ export const getXmlWrapData = (data: string, url = '', refresh = false) => {
     if (userSessionStore.token) {
         tokenXml = `<token>${userSessionStore.token}</token>`
     }
+
     if (import.meta.env.VITE_APP_TYPE === 'P2P') {
         return rawXml`${xmlHeader}
             <cmd type="NVMS_NAT_CMD">

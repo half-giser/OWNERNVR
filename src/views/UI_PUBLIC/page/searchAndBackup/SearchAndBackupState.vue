@@ -3,7 +3,7 @@
  * @Date: 2024-08-08 16:33:15
  * @Description: 备份状态
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-09 09:29:17
+ * @LastEditTime: 2024-10-24 09:31:28
 -->
 <template>
     <div class="base-flex-box">
@@ -47,10 +47,7 @@
                     :label="Translate('IDCS_PROGRESS')"
                     prop="progress"
                 />
-                <el-table-column
-                    :label="Translate('IDCS_OPERATION')"
-                    prop="operate"
-                >
+                <el-table-column :label="Translate('IDCS_OPERATION')">
                     <template #header>
                         <el-dropdown trigger="click">
                             <BaseTableDropdownLink>
@@ -78,10 +75,7 @@
                         <el-text v-else-if="scope.row.status === 'failed'">{{ Translate('IDCS_FAILED') }}</el-text>
                     </template>
                 </el-table-column>
-                <el-table-column
-                    :label="Translate('IDCS_DELETE')"
-                    prop="delete"
-                >
+                <el-table-column :label="Translate('IDCS_DELETE')">
                     <template #header>
                         <el-dropdown trigger="click">
                             <BaseTableDropdownLink>

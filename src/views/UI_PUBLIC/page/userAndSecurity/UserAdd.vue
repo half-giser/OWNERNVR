@@ -3,7 +3,7 @@
  * @Date: 2024-06-14 09:47:30
  * @Description: 添加用户页面
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-22 20:12:01
+ * @LastEditTime: 2024-10-24 09:47:18
 -->
 <template>
     <div>
@@ -61,10 +61,7 @@
                     @paste.capture.prevent=""
                 />
             </el-form-item>
-            <el-form-item
-                prop="allowModifyPassword"
-                :label="Translate('IDCS_ALLOW_CHANGE_PWD')"
-            >
+            <el-form-item :label="Translate('IDCS_ALLOW_CHANGE_PWD')">
                 <el-checkbox v-model="formData.allowModifyPassword"></el-checkbox>
             </el-form-item>
             <el-form-item
@@ -73,10 +70,7 @@
             >
                 <BaseSensitiveEmailInput v-model="formData.email" />
             </el-form-item>
-            <el-form-item
-                prop="authGroup"
-                :label="Translate('IDCS_RIGHT_GROUP')"
-            >
+            <el-form-item :label="Translate('IDCS_RIGHT_GROUP')">
                 <el-select v-model="formData.authGroup">
                     <el-option
                         v-for="item in authGroupOptions"

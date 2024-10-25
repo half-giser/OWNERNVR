@@ -275,6 +275,7 @@ export default defineComponent({
             if (!supportFishEye.value || pageData.value.fishEyeMode === fishEyeMode) {
                 return
             }
+
             if (pageData.value.fishEyeingId && prop.winData.chlID !== pageData.value.fishEyeingId) {
                 openMessageTipBox({
                     type: 'info',

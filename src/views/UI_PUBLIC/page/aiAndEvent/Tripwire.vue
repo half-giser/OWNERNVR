@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-19 11:11:35
  * @Description:  越界
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-21 17:06:30
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-24 20:31:00
 -->
 
 <template>
@@ -16,9 +16,9 @@
         <!-- tripwirerecord弹窗 -->
         <BaseTransferDialog
             v-model="tripwireData.recordIsShow"
-            :header-title="tripwireData.recordHeaderTitle"
-            :source-title="tripwireData.recordSourceTitle"
-            :target-title="tripwireData.recordTargetTitle"
+            header-title="IDCS_TRIGGER_CHANNEL_RECORD"
+            source-title="IDCS_CHANNEL"
+            target-title="IDCS_CHANNEL_TRGGER"
             :source-data="tripwireData.recordSource"
             :linked-list="tripwireData.recordList || []"
             :type="tripwireData.recordType"
@@ -28,9 +28,9 @@
         <!-- tripwirealarmOut弹窗 -->
         <BaseTransferDialog
             v-model="tripwireData.alarmOutIsShow"
-            :header-title="tripwireData.alarmOutHeaderTitle"
-            :source-title="tripwireData.alarmOutSourceTitle"
-            :target-title="tripwireData.alarmOutTargetTitle"
+            header-title="IDCS_TRIGGER_ALARM_OUT"
+            source-title="IDCS_ALARM_OUT"
+            target-title="IDCS_TRIGGER_ALARM_OUT"
             :source-data="tripwireData.alarmOutSource"
             :linked-list="tripwireData.alarmOutList || []"
             :type="tripwireData.alarmOutType"
@@ -41,7 +41,7 @@
         <el-dialog
             v-model="tripwireData.aiResourcePopOpen"
             :title="Translate('IDCS_DETAIL')"
-            width="600px"
+            width="600"
             center
             draggable
         >
@@ -50,31 +50,31 @@
                 stripe
                 border
                 show-overflow-tooltip
-                height="290px"
+                height="290"
             >
                 <el-table-column
                     prop="name"
                     :label="Translate('IDCS_CHANNEL')"
-                    width="138px"
+                    width="138"
                 ></el-table-column>
                 <el-table-column
                     prop="eventTypeText"
                     :label="Translate('IDCS_EVENT_TYPE')"
-                    width="150px"
+                    width="150"
                 ></el-table-column>
                 <el-table-column
                     prop="percent"
                     :label="Translate('IDCS_USAGE_RATE')"
-                    width="100px"
+                    width="100"
                 ></el-table-column>
                 <el-table-column
                     prop="decodeResource"
                     :label="Translate('IDCS_DECODE_RESOURCE')"
-                    width="100px"
+                    width="100"
                 ></el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_FREE_AI_RESOURCE')"
-                    width="70px"
+                    width="70"
                 >
                     <template #default="scope">
                         <BaseImgSprite
@@ -168,7 +168,7 @@
                     >
                     <div class="base-btn-box">
                         <el-button
-                            small
+                            size="small"
                             @click="tripwireData.moreDropDown = false"
                             >{{ Translate('IDCS_CLOSE') }}</el-button
                         >
@@ -303,9 +303,7 @@
                             <el-form-item :label="Translate('IDCS_DIRECTION')">
                                 <el-select
                                     v-model="tripwireData.direction"
-                                    value-key="value"
                                     size="small"
-                                    :options="tripwireData.directionList"
                                     @change="handleTripwireDirectionChange"
                                 >
                                     <el-option
@@ -512,7 +510,7 @@
                                     >{{ Translate('IDCS_TRIGGER_NOMAL') }}</el-checkbox
                                 >
                                 <el-table
-                                    height="367px"
+                                    height="367"
                                     :data="tripwireTriggerData"
                                     :show-header="false"
                                     :header-cell-style="{ 'text-align': 'left' }"
@@ -542,13 +540,13 @@
                                 </div>
                                 <el-table
                                     :show-header="false"
-                                    height="367px"
+                                    height="367"
                                     :data="tripwireData.record.chls"
                                     empty-text=" "
                                 >
                                     <el-table-column>
                                         <template #default="scope">
-                                            <span>{{ scope.row.label }}</span>
+                                            {{ scope.row.label }}
                                         </template>
                                     </el-table-column>
                                 </el-table>
@@ -566,13 +564,13 @@
                                 </div>
                                 <el-table
                                     :show-header="false"
-                                    height="367px"
+                                    height="367"
                                     :data="tripwireData.alarmOut.chls"
                                     empty-text=" "
                                 >
                                     <el-table-column>
                                         <template #default="scope">
-                                            <span>{{ scope.row.label }}</span>
+                                            {{ scope.row.label }}
                                         </template>
                                     </el-table-column>
                                 </el-table>
@@ -591,7 +589,7 @@
                                 <el-table
                                     border
                                     stripe
-                                    height="367px"
+                                    height="367"
                                     :data="tripwireData.presetSource"
                                 >
                                     <el-table-column

@@ -17,12 +17,11 @@
         >
             <el-form-item
                 :label="Translate('IDCS_CHANNEL_NAME')"
-                label-width="108px"
+                label-width="108"
             >
                 <el-select
                     v-model="pageData.currChlId"
                     class="base-ai-chl-select"
-                    value-key="id"
                     popper-class="base-ai-chl-option"
                     @change="handleChangeChannel"
                 >

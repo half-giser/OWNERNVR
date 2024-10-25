@@ -37,7 +37,7 @@ export default defineComponent({
             // 连接类型选项列表
             connectionTypeList: [] as { name: string; value: string }[],
             // 开关选项列表
-            switchOption: DEFAULT_SWITCH_OPTIONS,
+            switchOption: getSwitchOptions(),
             // 协议选项列表
             manufacturersList: [] as { name: string; value: string }[],
             // 编码选项列表

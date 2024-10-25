@@ -3,7 +3,7 @@
  * @Date: 2024-09-09 19:21:49
  * @Description: 智能分析 - 人体搜索
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:13:11
+ * @LastEditTime: 2024-10-24 19:53:03
  */
 import { type IntelSearchCollectList, type IntelSearchList, IntelSnapImgDto, IntelSearchBodyForm, type IntelSnapPopList } from '@/types/apiType/intelligentAnalysis'
 import IntelBaseChannelSelector from './IntelBaseChannelSelector.vue'
@@ -387,6 +387,7 @@ export default defineComponent({
                         }
                     }
                 }
+
                 if (getUniqueKey(row) === getUniqueKey(sliceTableData.value[index])) {
                     return true
                 } else {
@@ -486,6 +487,7 @@ export default defineComponent({
                 })
                 showMaxSearchLimitTips($)
             }
+
             if (!tableData.value.length) {
                 openMessageTipBox({
                     type: 'info',
@@ -613,6 +615,7 @@ export default defineComponent({
             if (pageData.value.isBackUpPic) {
                 downloadPic()
             }
+
             if (pageData.value.isBackUpVideo) {
                 pageData.value.isBackUpPop = true
             } else {
@@ -768,6 +771,7 @@ export default defineComponent({
             downloadVideo,
             auth,
             getUniqueKey,
+            cacheKey: LocalCacheKey.KEY_BODY_SEARCH_COLLECTION,
         }
     },
 })

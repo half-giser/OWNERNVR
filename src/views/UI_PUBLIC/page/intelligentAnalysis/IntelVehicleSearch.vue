@@ -3,7 +3,7 @@
  * @Date: 2024-09-10 09:15:11
  * @Description: 智能分析 - 车辆搜索
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-19 16:46:05
+ * @LastEditTime: 2024-10-24 19:57:59
 -->
 <template>
     <div class="base-intel-box">
@@ -69,7 +69,7 @@
                     <div class="base-intel-row">
                         <el-button @click="getData">{{ Translate('IDCS_SEARCH') }}</el-button>
                         <IntelBaseCollect
-                            :storage-key="pageData.searchType === 'event' ? 'intel_vehicle_event_search' : 'intel_vehicle_park_search'"
+                            :storage-key="cacheKey"
                             :data="{
                                 dateRange: formData.dateRange,
                                 chl: formData.chl,
@@ -226,7 +226,6 @@
                     <el-table-column
                         v-if="formData.searchType === 'park'"
                         :label="Translate('IDCS_VEHICLE_DIRECTION')"
-                        prop="direction"
                     >
                         <template #default="scope">
                             {{ displayDirection(scope.row.direction) }}

@@ -50,10 +50,7 @@
                 />
                 <el-text>{{ Translate('IDCS_DAYS') }} *</el-text>
             </el-form-item>
-            <el-form-item
-                :label="Translate('IDCS_PASSWORD')"
-                prop="password"
-            >
+            <el-form-item :label="Translate('IDCS_PASSWORD')">
                 <el-input
                     v-model="formData.password"
                     type="password"

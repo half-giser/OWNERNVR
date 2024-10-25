@@ -3,7 +3,7 @@
  * @Date: 2024-08-09 15:02:25
  * @Description: 搜索与备份-图片管理
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-23 14:50:15
+ * @LastEditTime: 2024-10-24 09:30:28
 -->
 <template>
     <div class="img-mgr base-flex-box">
@@ -84,7 +84,7 @@
                         </div>
                     </template>
                 </el-table-column>
-                <el-table-column prop="captureTime">
+                <el-table-column>
                     <template #header>
                         <div
                             class="sort-title"
@@ -109,10 +109,7 @@
                     prop="creator"
                 >
                 </el-table-column>
-                <el-table-column
-                    :label="Translate('IDCS_BROWSE')"
-                    prop="browser"
-                >
+                <el-table-column :label="Translate('IDCS_BROWSE')">
                     <template #default="scope">
                         <BaseImgSprite
                             file="browser"
@@ -124,10 +121,7 @@
                     </template>
                 </el-table-column>
 
-                <el-table-column
-                    :label="Translate('IDCS_EXPORT')"
-                    prop="export"
-                >
+                <el-table-column :label="Translate('IDCS_EXPORT')">
                     <template #header>
                         <el-dropdown trigger="click">
                             <BaseTableDropdownLink>
@@ -150,10 +144,7 @@
                         />
                     </template>
                 </el-table-column>
-                <el-table-column
-                    :label="Translate('IDCS_DELETE')"
-                    prop="id"
-                >
+                <el-table-column :label="Translate('IDCS_DELETE')">
                     <template #header>
                         <el-dropdown trigger="click">
                             <BaseTableDropdownLink>

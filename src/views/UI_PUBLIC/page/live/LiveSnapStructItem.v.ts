@@ -94,6 +94,7 @@ export default defineComponent({
                     return getInfoListItem(item.type, String(value))
                 })
             }
+
             if (targetType === 'vehicle') {
                 const type = prop.data.info.car_info
                 return DEFAULT_VEHICLE_STRUCT_MAPPING.filter((item) => {
@@ -104,6 +105,7 @@ export default defineComponent({
                     return getInfoListItem('vehicle_' + item.type, String(value))
                 })
             }
+
             if (targetType === 'non_vehicle') {
                 const type = prop.data.info.bike_info
                 return DEFAULT_NON_VEHICLE_STRUCT_MAPPING.map((item) => {

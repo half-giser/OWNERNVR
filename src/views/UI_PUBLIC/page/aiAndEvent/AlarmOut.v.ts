@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-08-10 11:05:51
  * @Description: 报警输出
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-21 11:46:44
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-24 17:42:14
  */
 import { AlarmOut } from '@/types/apiType/aiAndEvent'
 import { cloneDeep } from 'lodash-es'
@@ -46,7 +46,10 @@ export default defineComponent({
         const curAlarmoutType = ref('')
 
         onMounted(async () => {
-            pageData.value.scheduleList = await buildScheduleList(true)
+            pageData.value.scheduleList = await buildScheduleList({
+                isManager: true,
+                defaultValue: '',
+            })
             await getAlarmOutType()
             buildTableData()
         })
@@ -76,8 +79,8 @@ export default defineComponent({
                 nodeType: 'alarmOuts',
             }).then(async (result) => {
                 const $chl = queryXml(result)
-                pageData.value.totalCount = Number($chl('/response/content').attr('total'))
-                $chl('/response/content/item').forEach(async (item) => {
+                pageData.value.totalCount = Number($chl('//content').attr('total'))
+                $chl('//content/item').forEach(async (item) => {
                     const row = new AlarmOut()
                     row.id = item.attr('id')!
                     row.name = xmlParse('./name', item.element).text()
@@ -91,9 +94,9 @@ export default defineComponent({
                     const row = tableData.value[i]
 
                     const sendXml = rawXml`
-                    <condition>
-                        <alarmOutId>${row.id}</alarmOutId>
-                    </condition>
+                        <condition>
+                            <alarmOutId>${row.id}</alarmOutId>
+                        </condition>
                     `
                     const alarmParam = await queryAlarmOutParam(sendXml)
                     const $ = queryXml(alarmParam)
@@ -101,7 +104,7 @@ export default defineComponent({
 
                     // 从第一个数据中获取延迟时间下拉选项和类型下拉选项
                     if (pageData.value.delayList.length === 0) {
-                        pageData.value.delayList = $('/response/content/delayTimeNote')
+                        pageData.value.delayList = $('//content/delayTimeNote')
                             .text()
                             .split(',')
                             .map((delayItem) => {
@@ -113,16 +116,16 @@ export default defineComponent({
                             })
                     }
 
-                    if ($('/response/status').text() === 'success') {
+                    if ($('//status').text() === 'success') {
                         // 查询成功的行取消禁用
                         row.disabled = false
-                        row.delayTime = Number($('/response/content/delayTime').text())
-                        const $schedule = $('/response/content/schedule')
+                        row.delayTime = Number($('//content/delayTime').text())
+                        const $schedule = $('//content/schedule')
                         row.scheduleId = $schedule.attr('id')
                         row.scheduleName = $schedule.text()
                         row.oldSchedule = $schedule.attr('id')
-                        row.index = $('/response/content/index').text()
-                        row.devDesc = $('/response/content/devDesc').text()
+                        row.index = $('//content/index').text()
+                        row.devDesc = $('//content/devDesc').text()
                         // devDescTemp不存在表示设备本地报警输出，本地报警输出才能设置报警类型
                         if (!row.devDesc) {
                             row.type = pageData.value.alarmoutTypeText[curAlarmoutType.value]
@@ -188,8 +191,8 @@ export default defineComponent({
         const getAlarmOutType = async () => {
             const result = await queryBasicCfg()
             const $ = queryXml(result)
-            curAlarmoutType.value = $('/response/content/alarmoutType').text()
-            pageData.value.typeList = $('/response/types/alarmoutType/enum').map((typeItem) => {
+            curAlarmoutType.value = $('//content/alarmoutType').text()
+            pageData.value.typeList = $('//types/alarmoutType/enum').map((typeItem) => {
                 const value = typeItem.text()
                 return {
                     value: value,
@@ -204,6 +207,7 @@ export default defineComponent({
         const nameFocus = (name: string) => {
             originalName.value = name
         }
+
         // 失去焦点时检查名称是否合法
         const nameBlur = (row: AlarmOut) => {
             const name = row.name
@@ -221,6 +225,7 @@ export default defineComponent({
                     })
                     row.name = originalName.value
                 }
+
                 for (const item of tableData.value) {
                     if (item.id != row.id && name == item.name) {
                         openMessageTipBox({
@@ -233,10 +238,12 @@ export default defineComponent({
                 }
             }
         }
+
         // 回车键失去焦点
         const enterBlur = (event: { target: { blur: () => void } }) => {
             event.target.blur()
         }
+
         /**
          * @description: 改变所有项的值
          * @param {string} value 值
@@ -262,9 +269,9 @@ export default defineComponent({
                 openLoading()
                 setData()
                 const sendXml = rawXml`
-                <content>
-                    <alarmoutType>${value}</alarmoutType>
-                </content>
+                    <content>
+                        <alarmoutType>${value}</alarmoutType>
+                    </content>
                 `
                 const result = await editBasicCfg(sendXml)
                 closeLoading()
@@ -287,16 +294,16 @@ export default defineComponent({
                 diffRows.forEach(async (row) => {
                     const rowItem = row as AlarmOut
                     const sendXml = rawXml`
-                    <content>
-                        <id>${rowItem.id}</id>
-                        <name><![CDATA[${rowItem.name}]]></name>
-                        <delayTime unit='s'>${rowItem.delayTime.toString()}</delayTime>
-                        <schedule id='${rowItem.scheduleId}'></schedule>
-                    </content>
+                        <content>
+                            <id>${rowItem.id}</id>
+                            <name><![CDATA[${rowItem.name}]]></name>
+                            <delayTime unit='s'>${rowItem.delayTime.toString()}</delayTime>
+                            <schedule id='${rowItem.scheduleId}'></schedule>
+                        </content>
                     `
                     const result = await editAlarmOutParam(sendXml)
                     const $ = queryXml(result)
-                    const isSuccess = $('/response/status').text() === 'success'
+                    const isSuccess = $('//status').text() === 'success'
                     rowItem.status = isSuccess ? 'success' : 'error'
                     completeCount++
 

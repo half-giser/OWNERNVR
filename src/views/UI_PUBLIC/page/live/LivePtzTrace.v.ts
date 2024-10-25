@@ -103,6 +103,7 @@ export default defineComponent({
             if (!prop.enabled) {
                 return
             }
+
             if (listData.value.length >= pageData.value.maxCount) {
                 openMessageTipBox({
                     type: 'info',
@@ -142,6 +143,7 @@ export default defineComponent({
                 })
                 return
             }
+
             if (prop.chlId) {
                 const sendXml = rawXml`
                     <content>
@@ -247,6 +249,7 @@ export default defineComponent({
                 })
                 return
             }
+
             if (prop.chlId) {
                 pageData.value.recordStatus = true
 
@@ -299,6 +302,7 @@ export default defineComponent({
             if (!item) {
                 return
             }
+
             if (prop.chlId && pageData.value.recordStatus) {
                 resetRecord()
                 const sendXml = rawXml`
@@ -332,6 +336,7 @@ export default defineComponent({
                             checkTraceRecord(oldVal)
                         }
                     }
+
                     if (newVal) {
                         getList()
                     }

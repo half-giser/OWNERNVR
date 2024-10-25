@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-12 14:21:22
  * @Description: email通知
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-23 15:41:01
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-24 15:19:00
  */
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import { EmailReceiver } from '@/types/apiType/aiAndEvent'
@@ -17,14 +17,18 @@ export default defineComponent({
         const router = useRouter()
         const userSession = useUserSessionStore()
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const openMessageTipBox = useMessageBox().openMessageTipBox
         const tableData = ref<EmailReceiver[]>([])
         const tableRef = ref<TableInstance>()
         const maxEmailCount = ref(16)
         const rules = reactive<FormRules>({
             recipient: [
-                { required: true, message: Translate('IDCS_PROMPT_EMAIL_ADDRESS_EMPTY'), trigger: 'manual' },
+                {
+                    required: true,
+                    message: Translate('IDCS_PROMPT_EMAIL_ADDRESS_EMPTY'),
+                    trigger: 'manual',
+                },
                 {
                     validator: (_rule, value: string, callback) => {
                         if (!checkEmail(value)) {
@@ -61,47 +65,47 @@ export default defineComponent({
             scheduleList: [] as [] as SelectOption<string, string>[],
             //排程管理弹窗显示状态
             scheduleManagePopOpen: false,
-            defaultSchedule: '{00000000-0000-0000-0000-000000000000}',
         })
         const checkExist = (address: string) => {
             const result = tableData.value.some((item) => item.address == address)
             return result
         }
+
         const getIconStatus = () => {
             if (pageData.value.senderShow) {
                 return 0
             }
             return 2
         }
+
         const maskShow = () => {
             pageData.value.senderShow = !pageData.value.senderShow
         }
+
         const formatSender = (sender: string) => {
             if (pageData.value.senderShow) {
                 return sender
             }
             return hideEmailAddress(sender)
         }
+
         const formatAddress = (rowData: EmailReceiver) => {
             if (rowData.rowClicked) {
                 return rowData.address
             }
             return hideEmailAddress(rowData.address)
         }
+
         const getScheduleList = async () => {
             pageData.value.scheduleList = await buildScheduleList()
-            pageData.value.scheduleList.forEach((item) => {
-                if (item.value == '') {
-                    item.value = pageData.value.defaultSchedule
-                }
-            })
             pageData.value.schedule = pageData.value.scheduleList[0].value
         }
+
         const getData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             await getScheduleList()
             queryEmailCfg().then((resb) => {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 const res = queryXml(resb)
                 if (res('status').text() == 'success') {
                     pageData.value.sender = res('//content/sender/address').text()
@@ -123,6 +127,7 @@ export default defineComponent({
                 }
             })
         }
+
         // 原代码中显示了地址后无法隐藏，这里改为再次点击隐藏
         const handleRowClick = (row: EmailReceiver) => {
             row.rowClicked = !row.rowClicked
@@ -136,6 +141,7 @@ export default defineComponent({
                 }
             })
         }
+
         const handleScheduleChange = (row: EmailReceiver) => {
             tableRef.value?.setCurrentRow(row)
             row.rowClicked = true
@@ -145,20 +151,23 @@ export default defineComponent({
                 }
             })
         }
+
         const handleScheduleChangeAll = (value: string) => {
             tableData.value.forEach((item) => {
                 item.schedule = value
             })
         }
+
         const handleDelReceiver = (row: EmailReceiver) => {
             openMessageTipBox({
                 type: 'question',
-                message: Translate('IDCS_DELETE_MP_EMAIL_RECEIVER_S').formatForLang(row['address']),
+                message: Translate('IDCS_DELETE_MP_EMAIL_RECEIVER_S').formatForLang(row.address),
             }).then(() => {
                 const index = tableData.value.indexOf(row)
                 tableData.value.splice(index, 1)
             })
         }
+
         const handleDelReceiverAll = () => {
             openMessageTipBox({
                 type: 'question',
@@ -167,6 +176,7 @@ export default defineComponent({
                 tableData.value = []
             })
         }
+
         const addRecipient = () => {
             // 规则验证
             if (!formRef.value) return
@@ -181,6 +191,7 @@ export default defineComponent({
                 }
             })
         }
+
         const handleSenderEdit = () => {
             if (userSession.hasAuth('net')) {
                 router.push('/config/net/email')
@@ -191,9 +202,11 @@ export default defineComponent({
                 })
             }
         }
+
         const handleScheduleManage = () => {
             pageData.value.scheduleManagePopOpen = true
         }
+
         const handleApply = () => {
             let sendXml = rawXml`
             <content>   
@@ -209,12 +222,13 @@ export default defineComponent({
             })
             sendXml += rawXml`</receiver>
                             </content>`
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             editEmailCfg(sendXml).then((res) => {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 commSaveResponseHadler(res)
             })
         }
+
         const handleSchedulePopClose = async () => {
             pageData.value.scheduleManagePopOpen = false
             await getScheduleList()

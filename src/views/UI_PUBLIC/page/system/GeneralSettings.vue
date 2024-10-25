@@ -3,7 +3,7 @@
  * @Date: 2024-06-24 09:19:04
  * @Description: 基本配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-22 20:14:17
+ * @LastEditTime: 2024-10-24 09:33:14
 -->
 <template>
     <div class="Setting">
@@ -43,10 +43,7 @@
                     :max="99999"
                 />
             </el-form-item>
-            <el-form-item
-                prop="videoFormat"
-                :label="Translate('IDCS_VIDEO_FORMAT')"
-            >
+            <el-form-item :label="Translate('IDCS_VIDEO_FORMAT')">
                 <el-select
                     v-model="formData.videoFormat"
                     @change="hanelChangeVideoFormat"
@@ -60,10 +57,7 @@
                     </el-option>
                 </el-select>
             </el-form-item>
-            <el-form-item
-                prop="outputAdapt"
-                :label="Translate('IDCS_OUTPUT_ADAPT')"
-            >
+            <el-form-item :label="Translate('IDCS_OUTPUT_ADAPT')">
                 <el-checkbox v-model="formData.outputAdapt"></el-checkbox>
             </el-form-item>
             <!-- <el-form-item :label="Translate('IDCS_LOCAL')"></el-form-item> -->
@@ -111,7 +105,6 @@
             </template>
             <el-form-item
                 v-if="pageData.isOutputConfig"
-                prop="outputConfig"
                 :label="Translate('IDCS_OUTPUT_CONFIG')"
             >
                 <el-select
@@ -135,10 +128,7 @@
             <el-form-item>
                 <el-checkbox v-model="formData.enableAutoDwell">{{ Translate('IDCS_ENABLE_AUTO_DWELL') }}</el-checkbox>
             </el-form-item>
-            <el-form-item
-                prop="waitTime"
-                :label="Translate('IDCS_WAIT_TIME')"
-            >
+            <el-form-item :label="Translate('IDCS_WAIT_TIME')">
                 <el-select
                     v-model="formData.waitTime"
                     :disabled="!formData.enableAutoDwell"

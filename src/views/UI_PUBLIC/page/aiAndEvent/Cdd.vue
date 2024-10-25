@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-19 17:51:14
  * @Description: 人群密度检测
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-18 15:45:41
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-24 15:10:36
 -->
 <template>
     <div>
@@ -15,9 +15,9 @@
         <!-- record弹窗 -->
         <BaseTransferDialog
             v-model="pageData.recordIsShow"
-            :header-title="pageData.recordHeaderTitle"
-            :source-title="pageData.recordSourceTitle"
-            :target-title="pageData.recordTargetTitle"
+            header-title="IDCS_TRIGGER_CHANNEL_RECORD"
+            source-title="IDCS_CHANNEL"
+            target-title="IDCS_CHANNEL_TRGGER"
             :source-data="pageData.recordSource"
             :linked-list="pageData.recordList || []"
             :type="pageData.recordType"
@@ -27,9 +27,9 @@
         <!-- alarmOut弹窗 -->
         <BaseTransferDialog
             v-model="pageData.alarmOutIsShow"
-            :header-title="pageData.alarmOutHeaderTitle"
-            :source-title="pageData.alarmOutSourceTitle"
-            :target-title="pageData.alarmOutTargetTitle"
+            header-title="IDCS_TRIGGER_ALARM_OUT"
+            source-title="IDCS_ALARM_OUT"
+            target-title="IDCS_TRIGGER_ALARM_OUT"
             :source-data="pageData.alarmOutSource"
             :linked-list="pageData.alarmOutList || []"
             :type="pageData.alarmOutType"
@@ -87,14 +87,14 @@
                                     class="base-btn-box"
                                     :span="2"
                                 >
-                                    <div>
+                                    <!-- <div>
                                         <el-checkbox
                                             v-show="pageData.showDrawAvailable"
                                             v-model="pageData.isDrawAvailable"
                                             @change="handleDrawAvailableChange"
                                             >{{ Translate('IDCS_DRAW_WARN_SURFACE') }}</el-checkbox
                                         >
-                                    </div>
+                                    </div> -->
                                     <div>
                                         <el-button
                                             size="small"
@@ -120,8 +120,6 @@
                                 <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
                                     <el-select
                                         v-model="pageData.schedule"
-                                        value-key="value"
-                                        :options="pageData.scheduleList"
                                         size="small"
                                         @change="pageData.applyDisable = false"
                                     >
@@ -133,7 +131,6 @@
                                         ></el-option>
                                     </el-select>
                                     <el-button
-                                        class="form_btn"
                                         size="small"
                                         @click="pageData.scheduleManagePopOpen = true"
                                     >
@@ -145,9 +142,7 @@
                                 <el-form-item :label="Translate('IDCS_DURATION')">
                                     <el-select
                                         v-model="pageData.holdTime"
-                                        value-key="value"
                                         size="small"
-                                        :options="pageData.holdTimeList"
                                         @change="pageData.applyDisable = false"
                                     >
                                         <el-option
@@ -162,9 +157,7 @@
                                 <el-form-item :label="Translate('IDCS_REFRESH_FREQUENCY')">
                                     <el-select
                                         v-model="pageData.refreshFrequency"
-                                        value-key="value"
                                         size="small"
-                                        :options="pageData.refreshFrequencyList"
                                         @change="pageData.applyDisable = false"
                                     >
                                         <el-option
@@ -216,10 +209,7 @@
                             <el-form-item :label="Translate('IDCS_VOICE_PROMPT')">
                                 <el-select
                                     v-model="pageData.sysAudio"
-                                    value-key="value"
                                     size="small"
-                                    class="audio_select"
-                                    :options="pageData.voiceList"
                                     @change="pageData.applyDisable = false"
                                 >
                                     <el-option
@@ -241,7 +231,7 @@
                                     >{{ Translate('IDCS_TRIGGER_NOMAL') }}</el-checkbox
                                 >
                                 <el-table
-                                    height="367px"
+                                    height="367"
                                     :data="triggerData"
                                     :show-header="false"
                                 >
@@ -269,15 +259,11 @@
                                 </div>
                                 <el-table
                                     :show-header="false"
-                                    height="367px"
+                                    height="367"
                                     :data="pageData.record.chls"
                                     empty-text=" "
                                 >
-                                    <el-table-column>
-                                        <template #default="scope">
-                                            <span>{{ scope.row.label }}</span>
-                                        </template>
-                                    </el-table-column>
+                                    <el-table-column prop="label" />
                                 </el-table>
                             </div>
 
@@ -293,15 +279,11 @@
                                 </div>
                                 <el-table
                                     :show-header="false"
-                                    height="367px"
+                                    height="367"
                                     :data="pageData.alarmOut.chls"
                                     empty-text=" "
                                 >
-                                    <el-table-column>
-                                        <template #default="scope">
-                                            <span>{{ scope.row.label }}</span>
-                                        </template>
-                                    </el-table-column>
+                                    <el-table-column prop="label" />
                                 </el-table>
                             </div>
 
@@ -309,7 +291,7 @@
                             <div
                                 class="base-ai-linkage-box"
                                 :style="{
-                                    width: '350px',
+                                    width: '350',
                                 }"
                             >
                                 <div class="base-ai-linkage-title">
@@ -318,7 +300,7 @@
                                 <el-table
                                     border
                                     stripe
-                                    height="367px"
+                                    height="367"
                                     :data="pageData.presetSource"
                                 >
                                     <el-table-column
@@ -331,7 +313,6 @@
                                                 v-model="scope.row.preset.value"
                                                 size="small"
                                                 :empty-values="[undefined, null]"
-                                                :options="scope.row.presetList"
                                                 @visible-change="getPresetById(scope.row)"
                                                 @change="pageData.applyDisable = false"
                                             >

@@ -35,10 +35,12 @@ export const useUserChlAuth = (immediate = true) => {
         if (!userSession.authEffective) {
             auth.value.hasAll = true
         }
+
         if (!userSession.authGroupId) {
             auth.value.hasAll = true
             return
         }
+
         const sendXml = rawXml`
             <condition>
                 <authGroupId>${userSession.authGroupId}</authGroupId>

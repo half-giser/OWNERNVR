@@ -49,15 +49,18 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PROMPT_EMAIL_ADDRESS_EMPTY')))
                             return
                         }
+
                         if (!checkEmail(value)) {
                             callback(new Error(Translate('IDCS_PROMPT_INVALID_EMAIL')))
                             return
                         }
+
                         if (pageData.value.isReceiver) {
                             if (pageData.value.cacheAddress.includes(value)) {
                                 callback(new Error(Translate('IDCS_PROMPT_EMAIL_EXIST')))
                                 return
                             }
+
                             if (pageData.value.cacheAddress.length >= RECEIVER_MAX_COUNT) {
                                 callback(new Error(Translate('IDCS_PROMPT_EMAIL_NUM_LIMIT').formatForLang(RECEIVER_MAX_COUNT)))
                                 return

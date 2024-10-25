@@ -168,10 +168,12 @@ export default class CanvasPolygon {
             // 画多边形
             this.drawPolygon(isFoucusClosePath)
         }
+
         // 绘制OSD信息
         if (this.enableOSD) {
             this.drawOSD()
         }
+
         // 绘制最大，最小范围框
         if (this.enableShowRange) {
             this.drawRangeMax()
@@ -218,6 +220,7 @@ export default class CanvasPolygon {
         if (this.enableOSD) {
             this.drawOSD()
         }
+
         // 绘制最大，最小范围框
         if (this.enableShowRange) {
             this.drawRangeMax()
@@ -318,6 +321,7 @@ export default class CanvasPolygon {
                 const itemPre = this.getRealItemByRelative(this.pointList[i - 1])
                 this.ctx.Line(itemPre.X, itemPre.Y, item.X, item.Y, this.lineStyle)
             }
+
             // 绘制的最后一个点是最大点数，或者强制闭合为true时，才绘制闭合线段
             if (i === this.pointList.length - 1 && (i === this.max - 1 || isFoucusClosePath)) {
                 const isIntersect = this.pointList.length >= 3 ? this.judgeIntersect(this.pointList[this.pointList.length - 1], true) : true
@@ -351,6 +355,7 @@ export default class CanvasPolygon {
         for (const key in detectAreaInfo) {
             allRegionList.push(detectAreaInfo[key])
         }
+
         for (const key in maskAreaInfo) {
             allRegionList.push(maskAreaInfo[key])
         }
@@ -363,6 +368,7 @@ export default class CanvasPolygon {
             for (const key in detectAreaInfo) {
                 allDetectRegionList.push(detectAreaInfo[key])
             }
+
             // this.allDetectRegionList = allDetectRegionList
             for (let j = 0; j < allDetectRegionList.length; j++) {
                 if (allDetectRegionList[j].length > 0) {
@@ -379,6 +385,7 @@ export default class CanvasPolygon {
                             const itemPre = this.getRealItemByRelative(allDetectRegionList[j][i - 1])
                             this.ctx.Line(itemPre.X, itemPre.Y, item.X, item.Y, lineStyle)
                         }
+
                         // 绘制的最后一个点是最大点数，或者强制闭合为true时，才绘制闭合线段
                         if (i === allDetectRegionList[j].length - 1 && (i === this.max - 1 || isFoucusClosePath) && allDetectRegionList[j][i].isClosed) {
                             this.ctx.Line(startPoint.X, startPoint.Y, item.X, item.Y, lineStyle)
@@ -387,11 +394,13 @@ export default class CanvasPolygon {
                 }
             }
         }
+
         if (maskAreaInfo) {
             const allMaskRegionList = []
             for (const key in maskAreaInfo) {
                 allMaskRegionList.push(maskAreaInfo[key])
             }
+
             // this.allMaskRegionList = allMaskRegionList
             for (let j = 0; j < allMaskRegionList.length; j++) {
                 if (allMaskRegionList[j].length > 0) {
@@ -408,6 +417,7 @@ export default class CanvasPolygon {
                             const itemPre = this.getRealItemByRelative(allMaskRegionList[j][i - 1])
                             this.ctx.Line(itemPre.X, itemPre.Y, item.X, item.Y, lineStyle)
                         }
+
                         // 绘制的最后一个点是最大点数，或者强制闭合为true时，才绘制闭合线段
                         if (i === allMaskRegionList[j].length - 1 && (i === this.max - 1 || isFoucusClosePath) && allMaskRegionList[j][i].isClosed) {
                             this.ctx.Line(startPoint.X, startPoint.Y, item.X, item.Y, lineStyle)
@@ -416,15 +426,18 @@ export default class CanvasPolygon {
                 }
             }
         }
+
         if (this.pointList && this.pointList.length >= 3 && this.pointList[0].isClosed) {
             this.isClosed = true
         } else {
             this.isClosed = false
         }
+
         // 绘制OSD信息
         if (this.enableOSD) {
             this.drawOSD()
         }
+
         // 绘制最大，最小范围框
         if (this.enableShowRange) {
             this.drawRangeMax()
@@ -607,6 +620,7 @@ export default class CanvasPolygon {
                             finalX = endX
                             endX = startX
                         }
+
                         if (endY < startY) {
                             finalY = endY
                             endY = startY
@@ -654,9 +668,11 @@ export default class CanvasPolygon {
                         if (!this.enableOSD) {
                             return
                         }
+
                         if (this.enableOSD && this.ctx.IsInRect(startX, startY, osdRectX, osdRectY, osdRectW, osdRectH)) {
                             isInOSD = true
                         }
+
                         if (!isInOSD) {
                             return
                         }
@@ -690,6 +706,7 @@ export default class CanvasPolygon {
                             this.clearCurrentArea(this.pointList)
                             return
                         }
+
                         // 如果绘制的点在OSD内或者当前不可编辑则不可绘制
                         if (isInOSD || !this.enable || this.pointList.length >= this.max || this.isClosed || target !== this.canvas) {
                             return
@@ -710,6 +727,7 @@ export default class CanvasPolygon {
                             this.forceClosePath && this.forceClosePath(false) // 区域不可闭合
                             return
                         }
+
                         // 绘制过程中如果区域不可闭合（有相交的直线）则不可绘制
                         if (this.pointList.length >= 3 && this.judgeIntersect(newPoint)) {
                             return
@@ -726,6 +744,7 @@ export default class CanvasPolygon {
                 }
             }
         }
+
         if (!this.onDoubleClick) {
             this.onDoubleClick = () => {
                 const pointList = this.pointList || []
@@ -826,6 +845,7 @@ export default class CanvasPolygon {
         if (this.onMouseDown) {
             this.canvas.removeEventListener('mousedown', this.onMouseDown)
         }
+
         if (this.onDoubleClick) {
             this.canvas.removeEventListener('dblclick', this.onDoubleClick)
         }

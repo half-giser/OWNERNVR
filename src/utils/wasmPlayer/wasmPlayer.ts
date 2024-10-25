@@ -408,6 +408,7 @@ export default class WasmPlayer {
             this.webglPlayer.clear()
             delete this.webglPlayer
         }
+
         if (this.pcmPlayer) {
             this.pcmPlayer.destroy()
             delete this.pcmPlayer
@@ -453,6 +454,7 @@ export default class WasmPlayer {
             if (!data?.cmd) {
                 return
             }
+
             switch (data.cmd) {
                 case 'ready':
                     this.wasmReady = true
@@ -504,6 +506,7 @@ export default class WasmPlayer {
             if (!data?.cmd) {
                 return
             }
+
             switch (data.cmd) {
                 case 'feedData':
                     if (!this.isFirstDecod) {
@@ -724,6 +727,7 @@ export default class WasmPlayer {
                 this.refreshPlaybackFrameIndex(frameIndex)
             }
         }
+
         if (!this.webPageVisible || frame.frameType === 4) {
             // 帧类型 -- 4: 预解码, 只解码不播放
             return
@@ -741,9 +745,11 @@ export default class WasmPlayer {
         if (this.playState === PLAY_STATE_PLAYING || this.playState === PLAY_STATE_NEXT_FRAME) {
             this.displayLoopID = requestAnimationFrame(this.displayLoop.bind(this))
         }
+
         if ((this.playState !== PLAY_STATE_PLAYING && this.playState !== PLAY_STATE_NEXT_FRAME) || this.videoQueue.length === 0 || this.seeking) {
             return
         }
+
         for (let i = 0; i < 2; i++) {
             if (this.displayNextVideoFrame()) {
                 this.videoQueue.shift()
@@ -756,10 +762,12 @@ export default class WasmPlayer {
                     break
                 }
             }
+
             if (this.videoQueue.length === 0) {
                 break
             }
         }
+
         // 缓存帧队列小于最大缓存的半数时，重新开启解码
         if (this.videoQueue.length < this.maxVideoQueueLength / 2 && !this.isDecoding) {
             this.startDecode()
@@ -814,6 +822,7 @@ export default class WasmPlayer {
             // 保证帧基准时间小于当前帧时间
             this.basicFrameTime = currentFrameTime
         }
+
         if (intervalReal * this.playSpeed < intervalFrame) {
             if (!this.seeking) {
                 this.ontime && this.ontime(frame.realTimestamp)

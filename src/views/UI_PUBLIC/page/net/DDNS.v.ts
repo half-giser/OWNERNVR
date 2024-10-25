@@ -25,6 +25,7 @@ export default defineComponent({
                             callback()
                             return
                         }
+
                         // 服务器地址可能是ipv4/ipv6/域名
                         if (!checkIpV4(value) && !checkIpV6(value) && !checkDomainName(value)) {
                             callback(new Error(Translate('IDCS_PROMPT_INVALID_SERVER')))
@@ -42,10 +43,12 @@ export default defineComponent({
                             callback()
                             return
                         }
+
                         if (!value.length) {
                             callback(new Error(Translate('IDCS_DOMAIN_NAME_EMPTY')))
                             return
                         }
+
                         if (!checkDomainName(value)) {
                             callback(new Error(Translate('IDCS_TEST_DDNS_NOHOST')))
                             return
@@ -62,6 +65,7 @@ export default defineComponent({
                             callback()
                             return
                         }
+
                         if (!value.length) {
                             callback(new Error(Translate('IDCS_PROMPT_USERNAME_EMPTY')))
                             return
@@ -78,6 +82,7 @@ export default defineComponent({
                             callback()
                             return
                         }
+
                         if (!value.length) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return

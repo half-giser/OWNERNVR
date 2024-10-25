@@ -2,8 +2,8 @@
  * @Description: AI 事件——人脸识别
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-28 13:41:57
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-23 11:24:35
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-24 10:16:23
 -->
 <template>
     <!-- 通道名称及选择器 -->
@@ -17,7 +17,7 @@
     >
         <el-form-item
             :label="Translate('IDCS_CHANNEL_NAME')"
-            label-width="108px"
+            label-width="108"
         >
             <el-select
                 v-model="pageData.curChl"
@@ -65,7 +65,7 @@
                         >
                     </div>
                     <div v-show="showAIReourceDetail">
-                        <span>{{ `${Translate('IDCS_USAGE_RATE') + pageData.resourceOccupancy}` }}</span>
+                        <span>{{ Translate('IDCS_USAGE_RATE') }} {{ pageData.resourceOccupancy }}</span>
                         <BaseImgSprite
                             class="detailBtn"
                             file="detail"
@@ -214,8 +214,8 @@
                                                 :min="3"
                                                 :max="50"
                                                 @blur="minFaceBlur"
-                                            ></BaseNumberInput
-                                            >%
+                                            />
+                                            <span>%</span>
                                         </el-form-item>
                                         <el-form-item :label="Translate('IDCS_MAX')">
                                             <BaseNumberInput
@@ -224,8 +224,8 @@
                                                 :min="3"
                                                 :max="50"
                                                 @blur="maxFaceBlur"
-                                            ></BaseNumberInput
-                                            >%
+                                            />
+                                            <span>%</span>
                                         </el-form-item>
                                         <el-form-item label=" ">
                                             <el-checkbox
@@ -294,7 +294,7 @@
                                 <!-- 录像 -->
                                 <div class="base-ai-linkage-box">
                                     <div class="base-ai-linkage-title">
-                                        <span>{{ `${Translate('IDCS_RECORD')} ` }}</span>
+                                        <span>{{ Translate('IDCS_RECORD') }}</span>
                                         <el-button
                                             size="small"
                                             @click="pageData.recordIsShow = true"
@@ -313,7 +313,7 @@
                                 <!-- 报警输出 -->
                                 <div class="base-ai-linkage-box">
                                     <div class="base-ai-linkage-title">
-                                        <span>{{ `${Translate('IDCS_ALARM_OUT')} ` }}</span>
+                                        <span>{{ Translate('IDCS_ALARM_OUT') }}</span>
                                         <el-button
                                             size="small"
                                             @click="pageData.alarmOutIsShow = true"
@@ -344,12 +344,12 @@
                                     >
                                         <el-table-column
                                             prop="name"
-                                            width="180px"
+                                            width="180"
                                             :label="Translate('IDCS_CHANNEL_NAME')"
                                         >
                                         </el-table-column>
                                         <el-table-column
-                                            width="170px"
+                                            width="170"
                                             :label="Translate('IDCS_PRESET_NAME')"
                                         >
                                             <template #default="scope">
@@ -451,7 +451,7 @@
                         >
                     </div>
                     <div v-show="showAIReourceDetail">
-                        <span>{{ `${Translate('IDCS_USAGE_RATE') + pageData.resourceOccupancy}` }}</span>
+                        <span>{{ Translate('IDCS_USAGE_RATE') }} {{ pageData.resourceOccupancy }}</span>
                         <BaseImgSprite
                             class="detailBtn"
                             file="detail"
@@ -476,13 +476,13 @@
                                     stripe
                                     border
                                     :data="faceGroupTable"
-                                    height="300px"
+                                    height="300"
                                     highlight-current-row
                                 >
                                     <el-table-column
                                         prop="name"
                                         :label="Translate('IDCS_FACE_LIBRARY_GROUP')"
-                                    ></el-table-column>
+                                    />
                                     <el-table-column>
                                         <template #header>
                                             <el-dropdown
@@ -500,7 +500,7 @@
                                                                 '--form-input-width': '100px',
                                                             }"
                                                             label-position="left"
-                                                            label-width="100px"
+                                                            label-width="100"
                                                             inline-message
                                                         >
                                                             <el-form-item :label="Translate('IDCS_SIMILARITY')">
@@ -606,7 +606,7 @@
             :data="AIResourceTableData"
             stripe
             border
-            height="250px"
+            height="250"
             highlight-current-row
             show-overflow-tooltip
         >
@@ -621,13 +621,10 @@
                 width="110"
             ></el-table-column>
             <el-table-column
-                prop="percent"
                 :label="Translate('IDCS_USAGE_RATE')"
                 width="110"
             >
-                <template #default="scope">
-                    <span>{{ scope.row.percent }}%</span>
-                </template>
+                <template #default="scope"> {{ scope.row.percent }}% </template>
             </el-table-column>
             <el-table-column
                 prop="decodeResourceText"
@@ -636,7 +633,6 @@
             >
             </el-table-column>
             <el-table-column
-                prop="del"
                 :label="Translate('IDCS_FREE_AI_RESOURCE')"
                 width="118"
             >

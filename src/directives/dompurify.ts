@@ -11,7 +11,7 @@ import { sanitize } from '@/utils/sanitize'
 export const dompurify = (app: App<Element>) => {
     app.directive('clean-html', {
         mounted(el, binding) {
-            el.innerHTML = sanitize(binding.value) 
+            el.innerHTML = sanitize(binding.value)
         },
         updated(el, binding) {
             el.innerHTML = sanitize(binding.value)

@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 18:39:25
  * @Description: 实时过车记录
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 16:29:07
+ * @LastEditTime: 2024-10-23 20:50:22
 -->
 <template>
     <div class="lot">
@@ -157,10 +157,7 @@
                             <span :class="{ 'text-error': scope.row.abnormal }">{{ scope.row.enterChl || '--' }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column
-                        :label="Translate('IDCS_VEHICLE_IN_TIME')"
-                        prop="enterTime"
-                    >
+                    <el-table-column :label="Translate('IDCS_VEHICLE_IN_TIME')">
                         <template #default="scope">
                             <span :class="{ 'text-error': scope.row.abnormal }">{{ displayDateTime(scope.row.enterTime) }}</span>
                         </template>
@@ -175,26 +172,17 @@
                             <span :class="{ 'text-error': scope.row.abnormal }">{{ scope.row.exitChl || '--' }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column
-                        :label="Translate('IDCS_VEHICLE_OUT_TIME')"
-                        prop="exitTime"
-                    >
+                    <el-table-column :label="Translate('IDCS_VEHICLE_OUT_TIME')">
                         <template #default="scope">
                             <span :class="{ 'text-error': scope.row.abnormal }">{{ displayDateTime(scope.row.exitTime) }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column
-                        :label="Translate('IDCS_VEHICLE_OUT_RELEASE_METHOD')"
-                        prop="exitType"
-                    >
+                    <el-table-column :label="Translate('IDCS_VEHICLE_OUT_RELEASE_METHOD')">
                         <template #default="scope">
                             <span :class="{ 'text-error': scope.row.abnormal }">{{ displayOpenGateType(scope.row.exitType) }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column
-                        :label="Translate('IDCS_DETAIL')"
-                        prop="detail"
-                    >
+                    <el-table-column :label="Translate('IDCS_DETAIL')">
                         <template #default="scope">
                             <el-button @click="showDetail(scope.$index)">{{ Translate('IDCS_VIEW') }}</el-button>
                         </template>

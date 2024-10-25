@@ -23,10 +23,12 @@ export default defineComponent({
                         callback()
                         return
                     }
+
                     if (!value.length) {
                         callback(new Error(Translate('IDCS_DDNS_SERVER_ADDR_EMPTY')))
                         return
                     }
+
                     if (!cutStringByByte(value, nameByteMaxLen)) {
                         callback(new Error(Translate('IDCS_INVALID_CHAR')))
                         return

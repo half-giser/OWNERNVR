@@ -176,15 +176,19 @@ export const getPwdSaftyStrength = (value: string) => {
     if (reg1.test(value)) {
         sum += 1
     }
+
     if (reg2.test(value)) {
         sum += 1
     }
+
     if (reg3.test(value)) {
         sum += 1
     }
+
     if (reg4.test(value)) {
         sum += 1
     }
+
     return sum
 }
 

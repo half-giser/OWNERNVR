@@ -104,6 +104,7 @@ export default defineComponent({
                 if (recStartDate !== '') {
                     recStartDate = formatDate(recStartDate, dateTime.dateFormat)
                 }
+
                 if (recEndDate !== '') {
                     recEndDate = formatDate(recEndDate, dateTime.dateFormat)
                 }
@@ -137,7 +138,7 @@ export default defineComponent({
                     detail: [],
                     gridRowStatus: 'loading',
                     gridRowDisabled: true,
-                    gridRowStatusInitTooltip: TRANS_MAPPING['loadingTip'],
+                    gridRowStatusInitTooltip: TRANS_MAPPING.loadingTip,
                     sortIndex: enclosureIndex * 1000 + Number($item('slotIndex').text()),
                 })
             })
@@ -158,6 +159,7 @@ export default defineComponent({
                     if (recStartDate !== '') {
                         recStartDate = formatDate(recStartDate, dateTime.dateFormat)
                     }
+
                     if (recEndDate !== '') {
                         recEndDate = formatDate(recEndDate, dateTime.dateFormat)
                     }
@@ -191,7 +193,7 @@ export default defineComponent({
                         detail: [],
                         gridRowStatus: 'loading',
                         gridRowDisabled: true,
-                        gridRowStatusInitTooltip: TRANS_MAPPING['loadingTip'],
+                        gridRowStatusInitTooltip: TRANS_MAPPING.loadingTip,
                         sortIndex: enclosureIndex * 1000,
                     })
                 })

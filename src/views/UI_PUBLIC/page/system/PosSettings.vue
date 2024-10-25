@@ -3,7 +3,7 @@
  * @Date: 2024-07-02 09:08:21
  * @Description: POS配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-22 19:57:15
+ * @LastEditTime: 2024-10-24 10:59:59
 -->
 <template>
     <div class="base-flex-box">
@@ -32,7 +32,7 @@
                                         :key="opt.value"
                                         @click="changeAllSwitch(opt.value)"
                                     >
-                                        {{ Translate(opt.label) }}
+                                        {{ opt.label }}
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
@@ -43,7 +43,7 @@
                             <el-option
                                 v-for="opt in pageData.switchOption"
                                 :key="opt.value"
-                                :label="Translate(opt.label)"
+                                :label="opt.label"
                                 :value="opt.value"
                             />
                         </el-select>

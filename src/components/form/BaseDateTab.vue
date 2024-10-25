@@ -159,6 +159,7 @@ const verifyCustomPop = () => {
         })
         return
     }
+
     if (dayjs(endTime).diff(startTime, 'day', true) > 31) {
         openMessageTipBox({
             type: 'info',
@@ -166,6 +167,7 @@ const verifyCustomPop = () => {
         })
         return
     }
+
     pageData.value.isCustomPop = false
     emits('update:modelValue', [startTime, endTime])
     emits('change', [startTime, endTime], currentType.value)

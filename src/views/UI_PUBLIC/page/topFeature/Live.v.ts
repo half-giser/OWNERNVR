@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 18:07:29
  * @Description: 现场预览
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-21 11:52:39
+ * @LastEditTime: 2024-10-24 19:49:26
  */
 import { cloneDeep } from 'lodash-es'
 import { type LiveChannelList, type LiveCustomViewChlList, LiveSharedWinData } from '@/types/apiType/live'
@@ -460,6 +460,7 @@ export default defineComponent({
             if (mode.value === 'h5') {
                 return true
             }
+
             if (mode.value === 'ocx' && import.meta.env.VITE_APP_TYPE === 'STANDARD') {
                 return true
             }
@@ -490,11 +491,13 @@ export default defineComponent({
                     player.getChlIp()
                 }
             }
+
             if (mode.value === 'ocx') {
                 if (!plugin.IsInstallPlugin()) {
                     plugin.SetPluginNotice('#layout2Content')
                     return
                 }
+
                 if (!plugin.IsPluginAvailable()) {
                     plugin.SetPluginNoResponse()
                     plugin.ShowPluginNoResponse()
@@ -599,6 +602,7 @@ export default defineComponent({
                             playSplitVideo(1)
                         }, 100)
                     }
+
                     if (mode.value === 'ocx') {
                         if (import.meta.env.VITE_UI_TYPE === 'UI1-E') {
                             getDeviceOSDDisplayConfig()
@@ -650,6 +654,7 @@ export default defineComponent({
             if (!ready.value) {
                 return
             }
+
             if (mode.value === 'h5') {
                 chlList.forEach((chlID, index) => {
                     // 切换分割数时，默认使用子码流
@@ -668,6 +673,7 @@ export default defineComponent({
                         const sendXML = OCX_XML_SelectScreen(index)
                         plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                     }
+
                     {
                         if (import.meta.env.VITE_UI_TYPE === 'UI1-E') {
                             const sendXML = OCX_XML_SetViewChannelID(chlID, pageData.value.chlMap[chlID].value, {
@@ -756,14 +762,17 @@ export default defineComponent({
                             const sendXML = OCX_XML_SelectScreen(findIndex)
                             plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                         }
+
                         {
                             const sendXML = OCX_XML_SetViewChannelID(currentChlID, pageData.value.chlMap[currentChlID].value)
                             plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                         }
+
                         {
                             const sendXML = OCX_XML_SelectScreen(currentChlWinIndex)
                             plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                         }
+
                         {
                             const sendXML = OCX_XML_SetViewChannelID(chlID, pageData.value.chlMap[chlID].value)
                             plugin.GetVideoPlugin().ExecuteCmd(sendXML)
@@ -1001,9 +1010,9 @@ export default defineComponent({
             const chlName = chlRef.value!.getChlMap()[chlId].value
             const date = formatDate(new Date(recordStartTime), 'YYYYMMDDHHmmss')
             download(new Blob([recordBuf]), `${chlName}_${date}.avi`)
-            if (!localStorage.localAviNotEncrypted) {
+            if (!localStorage.getItem(LocalCacheKey.KEY_LOCAL_AVI_NOT_ENCRYPTED)) {
                 pageData.value.notification.push(Translate('IDCS_AVI_UNENCRYPTED_TIP'))
-                localStorage.localAviNotEncrypted = 'true'
+                localStorage.setItem(LocalCacheKey.KEY_LOCAL_AVI_NOT_ENCRYPTED, 'true')
             }
         }
 
@@ -1096,6 +1105,7 @@ export default defineComponent({
             if (!playerRef.value?.ready) {
                 return
             }
+
             if (mode.value === 'ocx') {
                 if (bool) {
                     toggleTalk(false)
@@ -1116,6 +1126,7 @@ export default defineComponent({
             if (!ready.value) {
                 return
             }
+
             if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_SetStreamType('ALL', type)
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
@@ -1147,6 +1158,7 @@ export default defineComponent({
             if (!ready.value) {
                 return
             }
+
             if (mode.value === 'h5') {
                 player.fullscreen()
             } else if (mode.value === 'ocx') {
@@ -1163,6 +1175,7 @@ export default defineComponent({
             if (!playerRef.value?.ready) {
                 return
             }
+
             if (pageData.value.split === split) {
                 return
             }
@@ -1185,14 +1198,15 @@ export default defineComponent({
             if (!ready.value) {
                 return
             }
+
             if (mode.value === 'h5') {
                 const date = formatDate(new Date(), 'YYYYMMDDHHmmss')
                 const chlName = pageData.value.winData.chlName
                 player.snap(pageData.value.winData.winIndex, `${chlName}_${date}`)
                 // NT-12559 首次本地抓图，提示图片数据未加密
-                if (!localStorage.getItem('snapPicNotEncrypted')) {
+                if (!localStorage.getItem(LocalCacheKey.KEY_SNAP_PIC_NOT_ENCRYPTED)) {
                     pageData.value.notification.push(Translate('IDCS_IMG_UNENCRYPTED_TIP'))
-                    localStorage.setItem('snapPicNotEncrypted', 'true')
+                    localStorage.setItem(LocalCacheKey.KEY_SNAP_PIC_NOT_ENCRYPTED, 'true')
                 }
             } else if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_TakePhotoByWinIndex(pageData.value.winData.winIndex)
@@ -1417,6 +1431,7 @@ export default defineComponent({
                     })
                     return
                 }
+
                 if (bool) {
                     // 打开音频时，先关闭对讲
                     if (pageData.value.winData.talk) {
@@ -1464,6 +1479,7 @@ export default defineComponent({
             if (!ready.value) {
                 return
             }
+
             if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_SetFishEyeMode(installType, fishEyeMode)
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
@@ -1564,6 +1580,7 @@ export default defineComponent({
                 } else {
                     pageData.value.allPreview = false
                 }
+
                 if (Number($('statenotify[@type="WindowStatus"]/recordingWinNum').text())) {
                     pageData.value.winData.localRecording = true
                     pageData.value.allClientRecord = true
@@ -1579,7 +1596,7 @@ export default defineComponent({
                 cacheWinMap[winIndex] = { ...cloneWinData }
 
                 let chlID = $item('chlId').text().trim()
-                if (chlID === EmptyId) {
+                if (chlID === DEFAULT_EMPTY_ID) {
                     chlID = ''
                 }
 
@@ -1593,7 +1610,7 @@ export default defineComponent({
                 cacheWinMap[winIndex].isPolling = $item('isGroupPlay').text().toBoolean()
                 cacheWinMap[winIndex].isDwellPlay = $item('isDwellPlay').text().toBoolean()
                 let groupID = $item('groupId').text()
-                if (groupID === EmptyId) {
+                if (groupID === DEFAULT_EMPTY_ID) {
                     groupID = ''
                 }
                 cacheWinMap[winIndex].groupID = groupID
@@ -1623,9 +1640,9 @@ export default defineComponent({
             else if ($('statenotify[@type="TakePhoto"]').length) {
                 if ($('statenotify[@type="TakePhoto"]/status').text() === 'success') {
                     if (import.meta.env.VITE_UI_TYPE !== 'UI1-E') {
-                        if (!window.localStorage.getItem('snapPicNotEncrypted')) {
+                        if (!localStorage.getItem(LocalCacheKey.KEY_SNAP_PIC_NOT_ENCRYPTED)) {
                             pageData.value.notification.push(Translate('IDCS_IMG_UNENCRYPTED_TIP'))
-                            window.localStorage.setItem('snapPicNotEncrypted', 'true')
+                            localStorage.setItem(LocalCacheKey.KEY_SNAP_PIC_NOT_ENCRYPTED, 'true')
                         }
                     }
                     pageData.value.notification.push(Translate('IDCS_SNAP_SUCCESS_PATH') + $('statenotify[@type="TakePhoto"]/dir').text())
@@ -1638,9 +1655,9 @@ export default defineComponent({
             else if ($('statenotify[@type="RecComplete"]').length) {
                 if ($('statenotify[@type="RecComplete"]/status').text() == 'success') {
                     if (import.meta.env.VITE_UI_TYPE !== 'UI1-E') {
-                        if (!window.localStorage.getItem('localAviNotEncrypted')) {
+                        if (!localStorage.getItem(LocalCacheKey.KEY_LOCAL_AVI_NOT_ENCRYPTED)) {
                             pageData.value.notification.push(Translate('IDCS_AVI_UNENCRYPTED_TIP'))
-                            window.localStorage.setItem('localAviNotEncrypted', 'true')
+                            localStorage.setItem(LocalCacheKey.KEY_LOCAL_AVI_NOT_ENCRYPTED, 'true')
                         }
                     }
                     pageData.value.notification.push(Translate('IDCS_REC_SUCCESS_PATH') + $('statenotify[@type="RecComplete"]/dir').text())
@@ -1678,6 +1695,7 @@ export default defineComponent({
                     if (pageData.value.allTalk) {
                         pageData.value.allTalk = false
                     }
+
                     if (pageData.value.winData.talk) {
                         pageData.value.winData.talk = false
                     }

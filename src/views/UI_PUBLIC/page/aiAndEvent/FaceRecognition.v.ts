@@ -2,8 +2,8 @@
  * @Description: AI 事件——人脸识别
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-28 13:42:09
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-22 14:52:58
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-24 17:15:21
  */
 import { cloneDeep } from 'lodash-es'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
@@ -72,24 +72,7 @@ export default defineComponent({
             perimeter: Translate('IDCS_INVADE_DETECTION'),
         }
 
-        const closeTip: Record<string, string> = {
-            cdd: Translate('IDCS_CROWD_DENSITY_DETECTION'),
-            cpc: Translate('IDCS_PASS_LINE_COUNT_DETECTION'),
-            ipd: Translate('IDCS_INVADE_DETECTION'),
-            tripwire: Translate('IDCS_BEYOND_DETECTION'),
-            osc: Translate('IDCS_WATCH_DETECTION'),
-            avd: Translate('IDCS_ABNORMAL_DETECTION'),
-            perimeter: Translate('IDCS_INVADE_DETECTION'),
-            vfd: Translate('IDCS_FACE_DETECTION'),
-            aoientry: Translate('IDCS_INVADE_DETECTION'),
-            aoileave: Translate('IDCS_INVADE_DETECTION'),
-            passlinecount: Translate('IDCS_PASS_LINE_COUNT_DETECTION'),
-            h264s: Translate('IDCS_VIDEO_ENCT_TYPE_H264_SMART'),
-            h265s: Translate('IDCS_VIDEO_ENCT_TYPE_H265_SMART'),
-            vehicle: Translate('IDCS_PLATE_DETECTION'),
-            fire: Translate('IDCS_FIRE_POINT_DETECTION'),
-            vsd: Translate('IDCS_VSD_DETECTION'),
-        }
+        const closeTip = getAlarmEventList()
 
         const normalParamList = ref([
             { value: 'catchSnapSwitch', label: Translate('IDCS_SNAP') },
@@ -171,7 +154,6 @@ export default defineComponent({
             // AI资源占比
             resourceOccupancy: '',
             // 排程
-            scheduleIdNull: '{00000000-0000-0000-0000-000000000000}',
             scheduleList: [] as SelectOption<string, string>[],
             scheduleManagPopOpen: false,
             // 通知列表
@@ -179,13 +161,13 @@ export default defineComponent({
             // 声音列表
             voiceList: [] as SelectOption<string, string>[],
             // record穿梭框数据源
-            recordList: [] as { value: string; label: string }[],
+            recordList: [] as SelectOption<string, string>[],
             recordIsShow: false,
             // alarmOut穿梭框数据源
-            alarmOutList: [] as { value: string; label: string }[],
+            alarmOutList: [] as SelectOption<string, string>[],
             alarmOutIsShow: false,
             // 抓图数据源
-            snapList: [] as { value: string; label: string }[],
+            snapList: [] as SelectOption<string, string>[],
             notChlSupport: false,
             notSupportTip: '',
         })
@@ -231,11 +213,13 @@ export default defineComponent({
                     },
                 })
             }
+
             if (mode.value === 'ocx') {
                 if (!plugin.IsInstallPlugin()) {
                     plugin.SetPluginNotice('#layout2Content')
                     return
                 }
+
                 if (!plugin.IsPluginAvailable()) {
                     pluginStore.showPluginNoResponse = true
                     plugin.ShowPluginNoResponse()
@@ -257,16 +241,16 @@ export default defineComponent({
                 })
             } else if (mode.value === 'ocx') {
                 if (osType == 'mac') {
-                    const sendXML = OCX_XML_Preview({
-                        winIndexList: [0],
-                        chlIdList: [chlData.id],
-                        chlNameList: [chlData.name],
-                        streamType: 'sub',
-                        // chl没有index属性
-                        chlIndexList: ['0'],
-                        chlTypeList: [chlData.chlType],
-                    })
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    // const sendXML = OCX_XML_Preview({
+                    //     winIndexList: [0],
+                    //     chlIdList: [chlData.id],
+                    //     chlNameList: [chlData.name],
+                    //     streamType: 'sub',
+                    //     // chl没有index属性
+                    //     chlIndexList: ['0'],
+                    //     chlTypeList: [chlData.chlType],
+                    // })
+                    // plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 } else {
                     plugin.RetryStartChlView(pageData.value.curChl, chlList[pageData.value.curChl].name)
                 }
@@ -309,21 +293,21 @@ export default defineComponent({
                     enabledSwitch = faceMatchData.value.hitEnable || faceMatchData.value.notHitEnable ? 'true' : 'false'
                 }
                 sendXml += rawXml`
-                <content>
-                    <chl>
-                        <item id='${pageData.value.curChl}'>
-                            <eventType>${eventType}</eventType>
-                            <switch>${enabledSwitch}</switch>
-                        </item>
-                    </chl>
-                </content>
+                    <content>
+                        <chl>
+                            <item id='${pageData.value.curChl}'>
+                                <eventType>${eventType}</eventType>
+                                <switch>${enabledSwitch}</switch>
+                            </item>
+                        </chl>
+                    </content>
                 `
             }
             const result = await queryAIResourceDetail(sendXml)
             commLoadResponseHandler(result, ($) => {
-                const tempResourceOccupancy = $('/response/content/totalResourceOccupancy').text()
+                const tempResourceOccupancy = $('//content/totalResourceOccupancy').text()
                 if (Number(tempResourceOccupancy) <= 100) {
-                    $('/response/content/chl/item').forEach((item) => {
+                    $('//content/chl/item').forEach((item) => {
                         pageData.value.resourceOccupancy = ': ' + tempResourceOccupancy + '%'
 
                         const $item = queryXml(item.element)
@@ -370,15 +354,16 @@ export default defineComponent({
                 }
             })
         }
+
         // 处理抓图选项
         const getSnapOptions = () => {
             const snapIntervalArr = [300, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 15000, 20000, 30000, 40000, 50000, 60000, 120000, 240000, 360000, 480000, 600000]
             detectionPageData.value.snapList = snapIntervalArr.map((item) => {
                 let label = ''
                 if (item / 1000 <= 60) {
-                    label = item / 1000 + Translate('IDCS_SECONDS')
+                    label = getTranslateForSecond(item / 1000)
                 } else {
-                    label = item / 1000 / 60 + Translate('IDCS_MINUTES')
+                    label = getTranslateForMin(item / 1000 / 60)
                 }
                 return {
                     value: item.toString(),
@@ -386,93 +371,25 @@ export default defineComponent({
                 }
             })
         }
+
         // 获取声音列表数据
         const getVoiceList = async () => {
-            const result = await queryAlarmAudioCfg()
-
-            commLoadResponseHandler(result, ($) => {
-                pageData.value.voiceList = $('/response/content/audioList/item').map((item) => {
-                    const $item = queryXml(item.element)
-                    return {
-                        value: item.attr('id')!,
-                        label: $item('name').text(),
-                    }
-                })
-            })
-            pageData.value.voiceList.push({ value: '{00000000-0000-0000-0000-000000000000}', label: `<${Translate('IDCS_NULL')}>` })
+            pageData.value.voiceList = await buildAudioList()
         }
+
         // 获取录像数据
         const getRecordList = async () => {
-            getChlList({
-                nodeType: 'chls',
-                isSupportSnap: false,
-            }).then((result) => {
-                commLoadResponseHandler(result, ($) => {
-                    $('content/item').forEach((item) => {
-                        const $item = queryXml(item.element)
-                        pageData.value.recordList.push({
-                            value: item.attr('id')!,
-                            label: $item('name').text(),
-                        })
-                    })
-                })
-            })
+            pageData.value.recordList = await buildRecordChlList()
         }
+
         // 获取报警输出数据
         const getAlarmOutData = async () => {
-            getChlList({
-                requireField: ['device'],
-                nodeType: 'alarmOuts',
-            }).then((result: any) => {
-                commLoadResponseHandler(result, ($) => {
-                    const rowData = [] as {
-                        id: string
-                        name: string
-                        device: {
-                            id: string
-                            innerText: string
-                        }
-                    }[]
-                    $('/response/content/item').forEach((item) => {
-                        const $item = queryXml(item.element)
-                        let name = $item('name').text()
-                        if ($item('devDesc').text()) {
-                            name = $item('devDesc').text() + '_' + name
-                        }
-                        rowData.push({
-                            id: item.attr('id')!,
-                            name,
-                            device: {
-                                id: $item('device').attr('id'),
-                                innerText: $item('device').text(),
-                            },
-                        })
-                    })
-                    pageData.value.alarmOutList = rowData.map((item) => {
-                        return {
-                            value: item.id,
-                            label: item.name,
-                        }
-                    })
-                })
-            })
+            pageData.value.alarmOutList = await buildAlarmOutChlList()
         }
+
         // 获取抓图数据
         const getSnapList = async () => {
-            getChlList({
-                nodeType: 'chls',
-                isSupportSnap: true,
-            }).then((result) => {
-                commLoadResponseHandler(result, ($) => {
-                    $('content/item').forEach((item) => {
-                        const $item = queryXml(item.element)
-                        pageData.value.snapList.push({
-                            value: item.attr('id')!,
-                            label: $item('name').text(),
-                        })
-                    })
-                })
-            })
+            pageData.value.snapList = await buildSnapChlList()
         }
 
         // 获取通道及相关配置数据
@@ -481,7 +398,7 @@ export default defineComponent({
             const onlineChlList = [] as string[]
             const result = await queryOnlineChlList()
             commLoadResponseHandler(result, ($) => {
-                $('/response/content/item').forEach((item) => {
+                $('//content/item').forEach((item) => {
                     onlineChlList.push(item.attr('id')!)
                 })
             })
@@ -490,7 +407,7 @@ export default defineComponent({
                 requireField: ['ip', 'supportVfd', 'supportAudioAlarmOut', 'supportFire', 'supportWhiteLightAlarmOut', 'supportTemperature'],
             }).then((result: any) => {
                 commLoadResponseHandler(result, async ($) => {
-                    $('/response/content/item').forEach((item) => {
+                    $('//content/item').forEach((item) => {
                         const $item = queryXml(item.element)
                         const protocolType = $item('protocolType').text()
                         const factoryName = $item('productModel').attr('factoryName')
@@ -505,10 +422,12 @@ export default defineComponent({
                                 // 支持人脸后侦测且人脸前侦测为false，才算支持人脸后侦测
                                 supportBackVfd = !supportVfd
                             }
+
                             // 热成像通道（火点检测/温度检测）不支持后侦测
                             if (supportFire || supportTemperature) {
                                 supportBackVfd = false
                             }
+
                             // 当前没有选中任何通道的情况下，初始化为第一个支持人脸识别的通道
                             if (!pageData.value.curChl) {
                                 if (supportVfd || supportBackVfd) {
@@ -547,6 +466,7 @@ export default defineComponent({
                 })
             })
         }
+
         // 处理通道数据
         const handleCurrChlData = (data: FaceChlItem) => {
             pageData.value.faceDetectionDisabled = !(data.supportVfd || data.supportBackVfd)
@@ -618,7 +538,7 @@ export default defineComponent({
                 `
                 const result = await queryVfd(sendXml)
                 commLoadResponseHandler(result, async ($) => {
-                    const param = $('/response/content/chl/param')
+                    const param = $('//content/chl/param')
                     const $param = queryXml(param[0].element)
                     const enabledSwitch = $param('switch').text() == 'true'
                     let holdTimeArr = $param('holdTimeNote').text().split(',')
@@ -628,7 +548,7 @@ export default defineComponent({
                         holdTimeArr = holdTimeArr.sort((a, b) => Number(a) - Number(b))
                     }
                     const holdTimeList = holdTimeArr.map((item) => {
-                        const label = item == '60' ? '1 ' + Translate('IDCS_MINUTE') : Number(item) > 60 ? Number(item) / 60 + ' ' + Translate('IDCS_MINUTES') : item + ' ' + Translate('IDCS_SECONDS')
+                        const label = getTranslateForSecond(Number(item))
                         return {
                             value: item,
                             label,
@@ -651,7 +571,7 @@ export default defineComponent({
                         const $item = queryXml(item.element)
                         return { object: $item('object').text(), status: $item('status').text() == 'true' }
                     })
-                    const trigger = $('/response/content/chl/trigger')
+                    const trigger = $('//content/chl/trigger')
                     const $trigger = queryXml(trigger[0].element)
                     const record = $trigger('sysRec/chls/item').map((item) => {
                         return {
@@ -696,7 +616,7 @@ export default defineComponent({
                         triggerWhiteLight: $param('triggerWhiteLight').text(),
                         faceExpSwitch: $param('faceExp/switch').text() == 'true',
                         faceExpStrength: Number($param('senceMode/customize/faceExpStrength').text()),
-                        schedule: $('/response/content/chl').attr('scheduleGuid'),
+                        schedule: $('//content/chl').attr('scheduleGuid'),
                         record,
                         alarmOut,
                         preset,
@@ -716,7 +636,7 @@ export default defineComponent({
                 `
                 const result = await queryBackFaceMatch(sendXml)
                 const $ = queryXml(result)
-                $('/response/content/param/chls/item').forEach((item) => {
+                $('//content/param/chls/item').forEach((item) => {
                     if (item.attr('guid') == pageData.value.curChl) {
                         const $item = queryXml(item.element)
                         const enabledSwitch = $item('switch').text() == 'true'
@@ -752,6 +672,7 @@ export default defineComponent({
                 } else {
                     detectionPageData.value.isSavePicDisabled = true
                 }
+
                 if (faceDetectionData.value.snapInterval == '') {
                     detectionPageData.value.isSnapNumberChecked = false
                 } else {
@@ -769,6 +690,7 @@ export default defineComponent({
                     normalParamList.value.push({ value: 'triggerAudio', label: 'IPC_' + Translate('IDCS_AUDIO') })
                     if (faceDetectionData.value.triggerAudio == 'true') normalParamCheckList.value.push('triggerAudio')
                 }
+
                 if (faceDetectionData.value.triggerWhiteLight && chlData.supportWhiteLight && normalParamList.value.findIndex((item) => item.value == 'triggerWhiteLight') == -1) {
                     normalParamList.value.push({ value: 'triggerWhiteLight', label: 'IPC_' + Translate('IDCS_LIGHT') })
                     if (faceDetectionData.value.triggerWhiteLight == 'true') normalParamCheckList.value.push('triggerWhiteLight')
@@ -789,6 +711,7 @@ export default defineComponent({
             }
             setCurrChlView('vfdArea')
         }
+
         // 当前通道play上的视图
         const setCurrChlView = (type: string) => {
             if (type == 'vfdArea') {
@@ -838,15 +761,18 @@ export default defineComponent({
                 getAIResourceData(true)
             }
         }
+
         // 原图checkbox
         const saveSourcePicChange = (value: CheckboxValueType) => {
             // saveSourcePicture属性被用于判断其是否禁用，接收为string类型，这里手动赋值
             faceDetectionData.value.saveSourcePicture = value ? 'true' : 'false'
         }
+
         // 目标图checkbox
         const saveFacePicChange = (value: CheckboxValueType) => {
             faceDetectionData.value.saveFacePicture = value ? 'true' : 'false'
         }
+
         // 抓图次数
         const snapNumberCheckChange = (value: CheckboxValueType) => {
             // 全部采用!value确保CheckboxValueType为boolean
@@ -854,6 +780,7 @@ export default defineComponent({
             detectionPageData.value.snapNumber = !value ? Translate('IDCS_NO_LIMITED') : faceDetectionData.value.captureCycle
             detectionPageData.value.isSnapNumberDisabled = !value
         }
+
         // 人脸最大小值范围
         const minFaceBlur = () => {
             const min = Number(faceDetectionData.value.minFaceFrame)
@@ -871,6 +798,7 @@ export default defineComponent({
                 setCurrChlView('faceMin')
             }
         }
+
         const maxFaceBlur = () => {
             const min = Number(faceDetectionData.value.minFaceFrame)
             const max = Number(faceDetectionData.value.maxFaceFrame)
@@ -887,6 +815,7 @@ export default defineComponent({
                 setCurrChlView('faceMax')
             }
         }
+
         // 是否显示范围框
         const dispalyRangeChange = (value: CheckboxValueType) => {
             if (value) {
@@ -933,6 +862,7 @@ export default defineComponent({
                 })
             }
         }
+
         const detectionTabChange = (name: TabPaneName) => {
             if (name == 'param') {
                 play()
@@ -943,6 +873,7 @@ export default defineComponent({
         const openAIResourcePop = () => {
             AIResourcePopOpen.value = true
         }
+
         // 删除AI资源行数据
         const handleDelAIResource = async (row: AIResource) => {
             openMessageTipBox({
@@ -986,6 +917,7 @@ export default defineComponent({
                 })
             }
         }
+
         const handleNormalParamCheck = (value: CheckboxValueType[]) => {
             normalParamCheckAll.value = value.length === normalParamList.value.length
             faceDetectionData.value.catchSnapSwitch = value.includes('catchSnapSwitch')
@@ -1003,19 +935,21 @@ export default defineComponent({
         }
 
         // 录像配置相关处理
-        const recordConfirm = (e: { value: string; label: string }[]) => {
+        const recordConfirm = (e: SelectOption<string, string>[]) => {
             faceDetectionData.value.record = cloneDeep(e)
             pageData.value.recordIsShow = false
         }
+
         const recordClose = () => {
             pageData.value.recordIsShow = false
         }
 
         // 报警输出相关处理
-        const alarmOutConfirm = (e: { value: string; label: string }[]) => {
+        const alarmOutConfirm = (e: SelectOption<string, string>[]) => {
             faceDetectionData.value.alarmOut = cloneDeep(e)
             pageData.value.alarmOutIsShow = false
         }
+
         const alarmOutClose = () => {
             pageData.value.alarmOutIsShow = false
         }
@@ -1028,7 +962,7 @@ export default defineComponent({
 
             let rowData = [] as PresetList[]
             commLoadResponseHandler(result, async ($) => {
-                rowData = $('/response/content/item').map((item) => {
+                rowData = $('//content/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
                         id: item.attr('id')!,
@@ -1056,6 +990,7 @@ export default defineComponent({
                 PresetTableData.value = rowData
             })
         }
+
         // 预置点选择框下拉时获取预置点列表数据
         const getPresetById = async (row: PresetList) => {
             if (!row.isGetPresetList) {
@@ -1067,7 +1002,7 @@ export default defineComponent({
             `
                 const result = await queryChlPresetList(sendXml)
                 commLoadResponseHandler(result, ($) => {
-                    $('/response/content/presets/item').forEach((item) => {
+                    $('//content/presets/item').forEach((item) => {
                         row.presetList.push({
                             value: item.attr('index')!,
                             label: item.text(),
@@ -1083,6 +1018,7 @@ export default defineComponent({
             if (ids.includes(row.id)) {
                 faceDetectionData.value.preset = faceDetectionData.value.preset.filter((item) => row.id != item.chl.value)
             }
+
             if (row.preset.value !== '') {
                 faceDetectionData.value.preset.push({
                     index: row.preset.value,
@@ -1093,6 +1029,7 @@ export default defineComponent({
                     },
                 })
             }
+
             if (faceDetectionData.value.preset.length > MAX_TRIGGER_PRESET_COUNT) {
                 openMessageTipBox({
                     type: 'info',
@@ -1112,6 +1049,7 @@ export default defineComponent({
                     sameIPChlList.push(chlList[item])
                 }
             }
+
             if (sameIPChlList.length > 1) {
                 sameIPChlList.forEach((chl) => {
                     if (chl.accessType == '1') {
@@ -1137,15 +1075,15 @@ export default defineComponent({
             const mutexChlNameObj = getMutexChlNameObj()
             faceDetectionData.value.mutexList?.forEach((item) => {
                 if (item.status) {
-                    const prefixName = mutexChlNameObj['normalChlName'] ? joinSpaceForLang(Translate('IDCS_CHANNEL') + ':' + mutexChlNameObj['normalChlName']) : ''
-                    const showInfo = prefixName ? prefixName + closeTip[item['object']].toLowerCase() : closeTip[item['object']]
+                    const prefixName = mutexChlNameObj.normalChlName ? joinSpaceForLang(Translate('IDCS_CHANNEL') + ':' + mutexChlNameObj.normalChlName) : ''
+                    const showInfo = prefixName ? prefixName + closeTip[item.object].toLowerCase() : closeTip[item.object]
                     switchChangeTypeArr.push(showInfo)
                 }
             })
             faceDetectionData.value.mutexListEx?.forEach((item) => {
                 if (item.status) {
-                    const prefixName = mutexChlNameObj['thermalChlName'] ? joinSpaceForLang(Translate('IDCS_CHANNEL') + ':' + mutexChlNameObj['thermalChlName']) : ''
-                    const showInfo = prefixName ? prefixName + closeTip[item['object']].toLowerCase() : closeTip[item['object']]
+                    const prefixName = mutexChlNameObj.thermalChlName ? joinSpaceForLang(Translate('IDCS_CHANNEL') + ':' + mutexChlNameObj.thermalChlName) : ''
+                    const showInfo = prefixName ? prefixName + closeTip[item.object].toLowerCase() : closeTip[item.object]
                     switchChangeTypeArr.push(showInfo)
                 }
             })
@@ -1174,9 +1112,11 @@ export default defineComponent({
             if (faceDetectionData.value.saveFacePicture) {
                 sendXml += rawXml`<saveFacePicture>${faceDetectionData.value.saveFacePicture}</saveFacePicture>`
             }
+
             if (faceDetectionData.value.saveSourcePicture) {
                 sendXml += rawXml`<saveSourcePicture>${faceDetectionData.value.saveSourcePicture}</saveSourcePicture>`
             }
+
             if (faceDetectionData.value.snapInterval) {
                 sendXml += rawXml`<senceMode>
                         <Mode>customize</Mode>
@@ -1187,18 +1127,23 @@ export default defineComponent({
                         </senceMode>
                 `
             }
+
             if (faceDetectionData.value.minFaceFrame) {
                 sendXml += rawXml`<minFaceFrame>${String(faceDetectionData.value.minFaceFrame)}</minFaceFrame>`
             }
+
             if (faceDetectionData.value.maxFaceFrame) {
                 sendXml += rawXml`<maxFaceFrame>${String(faceDetectionData.value.maxFaceFrame)}</maxFaceFrame>`
             }
-            if (faceDetectionData.value.triggerAudio && chlData['supportAudio']) {
+
+            if (faceDetectionData.value.triggerAudio && chlData.supportAudio) {
                 sendXml += rawXml`<triggerAudio>${faceDetectionData.value.triggerAudio}</triggerAudio>`
             }
-            if (faceDetectionData.value.triggerWhiteLight && chlData['supportWhiteLight']) {
+
+            if (faceDetectionData.value.triggerWhiteLight && chlData.supportWhiteLight) {
                 sendXml += rawXml`<triggerWhiteLight>${faceDetectionData.value.triggerWhiteLight}</triggerWhiteLight>`
             }
+
             if (faceDetectionData.value.faceExpStrength) {
                 sendXml += rawXml`<faceExp><switch>${String(faceDetectionData.value.faceExpSwitch)}</switch>
                 <faceExpStrength>${String(faceDetectionData.value.faceExpStrength)}</faceExpStrength></faceExp>`
@@ -1253,6 +1198,7 @@ export default defineComponent({
                 </chl></content>`
             return sendXml
         }
+
         const setFaceDetectionData = async () => {
             const sendXml = getFaceDetectionSaveData()
             openLoading()
@@ -1263,6 +1209,7 @@ export default defineComponent({
             }
             detectionPageData.value.applyDisabled = true
         }
+
         const setFaceDetectionBackUpData = async () => {
             const sendXml = rawXml`
                 <content>
@@ -1315,8 +1262,8 @@ export default defineComponent({
                 groupId: [],
                 nameId: nameId,
                 hintword: '',
-                sysAudio: '{00000000-0000-0000-0000-000000000000}',
-                schedule: '{00000000-0000-0000-0000-000000000000}',
+                sysAudio: DEFAULT_EMPTY_ID,
+                schedule: DEFAULT_EMPTY_ID,
                 record: [{ value: pageData.value.curChl, label: chlList[pageData.value.curChl].name }], //添加的任务默认联动本通道
                 alarmOut: [],
                 snap: [],
@@ -1328,6 +1275,7 @@ export default defineComponent({
                 popMsgSwitch: false,
             })
         }
+
         // 移除任务项
         const removeTask = () => {
             if (comparePageData.value.removeDisabled) {
@@ -1352,6 +1300,7 @@ export default defineComponent({
                 comparePageData.value.removeDisabled = true
             })
         }
+
         const compareTabChange = (name: TabPaneName) => {
             if (name == 'param' || name == 'hit' || name == 'miss') {
                 comparePageData.value.removeDisabled = true
@@ -1359,11 +1308,12 @@ export default defineComponent({
                 comparePageData.value.removeDisabled = false
             }
         }
+
         // 获取人脸分组数据
         const getFaceGroupData = async () => {
             const result = await queryFacePersonnalInfoGroupList()
             commLoadResponseHandler(result, ($) => {
-                $('/response/content/item').forEach((item) => {
+                $('//content/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     const guid = item.attr('id')!
                     let name = $item('name').text()
@@ -1390,6 +1340,7 @@ export default defineComponent({
                 comparePageData.value.initComplated = true
             })
         }
+
         // 获取参数设置数据
         const getFaceMatchData = async () => {
             const sendXml = rawXml`
@@ -1397,11 +1348,11 @@ export default defineComponent({
             `
             const result = await queryFaceMatchConfig(sendXml)
             commLoadResponseHandler(result, ($) => {
-                const hitEnable = $('/response/content/chl/hitEnable').text() == 'true'
-                const notHitEnable = $('/response/content/chl/notHitEnable').text() == 'true'
-                const liveDisplaySwitch = $('/response/content/chl/liveDisplaySwitch').text() == 'true'
+                const hitEnable = $('//content/chl/hitEnable').text() == 'true'
+                const notHitEnable = $('//content/chl/notHitEnable').text() == 'true'
+                const liveDisplaySwitch = $('//content/chl/liveDisplaySwitch').text() == 'true'
                 const groupInfo = [] as FaceGroupTableItem[]
-                $('/response/content/chl/groupId/item').forEach((item) => {
+                $('//content/chl/groupId/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     const guid = item.attr('guid')!
                     const similarity = Number($item('similarity').text())
@@ -1422,6 +1373,7 @@ export default defineComponent({
                 }
             })
         }
+
         // 相似度
         const similarityChangeAll = () => {
             faceGroupTable.value.forEach((item) => {
@@ -1432,6 +1384,7 @@ export default defineComponent({
             })
             similarityRef.value.handleClose()
         }
+
         const similarityInputBlur = (e: any, index: number) => {
             // vue的v-model是监听input框的input事件生效的
             // 事件对象e.target.value赋值直接操作dom元素 vue的v-model监听不到
@@ -1444,14 +1397,17 @@ export default defineComponent({
                 e.target.value = 100
                 e.target.dispatchEvent(new Event('input'))
             }
+
             if (index != undefined) {
                 faceMatchData.value.groupInfo[index].similarity = e.target.value
             }
         }
+
         // 回车键失去焦点
         const enterBlur = (event: { target: { blur: () => void } }) => {
             event.target.blur()
         }
+
         // 提交人脸匹配数据
         const setFaceMatchData = async () => {
             let sendXml = rawXml`
@@ -1474,8 +1430,8 @@ export default defineComponent({
             const $ = queryXml(result)
             closeLoading()
 
-            if ($('/response/status').text() !== 'success') {
-                const errorCode = Number($('/response/errorCode').text())
+            if ($('//status').text() !== 'success') {
+                const errorCode = Number($('//errorCode').text())
                 if (errorCode == ErrorCode.USER_ERROR_LIMITED_PLATFORM_VERSION_MISMATCH) {
                     openMessageTipBox({
                         type: 'info',
@@ -1494,6 +1450,7 @@ export default defineComponent({
             }
             comparePageData.value.applyDisabled = true
         }
+
         // 获取人脸识别数据
         const getFaceCompareData = async () => {
             taskTabs.value = []
@@ -1504,14 +1461,14 @@ export default defineComponent({
             const result = await queryFaceMatchAlarmParam(sendXml)
             commLoadResponseHandler(result, ($) => {
                 faceCompareData.value.voiceList = [{ value: '', label: Translate('IDCS_NULL') }]
-                $('/response/content/voiceItem/item').forEach((item) => {
+                $('//content/voiceItem/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     faceCompareData.value.voiceList.push({
                         value: $item('filePath').text(),
                         label: $item('name').text(),
                     })
                 })
-                $('/response/content/chl/task/item').forEach((item) => {
+                $('//content/chl/task/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     const nameId = Number($item('param/nameId').text())
                     haveUseNameId.push(nameId)
@@ -1588,6 +1545,7 @@ export default defineComponent({
                 })
             })
         }
+
         // tab项对应的识别数据
         const compareLinkData = (value: string) => {
             let taskData = {} as CompareTask
@@ -1702,6 +1660,7 @@ export default defineComponent({
             if (faceMatchData.value.editFlag) {
                 await setFaceMatchData()
             }
+
             if (faceCompareData.value.editFlag) {
                 await setFaceCompareData()
             }
@@ -1728,13 +1687,11 @@ export default defineComponent({
             if (showAIReourceDetail) {
                 await getAIResourceData(false)
             }
+
             if (supportAlarmAudioConfig) {
                 await getVoiceList()
             }
             pageData.value.scheduleList = await buildScheduleList()
-            pageData.value.scheduleList.forEach((item) => {
-                item.value = item.value != '' ? item.value : pageData.value.scheduleIdNull
-            })
             await getRecordList()
             await getAlarmOutData()
             await getSnapList()
@@ -1756,6 +1713,7 @@ export default defineComponent({
                 const sendXML = OCX_XML_StopPreview('ALL')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
+
             if (mode.value == 'h5') {
                 vfdDrawer.destroy()
             }

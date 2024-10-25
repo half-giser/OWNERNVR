@@ -173,7 +173,7 @@ export default defineComponent({
                     rowData.push({
                         id: logicDiskId,
                         cycleRecord: CYCLE_RECORD_MAPPING[cycleRecord] || '',
-                        type: TYPE_MAPPING['raid'],
+                        type: TYPE_MAPPING.raid,
                         diskNum: $item('name').text(),
                         serialNum: '--',
                         combinedStatus,

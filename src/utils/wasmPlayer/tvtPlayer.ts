@@ -563,12 +563,14 @@ export default class TVTPlayer {
                 const isRecording = this.recordStatusChlMap[chlId].isRecording
                 this.setRecordStatus(chlId, recordTypes, isRecording)
             }
+
             if (this.alarmStatusChlMap[chlId]) {
                 Object.keys(this.alarmStatusChlMap[chlId]).forEach((alarmType) => {
                     const isAlarming = this.alarmStatusChlMap[chlId][alarmType]
                     this.setAlarmStatus(chlId, alarmType, isAlarming)
                 })
             }
+
             // 设置通道ip信息 (目前仅在UI1-E实现)
             this.setChlIp(winIndex, chlId)
             // 打开录像状态图标
@@ -637,6 +639,7 @@ export default class TVTPlayer {
                 default:
                     break
             }
+
             if (this.noRecordFlag && errorCode == ErrorCode.USER_ERROR_FILE_STREAM_COMPLETED) {
                 this.screen.showErrorTips('noRecord', winIndex, this.winDataList[winIndex])
             } else {
@@ -673,6 +676,7 @@ export default class TVTPlayer {
                     }
                 }
             }
+
             if (timeArr.length > 0) {
                 this.showTimestamp = Math.min.apply(null, timeArr)
             } else {
@@ -775,11 +779,12 @@ export default class TVTPlayer {
      */
     setPollingState(bool: boolean, winIndex?: number) {
         if (winIndex !== undefined) {
-            this.winDataList[winIndex]['isPolling'] = bool
+            this.winDataList[winIndex].isPolling = bool
             return
         }
+
         for (let i = 0; i < this.MAX_SPLIT; i++) {
-            this.winDataList[i]['isPolling'] = bool
+            this.winDataList[i].isPolling = bool
         }
     }
 
@@ -1036,7 +1041,7 @@ export default class TVTPlayer {
     stopRecord(winIndex: number) {
         if (this.playerList[winIndex]) {
             this.playerList[winIndex]!.stopRecord(true)
-            this.winDataList[winIndex]['localRecording'] = false
+            this.winDataList[winIndex].localRecording = false
         }
     }
 

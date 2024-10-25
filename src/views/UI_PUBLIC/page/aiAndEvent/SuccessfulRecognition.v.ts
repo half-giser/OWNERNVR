@@ -25,23 +25,23 @@ export default defineComponent({
             require: true,
         },
         scheduleList: {
-            type: Array as PropType<{ value: string; label: string }[]>,
+            type: Array as PropType<SelectOption<string, string>[]>,
             require: true,
         },
         voiceList: {
-            type: Array as PropType<{ value: string; label: string }[]>,
+            type: Array as PropType<SelectOption<string, string>[]>,
             require: true,
         },
         recordList: {
-            type: Array as PropType<{ value: string; label: string }[]>,
+            type: Array as PropType<SelectOption<string, string>[]>,
             require: true,
         },
         alarmOutList: {
-            type: Array as PropType<{ value: string; label: string }[]>,
+            type: Array as PropType<SelectOption<string, string>[]>,
             require: true,
         },
         snapList: {
-            type: Array as PropType<{ value: string; label: string }[]>,
+            type: Array as PropType<SelectOption<string, string>[]>,
             require: true,
         },
     },
@@ -58,8 +58,8 @@ export default defineComponent({
             groupId: [],
             nameId: 0,
             hintword: '',
-            sysAudio: '{00000000-0000-0000-0000-000000000000}',
-            schedule: '{00000000-0000-0000-0000-000000000000}',
+            sysAudio: DEFAULT_EMPTY_ID,
+            schedule: DEFAULT_EMPTY_ID,
             record: [],
             alarmOut: [],
             snap: [],
@@ -116,6 +116,7 @@ export default defineComponent({
                 normalParamCheckAll.value = true
             }
         }
+
         // 生成分组选中的数据名称
         const handleGroupName = () => {
             pageData.value.groupName = ''
@@ -125,6 +126,7 @@ export default defineComponent({
                 }
             })
         }
+
         // 分组全选checkbox
         const selectAllCheckChange = (value: CheckboxValueType) => {
             if (value) {
@@ -143,19 +145,23 @@ export default defineComponent({
                 }
             })
         }
+
         const closeGroupPop = () => {
             groupTableRef.value!.clearSelection()
             pageData.value.groupPopOpen = false
         }
+
         // 分支选中
         const groupSelect = (selection: []) => {
             pageData.value.groupSelection = selection
         }
+
         // 单行点击
         const handleRowClick = (rowData: { guid: string; name: string }) => {
             groupTableRef.value!.clearSelection()
             groupTableRef.value!.toggleRowSelection(rowData, true)
         }
+
         const saveGroup = () => {
             taskData.groupId = pageData.value.groupSelection.map((item) => item.guid)
             closeGroupPop()
@@ -174,6 +180,7 @@ export default defineComponent({
                 taskData.popMsgSwitch = true
             }
         }
+
         const handleNormalParamCheck = (value: CheckboxValueType[]) => {
             normalParamCheckAll.value = value.length === normalParamList.value.length
             taskData.msgPushSwitch = value.includes('msgPushSwitch')
@@ -184,29 +191,35 @@ export default defineComponent({
         }
 
         // 录像配置相关处理
-        const recordConfirm = (e: { value: string; label: string }[]) => {
+        const recordConfirm = (e: SelectOption<string, string>[]) => {
             taskData.record = cloneDeep(e)
             pageData.value.recordIsShow = false
         }
+
         const recordClose = () => {
             pageData.value.recordIsShow = false
         }
+
         // 报警输出相关处理
-        const alarmOutConfirm = (e: { value: string; label: string }[]) => {
+        const alarmOutConfirm = (e: SelectOption<string, string>[]) => {
             taskData.alarmOut = cloneDeep(e)
             pageData.value.alarmOutIsShow = false
         }
+
         const alarmOutClose = () => {
             pageData.value.alarmOutIsShow = false
         }
+
         // 抓图配置相关处理
-        const snapConfirm = (e: { value: string; label: string }[]) => {
+        const snapConfirm = (e: SelectOption<string, string>[]) => {
             taskData.snap = cloneDeep(e)
             pageData.value.snapIsShow = false
         }
+
         const snapClose = () => {
             pageData.value.snapIsShow = false
         }
+
         // 获取联动预置点数据
         const getPresetData = async () => {
             const result = await getChlList({
@@ -215,7 +228,7 @@ export default defineComponent({
 
             let rowData = [] as PresetList[]
             commLoadResponseHandler(result, async ($) => {
-                rowData = $('/response/content/item').map((item) => {
+                rowData = $('//content/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
                         id: item.attr('id')!,
@@ -243,6 +256,7 @@ export default defineComponent({
                 PresetTableData.value = rowData
             })
         }
+
         // 预置点选择框下拉时获取预置点列表数据
         const getPresetById = async (row: PresetList) => {
             if (!row.isGetPresetList) {
@@ -255,7 +269,7 @@ export default defineComponent({
             `
                 const result = await queryChlPresetList(sendXml)
                 commLoadResponseHandler(result, ($) => {
-                    $('/response/content/presets/item').forEach((item) => {
+                    $('//content/presets/item').forEach((item) => {
                         row.presetList.push({
                             value: item.attr('index')!,
                             label: item.text(),
@@ -265,11 +279,13 @@ export default defineComponent({
                 row.isGetPresetList = true
             }
         }
+
         const presetChange = (row: PresetList) => {
             const ids = taskData.preset.map((item) => item.chl.value)
             if (ids.includes(row.id)) {
                 taskData.preset = taskData.preset.filter((item) => row.id != item.chl.value)
             }
+
             if (row.preset.value !== '') {
                 taskData.preset.push({
                     index: row.preset.value,
@@ -280,6 +296,7 @@ export default defineComponent({
                     },
                 })
             }
+
             if (taskData.preset.length > MAX_TRIGGER_PRESET_COUNT) {
                 openMessageTipBox({
                     type: 'info',

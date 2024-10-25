@@ -2,8 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-29 09:54:23
  * @Description: 智能分析-人脸搜索
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-12 13:50:08
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-24 11:11:29
  */
 import {
     IntelFaceImgDto,
@@ -320,9 +320,11 @@ export default defineComponent({
             if (faceType === 'face') {
                 return formData.value.featureFace[0]?.pic[0] || ''
             }
+
             if (faceType === 'snap') {
                 return formData.value.snapFace[0]?.pic || ''
             }
+
             if (faceType === 'import') {
                 return formData.value.importFace[0]?.pic
             }
@@ -362,7 +364,7 @@ export default defineComponent({
                 const $item = queryXml(item.element)
                 let text = $item('name').text()
                 const id = item.attr('id')!
-                if (id === '{00000000-0000-0000-0000-000000000000}') {
+                if (id === DEFAULT_EMPTY_ID) {
                     text = Translate('IDCS_HISTORY_CHANNEL')
                 }
                 chlMap[id] = text
@@ -636,6 +638,7 @@ export default defineComponent({
                     if (!infoFlag) {
                         break
                     }
+
                     if (cacheInfo[item.faceFeatureId]) {
                         sliceTableData.value[i].info = {
                             ...cacheInfo[item.faceFeatureId],
@@ -643,12 +646,15 @@ export default defineComponent({
                     }
                     match = cacheInfo[item.faceFeatureId]?.pic[0] || ''
                 }
+
                 if (formData.value.faceType === 'import') {
                     match = cacheImportFace[item.faceFeatureId]
                 }
+
                 if (formData.value.faceType === 'snap') {
                     match = cacheSnapFace[item.faceFeatureId]
                 }
+
                 if (cachePic[key]) {
                     sliceTableData.value[i] = {
                         ...sliceTableData.value[i],
@@ -754,6 +760,7 @@ export default defineComponent({
                         }
                     }
                 }
+
                 if (key === getUniqueKey(sliceTableData.value[index])) {
                     return true
                 } else {
@@ -812,6 +819,7 @@ export default defineComponent({
                     const pic = await getFacePic(row)
                     cacheInfo[key].pic.push(pic)
                 }
+
                 if (getUniqueKey(row) === getUniqueKey(sliceTableData.value[index])) {
                     return true
                 } else {
@@ -1334,6 +1342,7 @@ export default defineComponent({
                     return [1, 1]
                 }
             }
+
             if (data.columnIndex !== 1) {
                 if (data.row.faceFeatureId === -1000) {
                     return [0, 0]
@@ -1352,6 +1361,7 @@ export default defineComponent({
                 changeDateRange([dayjs(history.state.date).hour(0).minute(0).second(0).valueOf(), dayjs(history.state.date).hour(23).minute(59).second(59).valueOf()], 'date')
                 delete history.state.date
             }
+
             if (history.state.faceType) {
                 pageData.value.searchType = 'face'
                 if (history.state.faceType === 'face') {

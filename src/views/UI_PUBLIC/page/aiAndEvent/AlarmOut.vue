@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-08-10 11:05:51
  * @Description: 报警输出
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-18 16:27:09
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-24 13:32:57
 -->
 <template>
     <div class="base-flex-box">
@@ -16,8 +16,7 @@
                 <!-- 状态列 -->
                 <el-table-column
                     label=" "
-                    width="50px"
-                    class-name="custom_cell"
+                    width="50"
                 >
                     <template #default="scope">
                         <BaseTableRowStatus :icon="scope.row.status"></BaseTableRowStatus>
@@ -28,14 +27,12 @@
                 <el-table-column
                     :label="Translate('IDCS_SERIAL_NUMBER')"
                     prop="serialNum"
-                    width="146px"
+                    width="268"
+                    show-overflow-tooltip
                 />
 
                 <!-- 名称 -->
-                <el-table-column
-                    width="210px"
-                    :label="Translate('IDCS_NAME')"
-                >
+                <el-table-column :label="Translate('IDCS_NAME')">
                     <template #default="scope">
                         <el-input
                             v-model="scope.row.name"
@@ -48,7 +45,7 @@
                 </el-table-column>
 
                 <!-- 延时 -->
-                <el-table-column width="210px">
+                <el-table-column>
                     <template #header>
                         <el-dropdown trigger="click">
                             <BaseTableDropdownLink>
@@ -83,7 +80,7 @@
                 </el-table-column>
 
                 <!-- 排程 -->
-                <el-table-column width="210px">
+                <el-table-column>
                     <template #header>
                         <el-dropdown trigger="click">
                             <BaseTableDropdownLink>
@@ -121,7 +118,6 @@
 
                 <!-- 类型 -->
                 <el-table-column
-                    width="210px"
                     :formatter="
                         (row) => {
                             return row.devDesc ? '--' : pageData.alarmoutTypeText[curAlarmoutType]
@@ -149,7 +145,7 @@
                 </el-table-column>
             </el-table>
         </div>
-        <div class="base-btn-box">
+        <div class="row_pagination">
             <el-pagination
                 v-model:current-page="pageData.pageIndex"
                 v-model:page-size="pageData.pageSize"

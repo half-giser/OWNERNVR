@@ -22,26 +22,22 @@
                 <!-- 通道名称 -->
                 <el-table-column
                     :label="Translate('IDCS_CHANNEL_NAME')"
-                    min-width="240px"
-                >
-                    <template #default="scope">
-                        <span>{{ scope.row.name }}</span>
-                    </template>
-                </el-table-column>
+                    min-width="240"
+                    prop="name"
+                />
                 <!-- 码流类型 -->
                 <el-table-column
                     :label="Translate('IDCS_CODE_STREAM_TYPE')"
-                    prop="streamType"
-                    min-width="100px"
+                    min-width="100"
                 >
                     <template #default="scope">
-                        <span>{{ STREAM_TYPE_MAPPING[scope.row.streamType] }}</span>
+                        {{ STREAM_TYPE_MAPPING[scope.row.streamType] }}
                     </template>
                 </el-table-column>
                 <!-- 视频编码 -->
                 <el-table-column
                     :label="Translate('IDCS_VIDEO_ENCT')"
-                    min-width="130px"
+                    min-width="130"
                 >
                     <template #header>
                         <div v-if="RecordSubResAdaptive">{{ Translate('IDCS_VIDEO_ENCT') }}</div>
@@ -89,7 +85,7 @@
                 <!-- 分辨率 -->
                 <el-table-column
                     :label="Translate('IDCS_RESOLUTION_RATE')"
-                    min-width="110px"
+                    min-width="110"
                 >
                     <template #header>
                         <div v-if="RecordSubResAdaptive">{{ Translate('IDCS_RESOLUTION_RATE') }}</div>
@@ -97,7 +93,7 @@
                             v-else
                             v-model:visible="pageData.resolutionHeaderVisble"
                             trigger="click"
-                            width="430px"
+                            width="430"
                             popper-class="no-padding"
                         >
                             <template #reference>
@@ -108,7 +104,7 @@
                             <div id="resolutionContainer">
                                 <el-table
                                     ref="resolutionTableRef"
-                                    max-height="400px"
+                                    max-height="400"
                                     :data="pageData.resolutionGroups"
                                     :show-header="false"
                                     :row-key="getRowKey"
@@ -117,10 +113,7 @@
                                     border
                                     @expand-change="handleExpandChange($event, pageData.expands)"
                                 >
-                                    <el-table-column
-                                        prop="res"
-                                        width="220px"
-                                    >
+                                    <el-table-column width="220">
                                         <template #default="scope">
                                             <el-select
                                                 v-model="scope.row.res"
@@ -138,8 +131,7 @@
                                         </template>
                                     </el-table-column>
                                     <el-table-column
-                                        prop="chls"
-                                        width="190px"
+                                        width="190"
                                         type="expand"
                                     >
                                         <template #default="scope">
@@ -195,14 +187,14 @@
                 <!-- 帧率 -->
                 <el-table-column
                     :label="Translate('IDCS_FRAME_RATE')"
-                    min-width="90px"
+                    min-width="90"
                 >
                     <template #header>
                         <div v-if="RecordSubResAdaptive">{{ Translate('IDCS_FRAME_RATE') }}</div>
                         <el-dropdown
                             v-else
                             trigger="click"
-                            max-height="400px"
+                            max-height="400"
                         >
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_FRAME_RATE') }}
@@ -244,7 +236,7 @@
                 <!-- 码率上限 -->
                 <el-table-column
                     :label="Translate('IDCS_VIDEO_QUALITY')"
-                    min-width="130px"
+                    min-width="130"
                 >
                     <template #header>
                         <div v-if="RecordSubResAdaptive">{{ Translate('IDCS_VIDEO_QUALITY') }}</div>

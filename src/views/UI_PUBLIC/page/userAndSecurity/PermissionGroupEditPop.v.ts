@@ -52,12 +52,7 @@ export default defineComponent({
             // 当前选中的通道权限Tab
             activeChannelTab: DEFAULT_CHANNEL_AUTH_TABS[0],
             // 通道权限选项
-            channelOption: DEFAULT_SWITCH_OPTIONS.map((item) => {
-                return {
-                    value: item.value,
-                    label: Translate(item.label),
-                }
-            }),
+            channelOption: getSwitchOptions(),
             // 本地通道权限列表
             localChannelIds: DEFAULT_LOCAL_CHANNEL_AUTH_LIST,
             // 远程通道权限列表
@@ -118,9 +113,9 @@ export default defineComponent({
                 const auth = $item('auth').text()
                 DEFAULT_CHANNEL_AUTH_LIST.forEach((key) => {
                     if (auth.includes(key)) {
-                        arrayItem[key] = Translate('IDCS_ON') // 'true'
+                        arrayItem[key] = Translate('IDCS_ON')
                     } else {
-                        arrayItem[key] = Translate('IDCS_OFF') // 'false'
+                        arrayItem[key] = Translate('IDCS_OFF')
                     }
                 })
                 return arrayItem

@@ -2,8 +2,8 @@
  * @Description: AI/事件——事件通知——声音
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-13 09:23:15
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-21 13:39:26
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-24 14:35:35
 -->
 <template>
     <el-tabs
@@ -21,7 +21,7 @@
                 class="stripe narrow"
                 :style="{
                     '--form-input-width': '215px',
-                    '--form-label-width': ipcAudioFormData.ipcRadio === 'audioAlarm' ? '150px' : '220px',
+                    '--form-label-width': '220px',
                 }"
                 label-position="left"
                 inline-message
@@ -267,19 +267,17 @@
             </el-form>
             <el-form
                 ref="popMsgRef"
-                class="stripe narrow"
+                class="narrow"
                 :style="{
                     '--form-input-width': '215px',
+                    '--form-label-width': '220px',
                 }"
                 label-position="left"
                 inline-message
             >
                 <!-- 排程 -->
                 <div class="base-subheading-box">{{ Translate('IDCS_AUDIO_LINK_SCHEDULE') }}</div>
-                <el-form-item
-                    prop="popMsgDuration"
-                    :label="Translate('IDCS_SCHEDULE_CONFIG')"
-                >
+                <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
                     <el-select
                         v-model="pageData.audioSchedule"
                         :empty-values="[undefined, null]"
@@ -304,7 +302,6 @@
                 >
                     <el-button
                         :disabled="pageData.btnApplyDisabled"
-                        class="btn-ok"
                         @click="setData"
                         >{{ Translate('IDCS_APPLY') }}</el-button
                     >

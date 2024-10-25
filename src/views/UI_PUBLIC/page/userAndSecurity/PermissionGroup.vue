@@ -3,7 +3,7 @@
  * @Date: 2024-06-17 20:26:14
  * @Description: 权限组列表
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-16 11:34:07
+ * @LastEditTime: 2024-10-24 09:39:22
 -->
 <template>
     <div class="Perm">
@@ -57,15 +57,10 @@
                             scrollbar-always-on
                         >
                             <el-table-column
-                                prop="name"
                                 :label="Translate('IDCS_CHANNEL')"
-                            >
-                                <template #default="scope">
-                                    <el-tooltip :content="scope.row.name">
-                                        <div class="ellipsis">{{ scope.row.name }}</div>
-                                    </el-tooltip>
-                                </template>
-                            </el-table-column>
+                                show-overflow-tooltip
+                                prop="name"
+                            />
                             <el-table-column
                                 v-for="(item, key) in pageData.localChannelIds"
                                 :key
@@ -90,13 +85,8 @@
                             <el-table-column
                                 prop="name"
                                 :label="Translate('IDCS_CHANNEL')"
-                            >
-                                <template #default="scope">
-                                    <el-tooltip :content="scope.row.name">
-                                        <div class="ellipsis">{{ scope.row.name }}</div>
-                                    </el-tooltip>
-                                </template>
-                            </el-table-column>
+                                show-overflow-tooltip
+                            />
                             <el-table-column
                                 v-for="(item, key) in pageData.remoteChannelIds"
                                 :key
@@ -124,18 +114,12 @@
                 @cell-click="handleChangeAuthGroup"
                 @cell-dblclick="handleEditAuthGroup"
             >
-                <el-table-column
-                    prop="name"
-                    :label="Translate('IDCS_RIGHT_GROUP')"
-                >
+                <el-table-column :label="Translate('IDCS_RIGHT_GROUP')">
                     <template #default="scope">
                         {{ displayAuthGroup(scope.row.name) }}
                     </template>
                 </el-table-column>
-                <el-table-column
-                    :label="Translate('IDCS_EDIT')"
-                    prop="enableEdit"
-                >
+                <el-table-column :label="Translate('IDCS_EDIT')">
                     <template #default="scope">
                         <BaseImgSprite
                             v-show="scope.row.enableEdit"
@@ -158,10 +142,7 @@
                         />
                     </template>
                 </el-table-column>
-                <el-table-column
-                    prop="isDefault"
-                    :label="Translate('IDCS_DELETE')"
-                >
+                <el-table-column :label="Translate('IDCS_DELETE')">
                     <template #default="scope">
                         <BaseImgSprite
                             v-show="!scope.row.isDefault"

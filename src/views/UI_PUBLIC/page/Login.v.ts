@@ -3,7 +3,7 @@
  * @Date: 2024-04-23 11:52:48
  * @Description: 登录界面
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-21 11:51:45
+ * @LastEditTime: 2024-10-24 19:45:02
  */
 import { type FormRules, type FormInstance } from 'element-plus'
 import { LoginForm, LoginReqData } from '@/types/apiType/user'
@@ -133,7 +133,6 @@ export default defineComponent({
             } else {
                 const errorCode = $('errorCode').text()
                 console.log(errorCode)
-                // ElMessage.error(Translate(ErrorCodeMapping[errorCode]))
                 pageData.value.btnDisabled = false
             }
         }
@@ -214,10 +213,10 @@ export default defineComponent({
             const result = await queryShowPrivacyView()
             const $ = queryXml(result)
             if ($('//status').text() === 'success') {
-                if ($('//content/show').text().toBoolean() && !localStorage.getItem('privacy')) {
+                if ($('//content/show').text().toBoolean() && !localStorage.getItem(LocalCacheKey.KEY_PRIVACY)) {
                     pageData.value.isPrivacy = true
                 } else {
-                    localStorage.setItem('privacy', 'true')
+                    localStorage.setItem(LocalCacheKey.KEY_PRIVACY, 'true')
                 }
             }
         }
@@ -227,7 +226,7 @@ export default defineComponent({
          */
         const closePrivacy = () => {
             pageData.value.isPrivacy = false
-            localStorage.setItem('privacy', 'true')
+            localStorage.setItem(LocalCacheKey.KEY_PRIVACY, 'true')
         }
 
         /**

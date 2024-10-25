@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-08-10 12:08:57
  * @Description: AI/事件
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-21 11:54:22
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-24 20:27:17
  */
 const { Translate } = useLangStore()
 
@@ -42,6 +42,7 @@ export class EmailReceiver {
     rowDisabled = false
     rowClicked = false
 }
+
 // 事件通知——显示——弹出视频
 export class PopVideoForm {
     popVideoDuration = 0 // 弹出视频持续时间
@@ -104,12 +105,12 @@ export class MotionEventConfig {
     }
     record = {
         switch: false,
-        chls: [] as { value: string; label: string }[],
+        chls: [] as SelectOption<string, string>[],
     }
     recordList = [] as string[]
     snap = {
         switch: false,
-        chls: [] as { value: string; label: string }[],
+        chls: [] as SelectOption<string, string>[],
     }
     snapList = [] as string[]
     sysAudio = ''
@@ -117,7 +118,7 @@ export class MotionEventConfig {
     ftpSnap = '' //抓图到FTP，暂时无用
     alarmOut = {
         switch: false,
-        chls: [] as { value: string; label: string }[],
+        chls: [] as SelectOption<string, string>[],
     }
     alarmOutList = [] as string[]
     preset = {
@@ -127,7 +128,7 @@ export class MotionEventConfig {
     beeper = ''
     videoPopup = ''
     videoPopupInfo = { switch: false, chl: { value: '', label: '' } as { value: string; label: string } }
-    videoPopupList = [] as { value: string; label: string }[]
+    videoPopupList = [] as SelectOption<string, string>[]
     msgBoxPopup = ''
     email = ''
     oldSchedule = {
@@ -218,7 +219,7 @@ export class ExceptionAlarmRow {
     msgPush = ''
     alarmOut = {
         switch: false,
-        alarmOuts: [] as { value: string; label: string }[],
+        alarmOuts: [] as SelectOption<string, string>[],
     }
     alarmOutList = [] as string[]
     beeper = ''
@@ -330,11 +331,11 @@ export class PresetList {
     // 在点击select获取option数据，阻止重复获取请求
     isGetPresetList = false
 }
+
 /**
  * @description: 组合报警
  * @return {*}
  */
-
 export class CombinedAlarm {
     id = ''
     name = ''
@@ -394,6 +395,7 @@ export class faceMatchObj {
     displayText = ''
     faceDataBase = [] as string[]
 }
+
 /**
  * @description: AI事件——人脸识别相关类型
  * @return {*}
@@ -412,6 +414,7 @@ export class FaceChlItem {
     showAIReourceDetail = false
     faceMatchLimitMaxChlNum = 0
 }
+
 // AI资源table项
 export class AIResource {
     id = ''
@@ -422,6 +425,7 @@ export class AIResource {
     decodeResource = ''
     decodeResourceText = ''
 }
+
 // 侦测——参数配置表单项
 export class FaceDetection {
     enabledSwitch = false
@@ -461,6 +465,7 @@ export class Region {
     X2 = 0
     Y2 = 0
 }
+
 // 识别——参数配置表单项（人脸匹配）
 export class FaceMatch {
     hitEnable = false
@@ -469,6 +474,7 @@ export class FaceMatch {
     groupInfo = [] as FaceGroupTableItem[]
     editFlag = false
 }
+
 // 识别——参数配置——人脸分组表格
 export class FaceGroupTableItem {
     guid = ''
@@ -578,18 +584,18 @@ export class peaPageData {
     peaTriggerData = [] as { value: boolean; label: string; property: string }[]
     sysAudio = ''
     recordSwitch = false
-    recordChls = [] as { value: string; label: string }[]
+    recordChls = [] as SelectOption<string, string>[]
     // 选中的record id
     recordList = [] as string[]
     recordIsShow = false
     recordHeaderTitle = 'IDCS_TRIGGER_CHANNEL_RECORD'
     recordSourceTitle = 'IDCS_CHANNEL'
     recordTargetTitle = 'IDCS_CHANNEL_TRGGER'
-    // recordSource = [] as { value: string; label: string }[]
+    // recordSource = [] as SelectOption<string, string>[]
     recordType = 'record'
 
     alarmOutSwitch = false
-    alarmOutChls = [] as { value: string; label: string }[]
+    alarmOutChls = [] as SelectOption<string, string>[]
     // 选中的alarmOut id
     alarmOutList = [] as string[]
     alarmOutIsShow = false
@@ -634,6 +640,7 @@ export class FaceCompare {
     task = [] as CompareTask[]
     editFlag = false
 }
+
 export class CompareTask {
     guid = ''
     id = ''
@@ -658,6 +665,7 @@ export class CompareTask {
  * @description: AI事件——车牌识别相关类型
  * @return {*}
  */
+
 // 人脸识别通道
 export class VehicleChlItem {
     id = ''
@@ -665,6 +673,7 @@ export class VehicleChlItem {
     chlType = ''
     supportVehiclePlate = false
 }
+
 // 侦测——参数配置表单项
 export class VehicleDetection {
     enabledSwitch = false
@@ -687,6 +696,7 @@ export class VehicleDetection {
     minRegionInfo = [] as Region[]
     maxRegionInfo = [] as Region[]
 }
+
 // 识别——识别成功/陌生车牌
 export class VehicleCompare {
     hitEnable = false
@@ -694,6 +704,7 @@ export class VehicleCompare {
     task = [] as CompareTask[]
     editFlag = false
 }
+
 /* AI事件——更多——温度检测 */
 export class TempDetection {
     enabledSwitch = false
@@ -715,6 +726,7 @@ export class TempDetection {
     sysAudio = ''
     boundaryData = [] as BoundaryTableDataItem[]
 }
+
 // 检测界限数据（区域）
 export class BoundaryTableDataItem {
     id = ''
@@ -734,6 +746,7 @@ export class BoundaryTableDataItem {
     maxCount = 0
     points = [] as { X: number; Y: number; isClosed: boolean }[]
 }
+
 /* AI事件——更多——物品遗留与看护 */
 export class ObjectLeft {
     enabledSwitch = false
@@ -758,10 +771,12 @@ export class ObjectLeft {
     catchSnapSwitch = false
     sysAudio = ''
 }
+
 export class BoundaryItem {
     areaName = ''
     points = [] as { X: number; Y: number; isClosed: boolean }[]
 }
+
 /* AI事件——更多——异常侦测 */
 export class AbnormalDispose {
     holdTime = ''
@@ -780,6 +795,7 @@ export class AbnormalDispose {
     catchSnapSwitch = false
     sysAudio = ''
 }
+
 /* AI事件——更多——视频结构化 */
 export class VideoStructureData {
     enabledSwitch = false

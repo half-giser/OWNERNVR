@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 15:43:32
  * @Description: 现场预览-镜头控制视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-22 17:30:59
+ * @LastEditTime: 2024-10-24 10:23:37
  */
 import { LiveLensForm, type LiveSharedWinData } from '@/types/apiType/live'
 
@@ -45,6 +45,7 @@ export default defineComponent({
             if (!prop.winData.chlID) {
                 return
             }
+
             if (cmdQueue.length > 1000) {
                 return
             }
@@ -61,6 +62,7 @@ export default defineComponent({
             if (!prop.winData.chlID) {
                 return
             }
+
             if (!cmdQueue.length || cmdLock) {
                 return
             }
@@ -90,6 +92,7 @@ export default defineComponent({
                     value: 'manual',
                 })
             }
+
             if (/(auto){1}/g.test(focusType)) {
                 pageData.value.focusOptions.push({
                     label: Translate('IDCS_AUTO_FOCUS'),
@@ -107,13 +110,7 @@ export default defineComponent({
             if (value === 0) {
                 return Translate('IDCS_ALWAYS_KEEP')
             }
-            if (value < 60) {
-                return `${value} ${Translate('IDCS_SECONDS')}`
-            }
-            if (value === 60) {
-                return `1 ${Translate('IDCS_MINUTE')}`
-            }
-            return `${value / 60} ${Translate('IDCS_MINUTES')}`
+            return getTranslateForSecond(value)
         }
 
         /**
@@ -167,6 +164,7 @@ export default defineComponent({
             if (!prop.winData.chlID) {
                 return
             }
+
             try {
                 const sendXml = rawXml`
                     <content>

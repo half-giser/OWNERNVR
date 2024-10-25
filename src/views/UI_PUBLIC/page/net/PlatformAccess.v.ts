@@ -48,10 +48,12 @@ export default defineComponent({
                             callback()
                             return
                         }
+
                         if (!value) {
                             callback(new Error(Translate('IDCS_DDNS_SERVER_ADDR_EMPTY')))
                             return
                         }
+
                         if (!checkDomain(value.trim())) {
                             callback(new Error(Translate('IDCS_INVALID_CHAR')))
                             return
@@ -68,6 +70,7 @@ export default defineComponent({
                             callback()
                             return
                         }
+
                         if (!value) {
                             callback(new Error(Translate('IDCS_REPORT_ID_EMPTY')))
                             return
@@ -101,6 +104,7 @@ export default defineComponent({
                             callback()
                             return
                         }
+
                         if (!value) {
                             callback(new Error(Translate('IDCS_SIP_SERVER_ADDR_EMPTY')))
                             return
@@ -116,6 +120,7 @@ export default defineComponent({
                             callback()
                             return
                         }
+
                         if (!value) {
                             callback(new Error(Translate('IDCS_SIP_SERVER_DOMIN_EMPTY')))
                             return
@@ -131,10 +136,12 @@ export default defineComponent({
                             callback()
                             return
                         }
+
                         if (!value.trim()) {
                             callback(new Error(Translate('IDCS_DDNS_SERVER_ADDR_EMPTY')))
                             return
                         }
+
                         if (sipCodeList.value.includes(value) || value === formData.value.sipDeviceId) {
                             callback(new Error(Translate('IDCS_SIP_ID_REPEAT')))
                             return
@@ -152,10 +159,12 @@ export default defineComponent({
                             callback()
                             return
                         }
+
                         if (!value.trim()) {
                             callback(new Error(Translate('IDCS_SIP_DEVICE_ID_EMPTY')))
                             return
                         }
+
                         if (sipCodeList.value.includes(value)) {
                             callback(new Error(Translate('IDCS_SIP_ID_REPEAT')))
                             return
@@ -173,6 +182,7 @@ export default defineComponent({
                             callback()
                             return
                         }
+
                         if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_USERNAME_EMPTY')))
                             return
@@ -190,6 +200,7 @@ export default defineComponent({
                             callback()
                             return
                         }
+
                         if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return

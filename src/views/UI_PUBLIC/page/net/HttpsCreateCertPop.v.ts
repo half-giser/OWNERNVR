@@ -41,6 +41,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_HTTPS_EMPTY_TIP')))
                             return
                         }
+
                         if (!/^([A-Z]){2}$/.test(value)) {
                             callback(new Error(Translate('IDCS_HTTPS_COUNTRY_TIP')))
                             return
@@ -57,6 +58,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_HTTPS_EMPTY_TIP')))
                             return
                         }
+
                         if (value.length > 64) {
                             callback(new Error(Translate('IDCS_MAX_CHARACTER')))
                             return

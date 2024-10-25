@@ -62,8 +62,6 @@
                 <el-select
                     v-model="formData.resolution"
                     :disabled="!formData.enable"
-                    value-key="value"
-                    :options="pageData.resolutionList"
                 >
                     <el-option
                         v-for="item in pageData.resolutionList"
@@ -78,8 +76,6 @@
                 <el-select
                     v-model="formData.level"
                     :disabled="!formData.enable"
-                    value-key="value"
-                    :options="pageData.levelList"
                 >
                     <el-option
                         v-for="item in pageData.levelList"
@@ -94,8 +90,6 @@
                 <el-select
                     v-model="formData.holdTime"
                     :disabled="!formData.enable"
-                    value-key="value"
-                    :options="pageData.holdTimeList"
                 >
                     <el-option
                         v-for="item in pageData.holdTimeList"

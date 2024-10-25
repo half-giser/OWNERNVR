@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-27 15:43:32
  * @Description: 周界防范/人车检测
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-24 11:47:08
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-24 15:58:10
  */
 import { type TabsPaneContext } from 'element-plus'
 import { type chlCaps } from '@/types/apiType/aiAndEvent'
@@ -15,8 +15,8 @@ export default defineComponent({
         Pea,
     },
     setup() {
-        const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
+
         const pageData = ref({
             // 当前选中的通道
             currChlId: '',
@@ -32,11 +32,9 @@ export default defineComponent({
             chosenFunction: 'Tripwire',
             tabKey: 0,
             // 声音列表
-            voiceList: [] as { value: string; label: string }[],
+            voiceList: [] as SelectOption<string, string>[],
             // 是否支持声音设置
             supportAlarmAudioConfig: true,
-            // 默认声音id
-            defaultAudioId: '{00000000-0000-0000-0000-000000000000}',
 
             // 筛选出第一个支持人脸的通道
             checkFirstFaceChlId: '',
@@ -78,40 +76,12 @@ export default defineComponent({
 
             // 排程管理
             scheduleManagePopOpen: false,
-            scheduleDefaultId: '{00000000-0000-0000-0000-000000000000}',
             scheduleList: [] as SelectOption<string, string>[],
 
             // record数据源
-            recordSource: [] as { value: string; label: string }[],
+            recordSource: [] as SelectOption<string, string>[],
             // alarmOut数据源
             alarmOutSource: [] as { value: string; label: string; device: { value: string; label: string } }[],
-            eventTypeMapping: {
-                faceDetect: Translate('IDCS_FACE_DETECTION') + '+' + Translate('IDCS_FACE_RECOGNITION'),
-                faceMatch: Translate('IDCS_FACE_RECOGNITION'),
-                tripwire: Translate('IDCS_BEYOND_DETECTION'),
-                perimeter: Translate('IDCS_INVADE_DETECTION'),
-            } as Record<string, string>,
-            closeTip: {
-                cdd: Translate('IDCS_CROWD_DENSITY_DETECTION'),
-                cpc: Translate('IDCS_PASS_LINE_COUNT_DETECTION'),
-                ipd: Translate('IDCS_INVADE_DETECTION'),
-                tripwire: Translate('IDCS_BEYOND_DETECTION'),
-                osc: Translate('IDCS_WATCH_DETECTION'),
-                avd: Translate('IDCS_ABNORMAL_DETECTION'),
-                perimeter: Translate('IDCS_INVADE_DETECTION'),
-                vfd: Translate('IDCS_FACE_DETECTION'),
-                aoientry: Translate('IDCS_INVADE_DETECTION'),
-                aoileave: Translate('IDCS_INVADE_DETECTION'),
-                passlinecount: Translate('IDCS_PASS_LINE_COUNT_DETECTION'),
-                vehicle: Translate('IDCS_PLATE_DETECTION'),
-                fire: Translate('IDCS_FIRE_POINT_DETECTION'),
-                vsd: Translate('IDCS_VSD_DETECTION'),
-            } as Record<string, string>,
-            directionTypeTip: {
-                none: 'A<->B',
-                rightortop: 'A->B',
-                leftorbotton: 'A<-B',
-            } as Record<string, string>,
         })
         // 获取在线通道
         const getOnlineChannel = async () => {
@@ -123,12 +93,14 @@ export default defineComponent({
                     pageData.value.onlineChannelIdList.push(id ? id : '')
                 })
             }
+
             if (pageData.value.onlineChannelIdList.length == 0) {
                 pageData.value.chosenFunction = ''
                 pageData.value.tripwireDisable = true
                 pageData.value.peaDisable = true
             }
         }
+
         // 获取通道数据
         const getChannelData = async () => {
             pageData.value.localFaceDectEnabled = systemCaps.localFaceDectMaxCount != 0
@@ -206,12 +178,14 @@ export default defineComponent({
                             // 支持人脸后侦测且人脸前侦测为false，才算支持人脸后侦测
                             supportBackVfd = !supportVfd
                         }
+
                         if (pageData.value.localTargetDectEnabled) {
                             supportBackTripwire = !supportTripwire
                             supportBackPea = !supportPea
                             supportBackAOIEntry = !supportAOIEntry
                             supportBackAOILeave = !supportAOILeave
                         }
+
                         // 热成像通道（火点检测/温度检测）不支持后侦测
                         if (supportFire || supportTemperature) {
                             supportBackVfd = false
@@ -247,6 +221,7 @@ export default defineComponent({
                                     pageData.value.checkFirstFaceChlId = id
                                 }
                             }
+
                             if (pageData.value.checkFirstVehicleChlId == '' && supportVehiclePlate) {
                                 pageData.value.checkFirstVehicleChlId = id
                             }
@@ -310,24 +285,12 @@ export default defineComponent({
                 pageData.value.chlData = pageData.value.chlCaps[pageData.value.currChlId]
             }
         }
+
         // 获取音频列表
         const getVoiceList = async () => {
             pageData.value.supportAlarmAudioConfig = systemCaps.supportAlarmAudioConfig
             if (pageData.value.supportAlarmAudioConfig == true) {
-                queryAlarmAudioCfg().then(async (resb) => {
-                    pageData.value.voiceList = []
-                    const res = queryXml(resb)
-                    if (res('status').text() == 'success') {
-                        res('//content/audioList/item').forEach((item) => {
-                            const $item = queryXml(item.element)
-                            pageData.value.voiceList.push({
-                                value: item.attr('id')!,
-                                label: $item('name').text(),
-                            })
-                        })
-                        pageData.value.voiceList.push({ value: pageData.value.defaultAudioId, label: '<' + Translate('IDCS_NULL') + '>' })
-                    }
-                })
+                pageData.value.voiceList = await buildAudioList()
             }
         }
 
@@ -337,15 +300,17 @@ export default defineComponent({
             pageData.value.tabKey += 1
             initPageData()
         }
+
         // 大tab点击事件,切换功能 Tripwire/Pea
         const handleTabClick = async (pane: TabsPaneContext) => {
             pageData.value.chosenFunction = pane.props.name?.toString() ? pane.props.name?.toString() : ''
             pageData.value.tabKey += 1
         }
+
         // 切换通道及初始化时判断tab是否可用，若不可用则切换到可用的tab，都不可用再显示提示
         const isTabDisabled = () => {
-            pageData.value.tripwireDisable = pageData.value.chlData['supportTripwire'] || pageData.value.chlData['supportBackTripwire'] || pageData.value.chlData['supportPeaTrigger'] ? false : true
-            pageData.value.peaDisable = pageData.value.chlData['supportPea'] || pageData.value.chlData['supportBackPea'] || pageData.value.chlData['supportPeaTrigger'] ? false : true
+            pageData.value.tripwireDisable = pageData.value.chlData.supportTripwire || pageData.value.chlData.supportBackTripwire || pageData.value.chlData.supportPeaTrigger ? false : true
+            pageData.value.peaDisable = pageData.value.chlData.supportPea || pageData.value.chlData.supportBackPea || pageData.value.chlData.supportPeaTrigger ? false : true
             if (pageData.value.tripwireDisable == true && pageData.value.peaDisable == false) {
                 pageData.value.chosenFunction = 'pea'
             } else if (pageData.value.tripwireDisable == false && pageData.value.peaDisable == true) {
@@ -356,6 +321,7 @@ export default defineComponent({
             }
             // pageData.value.chosenFunction = ''
         }
+
         // 初始化页面数据
         const initPageData = async () => {
             isTabDisabled()

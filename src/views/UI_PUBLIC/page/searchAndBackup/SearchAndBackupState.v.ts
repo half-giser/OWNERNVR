@@ -197,6 +197,7 @@ export default defineComponent({
                     Plugin.SetPluginNoResponse()
                     Plugin.ShowPluginNoResponse()
                 }
+
                 if (newVal === 'ocx') {
                     const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Playback')
                     Plugin.GetVideoPlugin().ExecuteCmd(sendXML)

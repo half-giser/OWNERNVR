@@ -27,6 +27,8 @@ export default defineComponent({
         },
     },
     setup(prop, ctx) {
+        const { Translate } = useLangStore()
+
         const pageData = ref({
             rule: '1',
             duration: 5, // 开始 持续时间
@@ -36,6 +38,21 @@ export default defineComponent({
             faceDataIds: [] as string[],
             // 人脸库数据列表
             faceList: [] as SelectOption<string, string>[],
+            durationOptions: [5, 1, 3],
+            ruleOptions: [
+                {
+                    label: Translate('IDCS_SUCCESSFUL_RECOGNITION'),
+                    value: '1',
+                },
+                {
+                    label: Translate('IDCS_GROUP_STRANGER'),
+                    value: '0',
+                },
+                {
+                    label: Translate('IDCS_WORKTIME_MISS_HIT'),
+                    value: '2',
+                },
+            ],
         })
         const open = async () => {
             pageData.value.faceDataIds = []
@@ -62,6 +79,7 @@ export default defineComponent({
                 })
             })
         }
+
         const save = () => {
             const groupId = [] as string[]
             const faceDataBase = [] as string[]
@@ -83,6 +101,7 @@ export default defineComponent({
             prop.handleLinkedObj!(prop.linkedEntity, obj)
             close()
         }
+
         const close = () => {
             pageData.value.rule = '1'
             pageData.value.duration = 5
@@ -97,6 +116,7 @@ export default defineComponent({
             open,
             save,
             close,
+            getTranslateForSecond,
         }
     },
 })

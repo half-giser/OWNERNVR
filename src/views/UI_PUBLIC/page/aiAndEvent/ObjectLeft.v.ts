@@ -2,8 +2,8 @@
  * @Description: AI 事件——更多——物品遗留与看护
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-18 09:43:49
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-16 11:55:44
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-24 18:03:43
  */
 import { cloneDeep } from 'lodash-es'
 import { type BoundaryItem, ObjectLeft, type PresetList, type chlCaps } from '@/types/apiType/aiAndEvent'
@@ -29,7 +29,7 @@ export default defineComponent({
             required: true,
         },
         voiceList: {
-            type: Array as PropType<{ value: string; label: string }[]>,
+            type: Array as PropType<SelectOption<string, string>[]>,
             required: true,
         },
     },
@@ -97,7 +97,6 @@ export default defineComponent({
             isShowAllAreaCheckBox: false,
             isShowAllClearBtn: false,
             // 排程
-            scheduleIdNull: '{00000000-0000-0000-0000-000000000000}',
             scheduleList: [] as SelectOption<string, string>[],
             scheduleManagPopOpen: false,
             warnArea: 0,
@@ -106,10 +105,10 @@ export default defineComponent({
             // 声音列表
             voiceList: prop.voiceList,
             // record穿梭框数据源
-            recordList: [] as { value: string; label: string }[],
+            recordList: [] as SelectOption<string, string>[],
             recordIsShow: false,
             // alarmOut穿梭框数据源
-            alarmOutList: [] as { value: string; label: string }[],
+            alarmOutList: [] as SelectOption<string, string>[],
             alarmOutIsShow: false,
             // 初始化，后判断应用是否可用
             initComplated: false,
@@ -117,61 +116,15 @@ export default defineComponent({
             // 消息提示
             notification: [] as string[],
         })
+
         // 获取录像数据
         const getRecordList = async () => {
-            getChlList({
-                nodeType: 'chls',
-                isSupportSnap: false,
-            }).then((result) => {
-                commLoadResponseHandler(result, ($) => {
-                    $('content/item').forEach((item) => {
-                        const $item = queryXml(item.element)
-                        pageData.value.recordList.push({
-                            value: item.attr('id')!,
-                            label: $item('name').text(),
-                        })
-                    })
-                })
-            })
+            pageData.value.recordList = await buildRecordChlList()
         }
+
         // 获取报警输出数据
         const getAlarmOutData = async () => {
-            getChlList({
-                requireField: ['device'],
-                nodeType: 'alarmOuts',
-            }).then((result) => {
-                commLoadResponseHandler(result, ($) => {
-                    const rowData = [] as {
-                        id: string
-                        name: string
-                        device: {
-                            id: string
-                            innerText: string
-                        }
-                    }[]
-                    $('/response/content/item').forEach((item) => {
-                        const $item = queryXml(item.element)
-                        let name = $item('name').text()
-                        if ($item('devDesc').text()) {
-                            name = $item('devDesc').text() + '_' + name
-                        }
-                        rowData.push({
-                            id: item.attr('id')!,
-                            name,
-                            device: {
-                                id: $item('device').attr('id'),
-                                innerText: $item('device').text(),
-                            },
-                        })
-                    })
-                    pageData.value.alarmOutList = rowData.map((item) => {
-                        return {
-                            value: item.id,
-                            label: item.name,
-                        }
-                    })
-                })
-            })
+            pageData.value.alarmOutList = await buildAlarmOutChlList()
         }
 
         // 播放模式
@@ -181,13 +134,16 @@ export default defineComponent({
             }
             return playerRef.value.mode
         })
+
         const ready = computed(() => {
             return playerRef.value?.ready || false
         })
+
         let player: PlayerInstance['player']
         let plugin: PlayerInstance['plugin']
         // 物品遗留与看护绘制的Canvas
         let objDrawer: CanvasPolygon
+
         /**
          * @description 播放器就绪时回调
          */
@@ -208,11 +164,13 @@ export default defineComponent({
                     clearCurrentArea: clearCurrentArea,
                 })
             }
+
             if (mode.value === 'ocx') {
                 if (!plugin.IsInstallPlugin()) {
                     plugin.SetPluginNotice('#layout2Content')
                     return
                 }
+
                 if (!plugin.IsPluginAvailable()) {
                     pluginStore.showPluginNoResponse = true
                     plugin.ShowPluginNoResponse()
@@ -221,6 +179,7 @@ export default defineComponent({
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
         }
+
         // objDrawer初始化时绑定以下函数
         const areaChange = (points: { X: number; Y: number; isClosed?: boolean }[] | { X1: number; Y1: number; X2: number; Y2: number }) => {
             objectLeftData.value.boundary[pageData.value.warnArea].points = points as { X: number; Y: number; isClosed: boolean }[]
@@ -228,10 +187,12 @@ export default defineComponent({
                 showAllArea()
             }
         }
+
         const closePath = (points: { X: number; Y: number; isClosed?: boolean }[]) => {
             points.forEach((item) => (item.isClosed = true))
             objectLeftData.value.boundary[pageData.value.warnArea].points = points as { X: number; Y: number; isClosed: boolean }[]
         }
+
         const forceClosePath = (canBeClosed: boolean) => {
             if (!canBeClosed) {
                 openMessageTipBox({
@@ -240,6 +201,7 @@ export default defineComponent({
                 })
             }
         }
+
         const clearCurrentArea = () => {
             openMessageTipBox({
                 type: 'question',
@@ -253,11 +215,13 @@ export default defineComponent({
                     const sendXML = OCX_XML_SetOscAreaAction('NONE')
                     plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 }
+
                 if (pageData.value.isShowAllArea) {
                     showAllArea()
                 }
             })
         }
+
         /**
          * @description 播放视频
          */
@@ -306,28 +270,28 @@ export default defineComponent({
             const result = await queryOsc(sendXml)
             closeLoading()
             commLoadResponseHandler(result, async ($) => {
-                const enabledSwitch = $('/response/content/chl/param/switch').text() == 'true'
-                let holdTimeArr = $('/response/content/chl/param/holdTimeNote').text().split(',')
-                const holdTime = $('/response/content/chl/param/holdTime').text()
+                const enabledSwitch = $('//content/chl/param/switch').text() == 'true'
+                let holdTimeArr = $('//content/chl/param/holdTimeNote').text().split(',')
+                const holdTime = $('//content/chl/param/holdTime').text()
                 if (!holdTimeArr.includes(holdTime)) {
                     holdTimeArr.push(holdTime)
                     holdTimeArr = holdTimeArr.sort((a, b) => Number(a) - Number(b))
                 }
                 const holdTimeList = holdTimeArr.map((item) => {
-                    const label = item == '60' ? '1 ' + Translate('IDCS_MINUTE') : Number(item) > 60 ? Number(item) / 60 + ' ' + Translate('IDCS_MINUTES') : item + ' ' + Translate('IDCS_SECONDS')
+                    const label = getTranslateForSecond(Number(item))
                     return {
                         value: item,
                         label,
                     }
                 })
-                const oscTypeList = $('/response/types/oscType/enum').map((item) => {
+                const oscTypeList = $('//types/oscType/enum').map((item) => {
                     return {
                         value: item.text(),
                         label: oscTypeTip[item.text()],
                     }
                 })
                 const boundary = [] as BoundaryItem[]
-                $('/response/content/chl/param/boundary/item').forEach((item) => {
+                $('//content/chl/param/boundary/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     const boundaryItem = {
                         areaName: $item('name').text().trim(),
@@ -343,11 +307,11 @@ export default defineComponent({
                     })
                     boundary.push(boundaryItem)
                 })
-                const mutexList = $('/response/content/chl/param/mutexList/item').map((item) => {
+                const mutexList = $('//content/chl/param/mutexList/item').map((item) => {
                     const $item = queryXml(item.element)
                     return { object: $item('object').text(), status: $item('status').text() == 'true' }
                 })
-                const trigger = $('/response/content/chl/trigger')
+                const trigger = $('//content/chl/trigger')
                 const $trigger = queryXml(trigger[0].element)
                 const record = $trigger('sysRec/chls/item').map((item) => {
                     return {
@@ -377,14 +341,14 @@ export default defineComponent({
                     originalSwitch: enabledSwitch,
                     holdTime,
                     holdTimeList,
-                    schedule: $('/response/content/chl').attr('scheduleGuid'),
+                    schedule: $('//content/chl').attr('scheduleGuid'),
                     oscTypeList,
-                    oscType: $('/response/content/chl/param/oscType').text(),
-                    areaMaxCount: Number($('/response/content/chl/param/boundary').attr('maxCount')), // 支持配置几个警戒面
-                    regulation: $('/response/content/chl/param/boundary').attr('regulation') == '1', // 区别联咏ipc标志
+                    oscType: $('//content/chl/param/oscType').text(),
+                    areaMaxCount: Number($('//content/chl/param/boundary').attr('maxCount')), // 支持配置几个警戒面
+                    regulation: $('//content/chl/param/boundary').attr('regulation') == '1', // 区别联咏ipc标志
                     boundary,
                     mutexList,
-                    maxNameLength: Number($('/response/content/chl/param/boundary/item/name').attr('maxLen')),
+                    maxNameLength: Number($('//content/chl/param/boundary/item/name').attr('maxLen')),
                     record,
                     alarmOut,
                     preset,
@@ -400,6 +364,7 @@ export default defineComponent({
                 handleObjectLeftData()
             })
         }
+
         const handleObjectLeftData = () => {
             pageData.value.areaName = objectLeftData.value.boundary[pageData.value.warnArea].areaName
             if (objectLeftData.value.msgPushSwitch) normalParamCheckList.value.push('msgPushSwitch')
@@ -415,6 +380,7 @@ export default defineComponent({
             // 绘制
             setAreaView()
         }
+
         // 检测和屏蔽区域的样式初始化
         const refreshInitPage = () => {
             objectLeftData.value.boundary.forEach((item, index) => {
@@ -433,12 +399,14 @@ export default defineComponent({
                 pageData.value.isShowAllClearBtn = false
             }
         }
+
         // tab项切换
         const tabChange = (name: TabPaneName) => {
             if (name == 'param') {
                 play()
             }
         }
+
         // 视频区域
         const showAllArea = () => {
             objDrawer && objDrawer.setEnableShowAll(pageData.value.isShowAllArea)
@@ -461,6 +429,7 @@ export default defineComponent({
                 }
             }
         }
+
         const clearArea = () => {
             if (mode.value === 'h5') {
                 objDrawer.clear()
@@ -474,6 +443,7 @@ export default defineComponent({
                 showAllArea()
             }
         }
+
         const clearAllArea = () => {
             objectLeftData.value.boundary.forEach((item) => {
                 item.points = []
@@ -484,10 +454,12 @@ export default defineComponent({
                 const sendXML = OCX_XML_SetOscAreaAction('NONE')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
+
             if (pageData.value.isShowAllArea) {
                 showAllArea()
             }
         }
+
         // 警戒区域切换
         const warnAreaChange = () => {
             setOtherAreaClosed()
@@ -505,16 +477,19 @@ export default defineComponent({
                     plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 }
             }
+
             if (pageData.value.isShowAllArea) {
                 showAllArea()
             }
         }
+
         // 闭合区域
         const setClosed = (points: { X: number; Y: number; isClosed: boolean }[]) => {
             points?.forEach((item) => {
                 item.isClosed = true
             })
         }
+
         const setOtherAreaClosed = () => {
             if (mode.value == 'h5') {
                 // 画点-区域
@@ -527,15 +502,18 @@ export default defineComponent({
                 }
             }
         }
+
         // 名称输入限制
         const areaNameInput = (value: string) => {
             pageData.value.areaName = cutStringByByte(value, objectLeftData.value.maxNameLength)
             objectLeftData.value.boundary[pageData.value.warnArea].areaName = pageData.value.areaName
         }
+
         // 回车键失去焦点
         const enterBlur = (event: { target: { blur: () => void } }) => {
             event.target.blur()
         }
+
         // 常规联动多选
         const handleNormalParamCheckAll = (value: CheckboxValueType) => {
             normalParamCheckList.value = value ? normalParamList.value.map((item) => item.value) : []
@@ -547,6 +525,7 @@ export default defineComponent({
                 objectLeftData.value.emailSwitch = true
             }
         }
+
         const handleNormalParamCheck = (value: CheckboxValueType[]) => {
             normalParamCheckAll.value = value.length === normalParamList.value.length
             objectLeftData.value.catchSnapSwitch = value.includes('catchSnapSwitch')
@@ -557,21 +536,25 @@ export default defineComponent({
         }
 
         // 录像配置相关处理
-        const recordConfirm = (e: { value: string; label: string }[]) => {
+        const recordConfirm = (e: SelectOption<string, string>[]) => {
             objectLeftData.value.record = cloneDeep(e)
             pageData.value.recordIsShow = false
         }
+
         const recordClose = () => {
             pageData.value.recordIsShow = false
         }
+
         // 报警输出相关处理
-        const alarmOutConfirm = (e: { value: string; label: string }[]) => {
+        const alarmOutConfirm = (e: SelectOption<string, string>[]) => {
             objectLeftData.value.alarmOut = cloneDeep(e)
             pageData.value.alarmOutIsShow = false
         }
+
         const alarmOutClose = () => {
             pageData.value.alarmOutIsShow = false
         }
+
         // 获取联动预置点数据
         const getPresetData = async () => {
             const result = await getChlList({
@@ -579,7 +562,7 @@ export default defineComponent({
             })
             let rowData = [] as PresetList[]
             commLoadResponseHandler(result, async ($) => {
-                rowData = $('/response/content/item').map((item) => {
+                rowData = $('//content/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
                         id: item.attr('id')!,
@@ -607,6 +590,7 @@ export default defineComponent({
                 PresetTableData.value = rowData
             })
         }
+
         // 预置点选择框下拉时获取预置点列表数据
         const getPresetById = async (row: PresetList) => {
             if (!row.isGetPresetList) {
@@ -618,7 +602,7 @@ export default defineComponent({
             `
                 const result = await queryChlPresetList(sendXml)
                 commLoadResponseHandler(result, ($) => {
-                    $('/response/content/presets/item').forEach((item) => {
+                    $('//content/presets/item').forEach((item) => {
                         row.presetList.push({
                             value: item.attr('index')!,
                             label: item.text(),
@@ -628,11 +612,13 @@ export default defineComponent({
                 row.isGetPresetList = true
             }
         }
+
         const presetChange = (row: PresetList) => {
             const ids = objectLeftData.value.preset.map((item) => item.chl.value)
             if (ids.includes(row.id)) {
                 objectLeftData.value.preset = objectLeftData.value.preset.filter((item) => row.id != item.chl.value)
             }
+
             if (row.preset.value !== '') {
                 objectLeftData.value.preset.push({
                     index: row.preset.value,
@@ -643,6 +629,7 @@ export default defineComponent({
                     },
                 })
             }
+
             if (objectLeftData.value.preset.length > MAX_TRIGGER_PRESET_COUNT) {
                 openMessageTipBox({
                     type: 'info',
@@ -650,6 +637,7 @@ export default defineComponent({
                 })
             }
         }
+
         // 检测区域合法性(物品遗留看护AI事件中：区域为多边形)
         const verification = () => {
             for (const item of objectLeftData.value.boundary) {
@@ -670,6 +658,7 @@ export default defineComponent({
             }
             return true
         }
+
         const getObjectLeftSaveData = () => {
             let sendXml = rawXml`<content>
                 <chl id='${prop.currChlId}' scheduleGuid='${objectLeftData.value.schedule}'>
@@ -736,13 +725,14 @@ export default defineComponent({
                 </chl></content>`
             return sendXml
         }
+
         const setObjectLeftData = async () => {
             const sendXml = getObjectLeftSaveData()
             openLoading()
             const result = await editOsc(sendXml)
             closeLoading()
             const $ = queryXml(result)
-            if ($('/response/status').text() == 'success') {
+            if ($('//status').text() == 'success') {
                 if (objectLeftData.value.enabledSwitch) {
                     objectLeftData.value.originalSwitch = true
                 }
@@ -752,6 +742,7 @@ export default defineComponent({
                 pageData.value.applyDisabled = true
             }
         }
+
         const applyObjectLeftData = () => {
             if (!verification()) return
             let isSwitchChange = false
@@ -761,7 +752,7 @@ export default defineComponent({
             }
             objectLeftData.value.mutexList?.forEach((item) => {
                 if (item.status) {
-                    switchChangeTypeArr.push(closeTip[item['object']])
+                    switchChangeTypeArr.push(closeTip[item.object])
                 }
             })
             if (isSwitchChange && switchChangeTypeArr.length > 0) {
@@ -798,6 +789,7 @@ export default defineComponent({
                 })
                 objectLeftData.value.boundary[pageData.value.warnArea].points = points as { X: number; Y: number; isClosed: boolean }[]
             }
+
             // 处理错误码
             if (errorCode == '517') {
                 // 517-区域已闭合
@@ -815,9 +807,6 @@ export default defineComponent({
                 Plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
             }
             pageData.value.scheduleList = await buildScheduleList()
-            pageData.value.scheduleList.forEach((item) => {
-                item.value = item.value != '' ? item.value : pageData.value.scheduleIdNull
-            })
             await getRecordList()
             await getAlarmOutData()
             await getObjectLeftData()
@@ -833,6 +822,7 @@ export default defineComponent({
                 const sendXML = OCX_XML_StopPreview('ALL')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
+
             if (mode.value == 'h5') {
                 objDrawer.destroy()
             }

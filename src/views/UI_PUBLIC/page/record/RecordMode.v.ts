@@ -2,7 +2,6 @@ import { type RecMode, RecordDistributeInfo, type RecordSchedule } from '@/types
 import RecordModeAdvancePop from './RecordModeAdvancePop.vue'
 import RecordModeStreamPop from './RecordModeStreamPop.vue'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
-import { type ApiResult } from '@/api/api'
 import { type XmlElement } from '@/utils/xmlParse'
 export default defineComponent({
     components: {
@@ -207,20 +206,25 @@ export default defineComponent({
                 if (item.text.includes(Translate('IDCS_INTENSIVE_RECORD'))) {
                     pageData.value.icons[item.id].push(pageData.value.iconMap.INTENSIVE)
                 }
+
                 if (item.text.includes(Translate('IDCS_MOTION_RECORD'))) {
                     pageData.value.icons[item.id].push(pageData.value.iconMap.MOTION)
                 }
+
                 if (item.text.includes(Translate('IDCS_ALARM_RECORD'))) {
                     pageData.value.icons[item.id].push(pageData.value.iconMap.ALARM)
                 }
+
                 if (item.text.includes(Translate('IDCS_AI_RECORD'))) {
                     pageData.value.icons[item.id].push(pageData.value.iconMap.INTELLIGENT)
                 }
+
                 if (item.text.includes(Translate('IDCS_POS_RECORD'))) {
                     pageData.value.icons[item.id].push(pageData.value.iconMap.POS)
                 }
             })
         }
+
         const recModeChange = async (params: string) => {
             console.log(params)
         }
@@ -239,12 +243,12 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('/response/status').text() !== 'success') return
+            if ($('//status').text() !== 'success') return
 
-            formData.value.mode = $('/response/content/recMode/mode').text()
-            formData.value.autoMode = $('/response/content/recMode/autoMode').text()
-            formData.value.autoModeEvents = $('/response/content/recMode/autoMode').attr('eventType').split(',')
-            formData.value.urgencyRecDuration = Number($('/response/content/urgencyRecDuration').text())
+            formData.value.mode = $('//content/recMode/mode').text()
+            formData.value.autoMode = $('//content/recMode/autoMode').text()
+            formData.value.autoModeEvents = $('//content/recMode/autoMode').attr('eventType').split(',')
+            formData.value.urgencyRecDuration = Number($('//content/urgencyRecDuration').text())
 
             //TODO: CustomerID为100代表inw48客户,要求隐藏智能侦测
             // if (pageData.value.isInw48) {
@@ -256,7 +260,7 @@ export default defineComponent({
             //     MODE_MAPPING.manually = Translate('IDCS_REC_MODE_MANUAL')
             // }
             //绑定录像模式下拉
-            $('/response/types/recModeType/enum').forEach((item) => {
+            $('//types/recModeType/enum').forEach((item) => {
                 pageData.value.recModeTypeList.push({
                     value: item.text(),
                     label: MODE_MAPPING[item.text()],
@@ -264,7 +268,7 @@ export default defineComponent({
             })
 
             //绑定手动录像时长下拉 TODO 无函数
-            $('/response/content/urgencyRecDurationNote')
+            $('//content/urgencyRecDurationNote')
                 .text()
                 .split(',')
                 .forEach((item) => {
@@ -400,34 +404,24 @@ export default defineComponent({
          */
         const initChlScheduldTb = async () => {
             openLoading()
-            const resultArr = await Promise.all([queryScheduleList(), queryRecordScheduleList()])
 
-            const scheduleXml = queryXml(resultArr[0] as ApiResult)
-            const recScheduleXml = queryXml(resultArr[1] as ApiResult)
-            if (scheduleXml('/response/status').text() !== 'success' || recScheduleXml('/response/status').text() !== 'success') {
-                console.error('initChlScheduldTb failed')
+            pageData.value.scheduleList = await buildScheduleList()
+
+            const resultArr = await queryRecordScheduleList()
+
+            // const scheduleXml = queryXml(resultArr[0] as ApiResult)
+            const recScheduleXml = queryXml(resultArr)
+            if (recScheduleXml('//status').text() !== 'success') {
                 return
             }
 
-            // 组装表格中的排程下拉列表
-            pageData.value.scheduleList = scheduleXml('/response/content/item').map((item) => {
-                return {
-                    label: item.text(),
-                    value: item.attr('id')!,
-                }
-            })
-            pageData.value.scheduleList.push({
-                label: `<${Translate('IDCS_NULL')}>`,
-                value: EmptyId,
-            })
-
             const getRecScheduleSelectValue = (item: XmlElement, path: string) => {
                 const scheduleElement = xmlParse(path, item.element)[0].element
-                return xmlParse('./switch', scheduleElement).text() === 'false' ? EmptyId : xmlParse('./schedule', scheduleElement).attr('id')
+                return xmlParse('./switch', scheduleElement).text() === 'false' ? DEFAULT_EMPTY_ID : xmlParse('./schedule', scheduleElement).attr('id')
             }
 
             const parseTableData = () => {
-                return recScheduleXml('/response/content/item').map((item) => {
+                return recScheduleXml('//content/item').map((item) => {
                     return {
                         id: item.attr('id')!,
                         name: xmlParse('./name', item.element).text(),
@@ -515,7 +509,7 @@ export default defineComponent({
          */
         const setRecScheduleInfo = (editRows: RecordSchedule[]) => {
             const getSwitch = (scheduleId: string) => {
-                return scheduleId === EmptyId ? 'false' : 'true'
+                return scheduleId === DEFAULT_EMPTY_ID ? 'false' : 'true'
             }
             let sendXml = rawXml`
             <content type="list" total="${editRows.length.toString()}">`

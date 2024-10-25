@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-10-23 15:30:55
  * @Description: 报警图像上传
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-24 11:24:41
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-24 15:51:53
  */
 import { SystemImageUploadAlarmItem } from '@/types/apiType/system'
 import { cloneDeep } from 'lodash-es'
@@ -13,7 +13,7 @@ export default defineComponent({
         const userSessionStore = useUserSessionStore()
         const openMessageTipBox = useMessageBox().openMessageTipBox
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const pageData = ref({
             hasAuth: false,
             alarmType: '',
@@ -52,11 +52,12 @@ export default defineComponent({
                 pageData.value.hasAuth = $('//content/systemAuth/alarmMgr').text() === 'true'
             }
         }
+
         // TODO待测试
         const getData = async () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             const res = await querySHDBEventUploadCfg()
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
             const $ = queryXml(res)
             if ($('status').text() === 'success') {
                 pageData.value.alarmType = $('//content/eventType').text().trim() == '' ? 'MOTION' : $('//content/eventType').text().trim()
@@ -68,7 +69,7 @@ export default defineComponent({
                     })
                 })
                 pageData.value.originalAlarmTypeList = cloneDeep(pageData.value.alarmTypeList)
-                // TODO 用于测试，后续删除
+                // 用于测试，后续删除
                 // if ($('//types/eventType/enum').length === 0) {
                 //     pageData.value.alarmTypeList.push({
                 //         value: 'MOTION',
@@ -83,9 +84,10 @@ export default defineComponent({
                 }
                 console.log(pageData.value.alarmTypeList)
                 const pretimeList = $('//content/param/preTimeNote').text()
-                pageData.value.pretimeList = pretimeList !== '' ? pretimeList.split(',').map((item) => ({ value: item.trim(), label: item.trim() + Translate('IDCS_SECONDS') })) : []
+                pageData.value.pretimeList = pretimeList !== '' ? pretimeList.split(',').map((item) => ({ value: item.trim(), label: getTranslateForSecond(Number(item.trim())) })) : []
                 const saveTimeList = $('//content/param/holdTimeNote').text()
-                pageData.value.saveTimeList = saveTimeList !== '' ? saveTimeList.split(',').map((item) => ({ value: item.trim(), label: item.trim() + Translate('IDCS_SECONDS') })) : []
+                pageData.value.saveTimeList =
+                    saveTimeList !== '' ? saveTimeList.split(',').map((item) => ({ value: item.trim(), label: item.trim() + getTranslateForSecond(Number(item.trim())) })) : []
                 pageData.value.preUnit = $('//content/param/chlParams/itemType/preTime').attr('unit') == '' ? 's' : $('//content/param/chlParams/itemType/preTime').attr('unit')
                 pageData.value.saveUnit = $('//content/param/chlParams/itemType/holdTime').attr('unit') == '' ? 's' : $('//content/param/chlParams/itemType/holdTime').attr('unit')
                 $('//content/param/chlParams/item').forEach((item) => {
@@ -102,6 +104,7 @@ export default defineComponent({
             } else {
             }
         }
+
         const getSavaData = () => {
             const sendXml = rawXml`
                     <types>
@@ -134,14 +137,16 @@ export default defineComponent({
                 `
             return sendXml
         }
+
         const setData = async () => {
             const sendXml = getSavaData()
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             editSHDBEventUploadCfg(sendXml).then((res) => {
-                closeLoading(LoadingTarget.FullScreen)
+                closeLoading()
                 commSaveResponseHadler(res)
             })
         }
+
         const setDispose = async () => {
             if (!pageData.value.hasAuth) {
                 openMessageTipBox({
@@ -153,12 +158,14 @@ export default defineComponent({
             }
             router.push(pageData.value.menuIdMap[pageData.value.alarmType])
         }
+
         // 通过id获取通道号
         const getChlNumById = (chlId: string) => {
             return parseInt(chlId.substring(1, chlId.indexOf('-')), 16)
         }
+
         // 通道排序
-        const orderChl = function () {
+        const orderChl = () => {
             if (tableData.value.length > 1) {
                 tableData.value.sort(function (a, b) {
                     const aChlNum = getChlNumById(a.id)
@@ -167,6 +174,7 @@ export default defineComponent({
                 })
             }
         }
+
         const handlePreTimeChangeAll = (preTime: string) => {
             tableData.value.forEach((item) => {
                 if (!item.rowDisable) {
@@ -174,6 +182,7 @@ export default defineComponent({
                 }
             })
         }
+
         const handleSaveTimeChangeAll = (saveTime: string) => {
             tableData.value.forEach((item) => {
                 if (!item.rowDisable) {

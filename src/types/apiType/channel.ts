@@ -464,8 +464,6 @@ export class ChannelFisheye extends ChannelRowStatus {
     installType = ''
     fishEyeEnable = false
     supportFishEyeEnable = false
-    fishEyeModelList: Record<string, string>[] = []
-    installTypeList: Record<string, string>[] = []
     HIKVISION = false
     privateProtocol = false
     reqCfgFail = false
@@ -623,4 +621,20 @@ export class ChannelWaterMarkDto {
     disabled = false
     switch = 'false'
     customText = ''
+}
+
+export class ChannelLogoSetDto extends ChannelRowStatus {
+    [key: string]: any
+    chlId = ''
+    chlName = ''
+    switch = 'false'
+    opacity = 30
+    minOpacity = 0
+    maxOpacity = 100
+    minX = 0
+    maxX = 10000
+    minY = 0
+    maxY = 10000
+    X = 0
+    Y = 0
 }

@@ -174,6 +174,7 @@ const useOCXPlugin = () => {
             // TimeSliderPluginNotify(strXMLFormat)
             return
         }
+
         if ($('/statenotify[@type="NVMS_NAT_CMD"]').length) {
             const $response = $('/statenotify[@type="NVMS_NAT_CMD"]/response')
             const $request = queryXml(XMLStr2XMLDoc(CMD_QUEUE.cmd))("//cmd[@type='NVMS_NAT_CMD']/request")
@@ -189,6 +190,7 @@ const useOCXPlugin = () => {
                 }
             }
         }
+
         // 获取插件返回的sessionId，用于刷新无感知登录（授权码登录成功后，返回sessionId)
         if ($("/statenotify[@type='sessionId']").length) {
             let sessionId = null
@@ -212,6 +214,7 @@ const useOCXPlugin = () => {
             } else {
                 status = $xmlNote.text().trim()
             }
+
             if (status === 'success') {
                 pluginStore.ready = true
                 setVideoPluginStatus('Connected')
@@ -285,6 +288,7 @@ const useOCXPlugin = () => {
                             }
                             return
                     }
+
                     if (curRoutUrl.includes('authCodeLogin')) {
                         execLoginErrorCallback(errorCode, errorDescription)
                     } else {
@@ -653,6 +657,7 @@ const useOCXPlugin = () => {
                     needUpate = false
                 }
             }
+
             if (needUpate) {
                 isPluginAvailable.value = false
                 getPluginUpdateNotice(downLoadUrl)
@@ -865,6 +870,7 @@ const useOCXPlugin = () => {
         if (route.path.includes('login') || !getIsInstallPlugin()) {
             pluginStore.showPluginNoResponse = false
         }
+
         if (route.path.includes('authCodeLogin')) {
             execLoginErrorCallback(ErrorCode.USER_ERROR_INVALID_POINT, 'The plugin is not responding, please log in again')
             return
@@ -1048,25 +1054,30 @@ const useOCXPlugin = () => {
         if (refH > getViewPort(ratio).height - divOcxTop) {
             refH = getViewPort(ratio).height - divOcxTop
         }
+
         // 视频插件窗口的顶部越过页面导航菜单区域（顶部收缩）
         // && $.inArray(pluginPlaceholderId, ['divPopRecOCX', 'popLiveOCX']) == -1
         if (divOcxTop <= navHeight) {
             winTop = ocxMode == 'relativeToBrowser' || browserType == 'lowEdge' ? navHeight + menuH : navHeight
             refH -= navHeight - divOcxTop
         }
+
         // 视频插件窗口的宽大于浏览器视口容许的宽（右部收缩）
         if (refW > getViewPort(ratio).width - divOcxLeft) {
             refW = getViewPort(ratio).width - divOcxLeft
         }
+
         // 视频插件窗口的左侧越过浏览器视口左边界（左部收缩）
         if (divOcxRect.left <= 0) {
             winLeft = 0
             refW += divOcxLeft
         }
+
         if (ocxMode == 'relativeToScreen') {
             winLeft = window.screenLeft * ratio + winLeft
             winTop = window.screenTop * ratio + winTop
         }
+
         const adjust = (size: number) => {
             if (size === 0) return size
             if (shouldAdjust) {
@@ -1210,6 +1221,7 @@ const useOCXPlugin = () => {
                     displayOCX(true)
                 }, interval * 6)
             }
+
             if (Math.abs(screenX - oldX) > 1 || Math.abs(screenY - oldY) > 1 || Math.abs(width - oldWidth) > 1 || Math.abs(height - oldHeihgt) > 1) {
                 oldX = screenX
                 oldY = screenY
@@ -1231,6 +1243,7 @@ const useOCXPlugin = () => {
                     }
                 }
             }
+
             if (flag) {
                 const data = browserEventMap.get(pluginPlaceholderId)
                 if (data) {
@@ -1241,6 +1254,7 @@ const useOCXPlugin = () => {
                         displayOCX(true)
                         forcedHidden = false
                     }
+
                     if (hasPop) {
                         displayOCX(false)
                         forcedHidden = true
@@ -1258,10 +1272,12 @@ const useOCXPlugin = () => {
                 mutationObserver.observe(dialog, { attributes: true })
             }
         }
+
         for (const overlay of overlays) {
             mutationObserver.observe(overlay, { attributes: true })
             observerList.push(overlay as HTMLElement)
         }
+
         for (const popper of poppers) {
             if (popper.classList.contains('popper')) {
                 continue
@@ -1296,6 +1312,7 @@ const useOCXPlugin = () => {
         if (!getIsPluginAvailable()) {
             return
         }
+
         if (document.visibilityState == 'hidden') {
             //状态判断
             displayOCX(false)

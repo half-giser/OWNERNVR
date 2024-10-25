@@ -2,8 +2,8 @@
  * @Description: AI/事件——事件通知——显示
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-07-30 09:23:16
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-18 15:27:06
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-23 20:40:24
 -->
 <template>
     <el-form
@@ -16,10 +16,7 @@
         inline-message
     >
         <div class="base-subheading-box">{{ Translate('IDCS_POPUP_VIDEO') }}</div>
-        <el-form-item
-            prop="popVideoDuration"
-            :label="Translate('IDCS_DURATION')"
-        >
+        <el-form-item :label="Translate('IDCS_DURATION')">
             <el-select v-model="videoFormData.popVideoDuration">
                 <el-option
                     v-for="item in pageData.popVideoDurationOption"
@@ -32,7 +29,6 @@
         </el-form-item>
         <el-form-item
             v-show="videoFormData.popVideoOutputShow"
-            prop="popVideoOutput"
             :label="Translate('IDCS_OUTPUT')"
         >
             <el-select v-model="videoFormData.popVideoOutput">
@@ -60,10 +56,7 @@
         <el-form-item>
             <el-checkbox v-model="msgFormData.popMsgShow">{{ Translate('IDCS_NO_MESSAGEBOX') }}</el-checkbox>
         </el-form-item>
-        <el-form-item
-            prop="popMsgDuration"
-            :label="Translate('IDCS_DURATION')"
-        >
+        <el-form-item :label="Translate('IDCS_DURATION')">
             <el-select v-model="msgFormData.popMsgDuration">
                 <el-option
                     v-for="item in pageData.popMsgDurationOption"

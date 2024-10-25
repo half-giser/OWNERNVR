@@ -16,7 +16,6 @@ export default defineComponent({
 
         // 名称被修改时保存原始名称
         const originalName = ref('')
-        const defaultAudioId = '{00000000-0000-0000-0000-000000000000}'
 
         const COMBINED_ALARM_TYPES_MAPPING: Record<string, string> = {
             Motion: Translate('IDCS_MOTION_DETECTION'), //移动侦测
@@ -28,15 +27,9 @@ export default defineComponent({
 
         const pageData = ref({
             // 类型
-            typeList: [
-                { value: 'NO', label: Translate('IDCS_ALWAYS_OPEN') },
-                { value: 'NC', label: Translate('IDCS_ALWAYS_CLOSE') },
-            ],
+            typeList: getAlwaysOptions(),
             // 启用、推送、蜂鸣器、消息框弹出、email
-            switchList: [
-                { value: 'true', label: Translate('IDCS_ON') },
-                { value: 'false', label: Translate('IDCS_OFF') },
-            ],
+            switchList: getSwitchOptions(),
             // 持续时间列表
             durationList: [] as SelectOption<string, string>[],
             // 是否支持声音
@@ -54,29 +47,29 @@ export default defineComponent({
             CombinedALarmInfo: '',
 
             // record穿梭框数据源
-            recordList: [] as { value: string; label: string }[],
+            recordList: [] as SelectOption<string, string>[],
             // 表头选中id
             recordChosedIdsAll: [] as string[],
             // 表头选中的数据
-            recordChosedListAll: [] as { value: string; label: string }[],
+            recordChosedListAll: [] as SelectOption<string, string>[],
             recordIsShowAll: false,
             recordIsShow: false,
 
             // snap穿梭框数据源
-            snapList: [] as { value: string; label: string }[],
+            snapList: [] as SelectOption<string, string>[],
             // 表头选中id
             snapChosedIdsAll: [] as string[],
             // 表头选中的数据
-            snapChosedListAll: [] as { value: string; label: string }[],
+            snapChosedListAll: [] as SelectOption<string, string>[],
             snapIsShowAll: false,
             snapIsShow: false,
 
             // alarmOut穿梭框数据源
-            alarmOutList: [] as { value: string; label: string }[],
+            alarmOutList: [] as SelectOption<string, string>[],
             // 表头选中id
             alarmOutChosedIdsAll: [] as string[],
             // 表头选中的数据
-            alarmOutChosedListAll: [] as { value: string; label: string }[],
+            alarmOutChosedListAll: [] as SelectOption<string, string>[],
             alarmOutIsShowAll: false,
             alarmOutIsShow: false,
 
@@ -112,20 +105,7 @@ export default defineComponent({
 
         // 获取声音数据
         const getAudioData = async () => {
-            const result = await queryAlarmAudioCfg()
-            const $ = queryXml(result)
-
-            pageData.value.audioList = $('/response/content/audioList/item').map((item) => {
-                const $item = queryXml(item.element)
-                return {
-                    value: item.attr('id')!,
-                    label: $item('name').text(),
-                }
-            })
-            pageData.value.audioList.push({
-                value: defaultAudioId,
-                label: '<' + Translate('IDCS_NULL') + '>',
-            })
+            pageData.value.audioList = await buildAudioList()
         }
 
         const getChlData = async () => {
@@ -136,7 +116,7 @@ export default defineComponent({
                         value: '',
                         label: Translate('IDCS_OFF'),
                     })
-                    $('/response/content/item').forEach((item) => {
+                    $('//content/item').forEach((item) => {
                         const $item = queryXml(item.element)
                         const protocolType = $item('protocolType').text()
                         if (protocolType == 'RTSP') return
@@ -148,75 +128,17 @@ export default defineComponent({
                 })
             })
         }
+
         const getRecordList = async () => {
-            getChlList({
-                nodeType: 'chls',
-                isSupportSnap: false,
-            }).then((result) => {
-                commLoadResponseHandler(result, ($) => {
-                    $('content/item').forEach((item) => {
-                        const $item = queryXml(item.element)
-                        pageData.value.recordList.push({
-                            value: item.attr('id')!,
-                            label: $item('name').text(),
-                        })
-                    })
-                })
-            })
+            pageData.value.recordList = await buildRecordChlList()
         }
+
         const getSnapList = async () => {
-            getChlList({
-                nodeType: 'chls',
-                isSupportSnap: true,
-            }).then((result) => {
-                commLoadResponseHandler(result, ($) => {
-                    $('content/item').forEach((item) => {
-                        const $item = queryXml(item.element)
-                        pageData.value.snapList.push({
-                            value: item.attr('id')!,
-                            label: $item('name').text(),
-                        })
-                    })
-                })
-            })
+            pageData.value.snapList = await buildSnapChlList()
         }
+
         const getAlarmOutData = async () => {
-            getChlList({
-                requireField: ['device'],
-                nodeType: 'alarmOuts',
-            }).then((result) => {
-                commLoadResponseHandler(result, ($) => {
-                    const rowData = [] as {
-                        id: string
-                        name: string
-                        device: {
-                            id: string
-                            innerText: string
-                        }
-                    }[]
-                    $('/response/content/item').forEach((item) => {
-                        const $item = queryXml(item.element)
-                        let name = $item('name').text()
-                        if ($item('devDesc').text()) {
-                            name = $item('devDesc').text() + '_' + name
-                        }
-                        rowData.push({
-                            id: item.attr('id')!,
-                            name,
-                            device: {
-                                id: $item('device').attr('id'),
-                                innerText: $item('device').text(),
-                            },
-                        })
-                    })
-                    pageData.value.alarmOutList = rowData.map((item) => {
-                        return {
-                            value: item.id,
-                            label: item.name,
-                        }
-                    })
-                })
-            })
+            pageData.value.alarmOutList = await buildAlarmOutChlList()
         }
 
         // 获取人脸库列表
@@ -234,6 +156,7 @@ export default defineComponent({
 
             return $
         }
+
         const getData = async () => {
             pageData.value.initComplated = false
             const $faceGroup = await getFaceGroupData()
@@ -241,8 +164,8 @@ export default defineComponent({
 
             const result = await queryCombinedAlarm()
             commLoadResponseHandler(result, ($) => {
-                pageData.value.totalCount = $('/response/content/item').length
-                $('/response/content/item').forEach((item) => {
+                pageData.value.totalCount = $('//content/item').length
+                $('//content/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     const trigger = $item('trigger')
                     const $trigger = queryXml(trigger[0].element)
@@ -281,7 +204,7 @@ export default defineComponent({
                             switch: $trigger('preset/switch').text() == 'true',
                             presets: [],
                         },
-                        sysAudio: $trigger('sysAudio').attr('id') || defaultAudioId,
+                        sysAudio: $trigger('sysAudio').attr('id') || DEFAULT_EMPTY_ID,
                         msgPush: $trigger('msgPushSwitch').text(),
                         beeper: $trigger('buzzerSwitch').text(),
                         email: $trigger('emailSwitch').text(),
@@ -290,10 +213,10 @@ export default defineComponent({
                     } as CombinedAlarm
 
                     const audioData = pageData.value.audioList.filter((item) => {
-                        item.value == row.sysAudio
+                        return item.value === row.sysAudio
                     })
-                    if (audioData.length == 0) {
-                        row.sysAudio = defaultAudioId
+                    if (!audioData.length) {
+                        row.sysAudio = DEFAULT_EMPTY_ID
                     }
 
                     const currCombinedId = item.attr('id')!
@@ -326,7 +249,7 @@ export default defineComponent({
                                         })
                                         pageData.value.faceObj[currCombinedId] = {}
                                         pageData.value.faceObj[currCombinedId][APIChlId] = {}
-                                        pageData.value.faceObj[currCombinedId][APIChlId]['obj'] = {
+                                        pageData.value.faceObj[currCombinedId][APIChlId].obj = {
                                             duration: parseInt($faceItem('startTime').text()),
                                             delay: parseInt($faceItem('endTime').text()),
                                             faceDataBase: faceDataBase,
@@ -410,6 +333,7 @@ export default defineComponent({
                     })
                     row.name = originalName.value
                 }
+
                 for (const item of tableData.value) {
                     if (item.id != row.id && name == item.name) {
                         openMessageTipBox({
@@ -435,6 +359,7 @@ export default defineComponent({
             pageData.value.currRowFaceObj = pageData.value.faceObj[row.id]
             pageData.value.isCombinedAlarmPopOpen = true
         }
+
         const handleCombinedAlarmLinkedList = (currId: string, combinedAlarmItems: CombinedAlarmItem[], entity: string, obj: faceMatchObj) => {
             tableData.value.some((item) => {
                 if (item.id == currId) {
@@ -442,11 +367,12 @@ export default defineComponent({
                     if (entity) {
                         pageData.value.faceObj[currId] = {}
                         pageData.value.faceObj[currId][entity] = {}
-                        pageData.value.faceObj[currId][entity]['obj'] = obj
+                        pageData.value.faceObj[currId][entity].obj = obj
                     }
                 }
             })
         }
+
         const combinedAlarmClose = (id: string) => {
             pageData.value.isCombinedAlarmPopOpen = false
             tableData.value.forEach((item) => {
@@ -456,6 +382,7 @@ export default defineComponent({
                 }
             })
         }
+
         const combinedAlarmCheckChange = (row: CombinedAlarm) => {
             if (row.combinedAlarm.switch) {
                 openCombinedAlarmPop(row)
@@ -480,17 +407,20 @@ export default defineComponent({
             pageData.value.recordChosedIdsAll = []
             pageData.value.recordIsShowAll = false
         }
+
         const recordCloseAll = () => {
             pageData.value.recordChosedListAll = []
             pageData.value.recordChosedIdsAll = []
             pageData.value.recordIsShowAll = false
         }
+
         // 打开录像dialog
         const setRecord = (index: number) => {
             pageData.value.triggerDialogIndex = index
             pageData.value.recordIsShow = true
         }
-        const recordConfirm = (e: { value: string; label: string }[]) => {
+
+        const recordConfirm = (e: SelectOption<string, string>[]) => {
             const index = pageData.value.triggerDialogIndex
             if (e.length !== 0) {
                 tableData.value[index].sysRec.chls = cloneDeep(e)
@@ -502,6 +432,7 @@ export default defineComponent({
             }
             pageData.value.recordIsShow = false
         }
+
         const recordClose = () => {
             if (!tableData.value[pageData.value.triggerDialogIndex].sysRec.chls.length) {
                 tableData.value[pageData.value.triggerDialogIndex].sysRec.switch = false
@@ -526,17 +457,20 @@ export default defineComponent({
             pageData.value.snapChosedIdsAll = []
             pageData.value.snapIsShowAll = false
         }
+
         const snapCloseAll = () => {
             pageData.value.snapChosedListAll = []
             pageData.value.snapChosedIdsAll = []
             pageData.value.snapIsShowAll = false
         }
+
         // 打开抓图dialog
         const setSnap = (index: number) => {
             pageData.value.triggerDialogIndex = index
             pageData.value.snapIsShow = true
         }
-        const snapConfirm = (e: { value: string; label: string }[]) => {
+
+        const snapConfirm = (e: SelectOption<string, string>[]) => {
             const index = pageData.value.triggerDialogIndex
             if (e.length !== 0) {
                 tableData.value[index].sysSnap.chls = cloneDeep(e)
@@ -548,6 +482,7 @@ export default defineComponent({
             }
             pageData.value.snapIsShow = false
         }
+
         const snapClose = () => {
             if (!tableData.value[pageData.value.triggerDialogIndex].sysSnap.chls.length) {
                 tableData.value[pageData.value.triggerDialogIndex].sysSnap.switch = false
@@ -572,17 +507,20 @@ export default defineComponent({
             pageData.value.alarmOutChosedIdsAll = []
             pageData.value.alarmOutIsShowAll = false
         }
+
         const alarmOutCloseAll = () => {
             pageData.value.alarmOutChosedListAll = []
             pageData.value.alarmOutChosedIdsAll = []
             pageData.value.alarmOutIsShowAll = false
         }
+
         // 打开报警输出dialog
         const setAlarmOut = (index: number) => {
             pageData.value.triggerDialogIndex = index
             pageData.value.alarmOutIsShow = true
         }
-        const alarmOutConfirm = (e: { value: string; label: string }[]) => {
+
+        const alarmOutConfirm = (e: SelectOption<string, string>[]) => {
             const index = pageData.value.triggerDialogIndex
             if (e.length !== 0) {
                 tableData.value[index].alarmOut.alarmOuts = cloneDeep(e)
@@ -594,6 +532,7 @@ export default defineComponent({
             }
             pageData.value.alarmOutIsShow = false
         }
+
         const alarmOutClose = () => {
             if (!tableData.value[pageData.value.triggerDialogIndex].alarmOut.alarmOuts.length) {
                 tableData.value[pageData.value.triggerDialogIndex].alarmOut.switch = false
@@ -799,7 +738,7 @@ export default defineComponent({
                     const sendXml = getSavaData(item)
                     const result = await editCombinedAlarm(sendXml)
                     const $ = queryXml(result)
-                    const isSuccess = $('/response/status').text() === 'success'
+                    const isSuccess = $('//status').text() === 'success'
                     item.status = isSuccess ? 'success' : 'error'
                     count++
 
@@ -843,7 +782,7 @@ export default defineComponent({
             let sendXml = rawXml`<content>`
 
             combinedId.forEach((item, index) => {
-                let obj = pageData.value.faceObj[item] && pageData.value.faceObj[item][groupId[index]] && pageData.value.faceObj[item][groupId[index]]['obj']
+                let obj = pageData.value.faceObj[item] && pageData.value.faceObj[item][groupId[index]] && pageData.value.faceObj[item][groupId[index]].obj
                 if (!obj) {
                     obj = {
                         rule: '1',

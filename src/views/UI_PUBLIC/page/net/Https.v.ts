@@ -529,6 +529,7 @@ export default defineComponent({
                     Plugin.SetPluginNoResponse()
                     Plugin.ShowPluginNoResponse()
                 }
+
                 if (!newVal) {
                     // 设置OCX模式
                     const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')

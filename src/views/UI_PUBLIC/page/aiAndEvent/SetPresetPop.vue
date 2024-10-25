@@ -23,12 +23,12 @@
         >
             <el-table-column
                 prop="name"
-                width="180px"
+                width="180"
                 :label="Translate('IDCS_CHANNEL_NAME')"
             >
             </el-table-column>
             <el-table-column
-                width="178px"
+                width="178"
                 :label="Translate('IDCS_PRESET_NAME')"
             >
                 <template #default="scope">

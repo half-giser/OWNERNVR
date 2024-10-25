@@ -3,7 +3,7 @@
  * @Date: 2024-07-11 08:56:00
  * @Description: UPnP配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-21 13:44:03
+ * @LastEditTime: 2024-10-24 09:24:51
 -->
 <template>
     <div class="base-flex-box">
@@ -50,16 +50,14 @@
                         {{ displayPortType(scope.row.portType) }}
                     </template>
                 </el-table-column>
-                <el-table-column
-                    :label="Translate('IDCS_EXT_PORT')"
-                    prop="externalPort"
-                >
+                <el-table-column :label="Translate('IDCS_EXT_PORT')">
                     <template #default="scope">
                         <BaseNumberInput
                             v-model="scope.row.externalPort"
                             :min="10"
                             :max="65535"
                             :disabled="pageData.wirelessSwitch || !formData.switch || formData.mappingType !== 'manually'"
+                            value-on-clear="min"
                         />
                     </template>
                 </el-table-column>

@@ -408,9 +408,11 @@ const numToTimeStr = (timeNum: number) => {
     if (timeNum === null || timeNum === undefined) {
         throw 'timeNum can not be empty: ' + timeNum
     }
+
     if (timeNum < 0 || timeNum > maxTimeNum) {
         throw `timeNum should in [0-${maxTimeNum}]: ${timeNum}`
     }
+
     const hour = Math.floor(timeNum / 60)
     const min = timeNum % 60
     if (hour === 23 && min === 59) {
