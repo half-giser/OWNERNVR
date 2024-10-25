@@ -81,7 +81,7 @@
                                             :key="opt.value"
                                             @click="changeAllChannel(opt.value)"
                                         >
-                                            {{ Translate(opt.label) }}
+                                            {{ opt.label }}
                                         </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
@@ -95,7 +95,7 @@
                                 <el-option
                                     v-for="value in pageData.channelOptions"
                                     :key="value.value"
-                                    :label="Translate(value.label)"
+                                    :label="value.label"
                                     :value="value.value"
                                 />
                             </el-select>

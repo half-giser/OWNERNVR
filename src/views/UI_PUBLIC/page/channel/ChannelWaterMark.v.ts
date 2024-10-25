@@ -3,21 +3,18 @@
  * @Date: 2024-09-29 11:48:59
  * @Description: 水印设置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 17:47:03
+ * @LastEditTime: 2024-10-23 10:49:00
  */
 import { type ChannelWaterMarkDto } from '@/types/apiType/channel'
-import { type DropdownInstance, type TableInstance } from 'element-plus'
+import { type TableInstance } from 'element-plus'
 import { cloneDeep } from 'lodash-es'
 export default defineComponent({
     setup() {
         const { openLoading, closeLoading } = useLoading()
         const { Translate } = useLangStore()
-        // const systemCaps = useCababilityStore()
         const playerRef = ref<PlayerInstance>()
         const pluginStore = usePluginStore()
         const osType = getSystemInfo().platform
-        // 用于控制下拉菜单的打开关闭
-        const dropdownRef = ref<DropdownInstance>()
         const tableRef = ref<TableInstance>()
         const pageData = ref({
             currChlId: '',
@@ -29,25 +26,19 @@ export default defineComponent({
             customTextSetAll: '',
             notification: [] as string[],
             initComplete: false,
-            options: [
-                {
-                    label: Translate('IDCS_ON'),
-                    value: 'true',
-                },
-                {
-                    label: Translate('IDCS_OFF'),
-                    value: 'false',
-                },
-            ],
+            options: getSwitchOptions(),
             pageIndex: 1,
             pageSize: 10,
             totalCount: 0,
             pageDataCountItems: [10, 20, 30],
             editRows: [] as ChannelWaterMarkDto[],
             applyDisabled: true,
+            informationPop: false,
         })
+
         let player: PlayerInstance['player']
         let plugin: PlayerInstance['plugin']
+
         // 播放模式
         const mode = computed(() => {
             if (!playerRef.value) {
@@ -55,9 +46,11 @@ export default defineComponent({
             }
             return playerRef.value.mode
         })
+
         const ready = computed(() => {
             return playerRef.value?.ready || false
         })
+
         const handlePlayerReady = () => {
             player = playerRef.value!.player
             plugin = playerRef.value!.plugin
@@ -67,11 +60,13 @@ export default defineComponent({
                     pageData.value.notification = [formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`)]
                 }
             }
+
             if (mode.value === 'ocx') {
                 if (!plugin.IsInstallPlugin()) {
                     plugin.SetPluginNotice('#layout2Content')
                     return
                 }
+
                 if (!plugin.IsPluginAvailable()) {
                     pluginStore.showPluginNoResponse = true
                     plugin.ShowPluginNoResponse()
@@ -79,9 +74,10 @@ export default defineComponent({
                 plugin.AddPluginMoveEvent(document.getElementById('player')!)
                 const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                plugin.DisplayOCX(true)
+                // plugin.DisplayOCX(true)
             }
         }
+
         //播放视频
         const play = () => {
             const { chlName } = pageData.value.chlData
@@ -92,20 +88,21 @@ export default defineComponent({
                 })
             } else if (mode.value === 'ocx') {
                 if (osType == 'mac') {
-                    const sendXML = OCX_XML_Preview({
-                        winIndexList: [0],
-                        chlIdList: [pageData.value.chlData['chlId']],
-                        chlNameList: [pageData.value.chlData['chlName']],
-                        streamType: 'sub',
-                        chlIndexList: ['1'],
-                        chlTypeList: [pageData.value.chlData['chlType']],
-                    })
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    // const sendXML = OCX_XML_Preview({
+                    //     winIndexList: [0],
+                    //     chlIdList: [pageData.value.chlData['chlId']],
+                    //     chlNameList: [pageData.value.chlData['chlName']],
+                    //     streamType: 'sub',
+                    //     chlIndexList: ['1'],
+                    //     chlTypeList: [pageData.value.chlData['chlType']],
+                    // })
+                    // plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 } else {
                     plugin.RetryStartChlView(pageData.value.currChlId, chlName)
                 }
             }
         }
+
         // 首次加载成功 播放视频
         const stopWatchFirstPlay = watchEffect(() => {
             if (ready.value && pageData.value.initComplete) {
@@ -115,6 +112,7 @@ export default defineComponent({
                 stopWatchFirstPlay()
             }
         })
+
         const handleChlChange = (value: string) => {
             const chlData = pageData.value.chlList.filter((item) => item.chlId == value)[0] as ChannelWaterMarkDto
             pageData.value.chlData = cloneDeep(chlData)
@@ -126,6 +124,7 @@ export default defineComponent({
             tableRef.value?.setCurrentRow(getRowById(value))
             play()
         }
+
         const handleSwitchChange = (value: string) => {
             addEditRow(pageData.value.chlData)
             pageData.value.chlList.forEach((item) => {
@@ -134,24 +133,28 @@ export default defineComponent({
                 }
             })
         }
+
         const handleTableSwitchChange = (row: ChannelWaterMarkDto) => {
             if (pageData.value.currChlId == row.chlId) {
                 pageData.value.chlData.switch = row.switch
             }
             addEditRow(pageData.value.chlData)
         }
+
         const handleSwitchChangeAll = (value: string) => {
             pageData.value.chlList.forEach((item) => {
                 if (!item.disabled) {
                     item.switch = value
                     addEditRow(item)
                 }
+
                 if (pageData.value.currChlId == item.chlId) {
                     pageData.value.chlData.switch = value
                 }
             })
             pageData.value.applyDisabled = false
         }
+
         const handleFocus = (customText: string, type: string) => {
             const reg = /[^A-Za-z0-9]/g
             if (reg.test(customText)) {
@@ -171,22 +174,25 @@ export default defineComponent({
             })
             addEditRow(pageData.value.chlData)
         }
+
         const handleSetCustomTextAll = (customText: string) => {
             pageData.value.chlList.forEach((item) => {
                 if (!item.disabled) {
                     item.customText = customText
                     addEditRow(item)
                 }
+
                 if (pageData.value.currChlId == item.chlId) {
                     pageData.value.chlData.customText = customText
                 }
             })
+            pageData.value.informationPop = false
         }
+
         const handleSetCancel = () => {
-            if (dropdownRef.value) {
-                dropdownRef.value.handleClose()
-            }
+            pageData.value.informationPop = false
         }
+
         const getChannelList = async () => {
             pageData.value.initComplete = false
             const res = await getChlList({
@@ -222,8 +228,13 @@ export default defineComponent({
                 pageData.value.initComplete = true
             }
         }
+
         const getData = async (item: ChannelWaterMarkDto) => {
-            const sendXml = rawXml`<condition><chlId>${item.chlId}</chlId></condition>`
+            const sendXml = rawXml`
+                <condition>
+                    <chlId>${item.chlId}</chlId>
+                </condition>
+            `
             const res = await queryChlWaterMark(sendXml)
             const $ = queryXml(res)
             if ($('status').text() == 'success') {
@@ -248,19 +259,21 @@ export default defineComponent({
                 }
             }
         }
+
         const getSaveData = (row: ChannelWaterMarkDto) => {
             const sendXml = rawXml`
-                            <content>
-                                <chl id="${row.chlId}">
-                                    <waterMark>
-                                        <switch>${row.switch}</switch>
-                                        <customText>${row.customText.trim()}</customText>
-                                    </waterMark>
-                                </chl>
-                            </content>
-                        `
+                <content>
+                    <chl id="${row.chlId}">
+                        <waterMark>
+                            <switch>${row.switch}</switch>
+                            <customText>${row.customText.trim()}</customText>
+                        </waterMark>
+                    </chl>
+                </content>
+            `
             return sendXml
         }
+
         const setData = async () => {
             openLoading()
             pageData.value.editRows.forEach(async (item) => {
@@ -277,9 +290,11 @@ export default defineComponent({
             pageData.value.editRows = []
             pageData.value.applyDisabled = true
         }
+
         const handleApply = async () => {
             setData()
         }
+
         const handleRowClick = (rowData: ChannelWaterMarkDto) => {
             if (!rowData.disabled) {
                 pageData.value.currChlId = rowData.chlId
@@ -293,9 +308,11 @@ export default defineComponent({
                 play()
             }
         }
+
         const getRowById = (chlId: string) => {
             return pageData.value.chlList.find((element) => element.chlId == chlId) as ChannelWaterMarkDto
         }
+
         const addEditRow = (row: ChannelWaterMarkDto) => {
             // 若该行不存在于编辑行中，则添加
             const isExist = pageData.value.editRows.some((item) => item.chlId === row.chlId)
@@ -304,9 +321,11 @@ export default defineComponent({
             }
             pageData.value.applyDisabled = false
         }
+
         const changePagination = () => {
             getChannelList()
         }
+
         const changePaginationSize = () => {
             const totalPage = Math.ceil(pageData.value.totalCount / pageData.value.pageSize)
             if (pageData.value.pageIndex > totalPage) {
@@ -314,24 +333,27 @@ export default defineComponent({
             }
             getChannelList()
         }
-        onMounted(async () => {
-            await getChannelList()
+
+        onMounted(() => {
+            getChannelList()
         })
+
         onBeforeUnmount(() => {
             if (plugin?.IsPluginAvailable() && mode.value === 'ocx' && ready.value) {
                 const sendXML = OCX_XML_StopPreview('ALL')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                plugin.CloseCurPlugin(document.getElementById('player'))
+                // plugin.CloseCurPlugin(document.getElementById('player'))
             }
+
             if (mode.value === 'h5') {
                 player.destroy()
             }
         })
+
         return {
             pageData,
             handlePlayerReady,
             playerRef,
-            dropdownRef,
             tableRef,
             handleChlChange,
             handleSwitchChange,

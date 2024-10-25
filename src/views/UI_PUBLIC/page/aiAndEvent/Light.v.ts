@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-13 15:58:57
  * @Description:闪灯
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-22 17:41:21
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-24 10:29:43
  */
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import { whiteLightInfo } from '@/types/apiType/aiAndEvent'
@@ -13,7 +13,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openLoading, closeLoading } = useLoading()
         const tableData = ref<whiteLightInfo[]>([])
         const pageData = ref({
             pageIndex: 1,
@@ -25,15 +25,11 @@ export default defineComponent({
             scheduleName: '',
             scheduleChanged: false,
             scheduleList: [] as SelectOption<string, string>[],
-            enableList: [
-                { value: 'true', label: Translate('IDCS_ON') },
-                { value: 'false', label: Translate('IDCS_OFF') },
-            ],
+            enableList: getSwitchOptions(),
             lightFrequencyList: [] as SelectOption<string, string>[],
             applyDisable: true,
             initComplated: false,
             editRows: [] as whiteLightInfo[],
-            defaultSchedule: '{00000000-0000-0000-0000-000000000000}',
         })
         const buildTableData = () => {
             pageData.value.initComplated = false
@@ -45,8 +41,8 @@ export default defineComponent({
                 isSupportWhiteLightAlarmOut: true,
             }).then(async (res) => {
                 const $chl = queryXml(res)
-                pageData.value.totalCount = Number($chl('/response/content').attr('total'))
-                $chl('/response/content/item').forEach(async (item) => {
+                pageData.value.totalCount = Number($chl('//content').attr('total'))
+                $chl('//content/item').forEach(async (item) => {
                     const row = new whiteLightInfo()
                     row.id = item.attr('id')!
                     row.name = xmlParse('./name', item.element).text()
@@ -93,6 +89,7 @@ export default defineComponent({
                 }
             })
         }
+
         const getSaveData = (rowData: whiteLightInfo) => {
             if (rowData.durationTime) {
                 const sendXml = rawXml`
@@ -111,14 +108,11 @@ export default defineComponent({
                 console.log('durationTime is null')
             }
         }
+
         const getScheduleList = async () => {
             pageData.value.scheduleList = await buildScheduleList()
-            pageData.value.scheduleList.forEach((item) => {
-                if (item.value == '') {
-                    item.value = pageData.value.defaultSchedule
-                }
-            })
         }
+
         const getSchedule = async () => {
             await getScheduleList()
             queryEventNotifyParam().then((resb) => {
@@ -130,8 +124,9 @@ export default defineComponent({
             })
             pageData.value.scheduleChanged = false
         }
+
         const setData = () => {
-            openLoading(LoadingTarget.FullScreen)
+            openLoading()
             pageData.value.editRows.forEach((row) => {
                 const sendXml = getSaveData(row)
                 if (sendXml) {
@@ -149,11 +144,13 @@ export default defineComponent({
                 }
             })
             if (pageData.value.scheduleChanged == true) {
-                const scheduleSendXml = rawXml`<content>
-                                                <triggerChannelLightSchedule id="${pageData.value.schedule}">
-                                                    ${pageData.value.scheduleName}
-                                                </triggerChannelLightSchedule>
-                                            </content>`
+                const scheduleSendXml = rawXml`
+                    <content>
+                        <triggerChannelLightSchedule id="${pageData.value.schedule}">
+                            ${pageData.value.scheduleName}
+                        </triggerChannelLightSchedule>
+                    </content>
+                `
                 editEventNotifyParam(scheduleSendXml).then((resb) => {
                     const res = queryXml(resb)
                     if (res('status').text() === 'success') {
@@ -162,11 +159,13 @@ export default defineComponent({
                     pageData.value.scheduleChanged = false
                 })
             }
-            closeLoading(LoadingTarget.FullScreen)
+            closeLoading()
         }
+
         const changePagination = () => {
             buildTableData()
         }
+
         const changePaginationSize = () => {
             const totalPage = Math.ceil(pageData.value.totalCount / pageData.value.pageSize)
             if (pageData.value.pageIndex > totalPage) {
@@ -174,6 +173,7 @@ export default defineComponent({
             }
             buildTableData()
         }
+
         const getLightFrequencyLang = (value: string) => {
             switch (value) {
                 case 'high':
@@ -186,14 +186,16 @@ export default defineComponent({
                     return value
             }
         }
+
         const handleEnabelChange = (row: whiteLightInfo) => {
             setRowDisable(row)
             addEditRows(row)
             pageData.value.applyDisable = false
         }
+
         const handleEnabelChangeAll = (value: string) => {
             tableData.value.forEach((row) => {
-                if (row['enable']) {
+                if (row.enable) {
                     row.enable = value
                     setRowDisable(row)
                     addEditRows(row)
@@ -201,23 +203,27 @@ export default defineComponent({
                 }
             })
         }
+
         const handleDurationTimeChange = (row: whiteLightInfo) => {
             addEditRows(row)
             if (!row.rowDisable) pageData.value.applyDisable = false
         }
+
         const handleFrequencyTypeChange = (row: whiteLightInfo) => {
             addEditRows(row)
             if (!row.rowDisable) pageData.value.applyDisable = false
         }
+
         const handleFrequencyTypeChangeAll = (value: string) => {
             tableData.value.forEach((row) => {
-                if (!row['rowDisable'] && !(row['enable'] && row['enable'] == 'false')) {
+                if (!row.rowDisable && !(row.enable && row.enable == 'false')) {
                     row.frequencyType = value
                     addEditRows(row)
                     if (!row.rowDisable) pageData.value.applyDisable = false
                 }
             })
         }
+
         const handleDurationTimeFocus = (row: whiteLightInfo) => {
             if (row.durationTime) {
                 if (row.durationTime <= 1) {
@@ -227,24 +233,29 @@ export default defineComponent({
                 }
             }
         }
+
         const handleDurationTimeBlur = (row: whiteLightInfo) => {
             if (!row.durationTime) {
                 row.durationTime = 1
             }
+
             if (row.durationTime <= 1) {
                 row.durationTime = 1
             } else if (row.durationTime >= 60) {
                 row.durationTime = 60
             }
         }
+
         const handleDurationTimeKeydown = (row: whiteLightInfo) => {
             handleDurationTimeBlur(row)
         }
+
         const handleScheduleChange = () => {
             pageData.value.applyDisable = false
             pageData.value.scheduleChanged = true
-            pageData.value.scheduleName = pageData.value.schedule == pageData.value.defaultSchedule ? '' : pageData.value.scheduleList.find((item) => item.value == pageData.value.schedule)!.label
+            pageData.value.scheduleName = pageData.value.schedule === DEFAULT_EMPTY_ID ? '' : pageData.value.scheduleList.find((item) => item.value == pageData.value.schedule)!.label
         }
+
         const addEditRows = (row: whiteLightInfo) => {
             if (!row.rowDisable) {
                 if (!pageData.value.editRows.some((item) => item.id == row.id)) {
@@ -252,27 +263,31 @@ export default defineComponent({
                 }
             }
         }
+
         const setRowDisable = (rowData: whiteLightInfo) => {
-            const disabled = rowData['enable'] == 'false'
-            if (rowData['enable'] == '') {
-                rowData['rowDisable'] = true
-                rowData['enableDisable'] = true
-                rowData['durationTimeDisable'] = true
-                rowData['frequencyTypeDisable'] = true
+            const disabled = rowData.enable == 'false'
+            if (rowData.enable == '') {
+                rowData.rowDisable = true
+                rowData.enableDisable = true
+                rowData.durationTimeDisable = true
+                rowData.frequencyTypeDisable = true
             } else {
-                rowData['enableDisable'] = false
+                rowData.enableDisable = false
             }
+
             if (disabled) {
-                rowData['durationTimeDisable'] = true
-                rowData['frequencyTypeDisable'] = true
+                rowData.durationTimeDisable = true
+                rowData.frequencyTypeDisable = true
             } else {
-                rowData['durationTimeDisable'] = false
-                rowData['frequencyTypeDisable'] = false
+                rowData.durationTimeDisable = false
+                rowData.frequencyTypeDisable = false
             }
         }
+
         const popOpen = () => {
             pageData.value.scheduleManagePopOpen = true
         }
+
         const handleSchedulePopClose = async () => {
             pageData.value.scheduleManagePopOpen = false
             await getScheduleList()

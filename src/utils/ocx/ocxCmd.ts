@@ -946,6 +946,7 @@ export interface OcxXmlSetOSDInfo {
     timeStamp: OcxXmlSetOSDInfoOption
     deviceName: OcxXmlSetOSDInfoOption
 }
+
 /**
  * @description 设置OSD显示信息
  * @param osd
@@ -1398,6 +1399,7 @@ export interface OcxXmlSetOsdListDatum {
     y: number
     status: 'ON' | 'OFF'
 }
+
 export const OCX_XML_SetOSD = (edit: string, osdList: OcxXmlSetOsdListDatum[] = []) => {
     const osd = osdList
         .map(
@@ -2038,8 +2040,8 @@ export const parseStreamUrl = (url: string) => {
     const urlParts = url.match(/tvt:\/\/(.+):([^\/]+)\/(.*)/i)
     if (urlParts && urlParts.length > 1) {
         const result: Record<string, string> = {}
-        result['devIp'] = urlParts[1]
-        result['devPort'] = urlParts[2]
+        result.devIp = urlParts[1]
+        result.devPort = urlParts[2]
         let param = urlParts[3]
         while (param[param.length - 1] == '/') {
             param = param.substr(0, param.length - 1)

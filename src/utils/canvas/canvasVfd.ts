@@ -190,6 +190,7 @@ export default class CanvasVfd {
                         finalX = endX
                         endX = startX
                     }
+
                     if (endY < startY) {
                         finalY = endY
                         endY = startY

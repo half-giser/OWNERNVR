@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-13 15:58:40
  * @Description: 闪灯
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-22 17:23:18
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-23 20:42:56
 -->
 <template>
     <div class="base-flex-box">
@@ -24,7 +24,7 @@
             >
                 <el-table-column
                     label=" "
-                    width="50px"
+                    width="50"
                 >
                     <template #default="scope">
                         <BaseTableRowStatus :icon="scope.row.status" />
@@ -36,7 +36,7 @@
                 >
                 </el-table-column>
                 <!-- 启用 -->
-                <el-table-column prop="enable">
+                <el-table-column>
                     <template #header>
                         <el-dropdown trigger="click">
                             <BaseTableDropdownLink>
@@ -60,10 +60,7 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.enable"
-                            prop="enable"
-                            value-key="value"
                             :placeholder="Translate('IDCS_ON')"
-                            :options="pageData.enableList"
                             :disabled="scope.row.rowDisable"
                             @change="handleEnabelChange(scope.row)"
                         >
@@ -78,10 +75,7 @@
                     </template>
                 </el-table-column>
                 <!-- 闪烁时间 -->
-                <el-table-column
-                    prop="durationTime"
-                    :label="Translate('IDCS_FLASHING_TIME')"
-                >
+                <el-table-column :label="Translate('IDCS_FLASHING_TIME')">
                     <template #default="scope">
                         <el-input
                             v-model="scope.row.durationTime"
@@ -94,7 +88,7 @@
                     </template>
                 </el-table-column>
                 <!-- 闪烁频率 -->
-                <el-table-column prop="frequencyType">
+                <el-table-column>
                     <template #header>
                         <el-dropdown trigger="click">
                             <BaseTableDropdownLink>
@@ -118,10 +112,7 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.frequencyType"
-                            prop="frequencyType"
-                            value-key="value"
                             placeholder=""
-                            :options="pageData.lightFrequencyList"
                             :disabled="scope.row.frequencyTypeDisable || scope.row.rowDisable"
                             @change="handleFrequencyTypeChange(scope.row)"
                         >
@@ -159,10 +150,7 @@
             <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
                 <el-select
                     v-model="pageData.schedule"
-                    prop="schedule"
-                    value-key="value"
                     size="small"
-                    :options="pageData.scheduleList"
                     @change="handleScheduleChange()"
                 >
                     <el-option

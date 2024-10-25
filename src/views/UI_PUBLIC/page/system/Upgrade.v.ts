@@ -110,13 +110,13 @@ export default defineComponent({
                     closeAllLoading()
                 } else {
                     if (progress == '100%') {
-                        pageData.value.upgradeNote = TRANS_MAPPING['uploadReboot']
-                        openLoading(LoadingTarget.FullScreen, TRANS_MAPPING['uploadReboot'])
+                        pageData.value.upgradeNote = TRANS_MAPPING.uploadReboot
+                        openLoading(LoadingTarget.FullScreen, TRANS_MAPPING.uploadReboot)
                         //发送升级指令，但不一定会收到应答，需要延时检测重启
                         uploadTimer = reconnect()
                     } else {
                         closeAllLoading()
-                        pageData.value.upgradeNote = TRANS_MAPPING['uploading'] + '&nbsp;&nbsp;' + progress
+                        pageData.value.upgradeNote = TRANS_MAPPING.uploading + '&nbsp;&nbsp;' + progress
                     }
                 }
             }
@@ -360,10 +360,10 @@ export default defineComponent({
                     config: obj,
                     progress: (step) => {
                         pageData.value.isCheckAuth = false
-                        pageData.value.upgradeNote = `${TRANS_MAPPING['uploading']}&nbsp;&nbsp;${step}%`
+                        pageData.value.upgradeNote = `${TRANS_MAPPING.uploading}&nbsp;&nbsp;${step}%`
                         if (step === 100) {
-                            pageData.value.upgradeNote = TRANS_MAPPING['uploadReboot']
-                            openLoading(LoadingTarget.FullScreen, TRANS_MAPPING['uploadReboot'])
+                            pageData.value.upgradeNote = TRANS_MAPPING.uploadReboot
+                            openLoading(LoadingTarget.FullScreen, TRANS_MAPPING.uploadReboot)
                             uploadTimer = reconnect()
                         } else {
                             closeLoading()
@@ -484,11 +484,13 @@ export default defineComponent({
                     Plugin.SetPluginNoResponse()
                     Plugin.ShowPluginNoResponse()
                 }
+
                 if (newVal && isHttpsLogin()) {
                     // 无插件https访问时，提示不支持升级
                     pageData.value.notifications.push(formatHttpsTips(Translate('IDCS_UPGRADE')))
                     pageData.value.isUploadDisabled = true
                 }
+
                 if (!newVal) {
                     // 设置OCX模式
                     const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')

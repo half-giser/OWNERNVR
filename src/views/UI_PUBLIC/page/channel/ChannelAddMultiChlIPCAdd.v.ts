@@ -61,7 +61,7 @@ export default defineComponent({
             manufacturerMap = _manufacturerMap
             protocolList = _protocolList
             callback = _callback
-            numName = Number(localStorage.getItem(LocalCacheKey.defaultChlMaxValue))
+            numName = Number(localStorage.getItem(LocalCacheKey.KEY_DEFAULT_CHL_MAX_VALUE))
             RTSPData = []
             nonRTSPData = []
             normalChlData = []
@@ -74,6 +74,7 @@ export default defineComponent({
                 if (isArray && ((element.addrType == 'ip' && element.ip != '0.0.0.0') || (element.addrType != 'ip' && element.domain))) {
                     RTSPData.push(element)
                 }
+
                 if (!isArray && ((element.addrType == 'ip' && element.ip != '0.0.0.0') || (element.addrType != 'ip' && element.domain)) && Number(element.port) != 0 && element.userName) {
                     nonRTSPData.push(element)
                 }
@@ -96,6 +97,7 @@ export default defineComponent({
                     } else {
                         chlTypeMap[item.ip] = 'NORMAL' // 返回“fail”，代表“普通单目IPC”
                     }
+
                     if (curRequestNum == nonRTSPData.length) {
                         curRequestNum = 0
                         getExistChl((allExistChlData: ChannelInfoDto[]) => {
@@ -248,6 +250,7 @@ export default defineComponent({
                             if (visibleLight.checked && !visibleLight.disabled) {
                                 tmpSendXml += getSaveData(ele, 'NON-RTSP', 'NORMAL')
                             }
+
                             if (thermal.checked && !thermal.disabled) {
                                 tmpSendXml += getSaveData(ele, 'NON-RTSP', 'THERMAL')
                             }
@@ -304,6 +307,7 @@ export default defineComponent({
                     domainXmlStr = `<domain><![CDATA[${element.domain}]]></domain>`
                 }
             }
+
             if (chlType == 'RTSP') {
                 let manufacturerID = '1'
                 protocolList.some((ele) => {
@@ -339,7 +343,7 @@ export default defineComponent({
                         ${element.password == '******' ? '' : `<password ${getSecurityVer()}>${wrapCDATA(AES_encrypt(element.password, userSessionStore.sesionKey))}</password>`}
                         <index>0</index>
                         <manufacturer>${element.manufacturer}</manufacturer>
-                        <protocolType>${chlMapping[element.manufacturer]['protocolType']}</protocolType>
+                        <protocolType>${chlMapping[element.manufacturer].protocolType}</protocolType>
                         <productModel></productModel>
                         <accessType>${accessType}</accessType>
                         ${defaultParam}

@@ -223,10 +223,12 @@ export default defineComponent({
                             rowData.sharpenValue = rowData.sharpenDefaultValue
                             rowData.sharpenSwitch = false
                         }
+
                         if (rowData.denoiseSwitch !== undefined) {
                             rowData.denoiseValue = rowData.denoiseDefaultValue
                             rowData.denoiseSwitch = false
                         }
+
                         if (rowData.HFR !== undefined) {
                             rowData.HFR = false
                         }
@@ -247,22 +249,27 @@ export default defineComponent({
                             rowData.IRCutMode = rowData.IRCutModeDef
                             rowData.IRCutConvSen = rowData.IRCutConvSenDef
                         }
+
                         // todo
                         if (rowData.smartIrModeDefault !== undefined) {
                             rowData.smartIrMode = rowData.smartIrModeDefault
                             rowData.lightLevelValue = rowData.lightLevelDefaultValue
                         }
+
                         if (rowData.smartIrSwitchDefault !== undefined) {
                             rowData.smartIrSwitch = rowData.smartIrSwitchDefault
                             rowData.smartIrLevel = rowData.smartIrLevelDefault
                         }
+
                         if (rowData.defogSwitch !== undefined) {
                             rowData.defogValue = rowData.defogDefaultValue
                             rowData.defogSwitch = false
                         }
+
                         if (rowData.antiflicker !== undefined) {
                             rowData.antiflicker = rowData.antiflickerDefault
                         }
+
                         if (rowData.exposureMode !== undefined) {
                             rowData.exposureMode = rowData.exposureModeDefault
                             rowData.exposureModeValue = rowData.exposureModeDefaultValue
@@ -274,6 +281,7 @@ export default defineComponent({
                             rowData.gainValue = rowData.gainDefaultValue
                             rowData.gainAGC = rowData.gainAGCDefaultValue
                         }
+
                         if (rowData.shutterMode !== undefined) {
                             rowData.shutterMode = rowData.shutterModeDefault
                             rowData.shutterValue = rowData.shutterValueDefault
@@ -306,6 +314,7 @@ export default defineComponent({
                 beforeEditData = cloneDeep(row)
                 getSupportAz(row.id)
             }
+
             if (!row.disabled && !row.isSupportThermal) {
                 if (expandedRowKeys.value.includes(row.id)) {
                     expandedRowKeys.value = []
@@ -643,16 +652,19 @@ export default defineComponent({
                         rowData.brightMaxValue = Number($('content/chl/bright').attr('max'))
                         rowData.brightDefaultValue = Number($('content/chl/bright').attr('default'))
                     }
+
                     if ($('content/chl/contrast').text()) {
                         rowData.contrastMinValue = Number($('content/chl/contrast').attr('min'))
                         rowData.contrastMaxValue = Number($('content/chl/contrast').attr('max'))
                         rowData.contrastDefaultValue = Number($('content/chl/contrast').attr('default'))
                     }
+
                     if ($('content/chl/hue').text()) {
                         rowData.hueMinValue = Number($('content/chl/hue').attr('min'))
                         rowData.hueMaxValue = Number($('content/chl/hue').attr('max'))
                         rowData.hueDefaultValue = Number($('content/chl/hue').attr('default'))
                     }
+
                     if ($('content/chl/saturation').text()) {
                         rowData.saturationMinValue = Number($('content/chl/saturation').attr('min'))
                         rowData.saturationMaxValue = Number($('content/chl/saturation').attr('max'))
@@ -738,12 +750,14 @@ export default defineComponent({
                             rowData.lightLevelMaxValue = Number($('content/chl/smartIr/lightLevel_1').attr('max'))
                             rowData.lightLevelValue = Number($('content/chl/smartIr/lightLevel_1').text())
                         }
+
                         if ($('content/chl/smartIR').text()) {
                             rowData.smartIrSwitch = $('content/chl/smartIR/switch').text().length > 0 ? $('content/chl/smartIR/switch').text().toBoolean() : undefined
                             rowData.smartIrSwitchDefault = $('content/chl/smartIR/switch').attr('default')?.toBoolean()
                             rowData.smartIrLevel = $('content/chl/smartIR/level').text()
                             rowData.smartIrLevelDefault = $('content/chl/smartIR/level').attr('default')
                         }
+
                         // 透雾
                         if ($('content/chl/fogReduction/value').text()) {
                             rowData.defogValue = Number($('content/chl/fogReduction/value').text())
@@ -752,11 +766,13 @@ export default defineComponent({
                             rowData.defogMaxValue = Number($('content/chl/fogReduction/value').attr('max'))
                             rowData.defogSwitch = $('content/chl/fogReduction/switch').length > 0 ? $('content/chl/fogReduction/switch').text().toBoolean() : undefined
                         }
+
                         // 抗闪
                         if ($('content/chl/antiflicker').text()) {
                             rowData.antiflicker = $('content/chl/antiflicker').text()
                             rowData.antiflickerDefault = $('content/chl/antiflicker').attr('default')
                         }
+
                         // 曝光模式
                         if ($('content/chl/autoExposureMode/mode').text()) {
                             rowData.exposureMode = $('content/chl/autoExposureMode/mode').text()
@@ -766,6 +782,7 @@ export default defineComponent({
                             rowData.exposureModeMinValue = Number($('content/chl/autoExposureMode/value').attr('min'))
                             rowData.exposureModeMaxValue = Number($('content/chl/autoExposureMode/value').attr('max'))
                         }
+
                         // 延迟时间
                         if ($('content/chl/IRCutDelayTime').text()) {
                             rowData.delayTimeValue = Number($('content/chl/IRCutDelayTime').text())
@@ -773,11 +790,13 @@ export default defineComponent({
                             rowData.delayTimeMinValue = Number($('content/chl/IRCutDelayTime').attr('min'))
                             rowData.delayTimeMaxValue = Number($('content/chl/IRCutDelayTime').attr('max'))
                         }
+
                         // 红外模式
                         if ($('content/chl/InfraredMode').text()) {
                             rowData.InfraredMode = $('content/chl/InfraredMode').text()
                             rowData.InfraredModeDefault = $('content/chl/InfraredMode').attr('default')
                         }
+
                         // 增益限制
                         if ($('content/chl/gain/mode').text()) {
                             rowData.gainMode = $('content/chl/gain/mode').text()
@@ -802,6 +821,7 @@ export default defineComponent({
                             rowData.shutterUpLimit = $('content/chl/shutter/upLimit').text()
                             rowData.shutterUpLimitDefault = $('content/chl/shutter/upLimit').attr('default')
                         }
+
                         if (needSchedule) {
                             // todo 逻辑已修改
                             if ($('content/chl/scheduleInfo').text()) {
@@ -822,6 +842,7 @@ export default defineComponent({
                         } else {
                             rowData.supportSchedule = rowData.supportSchedule || false
                         }
+
                         // 白光灯
                         if ($('content/chl/Whitelight').text()) {
                             rowData.whitelightMode = $('content/chl/Whitelight/WhitelightMode').text()
@@ -1015,6 +1036,7 @@ export default defineComponent({
                 } else {
                     newData.supportAz = true
                 }
+
                 if (newData.supportAz) {
                     const focusType = $('types/focusType').text()
                     const reg1 = /(manual){1}/g
@@ -1141,6 +1163,7 @@ export default defineComponent({
                 return scheduleInfoEnum.filter((ele) => ele == 'time')
             }
         }
+
         const handleProgramChange = (rowData: ChannelImage) => {
             if (rowData.scheduleInfo.program == 'auto') return
             rowData.cfgFile = rowData.scheduleInfo.program
@@ -1192,6 +1215,7 @@ export default defineComponent({
                 pluginStore.showPluginNoResponse = true
                 Plugin.ShowPluginNoResponse()
             }
+
             if (playerRef.value?.mode === 'ocx') {
                 const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
                 playerRef.value?.plugin.GetVideoPlugin().ExecuteCmd(sendXML)

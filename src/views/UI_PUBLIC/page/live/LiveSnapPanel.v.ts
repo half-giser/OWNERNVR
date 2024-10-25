@@ -270,6 +270,7 @@ export default defineComponent({
             if (!getAuth(data.chlId)) {
                 return
             }
+
             if (data.type === 'face_detect' || data.type === 'face_verify') {
                 if (type === 'face') {
                     // 按右侧的比对成功的人脸库图片搜索

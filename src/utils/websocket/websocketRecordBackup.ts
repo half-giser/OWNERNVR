@@ -68,10 +68,12 @@ export default class WebsocketRecordBackup {
                 if (frameTime && !this.taskIdFrameTimeMap[this.taskId as string]) {
                     this.taskIdFrameTimeMap[this.taskId as string] = frameTime
                 }
+
                 // 每8帧执行一次刷新帧命令
                 if (frameIndex % 8 === 0 && this.canFreshFrameIndex) {
                     this.refreshFrameIndex(frameIndex)
                 }
+
                 // 每30帧通知一次帧时间
                 if (frameIndex % 30 === 0) {
                     this.onFrameTime && this.onFrameTime(frameTime, this.taskIndex)
@@ -140,6 +142,7 @@ export default class WebsocketRecordBackup {
         if (!this.canFreshFrameIndex || this.taskStatusMap[taskId] === 'done') {
             return
         }
+
         if (taskId) {
             this.taskStatusMap[taskId] = 'done'
         }
@@ -163,6 +166,7 @@ export default class WebsocketRecordBackup {
             }
             return
         }
+
         if (errorCode && errorCode !== ErrorCode.USER_ERROR_FILE_STREAM_COMPLETED) {
             // 录像流结束
             this.onerror && this.onerror(errorCode)

@@ -3,7 +3,7 @@
  * @Date: 2023-04-28 14:36:40
  * @Description:解析xml下指定路径的标签文本和属性
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-19 19:47:37
+ * @LastEditTime: 2024-10-24 10:45:41
  */
 
 /*
@@ -87,6 +87,22 @@ export class XmlElement {
     attr(attribute: string, value?: string): string | undefined {
         if (value) this.element.setAttribute(attribute, value)
         else return this.element.getAttribute(attribute) || ''
+    }
+
+    /**
+     * @description 返回status是否等于success
+     * @returns {boolean}
+     */
+    status() {
+        return xmlParse('status', this.element).text() === 'success'
+    }
+
+    /**
+     * @description 如果有错误码 返回错误码，否则返回0
+     * @returns {number}
+     */
+    errorCode() {
+        return Number(xmlParse('errorCode', this.element).text())
     }
 }
 

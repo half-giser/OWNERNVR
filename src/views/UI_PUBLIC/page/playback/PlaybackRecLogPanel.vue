@@ -3,7 +3,7 @@
  * @Date: 2024-07-31 15:32:00
  * @Description: 回放-事件列表
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-23 15:21:52
+ * @LastEditTime: 2024-10-24 09:26:33
 -->
 <template>
     <div class="log">
@@ -45,23 +45,14 @@
                     :label="Translate('IDCS_CHANNEL_NAME')"
                     prop="chlName"
                 />
-                <el-table-column
-                    :label="Translate('IDCS_START_TIME')"
-                    prop="startTime"
-                >
+                <el-table-column :label="Translate('IDCS_START_TIME')">
                     <template #default="scope">{{ displayTime(scope.row.startTime) }}</template>
                 </el-table-column>
 
-                <el-table-column
-                    :label="Translate('IDCS_END_TIME')"
-                    prop="endTime"
-                >
+                <el-table-column :label="Translate('IDCS_END_TIME')">
                     <template #default="scope">{{ displayTime(scope.row.endTime) }}</template>
                 </el-table-column>
-                <el-table-column
-                    :label="Translate('IDCS_EVENT_TYPE')"
-                    prop="event"
-                >
+                <el-table-column :label="Translate('IDCS_EVENT_TYPE')">
                     <template #header>
                         <el-popover
                             v-model:visible="pageData.eventVisible"
@@ -111,10 +102,7 @@
                     prop="duration"
                 >
                 </el-table-column>
-                <el-table-column
-                    :label="Translate('IDCS_PLAY')"
-                    prop="play"
-                >
+                <el-table-column :label="Translate('IDCS_PLAY')">
                     <template #default="scope">
                         <BaseImgSprite
                             file="play (3)"
@@ -128,7 +116,6 @@
                 <el-table-column
                     v-show="!isMac"
                     :label="Translate('IDCS_DOWNLOAD')"
-                    prop="download"
                 >
                     <template #default="scope">
                         <BaseImgSprite

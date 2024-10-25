@@ -2,13 +2,14 @@
  * @Description: AI/事件——事件通知——声音
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-13 09:23:25
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-21 15:09:17
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-24 11:10:14
  */
 import { ipcAudioForm, type AudioAlarmOut, type AudioDevice, type LocalTableRow } from '@/types/apiType/aiAndEvent'
 import { QueryNodeListDto } from '@/types/apiType/channel'
 import UploadAudioPop from './UploadAudioPop.vue'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
+import { type TableInstance } from 'element-plus'
 
 export default defineComponent({
     components: {
@@ -24,7 +25,7 @@ export default defineComponent({
         const Plugin = inject('Plugin') as PluginType
         const isSupportH5 = Plugin.IsSupportH5()
 
-        const localTableRef = ref()
+        const localTableRef = ref<TableInstance>()
 
         const ipcAudioFormData = ref(new ipcAudioForm())
         const audioAlarmOutData: Record<string, AudioAlarmOut> = {}
@@ -98,8 +99,6 @@ export default defineComponent({
             btnApplyDisabled: false,
             isImportAudioDialog: false,
             scheduleManagPopOpen: false,
-            // 本页面schedule为''无法提交，<无>转为{00000000-0000-0000-0000-000000000000}处理
-            scheduleIdNull: '{00000000-0000-0000-0000-000000000000}',
             audioSchedule: '',
             originAudioSchedule: '',
             audioScheduleList: [] as SelectOption<string, string>[],
@@ -113,13 +112,13 @@ export default defineComponent({
             queryNodeListDto.nodeType = 'chls'
             getChlList(queryNodeListDto).then((result) => {
                 commLoadResponseHandler(result, ($) => {
-                    if ($('/response/content').attr('total') == '0') {
+                    if ($('//content').attr('total') == '0') {
                         audioAlarmPageData.value.chlDisabled = true
                         changeAudioAlarmDataDisabled(true)
 
                         ipcAudioFormData.value.audioChecked = true
                     } else {
-                        $('/response/content/item').forEach((item) => {
+                        $('//content/item').forEach((item) => {
                             const $item = queryXml(item.element)
                             const id = item.attr('id') as string
                             const name = $item('name').text()
@@ -147,12 +146,12 @@ export default defineComponent({
             const result = await queryAudioAlarmOutCfg(sendXml)
             const $ = queryXml(result)
 
-            const success = $('/response/status').text() == 'success'
+            const success = $('//status').text() == 'success'
 
             const audioTypeList = [] as SelectOption<string, string>[]
             let customeAudioNum = 0 //保存已上传自定义声音的数量
 
-            $('/response/types/audioAlarmType/enum').forEach((item) => {
+            $('//types/audioAlarmType/enum').forEach((item) => {
                 audioTypeList.push({
                     value: item.text(),
                     label: item.attr('value') as string,
@@ -163,7 +162,7 @@ export default defineComponent({
             })
 
             const langArr = [] as SelectOption<string, string>[]
-            $('/response/types/audioLanguageType/enum').forEach((item) => {
+            $('//types/audioLanguageType/enum').forEach((item) => {
                 const langType = item.text()
                 if (langType == 'en-us') {
                     langArr.push({ value: langType, label: Translate('IDCS_en_US') })
@@ -180,16 +179,16 @@ export default defineComponent({
                 audioTypeList: audioTypeList,
                 customeAudioNum: customeAudioNum,
                 langArr: langArr,
-                audioSwitch: success ? $('/response/content/chl/param/switch').text() : '',
-                audioType: success ? $('/response/content/chl/param/audioType').text() : '',
-                alarmTimes: success ? Number($('/response/content/chl/param/alarmTimes').text()) : 1,
-                audioVolume: success ? Number($('/response/content/chl/param/audioVolume').text()) : 0,
-                languageType: success ? $('/response/content/chl/param/languageType').text() : '',
-                audioFormat: success ? $('/response/content/chl/param/audioParamLimit/audioFormat').text() : '',
-                sampleRate: success ? $('/response/content/chl/param/audioParamLimit/sampleRate').text() : '',
-                audioChannel: success ? $('/response/content/chl/param/audioParamLimit/audioChannel').text() : '',
-                audioDepth: success ? $('/response/content/chl/param/audioParamLimit/audioDepth').text() : '',
-                audioFileLimitSize: success ? ($('/response/content/chl/param/audioParamLimit/audioFileSize').text().split(' ').pop() as string) : '',
+                audioSwitch: success ? $('//content/chl/param/switch').text() : '',
+                audioType: success ? $('//content/chl/param/audioType').text() : '',
+                alarmTimes: success ? Number($('//content/chl/param/alarmTimes').text()) : 1,
+                audioVolume: success ? Number($('//content/chl/param/audioVolume').text()) : 0,
+                languageType: success ? $('//content/chl/param/languageType').text() : '',
+                audioFormat: success ? $('//content/chl/param/audioParamLimit/audioFormat').text() : '',
+                sampleRate: success ? $('//content/chl/param/audioParamLimit/sampleRate').text() : '',
+                audioChannel: success ? $('//content/chl/param/audioParamLimit/audioChannel').text() : '',
+                audioDepth: success ? $('//content/chl/param/audioParamLimit/audioDepth').text() : '',
+                audioFileLimitSize: success ? ($('//content/chl/param/audioParamLimit/audioFileSize').text().split(' ').pop() as string) : '',
             }
 
             if (audioAlarmPageData.value.firstId == id) {
@@ -292,6 +291,7 @@ export default defineComponent({
                 ipcAudioFormData.value.audioChecked = true
             }
         }
+
         // 声音按钮若可勾选时，取消启用需要置灰语音、次数、音量、语言
         const setEnableList = (data: AudioAlarmOut) => {
             const audioCheckEnable = data.audioSwitch && data.audioSwitch == 'false' ? true : false
@@ -402,7 +402,7 @@ export default defineComponent({
             const result = await deleteCustomizeAudioAlarm(sendXml)
             const $ = queryXml(result)
 
-            if ($('/response/status').text() == 'success') {
+            if ($('//status').text() == 'success') {
                 const chlId = ipcAudioFormData.value.audioChl
                 audioAlarmPageData.value.audioTypeList = audioAlarmPageData.value.audioTypeList.filter((item) => item.value != ipcAudioFormData.value.voice)
                 audioAlarmPageData.value.deleteAudioDisabled = true
@@ -438,8 +438,8 @@ export default defineComponent({
             const result = await auditionCustomizeAudioAlarm(sendXml)
             const $ = queryXml(result)
 
-            if ($('/response/status').text() != 'success') {
-                const errorCode = Number($('/response/errorCode').text())
+            if ($('//status').text() != 'success') {
+                const errorCode = Number($('//errorCode').text())
                 let msg = audioAlarmOutData[ipcAudioFormData.value.audioChl].name + Translate('IDCS_AUDITION_FAILED')
                 if (errorCode === ErrorCode.USER_ERROR_GET_CONFIG_INFO_FAIL) msg += Translate('IDCS_GET_CFG_FAIL')
                 openMessageTipBox({
@@ -486,7 +486,7 @@ export default defineComponent({
             }).then((result) => {
                 commLoadResponseHandler(result, ($) => {
                     changeAudioDeviceDataDisabled(true) // "声音设备"配置默认全置灰
-                    $('/response/content/item').forEach((item) => {
+                    $('//content/item').forEach((item) => {
                         const $item = queryXml(item.element)
                         const id = item.attr('id') as string
                         const name = $item('name').text()
@@ -503,22 +503,22 @@ export default defineComponent({
 
         const getAudioDeviceDataById = async (id: string, name: string) => {
             const sendXml = rawXml`
-            <condition>
-                <chlId>${id}</chlId>
-            </condition>
-            <requireField>
-                <param></param>
-            </requireField>
+                <condition>
+                    <chlId>${id}</chlId>
+                </condition>
+                <requireField>
+                    <param></param>
+                </requireField>
             `
             const result = await queryAudioStreamConfig(sendXml)
             const $ = queryXml(result)
-            const volume = $('/response/content/chl/param/volume')
+            const volume = $('//content/chl/param/volume')
             const $volume = queryXml(volume[0]?.element)
 
-            const success = $('/response/status').text() == 'success'
+            const success = $('//status').text() == 'success'
 
             const encodeType = [] as SelectOption<string, string>[]
-            $('/response/types/audioEncode/enum').forEach((item) => {
+            $('//types/audioEncode/enum').forEach((item) => {
                 encodeType.push({
                     value: item.text(),
                     label: item.text(),
@@ -526,7 +526,7 @@ export default defineComponent({
             })
 
             const inputType = [] as SelectOption<string, string>[]
-            $('/response/types/audioInput/enum').forEach((item) => {
+            $('//types/audioInput/enum').forEach((item) => {
                 inputType.push({
                     value: item.text(),
                     label: AUDIO_INPUT_MAPPING[item.text()],
@@ -534,7 +534,7 @@ export default defineComponent({
             })
 
             const outputType = [] as SelectOption<string, string>[]
-            $('/response/types/audioOutput/enum').forEach((item) => {
+            $('//types/audioOutput/enum').forEach((item) => {
                 outputType.push({
                     value: item.text(),
                     label: AUDIO_OUTPUT_MAPPING[item.text()],
@@ -549,11 +549,11 @@ export default defineComponent({
                 audioEncodeType: encodeType,
                 audioInputType: inputType,
                 audioOutputType: outputType,
-                audioInSwitch: success ? $('/response/content/chl/param/audioInSwitch').text() : '',
-                audioEncode: success ? $('/response/content/chl/param/audioEncode').text() : '',
-                audioInput: success ? $('/response/content/chl/param/audioInput').text() : '',
-                loudSpeaker: success ? $('/response/content/chl/param/loudSpeaker').text() : '',
-                audioOutput: success ? $('/response/content/chl/param/audioOutput').text() : '',
+                audioInSwitch: success ? $('//content/chl/param/audioInSwitch').text() : '',
+                audioEncode: success ? $('//content/chl/param/audioEncode').text() : '',
+                audioInput: success ? $('//content/chl/param/audioInput').text() : '',
+                loudSpeaker: success ? $('//content/chl/param/loudSpeaker').text() : '',
+                audioOutput: success ? $('//content/chl/param/audioOutput').text() : '',
                 micInVolume: success ? Number($volume('micInVolume').text()) : 0,
                 linInVolume: success ? Number($volume('linInVolume').text()) : 0,
                 audioOutVolume: success ? Number($volume('audioOutVolume').text()) : 0,
@@ -719,13 +719,10 @@ export default defineComponent({
 
         const getScheduleData = async () => {
             pageData.value.audioScheduleList = await buildScheduleList()
-            pageData.value.audioScheduleList.forEach((item) => {
-                item.value = item.value != '' ? item.value : pageData.value.scheduleIdNull
-            })
-            const result = await queryEventNotifyParam()
 
+            const result = await queryEventNotifyParam()
             commLoadResponseHandler(result, ($) => {
-                pageData.value.audioSchedule = $('/response/content/triggerChannelAudioSchedule').attr('id')
+                pageData.value.audioSchedule = $('//content/triggerChannelAudioSchedule').attr('id')
                 pageData.value.originAudioSchedule = pageData.value.audioSchedule
             })
         }
@@ -750,7 +747,7 @@ export default defineComponent({
             const result = await queryAlarmAudioCfg()
 
             commLoadResponseHandler(result, ($) => {
-                pageData.value.localTableData = $('/response/content/audioList/item').map((item) => {
+                pageData.value.localTableData = $('//content/audioList/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
                         id: item.attr('id') as string,
@@ -764,8 +761,8 @@ export default defineComponent({
         }
 
         const handleRowClick = (rowData: LocalTableRow) => {
-            localTableRef.value.clearSelection()
-            localTableRef.value.toggleRowSelection(rowData, true)
+            localTableRef.value!.clearSelection()
+            localTableRef.value!.toggleRowSelection(rowData, true)
         }
 
         const addLocalAudio = () => {
@@ -774,14 +771,14 @@ export default defineComponent({
         }
 
         const deleteLocalAudio = async () => {
-            const selectedId = localTableRef.value.getSelectionRows().map((item: LocalTableRow) => item.id)
+            const selectedId = (localTableRef.value!.getSelectionRows() as LocalTableRow[]).map((item) => item.id)
 
-            if (selectedId.length > 0) {
-                let sendXml = rawXml`<content>`
-                selectedId.forEach((item: string) => {
-                    sendXml += rawXml`<item id='${item}'></item>`
-                })
-                sendXml += rawXml`</content>`
+            if (selectedId.length) {
+                const sendXml = rawXml`
+                    <content>
+                        ${selectedId.map((item) => `<item id='${item}'></item>`).join('')}
+                    </content>
+                `
 
                 const result = await deleteAlarmAudio(sendXml)
                 commSaveResponseHadler(result)

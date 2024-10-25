@@ -152,6 +152,7 @@ export default defineComponent({
                     })
                 })
             }
+
             if ($('//content/nic/item').length) {
                 $('//content/nic/item').forEach((item, index) => {
                     const $item = queryXml(item.element)
@@ -196,6 +197,7 @@ export default defineComponent({
                                     v: $item('dns2').text(),
                                 })
                             }
+
                             if (netStatusContentNicPoe !== item.attr('id')) {
                                 array.push({
                                     i: 1,

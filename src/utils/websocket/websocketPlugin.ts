@@ -81,6 +81,7 @@ export default class WebsocketPlugin {
             this.printLog(this.wsType, 'openTip')
             this.onopenCb && this.onopenCb(event)
         }
+
         this.ws.onmessage = (event) => {
             try {
                 this.onmessageCb && this.onmessageCb(event.data)
@@ -88,6 +89,7 @@ export default class WebsocketPlugin {
                 this.onmessageCb && this.onmessageCb(event.data)
             }
         }
+
         this.ws.onerror = () => {
             if (this.wsType == 'pluginSubProcess') {
                 this.openRetryConnect()
@@ -96,6 +98,7 @@ export default class WebsocketPlugin {
                 this.onerrorCb && this.onerrorCb()
             }
         }
+
         this.ws.onclose = (event) => {
             this.printLog(this.wsType, 'closeTip')
             this.oncloseCb && this.oncloseCb(event)

@@ -10,7 +10,7 @@ import { type FormInstance, type FormRules } from 'element-plus'
 export default defineComponent({
     props: {
         scheduleList: {
-            type: Array as PropType<{ value: string; label: string }[]>,
+            type: Array as PropType<SelectOption<string, string>[]>,
             required: true,
         },
         emailData: {
@@ -87,9 +87,9 @@ export default defineComponent({
                 { value: '5', label: Translate('IDCS_WEEK_DAY_FIVE') },
                 { value: '6', label: Translate('IDCS_WEEK_DAY_SIX') },
                 { value: '7', label: Translate('IDCS_WEEK_DAY_SEVEN') },
-            ] as { value: string; label: string }[],
-            monthOption: [] as { value: string; label: string }[],
-            scheduleList: [] as { value: string; label: string }[],
+            ] as SelectOption<string, string>[],
+            monthOption: [] as SelectOption<string, string>[],
+            scheduleList: [] as SelectOption<string, string>[],
             // 添加弹窗
             popOpen: false,
         })
@@ -97,6 +97,7 @@ export default defineComponent({
             pageData.value.data.sendEmailData.reportHour = parseInt(pageData.value.time.split(':')[0])
             pageData.value.data.sendEmailData.reportMin = parseInt(pageData.value.time.split(':')[1])
         }
+
         // 原代码中显示了地址后无法隐藏，这里改为再次点击隐藏
         const handleRowClick = (row: { address: string; schedule: string; rowClicked: boolean }) => {
             row.rowClicked = !row.rowClicked
@@ -110,6 +111,7 @@ export default defineComponent({
                 }
             })
         }
+
         // 隐藏邮箱地址
         const formatAddress = (rowData: { address: string; schedule: string; rowClicked: boolean }) => {
             if (rowData.rowClicked) {
@@ -117,16 +119,18 @@ export default defineComponent({
             }
             return hideEmailAddress(rowData.address)
         }
+
         // 删除收件人
         const handleDelReceiver = (row: { address: string; schedule: string; rowClicked: boolean }) => {
             openMessageTipBox({
                 type: 'question',
-                message: Translate('IDCS_DELETE_MP_EMAIL_RECEIVER_S').formatForLang(row['address']),
+                message: Translate('IDCS_DELETE_MP_EMAIL_RECEIVER_S').formatForLang(row.address),
             }).then(() => {
                 const index = pageData.value.data.receiverData.indexOf(row)
                 pageData.value.data.receiverData.splice(index, 1)
             })
         }
+
         // 新增收件人
         const handleAddReceiver = () => {
             // 规则验证
@@ -144,10 +148,12 @@ export default defineComponent({
                 }
             })
         }
+
         const checkExist = (address: string) => {
             const result = pageData.value.data.receiverData.some((item) => item.address == address)
             return result
         }
+
         const open = () => {
             pageData.value.data.saveTargetPicture = props.emailData.saveTargetPicture
             pageData.value.data.saveSourcePicture = props.emailData.saveSourcePicture
@@ -160,6 +166,7 @@ export default defineComponent({
             pageData.value.scheduleList = props.scheduleList
             formData.value.schedule = pageData.value.scheduleList[0].value
         }
+
         /**
          * @description 关闭弹窗
          */

@@ -28,6 +28,17 @@ export default defineComponent({
             CVI: Translate('IDCS_SIGNAL_CVI'),
             AUTO: Translate('IDCS_SIGNAL_AUTO'),
         }
+        const analogIpOptions = [
+            {
+                label: Translate('IDCS_SIGNAL_ANALOG'),
+                value: 'Analog',
+            },
+            {
+                label: Translate('IDCS_SIGNAL_IP'),
+                value: 'IP',
+            },
+        ]
+        const switchOptions = getBoolSwitchOptions()
         const chls: number[] = []
         let chlSupSignalType: string[] = []
 
@@ -43,6 +54,7 @@ export default defineComponent({
                     rowData.analogIp = 'Analog'
                     return
                 }
+
                 if (count >= switchableIpChlMaxCount) {
                     openMessageTipBox({
                         type: 'info',
@@ -97,6 +109,7 @@ export default defineComponent({
                 })
                 hasChangeIP = true
             }
+
             if ((switchIpChlRange[0] && 1 < switchIpChlRange[0] && val == 'IP') || (switchIpChlRange[1] && tableData.value.length > switchIpChlRange[1] && val == 'IP')) {
                 tableData.value.forEach((ele) => {
                     if (ele.id > switchIpChlRange[0] && ele.id < switchIpChlRange[1]) changeIpRowData.push(ele)
@@ -106,16 +119,17 @@ export default defineComponent({
                     message: Translate('IDCS_ANALOG_SWITCH_RANGE_ERROR').formatForLang(switchIpChlRange[0], switchIpChlRange[1]),
                 })
             }
+
             if (guidAnalog && val == 'Analog') {
                 openMessageTipBox({
                     type: 'info',
                     message: Translate('IDCS_SIGNAL_IP_TO_ANALOG_TIP'),
                 })
-                // todo 老代码意义不明
-                // tableData.value.forEach((ele) => (ele.analogIp = 'IP'))
+                tableData.value.forEach((ele) => (ele.analogIp = 'IP'))
                 guidAnalog = false
                 return
             }
+
             if (changeIpRowData.length > 0 || hasChangeIP) {
                 changeIpRowData.forEach((ele) => {
                     ele.showLite = false
@@ -136,6 +150,7 @@ export default defineComponent({
                 })
                 tableData.value.forEach((ele) => (ele.analogIp = val))
             }
+
             if (val == 'IP') {
                 ipChlMaxCount.value = ipChlMaxCountOriginal + switchableIpChlMaxCount
             } else {
@@ -210,7 +225,7 @@ export default defineComponent({
                 if (supportCvi)
                     chlSupSignalTypeList.value.push({
                         value: 'CVI',
-                        text: signalTrasMap['CVI'],
+                        text: signalTrasMap.CVI,
                     })
 
                 if ($('status').text() == 'success') {
@@ -261,6 +276,7 @@ export default defineComponent({
                     }
                 }
             }
+
             if (changeAnalogIp) {
                 openMessageTipBox({
                     type: 'question',
@@ -288,14 +304,12 @@ export default defineComponent({
                     <channelSignalType>${channelSignalTypeList.join(':')}</channelSignalType>
                     ${supportChannelSignalLite ? '<channelSignalLite>' + channelSignalLiteList.join(':') + '</channelSignalLite>' : ''}
                 </content>`
-            console.log(data)
-            // return
 
-            // openLoading()
-            // editBasicCfg(data).then(() => {
-            //     closeLoading()
-            //     btnOkDisabled.value = true
-            // })
+            openLoading()
+            editBasicCfg(data).then(() => {
+                closeLoading()
+                btnOkDisabled.value = true
+            })
         }
 
         const initData = () => {
@@ -321,6 +335,8 @@ export default defineComponent({
             handleSignalChangeAll,
             handleLiteChangeAll,
             save,
+            analogIpOptions,
+            switchOptions,
         }
     },
 })

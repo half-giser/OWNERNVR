@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-10-23 15:46:35
  * @Description: 报警图像上传
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-23 17:23:49
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-24 09:33:40
 -->
 <template>
     <div class="base-flex-box">
@@ -17,11 +17,7 @@
             }"
         >
             <el-form-item :label="Translate('IDCS_ALARM_TYPE')">
-                <el-select
-                    v-model="pageData.alarmType"
-                    value-key="value"
-                    :options="pageData.alarmTypeList"
-                >
+                <el-select v-model="pageData.alarmType">
                     <el-option
                         v-for="item in pageData.alarmTypeList"
                         :key="item.value"
@@ -53,10 +49,7 @@
                 >
                 </el-table-column>
                 <!-- 预截图时间 -->
-                <el-table-column
-                    prop="preTime"
-                    min-width="27%"
-                >
+                <el-table-column min-width="27%">
                     <template #header>
                         <el-dropdown trigger="click">
                             <BaseTableDropdownLink>
@@ -80,9 +73,6 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.preTime"
-                            prop="enable"
-                            value-key="value"
-                            :options="pageData.pretimeList"
                             :disabled="scope.row.rowDisable"
                         >
                             <el-option
@@ -96,10 +86,7 @@
                     </template>
                 </el-table-column>
                 <!-- 截图持续时间 -->
-                <el-table-column
-                    prop="saveTime"
-                    min-width="27%"
-                >
+                <el-table-column min-width="27%">
                     <template #header>
                         <el-dropdown trigger="click">
                             <BaseTableDropdownLink>
@@ -123,9 +110,6 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.saveTime"
-                            prop="enable"
-                            value-key="value"
-                            :options="pageData.saveTimeList"
                             :disabled="scope.row.rowDisable"
                         >
                             <el-option

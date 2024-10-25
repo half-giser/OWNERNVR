@@ -49,6 +49,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PROMPT_USERNAME_EMPTY')))
                             return
                         }
+
                         if (!checkIllegalChar(value)) {
                             callback(new Error(Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS')))
                             return
@@ -65,10 +66,12 @@ export default defineComponent({
                             callback()
                             return
                         }
+
                         if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
                         }
+
                         if (strength.value < 2) {
                             callback(new Error(Translate('IDCS_PWD_STRONG_ERROR')))
                             return

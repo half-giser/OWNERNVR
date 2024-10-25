@@ -148,12 +148,15 @@ export default defineComponent({
             if (!chlID.value) {
                 return true
             }
+
             if (prop.winData.PLAY_STATUS === 'stop' || (!prop.auth.hasAll && !prop.auth.lp[chlID.value])) {
                 return true
             }
+
             if (prop.winData.isPolling) {
                 return true
             }
+
             if (prop.winData.PLAY_STATUS === 'play') {
                 return false
             }
@@ -165,9 +168,11 @@ export default defineComponent({
             if (!chlID.value) {
                 return true
             }
+
             if (prop.winData.PLAY_STATUS === 'stop' || (!prop.auth.hasAll && !prop.auth.lp[chlID.value])) {
                 return true
             }
+
             if (prop.winData.PLAY_STATUS === 'play') {
                 if (prop.winData.isDwellPlay) {
                     return true
@@ -439,6 +444,7 @@ export default defineComponent({
             } else {
                 streamFormData.value.quality = value[0]
             }
+
             if (pageData.value.bitType === 'CBR') {
                 const find = pageData.value.qualityOptions.find((item) => {
                     return item.res === streamFormData.value.resolution && item.enct === pageData.value.enct
@@ -457,6 +463,7 @@ export default defineComponent({
             if (prop.winData.streamType === type) {
                 return
             }
+
             if (streamTypeDisabled.value && pageData.value.isRTSP && type === 1) {
                 return
             }

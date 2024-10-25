@@ -3,7 +3,7 @@
  * @Date: 2024-05-30 10:25:04
  * @Description: websocket命令生成工具
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-03 11:20:36
+ * @LastEditTime: 2024-10-24 20:13:30
  */
 
 /**
@@ -74,7 +74,7 @@ export const REC_EVENT_TYPES = [
  * @description 生成basic数据
  */
 export const getBasic = () => {
-    const requestBasicId = sessionStorage.getItem('requestBasicId')
+    const requestBasicId = sessionStorage.getItem(LocalCacheKey.KEY_REQUEST_BASIC_ID)
     const id = requestBasicId ? Number(requestBasicId) : 0
     const newId = id && id < Number.MAX_SAFE_INTEGER ? id + 1 : 1
     return {

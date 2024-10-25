@@ -15,7 +15,7 @@
         @open="open"
     >
         <el-form
-            label-width="100px"
+            label-width="100"
             label-position="left"
         >
             <el-form-item :label="Translate('IDCS_PATH')">

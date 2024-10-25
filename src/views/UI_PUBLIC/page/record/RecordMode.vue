@@ -47,11 +47,11 @@
                     <el-table-column
                         :label="Translate('IDCS_CHANNEL_NAME')"
                         prop="name"
-                        width="190px"
+                        width="190"
                     />
 
                     <!-- 传感器录像排程 -->
-                    <el-table-column width="210px">
+                    <el-table-column width="210">
                         <template #header>
                             <el-dropdown trigger="click">
                                 <BaseTableDropdownLink>
@@ -86,7 +86,7 @@
                     </el-table-column>
 
                     <!-- 移动录像排程 -->
-                    <el-table-column width="210px">
+                    <el-table-column width="210">
                         <template #header>
                             <el-dropdown trigger="click">
                                 <BaseTableDropdownLink>
@@ -121,7 +121,7 @@
                     </el-table-column>
 
                     <!-- AI录像排程 -->
-                    <el-table-column width="210px">
+                    <el-table-column width="210">
                         <template #header>
                             <el-dropdown trigger="click">
                                 <BaseTableDropdownLink>
@@ -158,7 +158,7 @@
                     <!-- POS录像排程 -->
                     <el-table-column
                         v-if="supportPOS"
-                        width="210px"
+                        width="210"
                     >
                         <template #header>
                             <el-dropdown trigger="click">
@@ -194,7 +194,7 @@
                     </el-table-column>
 
                     <!-- 定时录像排程 -->
-                    <el-table-column width="210px">
+                    <el-table-column width="210">
                         <template #header>
                             <el-dropdown trigger="click">
                                 <BaseTableDropdownLink>

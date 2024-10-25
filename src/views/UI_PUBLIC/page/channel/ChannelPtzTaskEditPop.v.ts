@@ -190,7 +190,7 @@ export default defineComponent({
             if (formData.value.type === 'NON') {
                 pageData.value.nameOptions = [
                     {
-                        label: NAME_TRANS_MAPPING['NO'],
+                        label: NAME_TRANS_MAPPING.NO,
                         value: 'NO',
                     },
                 ]
@@ -215,6 +215,7 @@ export default defineComponent({
                     },
                 ]
             }
+
             if (pageData.value.nameOptions.length) {
                 formData.value.name = pageData.value.nameOptions[0].value
             }

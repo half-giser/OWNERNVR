@@ -22,7 +22,6 @@
                     width="80"
                 />
                 <el-table-column
-                    prop="name"
                     :label="Translate('IDCS_CHANNEL_NAME')"
                     min-width="200"
                 >
@@ -60,7 +59,6 @@
                     </template>
                 </el-table-column>
                 <el-table-column
-                    prop="manufacturer"
                     :label="Translate('IDCS_PROTOCOL')"
                     min-width="140"
                 >
@@ -146,7 +144,6 @@
                     </template>
                 </el-table-column>
                 <el-table-column
-                    prop="setting"
                     :label="Translate('IDCS_CONFIGURATION')"
                     width="80"
                 >
@@ -163,7 +160,6 @@
                     </template>
                 </el-table-column>
                 <el-table-column
-                    prop="upgrade"
                     :label="Translate('IDCS_UPGRADE')"
                     width="80"
                 >

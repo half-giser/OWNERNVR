@@ -2,16 +2,16 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-21 15:34:24
  * @Description: 异常报警
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-23 10:48:09
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-24 16:45:24
 -->
 <template>
     <div class="base-flex-box">
         <BaseTransferDialog
             v-model="pageData.alarmOutIsShow"
-            :header-title="pageData.alarmOutHeaderTitle"
-            :source-title="pageData.alarmOutSourceTitle"
-            :target-title="pageData.alarmOutTargetTitle"
+            header-title="IDCS_TRIGGER_ALARM_OUT"
+            source-title="IDCS_ALARM_OUT"
+            target-title="IDCS_TRIGGER_ALARM_OUT"
             :source-data="pageData.alarmOutList"
             :linked-list="tableData[pageData.triggerDialogIndex]?.alarmOutList || []"
             :type="pageData.alarmOutType"
@@ -29,19 +29,17 @@
             >
                 <!-- 事件类型 -->
                 <el-table-column
-                    prop="eventType"
                     :label="Translate('IDCS_EVENT_TYPE')"
-                    width="375px"
+                    width="375"
                 >
                     <template #default="scope">
-                        <span>{{ formatEventType(scope.row.eventType) }}</span>
+                        {{ formatEventType(scope.row.eventType) }}
                     </template>
                 </el-table-column>
                 <!-- 音频   -->
                 <el-table-column
                     v-if="pageData.supportAudio"
-                    prop="sysAudio"
-                    width="155px"
+                    width="155"
                 >
                     <template #header>
                         <el-dropdown trigger="click">
@@ -66,11 +64,8 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.sysAudio"
-                            prop="sysAudio"
-                            value-key="value"
                             size="small"
                             :disabled="scope.row.rowDisable"
-                            :options="pageData.audioList"
                             @change="addEditRow()"
                         >
                             <el-option
@@ -84,10 +79,7 @@
                     </template>
                 </el-table-column>
                 <!-- 消息推送   -->
-                <el-table-column
-                    prop="msgPush"
-                    width="194px"
-                >
+                <el-table-column width="194">
                     <template #header>
                         <el-dropdown trigger="click">
                             <BaseTableDropdownLink>
@@ -111,11 +103,8 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.msgPush"
-                            prop="schedule"
-                            value-key="value"
                             size="small"
                             :disabled="scope.row.rowDisable"
-                            :options="pageData.enableList"
                             @change="addEditRow()"
                         >
                             <el-option
@@ -129,10 +118,7 @@
                     </template>
                 </el-table-column>
                 <!-- 报警输出   -->
-                <el-table-column
-                    prop="alarmOut"
-                    width="215px"
-                >
+                <el-table-column width="215">
                     <template #header>
                         <el-popover
                             v-model:visible="pageData.alarmOutPopoverVisible"
@@ -147,8 +133,8 @@
                             </template>
                             <BaseTransferPop
                                 v-if="pageData.alarmOutPopoverVisible"
-                                :source-title="pageData.alarmOutSourceTitle"
-                                :target-title="pageData.alarmOutTargetTitle"
+                                source-title="IDCS_ALARM_OUT"
+                                target-title="IDCS_ALARM_OUT"
                                 :source-data="pageData.alarmOutList"
                                 :linked-list="pageData.alarmOutChosedIdsAll"
                                 :type="pageData.alarmOutType"
@@ -176,10 +162,7 @@
                     </template>
                 </el-table-column>
                 <!-- 蜂鸣器   -->
-                <el-table-column
-                    prop="beeper"
-                    width="260px"
-                >
+                <el-table-column width="260">
                     <template #header>
                         <el-dropdown trigger="click">
                             <BaseTableDropdownLink>
@@ -203,11 +186,8 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.beeper"
-                            prop="beeper"
-                            value-key="value"
                             size="small"
                             :disabled="scope.row.rowDisable"
-                            :options="pageData.enableList"
                             @change="addEditRow()"
                         >
                             <el-option
@@ -221,10 +201,7 @@
                     </template>
                 </el-table-column>
                 <!-- 消息框弹出   -->
-                <el-table-column
-                    prop="msgBoxPopup"
-                    width="260px"
-                >
+                <el-table-column width="260">
                     <template #header>
                         <el-dropdown trigger="click">
                             <BaseTableDropdownLink>
@@ -248,11 +225,8 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.msgBoxPopup"
-                            prop="msgBoxPopup"
-                            value-key="value"
                             size="small"
                             :disabled="scope.row.rowDisable"
-                            :options="pageData.enableList"
                             @change="addEditRow()"
                         >
                             <el-option
@@ -266,10 +240,7 @@
                     </template>
                 </el-table-column>
                 <!-- email   -->
-                <el-table-column
-                    prop="email"
-                    width="260px"
-                >
+                <el-table-column width="260">
                     <template #header>
                         <el-dropdown trigger="click">
                             <BaseTableDropdownLink> Email </BaseTableDropdownLink>
@@ -291,11 +262,8 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.email"
-                            prop="email"
-                            value-key="value"
                             size="small"
                             :disabled="scope.row.rowDisable || scope.row.emailDisable"
-                            :options="pageData.enableList"
                             @change="addEditRow()"
                         >
                             <el-option

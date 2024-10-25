@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-12 15:00:13
  * @Description: 过线检测
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-22 10:56:01
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-23 20:05:15
 -->
 <template>
     <div>
@@ -18,19 +18,20 @@
             :email-data="pageData.emailData"
             @close="handleMorePopClose"
         ></PassLineEmailPop>
-        <div
+        <BaseNotification v-model:notifications="pageData.notification" />
+        <!-- <div
             v-if="pageData.notSupportTipShow"
             class="base-ai-not-support-box"
         >
             {{ Translate('IDCS_CURRENT_INTEL_EVENT_UNSUPORT') }}
-        </div>
+        </div> -->
         <div
             v-if="pageData.requireDataFail"
             class="base-ai-not-support-box"
         >
             {{ Translate('IDCS_QUERY_DATA_FAIL') }}
         </div>
-        <div v-if="!pageData.notSupportTipShow && !pageData.requireDataFail">
+        <div v-if="!pageData.requireDataFail">
             <!-- 检测开启 -->
             <div
                 class="base-btn-box padding collapse"
@@ -160,8 +161,6 @@
                                 <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
                                     <el-select
                                         v-model="pageData.passLineSchedule"
-                                        value-key="value"
-                                        :options="pageData.scheduleList"
                                         size="small"
                                         @change="pageData.applyDisable = false"
                                     >
@@ -203,9 +202,7 @@
                                 <el-form-item :label="Translate('IDCS_DIRECTION')">
                                     <el-select
                                         v-model="pageData.direction"
-                                        value-key="value"
                                         size="small"
-                                        :options="pageData.directionList"
                                         @change="handleDirectionChange"
                                     >
                                         <el-option
@@ -246,9 +243,7 @@
                                     <el-select
                                         v-model="pageData.countTimeType"
                                         :disabled="!pageData.autoReset"
-                                        value-key="value"
                                         size="small"
-                                        :options="pageData.countCycleTypeList"
                                         @change="pageData.applyDisable = false"
                                     >
                                         <el-option
@@ -270,9 +265,7 @@
                                         v-if="pageData.countTimeType === 'week'"
                                         v-model="pageData.countPeriod['week'].date"
                                         :disabled="!pageData.autoReset"
-                                        value-key="value"
                                         size="small"
-                                        :options="pageData.weekOption"
                                         @change="pageData.applyDisable = false"
                                     >
                                         <el-option
@@ -286,9 +279,7 @@
                                         v-if="pageData.countTimeType === 'month'"
                                         v-model="pageData.countPeriod['month'].date"
                                         :disabled="!pageData.autoReset"
-                                        value-key="value"
                                         size="small"
-                                        :options="pageData.monthOption"
                                         @change="pageData.applyDisable = false"
                                     >
                                         <el-option
@@ -347,7 +338,7 @@
                         >
                             <el-form
                                 :model="pageData"
-                                label-width="150px"
+                                label-width="150"
                                 label-position="left"
                                 :style="{
                                     '--form-input-width': '215px',
@@ -360,8 +351,6 @@
                                 <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
                                     <el-select
                                         v-model="pageData.cpcSchedule"
-                                        value-key="value"
-                                        :options="pageData.scheduleList"
                                         size="small"
                                         @change="pageData.applyDisable = false"
                                     >
@@ -386,9 +375,7 @@
                                 <el-form-item :label="Translate('IDCS_DURATION')">
                                     <el-select
                                         v-model="pageData.holdTime"
-                                        value-key="value"
                                         size="small"
-                                        :options="pageData.holdTimeList"
                                         @change="pageData.applyDisable = false"
                                     >
                                         <el-option
@@ -403,9 +390,7 @@
                                 <el-form-item :label="Translate('IDCS_SENSITIVITY')">
                                     <el-select
                                         v-model="pageData.detectSensitivity"
-                                        value-key="value"
                                         size="small"
-                                        :options="pageData.detectSensitivityList"
                                         @change="pageData.applyDisable = false"
                                     >
                                         <el-option
@@ -420,9 +405,7 @@
                                 <el-form-item :label="Translate('IDCS_STATISTICALCYCLE')">
                                     <el-select
                                         v-model="pageData.statisticalPeriod"
-                                        value-key="value"
                                         size="small"
-                                        :options="pageData.statisticalPeriodList"
                                         @change="pageData.applyDisable = false"
                                     >
                                         <el-option

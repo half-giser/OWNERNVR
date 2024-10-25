@@ -218,6 +218,7 @@ export default defineComponent({
                     if (!motions.length || motions.includes('None')) {
                         return true
                     }
+
                     // 不包括“无”：如果选择了Motion类型则显示选中的目标类型结果；否则显示空数据
                     if (events.includes('MOTION')) {
                         return motions.includes(item.event) || motions.includes(item.recSubType)

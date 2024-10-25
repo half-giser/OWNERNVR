@@ -190,9 +190,9 @@ export const useUserSessionStore = defineStore(
          * @description P2P登录情况下，从SessionStorage中获取auInfo_N9K、unmask、sn等信息
          */
         const getP2PSessionInfo = () => {
-            auInfo_N9K.value = sessionStorage.getItem('auInfo_N9K') || ''
-            unmask.value = Number(sessionStorage.getItem('unmask'))
-            sn.value = sessionStorage.getItem('sn') || ''
+            auInfo_N9K.value = sessionStorage.getItem(LocalCacheKey.KEY_AU_INFO_N9K) || ''
+            unmask.value = Number(sessionStorage.getItem(LocalCacheKey.KEY_UNMASK))
+            sn.value = sessionStorage.getItem(LocalCacheKey.KEY_SN) || ''
         }
 
         /**
@@ -213,9 +213,9 @@ export const useUserSessionStore = defineStore(
             pwdExpired.value = false
             refreshLoginPage.value = false
             p2pSessionId.value = null
-            sessionStorage.removeItem('auInfo_N9K')
-            sessionStorage.removeItem('unmask')
-            sessionStorage.removeItem('sn')
+            sessionStorage.removeItem(LocalCacheKey.KEY_AU_INFO_N9K)
+            sessionStorage.removeItem(LocalCacheKey.KEY_UNMASK)
+            sessionStorage.removeItem(LocalCacheKey.KEY_SN)
         }
 
         return {

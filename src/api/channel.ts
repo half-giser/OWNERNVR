@@ -1,7 +1,7 @@
 /*
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-05-08 16:57:18
- * @Description:
+ * @Description: 通道API
  */
 
 // import type { AxiosRequestConfig } from 'axios'
@@ -360,3 +360,17 @@ export const editPtzProtocol = (data: string) => http.fetch('editPtzProtocol', g
  * @returns
  */
 export const ptz3DControl = (data: string) => http.fetch('ptz3DControl', getXmlWrapData(data))
+
+/**
+ * @description 查询LOGO信息
+ * @param {string} data
+ * @returns
+ */
+export const queryIPChlORChlLogo = (data: string) => http.fetch('queryIPChlORChlLogo', getXmlWrapData(data))
+
+/**
+ * @description 编辑LOGO信息
+ * @param {string} data
+ * @returns
+ */
+export const editIPChlORChlLogo = (data: string) => http.fetch('editIPChlORChlLogo', getXmlWrapData(data))

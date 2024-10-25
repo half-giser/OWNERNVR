@@ -3,7 +3,7 @@
  * @Date: 2024-05-04 12:58:39
  * @Description: 查看或更改用户
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 09:34:17
+ * @LastEditTime: 2024-10-24 09:46:12
 -->
 <template>
     <div class="User">
@@ -69,13 +69,8 @@
                             <el-table-column
                                 prop="name"
                                 :label="Translate('IDCS_CHANNEL')"
-                            >
-                                <template #default="scope">
-                                    <el-tooltip :content="scope.row.name">
-                                        <div class="ellipsis">{{ scope.row.name }}</div>
-                                    </el-tooltip>
-                                </template>
-                            </el-table-column>
+                                show-overflow-tooltip
+                            />
                             <el-table-column
                                 v-for="(item, key) in pageData.localChannelIds"
                                 :key
@@ -98,13 +93,8 @@
                             <el-table-column
                                 prop="name"
                                 :label="Translate('IDCS_CHANNEL')"
-                            >
-                                <template #default="scope">
-                                    <el-tooltip :content="scope.row.name">
-                                        <div class="ellipsis">{{ scope.row.name }}</div>
-                                    </el-tooltip>
-                                </template>
-                            </el-table-column>
+                                show-overflow-tooltip
+                            />
                             <el-table-column
                                 v-for="(item, key) in pageData.remoteChannelIds"
                                 :key
@@ -137,16 +127,12 @@
                     :label="Translate('IDCS_USERNAME')"
                 >
                 </el-table-column>
-                <el-table-column
-                    prop="authGroupName"
-                    :label="Translate('IDCS_RIGHT_GROUP')"
-                    :formatter="(row, column, value) => displayAuthGroup(value)"
-                >
+                <el-table-column :label="Translate('IDCS_RIGHT_GROUP')">
+                    <template #default="scope">
+                        {{ displayAuthGroup(scope.row.authGroupName) }}
+                    </template>
                 </el-table-column>
-                <el-table-column
-                    :label="Translate('IDCS_EDIT')"
-                    prop="edit"
-                >
+                <el-table-column :label="Translate('IDCS_EDIT')">
                     <template #default="scope">
                         <BaseImgSprite
                             v-show="scope.row.edit"
@@ -158,10 +144,7 @@
                         />
                     </template>
                 </el-table-column>
-                <el-table-column
-                    prop="del"
-                    :label="Translate('IDCS_DELETE')"
-                >
+                <el-table-column :label="Translate('IDCS_DELETE')">
                     <template #default="scope">
                         <BaseImgSprite
                             v-show="scope.row.del"

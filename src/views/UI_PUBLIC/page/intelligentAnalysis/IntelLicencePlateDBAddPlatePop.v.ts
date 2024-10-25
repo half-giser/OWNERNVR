@@ -281,9 +281,11 @@ export default defineComponent({
                 formData.value.ownerPhone = prop.data.ownerPhone || ''
                 formData.value.vehicleType = prop.data.vehicleType || ''
             }
+
             if (prop.type === 'register') {
                 formData.value.plateNumber = !prop.data.plateNumber || prop.data.plateNumber === '--' ? '' : prop.data.plateNumber
             }
+
             await getGroupList()
             if (pageData.value.groupList.length) {
                 if (!prop.data.groupId) {

@@ -50,7 +50,6 @@
                     </template>
                 </el-table-column>
                 <el-table-column
-                    prop="password"
                     :label="Translate('IDCS_PASSWORD')"
                     width="170"
                 >

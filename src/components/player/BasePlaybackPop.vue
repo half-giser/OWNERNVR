@@ -269,6 +269,7 @@ const play = () => {
             showPos: current.value.eventList.includes('POS'),
         })
     }
+
     if (mode.value === 'ocx') {
         pageData.value.progress = startTimeStamp.value
         pageData.value.stop = false
@@ -302,10 +303,12 @@ const pause = () => {
     if (pageData.value.iconDisabled) {
         return
     }
+
     if (playerRef.value?.mode === 'h5') {
         playerRef.value.player.pause(0)
         pageData.value.paused = true
     }
+
     if (playerRef.value?.mode === 'ocx') {
         const sendXML = OCX_XML_SetPlayStatus('FORWARDS_PAUSE', 0)
         playerRef.value.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
@@ -353,6 +356,7 @@ const stop = () => {
         pageData.value.paused = true
         pageData.value.stop = true
     }
+
     if (mode.value === 'ocx') {
         const sendXML = OCX_XML_SetPlayStatus('STOP')
         playerRef.value!.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
@@ -371,6 +375,7 @@ const seek = (timestamp: number) => {
         playerRef.value!.player.seek(Math.floor(timestamp))
         pageData.value.paused = false
     }
+
     if (mode.value === 'ocx') {
         const sendXML = OCX_XML_RecCurPlayTime([
             {

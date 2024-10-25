@@ -74,6 +74,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
                             return
                         }
+
                         if (prop.cruise.map((item) => item.name).includes(value.trim())) {
                             callback(new Error(Translate('IDCS_PROMPT_CRUISE_NAME_EXIST')))
                             return

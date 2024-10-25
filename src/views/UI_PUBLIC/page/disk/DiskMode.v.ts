@@ -78,6 +78,7 @@ export default defineComponent({
                     default:
                         break
                 }
+
                 if (errorInfo) {
                     openMessageTipBox({
                         type: 'info',

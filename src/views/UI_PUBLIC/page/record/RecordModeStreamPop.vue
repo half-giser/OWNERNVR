@@ -2,14 +2,14 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-07-29 14:15:40
  * @Description: 自动模式通道码流参数配置
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-16 17:51:47
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-23 19:51:20
 -->
 <template>
     <el-dialog
         draggable
         center
-        width="1270px"
+        width="1270"
         :title="pageData.mainTitle"
         :close-on-click-modal="false"
         :destroy-on-close="true"

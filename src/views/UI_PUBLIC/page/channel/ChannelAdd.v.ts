@@ -185,8 +185,8 @@ export default defineComponent({
                         return getIpNumber(ele2.ip) - getIpNumber(ele1.ip)
                     })
                     rowData.sort((ele1, ele2) => {
-                        const activate1 = ele1['activateStatus'] == 'UNACTIVATED' ? 1 : ele1['activateStatus'] == 'UNKNOWN' ? 0 : -1
-                        const activate2 = ele2['activateStatus'] == 'UNACTIVATED' ? 1 : ele2['activateStatus'] == 'UNKNOWN' ? 0 : -1
+                        const activate1 = ele1.activateStatus == 'UNACTIVATED' ? 1 : ele1.activateStatus == 'UNKNOWN' ? 0 : -1
+                        const activate2 = ele2.activateStatus == 'UNACTIVATED' ? 1 : ele2.activateStatus == 'UNKNOWN' ? 0 : -1
                         return activate2 - activate1
                     })
                     quickAddTableData.value = rowData
@@ -319,8 +319,8 @@ export default defineComponent({
                             row.portDisabled = true
                         } else {
                             let defaultPort = 80
-                            if (mapping.value[val]['protocolType'] == 'TVT_IPCAMERA') {
-                                if (mapping.value[val]['displayName'] == 'Speco') {
+                            if (mapping.value[val].protocolType == 'TVT_IPCAMERA') {
+                                if (mapping.value[val].displayName == 'Speco') {
                                     defaultPort = 554
                                 } else {
                                     defaultPort = 9008
@@ -329,7 +329,7 @@ export default defineComponent({
                                 defaultPort = 80
                             }
                             row.port = defaultPort
-                            row.userName = mapping.value[val]['userName']
+                            row.userName = mapping.value[val].userName
                             row.password = '******'
                             row.portDisabled = false
                         }
@@ -413,6 +413,7 @@ export default defineComponent({
         const handleSetDefaultPwd = () => {
             setDefaultPwdPopVisiable.value = true
         }
+
         const closeSetDefaultPwdPop = () => {
             setDefaultPwdPopVisiable.value = false
         }
@@ -423,6 +424,7 @@ export default defineComponent({
             quickAddEditRowData.value = row
             editIPCIpPopVisiable.value = true
         }
+
         const closeEditIPCIpPop = () => {
             editIPCIpPopVisiable.value = false
         }
@@ -450,6 +452,7 @@ export default defineComponent({
         const handleRecorderRowClick = (rowData: ChannelAddRecorderDto) => {
             selectedRecoder = rowData
         }
+
         const handleRecorderRowDbClick = (rowData: ChannelAddRecorderDto) => {
             recoderEditItem.value = selectedRecoder = rowData
             toAddRecorderPopVisiable.value = true
@@ -489,7 +492,7 @@ export default defineComponent({
                             return `<enum displayName='${item[1]}'>${item[0]}</enum>`
                         })
                         .join('')
-                    let numName = Number(localStorage.getItem(LocalCacheKey.defaultChlMaxValue))
+                    let numName = Number(localStorage.getItem(LocalCacheKey.KEY_DEFAULT_CHL_MAX_VALUE))
                     const selection = quickAddTableRef.value!.getSelectionRows() as ChannelQuickAddDto[]
                     const items = selection
                         .map((ele) => {
@@ -507,6 +510,7 @@ export default defineComponent({
                                 normalName = defaultName + ' ' + normalName
                                 thermalName = defaultName + ' ' + thermalName
                             }
+
                             if (ele.industryProductType == 'THERMAL_DOUBLE') {
                                 data += getXmlDataByQuickAdd(ele, 'NORMAL', normalName)
                                 data += getXmlDataByQuickAdd(ele, 'THERMAL_DOUBLE', thermalName)

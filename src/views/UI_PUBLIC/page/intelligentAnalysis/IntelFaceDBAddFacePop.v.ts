@@ -240,6 +240,7 @@ export default defineComponent({
                 if (item.number) {
                     data.number = Number(item.number)
                 }
+
                 if (item.mobile) {
                     data.mobile = Number(item.mobile)
                 }

@@ -91,6 +91,7 @@ export default defineComponent({
             editNameMapping.value = nameMapping
             editIPCPwdPopVisiable.value = true
         }
+
         const closeEditIPCPwdPop = () => {
             editIPCPwdPopVisiable.value = false
         }
@@ -267,6 +268,7 @@ export default defineComponent({
                             if ((ele.addType === 'poe' && import.meta.env.VITE_UI_TYPE !== 'UI1-E') || !ele.ip) {
                                 ele.delDisabled = true
                             }
+
                             if (ele.addType === 'poe') {
                                 if (!virtualHostEnabled) ele.showSetting = false
                             } else if (ele.protocolType === 'RTSP') {
@@ -316,6 +318,7 @@ export default defineComponent({
                             ele.isOnline = false
                             ele.upgradeDisabled = true
                         }
+
                         if (ele.accessType == '1') {
                             ele.upgradeDisabled = true
                             ele.showUpgradeBtn = true
@@ -418,7 +421,7 @@ export default defineComponent({
                     value = num > value ? num : value
                 }
             }
-            localStorage.setItem(LocalCacheKey.defaultChlMaxValue, value.toString())
+            localStorage.setItem(LocalCacheKey.KEY_DEFAULT_CHL_MAX_VALUE, value.toString())
         }
 
         const formatDisplayName = (rowData: ChannelInfoDto) => {
@@ -428,7 +431,7 @@ export default defineComponent({
                 const chlNumStr = chlNum < 10 ? '0' + chlNum : chlNum
                 value = '[R' + chlNumStr + ']' + value
             }
-            return rowData.addType === 'poe' ? protocolTrasMap['IDCS_POE_PREFIX'].formatForLang(Number(rowData.poeIndex) > 9 ? rowData.poeIndex : '0' + rowData.poeIndex) + value : value
+            return rowData.addType === 'poe' ? protocolTrasMap.IDCS_POE_PREFIX.formatForLang(Number(rowData.poeIndex) > 9 ? rowData.poeIndex : '0' + rowData.poeIndex) + value : value
         }
 
         const formatDisplayManufacturer = (rowData: ChannelInfoDto) => {
@@ -438,7 +441,7 @@ export default defineComponent({
                 ? rowData.productModel.factoryName
                 : value
                   ? value.indexOf('RTSP') != -1
-                      ? protocolList.value[filters.indexOf(value.slice(5))]['displayName']
+                      ? protocolList.value[filters.indexOf(value.slice(5))].displayName
                       : manufacturerMap[value]
                   : ''
         }

@@ -3,7 +3,7 @@
  * @Date: 2024-09-05 17:42:11
  * @Description: 智能分析 - 人体搜索
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-14 09:41:37
+ * @LastEditTime: 2024-10-24 19:53:25
 -->
 <template>
     <div class="base-intel-box">
@@ -26,7 +26,7 @@
                 <div class="base-intel-row">
                     <el-button @click="getData">{{ Translate('IDCS_SEARCH') }}</el-button>
                     <IntelBaseCollect
-                        storage-key="intel_body_search"
+                        :storage-key="cacheKey"
                         :data="{
                             dateRange: formData.dateRange,
                             chl: formData.chl,

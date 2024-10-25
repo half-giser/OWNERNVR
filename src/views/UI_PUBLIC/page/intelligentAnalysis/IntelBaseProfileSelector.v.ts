@@ -74,6 +74,7 @@ export default defineComponent({
                     if (typeof a.value === 'string' || typeof b.value === 'string') {
                         return -1
                     }
+
                     if (b.value === 0) {
                         return -2
                     }
@@ -370,6 +371,7 @@ export default defineComponent({
                     if (!result[key1]) {
                         result[key1] = {}
                     }
+
                     if (key2 === 'brand') {
                         if (value[0] < 0) {
                             result[key1][key2] = [...CAR_BRAND_OPTIONS]

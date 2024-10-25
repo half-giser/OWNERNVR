@@ -223,6 +223,7 @@ export default defineComponent({
                     csvHead.push(`${Translate('IDCS_DETECTION_VEHICLE')} (${Translate('IDCS_ENTRANCE')})`, `${Translate('IDCS_DETECTION_VEHICLE')} (${Translate('IDCS_LEAVE')})`)
                     csvTitle.colspan += 2
                 }
+
                 if (formData.value.attribute.includes('motor')) {
                     csvHead.push(`${Translate('IDCS_NON_VEHICLE')} (${Translate('IDCS_ENTRANCE')})`, `${Translate('IDCS_NON_VEHICLE')} (${Translate('IDCS_LEAVE')})`)
                     csvTitle.colspan += 2
@@ -242,6 +243,7 @@ export default defineComponent({
                             if (formData.value.attribute.includes('car')) {
                                 data.push(chl.vehicleIn + '', chl.vehicleOut + '')
                             }
+
                             if (formData.value.attribute.includes('motor')) {
                                 data.push(chl.nonVehicleIn + '', chl.nonVehicleOut + '')
                             }

@@ -58,12 +58,7 @@ export default defineComponent({
         }
 
         const formatDwellTime = (value: number) => {
-            if (value >= 60) {
-                value = value / 60
-                return Translate('IDCS_STAY_TIME_D').formatForLang(value + ' ', value === 1 ? Translate('IDCS_MINUTE') : Translate('IDCS_MINUTES'))
-            } else {
-                return Translate('IDCS_STAY_TIME_D').formatForLang(value + ' ', Translate('IDCS_SECONDS'))
-            }
+            return Translate('IDCS_STAY_TIME_D').formatForLang(value + ' ', getTranslateForSecond(value))
         }
 
         const handleEditChlGroup = (rowData: ChlGroup) => {
@@ -177,6 +172,7 @@ export default defineComponent({
             editItemForAddChl.value = rowData
             isAddChlPop.value = true
         }
+
         const handleDelChl = (rowData: ChlGroup, chlId: string) => {
             if (rowData.chlCount <= 1) {
                 openMessageTipBox({
@@ -211,7 +207,7 @@ export default defineComponent({
                         type: 'success',
                         message: Translate('IDCS_DELETE_SUCCESS'),
                     }).then(() => {
-                        rowData.chls = rowData.chls.filter((item) => item['value'] != chlId)
+                        rowData.chls = rowData.chls.filter((item) => item.value != chlId)
                         rowData.chlCount = rowData.chls.length
                     })
                 } else {

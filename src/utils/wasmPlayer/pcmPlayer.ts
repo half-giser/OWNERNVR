@@ -151,6 +151,7 @@ export default class PCMPlayer {
                 if (i < 50) {
                     audioData[i] = (audioData[i] * i) / 50
                 }
+
                 /* fadeout*/
                 if (i >= length - 51) {
                     audioData[i] = (audioData[i] * decrement--) / 50
@@ -197,6 +198,7 @@ export default class PCMPlayer {
                 if (i < 50) {
                     audioData[i] = (audioData[i] * i) / 50
                 }
+
                 /* fadeout*/
                 if (i >= length - 51) {
                     audioData[i] = (audioData[i] * decrement--) / 50

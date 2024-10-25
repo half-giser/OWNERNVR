@@ -301,6 +301,7 @@ export default class CanvasBase {
                     textBaseline: textCfg.textBaseline || DEFAULT_BASELINE,
                 })
             }
+
             if (textCfg.textEnd) {
                 this.Text({
                     text: textCfg.textEnd,
@@ -344,6 +345,7 @@ export default class CanvasBase {
             const isBetween = (pointC.Y - pointA.Y) * (pointC.Y - pointB.Y) <= 0
             return isBetween ? Math.abs(pointC.X - pointA.X) : Infinity
         }
+
         if (pointA.Y === pointB.Y) {
             // AB和x轴平行时
             // 先判断C点是否在AB之间

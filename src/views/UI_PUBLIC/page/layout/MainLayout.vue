@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 顶层布局页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-21 15:15:45
+ * @LastEditTime: 2024-10-24 13:55:16
 -->
 <template>
     <el-container id="layoutMain">
@@ -282,11 +282,14 @@
     padding: 0px;
     flex: auto 1 1;
     overflow-y: auto;
+    margin-block: 25px;
 }
 
 #layoutMainContent {
     position: relative;
-    padding: 25px 49px;
+    padding-inline: 49px;
+    // margin-bottom: 25px;
+    // padding: 25px 49px;
     box-sizing: border-box;
     width: 100%;
     height: 100%;

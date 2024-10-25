@@ -59,6 +59,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
                         }
+
                         if (strength.value < DEFAULT_PASSWORD_STREMGTH_MAPPING[passwordStrength.value as keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING]) {
                             callback(new Error(Translate('IDCS_PWD_STRONG_ERROR')))
                             return
@@ -75,6 +76,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
                         }
+
                         if (value !== formData.value.newPassword) {
                             callback(new Error(Translate('IDCS_PWD_MISMATCH_TIPS')))
                             return

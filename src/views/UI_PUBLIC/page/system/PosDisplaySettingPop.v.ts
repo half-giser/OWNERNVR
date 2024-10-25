@@ -303,6 +303,7 @@ export default defineComponent({
                 const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
                 playerRef.value.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
+
             if (playerRef.value?.mode === 'h5') {
                 const canvas = playerRef.value.player.getDrawbordCanvas(0)
                 posDrawer = new CanvasPos({
@@ -325,6 +326,7 @@ export default defineComponent({
                     streamType: 2,
                 })
             }
+
             if (playerRef.value?.mode === 'ocx') {
                 playerRef.value.plugin.RetryStartChlView(data.chlId, data.name)
             }
@@ -363,6 +365,7 @@ export default defineComponent({
             if (playerRef.value?.mode === 'h5') {
                 posDrawer.setPosList(ocxData)
             }
+
             if (playerRef.value?.mode === 'ocx') {
                 const sendXml = OCX_XML_SETPosColor(ocxData)
                 playerRef.value.plugin.GetVideoPlugin().ExecuteCmd(sendXml)

@@ -71,6 +71,7 @@ export default defineComponent({
             if (moduleItem.meta.enabled && !userSession.hasAuth(moduleItem.meta.enabled)) {
                 return
             }
+
             if (subMenu.meta.enabled && !userSession.hasAuth(subMenu.meta.enabled)) {
                 return
             }
@@ -105,6 +106,7 @@ export default defineComponent({
             if (getMenuDisabled(moduleItem)) {
                 return
             }
+
             if (bool) {
                 pageData.value.hoverMenuIndex = key
             } else {

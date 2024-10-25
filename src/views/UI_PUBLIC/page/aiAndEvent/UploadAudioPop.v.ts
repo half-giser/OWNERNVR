@@ -113,12 +113,12 @@ export default defineComponent({
                     const result = await addCustomizeAudioAlarm(sendXml)
                     const $ = queryXml(result)
 
-                    if ($('/response/status').text() == 'success') {
+                    if ($('//status').text() == 'success') {
                         ctx.emit('close')
-                        const audioId = $('/response/content/param/id').text()
+                        const audioId = $('//content/param/id').text()
                         prop.handleAddVoiceList!(audioId, pageData.value.uploadFileName)
                     } else {
-                        const errorCode = Number($('/response/errorCode').text())
+                        const errorCode = Number($('//errorCode').text())
                         handleErrorMsg(errorCode)
                     }
                 } else {
@@ -138,10 +138,10 @@ export default defineComponent({
                     const result = await addAlarmAudioCfg(sendXml)
                     const $ = queryXml(result)
 
-                    if ($('/response/status').text() == 'success') {
+                    if ($('//status').text() == 'success') {
                         ctx.emit('close')
                     } else {
-                        const errorCode = Number($('/response/errorCode').text())
+                        const errorCode = Number($('//errorCode').text())
                         handleErrorMsg(errorCode)
                     }
                 }

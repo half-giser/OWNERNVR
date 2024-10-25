@@ -260,6 +260,7 @@ export default defineComponent({
             if (formData.value.accessListType !== originalFormData.accessListType || formData.value.wearMaskOpen !== originalFormData.wearMaskOpen) {
                 changeDoorCfgFlg = true
             }
+
             if (!changeDoorCfgFlg) {
                 changeDoorCfgFlg = formData.value.accessLockData.some((item, index) => {
                     const o = originalFormData.accessLockData[index]
@@ -343,6 +344,7 @@ export default defineComponent({
                     errorCode = Number($('errorCode').text())
                 }
             }
+
             if (success && changeWiegandFlg) {
                 const $ = await setAccessDataCom()
                 success = $('status').text() === 'success'

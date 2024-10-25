@@ -103,11 +103,13 @@ export const getLimitStr = (str: string, limit: number) => {
         } else {
             reLen++
         }
+
         if (reLen > limit && !flag) {
             sliceNo = i // 实际需要截取的位数
             flag = true
         }
     }
+
     if (reLen > limit) {
         return str.slice(0, sliceNo)
     }
@@ -156,6 +158,7 @@ export const cutStringByByte = ($sourcestr: string, $cutlength: number) => {
             // $lastByte = 4
         }
     }
+
     if ($i > $cutlength) {
         $returnstr = $sourcestr.substr(0, $j - 1)
     }
@@ -248,7 +251,7 @@ export const hideSensitiveInfo = (value: string, level: 'low' | 'high' | 'medium
         let result = ''
         const nameArr = []
         for (let index = 0; index < separator.length; index++) {
-            if (separator[index]['type'].test(value)) {
+            if (separator[index].type.test(value)) {
                 const tmpArr = value.split(separator[index].value)
                 tmpArr.forEach((e, i) => {
                     nameArr.push(e)
@@ -257,6 +260,7 @@ export const hideSensitiveInfo = (value: string, level: 'low' | 'high' | 'medium
                 break
             }
         }
+
         if (!nameArr.length) {
             nameArr.push(value)
         }
@@ -296,6 +300,7 @@ export const hideSensitiveInfo = (value: string, level: 'low' | 'high' | 'medium
     for (let i = 0; i < n + x; i++) {
         f += '*'
     }
+
     // 全部显示
     if (level == 'low') {
         return value
@@ -305,16 +310,19 @@ export const hideSensitiveInfo = (value: string, level: 'low' | 'high' | 'medium
     if (level == 'high') {
         return value.replace(/./g, '*')
     }
+
     // 3N+x中间脱敏
     if (level == 'medium') {
         return (str = value.substr(0, n) + f + value.substr(strLen - n, n))
     }
+
     // 3N+x尾部脱敏
     if (level == 'tail') {
         if (strLen == 1) return (str = '*')
         if (strLen == 2) return (str = value.substr(0, 1) + '*')
         return (str = value.substr(0, 2 * n + x) + value.substr(strLen - n, n).replace(/./g, '*'))
     }
+
     if (strLen < 3) {
         return f
     }

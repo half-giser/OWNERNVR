@@ -3,7 +3,7 @@
  * @Date: 2024-06-17 14:51:27
  * @Description: 编辑用户信息弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-22 20:11:34
+ * @LastEditTime: 2024-10-23 20:54:35
 -->
 <template>
     <el-dialog
@@ -25,17 +25,14 @@
             hide-required-asterisk
             inline-message
         >
-            <el-form-item prop="enabled">
+            <el-form-item>
                 <el-checkbox
                     v-model="formData.enabled"
                     :disabled="pageData.isEnableDisabled"
                     >{{ Translate('IDCS_ENABLE') }}</el-checkbox
                 >
             </el-form-item>
-            <el-form-item
-                prop=""
-                :label="Translate('IDCS_USERNAME')"
-            >
+            <el-form-item :label="Translate('IDCS_USERNAME')">
                 <el-input
                     v-model="formData.userName"
                     :placeholder="Translate('IDCS_USERNAME')"
@@ -49,10 +46,7 @@
                     :disabled="pageData.isAuthEffectiveDisabled"
                 ></el-checkbox>
             </el-form-item>
-            <el-form-item
-                prop="allowModifyPassword"
-                :label="Translate('IDCS_ALLOW_CHANGE_PWD')"
-            >
+            <el-form-item :label="Translate('IDCS_ALLOW_CHANGE_PWD')">
                 <el-checkbox v-model="formData.allowModifyPassword"></el-checkbox>
             </el-form-item>
             <el-form-item
@@ -66,7 +60,6 @@
             </el-form-item>
             <el-form-item
                 v-show="pageData.isAuthGroup"
-                prop="authGroup"
                 :label="Translate('IDCS_RIGHT_GROUP')"
             >
                 <el-select
