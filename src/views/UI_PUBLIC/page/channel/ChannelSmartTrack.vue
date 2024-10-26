@@ -3,7 +3,7 @@
  * @Date: 2024-08-20 13:58:22
  * @Description: 云台-智能追踪
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 15:25:25
+ * @LastEditTime: 2024-10-25 18:27:20
 -->
 <template>
     <div class="base-chl-box">
@@ -25,6 +25,7 @@
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
                     <el-select
+                        v-if="tableData.length"
                         v-model="pageData.tableIndex"
                         @change="changeChl"
                     >
@@ -35,11 +36,17 @@
                             :label="item.chlName"
                         />
                     </el-select>
+                    <el-select
+                        v-else
+                        disabled
+                    />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_AUTO_TRACK_MODE')">
                     <el-select
+                        v-if="tableData[pageData.tableIndex]"
                         v-model="tableData[pageData.tableIndex].ptzControlMode"
-                        :disabled="tableData[pageData.tableIndex].status !== 'success'"
+                        :disabled="tableData[pageData.tableIndex].disabled"
+                        @change="addEditRow(pageData.tableIndex)"
                     >
                         <el-option
                             v-for="item in pageData.trackModeOptions"
@@ -48,18 +55,30 @@
                             :label="item.label"
                         />
                     </el-select>
+                    <el-select
+                        v-else
+                        disabled
+                    />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_HOMING_AFTER_TARGET_STATIONARY')">
-                    <el-checkbox
-                        v-model="tableData[pageData.tableIndex].autoBackSwitch"
-                        :disabled="tableData[pageData.tableIndex].status !== 'success'"
-                    ></el-checkbox>
-                    <el-slider
-                        v-model="tableData[pageData.tableIndex].autoBackTime"
-                        :disabled="!tableData[pageData.tableIndex].autoBackSwitch || tableData[pageData.tableIndex].status !== 'success'"
-                        :min="0"
-                        :max="100"
-                    ></el-slider>
+                    <template v-if="tableData[pageData.tableIndex]">
+                        <el-checkbox
+                            v-model="tableData[pageData.tableIndex].autoBackSwitch"
+                            :disabled="tableData[pageData.tableIndex].disabled"
+                            @change="addEditRow(pageData.tableIndex)"
+                        />
+                        <el-slider
+                            v-model="tableData[pageData.tableIndex].autoBackTime"
+                            :disabled="!tableData[pageData.tableIndex].autoBackSwitch || tableData[pageData.tableIndex].disabled"
+                            :min="0"
+                            :max="100"
+                            @change="addEditRow(pageData.tableIndex)"
+                        />
+                    </template>
+                    <template v-else>
+                        <el-checkbox disabled />
+                        <el-slider disabled />
+                    </template>
                     <el-text class="time">{{ tableData[pageData.tableIndex].autoBackTime }}(s)</el-text>
                 </el-form-item>
             </el-form>
@@ -71,6 +90,7 @@
                     border
                     stripe
                     highlight-current-row
+                    :row-class-name="(data) => (data.row.disabled ? 'disabled' : '')"
                     @row-click="handleRowClick"
                 >
                     <!-- 状态列 -->
@@ -108,7 +128,8 @@
                         <template #default="scope">
                             <el-select
                                 v-model="scope.row.autoBackSwitch"
-                                :disabled="scope.row.status !== 'success'"
+                                :disabled="scope.row.disabled"
+                                @change="addEditRow(scope.$index)"
                             >
                                 <el-option
                                     v-for="item in pageData.autoBackOptions"
@@ -125,15 +146,21 @@
                                 v-model="scope.row.autoBackTime"
                                 :min="0"
                                 :max="100"
-                                :disabled="!scope.row.autoBackSwitch || scope.row.status !== 'success'"
+                                :disabled="!scope.row.autoBackSwitch || scope.row.disabled"
                                 value-on-clear="min"
+                                @change="addEditRow(scope.$index)"
                             />
                         </template>
                     </el-table-column>
                 </el-table>
             </div>
             <div class="base-btn-box">
-                <el-button @click="setData">{{ Translate('IDCS_APPLY') }}</el-button>
+                <el-button
+                    :disabled="!editRows.size"
+                    @click="setData"
+                >
+                    {{ Translate('IDCS_APPLY') }}
+                </el-button>
             </div>
         </div>
         <BaseNotification v-model:notifications="pageData.notification" />

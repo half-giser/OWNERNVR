@@ -3,10 +3,10 @@
  * @Date: 2024-05-29 21:21:21
  * @Description: 业务应用-停车场管理-出入口
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-10 14:47:52
+ * @LastEditTime: 2024-10-25 14:25:53
 -->
 <template>
-    <div class="base-flex-box manager">
+    <div class="base-flex-box">
         <div class="base-table-box">
             <el-table
                 class="tableView"
@@ -107,11 +107,6 @@
 <script lang="ts" src="./PkMgrEnterExitManage.v.ts"></script>
 
 <style lang="scss" scoped>
-.manager {
-    width: 100%;
-    height: calc(var(--content-height) + 10px);
-}
-
 .online {
     color: var(--color-online);
 }

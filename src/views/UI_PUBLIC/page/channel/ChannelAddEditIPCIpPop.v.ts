@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 18:39:25
  * @Description: 添加通道 - 编辑IPC IP弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-22 11:17:11
+ * @LastEditTime: 2024-10-25 11:35:16
  */
 import { type FormRules, type FormInstance } from 'element-plus'
 import { ChannelAddEditIPCIpDto, type ChannelQuickAddDto, type DefaultPwdDto } from '@/types/apiType/channel'
@@ -37,7 +37,7 @@ export default defineComponent({
         const rules = ref<FormRules>({
             ip: [
                 {
-                    validator(rule, value, callback) {
+                    validator(_, value, callback) {
                         if (!value || value === '0.0.0.0') {
                             callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_INVALID')))
                             return
@@ -49,7 +49,7 @@ export default defineComponent({
             ],
             mask: [
                 {
-                    validator(rule, value, callback) {
+                    validator(_, value, callback) {
                         if (!maskDisabled.value && (!value || value === '0.0.0.0')) {
                             callback(new Error(Translate('IDCS_PROMPT_SUBNET_MASK_INVALID')))
                             return
@@ -61,7 +61,7 @@ export default defineComponent({
             ],
             gateway: [
                 {
-                    validator(rule, value, callback) {
+                    validator(_, value, callback) {
                         if (!gatewayDisabled.value && (!value || value === '0.0.0.0')) {
                             callback(new Error(Translate('IDCS_PROMPT_GATEWAY_INVALID')))
                             return
@@ -73,7 +73,7 @@ export default defineComponent({
             ],
             password: [
                 {
-                    validator(rule, value, callback) {
+                    validator(_, value, callback) {
                         if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return

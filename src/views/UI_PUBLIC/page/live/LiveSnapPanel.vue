@@ -3,7 +3,7 @@
  * @Date: 2024-07-19 13:37:26
  * @Description: 现场预览-目标检测视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-27 09:59:13
+ * @LastEditTime: 2024-10-25 16:10:45
 -->
 <template>
     <div class="snap">
@@ -61,6 +61,7 @@
             v-model="pageData.isInfoPop"
             :list="pageData.infoList"
             :index="pageData.infoIndex"
+            show-search
             @play-rec="handleSnapRec"
             @add="handleSnapRegister"
             @search="handleSnapSearch"

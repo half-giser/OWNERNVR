@@ -3,7 +3,7 @@
  * @Date: 2024-08-09 09:37:10
  * @Description: 按事件搜索
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-04 18:01:20
+ * @LastEditTime: 2024-10-25 14:43:33
 -->
 <template>
     <div class="by-event">
@@ -125,10 +125,14 @@
                         :data="filterTableData"
                         border
                         stripe
+                        show-overflow-tooltip
                         @row-click="handleRecClick"
                         @selection-change="handleRecChange"
                     >
-                        <el-table-column :label="Translate('IDCS_SERIAL_NUMBER')">
+                        <el-table-column
+                            :label="Translate('IDCS_SERIAL_NUMBER')"
+                            width="50"
+                        >
                             <template #default="scope">
                                 {{ displayIndex(scope.$index) }}
                             </template>
@@ -137,9 +141,13 @@
                         <el-table-column
                             :label="Translate('IDCS_CHANNEL_NAME')"
                             prop="chlName"
+                            min-width="150"
                         >
                         </el-table-column>
-                        <el-table-column :label="Translate('IDCS_TYPE')">
+                        <el-table-column
+                            :label="Translate('IDCS_TYPE')"
+                            min-width="100"
+                        >
                             <template #default="scope">
                                 <el-text>{{ displayEvent(scope.row) }}</el-text>
                                 <BaseImgSprite
@@ -148,12 +156,18 @@
                                 />
                             </template>
                         </el-table-column>
-                        <el-table-column :label="Translate('IDCS_START_TIME')">
+                        <el-table-column
+                            :label="Translate('IDCS_START_TIME')"
+                            min-width="150"
+                        >
                             <template #default="scope">
                                 {{ displayDateTime(scope.row.startTime) }}
                             </template>
                         </el-table-column>
-                        <el-table-column :label="Translate('IDCS_END_TIME')">
+                        <el-table-column
+                            :label="Translate('IDCS_END_TIME')"
+                            min-width="150"
+                        >
                             <template #default="scope">
                                 {{ displayDateTime(scope.row.endTime) }}
                             </template>
@@ -161,11 +175,13 @@
                         <el-table-column
                             :label="Translate('IDCS_RECORD_TIME')"
                             prop="duration"
+                            min-width="100"
                         >
                         </el-table-column>
                         <el-table-column
                             :label="Translate('IDCS_BIG_SMALL')"
                             prop="size"
+                            min-width="100"
                         >
                         </el-table-column>
                         <el-table-column :label="Translate('IDCS_PLAY')">
@@ -194,7 +210,7 @@
                         </el-table-column>
                     </el-table>
                 </div>
-                <div class="base-btn-box">
+                <div class="row_pagination">
                     <el-pagination
                         v-model:current-page="pageData.currentPage"
                         v-model:page-size="pageData.pageSize"
@@ -254,7 +270,6 @@
 <style lang="scss" scoped>
 .by-event {
     width: 100%;
-    height: calc(var(--content-height) + 30px);
     display: flex;
 }
 

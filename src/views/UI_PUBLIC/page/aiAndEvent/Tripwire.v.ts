@@ -244,7 +244,6 @@ export default defineComponent({
                 tripwirePlugin.AddPluginMoveEvent(document.getElementById('tripwireplayer')!)
                 const sendXML = OCX_XML_SetPluginModel(osType == 'mac' ? 'TripwireConfig' : 'ReadOnly', 'Live')
                 tripwirePlugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                tripwirePlugin.DisplayOCX(true)
             }
         }
 
@@ -1294,7 +1293,6 @@ export default defineComponent({
                 tripwirePlugin.GetVideoPlugin().ExecuteCmd(sendAllAreaXML!)
                 const sendXML = OCX_XML_StopPreview('ALL')
                 tripwirePlugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                tripwirePlugin.CloseCurPlugin(document.getElementById('tripwireplayer'))
             }
 
             if (tripwiremode.value === 'h5') {

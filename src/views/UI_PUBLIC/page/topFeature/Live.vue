@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 19:53:54
  * @Description: 现场预览
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-25 18:14:37
+ * @LastEditTime: 2024-10-25 13:41:49
 -->
 <template>
     <div class="live">
@@ -121,11 +121,10 @@
 <style lang="scss" scoped>
 .live {
     width: 100%;
-    height: calc(var(--content-height) + 70px);
+    height: var(--live-content-height);
     border: 1px solid var(--input-border);
     display: flex;
     font-size: 14px;
-    min-width: 1400px;
 }
 
 .center {

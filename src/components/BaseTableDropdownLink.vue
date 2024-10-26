@@ -3,10 +3,13 @@
  * @Date: 2024-10-11 14:36:27
  * @Description: 表格头 下拉按钮
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 14:41:56
+ * @LastEditTime: 2024-10-25 15:23:24
 -->
 <template>
-    <div class="dropdown-btn">
+    <div
+        class="dropdown-btn"
+        :class="[`effect-${effect}`]"
+    >
         <slot></slot>
         <el-icon class="el-icon--right">
             <ArrowDown />
@@ -16,6 +19,15 @@
 
 <script lang="ts" setup>
 import { ArrowDown } from '@element-plus/icons-vue'
+
+withDefaults(
+    defineProps<{
+        effect?: 'plain' | 'table'
+    }>(),
+    {
+        effect: 'table',
+    },
+)
 </script>
 
 <style lang="scss" scoped>
@@ -27,5 +39,9 @@ import { ArrowDown } from '@element-plus/icons-vue'
     align-items: center;
     color: var(--el-table-header-text-color);
     cursor: pointer;
+
+    &.effect-plain {
+        color: var(--main-text);
+    }
 }
 </style>

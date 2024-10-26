@@ -3,12 +3,11 @@
  * @Date: 2024-06-21 10:57:01
  * @Description: 设备基本信息
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-16 11:12:56
+ * @LastEditTime: 2024-10-25 09:37:20
 -->
 <template>
     <div class="SystemBasic">
         <el-form
-            label-position="left"
             class="stripe narrow"
             :style="{
                 '--form-label-width': '200px',
@@ -97,8 +96,6 @@
         <el-dialog
             v-model="pageData.isShowAbout"
             width="800"
-            align-center
-            draggable
             :title="Translate('IDCS_ABOUT_THIS_MACHINE')"
             :modal="true"
         >

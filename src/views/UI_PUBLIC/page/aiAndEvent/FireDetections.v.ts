@@ -194,7 +194,6 @@ export default defineComponent({
                 plugin.AddPluginMoveEvent(document.getElementById('player')!)
                 const sendXML = OCX_XML_SetPluginModel(osType == 'mac' ? 'FireConfig' : 'ReadOnly', 'Live')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                plugin.DisplayOCX(true)
             }
         }
 
@@ -846,7 +845,6 @@ export default defineComponent({
             if (plugin?.IsPluginAvailable() && mode.value === 'ocx' && ready.value) {
                 const sendXML = OCX_XML_StopPreview('ALL')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                plugin.CloseCurPlugin(document.getElementById('player'))
             }
 
             if (mode.value === 'h5') {

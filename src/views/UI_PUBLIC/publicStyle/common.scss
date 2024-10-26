@@ -392,12 +392,20 @@ input[type='number'] {
             & + * {
                 margin-left: 10px;
             }
+
+            & + .el-slider {
+                margin-left: 20px;
+            }
         }
 
         .el-checkbox,
         .el-button {
             & + * {
                 margin-left: 10px;
+            }
+
+            & + .el-slider {
+                margin-left: 20px;
             }
         }
 
@@ -712,5 +720,29 @@ input[type='number'] {
 
     &[span='start'] {
         justify-content: flex-start;
+    }
+}
+
+// 面包屑右侧栏按钮样式
+.base-toolbar-btn {
+    background-color: var(--btn-bg);
+    margin-left: 5px;
+    cursor: pointer;
+
+    &:hover {
+        background-color: var(--btn-bg-hover);
+    }
+
+    & + .el-button {
+        margin-left: 5px;
+    }
+}
+
+// 面包屑右侧栏输入框样式
+.base-toolbar-input {
+    width: 200px;
+
+    & + .el-button {
+        margin-left: 5px;
     }
 }

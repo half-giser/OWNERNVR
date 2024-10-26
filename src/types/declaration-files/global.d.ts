@@ -130,7 +130,8 @@ declare global {
         type: string
         data: T
     }
-    interface ChannelToolBarEvent {
+
+    interface SearchToolBarEvent {
         searchText: string
     }
 

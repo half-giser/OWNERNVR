@@ -3,7 +3,7 @@
  * @Date: 2024-09-03 09:09:06
  * @Description: 新增车牌弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-22 19:48:41
+ * @LastEditTime: 2024-10-25 15:36:02
  */
 import { IntelPlateDBAddPlateForm, IntelPlateDBPlateInfo } from '@/types/apiType/intelligentAnalysis'
 import IntelLicenceDBEditPop from './IntelLicencePlateDBEditPop.vue'
@@ -513,7 +513,7 @@ export default defineComponent({
          */
         const notify = ($: XMLQuery) => {
             if ($('statenotify[@type="UploadIPCAudioBase64"]').length) {
-                const $item = queryXml($('statenotify[@type="UploadIPCAudioBase64"]')[0].element)
+                const $item = queryXml($('statenotify')[0].element)
                 if ($item('status').text() === 'success') {
                     const fileBase64 = $item('base64').text()
                     const filePath = $item('filePath').text()
@@ -521,29 +521,17 @@ export default defineComponent({
                     const file = base64ToFile(fileBase64, pageData.value.fileName)
                     parseFiles(file)
                 } else {
-                    const errorCode = Number($item('errorCode').text())
-                    switch (errorCode) {
-                        case ErrorCode.USER_ERROR_KEYBOARDINDEX_ERROR:
-                            closeLoading()
-                            openMessageTipBox({
-                                type: 'info',
-                                message: Translate('IDCS_ADD_FACE_FAIL'),
-                            })
-                            break
-                        case ErrorCode.USER_ERROR_SPECIAL_CHAR_2:
-                            closeLoading()
-                            openMessageTipBox({
-                                type: 'info',
-                                message: Translate('IDCS_IMPORT_FAIL'),
-                            })
-                            break
-                    }
+                    openMessageTipBox({
+                        type: 'info',
+                        message: Translate('IDCS_OUT_FILE_SIZE'),
+                    })
+                    closeLoading()
                 }
             }
             //网络断开
             else if ($('statenotify[@type="FileNetTransport"]').length) {
                 closeLoading()
-                if (Number($('statenotify[@type="FileNetTransport"]/errorCode').text()) === ErrorCode.USER_ERROR_NODE_NET_DISCONNECT) {
+                if (Number($('statenotify/errorCode').text()) === ErrorCode.USER_ERROR_NODE_NET_DISCONNECT) {
                     openMessageTipBox({
                         type: 'info',
                         message: Translate('IDCS_OCX_NET_DISCONNECT'),

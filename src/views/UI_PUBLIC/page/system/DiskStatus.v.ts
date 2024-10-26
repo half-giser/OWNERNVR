@@ -264,7 +264,7 @@ export default defineComponent({
          * @param event
          * @returns
          */
-        const handleToolBarEvent = (event: ConfigToolBarEvent<ChannelToolBarEvent>) => {
+        const handleToolBarEvent = (event: ConfigToolBarEvent<SearchToolBarEvent>) => {
             if (event.type === 'refresh') {
                 getData()
                 return

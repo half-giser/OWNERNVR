@@ -3,7 +3,7 @@
  * @Date: 2024-08-30 18:47:22
  * @Description: 智能分析 - 选择人脸 - 从外部导入
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 15:42:01
+ * @LastEditTime: 2024-10-25 15:30:33
  */
 import { type IntelFaceDBImportImgDto, IntelFaceDBImportFaceDto } from '@/types/apiType/intelligentAnalysis'
 import { type XMLQuery } from '@/utils/tools'
@@ -356,7 +356,8 @@ export default defineComponent({
          */
         const notify = ($: XMLQuery) => {
             if ($('statenotify[@type="UploadIPCAudioBase64"]').length) {
-                const $item = queryXml($('statenotify[@type="UploadIPCAudioBase64"]')[0].element)
+                const $item = queryXml($('statenotify')[0].element)
+                console.log($item('status').text())
                 if ($item('status').text() === 'success') {
                     const fileBase64 = $item('base64').text()
                     // const fileSize = $item('filesize').text()
@@ -372,17 +373,17 @@ export default defineComponent({
                             resetOCXData()
                             openMessageTipBox({
                                 type: 'info',
-                                message: Translate('IDCS_ADD_FACE_FAIL'),
+                                message: Translate('IDCS_ADD_FACE_FAIL') + ',' + Translate('IDCS_PICTURE_SIZE_LIMIT_TIP'),
                             })
-                            break
+                            return
                         case ErrorCode.USER_ERROR_SPECIAL_CHAR_2:
                             closeLoading()
                             resetOCXData()
                             openMessageTipBox({
                                 type: 'info',
-                                message: Translate('IDCS_IMPORT_FAIL'),
+                                message: Translate('IDCS_FILE_NOT_AVAILABLE'),
                             })
-                            break
+                            return
                     }
                 }
 

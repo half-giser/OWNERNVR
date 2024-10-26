@@ -7,13 +7,13 @@
     <el-input
         v-model="msg"
         size="small"
-        class="toolBarText"
+        class="base-toolbar-input"
         :placeholder="Translate('IDCS_SEARCH_CHANNEL')"
         @keydown.enter="search"
     />
     <BaseImgSprite
         file="toolbar_search"
-        class="toolBarBtn"
+        class="base-toolbar-btn"
         @click="search"
     />
     <el-button
@@ -25,9 +25,15 @@
 
 <script lang="ts">
 export default defineComponent({
-    emits: ['toolBarEvent'],
+    emits: {
+        toolBarEvent(data: ConfigToolBarEvent<SearchToolBarEvent | undefined>) {
+            return !!data
+        },
+    },
+
     setup(_props, ctx) {
         const msg = ref('')
+
         const search = () => {
             ctx.emit('toolBarEvent', {
                 type: 'search',
@@ -40,26 +46,15 @@ export default defineComponent({
         const addChl = () => {
             ctx.emit('toolBarEvent', {
                 type: 'addChl',
+                data: undefined,
             })
         }
-        return { msg, search, addChl }
+
+        return {
+            msg,
+            search,
+            addChl,
+        }
     },
 })
 </script>
-
-<style lang="scss" scoped>
-.toolBarText {
-    width: 200px;
-    margin-right: 5px;
-}
-
-.toolBarBtn {
-    background-color: var(--btn-bg);
-    margin-right: 5px;
-    cursor: pointer;
-
-    &:hover {
-        background-color: var(--btn-bg-hover);
-    }
-}
-</style>

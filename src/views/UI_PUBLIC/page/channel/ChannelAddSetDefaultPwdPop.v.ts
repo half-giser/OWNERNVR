@@ -22,7 +22,7 @@ export default defineComponent({
             return true
         },
     },
-    setup(props, { emit }) {
+    setup(_, { emit }) {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
         const userSessionStore = useUserSessionStore()
@@ -95,11 +95,11 @@ export default defineComponent({
             const listXml = formData.value.params
                 .map((ele) => {
                     return rawXml`
-                    <item id='${ele.id}'>
-                        <userName>${ele.userName}</userName>
-                        ${ternary(!!ele.password, `<password ${getSecurityVer()}><![CDATA[${AES_encrypt(ele.password, userSessionStore.sesionKey)}]]></password>`)}
-                    </item>
-                `
+                        <item id='${ele.id}'>
+                            <userName>${ele.userName}</userName>
+                            ${ternary(!!ele.password, `<password ${getSecurityVer()}><![CDATA[${AES_encrypt(ele.password, userSessionStore.sesionKey)}]]></password>`)}
+                        </item>
+                    `
                 })
                 .join('')
             const sendXml = rawXml`

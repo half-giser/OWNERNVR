@@ -142,30 +142,3 @@
 <style lang="scss">
 @import '@/views/UI_PUBLIC/publicStyle/channel.scss';
 </style>
-
-<!-- <style lang="scss" scoped>
-.cruise-group {
-    width: 100%;
-    height: var(--content-height);
-    display: flex;
-}
-
-.left {
-    width: 400px;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
-.player {
-    width: 400px;
-    height: 300px;
-    flex-shrink: 0;
-}
-
-.right {
-    width: 100%;
-    height: 100%;
-    margin-left: 10px;
-}
-</style> -->

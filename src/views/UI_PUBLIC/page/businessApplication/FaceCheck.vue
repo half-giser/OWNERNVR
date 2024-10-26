@@ -3,10 +3,10 @@
  * @Date: 2024-08-27 14:24:19
  * @Description: 业务应用-人脸签到
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-23 20:49:34
+ * @LastEditTime: 2024-10-25 14:23:58
 -->
 <template>
-    <div class="base-flex-box face">
+    <div class="base-flex-box">
         <div class="form">
             <el-form
                 label-position="left"
@@ -208,10 +208,6 @@
 <script lang="ts" src="./FaceCheck.v.ts"></script>
 
 <style lang="scss" scoped>
-.face {
-    height: calc(var(--content-height) + 10px);
-}
-
 .form {
     display: flex;
 
