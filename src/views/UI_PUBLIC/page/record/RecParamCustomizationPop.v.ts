@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-05 16:26:27
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-16 17:32:17
+ * @LastEditTime: 2024-10-28 10:18:33
  */
 import dayjs from 'dayjs'
 import { type ChlRecParamList } from '@/types/apiType/record'
@@ -18,12 +18,11 @@ export default defineComponent({
             type: Object as PropType<ChlRecParamList>,
             require: true,
         },
-        handleGetExpirationData: {
-            type: Function,
-            require: true,
-        },
     },
     emits: {
+        confirm(week: string, holiday: string, expiration: number, expirationData?: ChlRecParamList) {
+            return (typeof week === 'string' && typeof holiday === 'string' && typeof expiration === 'number') || !!expirationData
+        },
         close() {
             return true
         },
@@ -143,9 +142,9 @@ export default defineComponent({
             })
                 .then(() => {
                     if (prop.expirationType == 'all') {
-                        prop.handleGetExpirationData!(week, holiday, expiration)
+                        ctx.emit('confirm', week, holiday, expiration)
                     } else {
-                        prop.handleGetExpirationData!(week, holiday, expiration, prop.expirationData)
+                        ctx.emit('confirm', week, holiday, expiration, prop.expirationData)
                     }
 
                     pageData.value.expireTime = 1

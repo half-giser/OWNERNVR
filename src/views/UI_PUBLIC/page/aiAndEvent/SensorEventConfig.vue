@@ -2,8 +2,8 @@
  * @Description: 普通事件——传感器
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-23 10:58:27
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-23 20:45:52
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-28 10:32:38
 -->
 <template>
     <div class="base-flex-box">
@@ -617,7 +617,7 @@
             v-model="pageData.isPresetPopOpen"
             :filter-chl-id="pageData.presetChlId"
             :linked-list="pageData.presetLinkedList"
-            :handle-preset-linked-list="handlePresetLinkedList"
+            @confirm="handlePresetLinkedList"
             @close="presetClose"
         />
         <!-- 排程管理弹窗 -->

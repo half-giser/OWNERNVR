@@ -35,7 +35,7 @@
             v-model="pageData.isPresetPopOpen"
             :filter-chl-id="pageData.presetChlId"
             :linked-list="pageData.presetLinkedList"
-            :handle-preset-linked-list="handlePresetLinkedList"
+            @confirm="handlePresetLinkedList"
             @close="presetClose"
         />
         <div class="base-table-box">

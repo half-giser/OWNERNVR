@@ -16,12 +16,11 @@ export default defineComponent({
             type: Object as PropType<Record<string, faceMatchObj>>,
             require: true,
         },
-        handleLinkedObj: {
-            type: Function,
-            require: true,
-        },
     },
     emits: {
+        confirm(entity: string, obj: faceMatchObj) {
+            return typeof entity === 'string' && typeof obj === 'object'
+        },
         close() {
             return true
         },
@@ -98,7 +97,7 @@ export default defineComponent({
                 displayText: pageData.value.displayText,
                 faceDataBase: faceDataBase,
             }
-            prop.handleLinkedObj!(prop.linkedEntity, obj)
+            ctx.emit('confirm', prop.linkedEntity!, obj)
             close()
         }
 
