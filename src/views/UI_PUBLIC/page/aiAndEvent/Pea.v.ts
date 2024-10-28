@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 13:36:26
  * @Description: 区域入侵
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-28 14:49:15
+ * @LastEditTime: 2024-10-28 15:18:46
  */
 import { type chlCaps, type aiResourceRow, type peaPageData, type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
@@ -368,7 +368,7 @@ export default defineComponent({
             if ($('status').text() == 'success') {
                 peaData.value.applyDisable = true
                 const schedule = $('//content/chl').attr('scheduleGuid')
-                peaData.value.pea_schedule = schedule != '' ? (peaData.value.scheduleList.some((item) => item.value == schedule) ? schedule : DEFAULT_EMPTY_ID) : DEFAULT_EMPTY_ID
+                peaData.value.pea_schedule = schedule !== '' ? (peaData.value.scheduleList.some((item) => item.value == schedule) ? schedule : DEFAULT_EMPTY_ID) : DEFAULT_EMPTY_ID
                 getPeaActivityData('perimeter', res)
                 getPeaActivityData('entry', res)
                 getPeaActivityData('leave', res)

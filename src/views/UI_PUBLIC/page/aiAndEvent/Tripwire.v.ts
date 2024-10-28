@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-19 11:16:22
  * @Description: 周界防范/人车检测
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 18:02:29
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-28 15:17:38
  */
 import { type chlCaps, type aiResourceRow, type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
@@ -478,7 +478,7 @@ export default defineComponent({
                     tripwireData.value.applyDisable = true
                     const schedule = $('//content/chl').attr('scheduleGuid')
                     tripwireData.value.tripwire_schedule =
-                        schedule == '' ? (tripwireData.value.scheduleList.some((item: { value: string; label: string }) => item.value == schedule) ? schedule : DEFAULT_EMPTY_ID) : DEFAULT_EMPTY_ID
+                        schedule == '' ? DEFAULT_EMPTY_ID : tripwireData.value.scheduleList.some((item: { value: string; label: string }) => item.value == schedule) ? schedule : DEFAULT_EMPTY_ID
                     tripwireData.value.directionList = $('//types/direction/enum').map((item) => {
                         return { value: item.text(), label: directionTypeTip[item.text()] }
                     })
@@ -795,6 +795,7 @@ export default defineComponent({
         // 对sheduleList进行处理
         const getScheduleList = async () => {
             tripwireData.value.scheduleList = await buildScheduleList()
+            // console.log(tripwireData.value.scheduleList)
         }
 
         // 获取recordList

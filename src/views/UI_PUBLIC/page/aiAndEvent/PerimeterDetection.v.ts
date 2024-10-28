@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-27 15:43:32
  * @Description: 周界防范/人车检测
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 15:58:10
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-28 15:20:54
  */
 import { type TabsPaneContext } from 'element-plus'
 import { type chlCaps } from '@/types/apiType/aiAndEvent'
@@ -331,7 +331,6 @@ export default defineComponent({
             await getChannelData()
             await getVoiceList()
             await initPageData()
-            pageData.value.tabKey += 1
         })
         return {
             pageData,
