@@ -3,7 +3,7 @@
  * @Date: 2024-09-29 11:48:59
  * @Description: 水印设置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-23 10:49:00
+ * @LastEditTime: 2024-10-25 18:08:37
  */
 import { type ChannelWaterMarkDto } from '@/types/apiType/channel'
 import { type TableInstance } from 'element-plus'
@@ -30,14 +30,29 @@ export default defineComponent({
             pageIndex: 1,
             pageSize: 10,
             totalCount: 0,
-            pageDataCountItems: [10, 20, 30],
-            editRows: [] as ChannelWaterMarkDto[],
-            applyDisabled: true,
+            editRows: new Set() as Set<ChannelWaterMarkDto>,
             informationPop: false,
         })
 
         let player: PlayerInstance['player']
         let plugin: PlayerInstance['plugin']
+
+        let pageChangeTimes = 0
+
+        /**
+         * @description 请求数据前, 记录当前页码
+         */
+        const savePagination = () => {
+            pageChangeTimes++
+            return pageChangeTimes
+        }
+
+        /**
+         * @description 返回数据时，判断页码是否发生变化，若是，则停止之前的更新、获取、提交数据
+         */
+        const isPaginationChanged = (currentTimes: number) => {
+            return pageChangeTimes !== currentTimes
+        }
 
         // 播放模式
         const mode = computed(() => {
@@ -74,7 +89,6 @@ export default defineComponent({
                 plugin.AddPluginMoveEvent(document.getElementById('player')!)
                 const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                // plugin.DisplayOCX(true)
             }
         }
 
@@ -152,18 +166,10 @@ export default defineComponent({
                     pageData.value.chlData.switch = value
                 }
             })
-            pageData.value.applyDisabled = false
         }
 
-        const handleFocus = (customText: string, type: string) => {
-            const reg = /[^A-Za-z0-9]/g
-            if (reg.test(customText)) {
-                if (type === 'form') {
-                    pageData.value.chlData.customText = customText.replace(reg, '')
-                } else {
-                    pageData.value.customTextSetAll = customText.replace(reg, '')
-                }
-            }
+        const formatInput = (str: string) => {
+            return str.replace(/[^A-Za-z0-9]/g, '')
         }
 
         const handleCustomTextInput = (customText: string) => {
@@ -193,58 +199,54 @@ export default defineComponent({
             pageData.value.informationPop = false
         }
 
-        const getChannelList = async () => {
+        const getDataList = async () => {
+            const timer = savePagination()
+            pageData.value.editRows.clear()
             pageData.value.initComplete = false
+            pageData.value.switchDisabled = true
+
+            openLoading()
+
             const res = await getChlList({
                 pageIndex: pageData.value.pageIndex,
                 pageSize: pageData.value.pageSize,
-                chlName: '',
+                chlType: 'analog',
                 isSupportMaskSetting: true,
             })
             const $ = queryXml(res)
             if ($('status').text() == 'success') {
                 pageData.value.chlList = []
                 pageData.value.totalCount = Number($('//content').attr('total'))
-                $('//content/item').forEach((item) => {
+                pageData.value.chlList = $('//content/item').map((item) => {
                     const $ = queryXml(item.element)
-                    if ($('chlType').text() == 'analog') {
-                        pageData.value.chlList.push({
-                            chlId: item.attr('id')!,
-                            chlName: $('name').text(),
-                            chlIndex: '1',
-                            chlType: $('chlType').text(),
-                            status: 'loading',
-                            disabled: true,
-                            switch: '',
-                            customText: '',
-                        })
+                    return {
+                        chlId: item.attr('id')!,
+                        chlName: $('name').text(),
+                        chlIndex: '1',
+                        chlType: $('chlType').text(),
+                        status: 'loading',
+                        disabled: true,
+                        switch: '',
+                        customText: '',
+                        statusTip: '',
                     }
                 })
-                pageData.value.currChlId = pageData.value.chlList[0].chlId
-                pageData.value.chlList.forEach(async (item) => {
-                    getData(item)
-                })
-                tableRef.value?.setCurrentRow(pageData.value.chlList[0])
-                pageData.value.initComplete = true
             }
-        }
 
-        const getData = async (item: ChannelWaterMarkDto) => {
-            const sendXml = rawXml`
-                <condition>
-                    <chlId>${item.chlId}</chlId>
-                </condition>
-            `
-            const res = await queryChlWaterMark(sendXml)
-            const $ = queryXml(res)
-            if ($('status').text() == 'success') {
-                const waterMarkSwitch = $('//content/chl/watermark/switch').text()
-                const customText = $('//content/chl/watermark/customText').text()
-                item.disabled = false
-                item.status = ''
-                item.switch = waterMarkSwitch
-                item.customText = customText
-                if (item.chlId == pageData.value.currChlId) {
+            closeLoading()
+
+            for (let i = 0; i < pageData.value.chlList.length; i++) {
+                const item = pageData.value.chlList[i]
+                await getData(item)
+
+                if (isPaginationChanged(timer)) {
+                    break
+                }
+
+                if (i === 0) {
+                    pageData.value.currChlId = pageData.value.chlList[0].chlId
+                    tableRef.value?.setCurrentRow(pageData.value.chlList[0])
+                    pageData.value.initComplete = true
                     pageData.value.chlData = cloneDeep(item)
                     if (pageData.value.chlData.disabled) {
                         pageData.value.switchDisabled = true
@@ -252,11 +254,30 @@ export default defineComponent({
                         pageData.value.switchDisabled = false
                     }
                 }
-            } else {
-                item.status = ''
-                if (item.chlId == pageData.value.currChlId) {
-                    pageData.value.chlData = cloneDeep(item)
+            }
+        }
+
+        const getData = async (item: ChannelWaterMarkDto) => {
+            try {
+                const sendXml = rawXml`
+                    <condition>
+                        <chlId>${item.chlId}</chlId>
+                    </condition>
+                `
+                const res = await queryChlWaterMark(sendXml)
+                const $ = queryXml(res)
+                if ($('status').text() == 'success') {
+                    const waterMarkSwitch = $('//content/chl/watermark/switch').text()
+                    const customText = $('//content/chl/watermark/customText').text()
+                    item.disabled = false
+                    item.status = ''
+                    item.switch = waterMarkSwitch
+                    item.customText = customText
+                } else {
+                    item.status = ''
                 }
+            } catch {
+                item.status = ''
             }
         }
 
@@ -276,19 +297,23 @@ export default defineComponent({
 
         const setData = async () => {
             openLoading()
-            pageData.value.editRows.forEach(async (item) => {
-                const sendXml = getSaveData(item)
-                const res = await editChlWaterMark(sendXml)
-                const $ = queryXml(res)
-                if ($('status').text() == 'success') {
-                    item.status = 'success'
-                } else {
-                    item.status = 'error'
+
+            for (let i = 0; i < pageData.value.chlList.length; i++) {
+                const item = pageData.value.chlList[i]
+                if (pageData.value.editRows.has(item)) {
+                    const sendXml = getSaveData(item)
+                    const res = await editChlWaterMark(sendXml)
+                    const $ = queryXml(res)
+                    if ($('status').text() === 'success') {
+                        item.status = 'success'
+                        pageData.value.editRows.delete(item)
+                    } else {
+                        item.status = 'error'
+                    }
                 }
-            })
+            }
+
             closeLoading()
-            pageData.value.editRows = []
-            pageData.value.applyDisabled = true
         }
 
         const handleApply = async () => {
@@ -314,35 +339,17 @@ export default defineComponent({
         }
 
         const addEditRow = (row: ChannelWaterMarkDto) => {
-            // 若该行不存在于编辑行中，则添加
-            const isExist = pageData.value.editRows.some((item) => item.chlId === row.chlId)
-            if (!isExist) {
-                pageData.value.editRows.push(row)
-            }
-            pageData.value.applyDisabled = false
-        }
-
-        const changePagination = () => {
-            getChannelList()
-        }
-
-        const changePaginationSize = () => {
-            const totalPage = Math.ceil(pageData.value.totalCount / pageData.value.pageSize)
-            if (pageData.value.pageIndex > totalPage) {
-                pageData.value.pageIndex = totalPage
-            }
-            getChannelList()
+            pageData.value.editRows.add(row)
         }
 
         onMounted(() => {
-            getChannelList()
+            getDataList()
         })
 
         onBeforeUnmount(() => {
             if (plugin?.IsPluginAvailable() && mode.value === 'ocx' && ready.value) {
                 const sendXML = OCX_XML_StopPreview('ALL')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                // plugin.CloseCurPlugin(document.getElementById('player'))
             }
 
             if (mode.value === 'h5') {
@@ -359,7 +366,7 @@ export default defineComponent({
             handleSwitchChange,
             handleTableSwitchChange,
             handleSwitchChangeAll,
-            handleFocus,
+            formatInput,
             handleCustomTextInput,
             handleSetCustomTextAll,
             handleSetCancel,
@@ -367,8 +374,7 @@ export default defineComponent({
             handleRowClick,
             getRowById,
             addEditRow,
-            changePagination,
-            changePaginationSize,
+            getDataList,
         }
     },
 })

@@ -151,7 +151,7 @@ export default defineComponent({
             const rowData = getRowById(chlId)!
             rowData[type] = flag
             formData.value = cloneDeep(rowData)
-            btnOKDisabled.value = false
+            // btnOKDisabled.value = false
             setOcxData(rowData)
             editRows.add(rowData)
         }

@@ -3,7 +3,7 @@
  * @Date: 2024-08-29 09:54:18
  * @Description: 智能分析-人脸搜索
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-21 17:40:51
+ * @LastEditTime: 2024-10-25 16:15:47
 -->
 <template>
     <div class="base-intel-box">
@@ -299,6 +299,7 @@
                     :show-header="formData.searchType === 'event'"
                     :span-method="handleTableSpanMethods"
                     :data="formData.searchType === 'event' ? sliceTableData : sliceTableDataWithDateColsSpan"
+                    show-overflow-tooltip
                     @row-click="handleTableRowClick"
                     @selection-change="handleTableSelectionChange"
                 >
@@ -415,8 +416,11 @@
             v-model="pageData.isDetailPop"
             :list="sliceTableData"
             :index="pageData.detailIndex"
+            show-search
             @close="pageData.isDetailPop = false"
             @play-rec="playRec"
+            @add="register"
+            @search="searchSnap"
         />
         <IntelBaseFaceMatchPop
             v-model="pageData.isMatchPop"

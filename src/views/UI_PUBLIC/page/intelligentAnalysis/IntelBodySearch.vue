@@ -3,7 +3,7 @@
  * @Date: 2024-09-05 17:42:11
  * @Description: 智能分析 - 人体搜索
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 19:53:25
+ * @LastEditTime: 2024-10-25 14:58:58
 -->
 <template>
     <div class="base-intel-box">
@@ -148,6 +148,7 @@
                     border
                     stripe
                     :data="sliceTableData"
+                    show-overflow-tooltip
                     @row-click="handleTableRowClick"
                     @selection-change="handleTableSelectionChange"
                 >

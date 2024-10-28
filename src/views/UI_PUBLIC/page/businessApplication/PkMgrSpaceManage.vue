@@ -3,10 +3,10 @@
  * @Date: 2024-05-27 09:38:17
  * @Description: 业务应用-停车场管理-车位管理
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-21 17:48:00
+ * @LastEditTime: 2024-10-25 14:25:06
 -->
 <template>
-    <div class="base-flex-box manage">
+    <div class="base-flex-box">
         <div class="base-table-box">
             <el-table
                 :data="tableData"
@@ -145,10 +145,6 @@
 <script lang="ts" src="./PkMgrSpaceManage.v.ts"></script>
 
 <style lang="scss" scoped>
-.manage {
-    width: 100%;
-    height: calc(var(--content-height) + 10px);
-}
 .tips {
     font-size: 14px;
     color: var(--main-text-light);

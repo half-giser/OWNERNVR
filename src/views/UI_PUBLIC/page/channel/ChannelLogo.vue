@@ -3,7 +3,7 @@
  * @Date: 2024-10-23 10:36:10
  * @Description: LOGO设置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-23 19:19:36
+ * @LastEditTime: 2024-10-25 18:35:57
 -->
 <template>
     <div class="base-chl-box">
@@ -26,7 +26,6 @@
                     <el-select
                         v-if="tableData.length"
                         v-model="pageData.tableIndex"
-                        placeholder=""
                         @change="changeChl"
                     >
                         <el-option
@@ -39,14 +38,14 @@
                     <el-select
                         v-else
                         disabled
-                        placeholder=""
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_LOGO')">
                     <el-select
-                        v-if="tableData.length"
+                        v-if="tableData[pageData.tableIndex]"
                         v-model="tableData[pageData.tableIndex].switch"
                         :disabled="tableData[pageData.tableIndex].disabled"
+                        @change="addEditRow(pageData.tableIndex)"
                     >
                         <el-option
                             v-for="item in pageData.switchOptions"
@@ -57,19 +56,19 @@
                     </el-select>
                     <el-select
                         v-else
-                        placeholder=""
                         disabled
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_TRANSPARENCY')">
                     <el-slider
-                        v-if="tableData.length"
+                        v-if="tableData[pageData.tableIndex]"
                         v-model="tableData[pageData.tableIndex].opacity"
                         :min="tableData[pageData.tableIndex].minOpacity"
                         :max="tableData[pageData.tableIndex].maxOpacity"
                         :disabled="tableData[pageData.tableIndex].disabled"
                         show-input
                         :show-input-controls="false"
+                        @change="addEditRow(pageData.tableIndex)"
                     />
                     <el-slider
                         v-else
@@ -133,6 +132,7 @@
                                 v-model="scope.row.switch"
                                 :disabled="scope.row.disabled"
                                 :placeholder="Translate('IDCS_ON')"
+                                @change="addEditRow(scope.$index)"
                             >
                                 <el-option
                                     v-for="item in pageData.switchOptions"
@@ -154,6 +154,7 @@
                                 :min="scope.row.minOpacity"
                                 :max="scope.row.maxOpacity"
                                 @keydown.enter="handleKeydownEnter($event)"
+                                @change="addEditRow(scope.$index)"
                             />
                         </template>
                     </el-table-column>
@@ -163,17 +164,14 @@
                 <el-pagination
                     v-model:current-page="pageData.pageIndex"
                     v-model:page-size="pageData.pageSize"
-                    :page-sizes="[10, 20, 30]"
-                    layout="prev, pager, next, sizes, total, jumper"
                     :total="pageData.total"
-                    size="small"
                     @size-change="getData"
                     @current-change="getData"
                 />
             </div>
             <div class="base-btn-box">
                 <el-button
-                    :disabled="pageData.btnDisabled"
+                    :disabled="!editRows.size"
                     @click="setData"
                 >
                     {{ Translate('IDCS_APPLY') }}

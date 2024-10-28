@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 二级类型2布局页--适用于“搜索和备份”、“智能分析”、“业务应用”等
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-08 16:55:36
+ * @LastEditTime: 2024-10-25 14:22:45
 -->
 
 <template>
@@ -35,7 +35,7 @@
 <style lang="scss" scoped>
 #layout2 {
     border: solid 1px var(--content-border);
-    min-height: calc(100vh - 172px);
+    min-height: 100%;
     width: 100%;
 }
 

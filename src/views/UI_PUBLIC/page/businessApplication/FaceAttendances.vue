@@ -3,10 +3,10 @@
  * @Date: 2024-06-05 18:18:24
  * @Description: 业务应用-人脸考勤
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-23 20:49:09
+ * @LastEditTime: 2024-10-25 14:23:28
 -->
 <template>
-    <div class="base-flex-box face">
+    <div class="base-flex-box">
         <div class="form">
             <el-form
                 label-position="left"
@@ -234,10 +234,6 @@
 <script lang="ts" src="./FaceAttendances.v.ts"></script>
 
 <style lang="scss" scoped>
-.face {
-    height: calc(var(--content-height) + 10px);
-}
-
 .form {
     display: flex;
 

@@ -295,7 +295,7 @@ export default defineComponent({
          * @param event
          * @returns
          */
-        const handleToolBarEvent = (event: ConfigToolBarEvent<ChannelToolBarEvent>) => {
+        const handleToolBarEvent = (event: ConfigToolBarEvent<SearchToolBarEvent>) => {
             if (event.type === 'search') {
                 pageData.value.searchText = event.data.searchText
                 getUserList(event.data.searchText)

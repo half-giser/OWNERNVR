@@ -326,7 +326,6 @@ export default defineComponent({
                 plugin.AddPluginMoveEvent(document.getElementById('player') as HTMLElement)
                 const sendXML = OCX_XML_SetPluginModel(osType == 'mac' ? 'TripwireConfig' : 'ReadOnly', 'Live')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                plugin.DisplayOCX(true)
             }
         }
 
@@ -1484,7 +1483,6 @@ export default defineComponent({
                 plugin.GetVideoPlugin().ExecuteCmd(sendAreaXML)
                 const sendXML = OCX_XML_StopPreview('ALL')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                plugin.CloseCurPlugin(document.getElementById('player'))
             }
 
             if (mode.value === 'h5') {

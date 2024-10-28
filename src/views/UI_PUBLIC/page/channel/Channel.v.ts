@@ -52,7 +52,7 @@ export default defineComponent({
         let ChlStatusRefreshTimer: NodeJS.Timeout | null = null
         const ChlStatusRefreshTimeSpan = 5000 //通道树状态刷新时间间隔
 
-        const handleToolBarEvent = (toolBarEvent: ConfigToolBarEvent<ChannelToolBarEvent>) => {
+        const handleToolBarEvent = (toolBarEvent: ConfigToolBarEvent<SearchToolBarEvent>) => {
             switch (toolBarEvent.type) {
                 case 'search':
                     getDataList(toolBarEvent.data.searchText)
@@ -102,18 +102,21 @@ export default defineComponent({
                 type: 'question',
                 message: Translate('IDCS_DELETE_ALL_ITEMS'),
             }).then(() => {
-                let data = '<condition><devIds type="list">'
-                tableData.value.forEach((ele: ChannelInfoDto) => {
-                    // UI1-E可以删除poe通道
-                    if (import.meta.env.VITE_UI_TYPE === 'UI1-E') {
-                        if (ele.ip) data += '<item id="' + ele.id + '"></item>'
-                    } else {
-                        if (ele.addType != 'poe' && ele.ip) data += '<item id="' + ele.id + '"></item>'
-                    }
-                })
-                data += '</devIds></condition>'
+                const sendXml = rawXml`
+                    <condition>
+                        <devIds type="list">
+                            ${
+                                // UI1-E可以删除poe通道
+                                tableData.value
+                                    .filter((ele) => ele.ip && (import.meta.env.VITE_UI_TYPE === 'UI1-E' || ele.addType !== 'poe'))
+                                    .map((ele) => `<item id="${ele.id}"></item>`)
+                                    .join('')
+                            }
+                        </devIds>
+                    </condition>
+                `
                 openLoading()
-                delDevList(data).then(() => {
+                delDevList(sendXml).then(() => {
                     closeLoading()
                     //删除通道不提示
                     getDataList()

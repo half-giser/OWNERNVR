@@ -3,7 +3,7 @@
  * @Date: 2024-08-20 13:57:42
  * @Description: 云台-轨迹
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 15:27:10
+ * @LastEditTime: 2024-10-25 11:51:50
 -->
 <template>
     <div class="base-chl-box">
@@ -26,7 +26,7 @@
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
                     <el-select
                         v-model="pageData.tableIndex"
-                        popper-class="custom-select"
+                        popper-class="base-chl-select"
                         @change="changeChl"
                     >
                         <el-option
@@ -40,7 +40,7 @@
                 <el-form-item :label="Translate('IDCS_PTZ_TRACE')">
                     <el-select
                         v-model="formData.traceIndex"
-                        value-on-clear=""
+                        popper-class="base-chl-select"
                     >
                         <el-option
                             v-for="(item, index) in traceOptions"
