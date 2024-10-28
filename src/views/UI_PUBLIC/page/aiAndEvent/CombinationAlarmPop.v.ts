@@ -2,8 +2,8 @@
  * @Description: 普通事件——组合报警弹窗
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-23 15:03:09
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 15:17:57
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-28 10:35:25
  */
 import { type CombinedAlarmItem, type faceMatchObj } from '@/types/apiType/aiAndEvent'
 import FaceMatchPop from './FaceMatchPop.vue'
@@ -25,12 +25,11 @@ export default defineComponent({
             type: Object as PropType<Record<string, Record<string, faceMatchObj>>>,
             require: true,
         },
-        handleLinkedList: {
-            type: Function,
-            require: true,
-        },
     },
     emits: {
+        confirm(currId: string, combinedAlarmItems: CombinedAlarmItem[], entity: string, obj: faceMatchObj) {
+            return typeof currId === 'string' && Array.isArray(combinedAlarmItems) && typeof entity === 'string' && typeof obj === 'object'
+        },
         close(id: string) {
             return id
         },
@@ -540,7 +539,7 @@ export default defineComponent({
             if (isSameId) return false
 
             let entity = ''
-            let obj = {}
+            let obj = {} as faceMatchObj
             tableData.value.forEach((item) => {
                 if (item.alarmSourceType == 'FaceMatch' && pageData.value.faceMatchObj[item.alarmSourceEntity.value]) {
                     if (pageData.value.faceMatchObj[item.alarmSourceEntity.value]) {
@@ -549,7 +548,7 @@ export default defineComponent({
                     }
                 }
             })
-            prop.handleLinkedList!(prop.linkedId, tableData.value, entity, obj)
+            ctx.emit('confirm', prop.linkedId!, tableData.value, entity, obj)
             ctx.emit('close', prop.linkedId!)
         }
 

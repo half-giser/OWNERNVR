@@ -16,12 +16,11 @@ export default defineComponent({
             type: Object as PropType<AudioAlarmOut>,
             require: true,
         },
-        handleAddVoiceList: {
-            type: Function,
-            require: true,
-        },
     },
     emits: {
+        apply(audioId: string, fileName: string) {
+            return typeof audioId === 'string' && typeof fileName === 'string'
+        },
         close() {
             return true
         },
@@ -116,7 +115,7 @@ export default defineComponent({
                     if ($('//status').text() == 'success') {
                         ctx.emit('close')
                         const audioId = $('//content/param/id').text()
-                        prop.handleAddVoiceList!(audioId, pageData.value.uploadFileName)
+                        ctx.emit('apply', audioId, pageData.value.uploadFileName)
                     } else {
                         const errorCode = Number($('//errorCode').text())
                         handleErrorMsg(errorCode)

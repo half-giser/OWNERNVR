@@ -2,8 +2,8 @@
  * @Description: 普通事件——组合报警
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-22 16:04:47
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-23 19:33:10
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-28 10:37:33
 -->
 <template>
     <div class="base-flex-box">
@@ -485,7 +485,7 @@
             v-model="pageData.isPresetPopOpen"
             :filter-chl-id="pageData.presetChlId"
             :linked-list="pageData.presetLinkedList"
-            :handle-preset-linked-list="handlePresetLinkedList"
+            @confirm="handlePresetLinkedList"
             @close="presetClose"
         />
         <CombinationAlarmPop
@@ -493,7 +493,7 @@
             :linked-id="pageData.combinedAlarmLinkedId"
             :linked-list="pageData.combinedAlarmLinkedList"
             :curr-row-face-obj="pageData.currRowFaceObj"
-            :handle-linked-list="handleCombinedAlarmLinkedList"
+            @confirm="handleCombinedAlarmLinkedList"
             @close="combinedAlarmClose"
         />
     </div>

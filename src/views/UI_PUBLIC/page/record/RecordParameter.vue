@@ -240,7 +240,7 @@
             v-model="pageData.isSetCustomization"
             :expiration-type="pageData.expirationType"
             :expiration-data="pageData.expirationData"
-            :handle-get-expiration-data="handleGetExpirationData"
+            @confirm="handleGetExpirationData"
             @close="pageData.isSetCustomization = false"
         />
     </div>
