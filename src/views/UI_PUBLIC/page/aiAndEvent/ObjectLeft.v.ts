@@ -2,8 +2,8 @@
  * @Description: AI 事件——更多——物品遗留与看护
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-18 09:43:49
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-28 14:21:05
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-28 15:35:54
  */
 import { cloneDeep } from 'lodash-es'
 import { type BoundaryItem, ObjectLeft, type PresetList, type chlCaps } from '@/types/apiType/aiAndEvent'
@@ -428,6 +428,7 @@ export default defineComponent({
                 if (mode.value != 'h5') {
                     console.log('ocx not show all alarm area')
                 }
+                setAreaView()
             }
         }
 
