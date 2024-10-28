@@ -51,7 +51,7 @@ export default defineComponent({
         const formRule = ref<FormRules>({
             code: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (prop.codeList.includes(value) && value !== prop.code) {
                             callback(new Error(Translate('IDCS_SIP_ID_REPEAT')))
                             return

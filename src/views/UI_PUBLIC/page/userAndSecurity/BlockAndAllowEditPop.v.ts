@@ -48,7 +48,7 @@ export default defineComponent({
         const rules = ref<FormRules>({
             ip: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (formData.value.addressType !== 'ip') {
                             callback()
                             return
@@ -70,7 +70,7 @@ export default defineComponent({
             ],
             startIp: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (formData.value.addressType !== 'iprange') {
                             callback()
                             return
@@ -98,7 +98,7 @@ export default defineComponent({
             ],
             endIp: [
                 {
-                    validator: (rule, value, callback) => {
+                    validator: (_rule, _value, callback) => {
                         if (formData.value.addressType !== 'iprange') {
                             callback()
                             return
@@ -115,7 +115,7 @@ export default defineComponent({
             ],
             mac: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (formData.value.addressType !== 'mac') {
                             callback()
                             return

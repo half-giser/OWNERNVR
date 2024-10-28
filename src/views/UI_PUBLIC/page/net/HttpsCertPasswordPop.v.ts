@@ -17,7 +17,7 @@ export default defineComponent({
             return true
         },
     },
-    setup(prop, ctx) {
+    setup(_prop, ctx) {
         const { Translate } = useLangStore()
 
         const pageData = ref({
@@ -39,7 +39,7 @@ export default defineComponent({
         const formRule = ref<FormRules>({
             password: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (!value.length && formData.value.encryption === 'encrypted') {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return

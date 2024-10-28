@@ -38,9 +38,9 @@
                     <div>
                         <el-checkbox
                             v-model="pageData.isShowAllArea"
+                            :label="Translate('IDCS_DISPLAY_ALL_AREA')"
                             @change="showAllArea"
-                            >{{ Translate('IDCS_DISPLAY_ALL_AREA') }}</el-checkbox
-                        >
+                        />
                     </div>
                     <div>
                         <el-button
@@ -62,7 +62,10 @@
             class="base-btn-box padding collapse"
             span="start"
         >
-            <el-checkbox v-model="vsdData.enabledSwitch">{{ Translate('IDCS_ENABLE') }}</el-checkbox>
+            <el-checkbox
+                v-model="vsdData.enabledSwitch"
+                :label="Translate('IDCS_ENABLE')"
+            />
         </div>
         <div>
             <el-tabs
@@ -83,7 +86,6 @@
                             :style="{
                                 '--form-input-width': '215px',
                             }"
-                            label-position="left"
                             inline-message
                         >
                             <!-- 排程 -->
@@ -118,7 +120,7 @@
                                     @change="detectAreaChange"
                                 >
                                     <el-radio-button
-                                        v-for="(value, name, index) in vsdData.detectAreaInfo"
+                                        v-for="(_value, _name, index) in vsdData.detectAreaInfo"
                                         :key="index"
                                         :label="index + 1"
                                         :value="index"
@@ -134,7 +136,7 @@
                                     @change="maskAreaChange"
                                 >
                                     <el-radio-button
-                                        v-for="(value, name, index) in vsdData.maskAreaInfo"
+                                        v-for="(_value, _name, index) in vsdData.maskAreaInfo"
                                         :key="index"
                                         :label="index + 1"
                                         :value="index"
@@ -148,9 +150,9 @@
                             <el-form-item>
                                 <el-checkbox
                                     v-model="vsdData.countOSD.switch"
+                                    :label="Translate('IDCS_STATIST_OSD')"
                                     @change="setEnableOSD"
-                                    >{{ Translate('IDCS_STATIST_OSD') }}</el-checkbox
-                                >
+                                />
                             </el-form-item>
                             <el-form-item :label="Translate('IDCS_HUMAN_COUNT')">
                                 <el-input
@@ -179,10 +181,9 @@
                             <el-form-item :label="Translate('IDCS_AUTO_RESET')">
                                 <el-checkbox
                                     v-model="pageData.autoReset"
+                                    :label="Translate('IDCS_ENABLE')"
                                     @change="autoResetChange"
-                                >
-                                    {{ Translate('IDCS_ENABLE') }}
-                                </el-checkbox>
+                                />
                             </el-form-item>
                             <!-- 模式 -->
                             <el-form-item :label="Translate('IDCS_MODE')">
@@ -295,7 +296,6 @@
                                 '--form-label-width': '200px',
                                 '--form-input-width': '215px',
                             }"
-                            label-position="left"
                             inline-message
                         >
                             <!-- 检测目标 -->
@@ -303,7 +303,10 @@
                             <!-- 人灵敏度 -->
                             <el-form-item>
                                 <template #label>
-                                    <el-checkbox v-model="vsdData.objectFilter.person">{{ Translate('IDCS_DETECTION_PERSON') }}</el-checkbox>
+                                    <el-checkbox
+                                        v-model="vsdData.objectFilter.person"
+                                        :label="Translate('IDCS_DETECTION_PERSON')"
+                                    />
                                 </template>
                                 <template #default>
                                     <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
@@ -319,7 +322,10 @@
                             <!-- 汽车灵敏度 -->
                             <el-form-item>
                                 <template #label>
-                                    <el-checkbox v-model="vsdData.objectFilter.car">{{ Translate('IDCS_DETECTION_VEHICLE') }}</el-checkbox>
+                                    <el-checkbox
+                                        v-model="vsdData.objectFilter.car"
+                                        :label="Translate('IDCS_DETECTION_VEHICLE')"
+                                    />
                                 </template>
                                 <template #default>
                                     <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
@@ -336,7 +342,10 @@
                             <!-- 热成像通道不显示非机动车配置 -->
                             <el-form-item v-if="prop.chlData.accessType === '0'">
                                 <template #label>
-                                    <el-checkbox v-model="vsdData.objectFilter.motorcycle">{{ Translate('IDCS_NON_VEHICLE') }}</el-checkbox>
+                                    <el-checkbox
+                                        v-model="vsdData.objectFilter.motorcycle"
+                                        :label="Translate('IDCS_NON_VEHICLE')"
+                                    />
                                 </template>
                                 <template #default>
                                     <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
@@ -365,7 +374,6 @@
                             :style="{
                                 '--form-input-width': '215px',
                             }"
-                            label-position="left"
                             inline-message
                         >
                             <!-- 图片叠加 -->
@@ -389,9 +397,9 @@
                             <el-form-item>
                                 <el-checkbox
                                     v-model="pageData.osdCheckAll"
+                                    :label="Translate('IDCS_ALL')"
                                     @change="checkAllOsdType"
-                                    >{{ Translate('IDCS_ALL') }}</el-checkbox
-                                >
+                                />
                                 <el-checkbox-group
                                     v-model="osdCfgCheckedList"
                                     class="osd_checkbox_group"
@@ -402,8 +410,7 @@
                                         :key="item.value"
                                         :label="item.label"
                                         :value="item.value"
-                                    >
-                                    </el-checkbox>
+                                    />
                                 </el-checkbox-group>
                             </el-form-item>
                         </el-form>
@@ -414,7 +421,6 @@
             <el-popover
                 v-model:visible="advancedVisible"
                 width="400"
-                trigger="click"
                 popper-class="no-padding"
             >
                 <template #reference>
@@ -434,22 +440,21 @@
                     <el-checkbox
                         v-model="pageData.isSaveSourcePicChecked"
                         :disabled="pageData.isSavePicDisabled"
+                        :label="Translate('IDCS_SMART_SAVE_SOURCE_PIC')"
                         @change="saveSourcePicChange"
-                        >{{ Translate('IDCS_SMART_SAVE_SOURCE_PIC') }}</el-checkbox
-                    >
+                    />
                     <el-checkbox
                         v-model="pageData.isSaveTargetPicChecked"
                         :disabled="pageData.isSavePicDisabled"
+                        :label="Translate('IDCS_SMART_SAVE_TARGET_PIC')"
                         @change="saveTargetPicChange"
-                        >{{ Translate('IDCS_SMART_SAVE_TARGET_PIC') }}</el-checkbox
-                    >
+                    />
                     <el-form
                         class="narrow"
                         :style="{
                             '--form-label-width': '150px',
                             '--form-input-width': '170px',
                         }"
-                        label-position="left"
                         inline-message
                     >
                         <!-- 识别模式 -->

@@ -8,12 +8,9 @@
         v-model="ipcUpgradePopVisiable"
         :title="Translate('IDCS_UPGRADE')"
         width="470"
-        align-center
-        draggable
         @opened="opened"
     >
         <el-form
-            label-position="left"
             inline-message
             class="inline-message"
         >

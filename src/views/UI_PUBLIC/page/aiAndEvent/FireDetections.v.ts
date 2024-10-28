@@ -3,7 +3,7 @@
  * @Date: 2024-09-11 14:16:37
  * @Description: 火点检测
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 17:45:50
+ * @LastEditTime: 2024-10-28 14:24:44
  */
 import { type chlCaps, type aiResourceRow, type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
@@ -47,12 +47,12 @@ export default defineComponent({
 
         const closeTip = getAlarmEventList()
 
-        const eventTypeMapping: Record<string, string> = {
-            faceDetect: Translate('IDCS_FACE_DETECTION') + '+' + Translate('IDCS_FACE_RECOGNITION'),
-            faceMatch: Translate('IDCS_FACE_RECOGNITION'),
-            tripwire: Translate('IDCS_BEYOND_DETECTION'),
-            perimeter: Translate('IDCS_INVADE_DETECTION'),
-        }
+        // const eventTypeMapping: Record<string, string> = {
+        //     faceDetect: Translate('IDCS_FACE_DETECTION') + '+' + Translate('IDCS_FACE_RECOGNITION'),
+        //     faceMatch: Translate('IDCS_FACE_RECOGNITION'),
+        //     tripwire: Translate('IDCS_BEYOND_DETECTION'),
+        //     perimeter: Translate('IDCS_INVADE_DETECTION'),
+        // }
 
         const pageData = ref({
             // 当前选中的通道
@@ -64,11 +64,11 @@ export default defineComponent({
             // 是否支持声音设置
             supportAlarmAudioConfig: true,
             // 不支持功能提示页面是否展示
-            notSupportTipShow: false,
+            // notSupportTipShow: false,
             // 请求数据失败显示提示
             requireDataFail: false,
             // 是否显示ai设置按钮
-            showAiConfig: false,
+            // showAiConfig: false,
             // AI详情弹窗
             aiResourcePopOpen: false,
             // 总ai资源占用率
@@ -191,7 +191,6 @@ export default defineComponent({
                     pluginStore.showPluginNoResponse = true
                     plugin.ShowPluginNoResponse()
                 }
-                plugin.AddPluginMoveEvent(document.getElementById('player')!)
                 const sendXML = OCX_XML_SetPluginModel(osType == 'mac' ? 'FireConfig' : 'ReadOnly', 'Live')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
@@ -242,66 +241,66 @@ export default defineComponent({
         }
 
         // 获取AI资源请求
-        const getAIResourceData = async (isEdit: boolean) => {
-            let sendXml = ''
-            if (isEdit) {
-                sendXml = rawXml`
-                    <content>
-                        <chl>
-                            <item id="${pageData.value.currChlId}">
-                                <eventType>tripwire</eventType>
-                                <switch>${pageData.value.detectionEnable.toString()}</switch>
-                            </item>
-                        </chl>
-                    </content>`
-            }
-            const res = await queryAIResourceDetail(sendXml)
-            const $ = queryXml(res)
-            if ($('status').text() == 'success') {
-                const tempResourceOccupancy = Number($('//content/totalResourceOccupancy').text())
-                if (tempResourceOccupancy * 1 <= 100) {
-                    aiResourceTableData.value = []
-                    pageData.value.totalResourceOccupancy = tempResourceOccupancy.toFixed(2)
-                    $('//content/chl/item').forEach((element) => {
-                        const $item = queryXml(element.element)
-                        const id = element.attr('id')
-                        let name = $item('name').text()
-                        // 通道是否在线
-                        const connectState = $item('connectState').text() == 'true'
-                        name = connectState ? name : name + '(' + Translate('IDCS_OFFLINE') + ')'
-                        $item('resource/item').forEach((ele) => {
-                            const eventType: string[] = ele.attr('eventType') ? ele.attr('eventType')!.split(',') : []
-                            const eventTypeText = eventType
-                                .map((item) => {
-                                    return eventTypeMapping[item]
-                                })
-                                .join('+')
-                            const percent = ele.text() + '%'
-                            const decodeResource = ele.attr('occupyDecodeCapPercent')
-                                ? ele.attr('occupyDecodeCapPercent') == 'notEnough'
-                                    ? Translate('IDCS_NO_DECODE_RESOURCE')
-                                    : ele.attr('occupyDecodeCapPercent') + '%'
-                                : '--'
-                            aiResourceTableData.value.push({
-                                id: id ? id : '',
-                                name: name,
-                                eventType: eventType,
-                                eventTypeText: eventTypeText,
-                                percent: percent,
-                                decodeResource: decodeResource,
-                            })
-                        })
-                    })
-                } else {
-                    openMessageTipBox({
-                        type: 'info',
-                        message: Translate('IDCS_NO_RESOURCE'),
-                    })
-                    // 资源占用率超过100
-                    pageData.value.detectionEnable = false
-                }
-            }
-        }
+        // const getAIResourceData = async (isEdit: boolean) => {
+        //     let sendXml = ''
+        //     if (isEdit) {
+        //         sendXml = rawXml`
+        //             <content>
+        //                 <chl>
+        //                     <item id="${pageData.value.currChlId}">
+        //                         <eventType>tripwire</eventType>
+        //                         <switch>${pageData.value.detectionEnable.toString()}</switch>
+        //                     </item>
+        //                 </chl>
+        //             </content>`
+        //     }
+        //     const res = await queryAIResourceDetail(sendXml)
+        //     const $ = queryXml(res)
+        //     if ($('status').text() == 'success') {
+        //         const tempResourceOccupancy = Number($('//content/totalResourceOccupancy').text())
+        //         if (tempResourceOccupancy * 1 <= 100) {
+        //             aiResourceTableData.value = []
+        //             pageData.value.totalResourceOccupancy = tempResourceOccupancy.toFixed(2)
+        //             $('//content/chl/item').forEach((element) => {
+        //                 const $item = queryXml(element.element)
+        //                 const id = element.attr('id')
+        //                 let name = $item('name').text()
+        //                 // 通道是否在线
+        //                 const connectState = $item('connectState').text() == 'true'
+        //                 name = connectState ? name : name + '(' + Translate('IDCS_OFFLINE') + ')'
+        //                 $item('resource/item').forEach((ele) => {
+        //                     const eventType: string[] = ele.attr('eventType') ? ele.attr('eventType')!.split(',') : []
+        //                     const eventTypeText = eventType
+        //                         .map((item) => {
+        //                             return eventTypeMapping[item]
+        //                         })
+        //                         .join('+')
+        //                     const percent = ele.text() + '%'
+        //                     const decodeResource = ele.attr('occupyDecodeCapPercent')
+        //                         ? ele.attr('occupyDecodeCapPercent') == 'notEnough'
+        //                             ? Translate('IDCS_NO_DECODE_RESOURCE')
+        //                             : ele.attr('occupyDecodeCapPercent') + '%'
+        //                         : '--'
+        //                     aiResourceTableData.value.push({
+        //                         id: id ? id : '',
+        //                         name: name,
+        //                         eventType: eventType,
+        //                         eventTypeText: eventTypeText,
+        //                         percent: percent,
+        //                         decodeResource: decodeResource,
+        //                     })
+        //                 })
+        //             })
+        //         } else {
+        //             openMessageTipBox({
+        //                 type: 'info',
+        //                 message: Translate('IDCS_NO_RESOURCE'),
+        //             })
+        //             // 资源占用率超过100
+        //             pageData.value.detectionEnable = false
+        //         }
+        //     }
+        // }
 
         // 删除AI资源请求
         const deleteAIResource = async (row: aiResourceRow) => {
@@ -824,11 +823,11 @@ export default defineComponent({
             pageData.value.currChlId = props.currChlId
             pageData.value.chlData = props.chlData
             pageData.value.voiceList = props.voiceList
-            // TODO 老代码中写死不显示ai
-            pageData.value.showAiConfig = false
-            if (pageData.value.showAiConfig) {
-                await getAIResourceData(false)
-            }
+            // 老代码中写死不显示ai
+            // pageData.value.showAiConfig = false
+            // if (pageData.value.showAiConfig) {
+            //     await getAIResourceData(false)
+            // }
             await getScheduleList()
             await getRecordList()
             await getAlarmOutList()

@@ -7,8 +7,6 @@
     <el-dialog
         :title="Translate('IDCS_EDIT_GROUP')"
         width="460"
-        align-center
-        draggable
         @opened="opened"
     >
         <el-form
@@ -16,7 +14,6 @@
             :model="formData"
             :rules="rules"
             label-width="200"
-            label-position="left"
         >
             <el-form-item
                 prop="name"

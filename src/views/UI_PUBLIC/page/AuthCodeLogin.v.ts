@@ -60,7 +60,7 @@ export default defineComponent({
         const rules = ref<FormRules>({
             sn: [
                 {
-                    validator(rule, value, callback) {
+                    validator(_rule, value, callback) {
                         if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_SN_EMPTY')))
                             return
@@ -72,7 +72,7 @@ export default defineComponent({
             ],
             code: [
                 {
-                    validator(rule, value, callback) {
+                    validator(_rule, value, callback) {
                         if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_AUTHCODE_EMPTY')))
                             return

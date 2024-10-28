@@ -18,7 +18,7 @@ export default defineComponent({
         const formRule = ref<FormRules>({
             snmpPort: [
                 {
-                    validator(rule, value, callback) {
+                    validator(_rule, value, callback) {
                         if (!disabled.value && !value) {
                             callback(new Error(Translate('IDCS_PROMPT_SNMP_PORT_EMPTY')))
                             return
@@ -30,7 +30,7 @@ export default defineComponent({
             ],
             readCommunity: [
                 {
-                    validator(rule, value, callback) {
+                    validator(_rule, value, callback) {
                         if (!disabled.value && !value.length) {
                             callback(new Error(Translate('IDCS_PROMPT_READ_COMMUNITY_EMPTY')))
                             return
@@ -42,7 +42,7 @@ export default defineComponent({
             ],
             writeCommunity: [
                 {
-                    validator(rule, value, callback) {
+                    validator(_rule, value, callback) {
                         if (!disabled.value && !value.length) {
                             callback(new Error(Translate('IDCS_PROMPT_WRITE_COMMUNITY_EMPTY')))
                             return
@@ -54,7 +54,7 @@ export default defineComponent({
             ],
             trapAddress: [
                 {
-                    validator(rule, value, callback) {
+                    validator(_rule, value, callback) {
                         if (!disabled.value) {
                             if (!value.length) {
                                 callback(new Error(Translate('IDCS_PROMPT_TRAP_ADDRESS_EMPTY')))
@@ -73,7 +73,7 @@ export default defineComponent({
             ],
             trapPort: [
                 {
-                    validator(rule, value, callback) {
+                    validator(_rule, value, callback) {
                         if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_TRAP_PORT_EMPTY')))
                             return

@@ -9,8 +9,6 @@
     <el-dialog
         :title="Translate('IDCS_ADD')"
         :width="type === 'both' ? 1150 : 1000"
-        align-center
-        draggable
         append-to-body
         @open="open"
     >

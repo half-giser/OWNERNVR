@@ -566,7 +566,6 @@ export default defineComponent({
             tableData,
             playRec,
             displayEventIcon,
-            DefaultPagerLayout,
             handleRecClick,
             filterTableData,
             handleRecChange,

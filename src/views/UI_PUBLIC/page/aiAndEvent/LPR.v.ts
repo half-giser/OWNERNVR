@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-09 09:56:33
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 18:00:48
+ * @LastEditTime: 2024-10-28 14:09:49
  */
 import { type CompareTask, VehicleDetection, type VehicleChlItem, VehicleCompare } from '@/types/apiType/aiAndEvent'
 import CanvasPolygon from '@/utils/canvas/canvasPolygon'
@@ -755,6 +755,8 @@ export default defineComponent({
                         vehicleDrawer.setCurrAreaIndex(detectionPageData.value.regionArea, currAreaType)
                         vehicleDrawer.setArea(vehicleDetectionData.value.regionInfo[detectionPageData.value.regionArea])
                     } else {
+                        // 从侦测区域切换到屏蔽区域时（反之同理），会先执行侦测区域的清空、不可编辑，再执行屏蔽区域的是否可编辑三个命令
+                        // 最后执行渲染画线的命令，加延时的目的是这个过程执行命令过多，插件响应不过来
                         setTimeout(() => {
                             const sendXML = OCX_XML_SetVfdArea(vehicleDetectionData.value.regionInfo[detectionPageData.value.regionArea], type, 'green', 'TYPE_PLATE_DETECTION')
                             plugin.GetVideoPlugin().ExecuteCmd(sendXML)
@@ -777,16 +779,17 @@ export default defineComponent({
                 if (mode.value === 'h5') {
                     vehicleDrawer.setRangeMax(vehicleDetectionData.value.maxRegionInfo[0])
                 } else {
-                    // todo 源代码注释插件设置，记得测试是否可用
-                    const sendXML = OCX_XML_SetVfdArea(vehicleDetectionData.value.maxRegionInfo[0], 'faceMax', 'green', 'TYPE_PLATE_DETECTION')
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    // (配合插件。。。)
+                    // const sendXML = OCX_XML_SetVfdArea(vehicleDetectionData.value.maxRegionInfo[0], 'faceMax', 'green', 'TYPE_PLATE_DETECTION')
+                    // plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 }
             } else if (type == 'vehicleMin') {
                 if (mode.value === 'h5') {
                     vehicleDrawer.setRangeMin(vehicleDetectionData.value.minRegionInfo[0])
                 } else {
-                    const sendXML = OCX_XML_SetVfdArea(vehicleDetectionData.value.minRegionInfo[0], 'faceMin', 'green', 'TYPE_PLATE_DETECTION')
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    // (配合插件。。。)
+                    // const sendXML = OCX_XML_SetVfdArea(vehicleDetectionData.value.minRegionInfo[0], 'faceMin', 'green', 'TYPE_PLATE_DETECTION')
+                    // plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 }
             }
 

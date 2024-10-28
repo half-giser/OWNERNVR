@@ -9,8 +9,6 @@
     <el-dialog
         :title="displayTitle"
         width="600"
-        align-center
-        draggable
         @open="open"
     >
         <div v-show="type === 'add' && !pageData.disabledTab">
@@ -30,7 +28,6 @@
         >
             <el-form
                 ref="formRef"
-                label-position="left"
                 :model="formData"
                 :rules="formRule"
                 :style="{
@@ -87,7 +84,6 @@
             class="import"
         >
             <el-form
-                label-position="left"
                 class="inline-message"
                 :style="{
                     '--form-label-width': '100px',

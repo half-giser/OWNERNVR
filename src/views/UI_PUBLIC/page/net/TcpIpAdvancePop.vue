@@ -9,15 +9,12 @@
     <el-dialog
         :title="Translate('IDCS_ADVANCE_TCPIP')"
         width="500"
-        align-center
-        draggable
         @open="open"
     >
         <el-form
             ref="formRef"
             :rules="formRule"
             :model="formData"
-            label-position="left"
             :style="{
                 '--form-label-width': '100px',
             }"
@@ -26,8 +23,8 @@
                 <el-checkbox
                     v-model="formData.secondIpSwitch"
                     :disabled="formData.dhcpSwitch"
-                    >{{ Translate('IDCS_ENABLE_SECOND_IP') }}</el-checkbox
-                >
+                    :label="Translate('IDCS_ENABLE_SECOND_IP')"
+                />
             </el-form-item>
             <el-form-item
                 v-show="formData.mtu.length === 1"
@@ -50,7 +47,7 @@
                 />
             </el-form-item>
             <template
-                v-for="(mtu, index) in formData.mtu"
+                v-for="(_mtu, index) in formData.mtu"
                 :key="index"
             >
                 <div
@@ -64,7 +61,6 @@
                         v-model="formData.mtu[index]"
                         :min="1280"
                         :max="1500"
-                        value-on-clear="min"
                     />
                 </el-form-item>
             </template>

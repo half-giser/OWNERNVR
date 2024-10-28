@@ -7,10 +7,7 @@
 -->
 <template>
     <div class="VoiceCtrl">
-        <el-tooltip
-            :content="mute ? Translate('IDCS_AUDIO_ON') : Translate('IDCS_AUDIO_OFF')"
-            :show-after="500"
-        >
+        <el-tooltip :content="mute ? Translate('IDCS_AUDIO_ON') : Translate('IDCS_AUDIO_OFF')">
             <BaseImgSprite
                 class="icon"
                 :file="iconFile"

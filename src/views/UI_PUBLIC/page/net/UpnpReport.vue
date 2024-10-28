@@ -15,14 +15,13 @@
             :style="{
                 '--form-input-width': '200px',
             }"
-            label-position="left"
         >
             <el-form-item>
                 <el-checkbox
                     v-model="formData.switch"
+                    :label="Translate('IDCS_ENABLE')"
                     @change="changeSwitch"
-                    >{{ Translate('IDCS_ENABLE') }}</el-checkbox
-                >
+                />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_SERVER_ADDRESS')">
                 <el-input
@@ -39,7 +38,6 @@
                     :disabled="!formData.switch"
                     :min="10"
                     :max="65535"
-                    value-on-clear="min"
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_UPNP_REPORT_MANID')">

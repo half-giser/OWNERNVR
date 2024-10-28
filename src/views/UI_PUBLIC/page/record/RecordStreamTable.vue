@@ -13,9 +13,7 @@
                 class="RecordStreamList"
                 stripe
                 border
-                table-layout="fixed"
                 show-overflow-tooltip
-                empty-text=" "
                 :row-class-name="(data) => (data.row.rowDisable ? 'disabled' : '')"
                 highlight-current-row
             >
@@ -41,7 +39,7 @@
                     min-width="8%"
                 >
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_VIDEO_ENCT') }}
                             </BaseTableDropdownLink>
@@ -62,7 +60,6 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.videoEncodeType"
-                            placeholder=""
                             :disabled="scope.row.videoEncodeTypeDisable"
                             @change="handleVideoEncodeTypeChange(scope.row)"
                         >
@@ -84,7 +81,6 @@
                     <template #header>
                         <el-popover
                             v-model:visible="pageData.resolutionHeaderVisble"
-                            trigger="click"
                             width="430"
                             popper-class="no-padding"
                         >
@@ -158,7 +154,6 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.resolution"
-                            placeholder=""
                             max-height="400"
                             :disabled="scope.row.resolutionDisable"
                             @change="handleResolutionChange(scope.row)"
@@ -179,10 +174,7 @@
                     min-width="6%"
                 >
                     <template #header>
-                        <el-dropdown
-                            trigger="click"
-                            max-height="400"
-                        >
+                        <el-dropdown max-height="400">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_FRAME_RATE') }}
                             </BaseTableDropdownLink>
@@ -204,7 +196,6 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.frameRate"
-                            placeholder=""
                             max-height="400"
                             :disabled="scope.row.frameRateDisable"
                             @change="handleFrameRateChange(scope.row)"
@@ -225,10 +216,7 @@
                     min-width="8%"
                 >
                     <template #header>
-                        <el-dropdown
-                            trigger="click"
-                            :disabled="pageData.bitTypeDropDisable"
-                        >
+                        <el-dropdown :disabled="pageData.bitTypeDropDisable">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_BITRATE_TYPE') }}
                             </BaseTableDropdownLink>
@@ -250,7 +238,6 @@
                         <el-select
                             v-if="scope.row.bitTypeVisible"
                             v-model="scope.row.bitType"
-                            placeholder=""
                             :disabled="scope.row.bitTypeDisable"
                             @change="handleBitTypeChange(scope.row)"
                         >
@@ -271,10 +258,7 @@
                     min-width="8%"
                 >
                     <template #header>
-                        <el-dropdown
-                            trigger="click"
-                            :disabled="pageData.levelDropDisable"
-                        >
+                        <el-dropdown :disabled="pageData.levelDropDisable">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_IMAGE_QUALITY') }}
                             </BaseTableDropdownLink>
@@ -315,7 +299,7 @@
                     min-width="11%"
                 >
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_VIDEO_QUALITY') }}
                             </BaseTableDropdownLink>
@@ -337,7 +321,6 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.videoQuality"
-                            placeholder=""
                             :disabled="scope.row.videoQualityDisable"
                             @change="handleVideoQualityChange(scope.row)"
                         >
@@ -366,7 +349,7 @@
                     min-width="7%"
                 >
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_AUDIO_FREQUENCY') }}
                             </BaseTableDropdownLink>
@@ -409,7 +392,7 @@
                     min-width="9%"
                 >
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown >
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_RECORD_CODE_STREAM') }}
                             </BaseTableDropdownLink>
@@ -453,7 +436,6 @@
                     <template #header>
                         <el-popover
                             v-model:visible="pageData.gopHeaderVisble"
-                            trigger="click"
                             popper-class="no-padding"
                             width="300"
                             placement="bottom-end"
@@ -468,7 +450,6 @@
                                     <span>GOP</span>
                                     <el-input
                                         v-model="pageData.gopSetAll"
-                                        placeholder=""
                                         @input="GOPhandleFocus(pageData.gopSetAll)"
                                     />
                                 </div>
@@ -483,7 +464,6 @@
                     <template #default="scope">
                         <el-input
                             v-model="scope.row.GOP"
-                            placeholder=""
                             :disabled="scope.row.GOPDisable"
                             @input="GOPhandleFocus(scope.row)"
                             @keydown.enter="GOPhandleKeydown(scope.row)"

@@ -198,7 +198,7 @@ export default defineComponent({
          * @param {number} index
          * @returns
          */
-        const handleSnapRec = (item: any, index: number) => {
+        const handleSnapRec = (_item: any, index: number) => {
             return playRec(infoListMapping[index])
         }
 
@@ -208,7 +208,7 @@ export default defineComponent({
          * @param {number} index
          * @returns
          */
-        const handleSnapRegister = (item: any, index: number) => {
+        const handleSnapRegister = (_item: any, index: number) => {
             return register(infoListMapping[index])
         }
 
@@ -218,7 +218,7 @@ export default defineComponent({
          * @param {number} index
          * @returns
          */
-        const handleSnapSearch = (item: any, index: number) => {
+        const handleSnapSearch = (_item: any, index: number) => {
             return search(infoListMapping[index])
         }
 
@@ -228,7 +228,7 @@ export default defineComponent({
          * @param {number} index
          * @returns
          */
-        const handleMatchSnapRec = (item: any, index: number) => {
+        const handleMatchSnapRec = (_item: any, index: number) => {
             return search(faceListMapping[index])
         }
 
@@ -238,7 +238,7 @@ export default defineComponent({
          * @param {number} index
          * @returns
          */
-        const handleMatchSnapSearch = (item: any, index: number) => {
+        const handleMatchSnapSearch = (_item: any, index: number) => {
             return search(faceListMapping[index])
         }
 

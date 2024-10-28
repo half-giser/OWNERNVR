@@ -16,9 +16,6 @@
             v-model="pageData.showAlarmTransfer"
             :title="Translate('IDCS_ALARM_TYPE')"
             width="615"
-            draggable
-            center
-            :visible="pageData.showAlarmTransfer"
             @close="pageData.showAlarmTransfer = false"
         >
             <el-transfer
@@ -49,14 +46,16 @@
             :model="formData"
             :rules="rules"
             class="form narrow inline-message"
-            label-position="left"
             label-width="172"
             :style="{
                 '--form-input-width': '250px',
             }"
         >
             <el-form-item>
-                <el-checkbox v-model="formData.enable">{{ Translate('IDCS_ENABLE') }}</el-checkbox>
+                <el-checkbox
+                    v-model="formData.enable"
+                    :label="Translate('IDCS_ENABLE')"
+                />
             </el-form-item>
             <!-- 多UI -->
             <!-- deviceId -->
@@ -134,8 +133,8 @@
                 <el-checkbox
                     v-model="formData.heartEnable"
                     :disabled="!(formData.enable && !pageData.heartEnableDisabled)"
-                    >{{ Translate('IDCS_SEND_HEARTBEAT') }}</el-checkbox
-                >
+                    :label="Translate('IDCS_SEND_HEARTBEAT')"
+                />
             </el-form-item>
             <!-- interval -->
             <el-form-item

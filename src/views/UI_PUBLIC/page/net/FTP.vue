@@ -18,14 +18,13 @@
             class="stripe narrow"
             :rules="formRule"
             :model="formData"
-            label-position="left"
         >
             <el-form-item>
                 <el-checkbox
                     v-model="formData.switch"
+                    :label="Translate('IDCS_ENABLE')"
                     @change="changeSwitch"
-                    >{{ Translate('IDCS_ENABLE') }}</el-checkbox
-                >
+                />
             </el-form-item>
             <el-form-item>
                 <el-form-item
@@ -49,7 +48,6 @@
                         :disabled="!formData.switch"
                         :min="10"
                         :max="65535"
-                        value-on-clear="min"
                     />
                 </el-form-item>
             </el-form-item>
@@ -57,8 +55,8 @@
                 <el-checkbox
                     v-model="formData.anonymousSwitch"
                     :disabled="!formData.switch"
-                    >{{ Translate('IDCS_ANONYMOUS') }}</el-checkbox
-                >
+                    :label="Translate('IDCS_ANONYMOUS')"
+                />
             </el-form-item>
             <el-form-item>
                 <el-form-item
@@ -99,7 +97,6 @@
                         :min="pageData.minFileSize"
                         :max="pageData.maxFileSize"
                         :disabled="!formData.switch"
-                        value-on-clear="min"
                     />
                     <el-text>M</el-text>
                 </el-form-item>
@@ -120,8 +117,8 @@
                 <el-checkbox
                     v-model="formData.disNetUpLoad"
                     :disabled="!formData.switch"
-                    >{{ Translate('IDCS_DIS_NET_UPLOAD') }}</el-checkbox
-                >
+                    :label="Translate('IDCS_DIS_NET_UPLOAD')"
+                />
                 <el-text class="tip">{{ Translate('IDCS_DIS_NET_UPLOAD_TIP') }}</el-text>
             </el-form-item>
         </el-form>
@@ -150,10 +147,7 @@
                 <!-- 排程 -->
                 <el-table-column>
                     <template #header>
-                        <el-dropdown
-                            trigger="click"
-                            :disabled="!formData.switch"
-                        >
+                        <el-dropdown :disabled="!formData.switch">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_SCHEDULE') }}
                             </BaseTableDropdownLink>
@@ -189,10 +183,7 @@
                 <!-- 移动侦测 -->
                 <el-table-column :label="Translate('IDCS_MOTION_DETECTION')">
                     <template #header>
-                        <el-dropdown
-                            trigger="click"
-                            :disabled="!formData.switch"
-                        >
+                        <el-dropdown :disabled="!formData.switch">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_MOTION_DETECTION') }}
                             </BaseTableDropdownLink>
@@ -227,10 +218,7 @@
                 <!-- 智能 -->
                 <el-table-column>
                     <template #header>
-                        <el-dropdown
-                            trigger="click"
-                            :disabled="!formData.switch"
-                        >
+                        <el-dropdown :disabled="!formData.switch">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_INTELLIGENT') }}
                             </BaseTableDropdownLink>
@@ -265,10 +253,7 @@
                 <!-- 传感器 -->
                 <el-table-column>
                     <template #header>
-                        <el-dropdown
-                            trigger="click"
-                            :disabled="!formData.switch"
-                        >
+                        <el-dropdown :disabled="!formData.switch">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_SENSOR') }}
                             </BaseTableDropdownLink>
@@ -303,10 +288,7 @@
                 <!-- 码流类型 -->
                 <el-table-column>
                     <template #header>
-                        <el-dropdown
-                            trigger="click"
-                            :disabled="!formData.switch"
-                        >
+                        <el-dropdown :disabled="!formData.switch">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_CODE_STREAM_TYPE') }}
                             </BaseTableDropdownLink>
@@ -343,10 +325,7 @@
                 <!-- 抓图 -->
                 <el-table-column>
                     <template #header>
-                        <el-dropdown
-                            trigger="click"
-                            :disabled="!formData.switch"
-                        >
+                        <el-dropdown :disabled="!formData.switch">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_SNAP') }}
                             </BaseTableDropdownLink>
@@ -383,10 +362,7 @@
                 <!-- 报警信息 -->
                 <el-table-column>
                     <template #header>
-                        <el-dropdown
-                            trigger="click"
-                            :disabled="!formData.switch"
-                        >
+                        <el-dropdown :disabled="!formData.switch">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_ALARM_INFO') }}
                             </BaseTableDropdownLink>

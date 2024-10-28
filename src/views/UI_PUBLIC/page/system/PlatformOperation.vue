@@ -1,7 +1,6 @@
 <template>
     <div class="platformOperation_Type">
         <el-form
-            label-position="left"
             class="narrow"
             :style="{
                 '--form-label-width': '150px',
@@ -42,21 +41,18 @@
             v-show="pageData.operationType === 'testScreenshot' || pageData.operationType === 'maintenanceScreenshot' || pageData.operationType === 'acceptScreenshot'"
             class="screenshot"
         >
-            <el-form
-                label-position="left"
-                class="narrow"
-            >
+            <el-form class="narrow">
                 <el-form-item :label="Translate('IDCS_MAINTEN_SNAPCHOOSE')">
                     <el-checkbox
                         v-model="pageData.selectAll"
+                        :label="Translate('IDCS_SELECT_ALL')"
                         @change="selectAll"
-                        >{{ Translate('IDCS_SELECT_ALL') }}</el-checkbox
-                    >
+                    />
                     <el-checkbox
                         v-model="pageData.reverseSelect"
+                        :label="Translate('IDCS_REVERSE_SELECT')"
                         @change="reverseSelection"
-                        >{{ Translate('IDCS_REVERSE_SELECT') }}</el-checkbox
-                    >
+                    />
                 </el-form-item>
             </el-form>
             <el-table
@@ -66,8 +62,6 @@
                 stripe
                 :data="tableData"
                 highlight-current-row
-                table-layout="fixed"
-                empty-text=" "
                 @row-click="handleRowClick"
                 @select="handleSelect"
                 @select-all="selectAllChl"
@@ -89,7 +83,6 @@
             </el-table>
             <el-form
                 v-show="pageData.operationType === 'acceptScreenshot'"
-                label-position="left"
                 class="narrow"
                 :style="{ '--form-input-width': '200px', marginTop: '20px' }"
             >
@@ -107,7 +100,6 @@
             class="screenshot"
         >
             <el-form
-                label-position="left"
                 class="narrow"
                 :style="{ '--form-input-width': '200px' }"
             >
@@ -151,7 +143,6 @@
             class="maintenanceSign"
         >
             <el-form
-                label-position="left"
                 class="narrow"
                 :style="{ '--form-input-width': '200px' }"
             >
@@ -196,7 +187,6 @@
             class="repairSign"
         >
             <el-form
-                label-position="left"
                 class="narrow"
                 :style="{ '--form-input-width': '200px' }"
             >

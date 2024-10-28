@@ -9,8 +9,6 @@
     <el-dialog
         :title="Translate('IDCS_CHANGE_PWD')"
         width="600"
-        align-center
-        draggable
         @opened="opened"
     >
         <el-form
@@ -18,7 +16,6 @@
             :model="formData"
             :rules="rules"
             label-width="150"
-            label-position="left"
         >
             <el-form-item
                 prop="newPassword"

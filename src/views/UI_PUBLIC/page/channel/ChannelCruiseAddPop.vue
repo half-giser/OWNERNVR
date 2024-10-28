@@ -9,8 +9,6 @@
     <el-dialog
         :title="Translate('IDCS_ADD_CRUISE')"
         width="600"
-        align-center
-        draggable
         @open="open"
     >
         <div>
@@ -18,7 +16,6 @@
                 ref="formRef"
                 :rules="formRule"
                 :model="formData"
-                label-position="left"
             >
                 <el-form-item
                     :label="Translate('IDCS_CRUISE_NAME')"
@@ -68,7 +65,7 @@
                 </el-table-column>
                 <el-table-column>
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_DELETE') }}
                             </BaseTableDropdownLink>

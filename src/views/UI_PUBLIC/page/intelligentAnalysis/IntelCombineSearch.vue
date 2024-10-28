@@ -30,7 +30,6 @@
                     :range="attributeRange"
                 />
                 <el-form
-                    label-position="left"
                     class="narrow"
                     :style="{
                         '--form-label-width': 'auto',
@@ -98,8 +97,8 @@
                         v-for="item in pageData.chartTypeOptions"
                         :key="item.value"
                         :value="item.value"
-                        >{{ item.label }}</el-radio-button
-                    >
+                        :label="item.label"
+                    />
                 </el-radio-group>
             </div>
             <div class="base-intel-row space-between">
@@ -115,8 +114,8 @@
                             v-for="item in pageData.listTypeOptions"
                             :key="item.value"
                             :value="item.value"
-                            >{{ item.label }}</el-radio-button
-                        >
+                            :label="item.label"
+                        />
                     </el-radio-group>
                 </div>
                 <div>
@@ -128,17 +127,17 @@
                             v-for="item in pageData.sortOptions"
                             :key="item.value"
                             :value="item.value"
-                            >{{ item.label }}</el-radio-button
-                        >
+                            :label="item.label"
+                        />
                     </el-radio-group>
                 </div>
                 <div>
                     <el-checkbox
                         :model-value="sliceTableData.length && sliceTableData.length === selectionIds.length"
                         :disabled="!sliceTableData.length"
+                        :label="Translate('IDCS_SELECT_ALL')"
                         @update:model-value="handleSelectAll"
-                        >{{ Translate('IDCS_SELECT_ALL') }}</el-checkbox
-                    >
+                    />
                 </div>
             </div>
             <div
@@ -223,15 +222,16 @@
                     <el-checkbox v-model="pageData.isBackUpPic">
                         {{ Translate('IDCS_BACKUP_PICTURE') }}{{ sliceTableData.length && isSupportCSV ? ` (${Translate('IDCS_LICENSE_PLATE_NUM_LIST')})` : '' }}
                     </el-checkbox>
-                    <el-checkbox v-model="pageData.isBackUpVideo">{{ Translate('IDCS_BACKUP_RECORD') }}</el-checkbox>
+                    <el-checkbox
+                        v-model="pageData.isBackUpVideo"
+                        :label="Translate('IDCS_BACKUP_RECORD')"
+                    />
                 </div>
                 <el-pagination
                     v-model:current-page="formData.pageIndex"
                     v-model:page-size="formData.pageSize"
                     :page-sizes="[formData.pageSize]"
-                    layout="total, sizes, prev, pager, next"
                     :total="tableData.length"
-                    size="small"
                     @current-change="changePage"
                 />
             </div>

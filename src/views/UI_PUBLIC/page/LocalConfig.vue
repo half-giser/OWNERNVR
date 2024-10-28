@@ -9,7 +9,6 @@
     <div class="local-config">
         <el-form
             ref="formRef"
-            label-position="left"
             inline-message
             :rules="formRule"
             :model="formData"

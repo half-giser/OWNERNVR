@@ -20,7 +20,6 @@
                 @speed="setSpeed"
             />
             <el-form
-                label-position="left"
                 :style="{
                     '--form-label-width': '100px',
                 }"
@@ -62,10 +61,7 @@
                         :maxlength="nameByteMaxLen"
                         spellcheck="false"
                     />
-                    <el-tooltip
-                        :content="Translate('IDCS_SAVE_CHANGE')"
-                        :show-after="500"
-                    >
+                    <el-tooltip :content="Translate('IDCS_SAVE_CHANGE')">
                         <BaseImgSprite
                             class="base-chl-icon-btn"
                             file="save"

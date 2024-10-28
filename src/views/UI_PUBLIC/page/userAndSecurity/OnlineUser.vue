@@ -50,8 +50,6 @@
         <el-dialog
             v-model="pageData.isDetail"
             :title="Translate('IDCS_DETAIL_INFO')"
-            draggable
-            center
         >
             <div>
                 <p>

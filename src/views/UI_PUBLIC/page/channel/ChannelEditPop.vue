@@ -7,15 +7,12 @@
     <el-dialog
         :title="Translate('IDCS_CHANGE_IP_CAMERA')"
         width="450"
-        align-center
-        draggable
         @opened="opened"
     >
         <el-form
             ref="formRef"
             :model="editItem"
             :rules="rules"
-            label-position="left"
         >
             <el-form-item
                 :label="Translate('IDCS_CHANNEL_NAME')"
@@ -47,7 +44,6 @@
                     v-model="editItem.port"
                     :min="10"
                     :max="65535"
-                    value-on-clear="min"
                     :disabled="portDisabled"
                 />
             </el-form-item>

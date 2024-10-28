@@ -1188,10 +1188,18 @@ export default defineComponent({
             scheduleLine.value.resetValue([[rowData.scheduleInfo.dayTime, rowData.scheduleInfo.nightTime]])
         }
 
+        /**
+         * @description 计算秒时间戳
+         * @param {String} formatString HH:mm
+         */
+        const getSeconds = (formatString: string) => {
+            const split = formatString.split(':')
+            return Number(split[0]) * 3600 + Number(split[1]) * 60
+        }
+
         const compareTime = (time1: string, time2: string, isWhitelight = false) => {
-            const now = new Date().format('yyyy/MM/dd')
-            const date1 = new Date(now + ' ' + time1).getTime()
-            const date2 = new Date(now + ' ' + time2).getTime()
+            const date1 = getSeconds(time1)
+            const date2 = getSeconds(time2)
             const isValid = isWhitelight ? date1 != date2 : date1 < date2
             const msg = isWhitelight ? Translate('IDCS_STARTTIME_NOTEQUAL_ENDTIME') : Translate('IDCS_END_TIME_GREATER_THAN_START')
             if (!isValid) {
@@ -1298,8 +1306,6 @@ export default defineComponent({
             pageIndex,
             pageSize,
             pageTotal,
-            DefaultPagerSizeOptions,
-            DefaultPagerLayout,
             selectedChlId,
             tipMsg,
             tipImgIndex,

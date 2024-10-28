@@ -54,7 +54,7 @@ export default defineComponent({
         const rules = ref<FormRules>({
             name: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (!value.length) {
                             callback(new Error(Translate('IDCS_NOTE_CONFIG_RAID_NAME')))
                             return
@@ -66,7 +66,7 @@ export default defineComponent({
             ],
             type: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         const length = formData.value.diskId.length
                         switch (value) {
                             case 'RAID_TYPE_0':

@@ -9,8 +9,6 @@
     <el-dialog
         :title="Translate('IDCS_ADD_DISK')"
         width="600"
-        align-center
-        draggable
         @open="open"
     >
         <div>

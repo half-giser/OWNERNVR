@@ -10,7 +10,6 @@
             :model="formData"
             :rules="rules"
             class="ruleForm"
-            label-position="left"
             :style="{
                 '--form-label-width': '200px',
                 '--form-input-width': '220px',
@@ -42,9 +41,7 @@
                 border
                 stripe
                 :data="tableData"
-                table-layout="fixed"
                 show-overflow-tooltip
-                empty-text=" "
                 highlight-current-row
                 @row-click="handleRowClick"
                 @selection-change="handleSelectionChange"

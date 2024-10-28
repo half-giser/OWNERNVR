@@ -104,7 +104,7 @@ export default defineComponent({
         const rules = ref<FormRules>({
             userName: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (!value.length) {
                             callback(new Error(Translate('IDCS_PROMPT_USERNAME_EMPTY')))
                             return
@@ -121,7 +121,7 @@ export default defineComponent({
             ],
             password: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (value.length === 0) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
@@ -138,7 +138,7 @@ export default defineComponent({
             ],
             confirmPassword: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (value.length === 0) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
@@ -155,7 +155,7 @@ export default defineComponent({
             ],
             email: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (value.length && !checkEmail(value)) {
                             callback(new Error(Translate('IDCS_PROMPT_INVALID_EMAIL')))
                             return

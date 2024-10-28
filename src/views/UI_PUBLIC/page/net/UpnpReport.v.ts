@@ -18,7 +18,7 @@ export default defineComponent({
         const formData = ref(new NetUPnPReportForm())
         const formRule = ref<FormRules>({
             serverAddr: {
-                validator(rule, value: string, callback) {
+                validator(_rule, value: string, callback) {
                     if (!formData.value.switch) {
                         callback()
                         return

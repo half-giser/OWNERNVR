@@ -600,7 +600,7 @@ export default defineComponent({
          * @param {TVTPlayerWinDataListItem} data
          * @param {Number} timestamp
          */
-        const handlePlayerTimeUpdate = (index: number, data: any, timestamp: number) => {
+        const handlePlayerTimeUpdate = (_index: number, _data: any, timestamp: number) => {
             if (playerData.value.lockSlider) {
                 return
             }

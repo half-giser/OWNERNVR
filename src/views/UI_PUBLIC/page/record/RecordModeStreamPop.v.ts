@@ -14,10 +14,23 @@ export default defineComponent({
         RecordStreamTable,
     },
     props: {
-        advanceRecModeMap: Object as PropType<Record<string, RecMode>>,
-        autoModeId: String,
+        advanceRecModeMap: {
+            type: Object as PropType<Record<string, RecMode>>,
+            required: true,
+        },
+        autoModeId: {
+            type: String,
+            required: true,
+        },
     },
-    emits: ['confirm', 'close'],
+    emits: {
+        confirm(e: string[]) {
+            return Array.isArray(e)
+        },
+        close(type: boolean) {
+            return typeof type === 'boolean'
+        },
+    },
     setup(props, ctx) {
         const { Translate } = useLangStore()
         const recordStreamTableRef = ref()
@@ -40,14 +53,14 @@ export default defineComponent({
         onMounted(() => {})
 
         const onOpen = () => {
-            pageData.value.key = props.autoModeId!
+            pageData.value.key = props.autoModeId
             pageData.value.initComplete = false
             // console.log(props.autoModeId)
             if (!props.autoModeId) return
             const events = props.autoModeId!.split('_')
             pageData.value.mainTitle = events
                 .map((item) => {
-                    return props.advanceRecModeMap![item].text
+                    return props.advanceRecModeMap[item].text
                 })
                 .join('+')
             const intensiveIndex = props.autoModeId!.indexOf(REC_MODE_TYPE.INTENSIVE)

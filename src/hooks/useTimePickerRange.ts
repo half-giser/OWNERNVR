@@ -77,6 +77,7 @@ export const useTimePickerRange = (currentStartTime: Ref<string> | ComputedRef<s
         if (hour > startTime.hour()) {
             return []
         }
+
         for (let i = 0; i < startTime.minute(); i++) {
             minutes.push(i)
         }

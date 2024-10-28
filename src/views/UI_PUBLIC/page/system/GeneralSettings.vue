@@ -10,7 +10,6 @@
         <el-form
             ref="formRef"
             class="stripe narrow"
-            label-position="left"
             :rules
             :model="formData"
             :style="{
@@ -58,7 +57,7 @@
                 </el-select>
             </el-form-item>
             <el-form-item :label="Translate('IDCS_OUTPUT_ADAPT')">
-                <el-checkbox v-model="formData.outputAdapt"></el-checkbox>
+                <el-checkbox v-model="formData.outputAdapt" />
             </el-form-item>
             <!-- <el-form-item :label="Translate('IDCS_LOCAL')"></el-form-item> -->
             <!-- 主副屏选项 -->
@@ -120,13 +119,22 @@
                 </el-select>
             </el-form-item>
             <el-form-item>
-                <el-checkbox v-model="formData.enableGuide">{{ Translate('IDCS_ENABLE_GUIDE') }}</el-checkbox>
+                <el-checkbox
+                    v-model="formData.enableGuide"
+                    :label="Translate('IDCS_ENABLE_GUIDE')"
+                />
             </el-form-item>
             <el-form-item>
-                <el-checkbox v-model="formData.mobileStreamAdaption">{{ Translate('IDCS_MOBILE_STREAM_ADAPTION') }}</el-checkbox>
+                <el-checkbox
+                    v-model="formData.mobileStreamAdaption"
+                    :label="Translate('IDCS_MOBILE_STREAM_ADAPTION')"
+                />
             </el-form-item>
             <el-form-item>
-                <el-checkbox v-model="formData.enableAutoDwell">{{ Translate('IDCS_ENABLE_AUTO_DWELL') }}</el-checkbox>
+                <el-checkbox
+                    v-model="formData.enableAutoDwell"
+                    :label="Translate('IDCS_ENABLE_AUTO_DWELL')"
+                />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_WAIT_TIME')">
                 <el-select
@@ -143,7 +151,10 @@
                 </el-select>
             </el-form-item>
             <el-form-item v-if="pageData.isZeroOrAddIpc">
-                <el-checkbox v-model="formData.zeroOrAddIpc">{{ Translate('IDCS_ZERO_OP_ADD_IPC') }}</el-checkbox>
+                <el-checkbox
+                    v-model="formData.zeroOrAddIpc"
+                    :label="Translate('IDCS_ZERO_OP_ADD_IPC')"
+                />
             </el-form-item>
             <div class="base-btn-box">
                 <el-button @click="verify">{{ Translate('IDCS_APPLY') }}</el-button>

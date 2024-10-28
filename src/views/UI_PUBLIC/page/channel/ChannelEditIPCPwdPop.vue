@@ -7,7 +7,6 @@
     <el-dialog
         :title="Translate('IDCS_MODIFY_IPC_PASSWORD')"
         width="550"
-        align-center
         @opened="opened"
     >
         <el-table
@@ -16,10 +15,8 @@
             stripe
             :data="tableData"
             height="245"
-            table-layout="fixed"
             show-overflow-tooltip
             highlight-current-row
-            empty-text=" "
             @row-click="handleRowClick"
         >
             <el-table-column
@@ -46,7 +43,6 @@
             ref="formRef"
             :model="formData"
             :rules="rules"
-            label-position="left"
         >
             <el-form-item
                 prop="password"

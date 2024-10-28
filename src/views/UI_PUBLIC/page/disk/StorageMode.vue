@@ -8,7 +8,6 @@
 <template>
     <div>
         <el-form
-            label-position="left"
             :style="{
                 '--form-input-width': '340px',
             }"

@@ -9,7 +9,6 @@
     <div class="base-flex-box">
         <div class="form">
             <el-form
-                label-position="left"
                 class="inline-message narrow"
                 :style="{
                     '--form-input-width': '200px',
@@ -21,9 +20,9 @@
                         <el-button @click="changeChl">{{ Translate('IDCS_MORE') }}</el-button>
                         <el-checkbox
                             v-model="pageData.isAllChl"
+                            :label="Translate('IDCS_ALL')"
                             @change="changeAllChl"
-                            >{{ Translate('IDCS_ALL') }}</el-checkbox
-                        >
+                        />
                     </el-form-item>
                     <el-form-item>
                         <el-text class="text-ellipsis">{{ formData.chls.map((item) => item.label).join(';') }}</el-text>
@@ -34,9 +33,9 @@
                         <el-button @click="changeFaceGroup">{{ Translate('IDCS_CONFIGURATION') }}</el-button>
                         <el-checkbox
                             v-model="pageData.isAllFaceGroup"
+                            :label="Translate('IDCS_ALL')"
                             @change="changeAllFaceGroup"
-                            >{{ Translate('IDCS_ALL') }}</el-checkbox
-                        >
+                        />
                     </el-form-item>
                     <el-form-item>
                         <el-text>{{ formData.faceGroup.map((item) => item.name).join(';') }}</el-text>
@@ -99,13 +98,19 @@
                 </el-form-item>
                 <el-form-item>
                     <template #label>
-                        <el-checkbox v-model="formData.advanced">{{ Translate('IDCS_ADVANCED') }}</el-checkbox>
+                        <el-checkbox
+                            v-model="formData.advanced"
+                            :label="Translate('IDCS_ADVANCED')"
+                        />
                     </template>
                 </el-form-item>
                 <el-form-item v-show="formData.advanced">
                     <el-form-item>
                         <template #label>
-                            <el-checkbox v-model="formData.isName">{{ Translate('IDCS_NAME_PERSON') }}</el-checkbox>
+                            <el-checkbox
+                                v-model="formData.isName"
+                                :label="Translate('IDCS_NAME_PERSON')"
+                            />
                         </template>
                         <el-input
                             v-model="formData.name"
@@ -113,7 +118,10 @@
                         />
                     </el-form-item>
                     <el-form-item>
-                        <el-checkbox v-model="formData.isType">{{ Translate('IDCS_TYPE') }}</el-checkbox>
+                        <el-checkbox
+                            v-model="formData.isType"
+                            :label="Translate('IDCS_TYPE')"
+                        />
                         <el-checkbox-group
                             v-model="formData.type"
                             :disabled="!formData.isType"
@@ -122,9 +130,8 @@
                                 v-for="item in pageData.typeOptions"
                                 :key="item.value"
                                 :value="item.value"
-                            >
-                                {{ item.label }}
-                            </el-checkbox>
+                                :label="item.label"
+                            />
                         </el-checkbox-group>
                     </el-form-item>
                 </el-form-item>
@@ -200,7 +207,6 @@
             <el-pagination
                 v-model:current-page="formData.currentPage"
                 v-model:page-size="formData.pageSize"
-                :layout="DefaultPagerLayout"
                 :total="tableData.length"
                 :page-sizes="[100]"
             />

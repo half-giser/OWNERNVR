@@ -73,7 +73,7 @@ export const generateAsyncRoutes = () => {
  */
 export const removeAsyncRoutes = () => {
     authRoutes.forEach((item) => {
-        router.removeRoute(item.name)
+        router.removeRoute(item.name!)
     })
 }
 

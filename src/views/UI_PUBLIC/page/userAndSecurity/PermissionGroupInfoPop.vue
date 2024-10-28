@@ -8,8 +8,6 @@
 <template>
     <el-dialog
         :title="Translate('IDCS_DESCRIPTION')"
-        draggable
-        center
         width="600"
     >
         <p>{{ Translate('IDCS_PREVIEW') }} : {{ Translate('IDCS_PREVIEW_RIGHT_TIP') }}</p>

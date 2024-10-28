@@ -4,7 +4,6 @@
  * @Description: 通道组
  */
 import { ChlGroup } from '@/types/apiType/channel'
-import { DefaultPagerSizeOptions, DefaultPagerLayout } from '@/utils/constants'
 import ChannelGroupEditPop from './ChannelGroupEditPop.vue'
 import ChannelGroupAddChlPop from './ChannelGroupAddChlPop.vue'
 import ChannelPtzTableExpandPanel from './ChannelPtzTableExpandPanel.vue'
@@ -235,8 +234,6 @@ export default defineComponent({
             closeChlGroupEditPop,
             closeChlGroupAddChlPop,
             setDataCallBack,
-            DefaultPagerSizeOptions,
-            DefaultPagerLayout,
             handleToolBarEvent,
             formatDwellTime,
             handleEditChlGroup,

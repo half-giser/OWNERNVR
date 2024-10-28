@@ -12,9 +12,9 @@
                 v-for="item in filterBtns"
                 :key="item.value"
                 :value="item.value"
+                :label="item.value === 'today' ? `${item.label} ${today}` : item.label"
                 @click="handleClick(item.value)"
-                >{{ item.value === 'today' ? `${item.label} ${today}` : item.label }}</el-radio-button
-            >
+            />
         </el-radio-group>
         <el-dialog
             v-model="pageData.isCustomPop"
@@ -26,7 +26,6 @@
             append-to-body
         >
             <el-form
-                label-position="left"
                 :style="{
                     '--form-input-width': '100%',
                 }"

@@ -18,8 +18,8 @@
                     v-for="item in pageData.searchOptions"
                     :key="item.value"
                     :value="item.value"
-                    >{{ item.label }}</el-radio-button
-                >
+                    :label="item.label"
+                />
             </el-radio-group>
             <div class="base-intel-left-column">
                 <div>
@@ -53,7 +53,6 @@
                         v-model="formData.direction"
                     />
                     <el-form
-                        label-position="left"
                         class="narrow"
                         :style="{
                             '--form-label-width': 'auto',
@@ -123,8 +122,8 @@
                         v-for="item in pageData.chartTypeOptions"
                         :key="item.value"
                         :value="item.value"
-                        >{{ item.label }}</el-radio-button
-                    >
+                        :label="item.label"
+                    />
                 </el-radio-group>
             </div>
             <div class="base-intel-row space-between">
@@ -140,8 +139,8 @@
                             v-for="item in pageData.listTypeOptions"
                             :key="item.value"
                             :value="item.value"
-                            >{{ item.label }}</el-radio-button
-                        >
+                            :label="item.label"
+                        />
                     </el-radio-group>
                 </div>
                 <div>
@@ -154,8 +153,8 @@
                             v-for="item in pageData.sortOptions"
                             :key="item.value"
                             :value="item.value"
-                            >{{ item.label }}</el-radio-button
-                        >
+                            :label="item.label"
+                        />
                     </el-radio-group>
                 </div>
                 <div>
@@ -263,9 +262,7 @@
                     v-model:current-page="formData.pageIndex"
                     v-model:page-size="formData.pageSize"
                     :page-sizes="[formData.pageSize]"
-                    layout="total, sizes, prev, pager, next"
                     :total="tableData.length"
-                    size="small"
                     @current-change="changePage"
                 />
             </div>

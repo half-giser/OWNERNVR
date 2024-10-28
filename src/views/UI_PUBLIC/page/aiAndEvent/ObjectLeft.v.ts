@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-18 09:43:49
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 18:03:43
+ * @LastEditTime: 2024-10-28 14:21:05
  */
 import { cloneDeep } from 'lodash-es'
 import { type BoundaryItem, ObjectLeft, type PresetList, type chlCaps } from '@/types/apiType/aiAndEvent'
@@ -421,11 +421,12 @@ export default defineComponent({
                     objDrawer.drawAllPolygon(detectAreaInfo, {}, 'detectionArea', index, true)
                 } else {
                     // todo,非h5情况下的全部显示没有写
-                    // console.log('ocx show all alarm area')
+                    console.log('ocx show all alarm area')
                 }
             } else {
+                // TODO
                 if (mode.value != 'h5') {
-                    // console.log('ocx not show all alarm area')
+                    console.log('ocx not show all alarm area')
                 }
             }
         }

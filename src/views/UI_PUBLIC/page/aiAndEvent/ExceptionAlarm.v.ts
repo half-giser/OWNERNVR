@@ -3,7 +3,7 @@
  * @Date: 2024-08-21 15:34:24
  * @Description: 异常报警
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 17:44:30
+ * @LastEditTime: 2024-10-28 10:05:53
  */
 import { cloneDeep } from 'lodash-es'
 import { ExceptionAlarmRow } from '@/types/apiType/aiAndEvent'
@@ -68,10 +68,6 @@ export default defineComponent({
             openLoading()
 
             queryAbnormalTrigger().then((resb) => {
-                // TODO p2p
-                // if (APP_TYPE == 'P2P') {
-                //     res = res[0]
-                // }
                 const res = queryXml(resb)
                 if (res('status').text() == 'success') {
                     tableData.value = []

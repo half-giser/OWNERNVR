@@ -241,7 +241,6 @@ export default defineComponent({
                     pluginStore.showPluginNoResponse = true
                     tripwirePlugin.ShowPluginNoResponse()
                 }
-                tripwirePlugin.AddPluginMoveEvent(document.getElementById('tripwireplayer')!)
                 const sendXML = OCX_XML_SetPluginModel(osType == 'mac' ? 'TripwireConfig' : 'ReadOnly', 'Live')
                 tripwirePlugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
@@ -259,16 +258,15 @@ export default defineComponent({
                 })
             } else {
                 if (osType == 'mac') {
-                    // TODO index
-                    const sendXML = OCX_XML_Preview({
-                        winIndexList: [0],
-                        chlIdList: [id],
-                        chlNameList: [name],
-                        streamType: 'sub',
-                        chlIndexList: [tripwireData.value.chlData.id],
-                        chlTypeList: [tripwireData.value.chlData.chlType],
-                    })
-                    tripwirePlugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    // const sendXML = OCX_XML_Preview({
+                    //     winIndexList: [0],
+                    //     chlIdList: [id],
+                    //     chlNameList: [name],
+                    //     streamType: 'sub',
+                    //     chlIndexList: [tripwireData.value.chlData.id],
+                    //     chlTypeList: [tripwireData.value.chlData.chlType],
+                    // })
+                    // tripwirePlugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 } else {
                     tripwirePlugin.RetryStartChlView(id, name)
                 }

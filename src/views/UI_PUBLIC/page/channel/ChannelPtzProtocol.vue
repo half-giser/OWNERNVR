@@ -16,7 +16,6 @@
                 />
             </div>
             <el-form
-                label-position="left"
                 :style="{
                     '--form-label-width': '150px',
                 }"
@@ -104,7 +103,6 @@
                         :min="tableData[pageData.tableIndex].addressMin"
                         :max="tableData[pageData.tableIndex].addressMax"
                         :disabled="tableData[pageData.tableIndex].disabled"
-                        value-on-clear="min"
                         @change="addEditRow(pageData.tableIndex)"
                     />
                     <BaseNumberInput
@@ -142,7 +140,7 @@
                     />
                     <el-table-column :label="Translate('IDCS_PTZ')">
                         <template #header>
-                            <el-dropdown trigger="click">
+                            <el-dropdown>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_PTZ') }}
                                 </BaseTableDropdownLink>
@@ -216,7 +214,6 @@
                                 v-model="scope.row.address"
                                 :min="scope.row.addressMin"
                                 :max="scope.row.addressMax"
-                                value-on-clear="min"
                                 :disabled="scope.row.disabled"
                                 @change="addEditRow(scope.$index)"
                             />

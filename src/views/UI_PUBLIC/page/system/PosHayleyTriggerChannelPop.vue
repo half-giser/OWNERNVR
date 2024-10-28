@@ -9,8 +9,6 @@
     <el-dialog
         :title="Translate('IDCS_CHANNEL_TRGGER')"
         width="600"
-        draggable
-        center
         @open="open"
     >
         <div>

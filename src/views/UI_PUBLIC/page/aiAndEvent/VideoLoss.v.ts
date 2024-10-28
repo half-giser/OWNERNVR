@@ -22,7 +22,6 @@ export default defineComponent({
             pageIndex: 1,
             pageSize: 10,
             totalCount: 0,
-            pageDataCountItems: [10, 20, 30],
             enableList: getSwitchOptions(),
             // TODO 未传值
             // supportFTP: false,
@@ -543,7 +542,7 @@ export default defineComponent({
                         <popMsgSwitch>${rowData.msgBoxPopup}</popMsgSwitch>
                         <emailSwitch>${rowData.email}</emailSwitch>
                 </content>`
-            // ftpSnap无效 TODO
+            // ftpSnap无效
             // sendXml += `
             //             <buzzerSwitch>${rowData.beeper}</buzzerSwitch>
             //             <popVideo>

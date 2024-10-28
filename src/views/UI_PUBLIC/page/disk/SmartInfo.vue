@@ -11,7 +11,6 @@
             class="form narrow"
             inline-message
             label-width="250"
-            label-position="left"
             :style="{
                 '--form-input-width': '340px',
             }"

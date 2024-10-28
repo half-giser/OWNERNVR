@@ -53,8 +53,8 @@
                             v-for="key in pageData.channelTabs"
                             :key
                             :value="key"
-                            >{{ Translate(key) }}</el-radio-button
-                        >
+                            :label="Translate(key)"
+                        />
                     </el-radio-group>
                 </ul>
                 <div class="base-table-box">

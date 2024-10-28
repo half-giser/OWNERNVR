@@ -3,7 +3,7 @@
  * @Date: 2024-08-29 09:13:28
  * @Description: 智能分析
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-14 10:26:55
+ * @LastEditTime: 2024-10-28 14:08:09
  */
 
 export class EngineConfigForm {
@@ -51,21 +51,21 @@ export class IntelFaceDBSnapRegisterForm {
     nativePlace = ''
     certificateType = 'idCard'
     certificateNum = ''
-    mobile = undefined as number | undefined
-    number = undefined as number | undefined
+    mobile = ''
+    number = ''
     note = ''
     groupId = ''
 }
 
 export class IntelFaceDBFaceForm {
-    number = undefined as number | undefined
+    number = ''
     name = ''
     sex = ''
     birthday = ''
     nativePlace = ''
     certificateType = ''
     certificateNum = ''
-    mobile = undefined as number | undefined
+    mobile = ''
     note = ''
     groupId = ''
     pic = ''

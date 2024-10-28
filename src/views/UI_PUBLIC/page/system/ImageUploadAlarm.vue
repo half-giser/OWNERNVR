@@ -9,7 +9,6 @@
     <div class="base-flex-box">
         <el-form
             class="stripe"
-            label-position="left"
             :model="pageData"
             inline-message
             :style="{
@@ -51,7 +50,7 @@
                 <!-- 预截图时间 -->
                 <el-table-column min-width="27%">
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_PRE_SNAP_TIME') }}
                             </BaseTableDropdownLink>
@@ -88,7 +87,7 @@
                 <!-- 截图持续时间 -->
                 <el-table-column min-width="27%">
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_SNAP_DURATION') }}
                             </BaseTableDropdownLink>

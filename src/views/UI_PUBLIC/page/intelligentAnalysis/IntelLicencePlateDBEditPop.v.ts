@@ -47,7 +47,7 @@ export default defineComponent({
         const formRule = ref<FormRules>({
             groupName: [
                 {
-                    validator(rule, value, callback) {
+                    validator(_rule, value, callback) {
                         if (!value.trim()) {
                             callback(new Error(Translate('IDCS_GROUP_NAME_EMPTY')))
                             return

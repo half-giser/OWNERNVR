@@ -9,8 +9,6 @@
     <el-dialog
         :title="data.name"
         width="800"
-        align-center
-        draggable
         @open="open"
     >
         <div class="dialog">

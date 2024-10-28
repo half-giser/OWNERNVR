@@ -13,9 +13,7 @@
                 border
                 stripe
                 :data="tableData"
-                table-layout="fixed"
                 show-overflow-tooltip
-                empty-text=" "
                 highlight-current-row
                 :row-class-name="disabledRow"
             >
@@ -41,10 +39,7 @@
                 >
                     <template #header>
                         <div v-if="RecordSubResAdaptive">{{ Translate('IDCS_VIDEO_ENCT') }}</div>
-                        <el-dropdown
-                            v-else
-                            trigger="click"
-                        >
+                        <el-dropdown v-else>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_VIDEO_ENCT') }}
                             </BaseTableDropdownLink>
@@ -70,7 +65,6 @@
                             v-else
                             v-model="scope.row.videoEncodeType"
                             :disabled="pageData.isRowDisabled[scope.row.index]"
-                            placeholder=" "
                             @change="changeVideoEncodeType(scope.row)"
                         >
                             <el-option
@@ -92,7 +86,6 @@
                         <el-popover
                             v-else
                             v-model:visible="pageData.resolutionHeaderVisble"
-                            trigger="click"
                             width="430"
                             popper-class="no-padding"
                         >
@@ -172,7 +165,6 @@
                             v-else
                             v-model="scope.row.resolution"
                             :disabled="pageData.isRowDisabled[scope.row.index]"
-                            placeholder=" "
                             @change="changeResolution(scope.row, scope.row.resolution)"
                         >
                             <el-option
@@ -193,7 +185,6 @@
                         <div v-if="RecordSubResAdaptive">{{ Translate('IDCS_FRAME_RATE') }}</div>
                         <el-dropdown
                             v-else
-                            trigger="click"
                             max-height="400"
                         >
                             <BaseTableDropdownLink>
@@ -221,7 +212,6 @@
                             v-else
                             v-model="scope.row.frameRate"
                             :disabled="pageData.isRowDisabled[scope.row.index]"
-                            placeholder=" "
                             @change="changeVideoEncodeType(scope.row)"
                         >
                             <el-option
@@ -240,10 +230,7 @@
                 >
                     <template #header>
                         <div v-if="RecordSubResAdaptive">{{ Translate('IDCS_VIDEO_QUALITY') }}</div>
-                        <el-dropdown
-                            v-else
-                            trigger="click"
-                        >
+                        <el-dropdown v-else>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_VIDEO_QUALITY') }}
                             </BaseTableDropdownLink>
@@ -271,7 +258,6 @@
                             v-else
                             v-model="scope.row.videoQuality"
                             :disabled="pageData.isRowDisabled[scope.row.index] || pageData.isVideoQualityDisabled[scope.row.index]"
-                            placeholder=" "
                         >
                             <el-option
                                 v-for="item in pageData.videoQualityItemList[scope.row.index]"

@@ -7,7 +7,6 @@
     <el-dialog
         :title="Translate('IDCS_SET_DEV_DEFAULT_PWD')"
         width="600"
-        align-center
         @opened="opened"
     >
         <el-form
@@ -18,9 +17,7 @@
                 border
                 stripe
                 :data="formData.params"
-                table-layout="fixed"
                 show-overflow-tooltip
-                empty-text=" "
                 height="300"
                 class="ruleTable"
             >

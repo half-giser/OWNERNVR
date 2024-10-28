@@ -54,10 +54,7 @@
                 </el-popover>
             </template>
             <!-- OSD按钮 -->
-            <el-tooltip
-                :content="osd ? Translate('IDCS_OSD_CLOSE') : Translate('IDCS_OSD_OPEN')"
-                :show-after="500"
-            >
+            <el-tooltip :content="osd ? Translate('IDCS_OSD_CLOSE') : Translate('IDCS_OSD_OPEN')">
                 <BaseImgSprite
                     file="OSD"
                     :index="osd ? 2 : 0"
@@ -67,10 +64,7 @@
                 />
             </el-tooltip>
             <!-- 全屏按钮 -->
-            <el-tooltip
-                :content="Translate('IDCS_FULLSCREEN')"
-                :show-after="500"
-            >
+            <el-tooltip :content="Translate('IDCS_FULLSCREEN')">
                 <BaseImgSprite
                     file="full_screen"
                     :index="0"
@@ -90,17 +84,14 @@
                     v-for="item in pageData.streamMenuOptions"
                     :key="item.value"
                     :value="item.value"
-                    >{{ item.label }}</el-radio-button
-                >
+                    :label="item.label"
+                />
             </el-radio-group>
         </div>
         <div class="ctrl-right">
             <LiveScreenAlarmOut />
             <!-- 关闭/开启图像 -->
-            <el-tooltip
-                :content="preview ? Translate('IDCS_CLOSE_ALL_IMAGE') : Translate('IDCS_PREVIEW_ALL')"
-                :show-after="500"
-            >
+            <el-tooltip :content="preview ? Translate('IDCS_CLOSE_ALL_IMAGE') : Translate('IDCS_PREVIEW_ALL')">
                 <BaseImgSprite
                     :file="preview ? 'close_all_chl' : 'open_all_chl'"
                     :index="0"
@@ -110,10 +101,7 @@
                 />
             </el-tooltip>
             <!-- 本地录像 -->
-            <el-tooltip
-                :content="clientRecord ? Translate('IDCS_CLIENT_RECORD_ALL_OFF') : Translate('IDCS_CLIENT_RECORD_ALL_ON')"
-                :show-after="500"
-            >
+            <el-tooltip :content="clientRecord ? Translate('IDCS_CLIENT_RECORD_ALL_OFF') : Translate('IDCS_CLIENT_RECORD_ALL_ON')">
                 <BaseImgSprite
                     :file="clientRecord ? 'stop_rec_all_chl' : 'start_rec_all_chl'"
                     :index="0"
@@ -124,10 +112,7 @@
                 />
             </el-tooltip>
             <!-- 远程录像 -->
-            <el-tooltip
-                :content="remoteRecord ? Translate('IDCS_REMOTE_MANUAL_RECORD_ALL_OFF') : Translate('IDCS_REMOTE_MANUAL_RECORD_ALL_ON')"
-                :show-after="500"
-            >
+            <el-tooltip :content="remoteRecord ? Translate('IDCS_REMOTE_MANUAL_RECORD_ALL_OFF') : Translate('IDCS_REMOTE_MANUAL_RECORD_ALL_ON')">
                 <BaseImgSprite
                     :file="remoteRecord ? 'stop_remote_rec_all_chl' : 'start_remote_rec_all_chl'"
                     :index="0"
@@ -139,10 +124,7 @@
                 />
             </el-tooltip>
             <!-- 对讲 -->
-            <el-tooltip
-                :content="talk ? Translate('IDCS_TALKBACK_OFF') : Translate('IDCS_TALKBACK_ON')"
-                :show-after="500"
-            >
+            <el-tooltip :content="talk ? Translate('IDCS_TALKBACK_OFF') : Translate('IDCS_TALKBACK_ON')">
                 <BaseImgSprite
                     v-show="isTalk"
                     :file="talk ? 'stop_talk' : 'start_talk'"

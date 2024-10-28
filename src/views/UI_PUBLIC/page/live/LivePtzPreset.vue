@@ -18,10 +18,7 @@
                 @click="pageData.active = index"
             >
                 <span class="ptz-preset-text text-ellipsis">{{ item.name }}</span>
-                <el-tooltip
-                    :show-after="500"
-                    :content="Translate('IDCS_CALL')"
-                >
+                <el-tooltip :content="Translate('IDCS_CALL')">
                     <BaseImgSprite
                         file="call"
                         :index="0"
@@ -32,10 +29,7 @@
             </BaseListBoxItem>
         </BaseListBox>
         <div class="ptz-preset-btns">
-            <el-tooltip
-                :content="Translate('IDCS_ADD')"
-                :show-after="500"
-            >
+            <el-tooltip :content="Translate('IDCS_ADD')">
                 <BaseImgSprite
                     file="preset_Add"
                     :index="0"
@@ -46,10 +40,7 @@
                     @click="addPreset"
                 />
             </el-tooltip>
-            <el-tooltip
-                :content="Translate('IDCS_DELETE')"
-                :show-after="500"
-            >
+            <el-tooltip :content="Translate('IDCS_DELETE')">
                 <BaseImgSprite
                     file="preset_Delete"
                     :index="0"
@@ -60,10 +51,7 @@
                     @click="deletePreset"
                 />
             </el-tooltip>
-            <el-tooltip
-                :content="Translate('IDCS_SAVE_POSITION')"
-                :show-after="500"
-            >
+            <el-tooltip :content="Translate('IDCS_SAVE_POSITION')">
                 <BaseImgSprite
                     file="preset_SavePosition"
                     :index="0"

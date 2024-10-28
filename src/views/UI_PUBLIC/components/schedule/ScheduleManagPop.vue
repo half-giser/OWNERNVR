@@ -1,10 +1,14 @@
+<!--
+ * @Author: tengxiang tengxiang@tvt.net.cn
+ * @Date: 2024-07-31 16:36:16
+ * @Description: 排程管理弹框
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-22 19:55:18
+-->
 <template>
     <el-dialog
-        draggable
-        center
         width="960"
         :title="Translate('IDCS_SCHEDULE')"
-        :close-on-click-modal="false"
         :destroy-on-close="true"
         @open="onOpen"
     >

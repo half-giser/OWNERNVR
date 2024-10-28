@@ -7,15 +7,12 @@
     <el-dialog
         :title="Translate('IDCS_ADD_RECORDER_CHANNEL')"
         width="800"
-        align-center
-        draggable
         @opened="opened"
     >
         <el-form
             ref="formRef"
             :model="formData"
             :rules="rules"
-            label-position="left"
             class="stripe"
             :style="{
                 '--form-label-width': '150px',
@@ -51,7 +48,6 @@
                         v-model="formData.servePort"
                         :min="10"
                         :max="65535"
-                        value-on-clear="min"
                         :disabled
                     />
                 </el-form-item>
@@ -60,7 +56,6 @@
                         v-model="formData.channelCount"
                         :min="1"
                         :max="128"
-                        value-on-clear="min"
                         :disabled="eleChlCountDisabled"
                     />
                 </el-form-item>
@@ -96,9 +91,7 @@
             stripe
             :data="formData.recorderList"
             height="340"
-            table-layout="fixed"
             show-overflow-tooltip
-            empty-text=" "
             highlight-current-row
             @row-click="handleRowClick"
             @selection-change="handleSelectionChange"

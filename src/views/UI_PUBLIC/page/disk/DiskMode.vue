@@ -11,9 +11,9 @@
             <el-form-item>
                 <el-checkbox
                     v-model="formData.enable"
+                    :label="Translate('IDCS_RAID_USE')"
                     @change="changeDiskMode"
-                    >{{ Translate('IDCS_RAID_USE') }}</el-checkbox
-                >
+                />
             </el-form-item>
         </el-form>
         <BaseCheckAuthPop

@@ -9,11 +9,7 @@
     <div>
         <el-popover
             v-model:visible="pageData.isPop"
-            placement="bottom"
             width="350"
-            trigger="click"
-            :show-after="0"
-            :hide-after="0"
         >
             <template #reference>
                 <div class="base-intel-placeholder">
@@ -38,8 +34,8 @@
                         v-for="item in options"
                         :key="item.value"
                         :value="item.value"
-                        >{{ item.label }}</el-radio
-                    >
+                        :label="item.label"
+                    />
                 </el-radio-group>
             </el-scrollbar>
             <template v-else>
@@ -52,8 +48,8 @@
                             v-for="item in options"
                             :key="item.value"
                             :value="item.value"
-                            >{{ item.label }}</el-checkbox
-                        >
+                            :label="item.label"
+                        />
                     </el-checkbox-group>
                 </el-scrollbar>
                 <div class="base-btn-box">

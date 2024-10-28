@@ -9,8 +9,6 @@
     <el-dialog
         :title="Translate('IDCS_SNAP_DETAIL')"
         :width="950"
-        align-center
-        draggable
         @opened="open"
     >
         <div>

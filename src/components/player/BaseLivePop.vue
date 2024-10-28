@@ -8,8 +8,6 @@
         v-model="dialogOpened"
         :title="Translate('IDCS_CHANNEL_PREVIEW')"
         width="642"
-        align-center
-        draggable
         @opened="opened"
         @close="close"
     >

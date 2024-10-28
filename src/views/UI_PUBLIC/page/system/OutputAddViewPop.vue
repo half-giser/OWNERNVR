@@ -9,15 +9,12 @@
     <el-dialog
         :title="Translate('IDCS_Add_CUSTOM_VIEW')"
         width="400"
-        align-center
-        draggable
         @open="open"
     >
         <el-form
             ref="formRef"
             :model="formData"
             :rules="rules"
-            label-position="left"
         >
             <el-form-item
                 prop="name"

@@ -1,7 +1,7 @@
 /*
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-05-08 17:03:07
- * @Description:
+ * @Description: 通道
  */
 
 export class ChannelInfoDto {

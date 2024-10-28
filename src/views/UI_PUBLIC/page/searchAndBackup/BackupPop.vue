@@ -9,13 +9,10 @@
     <el-dialog
         :title="Translate('IDCS_BACKUP')"
         :width="500"
-        align-center
-        draggable
         @open="open"
     >
         <el-form
             ref="formRef"
-            label-position="left"
             class=""
             :model="formData"
             :rules="formRule"

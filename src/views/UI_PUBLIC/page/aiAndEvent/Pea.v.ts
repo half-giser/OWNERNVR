@@ -69,7 +69,7 @@ export default defineComponent({
             // 是否支持声音设置
             supportAlarmAudioConfig: true,
             // 不支持功能提示页面是否展示
-            notSupportTipShow: false,
+            // notSupportTipShow: false,
             // 请求数据失败显示提示
             requireDataFail: false,
             // 排程管理
@@ -191,7 +191,6 @@ export default defineComponent({
                     pluginStore.showPluginNoResponse = true
                     peaPlugin.ShowPluginNoResponse()
                 }
-                peaPlugin.AddPluginMoveEvent(document.getElementById('peaplayer')!)
                 const sendXML = OCX_XML_SetPluginModel(osType == 'mac' ? 'PeaConfig' : 'ReadOnly', 'Live')
                 peaPlugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
@@ -722,7 +721,7 @@ export default defineComponent({
                     peaData.value.areaCfgData.entry.originalEnable = true
                     peaData.value.areaCfgData.leave.originalEnable = true
                 }
-                // 保存成功后刷新视频区域，四个点时区域没有闭合但保存后也可以闭合（四点已经可以画面） TODO
+                // 保存成功后刷新视频区域，四个点时区域没有闭合但保存后也可以闭合（四点已经可以画面）
                 // setPeaOcxData()
                 peaRefreshInitPage()
             } else {

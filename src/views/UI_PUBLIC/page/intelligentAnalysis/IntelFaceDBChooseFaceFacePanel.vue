@@ -15,9 +15,9 @@
                 <span class="group-title">{{ Translate('IDCS_ADD_FACE_GROUP') }}</span>
                 <el-checkbox
                     v-model="pageData.isAllFaceGroup"
+                    :label="Translate('IDCS_ALL')"
                     @change="changeAllFaceGroup"
-                    >{{ Translate('IDCS_ALL') }}</el-checkbox
-                >
+                />
                 <el-text class="group-list text-ellipsis">{{ formData.faceGroup.map((item) => item.name).join(';') }}</el-text>
             </div>
             <div>
@@ -25,7 +25,6 @@
             </div>
         </div>
         <el-form
-            label-position="left"
             :style="{
                 '--form-input-width': '200px',
             }"
@@ -63,9 +62,8 @@
                     <el-pagination
                         v-model:current-page="formData.pageIndex"
                         :page-size="18"
-                        layout="prev, pager, next, total"
+                        :page-sizes="[18]"
                         :total="listData.length"
-                        size="small"
                         @current-change="changePage"
                     />
                 </div>

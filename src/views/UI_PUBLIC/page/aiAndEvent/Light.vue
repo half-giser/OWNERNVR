@@ -38,7 +38,7 @@
                 <!-- 启用 -->
                 <el-table-column>
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_ENABLE') }}
                             </BaseTableDropdownLink>
@@ -90,7 +90,7 @@
                 <!-- 闪烁频率 -->
                 <el-table-column>
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_FLASHING_FREQUENCY') }}
                             </BaseTableDropdownLink>
@@ -112,7 +112,6 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.frequencyType"
-                            placeholder=""
                             :disabled="scope.row.frequencyTypeDisable || scope.row.rowDisable"
                             @change="handleFrequencyTypeChange(scope.row)"
                         >
@@ -132,17 +131,13 @@
             <el-pagination
                 v-model:current-page="pageData.pageIndex"
                 v-model:page-size="pageData.pageSize"
-                :page-sizes="pageData.pageDataCountItems"
-                layout="prev, pager, next, sizes, total, jumper"
                 :total="pageData.totalCount"
-                size="small"
                 @size-change="changePaginationSize"
                 @current-change="changePagination"
             />
         </div>
         <div class="base-subheading-box margin">{{ Translate('IDCS_FLASH_LIGHT_LINK_SCHEDULE') }}</div>
         <el-form
-            label-position="left"
             :style="{
                 '--form-input-width': '200px',
             }"

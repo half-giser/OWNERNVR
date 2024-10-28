@@ -3,7 +3,7 @@
  * @Date: 2024-06-25 09:59:23
  * @Description: 输出配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-21 14:19:31
+ * @LastEditTime: 2024-10-28 15:07:02
  */
 import { type XmlResult } from '@/utils/xmlParse'
 import OutputSplitTemplate from './OutputSplitTemplate.vue'
@@ -904,8 +904,7 @@ export default defineComponent({
         const handleCheckAuthByConfigSwitchChange = async (e: UserCheckAuthForm) => {
             openLoading()
 
-            // TODO: 原项目注释说“开关可编辑只可能是这种情况”，但关闭时，开关并没有隐藏
-            // 开关可编辑只可能是这种情况async
+            // 开关可编辑只可能是这种情况
             const sendXml = rawXml`
                 <content>
                     <supportAI>false</supportAI>

@@ -9,8 +9,6 @@
     <el-dialog
         :title="Translate('IDCS_FACE_DETAIL')"
         width="900"
-        align-center
-        draggable
     >
         <div>
             <div class="info">

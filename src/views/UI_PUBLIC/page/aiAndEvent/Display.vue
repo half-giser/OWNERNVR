@@ -12,7 +12,6 @@
         :style="{
             '--form-input-width': '215px',
         }"
-        label-position="left"
         inline-message
     >
         <div class="base-subheading-box">{{ Translate('IDCS_POPUP_VIDEO') }}</div>
@@ -46,7 +45,6 @@
         ref="popMsgRef"
         :model="msgFormData"
         class="msgbox"
-        label-position="left"
         inline-message
         :style="{
             '--form-input-width': '215px',
@@ -54,7 +52,10 @@
     >
         <div class="base-subheading-box">{{ Translate('IDCS_POPUP_MESSAGEBOX') }}</div>
         <el-form-item>
-            <el-checkbox v-model="msgFormData.popMsgShow">{{ Translate('IDCS_NO_MESSAGEBOX') }}</el-checkbox>
+            <el-checkbox
+                v-model="msgFormData.popMsgShow"
+                :label="Translate('IDCS_NO_MESSAGEBOX')"
+            />
         </el-form-item>
         <el-form-item :label="Translate('IDCS_DURATION')">
             <el-select v-model="msgFormData.popMsgDuration">

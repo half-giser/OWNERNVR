@@ -7,9 +7,12 @@
 -->
 <template>
     <div class="base-flex-box">
-        <el-form label-position="left">
+        <el-form>
             <el-form-item>
-                <el-checkbox v-model="formData.switch">{{ Translate('IDCS_ENABLE_ONVIF_SERVER') }}</el-checkbox>
+                <el-checkbox
+                    v-model="formData.switch"
+                    :label="Translate('IDCS_ENABLE_ONVIF_SERVER')"
+                />
             </el-form-item>
         </el-form>
         <div
@@ -55,7 +58,7 @@
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_DELETE')">
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_DELETE') }}
                             </BaseTableDropdownLink>

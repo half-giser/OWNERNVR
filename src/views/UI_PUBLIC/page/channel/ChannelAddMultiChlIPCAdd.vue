@@ -8,17 +8,13 @@
         v-model="multiChlIPCCfgDialogVisiable"
         :title="Translate('IDCS_THERMAL_CHANNEL_CONFIG')"
         width="640"
-        align-center
-        draggable
         @opened="opened"
     >
         <el-table
             border
             stripe
             :data="tableData"
-            table-layout="fixed"
             show-overflow-tooltip
-            empty-text=" "
             highlight-current-row
             :show-header="false"
             height="300"

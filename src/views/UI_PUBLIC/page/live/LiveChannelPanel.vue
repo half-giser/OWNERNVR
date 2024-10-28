@@ -36,10 +36,7 @@
                     @click="changeChlMenu(index)"
                     @dblclick="changeChlMenu(index)"
                 >
-                    <el-tooltip
-                        :content="item.label"
-                        :show-after="500"
-                    >
+                    <el-tooltip :content="item.label">
                         <BaseImgSprite
                             :file="item.file"
                             :index="pageData.activeChlMenu === index ? 1 : 0"

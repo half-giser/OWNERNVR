@@ -9,8 +9,6 @@
     <el-dialog
         :title="Translate('IDCS_LOG_DETAIL_INFO')"
         width="600"
-        draggable
-        center
         @open="handleCombinedType"
     >
         <div class="ViewLogDetail stripe">

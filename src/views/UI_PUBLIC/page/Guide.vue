@@ -66,7 +66,10 @@
                     ></textarea>
                 </div>
                 <div class="base-btn-box padding">
-                    <el-checkbox v-model="privacyFormData.checked">{{ Translate('IDCS_PRIVACY_ALLOW') }}</el-checkbox>
+                    <el-checkbox
+                        v-model="privacyFormData.checked"
+                        :label="Translate('IDCS_PRIVACY_ALLOW')"
+                    />
                     <el-button
                         :disabled="!privacyFormData.checked"
                         @click="handleNext"
@@ -81,10 +84,7 @@
             >
                 <div class="title">{{ Translate('IDCS_WIZARD') }}</div>
                 <div class="box">
-                    <el-form
-                        label-position="left"
-                        class="narrow"
-                    >
+                    <el-form class="narrow">
                         <el-form-item :label="Translate('IDCS_TIME_ZONE')">
                             <el-select v-model="dateTimeFormData.timeZone">
                                 <el-option
@@ -187,10 +187,7 @@
             >
                 <div class="title">{{ Translate('IDCS_WIZARD') }}</div>
                 <div class="box">
-                    <el-form
-                        label-position="left"
-                        class="narrow"
-                    >
+                    <el-form class="narrow">
                         <el-form-item>
                             <el-text class="user-title">{{ Translate('IDCS_ADMIN_PASSWORD_SETUP').formatForLang(userFormData.userName) }}</el-text>
                         </el-form-item>
@@ -245,7 +242,6 @@
                 <div class="title">{{ Translate('IDCS_WIZARD') }}</div>
                 <div class="box">
                     <el-form
-                        label-position="left"
                         class="narrow inline-message"
                         :style="{
                             '--form-input-width': '340px',
