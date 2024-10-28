@@ -14,7 +14,7 @@ export default defineComponent({
             return filePath.length
         },
     },
-    setup(prop, ctx) {
+    setup(_prop, ctx) {
         const Plugin = inject('Plugin') as PluginType
         const { Translate } = useLangStore()
 
@@ -25,7 +25,7 @@ export default defineComponent({
         const rules = ref<FormRules>({
             filePath: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (!value.length) {
                             callback(new Error(Translate('IDCS_SELECT_PATH')))
                             return

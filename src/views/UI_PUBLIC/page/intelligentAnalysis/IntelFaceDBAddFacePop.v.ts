@@ -3,7 +3,7 @@
  * @Date: 2024-08-30 18:47:04
  * @Description: 人脸库 - 添加人脸
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 11:06:10
+ * @LastEditTime: 2024-10-28 14:06:44
  */
 import { IntelFaceDBFaceForm, type IntelFaceDBGroupDto, type IntelFaceDBSnapFaceList, type IntelFaceDBImportFaceDto } from '@/types/apiType/intelligentAnalysis'
 import { type FormInstance } from 'element-plus'
@@ -233,17 +233,10 @@ export default defineComponent({
             pageData.value.formIndex = 0
 
             formData.value = e.map((item) => {
-                console.log(item)
                 const data = renderFormData()
                 data.birthday = formatDate(item.birthday, dateTime.dateFormat, 'YYYY/MM/DD')
-                console.log(data.birthday)
-                if (item.number) {
-                    data.number = Number(item.number)
-                }
-
-                if (item.mobile) {
-                    data.mobile = Number(item.mobile)
-                }
+                data.number = item.number
+                data.mobile = item.mobile
                 data.name = item.name ? item.name : item.imgName.split('.')[0]
                 data.sex = item.sex
                 data.certificateType = item.certificateType
@@ -295,8 +288,8 @@ export default defineComponent({
                     <nativePlace>${item.nativePlace}</nativePlace>
                     <certificateType>${item.certificateType}</certificateType>
                     <certificateNum>${item.certificateNum}</certificateNum>
-                    <mobile>${item.mobile?.toString() || ''}</mobile>
-                    <number>${item.number?.toString() || ''}</number>
+                    <mobile>${item.mobile.toString()}</mobile>
+                    <number>${item.number.toString()}</number>
                     <note>${item.note}</note>
                     <groups>
                         <item id="${group.id}">
@@ -490,6 +483,7 @@ export default defineComponent({
             picList,
             swiperSize,
             highlightWeekend,
+            formatDigit,
             IntelFaceDBChooseFacePop,
             IntelBaseFaceItem,
         }

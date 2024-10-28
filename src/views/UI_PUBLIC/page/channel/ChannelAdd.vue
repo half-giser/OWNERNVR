@@ -13,9 +13,8 @@
                     v-show="item.show"
                     :key="item.key"
                     :value="item.key"
-                >
-                    {{ Translate(item.text) }}
-                </el-radio-button>
+                    :label="Translate(item.text)"
+                />
             </el-radio-group>
             <div>
                 <el-button
@@ -33,10 +32,8 @@
                 border
                 stripe
                 :data="quickAddTableData"
-                table-layout="fixed"
                 show-overflow-tooltip
                 highlight-current-row
-                empty-text=" "
                 @row-click="handleRowClick"
                 @selection-change="handleSelectionChange"
             >
@@ -124,9 +121,7 @@
                 border
                 stripe
                 :data="manualAddFormData"
-                table-layout="fixed"
                 show-overflow-tooltip
-                empty-text=" "
             >
                 <el-table-column
                     :label="Translate('IDCS_ADDRESS')"
@@ -173,7 +168,6 @@
                             v-model="scope.row.port"
                             :min="10"
                             :max="65535"
-                            value-on-clear="min"
                             :disabled="scope.row.portDisabled"
                             size="small"
                             @change="cellChange($event, scope.$index, scope.row, 'port')"
@@ -250,9 +244,7 @@
                 border
                 stripe
                 :data="addRecorderTableData"
-                table-layout="fixed"
                 show-overflow-tooltip
-                empty-text=" "
                 highlight-current-row
                 @row-click="handleRecorderRowClick"
                 @row-dblclick="handleRecorderRowDbClick"

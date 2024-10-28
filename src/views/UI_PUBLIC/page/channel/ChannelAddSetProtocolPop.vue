@@ -7,15 +7,12 @@
     <el-dialog
         :title="Translate('IDCS_PROTOCOL_MANAGE')"
         width="1000"
-        align-center
-        draggable
         @opened="opened"
     >
         <el-form
             ref="formRef"
             :model="formData"
             :rules="rules"
-            label-position="left"
         >
             <el-form-item>
                 <el-form-item :label="Translate('IDCS_PROTOCOL_LOGO')">
@@ -65,9 +62,7 @@
             border
             stripe
             :data="formData.resourcesPath"
-            table-layout="fixed"
             show-overflow-tooltip
-            empty-text=" "
             highlight-current-row
         >
             <el-table-column
@@ -121,7 +116,6 @@
                         v-model="scope.row.port"
                         :min="10"
                         :max="65535"
-                        value-on-clear="min"
                         size="small"
                         :disabled="!formData.enabled"
                     />

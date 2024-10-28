@@ -11,9 +11,7 @@
                 border
                 stripe
                 :data="tableData"
-                table-layout="fixed"
                 show-overflow-tooltip
-                empty-text=" "
                 highlight-current-row
                 :show-header="false"
                 :row-key="(row) => row.id"
@@ -85,10 +83,6 @@
             <el-pagination
                 v-model:current-page="pageIndex"
                 v-model:page-size="pageSize"
-                :page-sizes="DefaultPagerSizeOptions"
-                size="small"
-                :background="false"
-                :layout="DefaultPagerLayout"
                 :total="pageTotal"
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"

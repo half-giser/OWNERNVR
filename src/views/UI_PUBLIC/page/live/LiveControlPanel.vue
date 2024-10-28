@@ -9,10 +9,7 @@
     <div class="ctrl">
         <div class="ctrl-btns">
             <!-- 抓拍 -->
-            <el-tooltip
-                :content="Translate('IDCS_SNAP')"
-                :show-after="500"
-            >
+            <el-tooltip :content="Translate('IDCS_SNAP')">
                 <BaseImgSprite
                     file="capture"
                     :index="0"
@@ -24,10 +21,7 @@
                 />
             </el-tooltip>
             <!-- 关闭图像 -->
-            <el-tooltip
-                :content="Translate('IDCS_CLOSE_IMAGE')"
-                :show-after="500"
-            >
+            <el-tooltip :content="Translate('IDCS_CLOSE_IMAGE')">
                 <BaseImgSprite
                     file="close_chl"
                     :index="0"
@@ -39,10 +33,7 @@
                 />
             </el-tooltip>
             <!-- 本地录像 -->
-            <el-tooltip
-                :content="winData.localRecording ? Translate('IDCS_CLIENT_RECORD_OFF') : Translate('IDCS_CLIENT_RECORD_ON')"
-                :show-after="500"
-            >
+            <el-tooltip :content="winData.localRecording ? Translate('IDCS_CLIENT_RECORD_OFF') : Translate('IDCS_CLIENT_RECORD_ON')">
                 <BaseImgSprite
                     :file="winData.localRecording ? 'recing' : 'rec (2)'"
                     :index="winData.localRecording ? 2 : 0"
@@ -54,10 +45,7 @@
                 />
             </el-tooltip>
             <!-- 远程录像 -->
-            <el-tooltip
-                :content="remote ? Translate('IDCS_REMOTE_MANUAL_RECORD_OFF') : Translate('IDCS_REMOTE_MANUAL_RECORD_ON')"
-                :show-after="500"
-            >
+            <el-tooltip :content="remote ? Translate('IDCS_REMOTE_MANUAL_RECORD_OFF') : Translate('IDCS_REMOTE_MANUAL_RECORD_ON')">
                 <BaseImgSprite
                     :file="remote ? 'remote_recing' : 'remote_rec'"
                     :index="remote ? 2 : 0"
@@ -69,10 +57,7 @@
                 />
             </el-tooltip>
             <!-- 放大 -->
-            <el-tooltip
-                :content="Translate('IDCS_ZOOM_IN')"
-                :show-after="500"
-            >
+            <el-tooltip :content="Translate('IDCS_ZOOM_IN')">
                 <BaseImgSprite
                     file="magnify"
                     :index="0"
@@ -84,10 +69,7 @@
                 />
             </el-tooltip>
             <!-- 缩小 -->
-            <el-tooltip
-                :content="Translate('IDCS_ZOOM_OUT')"
-                :show-after="500"
-            >
+            <el-tooltip :content="Translate('IDCS_ZOOM_OUT')">
                 <BaseImgSprite
                     file="minify"
                     :index="0"
@@ -99,10 +81,7 @@
                 />
             </el-tooltip>
             <!-- 3D放大 -->
-            <el-tooltip
-                :content="Translate('IDCS_3D_ZOOM_IN')"
-                :show-after="500"
-            >
+            <el-tooltip :content="Translate('IDCS_3D_ZOOM_IN')">
                 <BaseImgSprite
                     file="magnify3d"
                     :index="winData.magnify3D ? 2 : 0"
@@ -114,10 +93,7 @@
                 />
             </el-tooltip>
             <!-- 对讲 -->
-            <el-tooltip
-                :content="winData.talk ? Translate('IDCS_TALKBACK_OFF') : Translate('IDCS_TALKBACK_ON')"
-                :show-after="500"
-            >
+            <el-tooltip :content="winData.talk ? Translate('IDCS_TALKBACK_OFF') : Translate('IDCS_TALKBACK_ON')">
                 <BaseImgSprite
                     v-show="mode === 'ocx'"
                     :file="winData.talk ? 'ipcTalkBacking' : 'ipcTalkBack'"
@@ -130,10 +106,7 @@
                 />
             </el-tooltip>
             <!-- 原始比例 -->
-            <el-tooltip
-                :content="Translate('IDCS_ORIGINAL_DISPLAY')"
-                :show-after="500"
-            >
+            <el-tooltip :content="Translate('IDCS_ORIGINAL_DISPLAY')">
                 <BaseImgSprite
                     :file="winData.original ? 'originalDisplaying' : 'originalDisplay'"
                     :index="0"
@@ -145,10 +118,7 @@
                 />
             </el-tooltip>
             <!-- 开门 -->
-            <el-tooltip
-                :content="Translate('IDCS_MANU_OPEN_DOOR')"
-                :show-after="500"
-            >
+            <el-tooltip :content="Translate('IDCS_MANU_OPEN_DOOR')">
                 <BaseImgSprite
                     v-show="!openDoorDisabled"
                     file="openDoor"
@@ -183,8 +153,8 @@
                     v-for="item in pageData.streamMenuOptions"
                     :key="item.value"
                     :value="item.value"
-                    >{{ item.label }}</el-radio-button
-                >
+                    :label="item.label"
+                />
             </el-radio-group>
         </div>
 
@@ -193,7 +163,6 @@
             class="stream-param"
         >
             <el-form
-                label-position="left"
                 class="narrow"
                 :style="{
                     '--form-label-width': '100px',

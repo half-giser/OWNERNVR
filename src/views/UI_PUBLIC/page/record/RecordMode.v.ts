@@ -191,7 +191,6 @@ export default defineComponent({
                 pageData.value.autoModeIdOld = oldValue
 
                 if (!isBack) {
-                    // TODO 码流配置设置
                     pageData.value.recModeStreamPopOpen = true
                 } else {
                     pageData.value.autoModeIdOld = formData.value.autoModeId
@@ -267,7 +266,7 @@ export default defineComponent({
                 })
             })
 
-            //绑定手动录像时长下拉 TODO 无函数
+            //绑定手动录像时长下拉
             $('//content/urgencyRecDurationNote')
                 .text()
                 .split(',')

@@ -9,14 +9,11 @@
     <el-dialog
         :title="type === 'edit' ? Translate('IDCS_EDIT_GROUP') : Translate('IDCS_ADD_GROUP')"
         width="400"
-        align-center
-        draggable
         append-to-body
         @open="open"
     >
         <el-form
             ref="formRef"
-            label-position="left"
             :rules="formRule"
             :model="formData"
         >

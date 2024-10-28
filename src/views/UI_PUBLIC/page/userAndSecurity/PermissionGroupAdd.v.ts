@@ -29,7 +29,7 @@ export default defineComponent({
         const rules = ref<FormRules>({
             name: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (!value.length) {
                             callback(new Error(Translate('IDCS_USER_GROUP_EMPTY_TIPS')))
                             return

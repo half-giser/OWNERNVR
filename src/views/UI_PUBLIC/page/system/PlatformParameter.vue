@@ -9,7 +9,6 @@
     <div>
         <el-form
             class="stripe"
-            label-position="left"
             :model="formData"
             inline-message
             :style="{
@@ -19,7 +18,10 @@
             <div class="base-subheading-box">{{ Translate('IDCS_ACCESS_PLATFORM_SET') }}</div>
             <!-- 启用 -->
             <el-form-item>
-                <el-checkbox v-model="formData.enable">{{ Translate('IDCS_ENABLE') }}</el-checkbox>
+                <el-checkbox
+                    v-model="formData.enable"
+                    :label="Translate('IDCS_ENABLE')"
+                />
             </el-form-item>
             <!-- 代理id -->
             <el-form-item :label="Translate('IDCS_AGENT_ID')">
@@ -44,8 +46,8 @@
                 <el-checkbox
                     v-model="formData.isDomain"
                     :disabled="!formData.enable"
-                    >{{ Translate('IDCS_DOMAIN_NAME') }}</el-checkbox
-                >
+                    :label="Translate('IDCS_DOMAIN_NAME')"
+                />
             </el-form-item>
             <!-- 端口 -->
             <el-form-item :label="Translate('IDCS_PORT')">

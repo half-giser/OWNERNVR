@@ -9,10 +9,7 @@
     <div class="ctrl">
         <div class="ctrl-btns">
             <!-- 抓拍 -->
-            <el-tooltip
-                :content="Translate('IDCS_SNAP')"
-                :show-after="500"
-            >
+            <el-tooltip :content="Translate('IDCS_SNAP')">
                 <BaseImgSprite
                     file="capture"
                     :index="0"
@@ -24,10 +21,7 @@
                 />
             </el-tooltip>
             <!-- 关闭图像 -->
-            <el-tooltip
-                :content="Translate('IDCS_CLOSE_IMAGE')"
-                :show-after="500"
-            >
+            <el-tooltip :content="Translate('IDCS_CLOSE_IMAGE')">
                 <BaseImgSprite
                     file="close_chl"
                     :index="0"
@@ -39,10 +33,7 @@
                 />
             </el-tooltip>
             <!-- 放大 -->
-            <el-tooltip
-                :content="Translate('IDCS_ZOOM_IN')"
-                :show-after="500"
-            >
+            <el-tooltip :content="Translate('IDCS_ZOOM_IN')">
                 <BaseImgSprite
                     file="magnify"
                     :index="0"
@@ -54,10 +45,7 @@
                 />
             </el-tooltip>
             <!-- 缩小 -->
-            <el-tooltip
-                :content="Translate('IDCS_ZOOM_OUT')"
-                :show-after="500"
-            >
+            <el-tooltip :content="Translate('IDCS_ZOOM_OUT')">
                 <BaseImgSprite
                     file="minify"
                     :index="0"
@@ -69,10 +57,7 @@
                 />
             </el-tooltip>
             <!-- 原始比例 -->
-            <el-tooltip
-                :content="Translate('IDCS_ORIGINAL_DISPLAY')"
-                :show-after="500"
-            >
+            <el-tooltip :content="Translate('IDCS_ORIGINAL_DISPLAY')">
                 <BaseImgSprite
                     :file="winData.original ? 'originalDisplaying' : 'originalDisplay'"
                     :index="0"
@@ -106,8 +91,8 @@
                     v-for="item in pageData.streamMenuOptions"
                     :key="item.value"
                     :value="item.value"
-                    >{{ item.label }}</el-radio-button
-                >
+                    :label="item.label"
+                />
             </el-radio-group>
         </div>
     </div>

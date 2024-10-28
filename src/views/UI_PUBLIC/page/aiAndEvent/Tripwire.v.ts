@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 11:16:22
  * @Description: 周界防范/人车检测
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 18:02:29
+ * @LastEditTime: 2024-10-28 14:25:18
  */
 import { type chlCaps, type aiResourceRow, type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
@@ -241,7 +241,6 @@ export default defineComponent({
                     pluginStore.showPluginNoResponse = true
                     tripwirePlugin.ShowPluginNoResponse()
                 }
-                tripwirePlugin.AddPluginMoveEvent(document.getElementById('tripwireplayer')!)
                 const sendXML = OCX_XML_SetPluginModel(osType == 'mac' ? 'TripwireConfig' : 'ReadOnly', 'Live')
                 tripwirePlugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
@@ -259,16 +258,15 @@ export default defineComponent({
                 })
             } else {
                 if (osType == 'mac') {
-                    // TODO index
-                    const sendXML = OCX_XML_Preview({
-                        winIndexList: [0],
-                        chlIdList: [id],
-                        chlNameList: [name],
-                        streamType: 'sub',
-                        chlIndexList: [tripwireData.value.chlData.id],
-                        chlTypeList: [tripwireData.value.chlData.chlType],
-                    })
-                    tripwirePlugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    // const sendXML = OCX_XML_Preview({
+                    //     winIndexList: [0],
+                    //     chlIdList: [id],
+                    //     chlNameList: [name],
+                    //     streamType: 'sub',
+                    //     chlIndexList: [tripwireData.value.chlData.id],
+                    //     chlTypeList: [tripwireData.value.chlData.chlType],
+                    // })
+                    // tripwirePlugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 } else {
                     tripwirePlugin.RetryStartChlView(id, name)
                 }

@@ -19,7 +19,6 @@ export default defineComponent({
             pageIndex: 1,
             pageSize: 10,
             totalCount: 0,
-            pageDataCountItems: [10, 20, 30],
             scheduleManagePopOpen: false,
             schedule: '',
             scheduleName: '',

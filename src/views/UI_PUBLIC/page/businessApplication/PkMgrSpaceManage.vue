@@ -10,8 +10,6 @@
         <div class="base-table-box">
             <el-table
                 :data="tableData"
-                empty-text=" "
-                table-layout="fixed"
                 show-overflow-tooltip
                 stripe
                 border
@@ -53,7 +51,6 @@
                             v-model="scope.row.groupTotalNum"
                             :min="1"
                             :max="10000"
-                            value-on-clear="min"
                             :disabled="scope.row.parkingType !== 'usingGroup'"
                             size="small"
                         />
@@ -68,7 +65,6 @@
                             v-model="scope.row.groupRemainNum"
                             :min="0"
                             :max="10000"
-                            value-on-clear="min"
                             :disabled="scope.row.parkingType !== 'usingGroup'"
                             size="small"
                         />
@@ -76,7 +72,7 @@
                 </el-table-column>
                 <el-table-column min-width="200">
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_SCHEDULE') }}
                             </BaseTableDropdownLink>

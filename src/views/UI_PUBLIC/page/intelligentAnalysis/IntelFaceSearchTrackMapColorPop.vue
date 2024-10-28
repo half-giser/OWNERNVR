@@ -9,8 +9,6 @@
     <el-dialog
         :title="Translate('IDCS_COLOR')"
         width="480"
-        align-center
-        draggable
         @open="open"
     >
         <div class="colors">

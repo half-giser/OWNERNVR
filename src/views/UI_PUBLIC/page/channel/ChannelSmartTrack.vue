@@ -17,7 +17,6 @@
             </div>
             <el-form
                 v-if="tableData.length"
-                label-position="left"
                 :style="{
                     '--form-label-width': '150px',
                 }"
@@ -108,7 +107,7 @@
                     />
                     <el-table-column :label="Translate('IDCS_HOMING_AFTER_TARGET_STATIONARY')">
                         <template #header>
-                            <el-dropdown trigger="click">
+                            <el-dropdown>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_HOMING_AFTER_TARGET_STATIONARY') }}
                                 </BaseTableDropdownLink>
@@ -147,7 +146,6 @@
                                 :min="0"
                                 :max="100"
                                 :disabled="!scope.row.autoBackSwitch || scope.row.disabled"
-                                value-on-clear="min"
                                 @change="addEditRow(scope.$index)"
                             />
                         </template>

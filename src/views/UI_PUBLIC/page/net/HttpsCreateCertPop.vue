@@ -9,15 +9,12 @@
     <el-dialog
         :title="Translate('IDCS_CREATE')"
         width="600"
-        align-center
-        draggable
         @open="open"
     >
         <el-form
             ref="formRef"
             :rules="formRule"
             :model="formData"
-            label-position="left"
             :style="{
                 '--form-label-width': '200px',
                 '--form-input-width': '200px',

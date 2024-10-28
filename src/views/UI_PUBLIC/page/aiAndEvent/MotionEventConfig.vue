@@ -3,15 +3,15 @@
  * @Date: 2024-08-16 18:13:47
  * @Description: 移动侦测
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-23 20:43:16
+ * @LastEditTime: 2024-10-28 09:31:21
 -->
 <template>
     <div class="base-flex-box">
         <BaseTransferDialog
             v-model="pageData.recordIsShow"
-            :header-title="pageData.recordHeaderTitle"
-            :source-title="pageData.recordSourceTitle"
-            :target-title="pageData.recordTargetTitle"
+            header-title="IDCS_TRIGGER_CHANNEL_RECORD"
+            source-title="IDCS_CHANNEL"
+            target-title="IDCS_CHANNEL_TRGGER"
             :source-data="pageData.recordList"
             :linked-list="tableData[pageData.triggerDialogIndex]?.recordList || []"
             :type="pageData.recordType"
@@ -21,9 +21,9 @@
         </BaseTransferDialog>
         <BaseTransferDialog
             v-model="pageData.snapIsShow"
-            :header-title="pageData.snapHeaderTitle"
-            :source-title="pageData.snapSourceTitle"
-            :target-title="pageData.snapTargetTitle"
+            header-title="IDCS_TRIGGER_CHANNEL_SNAP"
+            source-title="IDCS_CHANNEL"
+            target-title="IDCS_CHANNEL_TRGGER"
             :source-data="pageData.snapList"
             :linked-list="tableData[pageData.triggerDialogIndex]?.snapList || []"
             :type="pageData.snapType"
@@ -33,9 +33,9 @@
         </BaseTransferDialog>
         <BaseTransferDialog
             v-model="pageData.alarmOutIsShow"
-            :header-title="pageData.alarmOutHeaderTitle"
-            :source-title="pageData.alarmOutSourceTitle"
-            :target-title="pageData.alarmOutTargetTitle"
+            header-title="IDCS_TRIGGER_ALARM_OUT"
+            source-title="IDCS_ALARM_OUT"
+            target-title="IDCS_TRIGGER_ALARM_OUT"
             :source-data="pageData.alarmOutList"
             :linked-list="tableData[pageData.triggerDialogIndex]?.alarmOutList || []"
             :type="pageData.alarmOutType"
@@ -81,7 +81,7 @@
                 <!-- 排程   -->
                 <el-table-column width="130">
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_SCHEDULE') }}
                             </BaseTableDropdownLink>
@@ -122,7 +122,6 @@
                     <template #header>
                         <el-popover
                             v-model:visible="pageData.recordPopoverVisible"
-                            trigger="click"
                             width="fit-content"
                             popper-class="no-padding"
                         >
@@ -133,8 +132,8 @@
                             </template>
                             <BaseTransferPop
                                 v-if="pageData.recordPopoverVisible"
-                                :source-title="pageData.recordSourceTitle"
-                                :target-title="pageData.recordTargetTitle"
+                                source-title="IDCS_CHANNEL"
+                                target-title="IDCS_CHANNEL_TRGGER"
                                 :source-data="pageData.recordList"
                                 :linked-list="pageData.recordChosedIdsAll"
                                 :type="pageData.recordType"
@@ -150,7 +149,7 @@
                                 v-model="scope.row.record.switch"
                                 :disabled="scope.row.rowDisable"
                                 @change="checkChange(scope.$index, 'record')"
-                            ></el-checkbox>
+                            />
                             <el-button
                                 :disabled="!scope.row.record.switch || scope.row.rowDisable"
                                 class="table_btn"
@@ -166,7 +165,6 @@
                     <template #header>
                         <el-popover
                             v-model:visible="pageData.snapPopoverVisible"
-                            trigger="click"
                             width="fit-content"
                             popper-class="no-padding"
                         >
@@ -177,8 +175,8 @@
                             </template>
                             <BaseTransferPop
                                 v-if="pageData.snapPopoverVisible"
-                                :source-title="pageData.snapSourceTitle"
-                                :target-title="pageData.snapTargetTitle"
+                                source-title="IDCS_CHANNEL"
+                                target-title="IDCS_CHANNEL_TRGGER"
                                 :source-data="pageData.snapList"
                                 :linked-list="pageData.snapChosedIdsAll"
                                 :type="pageData.snapType"
@@ -194,7 +192,7 @@
                                 v-model="scope.row.snap.switch"
                                 :disabled="scope.row.rowDisable"
                                 @change="checkChange(scope.$index, 'snap')"
-                            ></el-checkbox>
+                            />
                             <el-button
                                 :disabled="!scope.row.snap.switch || scope.row.rowDisable"
                                 class="table_btn"
@@ -211,7 +209,7 @@
                     width="165"
                 >
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_AUDIO') }}
                             </BaseTableDropdownLink>
@@ -250,7 +248,7 @@
                 <!-- 消息推送   -->
                 <el-table-column width="150">
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_PUSH') }}
                             </BaseTableDropdownLink>
@@ -291,7 +289,6 @@
                     <template #header>
                         <el-popover
                             v-model:visible="pageData.alarmOutPopoverVisible"
-                            trigger="click"
                             width="fit-content"
                             popper-class="no-padding"
                         >
@@ -302,8 +299,8 @@
                             </template>
                             <BaseTransferPop
                                 v-if="pageData.alarmOutPopoverVisible"
-                                :source-title="pageData.alarmOutSourceTitle"
-                                :target-title="pageData.alarmOutTargetTitle"
+                                source-title="IDCS_ALARM_OUT"
+                                target-title="IDCS_TRIGGER_ALARM_OUT"
                                 :source-data="pageData.alarmOutList"
                                 :linked-list="pageData.alarmOutChosedIdsAll"
                                 :type="pageData.alarmOutType"
@@ -319,7 +316,7 @@
                                 v-model="scope.row.alarmOut.switch"
                                 :disabled="scope.row.rowDisable"
                                 @change="checkChange(scope.$index, 'record')"
-                            ></el-checkbox>
+                            />
                             <el-button
                                 :disabled="!scope.row.alarmOut.switch || scope.row.rowDisable"
                                 class="table_btn"
@@ -341,7 +338,7 @@
                                 v-model="scope.row.preset.switch"
                                 :disabled="scope.row.rowDisable"
                                 @change="presetSwitchChange(scope.row)"
-                            ></el-checkbox>
+                            />
                             <el-button
                                 :disabled="!scope.row.preset.switch || scope.row.rowDisable"
                                 class="table_btn"
@@ -355,7 +352,7 @@
                 <!-- 蜂鸣器   -->
                 <el-table-column width="119">
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_BUZZER') }}
                             </BaseTableDropdownLink>
@@ -394,7 +391,7 @@
                 <!-- 视频弹出   -->
                 <el-table-column width="135">
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_VIDEO_POPUP') }}
                             </BaseTableDropdownLink>
@@ -433,7 +430,7 @@
                 <!-- email   -->
                 <el-table-column width="110">
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink> Email </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
@@ -469,15 +466,11 @@
                 </el-table-column>
             </el-table>
         </div>
-
         <div class="row_pagination">
             <el-pagination
                 v-model:current-page="pageData.pageIndex"
                 v-model:page-size="pageData.pageSize"
-                :page-sizes="pageData.pageDataCountItems"
-                layout="prev, pager, next, sizes, total, jumper"
                 :total="pageData.totalCount"
-                size="small"
                 @size-change="changePaginationSize"
                 @current-change="changePagination"
             />

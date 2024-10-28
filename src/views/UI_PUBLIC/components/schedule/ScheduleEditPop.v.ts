@@ -1,9 +1,15 @@
-import BaseScheduleWeek from '@/components/BaseScheduleWeek.vue'
+/*
+ * @Author: tengxiang tengxiang@tvt.net.cn
+ * @Date: 2024-07-31 16:36:16
+ * @Description: 排程编辑弹框
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-22 19:55:18
+ */
+import type BaseScheduleWeek from '@/components/BaseScheduleWeek.vue'
 import { ScheduleInfo } from '@/types/apiType/schedule'
 import { type FormInstance, type FormRules } from 'element-plus'
 
 export default defineComponent({
-    components: { BaseScheduleWeek },
     props: {
         scheduleDtail: Object as PropType<ScheduleInfo>,
         dayEnum: {
@@ -11,7 +17,11 @@ export default defineComponent({
             required: true,
         },
     },
-    emits: ['close'],
+    emits: {
+        close(type: boolean) {
+            return typeof type === 'boolean'
+        },
+    },
     setup(props, ctx) {
         const { Translate } = useLangStore()
         const openMessageTipBox = useMessageBox().openMessageTipBox

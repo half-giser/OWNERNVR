@@ -38,7 +38,7 @@ export default defineComponent({
         const formRule = ref<FormRules>({
             password: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (formData.value.encrypt === 'unencrypted') {
                             callback()
                             return
@@ -55,7 +55,7 @@ export default defineComponent({
             ],
             confirmPassword: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (formData.value.encrypt === 'unencrypted') {
                             callback()
                             return

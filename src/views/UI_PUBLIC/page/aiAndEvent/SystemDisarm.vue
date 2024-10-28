@@ -10,8 +10,6 @@
     <el-dialog
         v-model="pageData.showAddDialog"
         :title="Translate('IDCS_ADD')"
-        draggable
-        center
         width="520"
         @open="filterChlsSource()"
     >
@@ -49,8 +47,6 @@
     <el-dialog
         v-model="pageData.showCfgDialog"
         :title="Translate('IDCS_RECOVER_LINK_ITEM')"
-        draggable
-        center
         width="520"
     >
         <el-table
@@ -94,7 +90,6 @@
         <el-form
             ref="formRef"
             :model="formData"
-            label-position="left"
             :style="{
                 '--form-label-width': '172px',
                 '--form-input-width': '250px',
@@ -103,9 +98,9 @@
             <el-form-item>
                 <el-checkbox
                     v-model="formData.sensorSwitch"
+                    :label="Translate('IDCS_ALARM_SWITCH')"
                     @change="pageData.applyDisable = false"
-                    >{{ Translate('IDCS_ALARM_SWITCH') }}</el-checkbox
-                >
+                />
             </el-form-item>
             <el-form-item>
                 <span class="tips_text">{{ Translate('IDCS_ALARM_SWITCH_TIP') }}</span>
@@ -171,7 +166,6 @@
                     <template #header>
                         <el-popover
                             v-model:visible="pageData.popoverVisible"
-                            trigger="click"
                             width="fit-content"
                             popper-class="no-padding"
                         >
@@ -210,7 +204,7 @@
                         </el-popover>
                         <!-- <el-dropdown
                             ref="dropDownRef"
-                            trigger="click"
+                            
                             :hide-on-click="false"
                             placement="top"
                         >
@@ -259,7 +253,7 @@
                 </el-table-column>
                 <el-table-column>
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_DELETE') }}
                             </BaseTableDropdownLink>

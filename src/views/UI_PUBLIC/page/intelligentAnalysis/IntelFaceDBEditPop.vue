@@ -9,14 +9,11 @@
     <el-dialog
         :title="type === 'edit' ? Translate('IDCS_EDIT_GROUP') : Translate('IDCS_ADD_GROUP')"
         width="400"
-        align-center
-        draggable
         append-to-body
         @open="open"
     >
         <el-form
             ref="formRef"
-            label-position="left"
             :rules="formRule"
             :model="formData"
         >
@@ -27,7 +24,10 @@
                 <el-input v-model="formData.groupName" />
             </el-form-item>
             <el-form-item v-show="type === 'edit'">
-                <el-checkbox v-model="formData.enableAlarmSwitch">{{ Translate('IDCS_ENABLE') }}</el-checkbox>
+                <el-checkbox
+                    v-model="formData.enableAlarmSwitch"
+                    :label="Translate('IDCS_ENABLE')"
+                />
             </el-form-item>
         </el-form>
         <template #footer>

@@ -23,7 +23,7 @@ export default defineComponent({
         const rules = ref<FormRules>({
             interval: [
                 {
-                    validator: (rule, value, callback) => {
+                    validator: (_rule, value, callback) => {
                         if (formData.value.switch && typeof value !== 'number') {
                             callback(new Error(Translate('IDCS_INTERVAL_DAYS_EMPTY')))
                             return
@@ -35,7 +35,7 @@ export default defineComponent({
             ],
             time: [
                 {
-                    validator: (rule, value, callback) => {
+                    validator: (_rule, value, callback) => {
                         if (formData.value.switch && !value) {
                             callback(new Error(Translate('IDCS_POINT_TIME_EMPTY')))
                             return

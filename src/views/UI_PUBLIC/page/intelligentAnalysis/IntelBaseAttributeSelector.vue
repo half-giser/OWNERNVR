@@ -9,11 +9,7 @@
     <div>
         <el-popover
             v-model:visible="pageData.isPop"
-            placement="bottom"
             :width="range.length === 1 ? 300 : 400"
-            trigger="click"
-            :show-after="0"
-            :hide-after="0"
         >
             <template #reference>
                 <div class="base-intel-placeholder">
@@ -35,12 +31,11 @@
                         v-for="item in pageData.vehicleOptions"
                         :key="item.value"
                         :value="item.value"
-                        >{{ item.label }}</el-checkbox
-                    >
+                        :label="item.label"
+                    />
                 </el-checkbox-group>
                 <el-form
                     v-else-if="range.length > 1"
-                    label-position="left"
                     :style="{
                         '--form-label-width': '100px',
                     }"
@@ -54,8 +49,8 @@
                                 v-for="item in pageData.personOptions"
                                 :key="item.value"
                                 :value="item.value"
-                                >{{ item.label }}</el-checkbox
-                            >
+                                :label="item.label"
+                            />
                         </el-checkbox-group>
                     </el-form-item>
                     <el-form-item :label="Translate('IDCS_VEHICLE')">
@@ -67,8 +62,8 @@
                                 v-for="item in pageData.vehicleOptions"
                                 :key="item.value"
                                 :value="item.value"
-                                >{{ item.label }}</el-checkbox
-                            >
+                                :label="item.label"
+                            />
                         </el-checkbox-group>
                     </el-form-item>
                 </el-form>

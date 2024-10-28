@@ -17,8 +17,8 @@
                     v-for="item in pageData.searchOptions"
                     :key="item.value"
                     :value="item.value"
-                    >{{ item.label }}</el-radio-button
-                >
+                    :label="item.label"
+                />
             </el-radio-group>
             <div class="base-intel-left-column">
                 <div>
@@ -116,7 +116,6 @@
                         </div>
                     </div>
                     <el-form
-                        label-position="left"
                         class="inline-message narrow"
                         inline-message
                         :style="{
@@ -132,8 +131,8 @@
                                     v-for="item in pageData.eventOptions"
                                     :key="item.value"
                                     :value="item.value"
-                                    >{{ item.label }}</el-radio
-                                >
+                                    :label="item.label"
+                                />
                             </el-radio-group>
                         </el-form-item>
                         <el-form-item
@@ -144,7 +143,6 @@
                                 v-model="formData.similarity"
                                 :min="0"
                                 :max="100"
-                                value-on-clear="min"
                             />
                             <el-text>%</el-text>
                         </el-form-item>
@@ -194,8 +192,8 @@
                         v-show="isChartOptionVisible(item.hide)"
                         :key="item.value"
                         :value="item.value"
-                        >{{ item.label }}</el-radio-button
-                    >
+                        :label="item.label"
+                    />
                 </el-radio-group>
             </div>
             <div
@@ -215,8 +213,8 @@
                             v-show="isListOptionVisible(item.hide)"
                             :key="item.value"
                             :value="item.value"
-                            >{{ item.label }}</el-radio-button
-                        >
+                            :label="item.label"
+                        />
                     </el-radio-group>
                 </div>
                 <div v-show="isSortVisible">
@@ -228,8 +226,8 @@
                             v-for="item in pageData.sortOptions"
                             :key="item.value"
                             :value="item.value"
-                            >{{ item.label }}</el-radio-button
-                        >
+                            :label="item.label"
+                        />
                     </el-radio-group>
                 </div>
                 <div>
@@ -378,9 +376,7 @@
                     v-model:current-page="formData.pageIndex"
                     v-model:page-size="formData.pageSize"
                     :page-sizes="[formData.pageSize]"
-                    layout="total, sizes, prev, pager, next"
                     :total="tableData.length"
-                    size="small"
                     @current-change="changePage"
                 />
             </div>

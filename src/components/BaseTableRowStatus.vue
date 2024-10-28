@@ -9,7 +9,6 @@
     <div>
         <el-tooltip
             :content
-            :show-after="500"
             :disabled="!content"
             placement="right"
         >

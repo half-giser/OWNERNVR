@@ -9,11 +9,7 @@
     <div>
         <el-popover
             v-model:visible="pageData.isPop"
-            placement="bottom"
             :width="350"
-            trigger="click"
-            :show-after="0"
-            :hide-after="0"
         >
             <template #reference>
                 <div class="base-intel-placeholder">
@@ -39,7 +35,6 @@
                 </div>
             </div>
             <el-form
-                label-position="left"
                 :style="{
                     '--form-label-width': '80px',
                 }"

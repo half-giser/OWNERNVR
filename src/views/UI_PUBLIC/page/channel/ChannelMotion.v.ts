@@ -457,8 +457,6 @@ export default defineComponent({
             pageIndex,
             pageSize,
             pageTotal,
-            DefaultPagerSizeOptions,
-            DefaultPagerLayout,
             selectedChlId,
             holdTimeList,
             showNote,

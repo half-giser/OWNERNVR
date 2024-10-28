@@ -20,7 +20,7 @@ export default defineComponent({
         const formRule = ref<FormRules>({
             serverAddr: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (!isParamEnable('serverAddr')) {
                             callback()
                             return
@@ -38,7 +38,7 @@ export default defineComponent({
             ],
             domainName: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (!isParamEnable('domainName')) {
                             callback()
                             return
@@ -60,7 +60,7 @@ export default defineComponent({
             ],
             userName: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (!isParamEnable('userName')) {
                             callback()
                             return
@@ -77,7 +77,7 @@ export default defineComponent({
             ],
             password: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (!isParamEnable('userName')) {
                             callback()
                             return

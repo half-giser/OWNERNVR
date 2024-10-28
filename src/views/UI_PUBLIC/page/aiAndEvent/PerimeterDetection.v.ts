@@ -68,7 +68,7 @@ export default defineComponent({
             // 是否允许区域入侵检测tab跳转
             peaDisable: false,
             // 不支持功能提示页面是否展示
-            notSupportTipShow: false,
+            // notSupportTipShow: false,
             // AI详情弹窗
             aiResourcePopOpen: false,
             // apply按钮是否可用
@@ -316,7 +316,7 @@ export default defineComponent({
             } else if (pageData.value.tripwireDisable == false && pageData.value.peaDisable == true) {
                 pageData.value.chosenFunction = 'tripwire'
             } else if (pageData.value.tripwireDisable == true && pageData.value.peaDisable == true) {
-                pageData.value.notSupportTipShow = true
+                // pageData.value.notSupportTipShow = true
                 pageData.value.chosenFunction = ''
             }
             // pageData.value.chosenFunction = ''

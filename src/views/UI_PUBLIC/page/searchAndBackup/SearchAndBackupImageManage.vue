@@ -132,7 +132,7 @@
 
                 <el-table-column :label="Translate('IDCS_EXPORT')">
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_EXPORT') }}
                             </BaseTableDropdownLink>
@@ -155,7 +155,7 @@
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_DELETE')">
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_DELETE') }}
                             </BaseTableDropdownLink>
@@ -182,7 +182,6 @@
             <el-pagination
                 :current-page="formData.pageIndex"
                 :page-size="formData.pageSize"
-                :layout="DefaultPagerLayout"
                 :total="pageData.totalCount"
                 :page-sizes="[10, 30, 50]"
                 @update:current-page="changePageIndex"
@@ -207,7 +206,6 @@
         />
         <el-dialog
             v-model="pageData.isBackUpTipPop"
-            draggable
             :title="Translate('IDCS_EXPORT_NOTICE')"
             :width="500"
         >
@@ -225,7 +223,10 @@
                     </template>
                 </div>
             </div>
-            <el-checkbox v-model="pageData.isBackUpTipNotAgain">{{ Translate('IDCS_NOT_SHOW_AGAIN') }}</el-checkbox>
+            <el-checkbox
+                v-model="pageData.isBackUpTipNotAgain"
+                :label="Translate('IDCS_NOT_SHOW_AGAIN')"
+            />
             <template #footer>
                 <el-row>
                     <el-col

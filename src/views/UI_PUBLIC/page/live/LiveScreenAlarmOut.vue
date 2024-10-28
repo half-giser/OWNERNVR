@@ -11,14 +11,10 @@
             v-model:visible="pageData.isAlarmPop"
             placement="top"
             width="600"
-            trigger="click"
         >
             <template #reference>
                 <div>
-                    <el-tooltip
-                        :content="Translate('IDCS_MANUAL_ALARM')"
-                        :show-after="500"
-                    >
+                    <el-tooltip :content="Translate('IDCS_MANUAL_ALARM')">
                         <BaseImgSprite
                             file="manual_trigger_alarm"
                             :index="pageData.isAlarmPop ? 2 : 0"
@@ -59,10 +55,7 @@
                         :label="Translate('IDCS_DELAY')"
                     >
                         <template #header>
-                            <el-dropdown
-                                trigger="click"
-                                :disabled
-                            >
+                            <el-dropdown :disabled>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_DELAY') }}
                                 </BaseTableDropdownLink>
@@ -94,10 +87,7 @@
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_CLEAR_AWAY')">
                         <template #header>
-                            <el-dropdown
-                                trigger="click"
-                                :disabled
-                            >
+                            <el-dropdown :disabled>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_CLEAR_AWAY') }}
                                 </BaseTableDropdownLink>

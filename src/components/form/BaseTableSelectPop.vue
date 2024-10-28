@@ -10,8 +10,6 @@
         :model-value="modelValue"
         :title="title"
         width="400"
-        align-center
-        draggable
         append-to-body
         @open="open"
         @update:model-value="emits('update:modelValue', $event)"

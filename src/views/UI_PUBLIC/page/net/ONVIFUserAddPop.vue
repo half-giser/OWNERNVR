@@ -9,15 +9,12 @@
     <el-dialog
         :title="type === 'add' ? Translate('IDCS_ADD') : Translate('IDCS_EDIT')"
         width="600"
-        align-center
-        draggable
         @open="open"
     >
         <el-form
             ref="formRef"
             :model="formData"
             :rules="formRule"
-            label-position="left"
         >
             <el-form-item
                 :label="Translate('IDCS_USER_NAME')"
@@ -35,7 +32,7 @@
                     <el-checkbox
                         v-show="type === 'edit'"
                         v-model="pageData.passwordSwitch"
-                    ></el-checkbox>
+                    />
                 </template>
                 <el-input
                     v-model="formData.password"
@@ -72,8 +69,8 @@
                         v-for="item in pageData.levelList"
                         :key="item.value"
                         :value="item.value"
-                        >{{ item.label }}</el-radio
-                    >
+                        :label="item.label"
+                    />
                 </el-radio-group>
             </el-form-item>
         </el-form>

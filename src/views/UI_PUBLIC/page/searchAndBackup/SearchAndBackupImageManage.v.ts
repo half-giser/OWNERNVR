@@ -7,7 +7,6 @@
  */
 import dayjs from 'dayjs'
 import { type PlaybackChlList, type PlaybackRecLogList, PlaybackSearchImgForm, PlaybackSearchImgList } from '@/types/apiType/playback'
-import { DefaultPagerLayout } from '@/utils/constants'
 import { type TableInstance } from 'element-plus'
 import BackupImgPop from './BackupImgPop.vue'
 import BackupImgPlayerPop from './BackupImgPlayerPop.vue'
@@ -439,7 +438,6 @@ export default defineComponent({
             search,
             tableRef,
             tableData,
-            DefaultPagerLayout,
             handleRowClick,
             displayDateTime,
             browseImg,

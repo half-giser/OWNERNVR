@@ -27,11 +27,7 @@
 </template>
 
 <script lang="ts">
-import { ref, defineComponent } from 'vue'
-import BaseImgSprite from '@/components/sprite/BaseImgSprite.vue'
-
 export default defineComponent({
-    components: { BaseImgSprite },
     setup() {
         const container = ref('')
         const visiable = ref(false)

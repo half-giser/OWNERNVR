@@ -43,7 +43,6 @@
             <h3>{{ Translate('IDCS_ARCHIVE_INFO') }}</h3>
             <el-form
                 v-show="pageData.mode === 'day' && (formData.startTime || formData.endTime)"
-                label-position="left"
                 :class="{
                     '--form-label-width': '150px',
                 }"
@@ -114,8 +113,8 @@
                                 v-show="item.hidden !== pageData.mode"
                                 :key="item.value"
                                 :value="item.value"
-                                >{{ item.label }}</el-radio-button
-                            >
+                                :label="item.label"
+                            />
                         </el-radio-group>
                     </el-col>
                 </el-row>
@@ -123,7 +122,6 @@
             <div class="right-bottom">
                 <div class="right-type">
                     <el-form
-                        label-position="left"
                         :style="{
                             '--form-label-width': '80px',
                         }"

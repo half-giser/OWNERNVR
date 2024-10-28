@@ -19,8 +19,8 @@
                         <el-checkbox
                             v-if="scope.row.type === 'normal'"
                             v-model="scope.row.switch"
-                            >{{ scope.row.slotIndex }}</el-checkbox
-                        >
+                            :label="scope.row.slotIndex"
+                        />
                         <el-text v-else>{{ scope.row.slotIndex }}</el-text>
                     </template>
                 </el-table-column>

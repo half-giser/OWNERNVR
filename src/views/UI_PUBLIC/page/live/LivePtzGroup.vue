@@ -18,10 +18,7 @@
                 @dblclick="playCurrentCruiseGroup(item.index)"
             >
                 <span class="ptz-group-text text-ellipsis">{{ item.name }}</span>
-                <el-tooltip
-                    :content="Translate('IDCS_DELETE')"
-                    :show-after="500"
-                >
+                <el-tooltip :content="Translate('IDCS_DELETE')">
                     <BaseImgSprite
                         file="delete (2)"
                         :index="0"
@@ -34,10 +31,7 @@
             </BaseListBoxItem>
         </BaseListBox>
         <div class="ptz-group-btns">
-            <el-tooltip
-                :content="Translate('IDCS_ADD')"
-                :show-after="500"
-            >
+            <el-tooltip :content="Translate('IDCS_ADD')">
                 <BaseImgSprite
                     file="preset_Add"
                     :index="0"
@@ -48,10 +42,7 @@
                     @click="addCruiseGroup"
                 />
             </el-tooltip>
-            <el-tooltip
-                :content="Translate('IDCS_START')"
-                :show-after="500"
-            >
+            <el-tooltip :content="Translate('IDCS_START')">
                 <BaseImgSprite
                     file="start_cruise"
                     :index="0"
@@ -59,10 +50,7 @@
                     :chunk="4"
                 />
             </el-tooltip>
-            <el-tooltip
-                :content="Translate('IDCS_PAUSE')"
-                :show-after="500"
-            >
+            <el-tooltip :content="Translate('IDCS_PAUSE')">
                 <BaseImgSprite
                     file="stop_cruise"
                     :index="0"

@@ -9,8 +9,6 @@
     <el-dialog
         :title="Translate('IDCS_CONNECTION_SETTINGS')"
         width="600"
-        draggable
-        center
         @open="open"
     >
         <el-form
@@ -22,10 +20,8 @@
                 '--form-input-width': '200px',
                 '--form-label-width': '100px',
             }"
-            label-position="left"
             inline-message
             hide-required-asterisk
-            flexible
         >
             <el-form-item
                 :label="Translate('IDCS_POS_IP')"
@@ -36,9 +32,9 @@
             <el-form-item v-if="data.connectionType === 'TCP-Listen'">
                 <el-checkbox
                     v-model="formData.switch"
+                    :label="Translate('IDCS_POS_PORT')"
                     @change="changeSwitch"
-                    >{{ Translate('IDCS_POS_PORT') }}</el-checkbox
-                >
+                />
             </el-form-item>
             <el-form-item
                 :label="Translate('IDCS_POS_PORT')"

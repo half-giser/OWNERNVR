@@ -44,7 +44,7 @@ export default defineComponent({
         const formRule = ref<FormRules>({
             userName: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_USERNAME_EMPTY')))
                             return
@@ -61,7 +61,7 @@ export default defineComponent({
             ],
             password: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (prop.type === 'edit' && !pageData.value.passwordSwitch) {
                             callback()
                             return
@@ -83,7 +83,7 @@ export default defineComponent({
             ],
             confirmPassword: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (value !== formData.value.password) {
                             callback(new Error(Translate('IDCS_PWD_MISMATCH_TIPS')))
                             return

@@ -9,11 +9,7 @@
     <div>
         <el-popover
             v-model:visible="pageData.isPop"
-            placement="bottom"
             :width="300"
-            trigger="click"
-            :show-after="0"
-            :hide-after="0"
         >
             <template #reference>
                 <div class="base-intel-placeholder">
@@ -33,8 +29,8 @@
                     v-for="item in pageData.options"
                     :key="item.value"
                     :value="item.value"
-                    >{{ item.label }}</el-checkbox
-                >
+                    :label="item.label"
+                />
             </el-checkbox-group>
             <div class="base-btn-box">
                 <el-button @click="reset">{{ Translate('IDCS_RESET') }}</el-button>

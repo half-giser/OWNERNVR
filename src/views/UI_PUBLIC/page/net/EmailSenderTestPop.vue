@@ -9,8 +9,6 @@
     <el-dialog
         :title="Translate('IDCS_RECIPIENT_ADDRESS')"
         width="600"
-        align-center
-        draggable
         @open="open"
     >
         <el-form
@@ -21,7 +19,6 @@
             :style="{
                 '--form-input-width': '240px',
             }"
-            label-position="left"
             inline-message
         >
             <el-form-item
@@ -33,7 +30,6 @@
                     filterable
                     allow-create
                     default-first-option
-                    placeholder=" "
                 >
                     <el-option
                         v-for="item in pageData.list"

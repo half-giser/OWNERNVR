@@ -110,9 +110,8 @@
                                         <el-pagination
                                             v-model:current-page="formData.pageIndex"
                                             :page-size="16"
-                                            layout="prev, pager, next, total"
+                                            :page-sizes="[16]"
                                             :total="scope.row.count"
-                                            size="small"
                                             @current-change="changeFacePage($event, scope.row.groupId)"
                                         />
                                     </div>
@@ -125,10 +124,7 @@
                                             :src
                                         />
                                     </div>
-                                    <el-form
-                                        label-position="left"
-                                        class="stripe narrow inline-message"
-                                    >
+                                    <el-form class="stripe narrow inline-message">
                                         <el-form-item :label="Translate('IDCS_NAME_PERSON')">
                                             <el-input
                                                 :model-value="currentFace.name"

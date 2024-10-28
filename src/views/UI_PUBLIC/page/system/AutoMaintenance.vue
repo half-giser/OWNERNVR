@@ -10,7 +10,6 @@
         <el-form
             ref="formRef"
             class="stripe"
-            label-position="left"
             hide-required-asterisk
             inline-message
             :rules
@@ -21,7 +20,10 @@
             }"
         >
             <el-form-item>
-                <el-checkbox v-model="formData.switch">{{ Translate('IDCS_ENABLE') }}</el-checkbox>
+                <el-checkbox
+                    v-model="formData.switch"
+                    :label="Translate('IDCS_ENABLE')"
+                />
             </el-form-item>
             <el-form-item
                 :label="Translate('IDCS_INTERVAL_DAYS')"
@@ -32,7 +34,6 @@
                     :disabled="!formData.switch"
                     :min="1"
                     :max="365"
-                    value-on-clear="min"
                 />
                 <span class="date_span">{{ Translate('IDCS_DAYS') }}</span>
             </el-form-item>

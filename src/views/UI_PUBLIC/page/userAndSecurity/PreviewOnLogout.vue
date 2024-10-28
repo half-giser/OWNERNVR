@@ -18,7 +18,6 @@
                 </div>
                 <el-form
                     class="form stripe"
-                    label-position="left"
                     label-width="100"
                     :class="{
                         '--form-input-width': '200px',
@@ -70,7 +69,7 @@
                     />
                     <el-table-column :label="Translate('IDCS_PREVIEW')">
                         <template #header>
-                            <el-dropdown trigger="click">
+                            <el-dropdown>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_PREVIEW') }}
                                 </BaseTableDropdownLink>

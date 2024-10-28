@@ -31,10 +31,7 @@
                     <div>{{ Translate('IDCS_TODAY_VEHICLE_OUT_NUM') }}</div>
                 </div>
                 <div class="back">
-                    <el-tooltip
-                        :content="Translate('IDCS_PLATFORM_OPERATE_RETURN')"
-                        :show-after="500"
-                    >
+                    <el-tooltip :content="Translate('IDCS_PLATFORM_OPERATE_RETURN')">
                         <BaseImgSprite
                             file="park_back"
                             :index="0"
@@ -117,10 +114,7 @@
             >
                 <div>{{ Translate('IDCS_MORE_VEHICLE_RECORD') }}</div>
                 <div>
-                    <el-tooltip
-                        :show-after="500"
-                        :content="Translate('IDCS_VEHICLE_RECORD_REARCH')"
-                    >
+                    <el-tooltip :content="Translate('IDCS_VEHICLE_RECORD_REARCH')">
                         <BaseImgSprite
                             file="park_record"
                             :index="0"

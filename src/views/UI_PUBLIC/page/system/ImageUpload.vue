@@ -98,12 +98,9 @@
         v-model="pageData.addSignTimeDialogOpen"
         width="450"
         hight="220"
-        align-center
-        draggable
     >
         <el-form
             ref="formRef"
-            label-position="left"
             class="narrow"
             :style="{
                 '--form-label-width': '150px',

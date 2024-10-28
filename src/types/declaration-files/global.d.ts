@@ -15,14 +15,14 @@ declare global {
     /**
      * 语言项
      */
-    interface LangItem {
-        id: string
-        value: string
-    }
+    // interface LangItem {
+    //     id: string
+    //     value: string
+    // }
 
-    interface ImportCallOptions {
-        query: string
-    }
+    // interface ImportCallOptions {
+    //     query: string
+    // }
 
     interface String {
         formatForLang: Function
@@ -32,36 +32,38 @@ declare global {
     /**
      * el-tree自定义类型
      */
-    interface Tree {
-        id: string
-        value?: string | number | boolean | object
-        label: string
-        children?: Tree[]
-        isLeaf: boolean
-        status?: number
-        disabled?: boolean
-        pId?: string
-    }
+    // interface Tree {
+    //     id: string
+    //     value?: string | number | boolean | object
+    //     label: string
+    //     children?: Tree[]
+    //     isLeaf: boolean
+    //     status?: number
+    //     disabled?: boolean
+    //     pId?: string
+    // }
+
     /**
      * 日期选择器单元格数据类型
      */
-    interface DateCell {
-        column: number
-        customClass: string
-        disabled: boolean
-        end: boolean
-        inRange: boolean
-        row: number
-        selected: Dayjs
-        isCurrent: boolean
-        isSelected: boolean
-        start: boolean
-        text: number
-        timestamp: number
-        date: Date
-        dayjs: Dayjs
-        type: 'normal' | 'today' | 'week' | 'next-month' | 'prev-month'
-    }
+    // interface DateCell {
+    //     column: number
+    //     customClass: string
+    //     disabled: boolean
+    //     end: boolean
+    //     inRange: boolean
+    //     row: number
+    //     selected: Dayjs
+    //     isCurrent: boolean
+    //     isSelected: boolean
+    //     start: boolean
+    //     text: number
+    //     timestamp: number
+    //     date: Date
+    //     dayjs: Dayjs
+    //     type: 'normal' | 'today' | 'week' | 'next-month' | 'prev-month'
+    // }
+
     /**
      * 系统信息
      */
@@ -69,7 +71,9 @@ declare global {
         platform: string
         version: string
     }
+
     type BrowserType = 'ie' | 'opera' | 'lowEdge' | 'edge' | 'firefox' | 'chrome' | 'safari' | 'unknow'
+
     /**
      * 浏览器信息
      */
@@ -81,33 +85,34 @@ declare global {
     /**
      * 资源树下拉选中资源返回数据类型
      */
-    type ValType = String | Number | Boolean | Object | Array<String | Number | Boolean | Object>
+    // type ValType = String | Number | Boolean | Object | Array<String | Number | Boolean | Object>
 
-    type ElMessageType = 'success' | 'warning' | 'error' | 'info'
+    // type ElMessageType = 'success' | 'warning' | 'error' | 'info'
 
-    type ElTagType = 'success' | 'warning' | 'info' | 'danger'
+    // type ElTagType = 'success' | 'warning' | 'info' | 'danger'
 
-    interface ElTableFilterItem {
-        value: any
-        text: any
-    }
+    // interface ElTableFilterItem {
+    //     value: any
+    //     text: any
+    // }
 
-    interface Date {
-        format(template: string): string
-    }
+    // interface Date {
+    //     format(template: string): string
+    // }
+
     /**
      * 事件信息
      */
-    interface ChlRecEvent {
-        chlName: string
-        event: string
-        eventDisplay?: string
-        startTime: string
-        endTime: string
-        dataSource: string
-        duration: string
-        size: string
-    }
+    // interface ChlRecEvent {
+    //     chlName: string
+    //     event: string
+    //     eventDisplay?: string
+    //     startTime: string
+    //     endTime: string
+    //     dataSource: string
+    //     duration: string
+    //     size: string
+    // }
     /**
      * 全局变量
      */
@@ -124,7 +129,7 @@ declare global {
 
     type PluginType = ReturnType<typeof usePlugin>
 
-    type AlarmContentType = 'none' | 'ptz' | 'tvWall' | 'sysRec' | 'popVideo' | 'snapShot' | 'alarmOut'
+    // type AlarmContentType = 'none' | 'ptz' | 'tvWall' | 'sysRec' | 'popVideo' | 'snapShot' | 'alarmOut'
 
     interface ConfigToolBarEvent<T> {
         type: string
@@ -171,10 +176,10 @@ declare global {
     /**
      * 通用下拉列表Item类型
      */
-    interface SelectItem {
-        value: any
-        label: any
-    }
+    // interface SelectItem {
+    //     value: any
+    //     label: any
+    // }
 
     interface SelectOption<T, K> {
         value: T

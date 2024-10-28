@@ -44,7 +44,7 @@ export default defineComponent({
         const formRule = ref<FormRules>({
             address: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (!value.length) {
                             callback(new Error(Translate('IDCS_PROMPT_EMAIL_ADDRESS_EMPTY')))
                             return

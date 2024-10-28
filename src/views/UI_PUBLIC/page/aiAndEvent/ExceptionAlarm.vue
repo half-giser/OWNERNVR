@@ -42,7 +42,7 @@
                     width="155"
                 >
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_AUDIO') }}
                             </BaseTableDropdownLink>
@@ -81,7 +81,7 @@
                 <!-- 消息推送   -->
                 <el-table-column width="194">
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_PUSH') }}
                             </BaseTableDropdownLink>
@@ -122,7 +122,6 @@
                     <template #header>
                         <el-popover
                             v-model:visible="pageData.alarmOutPopoverVisible"
-                            trigger="click"
                             width="fit-content"
                             popper-class="no-padding"
                         >
@@ -150,7 +149,7 @@
                                 v-model="scope.row.alarmOut.switch"
                                 :disabled="scope.row.rowDisable"
                                 @change="alarmOutSwitchChange(scope.row)"
-                            ></el-checkbox>
+                            />
                             <el-button
                                 :disabled="!scope.row.alarmOut.switch || scope.row.rowDisable"
                                 class="table_btn"
@@ -164,7 +163,7 @@
                 <!-- 蜂鸣器   -->
                 <el-table-column width="260">
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_BUZZER') }}
                             </BaseTableDropdownLink>
@@ -203,7 +202,7 @@
                 <!-- 消息框弹出   -->
                 <el-table-column width="260">
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_MESSAGEBOX_POPUP') }}
                             </BaseTableDropdownLink>
@@ -242,7 +241,7 @@
                 <!-- email   -->
                 <el-table-column width="260">
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink> Email </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>

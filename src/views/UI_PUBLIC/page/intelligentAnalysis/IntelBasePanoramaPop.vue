@@ -8,8 +8,6 @@
 <template>
     <el-dialog
         :title="Translate('IDCS_VIEW_SNAPSHOT')"
-        align-center
-        draggable
         width="540"
         append-to-body
         @opened="open"

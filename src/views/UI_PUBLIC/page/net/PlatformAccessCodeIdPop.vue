@@ -9,15 +9,12 @@
     <el-dialog
         :title="Translate('IDCS_SET_CODE_ID')"
         width="500"
-        align-center
-        draggable
         @open="open"
     >
         <el-form
             ref="formRef"
             :model="formData"
             :rules="formRule"
-            label-position="left"
         >
             <el-form-item :label="Translate('IDCS_NAME')">
                 <el-input

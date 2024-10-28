@@ -9,8 +9,6 @@
     <el-dialog
         :title="Translate('IDCS_BACKUP')"
         width="450"
-        align-center
-        draggable
         :show-close="false"
         @opened="opened"
     >
@@ -22,7 +20,6 @@
                 '--form-input-width': '250px',
             }"
             class="form"
-            label-position="left"
         >
             <el-form-item
                 :label="Translate('IDCS_PATH')"

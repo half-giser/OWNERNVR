@@ -310,11 +310,6 @@ export default defineComponent({
 
             if (chlChangeList.length > 0) {
                 chlResult = await setChlRecData(chlChangeList)
-                // todo:原代码中P2P模式下进行如下处理，recParamCfg.js，444行
-                // if (APP_TYPE == "P2P") {
-                //     result1=result1[0];
-                //     result2=result2[0];
-                // }
             }
 
             if (devResult && chlResult) {

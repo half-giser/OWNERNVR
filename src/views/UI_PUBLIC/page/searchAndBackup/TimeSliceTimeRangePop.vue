@@ -9,11 +9,9 @@
     <el-dialog
         :title="Translate('IDCS_SET_BACKUP_TIME')"
         :width="500"
-        align-center
-        draggable
         @open="open"
     >
-        <el-form label-position="left">
+        <el-form>
             <el-form-item :label="Translate('IDCS_START_TIME')">
                 <el-time-picker
                     v-model="formData.startTime"

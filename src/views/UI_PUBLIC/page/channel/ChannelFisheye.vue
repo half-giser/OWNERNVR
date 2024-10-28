@@ -16,7 +16,6 @@
             <el-form
                 ref="formRef"
                 :model="formData"
-                label-position="left"
                 :style="{
                     '--form-label-width': '160px',
                 }"
@@ -25,7 +24,6 @@
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
                     <el-select
                         v-model="selectedChlId"
-                        placeholder=" "
                         @change="handleChlSel"
                     >
                         <el-option
@@ -41,7 +39,6 @@
                     <el-select
                         v-model="formData.fishEyeMode"
                         :disabled="formData.disabled || formData.reqCfgFail"
-                        placeholder=" "
                         @change="handleChangeVal()"
                     >
                         <el-option
@@ -56,7 +53,6 @@
                     <el-select
                         v-model="formData.installType"
                         :disabled="formData.disabled || formData.reqCfgFail"
-                        placeholder=" "
                         @change="handleChangeVal()"
                     >
                         <el-option
@@ -71,7 +67,6 @@
                     <el-select
                         v-model="formData.fishEyeEnable"
                         :disabled="!formData.reqCfgFail"
-                        placeholder=" "
                         @change="handleChangeVal(true)"
                     >
                         <el-option
@@ -91,9 +86,7 @@
                     border
                     stripe
                     :data="tableData"
-                    table-layout="fixed"
                     show-overflow-tooltip
-                    empty-text=" "
                     highlight-current-row
                     :row-class-name="(data) => (data.row.disabled ? 'disabled' : '')"
                     @row-click="handleRowClick"
@@ -120,7 +113,7 @@
                         min-width="180"
                     >
                         <template #header>
-                            <el-dropdown trigger="click">
+                            <el-dropdown>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_FISHEYE_STREAM_MODE') }}
                                 </BaseTableDropdownLink>
@@ -142,7 +135,6 @@
                                 v-model="scope.row.fishEyeMode"
                                 :disabled="scope.row.disabled || scope.row.reqCfgFail || scope.row.HIKVISION"
                                 size="small"
-                                placeholder=" "
                                 @focus="handleRowClick(scope.row)"
                                 @change="handleChangeVal()"
                             >
@@ -160,7 +152,7 @@
                         min-width="180"
                     >
                         <template #header>
-                            <el-dropdown trigger="click">
+                            <el-dropdown>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_FISHEYE_MODE') }}
                                 </BaseTableDropdownLink>
@@ -182,7 +174,6 @@
                                 v-model="scope.row.installType"
                                 :disabled="scope.row.disabled || scope.row.reqCfgFail || scope.row.HIKVISION"
                                 size="small"
-                                placeholder=" "
                                 @focus="handleRowClick(scope.row)"
                                 @change="handleChangeVal()"
                             >
@@ -200,7 +191,7 @@
                         min-width="120"
                     >
                         <template #header>
-                            <el-dropdown trigger="click">
+                            <el-dropdown>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_ENABLE') }}
                                 </BaseTableDropdownLink>
@@ -222,7 +213,6 @@
                                 v-model="scope.row.fishEyeEnable"
                                 :disabled="!scope.row.reqCfgFail || scope.row.privateProtocol"
                                 size="small"
-                                placeholder=" "
                                 @focus="handleRowClick(scope.row)"
                                 @change="handleChangeVal(true)"
                             >
@@ -241,10 +231,6 @@
                 <el-pagination
                     v-model:current-page="pageIndex"
                     v-model:page-size="pageSize"
-                    :page-sizes="DefaultPagerSizeOptions"
-                    size="small"
-                    :background="false"
-                    :layout="DefaultPagerLayout"
                     :total="pageTotal"
                     @size-change="getDataList"
                     @current-change="getDataList"

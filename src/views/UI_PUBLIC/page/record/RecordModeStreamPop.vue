@@ -7,11 +7,8 @@
 -->
 <template>
     <el-dialog
-        draggable
-        center
         width="1270"
         :title="pageData.mainTitle"
-        :close-on-click-modal="false"
         :destroy-on-close="true"
         @open="onOpen"
         @close="$emit('close', false)"

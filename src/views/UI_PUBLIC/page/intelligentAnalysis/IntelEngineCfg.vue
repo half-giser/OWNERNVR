@@ -7,10 +7,13 @@
 -->
 <template>
     <div class="base-flex-box">
-        <el-form label-position="left">
+        <el-form>
             <el-form-item>
                 <template #label>
-                    <el-checkbox v-model="formData.supportAI">{{ Translate('IDCS_ENABLE_AI') }}</el-checkbox>
+                    <el-checkbox
+                        v-model="formData.supportAI"
+                        :label="Translate('IDCS_ENABLE_AI')"
+                    />
                 </template>
                 <el-button @click="setData">{{ Translate('IDCS_APPLY') }}</el-button>
             </el-form-item>

@@ -10,22 +10,16 @@
         :title="Translate('IDCS_EXPIRE_TIME_SET')"
         width="600"
         height="773"
-        align-center
-        draggable
         @open="open"
         @close="close"
     >
         <div class="base-flex-box">
-            <el-form
-                label-width="100"
-                label-position="left"
-            >
+            <el-form label-width="100">
                 <el-form-item :label="Translate('IDCS_EXPIRE_TIME')">
                     <BaseNumberInput
                         v-model="pageData.expireTime"
                         :min="1"
                         :max="8760"
-                        value-on-clear="min"
                         :style="{ width: '300px' }"
                     />
                     <span>{{ Translate('IDCS_HOUR_ALL') }}</span>
@@ -74,10 +68,8 @@
                 <el-table
                     border
                     stripe
-                    table-layout="fixed"
                     show-overflow-tooltip
                     :data="pageData.toAddDateList"
-                    empty-text=" "
                     highlight-current-row
                     :style="{ height: '230px' }"
                 >
@@ -91,7 +83,7 @@
                         width="80"
                     >
                         <template #header>
-                            <el-dropdown trigger="click">
+                            <el-dropdown>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_EDIT') }}
                                 </BaseTableDropdownLink>
@@ -130,8 +122,6 @@
             :title="Translate('IDCS_TIME_CUSTOMIZE')"
             width="500"
             height="200"
-            align-center
-            draggable
         >
             <el-date-picker
                 v-model="pageData.selectDate"

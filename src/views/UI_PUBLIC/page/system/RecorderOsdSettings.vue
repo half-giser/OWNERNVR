@@ -9,7 +9,6 @@
     <div class="OSDSetting">
         <el-form
             class="stripe"
-            label-position="left"
             :model="formData"
             label-width="150"
             :style="{

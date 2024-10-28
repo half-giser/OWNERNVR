@@ -3,7 +3,7 @@
  * @Date: 2024-09-11 14:16:29
  * @Description: 火点检测
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 14:55:35
+ * @LastEditTime: 2024-10-28 10:34:14
 -->
 <template>
     <div>
@@ -53,8 +53,6 @@
             v-model="pageData.aiResourcePopOpen"
             :title="Translate('IDCS_DETAIL')"
             width="600"
-            center
-            draggable
         >
             <el-table
                 :data="aiResourceTableData"
@@ -106,19 +104,19 @@
                 </div>
             </template>
         </el-dialog>
-        <div
+        <!-- <div
             v-if="pageData.notSupportTipShow"
             class="base-ai-not-support-box"
         >
             {{ Translate('IDCS_CURRENT_INTEL_EVENT_UNSUPORT') }}
-        </div>
+        </div> -->
         <div
             v-if="pageData.requireDataFail"
             class="base-ai-not-support-box"
         >
             {{ Translate('IDCS_QUERY_DATA_FAIL') }}
         </div>
-        <div v-if="!pageData.notSupportTipShow && !pageData.requireDataFail">
+        <div v-if="!pageData.requireDataFail">
             <!-- 检测开启及ai按钮 -->
             <div
                 class="base-btn-box collapse padding"
@@ -127,11 +125,12 @@
                 <div>
                     <el-checkbox
                         v-model="pageData.detectionEnable"
+                        :label="Translate('IDCS_ENABLE')"
                         @change="pageData.applyDisable = false"
-                        >{{ Translate('IDCS_ENABLE') }}</el-checkbox
-                    >
+                    />
                 </div>
-                <div v-show="pageData.showAiConfig">
+                <div></div>
+                <!-- <div v-show="pageData.showAiConfig">
                     <span>{{ Translate('IDCS_USAGE_RATE') }}</span>
                     <span>{{ pageData.totalResourceOccupancy }}%</span>
                     <BaseImgSprite
@@ -141,7 +140,7 @@
                         :chunk="4"
                         @click="pageData.aiResourcePopOpen = true"
                     />
-                </div>
+                </div> -->
             </div>
             <!-- 两种功能 -->
             <el-tabs
@@ -168,7 +167,6 @@
                         <div class="base-ai-param-box-right">
                             <el-form
                                 :model="pageData"
-                                label-position="left"
                                 class="narrow"
                                 :style="{
                                     '--form-input-width': '215px',
@@ -263,9 +261,9 @@
                                 <el-checkbox
                                     v-model="pageData.triggerSwitch"
                                     class="base-ai-linkage-title base-ai-linkage-title-checkbox"
+                                    :label="Translate('IDCS_TRIGGER_NOMAL')"
                                     @change="handleTriggerSwitch"
-                                    >{{ Translate('IDCS_TRIGGER_NOMAL') }}</el-checkbox
-                                >
+                                />
                                 <el-table
                                     height="367"
                                     :data="triggerData"
@@ -277,9 +275,9 @@
                                             <el-checkbox
                                                 v-model="scope.row.value"
                                                 class="table_item"
+                                                :label="Translate(scope.row.label)"
                                                 @change="handleTrigger(scope.row)"
-                                                >{{ Translate(scope.row.label) }}</el-checkbox
-                                            >
+                                            />
                                         </template>
                                     </el-table-column>
                                 </el-table>
@@ -298,7 +296,6 @@
                                     :show-header="false"
                                     height="367"
                                     :data="pageData.record.chls"
-                                    empty-text=" "
                                 >
                                     <el-table-column prop="label" />
                                 </el-table>
@@ -317,7 +314,6 @@
                                     :show-header="false"
                                     height="367"
                                     :data="pageData.alarmOut.chls"
-                                    empty-text=" "
                                 >
                                     <el-table-column prop="label" />
                                 </el-table>
@@ -336,7 +332,6 @@
                                     :show-header="false"
                                     height="367"
                                     :data="pageData.snap.chls"
-                                    empty-text=" "
                                 >
                                     <el-table-column prop="label" />
                                 </el-table>

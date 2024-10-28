@@ -57,7 +57,7 @@ export default defineComponent({
         const rules = reactive<FormRules>({
             userName: [
                 {
-                    validator(rule, value, callback) {
+                    validator(_rule, value, callback) {
                         if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_USERNAME_EMPTY')))
                             return
@@ -69,7 +69,7 @@ export default defineComponent({
             ],
             password: [
                 {
-                    validator(rule, value, callback) {
+                    validator(_rule, value, callback) {
                         if (value.length > 16) {
                             callback(new Error(Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR')))
                             return

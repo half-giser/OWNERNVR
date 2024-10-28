@@ -9,8 +9,6 @@
     <el-dialog
         :title="Translate('IDCS_CERT_ENCRY_PWD')"
         width="500"
-        align-center
-        draggable
         @opened="opened"
     >
         <el-form

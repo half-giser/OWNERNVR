@@ -151,9 +151,9 @@
                             <el-checkbox
                                 v-show="pageData.tabId !== 0 || pageData.outputIdx !== 0"
                                 v-model="pageData.dwellCheckbox"
+                                :label="Translate('IDCS_DWELL')"
                                 @change="changeOutputType"
-                                >{{ Translate('IDCS_DWELL') }}</el-checkbox
-                            >
+                            />
                         </div>
                         <!-- 分屏切换按钮 -->
                         <div class="panel-btns">

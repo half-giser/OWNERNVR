@@ -19,7 +19,7 @@
                 />
                 <el-table-column :label="Translate('IDCS_ENABLE')">
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_SCHEDULE') }}
                             </BaseTableDropdownLink>

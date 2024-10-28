@@ -7,11 +7,8 @@
 -->
 <template>
     <el-dialog
-        draggable
-        center
         width="700"
         :title="Translate('IDCS_ADD_RECORD_MODE')"
-        :close-on-click-modal="false"
         :destroy-on-close="true"
     >
         <div class="recModeList">

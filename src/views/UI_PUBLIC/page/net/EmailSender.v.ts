@@ -28,7 +28,7 @@ export default defineComponent({
         const formRule = ref<FormRules>({
             address: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (!value.length) {
                             callback(new Error(Translate('IDCS_PROMPT_EMAIL_ADDRESS_EMPTY')))
                             return
@@ -45,7 +45,7 @@ export default defineComponent({
             ],
             userName: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (!formData.value.anonymousSwitch) {
                             callback()
                             return
@@ -67,7 +67,7 @@ export default defineComponent({
             ],
             password: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (!formData.value.anonymousSwitch || !pageData.value.passwordSwitch) {
                             callback()
                         }
@@ -83,7 +83,7 @@ export default defineComponent({
             ],
             server: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         // smtp服务器格式为 a.b.c.d ,多个点分割，可为数字字母或-，但-不能开头
                         if (!checkStmpServer(value)) {
                             callback(new Error(Translate('IDCS_PROMPT_INVALID_SMTPSERVER')))

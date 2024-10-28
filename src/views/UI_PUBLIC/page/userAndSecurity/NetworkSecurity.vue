@@ -20,7 +20,7 @@
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_ARP_GUARD')">
                     <template #default="scope">
-                        <el-checkbox v-model="tableData[scope.$index].arpSwitch"></el-checkbox>
+                        <el-checkbox v-model="tableData[scope.$index].arpSwitch" />
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -36,8 +36,7 @@
                             v-model="tableData[scope.$index].autoGetGatewayMac"
                             :disabled="!tableData[scope.$index].arpSwitch"
                             @change="handleChangeAutoGetGatewayMac(scope.row, scope.$index)"
-                        >
-                        </el-checkbox>
+                        />
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -57,8 +56,7 @@
                         <el-checkbox
                             v-model="tableData[scope.$index].preventDetection"
                             :disabled="!tableData[scope.$index].arpSwitch"
-                        >
-                        </el-checkbox>
+                        />
                     </template>
                 </el-table-column>
             </el-table>
