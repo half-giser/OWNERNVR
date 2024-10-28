@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 16:10:39
  * @Description: 抓拍注册弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:22:35
+ * @LastEditTime: 2024-10-25 15:42:34
  */
 import type { FormInstance, FormRules } from 'element-plus'
 import IntelFaceDBEditPop from './IntelFaceDBEditPop.vue'
@@ -156,7 +156,7 @@ export default defineComponent({
                         </item>
                     </groups>
                     <faceImg>
-                        <imgData>${wrapCDATA(prop.pic)}</imgData>
+                        <imgData>${wrapCDATA(prop.pic.split(',')[1])}</imgData>
                         <imgWidth>${pageData.value.imgWidth.toString()}</imgWidth>
                         <imgHeight>${pageData.value.imgHeight.toString()}</imgHeight>
                     </faceImg>
@@ -212,7 +212,7 @@ export default defineComponent({
                         })
                         break
                     default:
-                        errorInfo = 'IDCS_ADD_FACE_FAIL'
+                        errorInfo = Translate('IDCS_ADD_FACE_FAIL')
                         break
                 }
 

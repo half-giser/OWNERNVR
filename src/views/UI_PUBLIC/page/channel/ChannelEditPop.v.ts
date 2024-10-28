@@ -77,7 +77,7 @@ export default defineComponent({
                     if (factoryName) {
                         editItem.value.manufacturer = factoryName
                     } else if (manufacturer.indexOf('RTSP') != -1) {
-                        editItem.value.manufacturer = props.protocolList[filterPropertyList.indexOf(manufacturer.slice(5))]['displayName']
+                        editItem.value.manufacturer = props.protocolList[filterPropertyList.indexOf(manufacturer.slice(5))].displayName
                     } else {
                         editItem.value.manufacturer = props.manufacturerMap[manufacturer]
                     }
@@ -160,6 +160,7 @@ export default defineComponent({
                                 return
                             }
                         }
+
                         if (!checkChlName(value.replace(' ', ''))) {
                             openMessageTipBox({
                                 type: 'info',
@@ -167,6 +168,7 @@ export default defineComponent({
                             })
                             return
                         }
+
                         if (!notCheckNameFlag && checkIsNameExit(value, props.rowData.id)) {
                             openMessageTipBox({
                                 type: 'question',
@@ -192,18 +194,22 @@ export default defineComponent({
                                 callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_EMPTY')))
                                 return
                             }
+
                             if (isIp && !checkIpV4(value)) {
                                 callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_INVALID')))
                                 return
                             }
+
                             if (isDomain && !value.length) {
                                 callback(new Error(Translate('IDCS_DOMAIN_NAME_EMPTY')))
                                 return
                             }
+
                             if (isIpv6 && !value.length) {
                                 callback(new Error(Translate('IDCS_PROMPT_IPV6_ADDRESS_EMPTY')))
                                 return
                             }
+
                             if (isIpv6 && !checkIpV6(value)) {
                                 callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_V6_INVALID')))
                                 return

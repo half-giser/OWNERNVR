@@ -52,6 +52,7 @@ export default defineComponent({
                                 callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                                 return
                             }
+
                             if (formData.value.password != value) {
                                 callback(new Error(Translate('IDCS_PWD_MISMATCH_TIPS')))
                                 return

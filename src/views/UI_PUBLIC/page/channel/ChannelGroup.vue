@@ -24,18 +24,12 @@
                     label="name"
                     width="300"
                 />
-                <el-table-column
-                    prop="dwellTime"
-                    label="dwellTime"
-                >
+                <el-table-column label="dwellTime">
                     <template #default="scope">
                         {{ formatDwellTime(scope.row.dwellTime) }}
                     </template>
                 </el-table-column>
-                <el-table-column
-                    prop="chlCount"
-                    label="chlCount"
-                >
+                <el-table-column label="chlCount">
                     <template #default="scope">
                         {{ Translate('IDCS_CHANNEL_NUM_D').formatForLang(scope.row.chlCount) }}
                     </template>

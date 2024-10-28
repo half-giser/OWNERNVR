@@ -88,6 +88,7 @@ export default defineComponent({
                     })
                     return false
                 }
+
                 if (selNum.value > chlGroupCountLimit) {
                     openMessageTipBox({
                         type: 'info',

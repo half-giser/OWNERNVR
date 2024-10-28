@@ -8,7 +8,6 @@ import WebsocketState from '@/utils/websocket/websocketState'
 import WebsocketUpload from '@/utils/websocket/websocketUpload'
 import { type UploadFile, type UploadInstance, type UploadRawFile, genFileId } from 'element-plus'
 import { getRandomGUID } from '@/utils/websocket/websocketCmd'
-import type WebsocketPlugin from '@/utils/websocket/websocketPlugin'
 import { type XMLQuery } from '@/utils/xmlParse'
 
 export default defineComponent({
@@ -60,7 +59,7 @@ export default defineComponent({
             btnOKDisabled.value = true
             if (type.value == 'multiple') {
                 const tmpList: string[] = []
-                chlData.forEach((ele: ChannelInfoDto) => {
+                chlData.forEach((ele) => {
                     if (ele.protocolType == 'TVT_IPCAMERA' && ele.productModel && ele.productModel.innerText) {
                         const value = ele.productModel.innerText
                         if (tmpList.indexOf(value) == -1) tmpList.push(value)
@@ -76,7 +75,7 @@ export default defineComponent({
             destroyWsState()
             chlData = list
             contextMap = {}
-            chlData.forEach((ele: ChannelInfoDto) => {
+            chlData.forEach((ele) => {
                 contextMap[ele.id] = ele
             })
             if (isSupportH5) {
@@ -86,11 +85,11 @@ export default defineComponent({
                         ipc_upgrade_state_info: true,
                     },
                     onmessage: (data: any) => {
-                        if (data && data['ipc_upgrade_state_info']) {
-                            data['ipc_upgrade_state_info'].forEach((ele: any) => {
-                                const chlId = ele['node_id']
-                                const status = ele['chl_upgrade_status']
-                                const progress = ele['pack_upload_precent']
+                        if (data && data.ipc_upgrade_state_info) {
+                            data.ipc_upgrade_state_info.forEach((ele: any) => {
+                                const chlId = ele.node_id
+                                const status = ele.chl_upgrade_status
+                                const progress = ele.pack_upload_precent
                                 changeStatus(contextMap[chlId], statusMap[status], progress)
                             })
                         }
@@ -132,10 +131,10 @@ export default defineComponent({
         const LiveNotify2Js = ($: XMLQuery) => {
             //升级进度
             if ($("statenotify[@type='FileNetTransportProgress']").length > 0) {
-                const taskGUID = $("statenotify[@type='FileNetTransportProgress']/taskGUID").text().toLowerCase()
+                const taskGUID = $('statenotify/taskGUID').text().toLowerCase()
                 if (taskGUIDMap[taskGUID]) {
-                    const progress = $("statenotify[@type='FileNetTransportProgress']/progress").text().replace('%', '')
-                    taskGUIDMap[taskGUID].forEach((ele: ChannelInfoDto) => {
+                    const progress = $('statenotify/progress').text().replace('%', '')
+                    taskGUIDMap[taskGUID].forEach((ele) => {
                         changeStatus(ele, 'progress', progress)
                     })
                     if (progress == '100') {
@@ -152,10 +151,10 @@ export default defineComponent({
             //     const status = $("statenotify[@type='connectstate']").text()
             // }
             // 网络断开
-            else if ($("statenotify[@type='FileNetTransport']").length > 0) {
-                if ($("statenotify[@type='FileNetTransport']/errorCode").length > 0) {
-                    const taskGUID = $("statenotify[@type='FileNetTransport']/taskGUID").text().toLowerCase()
-                    const errorCode = Number($("statenotify[@type='FileNetTransport']/errorCode").text())
+            else if ($("statenotify[@type='FileNetTransport']").length) {
+                if ($('statenotify/errorCode').length) {
+                    const taskGUID = $('statenotify/taskGUID').text().toLowerCase()
+                    const errorCode = Number($('statenotify/errorCode').text())
                     if (taskGUIDMap[taskGUID]) handleError(errorCode)
                 }
             }
@@ -163,7 +162,7 @@ export default defineComponent({
 
         const handleError = (errorCode: number) => {
             // 恢复为默认状态
-            tempData.forEach((ele: ChannelInfoDto) => {
+            tempData.forEach((ele) => {
                 ele.upgradeStatus = 'normal'
             })
             if (errorCode === ErrorCode.USER_ERROR_DEVICE_BUSY) {
@@ -202,7 +201,7 @@ export default defineComponent({
 
         const handleOcxBtnClick = () => {
             const sendXML = OCX_XML_OpenFileBrowser('OPEN_FILE')
-            Plugin.AsynQueryInfo(Plugin.GetVideoPlugin() as WebsocketPlugin, sendXML, (result: string) => {
+            Plugin.AsynQueryInfo(Plugin.GetVideoPlugin(), sendXML, (result) => {
                 const path = OCX_XML_OpenFileBrowser_getpath(result).trim()
                 if (path) {
                     fileName.value = path
@@ -216,13 +215,13 @@ export default defineComponent({
             const ids: string[] = []
             if (type.value == 'multiple') {
                 uploadData = []
-                chlData.forEach((ele: ChannelInfoDto) => {
+                chlData.forEach((ele) => {
                     if (ele.productModel && ele.productModel.innerText) {
                         if (selectedProductModel.value == ele.productModel.innerText) uploadData.push(ele)
                     }
                 })
             }
-            uploadData.forEach((ele: ChannelInfoDto) => {
+            uploadData.forEach((ele) => {
                 ids.push(ele.id)
                 ele.upgradeStatus = 'progress'
                 ele.upgradeProgressText = '0%'

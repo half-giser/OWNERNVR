@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 18:39:25
  * @Description: 回放
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 10:07:11
+ * @LastEditTime: 2024-10-25 14:18:02
 -->
 <template>
     <div class="playback">
@@ -183,11 +183,10 @@
 <style lang="scss" scoped>
 .playback {
     width: 100%;
-    height: calc(var(--content-height) + 70px);
+    height: var(--live-content-height);
     border: 1px solid var(--input-border);
     display: flex;
     font-size: 14px;
-    min-width: 1400px;
 }
 
 .center {

@@ -3,13 +3,14 @@
  * @Date: 2024-04-16 13:47:54
  * @Description: 项目入口
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-08 17:04:18
+ * @LastEditTime: 2024-10-25 09:28:12
  */
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import App from '@/App.vue'
 import router from '@/router'
 import { createPersistedState } from 'pinia-plugin-persistedstate'
+import './plugin/elementPlus'
 import i18nPlugin from './plugin/i18n'
 import typeEnhance from './plugin/typeEnhance'
 import loadingPlugin from './plugin/loading'

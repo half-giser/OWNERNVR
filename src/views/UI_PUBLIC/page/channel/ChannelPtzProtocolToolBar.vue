@@ -1,26 +1,20 @@
 <!--
  * @Author: tengxiang tengxiang@tvt.net.cn
- * @Date: 2024-05-07 19:40:23
- * @Description: 用户板块右上方工具栏
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 17:18:09
+ * @Date: 2024-05-05 09:57:16
+ * @Description: 通道-云台-协议 右上方工具栏
 -->
 <template>
     <el-input
         v-model="msg"
         size="small"
         class="base-toolbar-input"
-        :placeholder="Translate('IDCS_SEARCH_USER')"
-    ></el-input>
+        :placeholder="Translate('IDCS_SEARCH_CHANNEL')"
+        @keydown.enter="search"
+    />
     <BaseImgSprite
         file="toolbar_search"
         class="base-toolbar-btn"
         @click="search"
-    />
-    <BaseImgSprite
-        file="toolbar_add"
-        class="base-toolbar-btn"
-        @click="add"
     />
 </template>
 
@@ -35,8 +29,6 @@ export default defineComponent({
     setup(_props, ctx) {
         const msg = ref('')
 
-        const router = useRouter()
-
         const search = () => {
             ctx.emit('toolBarEvent', {
                 type: 'search',
@@ -46,16 +38,9 @@ export default defineComponent({
             })
         }
 
-        const add = () => {
-            router.push({
-                path: '/config/security/user/add',
-            })
-        }
-
         return {
             msg,
             search,
-            add,
         }
     },
 })

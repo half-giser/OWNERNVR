@@ -2,8 +2,8 @@
  * @Description: 系统——上海地标平台——定时图像上传
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-10-23 11:43:19
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-24 14:16:21
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-25 18:38:48
  */
 import dayjs from 'dayjs'
 import { type ImageUploadDto } from '@/types/apiType/system'
@@ -40,7 +40,7 @@ export default defineComponent({
          * @param event
          * @returns
          */
-        const handleToolBarEvent = (event: ConfigToolBarEvent<ChannelToolBarEvent>) => {
+        const handleToolBarEvent = (event: ConfigToolBarEvent<SearchToolBarEvent>) => {
             if (event.type === 'add') {
                 pageData.value.addUploadTimePopOpen = true
                 return
@@ -91,7 +91,7 @@ export default defineComponent({
             closeLoading()
             tableData.value = []
             commLoadResponseHandler(result, async ($) => {
-                $('/response/content/item').forEach((item) => {
+                $('//content/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     const chlId = $item('chl').attr('id')
                     const timelist = $item('timeList/item').map((ele) => {
@@ -249,6 +249,7 @@ export default defineComponent({
             closeLoading()
             commSaveResponseHadler(result)
         }
+
         // 挂载完成获取数据
         onMounted(async () => {
             getTimeCfg()

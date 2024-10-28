@@ -52,7 +52,7 @@ export default defineComponent({
         let ChlStatusRefreshTimer: NodeJS.Timeout | null = null
         const ChlStatusRefreshTimeSpan = 5000 //通道树状态刷新时间间隔
 
-        const handleToolBarEvent = (toolBarEvent: ConfigToolBarEvent<ChannelToolBarEvent>) => {
+        const handleToolBarEvent = (toolBarEvent: ConfigToolBarEvent<SearchToolBarEvent>) => {
             switch (toolBarEvent.type) {
                 case 'search':
                     getDataList(toolBarEvent.data.searchText)
@@ -91,6 +91,7 @@ export default defineComponent({
             editNameMapping.value = nameMapping
             editIPCPwdPopVisiable.value = true
         }
+
         const closeEditIPCPwdPop = () => {
             editIPCPwdPopVisiable.value = false
         }
@@ -101,18 +102,21 @@ export default defineComponent({
                 type: 'question',
                 message: Translate('IDCS_DELETE_ALL_ITEMS'),
             }).then(() => {
-                let data = '<condition><devIds type="list">'
-                tableData.value.forEach((ele: ChannelInfoDto) => {
-                    // UI1-E可以删除poe通道
-                    if (import.meta.env.VITE_UI_TYPE === 'UI1-E') {
-                        if (ele.ip) data += '<item id="' + ele.id + '"></item>'
-                    } else {
-                        if (ele.addType != 'poe' && ele.ip) data += '<item id="' + ele.id + '"></item>'
-                    }
-                })
-                data += '</devIds></condition>'
+                const sendXml = rawXml`
+                    <condition>
+                        <devIds type="list">
+                            ${
+                                // UI1-E可以删除poe通道
+                                tableData.value
+                                    .filter((ele) => ele.ip && (import.meta.env.VITE_UI_TYPE === 'UI1-E' || ele.addType !== 'poe'))
+                                    .map((ele) => `<item id="${ele.id}"></item>`)
+                                    .join('')
+                            }
+                        </devIds>
+                    </condition>
+                `
                 openLoading()
-                delDevList(data).then(() => {
+                delDevList(sendXml).then(() => {
                     closeLoading()
                     //删除通道不提示
                     getDataList()
@@ -267,6 +271,7 @@ export default defineComponent({
                             if ((ele.addType === 'poe' && import.meta.env.VITE_UI_TYPE !== 'UI1-E') || !ele.ip) {
                                 ele.delDisabled = true
                             }
+
                             if (ele.addType === 'poe') {
                                 if (!virtualHostEnabled) ele.showSetting = false
                             } else if (ele.protocolType === 'RTSP') {
@@ -316,6 +321,7 @@ export default defineComponent({
                             ele.isOnline = false
                             ele.upgradeDisabled = true
                         }
+
                         if (ele.accessType == '1') {
                             ele.upgradeDisabled = true
                             ele.showUpgradeBtn = true
@@ -418,7 +424,7 @@ export default defineComponent({
                     value = num > value ? num : value
                 }
             }
-            localStorage.setItem(LocalCacheKey.defaultChlMaxValue, value.toString())
+            localStorage.setItem(LocalCacheKey.KEY_DEFAULT_CHL_MAX_VALUE, value.toString())
         }
 
         const formatDisplayName = (rowData: ChannelInfoDto) => {
@@ -428,7 +434,7 @@ export default defineComponent({
                 const chlNumStr = chlNum < 10 ? '0' + chlNum : chlNum
                 value = '[R' + chlNumStr + ']' + value
             }
-            return rowData.addType === 'poe' ? protocolTrasMap['IDCS_POE_PREFIX'].formatForLang(Number(rowData.poeIndex) > 9 ? rowData.poeIndex : '0' + rowData.poeIndex) + value : value
+            return rowData.addType === 'poe' ? protocolTrasMap.IDCS_POE_PREFIX.formatForLang(Number(rowData.poeIndex) > 9 ? rowData.poeIndex : '0' + rowData.poeIndex) + value : value
         }
 
         const formatDisplayManufacturer = (rowData: ChannelInfoDto) => {
@@ -438,7 +444,7 @@ export default defineComponent({
                 ? rowData.productModel.factoryName
                 : value
                   ? value.indexOf('RTSP') != -1
-                      ? protocolList.value[filters.indexOf(value.slice(5))]['displayName']
+                      ? protocolList.value[filters.indexOf(value.slice(5))].displayName
                       : manufacturerMap[value]
                   : ''
         }

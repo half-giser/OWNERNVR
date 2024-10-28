@@ -1,9 +1,9 @@
 <!--
  * @Author: yejiahao yejiahao@tvt.net.cn
- * @Date: 2024-08-20 13:58:22
- * @Description: 云台-智能追踪
+ * @Date: 2024-10-23 10:36:10
+ * @Description: LOGO设置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 18:27:20
+ * @LastEditTime: 2024-10-25 18:35:57
 -->
 <template>
     <div class="base-chl-box">
@@ -16,7 +16,6 @@
                 />
             </div>
             <el-form
-                v-if="tableData.length"
                 label-position="left"
                 :style="{
                     '--form-label-width': '150px',
@@ -41,15 +40,15 @@
                         disabled
                     />
                 </el-form-item>
-                <el-form-item :label="Translate('IDCS_AUTO_TRACK_MODE')">
+                <el-form-item :label="Translate('IDCS_LOGO')">
                     <el-select
                         v-if="tableData[pageData.tableIndex]"
-                        v-model="tableData[pageData.tableIndex].ptzControlMode"
+                        v-model="tableData[pageData.tableIndex].switch"
                         :disabled="tableData[pageData.tableIndex].disabled"
                         @change="addEditRow(pageData.tableIndex)"
                     >
                         <el-option
-                            v-for="item in pageData.trackModeOptions"
+                            v-for="item in pageData.switchOptions"
                             :key="item.value"
                             :value="item.value"
                             :label="item.label"
@@ -60,32 +59,30 @@
                         disabled
                     />
                 </el-form-item>
-                <el-form-item :label="Translate('IDCS_HOMING_AFTER_TARGET_STATIONARY')">
-                    <template v-if="tableData[pageData.tableIndex]">
-                        <el-checkbox
-                            v-model="tableData[pageData.tableIndex].autoBackSwitch"
-                            :disabled="tableData[pageData.tableIndex].disabled"
-                            @change="addEditRow(pageData.tableIndex)"
-                        />
-                        <el-slider
-                            v-model="tableData[pageData.tableIndex].autoBackTime"
-                            :disabled="!tableData[pageData.tableIndex].autoBackSwitch || tableData[pageData.tableIndex].disabled"
-                            :min="0"
-                            :max="100"
-                            @change="addEditRow(pageData.tableIndex)"
-                        />
-                    </template>
-                    <template v-else>
-                        <el-checkbox disabled />
-                        <el-slider disabled />
-                    </template>
-                    <el-text class="time">{{ tableData[pageData.tableIndex].autoBackTime }}(s)</el-text>
+                <el-form-item :label="Translate('IDCS_TRANSPARENCY')">
+                    <el-slider
+                        v-if="tableData[pageData.tableIndex]"
+                        v-model="tableData[pageData.tableIndex].opacity"
+                        :min="tableData[pageData.tableIndex].minOpacity"
+                        :max="tableData[pageData.tableIndex].maxOpacity"
+                        :disabled="tableData[pageData.tableIndex].disabled"
+                        show-input
+                        :show-input-controls="false"
+                        @change="addEditRow(pageData.tableIndex)"
+                    />
+                    <el-slider
+                        v-else
+                        disabled
+                        show-input
+                        :show-input-controls="false"
+                    />
                 </el-form-item>
             </el-form>
         </div>
         <div class="base-chl-box-right">
             <div class="base-table-box">
                 <el-table
+                    ref="tableRef"
                     :data="tableData"
                     border
                     stripe
@@ -99,25 +96,30 @@
                         width="50"
                     >
                         <template #default="scope">
-                            <BaseTableRowStatus :icon="scope.row.status" />
+                            <BaseTableRowStatus :icon="scope.row.status"></BaseTableRowStatus>
                         </template>
                     </el-table-column>
+                    <!-- 通道名 -->
                     <el-table-column
-                        :label="Translate('IDCS_CHANNEL_NAME')"
                         prop="chlName"
+                        :label="Translate('IDCS_CHANNEL_NAME')"
+                        show-overflow-tooltip
                     />
-                    <el-table-column :label="Translate('IDCS_HOMING_AFTER_TARGET_STATIONARY')">
+                    <!-- LOGO开关   -->
+                    <el-table-column :label="Translate('IDCS_LOGO')">
                         <template #header>
                             <el-dropdown trigger="click">
                                 <BaseTableDropdownLink>
-                                    {{ Translate('IDCS_HOMING_AFTER_TARGET_STATIONARY') }}
+                                    {{ Translate('IDCS_LOGO') }}
                                 </BaseTableDropdownLink>
                                 <template #dropdown>
                                     <el-dropdown-menu>
                                         <el-dropdown-item
-                                            v-for="item in pageData.autoBackOptions"
-                                            :key="item.label"
-                                            @click="changeAllAutoBack(item.value)"
+                                            v-for="item in pageData.switchOptions"
+                                            :key="item.value"
+                                            :value="item.value"
+                                            :label="item.label"
+                                            @click="changeAllSwitch(item.value)"
                                         >
                                             {{ item.label }}
                                         </el-dropdown-item>
@@ -127,32 +129,45 @@
                         </template>
                         <template #default="scope">
                             <el-select
-                                v-model="scope.row.autoBackSwitch"
+                                v-model="scope.row.switch"
                                 :disabled="scope.row.disabled"
+                                :placeholder="Translate('IDCS_ON')"
                                 @change="addEditRow(scope.$index)"
                             >
                                 <el-option
-                                    v-for="item in pageData.autoBackOptions"
-                                    :key="item.label"
+                                    v-for="item in pageData.switchOptions"
+                                    :key="item.value"
                                     :value="item.value"
                                     :label="item.label"
-                                />
+                                >
+                                </el-option>
                             </el-select>
                         </template>
                     </el-table-column>
-                    <el-table-column :label="Translate('IDCS_HOMING_AFTER_TARGET_STATIONARY_TIME')">
+                    <!-- 透明度 -->
+                    <el-table-column :label="Translate('IDCS_TRANSPARENCY')">
                         <template #default="scope">
                             <BaseNumberInput
-                                v-model="scope.row.autoBackTime"
-                                :min="0"
-                                :max="100"
-                                :disabled="!scope.row.autoBackSwitch || scope.row.disabled"
+                                v-model="scope.row.opacity"
                                 value-on-clear="min"
+                                :disabled="scope.row.disabled"
+                                :min="scope.row.minOpacity"
+                                :max="scope.row.maxOpacity"
+                                @keydown.enter="handleKeydownEnter($event)"
                                 @change="addEditRow(scope.$index)"
                             />
                         </template>
                     </el-table-column>
                 </el-table>
+            </div>
+            <div class="row_pagination">
+                <el-pagination
+                    v-model:current-page="pageData.pageIndex"
+                    v-model:page-size="pageData.pageSize"
+                    :total="pageData.total"
+                    @size-change="getData"
+                    @current-change="getData"
+                />
             </div>
             <div class="base-btn-box">
                 <el-button
@@ -163,19 +178,11 @@
                 </el-button>
             </div>
         </div>
-        <BaseNotification v-model:notifications="pageData.notification" />
     </div>
 </template>
 
-<script lang="ts" src="./ChannelSmartTrack.v.ts"></script>
+<script lang="ts" src="./ChannelLogo.v.ts"></script>
 
 <style lang="scss">
 @import '@/views/UI_PUBLIC/publicStyle/channel.scss';
-</style>
-
-<style lang="scss" scoped>
-.time {
-    width: 80px;
-    text-align: center;
-}
 </style>

@@ -581,20 +581,18 @@ export class ChannelPtzTaskForm {
 /**
  * @description 云台 智能跟踪 通道列表项
  */
-export class ChannelPtzSmartTrackDto {
-    [key: string]: boolean | string | number
+export class ChannelPtzSmartTrackDto extends ChannelRowStatus {
     chlId = ''
     chlName = ''
     autoBackSwitch = false
     autoBackTime = 0
     ptzControlMode = 'manual'
-    status = 'loading'
 }
 
 /**
  * @description 云台协议 通道列表项
  */
-export class ChannelPtzProtocolDto {
+export class ChannelPtzProtocolDto extends ChannelRowStatus {
     [key: string]: any
     chlId = ''
     chlName = ''
@@ -602,7 +600,7 @@ export class ChannelPtzProtocolDto {
     protocol = ''
     baudRateOptions = [] as SelectOption<string, string>[]
     protocolOptions = [] as SelectOption<string, string>[]
-    status = 'loading'
+    // status = 'loading'
     address = 1
     addressMin = 1
     addressMax = 1
@@ -612,17 +610,18 @@ export class ChannelPtzProtocolDto {
 /**
  * @description 水印设置 通道列表项
  */
-export class ChannelWaterMarkDto {
+export class ChannelWaterMarkDto extends ChannelRowStatus {
     chlId = ''
     chlName = ''
     chlIndex = ''
     chlType = ''
-    status = 'loading'
-    disabled = false
     switch = 'false'
     customText = ''
 }
 
+/**
+ * @description LOGO设置 通道列表项
+ */
 export class ChannelLogoSetDto extends ChannelRowStatus {
     [key: string]: any
     chlId = ''

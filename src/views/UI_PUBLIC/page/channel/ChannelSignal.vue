@@ -13,7 +13,6 @@
                 :data="tableData"
                 table-layout="fixed"
                 show-overflow-tooltip
-                empty-text=" "
                 highlight-current-row
             >
                 <el-table-column
@@ -23,19 +22,23 @@
                 />
                 <el-table-column
                     v-if="switchableIpChlMaxCount !== 0"
-                    prop="analogIp"
                     :label="Translate('IDCS_ANALOG_IP')"
                     min-width="220"
                 >
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_ANALOG_IP') }}
                             </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
-                                    <el-dropdown-item @click="handleAnalogIpChangeAll('Analog')">{{ Translate('IDCS_SIGNAL_ANALOG') }}</el-dropdown-item>
-                                    <el-dropdown-item @click="handleAnalogIpChangeAll('IP')">{{ Translate('IDCS_SIGNAL_IP') }}</el-dropdown-item>
+                                    <el-dropdown-item
+                                        v-for="item in analogIpOptions"
+                                        :key="item.label"
+                                        @click="handleAnalogIpChangeAll(item.value)"
+                                    >
+                                        {{ item.label }}
+                                    </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
                         </el-dropdown>
@@ -46,18 +49,15 @@
                             @change="handleAnalogIpChange(scope.row)"
                         >
                             <el-option
-                                value="Analog"
-                                :label="Translate('IDCS_SIGNAL_ANALOG')"
-                            />
-                            <el-option
-                                value="IP"
-                                :label="Translate('IDCS_SIGNAL_IP')"
+                                v-for="item in analogIpOptions"
+                                :key="item.label"
+                                :value="item.value"
+                                :label="item.label"
                             />
                         </el-select>
                     </template>
                 </el-table-column>
                 <el-table-column
-                    prop="signal"
                     :label="Translate('IDCS_SIGNAL')"
                     min-width="220"
                 >
@@ -98,7 +98,6 @@
                 </el-table-column>
                 <el-table-column
                     v-if="supportLite"
-                    prop="lite"
                     :label="Translate('IDCS_SUPPORT_LITE')"
                     min-width="220"
                 >
@@ -109,8 +108,13 @@
                             </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
-                                    <el-dropdown-item @click="handleLiteChangeAll(true)">{{ Translate('IDCS_ON') }}</el-dropdown-item>
-                                    <el-dropdown-item @click="handleLiteChangeAll(false)">{{ Translate('IDCS_OFF') }}</el-dropdown-item>
+                                    <el-dropdown-item
+                                        v-for="item in switchOptions"
+                                        :key="item.label"
+                                        @click="handleLiteChangeAll(item.value)"
+                                    >
+                                        {{ item.label }}
+                                    </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
                         </el-dropdown>
@@ -122,12 +126,10 @@
                             @change="btnOkDisabled = false"
                         >
                             <el-option
-                                :label="Translate('IDCS_ON')"
-                                :value="true"
-                            />
-                            <el-option
-                                :label="Translate('IDCS_OFF')"
-                                :value="false"
+                                v-for="item in switchOptions"
+                                :key="item.label"
+                                :value="item.value"
+                                :label="item.label"
                             />
                         </el-select>
                         <span v-else>--</span>
@@ -140,7 +142,7 @@
             span="start"
         >
             <div v-if="switchableIpChlMaxCount !== 0">
-                <span>{{ `${Translate('IDCS_IP_NUM')}: ${ipChlMaxCount}` }}</span>
+                <span>{{ Translate('IDCS_IP_NUM') }}: {{ ipChlMaxCount }}</span>
             </div>
         </div>
         <div

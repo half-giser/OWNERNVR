@@ -3,7 +3,7 @@
  * @Date: 2024-08-09 15:02:25
  * @Description: 搜索与备份-图片管理
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 09:30:28
+ * @LastEditTime: 2024-10-25 14:39:43
 -->
 <template>
     <div class="img-mgr base-flex-box">
@@ -43,14 +43,19 @@
                 :data="tableData"
                 border
                 stripe
+                show-overflow-tooltip
                 @row-click="handleRowClick"
             >
                 <el-table-column
                     :label="Translate('IDCS_SERIAL_NUMBER')"
                     prop="index"
+                    width="60"
                 />
                 <el-table-column type="selection" />
-                <el-table-column prop="chlName">
+                <el-table-column
+                    prop="chlName"
+                    min-width="220"
+                >
                     <template #header>
                         <div
                             class="sort-title"
@@ -67,7 +72,10 @@
                         </div>
                     </template>
                 </el-table-column>
-                <el-table-column prop="captureModeKey">
+                <el-table-column
+                    prop="captureModeKey"
+                    min-width="150"
+                >
                     <template #header>
                         <div
                             class="sort-title"
@@ -84,7 +92,7 @@
                         </div>
                     </template>
                 </el-table-column>
-                <el-table-column>
+                <el-table-column min-width="220">
                     <template #header>
                         <div
                             class="sort-title"
@@ -107,6 +115,7 @@
                 <el-table-column
                     :label="Translate('IDCS_CREATE_USER')"
                     prop="creator"
+                    min-width="220"
                 >
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_BROWSE')">
@@ -169,13 +178,13 @@
                 </el-table-column>
             </el-table>
         </div>
-        <div class="base-btn-box">
+        <div class="row_pagination">
             <el-pagination
                 :current-page="formData.pageIndex"
                 :page-size="formData.pageSize"
                 :layout="DefaultPagerLayout"
                 :total="pageData.totalCount"
-                :page-sizes="[20, 30, 50]"
+                :page-sizes="[10, 30, 50]"
                 @update:current-page="changePageIndex"
                 @update:page-size="changePageSize"
             />
@@ -235,7 +244,7 @@
 
 <style lang="scss" scoped>
 .img-mgr {
-    padding: 10px;
+    padding: 5px 10px;
 }
 
 .form {

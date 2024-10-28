@@ -3,11 +3,10 @@
  * @Date: 2024-08-23 09:01:11
  * @Description: 云台-智能追踪
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-14 16:07:36
+ * @LastEditTime: 2024-10-25 18:15:00
  */
-import { cloneDeep } from 'lodash-es'
 import { type TableInstance } from 'element-plus'
-import { type ChannelPtzSmartTrackDto } from '@/types/apiType/channel'
+import { ChannelPtzSmartTrackDto } from '@/types/apiType/channel'
 
 export default defineComponent({
     setup() {
@@ -46,7 +45,8 @@ export default defineComponent({
         const tableRef = ref<TableInstance>()
         const tableData = ref<ChannelPtzSmartTrackDto[]>([])
 
-        let cacheTableData: ChannelPtzSmartTrackDto[] = []
+        // 编辑行索引
+        const editRows = ref(new Set<number>())
 
         // 播放模式
         const mode = computed(() => {
@@ -75,11 +75,13 @@ export default defineComponent({
                     pageData.value.notification = [formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`)]
                 }
             }
+
             if (mode.value === 'ocx') {
                 if (!plugin.IsInstallPlugin()) {
                     plugin.SetPluginNotice('#layout2Content')
                     return
                 }
+
                 if (!plugin.IsPluginAvailable()) {
                     plugin.SetPluginNoResponse()
                     plugin.ShowPluginNoResponse()
@@ -109,8 +111,11 @@ export default defineComponent({
          * @param {Boolean} bool
          */
         const changeAllAutoBack = (bool: boolean) => {
-            tableData.value.forEach((item) => {
-                item.autoBackSwitch = bool
+            tableData.value.forEach((item, index) => {
+                if (!item.disabled) {
+                    item.autoBackSwitch = bool
+                    addEditRow(index)
+                }
             })
         }
 
@@ -120,6 +125,7 @@ export default defineComponent({
          * @param {number} index
          */
         const getConfig = async (chlId: string, index: number) => {
+            const item = tableData.value[index]
             const sendXml = rawXml`
                 <condition>
                     <chlId>${chlId}</chlId>
@@ -127,66 +133,60 @@ export default defineComponent({
             `
             const result = await queryBallIPCATCfg(sendXml)
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                tableData.value[index].autoBackSwitch = $('//content/chl/param/backTime/switch').text().toBoolean()
-                tableData.value[index].autoBackTime = Number($('//content/chl/param/backTime/timeValue').text())
-                tableData.value[index].ptzControlMode = $('//content/chl/param/ptzControlMode').text()
+
+            try {
+                if ($('//status').text() === 'success') {
+                    item.autoBackSwitch = $('//content/chl/param/backTime/switch').text().toBoolean()
+                    item.autoBackTime = Number($('//content/chl/param/backTime/timeValue').text())
+                    item.ptzControlMode = $('//content/chl/param/ptzControlMode').text()
+                    item.disabled = false
+                } else {
+                    item.disabled = true
+                }
+            } catch {
+                item.disabled = true
+            } finally {
+                item.status = ''
             }
-            tableData.value[index].status = ''
-            cacheTableData.push({ ...tableData.value[index] })
         }
 
         /**
          * @description 提交编辑行的数据
          */
         const setData = async () => {
-            const edits: ChannelPtzSmartTrackDto[] = []
-            const editsIndex: number[] = []
-            tableData.value.forEach((item, index) => {
-                if (item.status === 'loading') {
-                    return
-                }
-                const params = ['autoBackSwitch', 'autoBackTime', 'ptzControlMode']
-                params.some((param) => {
-                    if (!cacheTableData[index]) {
-                        return false
-                    }
-                    if (item[param] !== cacheTableData[index][param]) {
-                        edits.push(item)
-                        editsIndex.push(index)
-                        return true
-                    }
-                    return false
-                })
-            })
-
             openLoading()
 
-            for (let i = 0; i < edits.length; i++) {
-                const item = edits[i]
-                const sendXml = rawXml`
-                    <content>
-                        <chl id="${item.chlId}">
-                            <param>
-                                <backTime>
-                                    <switch>${item.autoBackSwitch.toString()}</switch>
-                                    <timeValue>${item.autoBackTime.toString()}</timeValue>
-                                </backTime>
-                                <ptzControlMode>${item.ptzControlMode}</ptzControlMode>
-                            </param>
-                        </chl>
-                    </content>
-                `
-                const result = await editBallIPCATCfg(sendXml)
-                const $ = queryXml(result)
-                if ($('//status').text() === 'success') {
-                    tableData.value[editsIndex[i]].status = 'success'
-                } else {
-                    tableData.value[editsIndex[i]].status = 'error'
+            for (let i = 0; i < tableData.value.length; i++) {
+                if (editRows.value.has(i)) {
+                    const item = tableData.value[i]
+                    const sendXml = rawXml`
+                        <content>
+                            <chl id="${item.chlId}">
+                                <param>
+                                    <backTime>
+                                        <switch>${item.autoBackSwitch.toString()}</switch>
+                                        <timeValue>${item.autoBackTime.toString()}</timeValue>
+                                    </backTime>
+                                    <ptzControlMode>${item.ptzControlMode}</ptzControlMode>
+                                </param>
+                            </chl>
+                        </content>
+                    `
+                    try {
+                        const result = await editBallIPCATCfg(sendXml)
+                        const $ = queryXml(result)
+                        if ($('//status').text() === 'success') {
+                            item.status = 'success'
+                            editRows.value.delete(i)
+                        } else {
+                            item.status = 'error'
+                        }
+                    } catch {
+                        item.status = 'error'
+                    }
                 }
             }
 
-            cacheTableData = cloneDeep(tableData.value)
             closeLoading()
         }
 
@@ -208,14 +208,12 @@ export default defineComponent({
             if ($('//status').text() === 'success') {
                 tableData.value = $('//content/item').map((item) => {
                     const $item = queryXml(item.element)
-                    return {
-                        chlId: item.attr('id')!,
-                        chlName: $item('name').text(),
-                        autoBackSwitch: false,
-                        autoBackTime: 0,
-                        ptzControlMode: 'manual',
-                        status: 'loading',
-                    }
+                    const rowData = new ChannelPtzSmartTrackDto()
+                    rowData.status = 'loading'
+                    rowData.chlId = item.attr('id')!
+                    rowData.chlName = $item('name').text()
+                    rowData.disabled = true
+                    return rowData
                 })
             }
         }
@@ -238,6 +236,13 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 记录修改行的索引
+         */
+        const addEditRow = (index: number) => {
+            editRows.value.add(index)
+        }
+
         // 首次加载成功 播放视频
         const stopWatchFirstPlay = watchEffect(() => {
             if (ready.value && tableData.value.length) {
@@ -257,6 +262,10 @@ export default defineComponent({
             await getData()
             for (let i = 0; i < tableData.value.length; i++) {
                 await getConfig(tableData.value[i].chlId, i)
+
+                if (i === 0) {
+                    tableRef.value?.setCurrentRow(tableData.value[0])
+                }
             }
         })
 
@@ -269,6 +278,8 @@ export default defineComponent({
             setData,
             handleRowClick,
             changeAllAutoBack,
+            editRows,
+            addEditRow,
         }
     },
 })

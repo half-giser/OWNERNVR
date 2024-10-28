@@ -165,16 +165,20 @@ export default {
         //         group: 'image',
         //     },
         // },
-        // logoSet: {
-        //     // logo设置
-        //     path: 'settings/logoSet',
-        //     component: 'channel/ChannelLogo.vue',
-        //     meta: {
-        //         sort: 40,
-        //         lk: 'IDCS_LOGO_SETTINGS',
-        //         group: 'image',
-        //     },
-        // },
+        logoSet: {
+            // logo设置
+            path: 'settings/logoSet',
+            component: 'channel/ChannelLogo.vue',
+            meta: {
+                sort: 40,
+                lk: 'IDCS_LOGO_SETTINGS',
+                group: 'image',
+                auth(systemCaps) {
+                    const osType = getSystemInfo().platform
+                    return systemCaps.supportLogoSetting && osType !== 'mac'
+                },
+            },
+        },
         // signalShelter: {
         //     // 信号遮挡配置
         //     path: 'settings/signalshelter',
@@ -206,6 +210,10 @@ export default {
                 sort: 70,
                 lk: 'IDCS_FISHEYE_SET',
                 group: 'image',
+                auth(systemCaps) {
+                    const osType = getSystemInfo().platform
+                    return systemCaps.supportFishEye && osType !== 'mac'
+                },
             },
         },
         motion: {
@@ -296,7 +304,10 @@ export default {
         ptzProtocol: {
             //协议
             path: 'ptz/protocol',
-            component: 'channel/ChannelPtzProtocol.vue',
+            components: {
+                toolBar: 'channel/ChannelPtzProtocolToolBar.vue',
+                default: 'channel/ChannelPtzProtocol.vue',
+            },
             meta: {
                 sort: 70,
                 lk: 'IDCS_PROTOCOL',

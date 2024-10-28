@@ -49,7 +49,8 @@
 <style lang="scss" scoped>
 #configHomeContainer {
     width: 1160px;
-    margin: 35px auto 0px;
+    margin: 0 auto;
+    padding-top: 35px;
     display: flex;
     flex-wrap: wrap;
 

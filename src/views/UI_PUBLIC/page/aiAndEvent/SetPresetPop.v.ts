@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-20 17:19:56
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-16 10:30:31
+ * @LastEditTime: 2024-10-28 10:20:43
  */
 import { type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
 
@@ -17,12 +17,11 @@ export default defineComponent({
             type: Object as PropType<PresetItem[]>,
             require: true,
         },
-        handlePresetLinkedList: {
-            type: Function,
-            require: true,
-        },
     },
     emits: {
+        confirm(id: string, linkedList: PresetItem[]) {
+            return typeof id === 'string' && Array.isArray(linkedList)
+        },
         close(id: string) {
             return id
         },
@@ -119,7 +118,7 @@ export default defineComponent({
                     message: Translate('IDCS_PRESET_LIMIT'),
                 })
             } else {
-                prop.handlePresetLinkedList!(prop.filterChlId, linkedList)
+                ctx.emit('confirm', prop.filterChlId!, linkedList)
                 close()
             }
         }

@@ -92,7 +92,6 @@
 <style lang="scss" scoped>
 .by-time {
     width: 100%;
-    height: calc(var(--content-height) + 30px);
     display: flex;
 }
 

@@ -64,7 +64,7 @@ export default defineComponent({
                 if ($('status').text() == 'success') {
                     const chlList: ChannelInfoDto[] = []
                     const addedChlList: string[] = tmpEditItem.chls.map((ele: Record<string, string | boolean>) => {
-                        return ele['value'] as string
+                        return ele.value as string
                     })
                     $('//content/item').forEach((ele) => {
                         const eleXml = queryXml(ele.element)

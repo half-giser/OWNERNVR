@@ -3,7 +3,7 @@
  * @Date: 2024-08-20 13:57:01
  * @Description: 云台-预置点
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-22 19:58:13
+ * @LastEditTime: 2024-10-25 11:49:10
 -->
 <template>
     <div class="base-chl-box">
@@ -29,8 +29,7 @@
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
                     <el-select
                         v-model="pageData.tableIndex"
-                        max-height="200"
-                        popper-class="custom-select"
+                        popper-class="base-chl-select"
                         @change="changeChl"
                     >
                         <el-option
@@ -44,7 +43,7 @@
                 <el-form-item :label="Translate('IDCS_PRESET')">
                     <el-select
                         v-model="formData.presetIndex"
-                        value-on-clear=""
+                        popper-class="base-chl-select"
                     >
                         <el-option
                             v-for="(item, index) in presetOptions"

@@ -42,10 +42,7 @@
                     :disabled="ipDisabled"
                 />
             </el-form-item>
-            <el-form-item
-                :label="Translate('IDCS_PORT')"
-                prop="port"
-            >
+            <el-form-item :label="Translate('IDCS_PORT')">
                 <BaseNumberInput
                     v-model="editItem.port"
                     :min="10"
@@ -54,19 +51,13 @@
                     :disabled="portDisabled"
                 />
             </el-form-item>
-            <el-form-item
-                :label="Translate('IDCS_PROTOCOL')"
-                prop="manufacturer"
-            >
+            <el-form-item :label="Translate('IDCS_PROTOCOL')">
                 <el-input
                     v-model="editItem.manufacturer"
                     disabled
                 />
             </el-form-item>
-            <el-form-item
-                :label="Translate('IDCS_PRODUCT_MODEL')"
-                prop="productModel"
-            >
+            <el-form-item :label="Translate('IDCS_PRODUCT_MODEL')">
                 <el-input
                     v-model="editItem.productModel.innerText"
                     disabled
@@ -81,7 +72,7 @@
                     :disabled="inputDisabled"
                 />
             </el-form-item>
-            <el-form-item prop="password">
+            <el-form-item>
                 <template #label>
                     {{ Translate('IDCS_CHANGE_PWD') }}
                     <el-checkbox

@@ -1098,6 +1098,15 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 打开注册人脸弹窗
+         * @param {IntelSnapPopList} row
+         */
+        const register = (row: IntelSnapPopList) => {
+            pageData.value.registerPic = row.pic
+            pageData.value.isRegisterPop = true
+        }
+
         // 已选选项
         const selectionIds = computed(() => {
             return pageData.value.selection.map((item) => getUniqueKey(item))
@@ -1459,7 +1468,16 @@ export default defineComponent({
             pause,
             resume,
             getUniqueKey,
+            register,
+            BackupPop,
+            BackupLocalPop,
             sliceTableDataWithDateColsSpan,
+            IntelBaseSnapItem,
+            IntelBaseSnapPop,
+            IntelFaceDBSnapRegisterPop,
+            IntelBaseFaceMatchPop,
+            IntelFaceSearchChooseFacePop,
+            IntelFaceSearchTrackMapPanel,
         }
     },
 })

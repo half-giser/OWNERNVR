@@ -4,8 +4,8 @@
  * @Description: 通道 - OSD配置
  */
 
-import { type XmlResult } from '@/utils/xmlParse'
-import { ChannelInfoDto, ChannelOsd } from '@/types/apiType/channel'
+import { type XMLQuery } from '@/utils/xmlParse'
+import { ChannelOsd } from '@/types/apiType/channel'
 import { cloneDeep } from 'lodash-es'
 import CanvasOSD, { type CanvasOSDOptionNameConfig, type CanvasOSDOptionTimeConfig } from '@/utils/canvas/canvasOsd'
 import { type TVTPlayerWinDataListItem } from '@/utils/wasmPlayer/tvtPlayer'
@@ -33,12 +33,8 @@ export default defineComponent({
         const chlList = ref<ChannelOsd[]>([]) // 作为下拉列表选项来源，只需保证name为最新值即可
         const { supportSHDB } = useCababilityStore() // 是否支持上海地标
         const tempName = ref('')
-        const switchOptions = DEFAULT_SWITCH_OPTIONS.map((item) => {
-            return {
-                value: item.value.toBoolean(),
-                label: Translate(item.label),
-            }
-        })
+        const switchOptions = getBoolSwitchOptions()
+        const manufacturer: Record<string, string> = {}
 
         const dateFormatTip: Record<string, string> = {
             'yyyy-MM-dd': Translate('IDCS_DATE_FORMAT_YMD'),
@@ -53,9 +49,18 @@ export default defineComponent({
         }
 
         const dateFormatOptions: Record<string, string>[] = [
-            { value: 'year-month-day', text: Translate('IDCS_DATE_FORMAT_YMD') },
-            { value: 'month-day-year', text: Translate('IDCS_DATE_FORMAT_MDY') },
-            { value: 'day-month-year', text: Translate('IDCS_DATE_FORMAT_DMY') },
+            {
+                value: 'year-month-day',
+                text: Translate('IDCS_DATE_FORMAT_YMD'),
+            },
+            {
+                value: 'month-day-year',
+                text: Translate('IDCS_DATE_FORMAT_MDY'),
+            },
+            {
+                value: 'day-month-year',
+                text: Translate('IDCS_DATE_FORMAT_DMY'),
+            },
         ]
 
         const timeFormatTip: Record<string, string> = {
@@ -67,28 +72,21 @@ export default defineComponent({
         let osdDrawer: CanvasOSD | undefined = undefined
         const editRows = new Set<ChannelOsd>()
 
-        const handleSizeChange = (val: number) => {
-            pageSize.value = val
-            getDataList()
-            btnOKDisabled.value = true
-        }
-
-        const handleCurrentChange = (val: number) => {
-            pageIndex.value = val
-            getDataList()
-            btnOKDisabled.value = true
-        }
-
         const handleChlSel = (chlId: string) => {
-            const rowData = getRowById(chlId)
+            const rowData = getRowById(chlId)!
             formData.value = cloneDeep(rowData)
             tableRef.value!.setCurrentRow(rowData)
             nameDisabled.value = rowData.disabled
             if (!rowData.supportDateFormat) nameDisabled.value = true
         }
 
+        /**
+         * @description 修改名称失去焦点时 判断名称是否规范
+         * @param {stirng} chlId
+         * @param {string} chlName
+         */
         const handleNameBlur = (chlId: string, chlName: string) => {
-            const rowData = getRowById(chlId)
+            const rowData = getRowById(chlId)!
             const name = chlName.trim()
             if (!checkChlName(name)) {
                 openMessageTipBox({
@@ -127,6 +125,10 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 行未被禁用时，点击行，切换该行
+         * @param {ChannelOsd} rowData
+         */
         const handleRowClick = (rowData: ChannelOsd) => {
             if (!rowData.disabled) {
                 selectedChlId.value = rowData.id
@@ -137,15 +139,19 @@ export default defineComponent({
             tableRef.value!.setCurrentRow(getRowById(selectedChlId.value))
         }
 
+        /**
+         * @description 回车时失去焦点
+         * @param {Event} event
+         */
         const handleKeydownEnter = (event: Event) => {
             ;(event.target as HTMLElement).blur()
         }
 
         const handleChangeSwitch = (flag: boolean, chlId: string, type: 'displayName' | 'displayTime' | 'remarkSwitch') => {
-            const rowData = getRowById(chlId)
+            const rowData = getRowById(chlId)!
             rowData[type] = flag
             formData.value = cloneDeep(rowData)
-            btnOKDisabled.value = false
+            // btnOKDisabled.value = false
             setOcxData(rowData)
             editRows.add(rowData)
         }
@@ -156,6 +162,7 @@ export default defineComponent({
                     ele[type] = flag
                     editRows.add(ele)
                 }
+
                 if (ele.id == selectedChlId.value) {
                     formData.value = cloneDeep(ele)
                     setOcxData(ele)
@@ -179,7 +186,7 @@ export default defineComponent({
                     })
                 }
             })
-            const rowData = getRowById(selectedChlId.value)
+            const rowData = getRowById(selectedChlId.value)!
             formData.value = cloneDeep(rowData)
             btnOKDisabled.value = false
             setOcxData(rowData)
@@ -192,25 +199,24 @@ export default defineComponent({
                 ele.timeFormat = val
                 editRows.add(ele)
             })
-            const rowData = getRowById(selectedChlId.value)
+            const rowData = getRowById(selectedChlId.value)!
             formData.value = cloneDeep(rowData)
             btnOKDisabled.value = false
             setOcxData(rowData)
         }
 
-        const handleRemarkNoteInput = (rowData: ChannelOsd) => {
-            const reg = /[^A-Za-z0-9]/g
-            if (reg.test(rowData.remarkNote)) rowData.remarkNote = rowData.remarkNote.replace(reg, '')
+        const handleRemarkNoteInput = (value: string) => {
+            return value.replace(/[^A-Za-z0-9]/g, '')
         }
 
         const handleRemarkNoteBlur = (val: string, chlId: string) => {
-            const rowData = getRowById(chlId)
+            const rowData = getRowById(chlId)!
             rowData.remarkNote = val
             formData.value.remarkNote = val
         }
 
         const handleInputChange = (chlId: string) => {
-            const rowData = getRowById(chlId)
+            const rowData = getRowById(chlId)!
             btnOKDisabled.value = false
             setOcxData(rowData)
             editRows.add(rowData)
@@ -231,13 +237,13 @@ export default defineComponent({
         }
 
         const getRowById = (chlId: string) => {
-            return tableData.value.find((element) => element.id == chlId) as ChannelOsd
+            return tableData.value.find((element) => element.id == chlId)
         }
 
-        const LiveNotify2Js = ($: (path: string) => XmlResult) => {
+        const LiveNotify2Js = ($: XMLQuery) => {
             //OSD位置改变
             if ($("statenotify[@type='OSDInfo']").length > 0) {
-                const preRowData = getRowById(selectedChlId.value)
+                const preRowData = getRowById(selectedChlId.value)!
                 if (osType == 'mac') {
                     // todo
                 } else {
@@ -250,54 +256,62 @@ export default defineComponent({
             }
         }
 
-        const getTimeEnabledData = (callback?: Function) => {
-            openLoading()
-            queryDevList('').then((res) => {
-                closeLoading()
-                const $ = queryXml(res)
-                if ($('status').text() == 'success') {
-                    const rowData: ChannelInfoDto[] = []
-                    $('content/item').forEach((ele) => {
-                        const eleXml = queryXml(ele.element)
-                        const newData = new ChannelInfoDto()
-                        newData.id = ele.attr('id')!
-                        newData.manufacturer = eleXml('manufacturer').text()
-                        rowData.push(newData)
-                    })
-                    rowData.forEach((ele: ChannelInfoDto) => {
-                        const channelOsd = getRowById(ele.id)
-                        if (channelOsd) channelOsd.manufacturer = ele.manufacturer
-                    })
-                }
-                if (callback) callback()
-            })
+        const getTimeEnabledData = async () => {
+            const res = await queryDevList('')
+            const $ = queryXml(res)
+            if ($('status').text() == 'success') {
+                $('content/item').forEach((ele) => {
+                    const eleXml = queryXml(ele.element)
+                    manufacturer[ele.attr('id')!] = eleXml('manufacturer').text()
+                })
+            }
         }
 
-        const getChlWaterMark = (chlId: string, callback?: Function) => {
+        /**
+         * @description 获取通道水印信息
+         * @param {string} chlId
+         */
+        const getChlWaterMark = async (chlId: string) => {
             const data = rawXml`
                 <condition>
                     <chlId>${chlId}</chlId>
-                </condition>`
-            queryChlWaterMark(data).then((res) => {
-                const $ = queryXml(res)
-                let flag = false
-                if ($('status').text() == 'success') {
-                    flag = true
-                    const channelOsd = getRowById(chlId)
-                    channelOsd.remarkSwitch = $('content/chl/watermark/switch').text().toBoolean()
-                    channelOsd.remarkNote = $('content/chl/watermark/value').text()
-                }
-                if (callback) callback(flag)
-            })
+                </condition>
+            `
+            const res = await queryChlWaterMark(data)
+            const $ = queryXml(res)
+            const channelOsd = getRowById(chlId)
+            if (!channelOsd) {
+                return
+            }
+
+            if ($('status').text() == 'success') {
+                channelOsd.remarkSwitch = $('content/chl/watermark/switch').text().toBoolean()
+                channelOsd.remarkNote = $('content/chl/watermark/value').text()
+                channelOsd.remarkDisabled = false
+            } else {
+                channelOsd.remarkDisabled = true
+            }
         }
 
-        const getData = (chlId: string) => {
+        /**
+         * @description 获取行OSD数据
+         * @param {string} chlId
+         * @returns {Promise<boolean>}
+         */
+        const getData = async (chlId: string) => {
             const data = rawXml`
                 <condition>
                     <chlId>${chlId}</chlId>
-                </condition>`
-            queryIPChlORChlOSD(data).then((res) => {
+                </condition>
+            `
+            try {
+                const res = await queryIPChlORChlOSD(data)
                 const $ = queryXml(res)
+                const channelOsd = getRowById(chlId)
+                if (!channelOsd) {
+                    return
+                }
+
                 if ($('status').text() == 'success') {
                     let isSpeco = false
                     // 时间枚举值
@@ -310,7 +324,6 @@ export default defineComponent({
                     $('types/dateFormat/enum').forEach((ele) => {
                         dateEnum.push(ele.text())
                     })
-                    const channelOsd = getRowById(chlId)
                     channelOsd.dateEnum = dateEnum
                     channelOsd.timeEnum = timeEnum
                     channelOsd.supportDateFormat = dateEnum.length > 0
@@ -339,94 +352,94 @@ export default defineComponent({
                     channelOsd.nameYMaxValue = Number($('content/chl/chlName/Y').attr('max')!)
 
                     channelOsd.disabled = isSpeco
-
-                    if (chlId == selectedChlId.value) {
-                        nameDisabled.value = channelOsd!.disabled
-                        getChlWaterMark(chlId, (flag: boolean) => {
-                            channelOsd!.remarkDisabled = !flag
-                            if (!flag) channelOsd!.remarkNote = ''
-                            formData.value = cloneDeep(channelOsd!)
-                            setOcxData(channelOsd)
-                        })
-                    } else {
-                        getChlWaterMark(chlId, (flag: boolean) => {
-                            channelOsd!.remarkDisabled = !flag
-                            if (!flag) channelOsd!.remarkNote = ''
-                        })
-                    }
+                    return
                 } else {
                     // 处理请求配置信息失败通道（离线）
-                    const channelOsd = getRowById(chlId)
-                    channelOsd!.status = ''
-                    channelOsd!.remarkNote = ''
-                    if (chlId == selectedChlId.value) {
-                        formData.value = cloneDeep(channelOsd!)
-                        nameDisabled.value = true
-                    }
+                    channelOsd.status = ''
                 }
-            })
+            } catch {
+                const channelOsd = getRowById(chlId)
+                if (!channelOsd) {
+                    return
+                }
+                channelOsd.status = ''
+            }
+            return
         }
 
-        const getDataList = () => {
+        const getDataList = async () => {
+            btnOKDisabled.value = true
+            editRows.clear()
+            nameMapping = {}
             openLoading()
-            getChlList({
+
+            const res = await getChlList({
                 pageIndex: pageIndex.value,
                 pageSize: pageSize.value,
                 isSupportOsd: true,
                 requireField: ['ip'],
-            }).then((res) => {
-                closeLoading()
-                const $ = queryXml(res)
-                if ($('status').text() == 'success') {
-                    editRows.clear()
-                    nameMapping = {}
-                    tableData.value = $('content/item').map((ele) => {
-                        const eleXml = queryXml(ele.element)
-                        const newData = new ChannelOsd()
-                        newData.id = ele.attr('id')!
-                        newData.name = eleXml('name').text()
-                        newData.ip = eleXml('ip').text()
-                        newData.chlIndex = eleXml('chlIndex').text()
-                        newData.chlType = eleXml('chlType').text()
-                        newData.status = 'loading'
-                        nameMapping[newData.id] = newData.name
-                        return newData
-                    })
-                    pageTotal.value = Number($('content').attr('total')!)
-                    if (tableData.value.length) {
-                        selectedChlId.value = tableData.value[0].id
-                        tableRef.value!.setCurrentRow(tableData.value[0])
-                        formData.value = cloneDeep(tableData.value[0])
-                        chlList.value = cloneDeep(tableData.value)
-                        getTimeEnabledData(() => {
-                            tableData.value.forEach((ele) => {
-                                if (ele.chlType != 'recorder') {
-                                    getData(ele.id)
-                                } else {
-                                    // 通过cms添加的通道会走这里
-                                    ele.disabled = false
-                                    ele.status = ''
-                                    ele.displayNameDisabled = true // todo table cell置空
-                                    ele.displayTimeDisabled = true
-                                    // 置灰水印信息
-                                    ele.remarkDisabled = true
-                                    ele.remarkNote = ''
-
-                                    if (ele.id == selectedChlId.value) formData.value = cloneDeep(ele)
-                                }
-                            })
-                        })
-                    }
-                } else {
-                    selectedChlId.value = ''
-                }
             })
+            const $ = queryXml(res)
+
+            closeLoading()
+
+            if ($('status').text() == 'success') {
+                tableData.value = $('content/item').map((ele) => {
+                    const eleXml = queryXml(ele.element)
+                    const newData = new ChannelOsd()
+                    newData.id = ele.attr('id')!
+                    newData.name = eleXml('name').text()
+                    newData.ip = eleXml('ip').text()
+                    newData.chlIndex = eleXml('chlIndex').text()
+                    newData.chlType = eleXml('chlType').text()
+                    newData.status = 'loading'
+                    nameMapping[newData.id] = newData.name
+                    return newData
+                })
+                pageTotal.value = Number($('content').attr('total')!)
+            } else {
+                tableData.value = []
+                selectedChlId.value = ''
+            }
+
+            for (let i = 0; i < tableData.value.length; i++) {
+                const ele = tableData.value[i]
+
+                if (manufacturer[ele.id]) {
+                    ele.manufacturer = manufacturer[ele.id]
+                }
+
+                if (ele.chlType !== 'recorder') {
+                    await getData(ele.id)
+                    await getChlWaterMark(ele.id)
+                } else {
+                    // 通过cms添加的通道会走这里
+                    ele.disabled = false
+                    ele.status = ''
+                    ele.displayNameDisabled = true // todo table cell置空
+                    ele.displayTimeDisabled = true
+                    // 置灰水印信息
+                    ele.remarkDisabled = true
+                    ele.remarkNote = ''
+                }
+
+                if (!getRowById(ele.id)) {
+                    break
+                }
+
+                if (i === 0) {
+                    selectedChlId.value = tableData.value[0].id
+                    tableRef.value!.setCurrentRow(tableData.value[0])
+                    formData.value = cloneDeep(tableData.value[0])
+                    chlList.value = cloneDeep(tableData.value)
+                }
+            }
         }
 
         const setData = async () => {
-            tableData.value.forEach((ele) => (ele.status = ''))
-            btnOKDisabled.value = true
             if (editRows.size === 0) return
+
+            tableData.value.forEach((ele) => (ele.status = ''))
 
             openLoading()
 
@@ -440,19 +453,23 @@ export default defineComponent({
                             continue
                         }
 
-                        const flag = await setDevice(rowData)
-                        if (!flag) continue
+                        const flagSetDevice = await setDevice(rowData)
+                        if (!flagSetDevice) continue
 
                         if (rowData.manufacturer == 'TVT') {
                             await setChlWaterMark(rowData)
                         }
 
+                        let flagSetOSD = true
                         if (rowData.chlType !== 'recorder') {
-                            await setIPChlORChlOSD(rowData)
+                            flagSetOSD = await setIPChlORChlOSD(rowData)
                         }
 
-                        nameMapping[rowData.id] = rowData.name
-                        rowData.status = 'success'
+                        if (flagSetDevice && flagSetOSD) {
+                            editRows.delete(rowData)
+                            nameMapping[rowData.id] = rowData.name
+                            rowData.status = 'success'
+                        }
                     } catch {
                         rowData.status = 'error'
                         continue
@@ -461,7 +478,9 @@ export default defineComponent({
             }
 
             closeLoading()
-            editRows.clear()
+            if (!editRows.size) {
+                btnOKDisabled.value = true
+            }
         }
 
         const setDevice = async (rowData: ChannelOsd) => {
@@ -526,10 +545,11 @@ export default defineComponent({
             `
             const res = await editIPChlORChlOSD(sendXml)
             const $ = queryXml(res)
-            if ($('status').text() == 'success') {
-                if (rowData.name == nameMapping[rowData.id]) {
-                    rowData.status = 'success'
-                }
+            if ($('status').text() === 'success') {
+                // if (rowData.name === nameMapping[rowData.id]) {
+                //     rowData.status = 'success'
+                // }
+                return true
             } else {
                 let errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
                 if (Number($('errorCode').text()) == ErrorCode.USER_ERROR__CANNOT_FIND_NODE_ERROR) {
@@ -537,6 +557,7 @@ export default defineComponent({
                 }
                 rowData.status = 'error'
                 rowData.statusTip = errorInfo
+                return false
             }
         }
 
@@ -593,6 +614,7 @@ export default defineComponent({
                     plugin.SetPluginNotice('#layout2Content')
                     return
                 }
+
                 if (!plugin.IsPluginAvailable()) {
                     plugin.SetPluginNoResponse()
                     plugin.ShowPluginNoResponse()
@@ -608,7 +630,7 @@ export default defineComponent({
         }
 
         const handleOSDChange = (nameCfg: CanvasOSDOptionNameConfig, timeCfg: CanvasOSDOptionTimeConfig) => {
-            const preRowData = getRowById(selectedChlId.value)
+            const preRowData = getRowById(selectedChlId.value)!
             preRowData.timeX = timeCfg.X
             preRowData.timeY = timeCfg.Y
             preRowData.nameX = nameCfg.X
@@ -622,7 +644,7 @@ export default defineComponent({
         const play = () => {
             if (!selectedChlId.value) return
             if (!ready.value) return
-            const channelOsd = getRowById(selectedChlId.value)
+            const channelOsd = getRowById(selectedChlId.value)!
             if (mode.value === 'h5') {
                 player.play({
                     chlID: channelOsd.id,
@@ -711,11 +733,12 @@ export default defineComponent({
 
         watch(selectedChlId, play)
 
-        onMounted(() => {
+        onMounted(async () => {
             formData.value.remarkDisabled = false
             formData.value.supportTimeFormat = true
             formData.value.supportDateFormat = true
-            getDataList()
+            await getTimeEnabledData()
+            await getDataList()
         })
 
         onBeforeUnmount(() => {
@@ -749,8 +772,6 @@ export default defineComponent({
             dateFormatTip,
             dateFormatOptions,
             timeFormatTip,
-            handleSizeChange,
-            handleCurrentChange,
             handleRowClick,
             handleChlSel,
             handleNameBlur,
@@ -766,6 +787,7 @@ export default defineComponent({
             onReady,
             onTime,
             switchOptions,
+            getDataList,
         }
     },
 })

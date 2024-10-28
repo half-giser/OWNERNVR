@@ -1,12 +1,12 @@
 /*
  * @Author: yejiahao yejiahao@tvt.net.cn
- * @Date: 2024-08-23 10:36:12
- * @Description: 云台-协议
+ * @Date: 2024-10-23 14:11:24
+ * @Description: LOGO设置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 18:31:12
+ * @LastEditTime: 2024-10-25 18:35:05
  */
+import { ChannelLogoSetDto } from '@/types/apiType/channel'
 import { type TableInstance } from 'element-plus'
-import { ChannelPtzProtocolDto } from '@/types/apiType/channel'
 
 export default defineComponent({
     setup() {
@@ -16,18 +16,16 @@ export default defineComponent({
 
         const pageData = ref({
             notification: [] as string[],
-            // 云台选项
-            ptzOptions: getBoolSwitchOptions(),
-            // 云台索引
+            // 选中行索引
             tableIndex: 0,
+            switchOptions: getSwitchOptions(),
             pageIndex: 1,
             pageSize: 10,
             total: 10,
-            keyword: '',
         })
 
         const tableRef = ref<TableInstance>()
-        const tableData = ref<ChannelPtzProtocolDto[]>([])
+        const tableData = ref<ChannelLogoSetDto[]>([])
 
         // 编辑行索引
         const editRows = ref(new Set<number>())
@@ -93,72 +91,31 @@ export default defineComponent({
         }
 
         /**
-         * @description 修改所有行云台选项
-         * @param {boolean} bool
-         */
-        const changeAllPtz = (bool: boolean) => {
-            tableData.value.forEach((item, index) => {
-                if (!item.disabled) {
-                    item.ptz = bool
-                    addEditRow(index)
-                }
-            })
-        }
-
-        /**
          * @description 播放视频
          */
         const play = () => {
-            const { chlId, chlName } = tableData.value[pageData.value.tableIndex]
+            const row = tableData.value[pageData.value.tableIndex]
             if (mode.value === 'h5') {
                 player.play({
-                    chlID: chlId,
+                    chlID: row.chlId,
                     streamType: 2,
                 })
             } else if (mode.value === 'ocx') {
-                plugin.RetryStartChlView(chlId, chlName)
+                plugin.RetryStartChlView(row.chlId, row.chlName)
+                const sendXML = OCX_XML_SetLogoInfo({
+                    switch: row.switch === 'true' ? 'ON' : 'OFF',
+                    opacity: row.opacity,
+                    x: row.X,
+                    y: row.Y,
+                    minOpacity: row.minOpacity,
+                    maxOpacity: row.maxOpacity,
+                    minX: row.minX,
+                    minY: row.minY,
+                    maxX: row.maxX,
+                    maxY: row.maxY,
+                })
+                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
-        }
-
-        /**
-         * @description 保存编辑行数据
-         */
-        const setData = async () => {
-            openLoading()
-
-            for (let i = 0; i < tableData.value.length; i++) {
-                if (editRows.value.has(i)) {
-                    const item = tableData.value[i]
-                    // const row = tableData.value[editsIndex[i]]
-                    const sendXml = rawXml`
-                        <types>
-                            <baudRate>${wrapEnums(item.baudRateOptions)}</baudRate>
-                            <protocol>${wrapEnums(item.protocolOptions)}</protocol>
-                        </types>
-                        <content>
-                            <chl id="${item.chlId}">
-                                <baudRate type="baudRate">${item.baudRate}</baudRate>
-                                <protocol type="protocol">${item.protocol}</protocol>
-                                <address min="${item.addressMin.toString()}" max="${item.addressMax.toString()}">${item.address.toString()}</address>
-                                <ptz>${item.ptz.toString()}</ptz>
-                            </chl>
-                        </content>
-                    `
-                    try {
-                        const result = await editPtzProtocol(sendXml)
-                        const $ = queryXml(result)
-                        if ($('//status').text() === 'success') {
-                            item.status = 'success'
-                            editRows.value.delete(i)
-                        } else {
-                            item.status = 'error'
-                        }
-                    } catch {
-                        item.status = 'error'
-                    }
-                }
-            }
-            closeLoading()
         }
 
         /**
@@ -194,7 +151,6 @@ export default defineComponent({
             const result = await getChlList({
                 pageIndex: pageData.value.pageIndex,
                 pageSize: pageData.value.pageSize,
-                chlName: pageData.value.keyword,
                 chlType: 'analog',
             })
             const $ = queryXml(result)
@@ -204,7 +160,7 @@ export default defineComponent({
             if ($('//status').text() === 'success') {
                 tableData.value = $('//content/item').map((item) => {
                     const $item = queryXml(item.element)
-                    const rowData = new ChannelPtzProtocolDto()
+                    const rowData = new ChannelLogoSetDto()
                     rowData.disabled = true
                     rowData.status = 'loading'
                     rowData.chlId = item.attr('id')!
@@ -229,27 +185,19 @@ export default defineComponent({
                         <chlId>${chlId}</chlId>
                     </condition>
                 `
-                const result = await queryPtzProtocol(sendXml)
+                const result = await queryIPChlORChlLogo(sendXml)
                 const $ = queryXml(result)
-                if ($('//status').text() === 'success') {
-                    item.baudRate = $('//content/chl/baudRate').text()
-                    item.protocol = $('//content/chl/protocol').text()
-                    item.address = Number($('//content/chl/address').text())
-                    item.addressMin = Number($('//content/chl/address').attr('min')!)
-                    item.addressMax = Number($('//content/chl/address').attr('max')!)
-                    item.ptz = $('//content/chl/ptz').text().toBoolean()
-                    item.baudRateOptions = $('//types/baudRate/enum').map((item) => {
-                        return {
-                            value: item.text(),
-                            label: item.text(),
-                        }
-                    })
-                    item.protocolOptions = $('//types/protocol/enum').map((item) => {
-                        return {
-                            value: item.text(),
-                            label: item.text(),
-                        }
-                    })
+                if ($('status').text() === 'success') {
+                    item.switch = $('content/chl/logo/switch').text().toBoolean().toString()
+                    item.opacity = Number($('content/chl/logo/opacity').text())
+                    item.minOpacity = Number($('content/chl/logo/opacity').attr('min'))
+                    item.maxOpacity = Number($('content/chl/logo/opacity').attr('max'))
+                    item.X = Number($('content/chl/logo/X').text())
+                    item.Y = Number($('content/chl/logo/Y').text())
+                    item.minX = Number($('content/chl/logo/X').attr('min'))
+                    item.maxX = Number($('content/chl/logo/X').attr('max'))
+                    item.minY = Number($('content/chl/logo/Y').attr('min'))
+                    item.maxY = Number($('content/chl/logo/Y').attr('max'))
                     item.disabled = false
                 } else {
                     item.disabled = true
@@ -262,10 +210,63 @@ export default defineComponent({
         }
 
         /**
+         * @description 提交编辑行的数据
+         */
+        const setData = async () => {
+            openLoading()
+
+            for (let i = 0; i < tableData.value.length; i++) {
+                if (editRows.value.has(i)) {
+                    const item = tableData.value[i]
+                    const sendXml = rawXml`
+                        <content>
+                            <chl id="${item.chlId}">
+                                <name>${item.chlName}</name>
+                                <logo>
+                                    <switch>${item.switch}</switch>
+                                    <opacity min="${item.minOpacity.toString()}" max="${item.maxOpacity.toString()}">${item.opacity.toString()}</opacity>
+                                    <X min="${item.minX.toString()}" max="${item.maxX.toString()}">${item.X.toString()}</X>
+                                    <Y min="${item.minY.toString()}" max="${item.maxY.toString()}">${item.Y.toString()}</Y>
+                                </logo>
+                            </chl>
+                        </content>
+                    `
+                    try {
+                        const result = await editIPChlORChlLogo(sendXml)
+                        const $ = queryXml(result)
+                        if ($('//status').text() === 'success') {
+                            item.status = 'success'
+                            editRows.value.delete(i)
+                        } else {
+                            item.status = 'error'
+                        }
+                    } catch {
+                        item.status = 'error'
+                    }
+                }
+            }
+
+            closeLoading()
+        }
+
+        /**
          * @description 修改通道选项
          */
         const changeChl = () => {
             tableRef.value?.setCurrentRow(tableData.value[pageData.value.tableIndex])
+        }
+
+        /**
+         * @description 更改所有开关
+         * @param {string} value
+         */
+        const changeAllSwitch = (value: string) => {
+            tableData.value.forEach((item, index) => {
+                if (!item.disabled) {
+                    item.switch = value
+                    addEditRow(index)
+                }
+            })
         }
 
         /**
@@ -277,23 +278,18 @@ export default defineComponent({
 
         /**
          * @description 点击表格项回调
-         * @param {ChannelPtzProtocolDto} row
+         * @param {ChannelLogoSetDto} row
          */
-        const handleRowClick = (row: ChannelPtzProtocolDto) => {
+        const handleRowClick = (row: ChannelLogoSetDto) => {
             const index = tableData.value.findIndex((item) => item.chlId === row.chlId)
-            if (index !== pageData.value.tableIndex) {
+            if (!row.disabled) {
                 pageData.value.tableIndex = index
             }
+            tableRef.value!.setCurrentRow(tableData.value[pageData.value.tableIndex])
         }
 
-        /**
-         * @description 处理右上角搜索通道
-         * @param {ConfigToolBarEvent<SearchToolBarEvent>} toolBarEvent
-         */
-        const handleToolBarEvent = (toolBarEvent: ConfigToolBarEvent<SearchToolBarEvent>) => {
-            pageData.value.keyword = toolBarEvent.data.searchText
-            pageData.value.pageIndex = 1
-            getData()
+        const handleKeydownEnter = (e: KeyboardEvent) => {
+            ;(e.target as HTMLInputElement).blur()
         }
 
         // 首次加载成功 播放视频
@@ -315,6 +311,13 @@ export default defineComponent({
             getData()
         })
 
+        onBeforeUnmount(() => {
+            if (plugin?.IsPluginAvailable() && mode.value === 'ocx' && ready.value) {
+                const sendXML = OCX_XML_StopPreview('ALL')
+                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+            }
+        })
+
         return {
             playerRef,
             handlePlayerReady,
@@ -324,8 +327,8 @@ export default defineComponent({
             setData,
             getData,
             handleRowClick,
-            changeAllPtz,
-            handleToolBarEvent,
+            changeAllSwitch,
+            handleKeydownEnter,
             editRows,
             addEditRow,
         }
