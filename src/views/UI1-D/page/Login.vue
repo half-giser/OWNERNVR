@@ -34,7 +34,6 @@
         <div class="login-content">
             <el-form
                 ref="formRef"
-                label-position="left"
                 :rules="rules"
                 :model="formData"
             >
@@ -66,8 +65,8 @@
                         :key="item.value"
                         size="large"
                         :value="item.value"
-                        >{{ Translate(item.label) }}</el-radio
-                    >
+                        :label="Translate(item.label)"
+                    />
                 </el-radio-group>
                 <div
                     class="login-btns"

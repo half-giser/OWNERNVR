@@ -9,14 +9,11 @@
     <el-dialog
         :title="Translate('IDCS_CHANGE_USER_INFO')"
         width="600"
-        align-center
-        draggable
         @open="handleOpen"
     >
         <el-form
             ref="formRef"
             class="form stripe"
-            label-position="left"
             :rules
             :model="formData"
             :class="{
@@ -29,8 +26,8 @@
                 <el-checkbox
                     v-model="formData.enabled"
                     :disabled="pageData.isEnableDisabled"
-                    >{{ Translate('IDCS_ENABLE') }}</el-checkbox
-                >
+                    :label="Translate('IDCS_ENABLE')"
+                />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_USERNAME')">
                 <el-input
@@ -44,10 +41,10 @@
                 <el-checkbox
                     v-model="formData.authEffective"
                     :disabled="pageData.isAuthEffectiveDisabled"
-                ></el-checkbox>
+                />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_ALLOW_CHANGE_PWD')">
-                <el-checkbox v-model="formData.allowModifyPassword"></el-checkbox>
+                <el-checkbox v-model="formData.allowModifyPassword" />
             </el-form-item>
             <el-form-item
                 prop="email"

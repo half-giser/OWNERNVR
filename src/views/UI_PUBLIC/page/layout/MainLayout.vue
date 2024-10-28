@@ -34,10 +34,7 @@
                                 v-text="Translate('IDCS_PLUGIN_DOWNLOAD')"
                             ></span>
                         </span>
-                        <el-tooltip
-                            :content="Translate('IDCS_PLUGIN_DOWNLOAD_INSTRUCTIONS')"
-                            :show-after="500"
-                        >
+                        <el-tooltip :content="Translate('IDCS_PLUGIN_DOWNLOAD_INSTRUCTIONS')">
                             <BaseImgSprite
                                 class="icon_aq"
                                 file="aq"

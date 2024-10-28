@@ -9,11 +9,7 @@
     <div>
         <el-popover
             v-model:visible="pageData.isPop"
-            placement="bottom"
             width="400"
-            trigger="click"
-            :show-after="0"
-            :hide-after="0"
         >
             <template #reference>
                 <div class="base-intel-placeholder">

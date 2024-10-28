@@ -9,12 +9,9 @@
     <el-dialog
         :title="Translate('IDCS_BACKUP')"
         :width="500"
-        align-center
-        draggable
     >
         <el-form
             ref="formRef"
-            label-position="left"
             :model="formData"
             :style="{
                 '--form-label-width': '100px',

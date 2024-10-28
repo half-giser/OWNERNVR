@@ -43,8 +43,6 @@ export default defineComponent({
             editPlateData: new IntelPlateDBPlateInfo(),
             // 编辑车牌/新增车牌 add | edit
             editPlateType: 'add',
-            // 页码带下选项
-            pageSizes: [15, 20, 30],
             // 是否显示导出弹窗
             isExportPop: false,
             // 组ID与组名称的映射
@@ -491,7 +489,6 @@ export default defineComponent({
             handleNameFocus,
             searchPlate,
             handleVehicleRecognition,
-            DefaultPagerLayout,
             IntelLicencePlateDBEditPop,
             IntelLicencePlateDBExportPop,
             IntelLicencePlateDBAddPlatePop,

@@ -137,7 +137,7 @@ export default defineComponent({
                 return {
                     name: split[dataIndexMap.name] || '',
                     sex: split[dataIndexMap.sex] ? SEX_MAPPING[Number(split[dataIndexMap.sex || 10000])] : 'male',
-                    // TODO: 日期兼容哪些格式？
+                    // 目前仅支持YYYY/MM/DD
                     birthday: split[dataIndexMap.birthday || 10000] || DEFAULT_BIRTHDAY,
                     certificateType: 'idCard', // 目前只有身份证
                     certificateNum: split[dataIndexMap.certificateNum] || '',

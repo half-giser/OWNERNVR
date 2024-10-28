@@ -463,7 +463,6 @@ export default defineComponent({
             daysInRange,
             pickerRange,
             displayIndex,
-            DefaultPagerLayout,
             displayStatus,
             tableData,
             searchData,

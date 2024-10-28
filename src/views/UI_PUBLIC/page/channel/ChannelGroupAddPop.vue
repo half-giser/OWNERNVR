@@ -9,8 +9,6 @@
     <el-dialog
         :title="Translate('IDCS_ADD_GROUP')"
         width="800"
-        align-center
-        draggable
     >
         <ChannelGroupAdd
             dialog

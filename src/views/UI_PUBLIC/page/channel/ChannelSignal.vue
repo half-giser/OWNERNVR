@@ -11,7 +11,6 @@
                 border
                 stripe
                 :data="tableData"
-                table-layout="fixed"
                 show-overflow-tooltip
                 highlight-current-row
             >
@@ -62,7 +61,7 @@
                     min-width="220"
                 >
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_SIGNAL') }}
                             </BaseTableDropdownLink>
@@ -102,7 +101,7 @@
                     min-width="220"
                 >
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_SUPPORT_LITE') }}
                             </BaseTableDropdownLink>

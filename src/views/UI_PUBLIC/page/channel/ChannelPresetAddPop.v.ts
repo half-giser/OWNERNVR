@@ -58,7 +58,7 @@ export default defineComponent({
         const formRule = ref<FormRules>({
             name: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
                             return
@@ -85,7 +85,7 @@ export default defineComponent({
             const presetsIndex = prop.presets.map((item) => item.index)
             pageData.value.presetOptions = Array(prop.max)
                 .fill(0)
-                .map((item, index) => {
+                .map((_, index) => {
                     return index + 1
                 })
                 .filter((item) => {

@@ -17,7 +17,6 @@
             </div>
             <el-form
                 ref="formRef"
-                label-position="left"
                 :style="{
                     '--form-label-width': '100px',
                 }"
@@ -137,7 +136,7 @@
                                     prop="enable"
                                 >
                                     <template #header>
-                                        <el-dropdown trigger="click">
+                                        <el-dropdown>
                                             <BaseTableDropdownLink>
                                                 {{ Translate('IDCS_ENABLE') }}
                                             </BaseTableDropdownLink>
@@ -173,7 +172,7 @@
                                 </el-table-column>
                                 <el-table-column>
                                     <template #header>
-                                        <el-dropdown trigger="click">
+                                        <el-dropdown>
                                             <BaseTableDropdownLink>
                                                 {{ Translate('IDCS_OPERATION') }}
                                             </BaseTableDropdownLink>

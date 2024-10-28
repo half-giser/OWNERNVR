@@ -46,7 +46,7 @@ export default defineComponent({
         const rules = ref<FormRules>({
             diskId: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (!value) {
                             callback(new Error(Translate('IDCS_NO_DISK_TO_REBUILD')))
                             return

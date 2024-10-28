@@ -12,7 +12,6 @@
             :style="{
                 '--form-input-width': '430px',
             }"
-            label-position="left"
             inline-message
         >
             <el-form-item

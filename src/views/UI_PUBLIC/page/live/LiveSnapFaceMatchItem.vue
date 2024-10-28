@@ -17,10 +17,7 @@
             >
                 <img :src="displayBase64Img(data.snap_pic)" />
                 <div class="item-menu">
-                    <el-tooltip
-                        :content="Translate('IDCS_REGISTER')"
-                        :show-after="500"
-                    >
+                    <el-tooltip :content="Translate('IDCS_REGISTER')">
                         <BaseImgSprite
                             file="live_add"
                             :index="0"
@@ -29,10 +26,7 @@
                             @click.stop="$emit('add')"
                         />
                     </el-tooltip>
-                    <el-tooltip
-                        :content="Translate('IDCS_SEARCH')"
-                        :show-after="500"
-                    >
+                    <el-tooltip :content="Translate('IDCS_SEARCH')">
                         <BaseImgSprite
                             file="live_search"
                             :index="0"
@@ -41,10 +35,7 @@
                             @click.stop="$emit('search', '')"
                         />
                     </el-tooltip>
-                    <el-tooltip
-                        :content="Translate('IDCS_REPLAY')"
-                        :show-after="500"
-                    >
+                    <el-tooltip :content="Translate('IDCS_REPLAY')">
                         <BaseImgSprite
                             file="live_play"
                             :index="0"
@@ -53,10 +44,7 @@
                             @click="$emit('playRec')"
                         />
                     </el-tooltip>
-                    <el-tooltip
-                        :content="Translate('IDCS_MORE')"
-                        :show-after="500"
-                    >
+                    <el-tooltip :content="Translate('IDCS_MORE')">
                         <BaseImgSprite
                             file="live_more"
                             :index="0"
@@ -73,10 +61,7 @@
             >
                 <img :src="displayBase64Img(data.repo_pic)" />
                 <div class="item-menu">
-                    <el-tooltip
-                        :content="Translate('IDCS_SEARCH')"
-                        :show-after="500"
-                    >
+                    <el-tooltip :content="Translate('IDCS_SEARCH')">
                         <BaseImgSprite
                             file="live_search"
                             :index="0"
@@ -85,10 +70,7 @@
                             @click.stop="$emit('search', 'face')"
                         />
                     </el-tooltip>
-                    <el-tooltip
-                        :content="Translate('IDCS_REPLAY')"
-                        :show-after="500"
-                    >
+                    <el-tooltip :content="Translate('IDCS_REPLAY')">
                         <BaseImgSprite
                             file="live_play"
                             :index="0"
@@ -97,10 +79,7 @@
                             @click.stop="$emit('playRec')"
                         />
                     </el-tooltip>
-                    <el-tooltip
-                        :content="Translate('IDCS_MORE')"
-                        :show-after="500"
-                    >
+                    <el-tooltip :content="Translate('IDCS_MORE')">
                         <BaseImgSprite
                             file="live_more"
                             :index="0"

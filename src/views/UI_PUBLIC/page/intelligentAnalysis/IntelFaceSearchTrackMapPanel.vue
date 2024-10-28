@@ -60,10 +60,7 @@
         <div class="control">
             <div class="control-btns">
                 <!-- 停止播放 -->
-                <el-tooltip
-                    :content="Translate('IDCS_STOP')"
-                    :show-after="500"
-                >
+                <el-tooltip :content="Translate('IDCS_STOP')">
                     <BaseImgSprite
                         file="stop (3)"
                         :index="0"
@@ -75,10 +72,7 @@
                     />
                 </el-tooltip>
                 <!-- 暂停播放 -->
-                <el-tooltip
-                    :content="Translate('IDCS_PAUSE')"
-                    :show-after="500"
-                >
+                <el-tooltip :content="Translate('IDCS_PAUSE')">
                     <BaseImgSprite
                         v-show="pageData.playStatus === 'play'"
                         file="pause"
@@ -90,10 +84,7 @@
                     />
                 </el-tooltip>
                 <!-- 播放 -->
-                <el-tooltip
-                    :content="Translate('IDCS_PLAY_FORWARD')"
-                    :show-after="500"
-                >
+                <el-tooltip :content="Translate('IDCS_PLAY_FORWARD')">
                     <BaseImgSprite
                         v-show="pageData.playStatus !== 'play'"
                         file="fwPlay"
@@ -105,10 +96,7 @@
                     />
                 </el-tooltip>
                 <!-- 上一个 -->
-                <el-tooltip
-                    :content="Translate('IDCS_PREVIOUS')"
-                    :show-after="500"
-                >
+                <el-tooltip :content="Translate('IDCS_PREVIOUS')">
                     <BaseImgSprite
                         file="preFrame"
                         :index="0"
@@ -120,10 +108,7 @@
                     />
                 </el-tooltip>
                 <!-- 下一个 -->
-                <el-tooltip
-                    :content="Translate('IDCS_NEXT')"
-                    :show-after="500"
-                >
+                <el-tooltip :content="Translate('IDCS_NEXT')">
                     <BaseImgSprite
                         file="nextFrame"
                         :index="0"
@@ -135,10 +120,7 @@
                     />
                 </el-tooltip>
                 <!-- 轨迹播放 -->
-                <el-tooltip
-                    :content="Translate('IDCS_TRACK_PLAY')"
-                    :show-after="500"
-                >
+                <el-tooltip :content="Translate('IDCS_TRACK_PLAY')">
                     <BaseImgSprite
                         v-show="pageData.trackStatus === 'stop'"
                         file="start_track"
@@ -149,10 +131,7 @@
                     />
                 </el-tooltip>
                 <!-- 停止轨迹播放 -->
-                <el-tooltip
-                    :content="Translate('IDCS_TRACK_STOP')"
-                    :show-after="500"
-                >
+                <el-tooltip :content="Translate('IDCS_TRACK_STOP')">
                     <BaseImgSprite
                         v-show="pageData.trackStatus === 'play'"
                         file="stop_track"
@@ -162,10 +141,7 @@
                         @click="stopTrack"
                     />
                 </el-tooltip>
-                <el-tooltip
-                    :content="Translate('IDCS_EDIT_COLOR')"
-                    :show-after="500"
-                >
+                <el-tooltip :content="Translate('IDCS_EDIT_COLOR')">
                     <BaseImgSprite
                         file="track_color_edit"
                         :index="0"
@@ -179,9 +155,9 @@
                 <el-checkbox
                     v-model="pageData.isEdit"
                     :disabled="pageData.playStatus !== 'stop' || pageData.trackStatus !== 'stop'"
+                    :label="Translate('IDCS_EDIT_MAP')"
                     @change="changeEditMap"
-                    >{{ Translate('IDCS_EDIT_MAP') }}</el-checkbox
-                >
+                />
                 <el-button
                     :disabled="pageData.playStatus !== 'stop' || pageData.trackStatus !== 'stop'"
                     @click="pageData.isChlPop = true"

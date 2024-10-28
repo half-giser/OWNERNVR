@@ -3,7 +3,7 @@
  * @Date: 2024-08-21 15:34:24
  * @Description: 前端掉线
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 17:59:55
+ * @LastEditTime: 2024-10-28 09:36:49
  */
 import { cloneDeep } from 'lodash-es'
 import { MotionEventConfig, type PresetItem } from '@/types/apiType/aiAndEvent'
@@ -26,10 +26,9 @@ export default defineComponent({
             pageIndex: 1,
             pageSize: 10,
             totalCount: 0,
-            pageDataCountItems: [10, 20, 30],
             enableList: getSwitchOptions(),
             supportAudio: false,
-            // TODO 未传值
+            // 未传值
             // supportFTP: false,
             audioList: [] as SelectOption<string, string>[],
             // 打开穿梭框时选择行的索引
@@ -37,9 +36,6 @@ export default defineComponent({
 
             // snap穿梭框数据源
             snapList: [] as SelectOption<string, string>[],
-            snapHeaderTitle: 'IDCS_TRIGGER_CHANNEL_SNAP',
-            snapSourceTitle: 'IDCS_CHANNEL',
-            snapTargetTitle: 'IDCS_CHANNEL_TRGGER',
             // 表头选中id
             snapChosedIdsAll: [] as string[],
             // 表头选中的数据
@@ -49,9 +45,6 @@ export default defineComponent({
 
             // alarmOut穿梭框数据源
             alarmOutList: [] as { value: string; label: string; device: { value: string; label: string } }[],
-            alarmOutHeaderTitle: 'IDCS_TRIGGER_ALARM_OUT',
-            alarmOutSourceTitle: 'IDCS_ALARM_OUT',
-            alarmOutTargetTitle: 'IDCS_TRIGGER_ALARM_OUT',
             // 表头选中id
             alarmOutChosedIdsAll: [] as string[],
             // 表头选中的数据
@@ -458,7 +451,7 @@ export default defineComponent({
                 }
             })
         }
-        // ftpSnap 未传值 TODO
+        // ftpSnap 未传值
         // const handleFtpSnapChangeAll = (ftpSnap: string) => {
         //     tableData.value.forEach((item) => {
         //         if (!item.rowDisable) {

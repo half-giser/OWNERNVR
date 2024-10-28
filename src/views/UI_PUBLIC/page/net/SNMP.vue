@@ -17,13 +17,18 @@
             class="stripe"
             :rules="formRule"
             :model="formData"
-            label-position="left"
         >
             <el-form-item>
-                <el-checkbox v-model="formData.snmpv1Switch">{{ Translate('IDCS_ENABLE_SNMP_V1') }}</el-checkbox>
+                <el-checkbox
+                    v-model="formData.snmpv1Switch"
+                    :label="Translate('IDCS_ENABLE_SNMP_V1')"
+                />
             </el-form-item>
             <el-form-item>
-                <el-checkbox v-model="formData.snmpv2Switch">{{ Translate('IDCS_ENABLE_SNMP_V2') }}</el-checkbox>
+                <el-checkbox
+                    v-model="formData.snmpv2Switch"
+                    :label="Translate('IDCS_ENABLE_SNMP_V2')"
+                />
             </el-form-item>
             <el-form-item
                 :label="Translate('IDCS_SNMP_PORT')"
@@ -34,7 +39,6 @@
                     :disabled
                     :min="10"
                     :max="65535"
-                    value-on-clear="min"
                 />
             </el-form-item>
             <el-form-item
@@ -81,7 +85,6 @@
                     :disabled
                     :min="10"
                     :max="65535"
-                    value-on-clear="min"
                 />
             </el-form-item>
             <div class="base-btn-box">

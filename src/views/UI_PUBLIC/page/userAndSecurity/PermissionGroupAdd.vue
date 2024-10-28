@@ -10,7 +10,6 @@
         <el-form
             ref="formRef"
             class="form"
-            label-position="left"
             :rules
             :model="formData"
             :style="{
@@ -46,7 +45,10 @@
                         v-show="!authItem.hidden"
                         :key="authItem.key"
                     >
-                        <el-checkbox v-model="authItem.value">{{ Translate(authItem.key) }}</el-checkbox>
+                        <el-checkbox
+                            v-model="authItem.value"
+                            :label="Translate(authItem.key)"
+                        />
                     </li>
                 </ul>
             </div>
@@ -58,8 +60,8 @@
                         v-for="key in pageData.channelTabs"
                         :key
                         :value="key"
-                        >{{ Translate(key) }}</el-radio-button
-                    >
+                        :label="Translate(key)"
+                    />
                 </el-radio-group>
             </ul>
             <div class="list">
@@ -86,7 +88,7 @@
                             :label="item.label"
                         >
                             <template #header>
-                                <el-dropdown trigger="click">
+                                <el-dropdown>
                                     <BaseTableDropdownLink>
                                         {{ Translate(item.label) }}
                                     </BaseTableDropdownLink>
@@ -140,7 +142,7 @@
                             :label="item.label"
                         >
                             <template #header>
-                                <el-dropdown trigger="click">
+                                <el-dropdown>
                                     <BaseTableDropdownLink>
                                         {{ Translate(item.label) }}
                                     </BaseTableDropdownLink>

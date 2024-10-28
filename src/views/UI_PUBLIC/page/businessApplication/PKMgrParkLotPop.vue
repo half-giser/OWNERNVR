@@ -9,8 +9,6 @@
     <el-dialog
         :title="Translate('IDCS_VEHICLE_IN_OUT_DETAIL')"
         width="860"
-        align-center
-        draggable
         @open="open"
     >
         <div class="dialog">

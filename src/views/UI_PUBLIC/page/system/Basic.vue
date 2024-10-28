@@ -97,10 +97,8 @@
             v-model="pageData.isShowAbout"
             width="800"
             :title="Translate('IDCS_ABOUT_THIS_MACHINE')"
-            :modal="true"
         >
             <el-form
-                label-position="left"
                 class="stripe narrow"
                 :style="{
                     '--form-label-width': '200px',

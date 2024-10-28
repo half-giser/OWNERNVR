@@ -10,8 +10,6 @@
         :title="Translate('IDCS_EXPORT')"
         :show-close="false"
         :width="600"
-        align-center
-        draggable
         @open="open"
     >
         <div>

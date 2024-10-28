@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 17:51:14
  * @Description: 人群密度检测
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 15:10:36
+ * @LastEditTime: 2024-10-28 10:33:40
 -->
 <template>
     <div>
@@ -36,19 +36,19 @@
             @confirm="alarmOutConfirm"
             @close="alarmOutClose"
         ></BaseTransferDialog>
-        <div
+        <!-- <div
             v-if="pageData.notSupportTipShow"
             class="base-ai-not-support-box"
         >
             {{ Translate('IDCS_CURRENT_INTEL_EVENT_UNSUPORT') }}
-        </div>
+        </div> -->
         <div
             v-if="pageData.requireDataFail"
             class="base-ai-not-support-box"
         >
             {{ Translate('IDCS_QUERY_DATA_FAIL') }}
         </div>
-        <div v-if="!pageData.notSupportTipShow && !pageData.requireDataFail">
+        <div v-if="!pageData.requireDataFail">
             <!-- 检测开启-->
             <div
                 class="base-btn-box padding collapse"
@@ -56,9 +56,9 @@
             >
                 <el-checkbox
                     v-model="pageData.detectionEnable"
+                    :label="Translate('IDCS_ENABLE')"
                     @change="pageData.applyDisable = false"
-                    >{{ Translate('IDCS_ENABLE') }}</el-checkbox
-                >
+                />
             </div>
             <!-- 两种功能 -->
             <el-tabs
@@ -109,7 +109,6 @@
                         <div class="base-ai-param-box-right">
                             <el-form
                                 :model="pageData"
-                                label-position="left"
                                 class="narrow"
                                 :style="{
                                     '--form-input-width': '215px',
@@ -204,7 +203,6 @@
                             :style="{
                                 '--form-input-width': '215px',
                             }"
-                            label-position="left"
                         >
                             <el-form-item :label="Translate('IDCS_VOICE_PROMPT')">
                                 <el-select
@@ -227,9 +225,9 @@
                                 <el-checkbox
                                     v-model="pageData.triggerSwitch"
                                     class="base-ai-linkage-title base-ai-linkage-title-checkbox"
+                                    :label="Translate('IDCS_TRIGGER_NOMAL')"
                                     @change="handleTriggerSwitch"
-                                    >{{ Translate('IDCS_TRIGGER_NOMAL') }}</el-checkbox
-                                >
+                                />
                                 <el-table
                                     height="367"
                                     :data="triggerData"
@@ -240,9 +238,9 @@
                                             <el-checkbox
                                                 v-model="scope.row.value"
                                                 class="table_item"
+                                                :label="Translate(scope.row.label)"
                                                 @change="handleTrigger(scope.row)"
-                                                >{{ Translate(scope.row.label) }}
-                                            </el-checkbox>
+                                            />
                                         </template>
                                     </el-table-column>
                                 </el-table>
@@ -261,7 +259,6 @@
                                     :show-header="false"
                                     height="367"
                                     :data="pageData.record.chls"
-                                    empty-text=" "
                                 >
                                     <el-table-column prop="label" />
                                 </el-table>
@@ -281,7 +278,6 @@
                                     :show-header="false"
                                     height="367"
                                     :data="pageData.alarmOut.chls"
-                                    empty-text=" "
                                 >
                                     <el-table-column prop="label" />
                                 </el-table>

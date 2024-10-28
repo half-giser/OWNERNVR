@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 17:51:22
  * @Description: 人群密度检测
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 17:43:05
+ * @LastEditTime: 2024-10-28 14:24:35
  */
 import { type chlCaps, type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
@@ -58,7 +58,7 @@ export default defineComponent({
             // 是否支持声音设置
             supportAlarmAudioConfig: true,
             // 不支持功能提示页面是否展示
-            notSupportTipShow: false,
+            // notSupportTipShow: false,
             // 请求数据失败显示提示
             requireDataFail: false,
             // apply按钮是否可用
@@ -181,7 +181,6 @@ export default defineComponent({
                     pluginStore.showPluginNoResponse = true
                     plugin.ShowPluginNoResponse()
                 }
-                plugin.AddPluginMoveEvent(document.getElementById('player')!)
                 const sendXML = OCX_XML_SetPluginModel(osType == 'mac' ? 'FireConfig' : 'ReadOnly', 'Live')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }

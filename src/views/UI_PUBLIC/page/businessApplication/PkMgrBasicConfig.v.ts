@@ -28,7 +28,7 @@ export default defineComponent({
             ],
             totalNum: [
                 {
-                    validator: (rule, value, callback) => {
+                    validator: (_rule, value, callback) => {
                         if (!value) {
                             callback(new Error(Translate('IDCS_TOTAL_VEHICLE_NOT_CONFIG')))
                             return
@@ -45,7 +45,7 @@ export default defineComponent({
             ],
             remainTotalNum: [
                 {
-                    validator: (rule, value, callback) => {
+                    validator: (_rule, value, callback) => {
                         if (formData.value.remainTotalNum > value) {
                             callback(new Error(Translate('IDCS_REMAIN_VEHICLE_NUM_OVER_TIPS')))
                             return

@@ -462,8 +462,6 @@ export default defineComponent({
             pageIndex,
             pageSize,
             pageTotal,
-            DefaultPagerSizeOptions,
-            DefaultPagerLayout,
             selectedChlId,
             installTypeOption,
             fishEyeModeOption,

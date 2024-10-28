@@ -11,7 +11,6 @@
             ref="formRef"
             :rules="rules"
             :model="formData"
-            label-position="left"
             hide-required-asterisk
             :style="{
                 '--form-input-width': '300px',
@@ -44,7 +43,6 @@
                     v-model="formData.totalNum"
                     :min="1"
                     :max="10000"
-                    value-on-clear="min"
                 />
             </el-form-item>
             <el-form-item
@@ -55,7 +53,6 @@
                     v-model="formData.remainTotalNum"
                     :min="0"
                     :max="10000"
-                    value-on-clear="min"
                 />
             </el-form-item>
             <div class="base-btn-box">

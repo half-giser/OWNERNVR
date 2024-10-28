@@ -7,8 +7,6 @@
 -->
 <template>
     <el-dialog
-        draggable
-        align-center
         :width="(panelWidth - 200) * 2 + 615"
         :title="Translate(props.headerTitle)"
         @open="open"

@@ -10,8 +10,6 @@
         :title="Translate('IDCS_TRIGGER_ALARM_PRESET')"
         width="400"
         hight="450"
-        align-center
-        draggable
         @open="open"
         @close="close"
     >

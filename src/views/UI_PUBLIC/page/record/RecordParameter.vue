@@ -13,7 +13,6 @@
             :style="{
                 '--form-input-width': '215px',
             }"
-            label-position="left"
             inline-message
         >
             <div class="base-subheading-box">{{ Translate('IDCS_HIGH_RECORD_PARAM') }}</div>
@@ -29,13 +28,13 @@
                 />
             </el-form-item> -->
             <el-form-item>
-                <el-checkbox v-model="pageData.chkLoopRec">{{ Translate('IDCS_CYCLE_RECORD_TIP') }}</el-checkbox>
+                <el-checkbox
+                    v-model="pageData.chkLoopRec"
+                    :label="Translate('IDCS_CYCLE_RECORD_TIP')"
+                />
             </el-form-item>
             <el-form-item>
-                <el-select
-                    v-model="pageData.doubleStreamRecSwitch"
-                    placeholder=" "
-                >
+                <el-select v-model="pageData.doubleStreamRecSwitch">
                     <el-option
                         v-for="item in pageData.chkDoubleStreamRec"
                         :key="item.value"
@@ -53,9 +52,7 @@
                 border
                 stripe
                 :data="tableData"
-                table-layout="fixed"
                 show-overflow-tooltip
-                empty-text=" "
                 highlight-current-row
             >
                 <!-- 通道名称 -->
@@ -70,7 +67,7 @@
                     min-width="180"
                 >
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_BEFOREHAND_RECORD_TIME') }}
                             </BaseTableDropdownLink>
@@ -90,10 +87,7 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select
-                            v-model="scope.row.per"
-                            placeholder=" "
-                        >
+                        <el-select v-model="scope.row.per">
                             <el-option
                                 v-for="item in pageData.perList"
                                 :key="item.value"
@@ -109,7 +103,7 @@
                     min-width="180"
                 >
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_RECORD_TIME_DELAY') }}
                             </BaseTableDropdownLink>
@@ -129,10 +123,7 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select
-                            v-model="scope.row.post"
-                            placeholder=""
-                        >
+                        <el-select v-model="scope.row.post">
                             <el-option
                                 v-for="item in pageData.postList"
                                 :key="item.value"
@@ -149,7 +140,7 @@
                     min-width="180"
                 >
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_OFFLINE_RECORDING') }}
                             </BaseTableDropdownLink>
@@ -189,7 +180,7 @@
                     min-width="180"
                 >
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_EXPIRE_TIME') }}
                             </BaseTableDropdownLink>
@@ -211,7 +202,6 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.expirationDisplay"
-                            placeholder=" "
                             @change="changeExpirationList(scope.row)"
                         >
                             <el-option

@@ -7,8 +7,6 @@
 -->
 <template>
     <el-dialog
-        draggable
-        center
         width="1000"
         :title="Translate('IDCS_DISPLAY_SETTINGS')"
         @close="close"
@@ -140,20 +138,18 @@
                     <el-form
                         class="narrow"
                         label-width="150"
-                        label-position="left"
                         :style="{
                             '--form-input-width': '340px',
                         }"
                     >
                         <el-form-item :label="Translate('IDCS_IGNORE_UPPER')">
-                            <el-checkbox v-model="formData.upperCase"></el-checkbox>
+                            <el-checkbox v-model="formData.upperCase" />
                         </el-form-item>
                         <el-form-item :label="Translate('IDCS_OVERTIME')">
                             <BaseNumberInput
                                 v-model="formData.timeOut"
                                 :min="5"
                                 :max="3600"
-                                value-on-clear="min"
                             />
                             <span class="overtime">s</span>
                         </el-form-item>
@@ -208,7 +204,6 @@
                         </div>
                         <el-form
                             class="narrow"
-                            label-position="left"
                             :style="{
                                 '--form-input-width': '340px',
                             }"
@@ -238,7 +233,10 @@
                                 </el-select>
                             </el-form-item>
                             <el-form-item>
-                                <el-checkbox v-model="colorTableList[pageData.colorTableIndex].previewDisplay">{{ Translate('IDCS_PREVIEW_DISPLAY') }}</el-checkbox>
+                                <el-checkbox
+                                    v-model="colorTableList[pageData.colorTableIndex].previewDisplay"
+                                    :label="Translate('IDCS_PREVIEW_DISPLAY')"
+                                />
                             </el-form-item>
                         </el-form>
                     </div>

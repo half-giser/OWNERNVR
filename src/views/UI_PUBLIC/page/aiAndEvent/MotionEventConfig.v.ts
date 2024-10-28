@@ -3,7 +3,7 @@
  * @Date: 2024-08-16 18:13:56
  * @Description: 移动侦测
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 17:48:55
+ * @LastEditTime: 2024-10-28 09:30:51
  */
 import { cloneDeep } from 'lodash-es'
 import { MotionEventConfig, type PresetItem } from '@/types/apiType/aiAndEvent'
@@ -32,7 +32,6 @@ export default defineComponent({
             pageIndex: 1,
             pageSize: 10,
             totalCount: 0,
-            pageDataCountItems: [10, 20, 30],
             enableList: getSwitchOptions(),
             supportAudio: false,
             scheduleList: [] as [] as SelectOption<string, string>[],
@@ -43,9 +42,6 @@ export default defineComponent({
 
             // record穿梭框数据源
             recordList: [] as SelectOption<string, string>[],
-            recordHeaderTitle: 'IDCS_TRIGGER_CHANNEL_RECORD',
-            recordSourceTitle: 'IDCS_CHANNEL',
-            recordTargetTitle: 'IDCS_CHANNEL_TRGGER',
             // 表头选中id
             recordChosedIdsAll: [] as string[],
             // 表头选中的数据
@@ -55,9 +51,6 @@ export default defineComponent({
 
             // snap穿梭框数据源
             snapList: [] as SelectOption<string, string>[],
-            snapHeaderTitle: 'IDCS_TRIGGER_CHANNEL_SNAP',
-            snapSourceTitle: 'IDCS_CHANNEL',
-            snapTargetTitle: 'IDCS_CHANNEL_TRGGER',
             // 表头选中id
             snapChosedIdsAll: [] as string[],
             // 表头选中的数据
@@ -67,9 +60,6 @@ export default defineComponent({
 
             // alarmOut穿梭框数据源
             alarmOutList: [] as SelectOption<string, string>[],
-            alarmOutHeaderTitle: 'IDCS_TRIGGER_ALARM_OUT',
-            alarmOutSourceTitle: 'IDCS_ALARM_OUT',
-            alarmOutTargetTitle: 'IDCS_TRIGGER_ALARM_OUT',
             // 表头选中id
             alarmOutChosedIdsAll: [] as string[],
             // 表头选中的数据

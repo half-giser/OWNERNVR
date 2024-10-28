@@ -8,7 +8,6 @@
 <template>
     <div>
         <el-form
-            label-position="left"
             :style="{
                 '--form-label-width': 'auto',
                 '--form-input-width': '250px',
@@ -64,10 +63,7 @@
                             active: item.id === pageData.currentRunningSystem,
                         }"
                     >
-                        <el-tooltip
-                            :content="Translate('IDCS_PRIORITY_BOOT_SYSTEM')"
-                            :show-after="500"
-                        >
+                        <el-tooltip :content="Translate('IDCS_PRIORITY_BOOT_SYSTEM')">
                             <BaseImgSprite
                                 v-show="pageData.currentRunningSystem === item.id"
                                 file="systemStatus"

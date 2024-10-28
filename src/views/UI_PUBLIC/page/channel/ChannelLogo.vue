@@ -16,7 +16,6 @@
                 />
             </div>
             <el-form
-                label-position="left"
                 :style="{
                     '--form-label-width': '150px',
                 }"
@@ -108,7 +107,7 @@
                     <!-- LOGO开关   -->
                     <el-table-column :label="Translate('IDCS_LOGO')">
                         <template #header>
-                            <el-dropdown trigger="click">
+                            <el-dropdown>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_LOGO') }}
                                 </BaseTableDropdownLink>
@@ -149,7 +148,6 @@
                         <template #default="scope">
                             <BaseNumberInput
                                 v-model="scope.row.opacity"
-                                value-on-clear="min"
                                 :disabled="scope.row.disabled"
                                 :min="scope.row.minOpacity"
                                 :max="scope.row.maxOpacity"

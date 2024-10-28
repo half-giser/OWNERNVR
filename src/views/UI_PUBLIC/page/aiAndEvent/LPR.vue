@@ -12,7 +12,6 @@
         :style="{
             '--form-input-width': '430px',
         }"
-        label-position="left"
         inline-message
     >
         <el-form-item
@@ -57,7 +56,10 @@
                     class="base-btn-box padding collapse"
                     span="start"
                 >
-                    <el-checkbox v-model="vehicleDetectionData.enabledSwitch">{{ Translate('IDCS_ENABLE') }}</el-checkbox>
+                    <el-checkbox
+                        v-model="vehicleDetectionData.enabledSwitch"
+                        :label="Translate('IDCS_ENABLE')"
+                    />
                 </div>
                 <div :style="{ position: 'relative' }">
                     <el-tabs
@@ -83,9 +85,9 @@
                                         <el-checkbox
                                             v-model="detectionPageData.isShowAllArea"
                                             :style="{ flex: '1' }"
+                                            :label="Translate('IDCS_DISPLAY_ALL_AREA')"
                                             @change="showAllArea"
-                                            >{{ Translate('IDCS_DISPLAY_ALL_AREA') }}</el-checkbox
-                                        >
+                                        />
                                         <el-button
                                             size="small"
                                             @click="clearArea"
@@ -106,7 +108,6 @@
                                     :style="{
                                         '--form-input-width': '215px',
                                     }"
-                                    label-position="left"
                                     inline-message
                                 >
                                     <!-- 排程 -->
@@ -141,7 +142,7 @@
                                             @change="regionAreaChange"
                                         >
                                             <el-radio-button
-                                                v-for="(item, index) in vehicleDetectionData.regionInfo"
+                                                v-for="(_item, index) in vehicleDetectionData.regionInfo"
                                                 :key="index"
                                                 :label="index + 1"
                                                 :value="index"
@@ -157,7 +158,7 @@
                                             @change="maskAreaChange"
                                         >
                                             <el-radio-button
-                                                v-for="(value, name, index) in vehicleDetectionData.maskAreaInfo"
+                                                v-for="(_value, _name, index) in vehicleDetectionData.maskAreaInfo"
                                                 :key="index"
                                                 :label="index + 1"
                                                 :value="index"
@@ -215,8 +216,8 @@
                                         <el-checkbox
                                             v-model="vehicleDetectionData.plateAbsenceCheceked"
                                             :disabled="detectionPageData.plateAbsenceDisabled"
-                                            >{{ Translate('IDCS_SNAP_NO_PLATE_VIHICLE') }}</el-checkbox
-                                        >
+                                            :label="Translate('IDCS_SNAP_NO_PLATE_VIHICLE')"
+                                        />
                                     </el-form-item>
                                     <!-- 车牌大小(范围) -->
                                     <div class="base-ai-subheading">{{ detectionPageData.plateSizeRangeTitle }}</div>
@@ -243,9 +244,9 @@
                                     <el-form-item>
                                         <el-checkbox
                                             v-model="detectionPageData.isDispalyRangeChecked"
+                                            :label="Translate('IDCS_DISPLAY_RANGE_BOX')"
                                             @change="showDisplayRange"
-                                            >{{ Translate('IDCS_DISPLAY_RANGE_BOX') }}</el-checkbox
-                                        >
+                                        />
                                     </el-form-item>
                                 </el-form>
                             </div>
@@ -255,7 +256,6 @@
                     <el-popover
                         v-model:visible="advancedVisible"
                         width="300"
-                        trigger="click"
                         popper-class="no-padding"
                     >
                         <template #reference>
@@ -278,7 +278,6 @@
                                     '--form-input-width': '170px',
                                 }"
                                 label-width="80"
-                                label-position="left"
                                 inline-message
                             >
                                 <el-form-item
@@ -323,14 +322,14 @@
             <div>
                 <el-form
                     class="narrow"
-                    label-position="left"
                     :style="{
                         '--form-label-width': 'auto',
                     }"
                 >
                     <el-form-item :label="Translate('IDCS_ENABLE')">
-                        <el-checkbox>{{ Translate('IDCS_SUCCESSFUL_RECOGNITION') }}</el-checkbox>
-                        <el-checkbox>{{ Translate('IDCS_STRANGE_PLATE') }}</el-checkbox>
+                        <!-- TODO -->
+                        <el-checkbox :label="Translate('IDCS_SUCCESSFUL_RECOGNITION')" />
+                        <el-checkbox :label="Translate('IDCS_STRANGE_PLATE')" />
                     </el-form-item>
                 </el-form>
                 <div :style="{ position: 'relative' }">

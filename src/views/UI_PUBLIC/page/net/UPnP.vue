@@ -9,7 +9,6 @@
     <div class="base-flex-box">
         <el-form
             :model="formData"
-            label-position="left"
             inline-message
             class="stripe"
             :style="{
@@ -20,8 +19,8 @@
                 <el-checkbox
                     v-model="formData.switch"
                     :disabled="pageData.wirelessSwitch || pageData.pppoeSwitch"
-                    >{{ Translate('IDCS_ENABLE') }}</el-checkbox
-                >
+                    :label="Translate('IDCS_ENABLE')"
+                />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_MAP_TYPE')">
                 <el-select
@@ -57,7 +56,6 @@
                             :min="10"
                             :max="65535"
                             :disabled="pageData.wirelessSwitch || !formData.switch || formData.mappingType !== 'manually'"
-                            value-on-clear="min"
                         />
                     </template>
                 </el-table-column>

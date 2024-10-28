@@ -16,7 +16,6 @@
                 />
             </div>
             <el-form
-                label-position="left"
                 :style="{
                     '--form-label-width': '100px',
                 }"
@@ -47,10 +46,7 @@
                             :value="index"
                         />
                     </el-select>
-                    <el-tooltip
-                        :show-after="500"
-                        :content="Translate('IDCS_START_CRUISE')"
-                    >
+                    <el-tooltip :content="Translate('IDCS_START_CRUISE')">
                         <BaseImgSprite
                             class="base-chl-icon-btn"
                             file="play"
@@ -62,10 +58,7 @@
                             @click="playCruise"
                         />
                     </el-tooltip>
-                    <el-tooltip
-                        :show-after="500"
-                        :content="Translate('IDCS_STOP_CRUISE')"
-                    >
+                    <el-tooltip :content="Translate('IDCS_STOP_CRUISE')">
                         <BaseImgSprite
                             class="base-chl-icon-btn"
                             file="stop"
@@ -86,10 +79,7 @@
                         :formatter="formatInputMaxLength"
                         :parser="formatInputMaxLength"
                     />
-                    <el-tooltip
-                        :content="Translate('IDCS_SAVE_CHANGE')"
-                        :show-after="500"
-                    >
+                    <el-tooltip :content="Translate('IDCS_SAVE_CHANGE')">
                         <BaseImgSprite
                             class="base-chl-icon-btn"
                             file="save"
@@ -139,7 +129,7 @@
                     </el-table-column>
                     <el-table-column>
                         <template #header>
-                            <el-dropdown trigger="click">
+                            <el-dropdown>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_DELETE') }}
                                 </BaseTableDropdownLink>

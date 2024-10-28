@@ -9,14 +9,11 @@
     <el-dialog
         :title="Translate('IDCS_OPERATION')"
         width="500"
-        align-center
-        draggable
         @open="open"
         @before-close="close"
     >
         <el-form
             ref="formRef"
-            label-position="left"
             :style="{
                 '--form-label-width': '100px',
             }"

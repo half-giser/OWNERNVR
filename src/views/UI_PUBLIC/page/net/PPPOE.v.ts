@@ -26,7 +26,7 @@ export default defineComponent({
         const formRule = ref<FormRules>({
             userName: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (formData.value.switch && !value.length) {
                             callback(new Error(Translate('IDCS_PROMPT_USERNAME_EMPTY')))
                             return
@@ -38,7 +38,7 @@ export default defineComponent({
             ],
             password: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (formData.value.switch && pageData.value.passwordSwitch && !value.length) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return

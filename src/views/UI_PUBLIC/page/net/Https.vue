@@ -12,15 +12,14 @@
                 '--form-label-width': '250px',
                 '--form-input-width': '340px',
             }"
-            label-position="left"
             inline-message
         >
             <el-form-item>
                 <el-checkbox
                     v-model="formData.httpsSwitch"
                     :disabled="pageData.httpSwitchDisabled"
-                    >{{ Translate('IDCS_ENABLE') }}</el-checkbox
-                >
+                    :label="Translate('IDCS_ENABLE')"
+                />
             </el-form-item>
         </el-form>
         <!-- 已有证书 -->
@@ -30,7 +29,6 @@
                 '--form-label-width': '250px',
                 '--form-input-width': '340px',
             }"
-            label-position="left"
             inline-message
         >
             <div class="base-subheading-box">
@@ -63,7 +61,6 @@
                 '--form-label-width': '250px',
                 '--form-input-width': '340px',
             }"
-            label-position="left"
             inline-message
         >
             <div class="base-subheading-box">
@@ -90,7 +87,6 @@
                 '--form-label-width': '250px',
                 '--form-input-width': '340px',
             }"
-            label-position="left"
             inline-message
         >
             <el-form-item :label="Translate('IDCS_CERT_DETAILS')">
@@ -104,7 +100,6 @@
                 '--form-label-width': '250px',
                 '--form-input-width': '340px',
             }"
-            label-position="left"
             inline-message
         >
             <el-form-item :label="Translate('IDCS_INSTALL_SIGNED_CERT')">
@@ -150,7 +145,6 @@
                 '--form-label-width': '250px',
                 '--form-input-width': '340px',
             }"
-            label-position="left"
             inline-message
         >
             <el-form-item :label="Translate('IDCS_CREATE_CERT_REQUEST')">

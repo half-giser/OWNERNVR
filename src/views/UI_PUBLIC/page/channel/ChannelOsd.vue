@@ -20,7 +20,6 @@
                 ref="formRef"
                 :model="formData"
                 class="narrow"
-                label-position="left"
                 :style="{
                     '--form-label-width': '160px',
                 }"
@@ -42,7 +41,6 @@
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
                     <el-select
                         v-model="selectedChlId"
-                        placeholder=" "
                         @change="handleChlSel"
                     >
                         <el-option
@@ -73,7 +71,6 @@
                     <el-select
                         v-model="formData.remarkSwitch"
                         :disabled="formData.remarkDisabled"
-                        placeholder=" "
                         @change="handleChangeSwitch(formData.remarkSwitch, formData.id, 'remarkSwitch')"
                     >
                         <el-option
@@ -104,9 +101,7 @@
                     border
                     stripe
                     :data="tableData"
-                    table-layout="fixed"
                     show-overflow-tooltip
-                    empty-text=" "
                     highlight-current-row
                     :row-class-name="(data) => (data.row.disabled ? 'disabled' : '')"
                     @row-click="handleRowClick"
@@ -143,7 +138,7 @@
                         min-width="120"
                     >
                         <template #header>
-                            <el-dropdown trigger="click">
+                            <el-dropdown>
                                 <BaseTableDropdownLink> {{ Translate('IDCS_NAME') }}OSD </BaseTableDropdownLink>
                                 <template #dropdown>
                                     <el-dropdown-menu>
@@ -163,7 +158,6 @@
                                 v-show="!scope.row.isSpeco"
                                 v-model="scope.row.displayName"
                                 size="small"
-                                placeholder=" "
                                 :disabled="scope.row.disabled"
                                 @focus="handleRowClick(scope.row)"
                                 @change="handleChangeSwitch(scope.row.displayName, scope.row.id, 'displayName')"
@@ -182,7 +176,7 @@
                         min-width="120"
                     >
                         <template #header>
-                            <el-dropdown trigger="click">
+                            <el-dropdown>
                                 <BaseTableDropdownLink> {{ Translate('IDCS_TIME') }}OSD </BaseTableDropdownLink>
                                 <template #dropdown>
                                     <el-dropdown-menu>
@@ -202,7 +196,6 @@
                                 v-show="!scope.row.isSpeco"
                                 v-model="scope.row.displayTime"
                                 size="small"
-                                placeholder=" "
                                 :disabled="scope.row.disabled"
                                 @focus="handleRowClick(scope.row)"
                                 @change="handleChangeSwitch(scope.row.displayTime, scope.row.id, 'displayTime')"
@@ -221,7 +214,7 @@
                         min-width="120"
                     >
                         <template #header>
-                            <el-dropdown trigger="click">
+                            <el-dropdown>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_DATE_FORMAT') }}
                                 </BaseTableDropdownLink>
@@ -246,7 +239,7 @@
                         min-width="120"
                     >
                         <template #header>
-                            <el-dropdown trigger="click">
+                            <el-dropdown>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_TIME_FORMAT') }}
                                 </BaseTableDropdownLink>
@@ -276,7 +269,7 @@
                         min-width="120"
                     >
                         <template #header>
-                            <el-dropdown trigger="click">
+                            <el-dropdown>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_WATER_MARK') }}
                                 </BaseTableDropdownLink>
@@ -298,7 +291,6 @@
                                 v-model="scope.row.remarkSwitch"
                                 :disabled="scope.row.remarkDisabled"
                                 size="small"
-                                placeholder=" "
                                 @focus="handleRowClick(scope.row)"
                                 @change="handleChangeSwitch(scope.row.remarkSwitch, scope.row.id, 'remarkSwitch')"
                             >
@@ -335,10 +327,6 @@
                 <el-pagination
                     v-model:current-page="pageIndex"
                     v-model:page-size="pageSize"
-                    :page-sizes="DefaultPagerSizeOptions"
-                    size="small"
-                    :background="false"
-                    :layout="DefaultPagerLayout"
                     :total="pageTotal"
                     @size-change="getDataList"
                     @current-change="getDataList"

@@ -9,15 +9,12 @@
     <el-dialog
         :title="Translate('IDCS_ADD_TRACE')"
         width="500"
-        align-center
-        draggable
         @open="open"
     >
         <el-form
             ref="formRef"
             :rules="formRule"
             :model="formData"
-            label-position="left"
         >
             <el-form-item
                 :label="Translate('IDCS_TRACE_NAME')"

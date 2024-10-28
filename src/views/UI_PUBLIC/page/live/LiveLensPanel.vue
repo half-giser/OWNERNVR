@@ -8,7 +8,6 @@
 <template>
     <div class="lens">
         <el-form
-            label-position="left"
             :style="{
                 '--form-label-width': '100px',
                 '--form-input-width': '130px',
@@ -111,8 +110,8 @@
                 <el-checkbox
                     v-model="formData.irchangeFocus"
                     :disabled="formData.focusType === 'auto' && !formData.focusTime"
-                    >{{ Translate('IDCS_AUTO_FOCUS_TIP') }}</el-checkbox
-                >
+                    :label="Translate('IDCS_AUTO_FOCUS_TIP')"
+                />
             </el-form-item>
             <div class="base-btn-box">
                 <el-button @click="setData">{{ Translate('IDCS_APPLY') }}</el-button>

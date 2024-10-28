@@ -7,8 +7,6 @@
     <el-dialog
         :title="Translate('IDCS_ADD_CHANNEL')"
         width="600"
-        align-center
-        draggable
         @opened="opened"
     >
         <el-table
@@ -16,9 +14,7 @@
             border
             stripe
             :data="tableData"
-            table-layout="fixed"
             show-overflow-tooltip
-            empty-text=" "
             highlight-current-row
             height="500"
             @row-click="handleRowClick"

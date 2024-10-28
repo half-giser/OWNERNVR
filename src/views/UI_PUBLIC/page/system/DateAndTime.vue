@@ -9,7 +9,6 @@
     <div>
         <el-form
             class="stripe"
-            label-position="left"
             :model="formData"
             inline-message
             :style="{
@@ -34,9 +33,9 @@
                     v-model="formData.isSync"
                     class="is-sync"
                     :disabled="formData.syncType === 'NTP'"
+                    :label="Translate('IDCS_SYNC_WITH_COMPUTER_TIME')"
                     @change="handleIsSyncChange"
-                    >{{ Translate('IDCS_SYNC_WITH_COMPUTER_TIME') }}</el-checkbox
-                >
+                />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_DATE_FORMAT')">
                 <el-select v-model="formData.dateFormat">
@@ -98,9 +97,9 @@
             <el-form-item :label="Translate('IDCS_DST')">
                 <el-checkbox
                     v-model="formData.enableDST"
+                    :label="Translate('IDCS_ENABLE')"
                     :disabled="isDSTDisabled"
-                    >{{ Translate('IDCS_ENABLE') }}</el-checkbox
-                >
+                />
             </el-form-item>
             <div class="base-btn-box">
                 <el-button @click="setData">{{ Translate('IDCS_APPLY') }}</el-button>

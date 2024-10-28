@@ -362,9 +362,9 @@ export const BrowserType = {
     unknow: 'unknow',
 }
 
-export const DefaultPagerSizeOptions = [10, 20, 30]
+// export const DefaultPagerSizeOptions = [10, 20, 30]
 
-export const DefaultPagerLayout = 'total, sizes, prev, pager, next, jumper'
+// export const DefaultPagerLayout = 'total, sizes, prev, pager, next, jumper'
 
 export const protocolTrasMap: Record<string, string> = {
     DEFAULT: '默认探测器',

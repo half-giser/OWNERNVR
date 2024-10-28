@@ -9,7 +9,6 @@
     <div class="act">
         <el-form
             :model="pageData"
-            label-position="left"
             :style="{
                 '--form-input-width': '300px',
                 '--form-label-width': '200px',
@@ -20,7 +19,6 @@
                 <el-select
                     v-model="pageData.chlId"
                     :disabled="!pageData.chlList.length"
-                    placeholder=""
                     @change="handleChlChange"
                 >
                     <el-option
@@ -36,7 +34,6 @@
                 <el-select
                     v-model="pageData.accessLockCurrentIndex"
                     :disabled="!pageData.accessLockEnabled"
-                    placeholder=""
                 >
                     <el-option
                         v-for="item in formData.accessLockData"
@@ -57,7 +54,6 @@
                 <el-select
                     v-model="formData.accessListType"
                     :disabled="!formData.accessListType"
-                    placeholder=""
                 >
                     <el-option
                         v-for="item in pageData.accessListTypeEnum"
@@ -93,7 +89,6 @@
                 <el-select
                     v-model="formData.accessLockData[pageData.accessLockCurrentIndex].doorLockConfig"
                     :disabled="!formData.accessLockData[pageData.accessLockCurrentIndex].doorLockConfig"
-                    placeholder=""
                 >
                     <el-option
                         v-for="item in pageData.doorLockTypeEnum"
@@ -107,7 +102,6 @@
                 <el-select
                     v-model="formData.accessLockData[pageData.accessLockCurrentIndex].alarmAction"
                     :disabled="!formData.accessLockData[pageData.accessLockCurrentIndex].alarmAction"
-                    placeholder=""
                 >
                     <el-option
                         v-for="item in pageData.doorLockActionEnum"
@@ -122,7 +116,6 @@
                 <el-select
                     v-model="formData.wiegandIOType"
                     :disabled="!formData.wiegandIOType"
-                    placeholder=""
                 >
                     <el-option
                         v-for="item in pageData.wiegandIOTypeEnum"
@@ -136,7 +129,6 @@
                 <el-select
                     v-model="formData.wiegandMode"
                     :disabled="!formData.wiegandMode"
-                    placeholder=""
                 >
                     <el-option
                         v-for="item in pageData.wiegandModeEnum"

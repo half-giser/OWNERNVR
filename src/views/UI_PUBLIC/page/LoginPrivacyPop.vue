@@ -8,12 +8,8 @@
 <template>
     <el-dialog
         width="800"
-        align-center
-        draggable
         :title="Translate('IDCS_PRIVACY')"
         :show-close="false"
-        :modal="true"
-        :close-on-click-modal="false"
     >
         <div>
             <textarea
@@ -32,9 +28,8 @@
                     <el-checkbox
                         v-show="forceAllow"
                         v-model="pageData.isAllowPrivacy"
-                    >
-                        {{ Translate('IDCS_PRIVACY_ALLOW') }}
-                    </el-checkbox>
+                        :label="Translate('IDCS_PRIVACY_ALLOW')"
+                    />
                 </el-col>
                 <el-col
                     :span="12"

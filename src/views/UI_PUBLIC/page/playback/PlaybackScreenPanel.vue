@@ -56,7 +56,6 @@
             <!-- OSD按钮 -->
             <el-tooltip
                 :content="osd ? Translate('IDCS_OSD_CLOSE') : Translate('IDCS_OSD_OPEN')"
-                :show-after="500"
                 placement="bottom"
             >
                 <BaseImgSprite
@@ -70,7 +69,6 @@
             <!-- 全屏按钮 -->
             <el-tooltip
                 :content="Translate('IDCS_FULLSCREEN')"
-                :show-after="500"
                 placement="bottom"
             >
                 <BaseImgSprite
@@ -86,7 +84,6 @@
             <!-- 停止播放 -->
             <el-tooltip
                 :content="Translate('IDCS_STOP')"
-                :show-after="500"
                 placement="bottom"
             >
                 <BaseImgSprite
@@ -103,7 +100,6 @@
             <template v-if="mode === 'ocx'">
                 <el-tooltip
                     :content="Translate('IDCS_PLAY_FORWARD')"
-                    :show-after="500"
                     placement="bottom"
                 >
                     <BaseImgSprite
@@ -121,7 +117,6 @@
             <!-- 暂停播放 -->
             <el-tooltip
                 :content="Translate('IDCS_PAUSE')"
-                :show-after="500"
                 placement="bottom"
             >
                 <BaseImgSprite
@@ -138,7 +133,6 @@
             <!-- 播放 -->
             <el-tooltip
                 :content="Translate('IDCS_PLAY_FORWARD')"
-                :show-after="500"
                 placement="bottom"
             >
                 <BaseImgSprite
@@ -155,7 +149,6 @@
             <!-- 慢进 -->
             <el-tooltip
                 :content="Translate('IDCS_PLAY_FAST_REWIND')"
-                :show-after="500"
                 placement="bottom"
             >
                 <BaseImgSprite
@@ -171,7 +164,6 @@
             <!-- 快进 -->
             <el-tooltip
                 :content="Translate('IDCS_PLAY_FAST_FORWARD')"
-                :show-after="500"
                 placement="bottom"
             >
                 <BaseImgSprite
@@ -187,7 +179,6 @@
             <!-- 1倍速 -->
             <el-tooltip
                 :content="Translate('IDCS_NORMAL_SPEED')"
-                :show-after="500"
                 placement="bottom"
             >
                 <BaseImgSprite
@@ -204,7 +195,6 @@
             <template v-if="mode === 'ocx'">
                 <el-tooltip
                     :content="Translate('IDCS_PLAY_PREVIOUS_FRAME')"
-                    :show-after="500"
                     placement="bottom"
                 >
                     <BaseImgSprite
@@ -221,7 +211,6 @@
             <!-- 下一帧 -->
             <el-tooltip
                 :content="Translate('IDCS_PLAY_NEXT_FRAME')"
-                :show-after="500"
                 placement="bottom"
             >
                 <BaseImgSprite
@@ -244,10 +233,7 @@
                     :chunk="2"
                 />
                 <div>
-                    <el-tooltip
-                        :content="Translate('IDCS_PLAY_DEC_30_SECONDS')"
-                        :show-after="500"
-                    >
+                    <el-tooltip :content="Translate('IDCS_PLAY_DEC_30_SECONDS')">
                         <BaseImgSprite
                             file="bk30s"
                             :index="0"
@@ -258,10 +244,7 @@
                             @click="jump(-30)"
                         />
                     </el-tooltip>
-                    <el-tooltip
-                        :content="Translate('IDCS_PLAY_INC_30_SECONDS')"
-                        :show-after="500"
-                    >
+                    <el-tooltip :content="Translate('IDCS_PLAY_INC_30_SECONDS')">
                         <BaseImgSprite
                             file="fw30s"
                             :index="0"
@@ -302,10 +285,7 @@
         </div>
         <div class="ctrl-right">
             <!-- POS按钮 -->
-            <el-tooltip
-                :content="pos ? Translate('IDCS_CANCEL_POS') : Translate('IDCS_VIEW_POS')"
-                :show-after="500"
-            >
+            <el-tooltip :content="pos ? Translate('IDCS_CANCEL_POS') : Translate('IDCS_VIEW_POS')">
                 <BaseImgSprite
                     file="POS"
                     :index="pos ? 2 : 0"
@@ -317,10 +297,7 @@
                 />
             </el-tooltip>
             <!-- 水印按钮 -->
-            <el-tooltip
-                :content="watermark ? Translate('IDCS_CANCEL_WATER_MARK') : Translate('IDCS_VIEW_WATER_MARK')"
-                :show-after="500"
-            >
+            <el-tooltip :content="watermark ? Translate('IDCS_CANCEL_WATER_MARK') : Translate('IDCS_VIEW_WATER_MARK')">
                 <BaseImgSprite
                     file="backupWaterMark"
                     :index="watermark ? 2 : 0"
@@ -332,10 +309,7 @@
                 />
             </el-tooltip>
             <!-- 开始裁切 -->
-            <el-tooltip
-                :content="Translate('IDCS_BACKUP_START_TIME')"
-                :show-after="500"
-            >
+            <el-tooltip :content="Translate('IDCS_BACKUP_START_TIME')">
                 <BaseImgSprite
                     file="backupStart"
                     :index="0"
@@ -347,10 +321,7 @@
                 />
             </el-tooltip>
             <!-- 结束裁切 -->
-            <el-tooltip
-                :content="Translate('IDCS_BACKUP_END_TIME')"
-                :show-after="500"
-            >
+            <el-tooltip :content="Translate('IDCS_BACKUP_END_TIME')">
                 <BaseImgSprite
                     file="backupEnd"
                     :index="0"
@@ -362,10 +333,7 @@
                 />
             </el-tooltip>
             <!-- 备份 -->
-            <el-tooltip
-                :content="Translate('IDCS_BACKUP')"
-                :show-after="500"
-            >
+            <el-tooltip :content="Translate('IDCS_BACKUP')">
                 <BaseImgSprite
                     file="backup"
                     :index="0"

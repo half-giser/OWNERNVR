@@ -9,18 +9,12 @@
     <div class="log">
         <el-popover
             v-model:visible="pageData.visible"
-            trigger="click"
             :width="800"
             placement="top-end"
-            :hide-after="0"
-            :show-after="0"
         >
             <template #reference>
                 <div>
-                    <el-tooltip
-                        :content="Translate('IDCS_EVENT_LIST')"
-                        :show-after="500"
-                    >
+                    <el-tooltip :content="Translate('IDCS_EVENT_LIST')">
                         <BaseImgSprite
                             file="list"
                             :index="0"
@@ -56,7 +50,6 @@
                     <template #header>
                         <el-popover
                             v-model:visible="pageData.eventVisible"
-                            trigger="click"
                             popper-class="popper"
                             width="fit-content"
                         >
@@ -72,9 +65,8 @@
                                         v-for="item in pageData.eventOptions"
                                         :key="item.value"
                                         :value="item.value"
-                                    >
-                                        {{ item.label }}
-                                    </el-checkbox>
+                                        :label="item.label"
+                                    />
                                 </el-checkbox-group>
                                 <div class="base-subheading-box">{{ Translate('IDCS_TARGET') }}</div>
                                 <el-checkbox-group v-model="pageData.motion">
@@ -82,9 +74,8 @@
                                         v-for="item in pageData.motionTargetOptions"
                                         :key="item.value"
                                         :value="item.value"
-                                    >
-                                        {{ item.label }}
-                                    </el-checkbox>
+                                        :label="item.label"
+                                    />
                                 </el-checkbox-group>
                             </div>
                         </el-popover>

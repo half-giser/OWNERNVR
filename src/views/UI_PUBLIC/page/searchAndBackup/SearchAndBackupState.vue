@@ -57,7 +57,7 @@
                 />
                 <el-table-column :label="Translate('IDCS_OPERATION')">
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_OPERATION') }}
                             </BaseTableDropdownLink>
@@ -85,7 +85,7 @@
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_DELETE')">
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_DELETE') }}
                             </BaseTableDropdownLink>

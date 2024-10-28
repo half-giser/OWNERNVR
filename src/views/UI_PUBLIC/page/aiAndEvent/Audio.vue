@@ -23,13 +23,18 @@
                     '--form-input-width': '215px',
                     '--form-label-width': '220px',
                 }"
-                label-position="left"
                 inline-message
             >
                 <el-form-item>
                     <el-radio-group v-model="ipcAudioFormData.ipcRadio">
-                        <el-radio-button value="audioAlarm">{{ Translate('IDCS_IPC_VOICE_BROADCAST') }}</el-radio-button>
-                        <el-radio-button value="audioDevice">{{ Translate('IDCS_AUDIO_DEVICE') }}</el-radio-button>
+                        <el-radio-button
+                            value="audioAlarm"
+                            :label="Translate('IDCS_IPC_VOICE_BROADCAST')"
+                        />
+                        <el-radio-button
+                            value="audioDevice"
+                            :label="Translate('IDCS_AUDIO_DEVICE')"
+                        />
                     </el-radio-group>
                 </el-form-item>
                 <!-- 语音播报 -->
@@ -39,7 +44,6 @@
                         <el-select
                             v-model="ipcAudioFormData.audioChl"
                             :disabled="audioAlarmPageData.chlDisabled"
-                            placeholder=""
                             @change="changeChl"
                         >
                             <el-option
@@ -61,16 +65,15 @@
                         <el-checkbox
                             v-model="ipcAudioFormData.audioChecked"
                             :disabled="audioAlarmPageData.audioCheckDisabled"
+                            :label="Translate('IDCS_ENABLE')"
                             @change="changeAudioCheck"
-                            >{{ Translate('IDCS_ENABLE') }}</el-checkbox
-                        >
+                        />
                     </el-form-item>
                     <!-- 语音 -->
                     <el-form-item :label="Translate('IDCS_ALERT_VOICE')">
                         <el-select
                             v-model="ipcAudioFormData.voice"
                             :disabled="audioAlarmPageData.voiceDisabled"
-                            placeholder=""
                             @change="changeVioce"
                         >
                             <el-option
@@ -108,7 +111,7 @@
                             :max="50"
                             :value-on-clear="!audioAlarmPageData.numberDisabled ? 'min' : null"
                             @blur="blurNumber"
-                        ></BaseNumberInput>
+                        />
                     </el-form-item>
                     <!-- 音量 -->
                     <el-form-item :label="Translate('IDCS_ALARM_VOLUME')">
@@ -126,7 +129,6 @@
                         <el-select
                             v-model="ipcAudioFormData.language"
                             :disabled="audioAlarmPageData.languageDisbaled"
-                            placeholder=""
                             @change="changeLanguage"
                         >
                             <el-option
@@ -145,7 +147,6 @@
                     <el-form-item :label="Translate('IDCS_CHANNEL')">
                         <el-select
                             v-model="ipcAudioFormData.deviceChl"
-                            placeholder=""
                             @change="chagneDeviceChl"
                         >
                             <el-option
@@ -166,16 +167,15 @@
                         <el-checkbox
                             v-model="ipcAudioFormData.deviceEnable"
                             :disabled="audioDevicePageData.deviceEnableDisabled"
+                            :label="Translate('IDCS_ENABLE')"
                             @change="changeDeviceEnable"
-                            >{{ Translate('IDCS_ENABLE') }}</el-checkbox
-                        >
+                        />
                     </el-form-item>
                     <!-- 音频输入设备 -->
                     <el-form-item :label="Translate('IDCS_DEVICE_AUDIO_IN')">
                         <el-select
                             v-model="ipcAudioFormData.deviceAudioInput"
                             :disabled="audioDevicePageData.deviceAudioInputDisabled"
-                            placeholder=""
                             @change="chagneAudioInput"
                         >
                             <el-option
@@ -205,7 +205,6 @@
                         <el-select
                             v-model="ipcAudioFormData.loudSpeaker"
                             :disabled="audioDevicePageData.loudSpeakerDisabled"
-                            placeholder=""
                             @change="changeLoudSpeaker"
                         >
                             <el-option
@@ -221,7 +220,6 @@
                         <el-select
                             v-model="ipcAudioFormData.deviceAudioOutput"
                             :disabled="audioDevicePageData.deviceAudioOutputDisabled"
-                            placeholder=""
                             @change="chagneAudioOutput"
                         >
                             <el-option
@@ -252,7 +250,6 @@
                         <el-select
                             v-model="ipcAudioFormData.audioEncode"
                             :disabled="audioDevicePageData.audioEncodeDisabled"
-                            placeholder=""
                             @change="changeAudioEncode"
                         >
                             <el-option
@@ -272,7 +269,6 @@
                     '--form-input-width': '215px',
                     '--form-label-width': '220px',
                 }"
-                label-position="left"
                 inline-message
             >
                 <!-- 排程 -->
@@ -323,8 +319,6 @@
                     stripe
                     :data="pageData.localTableData"
                     highlight-current-row
-                    table-layout="fixed"
-                    empty-text=" "
                     @row-click="handleRowClick"
                 >
                     <el-table-column

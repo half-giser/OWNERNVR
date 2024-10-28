@@ -17,7 +17,6 @@
             </div>
             <ChannelPtzCtrlPanel :chl-id="tableData[pageData.tableIndex]?.chlId || ''" />
             <el-form
-                label-position="left"
                 :style="{
                     '--form-label-width': '100px',
                 }"
@@ -49,10 +48,7 @@
                             :value="index"
                         />
                     </el-select>
-                    <el-tooltip
-                        :show-after="500"
-                        :content="Translate('IDCS_TRACK_PLAY')"
-                    >
+                    <el-tooltip :content="Translate('IDCS_TRACK_PLAY')">
                         <BaseImgSprite
                             class="base-chl-icon-btn"
                             file="play"
@@ -64,10 +60,7 @@
                             @click="playTrace"
                         />
                     </el-tooltip>
-                    <el-tooltip
-                        :show-after="500"
-                        :content="Translate('IDCS_TRACK_STOP')"
-                    >
+                    <el-tooltip :content="Translate('IDCS_TRACK_STOP')">
                         <BaseImgSprite
                             class="base-chl-icon-btn"
                             file="stop"
@@ -89,10 +82,7 @@
                         :formatter="formatInputMaxLength"
                         :parser="formatInputMaxLength"
                     />
-                    <el-tooltip
-                        :content="Translate('IDCS_SAVE_CHANGE')"
-                        :show-after="500"
-                    >
+                    <el-tooltip :content="Translate('IDCS_SAVE_CHANGE')">
                         <BaseImgSprite
                             class="base-chl-icon-btn"
                             file="save"

@@ -28,7 +28,6 @@
             <el-form
                 ref="formRef"
                 :model="formData"
-                label-position="left"
                 :style="{
                     '--form-label-width': '160px',
                 }"
@@ -36,7 +35,6 @@
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
                     <el-select
                         v-model="selectedChlId"
-                        placeholder=" "
                         @change="handleChlSel"
                     >
                         <el-option
@@ -58,7 +56,6 @@
                         v-else
                         v-model="formData.switch"
                         :disabled="formData.disabled"
-                        placeholder=" "
                         @change="handleChangeSwitch"
                     >
                         <el-option
@@ -78,9 +75,7 @@
                     border
                     stripe
                     :data="tableData"
-                    table-layout="fixed"
                     show-overflow-tooltip
-                    empty-text=" "
                     highlight-current-row
                     :row-class-name="(data) => (data.row.disabled ? 'disabled' : '')"
                     @row-click="handleRowClick"
@@ -106,7 +101,7 @@
                         min-width="180"
                     >
                         <template #header>
-                            <el-dropdown trigger="click">
+                            <el-dropdown>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_WATER_MARK') }}
                                 </BaseTableDropdownLink>
@@ -128,7 +123,6 @@
                                 v-model="scope.row.switch"
                                 :disabled="scope.row.disabled"
                                 size="small"
-                                placeholder=" "
                                 @focus="handleRowClick(scope.row)"
                                 @change="handleChangeSwitch()"
                             >
@@ -155,10 +149,6 @@
                 <el-pagination
                     v-model:current-page="pageIndex"
                     v-model:page-size="pageSize"
-                    :page-sizes="DefaultPagerSizeOptions"
-                    size="small"
-                    :background="false"
-                    :layout="DefaultPagerLayout"
                     :total="pageTotal"
                     @size-change="getDataList"
                     @current-change="getDataList"

@@ -10,8 +10,6 @@
         :title="Translate('IDCS_ADD')"
         :model-value="modelValue"
         width="1130"
-        align-center
-        draggable
         append-to-body
         @open="open"
         @close="$emit('update:modelValue', false)"

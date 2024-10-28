@@ -15,7 +15,6 @@
                 '--form-label-width': '200px',
                 '--form-input-width': '340px',
             }"
-            label-position="left"
             inline-message
             class="stripe"
         >
@@ -43,7 +42,6 @@
                     v-model="formData.port"
                     :min="10"
                     :max="65535"
-                    value-on-clear="min"
                 />
                 <el-button @click="setDefaultPort">{{ Translate('IDCS_USE_DEFAULT') }}</el-button>
             </el-form-item>
@@ -84,7 +82,10 @@
                 </el-select>
             </el-form-item>
             <el-form-item>
-                <el-checkbox v-model="formData.anonymousSwitch">{{ Translate('IDCS_ANONYMOUS_LOGIN') }}</el-checkbox>
+                <el-checkbox
+                    v-model="formData.anonymousSwitch"
+                    :label="Translate('IDCS_ANONYMOUS_LOGIN')"
+                />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_USER_NAME')">
                 <el-input

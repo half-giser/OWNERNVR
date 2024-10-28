@@ -34,7 +34,7 @@ export default defineComponent({
         const formRule = ref<FormRules>({
             secondIp: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (pageData.value.secondIpIndex === -1 || !formData.value.secondIpSwitch) {
                             callback()
                             return
@@ -56,7 +56,7 @@ export default defineComponent({
             ],
             secondMask: [
                 {
-                    validator(rule, value, callback) {
+                    validator(_rule, value, callback) {
                         if (pageData.value.secondIpIndex === -1 || !formData.value.secondIpSwitch) {
                             callback()
                             return

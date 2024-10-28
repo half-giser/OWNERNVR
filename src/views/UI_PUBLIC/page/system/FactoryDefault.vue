@@ -13,8 +13,14 @@
                     v-model="formData.exceptNetworkConfigSwitch"
                     class="line-break"
                 >
-                    <el-radio value="false">{{ Translate('IDCS_FULL') }}</el-radio>
-                    <el-radio value="true">{{ Translate('IDCS_RESET_EXCEPT_NETWORK') }}</el-radio>
+                    <el-radio
+                        value="false"
+                        :label="Translate('IDCS_FULL')"
+                    />
+                    <el-radio
+                        value="true"
+                        :label="Translate('IDCS_RESET_EXCEPT_NETWORK')"
+                    />
                 </el-radio-group>
             </el-form-item>
             <el-form-item>{{ pageData.factoryResetTip }}</el-form-item>

@@ -11,7 +11,10 @@
             class="base-btn-box padding collapse"
             span="start"
         >
-            <el-checkbox v-model="tempDetectionData.enabledSwitch">{{ Translate('IDCS_ENABLE') }}</el-checkbox>
+            <el-checkbox
+                v-model="tempDetectionData.enabledSwitch"
+                :label="Translate('IDCS_ENABLE')"
+            />
         </div>
         <div :style="{ position: 'relative' }">
             <el-tabs
@@ -38,9 +41,9 @@
                                 <el-checkbox
                                     v-model="pageData.isShowAllArea"
                                     :style="{ flex: '1' }"
+                                    :label="Translate('IDCS_DISPLAY_ALL_AREA')"
                                     @change="showAllArea"
-                                    >{{ Translate('IDCS_DISPLAY_ALL_AREA') }}</el-checkbox
-                                >
+                                />
                                 <el-button
                                     size="small"
                                     @click="clearArea"
@@ -61,7 +64,6 @@
                             :style="{
                                 '--form-input-width': '215px',
                             }"
-                            label-position="left"
                             inline-message
                         >
                             <!-- 排程 -->
@@ -128,7 +130,7 @@
                                 :label="Translate('IDCS_ENABLE')"
                             >
                                 <template #default="scope">
-                                    <el-checkbox v-model="scope.row.switch"></el-checkbox>
+                                    <el-checkbox v-model="scope.row.switch" />
                                 </template>
                             </el-table-column>
                             <!-- 名称 -->
@@ -250,7 +252,6 @@
                         :style="{
                             '--form-input-width': '215px',
                         }"
-                        label-position="left"
                     >
                         <el-form-item :label="Translate('IDCS_VOICE_PROMPT')">
                             <el-select v-model="tempDetectionData.sysAudio">
@@ -270,9 +271,9 @@
                             <el-checkbox
                                 v-model="normalParamCheckAll"
                                 class="base-ai-linkage-title base-ai-linkage-title-checkbox-input"
+                                :label="Translate('IDCS_TRIGGER_NOMAL')"
                                 @change="handleNormalParamCheckAll"
-                                >{{ Translate('IDCS_TRIGGER_NOMAL') }}</el-checkbox
-                            >
+                            />
                             <el-checkbox-group
                                 v-model="normalParamCheckList"
                                 @change="handleNormalParamCheck"

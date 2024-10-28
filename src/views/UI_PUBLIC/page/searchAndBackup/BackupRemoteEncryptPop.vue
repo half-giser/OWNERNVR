@@ -9,13 +9,10 @@
     <el-dialog
         :title="Translate('IDCS_SELECT_ENCRYPTION')"
         :width="500"
-        align-center
-        draggable
         @opened="open"
     >
         <el-form
             ref="formRef"
-            label-position="left"
             :model="formData"
             :rules="formRule"
         >
@@ -24,8 +21,14 @@
                     v-model="formData.encrypt"
                     :disabled="!encrypt"
                 >
-                    <el-radio value="encrypted">{{ Translate('IDCS_ENCRYPTION') }}</el-radio>
-                    <el-radio value="unencrypted">{{ Translate('IDCS_NO_ENCRYPTION') }}</el-radio>
+                    <el-radio
+                        value="encrypted"
+                        :label="Translate('IDCS_ENCRYPTION')"
+                    />
+                    <el-radio
+                        value="unencrypted"
+                        :label="Translate('IDCS_NO_ENCRYPTION')"
+                    />
                 </el-radio-group>
             </el-form-item>
             <el-form-item
@@ -53,7 +56,10 @@
                 />
             </el-form-item>
             <el-form-item>
-                <el-checkbox v-model="pageData.showPassword">{{ Translate('IDCS_SHOW_PASSWORD') }}</el-checkbox>
+                <el-checkbox
+                    v-model="pageData.showPassword"
+                    :label="Translate('IDCS_SHOW_PASSWORD')"
+                />
             </el-form-item>
         </el-form>
         <template #footer>

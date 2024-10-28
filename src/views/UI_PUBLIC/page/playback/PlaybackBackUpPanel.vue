@@ -9,20 +9,14 @@
     <div class="backup">
         <el-popover
             :visible="pageData.visible"
-            trigger="click"
             :width="1000"
             placement="top-end"
-            :hide-after="0"
-            :show-after="0"
             popper-class="playback-backup-panel"
             @update:visible="$emit('update:visible', $event)"
         >
             <template #reference>
                 <div>
-                    <el-tooltip
-                        :content="Translate('IDCS_BACKUP_TASKS')"
-                        :show-after="500"
-                    >
+                    <el-tooltip :content="Translate('IDCS_BACKUP_TASKS')">
                         <BaseImgSprite
                             file="backUpTask"
                             :index="0"
@@ -74,10 +68,7 @@
                 />
                 <el-table-column :label="Translate('IDCS_OPERATION')">
                     <template #header>
-                        <el-dropdown
-                            trigger="click"
-                            :teleported="false"
-                        >
+                        <el-dropdown :teleported="false">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_OPERATION') }}
                             </BaseTableDropdownLink>
@@ -105,10 +96,7 @@
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_DELETE')">
                     <template #header>
-                        <el-dropdown
-                            trigger="click"
-                            :teleported="false"
-                        >
+                        <el-dropdown :teleported="false">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_DELETE') }}
                             </BaseTableDropdownLink>

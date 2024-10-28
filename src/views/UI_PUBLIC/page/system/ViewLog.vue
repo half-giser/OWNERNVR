@@ -85,7 +85,6 @@
                 <el-table-column :label="Translate('IDCS_CONTENT')">
                     <template #header>
                         <el-popover
-                            trigger="click"
                             popper-class="popper no-padding"
                             width="fit-content"
                         >
@@ -97,16 +96,14 @@
                             <el-scrollbar max-height="300">
                                 <el-checkbox-group
                                     v-model="formData.subType"
-                                    class=""
                                     @change="changeSubType"
                                 >
                                     <el-checkbox
                                         v-for="item in subTypeOptions"
                                         :key="item.value"
                                         :value="item.value"
-                                    >
-                                        {{ item.name }}
-                                    </el-checkbox>
+                                        :label="item.name"
+                                    />
                                 </el-checkbox-group>
                             </el-scrollbar>
                         </el-popover>
@@ -121,10 +118,7 @@
                 >
                     <template #default="scope">
                         <div class="detail-info">
-                            <el-tooltip
-                                :show-after="500"
-                                :content="scope.row.content"
-                            >
+                            <el-tooltip :content="scope.row.content">
                                 <div>{{ scope.row.content }}</div>
                             </el-tooltip>
                             <BaseImgSprite
@@ -158,10 +152,7 @@
             <el-pagination
                 v-model:current-page="formData.currentPage"
                 v-model:page-size="formData.pageSize"
-                :page-sizes="pageData.pageSizes"
-                layout="prev, pager, next, sizes, total, jumper"
                 :total="pageData.totalCount"
-                size="small"
                 @size-change="changePaginationSize"
                 @current-change="changePagination"
             />

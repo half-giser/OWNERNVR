@@ -11,9 +11,7 @@
                 border
                 stripe
                 :data="tableData"
-                table-layout="fixed"
                 show-overflow-tooltip
-                empty-text=" "
                 highlight-current-row
             >
                 <el-table-column
@@ -91,7 +89,7 @@
                     width="80"
                 >
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_EDIT') }}
                             </BaseTableDropdownLink>
@@ -118,7 +116,7 @@
                     width="80"
                 >
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_DELETE') }}
                             </BaseTableDropdownLink>
@@ -164,7 +162,7 @@
                     width="80"
                 >
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_UPGRADE') }}
                             </BaseTableDropdownLink>

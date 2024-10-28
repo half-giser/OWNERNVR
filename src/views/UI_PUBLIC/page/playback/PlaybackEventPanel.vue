@@ -16,10 +16,7 @@
                 class="item"
                 @click="changeEvent(item.value)"
             >
-                <el-tooltip
-                    :content="item.name"
-                    :show-after="500"
-                >
+                <el-tooltip :content="item.name">
                     <BaseImgSprite
                         :file="pageData.eventList.includes(item.value) ? item.checked : item.unchecked"
                         :index="0"
@@ -32,10 +29,7 @@
                 v-model:visible="pageData.isEventPop"
                 placement="right"
                 width="440"
-                trigger="click"
                 popper-class="no-padding"
-                :hide-after="0"
-                :show-after="0"
             >
                 <template #reference>
                     <BaseImgSprite

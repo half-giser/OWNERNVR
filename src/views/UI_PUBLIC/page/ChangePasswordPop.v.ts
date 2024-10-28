@@ -42,7 +42,7 @@ export default defineComponent({
         const rules = ref<FormRules>({
             currentPassword: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (value.length === 0) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
@@ -54,7 +54,7 @@ export default defineComponent({
             ],
             newPassword: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (value.length === 0) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
@@ -76,7 +76,7 @@ export default defineComponent({
             ],
             confirmNewPassword: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (value.length === 0) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return

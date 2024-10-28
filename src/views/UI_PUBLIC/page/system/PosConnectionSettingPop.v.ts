@@ -35,7 +35,7 @@ export default defineComponent({
         const rules = ref<FormRules>({
             ip: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (!value || value === '0.0.0.0') {
                             callback(new Error(Translate('IDCS_POS_IP_EMPTY')))
                             return
@@ -52,7 +52,7 @@ export default defineComponent({
             ],
             port: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (formData.value.switch) {
                             if (!value) {
                                 callback(new Error(Translate('IDCS_POS_PORT_EMPTY')))

@@ -351,6 +351,7 @@ const init = () => {
     if (movePointerX >= 0 && movePointerX !== pointerX) {
         drawMovingWithMousePointer(movePointerX, movePointerY)
     }
+
     // 如果有选择时间范围遮罩层，则进行遮罩层绘制
     if (timeRangeMask && timeRangeMask.length > 0) {
         drawTimeRangeMask(timeRangeMask[0], timeRangeMask[1])
@@ -445,6 +446,7 @@ const handleMouseMove = (e: MouseEvent) => {
                         startTime = minTime
                         endTime = timeRangeMask[1]
                     }
+
                     if (endTime > maxTime) {
                         endTime = maxTime
                         startTime = timeRangeMask[0]
@@ -456,9 +458,11 @@ const handleMouseMove = (e: MouseEvent) => {
                         startTime = mouseEndTime
                         endTime = mouseDownTime
                     }
+
                     if (startTime < minTime) {
                         startTime = minTime
                     }
+
                     if (endTime > maxTime) {
                         endTime = maxTime
                     }
@@ -588,6 +592,7 @@ const drawClipRange = (index: number) => {
     if (!clipRange.value.length) {
         return
     }
+
     if (clipRange.value.length === 1) {
         const startX = getXByTime(clipRange.value[0])
         const startY = 25 * index
@@ -640,10 +645,12 @@ const setClipEnd = (time = getPointerTime()) => {
         // 如果没有设置开始时间，则直接返回
         return
     }
+
     if (clipRange.value.length === 1 && time < clipRange.value[0]) {
         // 如果当前只有开始时间，且结束时间小于当前剪切的开始时间，则直接返回
         return
     }
+
     if (time < clipRange.value[0]) {
         // 如果结束时间小于当前剪切的开始时间，则移除结束时间
         clipRange.value.pop()
@@ -1103,6 +1110,7 @@ const play = (step = 1, speed = 1) => {
         if (pointerTime > startTime + totalTimeOfView) {
             startTime = pointerTime
         }
+
         // 如果指针到达最大时间长度，清除定时器
         if (Math.floor(pointerTime) === maxTime - 1) {
             clearInterval(timer)
@@ -1170,6 +1178,7 @@ const translateOnX = (offsetX: number) => {
         }
         init()
     }
+
     // 向右平移（刻度越来越小）
     if (offsetX < 0) {
         if (startTime === 0) return
@@ -1265,6 +1274,7 @@ const setDstDayTime = (currentDayStartTime: string) => {
             dstStartHour = i
             break
         }
+
         if (!isDST(timeStrCur) && isDST(timeStrPre) && !isDST(timeStrNext)) {
             // timeStrCur为夏令时结束时间（当天为25小时）
             oneDayHours = 25
@@ -1345,6 +1355,7 @@ onMounted(() => {
     if (prop.chlsList) {
         chlList = prop.chlsList
     }
+
     if (prop.colorsMap) {
         colorMap = prop.colorsMap
     }

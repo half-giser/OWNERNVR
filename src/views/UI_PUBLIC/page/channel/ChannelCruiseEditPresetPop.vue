@@ -9,15 +9,12 @@
     <el-dialog
         :title="type === 'add' ? Translate('IDCS_ADD_PRESET') : Translate('IDCS_EDIT_PRESET')"
         width="500"
-        align-center
-        draggable
         @open="open"
     >
         <el-form
             ref="formRef"
             :rules="formRule"
             :model="formData"
-            label-position="left"
         >
             <el-form-item
                 :label="Translate('IDCS_PRESET_NAME')"

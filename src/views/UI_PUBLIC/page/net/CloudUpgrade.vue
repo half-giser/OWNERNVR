@@ -12,7 +12,6 @@
                 '--form-label-width': '200px',
                 '--form-input-width': '340px',
             }"
-            label-position="left"
         >
             <el-form-item :label="Translate('IDCS_UPGRADE_OPTIONS')">
                 <el-select v-model="formData.upgradeType">

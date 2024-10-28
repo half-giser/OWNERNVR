@@ -36,7 +36,7 @@ export default defineComponent({
         const formRule = ref<FormRules>({
             countryName: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (!value.length) {
                             callback(new Error(Translate('IDCS_HTTPS_EMPTY_TIP')))
                             return
@@ -53,7 +53,7 @@ export default defineComponent({
             ],
             commonName: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (!value.length) {
                             callback(new Error(Translate('IDCS_HTTPS_EMPTY_TIP')))
                             return
@@ -70,7 +70,7 @@ export default defineComponent({
             ],
             validityPeriod: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (prop.type !== 2 && !value) {
                             callback(new Error(Translate('IDCS_HTTPS_EMPTY_TIP')))
                             return
@@ -82,7 +82,7 @@ export default defineComponent({
             ],
             email: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (value.length && !checkEmail(value)) {
                             callback(new Error(Translate('IDCS_PROMPT_INVALID_EMAIL')))
                             return

@@ -3,7 +3,7 @@
  * @Date: 2024-08-10 12:08:57
  * @Description: AI/事件
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 20:27:17
+ * @LastEditTime: 2024-10-28 09:34:17
  */
 const { Translate } = useLangStore()
 
@@ -588,9 +588,6 @@ export class peaPageData {
     // 选中的record id
     recordList = [] as string[]
     recordIsShow = false
-    recordHeaderTitle = 'IDCS_TRIGGER_CHANNEL_RECORD'
-    recordSourceTitle = 'IDCS_CHANNEL'
-    recordTargetTitle = 'IDCS_CHANNEL_TRGGER'
     // recordSource = [] as SelectOption<string, string>[]
     recordType = 'record'
 
@@ -599,9 +596,6 @@ export class peaPageData {
     // 选中的alarmOut id
     alarmOutList = [] as string[]
     alarmOutIsShow = false
-    alarmOutHeaderTitle = 'IDCS_TRIGGER_ALARM_OUT'
-    alarmOutSourceTitle = 'IDCS_ALARM_OUT'
-    alarmOutTargetTitle = 'IDCS_TRIGGER_ALARM_OUT'
     // alarmOutSource = [] as { value: string; label: string; device: { value: string; label: string } }[]
     alarmOutType = 'alarmOut'
 

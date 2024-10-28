@@ -50,7 +50,7 @@ export default defineComponent({
         const formRule = ref<FormRules>({
             serverAddr: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (!value.length) {
                             callback(new Error(Translate('IDCS_DDNS_SERVER_ADDR_EMPTY')))
                             return
@@ -62,7 +62,7 @@ export default defineComponent({
             ],
             port: [
                 {
-                    validator: (rule, value, callback) => {
+                    validator: (_rule, value, callback) => {
                         if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_RTSP_PORT_EMPTY')))
                             return
@@ -74,7 +74,7 @@ export default defineComponent({
             ],
             userName: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (!formData.value.anonymousSwitch && !value.trim().length) {
                             callback(new Error(Translate('IDCS_PROMPT_USERNAME_EMPTY')))
                             return
@@ -86,7 +86,7 @@ export default defineComponent({
             ],
             password: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (!formData.value.anonymousSwitch && pageData.value.passwordSwitch && !value.length) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
@@ -98,7 +98,7 @@ export default defineComponent({
             ],
             maxSize: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (value === null || value === '') {
                             callback(new Error(Translate('IDCS_MAX_FILE_SIZE_EMPTY')))
                             return
@@ -110,7 +110,7 @@ export default defineComponent({
             ],
             path: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (!checkDir(value.trim())) {
                             callback(new Error(Translate('IDCS_REMOTE_DIRECTORY_ILLEGAL')))
                             return

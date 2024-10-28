@@ -282,8 +282,6 @@ export default defineComponent({
                 label: Translate(TRANS_MAPPING[item]),
                 value: item,
             })),
-            // 每页显示条数选项
-            pageSizes: [10, 20, 30],
             // 当前的日志总条数
             totalCount: 0,
             // 页面中的开始时间，校验无误再写进formData
