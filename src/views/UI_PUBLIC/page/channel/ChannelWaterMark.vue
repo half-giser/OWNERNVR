@@ -89,7 +89,7 @@
                     <!-- 水印开关   -->
                     <el-table-column>
                         <template #header>
-                            <el-dropdown trigger="click">
+                            <el-dropdown>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_WATER_MARK') }}
                                 </BaseTableDropdownLink>
@@ -132,7 +132,6 @@
                         <template #header>
                             <el-popover
                                 v-model:visible="pageData.informationPop"
-                                trigger="click"
                                 placement="bottom"
                                 width="200"
                             >
@@ -144,7 +143,6 @@
                                 <div>
                                     <el-input
                                         v-model="pageData.customTextSetAll"
-                                        placeholder=""
                                         :formatter="formatInput"
                                         :parser="formatInput"
                                     />

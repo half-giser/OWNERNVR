@@ -7,10 +7,7 @@
 -->
 <template>
     <el-dialog
-        draggable
-        center
         width="600"
-        :close-on-click-modal="false"
         @close="close"
         @open="open"
     >
@@ -19,7 +16,6 @@
             v-model="pageData.popOpen"
             draggable
             center
-            :close-on-click-modal="false"
             append-to-body
             width="450"
         >
@@ -27,7 +23,6 @@
                 ref="formRef"
                 :model="formData"
                 :rules="rules"
-                label-position="left"
                 :style="{
                     '--form-input-width': '210px',
                 }"
@@ -80,12 +75,21 @@
         <div class="main">
             <div class="base-ai-subheading">{{ Translate('IDCS_VIDEO_SAVE_PIC') }}</div>
             <div class="row_container">
-                <el-checkbox v-model="pageData.data.saveSourcePicture">{{ Translate('IDCS_SMART_SAVE_SOURCE_PIC') }}</el-checkbox>
-                <el-checkbox v-model="pageData.data.saveTargetPicture">{{ Translate('IDCS_SMART_SAVE_TARGET_PIC') }}</el-checkbox>
+                <el-checkbox
+                    v-model="pageData.data.saveSourcePicture"
+                    :label="Translate('IDCS_SMART_SAVE_SOURCE_PIC')"
+                />
+                <el-checkbox
+                    v-model="pageData.data.saveTargetPicture"
+                    :label="Translate('IDCS_SMART_SAVE_TARGET_PIC')"
+                />
             </div>
             <div class="base-ai-subheading">{{ Translate('IDCS_SEND_EMAIL') }}</div>
             <div class="row_container">
-                <el-checkbox v-model="pageData.data.sendEmailData.enableSwitch">{{ Translate('IDCS_ENABLE') }}</el-checkbox>
+                <el-checkbox
+                    v-model="pageData.data.sendEmailData.enableSwitch"
+                    :label="Translate('IDCS_ENABLE')"
+                />
             </div>
             <div
                 class="borderWrap"
@@ -99,15 +103,15 @@
                         v-model="pageData.data.sendEmailData.dailyReportSwitch"
                         :disabled="!pageData.data.sendEmailData.enableSwitch"
                         class="inBoxCheckBox"
-                        >{{ Translate('IDCS_DAILY_REPORT') }}</el-checkbox
-                    >
+                        :label="Translate('IDCS_DAILY_REPORT')"
+                    />
                     <!-- 周报 -->
                     <el-checkbox
                         v-model="pageData.data.sendEmailData.weeklyReportSwitch"
                         :disabled="!pageData.data.sendEmailData.enableSwitch"
                         class="inBoxCheckBox"
-                        >{{ Translate('IDCS_WEEKLY_REPORT') }}</el-checkbox
-                    >
+                        :label="Translate('IDCS_WEEKLY_REPORT')"
+                    />
                     <!-- 周几 -->
                     <el-select
                         v-model="pageData.data.sendEmailData.weeklyReportDate"
@@ -128,8 +132,8 @@
                         v-model="pageData.data.sendEmailData.mouthlyReportSwitch"
                         :disabled="!pageData.data.sendEmailData.enableSwitch"
                         class="inBoxCheckBox"
-                        >{{ Translate('IDCS_MONTHLY_REPORT') }}</el-checkbox
-                    >
+                        :label="Translate('IDCS_MONTHLY_REPORT')"
+                    />
                     <!-- 几号 -->
                     <el-select
                         v-model="pageData.data.sendEmailData.mouthlyReportDate"
@@ -143,7 +147,7 @@
                             :key="item.value"
                             :label="item.label"
                             :value="item.value"
-                        ></el-option>
+                        />
                     </el-select>
                 </div>
                 <span class="borderTitle">{{ Translate('IDCS_SEND_MODE') }}</span>

@@ -95,7 +95,7 @@ export default defineComponent({
         const formRule = ref<FormRules>({
             localPath: [
                 {
-                    validator(rule, value, callback) {
+                    validator(_rule, value, callback) {
                         if (prop.mode !== 'ocx') {
                             callback()
                             return

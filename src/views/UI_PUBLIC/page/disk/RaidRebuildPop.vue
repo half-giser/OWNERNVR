@@ -9,8 +9,6 @@
     <el-dialog
         :title="Translate('IDCS_REPAIRING_ARRAY')"
         width="600"
-        align-center
-        draggable
         @open="open"
     >
         <el-form
@@ -18,7 +16,6 @@
             :model="formData"
             :rules
             label-width="150"
-            label-position="left"
         >
             <el-form-item :label="Translate('IDCS_RAID_NAME')">
                 {{ current.name }}
@@ -35,8 +32,8 @@
                         v-for="item in pageData.physicalDiskList"
                         :key="item.id"
                         :value="item.id"
-                        >{{ item.slotIndex }}</el-radio
-                    >
+                        :label="item.slotIndex"
+                    />
                 </el-radio-group>
             </el-form-item>
         </el-form>

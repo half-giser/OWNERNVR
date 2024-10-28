@@ -8,14 +8,11 @@
 <template>
     <el-dialog
         width="500"
-        align-center
-        draggable
         @open="open"
         @close="close"
     >
         <el-form
             ref="formRef"
-            label-position="left"
             class="narrow"
             :style="{
                 '--form-label-width': '180px',
@@ -34,14 +31,14 @@
             <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
                 <el-checkbox
                     v-model="pageData.selectAll"
+                    :label="Translate('IDCS_SELECT_ALL')"
                     @change="selectAll"
-                    >{{ Translate('IDCS_SELECT_ALL') }}</el-checkbox
-                >
+                />
                 <el-checkbox
                     v-model="pageData.reverseSelect"
+                    :label="Translate('IDCS_REVERSE_SELECT')"
                     @change="reverseSelection"
-                    >{{ Translate('IDCS_REVERSE_SELECT') }}</el-checkbox
-                >
+                />
             </el-form-item>
         </el-form>
         <el-table
@@ -51,8 +48,6 @@
             stripe
             :data="prop.tableData"
             highlight-current-row
-            table-layout="fixed"
-            empty-text=" "
             @row-click="handleRowClick"
             @select="handleSelect"
             @select-all="selectAllChl"

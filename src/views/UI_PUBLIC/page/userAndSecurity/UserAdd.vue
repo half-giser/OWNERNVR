@@ -10,7 +10,6 @@
         <el-form
             ref="formRef"
             class="form stripe"
-            label-position="left"
             :rules
             :model="formData"
             :style="{
@@ -62,7 +61,7 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_ALLOW_CHANGE_PWD')">
-                <el-checkbox v-model="formData.allowModifyPassword"></el-checkbox>
+                <el-checkbox v-model="formData.allowModifyPassword" />
             </el-form-item>
             <el-form-item
                 prop="email"

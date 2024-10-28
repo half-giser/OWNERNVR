@@ -7,8 +7,6 @@
 -->
 <template>
     <el-dialog
-        draggable
-        center
         width="600"
         :title
         @open="handleOpen"
@@ -16,7 +14,6 @@
         <el-form
             ref="formRef"
             class="stripe"
-            label-position="left"
             inline-message
             :rules
             :model="formData"
@@ -27,12 +24,21 @@
             hide-required-asterisk
         >
             <el-form-item>
-                <el-checkbox v-model="formData.switch">{{ Translate('IDCS_ENABLE') }}</el-checkbox>
+                <el-checkbox
+                    v-model="formData.switch"
+                    :label="Translate('IDCS_ENABLE')"
+                />
             </el-form-item>
             <el-form-item v-if="formData.addressType !== 'mac'">
                 <el-radio-group v-model="formData.addressType">
-                    <el-radio value="ip">{{ Translate('IDCS_IP_WHOLE') }}</el-radio>
-                    <el-radio value="iprange">{{ Translate('IDCS_IP_SEGMENT') }}</el-radio>
+                    <el-radio
+                        value="ip"
+                        :label="Translate('IDCS_IP_WHOLE')"
+                    />
+                    <el-radio
+                        value="iprange"
+                        :label="Translate('IDCS_IP_SEGMENT')"
+                    />
                 </el-radio-group>
             </el-form-item>
             <el-form-item

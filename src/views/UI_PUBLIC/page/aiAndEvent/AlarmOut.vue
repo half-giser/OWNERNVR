@@ -47,7 +47,7 @@
                 <!-- 延时 -->
                 <el-table-column>
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_DELAY') }}
                             </BaseTableDropdownLink>
@@ -82,7 +82,7 @@
                 <!-- 排程 -->
                 <el-table-column>
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_SCHEDULE') }}
                             </BaseTableDropdownLink>
@@ -125,7 +125,7 @@
                     "
                 >
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_TYPE') }}
                             </BaseTableDropdownLink>
@@ -149,10 +149,7 @@
             <el-pagination
                 v-model:current-page="pageData.pageIndex"
                 v-model:page-size="pageData.pageSize"
-                :page-sizes="[10, 20, 30]"
-                layout="prev, pager, next, sizes, total, jumper"
                 :total="pageData.totalCount"
-                size="small"
                 @size-change="changePaginationSize"
                 @current-change="changePagination"
             />

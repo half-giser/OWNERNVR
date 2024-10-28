@@ -13,15 +13,14 @@
                 '--form-label-width': '200px',
                 '--form-input-width': '200px',
             }"
-            label-position="left"
             inline-message
         >
             <el-form-item>
                 <el-checkbox
                     v-model="formData.natSwitch"
                     :disabled="pageData.isBindUser"
-                    >{{ Translate('IDCS_ENABLE') }}</el-checkbox
-                >
+                    :label="Translate('IDCS_ENABLE')"
+                />
             </el-form-item>
             <!-- 1.5.0去除NAT选项, 默认NAT2.0 -->
             <!-- <el-form-item :label="Translate('IDCS_ACCESS_TYPE')">

@@ -95,7 +95,6 @@
                                 :page-size="1"
                                 layout="prev, pager, next, total, jumper"
                                 :total="scope.row.data.length"
-                                size="small"
                             />
                         </div>
                     </div>

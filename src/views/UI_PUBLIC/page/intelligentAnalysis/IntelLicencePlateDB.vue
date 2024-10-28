@@ -124,10 +124,8 @@
                                 <el-pagination
                                     v-model:current-page="formData.pageIndex"
                                     v-model:page-size="formData.pageSize"
-                                    :page-sizes="pageData.pageSizes"
-                                    :layout="DefaultPagerLayout"
+                                    :page-sizes="[15, 20, 30]"
                                     :total="formData.total"
-                                    size="small"
                                     @current-change="changePlatePage($event, scope.row.id)"
                                     @size-change="changePlatePageSize($event, scope.row.id)"
                                 />

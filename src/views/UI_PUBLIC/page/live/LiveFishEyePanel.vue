@@ -14,10 +14,7 @@
                 v-show="pageData.supportMenu.includes(item.value)"
                 :key="item.value"
             >
-                <el-tooltip
-                    :content="item.label"
-                    :show-after="500"
-                >
+                <el-tooltip :content="item.label">
                     <BaseImgSprite
                         :file="item.file"
                         :index="pageData.installType === item.value ? 2 : 0"
@@ -42,10 +39,7 @@
                 v-show="pageData.supportMenu.includes(`${item.value}_${child.value}`)"
                 :key="child.value"
             >
-                <el-tooltip
-                    :content="child.label"
-                    :show-after="500"
-                >
+                <el-tooltip :content="child.label">
                     <BaseImgSprite
                         :file="child.file"
                         :index="pageData.fishEyeMode === child.value ? 2 : 0"

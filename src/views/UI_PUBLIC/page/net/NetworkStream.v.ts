@@ -188,7 +188,7 @@ export default defineComponent({
             })
         }
 
-        // TODO 分析代码后发现 本页面并没有用到此接口的数据
+        // 分析代码后发现 本页面并没有用到此接口的数据
         // const getChannelList = async () => {
         //     const result = await getChlList({})
         //     commLoadResponseHandler(result, ($) => {
@@ -254,7 +254,7 @@ export default defineComponent({
          * @returns {Boolean}
          */
         const isAllLevelDisabled = () => {
-            return tableData.value.every((item, index) => isLevelDisabled(index))
+            return tableData.value.every((_item, index) => isLevelDisabled(index))
         }
 
         /**

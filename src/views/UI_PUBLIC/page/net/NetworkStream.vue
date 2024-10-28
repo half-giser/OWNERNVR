@@ -11,7 +11,6 @@
             :data="tableData"
             border
             stripe
-            table-layout="fixed"
             :row-class-name="(data) => handleRowClassName(data.row)"
             show-overflow-tooltip
         >
@@ -34,10 +33,7 @@
                 width="140"
             >
                 <template #header>
-                    <el-dropdown
-                        trigger="click"
-                        :max-height="400"
-                    >
+                    <el-dropdown :max-height="400">
                         <BaseTableDropdownLink>
                             {{ Translate('IDCS_VIDEO_ENCT') }}
                         </BaseTableDropdownLink>
@@ -59,7 +55,6 @@
                     <el-select
                         v-model="scope.row.videoEncodeType"
                         :disabled="isChlTypeDisabled(scope.$index)"
-                        placeholder=""
                         :persistent="!isChlTypeDisabled(scope.$index)"
                         @change="changeStreamType(scope.$index)"
                     >
@@ -81,9 +76,6 @@
                     <el-popover
                         v-model:visible="pageData.isResolutionPop"
                         :width="400"
-                        trigger="click"
-                        :show-after="0"
-                        :hide-after="0"
                     >
                         <template #reference>
                             <BaseTableDropdownLink>
@@ -141,7 +133,6 @@
                     <el-select
                         v-model="scope.row.resolution"
                         :disabled="isChlTypeDisabled(scope.$index)"
-                        placeholder=""
                         :persistent="false"
                         @change="changeResolution(scope.$index)"
                     >
@@ -160,10 +151,7 @@
                 width="140"
             >
                 <template #header>
-                    <el-dropdown
-                        trigger="click"
-                        :max-height="400"
-                    >
+                    <el-dropdown :max-height="400">
                         <BaseTableDropdownLink>
                             {{ Translate('IDCS_FRAME_RATE') }}
                         </BaseTableDropdownLink>
@@ -185,14 +173,12 @@
                     <el-select
                         v-if="!scope.row.frameRate"
                         model-value=""
-                        placeholder=""
                         disabled
                         :persistent="false"
                     ></el-select>
                     <el-select
                         v-else
                         v-model="scope.row.frameRate"
-                        placeholder=""
                         :disabled="isChlTypeDisabled(scope.$index)"
                         :persistent="false"
                     >
@@ -211,7 +197,7 @@
                 width="140"
             >
                 <template #header>
-                    <el-dropdown trigger="click">
+                    <el-dropdown>
                         <BaseTableDropdownLink>
                             {{ Translate('IDCS_BITRATE_TYPE') }}
                         </BaseTableDropdownLink>
@@ -234,7 +220,6 @@
                     <el-select
                         v-else
                         v-model="scope.row.bitType"
-                        placeholder=""
                         :disabled="isBitTypeDisabled(scope.$index)"
                         :persistent="false"
                         @change="changeBitType(scope.$index)"
@@ -254,7 +239,7 @@
                 width="140"
             >
                 <template #header>
-                    <el-dropdown trigger="click">
+                    <el-dropdown>
                         <BaseTableDropdownLink>
                             {{ Translate('IDCS_IMAGE_QUALITY') }}
                         </BaseTableDropdownLink>
@@ -275,7 +260,6 @@
                     <el-select
                         v-model="scope.row.level"
                         :disabled="isLevelDisabled(scope.$index)"
-                        placeholder=""
                         :persistent="!isChlTypeDisabled(scope.$index)"
                     >
                         <el-option
@@ -293,7 +277,7 @@
                 width="140"
             >
                 <template #header>
-                    <el-dropdown trigger="click">
+                    <el-dropdown>
                         <BaseTableDropdownLink>
                             {{ Translate('IDCS_VIDEO_QUALITY') }}
                         </BaseTableDropdownLink>
@@ -315,7 +299,6 @@
                         v-if="isVideoQualityDisabled(scope.$index)"
                         :model-value="scope.row.videoQuality === 0 ? '' : scope.row.videoQuality"
                         disabled
-                        placeholder=""
                         :persistent="false"
                     >
                     </el-select>
@@ -347,7 +330,6 @@
                 <template #header>
                     <el-popover
                         v-model:visible="pageData.isGOPPop"
-                        trigger="click"
                         :width="250"
                     >
                         <template #reference>
@@ -356,7 +338,6 @@
                             </BaseTableDropdownLink>
                         </template>
                         <el-form
-                            label-position="left"
                             :style="{
                                 '--form-label-width': '50px',
                                 '--form-input-width': '150px',
@@ -367,7 +348,6 @@
                                     v-model="pageData.GOP"
                                     :min="1"
                                     :max="480"
-                                    value-on-clear="min"
                                 />
                             </el-form-item>
                             <div class="base-btn-box">
@@ -388,7 +368,6 @@
                         v-model="scope.row.GOP"
                         :min="1"
                         :max="480"
-                        value-on-clear="min"
                     />
                 </template>
             </el-table-column>

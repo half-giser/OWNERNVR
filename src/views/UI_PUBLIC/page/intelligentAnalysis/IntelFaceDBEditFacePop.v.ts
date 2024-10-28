@@ -3,7 +3,7 @@
  * @Date: 2024-08-30 18:48:06
  * @Description: 人脸库 - 编辑人脸弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:16:00
+ * @LastEditTime: 2024-10-28 14:07:31
  */
 import { IntelFaceDBFaceForm, type IntelFaceDBGroupDto, type IntelFaceDBSnapFaceList, type IntelFaceDBFaceInfo } from '@/types/apiType/intelligentAnalysis'
 import { type FormInstance } from 'element-plus'
@@ -116,8 +116,8 @@ export default defineComponent({
                 formData.value.birthday = item.birthday
                 formData.value.certificateType = item.certificateType
                 formData.value.certificateNum = item.certificateNum
-                formData.value.mobile = Number(item.mobile)
-                formData.value.number = Number(item.number)
+                formData.value.mobile = item.mobile
+                formData.value.number = item.number
                 formData.value.note = item.note
                 formData.value.nativePlace = item.nativePlace
                 formData.value.pic = item.pic[0]
@@ -172,8 +172,8 @@ export default defineComponent({
                             birthday: item.birthday,
                             certificateType: item.certificateType,
                             certificateNum: item.certificateNum,
-                            mobile: Number(item.mobile),
-                            number: Number(item.number),
+                            mobile: item.mobile,
+                            number: item.number,
                             note: item.note,
                             nativePlace: item.nativePlace,
                             pic: '',
@@ -298,6 +298,7 @@ export default defineComponent({
             verify,
             close,
             highlightWeekend,
+            formatDigit,
             IntelFaceDBChooseFacePop,
             IntelBaseFaceItem,
         }

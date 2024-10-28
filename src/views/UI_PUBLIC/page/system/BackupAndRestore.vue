@@ -9,7 +9,6 @@
     <div>
         <el-form
             inline-message
-            label-position="left"
             :style="{
                 '--form-input-width': '250px',
                 '--form-label-width': '100px',
@@ -55,7 +54,6 @@
         </el-form>
         <el-form
             class="form"
-            label-position="left"
             :style="{
                 '--form-input-width': '250px',
                 '--form-label-width': '100px',
@@ -79,8 +77,14 @@
                     @click="handleExport"
                     >{{ Translate('IDCS_EXPORT') }}</el-button
                 >
-                <el-checkbox v-model="exportFormData.isIncludeNetworkConfig">{{ Translate('IDCS_INCLUDE_NETWORK') }}</el-checkbox>
-                <el-checkbox v-model="exportFormData.isIncludeDataEncryptPwd">{{ Translate('IDCS_INCLUDE_DATA_ENCRYPT_PASSWORD') }}</el-checkbox>
+                <el-checkbox
+                    v-model="exportFormData.isIncludeNetworkConfig"
+                    :label="Translate('IDCS_INCLUDE_NETWORK')"
+                />
+                <el-checkbox
+                    v-model="exportFormData.isIncludeDataEncryptPwd"
+                    :label="Translate('IDCS_INCLUDE_DATA_ENCRYPT_PASSWORD')"
+                />
             </el-form-item>
             <el-form-item>{{ pageData.exportNote }} &nbsp;</el-form-item>
         </el-form>

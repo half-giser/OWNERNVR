@@ -29,9 +29,9 @@
             <span class="chl-title">{{ Translate('IDCS_CHANNEL') }}</span>
             <el-checkbox
                 v-model="pageData.isAllChl"
+                :label="Translate('IDCS_ALL')"
                 @change="changeAllChl"
-                >{{ Translate('IDCS_ALL') }}</el-checkbox
-            >
+            />
             <el-text class="chl-chls text-ellipsis">{{ formData.chls.map((item) => item.label).join(';') }}</el-text>
             <el-button @click="changeChl">{{ Translate('IDCS_MORE') }}</el-button>
             <el-button @click="searchData">{{ Translate('IDCS_SEARCH') }}</el-button>
@@ -61,9 +61,8 @@
                     <el-pagination
                         v-model:current-page="formData.pageIndex"
                         :page-size="18"
-                        layout="prev, pager, next, total"
+                        :page-sizes="[18]"
                         :total="listData.length"
-                        size="small"
                         @current-change="changeFacePage"
                     />
                 </div>

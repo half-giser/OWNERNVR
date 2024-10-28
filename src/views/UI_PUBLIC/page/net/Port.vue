@@ -16,7 +16,6 @@
                 '--form-label-width': '200px',
                 '--form-input-width': '250px',
             }"
-            label-position="left"
             inline-message
         >
             <div class="base-subheading-box">{{ Translate('IDCS_PORT') }}</div>
@@ -28,7 +27,6 @@
                     v-model="portFormData.httpPort"
                     :min="10"
                     :max="65535"
-                    value-on-clear="min"
                     :disabled="pageData.wirelessSwitch"
                 />
             </el-form-item>
@@ -40,7 +38,6 @@
                     v-model="portFormData.httpsPort"
                     :min="10"
                     :max="65535"
-                    value-on-clear="min"
                     :disabled="pageData.wirelessSwitch"
                 />
             </el-form-item>
@@ -52,7 +49,6 @@
                     v-model="portFormData.netPort"
                     :min="10"
                     :max="65535"
-                    value-on-clear="min"
                     :disabled="pageData.wirelessSwitch"
                 />
             </el-form-item>
@@ -65,18 +61,16 @@
                     v-model="portFormData.posPort"
                     :min="10"
                     :max="65535"
-                    value-on-clear="min"
                     :disabled="pageData.wirelessSwitch"
                 />
             </el-form-item>
             <el-form-item v-show="pageData.isVirtualPortEnabled">
-                <el-checkbox>{{ Translate('IDCS_VIRTUAL_HOST') }}</el-checkbox>
+                <el-checkbox :label="Translate('IDCS_VIRTUAL_HOST')" />
             </el-form-item>
         </el-form>
         <!-- API SERVER -->
         <el-form
             v-show="!pageData.isAppServer"
-            label-position="left"
             :style="{
                 '--form-label-width': '200px',
                 '--form-input-width': '250px',
@@ -88,9 +82,9 @@
                 <el-checkbox
                     v-model="apiServerFormData.apiserverSwitch"
                     :disabled="pageData.wirelessSwitch"
+                    :label="Translate('IDCS_API_SERVER')"
                     @change="changeApiServerSwitch"
-                    >{{ Translate('IDCS_API_SERVER') }}</el-checkbox
-                >
+                />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_ENCRYPTION_TYPE')">
                 <el-select
@@ -115,7 +109,6 @@
                 '--form-label-width': '200px',
                 '--form-input-width': '250px',
             }"
-            label-position="left"
             inline-message
         >
             <div
@@ -128,9 +121,9 @@
                 <el-checkbox
                     v-model="rtspServerFormData.rtspServerSwitch"
                     :disabled="pageData.wirelessSwitch"
+                    :label="Translate('IDCS_ENABLE')"
                     @change="changeRtspServerSwitch"
-                    >{{ Translate('IDCS_ENABLE') }}</el-checkbox
-                >
+                />
             </el-form-item>
             <el-form-item
                 v-show="!pageData.isAppServer"
@@ -158,14 +151,13 @@
                     :disabled="!rtspServerFormData.rtspServerSwitch || pageData.wirelessSwitch"
                     :min="10"
                     :max="65535"
-                    value-on-clear="min"
                 />
                 <el-checkbox
                     v-model="rtspServerFormData.anonymousAccess"
                     :disabled="!rtspServerFormData.rtspServerSwitch || pageData.wirelessSwitch"
+                    :label="Translate('IDCS_RTSP_ANONYMOUS_ACCESS')"
                     @change="changeAnonymous"
-                    >{{ Translate('IDCS_RTSP_ANONYMOUS_ACCESS') }}</el-checkbox
-                >
+                />
             </el-form-item>
             <div class="base-btn-box">
                 <el-button

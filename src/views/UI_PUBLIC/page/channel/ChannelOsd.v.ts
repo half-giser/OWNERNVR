@@ -245,7 +245,6 @@ export default defineComponent({
             if ($("statenotify[@type='OSDInfo']").length > 0) {
                 const preRowData = getRowById(selectedChlId.value)!
                 if (osType == 'mac') {
-                    // todo
                 } else {
                     preRowData.timeX = Number($('statenotify/timeStamp/X').text())
                     preRowData.timeY = Number($('statenotify/timeStamp/Y').text())
@@ -625,7 +624,7 @@ export default defineComponent({
             }
         }
 
-        const onTime = (winIndex: number, data: TVTPlayerWinDataListItem, timeStamp: number) => {
+        const onTime = (_winIndex: number, _data: TVTPlayerWinDataListItem, timeStamp: number) => {
             if (!supportSHDB) osdDrawer && osdDrawer.setTime(timeStamp)
         }
 
@@ -764,8 +763,6 @@ export default defineComponent({
             pageIndex,
             pageSize,
             pageTotal,
-            DefaultPagerSizeOptions,
-            DefaultPagerLayout,
             chlList,
             selectedChlId,
             tempName,

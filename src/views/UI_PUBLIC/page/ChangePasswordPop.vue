@@ -3,14 +3,12 @@
  * @Date: 2024-06-07 15:00:44
  * @Description: 用户更改密码弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-22 19:55:27
+ * @LastEditTime: 2024-10-28 09:25:34
 -->
 <template>
     <el-dialog
         :title="Translate(title)"
         width="600"
-        align-center
-        draggable
         :before-close="handleBeforeClose"
         @opened="opened"
     >
@@ -19,7 +17,6 @@
             :model="formData"
             :rules="rules"
             label-width="150"
-            label-position="left"
         >
             <el-form-item
                 prop="currentPassword"
@@ -28,7 +25,6 @@
                 <el-input
                     v-model="formData.currentPassword"
                     type="password"
-                    :placeholder="Translate('IDCS_CURRENT_PASSWORD')"
                     @paste.capture.prevent=""
                     @copy.capture.prevent=""
                 />
@@ -40,7 +36,6 @@
                 <el-input
                     v-model="formData.newPassword"
                     type="password"
-                    :placeholder="Translate('IDCS_NEW_PASSWORD')"
                     @paste.capture.prevent=""
                     @copy.capture.prevent=""
                 />
@@ -53,7 +48,6 @@
                 <el-input
                     v-model="formData.confirmNewPassword"
                     type="password"
-                    :placeholder="Translate('IDCS_CONFIRM_NEW_PASSWORD')"
                     @paste.capture.prevent=""
                     @copy.capture.prevent=""
                 />

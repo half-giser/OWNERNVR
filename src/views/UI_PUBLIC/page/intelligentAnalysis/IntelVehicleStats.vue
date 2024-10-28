@@ -62,8 +62,8 @@
                     <el-checkbox
                         v-show="['plateDetection', 'plateMatchWhiteList', 'plateMatchStranger'].includes(formData.event[0] || '')"
                         v-model="formData.deduplicate"
-                        >{{ Translate('IDCS_REMOVE_DUPLICATE_LICENSE_PLATE') }}</el-checkbox
-                    >
+                        :label="Translate('IDCS_REMOVE_DUPLICATE_LICENSE_PLATE')"
+                    />
                 </div>
                 <div>
                     <el-button @click="exportChart">{{ Translate('IDCS_EXPORT') }}</el-button>

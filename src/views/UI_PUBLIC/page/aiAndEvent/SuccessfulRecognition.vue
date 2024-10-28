@@ -12,7 +12,6 @@
         :style="{
             '--form-input-width': '215px',
         }"
-        label-position="left"
         inline-message
     >
         <!-- 人脸分组 -->
@@ -28,9 +27,9 @@
             <el-checkbox
                 v-model="pageData.selectAll"
                 :style="{ margin: '0 30px 0 10px' }"
+                :label="Translate('IDCS_ALL')"
                 @change="selectAllCheckChange"
-                >{{ Translate('IDCS_ALL') }}</el-checkbox
-            >
+            />
             <span>{{ pageData.groupName }}</span>
         </el-form-item>
         <!-- 排程配置 -->
@@ -80,7 +79,10 @@
         </el-form-item>
         <!-- 启用报警输出脉冲 -->
         <el-form-item v-if="taskData.ruleType === 'hit'">
-            <el-checkbox v-model="taskData.pluseSwitch">{{ Translate('IDCS_ENABLE_ALARM_OUTPUT') }}</el-checkbox>
+            <el-checkbox
+                v-model="taskData.pluseSwitch"
+                :label="Translate('IDCS_ENABLE_ALARM_OUTPUT')"
+            />
         </el-form-item>
     </el-form>
     <div class="base-ai-linkage-content">
@@ -92,9 +94,9 @@
             <el-checkbox
                 v-model="normalParamCheckAll"
                 class="base-ai-linkage-title base-ai-linkage-title-checkbox-input"
+                :label="Translate('IDCS_TRIGGER_NOMAL')"
                 @change="handleNormalParamCheckAll"
-                >{{ Translate('IDCS_TRIGGER_NOMAL') }}</el-checkbox
-            >
+            />
             <el-checkbox-group
                 v-model="normalParamCheckList"
                 @change="handleNormalParamCheck"
@@ -120,7 +122,6 @@
             </div>
             <el-table
                 :data="taskData.record"
-                empty-text=" "
                 :show-header="false"
             >
                 <el-table-column prop="label" />
@@ -138,7 +139,6 @@
             </div>
             <el-table
                 :data="taskData.alarmOut"
-                empty-text=" "
                 :show-header="false"
             >
                 <el-table-column prop="label" />
@@ -156,7 +156,6 @@
             </div>
             <el-table
                 :data="taskData.snap"
-                empty-text=" "
                 :show-header="false"
             >
                 <el-table-column prop="label" />
@@ -209,7 +208,6 @@
     <el-dialog
         v-model="pageData.groupPopOpen"
         :title="Translate('IDCS_SELECT_GROUP')"
-        align-center
         width="320"
         @open="openGroupPop"
         @close="closeGroupPop"

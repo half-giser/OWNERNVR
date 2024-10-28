@@ -10,8 +10,6 @@
         :title="Translate('IDCS_CONFIG')"
         width="900"
         hight="470"
-        align-center
-        draggable
         @open="open"
         @close="close"
     >
@@ -21,7 +19,6 @@
                     <div class="box_title">{{ Translate('IDCS_FACE_MATCH_SELECT_CHL') }}</div>
                     <el-form
                         ref="formRef"
-                        label-position="left"
                         :style="{
                             '--form-label-width': '150px',
                         }"
@@ -44,8 +41,8 @@
                                         :key="item.value"
                                         class="faceCheckBox"
                                         :value="item.value"
-                                        >{{ item.label }}</el-checkbox
-                                    >
+                                        :label="item.label"
+                                    />
                                 </el-checkbox-group>
                             </div>
                         </el-form-item>
@@ -57,7 +54,6 @@
                     <div class="box_title">{{ Translate('IDCS_MATCH_START_AND_END') }}</div>
                     <el-form
                         ref="formRef"
-                        label-position="left"
                         :style="{
                             '--form-label-width': '220px',
                         }"
@@ -87,13 +83,15 @@
             </el-col>
         </el-row>
         <el-form
-            label-position="left"
             :style="{
                 '--form-input-width': '400px',
             }"
         >
             <el-form-item>
-                <el-checkbox v-model="pageData.noShowDisplay">{{ Translate('IDCS_NO_REALTIME_DISPLAY') }}</el-checkbox>
+                <el-checkbox
+                    v-model="pageData.noShowDisplay"
+                    :label="Translate('IDCS_NO_REALTIME_DISPLAY')"
+                />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_TEXT_PROMPT')">
                 <el-input v-model="pageData.displayText" />

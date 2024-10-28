@@ -66,7 +66,6 @@
                     <template #header>
                         <el-popover
                             v-model:visible="pageData.snapPopoverVisible"
-                            trigger="click"
                             width="fit-content"
                             popper-class="no-padding"
                         >
@@ -94,7 +93,7 @@
                                 v-model="scope.row.snap.switch"
                                 :disabled="scope.row.rowDisable"
                                 @change="checkChange(scope.$index, 'snap')"
-                            ></el-checkbox>
+                            />
                             <el-button
                                 :disabled="!scope.row.snap.switch || scope.row.rowDisable"
                                 class="table_btn"
@@ -108,7 +107,7 @@
                 <!-- 消息推送   -->
                 <el-table-column width="170">
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_PUSH') }}
                             </BaseTableDropdownLink>
@@ -148,7 +147,6 @@
                     <template #header>
                         <el-popover
                             v-model:visible="pageData.alarmOutPopoverVisible"
-                            trigger="click"
                             width="fit-content"
                             popper-class="no-padding"
                         >
@@ -176,7 +174,7 @@
                                 v-model="scope.row.alarmOut.switch"
                                 :disabled="scope.row.rowDisable"
                                 @change="checkChange(scope.$index, 'alarmOut')"
-                            ></el-checkbox>
+                            />
                             <el-button
                                 :disabled="!scope.row.alarmOut.switch || scope.row.rowDisable"
                                 class="table_btn"
@@ -199,7 +197,7 @@
                                 v-model="scope.row.preset.switch"
                                 :disabled="scope.row.rowDisable"
                                 @change="presetSwitchChange(scope.row)"
-                            ></el-checkbox>
+                            />
                             <el-button
                                 :disabled="!scope.row.preset.switch || scope.row.rowDisable"
                                 class="table_btn"
@@ -216,7 +214,7 @@
                 width="175"
             >
                 <template #header>
-                    <el-dropdown trigger="click">
+                    <el-dropdown >
                         <BaseTableDropdownLink>
                             {{ Translate('IDCS_SNAP_TO_FTP') }}
                         </BaseTableDropdownLink>
@@ -254,7 +252,7 @@
                 <!-- 蜂鸣器   -->
                 <el-table-column width="124">
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_BUZZER') }}
                             </BaseTableDropdownLink>
@@ -292,10 +290,7 @@
                 <!-- 视频弹出   -->
                 <el-table-column width="140">
                     <template #header>
-                        <el-dropdown
-                            trigger="click"
-                            max-height="400"
-                        >
+                        <el-dropdown max-height="400">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_VIDEO_POPUP') }}
                             </BaseTableDropdownLink>
@@ -333,7 +328,7 @@
                 <!-- 消息框弹出   -->
                 <el-table-column width="175">
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_MESSAGEBOX_POPUP') }}
                             </BaseTableDropdownLink>
@@ -371,7 +366,7 @@
                 <!-- email   -->
                 <el-table-column width="115">
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink> Email </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
@@ -410,10 +405,7 @@
             <el-pagination
                 v-model:current-page="pageData.pageIndex"
                 v-model:page-size="pageData.pageSize"
-                :page-sizes="pageData.pageDataCountItems"
-                layout="prev, pager, next, sizes, total, jumper"
                 :total="pageData.totalCount"
-                size="small"
                 @size-change="changePaginationSize"
                 @current-change="changePagination"
             />

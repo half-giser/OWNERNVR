@@ -8,8 +8,6 @@
 <template>
     <el-dialog
         :title="Translate('IDCS_IMAGE_BROWSE')"
-        align-center
-        draggable
         :width="600"
         @open="open"
         @close="close"
@@ -34,10 +32,7 @@
                 :src="getImg()"
             />
             <div class="btns">
-                <el-tooltip
-                    :content="Translate('IDCS_EXPORT')"
-                    :show-after="500"
-                >
+                <el-tooltip :content="Translate('IDCS_EXPORT')">
                     <BaseImgSprite
                         file="image_preview_export"
                         :index="0"
@@ -47,10 +42,7 @@
                         @click="$emit('export')"
                     />
                 </el-tooltip>
-                <el-tooltip
-                    :content="Translate('IDCS_PREVIOUS_IMAGE')"
-                    :show-after="500"
-                >
+                <el-tooltip :content="Translate('IDCS_PREVIOUS_IMAGE')">
                     <BaseImgSprite
                         file="image_preview_pre"
                         :index="0"
@@ -61,10 +53,7 @@
                         @click="$emit('prev')"
                     />
                 </el-tooltip>
-                <el-tooltip
-                    :content="Translate('IDCS_PLAY')"
-                    :show-after="500"
-                >
+                <el-tooltip :content="Translate('IDCS_PLAY')">
                     <BaseImgSprite
                         v-show="pageData.paused"
                         file="image_preview_play"
@@ -74,10 +63,7 @@
                         @click="play"
                     />
                 </el-tooltip>
-                <el-tooltip
-                    :content="Translate('IDCS_PAUSE')"
-                    :show-after="500"
-                >
+                <el-tooltip :content="Translate('IDCS_PAUSE')">
                     <BaseImgSprite
                         v-show="!pageData.paused"
                         file="image_preview_pause"
@@ -87,10 +73,7 @@
                         @click="pause"
                     />
                 </el-tooltip>
-                <el-tooltip
-                    :content="Translate('IDCS_NEXT_IMAGE')"
-                    :show-after="500"
-                >
+                <el-tooltip :content="Translate('IDCS_NEXT_IMAGE')">
                     <BaseImgSprite
                         file="image_preview_next"
                         :index="0"
@@ -101,10 +84,7 @@
                         @click="$emit('next')"
                     />
                 </el-tooltip>
-                <el-tooltip
-                    :content="Translate('IDCS_DELETE')"
-                    :show-after="500"
-                >
+                <el-tooltip :content="Translate('IDCS_DELETE')">
                     <BaseImgSprite
                         file="image_preview_delete"
                         :index="0"

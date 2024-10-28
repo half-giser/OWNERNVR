@@ -41,10 +41,7 @@
                 />
             </div>
             <div class="base-intel-row">
-                <el-dropdown
-                    v-show="formData.event[0] === 'faceMatchWhiteList'"
-                    trigger="click"
-                >
+                <el-dropdown v-show="formData.event[0] === 'faceMatchWhiteList'">
                     <BaseTableDropdownLink effect="plain">
                         {{ pageData.chartType === 'chart' ? Translate('IDCS_COLIMNAR_CHART') : Translate('IDCS_DETAIL_CHART') }}
                     </BaseTableDropdownLink>
@@ -111,8 +108,8 @@
                     <el-checkbox
                         v-show="['plateDetection', 'plateMatchWhiteList', 'plateMatchStranger'].includes(formData.event[0] || '')"
                         v-model="formData.deduplicate"
-                        >{{ Translate('IDCS_REMOVE_DUPLICATE_LICENSE_PLATE') }}</el-checkbox
-                    >
+                        :label="Translate('IDCS_REMOVE_DUPLICATE_LICENSE_PLATE')"
+                    />
                 </div>
                 <div>
                     <el-button @click="exportChart">{{ Translate('IDCS_EXPORT') }}</el-button>

@@ -15,12 +15,14 @@
                 '--form-input-width': '340px',
                 '--form-label-width': '250px',
             }"
-            label-position="left"
             inline-message
             class="stripe"
         >
             <el-form-item>
-                <el-checkbox v-model="formData.switch">{{ Translate('IDCS_ENABLE') }}</el-checkbox>
+                <el-checkbox
+                    v-model="formData.switch"
+                    :label="Translate('IDCS_ENABLE')"
+                />
             </el-form-item>
             <el-form-item
                 :label="Translate('IDCS_ACCOUNT')"

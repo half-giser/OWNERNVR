@@ -21,7 +21,7 @@
                 <!-- 启用 -->
                 <el-table-column width="100">
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_ENABLE') }}
                             </BaseTableDropdownLink>
@@ -52,7 +52,7 @@
                 <!-- 连接方式 -->
                 <el-table-column width="240">
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_CONNECTION') }}
                             </BaseTableDropdownLink>
@@ -92,7 +92,7 @@
                 <!-- 协议 -->
                 <el-table-column width="160">
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_PROTOCOL') }}
                             </BaseTableDropdownLink>
@@ -130,8 +130,7 @@
                             <el-checkbox
                                 v-model="scope.row.triggerChl.switch"
                                 @change="changeTriggerChannel(scope.$index)"
-                            >
-                            </el-checkbox>
+                            />
                             <el-button
                                 :disabled="!scope.row.triggerChl.switch"
                                 @click="setTriggerChannel(scope.$index)"
@@ -154,7 +153,7 @@
                 <!-- 编码格式 -->
                 <el-table-column width="200">
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_ENCODE_FORMAT') }}
                             </BaseTableDropdownLink>

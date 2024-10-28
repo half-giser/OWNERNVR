@@ -34,7 +34,6 @@
                             :style="{
                                 '--form-input-width': '215px',
                             }"
-                            label-position="left"
                             inline-message
                         >
                             <!-- 规则 -->
@@ -60,7 +59,6 @@
                                     v-model="abnormalDisposeData.sceneChangeSwitch"
                                     size="small"
                                     :disabled="abnormalDisposeData.sceneChangeSwitch === ''"
-                                    placeholder=""
                                 >
                                     <el-option
                                         v-for="item in pageData.enableList"
@@ -77,7 +75,6 @@
                                     v-model="abnormalDisposeData.clarityAbnormalSwitch"
                                     size="small"
                                     :disabled="abnormalDisposeData.clarityAbnormalSwitch === ''"
-                                    placeholder=""
                                 >
                                     <el-option
                                         v-for="item in pageData.enableList"
@@ -94,7 +91,6 @@
                                     v-model="abnormalDisposeData.colorAbnormalSwitch"
                                     size="small"
                                     :disabled="abnormalDisposeData.colorAbnormalSwitch === ''"
-                                    placeholder=""
                                 >
                                     <el-option
                                         v-for="item in pageData.enableList"
@@ -131,7 +127,6 @@
                         :style="{
                             '--form-input-width': '215px',
                         }"
-                        label-position="left"
                     >
                         <el-form-item :label="Translate('IDCS_VOICE_PROMPT')">
                             <el-select v-model="abnormalDisposeData.sysAudio">
@@ -151,9 +146,9 @@
                             <el-checkbox
                                 v-model="normalParamCheckAll"
                                 class="base-ai-linkage-title base-ai-linkage-title-checkbox-input"
+                                :label="Translate('IDCS_TRIGGER_NOMAL')"
                                 @change="handleNormalParamCheckAll"
-                                >{{ Translate('IDCS_TRIGGER_NOMAL') }}</el-checkbox
-                            >
+                            />
                             <el-checkbox-group
                                 v-model="normalParamCheckList"
                                 @change="handleNormalParamCheck"

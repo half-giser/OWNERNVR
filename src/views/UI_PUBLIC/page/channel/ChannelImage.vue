@@ -18,7 +18,6 @@
             <el-form
                 ref="formRef"
                 :model="formData"
-                label-position="left"
                 :style="{
                     '--form-label-width': '160px',
                 }"
@@ -26,8 +25,6 @@
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
                     <el-select
                         v-model="selectedChlId"
-                        placeholder=" "
-                        fit-input-width
                         @change="handleChlSel"
                     >
                         <el-option
@@ -45,8 +42,6 @@
                 >
                     <el-select
                         v-model="formData.paletteCode"
-                        placeholder=" "
-                        fit-input-width
                         :disabled="formData.disabled"
                         @change="handlePaletteCode()"
                     >
@@ -165,9 +160,7 @@
                     border
                     stripe
                     :data="tableData"
-                    table-layout="fixed"
                     show-overflow-tooltip
-                    empty-text=" "
                     highlight-current-row
                     :row-key="(row) => row.id"
                     :expand-row-keys="expandedRowKeys"
@@ -203,7 +196,6 @@
                                 v-model="scope.row.bright"
                                 :min="scope.row.brightMinValue"
                                 :max="scope.row.brightMaxValue"
-                                value-on-clear="min"
                                 size="small"
                                 :disabled="scope.row.disabled"
                                 @change="handleInputChange(scope.row.bright, scope.row.id, 'bright')"
@@ -223,7 +215,6 @@
                                 v-model="scope.row.contrast"
                                 :min="scope.row.contrastMinValue"
                                 :max="scope.row.contrastMaxValue"
-                                value-on-clear="min"
                                 size="small"
                                 :disabled="scope.row.disabled"
                                 @change="handleInputChange(scope.row.contrast, scope.row.id, 'contrast')"
@@ -243,7 +234,6 @@
                                 v-model="scope.row.saturation"
                                 :min="scope.row.saturationMinValue"
                                 :max="scope.row.saturationMaxValue"
-                                value-on-clear="min"
                                 size="small"
                                 :disabled="scope.row.disabled"
                                 @change="handleInputChange(scope.row.saturation, scope.row.id, 'saturation')"
@@ -263,7 +253,6 @@
                                 v-model="scope.row.hue"
                                 :min="scope.row.hueMinValue"
                                 :max="scope.row.hueMaxValue"
-                                value-on-clear="min"
                                 size="small"
                                 :disabled="scope.row.disabled"
                                 @change="handleInputChange(scope.row.hue, scope.row.id, 'hue')"
@@ -287,7 +276,6 @@
                                             <el-form
                                                 ref="imageAdjustFormRef"
                                                 :model="scope.row"
-                                                label-position="left"
                                                 :style="{
                                                     '--form-label-width': '200px',
                                                 }"
@@ -295,7 +283,6 @@
                                                 <el-form-item :label="Translate('IDCS_CONFIG_FILE')">
                                                     <el-select
                                                         v-model="scope.row.cfgFile"
-                                                        placeholder=" "
                                                         :disabled="scope.row.configFileTypeEnum.length === 0"
                                                         @change="handleCfgFileChange"
                                                     >
@@ -316,7 +303,7 @@
                                                             :label="Translate('IDCS_SHARPNESS')"
                                                             :disabled="isNaN(scope.row.sharpenMaxValue)"
                                                             @change="setAZData()"
-                                                        ></el-checkbox>
+                                                        />
                                                         <span v-else>{{ Translate('IDCS_SHARPNESS') }}</span>
                                                     </template>
                                                     <div class="slider_wrap">
@@ -340,7 +327,7 @@
                                                             :label="Translate('IDCS_WDR')"
                                                             :disabled="isNaN(scope.row.WDRMaxValue)"
                                                             @change="setAZData()"
-                                                        ></el-checkbox>
+                                                        />
                                                     </template>
                                                     <div class="slider_wrap">
                                                         <el-slider
@@ -363,7 +350,7 @@
                                                             :label="Translate('IDCS_DENOISE')"
                                                             :disabled="isNaN(scope.row.denoiseMaxValue)"
                                                             @change="setAZData()"
-                                                        ></el-checkbox>
+                                                        />
                                                     </template>
                                                     <div class="slider_wrap">
                                                         <el-slider
@@ -386,12 +373,12 @@
                                                             v-model="scope.row.defogSwitch"
                                                             :label="Translate('IDCS_DEFOG')"
                                                             @change="setAZData()"
-                                                        ></el-checkbox>
+                                                        />
                                                         <el-checkbox
                                                             v-else
                                                             :label="Translate('IDCS_DEFOG')"
                                                             disabled
-                                                        ></el-checkbox>
+                                                        />
                                                     </template>
                                                     <div
                                                         v-if="scope.row.defogSwitch !== undefined"
@@ -451,7 +438,6 @@
                                                 <el-form-item :label="Translate('IDCS_BACKLIGHT_COMPENSATION')">
                                                     <el-select
                                                         v-if="scope.row.BLCMode === undefined || scope.row.chlType === 'analog'"
-                                                        placeholder=" "
                                                         value="OFF"
                                                         disabled
                                                     >
@@ -463,7 +449,6 @@
                                                     <el-select
                                                         v-else
                                                         v-model="scope.row.BLCMode"
-                                                        placeholder=" "
                                                         @change="setAZData()"
                                                     >
                                                         <el-option
@@ -481,7 +466,6 @@
                                                     <el-select
                                                         v-model="scope.row.HWDRLevel"
                                                         :disabled="scope.row.HWDRLevel === undefined"
-                                                        placeholder=" "
                                                         @change="setAZData()"
                                                     >
                                                         <el-option
@@ -495,7 +479,6 @@
                                                 <el-form-item :label="Translate('IDCS_WB')">
                                                     <el-select
                                                         v-model="scope.row.whiteBalanceMode"
-                                                        placeholder=" "
                                                         :disabled="scope.row.whiteBalanceMode === undefined"
                                                         @change="setAZData()"
                                                     >
@@ -546,7 +529,6 @@
                                                 <el-form-item :label="Translate('IDCS_ANTI_FLICKER')">
                                                     <el-select
                                                         v-model="scope.row.antiflicker"
-                                                        placeholder=" "
                                                         :disabled="scope.row.antiflicker === undefined"
                                                         @change="setAZData()"
                                                     >
@@ -564,7 +546,6 @@
                                                 >
                                                     <el-select
                                                         v-model="scope.row.exposureMode"
-                                                        placeholder=" "
                                                         :disabled="scope.row.exposureMode === undefined"
                                                         @change="handleExposureModeChange"
                                                     >
@@ -582,7 +563,6 @@
                                                 >
                                                     <el-select
                                                         v-model="scope.row.exposureModeValue"
-                                                        placeholder=" "
                                                         :disabled="scope.row.exposureModeValue === undefined"
                                                         @change="setAZData()"
                                                     >
@@ -601,7 +581,6 @@
                                                 >
                                                     <el-select
                                                         v-model="scope.row.gainMode"
-                                                        placeholder=" "
                                                         :disabled="scope.row.BLCMode === 'HWDR' || (scope.row.BLCMode !== 'HWDR' && scope.row.gainMode === undefined)"
                                                     >
                                                         <el-option
@@ -654,7 +633,6 @@
                                                 >
                                                     <el-select
                                                         v-model="scope.row.imageRotate"
-                                                        placeholder=" "
                                                         @change="setAZData()"
                                                     >
                                                         <el-option
@@ -674,13 +652,13 @@
                                                         <el-radio
                                                             :value="true"
                                                             :disabled="scope.row.mirrorSwitch === undefined"
-                                                            >{{ Translate('IDCS_ON') }}</el-radio
-                                                        >
+                                                            :label="Translate('IDCS_ON')"
+                                                        />
                                                         <el-radio
                                                             :value="false"
                                                             :disabled="scope.row.mirrorSwitch === undefined"
-                                                            >{{ Translate('IDCS_OFF') }}</el-radio
-                                                        >
+                                                            :label="Translate('IDCS_OFF')"
+                                                        />
                                                     </el-radio-group>
                                                     <el-radio-group
                                                         v-else
@@ -689,13 +667,13 @@
                                                         <el-radio
                                                             :value="true"
                                                             :disabled="scope.row.mirrorSwitch === undefined"
-                                                            >{{ Translate('IDCS_ON') }}</el-radio
-                                                        >
+                                                            :label="Translate('IDCS_ON')"
+                                                        />
                                                         <el-radio
                                                             :value="false"
                                                             :disabled="scope.row.mirrorSwitch === undefined"
-                                                            >{{ Translate('IDCS_OFF') }}</el-radio
-                                                        >
+                                                            :label="Translate('IDCS_OFF')"
+                                                        />
                                                     </el-radio-group>
                                                 </el-form-item>
                                                 <el-form-item :label="Translate('IDCS_FLIP')">
@@ -707,13 +685,13 @@
                                                         <el-radio
                                                             :value="true"
                                                             :disabled="scope.row.flipSwitch === undefined"
-                                                            >{{ Translate('IDCS_ON') }}</el-radio
-                                                        >
+                                                            :label="Translate('IDCS_ON')"
+                                                        />
                                                         <el-radio
                                                             :value="false"
                                                             :disabled="scope.row.flipSwitch === undefined"
-                                                            >{{ Translate('IDCS_OFF') }}</el-radio
-                                                        >
+                                                            :label="Translate('IDCS_OFF')"
+                                                        />
                                                     </el-radio-group>
                                                     <el-radio-group
                                                         v-else
@@ -722,13 +700,13 @@
                                                         <el-radio
                                                             :value="true"
                                                             :disabled="scope.row.flipSwitch === undefined"
-                                                            >{{ Translate('IDCS_ON') }}</el-radio
-                                                        >
+                                                            :label="Translate('IDCS_ON')"
+                                                        />
                                                         <el-radio
                                                             :value="false"
                                                             :disabled="scope.row.flipSwitch === undefined"
-                                                            >{{ Translate('IDCS_OFF') }}</el-radio
-                                                        >
+                                                            :label="Translate('IDCS_OFF')"
+                                                        />
                                                     </el-radio-group>
                                                 </el-form-item>
                                                 <el-form-item
@@ -737,7 +715,6 @@
                                                 >
                                                     <el-select
                                                         v-model="scope.row.HFR"
-                                                        placeholder=" "
                                                         @change="setAZData()"
                                                     >
                                                         <el-option
@@ -754,7 +731,6 @@
                                                     <el-select
                                                         v-if="scope.row.isSupportIRCutMode && scope.row.IRCutMode !== undefined"
                                                         v-model="scope.row.IRCutMode"
-                                                        placeholder=" "
                                                         :disabled="!scope.row.isSupportIRCutMode"
                                                         @change="setAZData()"
                                                     >
@@ -782,7 +758,6 @@
                                                     <el-select
                                                         v-else-if="scope.row.isSupportIRCutMode"
                                                         v-model="defaultIRCutMode"
-                                                        placeholder=" "
                                                         :disabled="!scope.row.isSupportIRCutMode"
                                                         @change="handleIRCutModeChange"
                                                     >
@@ -809,7 +784,6 @@
                                                     </el-select>
                                                     <el-select
                                                         v-else
-                                                        placeholder=" "
                                                         disabled
                                                     ></el-select>
                                                 </el-form-item>
@@ -819,7 +793,6 @@
                                                 >
                                                     <el-select
                                                         v-model="scope.row.IRCutConvSen"
-                                                        placeholder=" "
                                                         :disabled="!scope.row.isSupportIRCutMode"
                                                         @change="setAZData()"
                                                     >
@@ -872,7 +845,6 @@
                                                     <el-select
                                                         v-if="scope.row.smartIrMode"
                                                         v-model="scope.row.smartIrMode"
-                                                        placeholder=" "
                                                     >
                                                         <el-option
                                                             v-for="(item, index) in scope.row.SmartIrArray"
@@ -884,7 +856,6 @@
                                                     <el-select
                                                         v-else
                                                         v-model="scope.row.smartIrSwitch"
-                                                        placeholder=" "
                                                         @change="setAZData()"
                                                     >
                                                         <el-option
@@ -903,7 +874,6 @@
                                                 >
                                                     <el-select
                                                         v-model="scope.row.smartIrLevel"
-                                                        placeholder=" "
                                                         @change="setAZData()"
                                                     >
                                                         <el-option
@@ -957,7 +927,6 @@
                                                 <el-form-item :label="Translate('IDCS_SHUTTER_MODE')">
                                                     <el-select
                                                         v-model="scope.row.shutterMode"
-                                                        placeholder=" "
                                                         :disabled="scope.row.shutterMode === undefined"
                                                         @change="setAZData()"
                                                     >
@@ -975,7 +944,6 @@
                                                 >
                                                     <el-select
                                                         v-model="scope.row.shutterValue"
-                                                        placeholder=" "
                                                         :disabled="scope.row.shutterMode === undefined"
                                                         @change="setAZData()"
                                                     >
@@ -993,7 +961,6 @@
                                                 >
                                                     <el-select
                                                         v-model="scope.row.shutterUpLimit"
-                                                        placeholder=" "
                                                         :disabled="scope.row.shutterMode === undefined"
                                                         @change="handleShutterUpLimitChange"
                                                     >
@@ -1011,7 +978,6 @@
                                                 >
                                                     <el-select
                                                         v-model="scope.row.shutterLowLimit"
-                                                        placeholder=" "
                                                         :disabled="scope.row.shutterMode === undefined"
                                                         @change="handleShutterLowLimitChange"
                                                     >
@@ -1026,7 +992,6 @@
                                                 <el-form-item :label="Translate('IDCS_INFRARE_MODE')">
                                                     <el-select
                                                         v-model="scope.row.InfraredMode"
-                                                        placeholder=" "
                                                         :disabled="scope.row.InfraredMode === undefined"
                                                         @change="setAZData()"
                                                     >
@@ -1044,7 +1009,6 @@
                                                 >
                                                     <el-select
                                                         v-model="scope.row.whitelightMode"
-                                                        placeholder=" "
                                                         @change="setAZData()"
                                                     >
                                                         <el-option
@@ -1110,7 +1074,6 @@
                                         >
                                             <el-form
                                                 :model="scope.row"
-                                                label-position="left"
                                                 :style="{
                                                     '--form-label-width': '150px',
                                                 }"
@@ -1118,7 +1081,6 @@
                                                 <el-form-item :label="Translate('IDCS_SCHEDULE')">
                                                     <el-select
                                                         v-model="scope.row.scheduleInfo.scheduleType"
-                                                        placeholder=" "
                                                         :disabled="!scope.row.supportSchedule"
                                                     >
                                                         <el-option
@@ -1139,7 +1101,6 @@
                                                 >
                                                     <el-select
                                                         v-model="scope.row.scheduleInfo.program"
-                                                        placeholder=" "
                                                         :disabled="!scope.row.supportSchedule"
                                                         @change="handleProgramChange(scope.row)"
                                                     >
@@ -1211,7 +1172,6 @@
                                                 :style="{
                                                     '--form-label-width': '150px',
                                                 }"
-                                                label-position="left"
                                             >
                                                 <el-row class="row_scene_title">{{ Translate('IDCS_SCENE_CONTROL') }}</el-row>
                                                 <el-row class="row_scene_control scene_item">
@@ -1263,7 +1223,6 @@
                                                     <el-select
                                                         v-if="curLensCtrl.focusTypeList.length"
                                                         v-model="curLensCtrl.focusType"
-                                                        placeholder=" "
                                                         :disabled="!curLensCtrl.supportAz"
                                                     >
                                                         <el-option
@@ -1351,7 +1310,6 @@
                                                 >
                                                     <el-select
                                                         v-model="curLensCtrl.timeInterval"
-                                                        placeholder=" "
                                                         :disabled="!curLensCtrl.supportAz"
                                                     >
                                                         <el-option
@@ -1370,7 +1328,7 @@
                                                         v-model="curLensCtrl.IrchangeFocus"
                                                         :label="Translate('IDCS_AUTO_FOCUS_TIP')"
                                                         :disabled="curLensCtrl.IrchangeFocusDisabled"
-                                                    ></el-checkbox>
+                                                    />
                                                 </el-form-item>
                                             </el-form>
                                             <div
@@ -1413,10 +1371,6 @@
                 <el-pagination
                     v-model:current-page="pageIndex"
                     v-model:page-size="pageSize"
-                    :page-sizes="DefaultPagerSizeOptions"
-                    size="small"
-                    :background="false"
-                    :layout="DefaultPagerLayout"
                     :total="pageTotal"
                     @size-change="handleSizeChange"
                     @current-change="handleCurrentChange"

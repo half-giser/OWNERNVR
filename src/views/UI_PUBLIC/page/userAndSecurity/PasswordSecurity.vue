@@ -8,7 +8,6 @@
 <template>
     <div>
         <el-form
-            label-position="left"
             :model="formData"
             hide-required-asterisk
             label-width="150"

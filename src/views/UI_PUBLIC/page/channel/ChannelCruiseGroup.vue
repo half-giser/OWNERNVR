@@ -16,7 +16,6 @@
                 />
             </div>
             <el-form
-                label-position="left"
                 :style="{
                     '--form-label-width': '100px',
                 }"

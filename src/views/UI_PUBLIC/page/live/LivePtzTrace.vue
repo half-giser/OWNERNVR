@@ -18,10 +18,7 @@
                 @dblclick="playCurrentTrace(index)"
             >
                 <span class="ptz-trace-text">{{ item.name }}</span>
-                <el-tooltip
-                    :content="Translate('IDCS_DELETE')"
-                    :show-after="500"
-                >
+                <el-tooltip :content="Translate('IDCS_DELETE')">
                     <BaseImgSprite
                         file="delete (2)"
                         :index="0"
@@ -42,10 +39,7 @@
                 >
             </div>
             <div>
-                <el-tooltip
-                    :content="Translate('IDCS_ADD')"
-                    :show-after="500"
-                >
+                <el-tooltip :content="Translate('IDCS_ADD')">
                     <BaseImgSprite
                         file="preset_Add"
                         :index="0"
@@ -54,10 +48,7 @@
                         @click="addTrace"
                     />
                 </el-tooltip>
-                <el-tooltip
-                    :content="Translate('IDCS_TRACK_PLAY')"
-                    :show-after="500"
-                >
+                <el-tooltip :content="Translate('IDCS_TRACK_PLAY')">
                     <BaseImgSprite
                         v-show="!pageData.playStatus"
                         file="start_cruise"
@@ -67,10 +58,7 @@
                         @click="playTrace"
                     />
                 </el-tooltip>
-                <el-tooltip
-                    :content="Translate('IDCS_TRACK_STOP')"
-                    :show-after="500"
-                >
+                <el-tooltip :content="Translate('IDCS_TRACK_STOP')">
                     <BaseImgSprite
                         v-show="pageData.playStatus"
                         file="stop_cruise"
@@ -80,10 +68,7 @@
                         @click="stopTrace"
                     />
                 </el-tooltip>
-                <el-tooltip
-                    :content="Translate('IDCS_START_RECORD')"
-                    :show-after="500"
-                >
+                <el-tooltip :content="Translate('IDCS_START_RECORD')">
                     <BaseImgSprite
                         v-show="!pageData.recordStatus"
                         file="noRecord"
@@ -95,10 +80,7 @@
                         @click="startRecord"
                     />
                 </el-tooltip>
-                <el-tooltip
-                    :content="Translate('IDCS_STOP_RECORD')"
-                    :show-after="500"
-                >
+                <el-tooltip :content="Translate('IDCS_STOP_RECORD')">
                     <BaseImgSprite
                         v-show="pageData.recordStatus"
                         file="record"

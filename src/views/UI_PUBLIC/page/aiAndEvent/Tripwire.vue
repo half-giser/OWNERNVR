@@ -42,8 +42,6 @@
             v-model="tripwireData.aiResourcePopOpen"
             :title="Translate('IDCS_DETAIL')"
             width="600"
-            center
-            draggable
         >
             <el-table
                 :data="aiResourceTableData"
@@ -116,9 +114,9 @@
                 <div>
                     <el-checkbox
                         v-model="tripwireData.detectionEnable"
+                        :label="tripwireData.detectionTypeText"
                         @change="handleDectionChange"
-                        >{{ tripwireData.detectionTypeText }}</el-checkbox
-                    >
+                    />
                 </div>
                 <div class="aiResource">
                     <span>{{ Translate('IDCS_USAGE_RATE') }} :</span>
@@ -137,7 +135,6 @@
                 v-model:visible="tripwireData.moreDropDown"
                 width="300"
                 popper-class="no-padding"
-                trigger="click"
             >
                 <template #reference>
                     <div
@@ -158,14 +155,14 @@
                     </div>
                     <el-checkbox
                         v-model="tripwireData.saveTargetPicture"
+                        :label="Translate('IDCS_SMART_SAVE_SOURCE_PIC')"
                         @change="tripwireData.applyDisable = false"
-                        >{{ Translate('IDCS_SMART_SAVE_SOURCE_PIC') }}</el-checkbox
-                    >
+                    />
                     <el-checkbox
                         v-model="tripwireData.saveSourcePicture"
+                        :label="Translate('IDCS_SMART_SAVE_TARGET_PIC')"
                         @change="tripwireData.applyDisable = false"
-                        >{{ Translate('IDCS_SMART_SAVE_TARGET_PIC') }}</el-checkbox
-                    >
+                    />
                     <div class="base-btn-box">
                         <el-button
                             size="small"
@@ -197,9 +194,9 @@
                             <el-checkbox
                                 v-if="tripwireData.showAllAreaVisible"
                                 v-model="tripwireData.isShowAllArea"
+                                :label="Translate('IDCS_DISPLAY_ALL_AREA')"
                                 @change="handleTripwireShowAllAreaChange"
-                                >{{ Translate('IDCS_DISPLAY_ALL_AREA') }}</el-checkbox
-                            >
+                            />
                         </div>
                         <div>
                             <el-button
@@ -234,7 +231,6 @@
                     <div class="base-ai-param-box-right">
                         <el-form
                             :model="tripwireData"
-                            label-position="left"
                             class="narrow"
                             :style="{
                                 '--form-input-width': '215px',
@@ -294,9 +290,8 @@
                                         v-for="(_item, index) in tripwireData.lineInfo"
                                         :key="index"
                                         :value="index"
-                                    >
-                                        {{ index + 1 }}
-                                    </el-radio-button>
+                                        :label="index + 1"
+                                    />
                                 </el-radio-group>
                             </el-form-item>
                             <!-- 方向 -->
@@ -359,9 +354,9 @@
                                 >
                                     <el-checkbox
                                         v-model="tripwireData.autoTrack"
+                                        :label="Translate('IDCS_TRIGGER_TRACK')"
                                         @change="tripwireData.applyDisable = false"
-                                        >{{ Translate('IDCS_TRIGGER_TRACK') }}
-                                    </el-checkbox>
+                                    />
                                 </div>
                             </div>
                         </el-form>
@@ -386,7 +381,6 @@
                     <div class="base-ai-param-box-right">
                         <el-form
                             :model="tripwireData"
-                            label-position="left"
                             label-width="auto"
                             class="form"
                             :style="{
@@ -401,9 +395,9 @@
                                 <template #label>
                                     <el-checkbox
                                         v-model="tripwireData.objectFilter.person"
+                                        :label="Translate('IDCS_DETECTION_PERSON')"
                                         @change="tripwireData.applyDisable = false"
-                                        >{{ Translate('IDCS_DETECTION_PERSON') }}</el-checkbox
-                                    >
+                                    />
                                 </template>
                                 <template #default>
                                     <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
@@ -422,9 +416,9 @@
                                     <div>
                                         <el-checkbox
                                             v-model="tripwireData.objectFilter.car"
+                                            :label="Translate('IDCS_DETECTION_VEHICLE')"
                                             @change="tripwireData.applyDisable = false"
-                                            >{{ Translate('IDCS_DETECTION_VEHICLE') }}</el-checkbox
-                                        >
+                                        />
                                     </div>
                                 </template>
                                 <template #default>
@@ -444,9 +438,9 @@
                                     <div>
                                         <el-checkbox
                                             v-model="tripwireData.objectFilter.motorcycle"
+                                            :label="Translate('IDCS_NON_VEHICLE')"
                                             @change="tripwireData.applyDisable = false"
-                                            >{{ Translate('IDCS_NON_VEHICLE') }}</el-checkbox
-                                        >
+                                        />
                                     </div>
                                 </template>
                                 <template #default>
@@ -506,9 +500,9 @@
                                 <el-checkbox
                                     v-model="tripwireData.triggerSwitch"
                                     class="base-ai-linkage-title base-ai-linkage-title-checkbox"
+                                    :label="Translate('IDCS_TRIGGER_NOMAL')"
                                     @change="handleTripwireTriggerSwitch"
-                                    >{{ Translate('IDCS_TRIGGER_NOMAL') }}</el-checkbox
-                                >
+                                />
                                 <el-table
                                     height="367"
                                     :data="tripwireTriggerData"
@@ -520,9 +514,9 @@
                                             <el-checkbox
                                                 v-model="scope.row.value"
                                                 class="table_item"
+                                                :label="Translate(scope.row.label)"
                                                 @change="handleTripwireTrigger(scope.row)"
-                                                >{{ Translate(scope.row.label) }}</el-checkbox
-                                            >
+                                            />
                                         </template>
                                     </el-table-column>
                                 </el-table>
@@ -542,7 +536,6 @@
                                     :show-header="false"
                                     height="367"
                                     :data="tripwireData.record.chls"
-                                    empty-text=" "
                                 >
                                     <el-table-column>
                                         <template #default="scope">
@@ -566,7 +559,6 @@
                                     :show-header="false"
                                     height="367"
                                     :data="tripwireData.alarmOut.chls"
-                                    empty-text=" "
                                 >
                                     <el-table-column>
                                         <template #default="scope">

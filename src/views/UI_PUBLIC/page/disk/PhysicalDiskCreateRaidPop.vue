@@ -9,8 +9,6 @@
     <el-dialog
         :title="Translate('IDCS_CREATE_RAID')"
         width="600"
-        align-center
-        draggable
         @open="open"
     >
         <div>
@@ -19,7 +17,6 @@
                 :model="formData"
                 :rules="rules"
                 label-width="150"
-                label-position="left"
             >
                 <el-form-item
                     :label="Translate('IDCS_RAID_NAME')"
@@ -57,8 +54,8 @@
                             v-for="item in diskOptions"
                             :key="item.id"
                             :value="item.id"
-                            >{{ item.slotIndex }}</el-checkbox
-                        >
+                            :label="item.slotIndex"
+                        />
                     </el-checkbox-group>
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_GLOBAL_HOT_STANDBY')">

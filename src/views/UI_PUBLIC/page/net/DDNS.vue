@@ -11,7 +11,6 @@
             ref="formRef"
             :model="formData"
             :rules="formRule"
-            label-position="left"
             inline-message
             class="stripe"
             :style="{
@@ -19,7 +18,10 @@
             }"
         >
             <el-form-item>
-                <el-checkbox v-model="formData.switch">{{ Translate('IDCS_ENABLE') }}</el-checkbox>
+                <el-checkbox
+                    v-model="formData.switch"
+                    :label="Translate('IDCS_ENABLE')"
+                />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_DDNS_SERVER_TYPE')">
                 <el-select

@@ -3,7 +3,7 @@
  * @Date: 2024-09-29 11:48:59
  * @Description: 水印设置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 18:08:37
+ * @LastEditTime: 2024-10-28 14:25:36
  */
 import { type ChannelWaterMarkDto } from '@/types/apiType/channel'
 import { type TableInstance } from 'element-plus'
@@ -86,7 +86,6 @@ export default defineComponent({
                     pluginStore.showPluginNoResponse = true
                     plugin.ShowPluginNoResponse()
                 }
-                plugin.AddPluginMoveEvent(document.getElementById('player')!)
                 const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }

@@ -30,10 +30,7 @@
                     @click="changeChlMenu(index)"
                     @dblclick="changeChlMenu(index)"
                 >
-                    <el-tooltip
-                        :content="item.label"
-                        :show-after="500"
-                    >
+                    <el-tooltip :content="item.label">
                         <BaseImgSprite
                             :file="item.file"
                             :index="pageData.activeChlMenu === index ? 1 : 0"
@@ -71,9 +68,9 @@
                     <BaseListBox class="left-chl-box">
                         <el-checkbox
                             :model-value="isChlAll"
+                            :label="Translate('IDCS_ALL')"
                             @change="toggleAllChl"
-                            >{{ Translate('IDCS_ALL') }}</el-checkbox
-                        >
+                        />
                         <el-checkbox-group v-model="pageData.selectedChl">
                             <el-checkbox
                                 v-for="item in pageData.cacheChlList"
@@ -143,10 +140,7 @@
                 </div>
             </div>
             <div class="left-btns">
-                <el-tooltip
-                    :content="Translate('IDCS_SEARCH')"
-                    :show-after="500"
-                >
+                <el-tooltip :content="Translate('IDCS_SEARCH')">
                     <div>
                         <BaseImgSprite
                             file="search"
@@ -159,10 +153,7 @@
                         />
                     </div>
                 </el-tooltip>
-                <el-tooltip
-                    :content="Translate('IDCS_PLAY')"
-                    :show-after="500"
-                >
+                <el-tooltip :content="Translate('IDCS_PLAY')">
                     <div>
                         <BaseImgSprite
                             file="play (2)"

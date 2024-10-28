@@ -22,7 +22,6 @@
             <el-form
                 ref="formRef"
                 :model="formData"
-                label-position="left"
                 :style="{
                     '--form-label-width': '150px',
                 }"
@@ -31,7 +30,6 @@
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
                     <el-select
                         v-model="selectedChlId"
-                        placeholder=" "
                         @change="handleChlSel"
                     >
                         <el-option
@@ -46,7 +44,6 @@
                 <el-form-item :label="Translate('IDCS_ENABLE')">
                     <el-select
                         v-model="formData.switch"
-                        placeholder=" "
                         :disabled="formData.disabled"
                         @change="handleChangeVal"
                     >
@@ -72,7 +69,6 @@
                 <el-form-item :label="Translate('IDCS_DURATION')">
                     <el-select
                         v-model="formData.holdTime"
-                        placeholder=" "
                         :disabled="formData.disabled || formData.holdTime === ''"
                         @change="handleChangeVal"
                     >
@@ -115,9 +111,7 @@
                     border
                     stripe
                     :data="tableData"
-                    table-layout="fixed"
                     show-overflow-tooltip
-                    empty-text=" "
                     highlight-current-row
                     :row-class-name="(data) => (data.row.disabled ? 'disabled' : '')"
                     @row-click="handleRowClick"
@@ -144,7 +138,7 @@
                         min-width="120"
                     >
                         <template #header>
-                            <el-dropdown trigger="click">
+                            <el-dropdown>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_ENABLE') }}
                                 </BaseTableDropdownLink>
@@ -165,7 +159,6 @@
                             <el-select
                                 v-model="scope.row.switch"
                                 size="small"
-                                placeholder=" "
                                 :disabled="scope.row.disabled"
                                 @focus="handleRowClick(scope.row)"
                                 @change="handleChangeVal"
@@ -190,7 +183,6 @@
                                 :min="scope.row.sensitivityMinValue"
                                 :max="scope.row.sensitivityMaxValue"
                                 :disabled="scope.row.disabled"
-                                value-on-clear="min"
                                 @change="handleChangeVal"
                             />
                         </template>
@@ -200,7 +192,7 @@
                         min-width="180"
                     >
                         <template #header>
-                            <el-dropdown trigger="click">
+                            <el-dropdown>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_DURATION') }}
                                 </BaseTableDropdownLink>
@@ -221,7 +213,6 @@
                             <el-select
                                 v-model="scope.row.holdTime"
                                 size="small"
-                                placeholder=" "
                                 :disabled="scope.row.disabled"
                                 @focus="handleRowClick(scope.row)"
                                 @change="handleChangeVal"
@@ -241,10 +232,6 @@
                 <el-pagination
                     v-model:current-page="pageIndex"
                     v-model:page-size="pageSize"
-                    :page-sizes="DefaultPagerSizeOptions"
-                    size="small"
-                    :background="false"
-                    :layout="DefaultPagerLayout"
                     :total="pageTotal"
                     @size-change="getDataList"
                     @current-change="getDataList"

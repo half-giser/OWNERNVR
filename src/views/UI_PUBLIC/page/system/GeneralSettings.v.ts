@@ -60,7 +60,7 @@ export default defineComponent({
         const rules = ref<FormRules>({
             deviceName: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (!value.length) {
                             callback(new Error(Translate('IDCS_PROMPT_DEVICE_NAME_EMPTY')))
                             return
@@ -72,7 +72,7 @@ export default defineComponent({
             ],
             deviceNumber: [
                 {
-                    validator: (rule, value: string, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_DEVICE_NUMBER_EMPTY')))
                             return

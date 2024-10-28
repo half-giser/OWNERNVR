@@ -7,13 +7,11 @@
     <el-dialog
         :title="Translate('IDCS_EDIT_IP')"
         width="700"
-        align-center
         @opened="opened"
     >
         <el-form
             ref="formRef"
             :model="formData"
-            label-position="left"
             :rules
             :style="{
                 '--form-label-width': '160px',

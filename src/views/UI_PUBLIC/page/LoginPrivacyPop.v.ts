@@ -20,7 +20,7 @@ export default defineComponent({
             return true
         },
     },
-    setup(prop, ctx) {
+    setup(_prop, ctx) {
         const pageData = ref({
             // 是否同意政策
             isAllowPrivacy: false,

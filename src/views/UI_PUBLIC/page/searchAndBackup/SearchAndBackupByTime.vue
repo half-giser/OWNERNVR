@@ -36,9 +36,9 @@
                 <el-text>{{ Translate('IDCS_CHANNEL') }}</el-text>
                 <el-checkbox
                     :model-value="isChlAll"
+                    :label="Translate('IDCS_ALL')"
                     @change="toggleAllChl"
-                    >{{ Translate('IDCS_ALL') }}</el-checkbox
-                >
+                />
             </div>
             <BaseListBox class="chl-box">
                 <el-checkbox-group v-model="formData.chls">
@@ -46,10 +46,9 @@
                         v-for="item in pageData.chlList"
                         :key="item.id"
                         :value="item.id"
+                        :label="item.value"
                         :disabled="isChlAll && !formData.chls.includes(item.id)"
-                    >
-                        {{ item.value }}
-                    </el-checkbox>
+                    />
                 </el-checkbox-group>
             </BaseListBox>
         </div>

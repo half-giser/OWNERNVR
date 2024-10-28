@@ -11,8 +11,6 @@
             <el-table
                 class="tableView"
                 :data="tableData"
-                empty-text=" "
-                table-layout="fixed"
                 show-overflow-tooltip
                 stripe
                 border
@@ -78,7 +76,6 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.LEDScreenType"
-                            placeholder=""
                             size="small"
                             collapse-tags-tooltip
                             :disabled="!scope.row.LEDScreenTypeValid"

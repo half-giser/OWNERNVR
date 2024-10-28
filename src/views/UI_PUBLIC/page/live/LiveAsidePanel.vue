@@ -30,10 +30,7 @@
                     }"
                     @click="changeCtrlMenu(index)"
                 >
-                    <el-tooltip
-                        :content="item.label"
-                        :show-after="500"
-                    >
+                    <el-tooltip :content="item.label">
                         <BaseImgSprite
                             :file="item.file"
                             :index="pageData.activeMenu === index ? 1 : 0"

@@ -9,15 +9,10 @@
     <el-dialog
         :title="Translate('IDCS_ADD')"
         :width="1000"
-        align-center
-        draggable
         @open="open"
     >
         <div>
-            <el-form
-                ref="formRef"
-                label-position="left"
-            >
+            <el-form ref="formRef">
                 <el-form-item>
                     <el-form-item :label="Translate('IDCS_NAME_PERSON')">
                         <el-input
@@ -70,10 +65,9 @@
                     <el-form-item :label="Translate('IDCS_PHONE_NUMBER')">
                         <BaseNumberInput
                             v-model="formData[pageData.formIndex].mobile"
-                            :min="1"
-                            :max="999999999999999"
-                            :controls="false"
-                            :value-on-clear="null"
+                            :parser="formatDigit"
+                            :formatter="formatDigit"
+                            maxlength="15"
                         />
                     </el-form-item>
                 </el-form-item>

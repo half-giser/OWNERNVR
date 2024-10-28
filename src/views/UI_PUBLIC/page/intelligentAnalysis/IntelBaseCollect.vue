@@ -7,7 +7,7 @@
 -->
 <template>
     <div class="collect">
-        <el-dropdown trigger="click">
+        <el-dropdown>
             <BaseImgSprite
                 file="collect"
                 :hover-index="0"
@@ -36,14 +36,11 @@
             :title="Translate('IDCS_ADD_TO_FAVORITE')"
             width="300"
             append-to-body
-            center
-            draggable
         >
             <el-form
                 ref="formRef"
                 :model="formData"
                 :rules="formRule"
-                label-position="left"
                 :style="{
                     '--form-label-width': 'auto',
                 }"

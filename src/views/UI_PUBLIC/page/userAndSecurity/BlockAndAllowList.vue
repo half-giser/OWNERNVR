@@ -9,17 +9,24 @@
     <div class="base-flex-box">
         <el-form class="narrow">
             <el-form-item>
-                <el-checkbox v-model="formData.switch">
-                    {{ Translate('IDCS_ENABLE') }}
-                </el-checkbox>
+                <el-checkbox
+                    v-model="formData.switch"
+                    :label="Translate('IDCS_ENABLE')"
+                />
             </el-form-item>
             <el-form-item>
                 <el-radio-group
                     v-model="formData.filterType"
                     :disabled="!formData.switch"
                 >
-                    <el-radio value="allow">{{ Translate('IDCS_ENABLE_WHITE_LIST') }}</el-radio>
-                    <el-radio value="refuse">{{ Translate('IDCS_ENABLE_BLACK_LIST') }}</el-radio>
+                    <el-radio
+                        value="allow"
+                        :label="Translate('IDCS_ENABLE_WHITE_LIST')"
+                    />
+                    <el-radio
+                        value="refuse"
+                        :label="Translate('IDCS_ENABLE_BLACK_LIST')"
+                    />
                 </el-radio-group>
             </el-form-item>
         </el-form>

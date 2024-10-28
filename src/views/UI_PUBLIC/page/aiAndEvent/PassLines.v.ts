@@ -3,7 +3,7 @@
  * @Date: 2024-09-11 15:00:19
  * @Description: 过线检测
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 14:48:03
+ * @LastEditTime: 2024-10-28 14:23:12
  */
 import { type chlCaps, type regionData, type emailData } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
@@ -80,7 +80,7 @@ export default defineComponent({
             clearAllVisible: false,
 
             // CPC播放器设置
-            // 是否显示CPC绘制控制 TODO 老代码写死不显示，并且不可画图
+            // 是否显示CPC绘制控制 老代码写死不显示，并且不可画图
             showCpcDrawAvailable: false,
             // CPC绘制控制
             isCpcDrawAvailable: false,
@@ -323,7 +323,6 @@ export default defineComponent({
                     pluginStore.showPluginNoResponse = true
                     plugin.ShowPluginNoResponse()
                 }
-                plugin.AddPluginMoveEvent(document.getElementById('player') as HTMLElement)
                 const sendXML = OCX_XML_SetPluginModel(osType == 'mac' ? 'TripwireConfig' : 'ReadOnly', 'Live')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }

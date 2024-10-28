@@ -3,11 +3,10 @@
  * @Date: 2024-08-12 15:34:24
  * @Description: email通知
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-23 20:39:53
+ * @LastEditTime: 2024-10-28 10:05:10
 -->
 <template>
     <div>
-        <!-- <span class="lblReceiver">{{ Translate('IDCS_RECIPIENT') }}</span> -->
         <el-form
             ref="formRef"
             :model="pageData.form"
@@ -17,7 +16,6 @@
                 '--form-input-width': '180px',
             }"
             class="top"
-            label-position="left"
             hide-required-asterisk
         >
             <el-form-item
@@ -72,7 +70,7 @@
                 </el-table-column>
                 <el-table-column width="205">
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_SCHEDULE') }}
                             </BaseTableDropdownLink>
@@ -111,7 +109,7 @@
                     width="90"
                 >
                     <template #header>
-                        <el-dropdown trigger="click">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_DELETE') }}
                             </BaseTableDropdownLink>

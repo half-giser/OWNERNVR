@@ -3,14 +3,12 @@
  * @Date: 2024-07-22 16:34:10
  * @Description: 抓拍注册弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-21 17:39:48
+ * @LastEditTime: 2024-10-28 14:05:20
 -->
 <template>
     <el-dialog
         :title="Translate('IDCS_REGISTER')"
         width="750"
-        align-center
-        draggable
         @open="open"
     >
         <div>
@@ -24,7 +22,6 @@
                 :rules="formRule"
                 :model="formData"
                 class="stripe narrow"
-                label-position="left"
                 inline-message
                 :style="{
                     '--form-input-width': '340px',
@@ -76,17 +73,17 @@
                 <el-form-item :label="Translate('IDCS_PHONE_NUMBER')">
                     <BaseNumberInput
                         v-model="formData.mobile"
-                        :min="1"
-                        :max="999999999999999"
-                        :value-on-clear="null"
+                        :parser="formatDigit"
+                        :formatter="formatDigit"
+                        maxlength="15"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_NUMBER')">
                     <BaseNumberInput
                         v-model="formData.number"
-                        :min="1"
-                        :max="999999999999999"
-                        :value-on-clear="null"
+                        :parser="formatDigit"
+                        :formatter="formatDigit"
+                        maxlength="15"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_REMARK')">

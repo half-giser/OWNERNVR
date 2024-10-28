@@ -11,13 +11,10 @@
             <div class="event">
                 <el-checkbox
                     :model-value="isEventAll"
+                    :label="Translate('IDCS_RECORD_TYPE')"
                     @change="toggleAllEvent"
-                    >{{ Translate('IDCS_RECORD_TYPE') }}</el-checkbox
-                >
-                <el-popover
-                    trigger="click"
-                    popper-class="no-padding"
-                >
+                />
+                <el-popover popper-class="no-padding">
                     <template #reference>
                         <BaseImgSprite file="filterBtn" />
                     </template>
@@ -30,9 +27,8 @@
                             v-for="item in pageData.targetOptions"
                             :key="item.value"
                             :value="item.value"
-                        >
-                            {{ item.label }}
-                        </el-checkbox>
+                            :label="item.label"
+                        />
                     </el-checkbox-group>
                 </el-popover>
             </div>
@@ -44,10 +40,7 @@
                         class="event-item"
                         @click="changeEvent(item.value)"
                     >
-                        <el-tooltip
-                            :content="item.label"
-                            :show-after="500"
-                        >
+                        <el-tooltip :content="item.label">
                             <BaseImgSprite
                                 :file="formData.events.includes(item.value) ? item.checked : item.unchecked"
                                 :index="0"
@@ -91,9 +84,9 @@
                 <el-text>{{ Translate('IDCS_CHANNEL') }}</el-text>
                 <el-checkbox
                     :model-value="isChlAll"
+                    :label="Translate('IDCS_ALL')"
                     @change="toggleAllChl"
-                    >{{ Translate('IDCS_ALL') }}</el-checkbox
-                >
+                />
             </div>
             <div class="chl-box">
                 <BaseListBox>
@@ -102,10 +95,9 @@
                             v-for="item in pageData.chlList"
                             :key="item.id"
                             :value="item.id"
+                            :label="item.value"
                             :disabled="isChlAll && !formData.chls.includes(item.id)"
-                        >
-                            {{ item.value }}
-                        </el-checkbox>
+                        />
                     </el-checkbox-group>
                 </BaseListBox>
                 <div class="base-btn-box">
@@ -214,7 +206,6 @@
                     <el-pagination
                         v-model:current-page="pageData.currentPage"
                         v-model:page-size="pageData.pageSize"
-                        :layout="DefaultPagerLayout"
                         :total="tableData.length"
                         :page-sizes="[20, 30, 50]"
                     />

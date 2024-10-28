@@ -1,17 +1,19 @@
 /*
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-07-31 16:36:16
- * @Description:
+ * @Description: 排程管理弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
  * @LastEditTime: 2024-10-11 12:00:03
  */
-import BaseScheduleWeek from '@/components/BaseScheduleWeek.vue'
+import type BaseScheduleWeek from '@/components/BaseScheduleWeek.vue'
 import ScheduleEditPop from './ScheduleEditPop.vue'
 import { ScheduleInfo, type NameValueItem } from '@/types/apiType/schedule'
 import { type TableInstance } from 'element-plus'
 
 export default defineComponent({
-    components: { BaseScheduleWeek, ScheduleEditPop },
+    components: {
+        ScheduleEditPop,
+    },
     emits: {
         close() {
             return true
@@ -211,6 +213,7 @@ export default defineComponent({
             deleteSchedule,
             openScheduleEditPop,
             editPopClose,
+            ScheduleEditPop,
         }
     },
 })

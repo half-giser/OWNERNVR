@@ -7,11 +7,8 @@
 -->
 <template>
     <el-dialog
-        draggable
-        center
         width="1000"
         :title="pageData.mainTitle"
-        :close-on-click-modal="false"
         :destroy-on-close="true"
         @open="onOpen"
     >
@@ -19,7 +16,6 @@
             ref="formRef"
             :model="formData"
             :rules="formRule"
-            label-position="left"
             inline-message
             :style="{
                 '--form-input-width': '200px',
@@ -36,8 +32,14 @@
                             v-model="pageData.dragAction"
                             class="radio-group"
                         >
-                            <el-radio value="del">{{ Translate('IDCS_ERASE') }}</el-radio>
-                            <el-radio value="add">{{ Translate('IDCS_ADD') }}</el-radio>
+                            <el-radio
+                                value="del"
+                                :label="Translate('IDCS_ERASE')"
+                            />
+                            <el-radio
+                                value="add"
+                                :label="Translate('IDCS_ADD')"
+                            />
                         </el-radio-group>
                     </el-form-item>
                 </el-col>
@@ -118,7 +120,7 @@
                     class="el-col-flex-end"
                 >
                     <el-button @click="save">{{ Translate('IDCS_OK') }}</el-button>
-                    <el-button @click="$emit('close')">{{ Translate('IDCS_CANCEL') }}</el-button>
+                    <el-button @click="$emit('close', true)">{{ Translate('IDCS_CANCEL') }}</el-button>
                 </el-col>
             </el-row>
         </template>

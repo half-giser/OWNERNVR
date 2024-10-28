@@ -43,7 +43,7 @@ export default defineComponent({
         const formRules = ref<FormRules>({
             serverAddr: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (formData.value.accessType === 'GB28181' || !formData.value.nwms5000Switch) {
                             callback()
                             return
@@ -65,7 +65,7 @@ export default defineComponent({
             ],
             reportId: [
                 {
-                    validator(rule, value: number, callback) {
+                    validator(_rule, value: number, callback) {
                         if (formData.value.accessType === 'GB28181' || !formData.value.nwms5000Switch) {
                             callback()
                             return
@@ -82,7 +82,7 @@ export default defineComponent({
             ],
             port: [
                 {
-                    validator(rule, value: number, callback) {
+                    validator(_rule, value: number, callback) {
                         if (formData.value.accessType === 'GB28181' || !formData.value.nwms5000Switch) {
                             callback()
                             return
@@ -99,7 +99,7 @@ export default defineComponent({
             ],
             sipAddr: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (formData.value.accessType !== 'GB28181' || !formData.value.gb28181Switch) {
                             callback()
                             return
@@ -115,7 +115,7 @@ export default defineComponent({
             ],
             sipRelm: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (formData.value.accessType !== 'GB28181' || !formData.value.gb28181Switch) {
                             callback()
                             return
@@ -131,7 +131,7 @@ export default defineComponent({
             ],
             sipId: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (formData.value.accessType !== 'GB28181' || !formData.value.gb28181Switch) {
                             callback()
                             return
@@ -154,7 +154,7 @@ export default defineComponent({
             ],
             sipDeviceId: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (formData.value.accessType !== 'GB28181' || !formData.value.gb28181Switch) {
                             callback()
                             return
@@ -177,7 +177,7 @@ export default defineComponent({
             ],
             sipUserName: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (formData.value.accessType !== 'GB28181' || !formData.value.gb28181Switch) {
                             callback()
                             return
@@ -195,7 +195,7 @@ export default defineComponent({
             ],
             sipPassword: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (formData.value.accessType !== 'GB28181' || !formData.value.gb28181Switch) {
                             callback()
                             return
@@ -213,7 +213,7 @@ export default defineComponent({
             ],
             sipPort: [
                 {
-                    validator(rule, value: number, callback) {
+                    validator(_rule, value: number, callback) {
                         if (formData.value.accessType !== 'GB28181' || !formData.value.gb28181Switch) {
                             callback()
                             return
@@ -230,7 +230,7 @@ export default defineComponent({
             ],
             sipLocalPort: [
                 {
-                    validator(rule, value: number, callback) {
+                    validator(_rule, value: number, callback) {
                         if (formData.value.accessType !== 'GB28181' || !formData.value.gb28181Switch) {
                             callback()
                             return

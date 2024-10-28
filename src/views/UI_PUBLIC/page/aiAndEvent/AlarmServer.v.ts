@@ -8,11 +8,9 @@
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import { type FormInstance, type FormRules } from 'element-plus'
 import { type AlarmTypeInfo } from '@/types/apiType/aiAndEvent'
-import BaseNumberInput from '@/components/form/BaseNumberInput.vue'
 export default defineComponent({
     components: {
         ScheduleManagPop,
-        BaseNumberInput,
     },
     setup() {
         const { Translate } = useLangStore()
@@ -435,7 +433,6 @@ export default defineComponent({
             applyAlarmSever,
             handleProtocolChange,
             ScheduleManagPop,
-            BaseNumberInput,
             handleSchedulePopClose,
             checkAddress,
             checkUrl,

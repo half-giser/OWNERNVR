@@ -57,7 +57,7 @@ export default defineComponent({
         const formRule = ref<FormRules>({
             name: [
                 {
-                    validator(rule, value: string, callback) {
+                    validator(_rule, value: string, callback) {
                         if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
                             return

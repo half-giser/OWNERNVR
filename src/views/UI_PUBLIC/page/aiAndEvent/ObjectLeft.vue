@@ -11,7 +11,10 @@
             class="base-btn-box padding collapse"
             span="start"
         >
-            <el-checkbox v-model="objectLeftData.enabledSwitch">{{ Translate('IDCS_ENABLE') }}</el-checkbox>
+            <el-checkbox
+                v-model="objectLeftData.enabledSwitch"
+                :label="Translate('IDCS_ENABLE')"
+            />
         </div>
         <div>
             <el-tabs
@@ -42,9 +45,9 @@
                                     <el-checkbox
                                         v-show="pageData.isShowAllAreaCheckBox"
                                         v-model="pageData.isShowAllArea"
+                                        :label="Translate('IDCS_DISPLAY_ALL_AREA')"
                                         @change="showAllArea"
-                                        >{{ Translate('IDCS_DISPLAY_ALL_AREA') }}</el-checkbox
-                                    >
+                                    />
                                 </div>
                                 <div>
                                     <el-button
@@ -69,7 +72,6 @@
                             :style="{
                                 '--form-input-width': '215px',
                             }"
-                            label-position="left"
                             inline-message
                         >
                             <!-- 排程 -->
@@ -166,7 +168,6 @@
                         :style="{
                             '--form-input-width': '215px',
                         }"
-                        label-position="left"
                     >
                         <el-form-item :label="Translate('IDCS_VOICE_PROMPT')">
                             <el-select v-model="objectLeftData.sysAudio">
@@ -186,9 +187,9 @@
                             <el-checkbox
                                 v-model="normalParamCheckAll"
                                 class="base-ai-linkage-title base-ai-linkage-title-checkbox-input"
+                                :label="Translate('IDCS_TRIGGER_NOMAL')"
                                 @change="handleNormalParamCheckAll"
-                                >{{ Translate('IDCS_TRIGGER_NOMAL') }}</el-checkbox
-                            >
+                            />
                             <el-checkbox-group
                                 v-model="normalParamCheckList"
                                 @change="handleNormalParamCheck"
@@ -198,8 +199,7 @@
                                     :key="item.value"
                                     :label="item.label"
                                     :value="item.value"
-                                >
-                                </el-checkbox>
+                                />
                             </el-checkbox-group>
                         </div>
                         <!-- 录像 -->

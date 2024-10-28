@@ -3,7 +3,7 @@
  * @Date: 2024-09-12 15:00:13
  * @Description: 过线检测
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-23 20:05:15
+ * @LastEditTime: 2024-10-28 11:03:26
 -->
 <template>
     <div>
@@ -40,16 +40,16 @@
                 <div v-if="pageData.chlData.supportPassLine">
                     <el-checkbox
                         v-model="pageData.passLineDetectionEnable"
+                        :label="Translate('IDCS_ENABLE')"
                         @change="pageData.applyDisable = false"
-                        >{{ Translate('IDCS_ENABLE') }}</el-checkbox
-                    >
+                    />
                 </div>
                 <div v-if="pageData.chlData.supportCpc">
                     <el-checkbox
                         v-model="pageData.cpcDetectionEnable"
+                        :label="Translate('IDCS_ENABLE')"
                         @change="pageData.applyDisable = false"
-                        >{{ Translate('IDCS_ENABLE') }}</el-checkbox
-                    >
+                    />
                 </div>
             </div>
             <!-- 更多按钮 -->
@@ -85,9 +85,9 @@
                             <el-checkbox
                                 v-if="pageData.showAllAreaVisible"
                                 v-model="pageData.isShowAllArea"
+                                :label="Translate('IDCS_DISPLAY_ALL_AREA')"
                                 @change="handlePassLineShowAllAreaChange"
-                                >{{ Translate('IDCS_DISPLAY_ALL_AREA') }}</el-checkbox
-                            >
+                            />
                         </div>
                         <div>
                             <el-button
@@ -115,9 +115,9 @@
                             <el-checkbox
                                 v-if="pageData.showCpcDrawAvailable"
                                 v-model="pageData.isCpcDrawAvailable"
+                                :label="Translate('IDCS_DRAW_WARN_SURFACE')"
                                 @change="handleCpcDrawAvailableChange"
-                                >{{ Translate('IDCS_DRAW_WARN_SURFACE') }}</el-checkbox
-                            >
+                            />
                         </div>
                         <div>
                             <el-button
@@ -150,7 +150,6 @@
                         >
                             <el-form
                                 :model="pageData"
-                                label-position="left"
                                 class="narrow"
                                 :style="{
                                     '--form-input-width': '215px',
@@ -193,9 +192,8 @@
                                             v-for="(_item, index) in pageData.lineInfo"
                                             :key="index"
                                             :value="index"
-                                        >
-                                            {{ index + 1 }}
-                                        </el-radio-button>
+                                            :label="index + 1"
+                                        />
                                     </el-radio-group>
                                 </el-form-item>
                                 <!-- 方向 -->
@@ -221,9 +219,9 @@
                                     <template #label>
                                         <el-checkbox
                                             v-model="pageData.countOSD.switch"
+                                            :label="Translate('IDCS_STATIST_OSD')"
                                             @change="handleOSDChange"
-                                            >{{ Translate('IDCS_STATIST_OSD') }}</el-checkbox
-                                        >
+                                        />
                                     </template>
                                 </el-form-item>
                                 <div class="base-ai-subheading">
@@ -233,10 +231,9 @@
                                 <el-form-item :label="Translate('IDCS_AUTO_RESET')">
                                     <el-checkbox
                                         v-model="pageData.autoReset"
+                                        :label="Translate('IDCS_ENABLE')"
                                         @change="pageData.applyDisable = false"
-                                    >
-                                        {{ Translate('IDCS_ENABLE') }}
-                                    </el-checkbox>
+                                    />
                                 </el-form-item>
                                 <!-- 模式 -->
                                 <el-form-item :label="Translate('IDCS_MODE')">
@@ -339,7 +336,6 @@
                             <el-form
                                 :model="pageData"
                                 label-width="150"
-                                label-position="left"
                                 :style="{
                                     '--form-input-width': '215px',
                                 }"
@@ -473,7 +469,6 @@
                             <el-form
                                 :model="pageData"
                                 label-width="auto"
-                                label-position="left"
                                 :style="{
                                     '--form-input-width': '300px',
                                 }"
@@ -487,9 +482,9 @@
                                         <el-row>
                                             <el-checkbox
                                                 v-model="pageData.objectFilter.person"
+                                                :label="Translate('IDCS_DETECTION_PERSON')"
                                                 @change="pageData.applyDisable = false"
-                                                >{{ Translate('IDCS_DETECTION_PERSON') }}</el-checkbox
-                                            >
+                                            />
                                         </el-row>
                                     </template>
                                     <template #default>
@@ -509,9 +504,9 @@
                                         <div class="sensitivity_box">
                                             <el-checkbox
                                                 v-model="pageData.objectFilter.car"
+                                                :label="Translate('IDCS_DETECTION_VEHICLE')"
                                                 @change="pageData.applyDisable = false"
-                                                >{{ Translate('IDCS_DETECTION_VEHICLE') }}</el-checkbox
-                                            >
+                                            />
                                         </div>
                                     </template>
                                     <template #default>
@@ -531,9 +526,9 @@
                                         <div class="sensitivity_box">
                                             <el-checkbox
                                                 v-model="pageData.objectFilter.motorcycle"
+                                                :label="Translate('IDCS_NON_VEHICLE')"
                                                 @change="pageData.applyDisable = false"
-                                                >{{ Translate('IDCS_NON_VEHICLE') }}</el-checkbox
-                                            >
+                                            />
                                         </div>
                                     </template>
                                     <template #default>

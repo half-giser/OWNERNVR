@@ -12,7 +12,6 @@
         :style="{
             '--form-input-width': '430px',
         }"
-        label-position="left"
         inline-message
     >
         <el-form-item
@@ -60,9 +59,9 @@
                     <div>
                         <el-checkbox
                             v-model="faceDetectionData.enabledSwitch"
+                            :label="detectionPageData.deviceInfo"
                             @change="enabledSwitchChange"
-                            >{{ detectionPageData.deviceInfo }}</el-checkbox
-                        >
+                        />
                     </div>
                     <div v-show="showAIReourceDetail">
                         <span>{{ Translate('IDCS_USAGE_RATE') }} {{ pageData.resourceOccupancy }}</span>
@@ -112,7 +111,6 @@
                                     :style="{
                                         '--form-input-width': '215px',
                                     }"
-                                    label-position="left"
                                     inline-message
                                 >
                                     <!-- 排程 -->
@@ -187,14 +185,14 @@
                                                 v-model="detectionPageData.isSnapNumberChecked"
                                                 :disabled="faceDetectionData.snapInterval === ''"
                                                 @change="snapNumberCheckChange"
-                                            ></el-checkbox>
+                                            />
                                         </el-form-item>
                                         <!-- 人脸曝光 -->
                                         <el-form-item :label="Translate('IDCS_FACE_DETECT_EXPOSURE')">
                                             <el-checkbox
                                                 v-model="faceDetectionData.faceExpSwitch"
                                                 :disabled="detectionPageData.faceExpDisabled"
-                                            ></el-checkbox>
+                                            />
                                             <el-slider
                                                 v-model="faceDetectionData.faceExpStrength"
                                                 :disabled="detectionPageData.faceExpDisabled"
@@ -230,9 +228,9 @@
                                         <el-form-item label=" ">
                                             <el-checkbox
                                                 v-model="detectionPageData.isDispalyRangeChecked"
+                                                :label="Translate('IDCS_DISPLAY_RANGE_BOX')"
                                                 @change="dispalyRangeChange"
-                                                >{{ Translate('IDCS_DISPLAY_RANGE_BOX') }}</el-checkbox
-                                            >
+                                            />
                                         </el-form-item>
                                     </div>
                                 </el-form>
@@ -249,7 +247,6 @@
                                 :style="{
                                     '--form-input-width': '215px',
                                 }"
-                                label-position="left"
                             >
                                 <el-form-item
                                     v-show="supportAlarmAudioConfig"
@@ -275,9 +272,9 @@
                                     <el-checkbox
                                         v-model="normalParamCheckAll"
                                         class="base-ai-linkage-title base-ai-linkage-title-checkbox-input"
+                                        :label="Translate('IDCS_TRIGGER_NOMAL')"
                                         @change="handleNormalParamCheckAll"
-                                        >{{ Translate('IDCS_TRIGGER_NOMAL') }}</el-checkbox
-                                    >
+                                    />
                                     <el-checkbox-group
                                         v-model="normalParamCheckList"
                                         @change="handleNormalParamCheck"
@@ -287,8 +284,7 @@
                                             :key="item.value"
                                             :label="item.label"
                                             :value="item.value"
-                                        >
-                                        </el-checkbox>
+                                        />
                                     </el-checkbox-group>
                                 </div>
                                 <!-- 录像 -->
@@ -303,7 +299,6 @@
                                     </div>
                                     <el-table
                                         :data="faceDetectionData.record"
-                                        empty-text=" "
                                         stripe
                                         :show-header="false"
                                     >
@@ -322,7 +317,6 @@
                                     </div>
                                     <el-table
                                         :data="faceDetectionData.alarmOut"
-                                        empty-text=" "
                                         stripe
                                         :show-header="false"
                                     >
@@ -378,7 +372,6 @@
                     <el-popover
                         v-model:visible="advancedVisible"
                         width="300"
-                        trigger="click"
                         popper-class="no-padding"
                     >
                         <template #reference>
@@ -401,15 +394,15 @@
                             <el-checkbox
                                 v-model="detectionPageData.isSaveSourcePicChecked"
                                 :disabled="detectionPageData.isSavePicDisabled"
+                                :label="Translate('IDCS_SMART_SAVE_SOURCE_PIC')"
                                 @change="saveSourcePicChange"
-                                >{{ Translate('IDCS_SMART_SAVE_SOURCE_PIC') }}</el-checkbox
-                            >
+                            />
                             <el-checkbox
                                 v-model="detectionPageData.isSaveFacePicChecked"
                                 :disabled="detectionPageData.isSavePicDisabled"
+                                :label="Translate('IDCS_SMART_SAVE_TARGET_PIC')"
                                 @change="saveFacePicChange"
-                                >{{ Translate('IDCS_SMART_SAVE_TARGET_PIC') }}</el-checkbox
-                            >
+                            />
                             <div class="base-btn-box">
                                 <el-button @click="advancedVisible = false">{{ Translate('IDCS_CLOSE') }}</el-button>
                             </div>
@@ -441,14 +434,14 @@
                         <el-text :style="{ margin: '0 20px' }">{{ Translate('IDCS_ENABLE') }}</el-text>
                         <el-checkbox
                             v-model="faceMatchData.hitEnable"
+                            :label="Translate('IDCS_SUCCESSFUL_RECOGNITION')"
                             @change="getAIResourceData(true)"
-                            >{{ Translate('IDCS_SUCCESSFUL_RECOGNITION') }}</el-checkbox
-                        >
+                        />
                         <el-checkbox
                             v-model="faceMatchData.notHitEnable"
+                            :label="Translate('IDCS_GROUP_STRANGER')"
                             @change="getAIResourceData(true)"
-                            >{{ Translate('IDCS_GROUP_STRANGER') }}</el-checkbox
-                        >
+                        />
                     </div>
                     <div v-show="showAIReourceDetail">
                         <span>{{ Translate('IDCS_USAGE_RATE') }} {{ pageData.resourceOccupancy }}</span>
@@ -487,7 +480,6 @@
                                         <template #header>
                                             <el-dropdown
                                                 ref="similarityRef"
-                                                trigger="click"
                                                 :hide-on-click="false"
                                                 placement="bottom-start"
                                             >
@@ -499,7 +491,6 @@
                                                             :style="{
                                                                 '--form-input-width': '100px',
                                                             }"
-                                                            label-position="left"
                                                             label-width="100"
                                                             inline-message
                                                         >
@@ -508,7 +499,6 @@
                                                                     v-model="comparePageData.similarityNumber"
                                                                     :min="1"
                                                                     :max="100"
-                                                                    value-on-clear="min"
                                                                 ></BaseNumberInput>
                                                                 <span>%</span>
                                                             </el-form-item>
@@ -526,7 +516,6 @@
                                                 v-model="scope.row.similarity"
                                                 :min="1"
                                                 :max="100"
-                                                value-on-clear="min"
                                                 @blur="similarityInputBlur($event, scope.$index)"
                                                 @keyup.enter="enterBlur($event)"
                                             ></BaseNumberInput>
@@ -534,7 +523,10 @@
                                     </el-table-column>
                                 </el-table>
                                 <div>{{ Translate('IDCS_FACE_MATCH_PARAM_TIP') }}</div>
-                                <el-checkbox v-model="faceMatchData.liveDisplaySwitch">{{ Translate('IDCS_NO_REALTIME_DISPLAY') }}</el-checkbox>
+                                <el-checkbox
+                                    v-model="faceMatchData.liveDisplaySwitch"
+                                    :label="Translate('IDCS_NO_REALTIME_DISPLAY')"
+                                />
                             </div>
                         </el-tab-pane>
                         <el-tab-pane
@@ -597,8 +589,6 @@
         :title="Translate('IDCS_DETAIL')"
         width="600"
         hight="400"
-        align-center
-        draggable
         @open="openAIResourcePop"
         @close="AIResourcePopOpen = false"
     >

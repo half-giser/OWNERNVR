@@ -11,7 +11,6 @@
             ref="formRef"
             :rules="formRules"
             :model="formData"
-            label-position="left"
             inline-message
             :style="{
                 '--form-label-width': '200px',
@@ -33,9 +32,9 @@
                 <el-form-item>
                     <el-checkbox
                         v-model="formData.nwms5000Switch"
+                        :label="Translate('IDCS_ENABLE')"
                         @change="changeNWMS5000Switch"
-                        >{{ Translate('IDCS_ENABLE') }}</el-checkbox
-                    >
+                    />
                 </el-form-item>
 
                 <el-form-item
@@ -59,7 +58,6 @@
                         :min="10"
                         :max="65535"
                         :disabled="!formData.nwms5000Switch"
-                        value-on-clear="min"
                     />
                 </el-form-item>
                 <el-form-item
@@ -70,7 +68,6 @@
                         v-model="formData.reportId"
                         :min="0"
                         :max="99999999"
-                        value-on-clear="min"
                         :disabled="!formData.nwms5000Switch"
                     />
                 </el-form-item>
@@ -80,7 +77,10 @@
             </template>
             <template v-if="formData.accessType === 'GB28181'">
                 <el-form-item>
-                    <el-checkbox v-model="formData.gb28181Switch">{{ Translate('IDCS_ENABLE') }}</el-checkbox>
+                    <el-checkbox
+                        v-model="formData.gb28181Switch"
+                        :label="Translate('IDCS_ENABLE')"
+                    />
                 </el-form-item>
                 <el-form-item>
                     <el-form-item
@@ -164,7 +164,6 @@
                             :disabled="!formData.gb28181Switch"
                             :min="1025"
                             :max="65535"
-                            value-on-clear="min"
                         />
                     </el-form-item>
                     <el-form-item :label="Translate('IDCS_KEEP_ALIVE_CYCLE')">
@@ -173,7 +172,6 @@
                             :disabled="!formData.gb28181Switch"
                             :min="5"
                             :max="3600"
-                            value-on-clear="min"
                         />
                     </el-form-item>
                 </el-form-item>
@@ -186,7 +184,6 @@
                         :disabled="!formData.gb28181Switch"
                         :min="10"
                         :max="65535"
-                        value-on-clear="min"
                     />
                 </el-form-item>
             </template>

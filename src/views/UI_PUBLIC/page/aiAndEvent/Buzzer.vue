@@ -13,7 +13,6 @@
         :style="{
             '--form-input-width': '215px',
         }"
-        label-position="left"
         inline-message
     >
         <el-form-item :label="Translate('IDCS_DELAY')">

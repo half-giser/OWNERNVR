@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 16:10:39
  * @Description: 抓拍注册弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 15:42:34
+ * @LastEditTime: 2024-10-28 14:08:43
  */
 import type { FormInstance, FormRules } from 'element-plus'
 import IntelFaceDBEditPop from './IntelFaceDBEditPop.vue'
@@ -69,7 +69,7 @@ export default defineComponent({
         const formRule = ref<FormRules>({
             name: [
                 {
-                    validator(rule, value, callback) {
+                    validator(_rule, value, callback) {
                         if (!value.trim().length) {
                             callback(new Error(Translate('IDCS_PROMPT_FULL_NAME_EMPTY')))
                             return
@@ -147,8 +147,8 @@ export default defineComponent({
                     <birthday>${formatDate(formData.value.birthday, dateTime.dateFormat, 'YYYY-MM-DD')}</birthday>
                     <nativePlace></nativePlace>
                     <certificateType type="certificateType">${formData.value.certificateType}</certificateType>
-                    <mobile>${formData.value.mobile?.toString() || ''}</mobile>
-                    <number>${formData.value.number?.toString() || ''}</number>
+                    <mobile>${formData.value.mobile}</mobile>
+                    <number>${formData.value.number}</number>
                     <note>${formData.value.note}</note>
                     <groups>
                         <item id="${groupItemId}">
@@ -270,6 +270,7 @@ export default defineComponent({
             confirmAddGroup,
             verify,
             highlightWeekend,
+            formatDigit,
             IntelFaceDBEditPop,
         }
     },

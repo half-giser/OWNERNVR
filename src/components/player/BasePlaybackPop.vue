@@ -9,8 +9,6 @@
     <el-dialog
         :width="dialogWidth"
         :title="Translate('IDCS_REPLAY')"
-        center
-        draggable
         @close="beforeClose"
         @opened="open"
     >
@@ -63,10 +61,7 @@
             </div>
             <div class="control-btns">
                 <span class="current-time">{{ currentTime }}</span>
-                <el-tooltip
-                    :content="Translate('IDCS_PAUSE')"
-                    :show-after="500"
-                >
+                <el-tooltip :content="Translate('IDCS_PAUSE')">
                     <BaseImgSprite
                         v-show="!pageData.paused"
                         class="btn"
@@ -79,10 +74,7 @@
                         @click="pause"
                     />
                 </el-tooltip>
-                <el-tooltip
-                    :content="Translate('IDCS_PLAY')"
-                    :show-after="500"
-                >
+                <el-tooltip :content="Translate('IDCS_PLAY')">
                     <BaseImgSprite
                         v-show="pageData.paused"
                         class="btn"
@@ -95,10 +87,7 @@
                         @click="play"
                     />
                 </el-tooltip>
-                <el-tooltip
-                    :content="Translate('IDCS_STOP')"
-                    :show-after="500"
-                >
+                <el-tooltip :content="Translate('IDCS_STOP')">
                     <BaseImgSprite
                         file="image_preview_stop"
                         class="btn"
@@ -392,7 +381,7 @@ const seek = (timestamp: number) => {
  * @description 播放器进度回调
  * @param timestamp 时间戳（ms）
  */
-const handleTime = (winIndex: number, data: TVTPlayerWinDataListItem, timestamp: number) => {
+const handleTime = (_winIndex: number, _data: TVTPlayerWinDataListItem, timestamp: number) => {
     if (pageData.value.lockSlider) {
         return
     }

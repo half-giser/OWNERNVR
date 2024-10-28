@@ -1,7 +1,7 @@
 /*
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-07-29 14:15:46
- * @Description:
+ * @Description: 新建录像模式
  * @LastEditors: tengxiang tengxiang@tvt.net.cn
  * @LastEditTime: 2024-08-02 14:39:57
  */
@@ -14,7 +14,14 @@ export default defineComponent({
             required: true,
         },
     },
-    emits: ['confirm', 'close'],
+    emits: {
+        confirm(e: string[]) {
+            return Array.isArray(e)
+        },
+        close() {
+            return true
+        },
+    },
     setup() {
         const userSessionStore = useUserSessionStore()
 

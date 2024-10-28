@@ -9,7 +9,6 @@
     <div class="tcp-ip">
         <div class="base-subheading-box">{{ Translate('IDCS_IP_ADDRESS_SET') }}</div>
         <el-form
-            label-position="left"
             class="narrow"
             :style="{
                 '--form-input-width': '220px',
@@ -81,9 +80,9 @@
                         <el-checkbox
                             :model-value="current.dhcpSwitch"
                             :disabled="pageData.pppoeSwitch"
+                            :label="Translate('IDCS_AUTO_GET_IP_ADDRESS')"
                             @update:model-value="changeSwitch($event, 'dhcpSwitch')"
-                            >{{ Translate('IDCS_AUTO_GET_IP_ADDRESS') }}</el-checkbox
-                        >
+                        />
                     </el-form-item>
                 </div>
                 <div class="ip">
@@ -139,9 +138,9 @@
                             <el-checkbox
                                 :model-value="current.ipv4DnsDhcpSwitch"
                                 :disabled="!current.dhcpSwitch || !poeEnabled"
+                                :label="Translate('IDCS_AUTO_GET_DNS_ADDRESS')"
                                 @update:model-value="changeSwitch($event, 'ipv4DnsDhcpSwitch')"
-                                >{{ Translate('IDCS_AUTO_GET_DNS_ADDRESS') }}</el-checkbox
-                            >
+                            />
                         </el-form-item>
                         <!-- IPv4首选DNS -->
                         <el-form-item :label="Translate('IDCS_FIRST_DNS')">
@@ -166,10 +165,10 @@
                             <el-checkbox
                                 :model-value="current.ipV6Switch"
                                 :disabled="!poeEnabled"
+                                :label="Translate('IDCS_ENABLE')"
                                 @update:model-value="changeSwitch($event, 'ipV6Switch')"
                                 @change="handleChangeIpV6Switch"
-                                >{{ Translate('IDCS_ENABLE') }}</el-checkbox
-                            >
+                            />
                         </el-form-item>
                         <!-- IPv6地址 -->
                         <el-form-item :label="Translate('IDCS_IP_ADDRESS')">
@@ -191,7 +190,6 @@
                                 :model-value="current.subLengthV6"
                                 :min="0"
                                 :max="128"
-                                value-on-clear="min"
                                 @update:model-value="changeData($event, 'subLengthV6')"
                             />
                         </el-form-item>
@@ -208,9 +206,9 @@
                             <el-checkbox
                                 :model-value="current.ipv6DnsDhcpSwitch"
                                 :disabled="!current.ipV6Switch || !current.dhcpSwitch || !poeEnabled"
+                                :label="Translate('IDCS_AUTO_GET_DNS_IPV6_ADDRESS')"
                                 @update:model-value="changeSwitch($event, 'ipv6DnsDhcpSwitch')"
-                                >{{ Translate('IDCS_AUTO_GET_DNS_IPV6_ADDRESS') }}</el-checkbox
-                            >
+                            />
                         </el-form-item>
                         <!-- IPv6首选DNS -->
                         <el-form-item :label="Translate('IDCS_FIRST_DNS')">

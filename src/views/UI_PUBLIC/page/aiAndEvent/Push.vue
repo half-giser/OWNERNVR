@@ -13,12 +13,14 @@
             '--form-input-width': '215px',
             '--form-label-width': '200px',
         }"
-        label-position="left"
         inline-message
     >
         <div class="base-subheading-box">{{ Translate('IDCS_PUSH_MESSAGE') }}</div>
         <el-form-item>
-            <el-checkbox v-model="pushFormData.chkEnable">{{ Translate('IDCS_ENABLE') }}</el-checkbox>
+            <el-checkbox
+                v-model="pushFormData.chkEnable"
+                :label="Translate('IDCS_ENABLE')"
+            />
         </el-form-item>
         <el-form-item :label="Translate('IDCS_PUSH_SCHEDULE')">
             <el-select

@@ -9,9 +9,6 @@
     <el-dialog
         :title="Translate(title)"
         width="500"
-        align-center
-        draggable
-        :close-on-click-modal="false"
         @close="close"
         @opened="reset"
     >
@@ -20,7 +17,6 @@
             :model="formData"
             :rules="rules"
             label-width="150"
-            label-position="left"
             hide-required-asterisk
         >
             <el-form-item

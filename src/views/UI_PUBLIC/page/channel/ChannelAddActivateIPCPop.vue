@@ -7,14 +7,12 @@
     <el-dialog
         :title="Translate('IDCS_ACTIVATE')"
         width="600"
-        align-center
         @opened="opened"
     >
         <el-form
             ref="formRef"
             :model="formData"
             :rules="rules"
-            label-position="left"
             :style="{
                 '--form-input-width': '200px',
             }"

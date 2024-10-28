@@ -10,8 +10,6 @@
         :title="Translate('IDCS_COMBINED_ALARM_CONFIG')"
         width="520"
         hight="560"
-        align-center
-        draggable
         @open="open"
         @close="close"
     >

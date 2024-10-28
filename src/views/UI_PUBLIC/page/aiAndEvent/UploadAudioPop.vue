@@ -10,14 +10,9 @@
         :title="pageData.title"
         width="500"
         height="220"
-        align-center
-        draggable
         @open="open"
     >
-        <el-form
-            label-width="100"
-            label-position="left"
-        >
+        <el-form label-width="100">
             <el-form-item :label="Translate('IDCS_PATH')">
                 <el-input
                     v-model="pageData.uploadFileName"
