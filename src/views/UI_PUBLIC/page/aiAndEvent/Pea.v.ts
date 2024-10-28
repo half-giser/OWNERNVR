@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-19 13:36:26
  * @Description: 区域入侵
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-28 11:23:15
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-28 15:18:46
  */
 import { type chlCaps, type aiResourceRow, type peaPageData, type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
@@ -367,7 +367,7 @@ export default defineComponent({
             if ($('status').text() == 'success') {
                 peaData.value.applyDisable = true
                 const schedule = $('//content/chl').attr('scheduleGuid')
-                peaData.value.pea_schedule = schedule != '' ? (peaData.value.scheduleList.some((item) => item.value == schedule) ? schedule : DEFAULT_EMPTY_ID) : DEFAULT_EMPTY_ID
+                peaData.value.pea_schedule = schedule !== '' ? (peaData.value.scheduleList.some((item) => item.value == schedule) ? schedule : DEFAULT_EMPTY_ID) : DEFAULT_EMPTY_ID
                 getPeaActivityData('perimeter', res)
                 getPeaActivityData('entry', res)
                 getPeaActivityData('leave', res)
@@ -428,7 +428,7 @@ export default defineComponent({
                     holdTimeArr.push(peaData.value.areaCfgData[activity_type].holdTime.toString())
                     peaData.value.areaCfgData[activity_type].holdTimeList = formatHoldTime(holdTimeArr)
                 }
-                const regulation = $(`//content/chl/${activity_type}/param/boundary`).attr('regulation') == '1'
+                const regulation = $(`//content/chl/perimeter/param/boundary`).attr('regulation') == '1'
                 peaData.value.areaCfgData[activity_type].regulation = regulation
                 const boundaryInfo = [] as { point: { X: number; Y: number; isClosed: boolean }[]; maxCount: number; configured: boolean }[]
                 const regionInfo = [] as { X1: number; Y1: number; X2: number; Y2: number }[]
@@ -1320,7 +1320,7 @@ export default defineComponent({
                         peaDrawer.setArea(regionInfo[area])
                     } else {
                         // 画点
-                        peaDrawer.setPointList(boundaryInfo[area].point)
+                        peaDrawer.setPointList(boundaryInfo[area].point, true)
                     }
                 } else {
                     const sendXML = OCX_XML_SetPeaArea(boundaryInfo[area].point, peaData.value.currentRegulation)
