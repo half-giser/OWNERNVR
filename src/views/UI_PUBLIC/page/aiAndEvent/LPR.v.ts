@@ -2,8 +2,8 @@
  * @Description: AI 事件——车牌识别
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-09 09:56:33
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-28 14:09:49
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-28 15:29:38
  */
 import { type CompareTask, VehicleDetection, type VehicleChlItem, VehicleCompare } from '@/types/apiType/aiAndEvent'
 import CanvasPolygon from '@/utils/canvas/canvasPolygon'
@@ -1575,6 +1575,7 @@ export default defineComponent({
             applyVehicleDetectionData,
 
             /* 车牌识别——识别 */
+            vehicleCompareData,
             taskTabs,
             // 车辆
             vehicleGroupData,
