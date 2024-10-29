@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-23 15:03:09
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-28 10:35:25
+ * @LastEditTime: 2024-10-29 15:09:17
  */
 import { type CombinedAlarmItem, type faceMatchObj } from '@/types/apiType/aiAndEvent'
 import FaceMatchPop from './FaceMatchPop.vue'
@@ -95,6 +95,7 @@ export default defineComponent({
             tripwireMap: [] as SelectOption<string, string>[],
             description: [] as string[],
             isDetectShow: false,
+            detectChlId: '',
             detectEntity: '',
             detectType: '',
             detectBtn: { value: '', label: '' },
@@ -153,7 +154,8 @@ export default defineComponent({
             })
         }
 
-        const getFaceAndPeaAndTripwire = () => {
+        // 获取支持人脸比对的通道
+        const getFaceMatchData = () => {
             getChlList({
                 nodeType: 'chls',
                 isSupportVfd: true,
@@ -166,23 +168,64 @@ export default defineComponent({
                         const factoryName = $item('productModel').attr('factoryName')
                         const accessType = $item('AccessType').text()
 
-                        if (protocolType === 'RTSP') return
-                        if (factoryName === 'Recorder') return
-                        // 过滤掉rtsp和cms添加的通道
-                        pageData.value.peaMap.push({
-                            value: item.attr('id')!,
-                            label: $item('name').text(),
-                        })
-                        pageData.value.tripwireMap.push({
-                            value: item.attr('id')!,
-                            label: $item('name').text(),
-                        })
-
+                        // 过滤掉rtsp和cms添加的通道以及热成像通道
                         if (accessType == '1') return
+                        if (factoryName === 'Recorder') return
+                        if (protocolType === 'RTSP') return
 
                         pageData.value.faceMap.push({
                             value: item.attr('id')!,
                             label: $('name').text(),
+                        })
+                    })
+                })
+            })
+        }
+
+        // 配置支持区域入侵的通道
+        const getPeaData = () => {
+            getChlList({
+                nodeType: 'chls',
+                isSupportPea: true,
+                requireField: ['protocolType'],
+            }).then((result) => {
+                commLoadResponseHandler(result, ($) => {
+                    $('//content/item').forEach((item) => {
+                        const $item = queryXml(item.element)
+                        const protocolType = $item('protocolType').text()
+                        const factoryName = $item('productModel').attr('factoryName')
+
+                        // 过滤掉rtsp和cms添加的通道
+                        if (factoryName === 'Recorder') return
+                        if (protocolType === 'RTSP') return
+                        pageData.value.peaMap.push({
+                            value: item.attr('id')!,
+                            label: $item('name').text(),
+                        })
+                    })
+                })
+            })
+        }
+
+        // 配置支持越界的通道
+        const getTripwireData = () => {
+            getChlList({
+                nodeType: 'chls',
+                isSupportTripwire: true,
+                requireField: ['protocolType'],
+            }).then((result) => {
+                commLoadResponseHandler(result, ($) => {
+                    $('//content/item').forEach((item) => {
+                        const $item = queryXml(item.element)
+                        const protocolType = $item('protocolType').text()
+                        const factoryName = $item('productModel').attr('factoryName')
+
+                        // 过滤掉rtsp和cms添加的通道
+                        if (factoryName === 'Recorder') return
+                        if (protocolType === 'RTSP') return
+                        pageData.value.tripwireMap.push({
+                            value: item.attr('id')!,
+                            label: $item('name').text(),
                         })
                     })
                 })
@@ -357,28 +400,6 @@ export default defineComponent({
                     }
 
                     pageData.value.description.push(str)
-                    // 源代码逻辑中对区域入侵和越界的条件描述进行了不同情况下的判断，但判断后都取了报警源的label，故直接合并到其他情况内
-                    /* } else if (item.alarmSourceType == 'InvadeDetect') {
-                    let str = COMBINED_ALARM_TYPES_MAPPING[item.alarmSourceType] + ' '
-                    str += localTargetDectMaxCount
-                        ? pageData.value.chlsFilterMapForThermal.some((el) => el.value == item.alarmSourceEntity.value)
-                            ? item.alarmSourceEntity.label
-                            : ''
-                        : pageData.value.peaMap.some((el) => el.value == item.alarmSourceEntity.value)
-                          ? item.alarmSourceEntity.label
-                          : ''
-
-                    pageData.value.description.push(str)
-                } else if (item.alarmSourceType == 'Tripwire') {
-                    let str = COMBINED_ALARM_TYPES_MAPPING[item.alarmSourceType] + ' '
-                    str += localTargetDectMaxCount
-                        ? pageData.value.chlsFilterMapForThermal.some((el) => el.value == item.alarmSourceEntity.value)
-                            ? item.alarmSourceEntity.label
-                            : ''
-                        : pageData.value.tripwireMap.some((el) => el.value == item.alarmSourceEntity.value)
-                          ? item.alarmSourceEntity.label
-                          : ''
-                    pageData.value.description.push(str) */
                 } else {
                     const str = COMBINED_ALARM_TYPES_MAPPING[item.alarmSourceType] + ' ' + (item.alarmSourceEntity.label || '')
                     pageData.value.description.push(str)
@@ -471,6 +492,7 @@ export default defineComponent({
 
             if (isShowDetect == 'false') {
                 pageData.value.isDetectShow = true
+                pageData.value.detectChlId = row.alarmSourceEntity.value
                 pageData.value.detectEntity = row.alarmSourceEntity.label
                 pageData.value.detectType = detectTypeMap[row.alarmSourceType]
                 pageData.value.detectBtn.value = row.alarmSourceType
@@ -480,7 +502,7 @@ export default defineComponent({
             }
         }
 
-        // 跳转的几个界面暂时还为空，后续记得验证
+        // 跳转到相应页面
         const clickChangeDetect = () => {
             const urlMap: Record<string, string> = {
                 Motion: '/config/channel/settings/motion',
@@ -489,7 +511,40 @@ export default defineComponent({
                 InvadeDetect: '/config/alarm/boundary',
                 Tripwire: '/config/alarm/boundary',
             }
-            router.push(urlMap[pageData.value.detectBtn.value])
+            switch (pageData.value.detectBtn.value) {
+                case 'Motion':
+                case 'Sensor':
+                    router.push({
+                        path: urlMap[pageData.value.detectBtn.value],
+                    })
+                    break
+                case 'FaceMatch':
+                    router.push({
+                        path: '/config/alarm/faceRecognition',
+                        state: {
+                            chlId: pageData.value.detectChlId,
+                        },
+                    })
+                    break
+                case 'InvadeDetect':
+                    router.push({
+                        path: '/config/alarm/boundary',
+                        state: {
+                            type: 'Pea',
+                            chlId: pageData.value.detectChlId,
+                        },
+                    })
+                    break
+                case 'Tripwire':
+                    router.push({
+                        path: '/config/alarm/boundary',
+                        state: {
+                            type: 'Tripwire',
+                            chlId: pageData.value.detectChlId,
+                        },
+                    })
+                    break
+            }
         }
 
         const handleEdit = (entity: string) => {
@@ -559,7 +614,9 @@ export default defineComponent({
         onMounted(async () => {
             getChls()
             getSensors()
-            getFaceAndPeaAndTripwire()
+            getFaceMatchData()
+            getPeaData()
+            getTripwireData()
         })
 
         return {
