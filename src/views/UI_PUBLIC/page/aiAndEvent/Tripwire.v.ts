@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 11:16:22
  * @Description: 周界防范/人车检测
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-28 15:17:38
+ * @LastEditTime: 2024-10-29 11:10:41
  */
 import { type chlCaps, type aiResourceRow, type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
@@ -1172,7 +1172,7 @@ export default defineComponent({
                     tripwireDrawer.setCurrentSurfaceOrAlarmLine(currentSurface)
                     tripwireDrawer.drawAllPassline(lineInfoList, currentSurface)
                 } else {
-                    const pluginLineInfoList = JSON.parse(JSON.stringify(lineInfoList))
+                    const pluginLineInfoList = cloneDeep(lineInfoList)
                     pluginLineInfoList.splice(currentSurface, 1) // 插件端下发全部区域需要过滤掉当前区域数据
                     const sendXML = OCX_XML_SetAllArea({ lineInfoList: pluginLineInfoList }, 'WarningLine', 'TYPE_TRIPWIRE_LINE', undefined, true)
                     if (sendXML) {
