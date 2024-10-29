@@ -3,7 +3,7 @@
  * @Date: 2024-09-09 19:21:49
  * @Description: 智能分析 - 人体搜索
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 16:03:12
+ * @LastEditTime: 2024-10-29 14:13:36
  */
 import { type IntelSearchCollectList, type IntelSearchList, IntelSnapImgDto, IntelSearchBodyForm, type IntelSnapPopList } from '@/types/apiType/intelligentAnalysis'
 import IntelBaseChannelSelector from './IntelBaseChannelSelector.vue'
@@ -360,7 +360,13 @@ export default defineComponent({
                             isDelSnap: false,
                             isNoData: !content,
                             plateNumber: '',
+                            attribute: {} as Record<string, string>,
                         }
+
+                        $('//attribute').forEach((attribute) => {
+                            item.attribute[attribute.attr('type')!] = attribute.text()
+                        })
+
                         if (isPanorama) {
                             item.panorama = 'data:image/png;base64,' + content
                         } else {
@@ -483,6 +489,7 @@ export default defineComponent({
                         Y1: 0,
                         X2: 0,
                         Y2: 0,
+                        attribute: {},
                     }
                 })
                 showMaxSearchLimitTips($)

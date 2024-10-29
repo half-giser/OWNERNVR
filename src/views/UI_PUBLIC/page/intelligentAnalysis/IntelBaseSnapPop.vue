@@ -3,7 +3,7 @@
  * @Date: 2024-09-09 15:29:39
  * @Description: 抓拍弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-11 14:24:06
+ * @LastEditTime: 2024-10-29 15:14:35
 -->
 <template>
     <el-dialog
@@ -50,21 +50,22 @@
                     </div>
                 </div>
             </div>
-            <!-- <div
-                v-show="displayInfo.length"
+            <div
+                v-show="infoList.length"
                 class="attr"
             >
-                <div class="title">{{ displayInfoTitle }}</div>
+                <div class="title">{{ infoListTitle }}</div>
                 <div class="attr-list">
                     <div
-                        v-for="item in displayInfo"
-                        :key="item.name + item.value"
+                        v-for="item in infoList"
+                        :key="`${item.value}-${item.key}`"
                         class="row"
                     >
-                        <label>{{ item.name }} :</label><span>{{ item.value }}</span>
+                        <label>{{ item.label }}</label>
+                        <span>{{ item.value }}</span>
                     </div>
                 </div>
-            </div> -->
+            </div>
         </div>
         <template #footer>
             <el-row>
@@ -111,7 +112,7 @@
 .info {
     border-bottom: 1px solid var(--input-border);
     margin: 10px 0;
-    padding-bottom: 20px;
+    padding-bottom: 10px;
 }
 
 .title {
@@ -119,7 +120,6 @@
     height: 30px;
     line-height: 30px;
     padding-left: 15px;
-    // margin-left: 15px;
 }
 
 .row {
@@ -127,7 +127,8 @@
     padding: 10px 0;
 
     label {
-        width: 15%;
+        width: 135px;
+        flex-shrink: 0;
 
         &:after {
             content: ' : ';
@@ -135,7 +136,7 @@
     }
 
     span {
-        width: 35%;
+        width: 100%;
     }
 }
 
@@ -178,5 +179,19 @@
 
 .attr {
     margin: 10px 0;
+    width: 100%;
+
+    &-list {
+        margin-top: 10px;
+        box-sizing: border-box;
+        padding: 10px;
+        border: 1px solid var(--content-border);
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .row {
+        width: 50%;
+    }
 }
 </style>
