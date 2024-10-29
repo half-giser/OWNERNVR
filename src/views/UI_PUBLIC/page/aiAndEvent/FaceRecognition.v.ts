@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-28 13:42:09
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-29 15:10:10
+ * @LastEditTime: 2024-10-29 17:29:56
  */
 import { cloneDeep } from 'lodash-es'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
@@ -280,7 +280,6 @@ export default defineComponent({
 
         // 获取AI资源列表数据
         const getAIResourceData = async (isEdit: boolean) => {
-            AIResourceTableData.value = []
             let sendXml = rawXml``
             if (isEdit) {
                 let eventType = ''
@@ -307,6 +306,7 @@ export default defineComponent({
             commLoadResponseHandler(result, ($) => {
                 const tempResourceOccupancy = $('//content/totalResourceOccupancy').text()
                 if (Number(tempResourceOccupancy) <= 100) {
+                    AIResourceTableData.value = []
                     $('//content/chl/item').forEach((item) => {
                         pageData.value.resourceOccupancy = ': ' + tempResourceOccupancy + '%'
 
@@ -911,6 +911,7 @@ export default defineComponent({
 
                 const result = await freeAIOccupyResource(sendXml)
                 commLoadResponseHandler(result, async () => {
+                    await getAIResourceData(false)
                     await getChlData()
                 })
             })
