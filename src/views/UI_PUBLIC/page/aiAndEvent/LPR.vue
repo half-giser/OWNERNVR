@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-09 09:56:14
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-23 11:19:41
+ * @LastEditTime: 2024-10-28 15:40:05
 -->
 <template>
     <!-- 通道名称及选择器 -->
@@ -327,9 +327,14 @@
                     }"
                 >
                     <el-form-item :label="Translate('IDCS_ENABLE')">
-                        <!-- TODO -->
-                        <el-checkbox :label="Translate('IDCS_SUCCESSFUL_RECOGNITION')" />
-                        <el-checkbox :label="Translate('IDCS_STRANGE_PLATE')" />
+                        <el-checkbox
+                            v-model="vehicleCompareData.hitEnable"
+                            :label="Translate('IDCS_SUCCESSFUL_RECOGNITION')"
+                        />
+                        <el-checkbox
+                            v-model="vehicleCompareData.notHitEnable"
+                            :label="Translate('IDCS_STRANGE_PLATE')"
+                        />
                     </el-form-item>
                 </el-form>
                 <div :style="{ position: 'relative' }">

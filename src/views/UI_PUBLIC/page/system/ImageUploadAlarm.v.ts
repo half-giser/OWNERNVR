@@ -60,8 +60,8 @@ export default defineComponent({
             closeLoading()
             const $ = queryXml(res)
             if ($('status').text() === 'success') {
-                // pageData.value.alarmType = $('//content/eventType').text().trim() == '' ? 'MOTION' : $('//content/eventType').text()
-                pageData.value.alarmType = $('//content/eventType').text().trim()
+                pageData.value.alarmType = $('//content/eventType').text().trim() == '' ? 'MOTION' : $('//content/eventType').text().trim()
+                // pageData.value.alarmType = $('//content/eventType').text().trim()
                 $('//types/eventType/enum').forEach((item) => {
                     pageData.value.alarmTypeList.push({
                         value: item.text(),
@@ -82,6 +82,7 @@ export default defineComponent({
                         label: pageData.value.evTypeLangMap['MOTION,ALARM'],
                     })
                 }
+                console.log(pageData.value.alarmTypeList)
                 const pretimeList = $('//content/param/preTimeNote').text()
                 pageData.value.pretimeList = pretimeList !== '' ? pretimeList.split(',').map((item) => ({ value: item.trim(), label: getTranslateForSecond(Number(item.trim())) })) : []
                 const saveTimeList = $('//content/param/holdTimeNote').text()
@@ -100,7 +101,6 @@ export default defineComponent({
                     tableData.value.push(row)
                 })
                 orderChl()
-                console.log(tableData.value)
             } else {
             }
         }

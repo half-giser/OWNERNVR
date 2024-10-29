@@ -2,8 +2,8 @@
  * @Description: AI/事件——事件通知——声音
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-13 09:23:15
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 14:35:35
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-28 10:13:38
 -->
 <template>
     <el-tabs
@@ -351,7 +351,7 @@
         :type="pageData.audioTab"
         :ipc-audio-chl="ipcAudioFormData.audioChl"
         :ipc-row-data="audioAlarmOutData[ipcAudioFormData.audioChl]"
-        :handle-add-voice-list="handleAddVoiceList"
+        @apply="handleAddVoiceList"
         @close="pageData.isImportAudioDialog = false"
     />
     <!-- 排程管理弹窗 -->

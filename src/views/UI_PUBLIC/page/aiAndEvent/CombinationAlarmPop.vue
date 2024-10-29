@@ -2,8 +2,8 @@
  * @Description: 普通事件——组合报警弹窗
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-23 15:02:52
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-23 19:34:16
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-28 10:43:54
 -->
 <template>
     <el-dialog
@@ -113,13 +113,6 @@
                 </div>
             </div>
         </div>
-        <FaceMatchPop
-            v-model="pageData.isFaceMatchPopShow"
-            :linked-entity="pageData.linkedEntity"
-            :linked-obj="pageData.linkedObj"
-            :handle-linked-obj="handleFaceMatchLinkedObj"
-            @close="pageData.isFaceMatchPopShow = false"
-        ></FaceMatchPop>
         <template #footer>
             <el-row>
                 <el-col class="el-col-flex-end">
@@ -128,6 +121,13 @@
                 </el-col>
             </el-row>
         </template>
+        <FaceMatchPop
+            v-model="pageData.isFaceMatchPopShow"
+            :linked-entity="pageData.linkedEntity"
+            :linked-obj="pageData.linkedObj"
+            @confirm="handleFaceMatchLinkedObj"
+            @close="pageData.isFaceMatchPopShow = false"
+        ></FaceMatchPop>
     </el-dialog>
 </template>
 

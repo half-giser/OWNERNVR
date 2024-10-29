@@ -2,8 +2,8 @@
  * @Description: 普通事件——组合报警——人脸识别edit弹窗
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-26 16:18:39
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 10:00:03
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-28 10:41:23
 -->
 <template>
     <el-dialog
@@ -63,7 +63,7 @@
                                 <el-option
                                     v-for="value in pageData.durationOptions"
                                     :key="value"
-                                    :value
+                                    :value="value"
                                     :label="getTranslateForSecond(value)"
                                 />
                             </el-select>
@@ -73,7 +73,7 @@
                                 <el-option
                                     v-for="value in pageData.durationOptions"
                                     :key="value"
-                                    :value
+                                    :value="value"
                                     :label="getTranslateForSecond(value)"
                                 />
                             </el-select>
