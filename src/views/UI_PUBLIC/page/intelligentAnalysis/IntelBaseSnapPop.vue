@@ -3,7 +3,7 @@
  * @Date: 2024-09-09 15:29:39
  * @Description: 抓拍弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-29 15:14:35
+ * @LastEditTime: 2024-10-29 20:19:48
 -->
 <template>
     <el-dialog
@@ -58,7 +58,7 @@
                 <div class="attr-list">
                     <div
                         v-for="item in infoList"
-                        :key="`${item.value}-${item.key}`"
+                        :key="`${item.label}-${item.value}`"
                         class="row"
                     >
                         <label>{{ item.label }}</label>

@@ -529,7 +529,7 @@ export default defineComponent({
          * @description 人脸全选
          */
         const selectAllFace = () => {
-            formData.value.faceIndex = groupTableData.value.map((item, index) => index)
+            formData.value.faceIndex = groupTableData.value.map((_item, index) => index)
         }
 
         /**

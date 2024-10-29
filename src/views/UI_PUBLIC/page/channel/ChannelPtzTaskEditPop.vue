@@ -54,7 +54,6 @@
                     parser=""
                     editable
                     prefix-icon=""
-                    :placeholder="Translate('IDCS_POINT_TIME')"
                 />
             </el-form-item>
             <el-form-item
@@ -67,7 +66,6 @@
                     value-format="HH:mm"
                     editable
                     prefix-icon=""
-                    :placeholder="Translate('IDCS_POINT_TIME')"
                 />
             </el-form-item>
         </el-form>
