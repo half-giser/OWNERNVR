@@ -2,8 +2,8 @@
  * @Description: AI 事件——人脸识别
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-28 13:42:09
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 17:15:21
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-29 15:10:10
  */
 import { cloneDeep } from 'lodash-es'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
@@ -402,7 +402,6 @@ export default defineComponent({
                     onlineChlList.push(item.attr('id')!)
                 })
             })
-
             getChlList({
                 requireField: ['ip', 'supportVfd', 'supportAudioAlarmOut', 'supportFire', 'supportWhiteLightAlarmOut', 'supportTemperature'],
             }).then((result: any) => {
@@ -455,7 +454,13 @@ export default defineComponent({
                         }
                     })
                 }).then(async () => {
-                    if (!pageData.value.curChl) pageData.value.curChl = onlineChlList[0]
+                    if (history.state.chlId) {
+                        if (chlList[history.state.chlId]) {
+                            pageData.value.curChl = history.state.chlId
+                        }
+                        delete history.state.chlId
+                    }
+                    if (!pageData.value.curChl) pageData.value.curChl = pageData.value.faceChlList[0].value
                     handleCurrChlData(chlList[pageData.value.curChl])
                     // 在获取到通道数据后再请求通道的侦测数据
                     await getFaceDetectionData()
@@ -857,9 +862,21 @@ export default defineComponent({
             if (name == 'faceDetection') {
                 play()
             } else if (name == 'faceLibrary') {
-                router.push({
-                    path: '/intelligent-analysis/sample-data-base/sample-data-base-face',
-                })
+                if (import.meta.env.VITE_UI_TYPE === 'UI2-A') {
+                    router.push({
+                        path: '/config/alarm/faceFeature',
+                        state: {
+                            backChlId: pageData.value.curChl,
+                        },
+                    })
+                } else {
+                    router.push({
+                        path: '/intelligent-analysis/sample-data-base/sample-data-base-face',
+                        state: {
+                            backChlId: pageData.value.curChl,
+                        },
+                    })
+                }
             }
         }
 

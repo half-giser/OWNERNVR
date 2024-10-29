@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-27 15:43:32
  * @Description: 周界防范/人车检测
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-28 15:20:54
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-29 16:07:08
  */
 import { type TabsPaneContext } from 'element-plus'
 import { type chlCaps } from '@/types/apiType/aiAndEvent'
@@ -281,7 +281,15 @@ export default defineComponent({
                         }
                     }
                 })
-                pageData.value.currChlId = pageData.value.onlineChannelList[0].id
+                if (history.state.chlId) {
+                    if (pageData.value.chlCaps[history.state.chlId]) {
+                        pageData.value.chosenFunction = history.state.type
+                        pageData.value.currChlId = history.state.chlId
+                    }
+                    delete history.state.type
+                    delete history.state.chlId
+                }
+                if (!pageData.value.currChlId) pageData.value.currChlId = pageData.value.onlineChannelList[0].id
                 pageData.value.chlData = pageData.value.chlCaps[pageData.value.currChlId]
             }
         }

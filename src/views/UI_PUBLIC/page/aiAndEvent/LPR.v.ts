@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-09 09:56:33
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-28 15:29:38
+ * @LastEditTime: 2024-10-29 13:51:36
  */
 import { type CompareTask, VehicleDetection, type VehicleChlItem, VehicleCompare } from '@/types/apiType/aiAndEvent'
 import CanvasPolygon from '@/utils/canvas/canvasPolygon'
@@ -279,7 +279,13 @@ export default defineComponent({
                         }
                     })
                 }).then(async () => {
-                    if (!pageData.value.curChl) pageData.value.curChl = onlineChlList[0]
+                    if (history.state.chlId) {
+                        if (chlList[history.state.chlId]) {
+                            pageData.value.curChl = history.state.chlId
+                        }
+                        delete history.state.chlId
+                    }
+                    if (!pageData.value.curChl) pageData.value.curChl = pageData.value.vehicleChlList[0].value
                     handleCurrChlData(chlList[pageData.value.curChl])
                 })
             })
@@ -613,9 +619,21 @@ export default defineComponent({
             if (name == 'vehicleDetection') {
                 play()
             } else if (name == 'vehicleLibrary') {
-                router.push({
-                    path: '/intelligent-analysis/sample-data-base/sample-data-base-licence-plate',
-                })
+                if (import.meta.env.VITE_UI_TYPE === 'UI2-A') {
+                    router.push({
+                        path: '/config/alarm/vehicleDatabase',
+                        state: {
+                            backChlId: pageData.value.curChl,
+                        },
+                    })
+                } else {
+                    router.push({
+                        path: '/intelligent-analysis/sample-data-base/sample-data-base-licence-plate',
+                        state: {
+                            backChlId: pageData.value.curChl,
+                        },
+                    })
+                }
             }
         }
 
