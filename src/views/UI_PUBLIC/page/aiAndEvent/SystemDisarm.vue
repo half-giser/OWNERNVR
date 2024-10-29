@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-23 10:54:01
  * @Description: 系统撤防
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 14:29:05
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-29 10:53:17
 -->
 <template>
     <!-- 添加弹窗 -->
@@ -71,7 +71,11 @@
                     />
                 </template>
             </el-table-column>
-            <el-table-column :label="Translate('IDCS_RECOVER_LINK_ITEM')"> </el-table-column>
+            <el-table-column
+                :label="Translate('IDCS_RECOVER_LINK_ITEM')"
+                prop="value"
+            >
+            </el-table-column>
         </el-table>
         <template #footer>
             <el-row class="tips_text_pop">{{ Translate('IDCS_CLOSE_GUARD_TIP') }}</el-row>
@@ -127,8 +131,8 @@
         </div>
         <el-form>
             <el-form-item>
-                <span class="txt">{{ Translate('IDCS_STATE') }} :</span>
-                <span class="txt">{{ pageData.defenseSwitch ? Translate('IDCS_GUARD_CLOSED') : Translate('IDCS_GUARD_OPENED') }}</span>
+                <span class="guard_text">{{ Translate('IDCS_STATE') }} :</span>
+                <span class="guard_text">{{ pageData.defenseSwitch ? Translate('IDCS_GUARD_CLOSED') : Translate('IDCS_GUARD_OPENED') }}</span>
                 <el-button @click="setdisarmAll">{{ pageData.defenseSwitch ? Translate('IDCS_RECOVER_GUARD') : Translate('IDCS_CLOSE_GUARD') }}</el-button>
             </el-form-item>
             <el-form-item>
@@ -298,7 +302,7 @@
 </style>
 
 <style lang="scss" scoped>
-.txt {
+.guard_text {
     font-size: 15px;
     margin-right: 45px;
 }
@@ -318,4 +322,15 @@
     color: var(--main-text-light);
     margin-bottom: 5px;
 }
+// :deep {
+//     .el-checkbox {
+//         --el-checkbox-font-size: 15px;
+//     }
+//     .el-form-item {
+//         --font-size: 15px;
+//     }
+//     .el-form-item__label {
+//         font-size: 15px;
+//     }
+// }
 </style>

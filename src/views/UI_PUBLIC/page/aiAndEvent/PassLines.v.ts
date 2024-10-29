@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-11 15:00:19
  * @Description: 过线检测
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-28 14:23:12
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-28 17:10:18
  */
 import { type chlCaps, type regionData, type emailData } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
@@ -1310,19 +1310,10 @@ export default defineComponent({
                     passLineDrawer.drawAllPassline(lineInfoList, currentAlarmLine)
                 } else {
                     console.log('ocx show all alarm area')
-                    const pluginLineInfoList = JSON.parse(JSON.stringify(lineInfoList))
-                    pluginLineInfoList.splice(currentAlarmLine, 1) // 插件端下发全部区域需要过滤掉当前区域数据
-                    const sendXML = OCX_XML_SetAllArea({ lineInfoList: pluginLineInfoList }, 'WarningLine', 'TYPE_TRIPWIRE_LINE', undefined, true)
-                    if (sendXML) {
-                        plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                    }
                 }
             } else {
                 if (mode.value !== 'h5') {
-                    const sendXML = OCX_XML_SetAllArea({ lineInfoList: [] }, 'WarningLine', 'TYPE_TRIPWIRE_LINE', undefined, false)
-                    if (sendXML) {
-                        plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                    }
+                    console.log('ocx not show all alarm area')
                 }
                 passLineSetOcxData()
             }
