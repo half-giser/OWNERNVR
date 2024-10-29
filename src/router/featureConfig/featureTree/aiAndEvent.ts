@@ -180,7 +180,7 @@ export default {
         // },
         perimeterDetection: {
             //周界防范
-            path: 'alarm/boundary',
+            path: 'boundary',
             component: 'aiAndEvent/PerimeterDetection.vue',
             meta: {
                 sort: 10,
