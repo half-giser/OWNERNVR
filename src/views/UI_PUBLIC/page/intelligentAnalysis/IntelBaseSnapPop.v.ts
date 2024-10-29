@@ -3,10 +3,11 @@
  * @Date: 2024-09-09 19:24:00
  * @Description: 智能分析 - 抓拍详情弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-14 11:45:42
+ * @LastEditTime: 2024-10-29 15:13:18
  */
 import CanvasBase from '@/utils/canvas/canvasBase'
 import { IntelSnapPopList } from '@/types/apiType/intelligentAnalysis'
+import { DEFAULT_BODY_STRUCT_MAPPING, DEFAULT_NON_VEHICLE_STRUCT_MAPPING, DEFAULT_VEHICLE_STRUCT_MAPPING, DEFAULT_VEHICLE_PLATE_STRUCT_MAPPING } from '@/utils/const/snap'
 
 export default defineComponent({
     props: {
@@ -77,6 +78,18 @@ export default defineComponent({
             non_vehicle: Translate('IDCS_NON_VEHICLE'),
             face: Translate('IDCS_FACE'),
             vehicle_plate: Translate('IDCS_LICENSE_PLATE_NUM'),
+            car: Translate('IDCS_DETECTION_VEHICLE'), // alias vehicle
+            motor: Translate('IDCS_NON_VEHICLE'), // alias non_vehicle
+        }
+
+        const UNKNOWN = Translate('IDCS_ENCRYPT_UNKNOWN')
+
+        // 目标类型与属性的映射
+        const ATTRIBUTE_MAPPING: Record<string, string[]> = {
+            person: ['gender', 'age', 'mask', 'hat', 'galsses', 'backpack', 'upper', 'lower', 'skirt', 'orient'],
+            vehicle: ['color', 'type', 'brand'],
+            non_vehicle: ['type'],
+            plate: ['plateNumber', 'owner', 'mobile_phone_number'],
         }
 
         const pageData = ref({
@@ -94,6 +107,177 @@ export default defineComponent({
 
         const isAddBtn = computed(() => {
             return ENABLE_REGISTER_LIST.includes(current.value.eventType)
+        })
+
+        type Option = {
+            name: string
+            map: Record<number, string>
+        }
+
+        const BODY_STRUCT_MAPPING: Record<string, Option> = {}
+        Object.keys(DEFAULT_BODY_STRUCT_MAPPING).forEach((index) => {
+            const item = DEFAULT_BODY_STRUCT_MAPPING[Number(index)]
+            BODY_STRUCT_MAPPING[item.type] = {
+                name: Translate(item.name),
+                map: item.map,
+            }
+            BODY_STRUCT_MAPPING[item.type].map = item.map
+            if (item.pre) {
+                const preItem = item.pre
+                BODY_STRUCT_MAPPING[preItem.type] = {
+                    name: Translate(preItem.name),
+                    map: preItem.map,
+                }
+            }
+        })
+
+        const VEHICLE_STRUCT_MAPPING: Record<string, Option> = {}
+        Object.keys(DEFAULT_VEHICLE_STRUCT_MAPPING).forEach((index) => {
+            const item = DEFAULT_BODY_STRUCT_MAPPING[Number(index)]
+            VEHICLE_STRUCT_MAPPING[item.type] = {
+                name: Translate(item.name),
+                map: item.map,
+            }
+        })
+
+        const NON_VEHICLE_STRUCT_MAPPING: Record<string, Option> = {}
+        Object.keys(DEFAULT_NON_VEHICLE_STRUCT_MAPPING).forEach((index) => {
+            const item = DEFAULT_NON_VEHICLE_STRUCT_MAPPING[Number(index)]
+            NON_VEHICLE_STRUCT_MAPPING[item.type] = {
+                name: Translate(item.name),
+                map: item.map,
+            }
+        })
+
+        const VEHICLE_PLATE_STRUCT_MAPPING: Record<string, Option> = {}
+        Object.keys(DEFAULT_VEHICLE_PLATE_STRUCT_MAPPING).forEach((index) => {
+            const item = DEFAULT_VEHICLE_PLATE_STRUCT_MAPPING[Number(index)]
+            VEHICLE_PLATE_STRUCT_MAPPING[item.type] = {
+                name: Translate(item.name),
+                map: item.map,
+            }
+        })
+
+        /**
+         * @description 生成属性的键值对
+         * @param attribute
+         * @param mapping
+         * @param property
+         * @returns {string[]}
+         */
+        const getItem = (attribute: Record<string, string | number>, mapping: Record<string, Option>, property: string) => {
+            if (typeof attribute[property] !== 'undefined') {
+                const name = mapping[property].name
+                const value = mapping[property].map[Number(attribute[property])]
+                return {
+                    label: name,
+                    value: value === '--' ? UNKNOWN : Translate(value),
+                }
+            } else {
+                return {
+                    label: '',
+                    value: '',
+                }
+            }
+        }
+
+        // 属性列表
+        const infoList = computed(() => {
+            const targetType = current.value.targetType
+            const attribute = current.value.attribute
+
+            let listData: SelectOption<string, string>[] = []
+
+            if (targetType === 'person') {
+                listData = ATTRIBUTE_MAPPING.person.map((item) => {
+                    if (item === 'upper' || item === 'lower') {
+                        const clothPropertyName = item === 'upper' ? 'upper_length' : 'lower_length'
+                        const colorPropertyName = item === 'upper' ? 'upper_color' : 'lower_color'
+
+                        let clothName = UNKNOWN
+                        if (typeof attribute[clothPropertyName] !== 'undefined') {
+                            const value = BODY_STRUCT_MAPPING[clothPropertyName].map[Number(attribute[clothPropertyName])]
+                            clothName = value === '--' ? UNKNOWN : Translate(value)
+                        }
+
+                        let clothColor = UNKNOWN
+                        if (typeof attribute[colorPropertyName] !== 'undefined') {
+                            const value = BODY_STRUCT_MAPPING[colorPropertyName].map[Number(attribute[colorPropertyName])]
+                            clothColor = value === '--' ? UNKNOWN : Translate(value)
+                        }
+
+                        const name = BODY_STRUCT_MAPPING[clothPropertyName].name
+
+                        if (clothName === UNKNOWN && clothColor === UNKNOWN) {
+                            return {
+                                label: name,
+                                value: Translate('IDCS_UNCONTRAST'),
+                            }
+                        } else if (clothName === UNKNOWN && clothColor !== UNKNOWN) {
+                            return {
+                                label: name,
+                                value: clothColor,
+                            }
+                        } else if (clothName !== UNKNOWN && clothColor === UNKNOWN) {
+                            return {
+                                label: name,
+                                value: clothName.formatForLang(''),
+                            }
+                        } else {
+                            return {
+                                label: name,
+                                value: clothName.formatForLang(clothColor),
+                            }
+                        }
+                    } else {
+                        return getItem(attribute, BODY_STRUCT_MAPPING, item)
+                    }
+                })
+            }
+
+            if (targetType === 'car' || targetType === 'vehicle') {
+                listData = ATTRIBUTE_MAPPING.vehicle.map((item) => {
+                    return getItem(attribute, VEHICLE_STRUCT_MAPPING, item)
+                })
+            }
+
+            if (targetType === 'motor' || targetType === 'non_vehicle') {
+                listData = ATTRIBUTE_MAPPING.non_vehicle.map((item) => {
+                    return getItem(attribute, NON_VEHICLE_STRUCT_MAPPING, item)
+                })
+            }
+
+            if (targetType === 'plate') {
+                listData = ATTRIBUTE_MAPPING.plate.map((item) => {
+                    if (item === 'plateNumber') {
+                        return {
+                            label: VEHICLE_PLATE_STRUCT_MAPPING.plate.name,
+                            value: current.value.plateNumber,
+                        }
+                    }
+                    if (typeof attribute[item] !== 'undefined') {
+                        return {
+                            label: VEHICLE_PLATE_STRUCT_MAPPING[item].name,
+                            value: attribute[item] as string,
+                        }
+                    } else
+                        return {
+                            label: '',
+                            value: '',
+                        }
+                })
+            }
+
+            return listData.filter((item) => !!item.label)
+        })
+
+        // 信息标题
+        const infoListTitle = computed(() => {
+            if (current.value.targetType === 'plate') {
+                return Translate('IDCS_VEHICLE_PLATE_INFO')
+            } else {
+                return Translate('IDCS_STRUCT_INFO')
+            }
         })
 
         /**
@@ -213,6 +397,8 @@ export default defineComponent({
             add,
             search,
             isAddBtn,
+            infoList,
+            infoListTitle,
         }
     },
 })

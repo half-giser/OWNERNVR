@@ -3,7 +3,7 @@
  * @Date: 2024-09-02 14:01:05
  * @Description: 车牌库
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:17:17
+ * @LastEditTime: 2024-10-29 10:17:50
  */
 import { type TableInstance } from 'element-plus'
 import { IntelPlateDBGroupList, IntelPlateDBPlateInfo } from '@/types/apiType/intelligentAnalysis'
@@ -217,21 +217,16 @@ export default defineComponent({
                 // $.webSession("ignoreAIJudge", true)
                 router.push({
                     path: '/config/alarm/vehicleRecognition',
+                    state: {
+                        chlId: history.state.backChlId,
+                    },
                 })
-                // if (import.meta.env.VITE_UI_TYPE =="UI2-A") {
-                //     $("#config_menu>div").removeClass("selected");
-                //     $("#config_menu>div[routeurl='config/alarm/faceRecognition']").addClass("selected");
-                // }
             } else {
                 const flag = await checkChlListCaps('faceRecognition')
                 if (flag) {
                     router.push({
                         path: '/config/alarm/vehicleRecognition',
                     })
-                    // if (import.meta.env.VITE_UI_TYPE =="UI2-A") {
-                    //     $("#config_menu>div").removeClass("selected");
-                    //     $("#config_menu>div[routeurl='config/alarm/faceRecognition']").addClass("selected");
-                    // }
                 } else {
                     openMessageTipBox({
                         type: 'info',
@@ -463,6 +458,12 @@ export default defineComponent({
 
         onMounted(async () => {
             getGroupList()
+        })
+
+        onBeforeUnmount(() => {
+            if (history.state.backChlId) {
+                delete history.state.backChlId
+            }
         })
 
         return {

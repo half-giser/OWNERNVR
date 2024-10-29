@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 16:10:28
  * @Description: 现场预览-目标检测视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-14 15:18:13
+ * @LastEditTime: 2024-10-29 14:56:02
  */
 import WebsocketSnap, { type WebsocketSnapOnSuccessSnap } from '@/utils/websocket/websocketSnap'
 import LiveSnapFaceMatchItem from './LiveSnapFaceMatchItem.vue'
@@ -50,6 +50,7 @@ export default defineComponent({
             face_verify: 'face',
             vehicle_plate: 'vehicle_plate',
             boundary: 'person',
+            non_vehicle: 'non_vehicle',
         }
 
         const EVENT_TYPE: Record<string, string> = {
@@ -328,7 +329,7 @@ export default defineComponent({
         }
 
         /**
-         * @description 打开详情弹窗
+         * @description 打开详情弹窗，将wensocket返回的数据格式转换为弹窗接受的数据格式
          * @param {Number} index
          */
         const showDetail = (index: number) => {
@@ -358,6 +359,23 @@ export default defineComponent({
                     eventType = 'plateMatch'
                 }
 
+                let attribute: Record<string, string | number> = {}
+                if (item.info.person_info) {
+                    attribute = item.info.person_info
+                } else if (item.info.car_info) {
+                    attribute = item.info.car_info
+                } else if (item.info.bike_info) {
+                    attribute = item.info.bike_info
+                } else if (item.info.plate) {
+                    if (item.info.owner) {
+                        attribute.owner = item.info.owner
+                    }
+
+                    if (item.info.mobile_phone_number) {
+                        attribute.mobile_phone_number = item.info.mobile_phone_number
+                    }
+                }
+
                 return {
                     imgId: item.info.face_id,
                     pic: item.snap_pic ? 'data:image/png;base64,' + item.snap_pic : '',
@@ -377,6 +395,7 @@ export default defineComponent({
                     eventType: eventType + compareType,
                     targetType: TARGET_MAPPING[item.type] || '',
                     plateNumber: item.info.plate || '',
+                    attribute,
                 }
             })
             pageData.value.isInfoPop = true

@@ -3,7 +3,7 @@
  * @Date: 2024-08-29 09:54:23
  * @Description: 智能分析-人脸搜索
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 11:11:29
+ * @LastEditTime: 2024-10-29 14:38:12
  */
 import {
     IntelFaceImgDto,
@@ -732,6 +732,7 @@ export default defineComponent({
                             isDelSnap: false,
                             isNoData: !content,
                             identity: false,
+                            attribute: {},
                         }
                         if (isPanorama) {
                             item.panorama = 'data:image/png;base64,' + content
@@ -1029,6 +1030,7 @@ export default defineComponent({
                         similarity: parseInt(split[5], 16),
                         plateNumber: '',
                         identity: false,
+                        attribute: {},
                         info: {
                             ...cloneFaceInfo,
                         },

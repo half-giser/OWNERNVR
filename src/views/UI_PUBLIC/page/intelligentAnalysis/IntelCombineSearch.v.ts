@@ -393,7 +393,13 @@ export default defineComponent({
                             Y2: rightBottomY / height,
                             isDelSnap: false,
                             isNoData: !content,
+                            attribute: {} as Record<string, string>,
                         }
+
+                        $('//attribute').forEach((attribute) => {
+                            item.attribute[attribute.attr('type')!] = attribute.text()
+                        })
+
                         if (isPanorama) {
                             item.panorama = 'data:image/png;base64,' + content
                         } else {
@@ -518,6 +524,7 @@ export default defineComponent({
                         Y1: 0,
                         X2: 0,
                         Y2: 0,
+                        attribute: {},
                     }
                 })
                 showMaxSearchLimitTips($)
