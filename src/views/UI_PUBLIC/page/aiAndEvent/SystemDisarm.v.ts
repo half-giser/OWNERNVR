@@ -2,12 +2,12 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-23 10:59:14
  * @Description: 系统撤防
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 16:00:32
+ * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
+ * @LastEditTime: 2024-10-29 11:14:46
  */
 import { SystemDisarm } from '@/types/apiType/aiAndEvent'
 import { type ElDropdown } from 'element-plus'
-
+import { cloneDeep } from 'lodash-es'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
@@ -336,7 +336,7 @@ export default defineComponent({
 
         // 获取单个通道或传感器的撤防联动项列表
         const getIpcDefenseParamList = (supportManualAudio: boolean, supportManualWhiteLight: boolean) => {
-            const ipcDefenseParamList = JSON.parse(JSON.stringify(pageData.value.defenseParamList))
+            const ipcDefenseParamList = cloneDeep(pageData.value.defenseParamList)
             if (supportManualAudio) {
                 ipcDefenseParamList.push({
                     id: 'nodeAudioSwitch',
@@ -355,7 +355,7 @@ export default defineComponent({
 
         // 获取所有的撤防联动项列表，用于保存时生成sendXml
         const getTotalDefenseParamList = (hasSupportManualAudioChl: boolean, hasSupportManualWhiteLightChl: boolean) => {
-            const totalDefenseParamList = JSON.parse(JSON.stringify(pageData.value.defenseParamList))
+            const totalDefenseParamList = cloneDeep(pageData.value.defenseParamList)
             if (hasSupportManualAudioChl) {
                 totalDefenseParamList.push({
                     id: 'nodeAudioSwitch',
@@ -374,7 +374,7 @@ export default defineComponent({
 
         // 重新获取可添加的通道列表
         const filterChlsSource = () => {
-            pageData.value.filterChlsSourceList = JSON.parse(JSON.stringify(pageData.value.chlAndsensorSourceList))
+            pageData.value.filterChlsSourceList = cloneDeep(pageData.value.chlAndsensorSourceList)
             for (let i = 0; i < tableData.value.length; i++) {
                 for (let j = 0; j < pageData.value.filterChlsSourceList.length; j++) {
                     if (pageData.value.filterChlsSourceList[j] && pageData.value.filterChlsSourceList[j].id == tableData.value[i].id) {
