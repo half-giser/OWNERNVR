@@ -503,7 +503,7 @@ export default defineComponent({
                     tempDrawer.setCurrAreaIndex(index, 'detectionArea')
                     tempDrawer.drawAllPolygon(detectAreaInfo, {}, 'detectionArea', index, true)
                 } else {
-                    const pluginDetectAreaInfo = JSON.parse(JSON.stringify(detectAreaInfo))
+                    const pluginDetectAreaInfo = cloneDeep(detectAreaInfo)
                     pluginDetectAreaInfo[pageData.value.currRowData.ruleId] = [] // 插件端下发全部区域需要过滤掉当前区域数据
                     const sendXML = OCX_XML_SetAllArea({ detectAreaInfo: pluginDetectAreaInfo }, 'IrregularPolygon', 'TYPE_WATCH_DETECTION', '', true)
                     plugin.GetVideoPlugin().ExecuteCmd(sendXML!)

@@ -3,7 +3,7 @@
  * @Date: 2024-10-15 10:04:36
  * @Description: 录像码流通用组件
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-28 16:29:15
+ * @LastEditTime: 2024-10-29 16:51:59
  */
 import { RecordStreamInfoDto } from '@/types/apiType/record'
 import { ElMessageBox } from 'element-plus'
@@ -435,7 +435,11 @@ export default defineComponent({
                 })
                 doCfg(tableData.value)
                 pageData.value.resolutionGroups = getResolutionGroups(tableData.value)
-                if (import.meta.env.VITE_UI_TYPE === 'UI1-E') queryRemainRecTimeF()
+                if (import.meta.env.VITE_UI_TYPE === 'UI1-E') {
+                    pageData.value.PredictVisible = true
+                    pageData.value.CalculateVisible = true
+                    queryRemainRecTimeF()
+                }
                 pageData.value.levelDropDisable = pageData.value.isAllCBR
                 pageData.value.firstInit = false
             }
@@ -443,7 +447,6 @@ export default defineComponent({
 
         // 查询和显示当前录制状态下剩余的录制时间
         const queryRemainRecTimeF = () => {
-            // 需要改
             let recType: string = ''
             if (props.mode == 'event') {
                 recType = RecStreamModule.value.recType == 'ae' ? 'auto' : 'manually'
@@ -487,16 +490,11 @@ export default defineComponent({
                             recTimeArray.push('' + recTime + diskGroupIndex + '')
                         })
                         pageData.value.recTime = recTimeArray.join(';')
-                        // 根据UI切换是否显示
-                        if (import.meta.env.VITE_UI_TYPE === 'UI1-E') {
-                            pageData.value.PredictVisible = true
-                            pageData.value.CalculateVisible = true
-                        }
                     } else if (item.length == 0) {
                         pageData.value.PredictVisible = false
                         pageData.value.CalculateVisible = false
                     } else {
-                        const remainRecTime = Number(res('//content/item/remainRecTime').text()) * 1
+                        const remainRecTime = Number(res('//content/item/remainRecTime').text())
                         const recTime =
                             remainRecTime == 0 && RecStreamModule.value.loopRecSwitch
                                 ? Translate('IDCS_CYCLE_RECORD')
@@ -506,10 +504,6 @@ export default defineComponent({
                                       : remainRecTime + ' ' + Translate('IDCS_DAY_TIME')
                                   : remainRecTime + ' ' + Translate('IDCS_DAY_TIMES')
                         pageData.value.recTime = Translate('IDCS_PREDICT_RECORD_TIME') + '' + recTime + ''
-                        if (import.meta.env.VITE_UI_TYPE === 'UI1-E') {
-                            pageData.value.PredictVisible = true
-                            pageData.value.CalculateVisible = true
-                        }
                     }
                 }
                 ctx.emit('recTime', pageData.value.recTime)

@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 13:36:26
  * @Description: 区域入侵
  * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-28 15:18:46
+ * @LastEditTime: 2024-10-29 11:10:03
  */
 import { type chlCaps, type aiResourceRow, type peaPageData, type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
@@ -1260,7 +1260,7 @@ export default defineComponent({
                         peaDrawer.setCurrAreaIndex(index, peaData.value.currAreaType)
                         peaDrawer.drawAllRegion(regionInfoList, index)
                     } else {
-                        const pluginRegionInfoList = JSON.parse(JSON.stringify(regionInfoList))
+                        const pluginRegionInfoList = cloneDeep(regionInfoList)
                         pluginRegionInfoList.splice(index, 1) // 插件端下发全部区域需要过滤掉当前区域数据
                         const sendXML = OCX_XML_SetAllArea({ regionInfoList: pluginRegionInfoList }, 'Rectangle', 'TYPE_PEA_DETECTION', undefined, true)
                         if (sendXML) {
