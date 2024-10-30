@@ -3,7 +3,7 @@
  * @Date: 2024-07-04 11:34:14
  * @Description: 回放弹窗（OCX+H5）
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 18:23:40
+ * @LastEditTime: 2024-10-29 18:03:48
 -->
 <template>
     <el-dialog
@@ -491,7 +491,7 @@ const reset = () => {
  */
 const ocxNotify = ($: XMLQuery) => {
     if ($('statenotify[@type="connectstate"]').length > 0) {
-        if ($('statenotify[@type="connectstate"]').text() === 'success') {
+        if ($('statenotify').text() === 'success') {
             const sendXML = OCX_XML_SetRecPlayMode('SYNC')
             playerRef.value!.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             play()
@@ -502,12 +502,12 @@ const ocxNotify = ($: XMLQuery) => {
         if (pageData.value.lockSlider) {
             return
         }
-        const seconds = Number($('statenotify[@type="RecCurPlayTime"]/win[@index="0"]').text())
+        const seconds = Number($('statenotify/win[@index="0"]').text())
         pageData.value.progress = seconds
     }
 
     if ($('statenotify[@type="CurrentSelectedWindow"]').length > 0) {
-        if ($('statenotify[@type="CurrentSelectedWindow"]/playStatus').text() === 'STOP') {
+        if ($('statenotify/playStatus').text() === 'STOP') {
             pageData.value.iconDisabled = false
         }
     }
@@ -517,9 +517,9 @@ const ocxNotify = ($: XMLQuery) => {
     }
     // StartViewChl
     if ($('statenotify[@type="StartViewChl"]').length > 0) {
-        const status = $('statenotify[@type="StartViewChl"]/status').text()
-        const chlId = $('statenotify[@type="StartViewChl"]/chlId').text()
-        const winIndex = Number($('statenotify[@type="StartViewChl"]/winIndex').text())
+        const status = $('statenotify/status').text()
+        const chlId = $('statenotify/chlId').text()
+        const winIndex = Number($('statenotify/winIndex').text())
         if (status.trim() === 'success') {
             if (systemCaps.supportPOS) {
                 //设置通道是否显示POS信息

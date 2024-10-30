@@ -3,7 +3,7 @@
  * @Date: 2024-07-12 18:19:55
  * @Description: HTTPS
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:21:31
+ * @LastEditTime: 2024-10-29 18:07:09
  */
 import WebsocketUpload from '@/utils/websocket/websocketUpload'
 import WebsocketDownload from '@/utils/websocket/websocketDownload'
@@ -485,9 +485,9 @@ export default defineComponent({
          */
         const notify = ($: XMLQuery) => {
             //导入或导出进度
-            if ($("/statenotify[@type='FileNetTransportProgress']").length > 0) {
-                const progress = $("/statenotify[@type='FileNetTransportProgress']/progress").text()
-                const action = $("/statenotify[@type='FileNetTransportProgress']/action").text()
+            if ($("statenotify[@type='FileNetTransportProgress']").length) {
+                const progress = $('statenotify/progress').text()
+                const action = $('statenotify/action').text()
                 if (progress === '100%') {
                     if (action == 'ImportCert') {
                         importCert().then((result) => {
@@ -509,16 +509,16 @@ export default defineComponent({
                 }
             }
             //连接成功
-            else if ($("/statenotify[@type='connectstate']").length > 0) {
-                const status = $("/statenotify[@type='connectstate']").text().trim()
+            else if ($("statenotify[@type='connectstate']").length) {
+                const status = $('statenotify').text().trim()
                 if (status === 'success') {
                     pageData.value.isBrowserImportCertDirectDisabled = false
                 }
             }
             //网络断开
-            else if ($("/statenotify[@type='FileNetTransport']").length > 0) {
+            else if ($("statenotify[@type='FileNetTransport']").length) {
                 closeLoading()
-                handleErrorMsg(Number($("/statenotify[@type='FileNetTransport']/errorCode").text()))
+                handleErrorMsg(Number($('statenotify/errorCode').text()))
             }
         }
 

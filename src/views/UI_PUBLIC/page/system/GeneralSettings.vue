@@ -3,7 +3,7 @@
  * @Date: 2024-06-24 09:19:04
  * @Description: 基本配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 09:33:14
+ * @LastEditTime: 2024-10-29 18:21:42
 -->
 <template>
     <div class="Setting">
@@ -29,7 +29,6 @@
                     :maxlength="nameByteMaxLen"
                     :formatter="formatInputMaxLength"
                     :parser="formatInputMaxLength"
-                    :placeholder="Translate('IDCS_DEVICE_NAME')"
                 />
             </el-form-item>
             <el-form-item

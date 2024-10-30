@@ -3,7 +3,7 @@
  * @Date: 2024-09-18 09:33:05
  * @Description: 开机向导
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-26 16:31:32
+ * @LastEditTime: 2024-10-29 18:23:32
 -->
 <template>
     <div class="guide">
@@ -104,7 +104,6 @@
                                 :cell-class-name="handleCalendarCellHighLight"
                                 clear-icon=""
                                 type="datetime"
-                                :placeholder="Translate('IDCS_SYSTEM_TIME')"
                                 @visible-change="pendingSystemTimeChange"
                                 @change="handleSystemTimeChange"
                             />

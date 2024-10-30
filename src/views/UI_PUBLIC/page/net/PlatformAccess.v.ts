@@ -3,7 +3,7 @@
  * @Date: 2024-08-15 18:19:00
  * @Description: 平台接入
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-18 09:19:51
+ * @LastEditTime: 2024-10-29 19:58:59
  */
 import { NetPlatformAccessForm, type NetPlatformSipList, NetPlatformSipCodeList } from '@/types/apiType/net'
 import PlatformAccessCodeIdPop from './PlatformAccessCodeIdPop.vue'
@@ -395,10 +395,10 @@ export default defineComponent({
                     .map((item) => {
                         const tag = item.value === 'chl' ? 'sipChl' : 'sipSensor'
                         return rawXml`
-                        <${tag}>
-                            ${item.list.map((code) => `<item id="${code.id}" gbId="${code.gbId}">${code.text}</item>`).join('')}
-                        </${tag}>
-                    `
+                            <${tag}>
+                                ${item.list.map((code) => `<item id="${code.id}" gbId="${code.gbId}">${code.text}</item>`).join('')}
+                            </${tag}>
+                        `
                     })
                     .join('')
                 sendXml = rawXml`

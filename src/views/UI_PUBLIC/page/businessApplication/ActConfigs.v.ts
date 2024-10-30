@@ -3,7 +3,7 @@
  * @Date: 2024-06-03 10:00:44
  * @Description: 业务应用-门禁管理-门禁配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-10 11:11:48
+ * @LastEditTime: 2024-10-29 19:39:13
  */
 
 import { cloneDeep } from 'lodash-es'
@@ -285,7 +285,7 @@ export default defineComponent({
                             <OpenDelayTime type="uint8" min="${item.openDelayTimeMin.toString()}" max="${item.openDelayTimeMax.toString()}" default="${item.openDelayTimeDefault.toString()}">${item.openDelayTime.toString()}</OpenDelayTime>
                             <OpenHoldTime type="uint8" min="${item.openHoldTimeMin.toString()}" max="${item.openHoldTimeMax.toString()}" default="${item.openHoldTimeDefault.toString()}">${item.openHoldTime.toString()}</OpenHoldTime>
                             ${ternary(!!item.doorLockConfig, `<doorLockConfig type="doorLockType">${item.doorLockConfig}</doorLockConfig>`)}
-                            ${ternary(!!item.alarmAction, `<alarmAction type="doorLockAction">item.alarmAction</alarmAction>`)}
+                            ${ternary(!!item.alarmAction, `<alarmAction type="doorLockAction">${item.alarmAction}</alarmAction>`)}
                         </item>
                     `
                 })

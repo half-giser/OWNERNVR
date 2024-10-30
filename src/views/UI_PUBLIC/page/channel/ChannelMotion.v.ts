@@ -290,7 +290,7 @@ export default defineComponent({
         }
 
         const LiveNotify2Js = ($: XMLQuery) => {
-            if ($("statenotify[@type='MotionArea']").length > 0) {
+            if ($("statenotify[@type='MotionArea']").length) {
                 const rowData = getRowById(selectedChlId.value)!
                 rowData.areaInfo = $('statenotify/areaInfo/item').map((ele) => ele.text())
                 editRows.add(rowData)

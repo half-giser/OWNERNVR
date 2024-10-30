@@ -3,7 +3,7 @@
  * @Date: 2024-08-08 17:43:50
  * @Description: OCX备份列表模块
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 21:28:08
+ * @LastEditTime: 2024-10-29 18:04:43
  */
 import { type PlaybackBackUpTaskList, type PlaybackBackUpRecList } from '@/types/apiType/playback'
 import { type XMLQuery } from '@/utils/xmlParse'
@@ -189,10 +189,10 @@ export const useOcxBackUp = (cmd: (str: string) => void) => {
         // 备份通知
         if ($('statenotify[@type="BackUpRec"]').length) {
             // var backupTaskGrid = $("#backupTaskGrid");
-            const errorCode = Number($('statenotify[@type="BackUpRec"]/errorCode').text())
+            const errorCode = Number($('statenotify/errorCode').text())
 
             if ([ErrorCode.USER_ERROR_NO_AUTH, 513, ErrorCode.USER_ERROR_SYSTEM_BUSY].includes(errorCode)) {
-                const taskIds = $("statenotify[@type='BackUpRec']/errorDescription").text().split(',')
+                const taskIds = $('statenotify/errorDescription').text().split(',')
                 if (errorCode === ErrorCode.USER_ERROR_SYSTEM_BUSY) {
                     resendTask(taskIds)
                 } else {
@@ -204,7 +204,7 @@ export const useOcxBackUp = (cmd: (str: string) => void) => {
                     })
                 }
             } else if (errorCode == ErrorCode.USER_ERROR_DISK_SPACE_NO_ENOUGH) {
-                const errorDescription = $('statenotify[@type="BackUpRec"]/errorDescription').text()
+                const errorDescription = $('statenotify/errorDescription').text()
                 localTableData.value = []
                 openMessageTipBox({
                     type: 'info',
@@ -214,7 +214,7 @@ export const useOcxBackUp = (cmd: (str: string) => void) => {
         }
         //备份任务通知
         else if ($("statenotify[@type='BackUpRecTasks']").length) {
-            const taskItems = $("statenotify[@type='BackUpRecTasks']/tasks/item")
+            const taskItems = $('statenotify/tasks/item')
 
             // 清理已完成或失败的数据
             if (localTableData.value.length > LOCAL_TASK_COUNT_LIMIT) {
@@ -243,7 +243,7 @@ export const useOcxBackUp = (cmd: (str: string) => void) => {
         }
         //备份任务进度通知
         else if ($("statenotify[@type='BackUpRecProgress']").length) {
-            $("statenotify[@type='BackUpRecProgress']/tasks/item").forEach((item) => {
+            $('statenotify/tasks/item').forEach((item) => {
                 const taskId = item.attr('id')
                 const progress = item.text()
                 const findIndex = localTableData.value.findIndex((item) => item.taskId === taskId)

@@ -3,7 +3,7 @@
  * @Date: 2024-06-17 14:51:27
  * @Description: 编辑用户信息弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-23 20:54:35
+ * @LastEditTime: 2024-10-29 18:20:53
 -->
 <template>
     <el-dialog
@@ -32,7 +32,6 @@
             <el-form-item :label="Translate('IDCS_USERNAME')">
                 <el-input
                     v-model="formData.userName"
-                    :placeholder="Translate('IDCS_USERNAME')"
                     disabled
                 >
                 </el-input>
@@ -50,10 +49,7 @@
                 prop="email"
                 :label="Translate('IDCS_EMAIL_ADDRESS')"
             >
-                <BaseSensitiveEmailInput
-                    v-model="formData.email"
-                    :placeholder="Translate('IDCS_EMAIL_ADDRESS')"
-                />
+                <BaseSensitiveEmailInput v-model="formData.email" />
             </el-form-item>
             <el-form-item
                 v-show="pageData.isAuthGroup"
