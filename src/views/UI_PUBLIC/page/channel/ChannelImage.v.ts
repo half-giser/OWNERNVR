@@ -627,7 +627,8 @@ export default defineComponent({
                     let isSpeco = false
                     rowData.bright = $('content/chl/bright').length > 0 ? Number($('content/chl/bright').text()) : undefined
                     rowData.contrast = $('content/chl/contrast').length > 0 ? Number($('content/chl/contrast').text()) : undefined
-                    rowData.hue = $('content/chl/hue').length > 0 ? Number($('content/chl/hue').text()) : -1 // todo NT2-3481 设备接入海康IPC，协议不返回hue节点，“色调”配置项置灰
+                    // NT2-3481 设备接入海康IPC，协议不返回hue节点，“色调”配置项置灰
+                    rowData.hue = $('content/chl/hue').length > 0 ? Number($('content/chl/hue').text()) : -1
                     rowData.saturation = $('content/chl/saturation').length > 0 ? Number($('content/chl/saturation').text()) : undefined
                     rowData.status = ''
                     rowData.disabled = false
@@ -681,7 +682,8 @@ export default defineComponent({
                             rowData.denoiseMaxValue = Number($('content/chl/denoise/value').attr('max'))
                         }
                         rowData.denoiseSwitch = $('content/chl/denoise/switch').text().toBoolean()
-                        rowData.ShowGainMode = $('content/chl/ShowGainMode').text().toBoolean() // todo NT2-3947 此节点为false, 则为4.2.1版本ipc，隐藏增益模式
+                        // NT2-3947 此节点为false, 则为4.2.1版本ipc，隐藏增益模式
+                        rowData.ShowGainMode = $('content/chl/ShowGainMode').text().toBoolean()
 
                         if ($('content/chl/WDR/value').text()) {
                             rowData.WDRDefaultValue = Number($('content/chl/WDR/value').attr('default'))
@@ -707,14 +709,13 @@ export default defineComponent({
                             rowData.blueValue = Number($('content/chl/whiteBalance/blue').text())
                         }
 
-                        rowData.IRCutMode = $('content/chl/IRCutMode').length > 0 ? $('content/chl/IRCutMode').text() : undefined
-                        rowData.IRCutModeDef = $('content/chl/IRCutMode').length > 0 ? $('content/chl/IRCutMode').attr('default') : undefined
-                        rowData.IRCutConvSen = $('content/chl/IRCutConvSen').length > 0 ? $('content/chl/IRCutConvSen').text() : 'mid'
-                        rowData.IRCutConvSen2 = $('content/chl/IRCutConvSen').length > 0 ? $('content/chl/IRCutConvSen').text() : undefined
-                        rowData.IRCutConvSenDef = $('content/chl/IRCutConvSen').attr('default')
-                        rowData.IRCutDayTime = $('content/chl/IRCutDayTime').length ? $('content/chl/IRCutDayTime').text() : undefined
-                        rowData.IRCutNightTime = $('content/chl/IRCutNightTime').length ? $('content/chl/IRCutNightTime').text() : undefined
-                        // todo
+                        rowData.IRCutMode = $('content/chl/IRCutMode').text() || undefined
+                        rowData.IRCutModeDef = $('content/chl/IRCutMode').attr('default') || undefined // : undefined
+                        rowData.IRCutConvSen = $('content/chl/IRCutConvSen').text() || 'mid'
+                        rowData.IRCutConvSen2 = $('content/chl/IRCutConvSen').text() || undefined
+                        rowData.IRCutConvSenDef = $('content/chl/IRCutConvSen').attr('default') || undefined
+                        rowData.IRCutDayTime = $('content/chl/IRCutDayTime').text() || undefined
+                        rowData.IRCutNightTime = $('content/chl/IRCutNightTime').text() || undefined
 
                         if ($('content/chl/sharpen/value').text()) {
                             rowData.sharpenDefaultValue = Number($('content/chl/sharpen/value').attr('default'))
@@ -857,61 +858,48 @@ export default defineComponent({
                             rowData.whitelightOffTimeDefault = $('content/chl/Whitelight/WhitelightOffTime').attr('default')
                         }
                     })
-                    rowData.configFileTypeEnum = []
-                    $('types/configFileType/enum').forEach((ele) => {
-                        rowData.configFileTypeEnum.push(ele.text())
+
+                    rowData.configFileTypeEnum = $('types/configFileType/enum').map((ele) => {
+                        return ele.text()
                     })
-                    rowData.shutterModeEnum = []
-                    $('types/shutterMode/enum').forEach((ele) => {
-                        rowData.shutterModeEnum.push(ele.text())
+                    rowData.shutterModeEnum = $('types/shutterMode/enum').map((ele) => {
+                        return ele.text()
                     })
-                    rowData.shutterValueEnum = []
-                    $('types/shutterValue/enum').forEach((ele) => {
-                        rowData.shutterValueEnum.push(ele.text())
+                    rowData.shutterValueEnum = $('types/shutterValue/enum').map((ele) => {
+                        return ele.text()
                     })
-                    rowData.whiteBalanceModeEnum = []
-                    $('types/whiteBalance/enum').forEach((ele) => {
-                        rowData.whiteBalanceModeEnum.push(ele.text())
+                    rowData.whiteBalanceModeEnum = $('types/whiteBalance/enum').map((ele) => {
+                        return ele.text()
                     })
-                    rowData.BLCModeArray = []
-                    $('types/BLCMode/enum').forEach((ele) => {
-                        rowData.BLCModeArray.push(ele.text())
+                    rowData.BLCModeArray = $('types/BLCMode/enum').map((ele) => {
+                        return ele.text()
                     })
-                    rowData.HWDRLevelArray = []
-                    $('types/HWDRLevel/enum').forEach((ele) => {
-                        rowData.HWDRLevelArray.push(ele.text())
+                    rowData.HWDRLevelArray = $('types/HWDRLevel/enum').map((ele) => {
+                        return ele.text()
                     })
-                    rowData.IRCutModeArray = []
-                    $('types/IRCutMode/enum').forEach((ele) => {
-                        rowData.IRCutModeArray.push(ele.text())
+                    rowData.IRCutModeArray = $('types/IRCutMode/enum').map((ele) => {
+                        return ele.text()
                     })
-                    rowData.IRCutConvSenArray = []
-                    $('types/IRCutConvSen/enum').forEach((ele) => {
-                        rowData.IRCutConvSenArray.push(ele.text())
+                    rowData.IRCutConvSenArray = $('types/IRCutConvSen/enum').map((ele) => {
+                        return ele.text()
                     })
-                    rowData.SmartIrArray = []
-                    $('types/SmartIRMode/enum').forEach((ele) => {
-                        rowData.SmartIrArray.push(ele.text())
+                    rowData.SmartIrArray = $('types/SmartIRMode/enum').map((ele) => {
+                        return ele.text()
                     })
-                    rowData.antiflickerModeArray = []
-                    $('types/antiflickerMode/enum').forEach((ele) => {
-                        rowData.antiflickerModeArray.push(ele.text())
+                    rowData.antiflickerModeArray = $('types/antiflickerMode/enum').map((ele) => {
+                        return ele.text()
                     })
-                    rowData.InfraredModeArray = []
-                    $('types/InfraredMode/enum').forEach((ele) => {
-                        rowData.InfraredModeArray.push(ele.text())
+                    rowData.InfraredModeArray = $('types/InfraredMode/enum').map((ele) => {
+                        return ele.text()
                     })
-                    rowData.exposureModeArray = []
-                    $('types/autoExposureMode/enum').forEach((ele) => {
-                        rowData.exposureModeArray.push(ele.text())
+                    rowData.exposureModeArray = $('types/autoExposureMode/enum').map((ele) => {
+                        return ele.text()
                     })
-                    rowData.exposureValueArray = []
-                    $('types/autoExposureValue/enum').forEach((ele) => {
-                        rowData.exposureValueArray.push(ele.text())
+                    rowData.exposureValueArray = $('types/autoExposureValue/enum').map((ele) => {
+                        return ele.text()
                     })
-                    rowData.gainModeEnum = []
-                    $('types/gainMode/enum').forEach((ele) => {
-                        rowData.gainModeEnum.push(ele.text())
+                    rowData.gainModeEnum = $('types/gainMode/enum').map((ele) => {
+                        return ele.text()
                     })
                     if (chlId == selectedChlId.value) {
                         formData.value = cloneDeep(rowData)

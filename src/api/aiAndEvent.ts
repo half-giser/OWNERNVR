@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-08-10 16:25:58
  * @Description: AI/事件
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-25 09:35:39
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-28 16:17:51
  */
 
 import { type AxiosRequestConfig } from 'axios'
@@ -124,7 +124,7 @@ export const queryTripwire = (data: string) => http.fetch('queryTripwire', getXm
 export const editTripwire = (data: string) => http.fetch('editTripwire', getXmlWrapData(data))
 
 // 获取区域入侵侦测数据
-export const queryIntelAreaConfig = (data: string) => http.fetch('queryIntelAreaConfig', getXmlWrapData(data))
+export const queryIntelAreaConfig = (data: string) => http.fetch('queryIntelAreaConfig', getXmlWrapData(data), {}, false)
 
 // 修改区域入侵侦测数据
 export const editIntelAreaConfig = (data: string) => http.fetch('editIntelAreaConfig', getXmlWrapData(data))

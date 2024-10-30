@@ -3,7 +3,7 @@
  * @Date: 2024-09-12 15:00:13
  * @Description: 过线检测
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-28 11:03:26
+ * @LastEditTime: 2024-10-28 15:49:10
 -->
 <template>
     <div>
@@ -112,12 +112,12 @@
                         :span="2"
                     >
                         <div>
-                            <el-checkbox
+                            <!-- <el-checkbox
                                 v-if="pageData.showCpcDrawAvailable"
                                 v-model="pageData.isCpcDrawAvailable"
                                 :label="Translate('IDCS_DRAW_WARN_SURFACE')"
                                 @change="handleCpcDrawAvailableChange"
-                            />
+                            /> -->
                         </div>
                         <div>
                             <el-button

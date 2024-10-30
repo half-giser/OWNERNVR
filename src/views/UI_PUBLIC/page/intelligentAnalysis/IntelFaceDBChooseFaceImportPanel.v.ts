@@ -3,7 +3,7 @@
  * @Date: 2024-08-30 18:47:22
  * @Description: 智能分析 - 选择人脸 - 从外部导入
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 15:30:33
+ * @LastEditTime: 2024-10-29 18:06:08
  */
 import { type IntelFaceDBImportImgDto, IntelFaceDBImportFaceDto } from '@/types/apiType/intelligentAnalysis'
 import { type XMLQuery } from '@/utils/tools'
@@ -357,7 +357,6 @@ export default defineComponent({
         const notify = ($: XMLQuery) => {
             if ($('statenotify[@type="UploadIPCAudioBase64"]').length) {
                 const $item = queryXml($('statenotify')[0].element)
-                console.log($item('status').text())
                 if ($item('status').text() === 'success') {
                     const fileBase64 = $item('base64').text()
                     // const fileSize = $item('filesize').text()
@@ -399,7 +398,7 @@ export default defineComponent({
             else if ($('statenotify[@type="FileNetTransport"]').length) {
                 closeLoading()
                 resetOCXData()
-                if (Number($('statenotify[@type="FileNetTransport"]/errorCode').text()) === ErrorCode.USER_ERROR_NODE_NET_DISCONNECT) {
+                if (Number($('statenotify/errorCode').text()) === ErrorCode.USER_ERROR_NODE_NET_DISCONNECT) {
                     openMessageTipBox({
                         type: 'info',
                         message: Translate('IDCS_OCX_NET_DISCONNECT'),

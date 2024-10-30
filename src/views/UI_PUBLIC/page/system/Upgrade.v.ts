@@ -3,7 +3,7 @@
  * @Date: 2024-06-27 11:49:04
  * @Description: 系统升级
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-16 10:09:21
+ * @LastEditTime: 2024-10-29 18:10:58
  */
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import BaseInputEncryptPwdPop from '../../components/auth/BaseInputEncryptPwdPop.vue'
@@ -99,10 +99,10 @@ export default defineComponent({
          */
         const notify = ($: XMLQuery) => {
             // 升级进度/备份进度
-            if ($("/statenotify[@type='FileNetTransportProgress']").length) {
-                const progress = $("/statenotify[@type='FileNetTransportProgress']/progress").text()
+            if ($("statenotify[@type='FileNetTransportProgress']").length) {
+                const progress = $('statenotify/progress').text()
                 pageData.value.isCheckAuth = false
-                if ($("/statenotify[@type='FileNetTransportProgress']/action").text() == 'Export') {
+                if ($('statenotify/action').text() == 'Export') {
                     if (progress == '100%' && clickFlag) {
                         upgrade()
                         clickFlag = false
@@ -121,16 +121,16 @@ export default defineComponent({
                 }
             }
             //网络断开
-            else if ($("/statenotify[@type='FileNetTransport']").length) {
+            else if ($("statenotify[@type='FileNetTransport']").length) {
                 closeAllLoading()
-                if ($("/statenotify[@type='FileNetTransport']/errorCode").length) {
-                    const errorCode = Number($("/statenotify[@type='FileNetTransport']/errorCode").text())
+                if ($('statenotify/errorCode').length) {
+                    const errorCode = Number($('statenotify/errorCode').text())
                     handleErrorMsg(errorCode)
                 }
             }
             // 升级文件校验
-            else if ($("/statenotify[@type='UploadUpgradeCheckFileBase64']").length) {
-                const fileHeadBase64 = $("/statenotify[@type='UploadUpgradeCheckFileBase64']/base64").text()
+            else if ($("statenotify[@type='UploadUpgradeCheckFileBase64']").length) {
+                const fileHeadBase64 = $('statenotify/base64').text()
                 // 若插件返回的升级包校验头内容为空，说明插件读取升级包失败。（可能是由于升级包文件被占用,另一web客户端正在升级）NVRUSS78-226
                 if (!fileHeadBase64) {
                     closeAllLoading()

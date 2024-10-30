@@ -3,7 +3,7 @@
  * @Date: 2024-08-30 18:46:48
  * @Description: 人脸库
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 11:08:41
+ * @LastEditTime: 2024-10-29 10:08:20
  */
 import { cloneDeep } from 'lodash-es'
 import { IntelFaceDBGroupList, IntelFaceDBFaceInfo } from '@/types/apiType/intelligentAnalysis'
@@ -529,7 +529,7 @@ export default defineComponent({
          * @description 人脸全选
          */
         const selectAllFace = () => {
-            formData.value.faceIndex = groupTableData.value.map((item, index) => index)
+            formData.value.faceIndex = groupTableData.value.map((_item, index) => index)
         }
 
         /**
@@ -717,6 +717,9 @@ export default defineComponent({
                 // $.webSession("ignoreAIJudge", true)
                 router.push({
                     path: '/config/alarm/faceRecognition',
+                    state: {
+                        chlId: history.state.backChlId,
+                    },
                 })
             } else {
                 const flag = await checkChlListCaps('faceRecognition')
@@ -779,6 +782,12 @@ export default defineComponent({
             for (let i = 0; i < tableData.value.length; i++) {
                 const item = tableData.value[i]
                 await getGroupFaceFeatureCount(item, i)
+            }
+        })
+
+        onBeforeUnmount(() => {
+            if (history.state.backChlId) {
+                delete history.state.backChlId
             }
         })
 
