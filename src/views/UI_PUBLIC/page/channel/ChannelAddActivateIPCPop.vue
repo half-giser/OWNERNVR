@@ -31,6 +31,7 @@
                 <el-input
                     v-model.trim="formData.password"
                     type="password"
+                    maxlength="16"
                     :disabled="useDefaultPwdSwitch"
                     @paste.capture.prevent=""
                     @copy.capture.prevent=""
@@ -43,6 +44,7 @@
                 <el-input
                     v-model.trim="formData.confirmPassword"
                     type="password"
+                    maxlength="16"
                     :disabled="useDefaultPwdSwitch"
                     @paste.capture.prevent=""
                     @copy.capture.prevent=""

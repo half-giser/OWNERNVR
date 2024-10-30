@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 16:10:39
  * @Description: 抓拍注册弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-28 14:08:43
+ * @LastEditTime: 2024-10-30 17:31:21
  */
 import type { FormInstance, FormRules } from 'element-plus'
 import IntelFaceDBEditPop from './IntelFaceDBEditPop.vue'
@@ -269,7 +269,6 @@ export default defineComponent({
             getFaceDatabaseList,
             confirmAddGroup,
             verify,
-            highlightWeekend,
             formatDigit,
             IntelFaceDBEditPop,
         }

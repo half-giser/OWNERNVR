@@ -60,8 +60,8 @@
                 <div>
                     <el-pagination
                         v-model:current-page="formData.pageIndex"
-                        :page-size="18"
-                        :page-sizes="[18]"
+                        v-model:page-size="formData.pageSize"
+                        :page-sizes="[formData.pageSize]"
                         :total="listData.length"
                         @current-change="changeFacePage"
                     />

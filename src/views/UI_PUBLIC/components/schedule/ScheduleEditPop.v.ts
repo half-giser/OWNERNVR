@@ -3,7 +3,7 @@
  * @Date: 2024-07-31 16:36:16
  * @Description: 排程编辑弹框
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-22 19:55:18
+ * @LastEditTime: 2024-10-30 11:55:35
  */
 import type BaseScheduleWeek from '@/components/BaseScheduleWeek.vue'
 import { ScheduleInfo } from '@/types/apiType/schedule'
@@ -76,7 +76,6 @@ export default defineComponent({
 
         /**
          * @description: 打开排程新增/编辑弹框
-         * @return {*}
          */
         const onOpen = () => {
             if (props.scheduleDtail) {
@@ -93,8 +92,10 @@ export default defineComponent({
          * 记录当前打开手动输入的按钮（在周排程时，打开一个手动输入/复制到，需要关闭其他天的手动输入/复制到，不能阻止冒泡，导致document点击时间不触发）
          */
         let manualTimeInputTarget: EventTarget | null = null
+
         /**
-         * 手动设置时间段面板打开
+         * @description 手动设置时间段面板打开
+         * @param {Event} event
          */
         const manualTimeInputOpen = (event: Event) => {
             manualTimeInputTarget = event.target
@@ -119,7 +120,7 @@ export default defineComponent({
         }
 
         /**
-         * @description: 批量手动输入时间
+         * @description 批量手动输入时间
          * @return {*}
          */
         const manualTimeInputOk = () => {
@@ -129,10 +130,9 @@ export default defineComponent({
             manualTimeInputClose()
         }
 
-        // const verification = () => {
-        //     if(scheduleData.value.name.length)
-        // }
-
+        /**
+         * @description 新增/编辑排程
+         */
         const save = () => {
             formData.value.timespan = scheduleWeekRef.value!.getValue()
             formRef.value!.validate(async (valid) => {
@@ -140,46 +140,48 @@ export default defineComponent({
                     return
                 }
 
-                let timeSpanXmlStr = ''
-                formData.value.timespan.forEach((dayValue, index) => {
-                    dayValue.forEach((item) => {
-                        timeSpanXmlStr += rawXml`
-                        <item>
-                            <mode>weekly</mode>
-                            <start>${item[0]}</start>
-                            <end>${item[1]}</end>
-                            <day>${props.dayEnum[index]}</day>
-                        </item>`
-                    })
-                })
-
                 const sendXml = rawXml`
-                <types>
-                    <schedulePeriodMode>
-                        <enum>weekly</enum>
-                        <enum>yearly</enum>
-                    </schedulePeriodMode>
-                    <weekDay>
-                        <enum>sun</enum>
-                        <enum>mon</enum>
-                        <enum>tue</enum>
-                        <enum>wed</enum>
-                        <enum>thu</enum>
-                        <enum>fri</enum>
-                        <enum>sat</enum>
-                    </weekDay>
-                </types>
-                <content>
-                    ${props.scheduleDtail ? '<id>' + props.scheduleDtail.id + '</id>' : ''}
-                    <name><![CDATA[${formData.value.name}]]></name>
-                    <period type="list">
-                        <itemType>
-                            <mode type="schedulePeriodMode"/>
-                            <day type="weekDay"/>
-                        </itemType>
-                        ${timeSpanXmlStr}
-                    </period>
-                </content>`
+                    <types>
+                        <schedulePeriodMode>
+                            <enum>weekly</enum>
+                            <enum>yearly</enum>
+                        </schedulePeriodMode>
+                        <weekDay>
+                            <enum>sun</enum>
+                            <enum>mon</enum>
+                            <enum>tue</enum>
+                            <enum>wed</enum>
+                            <enum>thu</enum>
+                            <enum>fri</enum>
+                            <enum>sat</enum>
+                        </weekDay>
+                    </types>
+                    <content>
+                        ${ternary(!!props.scheduleDtail, `<id>${props.scheduleDtail?.id || ''}</id>`)}
+                        <name maxByteLen="63">${wrapCDATA(formData.value.name)}</name>
+                        <period type="list">
+                            <itemType>
+                                <mode type="schedulePeriodMode"/>
+                                <day type="weekDay"/>
+                            </itemType>
+                            ${formData.value.timespan
+                                .map((dayValue, index) => {
+                                    return dayValue
+                                        .map((item) => {
+                                            return rawXml`
+                                                <item>
+                                                    <mode>weekly</mode>
+                                                    <start>${item[0]}</start>
+                                                    <end>${item[1]}</end>
+                                                    <day>${props.dayEnum[index]}</day>
+                                                </item>`
+                                        })
+                                        .join('')
+                                })
+                                .join('')}
+                        </period>
+                    </content>
+                `
 
                 const saveFun = props.scheduleDtail ? editSchedule : createSchedule
 
@@ -203,6 +205,8 @@ export default defineComponent({
             manualTimeInputClose,
             manualTimeInputOk,
             save,
+            formatInputMaxLength,
+            nameByteMaxLen,
         }
     },
 })

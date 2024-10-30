@@ -3,7 +3,7 @@
  * @Date: 2024-08-29 10:06:12
  * @Description: 人脸库
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 11:08:51
+ * @LastEditTime: 2024-10-30 10:56:31
 -->
 <template>
     <div class="base-flex-box">
@@ -109,8 +109,8 @@
                                     <div class="row_pagination">
                                         <el-pagination
                                             v-model:current-page="formData.pageIndex"
-                                            :page-size="16"
-                                            :page-sizes="[16]"
+                                            v-model:page-size="pageData.pageSize"
+                                            :page-sizes="[pageData.pageSize]"
                                             :total="scope.row.count"
                                             @current-change="changeFacePage($event, scope.row.groupId)"
                                         />

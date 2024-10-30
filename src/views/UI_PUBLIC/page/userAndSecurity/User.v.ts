@@ -3,12 +3,13 @@
  * @Date: 2024-06-17 17:21:22
  * @Description: 查看或更改用户
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 09:36:28
+ * @LastEditTime: 2024-10-30 18:11:34
  */
 import UserEditPop from './UserEditPop.vue'
 import UserEditPasswordPop from './UserEditPasswordPop.vue'
 import type { XMLQuery } from '@/utils/xmlParse'
 import { type UserList, UserPermissionChannelAuthList, UserPermissionSystemAuthList } from '@/types/apiType/userAndSecurity'
+import { type TableInstance } from 'element-plus'
 
 export default defineComponent({
     components: {
@@ -21,6 +22,8 @@ export default defineComponent({
         const { openMessageTipBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
+
+        const tableRef = ref<TableInstance>()
 
         // 用户列表
         const userList = ref<UserList[]>([])
@@ -193,6 +196,9 @@ export default defineComponent({
                 })
 
                 handleChangeUser(userList.value[0])
+                nextTick(() => {
+                    tableRef.value!.setCurrentRow(userList.value[0])
+                })
             })
 
             closeLoading()
@@ -330,6 +336,7 @@ export default defineComponent({
         })
 
         return {
+            tableRef,
             handleToolBarEvent,
             systemAuthList,
             pageData,

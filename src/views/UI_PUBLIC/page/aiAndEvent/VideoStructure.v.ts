@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-20 10:15:52
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 15:18:13
+ * @LastEditTime: 2024-10-30 16:25:45
  */
 import { VideoStructureData, type chlCaps } from '@/types/apiType/aiAndEvent'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
@@ -79,24 +79,7 @@ export default defineComponent({
             brandSwitch: Translate('IDCS_BRAND'),
             bikeTypeSwitch: Translate('IDCS_TYPE'),
         }
-        const closeTip: Record<string, string> = {
-            cdd: Translate('IDCS_CROWD_DENSITY_DETECTION'),
-            cpc: Translate('IDCS_PASS_LINE_COUNT_DETECTION'),
-            ipd: Translate('IDCS_INVADE_DETECTION'),
-            tripwire: Translate('IDCS_BEYOND_DETECTION'),
-            osc: Translate('IDCS_WATCH_DETECTION'),
-            avd: Translate('IDCS_ABNORMAL_DETECTION'),
-            perimeter: Translate('IDCS_INVADE_DETECTION'),
-            vfd: Translate('IDCS_FACE_DETECTION'),
-            aoientry: Translate('IDCS_INVADE_DETECTION'),
-            aoileave: Translate('IDCS_INVADE_DETECTION'),
-            passlinecount: Translate('IDCS_PASS_LINE_COUNT_DETECTION'),
-            h264s: Translate('IDCS_VIDEO_ENCT_TYPE_H264_SMART'),
-            h265s: Translate('IDCS_VIDEO_ENCT_TYPE_H265_SMART'),
-            vehicle: Translate('IDCS_PLATE_DETECTION'),
-            fire: Translate('IDCS_FIRE_POINT_DETECTION'),
-            vsd: Translate('IDCS_VSD_DETECTION'),
-        }
+        const closeTip = getAlarmEventList()
         const noneOSD = {
             switch: false,
             X: 0,

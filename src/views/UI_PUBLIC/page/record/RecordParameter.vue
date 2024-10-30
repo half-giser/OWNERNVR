@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-02 16:12:01
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 09:27:38
+ * @LastEditTime: 2024-10-30 15:45:08
 -->
 <template>
     <div class="base-flex-box">
@@ -240,7 +240,7 @@
 
 <style scoped>
 .msgbox {
-    margin: 50px 0 10px 0;
+    margin: 10px 0 10px 0;
 }
 .tips {
     flex: 1;

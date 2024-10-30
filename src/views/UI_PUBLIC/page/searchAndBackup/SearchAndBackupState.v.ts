@@ -3,7 +3,7 @@
  * @Date: 2024-08-12 13:47:43
  * @Description: 备份状态
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-14 16:57:42
+ * @LastEditTime: 2024-10-30 19:25:07
  */
 import { type PlaybackBackUpTaskList } from '@/types/apiType/playback'
 import dayjs from 'dayjs'
@@ -21,7 +21,9 @@ export default defineComponent({
         // 任务列表刷新间隔3秒
         const REFRESH_IMTERVAL = 3000
         // 任务列表刷新定时器
-        let timer: NodeJS.Timeout | number = 0
+        const timer = useRefreshTimer(() => {
+            getRecBackUpTaskList()
+        }, REFRESH_IMTERVAL)
 
         // 本地任务列表（OCX）
         const localTableData = computed(() => {
@@ -66,7 +68,7 @@ export default defineComponent({
          * @description 获取任务列表
          */
         const getRecBackUpTaskList = async () => {
-            clearTimeout(timer)
+            timer.stop()
 
             const result = await queryRecBackupTaskList()
             const $ = queryXml(result)
@@ -103,9 +105,7 @@ export default defineComponent({
                     }
                 })
                 if (remoteTableData.value.length) {
-                    timer = setTimeout(() => {
-                        getRecBackUpTaskList()
-                    }, REFRESH_IMTERVAL)
+                    timer.repeat()
                 }
             }
         }
@@ -214,7 +214,6 @@ export default defineComponent({
         })
 
         onBeforeUnmount(() => {
-            clearTimeout(timer)
             if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_StopPreview('ALL')
                 Plugin.GetVideoPlugin().ExecuteCmd(sendXML)

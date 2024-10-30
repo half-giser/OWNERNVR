@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-11 15:00:19
  * @Description: 过线检测
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-28 17:10:18
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-30 16:32:37
  */
 import { type chlCaps, type regionData, type emailData } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
@@ -50,6 +50,29 @@ export default defineComponent({
         const osType = getSystemInfo().platform
         let passLineDrawer: CanvasPassline
         let cpcDrawer: CanvasCpc
+
+        const closeTip = getAlarmEventList()
+
+        const directionTypeTip: Record<string, string> = {
+            none: 'A<->B',
+            rightortop: 'A->B',
+            leftorbotton: 'A<-B',
+        }
+
+        const peopleCount: Record<string, string> = {
+            all: Translate('IDCS_TIME_ALL'),
+            daily: Translate('IDCS_TIME_DAY'),
+            weekly: Translate('IDCS_TIME_WEEK'),
+            monthly: Translate('IDCS_TIME_MOUNTH'),
+        }
+
+        const countCycleTypeTip: Record<string, string> = {
+            day: Translate('IDCS_TIME_DAY'),
+            week: Translate('IDCS_TIME_WEEK'),
+            month: Translate('IDCS_TIME_MOUNTH'),
+            off: Translate('IDCS_OFF'),
+        }
+
         const pageData = ref({
             // 当前选中的通道
             currChlId: '',
@@ -219,59 +242,6 @@ export default defineComponent({
 
             initComplete: false,
             drawInitCount: 0,
-            // eventTypeMapping: {
-            //     faceDetect: Translate('IDCS_FACE_DETECTION') + '+' + Translate('IDCS_FACE_RECOGNITION'),
-            //     faceMatch: Translate('IDCS_FACE_RECOGNITION'),
-            //     tripwire: Translate('IDCS_BEYOND_DETECTION'),
-            //     perimeter: Translate('IDCS_INVADE_DETECTION'),
-            // } as Record<string, string>,
-            closeTip: {
-                cdd: Translate('IDCS_CROWD_DENSITY_DETECTION'),
-                cpc: Translate('IDCS_PASS_LINE_COUNT_DETECTION'),
-                ipd: Translate('IDCS_INVADE_DETECTION'),
-                tripwire: Translate('IDCS_BEYOND_DETECTION'),
-                osc: Translate('IDCS_WATCH_DETECTION'),
-                avd: Translate('IDCS_ABNORMAL_DETECTION'),
-                perimeter: Translate('IDCS_INVADE_DETECTION'),
-                vfd: Translate('IDCS_FACE_DETECTION'),
-                aoientry: Translate('IDCS_INVADE_DETECTION'),
-                aoileave: Translate('IDCS_INVADE_DETECTION'),
-                passlinecount: Translate('IDCS_PASS_LINE_COUNT_DETECTION'),
-                vehicle: Translate('IDCS_PLATE_DETECTION'),
-                fire: Translate('IDCS_FIRE_POINT_DETECTION'),
-                vsd: Translate('IDCS_VSD_DETECTION'),
-            } as Record<string, string>,
-            directionTypeTip: {
-                none: 'A<->B',
-                rightortop: 'A->B',
-                leftorbotton: 'A<-B',
-            } as Record<string, string>,
-            HWDRLevel: {
-                high: Translate('IDCS_HWDR_HIGH'),
-                middle: Translate('IDCS_HWDR_MEDIUM'),
-                low: Translate('IDCS_HWDR_LOW'),
-            } as Record<string, string>,
-            peopleCount: {
-                all: Translate('IDCS_TIME_ALL'),
-                daily: Translate('IDCS_TIME_DAY'),
-                weekly: Translate('IDCS_TIME_WEEK'),
-                monthly: Translate('IDCS_TIME_MOUNTH'),
-            } as Record<string, string>,
-            countCycleTypeTip: {
-                day: Translate('IDCS_TIME_DAY'),
-                week: Translate('IDCS_TIME_WEEK'),
-                month: Translate('IDCS_TIME_MOUNTH'),
-                off: Translate('IDCS_OFF'),
-            } as Record<string, string>,
-            weekMap: {
-                '0': Translate('IDCS_WEEK_DAY_SEVEN'),
-                '1': Translate('IDCS_WEEK_DAY_ONE'),
-                '2': Translate('IDCS_WEEK_DAY_TWO'),
-                '3': Translate('IDCS_WEEK_DAY_THREE'),
-                '4': Translate('IDCS_WEEK_DAY_FOUR'),
-                '5': Translate('IDCS_WEEK_DAY_FIVE'),
-                '6': Translate('IDCS_WEEK_DAY_SIX'),
-            } as Record<string, string>,
         })
         let player: PlayerInstance['player']
         let plugin: PlayerInstance['plugin']
@@ -411,16 +381,22 @@ export default defineComponent({
 
         // 设置收件人配置
         const setEmailCfg = async () => {
-            let sendXml = rawXml`<content><receiver>`
-            pageData.value.receiverData.forEach((element) => {
-                sendXml += rawXml`
-                    <item>
-                        <address><![CDATA[${element.address}]]></address>
-                        <schedule id="${element.schedule}"></schedule>
-                    </item>
-                `
-            })
-            sendXml += '</receiver></content>'
+            const sendXml = rawXml`
+                <content>
+                    <receiver>
+                        ${pageData.value.receiverData
+                            .map((item) => {
+                                return rawXml`
+                                    <item>
+                                        <address>${wrapCDATA(item.address)}</address>
+                                        <schedule id="${item.schedule}"></schedule>
+                                    </item>
+                                `
+                            })
+                            .join('')}
+                    </receiver>
+                </content>
+            `
             await editEmailCfg(sendXml)
         }
 
@@ -589,12 +565,12 @@ export default defineComponent({
                     const countCycleTypeList: SelectOption<string, string>[] = []
                     $('//types/countCycleType/enum').forEach((element) => {
                         const itemValue = element.text()
-                        countCycleTypeList.push({ value: itemValue, label: pageData.value.countCycleTypeTip[itemValue] })
+                        countCycleTypeList.push({ value: itemValue, label: countCycleTypeTip[itemValue] })
                     })
                     const directionList: SelectOption<string, string>[] = []
                     $('//types/direction/enum').forEach((element) => {
                         const itemValue = element.text()
-                        directionList.push({ value: itemValue, label: pageData.value.directionTypeTip[itemValue] })
+                        directionList.push({ value: itemValue, label: directionTypeTip[itemValue] })
                     })
                     const mutexList: { object: string; status: boolean }[] = []
                     $('//content/chl/param/mutexList/item').forEach((element) => {
@@ -760,7 +736,7 @@ export default defineComponent({
                     const statisticalPeriodList: SelectOption<string, string>[] = []
                     $('//types/statisticalPeriod/enum').forEach((element) => {
                         const itemValue = element.text()
-                        statisticalPeriodList.push({ value: itemValue, label: pageData.value.peopleCount[itemValue] })
+                        statisticalPeriodList.push({ value: itemValue, label: peopleCount[itemValue] })
                     })
                     let regionInfo = { X1: 0, Y1: 0, X2: 0, Y2: 0 }
                     $('//content/chl/param/regionInfo/item').forEach((element) => {
@@ -985,7 +961,7 @@ export default defineComponent({
                 pageData.value.passLineMutexList.forEach((ele) => {
                     if (ele.status) {
                         const prefixName = mutexChlNameObj.normalChlName ? joinSpaceForLang(Translate('IDCS_CHANNEL') + ':' + mutexChlNameObj.normalChlName) : ''
-                        const showInfo = prefixName ? prefixName + pageData.value.closeTip[ele.object].toLowerCase() : pageData.value.closeTip[ele.object]
+                        const showInfo = prefixName ? prefixName + closeTip[ele.object].toLowerCase() : closeTip[ele.object]
                         switchChangeTypeArr.push(showInfo)
                     }
                 })
@@ -993,7 +969,7 @@ export default defineComponent({
                 pageData.value.passLineMutexListEx.forEach((ele) => {
                     if (ele.status) {
                         const prefixName = mutexChlNameObj.thermalChlName ? joinSpaceForLang(Translate('IDCS_CHANNEL') + ':' + mutexChlNameObj.thermalChlName) : ''
-                        const showInfo = prefixName ? prefixName + pageData.value.closeTip[ele.object].toLowerCase() : pageData.value.closeTip[ele.object]
+                        const showInfo = prefixName ? prefixName + closeTip[ele.object].toLowerCase() : closeTip[ele.object]
                         switchChangeTypeArr.push(showInfo)
                     }
                 })
@@ -1022,7 +998,7 @@ export default defineComponent({
                 pageData.value.cpcMutexList.forEach((ele) => {
                     if (ele.status) {
                         const prefixName = mutexChlNameObj.normalChlName ? joinSpaceForLang(Translate('IDCS_CHANNEL') + ':' + mutexChlNameObj.normalChlName) : ''
-                        const showInfo = prefixName ? prefixName + pageData.value.closeTip[ele.object].toLowerCase() : pageData.value.closeTip[ele.object]
+                        const showInfo = prefixName ? prefixName + closeTip[ele.object].toLowerCase() : closeTip[ele.object]
                         switchChangeTypeArr.push(showInfo)
                     }
                 })
@@ -1030,7 +1006,7 @@ export default defineComponent({
                 pageData.value.cpcMutexListEx.forEach((ele) => {
                     if (ele.status) {
                         const prefixName = mutexChlNameObj.thermalChlName ? joinSpaceForLang(Translate('IDCS_CHANNEL') + ':' + mutexChlNameObj.thermalChlName) : ''
-                        const showInfo = prefixName ? prefixName + pageData.value.closeTip[ele.object].toLowerCase() : pageData.value.closeTip[ele.object].toLowerCase()
+                        const showInfo = prefixName ? prefixName + closeTip[ele.object].toLowerCase() : closeTip[ele.object].toLowerCase()
                         switchChangeTypeArr.push(showInfo)
                     }
                 })

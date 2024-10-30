@@ -101,8 +101,6 @@
                                 :disabled="dateTimeFormData.syncType === 'NTP'"
                                 :value-format="formatSystemTime"
                                 :format="formatSystemTime"
-                                :cell-class-name="handleCalendarCellHighLight"
-                                clear-icon=""
                                 type="datetime"
                                 @visible-change="pendingSystemTimeChange"
                                 @change="handleSystemTimeChange"

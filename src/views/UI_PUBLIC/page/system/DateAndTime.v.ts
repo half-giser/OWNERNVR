@@ -283,7 +283,6 @@ export default defineComponent({
             isDSTDisabled,
             setData,
             handleIsSyncChange,
-            highlightWeekend,
             pendingSystemTimeChange,
             displayTimeZone,
             handleSystemTimeChange,

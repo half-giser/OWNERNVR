@@ -3,7 +3,7 @@
  * @Date: 2024-08-30 18:47:04
  * @Description: 人脸库 - 添加人脸
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-28 14:06:44
+ * @LastEditTime: 2024-10-30 17:30:01
  */
 import { IntelFaceDBFaceForm, type IntelFaceDBGroupDto, type IntelFaceDBSnapFaceList, type IntelFaceDBImportFaceDto } from '@/types/apiType/intelligentAnalysis'
 import { type FormInstance } from 'element-plus'
@@ -482,7 +482,6 @@ export default defineComponent({
             successCount,
             picList,
             swiperSize,
-            highlightWeekend,
             formatDigit,
             IntelFaceDBChooseFacePop,
             IntelBaseFaceItem,

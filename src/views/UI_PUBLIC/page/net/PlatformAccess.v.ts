@@ -3,7 +3,7 @@
  * @Date: 2024-08-15 18:19:00
  * @Description: 平台接入
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-29 19:58:59
+ * @LastEditTime: 2024-10-30 16:58:11
  */
 import { NetPlatformAccessForm, type NetPlatformSipList, NetPlatformSipCodeList } from '@/types/apiType/net'
 import PlatformAccessCodeIdPop from './PlatformAccessCodeIdPop.vue'
@@ -391,20 +391,19 @@ export default defineComponent({
             let sendXml = ''
             // TODO GB28181 需数据才能测试
             if (formData.value.accessType === 'GB28181') {
-                const tableXml = tableData.value
-                    .map((item) => {
-                        const tag = item.value === 'chl' ? 'sipChl' : 'sipSensor'
-                        return rawXml`
-                            <${tag}>
-                                ${item.list.map((code) => `<item id="${code.id}" gbId="${code.gbId}">${code.text}</item>`).join('')}
-                            </${tag}>
-                        `
-                    })
-                    .join('')
                 sendXml = rawXml`
                     <content current="${formData.value.accessType}">
                         <item id="${formData.value.accessType}">
-                            ${tableXml}
+                            ${tableData.value
+                                .map((item) => {
+                                    const tag = item.value === 'chl' ? 'sipChl' : 'sipSensor'
+                                    return rawXml`
+                                        <${tag}>
+                                            ${item.list.map((code) => `<item id="${code.id}" gbId="${code.gbId}">${code.text}</item>`).join('')}
+                                        </${tag}>
+                                    `
+                                })
+                                .join('')}
                             <switch>${formData.value.gb28181Switch.toString()}</switch>
                             <sipServerInfo id="${formData.value.sipId}">
                                 <relm>${formData.value.sipRelm}</relm>

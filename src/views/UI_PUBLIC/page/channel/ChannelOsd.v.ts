@@ -446,7 +446,7 @@ export default defineComponent({
                 const rowData = tableData.value[i]
                 if (editRows.has(rowData)) {
                     try {
-                        if (!rowData.name) {
+                        if (!rowData.name.trim()) {
                             rowData.status = 'error'
                             rowData.statusTip = Translate('IDCS_PROMPT_NAME_EMPTY')
                             continue
@@ -483,13 +483,13 @@ export default defineComponent({
         }
 
         const setDevice = async (rowData: ChannelOsd) => {
-            const data = rawXml`
+            const sendXml = rawXml`
                 <content>
                     <id>${rowData.id}</id>
-                    <name><![CDATA[${rowData.name}]]></name>
+                    <name maxByteLen="63">${wrapCDATA(rowData.name)}</name>
                 </content>
             `
-            const result = await editDev(data)
+            const result = await editDev(sendXml)
             const $ = queryXml(result)
             if ($('status').text() === 'success') {
                 return true

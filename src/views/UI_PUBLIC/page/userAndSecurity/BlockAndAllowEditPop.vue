@@ -21,7 +21,6 @@
                 '--form-input-width': '220px',
                 '--form-label-width': '80px',
             }"
-            hide-required-asterisk
         >
             <el-form-item>
                 <el-checkbox

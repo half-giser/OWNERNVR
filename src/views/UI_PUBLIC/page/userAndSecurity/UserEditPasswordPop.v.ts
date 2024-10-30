@@ -3,7 +3,7 @@
  * @Date: 2024-06-17 17:21:34
  * @Description: 更改其他用户密码的弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-23 14:41:37
+ * @LastEditTime: 2024-10-30 16:52:23
  */
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import { UserEditPasswordForm } from '@/types/apiType/userAndSecurity'
@@ -148,7 +148,7 @@ export default defineComponent({
                 <content>
                     <userId>${prop.userId}</userId>
                     <userName>${wrapCDATA(prop.userName)}</userName>
-                    <password ${getSecurityVer()}>${wrapCDATA(password)}</password>
+                    <password maxLen='16' ${getSecurityVer()}>${wrapCDATA(password)}</password>
                 </content>
                 <auth>
                     <userName>${e.userName}</userName>

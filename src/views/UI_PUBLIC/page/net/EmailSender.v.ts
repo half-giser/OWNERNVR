@@ -3,7 +3,7 @@
  * @Date: 2024-07-10 15:00:10
  * @Description: E-mail发送
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-17 13:58:14
+ * @LastEditTime: 2024-10-30 15:03:59
  */
 import { type FormInstance, type FormRules } from 'element-plus'
 import { NetEmailForm } from '@/types/apiType/net'
@@ -239,7 +239,7 @@ export default defineComponent({
                 <content>
                     <sender>
                         <address>${wrapCDATA(formData.value.address)}</address>
-                        <name>${wrapCDATA(formData.value.name)}</name>
+                        <name maxByteLen="63">${wrapCDATA(formData.value.name)}</name>
                         <userName>${wrapCDATA(formData.value.userName)}</userName>
                         ${formData.value.anonymousSwitch ? `<password ${getSecurityVer()}>${password}</password>` : ''}
                         <anonymousSwitch>${formData.value.anonymousSwitch.toString()}</anonymousSwitch>
@@ -247,7 +247,7 @@ export default defineComponent({
                         <imageNumber>${formData.value.imageNumber.toString()}</imageNumber>
                         <smtp>
                             <server>${wrapCDATA(formData.value.server)}</server>
-                            <port>${String(formData.value.port)}</port>
+                            <port>${formData.value.port.toString()}</port>
                             <ssl>${formData.value.ssl}</ssl>
                         </smtp>
                     </sender>

@@ -3,7 +3,7 @@
  * @Date: 2024-06-17 17:21:49
  * @Description: 编辑用户信息弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:35:12
+ * @LastEditTime: 2024-10-30 17:09:57
  */
 import { UserEditForm, type UserAuthGroupOption } from '@/types/apiType/userAndSecurity'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -177,7 +177,7 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <userId>${prop.userId}</userId>
-                    <userName>${wrapCDATA(formData.value.userName)}</userName>
+                    <userName maxByteLen="63">${wrapCDATA(formData.value.userName)}</userName>
                     <authGroup id="${formData.value.authGroup}"></authGroup>
                     <bindMacSwitch>false</bindMacSwitch>
                     <modifyPassword>${formData.value.allowModifyPassword.toString()}</modifyPassword>

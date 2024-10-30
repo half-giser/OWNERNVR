@@ -3,7 +3,7 @@
  * @Date: 2024-08-12 13:48:22
  * @Description: 按事件搜索
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-09 11:43:32
+ * @LastEditTime: 2024-10-30 17:34:32
  */
 import dayjs from 'dayjs'
 import { type PlaybackChlList, type PlaybackBackUpRecList, PlaybackRecLogList } from '@/types/apiType/playback'
@@ -547,7 +547,6 @@ export default defineComponent({
             mode,
             formData,
             dateTime,
-            highlightWeekend,
             pageData,
             userAuth,
             confirmBackUp,

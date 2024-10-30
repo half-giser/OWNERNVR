@@ -1461,7 +1461,11 @@ export default defineComponent({
                         message: Translate('IDCS_MAX_CHANNEL_LIMIT').formatForLang(faceMatchLimitMaxChlNum) + Translate('IDCS_REBOOT_DEVICE').formatForLang(Translate('IDCS_ENABLE') + 'AI'),
                     }).then(async () => {
                         //AISwitch 打开AI模式开关 NT-9997
-                        const sendXml = `<content><AISwitch>true</AISwitch></content>`
+                        const sendXml = rawXml`
+                            <content>
+                                <AISwitch>true</AISwitch>
+                            </content>
+                        `
                         await editBasicCfg(sendXml)
                     })
                 }

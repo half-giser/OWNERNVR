@@ -3,7 +3,7 @@
  * @Date: 2024-08-30 09:26:20
  * @Description: 人脸库 - 编辑人脸弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 10:40:31
+ * @LastEditTime: 2024-10-30 17:30:17
 -->
 <template>
     <el-dialog
@@ -19,6 +19,8 @@
                 <el-form-item :label="Translate('IDCS_NAME_PERSON')">
                     <el-input
                         v-model="formData.name"
+                        :formatter="formatName"
+                        :parser="formatName"
                         maxlength="31"
                         :disabled
                     />
@@ -41,8 +43,6 @@
                         v-model="formData.birthday"
                         :value-format="dateTime.dateFormat"
                         :format="dateTime.dateFormat"
-                        :cell-class-name="highlightWeekend"
-                        clear-icon=""
                         type="date"
                         :disabled
                     />
@@ -77,11 +77,11 @@
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_NUMBER')">
-                    <BaseNumberInput
+                    <el-input
                         v-model="formData.number"
-                        :min="1"
-                        :max="999999999999999"
-                        :value-on-clear="null"
+                        :parser="formatDigit"
+                        :formatter="formatDigit"
+                        maxlength="15"
                         :disabled
                     />
                 </el-form-item>

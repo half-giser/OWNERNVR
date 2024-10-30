@@ -3,7 +3,7 @@
  * @Date: 2024-08-21 15:34:24
  * @Description: 前端掉线
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-28 09:36:49
+ * @LastEditTime: 2024-10-30 15:37:10
  */
 import { cloneDeep } from 'lodash-es'
 import { MotionEventConfig, type PresetItem } from '@/types/apiType/aiAndEvent'
@@ -115,32 +115,12 @@ export default defineComponent({
         }
 
         const buildTableData = () => {
-            // tableData.value.length = 0
             tableData.value = []
-            const sendXml = rawXml`
-                <types>
-                    <nodeType>
-                        <enum>chls</enum>
-                        <enum>sensors</enum>
-                        <enum>alarmOuts</enum>
-                    </nodeType>
-                    <chlType>
-                        <enum>analog</enum>
-                        <enum>digital</enum>
-                        <enum>all</enum>
-                    </chlType>
-                </types>
-                <pageIndex>${pageData.value.pageIndex.toString()}</pageIndex>
-                <pageSize>${pageData.value.pageSize.toString()}</pageSize>
-                <nodeType type="nodeType">chls</nodeType>
-                <requireField>
-                    <name/>
-                </requireField>
-                <condition>
-                    <chlType type="chlType">digital</chlType>
-                </condition>
-            `
-            queryNodeList(sendXml).then(async (res) => {
+            getChlList({
+                pageIndex: pageData.value.pageIndex,
+                pageSize: pageData.value.pageSize,
+                chlType: 'digital',
+            }).then(async (res) => {
                 const $chl = queryXml(res)
                 pageData.value.totalCount = Number($chl('//content').attr('total'))
                 $chl('//content/item').forEach((item) => {
@@ -151,6 +131,7 @@ export default defineComponent({
                     row.status = 'loading'
                     tableData.value.push(row)
                 })
+                console.log(tableData.value)
 
                 for (let i = 0; i < tableData.value.length; i++) {
                     const row = tableData.value[i]

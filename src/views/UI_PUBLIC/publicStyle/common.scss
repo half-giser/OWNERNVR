@@ -281,6 +281,11 @@ input[type='number'] {
                 }
             }
         }
+
+        .el-input,
+        .el-input-number {
+            max-width: 100%;
+        }
     }
 
     // .el-input 公共样式

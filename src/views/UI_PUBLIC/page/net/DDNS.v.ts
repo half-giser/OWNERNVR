@@ -3,7 +3,7 @@
  * @Date: 2024-07-10 09:13:17
  * @Description: DDNS
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-17 15:00:57
+ * @LastEditTime: 2024-10-30 19:09:30
  */
 import { NetDDNSForm, NetDDNSServerTypeList } from '@/types/apiType/net'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -95,7 +95,9 @@ export default defineComponent({
         })
 
         // 更新连接状态的定时器
-        let timer: NodeJS.Timeout | number = 0
+        const timer = useRefreshTimer(() => {
+            getConnectStatus()
+        })
 
         const pageData = ref({
             // DDNS类型选项
@@ -212,7 +214,6 @@ export default defineComponent({
                 }
 
                 pageData.value.connectState = $('//content/connectState').text() === 'success' ? Translate('IDCS_SUCCESS') : Translate('IDCS_FAILED')
-                timer = setInterval(() => getConnectStatus(), 5000)
             })
         }
 
@@ -307,6 +308,7 @@ export default defineComponent({
         const getConnectStatus = async () => {
             const result = await queryDDNSCfg()
             pageData.value.connectState = queryXml(result)('//content/connectState').text() === 'success' ? Translate('IDCS_SUCCESS') : Translate('IDCS_FAILED')
+            timer.repeat()
         }
 
         /**
@@ -323,12 +325,9 @@ export default defineComponent({
 
             await getNetConfig()
             await getData()
+            timer.repeat()
 
             closeLoading()
-        })
-
-        onBeforeUnmount(() => {
-            clearInterval(timer)
         })
 
         return {

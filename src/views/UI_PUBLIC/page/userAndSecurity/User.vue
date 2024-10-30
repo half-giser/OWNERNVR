@@ -3,7 +3,7 @@
  * @Date: 2024-05-04 12:58:39
  * @Description: 查看或更改用户
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 09:46:12
+ * @LastEditTime: 2024-10-30 18:12:13
 -->
 <template>
     <div class="User">
@@ -111,23 +111,28 @@
         </div>
         <div class="User-right">
             <el-table
+                ref="tableRef"
                 :data="userList"
                 width="100%"
                 height="100%"
                 border
                 stripe
-                :current-row-key="pageData.activeUser"
                 flexible
-                :row-class-name="(item) => (item.rowIndex === pageData.activeUser ? 'active' : '')"
+                highlight-current-row
+                show-overflow-tooltip
                 @cell-click="handleChangeUser"
                 @cell-dblclick="handleEditUser"
             >
                 <el-table-column
                     prop="userName"
                     :label="Translate('IDCS_USERNAME')"
+                    min-width="150"
                 >
                 </el-table-column>
-                <el-table-column :label="Translate('IDCS_RIGHT_GROUP')">
+                <el-table-column
+                    :label="Translate('IDCS_RIGHT_GROUP')"
+                    min-width="150"
+                >
                     <template #default="scope">
                         {{ displayAuthGroup(scope.row.authGroupName) }}
                     </template>

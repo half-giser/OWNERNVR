@@ -3,7 +3,7 @@
  * @Date: 2024-08-14 16:50:21
  * @Description: 时间切片-时间线界面
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 17:19:05
+ * @LastEditTime: 2024-10-30 19:35:26
  */
 import dayjs from 'dayjs'
 import TimeSliceChlCard from './TimeSliceChlCard.vue'
@@ -261,31 +261,26 @@ export default defineComponent({
             pageData.value.sliceType = modeItem.value.options[0].value
         })
 
-        let recSizeTimer: NodeJS.Timeout | number = 0
-
         watch(
             () => formData.value.startTime,
             () => {
-                updateRecSize()
+                recSizeTimer.repeat()
             },
         )
 
         watch(
             () => formData.value.endTime,
             () => {
-                updateRecSize()
+                recSizeTimer.repeat()
             },
         )
 
         /**
          * @description 获取时间范围内录像文件大小
          */
-        const updateRecSize = () => {
-            clearTimeout(recSizeTimer)
-            recSizeTimer = setTimeout(() => {
-                getRecDataSize()
-            }, 200)
-        }
+        const recSizeTimer = useRefreshTimer(() => {
+            getRecDataSize()
+        }, 200)
 
         /**
          * @description 获取时间范围内录像文件大小
@@ -543,7 +538,7 @@ export default defineComponent({
             updateMode(mode, currentTime)
         }
 
-        let timeSliceTimer: NodeJS.Timeout | number = 0
+        const timeSliceTimer = useRefreshTimer(() => {}, 300)
 
         /**
          * @description 播放当前切片
@@ -551,9 +546,8 @@ export default defineComponent({
          * @param {number} endTime
          * @param {string} taskId
          */
-        const playTimeSlice = (startTime: number, endTime: number, taskId: string) => {
-            clearTimeout(timeSliceTimer)
-            timeSliceTimer = setTimeout(() => {
+        const playTimeSlice = async (startTime: number, endTime: number, taskId: string) => {
+            timeSliceTimer.repeat(false, () => {
                 play(startTime)
                 pageData.value.activeTimeSlice = taskId
                 if (pageData.value.mode === 'day') {
@@ -561,7 +555,7 @@ export default defineComponent({
                     formData.value.endTime = endTime
                     timelineRef.value!.drawTimeRangeMask(startTime / 1000, endTime / 1000)
                 }
-            }, 300)
+            })
         }
 
         /**
@@ -569,7 +563,7 @@ export default defineComponent({
          * @param {number} pointerTime
          */
         const changeTimeSlice = (pointerTime: number) => {
-            clearTimeout(timeSliceTimer)
+            timeSliceTimer.stop()
             if (pageData.value.mode === 'day') {
                 if (pageData.value.sliceType === 'hour') {
                     pageData.value.sliceType = 'minute'
@@ -877,9 +871,6 @@ export default defineComponent({
         })
 
         onBeforeUnmount(() => {
-            clearTimeout(recSizeTimer)
-            clearTimeout(timeSliceTimer)
-
             keyframe?.destroy()
 
             if (mode.value === 'ocx') {

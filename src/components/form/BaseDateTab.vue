@@ -2,8 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-26 10:56:10
  * @Description: 日期切换按钮
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-24 14:18:38
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-30 17:24:54
 -->
 <template>
     <div class="date-tab">
@@ -36,8 +36,6 @@
                         v-model="formData.startTime"
                         :value-format="dateTime.dateTimeFormat"
                         :format="dateTime.dateTimeFormat"
-                        :cell-class-name="highlightWeekend"
-                        clear-icon=""
                         type="datetime"
                     />
                 </el-form-item>
@@ -46,8 +44,6 @@
                         v-model="formData.endTime"
                         :value-format="dateTime.dateTimeFormat"
                         :format="dateTime.dateTimeFormat"
-                        :cell-class-name="highlightWeekend"
-                        clear-icon=""
                         type="datetime"
                     />
                 </el-form-item>
@@ -67,7 +63,6 @@
 
 <script lang="ts" setup>
 import dayjs from 'dayjs'
-import { highlightWeekend } from '@/utils/date'
 
 const props = withDefaults(
     defineProps<{

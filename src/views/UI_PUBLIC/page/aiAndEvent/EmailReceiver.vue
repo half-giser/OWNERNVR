@@ -3,7 +3,7 @@
  * @Date: 2024-08-12 15:34:24
  * @Description: email通知
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-28 10:05:10
+ * @LastEditTime: 2024-10-30 10:24:06
 -->
 <template>
     <div>
@@ -16,7 +16,6 @@
                 '--form-input-width': '180px',
             }"
             class="top"
-            hide-required-asterisk
         >
             <el-form-item
                 :label="Translate('IDCS_RECIPIENT')"

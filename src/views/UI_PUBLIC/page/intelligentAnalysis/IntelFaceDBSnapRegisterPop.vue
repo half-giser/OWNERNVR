@@ -3,7 +3,7 @@
  * @Date: 2024-07-22 16:34:10
  * @Description: 抓拍注册弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-28 14:05:20
+ * @LastEditTime: 2024-10-30 17:31:10
 -->
 <template>
     <el-dialog
@@ -48,8 +48,6 @@
                         v-model="formData.birthday"
                         :value-format="dateTime.dateFormat"
                         :format="dateTime.dateFormat"
-                        :cell-class-name="highlightWeekend"
-                        clear-icon=""
                         type="date"
                     />
                 </el-form-item>

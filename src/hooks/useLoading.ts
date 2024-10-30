@@ -48,7 +48,6 @@ const useLoading = () => {
         //当前已经打开了全屏loading
         if (fullScreenInst != null) {
             layoutStore.loadingCount += 1
-            // console.log("fullscreen loading already opend, other loading not open", target, gbp.fullScreenCount)
             return
         }
 
@@ -66,7 +65,6 @@ const useLoading = () => {
             loadingInstMap.forEach((value: LoadingItem) => {
                 layoutStore.loadingCount += value.count
             })
-            // console.log("open fullscreen loading, close all part loading...", target, gbp.fullScreenCount)
             closeAllPartLoading()
             return
         }
@@ -107,7 +105,6 @@ const useLoading = () => {
                 closeInst(inst)
                 fullScreenInst = null
             }
-            // console.log("closeLoading fullscreen", target, gbp.fullScreenCount)
             return
         }
 
@@ -118,8 +115,6 @@ const useLoading = () => {
                 closeInst(item.inst)
                 loadingInstMap.delete(target)
             }
-            // console.log('closeLoading', target, item.count)
-            // console.log('gbp.loadingInstMap', gbp.loadingInstMap)
         } else {
             console.warn('loading target not found, close all...', target)
             //如果传入的target没找到，将所有loading关闭
@@ -131,7 +126,6 @@ const useLoading = () => {
      * @description 关闭所有loading
      */
     const closeAllLoading = () => {
-        // console.log('closeAllLoading')
         if (fullScreenInst != null) {
             closeInst(fullScreenInst)
             layoutStore.loadingCount = 0

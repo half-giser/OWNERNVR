@@ -401,7 +401,6 @@ export default class TVTPlayer {
                     this.winDataList[winIndex].PLAY_STATUS = 'play'
                     this.onplayStatus && this.onplayStatus(this.getPlayingChlList())
                 }
-                // console.log()
             },
             onwatermark: (watermark: string) => {
                 const winIndex = this.getWinIndexByCav(videoCav)

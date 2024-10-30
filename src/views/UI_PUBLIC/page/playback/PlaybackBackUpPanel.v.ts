@@ -3,7 +3,7 @@
  * @Date: 2024-08-06 20:36:12
  * @Description: 回放-备份任务列表
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-10 17:51:32
+ * @LastEditTime: 2024-10-30 19:14:03
  */
 import { type PlaybackBackUpTaskList } from '@/types/apiType/playback'
 import dayjs from 'dayjs'
@@ -32,7 +32,9 @@ export default defineComponent({
         // 任务列表刷新间隔3秒
         const REFRESH_IMTERVAL = 3000
         // 任务列表刷新定时器
-        let timer: NodeJS.Timeout | number = 0
+        const timer = useRefreshTimer(() => {
+            getRecBackUpTaskList()
+        }, REFRESH_IMTERVAL)
 
         // 本地任务列表（OCX）
         const localTableData = computed(() => {
@@ -81,7 +83,7 @@ export default defineComponent({
          * @description 获取任务列表
          */
         const getRecBackUpTaskList = async () => {
-            clearTimeout(timer)
+            timer.stop()
 
             const result = await queryRecBackupTaskList()
             const $ = queryXml(result)
@@ -118,9 +120,7 @@ export default defineComponent({
                     }
                 })
                 if (remoteTableData.value.length) {
-                    timer = setTimeout(() => {
-                        getRecBackUpTaskList()
-                    }, REFRESH_IMTERVAL)
+                    timer.repeat()
                 }
             }
         }
@@ -209,17 +209,13 @@ export default defineComponent({
             () => prop.visible,
             (newVal) => {
                 if (newVal) {
-                    getRecBackUpTaskList()
+                    timer.repeat(true)
                 } else {
-                    clearTimeout(timer)
+                    timer.stop()
                 }
                 pageData.value.visible = prop.visible
             },
         )
-
-        onBeforeUnmount(() => {
-            clearTimeout(timer)
-        })
 
         return {
             pageData,

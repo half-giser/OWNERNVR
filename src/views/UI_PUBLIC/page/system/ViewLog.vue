@@ -3,7 +3,7 @@
  * @Date: 2024-07-01 11:01:04
  * @Description: 查看日志
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-16 10:51:20
+ * @LastEditTime: 2024-10-30 17:39:34
 -->
 <template>
     <div class="base-flex-box">
@@ -36,8 +36,6 @@
                         v-model="pageData.startTime"
                         :value-format="dateTime.dateTimeFormat"
                         :format="dateTime.dateTimeFormat"
-                        :cell-class-name="highlightWeekend"
-                        clear-icon=""
                         type="datetime"
                         @change="changeStartTime"
                     ></el-date-picker>
@@ -46,8 +44,6 @@
                         v-model="pageData.endTime"
                         :value-format="dateTime.dateTimeFormat"
                         :format="dateTime.dateTimeFormat"
-                        :cell-class-name="highlightWeekend"
-                        clear-icon=""
                         type="datetime"
                         @change="changeEndTime"
                     ></el-date-picker>
@@ -61,9 +57,9 @@
             <el-table
                 stripe
                 border
+                highlight-current-row
+                show-overflow-tooltip
                 :data="tableList"
-                :current-row-key="pageData.activeTableIndex"
-                :row-class-name="(item) => (item.rowIndex === pageData.activeTableIndex ? 'active' : '')"
                 @cell-click="handleChangeRow"
             >
                 <el-table-column
@@ -82,7 +78,10 @@
                     :label="Translate('IDCS_LOG_TIME')"
                     prop="time"
                 />
-                <el-table-column :label="Translate('IDCS_CONTENT')">
+                <el-table-column
+                    :label="Translate('IDCS_CONTENT')"
+                    prop="subType"
+                >
                     <template #header>
                         <el-popover
                             popper-class="popper no-padding"
@@ -108,9 +107,6 @@
                             </el-scrollbar>
                         </el-popover>
                     </template>
-                    <template #default="scope">
-                        <el-text>{{ scope.row.subType }}</el-text>
-                    </template>
                 </el-table-column>
                 <el-table-column
                     width="425"
@@ -118,9 +114,7 @@
                 >
                     <template #default="scope">
                         <div class="detail-info">
-                            <el-tooltip :content="scope.row.content">
-                                <div>{{ scope.row.content }}</div>
-                            </el-tooltip>
+                            <div>{{ scope.row.content }}</div>
                             <BaseImgSprite
                                 file="detail"
                                 :index="0"

@@ -82,7 +82,6 @@ export default defineComponent({
                         label: pageData.value.evTypeLangMap['MOTION,ALARM'],
                     })
                 }
-                console.log(pageData.value.alarmTypeList)
                 const pretimeList = $('//content/param/preTimeNote').text()
                 pageData.value.pretimeList = pretimeList !== '' ? pretimeList.split(',').map((item) => ({ value: item.trim(), label: getTranslateForSecond(Number(item.trim())) })) : []
                 const saveTimeList = $('//content/param/holdTimeNote').text()

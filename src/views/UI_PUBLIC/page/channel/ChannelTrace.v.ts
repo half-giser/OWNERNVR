@@ -382,7 +382,7 @@ export default defineComponent({
                 <content>
                     <chlId>${tableData.value[pageData.value.tableIndex].chlId}</chlId>
                     <index>${currentTrace.value.index.toString()}</index>
-                    <name>${wrapCDATA(formData.value.name)}</name>
+                    <name maxByteLen="63">${wrapCDATA(formData.value.name)}</name>
                 </content>
             `
             const result = await editChlPtzTrace(sendXml)

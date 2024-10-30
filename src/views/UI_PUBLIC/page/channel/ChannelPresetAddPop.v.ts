@@ -3,7 +3,7 @@
  * @Date: 2024-08-20 18:26:39
  * @Description: 新增预置点弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 15:38:13
+ * @LastEditTime: 2024-10-30 14:08:45
  */
 import { type ChannelPtzPresetDto } from '@/types/apiType/channel'
 import type { FormInstance, FormRules } from 'element-plus'
@@ -109,7 +109,7 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <index>${formData.value.index.toString()}</index>
-                    <name>${wrapCDATA(formData.value.name)}</name>
+                    <name maxByteLen="63">${wrapCDATA(formData.value.name)}</name>
                     <chlId>${prop.chlId}</chlId>
                 </content>
             `

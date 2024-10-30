@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 13:43:11
  * @Description: 磁盘阵列
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:00:19
+ * @LastEditTime: 2024-10-30 18:44:56
  */
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import { DiskRaidList } from '@/types/apiType/disk'
@@ -20,7 +20,9 @@ export default defineComponent({
         const { openMessageTipBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
 
-        let raidStatusTimer: NodeJS.Timeout | number = 0
+        const raidStatusTimer = useRefreshTimer(() => {
+            getRaidStatus()
+        }, 600000)
 
         // 状态值与显示文本的映射
         const STATE_MAPPING: Record<string, string> = {
@@ -52,13 +54,10 @@ export default defineComponent({
          * @returns
          */
         const refreshData = async () => {
+            raidStatusTimer.stop()
             const raidListHasRebuildArray = await getData()
-            if (!raidListHasRebuildArray) return
-            const raidStatusHasRebuildArray = await getRaidStatus()
-            if (raidStatusHasRebuildArray) {
-                startRefreshProgress()
-            } else {
-                stopRefreshProgress()
+            if (raidListHasRebuildArray) {
+                raidStatusTimer.repeat(true)
             }
         }
 
@@ -201,25 +200,9 @@ export default defineComponent({
                 }
             })
 
-            return hasRebuildArray
-        }
-
-        /**
-         * @description 刷新阵列状态
-         */
-        const startRefreshProgress = () => {
-            stopRefreshProgress()
-            raidStatusTimer = setTimeout(() => {
-                getRaidStatus()
-            }, 60000)
-        }
-
-        /**
-         * @description 停止刷新阵列状态
-         */
-        const stopRefreshProgress = () => {
-            clearTimeout(raidStatusTimer)
-            raidStatusTimer = 0
+            if (hasRebuildArray) {
+                raidStatusTimer.repeat()
+            }
         }
 
         /**
@@ -237,10 +220,6 @@ export default defineComponent({
 
         onMounted(() => {
             refreshData()
-        })
-
-        onBeforeUnmount(() => {
-            stopRefreshProgress()
         })
 
         return {

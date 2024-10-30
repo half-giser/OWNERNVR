@@ -11,7 +11,6 @@
             ref="formRef"
             :rules="rules"
             :model="formData"
-            hide-required-asterisk
             :style="{
                 '--form-input-width': '300px',
                 '--form-label-width': '200px',

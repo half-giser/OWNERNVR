@@ -53,7 +53,7 @@
                         maxlength="11"
                         :formatter="handleDisplayNameInput"
                         :parser="handleDisplayNameInput"
-                    ></el-input>
+                    />
                 </el-form-item>
             </el-form-item>
         </el-form>
@@ -70,17 +70,16 @@
                 min-width="260"
             >
                 <template #default="scope">
-                    <span>{{ scope.row.streamType === 'Main' ? Translate('IDCS_MAIN_STREAM') : Translate('IDCS_SUB_STREAM') }}</span>
+                    {{ scope.row.streamType === 'Main' ? Translate('IDCS_MAIN_STREAM') : Translate('IDCS_SUB_STREAM') }}
                 </template>
             </el-table-column>
             <el-table-column
                 :label="Translate('IDCS_TYPE')"
-                width="130"
+                minn-width="130"
             >
                 <template #default="scope">
                     <el-select
                         v-model="scope.row.protocol"
-                        size="small"
                         :disabled="!formData.enabled"
                     >
                         <el-option
@@ -92,12 +91,11 @@
             </el-table-column>
             <el-table-column
                 :label="Translate('IDCS_TRANSFER_PROTOCOL')"
-                width="130"
+                minn-width="130"
             >
                 <template #default="scope">
                     <el-select
                         v-model="scope.row.transportProtocol"
-                        size="small"
                         :disabled="!formData.enabled"
                     >
                         <el-option
@@ -109,14 +107,13 @@
             </el-table-column>
             <el-table-column
                 :label="Translate('IDCS_PORT')"
-                width="130"
+                minn-width="130"
             >
                 <template #default="scope">
                     <BaseNumberInput
                         v-model="scope.row.port"
                         :min="10"
                         :max="65535"
-                        size="small"
                         :disabled="!formData.enabled"
                     />
                 </template>
@@ -128,33 +125,24 @@
                 <template #default="scope">
                     <el-input
                         v-model="scope.row.path"
-                        size="small"
                         :disabled="!formData.enabled"
                     />
                 </template>
             </el-table-column>
         </el-table>
         <template #footer>
-            <el-row class="elRowTip">
-                <el-col class="el-col-flex-start">
-                    <span>{{ Translate('IDCS_CHANGE_PROTOCOL_TIP') }}</span>
-                </el-col>
-            </el-row>
-            <el-row>
-                <el-col class="el-col-flex-end">
-                    <el-button @click="save">{{ Translate('IDCS_OK') }}</el-button>
-                    <el-button @click="$emit('close')">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </el-col>
-            </el-row>
+            <div
+                class="base-btn-box collapse"
+                span="start"
+            >
+                {{ Translate('IDCS_CHANGE_PROTOCOL_TIP') }}
+            </div>
+            <div class="base-btn-box">
+                <el-button @click="save">{{ Translate('IDCS_OK') }}</el-button>
+                <el-button @click="$emit('close')">{{ Translate('IDCS_CANCEL') }}</el-button>
+            </div>
         </template>
     </el-dialog>
 </template>
 
 <script lang="ts" src="./ChannelAddSetProtocolPop.v.ts"></script>
-
-<style scoped lang="scss">
-.elRowTip {
-    margin-bottom: 10px;
-    font-size: 14px;
-}
-</style>

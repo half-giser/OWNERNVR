@@ -208,7 +208,7 @@
                 v-model:current-page="formData.currentPage"
                 v-model:page-size="formData.pageSize"
                 :total="tableData.length"
-                :page-sizes="[100]"
+                :page-sizes="[formData.pageSize]"
             />
         </div>
         <BaseTableSelectPop

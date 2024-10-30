@@ -3,11 +3,12 @@
  * @Date: 2024-06-17 20:32:14
  * @Description: 权限组列表
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 10:29:12
+ * @LastEditTime: 2024-10-30 18:07:08
  */
 import PermissionGroupEditPop from './PermissionGroupEditPop.vue'
 import { delAuthGroup } from '@/api/userAndSecurity'
 import { type UserAuthGroupList, UserPermissionChannelAuthList, UserPermissionSystemAuthList } from '@/types/apiType/userAndSecurity'
+import { type TableInstance } from 'element-plus'
 
 export default defineComponent({
     components: {
@@ -19,6 +20,8 @@ export default defineComponent({
         const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
         const router = useRouter()
+
+        const tableRef = ref<TableInstance>()
 
         // 权限组数据列表
         const authGroupList = ref<UserAuthGroupList[]>([])
@@ -55,15 +58,21 @@ export default defineComponent({
             const result = await queryAuthGroupList('')
 
             commLoadResponseHandler(result, ($) => {
-                authGroupList.value = []
-                $('//content/item').forEach((item) => {
+                authGroupList.value = $('//content/item').map((item) => {
                     const $item = queryXml(item.element)
-                    const arrayItem: UserAuthGroupList = {
+                    return {
                         id: item.attr('id') as string,
                         name: $item('name').text(),
                         isDefault: $item('isDefault').text().toBoolean(),
                         enableEdit: $item('enableEdit').text().toBoolean(),
-                        chlAuth: [],
+                        chlAuth: $item('chlAuth/item').map((chlItem) => {
+                            const $chlItem = queryXml(chlItem.element)
+                            return {
+                                id: chlItem.attr('id') as string,
+                                name: $chlItem('name').text(),
+                                auth: $chlItem('auth').text(),
+                            }
+                        }),
                         systemAuth: {
                             localChlMgr: $item('systemAuth/localChlMgr').text().toBoolean(),
                             remoteChlMgr: $item('systemAuth/remoteChlMgr').text().toBoolean(),
@@ -82,26 +91,20 @@ export default defineComponent({
                             AccessControlMgr: $item('systemAuth/AccessControlMgr').text().toBoolean(),
                         },
                     }
-                    $item('chlAuth/item').forEach((chlItem) => {
-                        const $chlItem = queryXml(chlItem.element)
-                        arrayItem.chlAuth.push({
-                            id: chlItem.attr('id') as string,
-                            name: $chlItem('name').text(),
-                            auth: $chlItem('auth').text(),
-                        })
-                    })
-                    authGroupList.value.push(arrayItem)
-
-                    if (authGroupList.value.length) {
-                        if (!authGroupList.value[pageData.value.activeAuthGroup]) {
-                            pageData.value.activeAuthGroup = 0
-                        }
-                        getSystemAuth()
-                        getChannelAuth()
-                    } else {
-                        resetAuth()
-                    }
                 })
+
+                if (authGroupList.value.length) {
+                    if (!authGroupList.value[pageData.value.activeAuthGroup]) {
+                        pageData.value.activeAuthGroup = 0
+                    }
+                    getSystemAuth()
+                    getChannelAuth()
+                    nextTick(() => {
+                        tableRef.value!.setCurrentRow(authGroupList.value[pageData.value.activeAuthGroup])
+                    })
+                } else {
+                    resetAuth()
+                }
             })
 
             closeLoading()
@@ -298,6 +301,7 @@ export default defineComponent({
             displayChannelAuth,
             authGroupName,
             authGroupList,
+            tableRef,
             displayAuthGroup,
             handleChangeAuthGroup,
             handleEditAuthGroup,

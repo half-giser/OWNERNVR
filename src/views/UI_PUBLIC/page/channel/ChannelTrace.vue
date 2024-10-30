@@ -3,7 +3,7 @@
  * @Date: 2024-08-20 13:57:42
  * @Description: 云台-轨迹
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 11:51:50
+ * @LastEditTime: 2024-10-30 14:04:32
 -->
 <template>
     <div class="base-chl-box">
@@ -90,7 +90,7 @@
                             :hover-index="2"
                             :disabled-index="3"
                             :chunk="4"
-                            :disabled="!formData.name || !traceOptions.length"
+                            :disabled="!formData.name.trim() || !traceOptions.length"
                             @click="saveName"
                         />
                     </el-tooltip>

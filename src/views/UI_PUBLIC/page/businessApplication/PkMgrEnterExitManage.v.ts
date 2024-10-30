@@ -3,7 +3,7 @@
  * @Date: 2024-05-29 21:21:34
  * @Description: 业务应用-停车场管理-出入口
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-10 14:46:29
+ * @LastEditTime: 2024-10-30 18:27:53
  */
 import { type PkMgrEnterExitManageList } from '@/types/apiType/business'
 
@@ -87,7 +87,9 @@ export default defineComponent({
         }
 
         // 通道树状态刷新定时器
-        let chlStatusRefreshTimer: NodeJS.Timeout | number = 0
+        const chlStatusRefreshTimer = useRefreshTimer(() => {
+            getOnlineChlList()
+        }, 5000)
 
         /**
          * @description 获取数据-更新在线通道数据
@@ -97,16 +99,7 @@ export default defineComponent({
             const $ = queryXml(result)
 
             pageData.value.onlineChlList = $('//content/item').map((item) => item.attr('id')!)
-            stopRefreshChlStatus()
-            // 通道树状态刷新定时器-开启
-            chlStatusRefreshTimer = setTimeout(() => getOnlineChlList(), 5000)
-        }
-
-        /**
-         * @description 通道树状态刷新定时器-销毁
-         */
-        const stopRefreshChlStatus = () => {
-            clearTimeout(chlStatusRefreshTimer)
+            chlStatusRefreshTimer.repeat()
         }
 
         /**
@@ -181,11 +174,7 @@ export default defineComponent({
 
         onMounted(async () => {
             await getData()
-            getOnlineChlList()
-        })
-
-        onBeforeUnmount(() => {
-            stopRefreshChlStatus()
+            chlStatusRefreshTimer.repeat(true)
         })
 
         return {

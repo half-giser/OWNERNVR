@@ -3,7 +3,7 @@
  * @Date: 2024-06-17 20:26:14
  * @Description: 权限组列表
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 09:39:22
+ * @LastEditTime: 2024-10-30 18:12:59
 -->
 <template>
     <div class="Perm">
@@ -67,7 +67,7 @@
                                 :label="Translate(item.label)"
                             >
                                 <template #default="{ $index }">
-                                    <el-text>{{ displayChannelAuth(channelAuthList[$index][item.value]) }}</el-text>
+                                    {{ displayChannelAuth(channelAuthList[$index][item.value]) }}
                                 </template>
                             </el-table-column>
                         </el-table>
@@ -93,7 +93,7 @@
                                 :label="Translate(item.label)"
                             >
                                 <template #default="{ $index }">
-                                    <el-text>{{ displayChannelAuth(channelAuthList[$index][item.value]) }}</el-text>
+                                    {{ displayChannelAuth(channelAuthList[$index][item.value]) }}
                                 </template>
                             </el-table-column>
                         </el-table>
@@ -103,18 +103,22 @@
         </div>
         <div class="Perm-right">
             <el-table
+                ref="tableRef"
                 :data="authGroupList"
                 width="100%"
                 height="100%"
                 border
                 stripe
-                :current-row-key="pageData.activeAuthGroup"
                 flexible
-                :row-class-name="(item) => (item.rowIndex === pageData.activeAuthGroup ? 'active' : '')"
+                highlight-current-row
+                show-overflow-tooltip
                 @cell-click="handleChangeAuthGroup"
                 @cell-dblclick="handleEditAuthGroup"
             >
-                <el-table-column :label="Translate('IDCS_RIGHT_GROUP')">
+                <el-table-column
+                    min-width="220"
+                    :label="Translate('IDCS_RIGHT_GROUP')"
+                >
                     <template #default="scope">
                         {{ displayAuthGroup(scope.row.name) }}
                     </template>

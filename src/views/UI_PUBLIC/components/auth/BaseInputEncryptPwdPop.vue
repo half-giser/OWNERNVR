@@ -17,7 +17,6 @@
             :model="formData"
             :rules="rules"
             label-width="150"
-            hide-required-asterisk
         >
             <el-form-item
                 prop="password"

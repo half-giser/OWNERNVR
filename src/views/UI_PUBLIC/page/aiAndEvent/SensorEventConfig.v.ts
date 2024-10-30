@@ -3,10 +3,9 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-23 10:58:27
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 17:50:45
+ * @LastEditTime: 2024-10-30 15:38:32
  */
 import { type PresetItem, SensorEvent, type ChlList } from '@/types/apiType/aiAndEvent'
-import { QueryNodeListDto } from '@/types/apiType/channel'
 import { cloneDeep, isEqual } from 'lodash-es'
 import SetPresetPop from './SetPresetPop.vue'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
@@ -116,11 +115,9 @@ export default defineComponent({
 
         // 获取chl通道数据
         const getChlData = async (type: string) => {
-            const queryNodeListDto = new QueryNodeListDto()
-            queryNodeListDto.nodeType = 'chls'
-            queryNodeListDto.isSupportSnap = type == 'snap'
-
-            getChlList(queryNodeListDto).then((result) => {
+            getChlList({
+                isSupportSnap: type === 'snap',
+            }).then((result) => {
                 commLoadResponseHandler(result, ($) => {
                     $('//content/item').forEach((item) => {
                         const $item = queryXml(item.element)

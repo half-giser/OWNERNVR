@@ -3,15 +3,13 @@
  * @Date: 2024-09-19 17:29:31
  * @Description: POE电源管理
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 11:00:31
+ * @LastEditTime: 2024-10-30 19:18:07
  */
 import type { SystemPoeList } from '@/types/apiType/system'
 
 export default defineComponent({
     setup() {
         const { openLoading, closeLoading } = useLoading()
-
-        let timer: NodeJS.Timeout | number = 0
 
         const indexMapping: Record<string, number> = {}
 
@@ -22,6 +20,10 @@ export default defineComponent({
             totalPower: '0.00',
             // 剩余功率
             remainPower: '0.00',
+        })
+
+        const timer = useRefreshTimer(() => {
+            getData()
         })
 
         const tableData = ref<SystemPoeList[]>([])
@@ -40,8 +42,6 @@ export default defineComponent({
          * @description 获取数据
          */
         const getData = async () => {
-            clearTimeout(timer)
-
             const result = await queryPoePower()
             const $ = queryXml(result)
             if ($('//status').text() === 'success') {
@@ -69,7 +69,7 @@ export default defineComponent({
                 }
             }
 
-            timer = setTimeout(() => getData(), 5000)
+            timer.repeat()
         }
 
         /**
@@ -91,10 +91,6 @@ export default defineComponent({
             openLoading()
             getData()
             closeLoading()
-        })
-
-        onBeforeUnmount(() => {
-            clearTimeout(timer)
         })
 
         return {

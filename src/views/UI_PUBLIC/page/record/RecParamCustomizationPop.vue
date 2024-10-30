@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-05 16:26:27
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-23 19:30:07
+ * @LastEditTime: 2024-10-30 17:31:38
 -->
 <template>
     <el-dialog
@@ -123,23 +123,27 @@
             width="500"
             height="200"
         >
-            <el-date-picker
-                v-model="pageData.selectDate"
-                :clearable="false"
-                :value-format="pageData.dateFormat"
-                :format="pageData.dateFormat"
-                :default-value="new Date()"
-                :style="{ marginLeft: '150px' }"
-            ></el-date-picker>
-            <el-row :style="{ margin: '30px 0' }">
-                <el-col
-                    :span="24"
-                    class="el-col-flex-end"
-                >
-                    <el-button @click="addDateToList">{{ Translate('IDCS_OK') }}</el-button>
-                    <el-button @click="closeAddDate">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </el-col>
-            </el-row>
+            <el-form>
+                <el-form-item>
+                    <el-date-picker
+                        v-model="pageData.selectDate"
+                        :value-format="pageData.dateFormat"
+                        :format="pageData.dateFormat"
+                        :default-value="new Date()"
+                    />
+                </el-form-item>
+            </el-form>
+            <template #footer>
+                <el-row>
+                    <el-col
+                        :span="24"
+                        class="el-col-flex-end"
+                    >
+                        <el-button @click="addDateToList">{{ Translate('IDCS_OK') }}</el-button>
+                        <el-button @click="closeAddDate">{{ Translate('IDCS_CANCEL') }}</el-button>
+                    </el-col>
+                </el-row>
+            </template>
         </el-dialog>
     </el-dialog>
 </template>

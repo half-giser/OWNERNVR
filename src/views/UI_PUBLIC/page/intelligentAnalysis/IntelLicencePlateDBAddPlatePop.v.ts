@@ -483,7 +483,6 @@ export default defineComponent({
 
             openLoading()
             pageData.value.fileData = await parseDataFile(file, 'csv')
-            console.log(pageData.value.fileData)
             closeLoading()
         }
 

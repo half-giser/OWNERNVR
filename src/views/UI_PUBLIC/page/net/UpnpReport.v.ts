@@ -3,7 +3,7 @@
  * @Date: 2024-07-12 10:52:55
  * @Description: UPnP上报
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:25:24
+ * @LastEditTime: 2024-10-30 13:35:42
  */
 import { type FormInstance, type FormRules } from 'element-plus'
 import { NetUPnPReportForm } from '@/types/apiType/net'
@@ -29,10 +29,10 @@ export default defineComponent({
                         return
                     }
 
-                    if (!cutStringByByte(value, nameByteMaxLen)) {
-                        callback(new Error(Translate('IDCS_INVALID_CHAR')))
-                        return
-                    }
+                    // if (!cutStringByByte(value, nameByteMaxLen)) {
+                    //     callback(new Error(Translate('IDCS_INVALID_CHAR')))
+                    //     return
+                    // }
                     callback()
                 },
             },
@@ -71,7 +71,7 @@ export default defineComponent({
                 const sendXml = rawXml`
                     <content>
                         <reportPorts>
-                            <serverAddr>${formData.value.serverAddr}</serverAddr>
+                            <serverAddr maxByteLen="63">${wrapCDATA(formData.value.serverAddr)}</serverAddr>
                             <manId>${formData.value.manId}</manId>
                             <port>${formData.value.port.toString()}</port>
                             <switch>${formData.value.switch.toString()}</switch>

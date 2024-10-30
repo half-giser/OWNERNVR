@@ -3,7 +3,7 @@
  * @Date: 2024-07-10 09:12:25
  * @Description: PPPoE
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-10 10:28:54
+ * @LastEditTime: 2024-10-30 17:12:27
  */
 import { NetPPPoEForm } from '@/types/apiType/net'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -27,7 +27,7 @@ export default defineComponent({
             userName: [
                 {
                     validator(_rule, value: string, callback) {
-                        if (formData.value.switch && !value.length) {
+                        if (formData.value.switch && !value.trim().length) {
                             callback(new Error(Translate('IDCS_PROMPT_USERNAME_EMPTY')))
                             return
                         }
@@ -80,7 +80,7 @@ export default defineComponent({
                 const sendXml = rawXml`
                     <content>
                         <switch>${String(formData.value.switch)}</switch>
-                        ${formData.value.switch ? `<userName>${wrapCDATA(formData.value.userName)}</userName>` : ''}
+                        ${formData.value.switch ? `<userName maxByteLen="63">${wrapCDATA(formData.value.userName)}</userName>` : ''}
                         ${formData.value.switch && formData.value.password ? `<password ${getSecurityVer()}>${wrapCDATA(formData.value.password)}</password>` : ''}
                     </content>
                 `

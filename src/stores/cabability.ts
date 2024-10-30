@@ -3,7 +3,7 @@
  * @Date: 2023-05-09 16:45:59
  * @Description: 服务端能力集全局存储
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 10:56:10
+ * @LastEditTime: 2024-10-30 09:18:09
  */
 export const useCababilityStore = defineStore(
     'cabability',
@@ -69,6 +69,7 @@ export const useCababilityStore = defineStore(
 
         const CustomerID = ref(0)
         const AISwitch = ref(false)
+        const productModel = ref('')
 
         const isUseRaid = ref(false)
 
@@ -213,6 +214,7 @@ export const useCababilityStore = defineStore(
             supportFishEye,
             chlSupSignalType,
             switchIpChlRange,
+            productModel,
         }
     },
     {

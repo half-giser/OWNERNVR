@@ -213,7 +213,6 @@ export default defineComponent({
             mode,
             formData,
             dateTime,
-            highlightWeekend,
             pageData,
             userAuth,
             confirmBackUp,

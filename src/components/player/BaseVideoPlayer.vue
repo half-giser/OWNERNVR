@@ -3,7 +3,7 @@
  * @Date: 2024-06-05 13:35:57
  * @Description: 多分屏WASM播放器控件
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-12 13:54:28
+ * @LastEditTime: 2024-10-30 09:30:26
 -->
 <template>
     <div
@@ -216,7 +216,7 @@ const prop = withDefaults(
 
 const emits = defineEmits<{
     /**
-     * @description 组件初始化后执行
+     * @description 组件初始化后执行. 回调函数必须是同步函数
      */
     (e: 'onready'): void
     /**
@@ -565,7 +565,6 @@ const handleMouseWheel = (e: Event) => {
  * @param winIndex
  */
 const handleDoubleClick = (e: MouseEvent, winIndex: number) => {
-    console.log('double click', fullTarget.value, winIndex)
     if (pageData.value[winIndex].isZoom3D) {
         // 3D功能状态
         const rect = {
@@ -592,7 +591,6 @@ const handleDoubleClick = (e: MouseEvent, winIndex: number) => {
     }
     // 还原为原来的分屏显示
     else if (fullTarget.value === winIndex) {
-        // console.log('reset', fullTarget.value)
         fullTarget.value = -1
         dblclickToFull.value = false
         // splitValue.value = prop.split
@@ -601,7 +599,6 @@ const handleDoubleClick = (e: MouseEvent, winIndex: number) => {
     }
     // 双击的分屏单分屏显示
     else if (splitValue.value > 1) {
-        // console.log('fullscreen', fullTarget.value)
         fullTarget.value = winIndex
         dblclickToFull.value = true
         // splitValue.value = 1
@@ -647,7 +644,6 @@ const handleDrop = (newWinIndex: number) => {
     const newIndexPosition = pageData.value[newWinIndex].position
     pageData.value[oldDragIndex].position = newIndexPosition
     pageData.value[newWinIndex].position = oldIndexPosition
-    console.log(pageData.value)
 
     // 测试时效果没问题
     // 元素互换位置由逻辑/DOM结构上互换，变更为仅UI坐标互换，逻辑排序不变

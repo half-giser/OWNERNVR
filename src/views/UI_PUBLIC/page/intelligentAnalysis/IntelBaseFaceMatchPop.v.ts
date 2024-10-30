@@ -120,7 +120,6 @@ export default defineComponent({
          * @description 当前抓拍数据
          */
         const current = computed(() => {
-            console.log(prop.list[pageData.value.currentIndex])
             return prop.list[pageData.value.currentIndex] || new IntelFaceMatchPopList()
         })
 

@@ -3,7 +3,7 @@
  * @Date: 2024-09-18 09:33:12
  * @Description: 开机向导
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 14:56:11
+ * @LastEditTime: 2024-10-30 17:28:34
  */
 import { SystemGuideLangForm, SysmteGuidePrivacyForm, SystemGuideUserForm, SystemGuideDateTimeForm, SystemGuideQuestionForm, type SystemGuideDiskList } from '@/types/apiType/system'
 import dayjs from 'dayjs'
@@ -16,7 +16,6 @@ export default defineComponent({
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const router = useRouter()
         const Translate = langStore.Translate
-        const userSession = useUserSessionStore()
 
         // 时区及是否支持夏令时
         const TIME_ZONE = DEFAULT_TIME_ZONE
@@ -559,22 +558,6 @@ export default defineComponent({
         }
 
         /**
-         * @description 日历周末高亮
-         * @param {Date} date
-         * @returns
-         */
-        const handleCalendarCellHighLight = (date: Date) => {
-            if (userSession.calendarType === 'Persian') {
-                return ''
-            }
-            const day = dayjs(date).day()
-            if (day === 0 || day === 6) {
-                return 'highlight'
-            }
-            return ''
-        }
-
-        /**
          * @description 更改系统时间和定时器
          */
         const handleSystemTimeChange = () => {
@@ -907,7 +890,6 @@ export default defineComponent({
             displayTimeZone,
             handleSystemTimeChange,
             pendingSystemTimeChange,
-            handleCalendarCellHighLight,
             formatSystemTime,
             handleNext,
             handlePrev,

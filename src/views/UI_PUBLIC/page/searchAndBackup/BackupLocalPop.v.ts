@@ -96,7 +96,6 @@ export default defineComponent({
                 onFrameTime: handleFrameTime,
                 onerror: handleError,
             })
-            console.log('backuplist', prop.backupList)
             const list = prop.backupList.map((item) => {
                 return {
                     chlID: item.chlId,

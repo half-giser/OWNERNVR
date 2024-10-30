@@ -104,7 +104,6 @@ const copyToOpen = (index: number, event: Event) => {
     const arrDay = [...new Array(7).keys()]
     arrDay.splice(index, 1)
     copyToCheckedDay.value = arrDay
-    console.log(copyToCheckedDay.value)
     document.addEventListener('click', copyToClose)
 }
 
@@ -114,7 +113,6 @@ const copyToOpen = (index: number, event: Event) => {
  * @returns
  */
 const copyToOk = (index: number) => {
-    // console.log(copyToCheckedDay.value)
     if (copyToCheckedDay.value.length === 0) return
 
     const selectLines = scheduleLines.value?.filter((item: InstanceType<typeof BaseScheduleLine>) => {

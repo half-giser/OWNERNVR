@@ -230,7 +230,6 @@ export const useOcxBackUp = (cmd: (str: string) => void) => {
             }
 
             taskItems.forEach((item) => {
-                console.log(item.attr('size')!)
                 const findIndex = localTableData.value.findIndex((data) => data.chlIndex === Number(item.attr('chlIndex')!))
                 if (findIndex > -1) {
                     localTableData.value[findIndex].dataSize = item.attr('size')! === '0.0MB' ? '--' : item.attr('size')!

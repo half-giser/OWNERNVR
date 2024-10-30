@@ -3,7 +3,7 @@
  * @Date: 2024-08-20 18:26:51
  * @Description: 云台-预置点
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 15:38:03
+ * @LastEditTime: 2024-10-30 14:07:25
  */
 import { type TableInstance } from 'element-plus'
 import ChannelPtzCtrlPanel from './ChannelPtzCtrlPanel.vue'
@@ -347,7 +347,7 @@ export default defineComponent({
                 <content>
                     <chlId>${tableData.value[pageData.value.tableIndex].chlId}</chlId>
                     <index>${currentPreset.value.index.toString()}</index>
-                    <name>${wrapCDATA(formData.value.name)}</name>
+                    <name maxByteLen="63">${wrapCDATA(formData.value.name)}</name>
                 </content>
             `
             const result = await editChlPreset(sendXml)

@@ -3,7 +3,7 @@
  * @Date: 2024-08-30 18:48:06
  * @Description: 人脸库 - 编辑人脸弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-28 14:07:31
+ * @LastEditTime: 2024-10-30 17:30:29
  */
 import { IntelFaceDBFaceForm, type IntelFaceDBGroupDto, type IntelFaceDBSnapFaceList, type IntelFaceDBFaceInfo } from '@/types/apiType/intelligentAnalysis'
 import { type FormInstance } from 'element-plus'
@@ -32,8 +32,8 @@ export default defineComponent({
         },
     },
     emits: {
-        confirm() {
-            return true
+        confirm(ids: string[]) {
+            return Array.isArray(ids)
         },
         close() {
             return true
@@ -189,7 +189,10 @@ export default defineComponent({
             }
 
             if (errorCode === -1) {
-                ctx.emit('confirm')
+                ctx.emit(
+                    'confirm',
+                    prop.list.map((item) => item.id),
+                )
             } else {
                 let errorInfo = ''
                 switch (errorCode) {
@@ -256,7 +259,7 @@ export default defineComponent({
                 </types>
                 <content>
                     <id>${id}</id>
-                    <name>${item.name}</name>
+                    <name maxByteLen="31">${wrapCDATA(item.name)}</name>
                     <sex type="sex">${item.sex}</sex>
                     <birthday>${formatDate(item.birthday, 'YYYY-MM-DD', dateTime.dateFormat)}</birthday>
                     <nativePlace>${item.nativePlace}</nativePlace>
@@ -286,6 +289,16 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 约束名字输入最大字节数为31
+         * @param {string} value
+         * @returns {string}
+         */
+        const formatName = (value: string) => {
+            value = cutStringByByte(value, 31)
+            return value
+        }
+
         return {
             dateTime,
             disabled,
@@ -297,8 +310,8 @@ export default defineComponent({
             confirmChooseFace,
             verify,
             close,
-            highlightWeekend,
             formatDigit,
+            formatName,
             IntelFaceDBChooseFacePop,
             IntelBaseFaceItem,
         }

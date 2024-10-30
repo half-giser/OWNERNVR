@@ -43,14 +43,18 @@ export default defineComponent({
         let ipChlMaxCountOriginal = 0
         let manufacturerMap: Record<string, string> = {}
         let nameMapping: Record<string, string> = {}
+
         const virtualHostEnabled = false
         const protocolTrasMap: Record<string, string> = {
             TVT_IPCAMERA: Translate('IDCS_TVT'),
             ONVIF: Translate('IDCS_ONVIF'),
             IDCS_POE_PREFIX: Translate('IDCS_POE_PREFIX'),
         }
-        let ChlStatusRefreshTimer: NodeJS.Timeout | null = null
-        const ChlStatusRefreshTimeSpan = 5000 //通道树状态刷新时间间隔
+
+        // 通道树状态定时刷新
+        const refreshChlStatusTimer = useRefreshTimer(() => {
+            getOnlineChlList()
+        })
 
         const handleToolBarEvent = (toolBarEvent: ConfigToolBarEvent<SearchToolBarEvent>) => {
             switch (toolBarEvent.type) {
@@ -82,7 +86,6 @@ export default defineComponent({
 
         const closeEditChannelPop = (isRefresh = false) => {
             channelEditPopVisable.value = false
-            console.log(isRefresh)
             if (isRefresh) getDataList()
         }
 
@@ -199,16 +202,15 @@ export default defineComponent({
         }
 
         const getDataList = (chlName?: string) => {
-            let condition = ''
-            if (chlName) {
-                condition = rawXml`
-                    <condition>
-                        <name><![CDATA[${chlName}]]></name>
-                    </condition>
-                `
-            }
             const sendXml = rawXml`
-                ${condition}
+                ${ternary(
+                    chlName,
+                    rawXml`
+                        <condition>
+                            <name>${wrapCDATA(chlName || '')}</name>
+                        </condition>
+                    `,
+                )}
                 <requireField>
                     <name/>
                     <ip/>
@@ -290,8 +292,12 @@ export default defineComponent({
 
         const getIPChlInfo = (channelInfo: ChannelInfoDto) => {
             const type = channelInfo.productModel.factoryName === 'Recorder'
-            const data = '<condition><chlId>' + (type ? channelInfo.devID : channelInfo.id) + '</chlId></condition>'
-            queryIPChlInfo(data).then((res) => {
+            const sendXml = rawXml`
+                <condition>
+                    <chlId>${type ? channelInfo.devID : channelInfo.id}</chlId>
+                </condition>
+            `
+            queryIPChlInfo(sendXml).then((res) => {
                 const version = queryXml(res)('//content/chl/detailedSoftwareVersion').text()
                 if (version !== channelInfo.version) channelInfo.version = version
             })
@@ -328,22 +334,9 @@ export default defineComponent({
                         }
                     })
                 }
-                StartRefreshChlStatus()
+
+                refreshChlStatusTimer.repeat()
             })
-        }
-
-        const StartRefreshChlStatus = () => {
-            if (ChlStatusRefreshTimer) {
-                StopRefreshChlStatus()
-            }
-            ChlStatusRefreshTimer = setTimeout(() => {
-                getOnlineChlList()
-            }, ChlStatusRefreshTimeSpan)
-        }
-
-        const StopRefreshChlStatus = () => {
-            clearTimeout(ChlStatusRefreshTimer as NodeJS.Timeout)
-            ChlStatusRefreshTimer = null
         }
 
         const getIpAnalogCout = () => {
@@ -451,10 +444,6 @@ export default defineComponent({
 
         onMounted(() => {
             getDataList()
-        })
-
-        onBeforeUnmount(() => {
-            StopRefreshChlStatus()
         })
 
         return {

@@ -60,7 +60,7 @@ export default defineComponent({
                             resourcesPath.streamType = eleXml('streamType').text()
                             resourcesPath.protocol = eleXml('protocol').text()
                             resourcesPath.transportProtocol = eleXml('transportProtocol').text()
-                            resourcesPath.port = eleXml('port').text()
+                            resourcesPath.port = Number(eleXml('port').text())
                             resourcesPath.path = eleXml('path').text()
                             newData.resourcesPath.push(resourcesPath)
                         })
@@ -185,34 +185,33 @@ export default defineComponent({
         }
 
         const getSaveData = () => {
-            const listXml = protocolManageList.value
-                .map((ele) => {
-                    const pathXml = ele.resourcesPath
+            return rawXml`
+                <content type='list'>
+                    ${protocolManageList.value
                         .map((ele) => {
                             return rawXml`
-                                <item>
-                                    <streamType>${ele.streamType}</streamType>
-                                    <protocol>${ele.protocol}</protocol>
-                                    <transportProtocol>${ele.transportProtocol}</transportProtocol>
-                                    <port>${ele.port}</port>
-                                    <path><![CDATA[${ele.path}]]></path>
+                                <item id='${ele.id}'>
+                                    <enabled>${ele.enabled.toString()}</enabled>
+                                    <displayName>${wrapCDATA(ele.displayName)}</displayName>
+                                    <resourcesPath>
+                                        ${ele.resourcesPath
+                                            .map((ele) => {
+                                                return rawXml`
+                                                    <item>
+                                                        <streamType>${ele.streamType}</streamType>
+                                                        <protocol>${ele.protocol}</protocol>
+                                                        <transportProtocol>${ele.transportProtocol}</transportProtocol>
+                                                        <port>${ele.port.toString()}</port>
+                                                        <path>${wrapCDATA(ele.path)}</path>
+                                                    </item>
+                                                `
+                                            })
+                                            .join('')}
+                                    </resourcesPath>
                                 </item>
                             `
                         })
-                        .join('')
-                    return rawXml`
-                        <item id='${ele.id}'>
-                            <enabled>${ele.enabled.toString()}</enabled>
-                            <displayName>${wrapCDATA(ele.displayName)}</displayName>
-                            <resourcesPath>${pathXml}</resourcesPath>
-                        </item>
-                    `
-                })
-                .join('')
-
-            return rawXml`
-                <content type='list'>
-                    ${listXml}
+                        .join('')}
                 </content>
             `
         }

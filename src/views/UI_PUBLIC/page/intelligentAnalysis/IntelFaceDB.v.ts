@@ -3,7 +3,7 @@
  * @Date: 2024-08-30 18:46:48
  * @Description: 人脸库
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-29 10:08:20
+ * @LastEditTime: 2024-10-30 11:34:23
  */
 import { cloneDeep } from 'lodash-es'
 import { IntelFaceDBGroupList, IntelFaceDBFaceInfo } from '@/types/apiType/intelligentAnalysis'
@@ -35,7 +35,7 @@ export default defineComponent({
         }
 
         // 缓存人脸Base64图片数据 节约请求
-        const cacheFaceMap: Record<string, IntelFaceDBFaceInfo> = {}
+        const cacheFaceMap: Record<string, IntelFaceDBFaceInfo | undefined> = {}
 
         const pageData = ref({
             // 通知内容数组
@@ -68,6 +68,7 @@ export default defineComponent({
             editFaceGroupId: '',
             // 编辑人脸数据
             editFaceData: [] as IntelFaceDBFaceInfo[],
+            pageSize: 16,
         })
 
         const formData = ref({
@@ -90,6 +91,18 @@ export default defineComponent({
         //     if (isAlarm) return Translate('IDCS_ABNORMAL')
         //     return Translate('IDCS_NORMAL')
         // }
+
+        /**
+         * @description 清理页面内存缓存的人脸数据
+         * @param {string[]} ids
+         */
+        const clearCache = (ids: string[]) => {
+            ids.forEach((id) => {
+                if (cacheFaceMap[id]) {
+                    cacheFaceMap[id] = undefined
+                }
+            })
+        }
 
         /**
          * @description 显示ID类型名称
@@ -344,7 +357,7 @@ export default defineComponent({
         const getGroupFaceFeatureCount = async (item: IntelFaceDBGroupList, index: number) => {
             const sendXml = rawXml`
                 <pageIndex>1</pageIndex>
-                <pageSize>1</pageSize>
+                <pageSize>${pageData.value.pageSize.toString()}</pageSize>
                 <condition>
                     <faceFeatureGroups type="list">
                         <item id="${item.groupId}"></item>
@@ -397,7 +410,7 @@ export default defineComponent({
 
                 const sendXml = rawXml`
                     <pageIndex>${pageIndex.toString()}</pageIndex>
-                    <pageSize>16</pageSize>
+                    <pageSize>${pageData.value.pageSize.toString()}</pageSize>
                     <condition>
                         <faceFeatureGroups type="list">
                             <item id="${groupId}"></item>
@@ -546,24 +559,24 @@ export default defineComponent({
                 openLoading()
 
                 const group = tableData.value.find((item) => item.groupId === pageData.value.expandRowKey[0])!
-                const items = formData.value.faceIndex
-                    .map((index) => {
-                        const item = groupTableData.value[index]
-                        return rawXml`
-                        <item id="${item.id}">
-                            <groups>
-                                <item id="${group.id}">
-                                    <groupId>${group.groupId}</groupId>
-                                </item>
-                            </groups>
-                            <groupId></groupId>
-                        </item>
-                    `
-                    })
-                    .join('')
                 const sendXml = rawXml`
                     <condition>
-                        <ids type="list">${items}</ids>
+                        <ids type="list">
+                            ${formData.value.faceIndex
+                                .map((index) => {
+                                    const item = groupTableData.value[index]
+                                    return rawXml`
+                                        <item id="${item.id}">
+                                            <groups>
+                                                <item id="${group.id}">
+                                                    <groupId>${group.groupId}</groupId>
+                                                </item>
+                                            </groups>
+                                        </item>
+                                    `
+                                })
+                                .join('')}
+                        </ids>
                     </condition>
                 `
                 const result = await delFacePersonnalInfo(sendXml)
@@ -572,6 +585,8 @@ export default defineComponent({
                 closeLoading()
 
                 if ($('//status').text() === 'success') {
+                    clearCache(formData.value.faceIndex.map((index) => groupTableData.value[index].id))
+
                     if (formData.value.faceIndex.length === groupTableData.value.length) {
                         formData.value.pageIndex = 1
                     }
@@ -634,7 +649,6 @@ export default defineComponent({
                                     <groupId>${group.groupId}</groupId>
                                 </item>
                             </groups>
-                            <groupId></groupId>
                         </item>
                     </ids>
                 </condition>
@@ -649,6 +663,7 @@ export default defineComponent({
                 formData.value.faceIndex = []
                 formData.value.infoFaceIndex = -1
 
+                clearCache(allGroupTableData.value.map((item) => item.id))
                 getFace(1, group.groupId)
 
                 return true
@@ -690,8 +705,9 @@ export default defineComponent({
         /**
          * @description 确认编辑人脸 刷新数据
          */
-        const confirmEditFace = async () => {
+        const confirmEditFace = async (ids: string[]) => {
             pageData.value.isEditFacePop = false
+            clearCache(ids)
             for (let i = 0; i < tableData.value.length; i++) {
                 const item = tableData.value[i]
                 if (tableData.value[i].groupId !== pageData.value.expandRowKey[0]) {
@@ -789,6 +805,7 @@ export default defineComponent({
             if (history.state.backChlId) {
                 delete history.state.backChlId
             }
+            clearCache(Object.keys(cacheFaceMap))
         })
 
         return {

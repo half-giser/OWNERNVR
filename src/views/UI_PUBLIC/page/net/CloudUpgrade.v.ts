@@ -3,7 +3,7 @@
  * @Date: 2024-07-16 16:18:21
  * @Description: 云升级
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:18:57
+ * @LastEditTime: 2024-10-30 19:04:47
  */
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import { NetCloudUpgradeForm } from '@/types/apiType/net'
@@ -57,9 +57,21 @@ export default defineComponent({
         })
 
         // 下载进度定时器
-        let checkDownloadTimer: NodeJS.Timeout | 0 = 0
+        const checkDownloadTimer = useRefreshTimer(
+            () => {
+                getDownloadProgess()
+            },
+            1000,
+            'interval',
+        )
         // 获取云更新配置状态定时器
-        let cloudCfgTimer: NodeJS.Timeout | 0 = 0
+        const cloudCfgTimer = useRefreshTimer(
+            () => {
+                getData(true)
+            },
+            3000,
+            'interval',
+        )
 
         const formData = ref(new NetCloudUpgradeForm())
 
@@ -75,7 +87,7 @@ export default defineComponent({
          * @param e
          */
         const confirmUpgrade = async (e: UserCheckAuthForm) => {
-            clearCheckDownloadTimer()
+            checkDownloadTimer.stop()
 
             if (pageData.value.isLatest) {
                 openMessageTipBox({
@@ -102,10 +114,10 @@ export default defineComponent({
 
                 // 鉴权成功以后才显示下载进度
                 pageData.value.isDownloading = true
-                clearCloudCfgTimer()
-                setCheckDownloadTimer()
+                cloudCfgTimer.stop()
+                checkDownloadTimer.repeat()
             } else {
-                clearCheckDownloadTimer()
+                checkDownloadTimer.repeat()
 
                 const errorCode = Number($('//errorCode').text())
                 let errorInfo = ''
@@ -197,8 +209,8 @@ export default defineComponent({
                             type: 'info',
                             message: Translate('IDCS_CLOUD_UPGRADE_FAIL'),
                         }).finally(() => getData())
-                        clearCheckDownloadTimer()
-                        setCloudCfgTimer()
+                        checkDownloadTimer.stop()
+                        cloudCfgTimer.repeat()
                         return
                     } else {
                         pageData.value.firstReq = false
@@ -207,9 +219,9 @@ export default defineComponent({
                     if (downloadLen && fileLen) {
                         pageData.value.downloadProgress = progress + '%'
                     } else {
-                        clearCheckDownloadTimer()
+                        checkDownloadTimer.stop()
                         getData()
-                        setCloudCfgTimer()
+                        cloudCfgTimer.repeat()
                     }
                 } else {
                     // 请求失败提示网络断开
@@ -316,42 +328,6 @@ export default defineComponent({
             }
         }
 
-        /**
-         * @description 清除检查下载状态定时器
-         */
-        const clearCheckDownloadTimer = () => {
-            clearInterval(checkDownloadTimer)
-            checkDownloadTimer = 0
-        }
-
-        /**
-         * @description 设置检查下载状态定时器
-         */
-        const setCheckDownloadTimer = () => {
-            clearCheckDownloadTimer()
-            checkDownloadTimer = setInterval(() => {
-                getDownloadProgess()
-            }, 1000)
-        }
-
-        /**
-         * @description 清除云升级配置定时器
-         */
-        const clearCloudCfgTimer = () => {
-            clearInterval(cloudCfgTimer)
-            cloudCfgTimer = 0
-        }
-
-        /**
-         * @description 设置云升级配置定时器
-         */
-        const setCloudCfgTimer = () => {
-            clearCloudCfgTimer()
-            cloudCfgTimer = setInterval(() => {
-                getData(true)
-            }, 3000)
-        }
-
         onMounted(async () => {
             openLoading()
 
@@ -360,8 +336,8 @@ export default defineComponent({
             if (state === 'Downloading') {
                 // 设备处于正在升级状态显示进度
                 pageData.value.isDownloading = true
-                clearCloudCfgTimer()
-                setCheckDownloadTimer()
+                cloudCfgTimer.stop()
+                checkDownloadTimer.repeat()
             } else if (state === 'downloadNetException') {
                 openMessageTipBox({
                     type: 'info',
@@ -375,10 +351,6 @@ export default defineComponent({
             }
 
             closeLoading()
-        })
-
-        onBeforeUnmount(() => {
-            clearCloudCfgTimer()
         })
 
         return {
