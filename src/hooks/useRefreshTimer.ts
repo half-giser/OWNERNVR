@@ -4,11 +4,12 @@
  * @Description: 刷新定时器. 用于下发协议返回结果后，定时重新下发的情况
  * 使用此hook，是为了解决定时器在组件注销时没有清除、或没有正确清除定时器而导致内存溢出的问题
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 19:03:48
+ * @LastEditTime: 2024-10-31 09:10:48
  */
 export const useRefreshTimer = (callback: () => any, delayTime = 5000, timerType = 'timeout') => {
     let destroyed = false
     let timer: NodeJS.Timeout | number = 0
+    let cbk = callback
 
     /**
      * @description 清除定时器
@@ -26,21 +27,16 @@ export const useRefreshTimer = (callback: () => any, delayTime = 5000, timerType
      * @description 发起定时器
      * @param {boolean} immediately 是否马上执行
      */
-    const repeat = (immediately = false, done?: () => void) => {
+    const repeat = (immediately = false) => {
         stop()
-
-        const execute = () => {
-            callback()
-            done && done()
-        }
 
         if (!destroyed) {
             if (immediately) {
-                execute()
+                cbk()
             } else if (timerType === 'timeout') {
-                timer = setTimeout(execute, delayTime)
+                timer = setTimeout(cbk, delayTime)
             } else {
-                timer = setInterval(execute, delayTime)
+                timer = setInterval(cbk, delayTime)
             }
         }
     }
@@ -53,6 +49,14 @@ export const useRefreshTimer = (callback: () => any, delayTime = 5000, timerType
         destroyed = true
     }
 
+    /**
+     * @description 更新回调
+     * @param {Function} callback
+     */
+    const update = (callback: () => any) => {
+        cbk = callback
+    }
+
     onBeforeUnmount(() => {
         destroy()
     })
@@ -61,5 +65,6 @@ export const useRefreshTimer = (callback: () => any, delayTime = 5000, timerType
         repeat,
         stop,
         destroy,
+        update,
     }
 }

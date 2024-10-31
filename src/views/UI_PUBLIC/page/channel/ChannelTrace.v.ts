@@ -3,7 +3,7 @@
  * @Date: 2024-08-20 19:43:51
  * @Description: 云台-轨迹
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 15:39:31
+ * @LastEditTime: 2024-10-31 09:46:26
  */
 import { type TableInstance } from 'element-plus'
 import ChannelPtzCtrlPanel from './ChannelPtzCtrlPanel.vue'
@@ -57,8 +57,6 @@ export default defineComponent({
             // 正在录像的轨迹Index
             recordTraceIndex: 0,
         })
-
-        let timer: NodeJS.Timeout | number = 0
 
         const tableRef = ref<TableInstance>()
         const tableData = ref<ChannelPtzTraceChlDto[]>([])
@@ -413,14 +411,20 @@ export default defineComponent({
             }
         }
 
+        const timer = useClock(() => {
+            pageData.value.recordTime--
+            if (pageData.value.recordTime < 0) {
+                stopRecord()
+            }
+        }, 1000)
+
         /**
          * @description 重置录像状态
          */
         const resetRecord = () => {
             pageData.value.recordStatus = false
             pageData.value.recordTime = DEFAULT_RECORD_TIME
-            clearInterval(timer)
-            timer = 0
+            timer.stop()
         }
 
         /**
@@ -444,12 +448,7 @@ export default defineComponent({
             await startChlPtzTrace(sendXml)
 
             pageData.value.recordTime = DEFAULT_RECORD_TIME - 1
-            timer = setInterval(() => {
-                pageData.value.recordTime--
-                if (pageData.value.recordTime < 0) {
-                    stopRecord()
-                }
-            }, 1000)
+            timer.repeat()
         }
 
         /**

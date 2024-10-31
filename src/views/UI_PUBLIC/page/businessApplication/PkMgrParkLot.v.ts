@@ -3,7 +3,7 @@
  * @Date: 2024-08-27 18:22:21
  * @Description: 实时过车记录
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 18:51:52
+ * @LastEditTime: 2024-10-31 09:42:42
  */
 import WebsocketSnap, { type WebsocketSnapOnSuccessPlate } from '@/utils/websocket/websocketSnap'
 import { dayjs } from 'element-plus'
@@ -472,23 +472,16 @@ export default defineComponent({
             }
         }
 
-        let timer: NodeJS.Timeout | number = 0
-
         /**
          * @description 定时更新当前时间
          */
-        const getCurrentTime = () => {
-            clearTimeout(timer)
+        const timer = useClock(() => {
             const date = dayjs()
-            const ms = date.millisecond()
             pageData.value.currentTime = date.format(dateTime.dateTimeFormat)
-            timer = setTimeout(() => {
-                getCurrentTime()
-            }, 1050 - ms)
-        }
+        }, 1000)
 
         onMounted(async () => {
-            getCurrentTime()
+            timer.repeat(true, true)
             await getParkingLotConfig()
             await getParkSnapConfig()
             createWebsoket()
@@ -514,7 +507,6 @@ export default defineComponent({
 
         onBeforeUnmount(() => {
             websocket?.destroy()
-            clearTimeout(timer)
         })
 
         return {

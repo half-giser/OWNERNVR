@@ -4,7 +4,7 @@
  * @Description: OCX插件模块
  * 原项目中MAC插件和TimeSliderPlugin相关逻辑不保留
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-21 11:47:19
+ * @LastEditTime: 2024-10-31 11:55:51
  */
 import WebsocketPlugin from '@/utils/websocket/websocketPlugin'
 import { ClientPort, P2PClientPort, P2PACCESSTYPE, SERVER_IP, getPluginPath, PluginSizeModeMapping, type OCX_Plugin_Notice_Map } from '@/utils/ocx/ocxUtil'
@@ -177,17 +177,18 @@ const useOCXPlugin = () => {
 
         if ($('/statenotify[@type="NVMS_NAT_CMD"]').length) {
             const $response = $('/statenotify[@type="NVMS_NAT_CMD"]/response')
-            const $request = queryXml(XMLStr2XMLDoc(CMD_QUEUE.cmd))("//cmd[@type='NVMS_NAT_CMD']/request")
-            const curCmdUrl = $request.attr('url')
-            const curCmdFlay = $request.attr('flag')
-            if ($response.attr('flag') === curCmdFlay && $response.attr('url') === curCmdUrl) {
-                try {
-                    CMD_QUEUE.unlock()
-                    clearTimeout(CMD_QUEUE.timeoutId)
-                } catch (ex) {
-                } finally {
-                    CMD_QUEUE.next()
-                }
+            const $request = queryXml(XMLStr2XMLDoc(CMD_QUEUE.cmd.cmd))("//cmd[@type='NVMS_NAT_CMD']/request")
+            // const curCmdUrl = $request.attr('url')
+            // const curCmdFlay = $request.attr('flag')
+            if ($response.attr('flag') === $request.attr('flag') && $response.attr('url') === $request.attr('url')) {
+                // try {
+                //     CMD_QUEUE.unlock()
+                //     clearTimeout(CMD_QUEUE.timeoutId)
+                // } catch (ex) {
+                // } finally {
+                //     CMD_QUEUE.next()
+                // }
+                CMD_QUEUE.resolve($response[0].element)
             }
         }
 
@@ -488,17 +489,28 @@ const useOCXPlugin = () => {
         window.location.href = '/index.html'
     }
 
-    //命令发送队列
+    type CmdQueue = {
+        cmd: string
+        resolve: ($: Element) => void
+        reject: (e: string) => void
+    }
+
+    // P2P命令发送队列
     const CMD_QUEUE = {
         viewFlag: 1, //当页面切换后，该flag加1，OCX将不会处理上一个页面的请求
-        cmd: '',
-        queue: [] as string[], // { cmd: string }
+        cmd: {
+            cmd: '',
+            resolve: () => {},
+            reject: () => {},
+        } as CmdQueue,
+        queue: [] as CmdQueue[], // { cmd: string }
         lock: false, //锁定标识：当前命令没有返回时，不能发送新的命令
         timeout: 60000, //命令超时时长，如果一个命令发出后，在_timeout时间内没返回，就认为超时
         timeoutId: 0 as NodeJS.Timeout | number,
-        add(cmd: string) {
+        add(cmd: CmdQueue) {
             if (this.queue.length > 10000) {
-                throw 'CMD_QUEUE is full'
+                cmd.reject('CMD_QUEUE is full')
+                return
             }
             this.queue.push(cmd)
             if (this.queue.length == 1 && !this.lock) {
@@ -507,28 +519,47 @@ const useOCXPlugin = () => {
             return cmd
         },
         execute() {
-            if (this.queue.length == 0 || this.lock) {
+            if (this.queue.length === 0 || this.lock) {
                 return
             }
             this.lock = true
             const cmd = this.queue.shift()!
             this.cmd = cmd
-            getVideoPlugin().ExecuteCmd(cmd)
+            getVideoPlugin().ExecuteCmd(cmd.cmd)
             this.timeoutId = setTimeout(() => {
-                this.unlock()
-                this.next()
+                this.reject()
             }, this.timeout)
+        },
+        resolve($: Element) {
+            clearTimeout(this.timeout)
+            this.cmd.resolve($)
+            this.unlock()
+            this.next()
+        },
+        reject() {
+            clearTimeout(this.timeout)
+            this.cmd.reject('timeout')
+            this.unlock()
+            this.next()
         },
         unlock() {
             this.lock = false
         },
         clear() {
-            this.cmd = ''
+            this.cmd = {
+                cmd: '',
+                resolve: () => {},
+                reject: () => {},
+            }
             this.queue.length = 0
             this.lock = false
         },
         next() {
-            this.cmd = ''
+            this.cmd = {
+                cmd: '',
+                resolve: () => {},
+                reject: () => {},
+            }
             this.execute()
         },
     }

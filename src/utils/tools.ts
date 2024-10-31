@@ -3,7 +3,7 @@
  * @Date: 2023-04-28 17:57:48
  * @Description: 工具方法
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 17:54:07
+ * @LastEditTime: 2024-10-31 13:41:50
  */
 
 import { type QueryNodeListDto } from '@/types/apiType/channel'
@@ -734,36 +734,36 @@ export const getIpNumber = (ip: string) => {
  * @param {any} date 公历日期对象
  * @return {object} 波斯历日期对象
  */
-export const parseDateToPersianCalendar = (date: any) => {
-    if (typeof date === 'string') {
-        const dateParts = date.match(new RegExp('^(\\d{1,4})-(\\d{1,2})-(\\d{1,2})$'))
-        date = dateParts && dateParts.length === 4 ? new Date(Number(dateParts[1]), Number(dateParts[2]) - 1, Number(dateParts[3])) : null
-    }
+// export const parseDateToPersianCalendar = (date: any) => {
+//     if (typeof date === 'string') {
+//         const dateParts = date.match(new RegExp('^(\\d{1,4})-(\\d{1,2})-(\\d{1,2})$'))
+//         date = dateParts && dateParts.length === 4 ? new Date(Number(dateParts[1]), Number(dateParts[2]) - 1, Number(dateParts[3])) : null
+//     }
 
-    if (!(date instanceof Date)) {
-        return null
-    }
+//     if (!(date instanceof Date)) {
+//         return null
+//     }
 
-    const pj = (year: number, month: number, day: number) => {
-        const a = year - 474
-        const b = a - 2820 * Math.floor(a / 2820) + 474
-        return 1948321 - 1 + 1029983 * Math.floor(a / 2820) + 365 * (b - 1) + Math.floor((682 * b - 110) / 2816) + (month > 6 ? 30 * month + 6 : 31 * month) + day
-    }
-    const julianDay = Math.floor((new Date(date.getFullYear(), date.getMonth(), date.getDate(), 8, 1, 1).getTime() + 210866803200000) / (24 * 60 * 60 * 1000))
-    const a = julianDay - pj(475, 0, 1)
-    const b = Math.floor(a / 1029983)
-    const c = a - 1029983 * Math.floor(a / 1029983)
-    const d = c !== 1029982 ? Math.floor((2816 * c + 1031337) / 1028522) : 2820
-    const year = 474 + 2820 * b + d
-    const f = 1 + julianDay - pj(year, 0, 1)
-    const month = f > 186 ? Math.ceil((f - 6) / 30) - 1 : Math.ceil(f / 31) - 1
-    const day = julianDay - (pj(year, month, 1) - 1)
-    const r = (year << 16) | (month << 8) | day
-    const persianYear = r >> 16
-    const persianMonth = (r & 0xff00) >> 8
-    const persianDay = r & 0xff
-    return { year: persianYear > 0 ? persianYear : persianYear - 1, month: persianMonth, day: persianDay }
-}
+//     const pj = (year: number, month: number, day: number) => {
+//         const a = year - 474
+//         const b = a - 2820 * Math.floor(a / 2820) + 474
+//         return 1948321 - 1 + 1029983 * Math.floor(a / 2820) + 365 * (b - 1) + Math.floor((682 * b - 110) / 2816) + (month > 6 ? 30 * month + 6 : 31 * month) + day
+//     }
+//     const julianDay = Math.floor((new Date(date.getFullYear(), date.getMonth(), date.getDate(), 8, 1, 1).getTime() + 210866803200000) / (24 * 60 * 60 * 1000))
+//     const a = julianDay - pj(475, 0, 1)
+//     const b = Math.floor(a / 1029983)
+//     const c = a - 1029983 * Math.floor(a / 1029983)
+//     const d = c !== 1029982 ? Math.floor((2816 * c + 1031337) / 1028522) : 2820
+//     const year = 474 + 2820 * b + d
+//     const f = 1 + julianDay - pj(year, 0, 1)
+//     const month = f > 186 ? Math.ceil((f - 6) / 30) - 1 : Math.ceil(f / 31) - 1
+//     const day = julianDay - (pj(year, month, 1) - 1)
+//     const r = (year << 16) | (month << 8) | day
+//     const persianYear = r >> 16
+//     const persianMonth = (r & 0xff00) >> 8
+//     const persianDay = r & 0xff
+//     return { year: persianYear > 0 ? persianYear : persianYear - 1, month: persianMonth, day: persianDay }
+// }
 
 /**
  * @deprecated use dayjs
@@ -771,33 +771,33 @@ export const parseDateToPersianCalendar = (date: any) => {
  * @param {any} persianDate 波斯历日期对象
  * @return {Date} 公历日期对象
  */
-export const parsePersianCalendartoDate = (persianDate: any) => {
-    if (typeof persianDate === 'string') {
-        const persianDateParts = persianDate.match(new RegExp('^(\\d{1,4})-(\\d{1,2})$'))
-        persianDate =
-            persianDateParts && persianDateParts.length === 3
-                ? {
-                      year: Number(persianDateParts[1]),
-                      month: Number(persianDateParts[2]) - 1,
-                      day: 1,
-                  }
-                : null
-    }
+// export const parsePersianCalendartoDate = (persianDate: any) => {
+//     if (typeof persianDate === 'string') {
+//         const persianDateParts = persianDate.match(new RegExp('^(\\d{1,4})-(\\d{1,2})$'))
+//         persianDate =
+//             persianDateParts && persianDateParts.length === 3
+//                 ? {
+//                       year: Number(persianDateParts[1]),
+//                       month: Number(persianDateParts[2]) - 1,
+//                       day: 1,
+//                   }
+//                 : null
+//     }
 
-    if (typeof persianDate !== 'object' || typeof persianDate.year !== 'number' || typeof persianDate.month !== 'number' || typeof persianDate.day !== 'number') {
-        return null
-    }
+//     if (typeof persianDate !== 'object' || typeof persianDate.year !== 'number' || typeof persianDate.month !== 'number' || typeof persianDate.day !== 'number') {
+//         return null
+//     }
 
-    const pj = (year: number, month: number, day: number) => {
-        const a = year - 474
-        const b = a - 2820 * Math.floor(a / 2820) + 474
-        return 1948321 - 1 + 1029983 * Math.floor(a / 2820) + 365 * (b - 1) + Math.floor((682 * b - 110) / 2816) + (month > 6 ? 30 * month + 6 : 31 * month) + day
-    }
-    const julianDay = pj(persianDate.year > 0 ? persianDate.year : persianDate.year + 1, persianDate.month, persianDate.day)
-    const date = new Date()
-    const baseTime = new Date(date.getFullYear(), date.getMonth() + 1, date.getDate(), 8, 1, 1).getTime()
-    return new Date(julianDay * 24 * 60 * 60 * 1000 + (baseTime + 210866803200000 - 24 * 60 * 60 * 1000 * Math.floor((baseTime + 210866803200000) / (24 * 60 * 60 * 1000))) - 210866803200000)
-}
+//     const pj = (year: number, month: number, day: number) => {
+//         const a = year - 474
+//         const b = a - 2820 * Math.floor(a / 2820) + 474
+//         return 1948321 - 1 + 1029983 * Math.floor(a / 2820) + 365 * (b - 1) + Math.floor((682 * b - 110) / 2816) + (month > 6 ? 30 * month + 6 : 31 * month) + day
+//     }
+//     const julianDay = pj(persianDate.year > 0 ? persianDate.year : persianDate.year + 1, persianDate.month, persianDate.day)
+//     const date = new Date()
+//     const baseTime = new Date(date.getFullYear(), date.getMonth() + 1, date.getDate(), 8, 1, 1).getTime()
+//     return new Date(julianDay * 24 * 60 * 60 * 1000 + (baseTime + 210866803200000 - 24 * 60 * 60 * 1000 * Math.floor((baseTime + 210866803200000) / (24 * 60 * 60 * 1000))) - 210866803200000)
+// }
 
 /**
  * @deprecated use dayjs

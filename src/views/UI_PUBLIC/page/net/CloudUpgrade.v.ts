@@ -3,7 +3,7 @@
  * @Date: 2024-07-16 16:18:21
  * @Description: 云升级
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 19:04:47
+ * @LastEditTime: 2024-10-31 09:51:31
  */
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import { NetCloudUpgradeForm } from '@/types/apiType/net'
@@ -57,21 +57,13 @@ export default defineComponent({
         })
 
         // 下载进度定时器
-        const checkDownloadTimer = useRefreshTimer(
-            () => {
-                getDownloadProgess()
-            },
-            1000,
-            'interval',
-        )
+        const checkDownloadTimer = useClock(() => {
+            getDownloadProgess()
+        }, 1000)
         // 获取云更新配置状态定时器
-        const cloudCfgTimer = useRefreshTimer(
-            () => {
-                getData(true)
-            },
-            3000,
-            'interval',
-        )
+        const cloudCfgTimer = useClock(() => {
+            getData(true)
+        }, 3000)
 
         const formData = ref(new NetCloudUpgradeForm())
 

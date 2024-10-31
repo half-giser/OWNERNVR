@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 顶层布局页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-21 15:28:25
+ * @LastEditTime: 2024-10-31 13:47:15
  */
 
 import { type RouteLocationMatched } from 'vue-router'
@@ -96,7 +96,7 @@ export default defineComponent({
             const result = await queryBasicCfg()
             const $ = queryXml(result)
             if ($('//status').text() === 'success') {
-                if (import.meta.env.VITE_APP_TYPE === 'P2P' && judgeCurrUI(result)) return
+                if (import.meta.env.VITE_APP_TYPE === 'P2P' && !isCorrectUI(result)) return
                 cbk && cbk()
                 if (![5].includes(systemCaps.CustomerID)) {
                     return
@@ -190,7 +190,7 @@ export default defineComponent({
          * @param $basicXml
          * @returns {boolean}
          */
-        const judgeCurrUI = ($basicXml: XMLDocument | Element) => {
+        const isCorrectUI = ($basicXml: XMLDocument | Element) => {
             const devVersion = queryXml($basicXml)('//content/softwareVersion').text()
             const inputUI = getUiAndTheme().name.toLowerCase().replace(/i|-/g, '') // 输入栏UI
             let targetUI = '' // 设备UI
@@ -203,7 +203,6 @@ export default defineComponent({
                 }
             }
 
-            // TODO: 看不懂原项目这里的意思
             if (targetUI && inputUI !== targetUI) {
                 const urlSplit = window.location.href.split('#')[0].split('/')
                 const uiIndex = urlSplit.length - 2

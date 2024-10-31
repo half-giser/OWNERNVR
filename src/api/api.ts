@@ -3,7 +3,7 @@
  * @Date: 2023-05-04 22:08:40
  * @Description: HTTP请求工具类
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-22 17:32:49
+ * @LastEditTime: 2024-10-31 12:00:07
  */
 
 /* axios配置入口文件 */
@@ -88,7 +88,9 @@ class Request {
         this.BASE_URL = import.meta.env.VITE_BASE_URL
         this.config = {
             method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            },
             responseType: 'document',
             timeout: 20 * 1000,
         }
@@ -96,35 +98,56 @@ class Request {
 
     fetch(url: string, data: string, config?: AxiosRequestConfig, checkCommonErrorSwitch = true) {
         return new Promise((resolve: (data: ApiResult) => void, reject: (error: any) => void) => {
-            return axios({
-                ...this.config,
-                ...config,
-                url,
-                data: compressXml(data),
-                baseURL: this.BASE_URL,
-            }).then(
-                (response) => {
-                    const xmlDoc = getXmlDoc(response.data)
-                    if (xmlDoc) {
-                        const xml = queryXml(xmlDoc)
-                        if (xml('//status').text() === ApiStatus.fail) {
+            if (import.meta.env.VITE_APP_TYPE === 'STANDARD') {
+                return axios({
+                    ...this.config,
+                    ...config,
+                    url,
+                    data: compressXml(data),
+                    baseURL: this.BASE_URL,
+                }).then(
+                    (response) => {
+                        const xmlDoc = getXmlDoc(response.data)
+                        if (xmlDoc) {
+                            const $ = queryXml(xmlDoc)
+                            if ($('//status').text() === ApiStatus.fail) {
+                                const errorCode = Number(queryXml(xmlDoc)('//errorCode').text())
+                                if (checkCommonErrorSwitch && this.handelCommonError(errorCode)) {
+                                    reject(errorCode)
+                                    return
+                                }
+                            }
+                            resolve($('/response')[0].element)
+                        } else {
+                            console.trace('error = xmlDoc is null')
+                            reject('xmlDoc_is_null')
+                        }
+                    },
+                    (error) => {
+                        console.trace('error =', error)
+                        reject(error)
+                    },
+                )
+            } else {
+                const plugin = usePlugin()
+                plugin.P2pCmdSender.add({
+                    cmd: compressXml(data),
+                    resolve: (xmlDoc) => {
+                        const $ = queryXml(xmlDoc)
+                        if ($('//status').text() === ApiStatus.fail) {
                             const errorCode = Number(queryXml(xmlDoc)('//errorCode').text())
                             if (checkCommonErrorSwitch && this.handelCommonError(errorCode)) {
                                 reject(errorCode)
                                 return
                             }
                         }
-                        resolve(xml('/response')[0].element)
-                    } else {
-                        console.trace('error = xmlDoc is null')
-                        reject('xmlDoc_is_null')
-                    }
-                },
-                (error) => {
-                    console.trace('error =', error)
-                    reject(error)
-                },
-            )
+                        resolve(xmlDoc)
+                    },
+                    reject: (e) => {
+                        reject(e)
+                    },
+                })
+            }
         })
     }
 

@@ -3,7 +3,7 @@
  * @Date: 2024-08-14 16:50:21
  * @Description: 时间切片-时间线界面
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 19:35:26
+ * @LastEditTime: 2024-10-31 09:11:47
  */
 import dayjs from 'dayjs'
 import TimeSliceChlCard from './TimeSliceChlCard.vue'
@@ -412,7 +412,7 @@ export default defineComponent({
          * @param {TVTPlayerWinDataListItem} data
          * @param {Number} timestamp
          */
-        const handlePlayerTimeUpdate = (index: number, data: TVTPlayerWinDataListItem, timestamp: number) => {
+        const handlePlayerTimeUpdate = (_index: number, _data: TVTPlayerWinDataListItem, timestamp: number) => {
             if (playerData.value.lockSlider) {
                 return
             }
@@ -547,7 +547,7 @@ export default defineComponent({
          * @param {string} taskId
          */
         const playTimeSlice = async (startTime: number, endTime: number, taskId: string) => {
-            timeSliceTimer.repeat(false, () => {
+            timeSliceTimer.update(() => {
                 play(startTime)
                 pageData.value.activeTimeSlice = taskId
                 if (pageData.value.mode === 'day') {
@@ -556,6 +556,7 @@ export default defineComponent({
                     timelineRef.value!.drawTimeRangeMask(startTime / 1000, endTime / 1000)
                 }
             })
+            timeSliceTimer.repeat()
         }
 
         /**
