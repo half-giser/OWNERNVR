@@ -3,7 +3,7 @@
  * @Date: 2024-06-21 16:31:50
  * @Description: 网络状态
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-21 14:46:20
+ * @LastEditTime: 2024-10-29 18:21:20
  */
 import { type SystemNetStatusList } from '@/types/apiType/system'
 
@@ -399,7 +399,7 @@ export default defineComponent({
          * @param event
          * @returns
          */
-        const handleToolBarEvent = (event: ConfigToolBarEvent<ChannelToolBarEvent>) => {
+        const handleToolBarEvent = (event: ConfigToolBarEvent<any>) => {
             if (event.type === 'refresh') {
                 getData()
                 return

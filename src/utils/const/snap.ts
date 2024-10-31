@@ -3,7 +3,7 @@
  * @Date: 2024-07-22 20:03:07
  * @Description: 抓拍相关常量
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-19 17:00:45
+ * @LastEditTime: 2024-10-29 11:33:46
  */
 export const GENDER_MAP: Record<number, string> = {
     0: '--',
@@ -61,16 +61,24 @@ export const UPPER_TYPE_MAP: Record<number, string> = {
     0: '--',
     1: 'IDCS_UPPER_BODY_LONG_SLEEVE',
     2: 'IDCS_UPPER_BODY_SHORT_SLEEVE',
-    // 1: 'IDCS_COLOR_SHORT_SLEEVE',
-    // 2: 'IDCS_COLOR_LONG_SLEEVE',
 }
 
 export const LOWER_TYPE_MAP: Record<number, string> = {
     0: '--',
     1: 'IDCS_LOWER_BODY_SHORTS',
     2: 'IDCS_LOWER_BODY_TROUSERS',
-    // 1: 'IDCS_COLOR_SHORT_TROUSER',
-    // 2: 'IDCS_COLOR_LONG_TROUSER',
+}
+
+export const UPPER_TRANS_TYPE_MAP: Record<number, string> = {
+    0: '--',
+    1: 'IDCS_COLOR_SHORT_SLEEVE',
+    2: 'IDCS_COLOR_LONG_SLEEVE',
+}
+
+export const LOWER_TRANS_TYPE_MAP: Record<number, string> = {
+    0: '--',
+    1: 'IDCS_COLOR_SHORT_TROUSER',
+    2: 'IDCS_COLOR_LONG_TROUSER',
 }
 
 export const COLOR_MAP: Record<number, string> = {
@@ -229,7 +237,7 @@ export const DEFAULT_BODY_STRUCT_MAPPING: SnapMapping[] = [
     {
         type: 'upper_length',
         name: 'IDCS_UPPER_CLOTH',
-        map: UPPER_TYPE_MAP,
+        map: UPPER_TRANS_TYPE_MAP,
         pre: {
             type: 'upper_color',
             name: 'IDCS_COLOR',
@@ -239,7 +247,7 @@ export const DEFAULT_BODY_STRUCT_MAPPING: SnapMapping[] = [
     {
         type: 'lower_length',
         name: 'IDCS_LOWER_CLOTH',
-        map: LOWER_TYPE_MAP,
+        map: LOWER_TRANS_TYPE_MAP,
         pre: {
             type: 'lower_color',
             name: 'IDCS_COLOR',

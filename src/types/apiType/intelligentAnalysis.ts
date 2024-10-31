@@ -3,7 +3,7 @@
  * @Date: 2024-08-29 09:13:28
  * @Description: 智能分析
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-28 14:08:09
+ * @LastEditTime: 2024-10-29 14:37:37
  */
 
 export class EngineConfigForm {
@@ -231,6 +231,7 @@ export class IntelSnapImgDto {
     Y2 = 0
     isDelSnap = false
     isNoData = false
+    attribute = {} as Record<string, string | number>
 }
 
 export class IntelSearchList extends IntelSnapImgDto {
@@ -296,6 +297,7 @@ export class IntelFaceImgDto {
     isDelSnap = false
     isNoData = false
     identity = false
+    attribute = {} as Record<string, string | number>
 }
 
 export class IntelSearchFaceList extends IntelFaceImgDto {
@@ -335,6 +337,7 @@ export class IntelSnapPopList {
     eventType = ''
     targetType = ''
     plateNumber = ''
+    attribute = {} as Record<string, string | number>
 }
 
 export class IntelPanoramaPopList {

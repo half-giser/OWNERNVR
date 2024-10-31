@@ -3,7 +3,7 @@
  * @Date: 2024-08-05 16:00:46
  * @Description: 回放
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 19:49:50
+ * @LastEditTime: 2024-10-29 17:59:18
  */
 import PlaybackChannelPanel, { type ChannelPanelExpose } from '../playback/PlaybackChannelPanel.vue'
 import PlaybackEventPanel from '../playback/PlaybackEventPanel.vue'
@@ -94,7 +94,7 @@ const useOCXCacheWinMap = (maxWin: number) => {
      * @param {Array} chls
      */
     const update = (chls: PlaybackChlList[]) => {
-        winMap.forEach((item, index) => {
+        winMap.forEach((_item, index) => {
             if (chls[index]) {
                 winMap[index] = chls[index].id
             } else {
@@ -439,7 +439,7 @@ export default defineComponent({
          * @param {TVTPlayerWinDataListItem} data
          * @param {Number} timestamp 毫秒
          */
-        const handlePlayerTimeUpdate = (index: number, data: TVTPlayerWinDataListItem, timestamp: number) => {
+        const handlePlayerTimeUpdate = (_index: number, _data: TVTPlayerWinDataListItem, timestamp: number) => {
             timelineRef.value?.setTime(timestamp / 1000)
             toggleVideoDisplay(timestamp)
         }
@@ -629,7 +629,7 @@ export default defineComponent({
                         'RecPlay',
                         formatDate(startTime),
                         formatDate(endTime),
-                        pageData.value.chls.map((item, index) => index),
+                        pageData.value.chls.map((_item, index) => index),
                         pageData.value.chls.map((item) => item.id),
                         pageData.value.chls.map((item) => item.value),
                         pageData.value.eventList,
@@ -1451,12 +1451,12 @@ export default defineComponent({
         const notify = ($: XMLQuery) => {
             // 播放进度
             if ($("statenotify[@type='RecCurPlayTime']").length) {
-                const time = Number($("statenotify[@type='RecCurPlayTime']/win").text())
+                const time = Number($('statenotify/win').text())
                 timelineRef.value?.setTime(time + Math.floor(startTimeStamp.value / 1000))
             }
             // 通知当前选中窗口信息
             else if ($("statenotify[@type='CurrentSelectedWindow']").length) {
-                const $item = queryXml($("statenotify[@type='CurrentSelectedWindow']")[0].element)
+                const $item = queryXml($('statenotify')[0].element)
                 const winIndex = Number($item('winIndex').text())
 
                 pageData.value.winData.chlID = $item('chlId').text()
@@ -1485,7 +1485,7 @@ export default defineComponent({
             // 通知窗口状态信息
             else if ($("statenotify[@type='WindowStatus']").length) {
                 // const eventOpenWinNum = Number($("statenotify[@type='WindowStatus']/eventOpenWinNum").text())
-                const vedioOpenWinNum = Number($("statenotify[@type='WindowStatus']/vedioOpenWinNum").text())
+                const vedioOpenWinNum = Number($('statenotify/vedioOpenWinNum').text())
                 pageData.value.playingListNum = vedioOpenWinNum
             }
             // 通知分割屏数目
@@ -1494,16 +1494,16 @@ export default defineComponent({
             }
             // 通知双击大屏分割屏数目
             else if ($("statenotify[@type='MaxFrameMode']").length > 0) {
-                const segNum = Number($("statenotify[@type='MaxFrameMode']").text().trim())
+                const segNum = Number($('statenotify').text().trim())
                 pageData.value.split = segNum
                 pageData.value.isFullScreen = segNum === 1 ? false : true
             }
             // 播放
             else if ($("statenotify[@type='RecPlay']").length > 0) {
-                const status = $("statenotify[@type='RecPlay']/status").text()
-                const chlId = $("statenotify[@type='RecPlay']/chlId").text()
+                const status = $('statenotify/status').text()
+                const chlId = $('statenotify/chlId').text()
                 // const winIndex = $("statenotify[@type='RecPlay']/winIndex").text()
-                const errorCode = Number($("statenotify[@type='RecPlay']/errorCode").text())
+                const errorCode = Number($('statenotify/errorCode').text())
                 if (status === 'fail') {
                     switch (errorCode) {
                         case ErrorCode.USER_ERROR_CHANNEL_NO_OPEN_VIDEO: // 解码能力不足
@@ -1520,19 +1520,19 @@ export default defineComponent({
             }
             // 通知抓图结果
             else if ($("statenotify[@type='TakePhoto']").length) {
-                const status = $("statenotify[@type='TakePhoto']/status").text()
+                const status = $('statenotify/status').text()
                 if (status === 'success') {
                     pageData.value.notification.push(Translate('IDCS_SNAP_SUCCESS_PATH') + Translate($('statenotify[@type="TakePhoto"].dir').text()))
                 } else {
-                    const errorDescription = $("statenotify[@type='TakePhoto']/errorDescription").text()
+                    const errorDescription = $('statenotify/errorDescription').text()
                     pageData.value.notification.push(Translate('IDCS_SNAP_FAIL') + (errorDescription || ''))
                 }
             }
             // StartViewChl
             else if ($("statenotify[@type='StartViewChl']").length) {
-                const status = $("statenotify[@type='StartViewChl']/status").text()
-                const chlId = $("statenotify[@type='StartViewChl']/chlId").text()
-                const winIndex = Number($("statenotify[@type='StartViewChl']/winIndex").text())
+                const status = $('statenotify/status').text()
+                const chlId = $('statenotify/chlId').text()
+                const winIndex = Number($('statenotify/winIndex').text())
                 if (status == 'success') {
                     if (systemCaps.supportPOS) {
                         //设置通道是否显示POS信息
@@ -1546,7 +1546,7 @@ export default defineComponent({
             if (plugin?.IsPluginAvailable() && mode.value === 'ocx' && ready.value) {
                 // 离开时切换为一分屏，防止safari上其余用到插件的地方出现多分屏
                 cmd(OCX_XML_SetScreenMode(1))
-                pageData.value.recLogList.map((item, index) => {
+                pageData.value.recLogList.map((_item, index) => {
                     cmd(OCX_XML_ClearRecList(index))
                 })
                 // 离开时关闭osd信息，防止pc其他带视频的地方显示两个通道名

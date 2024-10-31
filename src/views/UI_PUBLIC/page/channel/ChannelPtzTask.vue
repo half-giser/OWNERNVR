@@ -69,7 +69,6 @@
                         value-format="HH:mm"
                         editable
                         popper-class="base-chl-timepicker"
-                        :placeholder="Translate('IDCS_POINT_TIME')"
                     />
                 </el-form-item>
                 <el-form-item
@@ -82,7 +81,6 @@
                         value-format="HH:mm"
                         editable
                         popper-class="base-chl-timepicker"
-                        :placeholder="Translate('IDCS_POINT_TIME')"
                     />
                 </el-form-item>
                 <div class="base-btn-box">

@@ -3,7 +3,7 @@
  * @Date: 2024-06-27 11:50:06
  * @Description: 备份与恢复
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-22 19:50:03
+ * @LastEditTime: 2024-10-29 18:09:57
  */
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import BaseInputEncryptPwdPop from '../../components/auth/BaseInputEncryptPwdPop.vue'
@@ -350,9 +350,9 @@ export default defineComponent({
          */
         const notify = ($: XMLQuery) => {
             //导入或导出进度
-            if ($("/statenotify[@type='FileNetTransportProgress']").length) {
-                const progress = $("/statenotify[@type='FileNetTransportProgress']/progress").text()
-                switch ($("/statenotify[@type='FileNetTransportProgress']/action").text()) {
+            if ($("statenotify[@type='FileNetTransportProgress']").length) {
+                const progress = $('statenotify/progress').text()
+                switch ($('statenotify/action').text()) {
                     case 'Import':
                         pageData.value.isCheckAuth = false
                         pageData.value.isEncryptPwd = false
@@ -380,14 +380,14 @@ export default defineComponent({
                 }
             }
             //连接成功
-            else if ($("/statenotify[@type='connectstate']").length) {
+            else if ($("statenotify[@type='connectstate']").length) {
             }
             //网络断开
-            else if ($("/statenotify[@type='FileNetTransport']").length) {
+            else if ($("statenotify[@type='FileNetTransport']").length) {
                 closeLoading()
                 pageData.value.isEncryptPwd = false
-                if ($("/statenotify[@type='FileNetTransport']/errorCode").length) {
-                    const errorCode = Number($("/statenotify[@type='FileNetTransport']/errorCode").text())
+                if ($('statenotify/errorCode').length) {
+                    const errorCode = Number($('statenotify/errorCode').text())
                     handleErrorMsg(errorCode)
                 }
             }

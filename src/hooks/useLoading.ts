@@ -3,7 +3,7 @@
  * @Date: 2024-05-30 08:58:30
  * @Description: Loading
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-12 14:06:50
+ * @LastEditTime: 2024-10-28 16:32:33
  */
 interface LoadingItem {
     inst: any
@@ -47,7 +47,7 @@ const useLoading = () => {
     const openLoading = (target: string | HTMLElement = 'FullScreen', text = Translate('IDCS_LOADING')) => {
         //当前已经打开了全屏loading
         if (fullScreenInst != null) {
-            layoutStore.loadingCount++
+            layoutStore.loadingCount += 1
             // console.log("fullscreen loading already opend, other loading not open", target, gbp.fullScreenCount)
             return
         }
@@ -101,7 +101,7 @@ const useLoading = () => {
     const closeLoading = (target: string | HTMLElement = 'FullScreen') => {
         //当前已经打开了全屏loading
         if (fullScreenInst != null) {
-            if (layoutStore.loadingCount !== 0) layoutStore.loadingCount--
+            if (layoutStore.loadingCount > 0) layoutStore.loadingCount -= 1
             if (layoutStore.loadingCount === 0) {
                 const inst = fullScreenInst
                 closeInst(inst)

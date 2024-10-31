@@ -282,7 +282,7 @@ export default defineComponent({
         }
 
         const LiveNotify2Js = ($: (path: string) => XmlResult) => {
-            if ($("statenotify[@type='MaskArea']").length > 0) {
+            if ($("statenotify[@type='MaskArea']").length) {
                 const preRowData = getRowById(selectedChlId.value)!
                 if (osType === 'mac') {
                 } else {

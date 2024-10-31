@@ -3,7 +3,7 @@
  * @Date: 2024-05-30 15:59:38
  * @Description: websocket 订阅实时抓拍
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-14 10:44:27
+ * @LastEditTime: 2024-10-29 14:40:56
  */
 
 import WebsocketBase from './websocketBase'
@@ -119,7 +119,7 @@ type WebsocketSnapOnSuccessSnapInfo = {
     plate?: string
     event_type: string
     target_type: string
-    person_info: Record<string | number, string | number>
+    person_info: Record<string, string | number>
     car_info: Record<string, string | number>
     bike_info: Record<string, string | number>
     // plate: Record<string, string | number>

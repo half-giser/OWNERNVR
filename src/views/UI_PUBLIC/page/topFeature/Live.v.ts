@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 18:07:29
  * @Description: 现场预览
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 19:49:26
+ * @LastEditTime: 2024-10-29 18:02:48
  */
 import { cloneDeep } from 'lodash-es'
 import { type LiveChannelList, type LiveCustomViewChlList, LiveSharedWinData } from '@/types/apiType/live'
@@ -1511,9 +1511,9 @@ export default defineComponent({
         const notify = ($: XMLQuery) => {
             // 设置预览通道状态
             if ($('statenotify[@type="StartViewChl"]').length) {
-                const status = $("statenotify[@type='StartViewChl']/status").text()
-                const chlId = $("statenotify[@type='StartViewChl']/chlId").text()
-                const winIndex = Number($("statenotify[@type='StartViewChl']/winIndex").text())
+                const status = $('statenotify/status').text()
+                const chlId = $('statenotify/chlId').text()
+                const winIndex = Number($('statenotify/winIndex').text())
                 switch (status) {
                     case 'success':
                         cacheWinMap[winIndex].PLAY_STATUS = 'play'
@@ -1547,8 +1547,8 @@ export default defineComponent({
             }
             // 设置停止预览通道状态
             else if ($('statenotify[@type="StopViewChl"]').length) {
-                const chlId = $('statenotify[@type="StopViewChl"]/chlId').text()
-                const winIndex = Number($('statenotify[@type="StopViewChl"]/winIndex').text())
+                const chlId = $('statenotify/chlId').text()
+                const winIndex = Number($('statenotify/winIndex').text())
 
                 cacheWinMap[winIndex] = { ...cloneWinData }
 
@@ -1563,8 +1563,8 @@ export default defineComponent({
             }
             // 设置预览通道失败
             else if ($('statenotify[@type="SetViewChannelId"]').length) {
-                if ($('statenotify[@type="SetViewChannelId"]/status').text() !== 'success') {
-                    const errorCode = Number($('statenotify[@type="SetViewChannelId"]/errorCode').text())
+                if ($('statenotify/status').text() !== 'success') {
+                    const errorCode = Number($('statenotify/errorCode').text())
                     // 主码流预览失败超过上限，切换回子码流预览
                     if (errorCode == ErrorCode.USER_ERROR_CHANNEL_NO_OPEN_VIDEO) {
                         changeStreamType(2)
@@ -1574,14 +1574,14 @@ export default defineComponent({
             }
             // 窗口状态改变通知
             else if ($('statenotify[@type="WindowStatus"]').length) {
-                if (Number($('statenotify[@type="WindowStatus"]/previewingWinNum').text())) {
+                if (Number($('statenotify/previewingWinNum').text())) {
                     pageData.value.allPreview = true
                     // pageData.value.winData.PLAY_STATUS = 'stop'
                 } else {
                     pageData.value.allPreview = false
                 }
 
-                if (Number($('statenotify[@type="WindowStatus"]/recordingWinNum').text())) {
+                if (Number($('statenotify/recordingWinNum').text())) {
                     pageData.value.winData.localRecording = true
                     pageData.value.allClientRecord = true
                 } else {
@@ -1591,7 +1591,7 @@ export default defineComponent({
             }
             // 如果是选中窗体改变通知，重新绑定预置点和巡航线
             else if ($('statenotify[@type="CurrentSelectedWindow"]').length) {
-                const $item = queryXml($("statenotify[@type='CurrentSelectedWindow']")[0].element)
+                const $item = queryXml($('statenotify')[0].element)
                 const winIndex = Number($item('winIndex').text().trim())
                 cacheWinMap[winIndex] = { ...cloneWinData }
 
@@ -1638,29 +1638,29 @@ export default defineComponent({
             }
             // 通知抓图结果
             else if ($('statenotify[@type="TakePhoto"]').length) {
-                if ($('statenotify[@type="TakePhoto"]/status').text() === 'success') {
+                if ($('statenotify/status').text() === 'success') {
                     if (import.meta.env.VITE_UI_TYPE !== 'UI1-E') {
                         if (!localStorage.getItem(LocalCacheKey.KEY_SNAP_PIC_NOT_ENCRYPTED)) {
                             pageData.value.notification.push(Translate('IDCS_IMG_UNENCRYPTED_TIP'))
                             localStorage.setItem(LocalCacheKey.KEY_SNAP_PIC_NOT_ENCRYPTED, 'true')
                         }
                     }
-                    pageData.value.notification.push(Translate('IDCS_SNAP_SUCCESS_PATH') + $('statenotify[@type="TakePhoto"]/dir').text())
+                    pageData.value.notification.push(Translate('IDCS_SNAP_SUCCESS_PATH') + $('statenotify/dir').text())
                 } else {
-                    const errorDescription = $('statenotify[@type="TakePhoto"]/errorDescription').text()
+                    const errorDescription = $('statenotify/errorDescription').text()
                     pageData.value.notification.push(Translate('IDCS_SNAP_FAIL') + (errorDescription ? errorDescription : ''))
                 }
             }
             // 通知手动录像结果
             else if ($('statenotify[@type="RecComplete"]').length) {
-                if ($('statenotify[@type="RecComplete"]/status').text() == 'success') {
+                if ($('statenotify/status').text() == 'success') {
                     if (import.meta.env.VITE_UI_TYPE !== 'UI1-E') {
                         if (!localStorage.getItem(LocalCacheKey.KEY_LOCAL_AVI_NOT_ENCRYPTED)) {
                             pageData.value.notification.push(Translate('IDCS_AVI_UNENCRYPTED_TIP'))
                             localStorage.setItem(LocalCacheKey.KEY_LOCAL_AVI_NOT_ENCRYPTED, 'true')
                         }
                     }
-                    pageData.value.notification.push(Translate('IDCS_REC_SUCCESS_PATH') + $('statenotify[@type="RecComplete"]/dir').text())
+                    pageData.value.notification.push(Translate('IDCS_REC_SUCCESS_PATH') + $('statenotify/dir').text())
                 } else {
                     // 延迟100毫秒防止通知过快，导致之前操作状态未设置好
                     setTimeout(() => {
@@ -1668,15 +1668,15 @@ export default defineComponent({
                             recordLocal(false)
                         }
 
-                        const errorDescription = $('statenotify[@type="RecComplete"]/errorDescription').text()
+                        const errorDescription = $('statenotify/errorDescription').text()
                         pageData.value.notification.push(Translate('IDCS_REC_FAIL') + (errorDescription ? errorDescription : ''))
                     }, 100)
                 }
             }
             // 对讲
             else if ($('statenotify[@type="TalkSwitch"]').length) {
-                if ($('statenotify[@type="TalkSwitch"]/status').text() == 'success') {
-                    if ($('statenotify[@type="TalkSwitch"]/chlId').text() == pageData.value.winData.chlID) {
+                if ($('statenotify/status').text() == 'success') {
+                    if ($('statenotify/chlId').text() == pageData.value.winData.chlID) {
                         pageData.value.winData.talk = true
                     } else {
                         pageData.value.allTalk = true
@@ -1684,7 +1684,7 @@ export default defineComponent({
                     // 打开对讲时，关闭音频
                     setAudio(false)
                 } else {
-                    const errorCode = Number($('statenotify[@type="TalkSwitch"]/errorCode').text())
+                    const errorCode = Number($('statenotify/errorCode').text())
                     const errorCodes: Record<number, string> = {
                         [ErrorCode.USER_ERROR_DEVICE_BUSY]: Translate('IDCS_AUDIO_BUSY'),
                         [ErrorCode.USER_ERROR_CHANNEL_AUDIO_OPEN_FAIL]: Translate('IDCS_DEVICE_BUSY'),

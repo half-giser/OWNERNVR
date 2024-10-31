@@ -130,7 +130,7 @@ export default defineComponent({
 
         const LiveNotify2Js = ($: XMLQuery) => {
             //升级进度
-            if ($("statenotify[@type='FileNetTransportProgress']").length > 0) {
+            if ($("statenotify[@type='FileNetTransportProgress']").length) {
                 const taskGUID = $('statenotify/taskGUID').text().toLowerCase()
                 if (taskGUIDMap[taskGUID]) {
                     const progress = $('statenotify/progress').text().replace('%', '')
@@ -147,7 +147,7 @@ export default defineComponent({
             }
 
             //连接成功
-            // else if ($("statenotify[@type='connectstate']").length > 0) {
+            // else if ($("statenotify[@type='connectstate']").length) {
             //     const status = $("statenotify[@type='connectstate']").text()
             // }
             // 网络断开

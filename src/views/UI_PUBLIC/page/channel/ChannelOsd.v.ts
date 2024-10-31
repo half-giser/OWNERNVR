@@ -242,7 +242,7 @@ export default defineComponent({
 
         const LiveNotify2Js = ($: XMLQuery) => {
             //OSD位置改变
-            if ($("statenotify[@type='OSDInfo']").length > 0) {
+            if ($("statenotify[@type='OSDInfo']").length) {
                 const preRowData = getRowById(selectedChlId.value)!
                 if (osType == 'mac') {
                 } else {

@@ -44,7 +44,6 @@
                         :cell-class-name="highlightWeekend"
                         clear-icon=""
                         type="date"
-                        :placeholder="Translate('IDCS_BIRTHDAY')"
                         :disabled
                     />
                 </el-form-item>

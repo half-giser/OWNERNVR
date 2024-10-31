@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-10-15 10:04:36
  * @Description: 录像码流通用组件
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-29 16:15:08
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-29 16:51:59
  */
 import { RecordStreamInfoDto } from '@/types/apiType/record'
 import { ElMessageBox } from 'element-plus'
@@ -139,14 +139,12 @@ export default defineComponent({
             gopHeaderVisble: false, // GOP下拉框表头是否显示
         })
 
-        // TODO 获取UI，设置visible属性
         // 获取设备录制参数配置
         const getDevRecParamCfgModule = async () => {
             const $ = await queryRecordDistributeInfo()
             const res = queryXml($)
             if (res('status').text() == 'success') {
                 DevRecParamCfgModule.doubleStreamRecSwitch = res('//content/recMode/doubleStreamRecSwitch').text() == 'true'
-                // 需要改
                 if (props.mode == 'event') {
                     RecStreamModule.value.recType = res('//content/recMode/mode').text() == 'auto' ? 'ae' : 'me'
                     RecStreamModule.value.recType1 = res('//content/recMode/mode').text() == 'auto' ? 'an' : 'mn'
@@ -181,7 +179,6 @@ export default defineComponent({
                     remainBandwidth = 0
                 }
                 pageData.value.txtBandwidth = Translate('IDCS_CURRENT_BANDWIDTH_ALL_D_D').formatForLang(remainBandwidth.toFixed(0), totalBandwidth.toFixed(0))
-                // TODO: 可能要写bandwidthDetail
                 pageData.value.audioInNum = Number(res('//content/audioInNum').text()) * 1
                 pageData.value.mainStreamLimitFps = Number(res('//content/mainStreamLimitFps').text()) * 1 || pageData.value.mainStreamLimitFps
             }
