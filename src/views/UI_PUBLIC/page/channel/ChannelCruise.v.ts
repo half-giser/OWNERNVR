@@ -3,7 +3,7 @@
  * @Date: 2024-08-21 17:50:00
  * @Description: 云台-巡航线
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 15:35:26
+ * @LastEditTime: 2024-10-30 14:00:23
  */
 import { type TableInstance } from 'element-plus'
 import { type ChannelPtzCruiseChlDto, ChannelPtzCruiseDto, type ChannelPtzCruisePresetDto } from '@/types/apiType/channel'
@@ -308,7 +308,7 @@ export default defineComponent({
                 <content>
                     <chl id="${tableData.value[pageData.value.tableIndex].chlId}"></chl>
                     <index>${currentCruise.value.index.toString()}</index>
-                    <name>${wrapCDATA(formData.value.name)}</name>
+                    <name maxByteLen="63">${wrapCDATA(formData.value.name)}</name>
                 </content>
             `
             const result = await editChlCruise(sendXml)
@@ -487,23 +487,23 @@ export default defineComponent({
         const updatePreset = async () => {
             openLoading()
 
-            const preset = presetTableData.value
-                .map((item) => {
-                    return rawXml`
-                    <item index="${item.index.toString()}">
-                        <name>${wrapCDATA(item.name.toString())}</name>
-                        <speed>${item.speed.toString()}</speed>
-                        <holdTime>${item.holdTime.toString()}</holdTime>
-                    </item>
-                `
-                })
-                .join('')
-
             const sendXml = rawXml`
                 <content>
                     <index>${currentCruise.value.index.toString()}</index>
                     <chl id="${tableData.value[pageData.value.tableIndex].chlId}"></chl>
-                    <presets type="list">${preset}</presets>
+                    <presets type="list">
+                        ${presetTableData.value
+                            .map((item) => {
+                                return rawXml`
+                                    <item index="${item.index.toString()}">
+                                        <name>${wrapCDATA(item.name.toString())}</name>
+                                        <speed>${item.speed.toString()}</speed>
+                                        <holdTime>${item.holdTime.toString()}</holdTime>
+                                    </item>
+                                `
+                            })
+                            .join('')}
+                    </presets>
                 </content>
             `
             const result = await editChlCruise(sendXml)

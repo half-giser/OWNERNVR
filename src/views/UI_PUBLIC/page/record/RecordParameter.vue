@@ -2,8 +2,8 @@
  * @Description: 录像——参数配置
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-02 16:12:01
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-31 09:52:23
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-31 14:32:45
 -->
 <template>
     <div class="base-flex-box">
@@ -240,6 +240,6 @@
 
 <style scoped>
 .msgbox {
-    margin: 50px 0 10px 0;
+    margin: 10px 0 10px 0;
 }
 </style>

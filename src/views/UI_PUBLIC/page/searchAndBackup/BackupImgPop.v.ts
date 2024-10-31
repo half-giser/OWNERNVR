@@ -168,7 +168,6 @@ export default defineComponent({
 
                 await nextTick()
 
-                console.log(img.width, img.height)
                 context.drawImage(img, 0, 0, img.width, img.height)
 
                 const dataURL = canvas.toDataURL('image/jpeg')

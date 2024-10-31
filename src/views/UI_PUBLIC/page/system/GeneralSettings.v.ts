@@ -3,7 +3,7 @@
  * @Date: 2024-06-24 15:06:48
  * @Description: 基本配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 14:45:54
+ * @LastEditTime: 2024-10-30 11:46:58
  */
 import { type FormInstance, type FormRules } from 'element-plus'
 import { SystemGeneralSettingForm } from '@/types/apiType/system'
@@ -200,7 +200,6 @@ export default defineComponent({
          * @param {number} key2
          */
         const displayDecoderLabel = (key: number, key2: number) => {
-            console.log(key, key2)
             return `${Translate('IDCS_DECODE_CARD')}${Number(key) + 1} ${Translate('IDCS_OUTPUT')}${Number(key2) + 1}`
         }
 
@@ -364,32 +363,31 @@ export default defineComponent({
                     .join('')
             }
 
-            const decoderXml = Object.keys(formData.value.decoder)
-                .map((key) => {
-                    return `<decoder id="${key}">${getDecoderItem(Number(key))}</decoder>`
-                    // formData.value.decoder[number]
-                })
-                .join('')
-
             const sendXml = rawXml`
                 <types>
                     <langType>${pageData.value.langType.map((item) => `<enum>${item}</enum>`).join('')}</langType>
                     <resolutionType>${pageData.value.resolutionType.map((item) => `<enum>${item}</enum>`).join('')}</resolutionType>
                 </types>
                 <content>
-                    <name>${wrapCDATA(formData.value.deviceName)}</name>
-                    <deviceNumber>${String(formData.value.deviceNumber)}</deviceNumber>
+                    <name maxByteLen="63">${wrapCDATA(formData.value.deviceName)}</name>
+                    <deviceNumber>${formData.value.deviceNumber.toString()}</deviceNumber>
                     <videoType type="videoType">${formData.value.videoFormat}</videoType>
                     <hdmivgaParam type="hdmivgaParam">${formData.value.outputConfig}</hdmivgaParam>
                     <resolution>
                         ${formData.value.resolution.map((item, index) => `<item index="${index}" set="${formData.value.outputAdapt}">${item}</item>`).join('')}
                     </resolution>
-                    <bootWizardSwitch>${String(formData.value.enableGuide)}</bootWizardSwitch>
-                    <mobileStreamAdaption>${String(formData.value.mobileStreamAdaption)}</mobileStreamAdaption>
-                    ${pageData.value.isZeroOrAddIpc ? `<bootZeroCfgAddSwitch>${String(formData.value.zeroOrAddIpc)}</bootZeroCfgAddSwitch>` : ''}
-                    <decoderResolution>${decoderXml}</decoderResolution>
-                    <autoDwell>${String(formData.value.enableAutoDwell)}</autoDwell>
-                    <autoDwellWaitTime>${String(formData.value.waitTime)}</autoDwellWaitTime>
+                    <bootWizardSwitch>${formData.value.enableGuide.toString()}</bootWizardSwitch>
+                    <mobileStreamAdaption>${formData.value.mobileStreamAdaption.toString()}</mobileStreamAdaption>
+                    ${pageData.value.isZeroOrAddIpc ? `<bootZeroCfgAddSwitch>${formData.value.zeroOrAddIpc.toString()}</bootZeroCfgAddSwitch>` : ''}
+                    <decoderResolution>
+                        ${Object.keys(formData.value.decoder)
+                            .map((key) => {
+                                return `<decoder id="${key}">${getDecoderItem(Number(key))}</decoder>`
+                            })
+                            .join('')}
+                    </decoderResolution>
+                    <autoDwell>${formData.value.enableAutoDwell.toString()}</autoDwell>
+                    <autoDwellWaitTime>${formData.value.waitTime.toString()}</autoDwellWaitTime>
                 </content>
             `
             const result = await editBasicCfg(sendXml)

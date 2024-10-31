@@ -36,6 +36,7 @@
                 <el-input
                     v-model="formData.confirmNewPassword"
                     type="password"
+                    maxlength="16"
                     @paste.capture.prevent=""
                     @copy.capture.prevent=""
                 />

@@ -74,14 +74,14 @@ export default defineComponent({
         const save = () => {
             formRef.value?.validate((valid) => {
                 if (valid) {
-                    const data = rawXml`
+                    const sendXml = rawXml`
                         <content>
                             ${props.activateIpcData
                                 .map((ele) => {
                                     return rawXml`
                                         <item>
                                             <userPassword>
-                                                <password type='string' encryptType='md5' maxLen='63'${getSecurityVer()}><![CDATA[${useDefaultPwdSwitch.value ? '' : AES_encrypt(formData.value.password, userSessionStore.sesionKey)}]]></password>
+                                                <password type='string' encryptType='md5' maxLen='16'${getSecurityVer()}><![CDATA[${useDefaultPwdSwitch.value ? '' : AES_encrypt(formData.value.password, userSessionStore.sesionKey)}]]></password>
                                             </userPassword>
                                             <name>${ele.devName}</name>
                                             <ip>${ele.ip}</ip>
@@ -95,7 +95,7 @@ export default defineComponent({
                         </content>
                     `
                     openLoading()
-                    activateIPC(data).then(() => {
+                    activateIPC(sendXml).then(() => {
                         closeLoading()
                         // 激活后成功或失败不做提示处理
                         emit('close')

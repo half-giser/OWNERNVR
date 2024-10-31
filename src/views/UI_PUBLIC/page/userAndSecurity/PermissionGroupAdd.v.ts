@@ -3,7 +3,7 @@
  * @Date: 2024-06-17 20:32:26
  * @Description: 添加权限组
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 11:06:08
+ * @LastEditTime: 2024-10-30 10:26:31
  */
 import { UserPermissionSystemAuthList, UserPermissionChannelAuthList } from '@/types/apiType/userAndSecurity'
 import { UserPermissionGroupAddForm } from '@/types/apiType/userAndSecurity'
@@ -30,7 +30,7 @@ export default defineComponent({
             name: [
                 {
                     validator: (_rule, value: string, callback) => {
-                        if (!value.length) {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_USER_GROUP_EMPTY_TIPS')))
                             return
                         }
@@ -207,36 +207,36 @@ export default defineComponent({
         const doCreateAuthGroup = async () => {
             openLoading()
 
-            const channelAuthListXml = channelAuthList.value
-                .map((item) => {
-                    return rawXml`
-                        <item id="${item.id}">
-                            ${wrapCDATA(DEFAULT_CHANNEL_AUTH_LIST.filter((key) => item[key] === Translate('IDCS_ON')).join(','))}
-                        </item>
-                    `
-                })
-                .join('')
-            const systemAuthListXml = Object.keys(systemAuthList.value)
-                .map((item) => {
-                    return Object.keys(systemAuthList.value[item].value)
-                        .map((key) => {
-                            return `<${key}>${systemAuthList.value[item].value[key].value}</${key}>`
-                        })
-                        .join('')
-                })
-                .join('')
             const sendXml = rawXml`
                 <content>
-                    <name>${wrapCDATA(formData.value.name)}</name>
+                    <name maxByteLen="63">${wrapCDATA(formData.value.name)}</name>
                     <chlAuthNote><![CDATA[local: [_lp:live preview, _spr: search and play record, _bk:backup, _ptz:PTZ control],remote: [@lp:live preview, @spr: search and play record, @bk:backup, @ptz: PTZ control]]]></chlAuthNote>
                     <chlAuth type="list">
                         <itemType>
                             <name/>
                             <auth/>
                         </itemType>
-                        ${channelAuthListXml}
+                        ${channelAuthList.value
+                            .map((item) => {
+                                return rawXml`
+                                    <item id="${item.id}">
+                                        ${wrapCDATA(DEFAULT_CHANNEL_AUTH_LIST.filter((key) => item[key] === Translate('IDCS_ON')).join(','))}
+                                    </item>
+                                `
+                            })
+                            .join('')}
                     </chlAuth>
-                    <systemAuth>${systemAuthListXml}</systemAuth>
+                    <systemAuth>
+                        ${Object.keys(systemAuthList.value)
+                            .map((item) => {
+                                return Object.keys(systemAuthList.value[item].value)
+                                    .map((key) => {
+                                        return `<${key}>${systemAuthList.value[item].value[key].value}</${key}>`
+                                    })
+                                    .join('')
+                            })
+                            .join('')}
+                    </systemAuth>
                 </content>
             `
             const result = await createAuthGroup(sendXml)

@@ -223,10 +223,6 @@ export default defineComponent({
             })
         }
 
-        const recModeChange = async (params: string) => {
-            console.log(params)
-        }
-
         const changeAllSchedule = (value: string, field: string) => {
             formData.value.recordScheduleList.forEach((item) => {
                 ;(item as any)[field] = value
@@ -569,7 +565,6 @@ export default defineComponent({
             RecordModeStreamPop,
             ScheduleManagPop,
             supportPOS,
-            recModeChange,
             changeAllSchedule,
             advancePopConfirm,
             streamPopClose,

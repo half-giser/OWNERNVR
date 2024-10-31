@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 18:39:25
  * @Description: 新增通道
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-22 15:47:08
+ * @LastEditTime: 2024-10-30 14:53:34
  */
 import { ChannelManualAddDto, DefaultPwdDto } from '@/types/apiType/channel'
 import { ChannelAddRecorderDto, ChannelQuickAddDto } from '@/types/apiType/channel'
@@ -566,7 +566,6 @@ export default defineComponent({
                             element: element,
                         })
                     }
-                    console.log(allDatas, mapping.value, manufacturerMap.value, protocolList.value)
                     multiChlIPCAddRef.value?.init(allDatas, mapping.value, manufacturerMap.value, protocolList.value, (sendXml: string) => {
                         addIPCDev(sendXml)
                     })
@@ -577,7 +576,7 @@ export default defineComponent({
         const getXmlDataByQuickAdd = (element: ChannelQuickAddDto, supportType: string, chlName: string) => {
             return rawXml`
                 <item>
-                    <name>${chlName}</name>
+                    <name maxByteLen="63">${wrapCDATA(chlName)}</name>
                     <ip>${element.ip}</ip>
                     <port>${element.port}</port>
                     <userName>${mapping.value[element.manufacturer].userName}</userName>
@@ -587,12 +586,11 @@ export default defineComponent({
                     <productModel ${element.productModel.factoryName ? `factoryName="${element.productModel.identity || element.productModel.factoryName}"` : ''}>${element.productModel.innerText}</productModel>
                     ${ternary(!!element.poeIndex, `<poeIndex>${element.poeIndex}</poeIndex>`)}
                     <accessType>${supportType === 'THERMAL_DOUBLE' ? 'THERMAL' : 'NORMAL'}</accessType>
-                    <rec per='5' post='10'/>
-                        <snapSwitch>true</snapSwitch>
-                        <buzzerSwitch>false</buzzerSwitch>
-                        <popVideoSwitch>false</popVideoSwitch>
-                        <frontEndOffline_popMsgSwitch>false</frontEndOffline_popMsgSwitch>
-                    </rec>
+                    <rec per='5' post='10' />
+                    <snapSwitch>true</snapSwitch>
+                    <buzzerSwitch>false</buzzerSwitch>
+                    <popVideoSwitch>false</popVideoSwitch>
+                    <frontEndOffline_popMsgSwitch>false</frontEndOffline_popMsgSwitch>
                 </item>
             `
         }
@@ -652,7 +650,11 @@ export default defineComponent({
                             type: 'question',
                             message: msg,
                         }).then(() => {
-                            const data = '<content><AISwitch>false</AISwitch></content>'
+                            const data = rawXml`
+                                <content>
+                                    <AISwitch>false</AISwitch>
+                                </content>
+                            `
                             editBasicCfg(data)
                         })
                     } else {

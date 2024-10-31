@@ -35,18 +35,18 @@ export default defineComponent({
             name: [
                 {
                     validator: (_rule, value, callback) => {
-                        value = value.trim()
-                        if (value.length === 0) {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
                             return
-                        } else {
-                            formData.value.name = value = cutStringByByte(value, nameByteMaxLen)
-                            // 应该不可能发生此情况
-                            if (value == 0) {
-                                callback(new Error(Translate('IDCS_INVALID_CHAR')))
-                                return
-                            }
                         }
+                        // else {
+                        //     formData.value.name = value = cutStringByByte(value, nameByteMaxLen)
+                        //     // 应该不可能发生此情况
+                        //     if (value == 0) {
+                        //         callback(new Error(Translate('IDCS_INVALID_CHAR')))
+                        //         return
+                        //     }
+                        // }
                         callback()
                     },
                     trigger: 'manual',
@@ -69,7 +69,7 @@ export default defineComponent({
             const data = rawXml`
                 <content>
                     <id>${formData.value.id}</id>
-                    <name><![CDATA[${formData.value.name}]]></name>
+                    <name maxByteLen="63">${wrapCDATA(formData.value.name)}</name>
                     <dwellTime unit='s'>${formData.value.dwellTime.toString()}</dwellTime>
                 </content>`
             openLoading()
@@ -108,6 +108,8 @@ export default defineComponent({
             opened,
             save,
             getTranslateForSecond,
+            formatInputMaxLength,
+            nameByteMaxLen,
         }
     },
 })

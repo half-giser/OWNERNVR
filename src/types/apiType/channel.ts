@@ -168,7 +168,7 @@ export class ResourcesPathDto {
     streamType = ''
     protocol = ''
     transportProtocol = ''
-    port = ''
+    port = 10
     path = ''
 }
 

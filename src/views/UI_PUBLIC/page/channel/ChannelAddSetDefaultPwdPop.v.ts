@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 18:39:25
  * @Description: 添加通道 - 设置通道默认密码弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-22 10:55:06
+ * @LastEditTime: 2024-10-30 16:48:16
  */
 import { type DefaultPwdDto } from '@/types/apiType/channel'
 import { type FormRules, type FormInstance } from 'element-plus'
@@ -72,7 +72,7 @@ export default defineComponent({
             userName: [
                 {
                     validator: (_rule, value, callback) => {
-                        if (value.trim().length == 0) {
+                        if (!value.trim().length) {
                             callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
                             return
                         }
@@ -92,19 +92,18 @@ export default defineComponent({
         }
 
         const setData = (e: UserCheckAuthForm) => {
-            const listXml = formData.value.params
-                .map((ele) => {
-                    return rawXml`
-                        <item id='${ele.id}'>
-                            <userName>${ele.userName}</userName>
-                            ${ternary(!!ele.password, `<password ${getSecurityVer()}><![CDATA[${AES_encrypt(ele.password, userSessionStore.sesionKey)}]]></password>`)}
-                        </item>
-                    `
-                })
-                .join('')
             const sendXml = rawXml`
                 <content type='list'>
-                    ${listXml}
+                    ${formData.value.params
+                        .map((ele) => {
+                            return rawXml`
+                                <item id='${ele.id}'>
+                                    <userName maxByteLen="63">${ele.userName}</userName>
+                                    ${ternary(!!ele.password, `<password maxLen='64' ${getSecurityVer()}><![CDATA[${AES_encrypt(ele.password, userSessionStore.sesionKey)}]]></password>`)}
+                                </item>
+                            `
+                        })
+                        .join('')}
                 </content>
                 <auth>
                     <userName>${e.userName}</userName>

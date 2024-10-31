@@ -14,8 +14,6 @@
                         v-model="formData.startTime"
                         :value-format="dateTime.dateTimeFormat"
                         :format="dateTime.dateTimeFormat"
-                        :cell-class-name="highlightWeekend"
-                        clear-icon=""
                         type="datetime"
                         :placeholder="Translate('IDCS_START_TIME')"
                     />
@@ -25,8 +23,6 @@
                         v-model="formData.endTime"
                         :value-format="dateTime.dateTimeFormat"
                         :format="dateTime.dateTimeFormat"
-                        :cell-class-name="highlightWeekend"
-                        clear-icon=""
                         type="datetime"
                         :placeholder="Translate('IDCS_END_TIME')"
                     />

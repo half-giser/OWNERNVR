@@ -3,7 +3,7 @@
  * @Date: 2024-06-28 11:45:28
  * @Description: 报警状态
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-16 13:43:42
+ * @LastEditTime: 2024-10-30 19:19:54
  */
 import { type XMLQuery } from '@/utils/xmlParse'
 import type { SystemAlarmStatusListData, SystemAlarmStatusList } from '@/types/apiType/system'
@@ -77,7 +77,10 @@ export default defineComponent({
         // 回放视频长度（毫秒）
         const recDuration = 5 * 60 * 1000
         // 定时器，每隔一段时间自动刷新状态
-        let getAlarmStatusTimer: NodeJS.Timeout | number = 0
+        const getAlarmStatusTimer = useRefreshTimer(() => {
+            getAlarmStatus()
+            updatePagination()
+        }, refreshInterval)
 
         const pageData = ref({
             isInw48: systemCaps.CustomerID === 100,
@@ -269,10 +272,7 @@ export default defineComponent({
                 }
             })
 
-            getAlarmStatusTimer = setTimeout(() => {
-                getAlarmStatus()
-                updatePagination()
-            }, refreshInterval)
+            getAlarmStatusTimer.repeat()
         }
 
         /**
@@ -1096,6 +1096,9 @@ export default defineComponent({
          */
         const handleChangeRow = (row: SystemAlarmStatusList) => {
             pageData.value.activeIndex = tableList.value.findIndex((item) => row.id === item.id)!
+            setTimeout(() => {
+                tableRef.value!.setCurrentRow(row)
+            }, 10)
         }
 
         /**
@@ -1106,6 +1109,9 @@ export default defineComponent({
         const handleExpandChange = (row: SystemAlarmStatusList, rows: SystemAlarmStatusList[]) => {
             pageData.value.activeIndex = tableList.value.findIndex((item) => row.id === item.id)!
             pageData.value.activeRow = rows.map((item) => item.id)
+            setTimeout(() => {
+                tableRef.value!.setCurrentRow(row)
+            }, 10)
         }
 
         /**
@@ -1138,10 +1144,6 @@ export default defineComponent({
             renderTable()
             await getAlarmStatus()
             closeLoading()
-        })
-
-        onBeforeUnmount(() => {
-            clearTimeout(getAlarmStatusTimer)
         })
 
         return {

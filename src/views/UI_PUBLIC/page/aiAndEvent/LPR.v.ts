@@ -2,8 +2,8 @@
  * @Description: AI 事件——车牌识别
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-09 09:56:33
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-29 13:51:36
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-30 16:26:32
  */
 import { type CompareTask, VehicleDetection, type VehicleChlItem, VehicleCompare } from '@/types/apiType/aiAndEvent'
 import CanvasPolygon from '@/utils/canvas/canvasPolygon'
@@ -103,24 +103,7 @@ export default defineComponent({
             approach: Translate('IDCS_RECOGNITION_APPROACHING'),
             further: Translate('IDCS_RECOGNITION_DRIVING_AWAY'),
         }
-        const closeTip: Record<string, string> = {
-            cdd: Translate('IDCS_CROWD_DENSITY_DETECTION'),
-            cpc: Translate('IDCS_PASS_LINE_COUNT_DETECTION'),
-            ipd: Translate('IDCS_INVADE_DETECTION'),
-            tripwire: Translate('IDCS_BEYOND_DETECTION'),
-            osc: Translate('IDCS_WATCH_DETECTION'),
-            avd: Translate('IDCS_ABNORMAL_DETECTION'),
-            perimeter: Translate('IDCS_INVADE_DETECTION'),
-            vfd: Translate('IDCS_FACE_DETECTION'),
-            aoientry: Translate('IDCS_INVADE_DETECTION'),
-            aoileave: Translate('IDCS_INVADE_DETECTION'),
-            passlinecount: Translate('IDCS_PASS_LINE_COUNT_DETECTION'),
-            h264s: Translate('IDCS_VIDEO_ENCT_TYPE_H264_SMART'),
-            h265s: Translate('IDCS_VIDEO_ENCT_TYPE_H265_SMART'),
-            vehicle: Translate('IDCS_PLATE_DETECTION'),
-            fire: Translate('IDCS_FIRE_POINT_DETECTION'),
-            vsd: Translate('IDCS_VSD_DETECTION'),
-        }
+        const closeTip = getAlarmEventList()
 
         /* 
         车牌识别——识别参数

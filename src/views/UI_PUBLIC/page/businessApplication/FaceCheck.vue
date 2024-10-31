@@ -3,7 +3,7 @@
  * @Date: 2024-08-27 14:24:19
  * @Description: 业务应用-人脸签到
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 14:23:58
+ * @LastEditTime: 2024-10-30 10:52:16
 -->
 <template>
     <div class="base-flex-box">
@@ -182,7 +182,7 @@
                 v-model:current-page="formData.currentPage"
                 v-model:page-size="formData.pageSize"
                 :total="tableData.length"
-                :page-sizes="[100]"
+                :page-sizes="[formData.pageSize]"
             />
         </div>
         <BaseTableSelectPop

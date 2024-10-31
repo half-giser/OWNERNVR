@@ -3,7 +3,7 @@
  * @Date: 2024-08-30 09:26:01
  * @Description: 人脸库 - 添加人脸
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-22 18:56:45
+ * @LastEditTime: 2024-10-30 17:29:49
 -->
 <template>
     <el-dialog
@@ -38,8 +38,6 @@
                             v-model="formData[pageData.formIndex].birthday"
                             :value-format="dateTime.dateFormat"
                             :format="dateTime.dateFormat"
-                            :cell-class-name="highlightWeekend"
-                            clear-icon=""
                             type="date"
                         />
                     </el-form-item>

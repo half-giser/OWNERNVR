@@ -2,8 +2,8 @@
  * @Description: 录像——参数配置——通道录像参数——过期时间自定义
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-05 16:26:27
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-31 10:19:30
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-31 14:33:03
 -->
 <template>
     <el-dialog
@@ -97,21 +97,27 @@
             :title="Translate('IDCS_TIME_CUSTOMIZE')"
             width="500"
         >
-            <el-date-picker
-                v-model="pageData.selectDate"
-                :clearable="false"
-                :value-format="pageData.dateFormat"
-                :format="pageData.dateFormat"
-                :default-value="new Date()"
-                :style="{ marginLeft: '150px' }"
-            ></el-date-picker>
-            <div
-                class="base-btn-box"
-                :style="{ marginTop: '30px' }"
-            >
-                <el-button @click="addDateToList">{{ Translate('IDCS_OK') }}</el-button>
-                <el-button @click="closeAddDate">{{ Translate('IDCS_CANCEL') }}</el-button>
-            </div>
+            <el-form>
+                <el-form-item>
+                    <el-date-picker
+                        v-model="pageData.selectDate"
+                        :value-format="pageData.dateFormat"
+                        :format="pageData.dateFormat"
+                        :default-value="new Date()"
+                    />
+                </el-form-item>
+            </el-form>
+            <template #footer>
+                <el-row>
+                    <el-col
+                        :span="24"
+                        class="el-col-flex-end"
+                    >
+                        <el-button @click="addDateToList">{{ Translate('IDCS_OK') }}</el-button>
+                        <el-button @click="closeAddDate">{{ Translate('IDCS_CANCEL') }}</el-button>
+                    </el-col>
+                </el-row>
+            </template>
         </el-dialog>
     </el-dialog>
 </template>

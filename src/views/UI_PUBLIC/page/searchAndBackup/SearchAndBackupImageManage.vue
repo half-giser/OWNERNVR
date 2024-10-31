@@ -3,7 +3,7 @@
  * @Date: 2024-08-09 15:02:25
  * @Description: 搜索与备份-图片管理
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 14:39:43
+ * @LastEditTime: 2024-10-30 17:34:52
 -->
 <template>
     <div class="img-mgr base-flex-box">
@@ -14,19 +14,15 @@
                     v-model="pageData.startTime"
                     :value-format="dateTime.dateTimeFormat"
                     :format="dateTime.dateTimeFormat"
-                    :cell-class-name="highlightWeekend"
-                    clear-icon=""
                     type="datetime"
-                ></el-date-picker>
+                />
                 <label>{{ Translate('IDCS_END_TIME') }}</label>
                 <el-date-picker
                     v-model="pageData.endTime"
                     :value-format="dateTime.dateTimeFormat"
                     :format="dateTime.dateTimeFormat"
-                    :cell-class-name="highlightWeekend"
-                    clear-icon=""
                     type="datetime"
-                ></el-date-picker>
+                />
                 <el-button @click="search">{{ Translate('IDCS_SEARCH') }}</el-button>
             </div>
             <div>

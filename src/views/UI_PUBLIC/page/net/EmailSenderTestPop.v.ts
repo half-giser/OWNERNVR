@@ -3,7 +3,7 @@
  * @Date: 2024-07-10 16:50:11
  * @Description: Email测试发送弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-17 14:06:02
+ * @LastEditTime: 2024-10-30 15:04:45
  */
 import { type FormInstance, type FormRules } from 'element-plus'
 import { type NetEmailForm, NetEmailTestForm, type NetEmailReceiverDto } from '@/types/apiType/net'
@@ -117,19 +117,20 @@ export default defineComponent({
                     })
                     pageData.value.cacheAddress.push(formData.value.address)
 
-                    const itemXml = pageData.value.list
-                        .map((item) => {
-                            return rawXml`
-                            <item>
-                                <address>${item.address}</address>
-                                <schedule id="${item.schedule}"></schedule>
-                            </item>
-                        `
-                        })
-                        .join('')
                     const sendXml = rawXml`
                         <content>
-                            <receiver type="list">${itemXml}</receiver>
+                            <receiver type="list">
+                                ${pageData.value.list
+                                    .map((item) => {
+                                        return rawXml`
+                                            <item>
+                                                <address>${item.address}</address>
+                                                <schedule id="${item.schedule}"></schedule>
+                                            </item>
+                                        `
+                                    })
+                                    .join('')}
+                            </receiver>
                         </content>
                     `
                     const $$ = await editEmailCfg(sendXml)

@@ -9,7 +9,6 @@
     <div>
         <el-form
             :model="formData"
-            hide-required-asterisk
             label-width="150"
             :style="{
                 '--form-input-width': '340px',

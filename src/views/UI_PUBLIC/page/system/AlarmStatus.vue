@@ -3,7 +3,7 @@
  * @Date: 2024-06-28 11:45:24
  * @Description: 报警状态
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 09:34:59
+ * @LastEditTime: 2024-10-30 18:17:56
 -->
 <template>
     <div class="base-flex-box">
@@ -12,10 +12,10 @@
             :data="tableList"
             height="100%"
             stripe
+            highlight-current-row
             :row-key="(item) => item.id"
             :current-row-key="pageData.activeIndex"
             :expand-row-keys="pageData.activeRow"
-            :row-class-name="(item) => (item.rowIndex === pageData.activeIndex ? 'active' : '')"
             :show-header="false"
             @cell-click="handleChangeRow"
             @expand-change="handleExpandChange"

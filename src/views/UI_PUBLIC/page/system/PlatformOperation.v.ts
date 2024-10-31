@@ -144,22 +144,7 @@ export default defineComponent({
 
         const getData = async () => {
             openLoading()
-            const sendXml = rawXml`
-                <types>
-                    <nodeType>
-                        <enum>chls</enum>
-                        <enum>sensors</enum>
-                        <enum>alarmOuts</enum>
-                    </nodeType>
-                </types>
-                <nodeType type="nodeType">chls</nodeType>
-                <requireField>
-                    <name/>
-                    <chlIndex/>
-                    <chlType/>
-                </requireField>
-            `
-            const result = await queryNodeList(sendXml)
+            const result = await getChlList({})
             closeLoading()
             tableData.value = []
             commLoadResponseHandler(result, async ($) => {
@@ -265,9 +250,9 @@ export default defineComponent({
         const getFaultRepairSaveData = () => {
             const sendXml = rawXml`<content>
                 <item id='errorRepair'>
-                <errorType>${pageData.value.faultType}</errorType>
-                <errorParts>${pageData.value.chooseFaultType.join(',')}</errorParts>
-                <comment><![CDATA[${pageData.value.faultRecord}]]></comment>
+                    <errorType>${pageData.value.faultType}</errorType>
+                    <errorParts>${pageData.value.chooseFaultType.join(',')}</errorParts>
+                    <comment><![CDATA[${pageData.value.faultRecord}]]></comment>
                 </item>
                 </content>
             `
@@ -290,9 +275,9 @@ export default defineComponent({
         const getMaintenanceSignSaveData = () => {
             const sendXml = rawXml`<content>
                 <item id='keeperAssign'>
-                <keepType>${pageData.value.maintenance}</keepType>
-                <operationItem>${pageData.value.chooseMaintenanceType.join(',')}</operationItem>
-                <comment><![CDATA[${pageData.value.maintenanceRecord}]]></comment>
+                    <keepType>${pageData.value.maintenance}</keepType>
+                    <operationItem>${pageData.value.chooseMaintenanceType.join(',')}</operationItem>
+                    <comment><![CDATA[${pageData.value.maintenanceRecord}]]></comment>
                 </item>
                 </content>
             `
@@ -303,9 +288,9 @@ export default defineComponent({
         const getRepairSignSaveData = () => {
             const sendXml = rawXml`<content>
                 <item id='repairAssign'>
-                <repairResult>${pageData.value.repair}</repairResult>
-                <operationItem>${pageData.value.chooseRepairType.join(',')}</operationItem>
-                <comment><![CDATA[${pageData.value.repairRecord}]]></comment>
+                    <repairResult>${pageData.value.repair}</repairResult>
+                    <operationItem>${pageData.value.chooseRepairType.join(',')}</operationItem>
+                    <comment><![CDATA[${pageData.value.repairRecord}]]></comment>
                 </item>
                 </content>
             `

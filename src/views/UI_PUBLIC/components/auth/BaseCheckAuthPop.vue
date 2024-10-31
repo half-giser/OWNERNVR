@@ -16,7 +16,6 @@
             ref="formRef"
             :model="formData"
             :rules="rules"
-            hide-required-asterisk
         >
             <el-form-item
                 prop="userName"

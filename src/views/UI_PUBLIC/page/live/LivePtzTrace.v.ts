@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 16:07:46
  * @Description: 现场预览-云台视图-轨迹
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 18:34:50
+ * @LastEditTime: 2024-10-31 09:50:11
  */
 import ChannelTraceAddPop from '../channel/ChannelTraceAddPop.vue'
 import { type ChannelPtzTraceDto } from '@/types/apiType/channel'
@@ -67,8 +67,6 @@ export default defineComponent({
             // 最大录像时间
             maxRecordTime: DEFAULT_RECORD_TIME,
         })
-
-        let timer: NodeJS.Timeout | number = 0
 
         // 列表数据
         const listData = ref<ChannelPtzTraceDto[]>([])
@@ -222,14 +220,15 @@ export default defineComponent({
             })
         }
 
+        const timer = useClock(() => {}, 1000)
+
         /**
          * @description 重置录像状态
          */
         const resetRecord = () => {
             pageData.value.recordStatus = false
             pageData.value.recordTime = DEFAULT_RECORD_TIME
-            clearInterval(timer)
-            timer = 0
+            timer.stop()
         }
 
         /**
@@ -262,12 +261,13 @@ export default defineComponent({
                 await startChlPtzTrace(sendXml)
 
                 pageData.value.recordTime = DEFAULT_RECORD_TIME - 1
-                timer = setInterval(() => {
+                timer.update(() => {
                     pageData.value.recordTime--
                     if (pageData.value.recordTime < 0) {
                         stopRecord(index)
                     }
-                }, 1000)
+                })
+                timer.repeat()
             }
         }
 

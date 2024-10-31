@@ -71,7 +71,6 @@ export default defineComponent({
                 case 'fishEyeMode':
                     const fishEyeMode = val as string
                     tableData.value.forEach((ele) => {
-                        console.log(ele.disabled)
                         if (!ele.disabled) {
                             ele.fishEyeMode = fishEyeMode
                             editRows.add(ele)
@@ -82,7 +81,6 @@ export default defineComponent({
                 case 'installType':
                     const installType = val as string
                     tableData.value.forEach((ele) => {
-                        console.log(ele.disabled)
                         if (!ele.disabled) {
                             ele.installType = installType
                             editRows.add(ele)

@@ -3,7 +3,7 @@
  * @Date: 2024-08-12 14:21:22
  * @Description: email通知
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 15:19:00
+ * @LastEditTime: 2024-10-30 15:00:27
  */
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import { EmailReceiver } from '@/types/apiType/aiAndEvent'
@@ -208,20 +208,22 @@ export default defineComponent({
         }
 
         const handleApply = () => {
-            let sendXml = rawXml`
-            <content>   
-                <receiver type="list">
-                `
-            tableData.value.forEach((item) => {
-                sendXml += rawXml`
-                    <item>
-                        <address><![CDATA[${item.address}]]></address>
-                        <schedule id="${item.schedule}"></schedule>
-                    </item>
-                `
-            })
-            sendXml += rawXml`</receiver>
-                            </content>`
+            const sendXml = rawXml`
+                <content>   
+                    <receiver type="list">
+                        ${tableData.value
+                            .map((item) => {
+                                return rawXml`
+                                    <item>
+                                        <address>${wrapCDATA(item.address)}</address>
+                                        <schedule id="${item.schedule}"></schedule>
+                                    </item>
+                                `
+                            })
+                            .join('')}
+                    </receiver>
+                </content>
+            `
             openLoading()
             editEmailCfg(sendXml).then((res) => {
                 closeLoading()

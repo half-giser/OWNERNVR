@@ -3,7 +3,7 @@
  * @Date: 2024-09-20 09:10:22
  * @Description: P2P授权码登录
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 20:10:44
+ * @LastEditTime: 2024-10-31 09:29:19
  */
 import type { FormInstance, FormRules } from 'element-plus'
 import { AuthCodeLoginForm } from '@/types/apiType/user'
@@ -84,8 +84,6 @@ export default defineComponent({
             ],
         })
 
-        let timer: NodeJS.Timeout | number = 0
-
         /**
          * @description 更换语言，重新请求语言列表
          */
@@ -143,7 +141,7 @@ export default defineComponent({
                 case ErrorCode.USER_ERROR_PWD_ERR: // 密码错误
                 case ErrorCode.USER_ERROR_USER_LOCKED: // 设备登录被锁定
                     if (errorCode == ErrorCode.USER_ERROR_USER_LOCKED) {
-                        stopCountDownTime()
+                        timer.stop()
                         pageData.value.authCodeDisabled = true
                     }
                     handleUserLockedError(errorCode, errorDescription)
@@ -315,17 +313,19 @@ export default defineComponent({
             window.location.href = '/index.html'
         }
 
+        const timer = useClock(() => {
+            pageData.value.expireTime--
+            if (pageData.value.expireTime <= 0) {
+                timer.stop()
+            }
+        }, 1000)
+
         /**
          * @description 开始倒计时
          */
         const startCountDownTime = () => {
             pageData.value.expireTime = 180
-            timer = setInterval(() => {
-                pageData.value.expireTime--
-                if (pageData.value.expireTime <= 0) {
-                    stopCountDownTime()
-                }
-            }, 999)
+            timer.repeat()
         }
 
         /**
@@ -335,13 +335,6 @@ export default defineComponent({
             const unit = pageData.value.expireTime > 60 ? Translate('IDCS_SECONDS') : Translate('IDCS_SECOND')
             return `(${pageData.value.expireTime} ${unit})`
         })
-
-        /**
-         * @description 结束倒计时
-         */
-        const stopCountDownTime = () => {
-            clearInterval(timer)
-        }
 
         /**
          * @description 验证登录表单
@@ -400,7 +393,6 @@ export default defineComponent({
         })
 
         onBeforeUnmount(() => {
-            stopCountDownTime()
             Plugin.SetLoginTypeCallback()
             userSession.refreshLoginPage = false
         })

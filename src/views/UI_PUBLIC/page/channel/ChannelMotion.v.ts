@@ -29,10 +29,12 @@ export default defineComponent({
         const editRows = new Set<ChannelMotion>()
         const switchOptions = getBoolSwitchOptions()
         let motionDrawer: CanvasMotion
-        let motionDectionStatusTimer: NodeJS.Timeout | number = 0
         let motionAlarmList: string[] = []
 
         const REFRESH_INTERVAL = 3000
+        const alarmStatusTimer = useRefreshTimer(() => {
+            getAlarmStatus()
+        }, REFRESH_INTERVAL)
 
         const holdTimeList = ref<string[]>([])
 
@@ -216,11 +218,11 @@ export default defineComponent({
                         motionAlarmList = $('content/motions/item').map((ele) => {
                             return queryXml(ele.element)('sourceChl').attr('id')!
                         })
-                        motionDectionStatusTimer = setTimeout(getAlarmStatus, REFRESH_INTERVAL)
+                        alarmStatusTimer.repeat()
                     }
                 })
             } else {
-                motionDectionStatusTimer = setTimeout(getAlarmStatus, REFRESH_INTERVAL)
+                alarmStatusTimer.repeat()
             }
         }
 
@@ -430,7 +432,7 @@ export default defineComponent({
 
         onMounted(() => {
             if (import.meta.env.VITE_UI_TYPE !== 'UI2-A') {
-                getAlarmStatus()
+                alarmStatusTimer.repeat(true)
             }
             getDataList()
         })
@@ -445,7 +447,6 @@ export default defineComponent({
                     motionDrawer?.destroy()
                 }
             }
-            clearTimeout(motionDectionStatusTimer)
         })
 
         return {

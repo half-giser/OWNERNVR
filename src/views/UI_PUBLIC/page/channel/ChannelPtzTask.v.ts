@@ -3,7 +3,7 @@
  * @Date: 2024-08-22 15:15:52
  * @Description: 云台-任务
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 15:39:02
+ * @LastEditTime: 2024-10-30 18:36:06
  */
 import { cloneDeep } from 'lodash-es'
 import { ChannelPtzTaskDto, type ChannelPtzTaskChlDto, ChannelPtzTaskForm } from '@/types/apiType/channel'
@@ -26,7 +26,9 @@ export default defineComponent({
         // 任务数最大值
         const TASK_LIMIT = 8
 
-        let timer: NodeJS.Timeout | number = 0
+        const renderTaskListTimer = useRefreshTimer(() => {
+            renderTaskList()
+        }, 2000)
 
         // 功能与显示文本的映射
         const TYPE_TRANS_MAPPING: Record<string, string> = {
@@ -335,23 +337,13 @@ export default defineComponent({
          * @description 定时获取任务列表
          */
         const renderTaskList = async () => {
-            stopRenderTaskList()
+            renderTaskListTimer.stop()
             if (pageData.value.expandRowKey.length) {
                 await getTaskList(pageData.value.expandRowKey[0])
             } else if (taskTableData.value.length) {
                 taskTableData.value = []
             }
-            timer = setTimeout(() => {
-                renderTaskList()
-            }, 2000)
-        }
-
-        /**
-         * @description 停止定时获取任务列表
-         */
-        const stopRenderTaskList = () => {
-            clearTimeout(timer)
-            timer = 0
+            renderTaskListTimer.repeat()
         }
 
         /**
@@ -418,7 +410,7 @@ export default defineComponent({
          */
         const changeTaskStatus = async () => {
             if (pageData.value.expandRowKey.length) {
-                stopRenderTaskList()
+                renderTaskListTimer.stop()
                 const chlId = pageData.value.expandRowKey[0]
                 const status = !pageData.value.taskStatus
                 await setTask(chlId, status, taskTableData.value)
@@ -432,7 +424,7 @@ export default defineComponent({
          * @param {ChannelPtzTaskDto} row
          */
         const editTask = (row: ChannelPtzTaskDto) => {
-            stopRenderTaskList()
+            renderTaskListTimer.stop()
             pageData.value.isEditPop = true
             pageData.value.editData = { ...row }
             pageData.value.editChlId = pageData.value.expandRowKey[0]
@@ -472,7 +464,7 @@ export default defineComponent({
                 message: Translate('IDCS_DELETE_ALL_ITEMS'),
             }).then(async () => {
                 if (pageData.value.expandRowKey.length) {
-                    stopRenderTaskList()
+                    renderTaskListTimer.stop()
                     const chlId = pageData.value.expandRowKey[0]
                     await setTask(chlId, false, [])
                     renderTaskList()
@@ -515,7 +507,7 @@ export default defineComponent({
         const setData = () => {
             formRef.value?.validate(async (valid) => {
                 if (valid) {
-                    stopRenderTaskList()
+                    renderTaskListTimer.stop()
                     const chlId = tableData.value[pageData.value.tableIndex].chlId
                     const result = await getTaskList(chlId, false)
                     result.data.push({
@@ -642,14 +634,14 @@ export default defineComponent({
             if (!expanded.length) {
                 taskTableData.value = []
                 pageData.value.expandRowKey = []
-                stopRenderTaskList()
+                renderTaskListTimer.stop()
             }
 
             if (expanded.some((item) => item.chlId === row.chlId)) {
                 tableRef.value?.setCurrentRow(row)
                 taskTableData.value = []
                 pageData.value.expandRowKey = [row.chlId]
-                renderTaskList()
+                renderTaskListTimer.repeat(true)
             }
         }
 
@@ -676,7 +668,6 @@ export default defineComponent({
         })
 
         onBeforeUnmount(() => {
-            stopRenderTaskList()
             if (plugin?.IsPluginAvailable() && mode.value === 'ocx' && ready.value) {
                 const sendXML = OCX_XML_StopPreview('ALL')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)

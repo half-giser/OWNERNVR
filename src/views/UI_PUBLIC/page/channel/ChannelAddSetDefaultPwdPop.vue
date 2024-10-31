@@ -61,6 +61,7 @@
                             :ref="(ref) => (passwordInputRef[scope.$index] = ref)"
                             v-model="scope.row.password"
                             type="password"
+                            maxlength="64"
                             @blur="handlePwdViewChange(scope.$index, scope.row)"
                         />
                     </template>

@@ -63,7 +63,6 @@ const dateTime = useDateTimeStore()
 const handlePrev = () => {
     const oldValue = [...props.modelValue]
     let current: [number, number] = [0, 0]
-    console.log(props.type)
 
     switch (props.type) {
         case 'date':

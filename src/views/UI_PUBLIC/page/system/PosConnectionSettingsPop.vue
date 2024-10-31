@@ -21,7 +21,6 @@
                 '--form-label-width': '100px',
             }"
             inline-message
-            hide-required-asterisk
         >
             <el-form-item
                 :label="Translate('IDCS_POS_IP')"

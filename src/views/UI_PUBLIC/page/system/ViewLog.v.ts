@@ -661,7 +661,6 @@ export default defineComponent({
 
         return {
             dateTime,
-            highlightWeekend,
             formData,
             tableList,
             pageData,

@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 18:07:29
  * @Description: 现场预览
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-29 18:02:48
+ * @LastEditTime: 2024-10-30 09:20:46
  */
 import { cloneDeep } from 'lodash-es'
 import { type LiveChannelList, type LiveCustomViewChlList, LiveSharedWinData } from '@/types/apiType/live'
@@ -478,7 +478,7 @@ export default defineComponent({
         /**
          * @description 播放器准备就绪回调
          */
-        const handlePlayerReady = async () => {
+        const handlePlayerReady = () => {
             player = playerRef.value!.player
             plugin = playerRef.value!.plugin
 
@@ -513,32 +513,21 @@ export default defineComponent({
                     plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 }
 
-                const productModel = await getDeviceInfo()
                 plugin.VideoPluginNotifyEmitter.addListener(notify)
 
-                {
-                    const sendXML = OCX_XML_SetProperty({
-                        calendarType: userSession.calendarType,
-                        supportRecStatus: true,
-                        supportImageRotate: systemCaps.supportImageRotate,
-                        showVideoLossMessage: systemCaps.showVideoLossMessage,
-                        productModel: productModel,
-                    })
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                    // 视频预览默认铺满显示，设置走廊模式旋转时，需要选择“原始比例”显示
-                    if (systemCaps.supportOriginalDisplay) {
-                        pageData.value.winData.original = true
-                    }
+                const sendXML = OCX_XML_SetProperty({
+                    calendarType: userSession.calendarType,
+                    supportRecStatus: true,
+                    supportImageRotate: systemCaps.supportImageRotate,
+                    showVideoLossMessage: systemCaps.showVideoLossMessage,
+                    productModel: systemCaps.productModel,
+                })
+                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                // 视频预览默认铺满显示，设置走廊模式旋转时，需要选择“原始比例”显示
+                if (systemCaps.supportOriginalDisplay) {
+                    pageData.value.winData.original = true
                 }
             }
-        }
-
-        /**
-         * @description 获取产品型号
-         */
-        const getDeviceInfo = async () => {
-            const result = await queryBasicCfg()
-            return queryXml(result)('//content/productModel').text()
         }
 
         /**

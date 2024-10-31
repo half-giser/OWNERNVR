@@ -3,7 +3,7 @@
  * @Date: 2024-08-21 13:35:06
  * @Description: 云台-巡航线
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 14:37:27
+ * @LastEditTime: 2024-10-30 14:02:28
 -->
 <template>
     <div class="base-chl-box">
@@ -87,7 +87,7 @@
                             :hover-index="2"
                             :disabled-index="3"
                             :chunk="4"
-                            :disabled="!formData.name || !cruiseOptions.length"
+                            :disabled="!formData.name.trim() || !cruiseOptions.length"
                             @click="saveName"
                         />
                     </el-tooltip>

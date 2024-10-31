@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 16:07:59
  * @Description: 现场预览-底部视图-手动报警
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 16:17:30
+ * @LastEditTime: 2024-10-30 18:51:42
  */
 import { type LiveAlarmList } from '@/types/apiType/live'
 
@@ -18,7 +18,9 @@ export default defineComponent({
         // 报警间隔
         const ALARM_INTERVAL_TIME = 5000
 
-        let timer: NodeJS.Timeout | number = 0
+        const alarmOutStatusTimer = useRefreshTimer(() => {
+            getStatus()
+        }, ALARM_INTERVAL_TIME)
 
         const pageData = ref({
             // 是否显示报警弹窗框
@@ -83,9 +85,7 @@ export default defineComponent({
                 })
 
             if (pageData.value.isAlarmPop) {
-                timer = setTimeout(() => {
-                    getStatus()
-                }, ALARM_INTERVAL_TIME)
+                alarmOutStatusTimer.repeat()
             }
         }
 
@@ -131,7 +131,6 @@ export default defineComponent({
 
             if ($('//status').text() === 'success') {
                 if (ids.length === 1) {
-                    console.log(index, tableData.value[index])
                     tableData.value[index].switch = status
 
                     if (import.meta.env.VITE_UI_TYPE === 'UI2-A' && status && tableData.value[index].delay > 0) {
@@ -169,19 +168,15 @@ export default defineComponent({
             () => pageData.value.isAlarmPop,
             (val) => {
                 if (val) {
-                    getStatus()
+                    alarmOutStatusTimer.repeat(true)
                 } else {
-                    clearTimeout(timer)
+                    alarmOutStatusTimer.stop()
                 }
             },
             {
                 immediate: true,
             },
         )
-
-        onBeforeUnmount(() => {
-            clearTimeout(timer)
-        })
 
         return {
             pageData,

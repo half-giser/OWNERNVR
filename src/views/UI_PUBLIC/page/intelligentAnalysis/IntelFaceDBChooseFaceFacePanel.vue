@@ -3,7 +3,7 @@
  * @Date: 2024-08-30 11:57:52
  * @Description: 智能分析 - 选择人脸 - 从人脸库选择
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-12 20:21:37
+ * @LastEditTime: 2024-10-30 10:54:50
 -->
 <template>
     <div class="feature">
@@ -61,8 +61,8 @@
                 <div>
                     <el-pagination
                         v-model:current-page="formData.pageIndex"
-                        :page-size="18"
-                        :page-sizes="[18]"
+                        v-model:page-size="formData.pageSize"
+                        :page-sizes="[formData.pageSize]"
                         :total="listData.length"
                         @current-change="changePage"
                     />

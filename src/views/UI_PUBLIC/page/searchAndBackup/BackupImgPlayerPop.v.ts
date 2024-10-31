@@ -3,7 +3,7 @@
  * @Date: 2024-08-12 13:46:14
  * @Description: 图片浏览器
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-04 17:59:29
+ * @LastEditTime: 2024-10-30 19:23:06
  */
 import { type PlaybackSearchImgList } from '@/types/apiType/playback'
 
@@ -49,8 +49,6 @@ export default defineComponent({
             paused: true,
         })
 
-        let timer: NodeJS.Timeout | number = 0
-
         /**
          * @description 获取图像URL
          * @returns {String}
@@ -85,19 +83,21 @@ export default defineComponent({
             ctx.emit('close')
         }
 
+        const timer = useRefreshTimer(() => {
+            if (prop.item.index >= prop.total) {
+                pause()
+                return
+            }
+            ctx.emit('next')
+            play()
+        }, 3000)
+
         /**
          * @description 自动播放图像
          */
         const play = () => {
             pageData.value.paused = false
-            timer = setTimeout(() => {
-                if (prop.item.index >= prop.total) {
-                    pause()
-                    return
-                }
-                ctx.emit('next')
-                play()
-            }, 3000)
+            timer.repeat()
         }
 
         /**
@@ -105,7 +105,7 @@ export default defineComponent({
          */
         const pause = () => {
             pageData.value.paused = true
-            clearTimeout(timer)
+            timer.stop()
         }
 
         /**
@@ -117,10 +117,6 @@ export default defineComponent({
             if (!timestamp) return ''
             return formatDate(timestamp, dateTime.dateTimeFormat)
         }
-
-        onBeforeUnmount(() => {
-            pause()
-        })
 
         return {
             pageData,

@@ -3,7 +3,7 @@
  * @Date: 2024-07-31 16:36:16
  * @Description: 排程编辑弹框
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-22 19:55:18
+ * @LastEditTime: 2024-10-30 11:57:58
 -->
 <template>
     <el-dialog
@@ -27,7 +27,12 @@
                         :label="Translate('IDCS_SCHEDULE_NAME')"
                         prop="name"
                     >
-                        <el-input v-model="formData.name" />
+                        <el-input
+                            v-model="formData.name"
+                            :formatter="formatInputMaxLength"
+                            :parser="formatInputMaxLength"
+                            :maxlength="nameByteMaxLen"
+                        />
                         <el-radio-group
                             v-model="pageData.dragAction"
                             class="radio-group"

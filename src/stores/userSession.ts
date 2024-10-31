@@ -173,6 +173,7 @@ export const useUserSessionStore = defineStore(
                 const CustomerID = $('content/CustomerID').text()
                 cababilityStore.CustomerID = Number(CustomerID)
                 cababilityStore.AISwitch = $('content/AISwitch').text().toBoolean()
+                cababilityStore.productModel = $('content/productModel').text()
             })
 
             // 从磁盘信息获取Raid

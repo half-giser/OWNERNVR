@@ -15,7 +15,6 @@
             :style="{
                 '--form-input-width': '340px',
             }"
-            hide-required-asterisk
             inline-message
         >
             <el-form-item

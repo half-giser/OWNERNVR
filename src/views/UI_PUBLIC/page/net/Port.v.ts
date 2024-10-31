@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 18:47:07
  * @Description: 网络端口
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-21 13:46:03
+ * @LastEditTime: 2024-10-30 12:02:54
  */
 import { NetPortForm, NetPortUPnPDto, NetPortApiServerForm, NetPortRtspServerForm } from '@/types/apiType/net'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -67,7 +67,6 @@ export default defineComponent({
                 {
                     validator(_rules, value, callback) {
                         const error = validatePort('posPort', Number(value))
-                        console.log(error)
                         if (error) {
                             callback(new Error(error))
                             return
@@ -355,37 +354,12 @@ export default defineComponent({
                 SERVICE: portFormData.value.netPort,
                 POS: portFormData.value.posPort,
             }
-            const portsItem = pageData.value.upnp.ports
-                .map((item) => {
-                    const externalPort = pageData.value.upnp.mappingType === 'auto' ? String(portTypeMapping[item.portType]) : item.externalPort
-                    return rawXml`
-                    <item>
-                        <portType>${item.portType}</portType>
-                        <externalPort>${externalPort}</externalPort>
-                        ${item.externalIP ? `<externalIP>${item.externalIP}</externalIP>` : ''}
-                        <localPort>${item.localPort}</localPort>
-                        <status>${item.status}</status>
-                    </item>
-                `
-                })
-                .join('')
+
             const sendXml = rawXml`
                 <types>
-                    <mappingType>
-                        <enum>auto</enum>
-                        <enum>manually</enum>
-                    </mappingType>
-                    <portType>
-                        <enum>HTTP</enum>
-                        <enum>HTTPS</enum>
-                        <enum>RTSP</enum>
-                        <enum>SERVICE</enum>
-                        <enum>POS</enum>
-                    </portType>
-                    <statusType>
-                        <enum>effective</enum>
-                        <enum>ineffective</enum>
-                    </statusType>
+                    <mappingType>${wrapEnums(['auto', 'manually'])}</mappingType>
+                    <portType>${wrapEnums(['HTTP', 'HTTPS', 'RTSP', 'SERVICE', 'POS'])}</portType>
+                    <statusType>${wrapEnums(['effective', 'ineffective'])}</statusType>
                 </types>
                 <content>
                     <switch>${pageData.value.upnp.switch}</switch>
@@ -395,7 +369,20 @@ export default defineComponent({
                             <portType type='portType'/>
                             <status type='statusType'/>
                         </itemType>
-                        ${portsItem}
+                        ${pageData.value.upnp.ports
+                            .map((item) => {
+                                const externalPort = pageData.value.upnp.mappingType === 'auto' ? String(portTypeMapping[item.portType]) : item.externalPort
+                                return rawXml`
+                                    <item>
+                                        <portType>${item.portType}</portType>
+                                        <externalPort>${externalPort}</externalPort>
+                                        ${item.externalIP ? `<externalIP>${item.externalIP}</externalIP>` : ''}
+                                        <localPort>${item.localPort}</localPort>
+                                        <status>${item.status}</status>
+                                    </item>
+                                `
+                            })
+                            .join('')}
                     </ports>
                 </content>
             `

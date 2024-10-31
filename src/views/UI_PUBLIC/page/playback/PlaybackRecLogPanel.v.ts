@@ -330,7 +330,6 @@ export default defineComponent({
          */
         const download = (row: PlaybackRecLogList) => {
             pageData.value.visible = false
-            console.log(row)
             ctx.emit('download', row)
         }
 
@@ -338,7 +337,6 @@ export default defineComponent({
          * @description 刷新列表
          */
         const refresh = () => {
-            console.log(prop.chls.length, prop.playStatus)
             if (prop.chls.length) {
                 if (prop.playStatus === 'play' || prop.playStatus === 'pending') {
                     getRecList()
@@ -352,7 +350,6 @@ export default defineComponent({
         watch(
             () => prop.chls,
             () => {
-                console.log('update chl', prop.chls)
                 nextTick(() => refresh())
             },
             {
@@ -373,7 +370,6 @@ export default defineComponent({
                 if (tableData.value.length === prop.chls.length) {
                     return
                 }
-                // console.log('playstatus', prop.playStatus)
                 nextTick(() => refresh())
             },
             {

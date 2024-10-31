@@ -16,7 +16,6 @@
                 '--form-label-width': '200px',
                 '--form-input-width': '250px',
             }"
-            hide-required-asterisk
             inline-message
         >
             <el-form-item

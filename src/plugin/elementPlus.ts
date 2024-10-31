@@ -3,9 +3,10 @@
  * @Date: 2024-10-25 09:17:39
  * @Description: Element Plus的默认值设置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-28 09:19:26
+ * @LastEditTime: 2024-10-30 17:27:18
  */
-import { ElDialog, ElInputNumber, ElPagination, ElForm, ElTooltip, ElSelect, ElTable, ElDropdown, ElPopover } from 'element-plus'
+import { ElDialog, ElInputNumber, ElPagination, ElForm, ElTooltip, ElSelect, ElTable, ElDropdown, ElPopover, ElDatePicker } from 'element-plus'
+import { type PropType } from 'vue'
 
 ElPagination.props.layout = {
     type: String,
@@ -15,6 +16,7 @@ ElPagination.props.layout = {
 ElPagination.props.pageSizes = {
     type: Array as PropType<number[]>,
     default: () => [10, 20, 30],
+    required: false,
 }
 
 ElPagination.props.size = {
@@ -65,6 +67,11 @@ ElForm.props.labelPosition = {
     default: 'left',
 }
 
+ElForm.props.hideRequiredAsterisk = {
+    type: Boolean,
+    default: true,
+}
+
 ElTooltip.props.showAfter = {
     type: Number,
     default: 500,
@@ -98,4 +105,14 @@ ElPopover.props.hideAfter = {
 ElPopover.props.trigger = {
     type: String,
     default: 'click',
+}
+
+ElDatePicker.props.cellClassName = {
+    type: Function as PropType<(data: Date) => string>,
+    default: highlightWeekend,
+}
+
+ElDatePicker.props.clearable = {
+    type: Boolean,
+    default: false,
 }

@@ -3,10 +3,9 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-13 09:23:25
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 11:10:14
+ * @LastEditTime: 2024-10-30 15:48:12
  */
 import { ipcAudioForm, type AudioAlarmOut, type AudioDevice, type LocalTableRow } from '@/types/apiType/aiAndEvent'
-import { QueryNodeListDto } from '@/types/apiType/channel'
 import UploadAudioPop from './UploadAudioPop.vue'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import { type TableInstance } from 'element-plus'
@@ -107,10 +106,9 @@ export default defineComponent({
 
         // 获取语音播报信息
         const getAudioAlarmData = async () => {
-            const queryNodeListDto = new QueryNodeListDto()
-            queryNodeListDto.isSupportAudioAlarmOut = true
-            queryNodeListDto.nodeType = 'chls'
-            getChlList(queryNodeListDto).then((result) => {
+            getChlList({
+                isSupportAudioAlarmOut: true,
+            }).then((result) => {
                 commLoadResponseHandler(result, ($) => {
                     if ($('//content').attr('total') == '0') {
                         audioAlarmPageData.value.chlDisabled = true
@@ -136,12 +134,12 @@ export default defineComponent({
 
         const getAudioAlarmDataById = async (id: string, name: string) => {
             const sendXml = rawXml`
-            <condition>
-                <chlId>${id}</chlId>
-            </condition>
-            <requireField>
-                <param></param>
-            </requireField>
+                <condition>
+                    <chlId>${id}</chlId>
+                </condition>
+                <requireField>
+                    <param></param>
+                </requireField>
             `
             const result = await queryAudioAlarmOutCfg(sendXml)
             const $ = queryXml(result)

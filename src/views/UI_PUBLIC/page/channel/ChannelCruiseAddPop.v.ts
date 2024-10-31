@@ -3,7 +3,7 @@
  * @Date: 2024-08-21 17:51:18
  * @Description: 云台-巡航线-新增弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 11:38:00
+ * @LastEditTime: 2024-10-30 13:54:00
  */
 import { type ChannelPtzCruiseDto, type ChannelPtzCruisePresetDto } from '@/types/apiType/channel'
 import type { FormInstance, FormRules, TableInstance } from 'element-plus'
@@ -120,21 +120,22 @@ export default defineComponent({
         const setData = async () => {
             openLoading()
 
-            const presets = tableData.value
-                .map((item) => {
-                    return rawXml`
-                        <item index="${item.index.toString()}">
-                            <speed>${item.speed.toString()}</speed>
-                            <holdTime>${item.holdTime.toString()}</holdTime>
-                        </item>
-                    `
-                })
-                .join('')
             const sendXml = rawXml`
                 <content>
-                    <name>${wrapCDATA(formData.value.name)}</name>
+                    <name maxByteLen="63">${wrapCDATA(formData.value.name)}</name>
                     <chlId>${prop.chlId}</chlId>
-                    <presets type="list">${presets}</presets>
+                    <presets type="list">
+                        ${tableData.value
+                            .map((item) => {
+                                return rawXml`
+                                    <item index="${item.index.toString()}">
+                                        <speed>${item.speed.toString()}</speed>
+                                        <holdTime>${item.holdTime.toString()}</holdTime>
+                                    </item>
+                                `
+                            })
+                            .join('')}
+                    </presets>
                 </content>
             `
             const result = await createChlCruise(sendXml)

@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 18:39:25
  * @Description: 回放
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 14:18:02
+ * @LastEditTime: 2024-10-30 09:27:04
 -->
 <template>
     <div class="playback">
@@ -187,6 +187,7 @@
     border: 1px solid var(--input-border);
     display: flex;
     font-size: 14px;
+    min-width: 1500px;
 }
 
 .center {

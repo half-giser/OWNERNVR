@@ -3,7 +3,7 @@
  * @Date: 2024-06-14 09:47:42
  * @Description: 新增用户
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 09:49:54
+ * @LastEditTime: 2024-10-30 17:02:49
  */
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import { UserAddForm, type UserAuthGroupOption } from '@/types/apiType/userAndSecurity'
@@ -187,7 +187,7 @@ export default defineComponent({
 
             const sendXml = rawXml`
                 <content>
-                    <userName>${wrapCDATA(formData.value.userName)}</userName>
+                    <userName maxByteLen="63">${wrapCDATA(formData.value.userName)}</userName>
                     <password ${getSecurityVer()}>${wrapCDATA(AES_encrypt(MD5_encrypt(formData.value.password), userSession.sesionKey))}</password>
                     <email>${wrapCDATA(formData.value.email)}</email>
                     <modifyPassword>${formData.value.allowModifyPassword.toString()}</modifyPassword>

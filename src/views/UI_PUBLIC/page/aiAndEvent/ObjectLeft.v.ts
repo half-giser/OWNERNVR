@@ -2,8 +2,8 @@
  * @Description: AI 事件——更多——物品遗留与看护
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-18 09:43:49
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-28 15:35:54
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-30 16:21:37
  */
 import { cloneDeep } from 'lodash-es'
 import { type BoundaryItem, ObjectLeft, type PresetList, type chlCaps } from '@/types/apiType/aiAndEvent'
@@ -69,24 +69,7 @@ export default defineComponent({
         const MAX_TRIGGER_PRESET_COUNT = 16
         const PresetTableData = ref<PresetList[]>([])
 
-        const closeTip: Record<string, string> = {
-            cdd: Translate('IDCS_CROWD_DENSITY_DETECTION'),
-            cpc: Translate('IDCS_PASS_LINE_COUNT_DETECTION'),
-            ipd: Translate('IDCS_INVADE_DETECTION'),
-            tripwire: Translate('IDCS_BEYOND_DETECTION'),
-            osc: Translate('IDCS_WATCH_DETECTION'),
-            avd: Translate('IDCS_ABNORMAL_DETECTION'),
-            perimeter: Translate('IDCS_INVADE_DETECTION'),
-            vfd: Translate('IDCS_FACE_DETECTION'),
-            aoientry: Translate('IDCS_INVADE_DETECTION'),
-            aoileave: Translate('IDCS_INVADE_DETECTION'),
-            passlinecount: Translate('IDCS_PASS_LINE_COUNT_DETECTION'),
-            h264s: Translate('IDCS_VIDEO_ENCT_TYPE_H264_SMART'),
-            h265s: Translate('IDCS_VIDEO_ENCT_TYPE_H265_SMART'),
-            vehicle: Translate('IDCS_PLATE_DETECTION'),
-            fire: Translate('IDCS_FIRE_POINT_DETECTION'),
-            vsd: Translate('IDCS_VSD_DETECTION'),
-        }
+        const closeTip = getAlarmEventList()
 
         // 页面数据
         const pageData = ref({
@@ -263,9 +246,14 @@ export default defineComponent({
 
         const getObjectLeftData = async () => {
             const sendXml = rawXml`
-                <condition><chlId>${prop.currChlId}</chlId></condition>
-                <requireField><param/><trigger/></requireField>
-                `
+                <condition>
+                    <chlId>${prop.currChlId}</chlId>
+                </condition>
+                <requireField>
+                    <param/>
+                    <trigger/>
+                </requireField>
+            `
             openLoading()
             const result = await queryOsc(sendXml)
             closeLoading()
@@ -348,7 +336,7 @@ export default defineComponent({
                     regulation: $('//content/chl/param/boundary').attr('regulation') == '1', // 区别联咏ipc标志
                     boundary,
                     mutexList,
-                    maxNameLength: Number($('//content/chl/param/boundary/item/name').attr('maxLen')),
+                    maxNameLength: Number($('//content/chl/param/boundary/item/name').attr('maxLen')) || 15,
                     record,
                     alarmOut,
                     preset,
@@ -662,69 +650,83 @@ export default defineComponent({
         }
 
         const getObjectLeftSaveData = () => {
-            let sendXml = rawXml`<content>
-                <chl id='${prop.currChlId}' scheduleGuid='${objectLeftData.value.schedule}'>
-                <param>
-                <switch>${String(objectLeftData.value.enabledSwitch)}</switch>
-                <holdTime unit='s'>${objectLeftData.value.holdTime}</holdTime>
-                <oscType>${objectLeftData.value.oscType}</oscType>
-                <boundary type='list' count='${String(objectLeftData.value.boundary.length)}'>
-                <itemType>
-                <point type='list'/>
-                </itemType>
+            const sendXml = rawXml`
+                <content>
+                    <chl id='${prop.currChlId}' scheduleGuid='${objectLeftData.value.schedule}'>
+                        <param>
+                            <switch>${String(objectLeftData.value.enabledSwitch)}</switch>
+                            <holdTime unit='s'>${objectLeftData.value.holdTime}</holdTime>
+                            <oscType>${objectLeftData.value.oscType}</oscType>
+                            <boundary type='list' count='${String(objectLeftData.value.boundary.length)}'>
+                                <itemType>
+                                    <point type='list'/>
+                                </itemType>
+                                ${objectLeftData.value.boundary
+                                    .map((item) => {
+                                        return rawXml`
+                                            <item>
+                                                <name maxLen='${objectLeftData.value.maxNameLength.toString()}'><![CDATA[${item.areaName}]]></name>
+                                                <point type='list' maxCount='6' count='${String(item.points.length)}'>
+                                                    ${item.points
+                                                        .map((ele) => {
+                                                            return rawXml`
+                                                                <item>
+                                                                    <X>${ele.X.toString()}</X>
+                                                                    <Y>${ele.Y.toString()}</Y>
+                                                                </item>`
+                                                        })
+                                                        .join('')}
+                                                </point>
+                                            </item>
+                                        `
+                                    })
+                                    .join('')}
+                            </boundary>
+                        </param>
+                        <trigger>
+                            <sysRec>
+                                <chls type='list'>
+                                    ${objectLeftData.value.record
+                                        .map((item) => {
+                                            return `<item id='${item.value}'><![CDATA[${item.label}]]></item>`
+                                        })
+                                        .join('')}
+                                </chls>
+                            </sysRec>
+                            <alarmOut>
+                                <alarmOuts type='list'>
+                                    ${objectLeftData.value.alarmOut
+                                        .map((item) => {
+                                            return `<item id='${item.value}'><![CDATA[${item.label}]]></item>`
+                                        })
+                                        .join('')}
+                                </alarmOuts>
+                            </alarmOut>
+                            <preset>
+                                <presets type='list'>
+                                    ${objectLeftData.value.preset
+                                        .map((item) => {
+                                            return rawXml`
+                                                <item>
+                                                    <index>${item.index}</index>
+                                                    <name><![CDATA[${item.name}]]></name>
+                                                    <chl id='${item.chl.value}'><![CDATA[${item.chl.label}]]></chl>
+                                                </item>`
+                                        })
+                                        .join('')}
+                                </presets>
+                            </preset>
+                            <snapSwitch>${String(objectLeftData.value.catchSnapSwitch)}</snapSwitch>
+                            <msgPushSwitch>${String(objectLeftData.value.msgPushSwitch)}</msgPushSwitch>
+                            <buzzerSwitch>${String(objectLeftData.value.buzzerSwitch)}</buzzerSwitch>
+                            <popVideoSwitch>${String(objectLeftData.value.popVideoSwitch)}</popVideoSwitch>
+                            <emailSwitch>${String(objectLeftData.value.emailSwitch)}</emailSwitch>
+                            <sysAudio id='${objectLeftData.value.sysAudio}'></sysAudio>
+                        </trigger>
+                    </chl>
+                </content>
             `
-            objectLeftData.value.boundary.forEach((item) => {
-                sendXml += rawXml`<item>
-                        <name maxLen='15'><![CDATA[${item.areaName}]]></name>
-                        <point type='list' maxCount='6' count='${String(item.points.length)}'>
-                `
-                item.points.forEach((ele) => {
-                    sendXml += rawXml`<item>
-                    <X>${ele.X.toString()}</X>
-                    <Y>${ele.Y.toString()}</Y>
-                    </item>`
-                })
-                sendXml += `</point></item>`
-            })
-            sendXml += rawXml`</boundary></param>
-                <trigger>
-                    <sysRec>
-                    <chls type='list'>
-            `
-            objectLeftData.value.record.forEach((item) => {
-                sendXml += rawXml`<item id='${item.value}'>
-                        <![CDATA[${item.label}]]></item>`
-            })
-            sendXml += rawXml`</chls></sysRec>
-                <alarmOut>
-                <alarmOuts type='list'>
-            `
-            objectLeftData.value.alarmOut.forEach((item) => {
-                sendXml += rawXml`<item id='${item.value}'>
-                        <![CDATA[${item.label}]]></item>`
-            })
-            sendXml += rawXml`</alarmOuts>
-                </alarmOut>
-                <preset>
-                <presets type='list'>
-            `
-            objectLeftData.value.preset.forEach((item) => {
-                sendXml += rawXml`<item>
-                    <index>${item.index}</index>
-                        <name><![CDATA[${item.name}]]></name>
-                        <chl id='${item.chl.value}'><![CDATA[${item.chl.label}]]></chl>
-                        </item>`
-            })
-            sendXml += rawXml`</presets>
-                </preset>
-                <snapSwitch>${String(objectLeftData.value.catchSnapSwitch)}</snapSwitch>
-                <msgPushSwitch>${String(objectLeftData.value.msgPushSwitch)}</msgPushSwitch>
-                <buzzerSwitch>${String(objectLeftData.value.buzzerSwitch)}</buzzerSwitch>
-                <popVideoSwitch>${String(objectLeftData.value.popVideoSwitch)}</popVideoSwitch>
-                <emailSwitch>${String(objectLeftData.value.emailSwitch)}</emailSwitch>
-                <sysAudio id='${objectLeftData.value.sysAudio}'></sysAudio>
-                </trigger>
-                </chl></content>`
+
             return sendXml
         }
 

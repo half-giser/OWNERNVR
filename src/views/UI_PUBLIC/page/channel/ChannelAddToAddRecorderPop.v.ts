@@ -149,7 +149,7 @@ export default defineComponent({
         const rules = ref<FormRules>({
             ip: [
                 {
-                    validator: (_rule, _value, callback) => {
+                    validator: (_rule, value, callback) => {
                         if (formData.value.chkDomain) {
                             const domain = formData.value.domain.trim()
                             if (!domain.length) {
@@ -157,7 +157,7 @@ export default defineComponent({
                                 return
                             }
                         } else {
-                            const ip = formData.value.ip.trim()
+                            const ip = value.trim()
                             if (!ip || ip == '0.0.0.0') {
                                 callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_INVALID')))
                                 return
@@ -283,7 +283,12 @@ export default defineComponent({
                                             type: 'question',
                                             message: msg,
                                         }).then(() => {
-                                            editBasicCfg(`<content><AISwitch>false</AISwitch></content>`)
+                                            const sendXml = rawXml`
+                                                <content>
+                                                    <AISwitch>false</AISwitch>
+                                                </content>
+                                            `
+                                            editBasicCfg(sendXml)
                                         })
                                     } else {
                                         openMessageTipBox({
@@ -302,28 +307,6 @@ export default defineComponent({
         const getSaveData = () => {
             const defalutNamePrefix = 'Recorder_'
             const selection = tableRef.value!.getSelectionRows() as RecorderDto[]
-
-            const listXml = selection.map((ele) => {
-                return rawXml`
-                    <item>
-                        <name>${ele.name || defalutNamePrefix + ele.index}</name>
-                        ${ternary(formData.value.chkDomain, `<domain>${wrapCDATA(formData.value.domain)}</domain>`, `<ip>${formData.value.ip}</ip>`)}
-                        <port>${formData.value.servePort.toString()}</port>
-                        <userName>${formData.value.userName}</userName>
-                        ${ternary(!props.editItem.ip || (props.editItem.ip && !formData.value.useDefaultPwd), `<password${getSecurityVer()}><![CDATA[${AES_encrypt(formData.value.password, userSessionStore.sesionKey)}]]></password>`)}
-                        <index>${(Number(ele.index) - 1).toString()}</index>
-                        <manufacturer>RECORDER</manufacturer>
-                        <protocolType>RECORDER</protocolType>
-                        <productModel factoryName='Customer'>${ele.productModel}</productModel>
-                        ${ternary(ele.bandWidth, `<bandWidth>${ele.bandWidth}</bandWidth>`)}
-                        <rec per='5' post='10'/>
-                        <snapSwitch>false</snapSwitch>
-                        <buzzerSwitch>false</buzzerSwitch>
-                        <popVideoSwitch>false</popVideoSwitch>
-                        <frontEndOffline_popMsgSwitch>true</frontEndOffline_popMsgSwitch>
-                    </item>
-                `
-            })
 
             const sendXml = rawXml`
                 <types>
@@ -346,7 +329,29 @@ export default defineComponent({
                         <protocolType type='protocolType'/>
                         <bandWidth unit='MB'/>
                     </itemType>
-                    ${listXml.join('')}
+                    ${selection
+                        .map((ele) => {
+                            return rawXml`
+                                <item>
+                                    <name maxByteLen="63">${wrapCDATA(ele.name || defalutNamePrefix + ele.index)}</name>
+                                    ${ternary(formData.value.chkDomain, `<domain>${wrapCDATA(formData.value.domain)}</domain>`, `<ip>${formData.value.ip}</ip>`)}
+                                    <port>${formData.value.servePort.toString()}</port>
+                                    <userName>${formData.value.userName}</userName>
+                                    ${ternary(!props.editItem.ip || (props.editItem.ip && !formData.value.useDefaultPwd), `<password${getSecurityVer()}><![CDATA[${AES_encrypt(formData.value.password, userSessionStore.sesionKey)}]]></password>`)}
+                                    <index>${(Number(ele.index) - 1).toString()}</index>
+                                    <manufacturer>RECORDER</manufacturer>
+                                    <protocolType>RECORDER</protocolType>
+                                    <productModel factoryName='Customer'>${ele.productModel}</productModel>
+                                    ${ternary(ele.bandWidth, `<bandWidth>${ele.bandWidth}</bandWidth>`)}
+                                    <rec per='5' post='10'/>
+                                    <snapSwitch>false</snapSwitch>
+                                    <buzzerSwitch>false</buzzerSwitch>
+                                    <popVideoSwitch>false</popVideoSwitch>
+                                    <frontEndOffline_popMsgSwitch>true</frontEndOffline_popMsgSwitch>
+                                </item>
+                            `
+                        })
+                        .join('')}
                 </content>
             `
 

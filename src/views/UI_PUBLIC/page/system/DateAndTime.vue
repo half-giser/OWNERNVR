@@ -22,8 +22,6 @@
                     :disabled="formData.isSync || formData.syncType === 'NTP'"
                     :value-format="formatSystemTime"
                     :format="formatSystemTime"
-                    :cell-class-name="highlightWeekend"
-                    clear-icon=""
                     type="datetime"
                     :placeholder="Translate('IDCS_SYSTEM_TIME')"
                     @change="handleSystemTimeChange"

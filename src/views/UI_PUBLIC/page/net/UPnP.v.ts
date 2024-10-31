@@ -3,7 +3,7 @@
  * @Date: 2024-07-11 08:56:08
  * @Description: UPnP配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-21 11:57:49
+ * @LastEditTime: 2024-10-30 12:01:34
  */
 import { NetUPnPForm, type NetUPnPPortDto } from '@/types/apiType/net'
 
@@ -148,16 +148,6 @@ export default defineComponent({
 
             openLoading()
 
-            const portsXml = tableData.value
-                .map((item) => {
-                    return rawXml`
-                    <item>
-                        <portType>${item.portType}</portType>
-                        <externalPort>${item.externalPort.toString()}</externalPort>
-                    </item>
-                `
-                })
-                .join('')
             const sendXml = rawXml`
                 <types>
                     <mappingType>${wrapEnums(pageData.value.mapTypeOptions)}</mappingType>
@@ -167,7 +157,18 @@ export default defineComponent({
                 <content>
                     <switch>${formData.value.switch.toString()}</switch>
                     <mappingType>${formData.value.mappingType}</mappingType>
-                    <ports type="list">${portsXml}</ports>
+                    <ports type="list">
+                        ${tableData.value
+                            .map((item) => {
+                                return rawXml`
+                                    <item>
+                                        <portType>${item.portType}</portType>
+                                        <externalPort>${item.externalPort.toString()}</externalPort>
+                                    </item>
+                                `
+                            })
+                            .join('')}
+                    </ports>
                 </content>
             `
             const result = await editUPnPCfg(sendXml)

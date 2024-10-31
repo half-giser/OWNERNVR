@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 18:39:25
  * @Description: 添加通道 - 手动添加IPC通道(普通通道+热成像通道)
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-22 15:05:39
+ * @LastEditTime: 2024-10-30 16:55:03
  */
 import { ChannelInfoDto, type DefaultPwdDto, MultiChlCheckedInfoDto, type MultiChlIPCAddDto } from '@/types/apiType/channel'
 
@@ -55,8 +55,6 @@ export default defineComponent({
             _protocolList: Array<Record<string, string>>,
             _callback: (sendXml: string) => void,
         ) => {
-            multiChlIPCCfgDialogVisiable.value = true
-
             chlMapping = _mapping
             manufacturerMap = _manufacturerMap
             protocolList = _protocolList
@@ -184,7 +182,7 @@ export default defineComponent({
                     ${ipXmlStr}
                     ${domainXmlStr}
                     <port>${element.port.toString()}</port>
-                    <userName><![CDATA[${cutStringByByte(element.userName, nameByteMaxLen)}]]></userName>
+                    <userName maxByteLen="63"><![CDATA[${cutStringByByte(element.userName, nameByteMaxLen)}]]></userName>
                     ${element.password == '******' ? '' : '<password' + getSecurityVer() + '><![CDATA[' + AES_encrypt(element.password, userSessionStore.sesionKey) + ']]></password>'}
                 </content>`
             return queryLanDevice(data)
@@ -265,7 +263,7 @@ export default defineComponent({
                 return
             }
 
-            const manufacturer = Object.entries(manufacturerMap.value)
+            const manufacturer = Object.entries(manufacturerMap)
                 .map((item) => {
                     return `<enum displayName='${item[1]}'>${item[0]}</enum>`
                 })

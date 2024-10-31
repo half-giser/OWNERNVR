@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-07-31 11:11:05
  * @Description: 自动模式通道码流参数配置
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-15 16:31:55
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-30 10:07:24
  */
 import { type RecMode } from '@/types/apiType/record'
 import { defineComponent } from 'vue'
@@ -55,7 +55,6 @@ export default defineComponent({
         const onOpen = () => {
             pageData.value.key = props.autoModeId
             pageData.value.initComplete = false
-            // console.log(props.autoModeId)
             if (!props.autoModeId) return
             const events = props.autoModeId!.split('_')
             pageData.value.mainTitle = events
@@ -90,7 +89,6 @@ export default defineComponent({
         }
 
         const tabSeleced = (key: string) => {
-            console.log(key)
             if (key === REC_MODE_TYPE.INTENSIVE) {
                 pageData.value.currenMode = 'timing'
             } else {

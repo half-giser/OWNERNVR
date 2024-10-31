@@ -22,6 +22,8 @@
                 <el-input
                     v-model="formData.name"
                     maxlength="63"
+                    :formatter="formatInputMaxLength"
+                    :parser="formatInputMaxLength"
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_STAY_TIME')">

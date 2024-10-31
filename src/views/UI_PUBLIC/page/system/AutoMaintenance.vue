@@ -10,7 +10,6 @@
         <el-form
             ref="formRef"
             class="stripe"
-            hide-required-asterisk
             inline-message
             :rules
             :model="formData"

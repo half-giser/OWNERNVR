@@ -2,8 +2,8 @@
  * @Description: 录像——参数配置
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-02 16:12:12
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-31 09:55:21
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-31 14:32:51
  */
 
 import { cloneDeep } from 'lodash-es'
@@ -88,26 +88,13 @@ export default defineComponent({
         }
 
         const getChlRecNodeList = async () => {
-            const sendXML = rawXml`
-                <types>
-                    <nodeType>
-                        <enum>chls</enum>
-                        <enum>sensors</enum>
-                        <enum>alarmOuts</enum>
-                    </nodeType>
-                </types>
-                <nodeType type='nodeType'>chls</nodeType>
-                <requireField>
-                    <name/>
-                    <chlType/>
-                    <supportANR/>
-                </requireField>
-            `
-            const result = await queryNodeList(sendXML)
+            const result = await getChlList({
+                requireField: ['supportANR'],
+            })
             commLoadResponseHandler(result, ($) => {
                 $('content/item').forEach((item) => {
                     const $item = queryXml(item.element)
-                    pageData.value.IPCMap[item.attr('id') as string] = $item('supportANR').text()
+                    pageData.value.IPCMap[item.attr('id')!] = $item('supportANR').text()
                 })
             })
         }
