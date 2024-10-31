@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-05 16:26:27
  * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-28 10:18:33
+ * @LastEditTime: 2024-10-31 10:51:31
  */
 import dayjs from 'dayjs'
 import { type ChlRecParamList } from '@/types/apiType/record'
@@ -32,13 +32,13 @@ export default defineComponent({
         const { openMessageTipBox } = useMessageBox()
 
         const week = [
-            { value: '1', label: Translate('IDCS_MONDAY') },
-            { value: '2', label: Translate('IDCS_TUESDAY') },
-            { value: '3', label: Translate('IDCS_WEDNESDAY') },
-            { value: '4', label: Translate('IDCS_THURSDAY') },
-            { value: '5', label: Translate('IDCS_FRIDAY') },
-            { value: '6', label: Translate('IDCS_SATURDAY') },
-            { value: '7', label: Translate('IDCS_SUNDAY') },
+            { value: 1, label: Translate('IDCS_MONDAY') },
+            { value: 2, label: Translate('IDCS_TUESDAY') },
+            { value: 3, label: Translate('IDCS_WEDNESDAY') },
+            { value: 4, label: Translate('IDCS_THURSDAY') },
+            { value: 5, label: Translate('IDCS_FRIDAY') },
+            { value: 6, label: Translate('IDCS_SATURDAY') },
+            { value: 7, label: Translate('IDCS_SUNDAY') },
         ]
 
         const pageData = ref({
@@ -50,6 +50,7 @@ export default defineComponent({
             dateFormat: '',
         })
 
+        // 获取日期格式
         const getTimeCfg = async () => {
             const result = await queryTimeCfg()
             commLoadResponseHandler(result, ($) => {
@@ -75,7 +76,6 @@ export default defineComponent({
          * @description 打开弹窗时更新页面项
          */
         const open = async () => {
-            await getTimeCfg()
             if (prop.expirationType != 'all') {
                 const expirationTime = prop.expirationData?.singleExpirationUnit == 'd' ? Number(prop.expirationData?.expiration) * 24 : Number(prop.expirationData?.expiration)
                 pageData.value.expireTime = expirationTime
@@ -135,27 +135,17 @@ export default defineComponent({
             const holiday = pageData.value.toAddDateList.map((item) => formatDate(item.date, 'YYYY-MM-DD', pageData.value.dateFormat)).join(',')
             const expiration = pageData.value.expireTime
 
-            ctx.emit('close')
+            close()
             openMessageTipBox({
                 type: 'question',
                 message: Translate('IDCS_CHANGE_EXPIRE_TIME_WARNING_D').formatForLang(tips),
+            }).then(() => {
+                if (prop.expirationType == 'all') {
+                    ctx.emit('confirm', week, holiday, expiration)
+                } else {
+                    ctx.emit('confirm', week, holiday, expiration, prop.expirationData)
+                }
             })
-                .then(() => {
-                    if (prop.expirationType == 'all') {
-                        ctx.emit('confirm', week, holiday, expiration)
-                    } else {
-                        ctx.emit('confirm', week, holiday, expiration, prop.expirationData)
-                    }
-
-                    pageData.value.expireTime = 1
-                    pageData.value.toAddDateList = []
-                    pageData.value.weekArr = []
-                })
-                .catch(() => {
-                    pageData.value.expireTime = 1
-                    pageData.value.toAddDateList = []
-                    pageData.value.weekArr = []
-                })
         }
 
         // 打开添加日期弹窗
