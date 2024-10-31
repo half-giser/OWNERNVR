@@ -2,8 +2,8 @@
  * @Description: 普通事件——传感器
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-23 10:58:27
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 15:38:32
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-30 16:15:26
  */
 import { type PresetItem, SensorEvent, type ChlList } from '@/types/apiType/aiAndEvent'
 import { cloneDeep, isEqual } from 'lodash-es'
@@ -619,6 +619,10 @@ export default defineComponent({
                 if (field == 'videoPopUp') {
                     item.popVideo.chl.id = value
                     if (value != '') item.popVideo.switch = 'true'
+                } else if (field == 'type') {
+                    if (item.type && item.alarmInType !== 'virtual' && item.isEditable) {
+                        item.type = value
+                    }
                 } else {
                     ;(item as any)[field] = value
                 }

@@ -339,6 +339,7 @@ export default defineComponent({
 
         const initPage = () => {
             isTabDisabled()
+            pageData.value.tabKey += 1
         }
         watchEffect(() => {
             if (pageData.value.chosenFunction !== '') {

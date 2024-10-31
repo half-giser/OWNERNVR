@@ -3,13 +3,12 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-05 16:26:27
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 17:31:38
+ * @LastEditTime: 2024-10-31 14:33:03
 -->
 <template>
     <el-dialog
         :title="Translate('IDCS_EXPIRE_TIME_SET')"
         width="600"
-        height="773"
         @open="open"
         @close="close"
     >
@@ -30,48 +29,26 @@
                 <span>{{ Translate('IDCS_KEEPVIDEO_WEEK') }}</span>
                 <el-checkbox-group v-model="pageData.weekArr">
                     <el-checkbox
-                        :label="Translate('IDCS_MONDAY')"
-                        :value="1"
-                    />
-                    <el-checkbox
-                        :label="Translate('IDCS_TUESDAY')"
-                        :value="2"
-                    />
-                    <el-checkbox
-                        :label="Translate('IDCS_WEDNESDAY')"
-                        :value="3"
-                    />
-                    <el-checkbox
-                        :label="Translate('IDCS_THURSDAY')"
-                        :value="4"
-                    />
-                    <el-checkbox
-                        :label="Translate('IDCS_FRIDAY')"
-                        :value="5"
-                    />
-                    <el-checkbox
-                        :label="Translate('IDCS_SATURDAY')"
-                        :value="6"
-                    />
-                    <el-checkbox
-                        :label="Translate('IDCS_SUNDAY')"
-                        :value="7"
-                    />
+                        v-for="item in week"
+                        :key="item.value"
+                        :value="item.value"
+                        :label="item.label"
+                    ></el-checkbox>
                 </el-checkbox-group>
                 <div
                     class="base-btn-box"
+                    :span="2"
                     :style="{ margin: '30px 0 10px' }"
                 >
-                    <span class="tips">{{ Translate('IDCS_KEEPVIDEO_HOLIDAY') }}</span>
+                    <span>{{ Translate('IDCS_KEEPVIDEO_HOLIDAY') }}</span>
                     <el-button @click="openAddDate">{{ Translate('IDCS_ADD') }}</el-button>
                 </div>
                 <el-table
+                    :data="pageData.toAddDateList"
                     border
                     stripe
-                    show-overflow-tooltip
-                    :data="pageData.toAddDateList"
+                    height="230"
                     highlight-current-row
-                    :style="{ height: '230px' }"
                 >
                     <el-table-column
                         prop="date"
@@ -107,21 +84,18 @@
                     </el-table-column>
                 </el-table>
             </div>
-            <el-row :style="{ margin: '30px 0' }">
-                <el-col
-                    :span="24"
-                    class="el-col-flex-end"
-                >
-                    <el-button @click="apply">{{ Translate('IDCS_OK') }}</el-button>
-                    <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </el-col>
-            </el-row>
+            <div
+                class="base-btn-box"
+                :style="{ marginTop: '30px' }"
+            >
+                <el-button @click="apply">{{ Translate('IDCS_OK') }}</el-button>
+                <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
+            </div>
         </div>
         <el-dialog
             v-model="pageData.isShowAddDate"
             :title="Translate('IDCS_TIME_CUSTOMIZE')"
             width="500"
-            height="200"
         >
             <el-form>
                 <el-form-item>
@@ -155,11 +129,5 @@
     border: solid #5f5f5f 1px;
     padding: 10px 5px 10px 6px;
     margin-top: 30px;
-}
-.checkboxItem {
-    width: 133px;
-}
-.tips {
-    flex: 1;
 }
 </style>
