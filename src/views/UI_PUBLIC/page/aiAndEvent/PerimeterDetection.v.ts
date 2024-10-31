@@ -333,6 +333,7 @@ export default defineComponent({
         // 初始化页面数据
         const initPageData = async () => {
             isTabDisabled()
+            pageData.value.tabKey += 1
         }
         onMounted(async () => {
             await getOnlineChannel()
