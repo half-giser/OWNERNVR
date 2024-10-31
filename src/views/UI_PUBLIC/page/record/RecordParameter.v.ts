@@ -2,8 +2,8 @@
  * @Description: 录像——参数配置
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-02 16:12:12
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 11:05:24
+ * @LastEditors: luoyiming luoyiming@tvt.net.cn
+ * @LastEditTime: 2024-10-31 09:55:21
  */
 
 import { cloneDeep } from 'lodash-es'
@@ -379,7 +379,7 @@ export default defineComponent({
                     const unit = value == '1' ? Translate('IDCS_BY_DAY') : Translate('IDCS_DAYS')
                     const tips = value + ' ' + unit
                     openMessageTipBox({
-                        type: 'info',
+                        type: 'question',
                         message: Translate('IDCS_CHANGE_EXPIRE_TIME_WARNING_D').formatForLang(tips),
                     })
                         .then(() => {
@@ -414,7 +414,7 @@ export default defineComponent({
                 const unit = value == '1' ? Translate('IDCS_BY_DAY') : Translate('IDCS_DAYS')
                 const tips = value + ' ' + unit
                 openMessageTipBox({
-                    type: 'info',
+                    type: 'question',
                     message: Translate('IDCS_CHANGE_EXPIRE_TIME_WARNING_D').formatForLang(tips),
                 })
                     .then(() => {
@@ -469,6 +469,7 @@ export default defineComponent({
         })
 
         return {
+            RecParamCustomizationPop,
             supportANR,
             tableData,
             pageData,
@@ -478,7 +479,6 @@ export default defineComponent({
             changeAllANRSwitchList,
             changeExpirationList,
             changeAllExpirationList,
-            RecParamCustomizationPop,
             handleGetExpirationData,
         }
     },
