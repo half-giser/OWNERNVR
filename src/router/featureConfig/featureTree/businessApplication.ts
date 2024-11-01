@@ -18,8 +18,8 @@ export default {
             meta: {
                 sort: 10,
                 lk: 'IDCS_PARKING_LOT_MANAGEMENT',
-                enabled: 'parkingLotMgr',
-                auth(systemCaps) {
+                auth: 'parkingLotMgr',
+                hasCap(systemCaps) {
                     return !systemCaps.IntelAndFaceConfigHide
                 },
             },
@@ -67,7 +67,7 @@ export default {
             meta: {
                 sort: 20,
                 lk: 'IDCS_ACCESS_CONTROL_MANAGEMENT',
-                enabled: 'AccessControlMgr',
+                auth: 'AccessControlMgr',
             },
             children: {
                 config: {
@@ -89,7 +89,7 @@ export default {
             meta: {
                 sort: 30,
                 lk: 'IDCS_FACE_ATTENDANCE',
-                auth(systemCaps) {
+                hasCap(systemCaps) {
                     return systemCaps.supportFaceMatch
                 },
             },
@@ -100,7 +100,7 @@ export default {
             meta: {
                 sort: 40,
                 lk: 'IDCS_FACE_CHECK',
-                auth(systemCaps) {
+                hasCap(systemCaps) {
                     return systemCaps.supportFaceMatch
                 },
             },

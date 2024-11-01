@@ -8,7 +8,7 @@ export default {
     meta: {
         sort: 40,
         lk: 'IDCS_INTEL_DETECTION',
-        auth: (systemCaps) => {
+        hasCap: (systemCaps) => {
             return !systemCaps.IntelAndFaceConfigHide
         },
         icon: 'search_menu',
@@ -20,7 +20,7 @@ export default {
             meta: {
                 sort: 10,
                 lk: 'IDCS_ENGINE_CONFIG',
-                auth(systemCaps) {
+                hasCap(systemCaps) {
                     return systemCaps.supportBootWorkMode
                 },
             },
@@ -41,7 +41,7 @@ export default {
                         sort: 10,
                         lk: 'IDCS_FACE',
                         icon: 'event_search_face',
-                        auth(systemCaps) {
+                        hasCap(systemCaps) {
                             return systemCaps.supportFaceMatch
                         },
                     },
@@ -124,7 +124,7 @@ export default {
             meta: {
                 sort: 40,
                 lk: 'IDCS_SAMPLE_DATABASE',
-                auth(systemCaps) {
+                hasCap(systemCaps) {
                     return import.meta.env.VITE_UI_TYPE !== 'UI2-A' && (systemCaps.supportFaceMatch || systemCaps.supportPlateMatch)
                 },
             },
@@ -137,7 +137,7 @@ export default {
                         sort: 10,
                         lk: 'IDCS_FACE',
                         icon: 'event_search_body',
-                        auth(systemCaps) {
+                        hasCap(systemCaps) {
                             return systemCaps.supportFaceMatch
                         },
                     },
@@ -150,7 +150,7 @@ export default {
                         sort: 30,
                         lk: 'IDCS_LICENSE_PLATE',
                         icon: 'event_search_car',
-                        auth(systemCaps) {
+                        hasCap(systemCaps) {
                             return systemCaps.supportPlateMatch
                         },
                     },

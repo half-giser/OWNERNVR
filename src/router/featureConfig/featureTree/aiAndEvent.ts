@@ -11,7 +11,7 @@ export default {
         lk: 'IDCS_AI_AND_EVENT',
         plClass: 'md2',
         icon: 'alarm',
-        enabled: 'alarmMgr',
+        auth: 'alarmMgr',
         groups: {
             //事件通知
             eventNotify: {
@@ -129,7 +129,7 @@ export default {
                 sort: 60,
                 lk: 'IDCS_AUDIO',
                 group: 'eventNotify',
-                auth(systemCaps) {
+                hasCap(systemCaps) {
                     return import.meta.env.VITE_UI_TYPE !== 'UI3-A' || systemCaps.supportAlarmAudioConfig
                 },
             },
@@ -152,7 +152,7 @@ export default {
                 sort: 80,
                 lk: 'IDCS_ALARM_SERVER',
                 group: 'eventNotify',
-                auth(systemCaps) {
+                hasCap(systemCaps) {
                     return systemCaps.supportAlarmServerConfig
                 },
             },
@@ -189,7 +189,7 @@ export default {
                 default: true,
                 inHome: 'self',
                 homeSort: 10,
-                auth(systemCaps) {
+                hasCap(systemCaps) {
                     return !systemCaps.IntelAndFaceConfigHide
                 },
             },
@@ -204,7 +204,7 @@ export default {
                 group: 'aiEvent',
                 inHome: 'self',
                 homeSort: 20,
-                auth(systemCaps) {
+                hasCap(systemCaps) {
                     return !systemCaps.IntelAndFaceConfigHide
                 },
             },
@@ -219,7 +219,7 @@ export default {
                 group: 'aiEvent',
                 inHome: 'self',
                 homeSort: 30,
-                auth(systemCaps) {
+                hasCap(systemCaps) {
                     return !systemCaps.IntelAndFaceConfigHide
                 },
             },
@@ -232,7 +232,7 @@ export default {
                 sort: 40,
                 lk: 'IDCS_MORE',
                 group: 'aiEvent',
-                auth(systemCaps) {
+                hasCap(systemCaps) {
                     return !systemCaps.IntelAndFaceConfigHide
                 },
             },
@@ -280,7 +280,7 @@ export default {
                 sort: 40,
                 lk: 'IDCS_FRONT_OFFLINE',
                 group: 'generalEvent',
-                auth(systemCaps) {
+                hasCap(systemCaps) {
                     return !!systemCaps.ipChlMaxCount
                 },
             },
@@ -293,7 +293,7 @@ export default {
                 sort: 170,
                 lk: 'IDCS_ABNORMAL_ALARM',
                 group: 'generalEvent',
-                auth(systemCaps) {
+                hasCap(systemCaps) {
                     return !!systemCaps.ipChlMaxCount
                 },
             },
@@ -306,7 +306,7 @@ export default {
                 sort: 180,
                 lk: 'IDCS_VIDEO_LOSE_SET',
                 group: 'generalEvent',
-                auth(systemCaps) {
+                hasCap(systemCaps) {
                     return !!systemCaps.analogChlCount
                 },
             },
@@ -342,7 +342,7 @@ export default {
                 lk: 'IDCS_FEATURE_LIBRARY',
                 group: 'database',
                 default: true,
-                auth(systemCaps) {
+                hasCap(systemCaps) {
                     return systemCaps.supportFaceMatch && import.meta.env.VITE_UI_TYPE === 'UI2-A'
                 },
             },
@@ -355,7 +355,7 @@ export default {
                 sort: 10,
                 lk: 'IDCS_VEHICLE_DATABASE',
                 group: 'database',
-                auth(systemCaps) {
+                hasCap(systemCaps) {
                     return systemCaps.supportPlateMatch && import.meta.env.VITE_UI_TYPE === 'UI2-A'
                 },
             },

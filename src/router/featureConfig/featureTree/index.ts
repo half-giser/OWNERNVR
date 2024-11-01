@@ -25,7 +25,7 @@ export default {
         path: '/login',
         component: 'Login.vue',
         meta: {
-            enabled: '',
+            noToken: true,
         },
     },
     authCodeLogin: {
@@ -33,7 +33,7 @@ export default {
         path: '/authCodeLogin',
         component: 'AuthCodeLogin.vue',
         meta: {
-            enabled: '',
+            noToken: true,
         },
     },
     guide: {
@@ -41,7 +41,7 @@ export default {
         path: '/guide',
         component: 'Guide.vue',
         meta: {
-            enabled: '',
+            noToken: true,
         },
     },
     root: {
@@ -79,10 +79,10 @@ export default {
             sort: 40,
             lk: 'IDCS_PARKING_LOT',
             icon: 'park',
-            auth(systemCaps) {
+            hasCap(systemCaps) {
                 return !systemCaps.IntelAndFaceConfigHide
             },
-            enabled: 'parkingLotMgr',
+            auth: 'parkingLotMgr',
         },
     },
 } as FeatureTree

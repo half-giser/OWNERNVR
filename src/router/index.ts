@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-04-16 13:47:54
  * @Description: 路由构建入口文件
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-21 13:59:16
+ * @LastEditors: tengxiang tengxiang@tvt.net.cn
+ * @LastEditTime: 2024-11-01 12:00:26
  */
 import { createRouter, createWebHistory, type RouteLocationNormalized } from 'vue-router'
 import { buildRouter } from './featureConfig/RouteUtil'
@@ -18,7 +18,7 @@ const routes = buildRouter()
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
-    routes: routes.filter((item) => item.meta?.enabled === ''),
+    routes: routes.filter((item) => item.meta?.noToken),
     scrollBehavior: (_to, _from, savedPosition) => {
         return savedPosition ? savedPosition : { top: 0, left: 0 }
     },
@@ -34,7 +34,7 @@ export const generateAsyncRoutes = () => {
     const userSession = useUserSessionStore()
 
     const asyncRoute = (routes as RouteRecordRawExtends[]).filter((item) => {
-        return item.meta?.enabled !== ''
+        return item.meta?.noToken === undefined
     })
 
     /**
@@ -48,13 +48,13 @@ export const generateAsyncRoutes = () => {
                 item.children = getAuthRoute(item.children)
 
                 // 设置路由重定向 （满足能力集和用户权限）
-                const redirect = item.children.find((item) => !item.meta.enabled || userSession.hasAuth(item.meta.enabled))
+                const redirect = item.children.find((item) => !item.meta.auth || userSession.hasAuth(item.meta.auth))
                 if (redirect) {
                     item.redirect = redirect.meta.fullPath
                 }
             }
 
-            return !item.meta.auth || item.meta.auth(systemCaps)
+            return !item.meta.hasCap || item.meta.hasCap(systemCaps)
         })
     }
 
@@ -87,8 +87,9 @@ export const getMenuItem = (item: RouteRecordRawExtends) => {
         path: item.path,
         name: item.name,
         meta: {
+            hasCap: item.meta!.hasCap,
+            noToken: item.meta!.noToken,
             auth: item.meta!.auth,
-            enabled: item.meta!.enabled,
             // noAuth: item.meta!.noAuth,
             keepAlive: item.meta!.keepAlive,
             fullPath: item.meta!.fullPath,

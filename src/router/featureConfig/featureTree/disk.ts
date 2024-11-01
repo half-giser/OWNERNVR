@@ -11,7 +11,7 @@ export default {
         lk: 'IDCS_DISK',
         plClass: 'md3',
         icon: 'disk',
-        enabled: 'diskMgr',
+        auth: 'diskMgr',
         groups: {
             //磁盘管理
             diskManagement: {
@@ -32,7 +32,7 @@ export default {
                 icon: 'diskInfo_s',
             },
         },
-        auth() {
+        hasCap() {
             return import.meta.env.VITE_UI_TYPE !== 'UI3-A'
         },
     },
@@ -48,7 +48,7 @@ export default {
                 default: true,
                 inHome: 'self',
                 homeSort: 10,
-                enabled: 'diskMgr',
+                auth: 'diskMgr',
             },
         },
         diskMode: {
@@ -62,8 +62,8 @@ export default {
                 default: true,
                 inHome: 'self',
                 homeSort: 10,
-                enabled: 'diskMgr',
-                auth(systemCaps) {
+                auth: 'diskMgr',
+                hasCap(systemCaps) {
                     return systemCaps.supportRaid
                 },
             },
@@ -76,8 +76,8 @@ export default {
                 sort: 20,
                 lk: 'IDCS_PHYSICAL_DISK',
                 group: 'diskManagement',
-                enabled: 'diskMgr',
-                auth(systemCaps) {
+                auth: 'diskMgr',
+                hasCap(systemCaps) {
                     return systemCaps.isUseRaid
                 },
             },
@@ -90,8 +90,8 @@ export default {
                 sort: 30,
                 lk: 'IDCS_ARRAY',
                 group: 'diskManagement',
-                enabled: 'diskMgr',
-                auth(systemCaps) {
+                auth: 'diskMgr',
+                hasCap(systemCaps) {
                     return systemCaps.isUseRaid
                 },
             },
@@ -107,7 +107,7 @@ export default {
                 default: true,
                 inHome: 'group',
                 homeSort: 20,
-                enabled: 'diskMgr',
+                auth: 'diskMgr',
             },
         },
         viewDiskInfo: {

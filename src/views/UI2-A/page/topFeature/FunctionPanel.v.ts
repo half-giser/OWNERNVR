@@ -2,8 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-26 15:32:02
  * @Description: UI2-A 客制化功能面板
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-08 15:48:29
+ * @LastEditors: tengxiang tengxiang@tvt.net.cn
+ * @LastEditTime: 2024-11-01 15:25:16
  */
 import { getMenuItems } from '@/router'
 
@@ -99,7 +99,7 @@ export default defineComponent({
          * @returns {boolean}
          */
         const getMenuDisabled = (route: RouteRecordRawExtends) => {
-            return typeof route.meta.enabled !== 'undefined' && !userSession.hasAuth(route.meta.enabled)
+            return typeof route.meta.auth !== 'undefined' && !userSession.hasAuth(route.meta.auth)
         }
 
         watch(

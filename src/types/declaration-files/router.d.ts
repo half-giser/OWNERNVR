@@ -68,10 +68,12 @@ declare global {
         components?: componentMap
         /** 元标签 */
         meta: {
-            /** 权限访问回调，这里会传入能力集和UI名参数 **/
-            auth?: (systemCaps: ReturnType<typeof useCababilityStore>) => boolean
-            /** 菜单可用条件, 此值会传入useUserSessionStore.hasAuth()判断菜单可用/禁用状态. 如果undefined，则此菜单不禁用；如果为空字符串，则为白名单 */
-            enabled?: string
+            /** 能力集是否支持回调，这里会传入能力集和UI名参数 **/
+            hasCap?: (systemCaps: ReturnType<typeof useCababilityStore>) => boolean
+            /** 是否需要token， true：不需要， undefined/false：需要 */
+            noToken?: boolean
+            /** 权限代号, 此值会传入useUserSessionStore.hasAuth()判断菜单可用/禁用状态. 如果undefined/空字符串，则为白名单，不受权限控制 */
+            auth?: string
             /** 是否没有权限访问，true不可访问，false可访问，如果undefined，则说明不受权限控制，可以访问 */
             // noAuth?: boolean
             /** 路由组件缓存（开启 `true`、关闭 `false`）`可选` */
@@ -114,10 +116,12 @@ declare global {
         path: string
         name: RouteRecordName
         meta: {
-            /** 权限访问回调，这里会传入能力集和UI名参数 **/
-            auth?: (systemCaps: ReturnType<typeof useCababilityStore>) => boolean
-            /** 菜单可用条件，如果没定义，则此菜单不禁用; 如果为空字符串，则此路由为同步路由 */
-            enabled?: string
+            /** 能力集是否支持回调，这里会传入能力集和UI名参数 **/
+            hasCap?: (systemCaps: ReturnType<typeof useCababilityStore>) => boolean
+            /** 是否需要token， true：不需要， undefined/false：需要 */
+            noToken?: boolean
+            /** 权限代号, 此值会传入useUserSessionStore.hasAuth()判断菜单可用/禁用状态. 如果undefined/空字符串，则为白名单，不受权限控制 */
+            auth?: string
             /** 是否没有权限访问，true不可访问，false可访问，如果undefined，则说明不受权限控制，可以访问 */
             // noAuth?: boolean
             /** 路由组件缓存（开启 `true`、关闭 `false`）`可选` */

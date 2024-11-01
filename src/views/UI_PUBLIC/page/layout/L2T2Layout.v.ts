@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-04-20 16:18:25
  * @Description: 二级类型2布局页--适用于“搜索和备份”、“智能分析”、“业务应用”等
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-08 15:10:26
+ * @LastEditors: tengxiang tengxiang@tvt.net.cn
+ * @LastEditTime: 2024-11-01 15:25:52
  */
 
 import { type RouteRecordRaw } from 'vue-router'
@@ -37,7 +37,7 @@ export default defineComponent({
          * @returns {boolean}
          */
         const getMenuDisabled = (route: RouteRecordRawExtends) => {
-            return typeof route.meta.enabled !== 'undefined' && !userSession.hasAuth(route.meta.enabled)
+            return typeof route.meta.auth !== 'undefined' && !userSession.hasAuth(route.meta.auth)
         }
 
         /**

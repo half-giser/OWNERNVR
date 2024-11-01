@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-04-20 16:04:39
  * @Description: 二级类型1布局页--适用于所有配置页
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-08 16:49:04
+ * @LastEditors: tengxiang tengxiang@tvt.net.cn
+ * @LastEditTime: 2024-11-01 15:25:46
  */
 
 import { getMenuItem } from '@/router'
@@ -122,7 +122,7 @@ export default defineComponent({
          * @returns {boolean}
          */
         const getMenuDisabled = (route: RouteRecordRawExtends) => {
-            return typeof route.meta.enabled !== 'undefined' && !userSession.hasAuth(route.meta.enabled)
+            return typeof route.meta.auth !== 'undefined' && !userSession.hasAuth(route.meta.auth)
         }
 
         /**

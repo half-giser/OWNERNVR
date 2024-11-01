@@ -2,8 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-05-24 17:12:55
  * @Description: 
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-17 16:33:05
+ * @LastEditors: tengxiang tengxiang@tvt.net.cn
+ * @LastEditTime: 2024-11-01 16:23:14
 -->
 <template>
     <div>
@@ -35,16 +35,15 @@ provide('Plugin', Plugin)
 /**
  * @description 如果未激活，跳转开机向导，否则，根据登录状态，跳转登录或现场预览
  * @param {boolean} checkActivationStatus
- * @param {boolean} isUserAuth
  */
-const hanedleActivationStatus = async (checkActivationStatus: boolean, isUserAuth: boolean) => {
+const hanedleActivationStatus = async (checkActivationStatus: boolean) => {
     try {
         layoutStore.isInitial = true
         const auInfo = session.auInfo_N9K
         if (!checkActivationStatus) {
             router.replace('/guide')
         } else {
-            if (!auInfo || !isUserAuth) {
+            if (!auInfo) {
                 router.replace('/login')
                 return
             } else {
@@ -62,19 +61,10 @@ const hanedleActivationStatus = async (checkActivationStatus: boolean, isUserAut
 }
 
 if (import.meta.env.VITE_APP_TYPE === 'STANDARD') {
-    let isUserAuth = false
-
-    querySystemCaps()
-        .then((result) => {
-            const $ = queryXml(result)
-            isUserAuth = $('//status').text() === 'success'
-        })
-        .finally(() => {
-            queryActivationStatus().then((result) => {
-                const checkActivationStatus = queryXml(result)('//content/activated').text().toBoolean()
-                hanedleActivationStatus(checkActivationStatus, isUserAuth)
-            })
-        })
+    queryActivationStatus().then((result) => {
+        const checkActivationStatus = queryXml(result)('//content/activated').text().toBoolean()
+        hanedleActivationStatus(checkActivationStatus)
+    })
 } else {
     session.getP2PSessionInfo()
 }
