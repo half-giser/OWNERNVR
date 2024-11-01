@@ -10,7 +10,7 @@ export default {
         lk: 'IDCS_CHANNEL',
         plClass: 'md2',
         icon: 'chl',
-        enabled: 'remoteChlMgr',
+        auth: 'remoteChlMgr',
         groups: {
             //通道管理
             channel: {
@@ -54,7 +54,7 @@ export default {
                 lk: 'IDCS_ADD_CHANNEL',
                 group: 'channel',
                 navs: ['channelList'],
-                auth(systemCaps) {
+                hasCap(systemCaps) {
                     return !!systemCaps.ipChlMaxCount
                 },
             },
@@ -73,7 +73,7 @@ export default {
                 default: true,
                 inHome: 'self',
                 homeSort: 10,
-                auth(systemCaps) {
+                hasCap(systemCaps) {
                     return !!systemCaps.ipChlMaxCount
                 },
             },
@@ -88,7 +88,7 @@ export default {
                 noMenu: true,
                 group: 'channel',
                 navs: ['channelGroupList'],
-                auth(systemCaps) {
+                hasCap(systemCaps) {
                     return !systemCaps.analogChlCount
                 },
             },
@@ -104,7 +104,7 @@ export default {
                 sort: 40,
                 lk: 'IDCS_CHANGE_OR_DELETE_CHANNEL_GROUP',
                 group: 'channel',
-                auth(systemCaps) {
+                hasCap(systemCaps) {
                     return !systemCaps.analogChlCount
                 },
             },
@@ -116,7 +116,7 @@ export default {
                 sort: 50,
                 lk: 'IDCS_CHANNEL_SIGNAL_ACCESS_SET',
                 group: 'channel',
-                auth(systemCaps) {
+                hasCap(systemCaps) {
                     return !!systemCaps.analogChlCount
                 },
             },
@@ -173,7 +173,7 @@ export default {
                 sort: 40,
                 lk: 'IDCS_LOGO_SETTINGS',
                 group: 'image',
-                auth(systemCaps) {
+                hasCap(systemCaps) {
                     const osType = getSystemInfo().platform
                     return systemCaps.supportLogoSetting && osType !== 'mac'
                 },
@@ -197,7 +197,7 @@ export default {
                 sort: 60,
                 lk: 'IDCS_WATER_MARK_SETTING',
                 group: 'image',
-                auth(systemCaps) {
+                hasCap(systemCaps) {
                     return systemCaps.supportWaterMark
                 },
             },
@@ -210,7 +210,7 @@ export default {
                 sort: 70,
                 lk: 'IDCS_FISHEYE_SET',
                 group: 'image',
-                auth(systemCaps) {
+                hasCap(systemCaps) {
                     const osType = getSystemInfo().platform
                     return systemCaps.supportFishEye && osType !== 'mac'
                 },
@@ -260,7 +260,7 @@ export default {
                 sort: 30,
                 lk: 'IDCS_PTZ_GROUP',
                 group: 'ptz',
-                auth(systemCaps) {
+                hasCap(systemCaps) {
                     return systemCaps.supportPtzGroupAndTrace
                 },
             },
@@ -273,7 +273,7 @@ export default {
                 sort: 40,
                 lk: 'IDCS_PTZ_TRACE',
                 group: 'ptz',
-                auth(systemCaps) {
+                hasCap(systemCaps) {
                     return systemCaps.supportPtzGroupAndTrace
                 },
             },
@@ -286,7 +286,7 @@ export default {
                 sort: 50,
                 lk: 'IDCS_TASK',
                 group: 'ptz',
-                auth(systemCaps) {
+                hasCap(systemCaps) {
                     return systemCaps.supportPtzGroupAndTrace
                 },
             },
@@ -312,7 +312,7 @@ export default {
                 sort: 70,
                 lk: 'IDCS_PROTOCOL',
                 group: 'ptz',
-                auth(systemCaps) {
+                hasCap(systemCaps) {
                     return !!systemCaps.analogChlCount
                 },
             },

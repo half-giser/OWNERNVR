@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-05-07 20:42:33
  * @Description: 功能面板
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-08 16:32:08
+ * @LastEditors: tengxiang tengxiang@tvt.net.cn
+ * @LastEditTime: 2024-11-01 15:25:04
  */
 
 import { getMenuItems } from '@/router'
@@ -48,7 +48,7 @@ export default defineComponent({
          * @param {RouteRecordRawExtends} moduleItem
          */
         const goToDefaultPage = (moduleItem: RouteRecordRawExtends) => {
-            if (moduleItem.meta.enabled && !userSession.hasAuth(moduleItem.meta.enabled)) {
+            if (moduleItem.meta.auth && !userSession.hasAuth(moduleItem.meta.auth)) {
                 return
             }
             const defaultMenu = moduleItem.children.find((o) => o.meta.default === true && !getMenuDisabled(o))
@@ -68,11 +68,11 @@ export default defineComponent({
          * @param {RouteRecordRawExtends} moduleItem
          */
         const goToPage = (subMenu: RouteRecordRawExtends, moduleItem: RouteRecordRawExtends) => {
-            if (moduleItem.meta.enabled && !userSession.hasAuth(moduleItem.meta.enabled)) {
+            if (moduleItem.meta.auth && !userSession.hasAuth(moduleItem.meta.auth)) {
                 return
             }
 
-            if (subMenu.meta.enabled && !userSession.hasAuth(subMenu.meta.enabled)) {
+            if (subMenu.meta.auth && !userSession.hasAuth(subMenu.meta.auth)) {
                 return
             }
             router.push(subMenu.meta.fullPath)
@@ -120,7 +120,7 @@ export default defineComponent({
          * @returns {boolean}
          */
         const getMenuDisabled = (route: RouteRecordRawExtends) => {
-            return typeof route.meta.enabled !== 'undefined' && !userSession.hasAuth(route.meta.enabled)
+            return typeof route.meta.auth !== 'undefined' && !userSession.hasAuth(route.meta.auth)
         }
 
         watch(

@@ -11,7 +11,7 @@ export default {
         lk: 'IDCS_RECORD',
         plClass: 'md2',
         icon: 'rec',
-        enabled: 'rec',
+        auth: 'rec',
         groups: {
             //录像
             record: {
@@ -125,7 +125,7 @@ export default {
                 default: true,
                 inHome: 'self',
                 homeSort: 30,
-                auth() {
+                hasCap() {
                     return import.meta.env.VITE_UI_TYPE !== 'UI3-A'
                 },
             },

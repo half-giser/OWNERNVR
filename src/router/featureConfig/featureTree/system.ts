@@ -11,7 +11,7 @@ export default {
         lk: 'IDCS_SYSTEM',
         plClass: 'md3',
         icon: 'system',
-        enabled: 'remoteSysCfgAndMaintain',
+        auth: 'remoteSysCfgAndMaintain',
         groups: {
             //基本配置
             basicConfig: {
@@ -57,7 +57,7 @@ export default {
                 default: true,
                 inHome: 'group',
                 homeSort: 10,
-                enabled: 'remoteSysCfgAndMaintain',
+                auth: 'remoteSysCfgAndMaintain',
             },
         },
         dateAndTime: {
@@ -68,7 +68,7 @@ export default {
                 sort: 20,
                 lk: 'IDCS_DATE_AND_TIME',
                 group: 'basicConfig',
-                enabled: 'remoteSysCfgAndMaintain',
+                auth: 'remoteSysCfgAndMaintain',
             },
         },
         outputSettings: {
@@ -79,8 +79,8 @@ export default {
                 sort: 30,
                 lk: 'IDCS_OUTPUT_CONFIG',
                 group: 'basicConfig',
-                enabled: 'remoteSysCfgAndMaintain',
-                auth() {
+                auth: 'remoteSysCfgAndMaintain',
+                hasCap() {
                     return import.meta.env.VITE_UI_TYPE !== 'UI3-A'
                 },
             },
@@ -93,8 +93,8 @@ export default {
                 sort: 40,
                 lk: 'IDCS_POS_CONFIG',
                 group: 'basicConfig',
-                enabled: 'remoteSysCfgAndMaintain',
-                auth(systemCaps) {
+                auth: 'remoteSysCfgAndMaintain',
+                hasCap(systemCaps) {
                     return systemCaps.supportPOS
                 },
             },
@@ -107,8 +107,8 @@ export default {
                 sort: 50,
                 lk: 'IDCS_SYSTEM_POE_SETUP',
                 group: 'basicConfig',
-                enabled: 'remoteSysCfgAndMaintain',
-                auth(systemCaps) {
+                auth: 'remoteSysCfgAndMaintain',
+                hasCap(systemCaps) {
                     return systemCaps.supportPoePowerManage && import.meta.env.VITE_UI_TYPE !== 'UI3-A'
                 },
             },
@@ -121,8 +121,8 @@ export default {
                 sort: 60,
                 lk: 'IDCS_OSD_CONFIG',
                 group: 'basicConfig',
-                enabled: 'remoteSysCfgAndMaintain',
-                auth() {
+                auth: 'remoteSysCfgAndMaintain',
+                hasCap() {
                     return import.meta.env.VITE_UI_TYPE !== 'UI3-A'
                 },
             },
@@ -138,7 +138,7 @@ export default {
                 default: true,
                 inHome: 'self',
                 homeSort: 20,
-                enabled: 'remoteSysCfgAndMaintain',
+                auth: 'remoteSysCfgAndMaintain',
             },
         },
         factoryDefault: {
@@ -149,7 +149,7 @@ export default {
                 sort: 20,
                 lk: 'IDCS_DEFAULT_SET',
                 group: 'maintenance',
-                enabled: 'remoteSysCfgAndMaintain',
+                auth: 'remoteSysCfgAndMaintain',
             },
         },
         upgrade: {
@@ -160,7 +160,7 @@ export default {
                 sort: 30,
                 lk: 'IDCS_UPGRADE',
                 group: 'maintenance',
-                enabled: 'remoteSysCfgAndMaintain',
+                auth: 'remoteSysCfgAndMaintain',
             },
         },
         backupAndRestore: {
@@ -173,7 +173,7 @@ export default {
                 group: 'maintenance',
                 inHome: 'self',
                 homeSort: 30,
-                enabled: 'remoteSysCfgAndMaintain',
+                auth: 'remoteSysCfgAndMaintain',
             },
         },
         reboot: {
@@ -184,7 +184,7 @@ export default {
                 sort: 50,
                 lk: 'IDCS_SYSTEM_REBOOT',
                 group: 'maintenance',
-                enabled: 'remoteSysCfgAndMaintain',
+                auth: 'remoteSysCfgAndMaintain',
             },
         },
         autoMaintenance: {
@@ -195,7 +195,7 @@ export default {
                 sort: 60,
                 lk: 'IDCS_AUTO_MAINTENANCE',
                 group: 'maintenance',
-                enabled: 'remoteSysCfgAndMaintain',
+                auth: 'remoteSysCfgAndMaintain',
             },
         },
         upgradeOnline: {
@@ -206,7 +206,7 @@ export default {
                 sort: 70,
                 lk: 'IDCS_ONLINE_UPGRADE',
                 group: 'maintenance',
-                auth(systemCaps) {
+                hasCap(systemCaps) {
                     return systemCaps.showCloudUpgrade && import.meta.env.VITE_UI_TYPE === 'UI3-A'
                 },
             },
@@ -243,7 +243,7 @@ export default {
                 sort: 30,
                 lk: 'IDCS_ALARM_STATE',
                 group: 'info',
-                auth() {
+                hasCap() {
                     return import.meta.env.VITE_UI_TYPE !== 'UI3-A'
                 },
             },
@@ -259,7 +259,7 @@ export default {
                 sort: 40,
                 lk: 'IDCS_RECORD_STATE',
                 group: 'info',
-                auth() {
+                hasCap() {
                     return import.meta.env.VITE_UI_TYPE !== 'UI3-A'
                 },
             },
@@ -275,7 +275,7 @@ export default {
                 sort: 50,
                 lk: 'IDCS_NETWORK_STATE',
                 group: 'info',
-                auth() {
+                hasCap() {
                     return import.meta.env.VITE_UI_TYPE !== 'UI3-A'
                 },
             },
@@ -291,7 +291,7 @@ export default {
                 sort: 60,
                 lk: 'IDCS_DISK_STATE_TOOLTIP',
                 group: 'info',
-                auth() {
+                hasCap() {
                     return import.meta.env.VITE_UI_TYPE !== 'UI3-A'
                 },
             },
@@ -307,8 +307,8 @@ export default {
                 default: true,
                 inHome: 'self',
                 homeSort: 70,
-                enabled: 'diskMgr',
-                auth() {
+                auth: 'diskMgr',
+                hasCap() {
                     return import.meta.env.VITE_UI_TYPE === 'UI3-A'
                 },
             },
@@ -323,8 +323,8 @@ export default {
                 group: 'storageMode',
                 inHome: 'self',
                 homeSort: 80,
-                enabled: 'diskMgr',
-                auth() {
+                auth: 'diskMgr',
+                hasCap() {
                     return import.meta.env.VITE_UI_TYPE === 'UI3-A'
                 },
             },
@@ -343,7 +343,7 @@ export default {
                 group: 'diskInfo',
                 inHome: 'self',
                 homeSort: 90,
-                auth() {
+                hasCap() {
                     return import.meta.env.VITE_UI_TYPE === 'UI3-A'
                 },
             },
@@ -356,7 +356,7 @@ export default {
                 sort: 40,
                 lk: 'IDCS_DISK_SMART_INFO',
                 group: 'diskInfo',
-                auth() {
+                hasCap() {
                     return import.meta.env.VITE_UI_TYPE === 'UI3-A'
                 },
             },
@@ -369,8 +369,8 @@ export default {
                 sort: 10,
                 lk: 'IDCS_PLATFORM_PARAMETER',
                 group: 'localPlatform',
-                enabled: 'remoteSysCfgAndMaintain',
-                auth(systemCaps) {
+                auth: 'remoteSysCfgAndMaintain',
+                hasCap(systemCaps) {
                     return systemCaps.supportSHDB
                 },
             },
@@ -386,8 +386,8 @@ export default {
                 sort: 20,
                 lk: 'IDCS_SCHEDULE_PIC_UPLOAD',
                 group: 'localPlatform',
-                enabled: 'remoteSysCfgAndMaintain',
-                auth(systemCaps) {
+                auth: 'remoteSysCfgAndMaintain',
+                hasCap(systemCaps) {
                     return systemCaps.supportSHDB
                 },
             },
@@ -400,8 +400,8 @@ export default {
                 sort: 30,
                 lk: 'IDCS_ALARM_PIC_UPLOAD',
                 group: 'localPlatform',
-                enabled: 'remoteSysCfgAndMaintain',
-                auth(systemCaps) {
+                auth: 'remoteSysCfgAndMaintain',
+                hasCap(systemCaps) {
                     return systemCaps.supportSHDB
                 },
             },
@@ -414,8 +414,8 @@ export default {
                 sort: 40,
                 lk: 'IDCS_PLATFORM_OPERATE_MANAGE',
                 group: 'localPlatform',
-                enabled: 'remoteSysCfgAndMaintain',
-                auth(systemCaps) {
+                auth: 'remoteSysCfgAndMaintain',
+                hasCap(systemCaps) {
                     return systemCaps.supportSHDB
                 },
             },
