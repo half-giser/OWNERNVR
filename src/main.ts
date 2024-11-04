@@ -3,7 +3,7 @@
  * @Date: 2024-04-16 13:47:54
  * @Description: 项目入口
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 09:28:12
+ * @LastEditTime: 2024-11-01 18:25:03
  */
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
@@ -42,9 +42,6 @@ const lang = useLangStore()
 if (import.meta.env.VITE_APP_TYPE === 'STANDARD') {
     await lang.getLangTypes()
     await lang.getLangItems()
-
-    const dateTime = useDateTimeStore()
-    await dateTime.getTimeConfig(false)
 }
 
 app.use(i18nPlugin, lang)
