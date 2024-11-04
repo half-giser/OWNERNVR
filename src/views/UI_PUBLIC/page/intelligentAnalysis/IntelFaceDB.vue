@@ -124,7 +124,7 @@
                                             :src
                                         />
                                     </div>
-                                    <el-form class="stripe narrow inline-message">
+                                    <el-form class="stripe inline-message">
                                         <el-form-item :label="Translate('IDCS_NAME_PERSON')">
                                             <el-input
                                                 :model-value="currentFace.name"

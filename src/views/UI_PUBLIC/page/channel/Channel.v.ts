@@ -22,7 +22,7 @@ export default defineComponent({
         const { browserInfo, serverIp } = inject('appGlobalProp') as appGlobalProp
         const cababilityStore = useCababilityStore()
         const router = useRouter()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const Plugin = inject('Plugin') as PluginType
         const pluginStore = usePluginStore()
         const isSupportH5 = Plugin.IsSupportH5()
@@ -101,7 +101,7 @@ export default defineComponent({
 
         const handleDelChannelAll = () => {
             if (!tableData.value.length) return
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_ALL_ITEMS'),
             }).then(() => {
@@ -128,7 +128,7 @@ export default defineComponent({
         }
 
         const handleDelChannel = (rowData: ChannelInfoDto) => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_CHNANEL_S').formatForLang(getShortString(rowData.name, 10)),
             }).then(() => {
@@ -193,7 +193,7 @@ export default defineComponent({
                 notifications.value.push(formatHttpsTips(Translate('IDCS_IPC_UPGRADE')))
                 return
             }
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_IPC_UPGRADE_FINISH_RESTART'),
             }).then(() => {

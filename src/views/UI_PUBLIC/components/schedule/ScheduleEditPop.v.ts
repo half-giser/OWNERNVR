@@ -3,7 +3,7 @@
  * @Date: 2024-07-31 16:36:16
  * @Description: 排程编辑弹框
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 11:55:35
+ * @LastEditTime: 2024-11-01 16:57:55
  */
 import type BaseScheduleWeek from '@/components/BaseScheduleWeek.vue'
 import { ScheduleInfo } from '@/types/apiType/schedule'
@@ -24,7 +24,7 @@ export default defineComponent({
     },
     setup(props, ctx) {
         const { Translate } = useLangStore()
-        const openMessageTipBox = useMessageBox().openMessageTipBox
+        const openMessageBox = useMessageBox().openMessageBox
         const { openLoading, closeLoading } = useLoading()
         const scheduleWeekRef: Ref<InstanceType<typeof BaseScheduleWeek> | null> = ref(null)
 
@@ -61,7 +61,7 @@ export default defineComponent({
                     validator: (_rule, _value: string, callback) => {
                         if (!(formData.value.timespan.length && formData.value.timespan.find((o) => o.length > 0))) {
                             callback(new Error(''))
-                            openMessageTipBox({
+                            openMessageBox({
                                 type: 'info',
                                 message: Translate('IDCS_PROMPT_SCHEDULE_PERIOD_EMPTY'),
                             })
@@ -89,30 +89,11 @@ export default defineComponent({
         }
 
         /**
-         * 记录当前打开手动输入的按钮（在周排程时，打开一个手动输入/复制到，需要关闭其他天的手动输入/复制到，不能阻止冒泡，导致document点击时间不触发）
-         */
-        let manualTimeInputTarget: EventTarget | null = null
-
-        /**
-         * @description 手动设置时间段面板打开
-         * @param {Event} event
-         */
-        const manualTimeInputOpen = (event: Event) => {
-            manualTimeInputTarget = event.target
-            pageData.value.manualTimeInputShow = true
-            document.addEventListener('click', manualTimeInputClose)
-        }
-
-        /**
          * @description: 手动输入时间面板关闭
-         * @param {Event} event
          * @return {*}
          */
-        const manualTimeInputClose = (event?: Event) => {
-            if (event == null || (event.target != manualTimeInputTarget && !(event.target as HTMLElement).closest('.el-popper'))) {
-                pageData.value.manualTimeInputShow = false
-                document.removeEventListener('click', manualTimeInputClose)
-            }
+        const manualTimeInputClose = () => {
+            pageData.value.manualTimeInputShow = false
         }
 
         const dateToTimeNum = (time: Date) => {
@@ -201,7 +182,7 @@ export default defineComponent({
             formRule,
             scheduleWeekRef,
             onOpen,
-            manualTimeInputOpen,
+            // manualTimeInputOpen,
             manualTimeInputClose,
             manualTimeInputOk,
             save,

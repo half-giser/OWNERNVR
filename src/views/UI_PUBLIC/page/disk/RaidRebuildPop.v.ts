@@ -31,7 +31,7 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
 
         const pageData = ref({
@@ -134,7 +134,7 @@ export default defineComponent({
                         errorInfo = Translate('IDCS_REPAIR_RAID_ERROR')
                 }
 
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: errorInfo,
                 })

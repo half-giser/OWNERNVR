@@ -3,13 +3,14 @@
  * @Date: 2024-09-03 14:16:08
  * @Description: 智能分析 通道选择器
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 11:46:25
+ * @LastEditTime: 2024-11-01 18:21:23
 -->
 <template>
     <div>
         <el-popover
             v-model:visible="pageData.isPop"
             width="400"
+            popper-class="selector"
         >
             <template #reference>
                 <div class="base-intel-placeholder">

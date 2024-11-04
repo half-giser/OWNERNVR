@@ -79,7 +79,7 @@
                 </el-form-item>
             </el-form-item>
             <el-form-item v-show="editItem.ip">
-                <el-form-item></el-form-item>
+                <el-form-item />
                 <el-form-item :label="Translate('IDCS_DEV_DEFAULT_PWD')">
                     <el-checkbox v-model="formData.useDefaultPwd" />
                 </el-form-item>

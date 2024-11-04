@@ -3,7 +3,7 @@
  * @Date: 2024-09-11 14:16:37
  * @Description: 火点检测
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-28 14:24:44
+ * @LastEditTime: 2024-11-04 15:59:20
  */
 import { type chlCaps, type aiResourceRow, type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
@@ -36,7 +36,7 @@ export default defineComponent({
     },
     setup(props) {
         const { openLoading, closeLoading } = useLoading()
-        const openMessageTipBox = useMessageBox().openMessageTipBox
+        const openMessageBox = useMessageBox().openMessageBox
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
         const aiResourceTableData = ref<aiResourceRow[]>([])
@@ -123,7 +123,6 @@ export default defineComponent({
             // 选中的record id
             recordList: [] as string[],
             recordIsShow: false,
-            recordType: 'record',
 
             alarmOut: {
                 switch: false,
@@ -132,7 +131,6 @@ export default defineComponent({
             // 选中的alarmOut id
             alarmOutList: [] as string[],
             alarmOutIsShow: false,
-            alarmOutType: 'alarmOut',
 
             snap: {
                 switch: false,
@@ -141,7 +139,6 @@ export default defineComponent({
             // 选中的snap id
             snapList: [] as string[],
             snapIsShow: false,
-            snapType: 'snap',
 
             preset: {
                 switch: false,
@@ -292,7 +289,7 @@ export default defineComponent({
         //                 })
         //             })
         //         } else {
-        //             openMessageTipBox({
+        //             openMessageBox({
         //                 type: 'info',
         //                 message: Translate('IDCS_NO_RESOURCE'),
         //             })
@@ -304,15 +301,15 @@ export default defineComponent({
 
         // 删除AI资源请求
         const deleteAIResource = async (row: aiResourceRow) => {
-            let sendXml = rawXml`<content>
-                                    <chl id="${row.id}">
-                                        <param>`
-            row.eventType.forEach((item) => {
-                sendXml += rawXml`<item>${item}</item>`
-            })
-            sendXml += rawXml`</param>
-                            </chl>
-                        </content>`
+            const sendXml = rawXml`
+                <content>
+                    <chl id="${row.id}">
+                        <param>
+                            ${row.eventType.map((item) => `<item>${item}</item>`).join('')}
+                        </param>
+                    </chl>
+                </content>
+            `
             openLoading()
             const res = await freeAIOccupyResource(sendXml)
             closeLoading()
@@ -324,7 +321,7 @@ export default defineComponent({
 
         // 点击释放AI资源
         const handleAIResourceDel = async (row: aiResourceRow) => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_S'),
             }).then(() => {
@@ -694,11 +691,11 @@ export default defineComponent({
                                 <chls type="list">
                                     ${pageData.value.record.chls
                                         .map(
-                                            (element: { value: string; label: string }) => rawXml`
-                                        <item id="${element.value}">
-                                            <![CDATA[${element.label}]]>
-                                        </item>
-                                    `,
+                                            (element) => rawXml`
+                                                <item id="${element.value}">
+                                                    <![CDATA[${element.label}]]>
+                                                </item>
+                                            `,
                                         )
                                         .join('')}
                                 </chls>
@@ -707,11 +704,11 @@ export default defineComponent({
                                 <chls type="list">
                                     ${pageData.value.snap.chls
                                         .map(
-                                            (element: { value: string; label: string }) => rawXml`
-                                        <item id="${element.value}">
-                                            <![CDATA[${element.label}]]>
-                                        </item>
-                                    `,
+                                            (element) => rawXml`
+                                                <item id="${element.value}">
+                                                    <![CDATA[${element.label}]]>
+                                                </item>
+                                            `,
                                         )
                                         .join('')}
                                 </chls>
@@ -720,11 +717,11 @@ export default defineComponent({
                                 <alarmOuts type="list">
                                     ${pageData.value.alarmOut.chls
                                         .map(
-                                            (element: { value: string; label: string }) => rawXml`
-                                        <item id="${element.value}">
-                                            <![CDATA[${element.label}]]>
-                                        </item>
-                                    `,
+                                            (element) => rawXml`
+                                                <item id="${element.value}">
+                                                    <![CDATA[${element.label}]]>
+                                                </item>
+                                            `,
                                         )
                                         .join('')}
                                 </alarmOuts>
@@ -735,14 +732,14 @@ export default defineComponent({
                                         .map((element: PresetList) =>
                                             element.preset.value
                                                 ? rawXml`
-                                        <item>
-                                            <index>${element.preset.value}</index>
-                                            <name><![CDATA[${element.preset.label}]]></name>
-                                            <chl id="${element.id}">
-                                                <![CDATA[${element.name}]]>
-                                            </chl>
-                                        </item>
-                                    `
+                                                    <item>
+                                                        <index>${element.preset.value}</index>
+                                                        <name><![CDATA[${element.preset.label}]]></name>
+                                                        <chl id="${element.id}">
+                                                            <![CDATA[${element.name}]]>
+                                                        </chl>
+                                                    </item>
+                                                `
                                                 : '',
                                         )
                                         .join('')}
@@ -770,12 +767,12 @@ export default defineComponent({
                     pageData.value.originalEnable = true
                 }
                 pageData.value.applyDisable = true
-                openMessageTipBox({
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
             } else {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_SAVE_DATA_FAIL'),
                 })
@@ -806,7 +803,7 @@ export default defineComponent({
             })
             if (isSwitchChange && switchChangeTypeArr.length > 0) {
                 const switchChangeType = switchChangeTypeArr.join(',')
-                openMessageTipBox({
+                openMessageBox({
                     type: 'question',
                     message: Translate('IDCS_FIRE_POINT_DETECT_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + pageData.value.chlData.name, switchChangeType),
                 }).then(() => {

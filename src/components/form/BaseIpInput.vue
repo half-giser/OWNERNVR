@@ -3,13 +3,13 @@
  * @Date: 2024-06-04 10:26:32
  * @Description: IPv4地址输入框
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 11:53:47
+ * @LastEditTime: 2024-10-31 18:32:49
 -->
 <template>
     <div
         ref="$IpContainer"
         class="IpInput"
-        :class="[{ 'is-focus': isFocus, disabled: prop.disabled }, size]"
+        :class="{ 'is-focus': isFocus, disabled: prop.disabled }"
     >
         <template
             v-for="(item, index) in address"
@@ -46,12 +46,10 @@ const prop = withDefaults(
          * @property IP地址值
          */
         modelValue: string
-        size?: string
     }>(),
     {
         disabled: false,
         invalidateMode: 'PREVENT',
-        default: '',
     },
 )
 
@@ -69,7 +67,7 @@ const isFocus = ref(0)
 // IP地址数组
 const address = computed(() => {
     const split = prop.modelValue.split('.')
-    return IPV4_DFAULT_VALUE.map((item, index) => {
+    return IPV4_DFAULT_VALUE.map((_item, index) => {
         if (!split[index]) return ''
         else return Number(split[index])
     })
@@ -214,7 +212,7 @@ const handleBlur = () => {
 
 <style lang="scss">
 .IpInput {
-    --el-input-inner-height: 28px;
+    // --el-input-inner-height: 28px;
 
     align-items: left;
     border: 1px solid var(--input-border);
@@ -227,15 +225,10 @@ const handleBlur = () => {
     transform: translateZ(0);
     transition: var(--el-transition-box-shadow);
     font-size: var(--el-font-size-base);
-    line-height: var(--el-input-inner-height);
+    line-height: calc(var(--el-component-size) - 2px);
     width: var(--el-input-width);
     box-sizing: border-box;
     background: var(--el-input-bg-color, var(--el-fill-color-blank));
-
-    &.small {
-        --el-input-inner-height: 20px;
-        font-size: 12px;
-    }
 
     &:hover,
     &.is-focus {
@@ -265,8 +258,8 @@ const handleBlur = () => {
         border: none;
         max-width: 25%;
         font-size: inherit;
-        line-height: var(--el-input-inner-height);
-        height: var(--el-input-inner-height);
+        line-height: calc(var(--el-component-size) - 4px);
+        height: calc(var(--el-component-size) - 4px);
         width: 25px;
         border: none;
         outline: 0;

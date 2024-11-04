@@ -14,7 +14,7 @@
         <div class="edit">
             <el-form
                 ref="formRef"
-                class="stripe narrow"
+                class="stripe"
             >
                 <el-form-item :label="Translate('IDCS_NAME_PERSON')">
                     <el-input

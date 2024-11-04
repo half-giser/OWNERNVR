@@ -58,24 +58,23 @@ export default defineComponent({
         const setData = async () => {
             openLoading()
 
-            const table = tableData.value
-                .map((item) => {
-                    return rawXml`
-                    <item id="${item.id}">
-                        <arpSwitch>${String(item.arpSwitch)}</arpSwitch>
-                        <gateway>${item.gateway}</gateway>
-                        <autoGetGatewayMac>${String(item.autoGetGatewayMac)}</autoGetGatewayMac>
-                        <getGatewayMac>${item.getGatewayMac}</getGatewayMac>
-                        <manualInputGatewayMac>${item.manualInputGatewayMac}</manualInputGatewayMac>
-                        <preventDetection>${String(item.preventDetection)}</preventDetection>
-                    </item>
-                `
-                })
-                .join('')
             const sendXml = rawXml`
                 <content>
                     <nicConfigs type='list'>
-                        ${table}
+                        ${tableData.value
+                            .map((item) => {
+                                return rawXml`
+                                    <item id="${item.id}">
+                                        <arpSwitch>${String(item.arpSwitch)}</arpSwitch>
+                                        <gateway>${item.gateway}</gateway>
+                                        <autoGetGatewayMac>${String(item.autoGetGatewayMac)}</autoGetGatewayMac>
+                                        <getGatewayMac>${item.getGatewayMac}</getGatewayMac>
+                                        <manualInputGatewayMac>${item.manualInputGatewayMac}</manualInputGatewayMac>
+                                        <preventDetection>${String(item.preventDetection)}</preventDetection>
+                                    </item>
+                                `
+                            })
+                            .join('')}
                     </nicConfigs>
                 </content>
             `

@@ -44,7 +44,7 @@ export default defineComponent({
     },
     setup(prop) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
 
         const CRUISE_MAX_COUNT = 8
 
@@ -92,7 +92,7 @@ export default defineComponent({
                 return
             }
 
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_CRUISE_S').formatForLang(Translate('IDCS_CHANNEL'), getShortString(prop.chlName, 10), getShortString(cruiseName, 10)),
             }).then(async () => {
@@ -108,7 +108,7 @@ export default defineComponent({
                 const $ = queryXml(result)
 
                 if ($('//status').text() === 'success') {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'success',
                         message: Translate('IDCS_DELETE_SUCCESS'),
                     }).finally(() => {
@@ -128,7 +128,7 @@ export default defineComponent({
 
             // 巡航线数量达到上限8个
             if (listData.value.length >= CRUISE_MAX_COUNT) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: 'IDCS_OVER_MAX_NUMBER_LIMIT',
                 })

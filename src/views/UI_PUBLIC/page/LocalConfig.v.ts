@@ -12,7 +12,7 @@ export default defineComponent({
     setup() {
         const Plugin = inject('Plugin') as PluginType
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const pluginStore = usePluginStore()
 
         // 播放器模式
@@ -70,7 +70,7 @@ export default defineComponent({
                     formData.value.recBackUpPath = $('//recBackUpPath').text()
                 })
             } catch {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_QUERY_DATA_FAIL'),
                 })
@@ -95,12 +95,12 @@ export default defineComponent({
             try {
                 const sendXML = OCX_XML_SetLocalCfg(formData.value.snapCount, formData.value.liveSnapSavePath, formData.value.recSavePath, formData.value.recBackUpPath)
                 Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                openMessageTipBox({
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
             } catch {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_SAVE_DATA_FAIL'),
                 })

@@ -72,10 +72,7 @@
                             </el-dropdown>
                         </template>
                         <template #default="scope">
-                            <el-select
-                                v-model="scope.row.alarmRec"
-                                size="small"
-                            >
+                            <el-select v-model="scope.row.alarmRec">
                                 <el-option
                                     v-for="opt in pageData.scheduleList"
                                     :key="opt.value"
@@ -107,10 +104,7 @@
                             </el-dropdown>
                         </template>
                         <template #default="scope">
-                            <el-select
-                                v-model="scope.row.motionRec"
-                                size="small"
-                            >
+                            <el-select v-model="scope.row.motionRec">
                                 <el-option
                                     v-for="opt in pageData.scheduleList"
                                     :key="opt.value"
@@ -142,10 +136,7 @@
                             </el-dropdown>
                         </template>
                         <template #default="scope">
-                            <el-select
-                                v-model="scope.row.intelligentRec"
-                                size="small"
-                            >
+                            <el-select v-model="scope.row.intelligentRec">
                                 <el-option
                                     v-for="opt in pageData.scheduleList"
                                     :key="opt.value"
@@ -177,10 +168,7 @@
                             </el-dropdown>
                         </template>
                         <template #default="scope">
-                            <el-select
-                                v-model="scope.row.posRec"
-                                size="small"
-                            >
+                            <el-select v-model="scope.row.posRec">
                                 <el-option
                                     v-for="opt in pageData.scheduleList"
                                     :key="opt.value"
@@ -212,10 +200,7 @@
                             </el-dropdown>
                         </template>
                         <template #default="scope">
-                            <el-select
-                                v-model="scope.row.scheduleRec"
-                                size="small"
-                            >
+                            <el-select v-model="scope.row.scheduleRec">
                                 <el-option
                                     v-for="opt in pageData.scheduleList"
                                     :key="opt.value"
@@ -231,7 +216,7 @@
                 <el-radio-group
                     v-if="pageData.showIcon"
                     v-model="formData.autoModeId"
-                    class="radio-group"
+                    class="line-break stripe"
                 >
                     <el-radio
                         v-for="item in recAutoModeList"
@@ -259,7 +244,7 @@
                 <el-radio-group
                     v-else
                     v-model="formData.autoModeId"
-                    class="radio-group"
+                    class="line-break stripe"
                 >
                     <el-radio
                         v-for="item in recAutoModeList"
@@ -339,44 +324,5 @@
 
 .chlRecScheduleTb {
     font-size: 20px;
-    // height: 30px;
-    // padding: 20px 0px 5px 0px;
-    // > span {
-    //     float: left;
-    //     font-size: 20px;
-    // }
-
-    // > button {
-    //     float: right;
-    // }
-}
-
-.el-radio-group {
-    flex-direction: column;
-    align-items: flex-start;
-    margin-top: 10px;
-    width: 100%;
-    label {
-        box-sizing: border-box;
-        width: 100%;
-        height: 40px;
-        padding: 0px 0px 0px 30px;
-    }
-
-    label.el-radio:nth-child(odd) {
-        background-color: unset;
-    }
-
-    label.el-radio:nth-child(even) {
-        background-color: var(--table-stripe);
-    }
-    .radio {
-        display: inline-block;
-        width: 670px;
-    }
-}
-
-#btnAdvance {
-    margin: 5px 0px 0px 30px;
 }
 </style>

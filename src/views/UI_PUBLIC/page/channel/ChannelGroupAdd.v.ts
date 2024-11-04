@@ -30,7 +30,7 @@ export default defineComponent({
     setup(prop, { emit }) {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const router = useRouter()
 
         const formRef = ref<FormInstance>()
@@ -82,7 +82,7 @@ export default defineComponent({
             const valid = await formRef.value!.validate()
             if (valid) {
                 if (!selNum.value) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_PROMPT_CHANNEL_GROUP_EMPTY'),
                     })
@@ -90,7 +90,7 @@ export default defineComponent({
                 }
 
                 if (selNum.value > chlGroupCountLimit) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_CHL_GROUP_CHL_OVER_TIPS').formatForLang(chlGroupCountLimit),
                     })
@@ -117,7 +117,7 @@ export default defineComponent({
                 closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'success',
                         message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                     }).then(() => {
@@ -132,7 +132,7 @@ export default defineComponent({
                     } else if (errorCdoe == ErrorCode.USER_ERROR_OVER_LIMIT) {
                         msg = Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT')
                     }
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: msg,
                     })

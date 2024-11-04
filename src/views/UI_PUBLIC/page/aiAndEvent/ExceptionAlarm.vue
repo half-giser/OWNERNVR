@@ -3,7 +3,7 @@
  * @Date: 2024-08-21 15:34:24
  * @Description: 异常报警
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 16:45:24
+ * @LastEditTime: 2024-11-04 15:49:15
 -->
 <template>
     <div class="base-flex-box">
@@ -14,11 +14,10 @@
             target-title="IDCS_TRIGGER_ALARM_OUT"
             :source-data="pageData.alarmOutList"
             :linked-list="tableData[pageData.triggerDialogIndex]?.alarmOutList || []"
-            :type="pageData.alarmOutType"
+            limit-tip="IDCS_ALARMOUT_LIMIT"
             @confirm="alarmOutConfirm"
             @close="alarmOutClose"
-        >
-        </BaseTransferDialog>
+        />
         <div class="base-table-box">
             <el-table
                 :data="tableData"
@@ -64,7 +63,6 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.sysAudio"
-                            size="small"
                             :disabled="scope.row.rowDisable"
                             @change="addEditRow()"
                         >
@@ -73,8 +71,7 @@
                                 :key="item.value"
                                 :value="item.value"
                                 :label="item.label"
-                            >
-                            </el-option>
+                            />
                         </el-select>
                     </template>
                 </el-table-column>
@@ -103,7 +100,6 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.msgPush"
-                            size="small"
                             :disabled="scope.row.rowDisable"
                             @change="addEditRow()"
                         >
@@ -112,8 +108,7 @@
                                 :key="item.value"
                                 :value="item.value"
                                 :label="item.label"
-                            >
-                            </el-option>
+                            />
                         </el-select>
                     </template>
                 </el-table-column>
@@ -136,11 +131,10 @@
                                 target-title="IDCS_ALARM_OUT"
                                 :source-data="pageData.alarmOutList"
                                 :linked-list="pageData.alarmOutChosedIdsAll"
-                                :type="pageData.alarmOutType"
+                                limit-tip="IDCS_ALARMOUT_LIMIT"
                                 @confirm="alarmOutConfirmAll"
                                 @close="alarmOutCloseAll"
-                            >
-                            </BaseTransferPop>
+                            />
                         </el-popover>
                     </template>
                     <template #default="scope">
@@ -185,7 +179,6 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.beeper"
-                            size="small"
                             :disabled="scope.row.rowDisable"
                             @change="addEditRow()"
                         >
@@ -194,8 +187,7 @@
                                 :key="item.value"
                                 :value="item.value"
                                 :label="item.label"
-                            >
-                            </el-option>
+                            />
                         </el-select>
                     </template>
                 </el-table-column>
@@ -224,7 +216,6 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.msgBoxPopup"
-                            size="small"
                             :disabled="scope.row.rowDisable"
                             @change="addEditRow()"
                         >
@@ -233,8 +224,7 @@
                                 :key="item.value"
                                 :value="item.value"
                                 :label="item.label"
-                            >
-                            </el-option>
+                            />
                         </el-select>
                     </template>
                 </el-table-column>
@@ -261,7 +251,6 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.email"
-                            size="small"
                             :disabled="scope.row.rowDisable || scope.row.emailDisable"
                             @change="addEditRow()"
                         >
@@ -270,8 +259,7 @@
                                 :key="item.value"
                                 :value="item.value"
                                 :label="item.label"
-                            >
-                            </el-option>
+                            />
                         </el-select>
                     </template>
                 </el-table-column>

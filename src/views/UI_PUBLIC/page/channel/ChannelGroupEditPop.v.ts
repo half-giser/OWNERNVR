@@ -26,7 +26,7 @@ export default defineComponent({
     setup(props, { emit }) {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const formRef = ref<FormInstance>()
         const formData = ref(new ChlGroup())
         const timeList = [5, 10, 20, 30, 60, 120, 300, 600]
@@ -66,18 +66,18 @@ export default defineComponent({
 
         const save = async () => {
             if (!(await verification())) return
-            const data = rawXml`
+            const sendXml = rawXml`
                 <content>
                     <id>${formData.value.id}</id>
                     <name maxByteLen="63">${wrapCDATA(formData.value.name)}</name>
                     <dwellTime unit='s'>${formData.value.dwellTime.toString()}</dwellTime>
                 </content>`
             openLoading()
-            editChlGroup(data).then((res) => {
+            editChlGroup(sendXml).then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'success',
                         message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                     }).then(() => {
@@ -86,12 +86,12 @@ export default defineComponent({
                     })
                 } else {
                     if (Number($('errorCode').text()) == ErrorCode.USER_ERROR_NAME_EXISTED) {
-                        openMessageTipBox({
+                        openMessageBox({
                             type: 'info',
                             message: Translate('IDCS_PROMPT_CHANNEL_GROUP_NAME_EXIST'),
                         })
                     } else {
-                        openMessageTipBox({
+                        openMessageBox({
                             type: 'info',
                             message: Translate('IDCS_SAVE_DATA_FAIL'),
                         })

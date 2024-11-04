@@ -29,7 +29,7 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
         const dateTime = useDateTimeStore()
 
@@ -169,7 +169,7 @@ export default defineComponent({
             pageData.value.forceCreate = false
 
             if ($('//status').text() === 'success') {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 }).finally(() => {
@@ -203,7 +203,7 @@ export default defineComponent({
                     case ErrorCode.USER_ERROR_NODE_ID_EXISTS:
                         const name = $('//content/name').text()
                         const similarity = $('//content/similarity').text() + '%'
-                        openMessageTipBox({
+                        openMessageBox({
                             type: 'question',
                             message: Translate('IDCS_TARGET_LIBRARY_FACE_HAS_EXIST').formatForLang(name, similarity),
                         }).then(() => {
@@ -217,7 +217,7 @@ export default defineComponent({
                 }
 
                 if (errorInfo) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: errorInfo,
                     })

@@ -48,7 +48,6 @@
                             <el-input
                                 v-model="formData.plateNum"
                                 maxlength="31"
-                                size="small"
                             />
                         </span>
                     </div>

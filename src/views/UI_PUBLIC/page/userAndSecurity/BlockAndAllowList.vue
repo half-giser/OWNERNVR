@@ -7,7 +7,7 @@
 -->
 <template>
     <div class="base-flex-box">
-        <el-form class="narrow">
+        <el-form>
             <el-form-item>
                 <el-checkbox
                     v-model="formData.switch"

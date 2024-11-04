@@ -15,7 +15,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
 
         // 事件与文本的映射
@@ -98,7 +98,7 @@ export default defineComponent({
                 message = formData.value.supportAI ? Translate('IDCS_OPEN_AI_REBOOT_TIP') : Translate('IDCS_CLOSE_AI_REBOOT_TIP')
             }
 
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message,
             }).then(() => {
@@ -146,7 +146,7 @@ export default defineComponent({
                         errorInfo = Translate('IDCS_USER_OR_PASSWORD_ERROR')
                         break
                 }
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: errorInfo,
                 })

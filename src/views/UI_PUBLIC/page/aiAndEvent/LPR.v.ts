@@ -20,7 +20,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
         const router = useRouter()
         const pluginStore = usePluginStore()
@@ -376,7 +376,7 @@ export default defineComponent({
 
         const vehicleForceClosePath = (canBeClosed: boolean) => {
             if (!canBeClosed) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_INTERSECT'),
                 })
@@ -384,7 +384,7 @@ export default defineComponent({
         }
 
         const vehicleClearCurrentArea = () => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DRAW_CLEAR_TIP'),
             }).then(() => {
@@ -445,9 +445,13 @@ export default defineComponent({
         // 获取车牌侦测数据
         const getVehicleDetectionData = async () => {
             const sendXml = rawXml`
-                <condition><chlId>${pageData.value.curChl}</chlId></condition>
-                <requireField><param/></requireField>
-                `
+                <condition>
+                    <chlId>${pageData.value.curChl}</chlId>
+                </condition>
+                <requireField>
+                    <param/>
+                </requireField>
+            `
             const result = await queryVehicleConfig(sendXml)
             commLoadResponseHandler(result, async ($) => {
                 const param = $('//content/chl/param')
@@ -641,14 +645,15 @@ export default defineComponent({
                         // 当前区域为矩形并且显示全部的时候过滤掉当前区域
                         if (detectAreaInfo[detectionPageData.value.regionArea]) detectAreaInfo[detectionPageData.value.regionArea] = []
                     }
-                    let sendMaxMinXml = ``
+                    let sendMaxMinXml = ''
                     if (detectionPageData.value.isDispalyRangeChecked) {
-                        const sendXMLMAX = OCX_XML_GetMaxMinXml(vehicleDetectionData.value.maxRegionInfo[0], 'faceMax')
-                        const sendXMLMIN = OCX_XML_GetMaxMinXml(vehicleDetectionData.value.minRegionInfo[0], 'faceMin')
-                        sendMaxMinXml = `<AreaRangeInfo>`
-                        sendMaxMinXml += `<LineColor>green</LineColor>`
-                        sendMaxMinXml += sendXMLMAX + sendXMLMIN
-                        sendMaxMinXml += `</AreaRangeInfo>`
+                        sendMaxMinXml = rawXml`
+                            <AreaRangeInfo>
+                                <LineColor>green</LineColor>
+                                ${OCX_XML_GetMaxMinXml(vehicleDetectionData.value.maxRegionInfo[0], 'faceMax')}
+                                ${OCX_XML_GetMaxMinXml(vehicleDetectionData.value.minRegionInfo[0], 'faceMin')}
+                            </AreaRangeInfo>
+                        `
                     }
                     const sendXML = OCX_XML_SetAllArea(
                         { detectAreaInfo: Object.values(detectAreaInfo), maskAreaInfo: Object.values(vehicleDetectionData.value.maskAreaInfo) },
@@ -1016,13 +1021,13 @@ export default defineComponent({
                 for (const key in vehicleDetectionData.value.maskAreaInfo) {
                     const count = vehicleDetectionData.value.maskAreaInfo[key].length
                     if (count > 0 && count < 4) {
-                        openMessageTipBox({
+                        openMessageBox({
                             type: 'info',
                             message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_INPUT_LIMIT_FOUR_POIONT'),
                         })
                         return false
                     } else if (count > 0 && !vehicleDrawer.judgeAreaCanBeClosed(vehicleDetectionData.value.maskAreaInfo[key])) {
-                        openMessageTipBox({
+                        openMessageBox({
                             type: 'info',
                             message: Translate('IDCS_INTERSECT'),
                         })
@@ -1034,57 +1039,69 @@ export default defineComponent({
         }
 
         const getVehilceDetectionSaveData = () => {
-            let sendXml = rawXml`<content>
-                <chl id='${pageData.value.curChl}' scheduleGuid='${vehicleDetectionData.value.schedule}'>
-                <param>
-                <switch>${String(vehicleDetectionData.value.enabledSwitch)}</switch>
-                <plateSize type='list'>
-                <item>
-                    <MinWidth>${String(vehicleDetectionData.value.plateSize.minWidth * 100)}</MinWidth>
-                    <MinHeight>${String(vehicleDetectionData.value.plateSize.minWidth * 100)}</MinHeight>
-                    <MaxWidth>${String(vehicleDetectionData.value.plateSize.maxWidth * 100)}</MaxWidth>
-                    <MaxHeight>${String(vehicleDetectionData.value.plateSize.maxWidth * 100)}</MaxHeight>
-                </item>
-                </plateSize>
-                <regionInfo type='list'>`
-            vehicleDetectionData.value.regionInfo.forEach((item) => {
-                sendXml += rawXml`
-                <item>
-                    <X1>${String(item.X1)}</X1>
-                    <Y1>${String(item.Y1)}</Y1>
-                    <X2>${String(item.X2)}</X2>
-                    <Y2>${String(item.Y2)}</Y2>
-                </item>
-                `
-            })
-            sendXml += rawXml`</regionInfo>
-            <plateSupportArea>${vehicleDetectionData.value.plateSupportArea}</plateSupportArea>
-            <capturePlateAbsenceVehicle>${String(vehicleDetectionData.value.plateAbsenceCheceked)}</capturePlateAbsenceVehicle>` // 识别无车牌
-            if (detectionPageData.value.isShowDirection) {
-                sendXml += `<vehicleDirection>${vehicleDetectionData.value.direction}</vehicleDirection>`
-            }
-            sendXml += rawXml`<plateExposure>
-            <switch>${String(vehicleDetectionData.value.exposureChecked)}</switch>
-            <exposureValue>${String(vehicleDetectionData.value.exposureValue)}</exposureValue>
-            </plateExposure>
-            <maskArea>`
-            for (const key in vehicleDetectionData.value.maskAreaInfo) {
-                const item = vehicleDetectionData.value.maskAreaInfo[key]
-                sendXml += rawXml`<item><point type='list' maxCount='8' count='${String(item.length)}'>`
-                item.forEach((ele) => {
-                    sendXml += rawXml`
-                    <item>
-                        <X>${String(ele.X)}</X>
-                        <Y>${String(ele.Y)}</Y>
-					</item>
-                    `
-                })
-                sendXml += `</point></item>`
-            }
-            sendXml += rawXml`</maskArea>
-            </param>
-            <trigger></trigger>
-            </chl></content>`
+            const sendXml = rawXml`
+                <content>
+                    <chl id='${pageData.value.curChl}' scheduleGuid='${vehicleDetectionData.value.schedule}'>
+                        <param>
+                            <switch>${String(vehicleDetectionData.value.enabledSwitch)}</switch>
+                            <plateSize type='list'>
+                                <item>
+                                    <MinWidth>${String(vehicleDetectionData.value.plateSize.minWidth * 100)}</MinWidth>
+                                    <MinHeight>${String(vehicleDetectionData.value.plateSize.minWidth * 100)}</MinHeight>
+                                    <MaxWidth>${String(vehicleDetectionData.value.plateSize.maxWidth * 100)}</MaxWidth>
+                                    <MaxHeight>${String(vehicleDetectionData.value.plateSize.maxWidth * 100)}</MaxHeight>
+                                </item>
+                            </plateSize>
+                            <regionInfo type='list'>
+                                ${vehicleDetectionData.value.regionInfo
+                                    .map((item) => {
+                                        return rawXml`
+                                            <item>
+                                                <X1>${String(item.X1)}</X1>
+                                                <Y1>${String(item.Y1)}</Y1>
+                                                <X2>${String(item.X2)}</X2>
+                                                <Y2>${String(item.Y2)}</Y2>
+                                            </item>
+                                        `
+                                    })
+                                    .join('')}
+                            </regionInfo>
+                            <plateSupportArea>${vehicleDetectionData.value.plateSupportArea}</plateSupportArea>
+                            <capturePlateAbsenceVehicle>${String(vehicleDetectionData.value.plateAbsenceCheceked)}</capturePlateAbsenceVehicle>
+                            ${detectionPageData.value.isShowDirection ? `<vehicleDirection>${vehicleDetectionData.value.direction}</vehicleDirection>` : ''}
+                            <plateExposure>
+                                <switch>${String(vehicleDetectionData.value.exposureChecked)}</switch>
+                                <exposureValue>${String(vehicleDetectionData.value.exposureValue)}</exposureValue>
+                            </plateExposure>
+                            <maskArea>
+                                ${Object.keys(vehicleDetectionData.value.maskAreaInfo)
+                                    .map((key) => {
+                                        const item = vehicleDetectionData.value.maskAreaInfo[Number(key)]
+                                        return rawXml`
+                                            <item>
+                                                <point type='list' maxCount='8' count='${String(item.length)}'>
+                                                    ${item
+                                                        .map((ele) => {
+                                                            return rawXml`
+                                                            <item>
+                                                                <X>${String(ele.X)}</X>
+                                                                <Y>${String(ele.Y)}</Y>
+                                                            </item>
+                                                        `
+                                                        })
+                                                        .join('')}
+                                                </point>
+                                            </item>   
+                                        `
+                                    })
+                                    .join('')}
+                            </maskArea>
+                        </param>
+                        <trigger></trigger>
+                    </chl>
+                </content>
+            `
+
             return sendXml
         }
 
@@ -1123,7 +1140,7 @@ export default defineComponent({
             })
             if (isSwitchChange && switchChangeTypeArr.length > 0) {
                 const switchChangeType = switchChangeTypeArr.join(',')
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_SIMPLE_SMART_VEHICLE_DETECT_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + chlList[pageData.value.curChl].name, switchChangeType),
                 }).then(() => {
@@ -1148,7 +1165,7 @@ export default defineComponent({
         const addTask = () => {
             // 默认有识别成功、陌生车牌两项，添加的最多为3项
             if (taskTabs.value.length === 5) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_OVER_MAX_NUMBER_LIMIT'),
                 })
@@ -1186,7 +1203,7 @@ export default defineComponent({
             if (comparePageData.value.removeDisabled) {
                 return false
             }
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_S'),
             }).then(() => {
@@ -1343,73 +1360,76 @@ export default defineComponent({
 
         // 提交数据参数
         const getVehicleCompareSaveData = () => {
-            let sendXml = rawXml`
+            const sendXml = rawXml`
                 <content>
                     <chl id='${pageData.value.curChl}'>
-                    <task>
+                        <task>
+                            ${vehicleCompareData.value.task
+                                .map((item) => {
+                                    rawXml`
+                                        <item guid='${item.guid}' id='${item.id}'>
+                                            <param>
+                                                <ruleType>${item.ruleType}</ruleType>
+                                                <pluseSwitch>${String(item.pluseSwitch)}</pluseSwitch>
+                                                <nameId>${String(item.nameId)}</nameId>
+                                                <groupId>
+                                                    ${item.groupId.map((ele) => `<item guid='${ele}'></item>`).join('')}
+                                                </groupId>
+                                                <hint>
+                                                    <word>${item.hintword}</word>
+                                                </hint>
+                                            </param>
+                                            <schedule id='${item.schedule}'></schedule>
+                                            <trigger>
+                                                <sysAudio id='${item.sysAudio}'></sysAudio>
+                                                <buzzerSwitch>${String(item.buzzerSwitch)}</buzzerSwitch>
+                                                <popMsgSwitch>${String(item.popMsgSwitch)}</popMsgSwitch>
+                                                <emailSwitch>${String(item.emailSwitch)}</emailSwitch>
+                                                <msgPushSwitch>${String(item.msgPushSwitch)}</msgPushSwitch>
+                                                <popVideo><switch>${String(item.popVideoSwitch)}</switch><chls><item id='${pageData.value.curChl}'></item></chls></popVideo>
+                                                <alarmOut>
+                                                    <switch>true</switch>
+                                                    <alarmOuts type='list'>
+                                                        ${item.alarmOut.map((ele) => `<item id='${ele.value}'></item>`).join('')}
+                                                    </alarmOuts>
+                                                </alarmOut>
+                                                <preset>
+                                                    <switch>${item.preset.length == 0 ? 'false' : 'true'}</switch>
+                                                    <presets type='list'>
+                                                        ${item.preset
+                                                            .map((ele) => {
+                                                                return rawXml`
+                                                                    <item>
+                                                                        <index>${ele.index}</index>
+                                                                        <name><![CDATA[${ele.name}]]></name>
+                                                                        <chl id='${ele.chl.value}'><![CDATA[${ele.chl.label}]]></chl>
+                                                                    </item>
+                                                                `
+                                                            })
+                                                            .join('')}
+                                                    </presets>
+                                                </preset>
+                                                <sysRec>
+                                                    <switch>true</switch>
+                                                    <chls type='list'>
+                                                        ${item.record.map((ele) => `<item id='${ele.value}'></item>`).join('')}
+                                                    </chls>
+                                                </sysRec>
+                                                <sysSnap>
+                                                    <switch>true</switch>
+                                                    <chls type='list'>
+                                                        ${item.snap.map((ele) => `<item id='${ele.value}'></item>`).join('')}
+                                                    </chls>
+                                                </sysSnap>
+                                            </trigger>
+                                        </item>
+                                    `
+                                })
+                                .join('')}
+                        </task>
+                    </chl>
+                </content>
             `
-            vehicleCompareData.value.task.forEach((item) => {
-                sendXml += rawXml`<item guid='${item.guid}' id='${item.id}'>
-                    <param>
-                        <ruleType>${item.ruleType}</ruleType>
-                        <pluseSwitch>${String(item.pluseSwitch)}</pluseSwitch>
-                        <nameId>${String(item.nameId)}</nameId>
-                        <groupId>
-                `
-                item.groupId.forEach((ele) => {
-                    sendXml += `<item guid='${ele}'></item>`
-                })
-                sendXml += rawXml`</groupId>
-                    <hint>
-                        <word>${item.hintword}</word>
-                    </hint></param>
-                    <schedule id='${item.schedule}'></schedule>
-                    <trigger>
-                        <sysAudio id='${item.sysAudio}'></sysAudio>
-                        <buzzerSwitch>${String(item.buzzerSwitch)}</buzzerSwitch>
-                        <popMsgSwitch>${String(item.popMsgSwitch)}</popMsgSwitch>
-                        <emailSwitch>${String(item.emailSwitch)}</emailSwitch>
-                        <msgPushSwitch>${String(item.msgPushSwitch)}</msgPushSwitch>
-                        <popVideo><switch>${String(item.popVideoSwitch)}</switch><chls><item id='${pageData.value.curChl}'></item></chls></popVideo>
-                        <alarmOut><switch>true</switch><alarmOuts type='list'>
-                `
-                item.alarmOut.forEach((ele) => {
-                    sendXml += `<item id='${ele.value}'></item>`
-                })
-                sendXml += rawXml`
-                </alarmOuts></alarmOut>
-                <preset><switch>${item.preset.length == 0 ? 'false' : 'true'}</switch>
-                <presets type='list'>
-                `
-                item.preset.forEach((ele) => {
-                    sendXml += rawXml`
-                    <item>
-                        <index>${ele.index}</index>
-                        <name><![CDATA[${ele.name}]]></name>
-                        <chl id='${ele.chl.value}'><![CDATA[${ele.chl.label}]]></chl>
-                    </item>
-                `
-                })
-                sendXml += rawXml`
-                    </presets></preset>
-                    <sysRec><switch>true</switch><chls type='list'>
-                `
-                item.record.forEach((ele) => {
-                    sendXml += `<item id='${ele.value}'></item>`
-                })
-                sendXml += rawXml`
-                    </chls></sysRec>
-                    <sysSnap><switch>true</switch><chls type='list'>
-                `
-                item.snap.forEach((ele) => {
-                    sendXml += `<item id='${ele.value}'></item>`
-                })
-                sendXml += rawXml`
-                    </chls></sysSnap></trigger>
-                    </item>
-                `
-            })
-            sendXml += `</task></chl></content>`
             return sendXml
         }
 
@@ -1475,7 +1495,7 @@ export default defineComponent({
                 vehicleClearCurrentArea()
             } else if (errorCode == '515') {
                 // 515-区域有相交直线，不可闭合
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_INTERSECT'),
                 })

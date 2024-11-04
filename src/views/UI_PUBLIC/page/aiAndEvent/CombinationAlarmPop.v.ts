@@ -37,7 +37,7 @@ export default defineComponent({
     setup(prop, ctx) {
         const router = useRouter()
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const systemCaps = useCababilityStore()
 
         const supportFaceMatch = systemCaps.supportFaceMatch
@@ -564,7 +564,7 @@ export default defineComponent({
             let isAlarmSourceNull = false
             tableData.value.some((item) => {
                 if (!item.alarmSourceEntity.value) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_ALARM_SOURCE_NULL'),
                     })
@@ -582,7 +582,7 @@ export default defineComponent({
                     if (!sameSource.includes(tableData.value[i].alarmSourceEntity.value)) {
                         sameSource[i] = tableData.value[i].alarmSourceEntity.value
                     } else {
-                        openMessageTipBox({
+                        openMessageBox({
                             type: 'info',
                             message: Translate('IDCS_ALARM_SOURCE_SAME_ERROR'),
                         })

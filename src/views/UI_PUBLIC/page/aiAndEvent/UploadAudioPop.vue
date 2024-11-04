@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-14 15:48:05
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-29 18:37:04
+ * @LastEditTime: 2024-11-01 15:04:28
 -->
 <template>
     <el-dialog
@@ -12,12 +12,14 @@
         height="220"
         @open="open"
     >
-        <el-form label-width="100">
+        <el-form
+            :style="{
+                '--form-label-width': '100px',
+                '--form-input-width': '240px',
+            }"
+        >
             <el-form-item :label="Translate('IDCS_PATH')">
-                <el-input
-                    v-model="pageData.uploadFileName"
-                    :style="{ width: '240px' }"
-                ></el-input>
+                <el-input v-model="pageData.uploadFileName" />
                 <el-upload
                     class="audioUpload"
                     :accept="pageData.uploadAccept"

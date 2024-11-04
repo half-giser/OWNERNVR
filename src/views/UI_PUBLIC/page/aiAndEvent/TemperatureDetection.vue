@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-13 09:18:25
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-23 20:47:46
+ * @LastEditTime: 2024-11-04 16:03:38
 -->
 <template>
     <div>
@@ -44,23 +44,14 @@
                                     :label="Translate('IDCS_DISPLAY_ALL_AREA')"
                                     @change="showAllArea"
                                 />
-                                <el-button
-                                    size="small"
-                                    @click="clearArea"
-                                    >{{ Translate('IDCS_CLEAR') }}</el-button
-                                >
-                                <el-button
-                                    size="small"
-                                    @click="clearAllArea"
-                                    >{{ Translate('IDCS_FACE_CLEAR_ALL') }}</el-button
-                                >
+                                <el-button @click="clearArea">{{ Translate('IDCS_CLEAR') }}</el-button>
+                                <el-button @click="clearAllArea">{{ Translate('IDCS_FACE_CLEAR_ALL') }}</el-button>
                             </div>
                             <span class="base-ai-tip">{{ pageData.drawAreaTip }}</span>
                         </div>
                     </div>
                     <div class="base-ai-param-box-right">
                         <el-form
-                            class="narrow"
                             :style="{
                                 '--form-input-width': '215px',
                             }"
@@ -70,40 +61,28 @@
                             <div class="base-ai-subheading">{{ Translate('IDCS_SCHEDULE') }}</div>
                             <!-- 排程配置 -->
                             <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
-                                <el-select
-                                    v-model="tempDetectionData.schedule"
-                                    size="small"
-                                >
+                                <el-select v-model="tempDetectionData.schedule">
                                     <el-option
                                         v-for="item in pageData.scheduleList"
                                         :key="item.value"
                                         :value="item.value"
                                         :label="item.label"
-                                    >
-                                    </el-option>
+                                    />
                                 </el-select>
-                                <el-button
-                                    size="small"
-                                    @click="pageData.scheduleManagPopOpen = true"
-                                    >{{ Translate('IDCS_MANAGE') }}</el-button
-                                >
+                                <el-button @click="pageData.scheduleManagPopOpen = true">{{ Translate('IDCS_MANAGE') }}</el-button>
                             </el-form-item>
                             <!-- 规则 -->
                             <div class="base-ai-subheading">{{ Translate('IDCD_RULE') }}</div>
                             <!-- 持续时间 -->
                             <el-form-item :label="Translate('IDCS_DURATION')">
-                                <el-select
-                                    v-model="tempDetectionData.holdTime"
-                                    size="small"
-                                >
+                                <el-select v-model="tempDetectionData.holdTime">
                                     <el-option
                                         v-for="item in tempDetectionData.holdTimeList"
                                         :key="item.value"
                                         :value="item.value"
                                         :label="item.label"
                                         :empty-values="[undefined, null]"
-                                    >
-                                    </el-option>
+                                    />
                                 </el-select>
                                 <div id="divTip"></div>
                             </el-form-item>
@@ -161,7 +140,7 @@
                                             :key="item.value"
                                             :value="item.value"
                                             :label="item.label"
-                                        ></el-option>
+                                        />
                                     </el-select>
                                 </template>
                             </el-table-column>
@@ -177,7 +156,7 @@
                                         @input="emissivityInput(scope.row.emissivity, scope.$index)"
                                         @blur="emissivityBlur(scope.row)"
                                         @keyup.enter="enterBlur($event)"
-                                    ></el-input>
+                                    />
                                 </template>
                             </el-table-column>
                             <!-- 距离（m） -->
@@ -191,7 +170,7 @@
                                         @input="distanceInput(scope.row.distance, scope.$index)"
                                         @blur="distanceBlur(scope.row)"
                                         @keyup.enter="enterBlur($event)"
-                                    ></el-input>
+                                    />
                                 </template>
                             </el-table-column>
                             <!-- 反射温度（℃） -->
@@ -205,7 +184,7 @@
                                         @input="reflectTemperInput(scope.row.reflectTemper, scope.$index)"
                                         @blur="reflectTemperBlur(scope.row)"
                                         @keyup.enter="enterBlur($event)"
-                                    ></el-input>
+                                    />
                                 </template>
                             </el-table-column>
                             <!-- 报警规则 -->
@@ -220,7 +199,7 @@
                                             :key="item.value"
                                             :value="item.value"
                                             :label="item.label"
-                                        ></el-option>
+                                        />
                                     </el-select>
                                 </template>
                             </el-table-column>
@@ -235,7 +214,7 @@
                                         @input="alarmTemperInput(scope.row.alarmTemper, scope.$index)"
                                         @blur="alarmTemperBlur(scope.row)"
                                         @keyup.enter="enterBlur($event)"
-                                    ></el-input>
+                                    />
                                 </template>
                             </el-table-column>
                         </el-table>
@@ -248,7 +227,6 @@
                 >
                     <el-form
                         v-if="supportAlarmAudioConfig"
-                        class="narrow"
                         :style="{
                             '--form-input-width': '215px',
                         }"
@@ -260,8 +238,7 @@
                                     :key="item.value"
                                     :label="item.label"
                                     :value="item.value"
-                                >
-                                </el-option>
+                                />
                             </el-select>
                         </el-form-item>
                     </el-form>
@@ -283,8 +260,7 @@
                                     :key="item.value"
                                     :label="item.label"
                                     :value="item.value"
-                                >
-                                </el-checkbox>
+                                />
                             </el-checkbox-group>
                         </div>
                         <!-- 录像 -->
@@ -292,7 +268,6 @@
                             <div class="base-ai-linkage-title">
                                 <span>{{ Translate('IDCS_RECORD') }}</span>
                                 <el-button
-                                    size="small"
                                     class="form_btn"
                                     @click="pageData.recordIsShow = true"
                                     >{{ Translate('IDCS_CONFIG') }}</el-button
@@ -311,7 +286,6 @@
                                 <span>{{ Translate('IDCS_ALARM_OUT') }}</span>
                                 <el-button
                                     class="form_btn"
-                                    size="small"
                                     @click="pageData.alarmOutIsShow = true"
                                     >{{ Translate('IDCS_CONFIG') }}</el-button
                                 >
@@ -328,7 +302,6 @@
                             <div class="base-ai-linkage-title">
                                 <span>{{ Translate('IDCS_SNAP') }}</span>
                                 <el-button
-                                    size="small"
                                     class="form_btn"
                                     @click="pageData.snapIsShow = true"
                                     >{{ Translate('IDCS_CONFIG') }}</el-button
@@ -342,10 +315,7 @@
                             </el-table>
                         </div>
                         <!-- 联动预置点 -->
-                        <div
-                            class="base-ai-linkage-box"
-                            :style="{ width: '350px' }"
-                        >
+                        <div class="base-ai-linkage-box preset-box">
                             <div class="base-ai-linkage-title">
                                 <span>{{ Translate('IDCS_TRIGGER_ALARM_PRESET') }}</span>
                             </div>
@@ -358,8 +328,7 @@
                                     prop="name"
                                     width="180"
                                     :label="Translate('IDCS_CHANNEL_NAME')"
-                                >
-                                </el-table-column>
+                                />
                                 <el-table-column
                                     width="170"
                                     :label="Translate('IDCS_PRESET_NAME')"
@@ -367,7 +336,6 @@
                                     <template #default="scope">
                                         <el-select
                                             v-model="scope.row.preset.value"
-                                            size="small"
                                             :empty-values="[undefined, null]"
                                             @visible-change="getPresetById(scope.row)"
                                             @change="presetChange(scope.row)"
@@ -409,11 +377,10 @@
         target-title="IDCS_CHANNEL_TRGGER"
         :source-data="pageData.recordList"
         :linked-list="tempDetectionData.record?.map((item) => item.value) || []"
-        type="record"
+        limit-tip="IDCS_RECORD_CHANNEL_LIMIT"
         @confirm="recordConfirm"
         @close="recordClose"
-    >
-    </BaseTransferDialog>
+    />
     <BaseTransferDialog
         v-model="pageData.alarmOutIsShow"
         header-title="IDCS_TRIGGER_ALARM_OUT"
@@ -421,11 +388,10 @@
         target-title="IDCS_TRIGGER_ALARM_OUT"
         :source-data="pageData.alarmOutList"
         :linked-list="tempDetectionData.alarmOut?.map((item) => item.value) || []"
-        type="alarmOut"
+        limit-tip="IDCS_ALARMOUT_LIMIT"
         @confirm="alarmOutConfirm"
         @close="alarmOutClose"
-    >
-    </BaseTransferDialog>
+    />
     <BaseTransferDialog
         v-model="pageData.snapIsShow"
         header-title="IDCS_TRIGGER_CHANNEL_SNAP"
@@ -433,11 +399,10 @@
         target-title="IDCS_CHANNEL_TRGGER"
         :source-data="pageData.snapList"
         :linked-list="tempDetectionData.snap?.map((item) => item.value) || []"
-        type="snap"
+        limit-tip="IDCS_SNAP_CHANNEL_LIMIT"
         @confirm="snapConfirm"
         @close="snapClose"
-    >
-    </BaseTransferDialog>
+    />
 </template>
 
 <script lang="ts" src="./TemperatureDetection.v.ts"></script>

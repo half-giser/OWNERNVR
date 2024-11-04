@@ -17,7 +17,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
 
         let timer: NodeJS.Timeout | number = 0
 
@@ -77,7 +77,7 @@ export default defineComponent({
                         errorInfo = Translate('IDCS_USER_OR_PASSWORD_ERROR')
                         break
                 }
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: errorInfo,
                 })

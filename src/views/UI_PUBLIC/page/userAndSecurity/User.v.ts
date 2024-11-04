@@ -19,7 +19,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const userSession = useUserSessionStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
@@ -240,7 +240,7 @@ export default defineComponent({
          * @param row
          */
         const handleDeleteUser = (row: UserList) => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_USER_DELETE_USER_S').formatForLang(row.userName),
             }).then(async () => {

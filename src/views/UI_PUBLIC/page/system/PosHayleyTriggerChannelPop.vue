@@ -21,7 +21,7 @@
                 <el-table-column
                     :label="Translate('IDCS_CHANNEL')"
                     prop="text"
-                ></el-table-column>
+                />
                 <el-table-column :label="Translate('IDCS_POS_TILL')">
                     <template #default="scope">
                         <el-input

@@ -3,7 +3,7 @@
  * @Date: 2024-08-09 09:37:10
  * @Description: 按事件搜索
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 14:43:33
+ * @LastEditTime: 2024-10-31 18:42:58
 -->
 <template>
     <div class="by-event">
@@ -51,7 +51,6 @@
                 </div>
                 <el-input
                     v-model="pageData.posKeyword"
-                    size="small"
                     :disabled="!formData.events.includes('POS')"
                     :placeholder="Translate('IDCS_POS_KEY')"
                 />
@@ -119,7 +118,7 @@
                     >
                         <el-table-column
                             :label="Translate('IDCS_SERIAL_NUMBER')"
-                            width="50"
+                            min-width="50"
                         >
                             <template #default="scope">
                                 {{ displayIndex(scope.$index) }}
@@ -130,8 +129,7 @@
                             :label="Translate('IDCS_CHANNEL_NAME')"
                             prop="chlName"
                             min-width="150"
-                        >
-                        </el-table-column>
+                        />
                         <el-table-column
                             :label="Translate('IDCS_TYPE')"
                             min-width="100"
@@ -164,14 +162,12 @@
                             :label="Translate('IDCS_RECORD_TIME')"
                             prop="duration"
                             min-width="100"
-                        >
-                        </el-table-column>
+                        />
                         <el-table-column
                             :label="Translate('IDCS_BIG_SMALL')"
                             prop="size"
                             min-width="100"
-                        >
-                        </el-table-column>
+                        />
                         <el-table-column :label="Translate('IDCS_PLAY')">
                             <template #default="scope">
                                 <BaseImgSprite

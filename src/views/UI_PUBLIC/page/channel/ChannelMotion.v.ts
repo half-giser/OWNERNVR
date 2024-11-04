@@ -12,7 +12,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const userSessionStore = useUserSessionStore()
         const router = useRouter()
         const osType = getSystemInfo().platform
@@ -54,7 +54,7 @@ export default defineComponent({
 
         const handleDisposeWayClick = () => {
             if (!userSessionStore.hasAuth('alarmMgr')) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_NO_AUTH'),
                 })
@@ -231,16 +231,6 @@ export default defineComponent({
         })
 
         const getSaveData = (rowData: ChannelMotion) => {
-            let objectFilter = ''
-            if (rowData.supportSMD) {
-                objectFilter = rawXml`
-                    <objectFilter>
-                        ${ternary(rowData.objectFilterCar, `<car><switch>${rowData.objectFilterCar}</switch></car>`)}
-                        ${ternary(rowData.objectFilterPerson, `<person><switch>${rowData.objectFilterPerson}</switch></person>`)}
-                    </objectFilter>
-                `
-            }
-
             return rawXml`
                 <content>
                     <chl id='${rowData.id}'>
@@ -248,7 +238,15 @@ export default defineComponent({
                             <switch>${rowData.switch.toString()}</switch>
                             <sensitivity min='${rowData.sensitivityMinValue.toString()}' max='${rowData.sensitivityMaxValue.toString()}'>${rowData.sensitivity.toString()}</sensitivity>
                             <holdTime unit='s'>${rowData.holdTime}</holdTime>
-                            ${objectFilter}
+                            ${ternary(
+                                rowData.supportSMD,
+                                rawXml`
+                                    <objectFilter>
+                                        ${ternary(rowData.objectFilterCar, `<car><switch>${rowData.objectFilterCar}</switch></car>`)}
+                                        ${ternary(rowData.objectFilterPerson, `<person><switch>${rowData.objectFilterPerson}</switch></person>`)}
+                                    </objectFilter>
+                                `,
+                            )}
                             <area type='list' count='${rowData.row.toString()}'>
                                 <itemType minLen='${rowData.column.toString()}' maxLen='${rowData.column.toString()}'/>
                                 ${rowData.areaInfo.map((ele) => `<item>${ele}</item>`).join('')}

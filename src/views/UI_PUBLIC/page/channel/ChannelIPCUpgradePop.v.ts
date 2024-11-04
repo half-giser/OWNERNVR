@@ -12,7 +12,7 @@ import { type XMLQuery } from '@/utils/xmlParse'
 
 export default defineComponent({
     setup() {
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { Translate } = useLangStore()
         const Plugin = inject('Plugin') as PluginType
         const isSupportH5 = Plugin.IsSupportH5()
@@ -138,7 +138,7 @@ export default defineComponent({
                         changeStatus(ele, 'progress', progress)
                     })
                     if (progress == '100') {
-                        openMessageTipBox({
+                        openMessageBox({
                             type: 'info',
                             message: Translate('IDCS_UPGRADE_IPC_NOTE'),
                         })
@@ -167,13 +167,13 @@ export default defineComponent({
             })
             if (errorCode === ErrorCode.USER_ERROR_DEVICE_BUSY) {
                 // 设备忙
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_DEVICE_BUSY'),
                 })
             } else if (errorCode === ErrorCode.USER_ERROR_FILE_MISMATCHING) {
                 // 无磁盘
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_NO_DISK'),
                 })

@@ -56,8 +56,7 @@
                         show-password
                         @paste.capture.prevent=""
                         @copy.capture.prevent=""
-                    >
-                    </el-input>
+                    />
                 </el-form-item>
                 <el-radio-group v-model="pageData.quality">
                     <el-radio

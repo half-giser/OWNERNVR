@@ -52,7 +52,22 @@ export default defineFlatConfig([
             ],
             'dot-notation': 'error',
         },
-        ignores: ['dist'],
+        ignores: ['dist', 'public'],
     },
     ...prettier,
+    {
+        rules: {
+            'vue/html-self-closing': [
+                'error',
+                {
+                    html: {
+                        void: 'always',
+                        normal: 'never',
+                        component: 'always',
+                    },
+                    svg: 'always',
+                },
+            ],
+        },
+    },
 ])

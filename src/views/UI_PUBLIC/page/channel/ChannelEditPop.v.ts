@@ -40,7 +40,7 @@ export default defineComponent({
         const userSessionStore = useUserSessionStore()
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const formRef = ref<FormInstance>()
         const ipTitle = ref('')
         const showIpInput = ref(true)
@@ -129,7 +129,7 @@ export default defineComponent({
                     let errorInfo = Translate('IDCS_QUERY_DATA_FAIL')
                     const isNotExit = Number($('errorCode').text()) === ErrorCode.USER_ERROR__CANNOT_FIND_NODE_ERROR
                     if (isNotExit) errorInfo = Translate('IDCS_RESOURCE_NOT_EXIST').formatForLang(Translate('IDCS_CHANNEL'))
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: errorInfo,
                     }).then(() => {
@@ -162,7 +162,7 @@ export default defineComponent({
                         }
 
                         if (!checkChlName(value.replace(' ', ''))) {
-                            openMessageTipBox({
+                            openMessageBox({
                                 type: 'info',
                                 message: Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS'),
                             })
@@ -170,7 +170,7 @@ export default defineComponent({
                         }
 
                         if (!notCheckNameFlag && checkIsNameExit(value, props.rowData.id)) {
-                            openMessageTipBox({
+                            openMessageBox({
                                 type: 'question',
                                 message: Translate('IDCS_NAME_EXISTED'),
                                 confirmButtonText: Translate('IDCS_KEEP'),
@@ -258,7 +258,7 @@ export default defineComponent({
                         const $ = queryXml(res)
                         if ($('status').text() == 'success') {
                             emit('updateNameMapping', props.rowData.id, editItem.value.name)
-                            openMessageTipBox({
+                            openMessageBox({
                                 type: 'success',
                                 message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                             }).then(() => {
@@ -274,7 +274,7 @@ export default defineComponent({
                             if (errorCode === ErrorCode.USER_ERROR_NAME_EXISTED) {
                                 errorInfo = Translate('IDCS_PROMPT_CHANNEL_NAME_EXIST')
                             } else if (errorCode === ErrorCode.USER_ERROR__CANNOT_FIND_NODE_ERROR) {
-                                openMessageTipBox({
+                                openMessageBox({
                                     type: 'info',
                                     message: Translate('IDCS_RESOURCE_NOT_EXIST').formatForLang(Translate('IDCS_CHANNEL')),
                                 }).then(() => {
@@ -286,7 +286,7 @@ export default defineComponent({
                             } else if (errorCode === ErrorCode.USER_ERROR_INVALID_IP) {
                                 errorInfo = Translate('IDCS_PROMPT_CHANNEL_EXIST')
                             }
-                            openMessageTipBox({
+                            openMessageBox({
                                 type: 'info',
                                 message: errorInfo,
                             })

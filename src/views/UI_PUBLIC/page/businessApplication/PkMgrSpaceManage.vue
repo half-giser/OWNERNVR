@@ -29,10 +29,7 @@
                     :label="Translate('IDCS_PARKING_TYPE')"
                 >
                     <template #default="scope">
-                        <el-select
-                            v-model="scope.row.parkingType"
-                            size="small"
-                        >
+                        <el-select v-model="scope.row.parkingType">
                             <el-option
                                 v-for="item in pageData.parkingTypeList"
                                 :key="item.value"
@@ -52,7 +49,6 @@
                             :min="1"
                             :max="10000"
                             :disabled="scope.row.parkingType !== 'usingGroup'"
-                            size="small"
                         />
                     </template>
                 </el-table-column>
@@ -66,7 +62,6 @@
                             :min="0"
                             :max="10000"
                             :disabled="scope.row.parkingType !== 'usingGroup'"
-                            size="small"
                         />
                     </template>
                 </el-table-column>
@@ -92,7 +87,6 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.groupSchedule"
-                            size="small"
                             @change="changeSingleSchedule(scope.row)"
                         >
                             <el-option
@@ -109,10 +103,7 @@
                     :label="Translate('IDCS_EMAIL')"
                 >
                     <template #default="scope">
-                        <el-input
-                            v-model="scope.row.linkEmail"
-                            size="small"
-                        />
+                        <el-input v-model="scope.row.linkEmail" />
                     </template>
                 </el-table-column>
             </el-table>

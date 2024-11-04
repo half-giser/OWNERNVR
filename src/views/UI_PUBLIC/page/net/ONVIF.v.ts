@@ -14,7 +14,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
 
         // 用户类型与文本的映射
@@ -94,7 +94,7 @@ export default defineComponent({
          * @param {NetOnvifUserList} item
          */
         const deleteUser = (item: NetOnvifUserList) => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'info',
                 message: Translate('IDCS_USER_DELETE_USER_S').formatForLang(item.userName),
             }).then(async () => {
@@ -116,7 +116,7 @@ export default defineComponent({
          * @description 删除所有用户
          */
         const deleteAllUser = () => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'info',
                 message: Translate('IDCS_DELETE_ALL_ONVIF_USER_TIP'),
             }).then(async () => {
@@ -183,7 +183,7 @@ export default defineComponent({
             if (formData.value.switch) {
                 const rtspSwitch = getRtspSwitch()
                 if (!rtspSwitch) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'question',
                         message: Translate('IDCS_ENABLE_API_AFTER_RTSP_TIP'),
                     })

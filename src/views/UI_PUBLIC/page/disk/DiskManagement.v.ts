@@ -17,7 +17,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const dateTime = useDateTimeStore()
 
@@ -196,7 +196,7 @@ export default defineComponent({
          */
         const formatCurrentDisk = (index: number) => {
             pageData.value.formatDiskIndex = index
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 title: Translate('IDCS_QUESTION_MSG'),
                 message: `${Translate('IDCS_FORMAT_MP_DISK_S')}<br><span style="color:red;">${Translate('IDCS_FORMAT_MP_DISK_RESULT')}</span>`.formatForLang(tableData.value[index].diskNum),
@@ -210,7 +210,7 @@ export default defineComponent({
          */
         const formatAllDisk = () => {
             pageData.value.formatDiskIndex = -1
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 title: Translate('IDCS_QUESTION_MSG'),
                 message: `${Translate('IDCS_FORMAT_ALL_DISKS')}<br><span style="color:var(--color-error);">${Translate('IDCS_FORMAT_MP_DISK_RESULT')}</span>`,
@@ -263,7 +263,7 @@ export default defineComponent({
                         break
                 }
 
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: errorInfo,
                 })
@@ -298,7 +298,7 @@ export default defineComponent({
                 pageData.value.isInputEncryptPwd = false
                 getData()
             } else {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_UNLOCK_DISK_FAIL'),
                 })

@@ -3,7 +3,7 @@
  * @Date: 2024-06-04 10:26:32
  * @Description: MAC地址输入框
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 11:54:12
+ * @LastEditTime: 2024-11-04 09:11:55
 -->
 <template>
     <div
@@ -50,13 +50,11 @@ const prop = withDefaults(
          */
         modelValue: string
         mode?: InputMode
-        size?: string
     }>(),
     {
         disabled: false,
         invalidateMode: 'PREVENT',
         mode: 'MAC',
-        size: '',
     },
 )
 
@@ -213,8 +211,6 @@ const handleBlur = (index: number) => {
 
 <style lang="scss">
 .MacInput {
-    --el-input-inner-height: 28px;
-
     align-items: left;
     border: 1px solid var(--input-border);
     border-radius: var(--el-input-border-radius, var(--el-border-radius-base));
@@ -226,7 +222,7 @@ const handleBlur = (index: number) => {
     transform: translateZ(0);
     transition: var(--el-transition-box-shadow);
     font-size: var(--el-font-size-base);
-    line-height: var(--el-input-inner-height);
+    line-height: calc(var(--el-component-size) - 2px);
     width: var(--el-input-width);
     box-sizing: border-box;
     background: var(--el-input-bg-color, var(--el-fill-color-blank));
@@ -240,11 +236,6 @@ const handleBlur = (index: number) => {
             background-color: var(--input-bg-disabled);
             border-color: var(--input-border-disabled);
         }
-    }
-
-    &.small {
-        --el-input-inner-height: 20px;
-        font-size: 12px;
     }
 
     &.disabled {
@@ -265,8 +256,8 @@ const handleBlur = (index: number) => {
         max-width: 25%;
         width: 25px;
         font-size: inherit;
-        line-height: var(--el-input-inner-height);
-        height: var(--el-input-inner-height);
+        line-height: calc(var(--el-component-size) - 4px);
+        height: calc(var(--el-component-size) - 4px);
         border: none;
         outline: 0;
         text-align: center;

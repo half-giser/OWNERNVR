@@ -15,7 +15,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
 
         const pageData = ref({
@@ -28,7 +28,7 @@ export default defineComponent({
          * @description 改变磁盘模式时，弹窗确认弹窗
          */
         const changeDiskMode = () => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_CHANGE_RAID_USE_TIP'),
             })
@@ -80,7 +80,7 @@ export default defineComponent({
                 }
 
                 if (errorInfo) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: errorInfo,
                     })

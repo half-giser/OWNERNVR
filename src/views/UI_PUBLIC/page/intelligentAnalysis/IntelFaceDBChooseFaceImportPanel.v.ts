@@ -40,7 +40,7 @@ export default defineComponent({
     setup(prop, ctx) {
         const Plugin = inject('Plugin') as PluginType
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
 
         const DEFAULT_BIRTHDAY = formatDate(new Date(), 'YYYY/MM/DD')
@@ -79,7 +79,7 @@ export default defineComponent({
          */
         const checkImportFaceImgCount = (len: number) => {
             if (len > prop.limit) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_SELECT_FACE_UPTO_MAX').formatForLang(prop.limit),
                 })
@@ -238,7 +238,7 @@ export default defineComponent({
             }
 
             if (hasNotSupportedType) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_FILE_NOT_AVAILABLE'),
                 })
@@ -274,7 +274,7 @@ export default defineComponent({
                 closeLoading()
                 resetOCXData()
             } catch (e) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: e as string,
                 })
@@ -370,7 +370,7 @@ export default defineComponent({
                         case ErrorCode.USER_ERROR_KEYBOARDINDEX_ERROR:
                             closeLoading()
                             resetOCXData()
-                            openMessageTipBox({
+                            openMessageBox({
                                 type: 'info',
                                 message: Translate('IDCS_ADD_FACE_FAIL') + ',' + Translate('IDCS_PICTURE_SIZE_LIMIT_TIP'),
                             })
@@ -378,7 +378,7 @@ export default defineComponent({
                         case ErrorCode.USER_ERROR_SPECIAL_CHAR_2:
                             closeLoading()
                             resetOCXData()
-                            openMessageTipBox({
+                            openMessageBox({
                                 type: 'info',
                                 message: Translate('IDCS_FILE_NOT_AVAILABLE'),
                             })
@@ -399,7 +399,7 @@ export default defineComponent({
                 closeLoading()
                 resetOCXData()
                 if (Number($('statenotify/errorCode').text()) === ErrorCode.USER_ERROR_NODE_NET_DISCONNECT) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_OCX_NET_DISCONNECT'),
                     })

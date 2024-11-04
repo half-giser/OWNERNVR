@@ -22,7 +22,7 @@ export default defineComponent({
     setup(props, { emit }) {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const formRef = ref<FormInstance>()
         const formData = ref(new ProtocolManageDto())
         const protocolManageList = ref<ProtocolManageDto[]>([])
@@ -118,7 +118,7 @@ export default defineComponent({
                 const mainPath = formData.value.resourcesPath[0].path.trim()
                 const subPath = formData.value.resourcesPath[1].path.trim()
                 if (!mainPath) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_MAIN_RESOURCE_PATH_EMPTY'),
                     })
@@ -127,7 +127,7 @@ export default defineComponent({
                 }
 
                 if (!subPath) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_SUB_RESOURCE_PATH_EMPTY'),
                     })
@@ -136,7 +136,7 @@ export default defineComponent({
                 }
                 const reg = /[^A-z|\d!@#$%^&*(){}\|:"`<>?~_\\'./\-\s\[\];,=+]/g
                 if (reg.test(mainPath)) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_MAIN_RESOURCE_PATH_ILLEGAL'),
                     })
@@ -145,7 +145,7 @@ export default defineComponent({
                 }
 
                 if (reg.test(subPath)) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_SUB_RESOURCE_PATH_ILLEGAL'),
                     })
@@ -174,7 +174,7 @@ export default defineComponent({
                     } else {
                         msg = Translate('IDCS_SAVE_DATA_FAIL')
                     }
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: msg,
                     }).then(() => {

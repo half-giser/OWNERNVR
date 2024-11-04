@@ -36,7 +36,7 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
 
         const formRef = ref<FormInstance>()
@@ -95,7 +95,7 @@ export default defineComponent({
             } else {
                 const errorCode = Number($('//errorCode').text())
                 if (errorCode === ErrorCode.USER_ERROR_NAME_EXISTED) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_NAME_SAME'),
                     })

@@ -2,17 +2,16 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-23 10:59:14
  * @Description: 系统撤防
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-29 11:14:46
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-11-04 16:40:16
  */
 import { SystemDisarm } from '@/types/apiType/aiAndEvent'
-import { type ElDropdown } from 'element-plus'
 import { cloneDeep } from 'lodash-es'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         // const systemCaps = useCababilityStore()
-        const openMessageTipBox = useMessageBox().openMessageTipBox
+        const openMessageBox = useMessageBox().openMessageBox
         const { openLoading, closeLoading } = useLoading()
 
         const defenseParamMap: Record<string, string> = {
@@ -74,7 +73,7 @@ export default defineComponent({
         })
         const tableData = ref([] as SystemDisarm[])
         const cfgTableData = ref([] as { id: string; value: string; selected: boolean }[])
-        const dropDownRef = ref<InstanceType<typeof ElDropdown>>()
+        // const dropDownRef = ref<InstanceType<typeof ElDropdown>>()
         // 获取在线的通道列表
         const getOnlineChlList = async () => {
             const onlineChls = await queryOnlineChlList()
@@ -262,37 +261,38 @@ export default defineComponent({
         }
 
         const getSaveData = () => {
-            let sendXml = rawXml`<types>
-                            <defenseType>`
-            pageData.value.totalDefenseParamList.forEach((item: { id: string; value: string }) => {
-                sendXml += rawXml`<enum>${item.id}</enum>`
-            })
-            sendXml += rawXml`
-                        </defenseType>
-                        <nodeType>
-                            <enum>channel</enum>
-                            <enum>sensor</enum>
-                        </nodeType>
-                    </types>
-                    <content>
-                        <defenseSwitch>${pageData.value.defenseSwitch.toString()}</defenseSwitch>
-                        <remoteSwitch>${pageData.value.remoteSwitch.toString()}</remoteSwitch>
-                        <sensorSwitch>${formData.value.sensorSwitch.toString()}</sensorSwitch>
-                        <inputSourceSensor>${formData.value.inputSource}</inputSourceSensor>
-                        <defenseSwitchParam type="list">
-                    `
-            tableData.value.forEach((item: SystemDisarm) => {
-                sendXml += rawXml`<item id="${item.id}">
-                                <nodeType type="nodeType">${item.nodeType}</nodeType>
-                                <defenseAttrs type="list">`
-                item.disarmItemsList.forEach((ele: { id: string; value: string }) => {
-                    sendXml += rawXml`<item>${ele.id}</item>`
-                })
-                sendXml += rawXml`</defenseAttrs>
-                            </item>`
-            })
-            sendXml += rawXml`</defenseSwitchParam>
-                    </content>`
+            const sendXml = rawXml`
+                <types>
+                    <defenseType>
+                        ${pageData.value.totalDefenseParamList.map((item) => `<enum>${item.id}</enum>`).join('')}
+                    </defenseType>
+                    <nodeType>
+                        <enum>channel</enum>
+                        <enum>sensor</enum>
+                    </nodeType>
+                </types>
+                <content>
+                    <defenseSwitch>${pageData.value.defenseSwitch.toString()}</defenseSwitch>
+                    <remoteSwitch>${pageData.value.remoteSwitch.toString()}</remoteSwitch>
+                    <sensorSwitch>${formData.value.sensorSwitch.toString()}</sensorSwitch>
+                    <inputSourceSensor>${formData.value.inputSource}</inputSourceSensor>
+                    <defenseSwitchParam type="list">
+                        ${tableData.value
+                            .map((item) => {
+                                return rawXml`
+                                    <item id="${item.id}">
+                                        <nodeType type="nodeType">${item.nodeType}</nodeType>
+                                        <defenseAttrs type="list">
+                                            ${item.disarmItemsList.map((ele) => `<item>${ele.id}</item>`).join('')}
+                                        </defenseAttrs>
+                                    </item>
+                                `
+                            })
+                            .join('')}
+                    </defenseSwitchParam>
+                </content>
+            `
+
             return sendXml
         }
 
@@ -303,14 +303,14 @@ export default defineComponent({
                 closeLoading()
                 const res = queryXml(resb)
                 if (res('status').text() == 'success') {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'success',
                         message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                     })
                 } else {
                     const errorCode = Number(res('errorcode').text())
                     if (errorCode == ErrorCode.USER_ERROR_NO_AUTH) {
-                        openMessageTipBox({
+                        openMessageBox({
                             type: 'info',
                             message: Translate('IDCS_DISARM_SAVE_INVALID'),
                         })
@@ -398,7 +398,7 @@ export default defineComponent({
                 }
 
                 if (flagIdx >= 0) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'question',
                         message: Translate('IDCS_DISARM_INPUT_SENSOR_TIP').formatForLang(sensorName),
                     }).then(() => {
@@ -417,14 +417,14 @@ export default defineComponent({
         // 一键撤防或一键布放
         const setdisarmAll = () => {
             if (!pageData.value.defenseSwitch) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'question',
                     message: Translate('IDCS_CLOSE_GUARD_QUESTION_TIP'),
                 }).then(() => {
                     pageData.value.defenseSwitch = true
                 })
             } else {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'question',
                     message: Translate('IDCS_RECOVER_GUARD_QUESTION_TIP'),
                 }).then(() => {
@@ -532,13 +532,13 @@ export default defineComponent({
                     item.disarmItemsStr = Translate('IDCS_NULL')
                 }
             })
-            dropDownRef.value?.handleClose()
+            pageData.value.popoverVisible = false
             pageData.value.applyDisable = false
         }
 
         // 删除单个撤防项
         const deleteItem = (row: SystemDisarm) => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_S'),
             }).then(() => {
@@ -554,7 +554,7 @@ export default defineComponent({
 
         // 删除所有撤防项
         const deleteItemAll = () => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_ALL_ITEMS'),
             }).then(() => {
@@ -599,18 +599,19 @@ export default defineComponent({
             }
             pageData.value.isSelectAll = cfgTableData.value.length == pageData.value.selectedCfgList.length
         }
+
         onMounted(async () => {
             await getOnlineChlList()
             await getChlListAll()
             await getSensorSourceList()
             buildData()
         })
+
         return {
             formData,
             pageData,
             tableData,
             cfgTableData,
-            dropDownRef,
             filterChlsSource,
             setdisarmAll,
             addItem,

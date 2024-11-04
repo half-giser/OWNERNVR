@@ -31,8 +31,7 @@
                         :key="item.value"
                         :label="item.label"
                         :value="item.value"
-                    >
-                    </el-option>
+                    />
                 </el-select>
                 <el-button
                     type="primary"
@@ -57,8 +56,7 @@
                     :label="Translate('IDCS_SERIAL_NUMBER')"
                     width="80"
                     type="index"
-                >
-                </el-table-column>
+                />
                 <el-table-column
                     width="325"
                     :label="Translate('IDCS_RECIPIENT')"
@@ -98,8 +96,7 @@
                                 :key="item.value"
                                 :value="item.value"
                                 :label="item.label"
-                            >
-                            </el-option>
+                            />
                         </el-select>
                     </template>
                 </el-table-column>
@@ -163,8 +160,7 @@
         <ScheduleManagPop
             v-model="pageData.scheduleManagePopOpen"
             @close="handleSchedulePopClose"
-        >
-        </ScheduleManagPop>
+        />
     </div>
 </template>
 

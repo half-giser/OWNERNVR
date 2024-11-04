@@ -3,7 +3,7 @@
  * @Date: 2024-07-01 16:57:13
  * @Description: 查看日志详情
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-04 19:29:55
+ * @LastEditTime: 2024-11-01 15:18:13
 -->
 <template>
     <el-dialog
@@ -11,33 +11,28 @@
         width="600"
         @open="handleCombinedType"
     >
-        <div class="ViewLogDetail stripe">
-            <div>
-                <label>{{ Translate('IDCS_SERIAL_NUMBER') }}</label>
-                <span>{{ item.index }}</span>
-            </div>
-            <div>
-                <label>{{ Translate('IDCS_LOG_TIME') }}</label>
-                <span>{{ item.time }}</span>
-            </div>
-            <div>
-                <label>{{ Translate('IDCS_TYPE') }}</label>
-                <span>{{ `${item.mainType}----${item.subType}` }}</span>
-            </div>
-            <div>
-                <label>{{ Translate('IDCS_USER') }}</label>
-                <span>{{ item.userName }}</span>
-            </div>
-            <div>
-                <label>{{ Translate('IDCS_DETAIL_INFO') }}</label>
-                <span></span>
-            </div>
-            <div
-                v-show="isContentPlainText"
-                class="text-area"
-            >
-                <div>{{ item.content }}</div>
-            </div>
+        <el-form
+            class="stripe"
+            :style="{
+                '--form-label-width': '150px',
+            }"
+        >
+            <el-form-item :label="Translate('IDCS_SERIAL_NUMBER')">
+                {{ item.index }}
+            </el-form-item>
+            <el-form-item :label="Translate('IDCS_LOG_TIME')">
+                {{ item.time }}
+            </el-form-item>
+            <el-form-item :label="Translate('IDCS_TYPE')">
+                {{ `${item.mainType}----${item.subType}` }}
+            </el-form-item>
+            <el-form-item :label="Translate('IDCS_USER')">
+                {{ item.userName }}
+            </el-form-item>
+            <el-form-item :label="Translate('IDCS_DETAIL_INFO')" />
+            <el-form-item v-show="isContentPlainText">
+                <div class="text-area">{{ item.content }}</div>
+            </el-form-item>
             <div
                 v-show="!isContentPlainText"
                 class="combined-detail"
@@ -75,7 +70,7 @@
                     <span>{{ pageData.name2 }}</span>
                 </div>
             </div>
-        </div>
+        </el-form>
         <template #footer>
             <el-row>
                 <el-col
@@ -102,73 +97,44 @@
 <script lang="ts" src="./ViewLogDetailPop.v.ts"></script>
 
 <style lang="scss" scoped>
-.ViewLogDetail {
-    width: 100%;
+.combined-detail {
+    display: block;
+    height: fit-content;
 
-    & > div {
-        padding: 5px 10px;
-        height: 40px;
-        line-height: 30px;
-        box-sizing: border-box;
+    .pic {
         display: flex;
-        align-items: center;
-        font-size: 15px;
 
-        label {
+        & > div:first-child {
             width: 150px;
-            flex-shrink: 0;
         }
 
-        &:nth-child(even) {
-            background-color: var(--table-stripe);
-        }
-
-        &.text-area {
-            align-items: flex-start;
-        }
-
-        &.combined-detail {
-            display: block;
-            height: fit-content;
-        }
-    }
-
-    .text-area {
-        width: 100%;
-        height: 100px;
-        overflow-y: auto;
-    }
-
-    .combined-detail {
-        .pic {
-            display: flex;
-
-            & > div:first-child {
-                width: 150px;
-            }
-
-            & > div:last-child {
-                margin-left: 10px;
-                width: 210px;
-            }
-        }
-
-        .capture {
-            width: 100px;
-            height: 100px;
-            background-color: var(--subheading-bg);
-        }
-
-        .scenes {
+        & > div:last-child {
+            margin-left: 10px;
             width: 210px;
-            height: 140px;
-            background-color: var(--subheading-bg);
-        }
-
-        img {
-            width: 100%;
-            height: 100%;
         }
     }
+
+    .capture {
+        width: 100px;
+        height: 100px;
+        background-color: var(--subheading-bg);
+    }
+
+    .scenes {
+        width: 210px;
+        height: 140px;
+        background-color: var(--subheading-bg);
+    }
+
+    img {
+        width: 100%;
+        height: 100%;
+    }
+}
+
+.text-area {
+    width: 100%;
+    height: 100px;
+    overflow-y: auto;
 }
 </style>

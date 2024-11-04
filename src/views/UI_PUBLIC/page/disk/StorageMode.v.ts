@@ -16,7 +16,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate, langId } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
 
         const pageData = ref({
@@ -183,7 +183,7 @@ export default defineComponent({
          * @param {string} id
          */
         const deleteDisk = (id: string) => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_HD_CHANGE_GROUP_WARNING'),
             }).then(() => {
@@ -199,25 +199,23 @@ export default defineComponent({
         const editRelation = async (elementName: string, elementId: string) => {
             openLoading()
 
-            let chlXml = ''
-            if (elementName === 'chls') {
-                chlXml = rawXml`
-                    <diskGroup>
-                        <action type="actionType">remove</action>
-                        <id>${currentItem.value.id}</id>
-                        <chls type="list">
-                            <item id="${elementId}" />
-                        </chls>
-                    </diskGroup>
-                `
-            }
-
             const sendXml = rawXml`
                 <types>
                     <actionType>${wrapEnums(['add', 'remove'])}</actionType>
                 </types>
                 <content>
-                    ${chlXml}
+                    ${ternary(
+                        elementName === 'chls',
+                        rawXml`
+                            <diskGroup>
+                                <action type="actionType">remove</action>
+                                <id>${currentItem.value.id}</id>
+                                <chls type="list">
+                                    <item id="${elementId}" />
+                                </chls>
+                            </diskGroup>
+                        `,
+                    )}
                     <diskGroup>
                         <action type="actionType">add</action>
                         <id>${pageData.value.diskGroupList[0].id}</id>
@@ -234,14 +232,14 @@ export default defineComponent({
             closeLoading()
 
             if ($('//status').text() === 'success') {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_DELETE_SUCCESS'),
                 }).finally(() => {
                     getDiskGroupList()
                 })
             } else {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_DELETE_FAIL'),
                 })

@@ -18,7 +18,7 @@
                     type="text"
                     readonly
                     :model-value="formData.filePath"
-                ></el-input>
+                />
                 <el-button
                     v-show="!isSupportH5"
                     :disabled="pageData.isUploadDisabled"

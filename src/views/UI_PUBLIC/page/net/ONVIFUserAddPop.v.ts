@@ -35,7 +35,7 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
         const userSession = useUserSessionStore()
 
@@ -144,7 +144,7 @@ export default defineComponent({
                     errorInfo = Translate('IDCS_SAVE_FAIL')
                     break
             }
-            openMessageTipBox({
+            openMessageBox({
                 type: 'info',
                 message: errorInfo,
             })
@@ -171,7 +171,7 @@ export default defineComponent({
             closeLoading()
 
             if ($('//status').text() === 'success') {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 }).finally(() => {
@@ -202,7 +202,7 @@ export default defineComponent({
             closeLoading()
 
             if ($('//status').text() === 'success') {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 }).finally(() => {

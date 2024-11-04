@@ -55,7 +55,7 @@
                 </template>
             </el-table-column>
         </el-table>
-        <BaseLivePop ref="baseLivePopRef"></BaseLivePop>
+        <BaseLivePop ref="baseLivePopRef" />
         <template #footer>
             <el-row>
                 <el-col

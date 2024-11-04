@@ -30,8 +30,7 @@
                                 :key="index"
                                 :value="index"
                                 :label="item.name"
-                            >
-                            </el-option>
+                            />
                         </el-select>
                     </el-form-item>
                     <el-form-item
@@ -47,8 +46,7 @@
                                 :key="item.value"
                                 :value="item.value"
                                 :label="Translate(item.label)"
-                            >
-                            </el-option>
+                            />
                         </el-select>
                     </el-form-item>
                 </el-form>

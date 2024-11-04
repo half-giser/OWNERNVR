@@ -16,7 +16,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
 
         const playerRef = ref<PlayerInstance>()
@@ -112,7 +112,7 @@ export default defineComponent({
                         }
 
                         if (tableData.value[pageData.value.tableIndex].taskItemCount >= TASK_LIMIT) {
-                            openMessageTipBox({
+                            openMessageBox({
                                 type: 'info',
                                 message: Translate('IDCS_OVER_MAX_NUMBER_LIMIT'),
                             })
@@ -383,7 +383,7 @@ export default defineComponent({
                 </content>
             `
             await editChlPtzTask(sendXML)
-            openMessageTipBox({
+            openMessageBox({
                 type: 'success',
                 message: Translate('IDCS_SAVE_DATA_SUCCESS'),
             })
@@ -459,7 +459,7 @@ export default defineComponent({
          * @description 删除所有任务
          */
         const deleteAllTask = () => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_ALL_ITEMS'),
             }).then(async () => {

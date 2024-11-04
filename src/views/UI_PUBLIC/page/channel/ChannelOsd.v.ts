@@ -16,7 +16,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const osType = getSystemInfo().platform
         const dateTime = useDateTimeStore()
 
@@ -89,7 +89,7 @@ export default defineComponent({
             const rowData = getRowById(chlId)!
             const name = chlName.trim()
             if (!checkChlName(name)) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS'),
                 })
@@ -99,7 +99,7 @@ export default defineComponent({
             } else {
                 // 当有重名IPC弹框时，新增保持和编辑按钮，让用户选择保持编辑或者返回重新编辑
                 if (checkIsNameExit(name, rowData.id)) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'question',
                         message: Translate('IDCS_NAME_EXISTED'),
                         confirmButtonText: Translate('IDCS_KEEP'),

@@ -35,7 +35,7 @@ export default defineComponent({
     },
     setup(prop) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
         const pluginStore = usePluginStore()
         const systemCaps = useCababilityStore()
@@ -226,7 +226,7 @@ export default defineComponent({
 
         const tempForceClosePath = (canBeClosed: boolean) => {
             if (!canBeClosed) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_INTERSECT'),
                 })
@@ -234,7 +234,7 @@ export default defineComponent({
         }
 
         const tempClearCurrentArea = () => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DRAW_CLEAR_TIP'),
             }).then(() => {
@@ -871,7 +871,7 @@ export default defineComponent({
             }
 
             if (tempDetectionData.value.preset.length > MAX_TRIGGER_PRESET_COUNT) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_PRESET_LIMIT'),
                 })
@@ -885,7 +885,7 @@ export default defineComponent({
             const count = tempDetectionData.value.boundaryData.length
             for (const item of tempDetectionData.value.boundaryData) {
                 if (count > 2 && !judgeAreaCanBeClosed(item.points)) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_INTERSECT'),
                     })
@@ -982,19 +982,19 @@ export default defineComponent({
                 // 保存成功后刷新视频区域，四个点时区域没有闭合但保存后也可以闭合（四点已经可以画面）
                 setAreaView()
                 pageData.value.applyDisabled = true
-                openMessageTipBox({
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
             } else {
                 const errorCode = $('//errorCode').text()
                 if (errorCode == '536871053') {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_INPUT_LIMIT_FOUR_POIONT'),
                     })
                 } else {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_SAVE_DATA_FAIL'),
                     })
@@ -1030,7 +1030,7 @@ export default defineComponent({
                 tempClearCurrentArea()
             } else if (errorCode == '515') {
                 // 515-区域有相交直线，不可闭合
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_INTERSECT'),
                 })

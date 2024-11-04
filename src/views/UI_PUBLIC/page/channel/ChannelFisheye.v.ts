@@ -10,7 +10,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const osType = getSystemInfo().platform
 
         const playerRef = ref<PlayerInstance>()
@@ -298,17 +298,19 @@ export default defineComponent({
         }
 
         const getFishEyeEnableSaveData = (rowDatas: ChannelFisheye[]) => {
-            const chlXml = rowDatas
-                .filter((ele) => ele.reqCfgFail)
-                .map((ele) => {
-                    return rawXml`
-                        <chl id='${ele.id}'>
-                            <fishEyeEnable>${ele.fishEyeEnable.toString()}</fishEyeEnable>
-                        </chl>
-                    `
-                })
-                .join('')
-            return `<content>${chlXml}</content>`
+            return rawXml`
+                <content>
+                    ${rowDatas
+                        .filter((ele) => ele.reqCfgFail)
+                        .map((ele) => {
+                            return rawXml`
+                                <chl id='${ele.id}'>
+                                    <fishEyeEnable>${ele.fishEyeEnable.toString()}</fishEyeEnable>
+                                </chl>
+                            `
+                        })
+                        .join('')}
+                </content>`
         }
 
         const setData = async () => {
@@ -373,7 +375,7 @@ export default defineComponent({
             })
 
             if (isChangeFishModel) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'question',
                     message: Translate('IDCS_FISHMODE_CHANGE_TIP'),
                 }).then(() => {

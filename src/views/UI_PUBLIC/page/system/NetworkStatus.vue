@@ -26,8 +26,7 @@
             <el-table-column
                 :label="Translate('IDCS_VALUE')"
                 prop="v"
-            >
-            </el-table-column>
+            />
         </el-table>
     </div>
 </template>

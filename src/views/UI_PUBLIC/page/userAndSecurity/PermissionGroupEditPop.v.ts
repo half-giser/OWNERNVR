@@ -33,7 +33,7 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
         const userSession = useUserSessionStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { closeLoading, openLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
@@ -139,25 +139,6 @@ export default defineComponent({
         const doEditAuthGroup = async () => {
             openLoading()
 
-            const channelAuthListXml = channelAuthList.value
-                .map((item) => {
-                    return rawXml`
-                        <item id="${item.id}">
-                            <name>${wrapCDATA(item.name)}</name>
-                            <auth>${wrapCDATA(DEFAULT_CHANNEL_AUTH_LIST.filter((key) => item[key] === Translate('IDCS_ON')).join(','))}</auth>
-                        </item>
-                    `
-                })
-                .join('')
-            const systemAuthListXml = Object.keys(systemAuthList.value)
-                .map((item) => {
-                    return Object.keys(systemAuthList.value[item].value)
-                        .map((key) => {
-                            return `<${key}>${systemAuthList.value[item].value[key].value}</${key}>`
-                        })
-                        .join('')
-                })
-                .join('')
             const sendXml = rawXml`
                 <content>
                     <id>${prop.groupId}</id>
@@ -170,10 +151,27 @@ export default defineComponent({
                             <name/>
                             <auth/>
                         </itemType>
-                        ${channelAuthListXml}
+                        ${channelAuthList.value
+                            .map((item) => {
+                                return rawXml`
+                                    <item id="${item.id}">
+                                        <name>${wrapCDATA(item.name)}</name>
+                                        <auth>${wrapCDATA(DEFAULT_CHANNEL_AUTH_LIST.filter((key) => item[key] === Translate('IDCS_ON')).join(','))}</auth>
+                                    </item>
+                                `
+                            })
+                            .join('')}
                     </chlAuth>
                     <systemAuth>
-                        ${systemAuthListXml}
+                        ${Object.keys(systemAuthList.value)
+                            .map((item) => {
+                                return Object.keys(systemAuthList.value[item].value)
+                                    .map((key) => {
+                                        return `<${key}>${systemAuthList.value[item].value[key].value}</${key}>`
+                                    })
+                                    .join('')
+                            })
+                            .join('')}
                     </systemAuth>
                 </content>
             `
@@ -198,7 +196,7 @@ export default defineComponent({
                         errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
                         break
                 }
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: errorInfo,
                 })

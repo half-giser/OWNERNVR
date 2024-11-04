@@ -15,7 +15,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
         const userSession = useUserSessionStore()
 
@@ -457,7 +457,7 @@ export default defineComponent({
          */
         const changeNWMS5000Switch = () => {
             if (formData.value.nwms5000Switch) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_RTSP_OR_FTP_ENABLE_REMIND'),
                 })

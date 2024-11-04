@@ -3,7 +3,7 @@
  * @Date: 2024-06-27 11:55:36
  * @Description: 通道 - 图像参数配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-22 19:54:19
+ * @LastEditTime: 2024-10-31 19:33:56
 -->
 <template>
     <div class="base-chl-box">
@@ -196,7 +196,6 @@
                                 v-model="scope.row.bright"
                                 :min="scope.row.brightMinValue"
                                 :max="scope.row.brightMaxValue"
-                                size="small"
                                 :disabled="scope.row.disabled"
                                 @change="handleInputChange(scope.row.bright, scope.row.id, 'bright')"
                                 @keydown.enter="handleKeydownEnter($event)"
@@ -215,7 +214,6 @@
                                 v-model="scope.row.contrast"
                                 :min="scope.row.contrastMinValue"
                                 :max="scope.row.contrastMaxValue"
-                                size="small"
                                 :disabled="scope.row.disabled"
                                 @change="handleInputChange(scope.row.contrast, scope.row.id, 'contrast')"
                                 @keydown.enter="handleKeydownEnter($event)"
@@ -234,7 +232,6 @@
                                 v-model="scope.row.saturation"
                                 :min="scope.row.saturationMinValue"
                                 :max="scope.row.saturationMaxValue"
-                                size="small"
                                 :disabled="scope.row.disabled"
                                 @change="handleInputChange(scope.row.saturation, scope.row.id, 'saturation')"
                                 @keydown.enter="handleKeydownEnter($event)"
@@ -253,7 +250,6 @@
                                 v-model="scope.row.hue"
                                 :min="scope.row.hueMinValue"
                                 :max="scope.row.hueMaxValue"
-                                size="small"
                                 :disabled="scope.row.disabled"
                                 @change="handleInputChange(scope.row.hue, scope.row.id, 'hue')"
                                 @keydown.enter="handleKeydownEnter($event)"
@@ -294,7 +290,7 @@
                                                         />
                                                     </el-select>
                                                 </el-form-item>
-                                                <el-divider></el-divider>
+                                                <el-divider />
                                                 <el-form-item>
                                                     <template #label>
                                                         <el-checkbox
@@ -785,7 +781,7 @@
                                                     <el-select
                                                         v-else
                                                         disabled
-                                                    ></el-select>
+                                                    />
                                                 </el-form-item>
                                                 <el-form-item
                                                     v-if="scope.row.isSupportIRCutMode && scope.row.IRCutMode === 'auto' && scope.row.IRCutConvSen2 !== undefined"
@@ -1146,8 +1142,7 @@
                                                         :width="440"
                                                         readonly
                                                         :time-mode="timeMode"
-                                                    >
-                                                    </BaseScheduleLine>
+                                                    />
                                                 </div>
                                                 <div
                                                     v-if="scope.row.scheduleInfo.scheduleType === 'time'"

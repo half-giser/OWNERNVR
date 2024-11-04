@@ -22,7 +22,7 @@ export default defineComponent({
             return typeof mode === 'string' && typeof chlId === 'string' && typeof chlName === 'string' && typeof chlTime === 'number'
         },
     },
-    setup(prop, ctx) {
+    setup(_prop, ctx) {
         const { Translate } = useLangStore()
         const dateTime = useDateTimeStore()
 

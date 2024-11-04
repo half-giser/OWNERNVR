@@ -3,13 +3,12 @@
  * @Date: 2024-08-16 18:56:00
  * @Description: TCP/IP配置页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-17 14:34:34
+ * @LastEditTime: 2024-10-31 18:34:59
 -->
 <template>
     <div class="tcp-ip">
         <div class="base-subheading-box">{{ Translate('IDCS_IP_ADDRESS_SET') }}</div>
         <el-form
-            class="narrow"
             :style="{
                 '--form-input-width': '220px',
             }"
@@ -87,7 +86,7 @@
                 </div>
                 <div class="ip">
                     <div class="ipv4">
-                        <el-form-item label="IPv4"></el-form-item>
+                        <el-form-item label="IPv4" />
                         <!-- IPv4地址 -->
                         <el-form-item :label="Translate('IDCS_IP_ADDRESS')">
                             <BaseIpInput
@@ -260,7 +259,7 @@
                     :key="item.id"
                     class="eth-item"
                 >
-                    <el-form-item :label="displayNicName(item)"></el-form-item>
+                    <el-form-item :label="displayNicName(item)" />
                     <el-form-item :label="Translate('IDCS_MAC_ADDRESS')">
                         <BaseMacInput
                             v-model="item.mac"
@@ -344,7 +343,7 @@
 
 .advance-btn {
     position: absolute;
-    top: -38px;
+    top: -35px;
     right: 10px;
 }
 

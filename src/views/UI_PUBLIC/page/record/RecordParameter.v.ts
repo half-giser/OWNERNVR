@@ -16,7 +16,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
@@ -206,7 +206,7 @@ export default defineComponent({
         }
 
         const setDevRecData = async () => {
-            let sendXml = rawXml`
+            const sendXml = rawXml`
                 <types>
                     <recModeType>
                         <enum>manually</enum>
@@ -226,33 +226,41 @@ export default defineComponent({
                     <doubleStreamRecSwitch>${pageData.value.doubleStreamRecSwitch}</doubleStreamRecSwitch>
                     <loopRecSwitch>${String(pageData.value.chkLoopRec)}</loopRecSwitch>
                     <chlParam>
+                        ${tableData.value
+                            .map((item) => {
+                                const singleExpirationUnit = item.singleExpirationUnit || 'd'
+                                return rawXml`
+                                    <item id='${item.id}'>
+                                        ${item.week ? `<week>${item.week}</week>` : ''}
+                                        ${item.holiday ? `<holiday>${item.holiday}</holiday>` : ''}
+                                        ${item.expiration ? `<expiration unit='${singleExpirationUnit}'>${item.expiration}</expiration>` : ''}
+                                    </item>
+                                `
+                            })
+                            .join('')}
+                    </chlParam>
+                </content>
             `
-            tableData.value.forEach((item) => {
-                const singleExpirationUnit = item.singleExpirationUnit || 'd'
-                sendXml += `<item id='${item.id}'>`
-                sendXml += item.week ? `<week>${item.week}</week>` : ``
-                sendXml += item.holiday ? `<holiday>${item.holiday}</holiday>` : ``
-                sendXml += item.expiration ? `<expiration unit='${singleExpirationUnit}'>${item.expiration}</expiration>` : ``
-                sendXml += `</item>`
-            })
-            sendXml += `</chlParam>`
-            sendXml += `</content>`
+
             const result = await editRecordDistributeInfo(sendXml)
             return result
         }
 
         const setChlRecData = async (changeList: ChlRecParamList[]) => {
-            let sendXml = rawXml`<content type='list' total='${String(changeList.length)}'\>`
-
-            changeList.forEach((item) => {
-                sendXml += rawXml`<item id='${item.id}'>
-                    <rec per='${item.per}' post='${item.post}'/>`
-                if (supportANR && item.manufacturerEnable) {
-                    sendXml += `<ANRSwitch>${item.ANRSwitch}</ANRSwitch>`
-                }
-                sendXml += `</item>`
-            })
-            sendXml += `</content>`
+            const sendXml = rawXml`
+                <content type='list' total='${String(changeList.length)}'>
+                    ${changeList
+                        .map((item) => {
+                            return rawXml`
+                                <item id='${item.id}'>
+                                    <rec per='${item.per}' post='${item.post}'/>
+                                    ${supportANR && item.manufacturerEnable ? `<ANRSwitch>${item.ANRSwitch}</ANRSwitch>` : ''}
+                                </item>
+                            `
+                        })
+                        .join('')}
+                </content>
+            `
             const result = await editNodeEncodeInfo(sendXml)
 
             return result
@@ -307,7 +315,7 @@ export default defineComponent({
                 // 只有chlResult才会走到这里
                 commSaveResponseHadler(chlResult)
             } else {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_SAVE_DATA_FAIL'),
                 })
@@ -318,7 +326,7 @@ export default defineComponent({
             openLoading()
 
             if (originalData.value.streamRecSwitch.doubleStreamSwitch != pageData.value.doubleStreamRecSwitch) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'question',
                     message: Translate('IDCS_RECORD_MODE_CHANGE_AFTER_REBOOT'),
                 }).then(() => {
@@ -365,7 +373,7 @@ export default defineComponent({
                 } else {
                     const unit = value == '1' ? Translate('IDCS_BY_DAY') : Translate('IDCS_DAYS')
                     const tips = value + ' ' + unit
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'question',
                         message: Translate('IDCS_CHANGE_EXPIRE_TIME_WARNING_D').formatForLang(tips),
                     })
@@ -400,7 +408,7 @@ export default defineComponent({
             } else {
                 const unit = value == '1' ? Translate('IDCS_BY_DAY') : Translate('IDCS_DAYS')
                 const tips = value + ' ' + unit
-                openMessageTipBox({
+                openMessageBox({
                     type: 'question',
                     message: Translate('IDCS_CHANGE_EXPIRE_TIME_WARNING_D').formatForLang(tips),
                 })

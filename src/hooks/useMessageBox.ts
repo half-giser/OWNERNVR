@@ -33,7 +33,7 @@ export default () => {
         alarm: Translate('IDCS_INFO_TIP'),
         question: Translate('IDCS_INFO_TIP'),
     }
-    const openMessageTipBox = (option: MessageTipBoxOption) => {
+    const openMessageBox = (option: MessageTipBoxOption) => {
         const optionObj = {
             // type: 'success', // 弹框类型：成功/失败/信息/警告/问题
             // title: '', // 标题
@@ -77,5 +77,5 @@ export default () => {
             })
     }
 
-    return { openMessageTipBox, count: layoutStore.messageBoxCount }
+    return { openMessageBox, count: layoutStore.messageBoxCount }
 }

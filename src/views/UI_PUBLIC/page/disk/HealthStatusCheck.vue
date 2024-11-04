@@ -75,23 +75,19 @@
                         <el-table-column
                             :label="Translate('IDCS_ALARM_NAME')"
                             prop="name"
-                        >
-                        </el-table-column>
+                        />
                         <el-table-column
                             :label="Translate('IDCS_STATE')"
                             prop="status"
-                        >
-                        </el-table-column>
+                        />
                         <el-table-column
                             :label="Translate('IDCS_DISK_SMART_VALUE')"
                             prop="value"
-                        >
-                        </el-table-column>
+                        />
                         <el-table-column
                             :label="Translate('IDCS_SUGGESTION')"
                             prop="suggest"
-                        >
-                        </el-table-column>
+                        />
                     </el-table>
                 </div>
             </div>

@@ -3,13 +3,14 @@
  * @Date: 2024-09-04 14:36:21
  * @Description: 智能分析 属性选择器
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-19 17:03:12
+ * @LastEditTime: 2024-11-01 18:20:43
 -->
 <template>
     <div>
         <el-popover
             v-model:visible="pageData.isPop"
             :width="range.length === 1 ? 300 : 400"
+            popper-class="selector"
         >
             <template #reference>
                 <div class="base-intel-placeholder">

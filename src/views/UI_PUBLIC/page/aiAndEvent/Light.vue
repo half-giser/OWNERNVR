@@ -10,8 +10,7 @@
         <ScheduleManagPop
             v-model="pageData.scheduleManagePopOpen"
             @close="handleSchedulePopClose"
-        >
-        </ScheduleManagPop>
+        />
         <div class="base-subheading-box">{{ Translate('IDCS_LIGHT') }}</div>
         <div class="base-table-box">
             <el-table
@@ -33,8 +32,7 @@
                 <el-table-column
                     prop="name"
                     :label="Translate('IDCS_CHANNEL')"
-                >
-                </el-table-column>
+                />
                 <!-- 启用 -->
                 <el-table-column>
                     <template #header>
@@ -69,8 +67,7 @@
                                 :key="item.value"
                                 :value="item.value"
                                 :label="item.label"
-                            >
-                            </el-option>
+                            />
                         </el-select>
                     </template>
                 </el-table-column>
@@ -120,8 +117,7 @@
                                 :key="item.value"
                                 :value="item.value"
                                 :label="item.label"
-                            >
-                            </el-option>
+                            />
                         </el-select>
                     </template>
                 </el-table-column>
@@ -145,7 +141,6 @@
             <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
                 <el-select
                     v-model="pageData.schedule"
-                    size="small"
                     @change="handleScheduleChange()"
                 >
                     <el-option
@@ -153,13 +148,9 @@
                         :key="item.value"
                         :value="item.value"
                         :label="item.label"
-                    >
-                    </el-option>
+                    />
                 </el-select>
-                <el-button
-                    size="small"
-                    @click="popOpen()"
-                >
+                <el-button @click="popOpen()">
                     {{ Translate('IDCS_MANAGE') }}
                 </el-button>
             </el-form-item>

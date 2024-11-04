@@ -8,7 +8,7 @@
 <template>
     <div class="top">
         <el-row>
-            <el-col :span="18"></el-col>
+            <el-col :span="18" />
             <el-col :span="6">
                 <el-form>
                     <el-form-item :label="Translate('IDCS_VIEW_WAY')">

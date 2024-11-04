@@ -41,7 +41,7 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
         const dateTime = useDateTimeStore()
 
@@ -154,7 +154,7 @@ export default defineComponent({
          */
         const verify = async () => {
             if (!disabled.value && !formData.value.name) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_PROMPT_FULL_NAME_EMPTY'),
                 })
@@ -212,7 +212,7 @@ export default defineComponent({
                         errorInfo = Translate('IDCS_SAVE_FAIL')
                         break
                 }
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: errorInfo,
                 })
@@ -238,17 +238,17 @@ export default defineComponent({
 
             const faceXml = snapData.length
                 ? rawXml`
-                <delFaceImgs type="list">
-                    <item>1</item>
-                </delFaceImgs>
-                <item>
+                    <delFaceImgs type="list">
+                        <item>1</item>
+                    </delFaceImgs>
                     <item>
-                        <frameTime>${snapData[0].frameTime}</frameTime>
-                        <img id="${snapData[0].imgId.toString()}" />
-                        <chl id="${snapData[0].chlId}" />
+                        <item>
+                            <frameTime>${snapData[0].frameTime}</frameTime>
+                            <img id="${snapData[0].imgId.toString()}" />
+                            <chl id="${snapData[0].chlId}" />
+                        </item>
                     </item>
-                </item>
-            `
+                `
                 : ''
 
             const sendXml = rawXml`

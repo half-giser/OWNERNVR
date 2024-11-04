@@ -64,7 +64,7 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
 
         const pageData = ref({
@@ -312,7 +312,7 @@ export default defineComponent({
                 })
             } else {
                 if (Number($('//errorCode').text()) === ErrorCode.USER_ERROR_NO_AUTH) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_NO_PERMISSION'),
                     })
@@ -420,7 +420,7 @@ export default defineComponent({
             const id = pageData.value.activeChlGroup
             const findItem = pageData.value.chlGroupList.find((item) => item.id === id)
             if (findItem) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'question',
                     message: Translate('IDCS_DELETE_MP_GROUP_S').formatForLang(getShortString(findItem.value, 10)),
                 }).then(async () => {
@@ -436,7 +436,7 @@ export default defineComponent({
                     const $ = queryXml(result)
                     closeLoading()
                     if ($('//status').text() === 'success') {
-                        openMessageTipBox({
+                        openMessageBox({
                             type: 'success',
                             message: Translate('IDCS_DELETE_SUCCESS'),
                         }).then(() => {
@@ -508,7 +508,7 @@ export default defineComponent({
             pageData.value.activeCustomView = item.id
 
             if (item.segNum > 4) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_NO_SUPPORT_SEGMENTATION').formatForLang(item.segNum),
                 })

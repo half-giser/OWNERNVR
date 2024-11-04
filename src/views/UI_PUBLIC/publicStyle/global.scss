@@ -140,7 +140,9 @@
     --dialog-title: #666; // Dialog、MessageBox、Notification等弹出框的标题颜色
     --dialog-bg: var(--main-bg); // 对话框背景色
 
-    --popover-bg: var(--main-bg); // popover背景色
+    --popover-bg: #f2f2f2; // popover背景色
+
+    --dropdown-bg: #f2f2f2; // dropdown背景色
 
     /**
      * 穿梭框
@@ -292,7 +294,7 @@
     /**
      * Loading
      */
-    --loading-bg: rgba(255, 255, 255, 0.2); // Loading背景色
+    --loading-bg: rgba(255, 255, 255, 0.3); // Loading背景色
 
     /**
      * 状态

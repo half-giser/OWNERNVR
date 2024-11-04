@@ -15,7 +15,7 @@ export default defineComponent({
         const router = useRouter()
         const layoutStore = useLayoutStore()
         const userSession = useUserSessionStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { Translate } = useLangStore()
 
         const menu2Items = computed(() => layoutStore.menu2Items)
@@ -46,7 +46,7 @@ export default defineComponent({
          */
         const goToPath = (route: RouteRecordRawExtends) => {
             if (getMenuDisabled(route)) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_NO_AUTH'),
                 })

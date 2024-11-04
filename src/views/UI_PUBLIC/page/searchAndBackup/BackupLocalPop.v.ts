@@ -54,7 +54,7 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
 
         let recorder: WebsocketRecordBackup | null = null
 
@@ -129,7 +129,7 @@ export default defineComponent({
                 ctx.emit('recordFile', zipDownloadData)
                 close()
             } else {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_BACKUP_SUCCESS'),
                 }).finally(() => {
@@ -203,7 +203,7 @@ export default defineComponent({
             }
 
             if (errorInfo) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: errorInfo,
                 }).finally(() => {

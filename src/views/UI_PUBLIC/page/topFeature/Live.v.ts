@@ -378,7 +378,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
 
         const systemCaps = useCababilityStore()
@@ -966,7 +966,7 @@ export default defineComponent({
         const handlePlayerError = (index: number, data: TVTPlayerWinDataListItem, error?: string) => {
             // 不支持打开音频
             if (error === 'notSupportAudio') {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_AUDIO_NOT_SUPPORT'),
                 })
@@ -975,7 +975,7 @@ export default defineComponent({
             }
             // 当前用户打开无音频的权限
             else if (error === 'noPermission') {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_NO_PERMISSION'),
                 })
@@ -1414,7 +1414,7 @@ export default defineComponent({
                 }
             } else if (mode.value === 'ocx') {
                 if (userAuth.value.audio[pageData.value.winData.chlID] === false) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_NO_PERMISSION'),
                     })

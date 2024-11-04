@@ -21,7 +21,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
 
         // 周排程组件引用
@@ -119,9 +119,10 @@ export default defineComponent({
             openLoading()
 
             const sendXml = rawXml`
-            <condition>
-                <id>${id}</id>
-            </condition>`
+                <condition>
+                    <id>${id}</id>
+                </condition>
+            `
 
             const result = await querySchedule(sendXml)
             const $ = queryXml(result)
@@ -170,18 +171,19 @@ export default defineComponent({
          * @return {*}
          */
         const deleteSchedule = async (row: NameValueItem) => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_SCHEDULE_S').formatForLang(replaceWithEntity(getShortString(row.name, 10))),
             }).then(async () => {
                 openLoading()
 
                 const sendXml = rawXml`
-                <condition>
-                    <scheduleIds type="list">
-                        <item id="${row.id}">${row.name}</item>
-                    </scheduleIds>
-                </condition>`
+                    <condition>
+                        <scheduleIds type="list">
+                            <item id="${row.id}">${row.name}</item>
+                        </scheduleIds>
+                    </condition>
+                `
 
                 const result = await delSchedule(sendXml)
                 closeLoading()

@@ -15,7 +15,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
         const userSession = useUserSessionStore()
 
@@ -164,7 +164,7 @@ export default defineComponent({
          */
         const changeSwitch = () => {
             if (formData.value.switch) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_RTSP_OR_FTP_ENABLE_REMIND'),
                 })
@@ -274,12 +274,12 @@ export default defineComponent({
                 const $ = queryXml(result)
 
                 if ($('//status').text() === 'success') {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_FTP_TEST_SUCCESS'),
                     })
                 } else {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_FTP_TEST_FAIL'),
                     })

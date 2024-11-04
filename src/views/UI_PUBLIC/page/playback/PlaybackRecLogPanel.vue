@@ -3,13 +3,14 @@
  * @Date: 2024-07-31 15:32:00
  * @Description: 回放-事件列表
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 09:26:33
+ * @LastEditTime: 2024-11-04 16:23:43
 -->
 <template>
     <div class="log">
         <el-popover
             v-model:visible="pageData.visible"
             :width="800"
+            popper-class="no-padding"
             placement="top-end"
         >
             <template #reference>
@@ -29,11 +30,13 @@
                 :data="filterTableData"
                 border
                 stripe
+                show-overflow-tooltip
                 :height="400"
             >
                 <el-table-column
                     :label="Translate('IDCS_SERIAL_NUMBER')"
                     type="index"
+                    min-width="50"
                 />
                 <el-table-column
                     :label="Translate('IDCS_CHANNEL_NAME')"
@@ -50,7 +53,7 @@
                     <template #header>
                         <el-popover
                             v-model:visible="pageData.eventVisible"
-                            popper-class="popper"
+                            popper-class="popper no-padding"
                             width="fit-content"
                         >
                             <template #reference>
@@ -58,9 +61,12 @@
                                     {{ Translate('IDCS_EVENT_TYPE') }}
                                 </BaseTableDropdownLink>
                             </template>
-                            <div class="sub-types">
+                            <el-scrollbar height="300px">
                                 <div class="base-subheading-box">{{ Translate('IDCS_EVENT') }}</div>
-                                <el-checkbox-group v-model="pageData.event">
+                                <el-checkbox-group
+                                    v-model="pageData.event"
+                                    class="line-break inline"
+                                >
                                     <el-checkbox
                                         v-for="item in pageData.eventOptions"
                                         :key="item.value"
@@ -69,7 +75,10 @@
                                     />
                                 </el-checkbox-group>
                                 <div class="base-subheading-box">{{ Translate('IDCS_TARGET') }}</div>
-                                <el-checkbox-group v-model="pageData.motion">
+                                <el-checkbox-group
+                                    v-model="pageData.motion"
+                                    class="line-break inline"
+                                >
                                     <el-checkbox
                                         v-for="item in pageData.motionTargetOptions"
                                         :key="item.value"
@@ -77,9 +86,10 @@
                                         :label="item.label"
                                     />
                                 </el-checkbox-group>
-                            </div>
+                            </el-scrollbar>
                         </el-popover>
                     </template>
+
                     <template #default="scope">
                         <el-text>{{ displayEvent(scope.row) }}</el-text>
                         <BaseImgSprite
@@ -91,8 +101,8 @@
                 <el-table-column
                     :label="Translate('IDCS_RECORD_TIME')"
                     prop="duration"
-                >
-                </el-table-column>
+                />
+
                 <el-table-column :label="Translate('IDCS_PLAY')">
                     <template #default="scope">
                         <BaseImgSprite
@@ -104,6 +114,7 @@
                         />
                     </template>
                 </el-table-column>
+
                 <el-table-column
                     v-show="!isMac"
                     :label="Translate('IDCS_DOWNLOAD')"
@@ -124,24 +135,3 @@
 </template>
 
 <script lang="ts" src="./PlaybackRecLogPanel.v.ts"></script>
-
-<style lang="scss" scoped>
-.popper {
-    width: fit-content;
-    padding: 0;
-
-    .sub-types {
-        width: fit-content;
-        max-height: 50vh;
-        overflow: auto;
-
-        :deep(.el-checkbox) {
-            padding-right: 10px;
-            margin-right: 0;
-            display: block;
-            display: flex;
-            align-items: center;
-        }
-    }
-}
-</style>

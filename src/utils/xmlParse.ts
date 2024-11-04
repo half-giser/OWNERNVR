@@ -3,7 +3,7 @@
  * @Date: 2023-04-28 14:36:40
  * @Description:解析xml下指定路径的标签文本和属性
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 10:45:41
+ * @LastEditTime: 2024-11-04 09:17:55
  */
 
 /*
@@ -25,6 +25,7 @@ export type XMLQuery = ReturnType<typeof queryXml>
 
 const eva = new XPathEvaluator()
 const parser = new DOMParser()
+const serializer = new XMLSerializer()
 
 /**
  * @description: xml文档解析
@@ -133,13 +134,7 @@ export const getXmlDoc = (xmlData: XMLDocument | string) => {
  * @return {XMLDocument} xmlDoc
  */
 export const XMLStr2XMLDoc = (str: string) => {
-    let xmlDoc: XMLDocument | null = null
-    if (DOMParser) {
-        // 非IE
-        const parser = new DOMParser()
-        xmlDoc = parser.parseFromString(str, 'text/xml')
-    }
-    return xmlDoc
+    return parser.parseFromString(str, 'text/xml')
 }
 
 /**
@@ -148,10 +143,7 @@ export const XMLStr2XMLDoc = (str: string) => {
  * @return {*}
  */
 export const XMLDoc2XMLStr = (doc: XMLDocument) => {
-    if (XMLSerializer) {
-        return new XMLSerializer().serializeToString(doc)
-    }
-    return ''
+    return serializer.serializeToString(doc)
 }
 
 /**
@@ -173,12 +165,39 @@ export const compressXml = (xml: string) => {
  * @returns {Boolean}
  */
 export const checkXml = (xml: string) => {
-    const xmlDoc = parser.parseFromString(xml, 'text/xml')
-    if (xmlDoc.getElementsByTagName('parsererror')) {
-        console.error(xmlDoc)
-        return false
+    if (import.meta.env.NODE_ENV === 'development') {
+        const xmlDoc = XMLStr2XMLDoc(xml)
+        if (xmlDoc.getElementsByTagName('parsererror')) {
+            console.error('xml parsererror')
+            console.error(xmlDoc)
+        }
     }
-    return true
+}
+
+export const compileXml = (xml: string) => {
+    const xmlDoc = XMLStr2XMLDoc(xml)
+
+    if (xmlDoc.getElementsByTagName('parsererror')) {
+        if (import.meta.env.NODE_ENV === 'development') {
+            console.error(xmlDoc)
+            return ''
+        }
+        return xml
+    }
+
+    const ifSelectors = xmlDoc.querySelectorAll('[v-if]')
+    if (ifSelectors) {
+        ifSelectors.forEach((item) => {
+            const attribute = item.getAttribute('v-if')
+            if (attribute === 'false') {
+                item.remove()
+            } else {
+                item.removeAttribute('v-if')
+            }
+        })
+    }
+
+    return XMLDoc2XMLStr(xmlDoc)
 }
 
 /**

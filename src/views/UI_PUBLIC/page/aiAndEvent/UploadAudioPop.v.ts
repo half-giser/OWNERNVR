@@ -27,7 +27,7 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
 
         const pageData = ref({
             title: '',
@@ -67,13 +67,13 @@ export default defineComponent({
         const uploadFile = (uploadFile: UploadFile) => {
             if (prop.type == 'nvrAudio' && uploadFile.name.indexOf('.mp3') == -1) {
                 // 过滤非mp3文件
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_SELECT_MP3_FILE'),
                 })
                 return
             } else if (prop.type == 'ipcAudio' && uploadFile.name.indexOf('.wav') == -1) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_NO_CHOOSE_TDB_FILE').formatForLang('wav'),
                 })
@@ -97,17 +97,17 @@ export default defineComponent({
                         return
                     }
                     const sendXml = rawXml`
-                    <content>
-                        <chl id='${prop.ipcAudioChl as string}'>
-                            <param>
-                                <addAudioAlarm>
-                                    <audioName><![CDATA[${pageData.value.uploadFileName}]]></audioName>
-                                    <audioFileSize>${fileSize}</audioFileSize>
-                                    <audioFileData><![CDATA[${data}]]></audioFileData>
-                                </addAudioAlarm>
-                            </param>
-                        </chl>
-                    </content>
+                        <content>
+                            <chl id='${prop.ipcAudioChl as string}'>
+                                <param>
+                                    <addAudioAlarm>
+                                        <audioName><![CDATA[${pageData.value.uploadFileName}]]></audioName>
+                                        <audioFileSize>${fileSize}</audioFileSize>
+                                        <audioFileData><![CDATA[${data}]]></audioFileData>
+                                    </addAudioAlarm>
+                                </param>
+                            </chl>
+                        </content>
                     `
                     const result = await addCustomizeAudioAlarm(sendXml)
                     const $ = queryXml(result)
@@ -127,12 +127,12 @@ export default defineComponent({
                         return
                     }
                     const sendXml = rawXml`
-                    <content>
-                        <item>
-                            <name><![CDATA[${pageData.value.uploadFileName}]]></name>
-                            <fileData><![CDATA[${data}]]></fileData>
-                        </item>
-                    </content>
+                        <content>
+                            <item>
+                                <name><![CDATA[${pageData.value.uploadFileName}]]></name>
+                                <fileData><![CDATA[${data}]]></fileData>
+                            </item>
+                        </content>
                     `
                     const result = await addAlarmAudioCfg(sendXml)
                     const $ = queryXml(result)
@@ -148,7 +148,7 @@ export default defineComponent({
         }
 
         const showMsg = (msg: string) => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'info',
                 message: msg,
             })

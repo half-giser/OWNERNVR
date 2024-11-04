@@ -3,7 +3,7 @@
  * @Date: 2024-08-21 15:34:24
  * @Description: 异常报警
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-28 10:05:53
+ * @LastEditTime: 2024-11-04 15:48:58
  */
 import { cloneDeep } from 'lodash-es'
 import { ExceptionAlarmRow } from '@/types/apiType/aiAndEvent'
@@ -17,7 +17,7 @@ export default defineComponent({
         const tableData = ref<ExceptionAlarmRow[]>([])
         const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
-        const openMessageTipBox = useMessageBox().openMessageTipBox
+        const openMessageBox = useMessageBox().openMessageBox
         const pageData = ref({
             enableList: getSwitchOptions(),
             eventTypeMapping: {
@@ -45,7 +45,6 @@ export default defineComponent({
             // 表头选中的数据
             alarmOutChosedListAll: [] as SelectOption<string, string>[],
             alarmOutIsShow: false,
-            alarmOutType: 'alarmOut',
 
             // disable
             applyDisable: true,
@@ -316,12 +315,12 @@ export default defineComponent({
             editAbnormalTrigger(sendXml).then((resb) => {
                 const res = queryXml(resb)
                 if (res('status').text() == 'success') {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'success',
                         message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                     })
                 } else {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'error',
                         message: Translate('IDCS_SAVE_DATA_FAIL'),
                     })

@@ -198,7 +198,7 @@
                 stripe
                 border
             >
-                <el-table-column prop="label"></el-table-column>
+                <el-table-column prop="label" />
                 <el-table-column type="expand">
                     <template #default="scope">
                         <el-table

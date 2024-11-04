@@ -3,7 +3,7 @@
  * @Date: 2023-05-04 22:08:40
  * @Description: HTTP请求工具类
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-31 12:00:07
+ * @LastEditTime: 2024-11-04 11:53:19
  */
 
 /* axios配置入口文件 */
@@ -57,7 +57,7 @@ export const getXmlWrapData = (data: string, url = '', refresh = false) => {
  * @param {string} message
  */
 const handleUserErrorRedirectToLogin = (message: string) => {
-    const { openMessageTipBox } = useMessageBox()
+    const { openMessageBox } = useMessageBox()
     const layoutStore = useLayoutStore()
     if (!layoutStore.isInitial) {
         isErrorMessageBox = false
@@ -65,7 +65,7 @@ const handleUserErrorRedirectToLogin = (message: string) => {
     } else {
         if (!isErrorMessageBox) {
             isErrorMessageBox = true
-            openMessageTipBox({
+            openMessageBox({
                 type: 'info',
                 message: message,
             }).finally(() => {

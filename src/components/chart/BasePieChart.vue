@@ -14,7 +14,7 @@
             ref="$canvas"
             :width="width"
             :height="height"
-        />
+        ></canvas>
     </div>
 </template>
 

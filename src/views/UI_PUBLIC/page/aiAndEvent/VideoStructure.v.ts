@@ -33,7 +33,7 @@ export default defineComponent({
     },
     setup(prop) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
         const pluginStore = usePluginStore()
         const osType = getSystemInfo().platform
@@ -221,7 +221,7 @@ export default defineComponent({
 
         const vsdForceClosePath = (canBeClosed: boolean) => {
             if (!canBeClosed) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_INTERSECT'),
                 })
@@ -229,7 +229,7 @@ export default defineComponent({
         }
 
         const vsdClearCurrentArea = () => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DRAW_CLEAR_TIP'),
             }).then(() => {
@@ -284,12 +284,17 @@ export default defineComponent({
                 stopWatchFirstPlay()
             }
         })
+
         // 获取数据
         const getVideoStructureData = async () => {
             const sendXml = rawXml`
-                <condition><chlId>${prop.currChlId}</chlId></condition>
-                <requireField><param/></requireField>
-                `
+                <condition>
+                    <chlId>${prop.currChlId}</chlId>
+                </condition>
+                <requireField>
+                    <param/>
+                </requireField>
+            `
             const result = await queryVideoMetadata(sendXml)
             commLoadResponseHandler(result, async ($) => {
                 const param = $('//content/chl/param')
@@ -852,17 +857,19 @@ export default defineComponent({
 
         // 手动重置
         const manualResetData = async () => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_RESET_TIP'),
             }).then(async () => {
-                const sendXml = rawXml`<content>
-                                    <chl id="${prop.currChlId}">
-                                        <param>
-                                            <forceReset>true</forceReset>
-                                        </param>
-                                    </chl>
-                                </content>`
+                const sendXml = rawXml`
+                    <content>
+                        <chl id="${prop.currChlId}">
+                            <param>
+                                <forceReset>true</forceReset>
+                            </param>
+                        </chl>
+                    </content>
+                `
                 const result = await editVideoMetadata(sendXml)
                 commSaveResponseHadler(result)
             })
@@ -1002,13 +1009,13 @@ export default defineComponent({
             for (const i in allRegionList) {
                 const count = allRegionList[i].length
                 if (count > 0 && count < 4) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_INPUT_LIMIT_FOUR_POIONT'),
                     })
                     return false
                 } else if (count > 0 && !judgeAreaCanBeClosed(allRegionList[i])) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_INTERSECT'),
                     })
@@ -1020,7 +1027,7 @@ export default defineComponent({
             const carOsdName = vsdData.value.countOSD.osdCarName
             const bikeOsdName = vsdData.value.countOSD.osdBikeName
             if (!checkOsdName(peopleOsdName) || !checkOsdName(carOsdName) || !checkOsdName(bikeOsdName)) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_USER_ERROR_INVALID_PARAM'),
                 })
@@ -1030,122 +1037,142 @@ export default defineComponent({
         }
 
         const getVideoStructureSaveData = () => {
-            let sendXml = rawXml`<content>
-                <chl id='${prop.currChlId}' scheduleGuid='${vsdData.value.schedule}'>
-                <param>
-                <switch>${String(vsdData.value.enabledSwitch)}</switch>
+            const sendXml = rawXml`
+                <content>
+                    <chl id='${prop.currChlId}' scheduleGuid='${vsdData.value.schedule}'>
+                        <param>
+                            <switch>${String(vsdData.value.enabledSwitch)}</switch>
+                            <saveTargetPicture>${vsdData.value.saveTargetPicture}</saveTargetPicture>
+                            <saveSourcePicture>${vsdData.value.saveSourcePicture}</saveSourcePicture>
+                            <algoModel>
+                                <algoChkModel type=algoChkType>${vsdData.value.algoChkModel}</algoChkModel>
+                                <intervalCheck type='int' min='${String(vsdData.value.intervalCheckMin)}' max='${String(vsdData.value.intervalCheckMax)}'>${String(vsdData.value.intervalCheck)}</intervalCheck>
+                            </algoModel>
+                            <boundary type='list' count='4'>
+                                ${Object.keys(vsdData.value.detectAreaInfo)
+                                    .map((key) => {
+                                        const count = vsdData.value.detectAreaInfo[Number(key)].length
+                                        return rawXml`
+                                            <item>
+                                                <point type='list' maxCount='8' count='${String(count)}'>
+                                                    ${vsdData.value.detectAreaInfo[Number(key)]
+                                                        .map((item) => {
+                                                            return rawXml`
+                                                                <item>
+                                                                    <X>${String(item.X)}</X>
+                                                                    <Y>${String(item.Y)}</Y>
+                                                                </item>
+                                                            `
+                                                        })
+                                                        .join('')}
+                                                </point>
+                                            </item>
+                                    `
+                                    })
+                                    .join('')}
+                            </boundary>
+                            <maskArea type='list' count='4'>
+                                ${Object.keys(vsdData.value.maskAreaInfo)
+                                    .map((key) => {
+                                        const count = vsdData.value.maskAreaInfo[Number(key)].length
+                                        return rawXml`
+                                        <item>
+                                            <point type='list' maxCount='8' count='${String(count)}'>
+                                                ${vsdData.value.maskAreaInfo[Number(key)]
+                                                    .map((item) => {
+                                                        return rawXml`
+                                                            <item>
+                                                                <X>${String(item.X)}</X>
+                                                                <Y>${String(item.Y)}</Y>
+                                                            </item>
+                                                        `
+                                                    })
+                                                    .join('')}
+                                            </point>
+                                        </item>
+                                    `
+                                    })
+                                    .join('')}
+                            </maskArea>
+                            <objectFilter>
+                                <car>
+                                    <switch>${String(vsdData.value.objectFilter.car)}</switch>
+                                    <sensitivity>${String(vsdData.value.objectFilter.carSensitivity)}</sensitivity>
+                                </car>
+                                <person>
+                                    <switch>${String(vsdData.value.objectFilter.person)}</switch>
+                                    <sensitivity>${String(vsdData.value.objectFilter.personSensitivity)}</sensitivity>
+                                </person>
+                                ${
+                                    prop.chlData.accessType == '0'
+                                        ? rawXml`
+                                            <motor>
+                                                <switch>${String(vsdData.value.objectFilter.motorcycle)}</switch>
+                                                <sensitivity>${String(vsdData.value.objectFilter.motorSensitivity)}</sensitivity>
+                                            </motor>
+                                        `
+                                        : ''
+                                }
+                            </objectFilter>
+                            <countPeriod>
+                                <countTimeType>${vsdData.value.countPeriod.countTimeType}</countTimeType>
+                                <daily>
+                                    <dateSpan>${vsdData.value.countPeriod.day.date}</dateSpan>
+                                    <dateTimeSpan>${vsdData.value.countPeriod.day.dateTime}</dateTimeSpan>
+                                </daily>
+                                <weekly>
+                                    <dateSpan>${vsdData.value.countPeriod.week.date}</dateSpan>
+                                    <dateTimeSpan>${vsdData.value.countPeriod.week.date}</dateTimeSpan>
+                                </weekly>
+                                <monthly>
+                                    <dateSpan>${vsdData.value.countPeriod.month.date}</dateSpan>
+                                    <dateTimeSpan>${vsdData.value.countPeriod.month.date}</dateTimeSpan>
+                                </monthly>
+                            </countPeriod>
+                            ${
+                                vsdData.value.countOSD.supportCountOSD
+                                    ? rawXml`
+                                    <countOSD>
+                                        <switch>${String(vsdData.value.countOSD.switch)}</switch>
+                                        ${vsdData.value.countOSD.supportPoint ? `<X>${vsdData.value.countOSD.X}</X>` : ``}
+                                        ${vsdData.value.countOSD.supportPoint ? `<Y>${vsdData.value.countOSD.Y}</Y>` : ``}
+                                        ${vsdData.value.countOSD.supportOsdPersonName ? `<osdPersonName>${vsdData.value.countOSD.osdPersonName}</osdPersonName>` : ``}
+                                        ${vsdData.value.countOSD.supportOsdCarName ? `<osdCarName>${vsdData.value.countOSD.osdCarName}</osdCarName>` : ``}
+                                        ${vsdData.value.countOSD.supportBikeName ? `<osdBikeName>${vsdData.value.countOSD.osdBikeName}</osdBikeName>` : ``}
+                                    </countOSD>
+                                `
+                                    : ''
+                            }
+                            <osdConfig>
+                                <osdType type='osdEumType'>${vsdData.value.osdType}</osdType>
+                                <personcfg>
+                                    ${vsdData.value.osdPersonCfgList
+                                        .map((item) => {
+                                            return `<${item.tagName} type='boolean' index='${item.index}'>${item.value}</${item.tagName}>`
+                                        })
+                                        .join('')}
+                                </personcfg>
+                                <carcfg>
+                                    ${vsdData.value.osdCarCfgList
+                                        .map((item) => {
+                                            return `<${item.tagName} type='boolean' index='${item.index}'>${item.value}</${item.tagName}>`
+                                        })
+                                        .join('')}
+                                </carcfg>
+                                <bikecfg>
+                                    ${vsdData.value.osdBikeCfgList
+                                        .map((item) => {
+                                            return `<${item.tagName} type='boolean' index='${item.index}'>${item.value}</${item.tagName}>`
+                                        })
+                                        .join('')}
+                                </bikecfg>
+                            </osdConfig>
+                        </param>
+                        <trigger></trigger>
+                    </chl>
+                </content>   
             `
-            // 存储模式
-            sendXml += rawXml`<saveTargetPicture>${vsdData.value.saveTargetPicture}</saveTargetPicture>
-                <saveSourcePicture>${vsdData.value.saveSourcePicture}</saveSourcePicture>
-            `
-            // 识别模式
-            sendXml += rawXml`
-                <algoModel>
-                <algoChkModel type=algoChkType>${vsdData.value.algoChkModel}</algoChkModel>
-                <intervalCheck type='int' min='${String(vsdData.value.intervalCheckMin)}' max='${String(vsdData.value.intervalCheckMax)}'>${String(vsdData.value.intervalCheck)}</intervalCheck>
-                </algoModel>
-            `
-            // 侦测区域
-            sendXml += rawXml`<boundary type='list' count='4'>`
-            for (const key in vsdData.value.detectAreaInfo) {
-                const count = vsdData.value.detectAreaInfo[key].length
-                sendXml += rawXml`<item><point type='list' maxCount='8' count='${String(count)}'>`
-                vsdData.value.detectAreaInfo[key].forEach((item) => {
-                    sendXml += rawXml`<item>
-                            <X>${String(item.X)}</X>
-                            <Y>${String(item.Y)}</Y>
-						</item>
-                    `
-                })
-                sendXml += `</point></item>`
-            }
-            // 屏蔽区域
-            sendXml += rawXml`</boundary>
-                <maskArea type='list' count='4'>
-            `
-            for (const key in vsdData.value.maskAreaInfo) {
-                const count = vsdData.value.maskAreaInfo[key].length
-                sendXml += rawXml`<item><point type='list' maxCount='8' count='${String(count)}'>`
-                vsdData.value.maskAreaInfo[key].forEach((item) => {
-                    sendXml += rawXml`<item>
-                            <X>${String(item.X)}</X>
-                            <Y>${String(item.Y)}</Y>
-						</item>
-                    `
-                })
-                sendXml += `</point></item>`
-            }
-            // 侦测目标
-            sendXml += rawXml`</maskArea>
-            <objectFilter>
-                <car>
-                <switch>${String(vsdData.value.objectFilter.car)}</switch>
-                <sensitivity>${String(vsdData.value.objectFilter.carSensitivity)}</sensitivity>
-                </car>
-                <person>
-                <switch>${String(vsdData.value.objectFilter.person)}</switch>
-                <sensitivity>${String(vsdData.value.objectFilter.personSensitivity)}</sensitivity>
-                </person>
-                `
-            if (prop.chlData.accessType == '0') {
-                sendXml += rawXml`<motor>
-                <switch>${String(vsdData.value.objectFilter.motorcycle)}</switch>
-                <sensitivity>${String(vsdData.value.objectFilter.motorSensitivity)}</sensitivity>
-                </motor>
-                `
-            }
-            // 重置信息
-            sendXml += rawXml`</objectFilter>
-            <countPeriod>
-            <countTimeType>${vsdData.value.countPeriod.countTimeType}</countTimeType>
-            <daily>
-            <dateSpan>${vsdData.value.countPeriod.day.date}</dateSpan>
-            <dateTimeSpan>${vsdData.value.countPeriod.day.dateTime}</dateTimeSpan>
-            </daily>
-            <weekly>
-            <dateSpan>${vsdData.value.countPeriod.week.date}</dateSpan>
-            <dateTimeSpan>${vsdData.value.countPeriod.week.date}</dateTimeSpan>
-            </weekly>
-            <monthly>
-            <dateSpan>${vsdData.value.countPeriod.month.date}</dateSpan>
-            <dateTimeSpan>${vsdData.value.countPeriod.month.date}</dateTimeSpan>
-            </monthly>
-            </countPeriod>`
-            // OSD
-            if (vsdData.value.countOSD.supportCountOSD) {
-                sendXml += rawXml`<countOSD>
-                        <switch>${String(vsdData.value.countOSD.switch)}</switch>`
-                sendXml += vsdData.value.countOSD.supportPoint ? `<X>${vsdData.value.countOSD.X}</X>` : ``
-                sendXml += vsdData.value.countOSD.supportPoint ? `<Y>${vsdData.value.countOSD.Y}</Y>` : ``
-                sendXml += vsdData.value.countOSD.supportOsdPersonName ? `<osdPersonName>${vsdData.value.countOSD.osdPersonName}</osdPersonName>` : ``
-                sendXml += vsdData.value.countOSD.supportOsdCarName ? `<osdCarName>${vsdData.value.countOSD.osdCarName}</osdCarName>` : ``
-                sendXml += vsdData.value.countOSD.supportBikeName ? `<osdBikeName>${vsdData.value.countOSD.osdBikeName}</osdBikeName>` : ``
-                sendXml += `</countOSD>`
-            }
-            // OSD 列表
-            sendXml += `<osdConfig><osdType type='osdEumType'>${vsdData.value.osdType}</osdType>`
-            // person-OSD
-            sendXml += `<personcfg>`
-            for (const key in vsdData.value.osdPersonCfgList) {
-                sendXml += rawXml`<${vsdData.value.osdPersonCfgList[key].tagName} type='boolean' index='${vsdData.value.osdPersonCfgList[key].index}'>
-                    ${vsdData.value.osdPersonCfgList[key].value}</${vsdData.value.osdPersonCfgList[key].tagName}>`
-            }
-            // car-OSD
-            sendXml += `</personcfg><carcfg>`
-            for (const key in vsdData.value.osdCarCfgList) {
-                sendXml += rawXml`<${vsdData.value.osdCarCfgList[key].tagName} type='boolean' index='${vsdData.value.osdCarCfgList[key].index}'>
-                    ${vsdData.value.osdCarCfgList[key].value}</${vsdData.value.osdCarCfgList[key].tagName}>`
-            }
-            // bike-OSD
-            sendXml += `</carcfg><bikecfg>`
-            for (const key in vsdData.value.osdBikeCfgList) {
-                sendXml += rawXml`<${vsdData.value.osdBikeCfgList[key].tagName} type='boolean' index='${vsdData.value.osdBikeCfgList[key].index}'>
-                    ${vsdData.value.osdBikeCfgList[key].value}</${vsdData.value.osdBikeCfgList[key].tagName}>`
-            }
-            sendXml += rawXml`</bikecfg></osdConfig>
-            </param><trigger></trigger>
-            </chl></content>`
+
             return sendXml
         }
 
@@ -1185,7 +1212,7 @@ export default defineComponent({
             })
             if (isSwitchChange && switchChangeTypeArr.length > 0) {
                 const switchChangeType = switchChangeTypeArr.join(',')
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_SIMPLE_VIDEO_META_DETECT_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + prop.chlData.name, switchChangeType),
                 }).then(() => {
@@ -1229,7 +1256,7 @@ export default defineComponent({
                 vsdClearCurrentArea()
             } else if (errorCode == '515') {
                 // 515-区域有相交直线，不可闭合
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_INTERSECT'),
                 })

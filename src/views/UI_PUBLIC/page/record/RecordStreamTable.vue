@@ -22,8 +22,7 @@
                     prop="name"
                     :label="Translate('IDCS_CHANNEL_NAME')"
                     min-width="10%"
-                >
-                </el-table-column>
+                />
                 <!-- 码流类型 -->
                 <el-table-column
                     :label="Translate('IDCS_CODE_STREAM_TYPE')"
@@ -68,8 +67,7 @@
                                 :key="item"
                                 :label="Translate(streamTypeMapping[item])"
                                 :value="item"
-                            >
-                            </el-option>
+                            />
                         </el-select>
                     </template>
                 </el-table-column>
@@ -112,8 +110,7 @@
                                                     :label="item.label"
                                                     :value="item.value"
                                                     @click="keepDropDownOpen(scope.row)"
-                                                >
-                                                </el-option>
+                                                />
                                             </el-select>
                                         </template>
                                     </el-table-column>
@@ -163,8 +160,7 @@
                                 :key="item.value"
                                 :label="item.label"
                                 :value="item.value"
-                            >
-                            </el-option>
+                            />
                         </el-select>
                     </template>
                 </el-table-column>
@@ -205,8 +201,7 @@
                                 :key="item.value"
                                 :label="item.label"
                                 :value="item.value"
-                            >
-                            </el-option>
+                            />
                         </el-select>
                     </template>
                 </el-table-column>
@@ -246,8 +241,7 @@
                                 :key="item"
                                 :label="item"
                                 :value="item"
-                            >
-                            </el-option>
+                            />
                         </el-select>
                         <span v-else>- -</span>
                     </template>
@@ -288,8 +282,7 @@
                                 :key="item"
                                 :label="formatDisplayImageLevel(item)"
                                 :value="item"
-                            >
-                            </el-option>
+                            />
                         </el-select>
                     </template>
                 </el-table-column>
@@ -329,8 +322,7 @@
                                 :key="item.value"
                                 :value="item.value"
                                 :label="item.label"
-                            >
-                            </el-option>
+                            />
                         </el-select>
                     </template>
                 </el-table-column>
@@ -380,8 +372,7 @@
                                 :key="item.value"
                                 :value="item.value"
                                 :label="item.label"
-                            >
-                            </el-option>
+                            />
                         </el-select>
                     </template>
                 </el-table-column>
@@ -467,7 +458,7 @@
                             :disabled="scope.row.GOPDisable"
                             @input="GOPhandleFocus(scope.row)"
                             @keydown.enter="GOPhandleKeydown(scope.row)"
-                        ></el-input>
+                        />
                     </template>
                 </el-table-column>
             </el-table>

@@ -3,35 +3,50 @@
  * @Date: 2024-09-29 09:12:33
  * @Description: ai与事件版块的一些公共样式，仅在需要用到的ai与事件版块下import
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 14:03:22
+ * @LastEditTime: 2024-11-01 14:41:33
  */
 
 .base-ai-menu-tabs {
     width: 100%;
     margin-top: 10px;
+
     & > .el-tabs__header {
+
         .el-tabs__item {
-            min-width: 150px;
+            width: 188px;
+            line-height: 35px;
+            height: 35px;
             color: var(--main-text);
-            width: fit-content;
             border: 1px solid var(--content-border);
-            // border: 2px solid var(--content-border);
-            margin-right: -2px; /* 处理border重合 */
             padding: 0 5px;
             text-align: center;
+            box-sizing: border-box;
+
+
+            &:not(:last-child) {
+                margin-right: -2px;
+            }
+
             span {
                 display: block;
-                line-height: 36px;
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
             }
         }
 
+        .el-tabs__nav {
+            flex-wrap: wrap;
+            float: unset;
+            // border: 1px solid var(--content-border);
+            // width: min-content;
+        }
+
         /* 长分割线 */
         .el-tabs__nav-wrap::after {
+            height: 0;
             /* position: static !important; 可以去掉长分割线 */
-            background-color: var(--content-border);
+            // background-color: var(--content-border);
         }
 
         /* 去掉下划线 */
@@ -157,6 +172,7 @@
     width: 100%;
     box-sizing: border-box;
     padding-inline: 15px;
+    min-width: 1200px;
 }
 
 .base-ai-linkage-title {
@@ -164,30 +180,43 @@
     font-size: 15px;
     width: 100%;
     height: 33px;
-    padding: 4px 10px;
+    padding: 0 10px;
     background: var(--ai-linkbox-bg);
     box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
     &>span {
         margin-right: 5px;
     }
 }
+
 .base-ai-linkage-title-checkbox {
     padding-left: 15px;
+    
     .el-checkbox__label {
         padding-left: 3px;
     }
 }
+
 .base-ai-linkage-title-checkbox-input {
+    justify-content: flex-start;
+
     .el-checkbox__input {
         margin-right: 0;
     }
 }
+
 .base-ai-linkage-box {
     width: 250px;
     height: 400px;
     margin-right: 2px;
     border: 1px solid var(--ai-linkbox-border);
+
+    &.preset-box {
+        width: 350px;
+    }
 
     .el-checkbox-group {
         .el-checkbox {
@@ -248,6 +277,7 @@
 .base-ai-tip {
     font-size: 12px;
     color: var(--main-text-light);
+    margin-top: 5px;
 }
 
 .base-ai-chl-select {

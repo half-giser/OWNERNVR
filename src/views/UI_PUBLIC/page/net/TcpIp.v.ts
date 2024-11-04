@@ -16,7 +16,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
@@ -345,7 +345,7 @@ export default defineComponent({
          */
         const handleChangeIpV6Switch = () => {
             if (!current.value.ipV6Switch) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'question',
                     message: Translate('IDCS_IPV6_NETWORK_CLOSE_TIP').formatForLang('IPv6'),
                 }).catch(() => {
@@ -358,7 +358,7 @@ export default defineComponent({
          * @description POE模式切换，显示弹窗
          */
         const handleChangePoeMode = () => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'info',
                 message: Translate('IDCS_POE_MODE_VALUE').formatForLang(formData.value.netConfig.poeMode),
             })
@@ -415,7 +415,7 @@ export default defineComponent({
             for (let i = 0; i < rule.length; i++) {
                 if (rule[i].check()) {
                     try {
-                        await openMessageTipBox({
+                        await openMessageBox({
                             type: 'question',
                             message: rule[i].message,
                         })
@@ -439,7 +439,7 @@ export default defineComponent({
                     // 开启ipv6且未勾选自动获取校验ipv6相关地址
                     if (item.ipV6Switch && !item.dhcpSwitch) {
                         if (!item.ipV6.trim().length) {
-                            openMessageTipBox({
+                            openMessageBox({
                                 type: 'info',
                                 message: Translate('IDCS_PROMPT_IPV6_ADDRESS_EMPTY'),
                             })
@@ -447,7 +447,7 @@ export default defineComponent({
                         }
 
                         if (!checkIpV6(item.ipV6)) {
-                            openMessageTipBox({
+                            openMessageBox({
                                 type: 'info',
                                 message: Translate('IDCS_PROMPT_IPADDRESS_V6_INVALID'),
                             })
@@ -455,7 +455,7 @@ export default defineComponent({
                         }
 
                         if (item.gatewayV6 && !checkIpV6(item.gatewayV6)) {
-                            openMessageTipBox({
+                            openMessageBox({
                                 type: 'info',
                                 message: Translate('IDCS_PROMPT_IPADDRESS_V6_INVALID'),
                             })
@@ -466,7 +466,7 @@ export default defineComponent({
                     // 开启ipv6且dns自动获取未开启
                     if (item.ipV6Switch && !item.ipv6DnsDhcpSwitch) {
                         if (item.ipv6Dns1 && !checkIpV6(item.ipv6Dns1)) {
-                            openMessageTipBox({
+                            openMessageBox({
                                 type: 'info',
                                 message: Translate('IDCS_PROMPT_IPADDRESS_V6_INVALID'),
                             })
@@ -474,7 +474,7 @@ export default defineComponent({
                         }
 
                         if (item.ipv6Dns2 && !checkIpV6(item.ipv6Dns2)) {
-                            openMessageTipBox({
+                            openMessageBox({
                                 type: 'info',
                                 message: Translate('IDCS_PROMPT_IPADDRESS_V6_INVALID'),
                             })
@@ -484,7 +484,7 @@ export default defineComponent({
 
                     if (pageData.value.toleranceAndPoe) {
                         if (isEqualIPAddress(item.ip, item.mask, item.ip, item.mask)) {
-                            openMessageTipBox({
+                            openMessageBox({
                                 type: 'info',
                                 message: Translate('IDCS_ERROR_IP_SAME_NETWORK_SEGMAENT'),
                             })
@@ -506,7 +506,7 @@ export default defineComponent({
                         // 未勾选自动获取开关时，判断ipv4地址是否相同
                         if (!item.dhcpSwitch) {
                             if (ipv4Arr.includes(item.ip)) {
-                                openMessageTipBox({
+                                openMessageBox({
                                     type: 'info',
                                     message: Translate('IDCS_PROMPT_THE_SAME_IP_ADDRESS').formatForLang('IPv4'),
                                 })
@@ -518,7 +518,7 @@ export default defineComponent({
                         // 开启ipv6且未勾选自动获取校验ipv6相关地址
                         if (item.ipV6Switch && !item.dhcpSwitch) {
                             if (!item.ipV6.trim().length) {
-                                openMessageTipBox({
+                                openMessageBox({
                                     type: 'info',
                                     message: Translate('IDCS_PROMPT_IPV6_ADDRESS_EMPTY'),
                                 })
@@ -526,7 +526,7 @@ export default defineComponent({
                             }
 
                             if (!checkIpV6(item.ipV6)) {
-                                openMessageTipBox({
+                                openMessageBox({
                                     type: 'info',
                                     message: Translate('IDCS_PROMPT_IPADDRESS_V6_INVALID'),
                                 })
@@ -534,7 +534,7 @@ export default defineComponent({
                             }
 
                             if (item.gatewayV6 && !checkIpV6(item.gatewayV6)) {
-                                openMessageTipBox({
+                                openMessageBox({
                                     type: 'info',
                                     message: Translate('IDCS_PROMPT_IPADDRESS_V6_INVALID'),
                                 })
@@ -542,7 +542,7 @@ export default defineComponent({
                             }
 
                             if (ipv6Arr.includes(item.ipV6)) {
-                                openMessageTipBox({
+                                openMessageBox({
                                     type: 'info',
                                     message: Translate('IDCS_PROMPT_THE_SAME_IP_ADDRESS'),
                                 })
@@ -554,7 +554,7 @@ export default defineComponent({
                         // 开启ipv6且dns自动获取未开启
                         if (item.ipV6Switch && !item.ipv6DnsDhcpSwitch) {
                             if (item.ipv6Dns1 && !checkIpV6(item.ipv6Dns1)) {
-                                openMessageTipBox({
+                                openMessageBox({
                                     type: 'info',
                                     message: Translate('IDCS_PROMPT_IPADDRESS_V6_INVALID'),
                                 })
@@ -562,7 +562,7 @@ export default defineComponent({
                             }
 
                             if (item.ipv6Dns2 && !checkIpV6(item.ipv6Dns2)) {
-                                openMessageTipBox({
+                                openMessageBox({
                                     type: 'info',
                                     message: Translate('IDCS_PROMPT_IPADDRESS_V6_INVALID'),
                                 })
@@ -572,7 +572,7 @@ export default defineComponent({
                     } else {
                         // poe地址最后一位不能大于100
                         if (Number(item.ip.split('')[3]) >= 100) {
-                            openMessageTipBox({
+                            openMessageBox({
                                 type: 'info',
                                 message: Translate('IDCS_ERROR_IP_LAST_FIELD_NEED_LESSTHAN100'),
                             })
@@ -582,7 +582,7 @@ export default defineComponent({
 
                     if (item.isSupSecondIP) {
                         if (item.secondIp === item.ip) {
-                            openMessageTipBox({
+                            openMessageBox({
                                 type: 'info',
                                 message: Translate('IDCS_PROMPT_THE_SAME_IPADDRESS').formatForLang(Translate('IDCS_ETH0_NAME')),
                             })
@@ -599,7 +599,7 @@ export default defineComponent({
                 if (poeIpAndMask) {
                     const flag = ethIpAndMask.every((item) => {
                         if (isEqualIPAddress(item.ip, item.mask, poeIpAndMask.ip, poeIpAndMask.mask)) {
-                            openMessageTipBox({
+                            openMessageBox({
                                 type: 'info',
                                 message: Translate('IDCS_ERROR_IP_SAME_NETWORK_SEGMAENT'),
                             })
@@ -788,7 +788,7 @@ export default defineComponent({
                         errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
                         break
                 }
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: errorInfo,
                 })

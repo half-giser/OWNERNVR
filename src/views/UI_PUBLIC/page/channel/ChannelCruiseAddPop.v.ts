@@ -46,7 +46,7 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
 
         const PRESET_MAX_COUNT = 16
@@ -142,7 +142,7 @@ export default defineComponent({
             const $ = queryXml(result)
 
             if ($('//status').text() === 'success') {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 }).finally(() => {
@@ -159,7 +159,7 @@ export default defineComponent({
                         errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
                         break
                 }
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: errorInfo,
                 })
@@ -191,7 +191,7 @@ export default defineComponent({
          */
         const addPreset = () => {
             if (tableData.value.length >= PRESET_MAX_COUNT) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_PRESET_MAX_NUM').formatForLang(PRESET_MAX_COUNT),
                 })

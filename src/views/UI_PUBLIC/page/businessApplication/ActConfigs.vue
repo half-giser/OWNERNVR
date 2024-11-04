@@ -3,7 +3,7 @@
  * @Date: 2024-06-03 10:00:35
  * @Description: 业务应用-门禁管理-门禁配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-10 11:10:02
+ * @LastEditTime: 2024-10-31 19:32:49
 -->
 <template>
     <div class="act">
@@ -13,7 +13,7 @@
                 '--form-input-width': '300px',
                 '--form-label-width': '200px',
             }"
-            class="inline-message narrow"
+            class="inline-message"
         >
             <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
                 <el-select
@@ -69,8 +69,6 @@
                     :min="formData.accessLockData[pageData.accessLockCurrentIndex].openDelayTimeMin"
                     :max="formData.accessLockData[pageData.accessLockCurrentIndex].openDelayTimeMax"
                     :disabled="!formData.accessLockData[pageData.accessLockCurrentIndex].openDelayTimeEnabled"
-                    size="small"
-                    :show-input-controls="false"
                     show-input
                 />
             </el-form-item>
@@ -80,8 +78,6 @@
                     :min="formData.accessLockData[pageData.accessLockCurrentIndex].openHoldTimeMin"
                     :max="formData.accessLockData[pageData.accessLockCurrentIndex].openHoldTimeMax"
                     :disabled="!formData.accessLockData[pageData.accessLockCurrentIndex].openHoldTimeEnabled"
-                    size="small"
-                    :show-input-controls="false"
                     show-input
                 />
             </el-form-item>

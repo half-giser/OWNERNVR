@@ -41,8 +41,7 @@
                 <el-table-column
                     :label="Translate('IDCS_PRESET_NAME')"
                     prop="name"
-                >
-                </el-table-column>
+                />
                 <el-table-column
                     :label="Translate('IDCS_SPEED')"
                     prop="speed"

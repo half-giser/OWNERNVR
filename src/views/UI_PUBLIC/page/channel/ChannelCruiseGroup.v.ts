@@ -19,7 +19,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
         const playerRef = ref<PlayerInstance>()
         const auth = useUserChlAuth(false)
@@ -188,22 +188,23 @@ export default defineComponent({
             const chlId = tableData.value[chlIndex].chlId
             const chlName = tableData.value[chlIndex].chlName
             const cruise = tableData.value[chlIndex].cruise[cruiseIndex]
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_CRUISE_BY_GROUP_S').formatForLang(Translate('IDCS_CHANNEL'), getShortString(chlName, 10), getShortString(cruise.name, 10)),
             }).then(async () => {
                 openLoading()
 
-                const cruiseXml = tableData.value[chlIndex].cruise
-                    .filter((item) => item.index !== cruise.index)
-                    .map((item) => `<item index="${item.index.toString()}">${wrapCDATA(item.name)}</item>`)
-                    .join('')
                 const sendXml = rawXml`
                     <condition>
                         <chlId id="${chlId}"></chlId>
                         <index>1</index>
                         <name>group1</name>
-                        <cruises type="list">${cruiseXml}</cruises>
+                        <cruises type="list">
+                            ${tableData.value[chlIndex].cruise
+                                .filter((item) => item.index !== cruise.index)
+                                .map((item) => `<item index="${item.index.toString()}">${wrapCDATA(item.name)}</item>`)
+                                .join('')}
+                        </cruises>
                     </condition>
                 `
                 const result = await editChlPtzGroup(sendXml)
@@ -223,7 +224,7 @@ export default defineComponent({
         const addCruise = (index: number) => {
             const current = tableData.value[index]
             if (current.cruise.length >= current.maxCount) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_OVER_MAX_NUMBER_LIMIT'),
                 })

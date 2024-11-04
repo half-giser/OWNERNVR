@@ -3,7 +3,7 @@
  * @Date: 2024-07-01 11:01:12
  * @Description: 查看日志
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-16 09:15:53
+ * @LastEditTime: 2024-11-04 14:54:18
  */
 import { SystemLogForm, type SystemLogList } from '@/types/apiType/system'
 import dayjs from 'dayjs'
@@ -16,7 +16,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
         const lang = useLangStore()
@@ -472,7 +472,7 @@ export default defineComponent({
          */
         const changeStartTime = (value: string) => {
             if (dayjs(value, dateTime.dateTimeFormat).isAfter(dayjs(pageData.value.endTime, dateTime.dateTimeFormat))) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_END_TIME_GREATER_THAN_START'),
                 })
@@ -489,7 +489,7 @@ export default defineComponent({
          */
         const changeEndTime = (value: string) => {
             if (dayjs(value, dateTime.dateTimeFormat).isBefore(dayjs(pageData.value.startTime, dateTime.dateTimeFormat))) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_END_TIME_GREATER_THAN_START'),
                 })
@@ -506,7 +506,7 @@ export default defineComponent({
         const handleExport = async () => {
             // 从导出逻辑上看，此处导出是用浏览器原生实现，与插件无关，不明白为何插件未安装或不可用时禁止导出
             // if (!Plugin.IsSupportH5() && !Plugin.IsInstallPlugin()) {
-            //     openMessageTipBox({
+            //     openMessageBox({
             //         type: 'info',
             //         message: Plugin.pluginNoticeHtml.value,
             //     })
@@ -526,12 +526,12 @@ export default defineComponent({
                 download(new Blob([content]), 'log_' + dayjs(new Date()).format('YYYYMMDDHHmmss') + '.txt')
                 closeLoading()
 
-                openMessageTipBox({
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_EXPORT_SUCCESS') + `(${Translate('IDCS_EXPORT_LOG_OVER_LIMIT_TIP')})`,
                 })
             } catch (e) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_EXPORT_FAIL'),
                 })
@@ -597,7 +597,7 @@ export default defineComponent({
             }
 
             if (!playList.length) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_NO_ASSOCIATE_CHANNEL_RECORD'),
                 })

@@ -11,7 +11,7 @@ import { NetUPnPReportForm } from '@/types/apiType/net'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
 
         const formRef = ref<FormInstance>()
@@ -90,7 +90,7 @@ export default defineComponent({
          */
         const changeSwitch = () => {
             if (formData.value.switch && !pageData.value.upnpSwitch) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_ENABLE_UPNP_REPORT_TIPS'),
                 })

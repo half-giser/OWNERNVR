@@ -3,7 +3,7 @@
  * @Date: 2024-08-14 17:06:11
  * @Description: 报警服务器
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 11:43:49
+ * @LastEditTime: 2024-11-04 10:15:59
  */
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -15,7 +15,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
-        const openMessageTipBox = useMessageBox().openMessageTipBox
+        const openMessageBox = useMessageBox().openMessageBox
         const { openLoading, closeLoading } = useLoading()
         const formRef = ref<FormInstance>()
         const formData = ref({
@@ -64,6 +64,7 @@ export default defineComponent({
                                 type: 'error',
                                 customClass: 'errorMsg',
                                 duration: 2000,
+                                grouping: true,
                             })
                             // callback(new Error(Translate('IDCS_DDNS_SERVER_ADDR_EMPTY')))
                             return
@@ -84,6 +85,7 @@ export default defineComponent({
                                     type: 'error',
                                     customClass: 'errorMsg',
                                     duration: 2000,
+                                    grouping: true,
                                 })
                                 // callback(new Error(Translate('IDCS_PROMPT_INVALID_SERVER')))
                                 return
@@ -105,6 +107,7 @@ export default defineComponent({
                                     type: 'error',
                                     customClass: 'errorMsg',
                                     duration: 2000,
+                                    grouping: true,
                                 })
                                 // callback(new Error(Translate('IDCS_PROMPT_ID_OR_TOKEN_EMPTY')))
                                 return
@@ -126,6 +129,7 @@ export default defineComponent({
                                     type: 'error',
                                     customClass: 'errorMsg',
                                     duration: 2000,
+                                    grouping: true,
                                 })
                                 // callback(new Error(Translate('IDCS_PROMPT_ID_OR_TOKEN_EMPTY')))
                                 return
@@ -303,33 +307,36 @@ export default defineComponent({
 
         const getSavaData = (url: string) => {
             const scheduleLabel = formData.value.schedule === DEFAULT_EMPTY_ID ? '' : pageData.value.scheduleList.find((item) => item.value == formData.value.schedule)!.label
-            let sendXml = rawXml`<content>
-                                <address>${formData.value.address}</address>
-                                <url>${formData.value.url}</url>
-                                <switch>${formData.value.enable.toString()}</switch>
-                                <dataFormat>${formData.value.protocol}</dataFormat>
-                                <port>${formData.value.port.toString()}</port>
-                                <alarmServerSchedule>${scheduleLabel}</alarmServerSchedule>`
-            if (pageData.value.isProtocolXML) {
-                sendXml += rawXml`<alarmServerAlarmTypes>${pageData.value.linkedAlarmList.join(',')} </alarmServerAlarmTypes>`
-            }
-
-            if (url == 'editAlarmServerParam') {
-                sendXml += rawXml`<heartbeat>
-                                <switch>${formData.value.heartEnable.toString()}</switch>
-                                <interval>${formData.value.interval.toString()}</interval>
-                            </heartbeat>`
-            }
-
-            if (pageData.value.supportAdditionalServerSetting) {
-                sendXml += rawXml`
-                                    <deviceId><![CDATA[${formData.value.deviceId}]]></deviceId>
-                                    <token><![CDATA[${formData.value.token}]]></token>
+            const sendXml = rawXml`
+                <content>
+                    <address>${formData.value.address}</address>
+                    <url>${formData.value.url}</url>
+                    <switch>${formData.value.enable.toString()}</switch>
+                    <dataFormat>${formData.value.protocol}</dataFormat>
+                    <port>${formData.value.port.toString()}</port>
+                    <alarmServerSchedule>${scheduleLabel}</alarmServerSchedule>
+                    ${pageData.value.isProtocolXML ? `<alarmServerAlarmTypes>${pageData.value.linkedAlarmList.join(',')} </alarmServerAlarmTypes>` : ''}
+                    ${
+                        url === 'editAlarmServerParam'
+                            ? rawXml`
+                                <heartbeat>
+                                    <switch>${formData.value.heartEnable.toString()}</switch>
+                                    <interval>${formData.value.interval.toString()}</interval>
+                                </heartbeat>
                                 `
-            } else {
-                sendXml += rawXml`<deviceId><![CDATA[${formData.value.deviceId}]]></deviceId>`
-            }
-            sendXml += rawXml`</content>`
+                            : ''
+                    }
+                    ${
+                        pageData.value.supportAdditionalServerSetting
+                            ? rawXml`
+                                <deviceId><![CDATA[${formData.value.deviceId}]]></deviceId>
+                                <token><![CDATA[${formData.value.token}]]></token>
+                            `
+                            : `<deviceId><![CDATA[${formData.value.deviceId}]]></deviceId>`
+                    }
+                </content>
+            `
+
             return sendXml
         }
 
@@ -346,12 +353,12 @@ export default defineComponent({
                             closeLoading()
                             const res = queryXml(resb)
                             if (res('status').text() == 'success') {
-                                openMessageTipBox({
+                                openMessageBox({
                                     type: 'success',
                                     message: Translate('IDCS_TEST_ALARM_SERVER_SUCCESS'),
                                 })
                             } else {
-                                openMessageTipBox({
+                                openMessageBox({
                                     type: 'info',
                                     message: Translate('IDCS_TEST_ALARM_SERVER_FAILED'),
                                 })
@@ -365,7 +372,7 @@ export default defineComponent({
                             closeLoading()
                             const res = queryXml(resb)
                             if (res('status').text() == 'success') {
-                                openMessageTipBox({
+                                openMessageBox({
                                     type: 'success',
                                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                                 })
@@ -382,7 +389,7 @@ export default defineComponent({
                                     case ErrorCode.USER_ERROR_INVALID_PARAM:
                                         msg = Translate('IDCS_USER_ERROR_INVALID_PARAM')
                                 }
-                                openMessageTipBox({
+                                openMessageBox({
                                     type: 'info',
                                     message: Translate('IDCS_SAVE_DATA_FAIL') + msg,
                                 })

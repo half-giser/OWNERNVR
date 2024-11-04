@@ -14,7 +14,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
         const pushFormData = ref(new pushForm())
 
@@ -55,12 +55,12 @@ export default defineComponent({
             const result = await testMobilePush()
             const $ = queryXml(result)
             if ($('//status').text() == 'success') {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_TEST_PUSH_MOBILE_SUCCESS'),
                 })
             } else {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_TEST_PUSH_MOBILE_FAILED'),
                 })

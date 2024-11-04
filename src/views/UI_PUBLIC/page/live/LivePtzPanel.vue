@@ -3,7 +3,7 @@
  * @Date: 2024-07-19 13:37:56
  * @Description: 现场预览-云台视图
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-26 14:10:11
+ * @LastEditTime: 2024-11-04 09:28:44
 -->
 <template>
     <div class="ptz">
@@ -150,11 +150,13 @@
     flex-shrink: 0;
 
     span:first-child {
-        margin-right: 5px;
+        margin-right: 10px;
+        flex-shrink: 0;
     }
 
     span:last-child {
-        margin-left: 5px;
+        margin-left: 10px;
+        flex-shrink: 0;
     }
 }
 

@@ -35,7 +35,7 @@ export default defineComponent({
         },
     },
     setup(prop, ctx) {
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
         const { Translate } = useLangStore()
         const dateTime = useDateTimeStore()
@@ -182,7 +182,7 @@ export default defineComponent({
                     formData.value.faceIndex[0] = index
                 } else {
                     if (formData.value.faceIndex.length >= 5) {
-                        openMessageTipBox({
+                        openMessageBox({
                             type: 'info',
                             message: Translate('IDCS_SELECT_FACE_UPTO_MAX').formatForLang(5),
                         })

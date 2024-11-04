@@ -38,15 +38,13 @@
                     prop="chlNum"
                     :label="Translate('IDCS_CHANNEL_NUMBER')"
                     min-width="6%"
-                >
-                </el-table-column>
+                />
                 <!-- 通道名 -->
                 <el-table-column
                     prop="name"
                     :label="Translate('IDCS_ALARM_CHANNEL_NAME')"
                     min-width="35%"
-                >
-                </el-table-column>
+                />
                 <!-- 预截图时间 -->
                 <el-table-column min-width="27%">
                     <template #header>
@@ -79,8 +77,7 @@
                                 :key="item.value"
                                 :value="item.value"
                                 :label="item.label"
-                            >
-                            </el-option>
+                            />
                         </el-select>
                     </template>
                 </el-table-column>
@@ -116,8 +113,7 @@
                                 :key="item.value"
                                 :value="item.value"
                                 :label="item.label"
-                            >
-                            </el-option>
+                            />
                         </el-select>
                     </template>
                 </el-table-column>

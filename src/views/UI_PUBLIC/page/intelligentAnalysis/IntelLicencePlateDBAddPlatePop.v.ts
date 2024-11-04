@@ -42,7 +42,7 @@ export default defineComponent({
     setup(prop, ctx) {
         const Plugin = inject('Plugin') as PluginType
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
 
         const mode = computed(() => {
@@ -186,7 +186,7 @@ export default defineComponent({
                     errorInfo = Translate('IDCS_ADD_FACE_FAIL')
                     break
             }
-            openMessageTipBox({
+            openMessageBox({
                 type: 'info',
                 message: errorInfo,
             })
@@ -218,7 +218,7 @@ export default defineComponent({
             closeLoading()
 
             if ($('//status').text() === 'success') {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 }).finally(() => {
@@ -255,7 +255,7 @@ export default defineComponent({
             closeLoading()
 
             if ($('//status').text() === 'success') {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 }).finally(() => {
@@ -307,7 +307,7 @@ export default defineComponent({
                             addPlate()
                         } else {
                             if (prop.data.groupId && prop.data.groupId !== formData.value.groupId) {
-                                openMessageTipBox({
+                                openMessageBox({
                                     type: 'question',
                                     message: Translate('IDCS_CHANGE_PLATE_GROUP_TIP'),
                                 }).then(() => {
@@ -321,17 +321,17 @@ export default defineComponent({
                 })
             } else {
                 if (pageData.value.fileName.indexOf('.csv') === -1) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_NO_CHOOSE_TDB_FILE'),
                     })
                 } else if (!pageData.value.fileData.length) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_IMPORT_FAIL'),
                     })
                 } else if (!formData.value.groupId) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_PLATE_LIBRARY_GROUP_NOT_EXIST'),
                     })
@@ -473,7 +473,7 @@ export default defineComponent({
         const parseFiles = async (file: File) => {
             const fileType = file.name.split('.').pop()
             if (fileType !== 'csv') {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_FILE_NOT_AVAILABLE'),
                 })
@@ -520,7 +520,7 @@ export default defineComponent({
                     const file = base64ToFile(fileBase64, pageData.value.fileName)
                     parseFiles(file)
                 } else {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_OUT_FILE_SIZE'),
                     })
@@ -531,7 +531,7 @@ export default defineComponent({
             else if ($('statenotify[@type="FileNetTransport"]').length) {
                 closeLoading()
                 if (Number($('statenotify/errorCode').text()) === ErrorCode.USER_ERROR_NODE_NET_DISCONNECT) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_OCX_NET_DISCONNECT'),
                     })
@@ -557,7 +557,7 @@ export default defineComponent({
                     }
                 })
             if (!plateList.length) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_IMPORT_FAIL'),
                 })
@@ -567,7 +567,7 @@ export default defineComponent({
                 onsuccess() {
                     closeLoading()
                     ws?.stop()
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'success',
                         message: Translate('IDCS_IMPORT_SUCCESSED'),
                     }).then(() => {
@@ -601,7 +601,7 @@ export default defineComponent({
                             errorInfo = Translate('IDCS_IMPORT_FAIL')
                             break
                     }
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: errorInfo,
                     })

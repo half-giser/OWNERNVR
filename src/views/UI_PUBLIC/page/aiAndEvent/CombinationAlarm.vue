@@ -2,8 +2,8 @@
  * @Description: 普通事件——组合报警
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-22 16:04:47
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-28 10:37:33
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-11-04 15:58:12
 -->
 <template>
     <div class="base-flex-box">
@@ -21,7 +21,7 @@
                     width="50"
                 >
                     <template #default="scope">
-                        <BaseTableRowStatus :icon="scope.row.status"></BaseTableRowStatus>
+                        <BaseTableRowStatus :icon="scope.row.status" />
                     </template>
                 </el-table-column>
 
@@ -34,7 +34,6 @@
                         <el-input
                             v-model="scope.row.name"
                             maxlength="32"
-                            size="small"
                             @focus="nameFocus(scope.row.name)"
                             @blur="nameBlur(scope.row)"
                             @keyup.enter="enterBlur($event)"
@@ -82,7 +81,7 @@
                                 source-title="IDCS_CHANNEL"
                                 target-title="IDCS_CHANNEL_TRGGER"
                                 :source-data="pageData.recordList"
-                                type="record"
+                                limit-tip="IDCS_RECORD_CHANNEL_LIMIT"
                                 :linked-list="pageData.recordChosedIdsAll"
                                 @confirm="recordConfirmAll"
                                 @close="recordCloseAll"
@@ -125,7 +124,7 @@
                                 target-title="IDCS_CHANNEL_TRGGER"
                                 :source-data="pageData.snapList"
                                 :linked-list="pageData.snapChosedIdsAll"
-                                type="snap"
+                                limit-tip="IDCS_SNAP_CHANNEL_LIMIT"
                                 @confirm="snapConfirmAll"
                                 @close="snapCloseAll"
                             />
@@ -172,10 +171,7 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select
-                            v-model="scope.row.sysAudio"
-                            size="small"
-                        >
+                        <el-select v-model="scope.row.sysAudio">
                             <el-option
                                 v-for="item in pageData.audioList"
                                 :key="item.value"
@@ -207,10 +203,7 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select
-                            v-model="scope.row.msgPush"
-                            size="small"
-                        >
+                        <el-select v-model="scope.row.msgPush">
                             <el-option
                                 v-for="item in pageData.switchList"
                                 :key="item.value"
@@ -240,7 +233,7 @@
                                 target-title="IDCS_TRIGGER_ALARM_OUT"
                                 :source-data="pageData.alarmOutList"
                                 :linked-list="pageData.alarmOutChosedIdsAll"
-                                type="alarmOut"
+                                limit-tip="IDCS_ALARMOUT_LIMIT"
                                 @confirm="alarmOutConfirmAll"
                                 @close="alarmOutCloseAll"
                             />
@@ -306,10 +299,7 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select
-                            v-model="scope.row.beeper"
-                            size="small"
-                        >
+                        <el-select v-model="scope.row.beeper">
                             <el-option
                                 v-for="item in pageData.switchList"
                                 :key="item.value"
@@ -343,7 +333,6 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.popVideo.chl.value"
-                            size="small"
                             :empty-values="[undefined, null]"
                         >
                             <el-option
@@ -377,10 +366,7 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select
-                            v-model="scope.row.msgBoxPopup"
-                            size="small"
-                        >
+                        <el-select v-model="scope.row.msgBoxPopup">
                             <el-option
                                 v-for="item in pageData.switchList"
                                 :key="item.value"
@@ -410,10 +396,7 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select
-                            v-model="scope.row.email"
-                            size="small"
-                        >
+                        <el-select v-model="scope.row.email">
                             <el-option
                                 v-for="item in pageData.switchList"
                                 :key="item.value"
@@ -445,11 +428,10 @@
             target-title="IDCS_CHANNEL_TRGGER"
             :source-data="pageData.recordList"
             :linked-list="tableData[pageData.triggerDialogIndex]?.recordList || []"
-            type="record"
+            limit-tip="IDCS_RECORD_CHANNEL_LIMIT"
             @confirm="recordConfirm"
             @close="recordClose"
-        >
-        </BaseTransferDialog>
+        />
         <BaseTransferDialog
             v-model="pageData.snapIsShow"
             header-title="IDCS_TRIGGER_CHANNEL_SNAP"
@@ -457,11 +439,10 @@
             target-title="IDCS_CHANNEL_TRGGER"
             :source-data="pageData.snapList"
             :linked-list="tableData[pageData.triggerDialogIndex]?.snapList || []"
-            type="snap"
+            limit-tip="IDCS_SNAP_CHANNEL_LIMIT"
             @confirm="snapConfirm"
             @close="snapClose"
-        >
-        </BaseTransferDialog>
+        />
         <BaseTransferDialog
             v-model="pageData.alarmOutIsShow"
             header-title="IDCS_TRIGGER_ALARM_OUT"
@@ -469,11 +450,10 @@
             target-title="IDCS_TRIGGER_ALARM_OUT"
             :source-data="pageData.alarmOutList"
             :linked-list="tableData[pageData.triggerDialogIndex]?.alarmOutList || []"
-            type="alarmOut"
+            limit-tip="IDCS_ALARMOUT_LIMIT"
             @confirm="alarmOutConfirm"
             @close="alarmOutClose"
-        >
-        </BaseTransferDialog>
+        />
         <!-- 预置点名称 -->
         <SetPresetPop
             v-model="pageData.isPresetPopOpen"

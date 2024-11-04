@@ -10,7 +10,7 @@ import { type XMLQuery } from '@/utils/xmlParse'
 import dayjs from 'dayjs'
 
 export const useOcxBackUp = (cmd: (str: string) => void) => {
-    const { openMessageTipBox } = useMessageBox()
+    const { openMessageBox } = useMessageBox()
     const userSession = useUserSessionStore()
 
     // OCX本地下载任务限制
@@ -206,7 +206,7 @@ export const useOcxBackUp = (cmd: (str: string) => void) => {
             } else if (errorCode == ErrorCode.USER_ERROR_DISK_SPACE_NO_ENOUGH) {
                 const errorDescription = $('statenotify/errorDescription').text()
                 localTableData.value = []
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: errorDescription,
                 })

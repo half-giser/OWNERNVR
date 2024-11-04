@@ -42,8 +42,7 @@
                             :key="index"
                             :value="item.id"
                             :label="item.name || ' '"
-                        >
-                        </el-option>
+                        />
                     </el-select>
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_VIDEO_MASK')">
@@ -51,7 +50,7 @@
                         v-if="formData.isSpeco"
                         :disabled="formData.disabled"
                         @change="handleChangeSwitch"
-                    ></el-select>
+                    />
                     <el-select
                         v-else
                         v-model="formData.switch"
@@ -88,7 +87,7 @@
                             <BaseTableRowStatus
                                 :icon="scope.row.status"
                                 :error-text="scope.row.statusTip"
-                            ></BaseTableRowStatus>
+                            />
                         </template>
                     </el-table-column>
                     <el-table-column
@@ -122,7 +121,6 @@
                                 v-if="!scope.row.isSpeco"
                                 v-model="scope.row.switch"
                                 :disabled="scope.row.disabled"
-                                size="small"
                                 @focus="handleRowClick(scope.row)"
                                 @change="handleChangeSwitch()"
                             >

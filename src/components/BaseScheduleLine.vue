@@ -7,6 +7,9 @@
     <div
         class="border"
         :style="{ width: `${width}px` }"
+        @mousemove="selecting"
+        @mouseup="selectEnd"
+        @mouseleave="selectEnd"
     >
         <div class="timeline-border">
             <canvas
@@ -29,9 +32,6 @@
                 :width="canvasWidth"
                 height="20"
                 @mousedown="selectStart"
-                @mousemove="selecting"
-                @mouseup="selectEnd"
-                @mouseleave="selectEnd"
             ></canvas>
         </div>
         <div class="toolbar-border">
@@ -50,10 +50,24 @@
                 class="btn-panel"
             >
                 <slot name="customerControlPanel"></slot>
-                <a
-                    @click="manualTimeInputOpen"
-                    v-text="Translate('IDCS_MANUAL_INPUT')"
-                ></a>
+                <el-popover
+                    v-model:visible="manualTimeInputShow"
+                    width="250"
+                >
+                    <template #reference>
+                        <a>{{ Translate('IDCS_MANUAL_INPUT') }}</a>
+                    </template>
+                    <div class="menaulTimeInputPL">
+                        <el-time-picker
+                            v-model="manualTimeSpan"
+                            is-range
+                            range-separator="-"
+                            :clearable="false"
+                            format="HH:mm"
+                        />
+                        <el-button @click="manualTimeInputOk">{{ Translate('IDCS_OK') }}</el-button>
+                    </div>
+                </el-popover>
                 <a
                     @click="resetValue([['00:00', '23:59']])"
                     v-text="Translate('IDCS_SELECT_ALL')"
@@ -66,20 +80,6 @@
                     @click="resetValue([])"
                     v-text="Translate('IDCS_CLEAR')"
                 ></a>
-                <div
-                    v-show="manualTimeInputShow"
-                    class="menaulTimeInputPL"
-                    @click.stop
-                >
-                    <el-time-picker
-                        v-model="manualTimeSpan"
-                        is-range
-                        range-separator="-"
-                        :clearable="false"
-                        format="HH:mm"
-                    />
-                    <el-button @click="manualTimeInputOk">{{ Translate('IDCS_OK') }}</el-button>
-                </div>
             </div>
         </div>
     </div>
@@ -325,14 +325,6 @@ const manualTimeInputClose = (event?: Event) => {
  * 记录当前打开手动输入的按钮（在周排程时，打开一个手动输入/复制到，需要关闭其他天的手动输入/复制到，不能阻止冒泡，导致document点击时间不触发）
  */
 let manualTimeInputTarget: EventTarget | null = null
-/**
- * 手动设置时间段面板打开
- */
-const manualTimeInputOpen = (event: Event) => {
-    manualTimeInputTarget = event.target
-    manualTimeInputShow.value = true
-    document.addEventListener('click', manualTimeInputClose)
-}
 
 /**
  * 手动设置时间段确定事件
@@ -622,14 +614,9 @@ defineExpose({
 
 .menaulTimeInputPL {
     display: flex;
-    position: absolute;
-    width: 230px;
-    top: 20px;
-    right: 0px;
-    padding: 2px;
-    border-radius: 5px;
-    border: solid 1px var(--main-border);
-    background-color: var(--table-stripe);
-    z-index: 1000;
+
+    .el-button {
+        margin-left: 5px;
+    }
 }
 </style>

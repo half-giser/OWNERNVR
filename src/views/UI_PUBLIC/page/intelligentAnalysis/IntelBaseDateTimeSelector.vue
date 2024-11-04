@@ -3,13 +3,14 @@
  * @Date: 2024-09-05 17:02:01
  * @Description: 智能分析 - 时间日期选择器
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-11 14:59:41
+ * @LastEditTime: 2024-11-01 18:21:33
 -->
 <template>
     <div>
         <el-popover
             v-model:visible="pageData.isPop"
             :width="350"
+            popper-class="selector"
         >
             <template #reference>
                 <div class="base-intel-placeholder">

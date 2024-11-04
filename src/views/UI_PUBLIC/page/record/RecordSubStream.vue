@@ -2,8 +2,8 @@
  * @Description: 录像——录像子码流
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-07-31 10:12:26
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-12 17:29:11
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-11-01 10:44:19
 -->
 <template>
     <div class="base-flex-box">
@@ -118,8 +118,7 @@
                                                     :label="item"
                                                     :value="item"
                                                     @click="keepDropDownOpen(scope.row)"
-                                                >
-                                                </el-option>
+                                                />
                                             </el-select>
                                         </template>
                                     </el-table-column>

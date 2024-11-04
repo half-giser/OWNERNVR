@@ -3,7 +3,7 @@
  * @Date: 2024-08-10 11:05:51
  * @Description: 报警输出
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 13:32:57
+ * @LastEditTime: 2024-10-31 19:07:17
 -->
 <template>
     <div class="base-flex-box">
@@ -19,7 +19,7 @@
                     width="50"
                 >
                     <template #default="scope">
-                        <BaseTableRowStatus :icon="scope.row.status"></BaseTableRowStatus>
+                        <BaseTableRowStatus :icon="scope.row.status" />
                     </template>
                 </el-table-column>
 
@@ -36,7 +36,6 @@
                     <template #default="scope">
                         <el-input
                             v-model="scope.row.name"
-                            size="small"
                             @focus="nameFocus(scope.row.name)"
                             @blur="nameBlur(scope.row)"
                             @keyup.enter="enterBlur($event)"
@@ -65,10 +64,7 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select
-                            v-model="scope.row.delayTime"
-                            size="small"
-                        >
+                        <el-select v-model="scope.row.delayTime">
                             <el-option
                                 v-for="opt in pageData.delayList"
                                 :key="opt.value"
@@ -102,7 +98,6 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.scheduleId"
-                            size="small"
                             :empty-values="[undefined, null]"
                             @change="changeSchedule(scope.row)"
                         >

@@ -3,7 +3,7 @@
  * @Date: 2024-09-18 09:33:12
  * @Description: 开机向导
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 17:28:34
+ * @LastEditTime: 2024-11-04 11:48:18
  */
 import { SystemGuideLangForm, SysmteGuidePrivacyForm, SystemGuideUserForm, SystemGuideDateTimeForm, SystemGuideQuestionForm, type SystemGuideDiskList } from '@/types/apiType/system'
 import dayjs from 'dayjs'
@@ -12,7 +12,7 @@ import { cloneDeep } from 'lodash-es'
 export default defineComponent({
     setup() {
         const langStore = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const router = useRouter()
         const Translate = langStore.Translate
@@ -272,22 +272,22 @@ export default defineComponent({
                     .filter((item) => !!item.answer)
                     .map((item) => {
                         return rawXml`
-                        <item id="${item.id}">
-                            <question>${wrapCDATA(item.question)}</question>
-                            <answer>${wrapCDATA(item.answer)}</answer>
-                        </item>
-                    `
+                            <item id="${item.id}">
+                                <question>${wrapCDATA(item.question)}</question>
+                                <answer>${wrapCDATA(item.answer)}</answer>
+                            </item>
+                        `
                     })
                     .join('')
             } else {
                 questionXml = qaTableData.value
                     .map((item, index) => {
                         return rawXml`
-                        <item id="${(index + 1).toString()}">
-                            <question>${wrapCDATA(item.question)}</question>
-                            <answer>${wrapCDATA(item.answer)}</answer>
-                        </item>
-                    `
+                            <item id="${(index + 1).toString()}">
+                                <question>${wrapCDATA(item.question)}</question>
+                                <answer>${wrapCDATA(item.answer)}</answer>
+                            </item>
+                        `
                     })
                     .join('')
             }
@@ -307,7 +307,7 @@ export default defineComponent({
             closeLoading()
 
             if ($('//status').text() === 'success') {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'question',
                     message: Translate('IDCS_REBOOTING'),
                 }).finally(() => {
@@ -317,7 +317,7 @@ export default defineComponent({
                 const errorCode = Number($('//errorCode').text())
                 if (errorCode === 536871054) {
                     //设备已初始化完成,跳转登录页面
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'question',
                         message: Translate('IDCS_ACTIVATED'),
                     }).finally(() => {
@@ -342,7 +342,7 @@ export default defineComponent({
             const activated = $('//content/activated').text().toBoolean()
             if (activated) {
                 // 设备已初始化完成,跳转登录页面
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_ACTIVATED'),
                 }).finally(() => {
@@ -630,7 +630,7 @@ export default defineComponent({
          */
         const checkUserForm = () => {
             if (!userFormData.value.password.length) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_PROMPT_PASSWORD_EMPTY'),
                 })
@@ -638,7 +638,7 @@ export default defineComponent({
             }
 
             if (userFormData.value.password !== userFormData.value.confirmPassword) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_PWD_MISMATCH_TIPS'),
                 })
@@ -646,7 +646,7 @@ export default defineComponent({
             }
 
             if (DEFAULT_PASSWORD_STREMGTH_MAPPING[pageData.value.passwordStrength] > passwordStrength.value) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_PWD_STRONG_ERROR'),
                 })
@@ -670,7 +670,7 @@ export default defineComponent({
         const addQuestion = () => {
             if (isDefeultQuestion.value) {
                 if (!qaFormData.value.answer.trim()) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_PROMPT_ANSWER_EMPTY'),
                     })
@@ -682,7 +682,7 @@ export default defineComponent({
                 }
             } else {
                 if (!qaFormData.value.question.trim()) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_PROMPT_QUESTION_EMPTY'),
                     })
@@ -690,7 +690,7 @@ export default defineComponent({
                 }
 
                 if (!qaFormData.value.answer.trim()) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_PROMPT_ANSWER_EMPTY'),
                     })
@@ -698,7 +698,7 @@ export default defineComponent({
                 }
 
                 if (qaTableData.value.length >= pageData.value.questionMaxCount) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_PROMPT_MAX_QUESTION'),
                     })
@@ -707,7 +707,7 @@ export default defineComponent({
 
                 const sameQuestion = qaTableData.value.some((item) => item.question === qaFormData.value.question.trim())
                 if (sameQuestion) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_PROMPT_QUESTION_IS_EXIST'),
                     })
@@ -728,7 +728,7 @@ export default defineComponent({
          * @param {number} index
          */
         const deleteQuestion = (index: number) => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_S'),
             }).then(() => {
@@ -800,7 +800,7 @@ export default defineComponent({
          * @param {number} index
          */
         const formatCurrentDisk = (index: number) => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_FORMAT_MP_DISK_RESULT'),
             }).then(async () => {
@@ -827,7 +827,7 @@ export default defineComponent({
             return new Promise((resolve: (value: undefined) => void) => {
                 const needFormatDisk = diskTableData.value.filter((item) => item.diskStatus === 'bad')
                 if (needFormatDisk.length > 0) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'question',
                         message: '<span>' + Translate('IDCS_QUESTION_FORMAT_DISK') + '</span></br><span style="color: red">' + Translate('IDCS_FORMAT_MP_DISK_RESULT') + '</span>',
                     })

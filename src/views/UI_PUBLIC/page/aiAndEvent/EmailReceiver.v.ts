@@ -3,7 +3,7 @@
  * @Date: 2024-08-12 14:21:22
  * @Description: email通知
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 15:00:27
+ * @LastEditTime: 2024-11-04 11:36:25
  */
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import { EmailReceiver } from '@/types/apiType/aiAndEvent'
@@ -18,7 +18,7 @@ export default defineComponent({
         const userSession = useUserSessionStore()
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
-        const openMessageTipBox = useMessageBox().openMessageTipBox
+        const openMessageBox = useMessageBox().openMessageBox
         const tableData = ref<EmailReceiver[]>([])
         const tableRef = ref<TableInstance>()
         const maxEmailCount = ref(16)
@@ -66,6 +66,7 @@ export default defineComponent({
             //排程管理弹窗显示状态
             scheduleManagePopOpen: false,
         })
+
         const checkExist = (address: string) => {
             const result = tableData.value.some((item) => item.address == address)
             return result
@@ -159,7 +160,7 @@ export default defineComponent({
         }
 
         const handleDelReceiver = (row: EmailReceiver) => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_EMAIL_RECEIVER_S').formatForLang(row.address),
             }).then(() => {
@@ -169,7 +170,7 @@ export default defineComponent({
         }
 
         const handleDelReceiverAll = () => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_ALL_ITEMS'),
             }).then(() => {
@@ -196,7 +197,7 @@ export default defineComponent({
             if (userSession.hasAuth('net')) {
                 router.push('/config/net/email')
             } else {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'question',
                     message: Translate('IDCS_NO_AUTH'),
                 })
@@ -235,6 +236,7 @@ export default defineComponent({
             pageData.value.scheduleManagePopOpen = false
             await getScheduleList()
         }
+
         onMounted(async () => {
             getData()
         })

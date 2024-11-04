@@ -3,13 +3,14 @@
  * @Date: 2024-09-06 11:18:03
  * @Description: 智能分析 - 进出口方向 选择框
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-10 10:12:29
+ * @LastEditTime: 2024-11-01 18:21:50
 -->
 <template>
     <div>
         <el-popover
             v-model:visible="pageData.isPop"
             :width="300"
+            popper-class="selector"
         >
             <template #reference>
                 <div class="base-intel-placeholder">

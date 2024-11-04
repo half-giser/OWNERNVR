@@ -19,7 +19,7 @@ export default defineComponent({
     setup() {
         const Plugin = inject('Plugin') as PluginType
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
         const browser = getBrowserInfo()
 
@@ -96,7 +96,7 @@ export default defineComponent({
             const startTime = dayjs(formData.value.startTime, dateTime.dateTimeFormat).valueOf()
             const endTime = dayjs(formData.value.endTime, dateTime.dateTimeFormat).valueOf()
             if (endTime <= startTime) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_END_TIME_GREATER_THAN_START'),
                 })
@@ -176,7 +176,7 @@ export default defineComponent({
          */
         const exportImg = (row: PlaybackSearchImgList) => {
             if (!userAuth.value.hasAll && !userAuth.value.bk[row.chlId]) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_NODE_NO_AUTH').formatForLang(row.chlName),
                 })
@@ -194,7 +194,7 @@ export default defineComponent({
             if (!userAuth.value.hasAll) {
                 const find = selection.find((item) => !userAuth.value.bk[item.chlId])
                 if (find) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_NODE_NO_AUTH').formatForLang(find.chlName),
                     })
@@ -212,13 +212,13 @@ export default defineComponent({
          */
         const deleteImg = (row: PlaybackSearchImgList, cbk?: () => void) => {
             if (!userAuth.value.hasAll && !userAuth.value.bk[row.chlId]) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_NODE_NO_AUTH').formatForLang(row.chlName),
                 })
                 return
             }
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_SELECT_ITEMS'),
             }).then(async () => {
@@ -253,31 +253,32 @@ export default defineComponent({
             if (!userAuth.value.hasAll) {
                 const find = selection.find((item) => !userAuth.value.bk[item.chlId])
                 if (find) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_NODE_NO_AUTH').formatForLang(find.chlName),
                     })
                     return
                 }
             }
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_SELECT_ITEMS'),
             }).then(async () => {
-                const items = selection
-                    .map((row) => {
-                        return rawXml`
-                        <item>
-                            <chl id="${row.chlId}">${row.chlName}</chl>
-                            <captureMode>${row.captureMode.toString()}</captureMode>
-                            <captureTime>${row.captureTime}</captureTime>
-                        </item>
-                    `
-                    })
-                    .join('')
                 const sendXml = rawXml`
                     <condition>
-                        <pictures type='list'>${items}</pictures>
+                        <pictures type='list'>
+                            ${selection
+                                .map((row) => {
+                                    return rawXml`
+                                        <item>
+                                            <chl id="${row.chlId}">${row.chlName}</chl>
+                                            <captureMode>${row.captureMode.toString()}</captureMode>
+                                            <captureTime>${row.captureTime}</captureTime>
+                                        </item>
+                                    `
+                                })
+                                .join('')}
+                        </pictures>
                     </condition>
                 `
                 const result = await delPictures(sendXml)

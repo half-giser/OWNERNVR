@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-23 10:54:01
  * @Description: 系统撤防
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-29 10:53:17
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-11-04 16:41:18
 -->
 <template>
     <!-- 添加弹窗 -->
@@ -24,8 +24,7 @@
             <el-table-column
                 type="selection"
                 width="55"
-            >
-            </el-table-column>
+            />
             <el-table-column :label="pageData.addDialogTitle">
                 <template #default="scope">
                     {{ scope.row.value }}
@@ -74,8 +73,7 @@
             <el-table-column
                 :label="Translate('IDCS_RECOVER_LINK_ITEM')"
                 prop="value"
-            >
-            </el-table-column>
+            />
         </el-table>
         <template #footer>
             <el-row class="tips_text_pop">{{ Translate('IDCS_CLOSE_GUARD_TIP') }}</el-row>
@@ -159,13 +157,11 @@
                 <el-table-column
                     :label="`${Translate('IDCS_CHANNEL')}/${Translate('IDCS_SENSOR')}`"
                     prop="chlName"
-                >
-                </el-table-column>
+                />
                 <el-table-column
                     prop="disarmItemsStr"
                     :label="Translate('IDCS_RECOVER_LINK_ITEM')"
-                >
-                </el-table-column>
+                />
                 <el-table-column>
                     <template #header>
                         <el-popover
@@ -181,6 +177,7 @@
                             <div class="cfg_table">
                                 <el-table
                                     stripe
+                                    border
                                     show-overflow-tooltip
                                     height="250"
                                     :data="pageData.totalDefenseParamList"
@@ -189,8 +186,7 @@
                                     <el-table-column
                                         type="selection"
                                         width="55"
-                                    >
-                                    </el-table-column>
+                                    />
                                     <el-table-column
                                         :label="Translate('IDCS_RECOVER_LINK_ITEM')"
                                         prop="value"
@@ -200,54 +196,12 @@
                                     <el-button @click="disarmCfgAll">
                                         {{ Translate('IDCS_OK') }}
                                     </el-button>
-                                    <el-button @click="dropDownRef?.handleClose()">
+                                    <el-button @click="pageData.popoverVisible = false">
                                         {{ Translate('IDCS_CANCEL') }}
                                     </el-button>
                                 </el-row>
                             </div>
                         </el-popover>
-                        <!-- <el-dropdown
-                            ref="dropDownRef"
-                            
-                            :hide-on-click="false"
-                            placement="top"
-                        >
-                            <BaseTableDropdownLink>
-                                {{ Translate('IDCS_CONFIG') }}
-                            </BaseTableDropdownLink>
-                            <template #dropdown>
-                                <el-dropdown-menu>
-                                    <div class="cfg_table">
-                                        <el-table
-                                            stripe
-                                            show-overflow-tooltip
-                                            height="250"
-                                            :data="pageData.totalDefenseParamList"
-                                            @selection-change="handleSelectedDropDown"
-                                        >
-                                            <el-table-column
-                                                type="selection"
-                                                width="55"
-                                            >
-                                            </el-table-column>
-                                            <el-table-column :label="Translate('IDCS_RECOVER_LINK_ITEM')">
-                                                <template #default="scope">
-                                                    <span>{{ scope.row.value }}</span>
-                                                </template>
-                                            </el-table-column>
-                                        </el-table>
-                                        <el-row class="base-btn-box">
-                                            <el-button @click="disarmCfgAll">
-                                                {{ Translate('IDCS_OK') }}
-                                            </el-button>
-                                            <el-button @click="dropDownRef?.handleClose()">
-                                                {{ Translate('IDCS_CANCEL') }}
-                                            </el-button>
-                                        </el-row>
-                                    </div>
-                                </el-dropdown-menu>
-                            </template>
-                        </el-dropdown> -->
                     </template>
                     <template #default="scope">
                         <el-button @click="disarmCfg(scope.$index)">

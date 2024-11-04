@@ -13,7 +13,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const userSessionStore = useUserSessionStore()
         const { supportPOS, CustomerID } = useCababilityStore()
-        const openMessageTipBox = useMessageBox().openMessageTipBox
+        const openMessageBox = useMessageBox().openMessageBox
         const { openLoading, closeLoading } = useLoading()
 
         const MODE_MAPPING: Record<string, string> = {
@@ -332,7 +332,7 @@ export default defineComponent({
             const intensiveIndex = events.indexOf(REC_MODE_TYPE.INTENSIVE)
             // 不能只选一直录像
             if (events.length === 1 && intensiveIndex > -1) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_ONLY_INTENSIVE_TIP'),
                 })
@@ -368,7 +368,7 @@ export default defineComponent({
                     return item.id === advanceModeCurrent.id
                 })
             ) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_RECORD_MODE_EXIST'),
                 })
@@ -465,36 +465,36 @@ export default defineComponent({
             const events = formData.value.autoModeEvents.join(',')
 
             const sendXml = rawXml`
-            <types>
-                <recModeType>
-                    <enum>manually</enum>
-                    <enum>auto</enum>
-                </recModeType>
-                <autoRecModeType>
-                    <enum>ALWAYS_HIGH</enum>
-                    <enum>MOTION</enum>
-                    <enum>ALARM</enum>
-                    <enum>MOTION_ALARM</enum>
-                    <enum>INTENSIVE_MOTION</enum>
-                    <enum>INTENSIVE_ALARM</enum>
-                    <enum>INTENSIVE_MOTION_ALARM</enum>
-                    <enum>EVENT</enum>
-                    <enum>INTENSIVE_EVENT</enum>
-                </autoRecModeType>
-                <eventType>
-                    <enum>MOTION</enum>
-                    <enum>ALARM</enum>
-                    <enum>INTELLIGENT</enum>
-                    <enum>POS</enum>
-                </eventType>
-            </types>
-            <content>
-                <recMode>
-                    <mode type="recModeType">${formData.value.mode}</mode>
-                    <autoMode type="autoRecModeType" eventType="${events}">${formData.value.autoMode}</autoMode>
-                </recMode>
-                <urgencyRecDuration unit="m">${formData.value.urgencyRecDuration.toString()}</urgencyRecDuration>
-            </content>`
+                <types>
+                    <recModeType>
+                        <enum>manually</enum>
+                        <enum>auto</enum>
+                    </recModeType>
+                    <autoRecModeType>
+                        <enum>ALWAYS_HIGH</enum>
+                        <enum>MOTION</enum>
+                        <enum>ALARM</enum>
+                        <enum>MOTION_ALARM</enum>
+                        <enum>INTENSIVE_MOTION</enum>
+                        <enum>INTENSIVE_ALARM</enum>
+                        <enum>INTENSIVE_MOTION_ALARM</enum>
+                        <enum>EVENT</enum>
+                        <enum>INTENSIVE_EVENT</enum>
+                    </autoRecModeType>
+                    <eventType>
+                        <enum>MOTION</enum>
+                        <enum>ALARM</enum>
+                        <enum>INTELLIGENT</enum>
+                        <enum>POS</enum>
+                    </eventType>
+                </types>
+                <content>
+                    <recMode>
+                        <mode type="recModeType">${formData.value.mode}</mode>
+                        <autoMode type="autoRecModeType" eventType="${events}">${formData.value.autoMode}</autoMode>
+                    </recMode>
+                    <urgencyRecDuration unit="m">${formData.value.urgencyRecDuration.toString()}</urgencyRecDuration>
+                </content>`
             return editRecordDistributeInfo(sendXml)
         }
 
@@ -505,36 +505,38 @@ export default defineComponent({
             const getSwitch = (scheduleId: string) => {
                 return scheduleId === DEFAULT_EMPTY_ID ? 'false' : 'true'
             }
-            let sendXml = rawXml`
-            <content type="list" total="${editRows.length.toString()}">`
-            editRows.forEach((row) => {
-                sendXml += rawXml`
-                <item id="${row.id}">
-                    <name><![CDATA[IPCamera]]></name>
-                    <scheduleRec>
-                        <switch>${getSwitch(row.scheduleRec)}</switch>
-                        <schedule id="${row.scheduleRec}"></schedule>
-                    </scheduleRec>
-                    <motionRec>
-                        <switch>${getSwitch(row.motionRec)}</switch>
-                        <schedule id="${row.motionRec}"></schedule>
-                    </motionRec>
-                    <alarmRec>
-                        <switch>${getSwitch(row.alarmRec)}</switch>
-                        <schedule id="${row.alarmRec}"></schedule>
-                    </alarmRec>
-                    <intelligentRec>
-                        <switch>${getSwitch(row.intelligentRec)}</switch>
-                        <schedule id="${row.intelligentRec}"></schedule>
-                    </intelligentRec>
-                    <posRec>
-                        <switch>${getSwitch(row.posRec)}</switch>
-                        <schedule id="${row.posRec}"></schedule>
-                    </posRec>
-                </item>`
-            })
-
-            sendXml += `</content>`
+            const sendXml = rawXml`
+                <content type="list" total="${editRows.length.toString()}">
+                    ${editRows
+                        .map((row) => {
+                            return rawXml`
+                                <item id="${row.id}">
+                                    <name><![CDATA[IPCamera]]></name>
+                                    <scheduleRec>
+                                        <switch>${getSwitch(row.scheduleRec)}</switch>
+                                        <schedule id="${row.scheduleRec}"></schedule>
+                                    </scheduleRec>
+                                    <motionRec>
+                                        <switch>${getSwitch(row.motionRec)}</switch>
+                                        <schedule id="${row.motionRec}"></schedule>
+                                    </motionRec>
+                                    <alarmRec>
+                                        <switch>${getSwitch(row.alarmRec)}</switch>
+                                        <schedule id="${row.alarmRec}"></schedule>
+                                    </alarmRec>
+                                    <intelligentRec>
+                                        <switch>${getSwitch(row.intelligentRec)}</switch>
+                                        <schedule id="${row.intelligentRec}"></schedule>
+                                    </intelligentRec>
+                                    <posRec>
+                                        <switch>${getSwitch(row.posRec)}</switch>
+                                        <schedule id="${row.posRec}"></schedule>
+                                    </posRec>
+                                </item>`
+                        })
+                        .join('')}
+                </content>
+            `
             return editRecordScheduleList(sendXml)
         }
 

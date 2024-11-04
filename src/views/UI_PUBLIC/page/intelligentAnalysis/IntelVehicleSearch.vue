@@ -53,7 +53,6 @@
                         v-model="formData.direction"
                     />
                     <el-form
-                        class="narrow"
                         :style="{
                             '--form-label-width': 'auto',
                         }"
@@ -203,8 +202,7 @@
                         :label="Translate('IDCS_SERIAL_NUMBER')"
                         type="index"
                         width="60"
-                    >
-                    </el-table-column>
+                    />
                     <el-table-column
                         type="selection"
                         :selectable="getTableSelectable"
@@ -217,8 +215,7 @@
                     <el-table-column
                         :label="formData.searchType === 'park' ? Translate('IDCS_SEARCH_ENTRANCE_AND_EXIT') : Translate('IDCS_CHANNEL')"
                         prop="chlName"
-                    >
-                    </el-table-column>
+                    />
                     <el-table-column
                         :label="Translate('IDCS_LICENSE_PLATE_NUM')"
                         prop="plateNumber"

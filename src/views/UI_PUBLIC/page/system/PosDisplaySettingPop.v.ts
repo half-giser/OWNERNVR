@@ -43,7 +43,7 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
 
         const pageData = ref({
             // TAB
@@ -277,7 +277,7 @@ export default defineComponent({
         const handleCanvasMouseUp = () => {
             if (isCanvasMoving) {
                 if (drawingPosition.value.width < prop.limit.wmin || drawingPosition.value.height < prop.limit.hmin) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_DISPLAY_SIZE_INVALID'),
                     }).finally(() => {
@@ -383,7 +383,7 @@ export default defineComponent({
                 return true
             })
             if (!matchStartEndChar) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_START_END_NOT_MATCH'),
                 })

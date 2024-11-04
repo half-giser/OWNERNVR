@@ -99,7 +99,7 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         // const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
         const userSession = useUserSessionStore()
@@ -292,7 +292,7 @@ export default defineComponent({
                 if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
                     errorInfo = Translate('IDCS_NO_PERMISSION')
                 }
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: errorInfo,
                 })
@@ -568,7 +568,7 @@ export default defineComponent({
             const result = await editNodeEncodeInfo(sendXml)
             const $ = queryXml(result)
             if ($('//status').text() === 'success') {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
@@ -578,7 +578,7 @@ export default defineComponent({
                 if (errorCode === ErrorCode.USER_ERROR_UNSUPPORTED_FUNC) {
                     errorInfo = Translate('IDCS_NOT_SUPPORTFUNC')
                 }
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: errorInfo,
                 })

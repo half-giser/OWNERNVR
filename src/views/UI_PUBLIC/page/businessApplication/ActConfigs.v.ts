@@ -3,7 +3,7 @@
  * @Date: 2024-06-03 10:00:44
  * @Description: 业务应用-门禁管理-门禁配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-29 19:39:13
+ * @LastEditTime: 2024-11-01 09:32:21
  */
 
 import { cloneDeep } from 'lodash-es'
@@ -13,7 +13,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
 
         const pageData = ref({
             // chlId-当前选中的通道Id
@@ -98,8 +98,8 @@ export default defineComponent({
             closeLoading()
 
             if ($chl('//status').text() === 'success' && $('//status').text() === 'success') {
-                const chls = $chl('//content/item').map((item) => item.attr('id')!)
-                pageData.value.chlList = $('//content/item')
+                const chls = $('//content/item').map((item) => item.attr('id')!)
+                pageData.value.chlList = $chl('//content/item')
                     .map((item) => {
                         const $item = queryXml(item.element)
                         return {
@@ -356,7 +356,7 @@ export default defineComponent({
             closeLoading()
 
             if (success) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
@@ -365,7 +365,7 @@ export default defineComponent({
                 if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
                     errorMsg = Translate('IDCS_NO_PERMISSION')
                 }
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: errorMsg,
                 })

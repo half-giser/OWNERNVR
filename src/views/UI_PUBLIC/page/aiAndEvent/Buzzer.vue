@@ -22,8 +22,7 @@
                     :key="item.value"
                     :value="item.value"
                     :label="item.label"
-                >
-                </el-option>
+                />
             </el-select>
         </el-form-item>
         <div class="base-btn-box">

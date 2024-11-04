@@ -15,7 +15,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
 
         const pageData = ref({
@@ -212,14 +212,14 @@ export default defineComponent({
         const nameBlur = (row: AlarmOut) => {
             const name = row.name
             if (!checkChlName(name)) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS'),
                 })
                 row.name = originalName.value
             } else {
                 if (!name) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_PROMPT_NAME_EMPTY'),
                     })
@@ -228,7 +228,7 @@ export default defineComponent({
 
                 for (const item of tableData.value) {
                     if (item.id != row.id && name == item.name) {
-                        openMessageTipBox({
+                        openMessageBox({
                             type: 'info',
                             message: Translate('IDCS_NAME_SAME'),
                         })
@@ -262,7 +262,7 @@ export default defineComponent({
          */
         const changeType = async (value: string) => {
             if (value === curAlarmoutType.value) return
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_ALARMOUT_TYPE_EDIT_AFTER_REBOOT'),
             }).then(async () => {

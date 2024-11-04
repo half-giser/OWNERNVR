@@ -19,7 +19,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
         const Plugin = inject('Plugin') as PluginType
         const userSession = useUserSessionStore()
@@ -352,7 +352,7 @@ export default defineComponent({
                 if (file.size === 0) {
                     closeLoading()
 
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_FILE_NO_EXISTS'),
                     })
@@ -426,7 +426,7 @@ export default defineComponent({
                     },
                     error: () => {
                         pageData.value.isExportCertReqDisabled = false
-                        openMessageTipBox({
+                        openMessageBox({
                             type: 'info',
                             message: Translate('IDCS_EXPORT_FAIL'),
                         })
@@ -473,7 +473,7 @@ export default defineComponent({
                     errorInfo = Translate('IDCS_IMPORT_FAIL')
                     break
             }
-            openMessageTipBox({
+            openMessageBox({
                 type: 'info',
                 message: errorInfo,
             })
@@ -497,7 +497,7 @@ export default defineComponent({
                                 getCertificate()
                             } else {
                                 closeLoading()
-                                openMessageTipBox({
+                                openMessageBox({
                                     type: 'info',
                                     message: Translate('IDCS_IMPORT_FAIL'),
                                 })

@@ -136,7 +136,6 @@
                         </div>
                     </div>
                     <el-form
-                        class="narrow"
                         label-width="150"
                         :style="{
                             '--form-input-width': '340px',
@@ -203,7 +202,6 @@
                             />
                         </div>
                         <el-form
-                            class="narrow"
                             :style="{
                                 '--form-input-width': '340px',
                             }"

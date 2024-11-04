@@ -26,7 +26,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
         const userSessionStore = useUserSessionStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const tableRef = ref<TableInstance>()
         const tableData = ref([] as Array<ChannelInfoDto>)
         const formRef = ref<FormInstance>()
@@ -123,12 +123,12 @@ export default defineComponent({
 
                     emit('close')
                     if (saveFailIpc.length) {
-                        openMessageTipBox({
+                        openMessageBox({
                             type: 'info',
                             message: saveFailIpc.join(', ') + ' ' + Translate('IDCS_SAVE_DATA_FAIL'),
                         })
                     } else {
-                        openMessageTipBox({
+                        openMessageBox({
                             type: 'success',
                             message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                         })

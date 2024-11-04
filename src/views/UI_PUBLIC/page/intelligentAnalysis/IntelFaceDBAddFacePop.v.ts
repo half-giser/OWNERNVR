@@ -34,7 +34,7 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
         const dateTime = useDateTimeStore()
 
@@ -267,7 +267,7 @@ export default defineComponent({
          */
         const setSingleImportData = async (item: IntelFaceDBFaceForm, index: number, force = false) => {
             if (!item.name) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_PROMPT_FULL_NAME_EMPTY'),
                 })
@@ -330,7 +330,7 @@ export default defineComponent({
                         if (!force) {
                             const name = $('//content/name').text()
                             const similarity = $('//content/similarity').text() + '%'
-                            return openMessageTipBox({
+                            return openMessageBox({
                                 type: 'question',
                                 message: Translate('IDCS_TARGET_LIBRARY_FACE_HAS_EXIST').formatForLang(name, similarity),
                             }).then(() => {
@@ -416,7 +416,7 @@ export default defineComponent({
                         if (!force) {
                             const name = $('//content/name').text()
                             const similarity = $('//content/similarity').text() + '%'
-                            return openMessageTipBox({
+                            return openMessageBox({
                                 type: 'question',
                                 message: Translate('IDCS_TARGET_LIBRARY_FACE_HAS_EXIST').formatForLang(name, similarity),
                             }).then(() => {

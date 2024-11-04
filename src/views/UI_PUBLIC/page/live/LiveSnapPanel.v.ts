@@ -36,7 +36,7 @@ export default defineComponent({
     },
     setup(prop) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const router = useRouter()
         const dateTime = useDateTimeStore()
 
@@ -125,7 +125,7 @@ export default defineComponent({
          */
         const getAuth = (chlId: string) => {
             if (!prop.auth.hasAll && prop.auth.spr && !prop.auth.spr[chlId]) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_NO_AUTH'),
                 })

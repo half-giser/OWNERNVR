@@ -154,7 +154,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const systemCaps = useCababilityStore()
         const userSession = useUserSessionStore()
 
@@ -532,7 +532,7 @@ export default defineComponent({
         const handlePlayerError = (index: number, data: TVTPlayerWinDataListItem, error?: string) => {
             // 不支持打开音频
             if (error === 'notSupportAudio') {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_AUDIO_NOT_SUPPORT'),
                 })
@@ -541,7 +541,7 @@ export default defineComponent({
             }
             // 当前用户打开无音频的权限
             else if (error === 'noPermission') {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_NO_PERMISSION'),
                 })
@@ -961,7 +961,7 @@ export default defineComponent({
                 }
 
                 if (userAuth.value.audio[pageData.value.winData.chlID] === false) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_NO_PERMISSION'),
                     })
@@ -1382,7 +1382,7 @@ export default defineComponent({
          */
         const backUp = () => {
             if (plugin.BackUpTask.isExeed(pageData.value.recLogList.length)) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_BACKUP_TASK_NUM_LIMIT').formatForLang(plugin.BackUpTask.limit),
                 })
@@ -1417,7 +1417,7 @@ export default defineComponent({
             if (pageData.value.backupRecList.length) {
                 pageData.value.isBackUpPop = true
             } else {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_NO_RECORD_DATA'),
                 })

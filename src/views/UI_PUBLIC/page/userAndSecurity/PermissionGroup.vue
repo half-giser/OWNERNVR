@@ -3,21 +3,21 @@
  * @Date: 2024-06-17 20:26:14
  * @Description: 权限组列表
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 18:12:59
+ * @LastEditTime: 2024-11-04 15:25:50
 -->
 <template>
-    <div class="Perm">
-        <div class="Perm-left">
+    <div class="base-user-box">
+        <div class="base-user-box-left">
             <div class="base-subheading-box">{{ Translate('IDCS_GROUP') }}: {{ authGroupName }}</div>
-            <div class="system">
+            <div class="base-user-auth">
                 <template
                     v-for="auth in systemAuthList"
                     :key="auth.key"
                 >
-                    <div class="title">
+                    <div class="base-user-auth-title">
                         {{ Translate(auth.key) }}
                     </div>
-                    <ul class="list">
+                    <ul class="base-user-auth-list">
                         <li
                             v-for="authItem in auth.value"
                             v-show="!authItem.hidden"
@@ -34,7 +34,7 @@
                     </ul>
                 </template>
             </div>
-            <div class="channel">
+            <div class="base-user-chl">
                 <ul>
                     <el-radio-group v-model="pageData.activeChannelTab">
                         <el-radio-button
@@ -45,10 +45,10 @@
                         />
                     </el-radio-group>
                 </ul>
-                <div class="list">
+                <div class="base-user-chl-list">
                     <div
-                        v-show="pageData.activeChannelTab === 'IDCS_LOCAL_RIGHT'"
                         class="base-table-box"
+                        :class="{ active: pageData.activeChannelTab === 'IDCS_LOCAL_RIGHT' }"
                     >
                         <el-table
                             :data="channelAuthList"
@@ -73,8 +73,8 @@
                         </el-table>
                     </div>
                     <div
-                        v-show="pageData.activeChannelTab === 'IDCS_REMOTE_RIGHT'"
                         class="base-table-box"
+                        :class="{ active: pageData.activeChannelTab === 'IDCS_REMOTE_RIGHT' }"
                     >
                         <el-table
                             :data="channelAuthList"
@@ -101,7 +101,7 @@
                 </div>
             </div>
         </div>
-        <div class="Perm-right">
+        <div class="base-user-box-right">
             <el-table
                 ref="tableRef"
                 :data="authGroupList"
@@ -171,7 +171,11 @@
 
 <script lang="ts" src="./PermissionGroup.v.ts"></script>
 
-<style lang="scss" scoped>
+<style>
+@import '@/views/UI_PUBLIC/publicStyle/userAndSecurity.scss';
+</style>
+
+<!-- <style lang="scss" scoped>
 .Perm {
     width: 100%;
     height: var(--content-height);
@@ -256,4 +260,4 @@
         }
     }
 }
-</style>
+</style> -->

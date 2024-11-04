@@ -3,12 +3,11 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-04 14:22:06
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-23 20:22:38
+ * @LastEditTime: 2024-11-04 16:03:07
 -->
 <template>
     <!-- 人脸识别——识别成功 -->
     <el-form
-        class="narrow"
         :style="{
             '--form-input-width': '215px',
         }"
@@ -19,11 +18,7 @@
             v-if="taskData.ruleType === 'hit'"
             :label="Translate('IDCS_FACE_LIBRARY_GROUP')"
         >
-            <el-button
-                size="small"
-                @click="pageData.groupPopOpen = true"
-                >{{ Translate('IDCS_MORE') }}</el-button
-            >
+            <el-button @click="pageData.groupPopOpen = true">{{ Translate('IDCS_MORE') }}</el-button>
             <el-checkbox
                 v-model="pageData.selectAll"
                 :style="{ margin: '0 30px 0 10px' }"
@@ -34,47 +29,32 @@
         </el-form-item>
         <!-- 排程配置 -->
         <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
-            <el-select
-                v-model="taskData.schedule"
-                size="small"
-            >
+            <el-select v-model="taskData.schedule">
                 <el-option
                     v-for="item in prop.scheduleList"
                     :key="item.value"
                     :value="item.value"
                     :label="item.label"
-                >
-                </el-option>
+                />
             </el-select>
-            <el-button
-                size="small"
-                @click="pageData.scheduleManagPopOpen = true"
-                >{{ Translate('IDCS_MANAGE') }}</el-button
-            >
+            <el-button @click="pageData.scheduleManagPopOpen = true">{{ Translate('IDCS_MANAGE') }}</el-button>
         </el-form-item>
         <!-- 文字提示 -->
         <el-form-item :label="Translate('IDCS_TEXT_PROMPT')">
-            <el-input
-                v-model="taskData.hintword"
-                size="small"
-            ></el-input>
+            <el-input v-model="taskData.hintword" />
         </el-form-item>
         <!-- 语音提示 -->
         <el-form-item
             v-if="supportAlarmAudioConfig"
             :label="Translate('IDCS_VOICE_PROMPT')"
         >
-            <el-select
-                v-model="taskData.sysAudio"
-                size="small"
-            >
+            <el-select v-model="taskData.sysAudio">
                 <el-option
                     v-for="item in prop.voiceList"
                     :key="item.value"
                     :label="item.label"
                     :value="item.value"
-                >
-                </el-option>
+                />
             </el-select>
         </el-form-item>
         <!-- 启用报警输出脉冲 -->
@@ -87,10 +67,7 @@
     </el-form>
     <div class="base-ai-linkage-content">
         <!-- 常规联动 -->
-        <div
-            class="base-ai-linkage-box"
-            :style="{ marginLeft: '15px' }"
-        >
+        <div class="base-ai-linkage-box">
             <el-checkbox
                 v-model="normalParamCheckAll"
                 class="base-ai-linkage-title base-ai-linkage-title-checkbox-input"
@@ -106,19 +83,14 @@
                     :key="item.value"
                     :label="item.label"
                     :value="item.value"
-                >
-                </el-checkbox>
+                />
             </el-checkbox-group>
         </div>
         <!-- 录像 -->
         <div class="base-ai-linkage-box">
             <div class="base-ai-linkage-title">
                 <span>{{ Translate('IDCS_RECORD') }}</span>
-                <el-button
-                    size="small"
-                    @click="pageData.recordIsShow = true"
-                    >{{ Translate('IDCS_CONFIG') }}</el-button
-                >
+                <el-button @click="pageData.recordIsShow = true">{{ Translate('IDCS_CONFIG') }}</el-button>
             </div>
             <el-table
                 :data="taskData.record"
@@ -131,11 +103,7 @@
         <div class="base-ai-linkage-box">
             <div class="base-ai-linkage-title">
                 <span>{{ Translate('IDCS_ALARM_OUT') }}</span>
-                <el-button
-                    size="small"
-                    @click="pageData.alarmOutIsShow = true"
-                    >{{ Translate('IDCS_CONFIG') }}</el-button
-                >
+                <el-button @click="pageData.alarmOutIsShow = true">{{ Translate('IDCS_CONFIG') }}</el-button>
             </div>
             <el-table
                 :data="taskData.alarmOut"
@@ -148,11 +116,7 @@
         <div class="base-ai-linkage-box">
             <div class="base-ai-linkage-title">
                 <span>{{ Translate('IDCS_SNAP') }}</span>
-                <el-button
-                    size="small"
-                    @click="pageData.snapIsShow = true"
-                    >{{ Translate('IDCS_CONFIG') }}</el-button
-                >
+                <el-button @click="pageData.snapIsShow = true">{{ Translate('IDCS_CONFIG') }}</el-button>
             </div>
             <el-table
                 :data="taskData.snap"
@@ -162,10 +126,7 @@
             </el-table>
         </div>
         <!-- 联动预置点 -->
-        <div
-            class="base-ai-linkage-box"
-            :style="{ width: '350px' }"
-        >
+        <div class="base-ai-linkage-box preset-box">
             <div class="base-ai-linkage-title">
                 <span>{{ Translate('IDCS_TRIGGER_ALARM_PRESET') }}</span>
             </div>
@@ -178,8 +139,7 @@
                     prop="name"
                     width="180"
                     :label="Translate('IDCS_CHANNEL_NAME')"
-                >
-                </el-table-column>
+                />
                 <el-table-column
                     width="170"
                     :label="Translate('IDCS_PRESET_NAME')"
@@ -187,7 +147,6 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.preset.value"
-                            size="small"
                             :empty-values="[undefined, null]"
                             @visible-change="getPresetById(scope.row)"
                             @change="presetChange(scope.row)"
@@ -258,11 +217,10 @@
         target-title="IDCS_CHANNEL_TRGGER"
         :source-data="prop.recordList || []"
         :linked-list="taskData.record?.map((item) => item.value) || []"
-        type="record"
+        limit-tip="IDCS_RECORD_CHANNEL_LIMIT"
         @confirm="recordConfirm"
         @close="recordClose"
-    >
-    </BaseTransferDialog>
+    />
     <BaseTransferDialog
         v-model="pageData.alarmOutIsShow"
         header-title="IDCS_TRIGGER_ALARM_OUT"
@@ -270,11 +228,10 @@
         target-title="IDCS_TRIGGER_ALARM_OUT"
         :source-data="prop.alarmOutList || []"
         :linked-list="taskData.alarmOut?.map((item) => item.value) || []"
-        type="alarmOut"
+        limit-tip="IDCS_ALARMOUT_LIMIT"
         @confirm="alarmOutConfirm"
         @close="alarmOutClose"
-    >
-    </BaseTransferDialog>
+    />
     <BaseTransferDialog
         v-model="pageData.snapIsShow"
         header-title="IDCS_TRIGGER_CHANNEL_SNAP"
@@ -282,11 +239,10 @@
         target-title="IDCS_CHANNEL_TRGGER"
         :source-data="prop.snapList || []"
         :linked-list="taskData.snap?.map((item) => item.value) || []"
-        type="snap"
+        limit-tip="IDCS_SNAP_CHANNEL_LIMIT"
         @confirm="snapConfirm"
         @close="snapClose"
-    >
-    </BaseTransferDialog>
+    />
 </template>
 
 <script lang="ts" src="./SuccessfulRecognition.v.ts"></script>

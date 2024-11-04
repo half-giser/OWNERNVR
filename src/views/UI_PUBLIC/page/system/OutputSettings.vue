@@ -3,7 +3,7 @@
  * @Date: 2024-06-25 09:59:16
  * @Description: 输出配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 16:14:15
+ * @LastEditTime: 2024-11-01 10:43:43
 -->
 <template>
     <div class="OutputSetting">
@@ -76,9 +76,8 @@
                                 v-for="key in Object.keys(decoderCardMap[pageData.tabId].decoderDwellData)"
                                 :key
                                 :value="Number(key) + 1"
-                            >
-                                {{ Translate('IDCS_OUTPUT') + (Number(key) + 1) }}
-                            </el-option>
+                                :label="`${Translate('IDCS_OUTPUT')}${Number(key) + 1}`"
+                            />
                         </el-select>
                     </div>
                 </div>

@@ -94,7 +94,7 @@
                 <el-button @click="handleCancel">{{ Translate('IDCS_CANCEL') }}</el-button>
             </div>
         </div>
-        <BaseLivePop ref="baseLivePopRef"></BaseLivePop>
+        <BaseLivePop ref="baseLivePopRef" />
     </div>
 </template>
 

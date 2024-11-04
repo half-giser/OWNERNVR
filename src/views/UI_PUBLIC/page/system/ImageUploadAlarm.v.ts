@@ -11,7 +11,7 @@ export default defineComponent({
     setup() {
         const router = useRouter()
         const userSessionStore = useUserSessionStore()
-        const openMessageTipBox = useMessageBox().openMessageTipBox
+        const openMessageBox = useMessageBox().openMessageBox
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
         const pageData = ref({
@@ -38,14 +38,14 @@ export default defineComponent({
         const getAuth = async () => {
             const authGroupId = userSessionStore.authGroupId
             const sendXml = rawXml`
-                        <condition>
-                            <authGroupId>${authGroupId}</authGroupId>
-                        </condition>
-                        <requireField>
-                            <name/>
-                            <systemAuth/>
-                        </requireField>
-                    `
+                <condition>
+                    <authGroupId>${authGroupId}</authGroupId>
+                </condition>
+                <requireField>
+                    <name/>
+                    <systemAuth/>
+                </requireField>
+            `
             const res = await queryAuthGroup(sendXml)
             const $ = queryXml(res)
             if ($('status').text() === 'success') {
@@ -121,13 +121,13 @@ export default defineComponent({
                                 </itemType>
                                 ${tableData.value
                                     .map(
-                                        (item) => `
-                                    <item>
-                                        <chl id='${item.id}'>${item.name}</chl>
-                                        <preTime>${item.preTime}</preTime>
-                                        <holdTime>${item.saveTime}</holdTime>
-                                    </item>
-                                `,
+                                        (item) => rawXml`
+                                            <item>
+                                                <chl id='${item.id}'>${item.name}</chl>
+                                                <preTime>${item.preTime}</preTime>
+                                                <holdTime>${item.saveTime}</holdTime>
+                                            </item>
+                                        `,
                                     )
                                     .join('')}
                             </chlParams>
@@ -148,7 +148,7 @@ export default defineComponent({
 
         const setDispose = async () => {
             if (!pageData.value.hasAuth) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_NO_AUTH'),

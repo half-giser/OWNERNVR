@@ -2,8 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-19 11:16:22
  * @Description: 周界防范/人车检测
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-29 11:10:41
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-11-04 16:04:11
  */
 import { type chlCaps, type aiResourceRow, type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
@@ -41,7 +41,7 @@ export default defineComponent({
     setup(props) {
         type CanvasPasslineDirection = 'none' | 'rightortop' | 'leftorbotton'
         const { openLoading, closeLoading } = useLoading()
-        const openMessageTipBox = useMessageBox().openMessageTipBox
+        const openMessageBox = useMessageBox().openMessageBox
         const systemCaps = useCababilityStore()
         const { Translate } = useLangStore()
         const pluginStore = usePluginStore()
@@ -176,7 +176,6 @@ export default defineComponent({
             recordIsShow: false,
             // record数据源
             recordSource: [] as SelectOption<string, string>[],
-            recordType: 'record',
 
             alarmOut: {
                 switch: false,
@@ -187,7 +186,6 @@ export default defineComponent({
             alarmOutIsShow: false,
             // alarmOut数据源
             alarmOutSource: [] as { value: string; label: string; device: { value: string; label: string } }[],
-            alarmOutType: 'alarmOut',
 
             preset: {
                 switch: false,
@@ -301,14 +299,16 @@ export default defineComponent({
         const getAIResourceData = async (isEdit: boolean) => {
             let sendXml = ''
             if (isEdit) {
-                sendXml = rawXml`<content>
-                                    <chl>
-                                        <item id="${tripwireData.value.currChlId}">
-                                            <eventType>tripwire</eventType>
-                                            <switch>${tripwireData.value.detectionEnable.toString()}</switch>
-                                        </item>
-                                    </chl>
-                                </content>`
+                sendXml = rawXml`
+                    <content>
+                        <chl>
+                            <item id="${tripwireData.value.currChlId}">
+                                <eventType>tripwire</eventType>
+                                <switch>${tripwireData.value.detectionEnable.toString()}</switch>
+                            </item>
+                        </chl>
+                    </content>
+                `
             }
             const res = await queryAIResourceDetail(sendXml)
             const $ = queryXml(res)
@@ -348,7 +348,7 @@ export default defineComponent({
                         })
                     })
                 } else {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_NO_RESOURCE'),
                     })
@@ -360,15 +360,15 @@ export default defineComponent({
 
         // 删除AI资源请求
         const deleteAIResource = async (row: aiResourceRow) => {
-            let sendXml = rawXml`<content>
-                                    <chl id="${row.id}">
-                                        <param>`
-            row.eventType.forEach((item) => {
-                sendXml += rawXml`<item>${item}</item>`
-            })
-            sendXml += rawXml`</param>
-                            </chl>
-                        </content>`
+            const sendXml = rawXml`
+                <content>
+                    <chl id="${row.id}">
+                        <param>
+                            ${row.eventType.map((item) => `<item>${item}</item>`).join('')}
+                        </param>
+                    </chl>
+                </content>
+            `
             openLoading()
             const res = await freeAIOccupyResource(sendXml)
             closeLoading()
@@ -380,7 +380,7 @@ export default defineComponent({
 
         // 点击释放AI资源
         const handleAIResourceDel = async (row: aiResourceRow) => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_S'),
             }).then(() => {
@@ -399,7 +399,8 @@ export default defineComponent({
                     </condition>
                     <requireField>
                         <trigger/>
-                    </requireField>`
+                    </requireField>
+                `
                 const res = await queryTripwire(sendXML)
                 closeLoading()
                 const $ = queryXml(res)
@@ -462,13 +463,15 @@ export default defineComponent({
                     tripwireData.value.requireDataFail = true
                 }
             } else {
-                const sendXML = rawXml` <condition>
-                                            <chlId>${tripwireData.value.currChlId}</chlId>
-                                        </condition>
-                                        <requireField>
-                                            <param/>
-                                            <trigger/>
-                                        </requireField>`
+                const sendXML = rawXml`
+                    <condition>
+                        <chlId>${tripwireData.value.currChlId}</chlId>
+                    </condition>
+                    <requireField>
+                        <param/>
+                        <trigger/>
+                    </requireField>
+                `
                 const res = await queryTripwire(sendXML)
                 closeLoading()
                 const $ = queryXml(res)
@@ -605,20 +608,16 @@ export default defineComponent({
 
         // 保存越界检测数据
         const saveTripwireData = async () => {
-            let sendXml = rawXml`<content>
-                                        <chl id="${tripwireData.value.currChlId}" scheduleGuid="${tripwireData.value.tripwire_schedule}">
-                                    `
+            let paramXml = ''
             if (tripwireData.value.chlData.supportTripwire || tripwireData.value.chlData.supportBackTripwire) {
-                sendXml += rawXml`
-                                <param>
-                                    <switch>${tripwireData.value.detectionEnable.toString()}</switch>
-                                    <alarmHoldTime unit="s">${tripwireData.value.holdTime.toString()}</alarmHoldTime>`
-                if (tripwireData.value.tripwire_onlyPreson) {
-                    sendXml += rawXml`<sensitivity>${tripwireData.value.onlyPersonSensitivity.toString()}</sensitivity>`
-                }
-
-                if (tripwireData.value.hasObj) {
-                    sendXml += rawXml`
+                paramXml = rawXml`
+                    <param>
+                        <switch>${tripwireData.value.detectionEnable.toString()}</switch>
+                        <alarmHoldTime unit="s">${tripwireData.value.holdTime.toString()}</alarmHoldTime>
+                        ${tripwireData.value.tripwire_onlyPreson ? `<sensitivity>${tripwireData.value.onlyPersonSensitivity.toString()}</sensitivity>` : ''}
+                        ${
+                            tripwireData.value.hasObj
+                                ? rawXml`
                                     <objectFilter>
                                         <car>
                                             <switch>${tripwireData.value.objectFilter.car.toString()}</switch>
@@ -627,117 +626,118 @@ export default defineComponent({
                                         <person>
                                             <switch>${tripwireData.value.objectFilter.person.toString()}</switch>
                                             <sensitivity>${tripwireData.value.objectFilter.personSensitivity.toString()}</sensitivity>
-                                        </person>`
-                    if (tripwireData.value.chlData.accessType == '0') {
-                        sendXml += rawXml`
-                                        <motor>
-                                            <switch>${tripwireData.value.objectFilter.motorcycle.toString()}</switch>
-                                            <sensitivity>${tripwireData.value.objectFilter.motorSensitivity.toString()}</sensitivity>
-                                        </motor>
-                                            `
-                    }
-                    sendXml += rawXml`</objectFilter>`
-                }
-
-                if (tripwireData.value.hasAutoTrack) {
-                    sendXml += rawXml`
-                                    <autoTrack>${tripwireData.value.autoTrack.toString()}</autoTrack>
-                    `
-                }
-                sendXml += rawXml`
-                                <line type="list" count="${tripwireData.value.lineInfo.length.toString()}">
-                                    <itemType>
-                                        <direction type="direction"/>
-                                    </itemType>
-                            `
-                tripwireData.value.lineInfo.forEach((element: { direction: string; startPoint: { X: number; Y: number }; endPoint: { X: number; Y: number }; configured: boolean }) => {
-                    sendXml += rawXml`
-                                    <item>
-                                        <direction type="direction">${element.direction}</direction>
-                                        <startPoint>
-                                            <X>${element.startPoint.X.toString()}</X>
-                                            <Y>${element.startPoint.Y.toString()}</Y>
-                                        </startPoint>
-                                        <endPoint>
-                                            <X>${element.endPoint.X.toString()}</X>
-                                            <Y>${element.endPoint.Y.toString()}</Y>
-                                        </endPoint>
-                                    </item>
+                                        </person>
+                                        ${
+                                            tripwireData.value.chlData.accessType == '0'
+                                                ? rawXml`
+                                                    <motor>
+                                                        <switch>${tripwireData.value.objectFilter.motorcycle.toString()}</switch>
+                                                        <sensitivity>${tripwireData.value.objectFilter.motorSensitivity.toString()}</sensitivity>
+                                                    </motor>
+                                                `
+                                                : ''
+                                        }
+                                    </objectFilter>
                                 `
-                })
-                sendXml += rawXml`</line>`
-                if (tripwireData.value.audioSuport && tripwireData.value.chlData.supportAudio) {
-                    sendXml += rawXml`<triggerAudio>${tripwireData.value.triggerAudio.toString()}</triggerAudio>`
-                }
-
-                if (tripwireData.value.lightSuport && tripwireData.value.chlData.supportWhiteLight) {
-                    sendXml += rawXml`<triggerWhiteLight>${tripwireData.value.triggerWhiteLight.toString()}</triggerWhiteLight>`
-                }
-
-                if (tripwireData.value.pictureAvailable) {
-                    sendXml += rawXml`
-                        <saveSourcePicture>${tripwireData.value.saveSourcePicture.toString()}</saveSourcePicture>
-                        <saveTargetPicture>${tripwireData.value.saveTargetPicture.toString()}</saveTargetPicture>
-                    `
-                }
-                sendXml += rawXml`</param>`
+                                : ''
+                        }
+                        ${tripwireData.value.hasAutoTrack ? `<autoTrack>${tripwireData.value.autoTrack.toString()}</autoTrack>` : ''}
+                        <line type="list" count="${tripwireData.value.lineInfo.length.toString()}">
+                            <itemType>
+                                <direction type="direction"/>
+                            </itemType>
+                            ${tripwireData.value.lineInfo
+                                .map((element) => {
+                                    return rawXml`
+                                        <item>
+                                            <direction type="direction">${element.direction}</direction>
+                                            <startPoint>
+                                                <X>${element.startPoint.X.toString()}</X>
+                                                <Y>${element.startPoint.Y.toString()}</Y>
+                                            </startPoint>
+                                            <endPoint>
+                                                <X>${element.endPoint.X.toString()}</X>
+                                                <Y>${element.endPoint.Y.toString()}</Y>
+                                            </endPoint>
+                                        </item>
+                                    `
+                                })
+                                .join('')}
+                        </line>
+                        ${tripwireData.value.audioSuport && tripwireData.value.chlData.supportAudio ? `<triggerAudio>${tripwireData.value.triggerAudio.toString()}</triggerAudio>` : ''}
+                        ${tripwireData.value.lightSuport && tripwireData.value.chlData.supportWhiteLight ? `<triggerWhiteLight>${tripwireData.value.triggerWhiteLight.toString()}</triggerWhiteLight>` : ''}
+                        ${
+                            tripwireData.value.pictureAvailable
+                                ? rawXml`
+                                    <saveSourcePicture>${tripwireData.value.saveSourcePicture.toString()}</saveSourcePicture>
+                                    <saveTargetPicture>${tripwireData.value.saveTargetPicture.toString()}</saveTargetPicture>
+                                `
+                                : ''
+                        }
+                    </param>
+                `
             }
-            sendXml += rawXml`
-                            <trigger>
-                                <sysRec>
-                                    <chls type="list">
-                                        ${tripwireData.value.record.chls
-                                            .map(
-                                                (element: { value: string; label: string }) => rawXml`
-                                                    <item id="${element.value}">
-                                                        <![CDATA[${element.label}]]>
+
+            const sendXml = rawXml`
+                <content>
+                    <chl id="${tripwireData.value.currChlId}" scheduleGuid="${tripwireData.value.tripwire_schedule}">
+                        ${paramXml}
+                        <trigger>
+                            <sysRec>
+                                <chls type="list">
+                                    ${tripwireData.value.record.chls
+                                        .map(
+                                            (element: { value: string; label: string }) => rawXml`
+                                                <item id="${element.value}">
+                                                    <![CDATA[${element.label}]]>
+                                                </item>
+                                            `,
+                                        )
+                                        .join('')}
+                                </chls>
+                            </sysRec>
+                            <alarmOut>
+                                <alarmOuts type="list">
+                                    ${tripwireData.value.alarmOut.chls
+                                        .map(
+                                            (element: { value: string; label: string }) => rawXml`
+                                                <item id="${element.value}">
+                                                    <![CDATA[${element.label}]]>
+                                                </item>
+                                            `,
+                                        )
+                                        .join('')}
+                                </alarmOuts>
+                            </alarmOut>
+                            <preset>
+                                <presets type="list">
+                                    ${tripwireData.value.presetSource
+                                        .map((element: PresetList) =>
+                                            element.preset.value
+                                                ? rawXml`
+                                                    <item>
+                                                        <index>${element.preset.value}</index>
+                                                        <name><![CDATA[${element.preset.label}]]></name>
+                                                        <chl id="${element.id}">
+                                                            <![CDATA[${element.name}]]>
+                                                        </chl>
                                                     </item>
-                                                `,
-                                            )
-                                            .join('')}
-                                    </chls>
-                                </sysRec>
-                                <alarmOut>
-                                    <alarmOuts type="list">
-                                        ${tripwireData.value.alarmOut.chls
-                                            .map(
-                                                (element: { value: string; label: string }) => rawXml`
-                                                    <item id="${element.value}">
-                                                        <![CDATA[${element.label}]]>
-                                                    </item>
-                                                `,
-                                            )
-                                            .join('')}
-                                    </alarmOuts>
-                                </alarmOut>
-                                <preset>
-                                    <presets type="list">
-                                        ${tripwireData.value.presetSource
-                                            .map((element: PresetList) =>
-                                                element.preset.value
-                                                    ? rawXml`
-                                                        <item>
-                                                            <index>${element.preset.value}</index>
-                                                            <name><![CDATA[${element.preset.label}]]></name>
-                                                            <chl id="${element.id}">
-                                                                <![CDATA[${element.name}]]>
-                                                            </chl>
-                                                        </item>
-                                                    `
-                                                    : '',
-                                            )
-                                            .join('')}
-                                    </presets>
-                                </preset>
-                                <snapSwitch>${tripwireData.value.snapSwitch.toString()}</snapSwitch>
-                                <msgPushSwitch>${tripwireData.value.msgPushSwitch.toString()}</msgPushSwitch>
-                                <buzzerSwitch>${tripwireData.value.buzzerSwitch.toString()}</buzzerSwitch>
-                                <popVideoSwitch>${tripwireData.value.popVideoSwitch.toString()}</popVideoSwitch>
-                                <emailSwitch>${tripwireData.value.emailSwitch.toString()}</emailSwitch>
-                                <sysAudio id='${tripwireData.value.sysAudio.toString()}'></sysAudio>
-                            </trigger>
-                            </chl>
-                        </content>`
+                                                `
+                                                : '',
+                                        )
+                                        .join('')}
+                                </presets>
+                            </preset>
+                            <snapSwitch>${tripwireData.value.snapSwitch.toString()}</snapSwitch>
+                            <msgPushSwitch>${tripwireData.value.msgPushSwitch.toString()}</msgPushSwitch>
+                            <buzzerSwitch>${tripwireData.value.buzzerSwitch.toString()}</buzzerSwitch>
+                            <popVideoSwitch>${tripwireData.value.popVideoSwitch.toString()}</popVideoSwitch>
+                            <emailSwitch>${tripwireData.value.emailSwitch.toString()}</emailSwitch>
+                            <sysAudio id='${tripwireData.value.sysAudio.toString()}'></sysAudio>
+                        </trigger>
+                    </chl>
+                </content>
+            `
             openLoading()
             const $ = await editTripwire(sendXml)
             const res = queryXml($)
@@ -778,7 +778,7 @@ export default defineComponent({
                 })
                 if (isSwitchChange && switchChangeTypeArr.length > 0) {
                     const switchChangeType = switchChangeTypeArr.join(',')
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'question',
                         message: Translate('IDCS_SIMPLE_TRIPWIRE_DETECT_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + tripwireData.value.chlData.name, switchChangeType),
                     }).then(() => {

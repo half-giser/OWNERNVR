@@ -10,7 +10,7 @@ import { NetUPnPForm, type NetUPnPPortDto } from '@/types/apiType/net'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
         // const theme = import.meta.env.VITE_UI_TYPE
 
@@ -139,7 +139,7 @@ export default defineComponent({
         const setData = async () => {
             const isHasSamePort = hasSamePort()
             if (isHasSamePort) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: isHasSamePort,
                 })

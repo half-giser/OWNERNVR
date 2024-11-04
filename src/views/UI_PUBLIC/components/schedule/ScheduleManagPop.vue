@@ -25,7 +25,7 @@
                     ref="scheduleWeekRef"
                     :width="600"
                     :readonly="true"
-                ></BaseScheduleWeek>
+                />
             </el-col>
             <el-col :span="8">
                 <el-table
@@ -86,8 +86,7 @@
                 :schedule-dtail="pageData.editScheduleInfo"
                 :day-enum="pageData.dayEnum"
                 @close="editPopClose"
-            >
-            </ScheduleEditPop>
+            />
         </Teleport>
         <template #footer>
             <el-row>

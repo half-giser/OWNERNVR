@@ -589,7 +589,6 @@ export class peaPageData {
     recordList = [] as string[]
     recordIsShow = false
     // recordSource = [] as SelectOption<string, string>[]
-    recordType = 'record'
 
     alarmOutSwitch = false
     alarmOutChls = [] as SelectOption<string, string>[]
@@ -597,7 +596,6 @@ export class peaPageData {
     alarmOutList = [] as string[]
     alarmOutIsShow = false
     // alarmOutSource = [] as { value: string; label: string; device: { value: string; label: string } }[]
-    alarmOutType = 'alarmOut'
 
     presetSwitch = false
     presets = [] as PresetItem[]
