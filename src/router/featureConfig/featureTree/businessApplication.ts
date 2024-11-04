@@ -106,4 +106,34 @@ export default {
             },
         },
     },
+    async beforeEnter(_to, from, next) {
+        const { openMessageBox } = useMessageBox()
+        const { Translate } = useLangStore()
+        const userSession = useUserSessionStore()
+        const systemCaps = useCababilityStore()
+        // 非管理员账户
+        if (userSession.authGroupId) {
+            const supportFaceMatch = systemCaps.supportFaceMatch
+            const IntelAndFaceConfigHide = systemCaps.IntelAndFaceConfigHide
+            const parkingLotMgr = userSession.hasAuth('parkingLotMgr') && !IntelAndFaceConfigHide
+            const AccessControlMgr = userSession.hasAuth('AccessControlMgr')
+            if (!parkingLotMgr && !AccessControlMgr && !supportFaceMatch) {
+                openMessageBox({
+                    type: 'info',
+                    message: Translate('IDCS_NO_AUTH'),
+                })
+                if (from.fullPath.includes('business-application')) {
+                    next('/live')
+                } else {
+                    next(from)
+                }
+            } else {
+                next()
+            }
+        }
+        // 管理员账户
+        else {
+            next()
+        }
+    },
 } as FeatureItem

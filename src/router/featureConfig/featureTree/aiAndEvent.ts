@@ -193,6 +193,24 @@ export default {
                     return !systemCaps.IntelAndFaceConfigHide
                 },
             },
+            async beforeEnter(to, from, next) {
+                const { openMessageBox } = useMessageBox()
+                const { Translate } = useLangStore()
+                const flag = await checkChlListCaps('boundary')
+                if (flag) {
+                    next()
+                } else {
+                    openMessageBox({
+                        type: 'info',
+                        message: Translate('IDCS_ADD_INTEL_CHANNEL_TIP').formatForLang(Translate('IDCS_HUMAN_CAR_OTHER_BOUNDARY')),
+                    })
+                    if (from.fullPath === to.fullPath) {
+                        next('/live')
+                    } else {
+                        next(from)
+                    }
+                }
+            },
         },
         faceRecognition: {
             //人脸识别
@@ -207,6 +225,24 @@ export default {
                 hasCap(systemCaps) {
                     return !systemCaps.IntelAndFaceConfigHide
                 },
+            },
+            async beforeEnter(to, from, next) {
+                const { openMessageBox } = useMessageBox()
+                const { Translate } = useLangStore()
+                const flag = await checkChlListCaps('faceRecognition')
+                if (flag) {
+                    next()
+                } else {
+                    openMessageBox({
+                        type: 'info',
+                        message: Translate('IDCS_ADD_INTEL_CHANNEL_TIP').formatForLang(Translate('IDCS_FACE_RECOGNITION')),
+                    })
+                    if (from.fullPath === to.fullPath) {
+                        next('/live')
+                    } else {
+                        next(from)
+                    }
+                }
             },
         },
         lrp: {
@@ -223,6 +259,24 @@ export default {
                     return !systemCaps.IntelAndFaceConfigHide
                 },
             },
+            async beforeEnter(to, from, next) {
+                const { openMessageBox } = useMessageBox()
+                const { Translate } = useLangStore()
+                const flag = await checkChlListCaps('vehicleRecognition')
+                if (flag) {
+                    next()
+                } else {
+                    openMessageBox({
+                        type: 'info',
+                        message: Translate('IDCS_ADD_INTEL_CHANNEL_TIP').formatForLang(Translate('IDCS_VEHICLE_DETECTION')),
+                    })
+                    if (from.fullPath === to.fullPath) {
+                        next('/live')
+                    } else {
+                        next(from)
+                    }
+                }
+            },
         },
         aiEventMore: {
             //更多
@@ -235,6 +289,24 @@ export default {
                 hasCap(systemCaps) {
                     return !systemCaps.IntelAndFaceConfigHide
                 },
+            },
+            async beforeEnter(to, from, next) {
+                const { openMessageBox } = useMessageBox()
+                const { Translate } = useLangStore()
+                const flag = await checkChlListCaps('more')
+                if (flag) {
+                    next()
+                } else {
+                    openMessageBox({
+                        type: 'info',
+                        message: Translate('IDCS_ADD_INTEL_CHANNEL_TIP').formatForLang(Translate('IDCS_INTELLIGENT')),
+                    })
+                    if (from.fullPath === to.fullPath) {
+                        next('/live')
+                    } else {
+                        next(from)
+                    }
+                }
             },
         },
         motionEventConfig: {
@@ -284,6 +356,26 @@ export default {
                     return !!systemCaps.ipChlMaxCount
                 },
             },
+            async beforeEnter(to, from, next) {
+                const { openMessageBox } = useMessageBox()
+                const { Translate } = useLangStore()
+                const result = await querySystemDisArmParam()
+                const $ = queryXml(result)
+                const remoteSwitch = $('//content/remoteSwitch').text().toBoolean()
+                if (remoteSwitch) {
+                    next()
+                } else {
+                    openMessageBox({
+                        type: 'info',
+                        message: Translate('IDCS_DISARM_AUTH_TIP'),
+                    })
+                    if (from.fullPath === to.fullPath) {
+                        next('/live')
+                    } else {
+                        next(from)
+                    }
+                }
+            },
         },
         exceptionAlarm: {
             //异常报警
@@ -321,6 +413,7 @@ export default {
                 group: 'systemDisarm',
                 default: true,
             },
+            // 撤防布防界面，若没有开启远程权限，提示开启权限，页面不跳转
         },
         alarmsStatus: {
             //报警状态

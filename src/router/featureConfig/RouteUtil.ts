@@ -221,6 +221,10 @@ function setRouteRecordField(featureItem: FeatureItem, routeRecord: RouteRecordR
         routeRecord.meta = {}
     }
 
+    if (featureItem.beforeEnter) {
+        routeRecord.beforeEnter = featureItem.beforeEnter
+    }
+
     routeRecord.name = featureItem.name
     routeRecord.path = featureItem.path === undefined ? camel2Kebab(<string>featureItem.name) : featureItem.path
     routeRecord.meta.parent = parent
