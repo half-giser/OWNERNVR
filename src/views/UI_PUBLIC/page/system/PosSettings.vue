@@ -3,7 +3,7 @@
  * @Date: 2024-07-02 09:08:21
  * @Description: POS配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 10:59:59
+ * @LastEditTime: 2024-11-04 16:11:07
 -->
 <template>
     <div class="base-flex-box">
@@ -16,8 +16,7 @@
                 <el-table-column
                     :label="Translate('IDCS_POS')"
                     prop="name"
-                >
-                </el-table-column>
+                />
                 <!-- 启用 -->
                 <el-table-column width="100">
                     <template #header>
@@ -203,6 +202,7 @@
             target-title="IDCS_CHANNEL_TRGGER"
             :source-data="filterChlList"
             :linked-list="pageData.triggerChannels"
+            limit-tip="IDCS_ALARMOUT_LIMIT"
             @confirm="confirmSetTriggerChannel"
             @close="closeTriggerChannel"
         />
