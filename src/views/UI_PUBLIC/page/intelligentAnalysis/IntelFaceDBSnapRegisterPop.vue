@@ -21,7 +21,7 @@
                 ref="formRef"
                 :rules="formRule"
                 :model="formData"
-                class="stripe narrow"
+                class="stripe"
                 inline-message
                 :style="{
                     '--form-input-width': '340px',

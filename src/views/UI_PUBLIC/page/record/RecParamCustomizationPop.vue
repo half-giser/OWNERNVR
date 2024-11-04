@@ -33,7 +33,7 @@
                         :key="item.value"
                         :value="item.value"
                         :label="item.label"
-                    ></el-checkbox>
+                    />
                 </el-checkbox-group>
                 <div
                     class="base-btn-box"

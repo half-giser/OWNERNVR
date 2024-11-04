@@ -8,7 +8,7 @@
 <template>
     <div class="SystemBasic">
         <el-form
-            class="stripe narrow"
+            class="stripe"
             :style="{
                 '--form-label-width': '200px',
             }"
@@ -99,7 +99,7 @@
             :title="Translate('IDCS_ABOUT_THIS_MACHINE')"
         >
             <el-form
-                class="stripe narrow"
+                class="stripe"
                 :style="{
                     '--form-label-width': '200px',
                 }"

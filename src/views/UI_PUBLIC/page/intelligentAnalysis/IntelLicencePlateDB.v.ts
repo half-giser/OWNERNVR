@@ -3,7 +3,7 @@
  * @Date: 2024-09-02 14:01:05
  * @Description: 车牌库
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-29 10:17:50
+ * @LastEditTime: 2024-11-04 17:58:39
  */
 import { type TableInstance } from 'element-plus'
 import { IntelPlateDBGroupList, IntelPlateDBPlateInfo } from '@/types/apiType/intelligentAnalysis'
@@ -19,7 +19,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
         const userSession = useUserSessionStore()
         const router = useRouter()
@@ -69,7 +69,7 @@ export default defineComponent({
          */
         const checkPermission = () => {
             if (!userSession.facePersonnalInfoMgr) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_NO_PERMISSION'),
                 })
@@ -126,7 +126,7 @@ export default defineComponent({
             if (!checkPermission()) {
                 return
             }
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_NOTE_DELETE_ALL_LICENSE_PLATE'),
             }).then(async () => {
@@ -155,7 +155,7 @@ export default defineComponent({
                         }
                         getGroupList()
                     } else {
-                        openMessageTipBox({
+                        openMessageBox({
                             type: 'info',
                             message: Translate('IDCS_NO_AUTH'),
                         })
@@ -187,7 +187,7 @@ export default defineComponent({
                 return a + b.plateNum
             }, 0)
             if (!totalTask) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_EXPORT_FAIL'),
                 })
@@ -207,14 +207,13 @@ export default defineComponent({
          */
         const handleVehicleRecognition = async () => {
             if (!userSession.hasAuth('alarmMgr')) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_NO_AUTH'),
                 })
             }
 
             if (history.state.backChlId) {
-                // $.webSession("ignoreAIJudge", true)
                 router.push({
                     path: '/config/alarm/vehicleRecognition',
                     state: {
@@ -222,17 +221,9 @@ export default defineComponent({
                     },
                 })
             } else {
-                const flag = await checkChlListCaps('faceRecognition')
-                if (flag) {
-                    router.push({
-                        path: '/config/alarm/vehicleRecognition',
-                    })
-                } else {
-                    openMessageTipBox({
-                        type: 'info',
-                        message: Translate('IDCS_ADD_INTEL_CHANNEL_TIP'),
-                    })
-                }
+                router.push({
+                    path: '/config/alarm/vehicleRecognition',
+                })
             }
         }
 
@@ -283,7 +274,7 @@ export default defineComponent({
             if (!checkPermission()) {
                 return
             }
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_S'),
             }).then(async () => {
@@ -306,7 +297,7 @@ export default defineComponent({
                 } else {
                     const errorCode = Number($('//errorCode').text())
                     if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
-                        openMessageTipBox({
+                        openMessageBox({
                             type: 'info',
                             message: Translate('IDCS_NO_AUTH'),
                         })

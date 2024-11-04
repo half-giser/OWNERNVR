@@ -49,7 +49,6 @@ export default defineConfig(({ mode }) => {
             'import.meta.env.VITE_APP_DESC': JSON.stringify(env.VITE_APP_DESC),
             'import.meta.env.VITE_APP_KEYWORDS': JSON.stringify(env.VITE_APP_KEYWORDS),
             'import.meta.env.VITE_APP_TYPE': JSON.stringify(env.VITE_APP_TYPE),
-            'import.meta.env.VITE_APP_COPYRIGHT': JSON.stringify(env.VITE_APP_COPYRIGHT),
         },
         base: env.VITE_DEPLOY_BASE_URL,
         server: {

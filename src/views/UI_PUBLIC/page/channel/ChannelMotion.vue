@@ -25,7 +25,7 @@
                 :style="{
                     '--form-label-width': '150px',
                 }"
-                class="narrow stripe"
+                class="stripe"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
                     <el-select
@@ -37,8 +37,7 @@
                             :key="index"
                             :value="item.id"
                             :label="item.name || ' '"
-                        >
-                        </el-option>
+                        />
                     </el-select>
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_ENABLE')">
@@ -62,7 +61,6 @@
                         :max="formData.sensitivityMaxValue"
                         :disabled="formData.disabled"
                         show-input
-                        :show-input-controls="false"
                         @change="handleChangeVal"
                     />
                 </el-form-item>
@@ -89,13 +87,13 @@
                         v-model="formData.objectFilterPerson"
                         :label="Translate('IDCS_DETECTION_PERSON')"
                         @change="handleChangeVal"
-                    ></el-checkbox>
+                    />
                     <el-checkbox
                         v-if="formData.supportSMD && formData.objectFilterCar !== undefined"
                         v-model="formData.objectFilterCar"
                         :label="Translate('IDCS_DETECTION_VEHICLE')"
                         @change="handleChangeVal"
-                    ></el-checkbox>
+                    />
                 </el-form-item>
                 <el-form-item>
                     <template #label>
@@ -124,15 +122,14 @@
                             <BaseTableRowStatus
                                 :icon="scope.row.status"
                                 :error-text="scope.row.statusTip"
-                            ></BaseTableRowStatus>
+                            />
                         </template>
                     </el-table-column>
                     <el-table-column
                         prop="name"
                         :label="Translate('IDCS_CHANNEL_NAME')"
                         min-width="180"
-                    >
-                    </el-table-column>
+                    />
                     <el-table-column
                         :label="Translate('IDCS_ENABLE')"
                         min-width="120"
@@ -158,7 +155,6 @@
                         <template #default="scope">
                             <el-select
                                 v-model="scope.row.switch"
-                                size="small"
                                 :disabled="scope.row.disabled"
                                 @focus="handleRowClick(scope.row)"
                                 @change="handleChangeVal"
@@ -179,7 +175,6 @@
                         <template #default="scope">
                             <BaseNumberInput
                                 v-model="scope.row.sensitivity"
-                                size="small"
                                 :min="scope.row.sensitivityMinValue"
                                 :max="scope.row.sensitivityMaxValue"
                                 :disabled="scope.row.disabled"
@@ -212,7 +207,6 @@
                         <template #default="scope">
                             <el-select
                                 v-model="scope.row.holdTime"
-                                size="small"
                                 :disabled="scope.row.disabled"
                                 @focus="handleRowClick(scope.row)"
                                 @change="handleChangeVal"

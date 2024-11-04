@@ -12,7 +12,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
 
         let cacheTableData: NetSubStreamList[] = []
 
@@ -579,7 +579,7 @@ export default defineComponent({
             })
 
             if (!edits.length) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
@@ -588,37 +588,39 @@ export default defineComponent({
 
             openLoading()
 
-            const itemXml = edits
-                .map((item) => {
-                    const res = item.resolution
-                    const fps = item.frameRate.toString()
-                    const qoi = item.videoQuality ? item.videoQuality.toString() : ''
-                    const bittype = item.bitType || 'CBR'
-                    const level = item.level
-                    const enct = item.videoEncodeType
-                    const gop = item.GOP ? item.GOP.toString() : (item.frameRate * 4).toString()
-                    return rawXml`
-                        <item id="${item.id}">
-                            <sub res="${res}" fps="${fps}" QoI="${qoi}" bitType="${bittype}" level="${level}" enct="${enct}" GOP="${gop}" />
-                        </item>
-                    `
-                })
-                .join('')
-
-            const sendXml = `<content>${itemXml}</content>`
+            const sendXml = rawXml`
+                <content>
+                    ${edits
+                        .map((item) => {
+                            const res = item.resolution
+                            const fps = item.frameRate.toString()
+                            const qoi = item.videoQuality ? item.videoQuality.toString() : ''
+                            const bittype = item.bitType || 'CBR'
+                            const level = item.level
+                            const enct = item.videoEncodeType
+                            const gop = item.GOP ? item.GOP.toString() : (item.frameRate * 4).toString()
+                            return rawXml`
+                                <item id="${item.id}">
+                                    <sub res="${res}" fps="${fps}" QoI="${qoi}" bitType="${bittype}" level="${level}" enct="${enct}" GOP="${gop}" />
+                                </item>
+                            `
+                        })
+                        .join('')}
+                </content>
+            `
             const result = await editNetworkNodeEncodeInfo(sendXml)
             const $ = queryXml(result)
 
             closeLoading()
 
             if ($('//status').text() === 'success') {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
                 cacheTableData = cloneDeep(tableData.value)
             } else {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_NOT_SUPPORTFUNC'),
                 })

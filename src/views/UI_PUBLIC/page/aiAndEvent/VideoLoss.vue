@@ -3,7 +3,7 @@
  * @Date: 2024-08-21 15:34:24
  * @Description: 视频丢失配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 17:32:21
+ * @LastEditTime: 2024-11-04 16:05:37
 -->
 <template>
     <div class="base-flex-box">
@@ -14,11 +14,10 @@
             target-title="IDCS_CHANNEL_TRGGER"
             :source-data="getSnapListSingle(tableData[pageData.triggerDialogIndex] || [])"
             :linked-list="tableData[pageData.triggerDialogIndex]?.snapList || []"
-            :type="pageData.snapType"
+            limit-tip="IDCS_SNAP_CHANNEL_LIMIT"
             @confirm="snapConfirm"
             @close="snapClose"
-        >
-        </BaseTransferDialog>
+        />
         <BaseTransferDialog
             v-model="pageData.alarmOutIsShow"
             header-title="IDCS_TRIGGER_ALARM_OUT"
@@ -26,11 +25,10 @@
             target-title="pageData.alarmOutTargetTitle"
             :source-data="getAlarmOutListSingle(tableData[pageData.triggerDialogIndex] || [])"
             :linked-list="tableData[pageData.triggerDialogIndex]?.alarmOutList || []"
-            :type="pageData.alarmOutType"
+            limit-tip="IDCS_ALARMOUT_LIMIT"
             @confirm="alarmOutConfirm"
             @close="alarmOutClose"
-        >
-        </BaseTransferDialog>
+        />
         <SetPresetPop
             v-model="pageData.isPresetPopOpen"
             :filter-chl-id="pageData.presetChlId"
@@ -52,7 +50,7 @@
                     width="50"
                 >
                     <template #default="scope">
-                        <BaseTableRowStatus :icon="scope.row.status"></BaseTableRowStatus>
+                        <BaseTableRowStatus :icon="scope.row.status" />
                     </template>
                 </el-table-column>
                 <!-- 通道名 -->
@@ -80,11 +78,10 @@
                                 target-title="IDCS_CHANNEL"
                                 :source-data="pageData.snapList"
                                 :linked-list="pageData.snapChosedIdsAll"
-                                :type="pageData.snapType"
+                                limit-tip="IDCS_SNAP_CHANNEL_LIMIT"
                                 @confirm="snapConfirmAll"
                                 @close="snapCloseAll"
-                            >
-                            </BaseTransferPop>
+                            />
                         </el-popover>
                     </template>
                     <template #default="scope">
@@ -137,8 +134,7 @@
                                 :key="item.value"
                                 :value="item.value"
                                 :label="item.label"
-                            >
-                            </el-option>
+                            />
                         </el-select>
                     </template>
                 </el-table-column>
@@ -161,11 +157,10 @@
                                 target-title="IDCS_CHANNEL"
                                 :source-data="pageData.alarmOutList"
                                 :linked-list="pageData.alarmOutChosedIdsAll"
-                                :type="pageData.alarmOutType"
+                                limit-tip="IDCS_ALARMOUT_LIMIT"
                                 @confirm="alarmOutConfirmAll"
                                 @close="alarmOutCloseAll"
-                            >
-                            </BaseTransferPop>
+                            />
                         </el-popover>
                     </template>
                     <template #default="scope">
@@ -282,8 +277,7 @@
                                 :key="item.value"
                                 :value="item.value"
                                 :label="item.label"
-                            >
-                            </el-option>
+                            />
                         </el-select>
                     </template>
                 </el-table-column>
@@ -320,8 +314,7 @@
                                 :key="item.value"
                                 :value="item.value"
                                 :label="item.label"
-                            >
-                            </el-option>
+                            />
                         </el-select>
                     </template>
                 </el-table-column>
@@ -358,8 +351,7 @@
                                 :key="item.value"
                                 :value="item.value"
                                 :label="item.label"
-                            >
-                            </el-option>
+                            />
                         </el-select>
                     </template>
                 </el-table-column>
@@ -394,8 +386,7 @@
                                 :key="item.value"
                                 :value="item.value"
                                 :label="item.label"
-                            >
-                            </el-option>
+                            />
                         </el-select>
                     </template>
                 </el-table-column>

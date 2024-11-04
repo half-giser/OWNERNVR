@@ -29,7 +29,7 @@ export default defineComponent({
     },
     setup(prop) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
         const pluginStore = usePluginStore()
         const systemCaps = useCababilityStore()
@@ -373,7 +373,7 @@ export default defineComponent({
             }
 
             if (abnormalDisposeData.value.preset.length > MAX_TRIGGER_PRESET_COUNT) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_PRESET_LIMIT'),
                 })
@@ -387,70 +387,60 @@ export default defineComponent({
             }
         })
         const getAbnormalDisposeSaveData = () => {
-            let sendXml = rawXml`
+            const sendXml = rawXml`
                 <content>
                     <chl id='${prop.currChlId}'>
                         <param>
-                        <holdTime unit='s'>${abnormalDisposeData.value.holdTime}</holdTime>
-                        <sensitivity>${String(abnormalDisposeData.value.sensitivity)}</sensitivity>
+                            <holdTime unit='s'>${abnormalDisposeData.value.holdTime}</holdTime>
+                            <sensitivity>${String(abnormalDisposeData.value.sensitivity)}</sensitivity>
+                            ${abnormalDisposeData.value.sceneChangeSwitch ? `<sceneChangeSwitch >${abnormalDisposeData.value.sceneChangeSwitch}</sceneChangeSwitch>` : ''}
+                            ${abnormalDisposeData.value.clarityAbnormalSwitch ? `<clarityAbnormalSwitch >${abnormalDisposeData.value.clarityAbnormalSwitch}</clarityAbnormalSwitch>` : ''}
+                            ${abnormalDisposeData.value.colorAbnormalSwitch ? `<colorAbnormalSwitch >${abnormalDisposeData.value.colorAbnormalSwitch}</colorAbnormalSwitch>` : ''}
+                        </param>
+                        <trigger>
+                            <sysRec>
+                                <chls type='list'>
+                                    ${abnormalDisposeData.value.record
+                                        .map((item) => {
+                                            return `<item id='${item.value}'><![CDATA[${item.label}]]></item>`
+                                        })
+                                        .join('')}
+                                </chls>
+                            </sysRec>
+                            <alarmOut>
+                                <alarmOuts type='list'>
+                                    ${abnormalDisposeData.value.alarmOut
+                                        .map((item) => {
+                                            return `<item id='${item.value}'><![CDATA[${item.label}]]></item>`
+                                        })
+                                        .join('')}
+                                </alarmOuts>
+                            </alarmOut>
+                            <preset>
+                                <presets type='list'>
+                                    ${abnormalDisposeData.value.preset
+                                        .map((item) => {
+                                            return rawXml`
+                                                <item>
+                                                    <index>${item.index}</index>
+                                                    <name><![CDATA[${item.name}]]></name>
+                                                    <chl id='${item.chl.value}'><![CDATA[${item.chl.label}]]></chl>
+                                                </item>`
+                                        })
+                                        .join('')}
+                                </presets>
+                            </preset>
+                            <snapSwitch>${String(abnormalDisposeData.value.catchSnapSwitch)}</snapSwitch>
+                            <msgPushSwitch>${String(abnormalDisposeData.value.msgPushSwitch)}</msgPushSwitch>
+                            <buzzerSwitch>${String(abnormalDisposeData.value.buzzerSwitch)}</buzzerSwitch>
+                            <popVideoSwitch>${String(abnormalDisposeData.value.popVideoSwitch)}</popVideoSwitch>
+                            <emailSwitch>${String(abnormalDisposeData.value.emailSwitch)}</emailSwitch>
+                            <sysAudio id='${abnormalDisposeData.value.sysAudio}'></sysAudio>
+                        </trigger>
+                    </chl>
+                </content>
             `
-            if (abnormalDisposeData.value.sceneChangeSwitch) {
-                sendXml += rawXml`<sceneChangeSwitch >${abnormalDisposeData.value.sceneChangeSwitch}</sceneChangeSwitch>`
-            }
 
-            if (abnormalDisposeData.value.clarityAbnormalSwitch) {
-                sendXml += rawXml`<clarityAbnormalSwitch >${abnormalDisposeData.value.clarityAbnormalSwitch}</clarityAbnormalSwitch>`
-            }
-
-            if (abnormalDisposeData.value.colorAbnormalSwitch) {
-                sendXml += rawXml`<colorAbnormalSwitch >${abnormalDisposeData.value.colorAbnormalSwitch}</colorAbnormalSwitch>`
-            }
-            sendXml += rawXml`</param>
-                <trigger>
-                    <sysRec>
-                    <chls type='list'>
-            `
-
-            abnormalDisposeData.value.record.forEach((item) => {
-                sendXml += rawXml`<item id='${item.value}'>
-                        <![CDATA[${item.label}]]></item>`
-            })
-
-            sendXml += rawXml`</chls></sysRec>
-                <alarmOut>
-                <alarmOuts type='list'>
-            `
-
-            abnormalDisposeData.value.alarmOut.forEach((item) => {
-                sendXml += rawXml`<item id='${item.value}'>
-                        <![CDATA[${item.label}]]></item>`
-            })
-
-            sendXml += rawXml`</alarmOuts>
-                </alarmOut>
-                <preset>
-                <presets type='list'>
-            `
-
-            abnormalDisposeData.value.preset.forEach((item) => {
-                sendXml += rawXml`
-                    <item>
-                        <index>${item.index}</index>
-                        <name><![CDATA[${item.name}]]></name>
-                        <chl id='${item.chl.value}'><![CDATA[${item.chl.label}]]></chl>
-                    </item>`
-            })
-
-            sendXml += rawXml`</presets>
-                </preset>
-                <snapSwitch>${String(abnormalDisposeData.value.catchSnapSwitch)}</snapSwitch>
-                <msgPushSwitch>${String(abnormalDisposeData.value.msgPushSwitch)}</msgPushSwitch>
-                <buzzerSwitch>${String(abnormalDisposeData.value.buzzerSwitch)}</buzzerSwitch>
-                <popVideoSwitch>${String(abnormalDisposeData.value.popVideoSwitch)}</popVideoSwitch>
-                <emailSwitch>${String(abnormalDisposeData.value.emailSwitch)}</emailSwitch>
-                <sysAudio id='${abnormalDisposeData.value.sysAudio}'></sysAudio>
-                </trigger>
-                </chl></content>`
             return sendXml
         }
 

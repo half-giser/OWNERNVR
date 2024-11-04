@@ -71,7 +71,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
@@ -505,7 +505,7 @@ export default defineComponent({
             const id = pageData.value.activeChlGroup
             const findItem = pageData.value.chlGroupList.find((item) => item.id === id)
             if (findItem) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'question',
                     message: Translate('IDCS_DELETE_MP_GROUP_S').formatForLang(getShortString(findItem.value, 10)),
                 }).then(async () => {
@@ -521,7 +521,7 @@ export default defineComponent({
                     const $ = queryXml(result)
                     closeLoading()
                     if ($('//status').text() === 'success') {
-                        openMessageTipBox({
+                        openMessageBox({
                             type: 'success',
                             message: Translate('IDCS_DELETE_SUCCESS'),
                         }).then(() => {
@@ -889,7 +889,7 @@ export default defineComponent({
          */
         const handleConfigSwitchChange = () => {
             pageData.value.configSwitch = !pageData.value.configSwitch
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_OPEN_SUBOUTPUT_TIP'),
             }).then(() => {
@@ -942,7 +942,7 @@ export default defineComponent({
                         break
                 }
 
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: errorInfo,
                 })
@@ -958,13 +958,13 @@ export default defineComponent({
             return data
                 .map((item) => {
                     return rawXml`
-                    <item>
-                        <segNum>${String(item.segNum)}</segNum>
-                        <chls>
-                            ${item.chls.map((chl) => `<item id="${chl.id}">${String(chl.winindex)}</item>`).join('')}
-                        </chls>
-                    </item>
-                `
+                        <item>
+                            <segNum>${String(item.segNum)}</segNum>
+                            <chls>
+                                ${item.chls.map((chl) => `<item id="${chl.id}">${String(chl.winindex)}</item>`).join('')}
+                            </chls>
+                        </item>
+                    `
                 })
                 .join('')
         }
@@ -1029,7 +1029,7 @@ export default defineComponent({
                                     <displayMode>dwell</displayMode>
                                     <timeInterval>${String(dwellItem.timeInterval)}</timeInterval>
                                     <chlGroups>
-                                    ${getChlGroupXml(dwellItem.chlGroups)}
+                                        ${getChlGroupXml(dwellItem.chlGroups)}
                                     </chlGroups>
                                 </item1>
                                 ${previewXml}

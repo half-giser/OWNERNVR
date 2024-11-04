@@ -3,7 +3,7 @@
  * @Date: 2024-09-05 19:35:04
  * @Description: 智能分析 属性选择器
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 16:43:13
+ * @LastEditTime: 2024-10-31 19:43:58
 -->
 <template>
     <div>
@@ -135,8 +135,8 @@
 
 .btn {
     width: 100px;
-    height: 30px;
-    line-height: 30px;
+    height: 24px;
+    line-height: 24px;
     cursor: pointer;
     margin: 5px 10px;
     text-align: center;

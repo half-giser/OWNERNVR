@@ -16,7 +16,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
 
         const pageData = ref({
             // 停车选项列表
@@ -155,7 +155,7 @@ export default defineComponent({
             return tableData.value.every((item) => {
                 // 分组总车位为空
                 if (item.groupTotalNum.toString() === '' && item.parkingType === 'usingGroup') {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_GROUP_TOTAL_VEHICLE_NOT_CONFIG'),
                     })
@@ -164,7 +164,7 @@ export default defineComponent({
 
                 // 分组剩余车位为空
                 if (item.groupRemainNum.toString() === '' && item.parkingType === 'usingGroup') {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_GROUP_REMAIN_VEHICLE_NOT_CONFIG'),
                     })
@@ -173,7 +173,7 @@ export default defineComponent({
 
                 // 分组剩余车位超过分组总车位
                 if (item.groupRemainNum > item.groupTotalNum) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_GROUP_REMAIN_VEHICLE_NUM_OVER_TIPS'),
                     })
@@ -182,7 +182,7 @@ export default defineComponent({
 
                 // 邮箱格式错误
                 if (item.linkEmail && !checkEmail(item.linkEmail)) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_PROMPT_INVALID_EMAIL'),
                     })
@@ -195,7 +195,7 @@ export default defineComponent({
                 }
 
                 if (groupTotalNum > pageData.value.totalNum) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_ALL_GROUP_VEHICLE_NUM_OVER_TIPS'),
                     })
@@ -208,7 +208,7 @@ export default defineComponent({
                 }
 
                 if (groupRemainTotalNum > pageData.value.remainTotalNum) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_GROUP_TOTAL_REMAIN_SPACE_OVER_TIPS'),
                     })
@@ -225,23 +225,23 @@ export default defineComponent({
         const apply = async () => {
             if (!validateData()) return
 
-            const tableXml = tableData.value
-                .map((item) => {
-                    return rawXml`
-                        <item id="${item.id}">
-                            <groupName>${item.groupName}</groupName>
-                            <parkingType>${item.parkingType}</parkingType>
-                            <groupTotalNum>${item.groupTotalNum.toString()}</groupTotalNum>
-                            <groupRemainNum>${item.groupRemainNum.toString()}</groupRemainNum>
-                            <groupSchedule>${item.groupSchedule}</groupSchedule>
-                            <linkEmail>${wrapCDATA(item.linkEmail)}</linkEmail>
-                        </item>`
-                })
-                .join('')
-
             const sendXml = rawXml`
                 <content>
-                    <parkingSapce>${tableXml}</parkingSapce>
+                    <parkingSapce>
+                        ${tableData.value
+                            .map((item) => {
+                                return rawXml`
+                                    <item id="${item.id}">
+                                        <groupName>${item.groupName}</groupName>
+                                        <parkingType>${item.parkingType}</parkingType>
+                                        <groupTotalNum>${item.groupTotalNum.toString()}</groupTotalNum>
+                                        <groupRemainNum>${item.groupRemainNum.toString()}</groupRemainNum>
+                                        <groupSchedule>${item.groupSchedule}</groupSchedule>
+                                        <linkEmail>${wrapCDATA(item.linkEmail)}</linkEmail>
+                                    </item>`
+                            })
+                            .join('')}
+                    </parkingSapce>
                 </content>
             `
             openLoading()
@@ -252,7 +252,7 @@ export default defineComponent({
             closeLoading()
 
             if ($('//status').text() === 'success') {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
@@ -263,7 +263,7 @@ export default defineComponent({
                 if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
                     errorMsg = Translate('IDCS_NO_PERMISSION')
                 }
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: errorMsg,
                 })

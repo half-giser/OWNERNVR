@@ -84,7 +84,7 @@
             >
                 <div class="title">{{ Translate('IDCS_WIZARD') }}</div>
                 <div class="box">
-                    <el-form class="narrow">
+                    <el-form>
                         <el-form-item :label="Translate('IDCS_TIME_ZONE')">
                             <el-select v-model="dateTimeFormData.timeZone">
                                 <el-option
@@ -184,7 +184,7 @@
             >
                 <div class="title">{{ Translate('IDCS_WIZARD') }}</div>
                 <div class="box">
-                    <el-form class="narrow">
+                    <el-form>
                         <el-form-item>
                             <el-text class="user-title">{{ Translate('IDCS_ADMIN_PASSWORD_SETUP').formatForLang(userFormData.userName) }}</el-text>
                         </el-form-item>
@@ -239,7 +239,7 @@
                 <div class="title">{{ Translate('IDCS_WIZARD') }}</div>
                 <div class="box">
                     <el-form
-                        class="narrow inline-message"
+                        class="inline-message"
                         :style="{
                             '--form-input-width': '340px',
                         }"
@@ -276,8 +276,7 @@
                             <el-table-column
                                 :label="Translate('IDCS_QUESTION')"
                                 prop="question"
-                            >
-                            </el-table-column>
+                            />
                             <el-table-column :label="Translate('IDCS_ANSWER')">
                                 <template #default="scope">
                                     <template v-if="!isDefeultQuestion || (isDefeultQuestion && !scope.row.answer)">******</template>
@@ -323,29 +322,24 @@
                         <el-table-column
                             :label="Translate('IDCS_DISK')"
                             prop="name"
-                        >
-                        </el-table-column>
+                        />
 
                         <el-table-column
                             :label="Translate('IDCS_TYPE')"
                             prop="combinedStatus"
-                        >
-                        </el-table-column>
+                        />
                         <el-table-column
                             :label="Translate('IDCS_CAPACITY')"
                             prop="size"
-                        >
-                        </el-table-column>
+                        />
                         <el-table-column
                             :label="Translate('IDCS_DISK_SERIAL_NUMBER')"
                             prop="serialNum"
-                        >
-                        </el-table-column>
+                        />
                         <el-table-column
                             :label="Translate('IDCS_STATE')"
                             prop="combinedStatus"
-                        >
-                        </el-table-column>
+                        />
                         <el-table-column>
                             <template #default="scope">
                                 <el-button

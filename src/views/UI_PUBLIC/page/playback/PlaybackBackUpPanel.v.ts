@@ -27,7 +27,7 @@ export default defineComponent({
     setup(prop) {
         const Plugin = inject('Plugin') as PluginType
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
 
         // 任务列表刷新间隔3秒
         const REFRESH_IMTERVAL = 3000
@@ -154,7 +154,7 @@ export default defineComponent({
          * @param {Object} row
          */
         const deleteTask = (row: PlaybackBackUpTaskList) => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_ARCHIVE_S'),
             }).then(() => {
@@ -170,7 +170,7 @@ export default defineComponent({
          * @description 删除所有任务
          */
         const deleteAllTask = () => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_ALL_ARCHIVE'),
             }).then(() => {

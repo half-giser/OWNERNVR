@@ -24,7 +24,7 @@ let plugin: ReturnType<typeof useOCXPlugin> | null = null
 const useOCXPlugin = () => {
     const pluginStore = usePluginStore()
     const { Translate, getLangTypes, getLangItems, langItems } = useLangStore()
-    const { openMessageTipBox } = useMessageBox()
+    const { openMessageBox } = useMessageBox()
     const router = useRouter()
     const { closeLoading, openLoading } = useLoading()
     const userSession = useUserSessionStore()
@@ -910,7 +910,7 @@ const useOCXPlugin = () => {
         if (isPluginNoResponse) return
 
         isPluginNoResponse = true
-        openMessageTipBox({
+        openMessageBox({
             type: 'info',
             message: Translate('IDCS_PLUGIN_NO_RESPONSE_TIPS'),
         })
@@ -1390,7 +1390,7 @@ const useOCXPlugin = () => {
         (newVal) => {
             if (newVal) {
                 setReconnCallBack(() => {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_LOGIN_OVERTIME'),
                     }).then(() => {

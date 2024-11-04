@@ -3,15 +3,14 @@
  * @Date: 2024-05-07 19:40:23
  * @Description: 用户板块右上方工具栏
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 17:18:09
+ * @LastEditTime: 2024-10-31 19:13:48
 -->
 <template>
     <el-input
         v-model="msg"
-        size="small"
         class="base-toolbar-input"
         :placeholder="Translate('IDCS_SEARCH_USER')"
-    ></el-input>
+    />
     <BaseImgSprite
         file="toolbar_search"
         class="base-toolbar-btn"

@@ -3,7 +3,7 @@
  * @Date: 2024-07-31 16:36:16
  * @Description: 排程编辑弹框
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 11:57:58
+ * @LastEditTime: 2024-11-01 18:02:48
 -->
 <template>
     <el-dialog
@@ -50,10 +50,45 @@
                 </el-col>
                 <el-col :span="10">
                     <div class="btn-panel">
-                        <a
-                            @click="manualTimeInputOpen"
-                            v-text="Translate('IDCS_MANUAL_INPUT')"
-                        ></a>
+                        <el-popover
+                            v-model:visible="pageData.manualTimeInputShow"
+                            width="250"
+                        >
+                            <template #reference>
+                                <a v-text="Translate('IDCS_MANUAL_INPUT')"></a>
+                            </template>
+                            <div class="menaulTimeInputPL">
+                                <div class="row">
+                                    <el-time-picker
+                                        v-model="pageData.manualTimeSpan"
+                                        is-range
+                                        range-separator="-"
+                                        :clearable="false"
+                                        format="HH:mm"
+                                    />
+                                </div>
+                                <div class="row dayList">
+                                    <el-checkbox-group
+                                        v-model="pageData.weekdays"
+                                        class="inline"
+                                    >
+                                        <template
+                                            v-for="(cpItem, cpIndex) in scheduleWeekRef?.weekdayLang"
+                                            :key="cpIndex"
+                                        >
+                                            <el-checkbox
+                                                :label="Translate(cpItem)"
+                                                :value="cpIndex"
+                                            />
+                                        </template>
+                                    </el-checkbox-group>
+                                </div>
+                                <div class="base-btn-box">
+                                    <el-button @click="manualTimeInputOk">{{ Translate('IDCS_OK') }}</el-button>
+                                    <el-button @click="manualTimeInputClose">{{ Translate('IDCS_CANCEL') }}</el-button>
+                                </div>
+                            </div>
+                        </el-popover>
                         <a
                             @click="scheduleWeekRef?.resetSameValue([['00:00', '23:59']])"
                             v-text="Translate('IDCS_SELECT_ALL')"
@@ -66,47 +101,6 @@
                             @click="scheduleWeekRef?.resetSameValue([])"
                             v-text="Translate('IDCS_CLEAR')"
                         ></a>
-                        <div
-                            v-show="pageData.manualTimeInputShow"
-                            class="menaulTimeInputPL"
-                            @click.stop
-                        >
-                            <div class="row">
-                                <el-time-picker
-                                    v-model="pageData.manualTimeSpan"
-                                    is-range
-                                    range-separator="-"
-                                    :clearable="false"
-                                    format="HH:mm"
-                                />
-                            </div>
-                            <div class="row dayList">
-                                <el-checkbox-group v-model="pageData.weekdays">
-                                    <template
-                                        v-for="(cpItem, cpIndex) in scheduleWeekRef?.weekdayLang"
-                                        :key="cpIndex"
-                                    >
-                                        <el-checkbox
-                                            class="dayItem"
-                                            :label="Translate(cpItem)"
-                                            :value="cpIndex"
-                                        />
-                                    </template>
-                                </el-checkbox-group>
-                            </div>
-                            <div class="row">
-                                <el-button
-                                    size="small"
-                                    @click="manualTimeInputOk"
-                                    >{{ Translate('IDCS_OK') }}</el-button
-                                >
-                                <el-button
-                                    size="small"
-                                    @click="manualTimeInputClose"
-                                    >{{ Translate('IDCS_CANCEL') }}</el-button
-                                >
-                            </div>
-                        </div>
                     </div>
                 </el-col>
             </el-row>
@@ -115,7 +109,7 @@
                     ref="scheduleWeekRef"
                     :width="950"
                     :drag-action="pageData.dragAction"
-                ></BaseScheduleWeek>
+                />
             </el-form-item>
         </el-form>
         <template #footer>
@@ -199,32 +193,11 @@
 .menaulTimeInputPL {
     display: flex;
     flex-direction: column;
-    position: absolute;
-    width: 230px;
-    top: 20px;
-    right: 0px;
-    padding: 2px;
-    border-radius: 5px;
-    border: solid 1px var(--main-border);
-    background-color: var(--table-stripe);
-    z-index: 1000;
-
-    .dayList {
-        display: flex;
-        flex-wrap: wrap;
-        padding: 4px;
-
-        .dayItem {
-            flex: 0 0 60px;
-            font-size: 13px;
-            margin: 2px 10px 2px 0px;
-            height: 20px;
-        }
-    }
 
     .row {
         display: flex;
         justify-content: end;
+        margin-bottom: 5px;
     }
 }
 </style>

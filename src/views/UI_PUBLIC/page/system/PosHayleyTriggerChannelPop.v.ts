@@ -41,7 +41,7 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
 
         const chlList = ref<SystemPosListChls[]>([])
         const tableData = ref<SystemPosListChls[]>([])
@@ -106,7 +106,7 @@ export default defineComponent({
                 return !isNaN(till) && till > 0 && till <= prop.max
             })
             if (!isValid) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_POS_TILL_RANGE').formatForLang(1, prop.max),
                 })
@@ -117,7 +117,7 @@ export default defineComponent({
             const filterTillNum = tableData.value.filter((item) => Number(item.till))
             const isNoSameTillNumber = filterTillNum.length === Array.from(new Set(filterTillNum.map((item) => item.till))).length
             if (!isNoSameTillNumber) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_POS_TILL_SAME_ERROR'),
                 })

@@ -21,7 +21,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
         const auth = useUserChlAuth(false)
         const playerRef = ref<PlayerInstance>()
@@ -291,7 +291,7 @@ export default defineComponent({
         const addTrace = (index: number) => {
             const current = tableData.value[index]
             if (current.trace.length >= current.maxCount) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_OVER_MAX_NUMBER_LIMIT'),
                 })
@@ -324,7 +324,7 @@ export default defineComponent({
             const chlName = tableData.value[chlIndex].chlName
             const trace = tableData.value[chlIndex].trace[traceIndex]
 
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_TRACE_S').formatForLang(Translate('IDCS_CHANNEL'), getShortString(chlName, 10), getShortString(trace.name, 10)),
             }).then(async () => {
@@ -353,7 +353,7 @@ export default defineComponent({
                     const $ = queryXml(result)
 
                     if ($('//status').text() === 'success') {
-                        openMessageTipBox({
+                        openMessageBox({
                             type: 'success',
                             message: Translate('IDCS_DELETE_SUCCESS'),
                         }).then(() => getTrace(chlId))
@@ -389,7 +389,7 @@ export default defineComponent({
             closeLoading()
 
             if ($('//status').text() === 'success') {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 }).finally(() => {
@@ -398,12 +398,12 @@ export default defineComponent({
             } else {
                 const errorCode = Number($('//errorCode').text())
                 if (errorCode === ErrorCode.USER_ERROR_NAME_EXISTED) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_PROMPT_PRESET_NAME_EXIST'),
                     })
                 } else {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_SAVE_DATA_FAIL'),
                     })

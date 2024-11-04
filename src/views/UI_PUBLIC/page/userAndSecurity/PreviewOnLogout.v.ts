@@ -9,7 +9,7 @@ import { type UserPreviewOnLogoutChannelList } from '@/types/apiType/userAndSecu
 
 export default defineComponent({
     setup() {
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { closeLoading, openLoading } = useLoading()
         const { Translate } = useLangStore()
 
@@ -93,19 +93,18 @@ export default defineComponent({
         const setData = async () => {
             openLoading()
 
-            const channel = channelList.value
-                .map((item) => {
-                    return rawXml`
-                        <item id="${item.id}">
-                            <name>${wrapCDATA(item.name)}</name>
-                            <switch>${item.switch}</switch>
-                        </item>
-                    `
-                })
-                .join('')
             const sendXML = rawXml`
                 <content>
-                    ${channel}
+                    ${channelList.value
+                        .map((item) => {
+                            return rawXml`
+                                <item id="${item.id}">
+                                    <name>${wrapCDATA(item.name)}</name>
+                                    <switch>${item.switch}</switch>
+                                </item>
+                            `
+                        })
+                        .join('')}
                 </content>
             `
             const result = await editLogoutChlPreviewAuth(sendXML)
@@ -114,13 +113,13 @@ export default defineComponent({
             closeLoading()
 
             if ($('//status').text() === 'success') {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
                 pageData.value.buttonDisabled = true
             } else {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_SAVE_DATA_FAIL'),
                 })

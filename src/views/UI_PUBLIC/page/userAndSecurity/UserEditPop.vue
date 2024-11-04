@@ -32,8 +32,7 @@
                 <el-input
                     v-model="formData.userName"
                     disabled
-                >
-                </el-input>
+                />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_CLOSE_PERMISSION_CONTROL')">
                 <el-checkbox

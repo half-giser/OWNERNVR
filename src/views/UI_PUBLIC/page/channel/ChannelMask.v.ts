@@ -209,22 +209,6 @@ export default defineComponent({
 
         const getSaveData = (rowData: ChannelMask) => {
             const mask = rowData.mask.length ? rowData.mask : [new PrivacyMask()]
-            const maskXml = mask
-                .map((ele) => {
-                    return rawXml`
-                        <item>
-                            <switch>${rowData.switch}</switch>
-                            <rectangle>
-                                <X>${ele.switch ? ele.X.toString() : '0'}</X>
-                                <Y>${ele.switch ? ele.Y.toString() : '0'}</Y>
-                                <width>${ele.switch ? ele.width.toString() : '0'}</width>
-                                <height>${ele.switch ? ele.height.toString() : '0'}</height>
-                            </rectangle>
-                            <color>${!rowData.mask.length ? 'black' : rowData.color}</color>
-                        </item>
-                    `
-                })
-                .join('')
             const sendXml = rawXml`
                 <types>
                     <color>
@@ -239,7 +223,22 @@ export default defineComponent({
                             <itemType>
                                 <color type='color'/>
                             </itemType>
-                            ${maskXml}
+                            ${mask
+                                .map((ele) => {
+                                    return rawXml`
+                                        <item>
+                                            <switch>${rowData.switch}</switch>
+                                            <rectangle>
+                                                <X>${ele.switch ? ele.X.toString() : '0'}</X>
+                                                <Y>${ele.switch ? ele.Y.toString() : '0'}</Y>
+                                                <width>${ele.switch ? ele.width.toString() : '0'}</width>
+                                                <height>${ele.switch ? ele.height.toString() : '0'}</height>
+                                            </rectangle>
+                                            <color>${!rowData.mask.length ? 'black' : rowData.color}</color>
+                                        </item>
+                                    `
+                                })
+                                .join('')}
                         </privacyMask>
                     </chl>
                 </content>

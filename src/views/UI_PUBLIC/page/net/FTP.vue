@@ -15,7 +15,7 @@
                 '--form-input-width': '200px',
             }"
             inline-message
-            class="stripe narrow"
+            class="stripe"
             :rules="formRule"
             :model="formData"
         >

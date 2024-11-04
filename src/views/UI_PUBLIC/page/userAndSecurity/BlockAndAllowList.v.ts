@@ -15,7 +15,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
 
         const pageData = ref({
             // 是否显示编辑弹窗
@@ -47,7 +47,7 @@ export default defineComponent({
          * @param {number} index
          */
         const handleDelete = (index: number) => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_S'),
             }).then(() => {
@@ -121,19 +121,6 @@ export default defineComponent({
         const setData = async () => {
             openLoading()
 
-            const tableXml = tableData.value
-                .map((item) => {
-                    return rawXml`
-                        <item>
-                            <switch>${String(item.switch)}</switch>
-                            <addressType>${item.addressType}</addressType>
-                            ${item.addressType === 'ip' ? `<ip>${item.ip}</ip>` : ''}
-                            ${item.addressType === 'mac' ? `<mac>${item.mac}</mac>` : ''}
-                            ${item.addressType === 'iprange' ? `<startIp>${item.startIp}</startIp><endIp>${item.endIp}</endIp>` : ''}
-                        </item>
-                    `
-                })
-                .join('')
             const sendXml = rawXml`
                 <types>
                     <filterTypeMode>
@@ -152,7 +139,19 @@ export default defineComponent({
                     <filterList type="list">
                         <itemType>
                             <addressType type="addressType" />
-                            ${tableXml}
+                            ${tableData.value
+                                .map((item) => {
+                                    return rawXml`
+                                        <item>
+                                            <switch>${String(item.switch)}</switch>
+                                            <addressType>${item.addressType}</addressType>
+                                            ${item.addressType === 'ip' ? `<ip>${item.ip}</ip>` : ''}
+                                            ${item.addressType === 'mac' ? `<mac>${item.mac}</mac>` : ''}
+                                            ${item.addressType === 'iprange' ? `<startIp>${item.startIp}</startIp><endIp>${item.endIp}</endIp>` : ''}
+                                        </item>
+                                    `
+                                })
+                                .join('')}
                         </itemType>
                     </filterList>
                 </content>

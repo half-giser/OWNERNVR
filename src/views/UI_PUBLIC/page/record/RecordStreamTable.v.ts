@@ -3,10 +3,9 @@
  * @Date: 2024-10-15 10:04:36
  * @Description: 录像码流通用组件
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-29 16:51:59
+ * @LastEditTime: 2024-11-04 10:26:51
  */
 import { RecordStreamInfoDto } from '@/types/apiType/record'
-import { ElMessageBox } from 'element-plus'
 import type { TableInstance } from 'element-plus'
 export default defineComponent({
     props: {
@@ -58,6 +57,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
         const tableData = ref<RecordStreamInfoDto[]>([])
+        const { openMessageBox } = useMessageBox()
         // const tableRef = ref<FormInstance>()
 
         const streamTypeMapping: Record<string, string> = {
@@ -447,25 +447,32 @@ export default defineComponent({
 
         // 查询和显示当前录制状态下剩余的录制时间
         const queryRemainRecTimeF = () => {
-            let recType: string = ''
+            let recType = ''
             if (props.mode == 'event') {
                 recType = RecStreamModule.value.recType == 'ae' ? 'auto' : 'manually'
             } else if (props.mode == 'timing') {
                 recType = RecStreamModule.value.recType == 'an' ? 'auto' : 'manually'
             }
-            let sendXml = rawXml`<content>  
-                        <recMode   type='recModeType'>${recType}</recMode> 
-                        <streamType  type='streamType'>Main</streamType>
-                        <chls type='list'>`
-            tableData.value.forEach((rowData: RecordStreamInfoDto) => {
-                if (!rowData.rowDisable) {
-                    sendXml += rawXml`<item  id='${rowData['@id']}'>
-                            <QoI>${rowData.videoQuality}</QoI>
-                        </item>`
-                }
-            })
-            sendXml += `</chls>
-            </content>`
+            const sendXml = rawXml`
+                <content>  
+                    <recMode type='recModeType'>${recType}</recMode> 
+                    <streamType type='streamType'>Main</streamType>
+                    <chls type='list'>
+                        ${tableData.value
+                            .map((rowData) => {
+                                if (!rowData.rowDisable) {
+                                    return rawXml`
+                                        <item id='${rowData['@id']}'>
+                                            <QoI>${rowData.videoQuality}</QoI>
+                                        </item>
+                                    `
+                                }
+                                return ''
+                            })
+                            .join('')}
+                    </chls>
+                </content>
+            `
             openLoading()
             queryRemainRecTime(sendXml).then((resb) => {
                 closeLoading()
@@ -1237,53 +1244,51 @@ export default defineComponent({
             if (editRowDatas.length == 0) {
                 return ''
             }
-            let sendXml = rawXml`<content type='list' total='${editRowDatas.length.toString()}'>`
-            editRowDatas.forEach((element: RecordStreamInfoDto) => {
-                // 需要改
-                let gop = ''
-                if (props.mode === 'event') {
-                    gop = RecStreamModule.value.recType === 'ae' ? 'aGOP' : 'mGOP'
-                } else if (props.mode === 'timing') {
-                    gop = RecStreamModule.value.recType === 'an' ? 'aGOP' : 'mGOP'
-                }
-                const bitType = element.bitType || 'CBR'
-                sendXml += rawXml`
-                <item id="${element['@id']}">
-                <${RecStreamModule.value.recType} 
-                    res="${element.resolution}"
-                    fps="${element.frameRate}"
-                    QoI="${element.videoQuality}"
-                    audio="${element.audio}"
-                    type="${element.recordStream}"
-                    bitType="${bitType}"
-                    level="${element.level}"
-                ></${RecStreamModule.value.recType}>
-                `
-                if (element.GOP == '') {
-                    // 需要改
-                    if (props.mode === 'event') {
-                        if (RecStreamModule.value.recType1 == 'an') {
-                            const min = parseInt(element.frameRate) * 4 > parseInt(element.an['@fps']) * 4 ? parseInt(element.frameRate) * 4 : parseInt(element.an['@fps']) * 4
-                            sendXml += rawXml`<main enct="${element.videoEncodeType}" ${gop}="${min.toString()}"></main>`
-                        } else if (RecStreamModule.value.recType1 == 'mn') {
-                            const min = parseInt(element.frameRate) * 4 > parseInt(element.mn['@fps']) * 4 ? parseInt(element.frameRate) * 4 : parseInt(element.mn['@fps']) * 4
-                            sendXml += rawXml`<main enct="${element.videoEncodeType}" ${gop}="${min.toString()}"></main>`
-                        }
-                    } else if (props.mode === 'timing') {
-                        if (RecStreamModule.value.recType1 == 'ae') {
-                            const min = parseInt(element.frameRate) * 4 > parseInt(element.ae['@fps']) * 4 ? parseInt(element.frameRate) * 4 : parseInt(element.ae['@fps']) * 4
-                            sendXml += rawXml`<main enct="${element.videoEncodeType}" ${gop}="${min.toString()}"></main>`
-                        } else if (RecStreamModule.value.recType1 == 'me') {
-                            const min = parseInt(element.frameRate) * 4 > parseInt(element.me['@fps']) * 4 ? parseInt(element.frameRate) * 4 : parseInt(element.me['@fps']) * 4
-                            sendXml += rawXml`<main enct="${element.videoEncodeType}" ${gop}="${min.toString()}"></main>`
-                        }
-                    }
-                } else {
-                    sendXml += rawXml`<main enct="${element.videoEncodeType}" ${gop}="${element.GOP}" ></main>`
-                }
-                sendXml += rawXml`</item>`
-            })
-            sendXml += rawXml`</content>`
+            let sendXml = rawXml`
+                <content type='list' total='${editRowDatas.length.toString()}'>
+                    ${editRowDatas
+                        .map((element) => {
+                            let gop = ''
+                            if (props.mode === 'event') {
+                                gop = RecStreamModule.value.recType === 'ae' ? 'aGOP' : 'mGOP'
+                            } else if (props.mode === 'timing') {
+                                gop = RecStreamModule.value.recType === 'an' ? 'aGOP' : 'mGOP'
+                            }
+                            const bitType = element.bitType || 'CBR'
+
+                            let mainXml = ''
+                            if (element.GOP == '') {
+                                if (props.mode === 'event') {
+                                    if (RecStreamModule.value.recType1 == 'an') {
+                                        const min = parseInt(element.frameRate) * 4 > parseInt(element.an['@fps']) * 4 ? parseInt(element.frameRate) * 4 : parseInt(element.an['@fps']) * 4
+                                        mainXml = `<main enct="${element.videoEncodeType}" ${gop}="${min.toString()}"></main>`
+                                    } else if (RecStreamModule.value.recType1 == 'mn') {
+                                        const min = parseInt(element.frameRate) * 4 > parseInt(element.mn['@fps']) * 4 ? parseInt(element.frameRate) * 4 : parseInt(element.mn['@fps']) * 4
+                                        mainXml = `<main enct="${element.videoEncodeType}" ${gop}="${min.toString()}"></main>`
+                                    }
+                                } else if (props.mode === 'timing') {
+                                    if (RecStreamModule.value.recType1 == 'ae') {
+                                        const min = parseInt(element.frameRate) * 4 > parseInt(element.ae['@fps']) * 4 ? parseInt(element.frameRate) * 4 : parseInt(element.ae['@fps']) * 4
+                                        mainXml = `<main enct="${element.videoEncodeType}" ${gop}="${min.toString()}"></main>`
+                                    } else if (RecStreamModule.value.recType1 == 'me') {
+                                        const min = parseInt(element.frameRate) * 4 > parseInt(element.me['@fps']) * 4 ? parseInt(element.frameRate) * 4 : parseInt(element.me['@fps']) * 4
+                                        mainXml = `<main enct="${element.videoEncodeType}" ${gop}="${min.toString()}"></main>`
+                                    }
+                                }
+                            } else {
+                                sendXml += rawXml`<main enct="${element.videoEncodeType}" ${gop}="${element.GOP}" ></main>`
+                            }
+
+                            return rawXml`
+                                <item id="${element['@id']}">
+                                    <${RecStreamModule.value.recType}  res="${element.resolution}" fps="${element.frameRate}" QoI="${element.videoQuality}" audio="${element.audio}" type="${element.recordStream}" bitType="${bitType}" level="${element.level}"></${RecStreamModule.value.recType}>
+                                    ${mainXml}
+                                </item>
+                            `
+                        })
+                        .join('')}
+                </content>
+            `
             return sendXml
         }
 
@@ -1299,31 +1304,25 @@ export default defineComponent({
                     const res = queryXml(resb)
                     getSystemCaps()
                     if (res('status').text() == 'success') {
-                        ElMessageBox.confirm(Translate('IDCS_SAVE_DATA_SUCCESS'), Translate('IDCS_SUCCESS_TIP'), {
-                            confirmButtonText: Translate('IDCS_OK'),
-                            showCancelButton: false,
+                        openMessageBox({
                             type: 'success',
-                            draggable: true,
+                            message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                         }).then(() => {
                             pageData.value.editeRows = []
                             pageData.value.applyBtnDisable = true
                         })
                         pageData.value.editeRows = []
                     } else {
-                        const errorCode = Number(res('//errorCode').text()) * 1
-                        if (errorCode == parseInt('2000005C', 16)) {
-                            ElMessageBox.confirm(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT'), Translate('IDCS_INFO_TIP'), {
-                                confirmButtonText: Translate('IDCS_OK'),
-                                showCancelButton: false,
+                        const errorCode = Number(res('//errorCode').text())
+                        if (errorCode === ErrorCode.USER_ERROR_OVER_LIMIT) {
+                            openMessageBox({
                                 type: 'info',
-                                draggable: true,
+                                message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT'),
                             })
                         } else {
-                            ElMessageBox.confirm(Translate('IDCS_SAVE_DATA_FAIL'), Translate('IDCS_INFO_TIP'), {
-                                confirmButtonText: Translate('IDCS_OK'),
-                                showCancelButton: false,
+                            openMessageBox({
                                 type: 'info',
-                                draggable: true,
+                                message: Translate('IDCS_SAVE_DATA_FAIL'),
                             })
                         }
                     }
@@ -1332,19 +1331,23 @@ export default defineComponent({
                     closeLoading()
                 })
         }
+
         ctx.expose({
             queryRemainRecTimeF,
             setData,
         })
+
         onMounted(() => {
             pageData.value.pop = props.pop
             fetchData()
         })
+
         watch([() => props.mode, () => props.initkey], () => {
             if (!pageData.value.firstInit) {
                 fetchData()
             }
         })
+
         return {
             recordStreams,
             tableData,

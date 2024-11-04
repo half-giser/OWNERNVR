@@ -3,7 +3,7 @@
  * @Date: 2024-07-17 09:00:44
  * @Description: 网络码流设置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-17 13:45:53
+ * @LastEditTime: 2024-11-01 18:04:52
 -->
 <template>
     <div class="base-flex-box">
@@ -175,7 +175,7 @@
                         model-value=""
                         disabled
                         :persistent="false"
-                    ></el-select>
+                    />
                     <el-select
                         v-else
                         v-model="scope.row.frameRate"
@@ -300,8 +300,7 @@
                         :model-value="scope.row.videoQuality === 0 ? '' : scope.row.videoQuality"
                         disabled
                         :persistent="false"
-                    >
-                    </el-select>
+                    />
                     <el-select
                         v-else
                         v-model="scope.row.videoQuality"
@@ -331,6 +330,7 @@
                     <el-popover
                         v-model:visible="pageData.isGOPPop"
                         :width="250"
+                        popper-class="no-padding"
                     >
                         <template #reference>
                             <BaseTableDropdownLink>
@@ -340,7 +340,7 @@
                         <el-form
                             :style="{
                                 '--form-label-width': '50px',
-                                '--form-input-width': '150px',
+                                '--form-input-width': '170px',
                             }"
                         >
                             <el-form-item :label="Translate('IDCS_GOP')">

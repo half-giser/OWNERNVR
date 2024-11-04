@@ -133,7 +133,6 @@
                             <el-select
                                 v-model="scope.row.addrType"
                                 value-key="id"
-                                size="small"
                                 @change="cellChange($event, scope.$index, scope.row, 'addrType')"
                             >
                                 <el-option
@@ -147,13 +146,11 @@
                                 v-show="scope.row.addrType === 'ip'"
                                 v-model="scope.row.ip"
                                 class="ipInput"
-                                size="small"
                                 @change="cellChange($event, scope.$index, scope.row, 'ip')"
                             />
                             <el-input
                                 v-show="scope.row.addrType !== 'ip'"
                                 v-model="scope.row.domain"
-                                size="small"
                                 @change="cellChange($event, scope.$index, scope.row, 'ip')"
                             />
                         </div>
@@ -169,7 +166,6 @@
                             :min="10"
                             :max="65535"
                             :disabled="scope.row.portDisabled"
-                            size="small"
                             @change="cellChange($event, scope.$index, scope.row, 'port')"
                         />
                     </template>
@@ -181,7 +177,6 @@
                     <template #default="scope">
                         <el-input
                             v-model="scope.row.userName"
-                            size="small"
                             maxlength="63"
                             @change="cellChange($event, scope.$index, scope.row, 'userName')"
                         />
@@ -195,7 +190,6 @@
                         <el-input
                             v-model="scope.row.password"
                             type="password"
-                            size="small"
                             @blur="cellChange($event, scope.$index, scope.row, 'password')"
                             @focus="scope.row.password === '******' ? (scope.row.password = '') : ''"
                         />
@@ -209,7 +203,6 @@
                         <el-select
                             v-model="scope.row.manufacturer"
                             value-key="id"
-                            size="small"
                             @change="cellChange($event, scope.$index, scope.row, 'manufacturer')"
                         >
                             <el-option
@@ -268,8 +261,7 @@
                     prop="port"
                     :label="Translate('IDCS_PORT')"
                     width="100"
-                >
-                </el-table-column>
+                />
                 <el-table-column
                     prop="productModel"
                     :label="Translate('IDCS_PRODUCT_MODEL')"

@@ -13,7 +13,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
 
         const formData = ref(new PkMgrBasicConfigForm())
         const formRef = ref<FormInstance>()
@@ -109,7 +109,7 @@ export default defineComponent({
                     closeLoading()
 
                     if ($('status').text() === 'success') {
-                        openMessageTipBox({
+                        openMessageBox({
                             type: 'success',
                             message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                         })
@@ -121,7 +121,7 @@ export default defineComponent({
                         } else if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
                             errorMsg = Translate('IDCS_NO_PERMISSION')
                         }
-                        openMessageTipBox({
+                        openMessageBox({
                             type: 'info',
                             message: errorMsg,
                         })

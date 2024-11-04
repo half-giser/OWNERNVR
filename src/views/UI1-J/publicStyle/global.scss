@@ -3,7 +3,7 @@
  * @Date: 2024-05-29 13:48:55
  * @Description: UI1-J 主题样式
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 18:42:34
+ * @LastEditTime: 2024-11-04 16:30:04
  */
 
 #n9web {
@@ -91,7 +91,9 @@
     --dialog-title: #1c1f2b; 
     --dialog-bg: var(--main-bg); 
 
-    --popover-bg: var(--main-bg);
+    --popover-bg: #FFF;
+
+    --dropdown-bg: #FFF;
 
     --transfer-title-bg: #E5E5E5;
     --transfer-bg: transparent;

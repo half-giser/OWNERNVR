@@ -67,7 +67,7 @@ export default defineComponent({
     setup(prop, ctx) {
         const Plugin = inject('Plugin') as PluginType
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const router = useRouter()
         const systemCaps = useCababilityStore()
         const userAuth = useUserChlAuth()
@@ -472,7 +472,7 @@ export default defineComponent({
          * @description 没有数据时弹窗
          */
         const handleNoData = () => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'info',
                 message: Translate('IDCS_NO_RECORD_DATA'),
             })
@@ -788,7 +788,7 @@ export default defineComponent({
          */
         const backUp = () => {
             if (mode.value === 'ocx' && Plugin.BackUpTask.isExeed(1)) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_BACKUP_TASK_NUM_LIMIT').formatForLang(Plugin.BackUpTask.limit),
                 })

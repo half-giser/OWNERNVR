@@ -11,7 +11,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const cababilityStore = useCababilityStore()
 
         // 方向-Map
@@ -106,23 +106,23 @@ export default defineComponent({
          * @description 编辑-下发编辑协议
          */
         const apply = async () => {
-            const tableXml = tableData.value
-                .map((item) => {
-                    return rawXml`
-                    <item id="${item.id}">
-                        <channelName>${item.channelName}</channelName>
-                        <direction>${item.direction}</direction>
-                        <ip>${item.ip}</ip>
-                        ${ternary(item.enableLEDScreenValid, `<enableLEDScreen>${item.enableLEDScreen}</enableLEDScreen>`)}
-                        ${ternary(item.LEDScreenTypeValid, `<LEDScreenType>${item.LEDScreenType}</LEDScreenType>`)}
-                    </item>
-                `
-                })
-                .join('')
-
             const sendXml = rawXml`
                 <content>
-                    <entryLeaveConfig>${tableXml}</entryLeaveConfig>
+                    <entryLeaveConfig>
+                        ${tableData.value
+                            .map((item) => {
+                                return rawXml`
+                                    <item id="${item.id}">
+                                        <channelName>${item.channelName}</channelName>
+                                        <direction>${item.direction}</direction>
+                                        <ip>${item.ip}</ip>
+                                        ${ternary(item.enableLEDScreenValid, `<enableLEDScreen>${item.enableLEDScreen}</enableLEDScreen>`)}
+                                        ${ternary(item.LEDScreenTypeValid, `<LEDScreenType>${item.LEDScreenType}</LEDScreenType>`)}
+                                    </item>
+                                `
+                            })
+                            .join('')}
+                    </entryLeaveConfig>
                 </content>
             `
 
@@ -134,7 +134,7 @@ export default defineComponent({
             closeLoading()
 
             if ($('//status').text() === 'success') {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
@@ -144,7 +144,7 @@ export default defineComponent({
                 if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
                     errorMsg = Translate('IDCS_NO_PERMISSION')
                 }
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: errorMsg,
                 })

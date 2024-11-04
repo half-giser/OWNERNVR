@@ -3,7 +3,7 @@
  * @Date: 2024-08-20 14:01:55
  * @Description: 云台-控制台
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-20 18:26:00
+ * @LastEditTime: 2024-11-04 09:28:03
 -->
 <template>
     <div class="ctrl">
@@ -102,11 +102,13 @@
     flex-shrink: 0;
 
     span:first-child {
-        margin-right: 5px;
+        margin-right: 10px;
+        flex-shrink: 0;
     }
 
     span:last-child {
-        margin-left: 5px;
+        margin-left: 10px;
+        flex-shrink: 0;
     }
 }
 

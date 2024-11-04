@@ -8,7 +8,7 @@
 <template>
     <div>
         <el-form
-            class="stripe narrow"
+            class="stripe"
             :style="{
                 '--form-input-width': '430px',
             }"
@@ -29,8 +29,7 @@
                         :key="item.id"
                         :label="item.name"
                         :value="item.id"
-                    >
-                    </el-option>
+                    />
                 </el-select>
             </el-form-item>
         </el-form>

@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-18 09:43:32
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-23 20:21:14
+ * @LastEditTime: 2024-11-04 16:00:30
 -->
 <template>
     <div>
@@ -50,14 +50,9 @@
                                     />
                                 </div>
                                 <div>
-                                    <el-button
-                                        size="small"
-                                        @click="clearArea"
-                                        >{{ Translate('IDCS_CLEAR') }}</el-button
-                                    >
+                                    <el-button @click="clearArea">{{ Translate('IDCS_CLEAR') }}</el-button>
                                     <el-button
                                         v-show="pageData.isShowAllClearBtn"
-                                        size="small"
                                         @click="clearAllArea"
                                         >{{ Translate('IDCS_FACE_CLEAR_ALL') }}</el-button
                                     >
@@ -68,7 +63,6 @@
                     </div>
                     <div class="base-ai-param-box-right">
                         <el-form
-                            class="narrow"
                             :style="{
                                 '--form-input-width': '215px',
                             }"
@@ -78,55 +72,39 @@
                             <div class="base-ai-subheading">{{ Translate('IDCS_SCHEDULE') }}</div>
                             <!-- 排程配置 -->
                             <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
-                                <el-select
-                                    v-model="objectLeftData.schedule"
-                                    size="small"
-                                >
+                                <el-select v-model="objectLeftData.schedule">
                                     <el-option
                                         v-for="item in pageData.scheduleList"
                                         :key="item.value"
                                         :value="item.value"
                                         :label="item.label"
-                                    >
-                                    </el-option>
+                                    />
                                 </el-select>
-                                <el-button
-                                    size="small"
-                                    @click="pageData.scheduleManagPopOpen = true"
-                                    >{{ Translate('IDCS_MANAGE') }}</el-button
-                                >
+                                <el-button @click="pageData.scheduleManagPopOpen = true">{{ Translate('IDCS_MANAGE') }}</el-button>
                             </el-form-item>
                             <!-- 规则 -->
                             <div class="base-ai-subheading">{{ Translate('IDCD_RULE') }}</div>
                             <!-- 持续时间 -->
                             <el-form-item :label="Translate('IDCS_DURATION')">
-                                <el-select
-                                    v-model="objectLeftData.holdTime"
-                                    size="small"
-                                >
+                                <el-select v-model="objectLeftData.holdTime">
                                     <el-option
                                         v-for="item in objectLeftData.holdTimeList"
                                         :key="item.value"
                                         :value="item.value"
                                         :label="item.label"
                                         :empty-values="[undefined, null]"
-                                    >
-                                    </el-option>
+                                    />
                                 </el-select>
                             </el-form-item>
                             <!-- 类型 -->
                             <el-form-item :label="Translate('IDCS_TYPE')">
-                                <el-select
-                                    v-model="objectLeftData.oscType"
-                                    size="small"
-                                >
+                                <el-select v-model="objectLeftData.oscType">
                                     <el-option
                                         v-for="item in objectLeftData.oscTypeList"
                                         :key="item.value"
                                         :value="item.value"
                                         :label="item.label"
-                                    >
-                                    </el-option>
+                                    />
                                 </el-select>
                             </el-form-item>
                             <!-- 警戒区域 -->
@@ -134,7 +112,6 @@
                                 <el-radio-group
                                     v-model="pageData.warnArea"
                                     class="small-btn"
-                                    size="small"
                                     @change="warnAreaChange"
                                 >
                                     <el-radio-button
@@ -149,10 +126,9 @@
                             <el-form-item :label="Translate('IDCS_AREA_NAME')">
                                 <el-input
                                     v-model="pageData.areaName"
-                                    size="small"
                                     @input="areaNameInput"
                                     @keyup.enter="enterBlur($event)"
-                                ></el-input>
+                                />
                             </el-form-item>
                         </el-form>
                     </div>
@@ -164,7 +140,6 @@
                 >
                     <el-form
                         v-if="supportAlarmAudioConfig"
-                        class="narrow"
                         :style="{
                             '--form-input-width': '215px',
                         }"
@@ -176,8 +151,7 @@
                                     :key="item.value"
                                     :label="item.label"
                                     :value="item.value"
-                                >
-                                </el-option>
+                                />
                             </el-select>
                         </el-form-item>
                     </el-form>
@@ -206,11 +180,7 @@
                         <div class="base-ai-linkage-box">
                             <div class="base-ai-linkage-title">
                                 <span>{{ Translate('IDCS_RECORD') }}</span>
-                                <el-button
-                                    size="small"
-                                    @click="pageData.recordIsShow = true"
-                                    >{{ Translate('IDCS_CONFIG') }}</el-button
-                                >
+                                <el-button @click="pageData.recordIsShow = true">{{ Translate('IDCS_CONFIG') }}</el-button>
                             </div>
                             <el-table
                                 :data="objectLeftData.record"
@@ -223,11 +193,7 @@
                         <div class="base-ai-linkage-box">
                             <div class="base-ai-linkage-title">
                                 <span>{{ Translate('IDCS_ALARM_OUT') }}</span>
-                                <el-button
-                                    size="small"
-                                    @click="pageData.alarmOutIsShow = true"
-                                    >{{ Translate('IDCS_CONFIG') }}</el-button
-                                >
+                                <el-button @click="pageData.alarmOutIsShow = true">{{ Translate('IDCS_CONFIG') }}</el-button>
                             </div>
                             <el-table
                                 :data="objectLeftData.alarmOut"
@@ -237,10 +203,7 @@
                             </el-table>
                         </div>
                         <!-- 联动预置点 -->
-                        <div
-                            class="base-ai-linkage-box"
-                            :style="{ width: '350px' }"
-                        >
+                        <div class="base-ai-linkage-box preset-box">
                             <div class="base-ai-linkage-title">
                                 <span>{{ Translate('IDCS_TRIGGER_ALARM_PRESET') }}</span>
                             </div>
@@ -253,8 +216,7 @@
                                     prop="name"
                                     width="180"
                                     :label="Translate('IDCS_CHANNEL_NAME')"
-                                >
-                                </el-table-column>
+                                />
                                 <el-table-column
                                     width="170"
                                     :label="Translate('IDCS_PRESET_NAME')"
@@ -262,7 +224,6 @@
                                     <template #default="scope">
                                         <el-select
                                             v-model="scope.row.preset.value"
-                                            size="small"
                                             :empty-values="[undefined, null]"
                                             @visible-change="getPresetById(scope.row)"
                                             @change="presetChange(scope.row)"
@@ -303,11 +264,10 @@
         target-title="IDCS_CHANNEL_TRGGER"
         :source-data="pageData.recordList"
         :linked-list="objectLeftData.record?.map((item) => item.value) || []"
-        type="record"
+        limit-tip="IDCS_RECORD_CHANNEL_LIMIT"
         @confirm="recordConfirm"
         @close="recordClose"
-    >
-    </BaseTransferDialog>
+    />
     <BaseTransferDialog
         v-model="pageData.alarmOutIsShow"
         header-title="IDCS_TRIGGER_ALARM_OUT"
@@ -315,11 +275,10 @@
         target-title="IDCS_TRIGGER_ALARM_OUT"
         :source-data="pageData.alarmOutList"
         :linked-list="objectLeftData.alarmOut?.map((item) => item.value) || []"
-        type="alarmOut"
+        limit-tip="IDCS_ALARMOUT_LIMIT"
         @confirm="alarmOutConfirm"
         @close="alarmOutClose"
-    >
-    </BaseTransferDialog>
+    />
 </template>
 
 <script lang="ts" src="./ObjectLeft.v.ts"></script>

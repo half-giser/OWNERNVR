@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 11:11:35
  * @Description:  越界
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 20:31:00
+ * @LastEditTime: 2024-11-04 16:04:54
 -->
 
 <template>
@@ -11,8 +11,7 @@
         <ScheduleManagPop
             v-model="tripwireData.scheduleManagePopOpen"
             @close="handleSchedulePopClose"
-        >
-        </ScheduleManagPop>
+        />
         <!-- tripwirerecord弹窗 -->
         <BaseTransferDialog
             v-model="tripwireData.recordIsShow"
@@ -21,10 +20,10 @@
             target-title="IDCS_CHANNEL_TRGGER"
             :source-data="tripwireData.recordSource"
             :linked-list="tripwireData.recordList || []"
-            :type="tripwireData.recordType"
+            limit-tip="IDCS_RECORD_CHANNEL_LIMIT"
             @confirm="recordConfirm"
             @close="recordClose"
-        ></BaseTransferDialog>
+        />
         <!-- tripwirealarmOut弹窗 -->
         <BaseTransferDialog
             v-model="tripwireData.alarmOutIsShow"
@@ -33,10 +32,10 @@
             target-title="IDCS_TRIGGER_ALARM_OUT"
             :source-data="tripwireData.alarmOutSource"
             :linked-list="tripwireData.alarmOutList || []"
-            :type="tripwireData.alarmOutType"
+            limit-tip="IDCS_ALARMOUT_LIMIT"
             @confirm="alarmOutConfirm"
             @close="alarmOutClose"
-        ></BaseTransferDialog>
+        />
         <!-- ai -->
         <el-dialog
             v-model="tripwireData.aiResourcePopOpen"
@@ -54,22 +53,22 @@
                     prop="name"
                     :label="Translate('IDCS_CHANNEL')"
                     width="138"
-                ></el-table-column>
+                />
                 <el-table-column
                     prop="eventTypeText"
                     :label="Translate('IDCS_EVENT_TYPE')"
                     width="150"
-                ></el-table-column>
+                />
                 <el-table-column
                     prop="percent"
                     :label="Translate('IDCS_USAGE_RATE')"
                     width="100"
-                ></el-table-column>
+                />
                 <el-table-column
                     prop="decodeResource"
                     :label="Translate('IDCS_DECODE_RESOURCE')"
                     width="100"
-                ></el-table-column>
+                />
                 <el-table-column
                     :label="Translate('IDCS_FREE_AI_RESOURCE')"
                     width="70"
@@ -164,11 +163,7 @@
                         @change="tripwireData.applyDisable = false"
                     />
                     <div class="base-btn-box">
-                        <el-button
-                            size="small"
-                            @click="tripwireData.moreDropDown = false"
-                            >{{ Translate('IDCS_CLOSE') }}</el-button
-                        >
+                        <el-button @click="tripwireData.moreDropDown = false">{{ Translate('IDCS_CLOSE') }}</el-button>
                     </div>
                 </div>
             </el-popover>
@@ -199,14 +194,9 @@
                             />
                         </div>
                         <div>
-                            <el-button
-                                size="small"
-                                @click="clearTripwireArea"
-                                >{{ Translate('IDCS_CLEAR') }}</el-button
-                            >
+                            <el-button @click="clearTripwireArea">{{ Translate('IDCS_CLEAR') }}</el-button>
                             <el-button
                                 v-if="tripwireData.clearAllVisible"
-                                size="small"
                                 @click="clearAllTripwireArea"
                                 >{{ Translate('IDCS_FACE_CLEAR_ALL') }}</el-button
                             >
@@ -231,7 +221,6 @@
                     <div class="base-ai-param-box-right">
                         <el-form
                             :model="tripwireData"
-                            class="narrow"
                             :style="{
                                 '--form-input-width': '215px',
                             }"
@@ -242,7 +231,6 @@
                                 <el-select
                                     v-model="tripwireData.tripwire_schedule"
                                     value-key="value"
-                                    size="small"
                                     @change="tripwireData.applyDisable = false"
                                 >
                                     <el-option
@@ -252,10 +240,7 @@
                                         :value="item.value"
                                     />
                                 </el-select>
-                                <el-button
-                                    size="small"
-                                    @click="tripwireData.scheduleManagePopOpen = true"
-                                >
+                                <el-button @click="tripwireData.scheduleManagePopOpen = true">
                                     {{ Translate('IDCS_MANAGE') }}
                                 </el-button>
                             </el-form-item>
@@ -267,7 +252,6 @@
                                 <el-select
                                     v-model="tripwireData.holdTime"
                                     value-key="value"
-                                    size="small"
                                     @change="tripwireData.applyDisable = false"
                                 >
                                     <el-option
@@ -283,7 +267,6 @@
                                 <el-radio-group
                                     v-model="tripwireData.chosenSurfaceIndex"
                                     class="small-btn"
-                                    size="small"
                                     @change="handleSurfaceChange()"
                                 >
                                     <el-radio-button
@@ -298,7 +281,6 @@
                             <el-form-item :label="Translate('IDCS_DIRECTION')">
                                 <el-select
                                     v-model="tripwireData.direction"
-                                    size="small"
                                     @change="handleTripwireDirectionChange"
                                 >
                                     <el-option
@@ -316,8 +298,6 @@
                             >
                                 <el-slider
                                     v-model="tripwireData.onlyPersonSensitivity"
-                                    size="small"
-                                    :show-input-controls="false"
                                     show-input
                                     @change="tripwireData.applyDisable = false"
                                 />
@@ -325,8 +305,7 @@
                             <el-form-item
                                 v-if="tripwireData.tripwire_onlyPreson"
                                 :label="Translate('IDCS_DETECTION_ONLY_ONE_OBJECT').formatForLang(Translate('IDCS_BEYOND_DETECTION'), Translate('IDCS_DETECTION_PERSON'))"
-                            >
-                            </el-form-item>
+                            />
                             <!-- 云台 -->
                             <div v-if="tripwireData.chlData.supportAutoTrack">
                                 <div class="base-ai-subheading">
@@ -340,10 +319,7 @@
                                     class="base-btn-box padding"
                                     span="start"
                                 >
-                                    <el-button
-                                        size="small"
-                                        @click="editLockStatus"
-                                    >
+                                    <el-button @click="editLockStatus">
                                         {{ tripwireData.lockStatus ? Translate('IDCS_UNLOCK') : Translate('IDCS_LOCKED') }}
                                     </el-button>
                                     <span>{{ Translate('IDCS_LOCK_PTZ_TIP') }}</span>
@@ -403,8 +379,6 @@
                                     <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
                                     <el-slider
                                         v-model="tripwireData.objectFilter.personSensitivity"
-                                        size="small"
-                                        :show-input-controls="false"
                                         show-input
                                         @change="tripwireData.applyDisable = false"
                                     />
@@ -425,8 +399,6 @@
                                     <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
                                     <el-slider
                                         v-model="tripwireData.objectFilter.carSensitivity"
-                                        size="small"
-                                        :show-input-controls="false"
                                         show-input
                                         @change="tripwireData.applyDisable = false"
                                     />
@@ -447,8 +419,6 @@
                                     <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
                                     <el-slider
                                         v-model="tripwireData.objectFilter.motorSensitivity"
-                                        size="small"
-                                        :show-input-controls="false"
                                         show-input
                                         @change="tripwireData.applyDisable = false"
                                     />
@@ -481,7 +451,6 @@
                                 <el-select
                                     v-model="tripwireData.sysAudio"
                                     value-key="value"
-                                    size="small"
                                     class="audio_select"
                                     @change="tripwireData.applyDisable = false"
                                 >
@@ -526,22 +495,14 @@
                             <div class="base-ai-linkage-box">
                                 <div class="base-ai-linkage-title">
                                     <span>{{ Translate('IDCS_RECORD') }}</span>
-                                    <el-button
-                                        size="small"
-                                        @click="tripwireData.recordIsShow = true"
-                                        >{{ Translate('IDCS_CONFIG') }}
-                                    </el-button>
+                                    <el-button @click="tripwireData.recordIsShow = true">{{ Translate('IDCS_CONFIG') }} </el-button>
                                 </div>
                                 <el-table
                                     :show-header="false"
                                     height="367"
                                     :data="tripwireData.record.chls"
                                 >
-                                    <el-table-column>
-                                        <template #default="scope">
-                                            {{ scope.row.label }}
-                                        </template>
-                                    </el-table-column>
+                                    <el-table-column prop="label" />
                                 </el-table>
                             </div>
 
@@ -549,32 +510,19 @@
                             <div class="base-ai-linkage-box">
                                 <div class="base-ai-linkage-title">
                                     <span>{{ Translate('IDCS_ALARM_OUT') }}</span>
-                                    <el-button
-                                        size="small"
-                                        @click="tripwireData.alarmOutIsShow = true"
-                                        >{{ Translate('IDCS_CONFIG') }}
-                                    </el-button>
+                                    <el-button @click="tripwireData.alarmOutIsShow = true">{{ Translate('IDCS_CONFIG') }} </el-button>
                                 </div>
                                 <el-table
                                     :show-header="false"
                                     height="367"
                                     :data="tripwireData.alarmOut.chls"
                                 >
-                                    <el-table-column>
-                                        <template #default="scope">
-                                            {{ scope.row.label }}
-                                        </template>
-                                    </el-table-column>
+                                    <el-table-column prop="label" />
                                 </el-table>
                             </div>
 
                             <!-- preset -->
-                            <div
-                                class="base-ai-linkage-box"
-                                :style="{
-                                    width: '350px',
-                                }"
-                            >
+                            <div class="base-ai-linkage-box preset-box">
                                 <div class="base-ai-linkage-title">
                                     {{ Translate('IDCS_TRIGGER_ALARM_PRESET') }}
                                 </div>
@@ -587,12 +535,11 @@
                                     <el-table-column
                                         prop="name"
                                         :label="Translate('IDCS_CHANNEL_NAME')"
-                                    ></el-table-column>
+                                    />
                                     <el-table-column :label="Translate('IDCS_PRESET_NAME')">
                                         <template #default="scope">
                                             <el-select
                                                 v-model="scope.row.preset.value"
-                                                size="small"
                                                 :empty-values="[undefined, null]"
                                                 @visible-change="getPresetById(scope.row)"
                                                 @change="tripwireData.applyDisable = false"

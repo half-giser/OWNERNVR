@@ -33,7 +33,7 @@ export default defineComponent({
         const isAuthDialog = ref(false)
 
         const authGroupOptions = ref<UserAuthGroupOption[]>([])
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
 
         // 密码强度提示信息
         const noticeMsg = computed(() => {
@@ -233,7 +233,7 @@ export default defineComponent({
                         errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
                         break
                 }
-                openMessageTipBox({
+                openMessageBox({
                     type: 'error',
                     message: errorInfo,
                 })

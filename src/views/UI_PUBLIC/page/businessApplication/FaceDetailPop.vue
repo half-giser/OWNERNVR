@@ -70,8 +70,7 @@
                     <el-table-column
                         :label="Translate('IDCS_WEEK')"
                         prop="day"
-                    >
-                    </el-table-column>
+                    />
                     <el-table-column :label="Translate('IDCS_TYPE')">
                         <template #default="scope">
                             <span

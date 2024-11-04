@@ -3,7 +3,7 @@
  * @Date: 2024-09-13 11:31:56
  * @Description: 过线检测邮件设置弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-23 20:44:50
+ * @LastEditTime: 2024-10-31 19:33:35
 -->
 <template>
     <el-dialog
@@ -31,10 +31,7 @@
                     :label="Translate('IDCS_EMAIL_ADDRESS')"
                     prop="address"
                 >
-                    <el-input
-                        v-model="formData.address"
-                        size="small"
-                    />
+                    <el-input v-model="formData.address" />
                     <template #error>
                         <div class="custom-error">
                             {{ error }}
@@ -47,17 +44,13 @@
                         '--form-input-width': '210px',
                     }"
                 >
-                    <el-select
-                        v-model="formData.schedule"
-                        size="small"
-                    >
+                    <el-select v-model="formData.schedule">
                         <el-option
                             v-for="item in pageData.scheduleList"
                             :key="item.value"
                             :label="item.label"
                             :value="item.value"
-                        >
-                        </el-option>
+                        />
                     </el-select>
                 </el-form-item>
             </el-form>
@@ -118,14 +111,13 @@
                         :disabled="pageData.data.sendEmailData.enableSwitch ? !pageData.data.sendEmailData.weeklyReportSwitch : true"
                         value-key="value"
                         class="inputWidth"
-                        size="small"
                     >
                         <el-option
                             v-for="item in pageData.weekOption"
                             :key="item.value"
                             :label="item.label"
                             :value="item.value"
-                        ></el-option>
+                        />
                     </el-select>
                     <!-- 月报 -->
                     <el-checkbox
@@ -140,7 +132,6 @@
                         :disabled="pageData.data.sendEmailData.enableSwitch ? !pageData.data.sendEmailData.mouthlyReportSwitch : true"
                         value-key="value"
                         class="inputWidth"
-                        size="small"
                     >
                         <el-option
                             v-for="item in pageData.monthOption"
@@ -158,7 +149,6 @@
                     <el-time-picker
                         v-model="pageData.time"
                         :disabled="!pageData.data.sendEmailData.enableSwitch"
-                        size="small"
                         format="HH:mm"
                         class="inputWidth"
                         value-format="HH:mm"
@@ -206,8 +196,7 @@
                                         :key="item.value"
                                         :value="item.value"
                                         :label="item.label"
-                                    >
-                                    </el-option>
+                                    />
                                 </el-select>
                             </template>
                         </el-table-column>

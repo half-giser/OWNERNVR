@@ -43,16 +43,8 @@
                         />
                     </div>
                     <div>
-                        <el-button
-                            size="small"
-                            @click="clearArea"
-                            >{{ Translate('IDCS_CLEAR') }}</el-button
-                        >
-                        <el-button
-                            size="small"
-                            @click="clearAllArea"
-                            >{{ Translate('IDCS_FACE_CLEAR_ALL') }}</el-button
-                        >
+                        <el-button @click="clearArea">{{ Translate('IDCS_CLEAR') }}</el-button>
+                        <el-button @click="clearAllArea">{{ Translate('IDCS_FACE_CLEAR_ALL') }}</el-button>
                     </div>
                 </div>
                 <span class="base-ai-tip">{{ Translate('IDCS_DRAW_AREA_TIP').formatForLang(6) }}</span>
@@ -82,7 +74,6 @@
                     <div class="base-ai-param-box-left"></div>
                     <div class="base-ai-param-box-right">
                         <el-form
-                            class="narrow"
                             :style="{
                                 '--form-input-width': '215px',
                             }"
@@ -92,30 +83,21 @@
                             <div class="base-ai-subheading">{{ Translate('IDCS_SCHEDULE') }}</div>
                             <!-- 排程配置 -->
                             <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
-                                <el-select
-                                    v-model="vsdData.schedule"
-                                    size="small"
-                                >
+                                <el-select v-model="vsdData.schedule">
                                     <el-option
                                         v-for="item in pageData.scheduleList"
                                         :key="item.value"
                                         :value="item.value"
                                         :label="item.label"
-                                    >
-                                    </el-option>
+                                    />
                                 </el-select>
-                                <el-button
-                                    size="small"
-                                    @click="pageData.scheduleManagPopOpen = true"
-                                    >{{ Translate('IDCS_MANAGE') }}</el-button
-                                >
+                                <el-button @click="pageData.scheduleManagPopOpen = true">{{ Translate('IDCS_MANAGE') }}</el-button>
                             </el-form-item>
                             <!-- 区域 -->
                             <div class="base-ai-subheading">{{ Translate('IDCS_AREA') }}</div>
                             <el-form-item :label="Translate('IDCS_DETECTION_AREA')">
                                 <el-radio-group
                                     v-model="pageData.detectArea"
-                                    size="small"
                                     class="small-btn"
                                     @change="detectAreaChange"
                                 >
@@ -131,7 +113,6 @@
                             <el-form-item :label="Translate('IDCS_MASK_AREA')">
                                 <el-radio-group
                                     v-model="pageData.maskArea"
-                                    size="small"
                                     class="small-btn"
                                     @change="maskAreaChange"
                                 >
@@ -158,21 +139,18 @@
                                 <el-input
                                     v-model="vsdData.countOSD.osdPersonName"
                                     :disabled="!vsdData.countOSD.supportOsdPersonName"
-                                    size="small"
                                 />
                             </el-form-item>
                             <el-form-item :label="Translate('IDCS_VEHICLE_COUNT')">
                                 <el-input
                                     v-model="vsdData.countOSD.osdCarName"
                                     :disabled="!vsdData.countOSD.supportOsdCarName"
-                                    size="small"
                                 />
                             </el-form-item>
                             <el-form-item :label="Translate('IDCS_BIKE_COUNT')">
                                 <el-input
                                     v-model="vsdData.countOSD.osdBikeName"
                                     :disabled="!vsdData.countOSD.supportBikeName"
-                                    size="small"
                                 />
                             </el-form-item>
                             <!-- 重置信息 -->
@@ -190,7 +168,6 @@
                                 <el-select
                                     v-model="pageData.timeType"
                                     :disabled="!pageData.autoReset"
-                                    size="small"
                                     @change="timeTypeChange"
                                 >
                                     <el-option
@@ -217,7 +194,6 @@
                                             v-if="pageData.timeType === 'week'"
                                             v-model="vsdData.countPeriod['week'].date"
                                             :disabled="!pageData.autoReset"
-                                            size="small"
                                         >
                                             <el-option
                                                 v-for="item in pageData.weekOption"
@@ -230,7 +206,6 @@
                                             v-if="pageData.timeType === 'month'"
                                             v-model="vsdData.countPeriod['month'].date"
                                             :disabled="!pageData.autoReset"
-                                            size="small"
                                         >
                                             <el-option
                                                 v-for="item in pageData.monthOption"
@@ -250,21 +225,18 @@
                                             v-if="pageData.timeType === 'day'"
                                             v-model="vsdData.countPeriod['day']['dateTime']"
                                             :disabled="!pageData.autoReset"
-                                            size="small"
                                             value-format="HH:mm:ss"
                                         />
                                         <el-time-picker
                                             v-if="pageData.timeType === 'week'"
                                             v-model="vsdData.countPeriod['week']['dateTime']"
                                             :disabled="!pageData.autoReset"
-                                            size="small"
                                             value-format="HH:mm:ss"
                                         />
                                         <el-time-picker
                                             v-if="pageData.timeType === 'month'"
                                             v-model="vsdData.countPeriod['month']['dateTime']"
                                             :disabled="!pageData.autoReset"
-                                            size="small"
                                             value-format="HH:mm:ss"
                                         />
                                     </el-col>
@@ -272,10 +244,7 @@
                             </el-form-item>
                             <!-- 手动重置 -->
                             <el-form-item :label="Translate('IDCS_MANUAL_RESET')">
-                                <el-button
-                                    size="small"
-                                    @click="manualResetData"
-                                >
+                                <el-button @click="manualResetData">
                                     {{ Translate('IDCS_RESET') }}
                                 </el-button>
                             </el-form-item>
@@ -291,7 +260,6 @@
                     <div class="base-ai-param-box-left"></div>
                     <div class="base-ai-param-box-right">
                         <el-form
-                            class="narrow"
                             :style="{
                                 '--form-label-width': '200px',
                                 '--form-input-width': '215px',
@@ -370,7 +338,6 @@
                     <div class="base-ai-param-box-left"></div>
                     <div class="base-ai-param-box-right">
                         <el-form
-                            class="narrow"
                             :style="{
                                 '--form-input-width': '215px',
                             }"
@@ -382,7 +349,6 @@
                             <el-form-item :label="Translate('IDCS_TYPE')">
                                 <el-select
                                     v-model="vsdData.osdType"
-                                    size="small"
                                     @change="osdTypeChange"
                                 >
                                     <el-option
@@ -390,7 +356,7 @@
                                         :key="item.value"
                                         :label="item.label"
                                         :value="item.value"
-                                    ></el-option>
+                                    />
                                 </el-select>
                             </el-form-item>
                             <!-- 全选 -->
@@ -450,7 +416,6 @@
                         @change="saveTargetPicChange"
                     />
                     <el-form
-                        class="narrow"
                         :style="{
                             '--form-label-width': '150px',
                             '--form-input-width': '170px',
@@ -463,7 +428,6 @@
                         <el-form-item :label="Translate('IDCS_RECOGNITION_MODE')">
                             <el-select
                                 v-model="vsdData.algoChkModel"
-                                size="small"
                                 :disabled="pageData.algoModelDisabled"
                                 @change="algoModelChange"
                             >
@@ -482,7 +446,6 @@
                         >
                             <BaseNumberInput
                                 v-model="vsdData.intervalCheck"
-                                size="small"
                                 :disabled="pageData.algoModelDisabled"
                                 :min="vsdData.intervalCheckMin"
                                 :max="vsdData.intervalCheckMax"

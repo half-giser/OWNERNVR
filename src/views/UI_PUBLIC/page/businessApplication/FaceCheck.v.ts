@@ -16,7 +16,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
         const dateTime = useDateTimeStore()
 
@@ -289,7 +289,7 @@ export default defineComponent({
          */
         const getData = async () => {
             if (!formData.value.chls.length) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_PROMPT_CHANNEL_GROUP_EMPTY'),
                 })
@@ -297,7 +297,7 @@ export default defineComponent({
             }
 
             if (!formData.value.faceGroup.length) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_SELECT_GROUP_NOT_EMPTY'),
                 })

@@ -163,7 +163,6 @@
             class="stream-param"
         >
             <el-form
-                class="narrow"
                 :style="{
                     '--form-label-width': '100px',
                     '--form-input-width': '130px',

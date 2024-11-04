@@ -18,8 +18,7 @@
                 :label="Translate('IDCS_SERIAL_NUMBER')"
                 type="index"
                 width="70"
-            >
-            </el-table-column>
+            />
             <el-table-column
                 :label="Translate('IDCS_NAME')"
                 prop="name"

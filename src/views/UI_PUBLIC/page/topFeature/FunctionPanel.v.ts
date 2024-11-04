@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-05-07 20:42:33
  * @Description: 功能面板
- * @LastEditors: tengxiang tengxiang@tvt.net.cn
- * @LastEditTime: 2024-11-01 15:25:04
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-11-04 09:43:31
  */
 
 import { getMenuItems } from '@/router'
@@ -48,6 +48,7 @@ export default defineComponent({
          * @param {RouteRecordRawExtends} moduleItem
          */
         const goToDefaultPage = (moduleItem: RouteRecordRawExtends) => {
+            // console.log(moduleItem)
             if (moduleItem.meta.auth && !userSession.hasAuth(moduleItem.meta.auth)) {
                 return
             }
@@ -55,10 +56,11 @@ export default defineComponent({
             if (defaultMenu) {
                 router.push(defaultMenu.meta.fullPath)
             } else {
-                const defaultMenu = moduleItem.children.find((item) => !getMenuDisabled(item))
-                if (defaultMenu) {
-                    router.push(defaultMenu.meta.fullPath)
-                }
+                router.push(moduleItem.redirect)
+                // const defaultMenu = moduleItem.children.find((item) => !getMenuDisabled(item))
+                // if (defaultMenu) {
+                //     router.push(defaultMenu.meta.fullPath)
+                // }
             }
         }
 

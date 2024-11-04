@@ -28,7 +28,7 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
 
         const MAX_TRIGGER_PRESET_COUNT = 16
         const tableData = ref<PresetList[]>([])
@@ -113,7 +113,7 @@ export default defineComponent({
             })
 
             if (presetCount > MAX_TRIGGER_PRESET_COUNT) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_PRESET_LIMIT'),
                 })

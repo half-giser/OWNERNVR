@@ -25,7 +25,7 @@ export default defineComponent({
     },
     setup(props, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const formRef = ref<FormInstance>()
         const formData = ref({
             address: '',
@@ -122,7 +122,7 @@ export default defineComponent({
 
         // 删除收件人
         const handleDelReceiver = (row: { address: string; schedule: string; rowClicked: boolean }) => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_EMAIL_RECEIVER_S').formatForLang(row.address),
             }).then(() => {

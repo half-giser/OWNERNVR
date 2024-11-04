@@ -17,7 +17,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
 
         const tableRef = ref<TableInstance>()
         const timeMode = ref(24)
@@ -138,7 +138,7 @@ export default defineComponent({
         // 清空当前通道所有时间项
         const clearChannelAllTime = (row: ImageUploadDto) => {
             const shortName = row.name.length > 10 ? row.name.slice(0, 10) + '...' : row.name
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_SCHEDULE_CLEAR').formatForLang(shortName),
             }).then(() => {
@@ -179,7 +179,7 @@ export default defineComponent({
         // 校验添加时间是否合格
         const checkTime = (timeList: SelectOption<string, string>[], time: string) => {
             if (timeList.length >= 20) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_SCHEDULE_TIME_NUMBER'),
                 })
@@ -189,7 +189,7 @@ export default defineComponent({
             for (let i = 0; i < timeList.length; i++) {
                 const distime = (new Date('2017/1/11 ' + timeList[i].value).getTime() - new Date('2017/1/11 ' + time).getTime()) / 1000
                 if (Math.abs(distime) < 5 * 60) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_SCHEDULE_TIME_INTER'),
                     })
@@ -203,7 +203,7 @@ export default defineComponent({
         // 添加时间项弹窗确认
         const addUploadTime = (data: ImageUploadDto[], addTime: string) => {
             if (data.length === 0) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_PROMPT_CHANNEL_GROUP_EMPTY'),
                 })
@@ -227,17 +227,25 @@ export default defineComponent({
         }
 
         const getSaveData = () => {
-            let sendXml = rawXml`<content type='list'>
-            <itemType><timeList type='list' /></itemType>`
-            tableData.value.forEach((item) => {
-                sendXml += rawXml`<item><chl id='${item.chlId}'>${item.name}</chl>
-                            <timeList total='${String(item.timeCount)}'>`
-                item.timelist.forEach((time) => {
-                    sendXml += rawXml`<item>${time.value}</item>`
-                })
-                sendXml += rawXml`</timeList></item>`
-            })
-            sendXml += `</content>`
+            const sendXml = rawXml`
+                <content type='list'>
+                    <itemType>
+                        <timeList type='list' />
+                    </itemType>
+                    ${tableData.value
+                        .map((item) => {
+                            return rawXml`
+                                <item>
+                                    <chl id='${item.chlId}'>${item.name}</chl>
+                                    <timeList total='${String(item.timeCount)}'>
+                                        ${item.timelist.map((time) => `<item>${time.value}</item>`).join('')}
+                                    </timeList>
+                                </item>
+                            `
+                        })
+                        .join('')}
+                </content>
+            `
             return sendXml
         }
 

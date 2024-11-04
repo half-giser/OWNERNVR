@@ -36,7 +36,7 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate, langId } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
 
         const tableData = ref<StorageModeDiskList[]>([])
@@ -109,13 +109,13 @@ export default defineComponent({
          */
         const confirm = () => {
             if (!pageData.value.selection.length) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_PLEASE_SELECT_DISK'),
                 })
                 return
             }
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_HD_CHANGE_GROUP_WARNING'),
             }).then(async () => {

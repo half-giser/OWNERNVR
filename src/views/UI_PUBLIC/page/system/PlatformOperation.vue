@@ -1,7 +1,6 @@
 <template>
     <div class="platformOperation_Type">
         <el-form
-            class="narrow"
             :style="{
                 '--form-label-width': '150px',
                 '--form-input-width': '200px',
@@ -41,7 +40,7 @@
             v-show="pageData.operationType === 'testScreenshot' || pageData.operationType === 'maintenanceScreenshot' || pageData.operationType === 'acceptScreenshot'"
             class="screenshot"
         >
-            <el-form class="narrow">
+            <el-form>
                 <el-form-item :label="Translate('IDCS_MAINTEN_SNAPCHOOSE')">
                     <el-checkbox
                         v-model="pageData.selectAll"
@@ -74,23 +73,22 @@
                     prop="chlNum"
                     :label="Translate('IDCS_CHANNEL_NUMBER')"
                     width="100"
-                ></el-table-column>
+                />
                 <el-table-column
                     prop="name"
                     :label="Translate('IDCS_CHANNEL_NAME')"
                     width="620"
-                ></el-table-column>
+                />
             </el-table>
             <el-form
                 v-show="pageData.operationType === 'acceptScreenshot'"
-                class="narrow"
                 :style="{ '--form-input-width': '200px', marginTop: '20px' }"
             >
                 <el-form-item :label="Translate('IDCS_ACCEPTANCE_ALARM')">
                     <el-input
                         v-model="pageData.alarmNum"
                         maxlength="20"
-                    ></el-input>
+                    />
                 </el-form-item>
             </el-form>
         </div>
@@ -99,10 +97,7 @@
             v-show="pageData.operationType === 'faultRepair'"
             class="screenshot"
         >
-            <el-form
-                class="narrow"
-                :style="{ '--form-input-width': '200px' }"
-            >
+            <el-form :style="{ '--form-input-width': '200px' }">
                 <el-form-item :label="Translate('IDCS_OPERATE_FAULT_TYPE')">
                     <el-select v-model="pageData.faultType">
                         <el-option
@@ -126,7 +121,7 @@
                         />
                     </el-checkbox-group>
                 </el-form-item>
-                <el-form-item :label="Translate('IDCS_RECORD_DESCRIPTION')"></el-form-item>
+                <el-form-item :label="Translate('IDCS_RECORD_DESCRIPTION')" />
                 <el-form-item>
                     <el-input
                         v-model="pageData.faultRecord"
@@ -142,10 +137,7 @@
             v-show="pageData.operationType === 'maintenanceSign'"
             class="maintenanceSign"
         >
-            <el-form
-                class="narrow"
-                :style="{ '--form-input-width': '200px' }"
-            >
+            <el-form :style="{ '--form-input-width': '200px' }">
                 <el-form-item :label="Translate('IDCS_MAINTENSIGN_ITEM')">
                     <el-select v-model="pageData.maintenance">
                         <el-option
@@ -156,7 +148,7 @@
                         />
                     </el-select>
                 </el-form-item>
-                <el-form-item :label="Translate('IDCS_MAINTENSIGN_ITEMCHOOSE')"></el-form-item>
+                <el-form-item :label="Translate('IDCS_MAINTENSIGN_ITEMCHOOSE')" />
                 <el-form-item>
                     <el-checkbox-group
                         v-model="pageData.chooseMaintenanceType"
@@ -170,7 +162,7 @@
                         />
                     </el-checkbox-group>
                 </el-form-item>
-                <el-form-item :label="Translate('IDCS_RECORD_DESCRIPTION')"></el-form-item>
+                <el-form-item :label="Translate('IDCS_RECORD_DESCRIPTION')" />
                 <el-form-item>
                     <el-input
                         v-model="pageData.maintenanceRecord"
@@ -186,11 +178,8 @@
             v-show="pageData.operationType === 'repairSign'"
             class="repairSign"
         >
-            <el-form
-                class="narrow"
-                :style="{ '--form-input-width': '200px' }"
-            >
-                <el-form-item :label="Translate('IDCS_MAINTENSIGN_ITEMCHOOSE')"></el-form-item>
+            <el-form :style="{ '--form-input-width': '200px' }">
+                <el-form-item :label="Translate('IDCS_MAINTENSIGN_ITEMCHOOSE')" />
                 <el-form-item>
                     <el-checkbox-group
                         v-model="pageData.chooseRepairType"
@@ -204,7 +193,7 @@
                         />
                     </el-checkbox-group>
                 </el-form-item>
-                <el-form-item :label="Translate('IDCS_RECORD_DESCRIPTION')"></el-form-item>
+                <el-form-item :label="Translate('IDCS_RECORD_DESCRIPTION')" />
                 <el-form-item>
                     <el-input
                         v-model="pageData.repairRecord"

@@ -11,7 +11,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const pluginStore = usePluginStore()
         const Plugin = inject('Plugin') as PluginType
         const osType = getSystemInfo().platform
@@ -206,7 +206,7 @@ export default defineComponent({
 
         const handleRestoreVal = () => {
             const rowData = getRowById(selectedChlId.value)
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_MP_RESTORE_VALUE').formatForLang(rowData.name.length > chlNameMaxLen ? rowData.name.substring(0, chlNameMaxLen) + '...' : rowData.name),
             })
@@ -369,7 +369,7 @@ export default defineComponent({
             const rowData = getRowById(selectedChlId.value)
             if (rowData.shutterLowLimit != undefined && Number(rowData.shutterUpLimit) > Number(rowData.shutterLowLimit)) {
                 rowData.shutterUpLimit = tmpShutterUpLimit
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_LOWER_LIMIT_OVER_UPPER_LIMIT_TIP'),
                 })
@@ -383,7 +383,7 @@ export default defineComponent({
             const rowData = getRowById(selectedChlId.value)
             if (rowData.shutterUpLimit != undefined && Number(rowData.shutterUpLimit) > Number(rowData.shutterLowLimit)) {
                 rowData.shutterLowLimit = tmpShutterLowLimit
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_LOWER_LIMIT_OVER_UPPER_LIMIT_TIP'),
                 })
@@ -920,27 +920,31 @@ export default defineComponent({
          * @param noRebootPrompt 是否需要重启提示判断（默认需要）
          */
         const setData = (rowData: ChannelImage, noRebootPrompt = false) => {
-            let data = '<content>'
-            if (rowData.paletteCode) {
-                data += rawXml`
-                    <chl id='${rowData.id}'>
-                        <rebootPrompt>${Boolean(!noRebootPrompt).toString()}</rebootPrompt>
-                        <palette>
-                            <color type='paletteType'>${rowData.paletteCode}</color>
-                        </palette>
-                    </chl>`
-            } else {
-                data += rawXml`
-                    <chl id='${rowData.id}'>
-                        <rebootPrompt>${Boolean(!noRebootPrompt).toString()}</rebootPrompt>
-                        <cfgFile>${rowData.cfgFile || ''}</cfgFile>
-                        <bright>${rowData.bright ? rowData.bright.toString() : ''}</bright>
-                        <contrast>${rowData.contrast ? rowData.contrast.toString() : ''}</contrast>
-                        <hue>${rowData.hue ? rowData.hue.toString() : ''}</hue>
-                        <saturation>${rowData.saturation ? rowData.saturation.toString() : ''}</saturation>
-                    </chl>`
-            }
-            data += '</content>'
+            const data = rawXml`
+                <content>
+                    ${
+                        rowData.paletteCode
+                            ? rawXml`
+                                    <chl id='${rowData.id}'>
+                                        <rebootPrompt>${Boolean(!noRebootPrompt).toString()}</rebootPrompt>
+                                        <palette>
+                                            <color type='paletteType'>${rowData.paletteCode}</color>
+                                        </palette>
+                                    </chl>
+                                `
+                            : rawXml`
+                                    <chl id='${rowData.id}'>
+                                        <rebootPrompt>${Boolean(!noRebootPrompt).toString()}</rebootPrompt>
+                                        <cfgFile>${rowData.cfgFile || ''}</cfgFile>
+                                        <bright>${rowData.bright ? rowData.bright.toString() : ''}</bright>
+                                        <contrast>${rowData.contrast ? rowData.contrast.toString() : ''}</contrast>
+                                        <hue>${rowData.hue ? rowData.hue.toString() : ''}</hue>
+                                        <saturation>${rowData.saturation ? rowData.saturation.toString() : ''}</saturation>
+                                    </chl>
+                                `
+                    }
+                </content>
+            `
             openLoading()
             editChlVideoParam(data).then((res) => {
                 closeLoading()
@@ -969,7 +973,7 @@ export default defineComponent({
         // 重启提示
         const judgeReboot = (rebootParam: string, callback: Function) => {
             if (document.getElementsByClassName('el-message-box').length > 0) return
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_IPC_MODIFY_REBOOT_TIPS').formatForLang(rebootTipMap[rebootParam] || ''),
             })
@@ -1014,7 +1018,8 @@ export default defineComponent({
             const data = rawXml`
                 <condition>
                     <chlId>${chlId}</chlId>
-                </condition>`
+                </condition>
+            `
             queryCameraLensCtrlParam(data).then((res) => {
                 const $ = queryXml(res)
                 const newData = new ChannelLensCtrl()
@@ -1097,7 +1102,8 @@ export default defineComponent({
                     <content>
                         <chlId>${chlId}</chlId>
                         <actionType>${cmd}</actionType>
-                    </content>`
+                    </content>
+                `
                 try {
                     cameraLensCtrlCall(data)
                         .then(() => {
@@ -1191,7 +1197,7 @@ export default defineComponent({
             const isValid = isWhitelight ? date1 != date2 : date1 < date2
             const msg = isWhitelight ? Translate('IDCS_STARTTIME_NOTEQUAL_ENDTIME') : Translate('IDCS_END_TIME_GREATER_THAN_START')
             if (!isValid) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: msg,
                 })

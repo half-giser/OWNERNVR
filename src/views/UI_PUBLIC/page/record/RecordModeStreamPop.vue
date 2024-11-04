@@ -37,7 +37,7 @@
             class="streamTable"
             @bandwidth="getBandwidth"
             @rec-time="getRecTime"
-        ></RecordStreamTable>
+        />
         <template #footer>
             <el-row class="bottom_row">
                 <div>

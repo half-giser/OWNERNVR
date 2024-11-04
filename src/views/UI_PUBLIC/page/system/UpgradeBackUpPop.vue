@@ -28,7 +28,7 @@
                 <el-input
                     :model-value="formData.filePath"
                     readonly
-                ></el-input>
+                />
                 <el-button @click="chooseFile">
                     <BaseImgSprite
                         file="filechooser"

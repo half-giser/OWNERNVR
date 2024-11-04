@@ -112,8 +112,7 @@
                     :label="Translate('IDCS_CREATE_USER')"
                     prop="creator"
                     min-width="220"
-                >
-                </el-table-column>
+                />
                 <el-table-column :label="Translate('IDCS_BROWSE')">
                     <template #default="scope">
                         <BaseImgSprite

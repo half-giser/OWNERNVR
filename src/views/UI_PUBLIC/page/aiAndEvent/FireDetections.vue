@@ -3,15 +3,14 @@
  * @Date: 2024-09-11 14:16:29
  * @Description: 火点检测
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-28 10:34:14
+ * @LastEditTime: 2024-11-04 15:59:52
 -->
 <template>
     <div>
         <ScheduleManagPop
             v-model="pageData.scheduleManagePopOpen"
             @close="handleSchedulePopClose"
-        >
-        </ScheduleManagPop>
+        />
         <!-- record弹窗 -->
         <BaseTransferDialog
             v-model="pageData.recordIsShow"
@@ -20,10 +19,10 @@
             target-title="IDCS_CHANNEL_TRGGER"
             :source-data="pageData.recordSource"
             :linked-list="pageData.recordList || []"
-            :type="pageData.recordType"
+            limit-tip="IDCS_RECORD_CHANNEL_LIMIT"
             @confirm="recordConfirm"
             @close="recordClose"
-        ></BaseTransferDialog>
+        />
         <!-- alarmOut弹窗 -->
         <BaseTransferDialog
             v-model="pageData.alarmOutIsShow"
@@ -32,10 +31,10 @@
             target-title="IDCS_TRIGGER_ALARM_OUT"
             :source-data="pageData.alarmOutSource"
             :linked-list="pageData.alarmOutList || []"
-            :type="pageData.alarmOutType"
+            limit-tip="IDCS_ALARMOUT_LIMIT"
             @confirm="alarmOutConfirm"
             @close="alarmOutClose"
-        ></BaseTransferDialog>
+        />
         <!-- snap弹窗 -->
         <BaseTransferDialog
             v-model="pageData.snapIsShow"
@@ -44,10 +43,10 @@
             target-title="IDCS_CHANNEL_TRGGER"
             :source-data="pageData.snapSource"
             :linked-list="pageData.snapList || []"
-            :type="pageData.snapType"
+            limit-tip="IDCS_SNAP_CHANNEL_LIMIT"
             @confirm="snapConfirm"
             @close="snapClose"
-        ></BaseTransferDialog>
+        />
         <BaseNotification v-model:notifications="pageData.notification" />
         <el-dialog
             v-model="pageData.aiResourcePopOpen"
@@ -65,22 +64,22 @@
                     prop="name"
                     :label="Translate('IDCS_CHANNEL')"
                     width="138"
-                ></el-table-column>
+                />
                 <el-table-column
                     prop="eventTypeText"
                     :label="Translate('IDCS_EVENT_TYPE')"
                     width="150"
-                ></el-table-column>
+                />
                 <el-table-column
                     prop="percent"
                     :label="Translate('IDCS_USAGE_RATE')"
                     width="100"
-                ></el-table-column>
+                />
                 <el-table-column
                     prop="decodeResource"
                     :label="Translate('IDCS_DECODE_RESOURCE')"
                     width="100"
-                ></el-table-column>
+                />
                 <el-table-column
                     :label="Translate('IDCS_FREE_AI_RESOURCE')"
                     width="70"
@@ -167,7 +166,6 @@
                         <div class="base-ai-param-box-right">
                             <el-form
                                 :model="pageData"
-                                class="narrow"
                                 :style="{
                                     '--form-input-width': '215px',
                                 }"
@@ -179,7 +177,6 @@
                                 <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
                                     <el-select
                                         v-model="pageData.schedule"
-                                        size="small"
                                         @change="pageData.applyDisable = false"
                                     >
                                         <el-option
@@ -187,12 +184,9 @@
                                             :key="item.value"
                                             :label="item.label"
                                             :value="item.value"
-                                        ></el-option>
+                                        />
                                     </el-select>
-                                    <el-button
-                                        size="small"
-                                        @click="pageData.scheduleManagePopOpen = true"
-                                    >
+                                    <el-button @click="pageData.scheduleManagePopOpen = true">
                                         {{ Translate('IDCS_MANAGE') }}
                                     </el-button>
                                 </el-form-item>
@@ -203,7 +197,6 @@
                                 <el-form-item :label="Translate('IDCS_DURATION')">
                                     <el-select
                                         v-model="pageData.holdTime"
-                                        size="small"
                                         @change="pageData.applyDisable = false"
                                     >
                                         <el-option
@@ -211,7 +204,7 @@
                                             :key="item.value"
                                             :label="item.label"
                                             :value="item.value"
-                                        ></el-option>
+                                        />
                                     </el-select>
                                 </el-form-item>
                             </el-form>
@@ -243,7 +236,6 @@
                                 <el-select
                                     v-model="pageData.sysAudio"
                                     value-key="value"
-                                    size="small"
                                     @change="pageData.applyDisable = false"
                                 >
                                     <el-option
@@ -251,7 +243,7 @@
                                         :key="item.value"
                                         :label="item.label"
                                         :value="item.value"
-                                    ></el-option>
+                                    />
                                 </el-select>
                             </el-form-item>
                         </el-form>
@@ -286,11 +278,7 @@
                             <div class="base-ai-linkage-box">
                                 <div class="base-ai-linkage-title">
                                     <span>{{ Translate('IDCS_RECORD') }}</span>
-                                    <el-button
-                                        size="small"
-                                        @click="pageData.recordIsShow = true"
-                                        >{{ Translate('IDCS_CONFIG') }}
-                                    </el-button>
+                                    <el-button @click="pageData.recordIsShow = true">{{ Translate('IDCS_CONFIG') }} </el-button>
                                 </div>
                                 <el-table
                                     :show-header="false"
@@ -304,11 +292,7 @@
                             <div class="base-ai-linkage-box">
                                 <div class="base-ai-linkage-title">
                                     <span>{{ Translate('IDCS_ALARM_OUT') }}</span>
-                                    <el-button
-                                        size="small"
-                                        @click="pageData.alarmOutIsShow = true"
-                                        >{{ Translate('IDCS_CONFIG') }}
-                                    </el-button>
+                                    <el-button @click="pageData.alarmOutIsShow = true">{{ Translate('IDCS_CONFIG') }} </el-button>
                                 </div>
                                 <el-table
                                     :show-header="false"
@@ -322,11 +306,7 @@
                             <div class="base-ai-linkage-box">
                                 <div class="base-ai-linkage-title">
                                     <span>{{ Translate('IDCS_SNAP') }}</span>
-                                    <el-button
-                                        size="small"
-                                        @click="pageData.snapIsShow = true"
-                                        >{{ Translate('IDCS_CONFIG') }}
-                                    </el-button>
+                                    <el-button @click="pageData.snapIsShow = true">{{ Translate('IDCS_CONFIG') }} </el-button>
                                 </div>
                                 <el-table
                                     :show-header="false"
@@ -337,10 +317,7 @@
                                 </el-table>
                             </div>
                             <!-- preset -->
-                            <div
-                                class="base-ai-linkage-box"
-                                :style="{ width: '350px' }"
-                            >
+                            <div class="base-ai-linkage-box preset-box">
                                 <div class="base-ai-linkage-title">
                                     <span>{{ Translate('IDCS_TRIGGER_ALARM_PRESET') }}</span>
                                 </div>
@@ -353,12 +330,11 @@
                                     <el-table-column
                                         prop="name"
                                         :label="Translate('IDCS_CHANNEL_NAME')"
-                                    ></el-table-column>
+                                    />
                                     <el-table-column :label="Translate('IDCS_PRESET_NAME')">
                                         <template #default="scope">
                                             <el-select
                                                 v-model="scope.row.preset.value"
-                                                size="small"
                                                 :empty-values="[undefined, null]"
                                                 @visible-change="getPresetById(scope.row)"
                                                 @change="pageData.applyDisable = false"

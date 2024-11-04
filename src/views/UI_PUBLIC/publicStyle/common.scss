@@ -301,6 +301,14 @@ input[type='number'] {
 
     // .el-popper/.el-dropdown/.el-select 公共样式
     .el-popper {
+        &.is-dark {
+            --el-bg-color-overlay: var(--color-black);
+        }
+
+        &.el-dropdown__popper {
+            --el-bg-color-overlay: var(--dropdown-bg);
+        }
+
         .el-dropdown-menu {
             padding: 0;
             .el-dropdown-menu__item--divided {
@@ -371,7 +379,7 @@ input[type='number'] {
         }
 
         &>.el-form-item {
-            padding: 10px 15px;
+            padding: 5px 15px;
             margin-bottom: 0;
 
             :has(.el-form-item) {
@@ -464,7 +472,6 @@ input[type='number'] {
 
             &>.el-form-item {
                 margin-bottom: 0;
-                padding: 10px 15px;
 
                 &:nth-child(even) {
                     background-color: var(--form-stripe);
@@ -485,14 +492,6 @@ input[type='number'] {
                 padding-top: 0;
             }
         }
-
-        // 减小表单项间空隙
-        &.narrow {
-            &>.el-form-item {
-                margin-bottom: 0;
-                padding: 5px 15px;
-            }
-        }
     }
 
     .el-radio {
@@ -505,7 +504,8 @@ input[type='number'] {
             flex-wrap: nowrap;
 
             .el-radio-button__inner {
-                padding-inline: 5px;
+                min-width: 80px;
+                padding-block: 5px;
             }
         }
 
@@ -519,6 +519,7 @@ input[type='number'] {
 
                 .el-radio-button__inner {
                     width: 100%;
+                    padding-block: 10px;
                 }
             }
         }
@@ -560,6 +561,7 @@ input[type='number'] {
                 &__inner {
                     width: 50px;
                     border: 1px solid var(--btn-border);
+                    padding-block: 4px;
                 }
 
                 & + .el-radio-button .el-radio-button__inner {
@@ -573,6 +575,7 @@ input[type='number'] {
 
             .el-radio-button {
                 &__inner {
+                    min-width: 80px;
                     border: 1px solid var(--btn-border);
                 }
 
@@ -590,16 +593,56 @@ input[type='number'] {
                 display: flex;
             }
         }
+
+        &.inline {
+            .el-radio {
+                margin: 0;
+                padding-inline: 5px;
+            }
+        }
+
+        &.stripe {
+            width: 100%;
+
+            .el-radio {
+                padding-inline: 10px;
+                margin: 0;
+            }
+
+            .el-radio:nth-child(even) {
+                background-color: var(--form-stripe);
+            }
+        }
     }
 
     .el-checkbox-group {
+        &.inline {
+            .el-checkbox {
+                margin: 0;
+                padding-inline: 5px;
+            }
+        }
     
         // 每个el-checkbox换行
         &.line-break {
             display: block;
-    
+            
             .el-checkbox {
                 display: flex;
+                padding-block: 5px;
+            }
+        }
+
+        &.stripe {
+            width: 100%;
+
+            .el-checkbox {
+                padding-inline: 10px;
+                margin: 0;
+            }
+
+            .el-checkbox:nth-child(even) {
+                background-color: var(--form-stripe);
             }
         }
     }

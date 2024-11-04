@@ -53,7 +53,7 @@ const emits = defineEmits<{
     (e: 'change', data: [number, number], type: string): void
 }>()
 
-const { openMessageTipBox } = useMessageBox()
+const { openMessageBox } = useMessageBox()
 const { Translate } = useLangStore()
 const dateTime = useDateTimeStore()
 
@@ -120,7 +120,7 @@ const handleNext = () => {
     }
 
     if (current[0] > dayjs().hour(23).minute(59).second(59).valueOf()) {
-        openMessageTipBox({
+        openMessageBox({
             type: 'info',
             message: Translate('IDCS_INVALID_TIME_RANGE'),
         })

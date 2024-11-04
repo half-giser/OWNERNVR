@@ -25,7 +25,7 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const userSession = useUserSessionStore()
 
         const pageData = ref({
@@ -92,26 +92,27 @@ export default defineComponent({
          * @description 备份图像到远程设备
          */
         const backupRemotePicture = async () => {
-            const items = prop.backupList
-                .map((row) => {
-                    return rawXml`
-                    <item>
-                        <chl id="${row.chlId}">${row.chlName}</chl>
-                        <captureMode>${row.captureMode.toString()}</captureMode>
-                        <captureTime>${row.captureTime}</captureTime>
-                    </item>
-                `
-                })
-                .join('')
             const sendXml = rawXml`
                 <condition>
-                    <pictures>${items}</pictures>
+                    <pictures>
+                        ${prop.backupList
+                            .map((row) => {
+                                return rawXml`
+                                    <item>
+                                        <chl id="${row.chlId}">${row.chlName}</chl>
+                                        <captureMode>${row.captureMode.toString()}</captureMode>
+                                        <captureTime>${row.captureTime}</captureTime>
+                                    </item>
+                                `
+                            })
+                            .join('')}
+                    </pictures>
                 </condition>
             `
             const result = await backupPicture(sendXml)
             const $ = queryXml(result)
             if ($('//status').text() !== 'success') {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_SAVE_FAIL'),
                 })
@@ -180,7 +181,7 @@ export default defineComponent({
                 try {
                     link.click()
                 } catch (e) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: 'Your browser does not support downloading pictures',
                     })

@@ -3,7 +3,7 @@
  * @Date: 2024-05-10 16:49:13
  * @Description: 业务应用-停车场管理-基础配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-21 17:47:38
+ * @LastEditTime: 2024-11-04 12:01:38
 -->
 <template>
     <div class="manage">
@@ -16,6 +16,7 @@
                 '--form-label-width': '200px',
             }"
             class="inline-message"
+            inline-message
         >
             <div class="limit">{{ Translate('IDCS_PARKING_LOT_MANAGE_TIPS').formatForLang(1) }}</div>
 

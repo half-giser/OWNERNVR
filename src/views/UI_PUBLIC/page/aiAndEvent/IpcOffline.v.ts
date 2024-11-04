@@ -3,7 +3,7 @@
  * @Date: 2024-08-21 15:34:24
  * @Description: 前端掉线
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 15:37:10
+ * @LastEditTime: 2024-11-04 15:49:50
  */
 import { cloneDeep } from 'lodash-es'
 import { MotionEventConfig, type PresetItem } from '@/types/apiType/aiAndEvent'
@@ -21,7 +21,7 @@ export default defineComponent({
         // ;(alarmOutRef.value as InstanceType<typeof ElDropdown>).handleOpen()
         const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
-        const openMessageTipBox = useMessageBox().openMessageTipBox
+        const openMessageBox = useMessageBox().openMessageBox
         const pageData = ref({
             pageIndex: 1,
             pageSize: 10,
@@ -41,7 +41,6 @@ export default defineComponent({
             // 表头选中的数据
             snapChosedListAll: [] as SelectOption<string, string>[],
             snapIsShow: false,
-            snapType: 'snap',
 
             // alarmOut穿梭框数据源
             alarmOutList: [] as { value: string; label: string; device: { value: string; label: string } }[],
@@ -50,7 +49,6 @@ export default defineComponent({
             // 表头选中的数据
             alarmOutChosedListAll: [] as SelectOption<string, string>[],
             alarmOutIsShow: false,
-            alarmOutType: 'alarmOut',
 
             presetList: [] as any[],
             filterChlIds: [] as string[],
@@ -131,7 +129,6 @@ export default defineComponent({
                     row.status = 'loading'
                     tableData.value.push(row)
                 })
-                console.log(tableData.value)
 
                 for (let i = 0; i < tableData.value.length; i++) {
                     const row = tableData.value[i]
@@ -502,41 +499,18 @@ export default defineComponent({
             const snapSwitch = rowData.snap.switch
             const alarmOutSwitch = rowData.alarmOut.switch
             const presetSwitch = rowData.preset.switch
-            let sendXml = rawXml`<content id="${rowData.id}">`
-            sendXml += rawXml`<sysSnap>
-                            <switch>${snapSwitch.toString()}</switch>
-                            <chls type="list">`
             if (!snapSwitch) {
                 rowData.snap = { switch: false, chls: [] }
             }
-            const snapChls = rowData.snap.chls
-            snapChls.forEach((item) => {
-                sendXml += rawXml` <item id="${item.value}">
-                                <![CDATA[${item.label}]]>
-                            </item>`
-            })
-            sendXml += rawXml`</chls>
-                    </sysSnap>`
-            sendXml += rawXml`<alarmOut>
-                            <switch>${alarmOutSwitch.toString()}</switch>
-                            <alarmOuts type="list">`
+
             if (!alarmOutSwitch) {
                 rowData.alarmOut = { switch: false, chls: [] }
             }
-            const alarmOutChls = rowData.alarmOut.chls
-            alarmOutChls.forEach((item) => {
-                sendXml += rawXml` <item id="${item.value}">
-                                <![CDATA[${item.label}]]>
-                            </item>`
-            })
-            sendXml += rawXml`</alarmOuts>
-                    </alarmOut>`
-            sendXml += rawXml`<preset>
-                            <switch>${presetSwitch.toString()}</switch>
-                            <presets type="list">`
+
             if (!presetSwitch) {
                 rowData.preset = { switch: false, presets: [] }
             }
+
             let presets = rowData.preset.presets
             if (!presets) {
                 presets = []
@@ -545,29 +519,51 @@ export default defineComponent({
             if (!(presets instanceof Array)) {
                 presets = [presets]
             }
-            presets.forEach((item) => {
-                if (item.index) {
-                    sendXml += rawXml`
-                    <item>
-                        <index>${item.index}</index>
-                        <name><![CDATA[${item.name}]]></name>
-                        <chl id="${item.chl.value}"><![CDATA[${item.chl.label}]]></chl>
-                    </item>`
-                }
-            })
-            sendXml += rawXml`</presets>
-                    </preset>`
-            sendXml += rawXml`
-                        <buzzerSwitch>${rowData.beeper}</buzzerSwitch>
-                        <popVideo>
-                            <switch>${rowData.videoPopupInfo.chl.value == ' ' ? 'false' : 'true'}</switch>
-                            <chl id="${rowData.videoPopupInfo.chl.value == ' ' ? '' : rowData.videoPopupInfo.chl.value}"></chl>
-                        </popVideo>
-                        <popMsgSwitch>${rowData.msgBoxPopup}</popMsgSwitch>
-                        <emailSwitch>${rowData.email}</emailSwitch>
-                        <msgPushSwitch>${rowData.msgPush}</msgPushSwitch>
-                        <sysAudio id='${rowData.sysAudio}'></sysAudio>
-                </content>`
+
+            const sendXml = rawXml`
+                <content id="${rowData.id}">
+                    <sysSnap>
+                        <switch>${snapSwitch.toString()}</switch>
+                        <chls type="list">
+                            ${rowData.snap.chls.map((item) => `<item id="${item.value}"><![CDATA[${item.label}]]></item>`).join('')}
+                        </chls>
+                    </sysSnap>
+                    <alarmOut>
+                        <switch>${alarmOutSwitch.toString()}</switch>
+                        <alarmOuts type="list">
+                            ${rowData.alarmOut.chls.map((item) => `<item id="${item.value}"><![CDATA[${item.label}]]></item>`).join('')}
+                        </alarmOuts>
+                    </alarmOut>
+                    <preset>
+                        <switch>${presetSwitch.toString()}</switch>
+                        <presets type="list">
+                            ${presets
+                                .map((item) => {
+                                    if (item.index) {
+                                        return rawXml`
+                                            <item>
+                                                <index>${item.index}</index>
+                                                <name><![CDATA[${item.name}]]></name>
+                                                <chl id="${item.chl.value}"><![CDATA[${item.chl.label}]]></chl>
+                                            </item>
+                                        `
+                                    }
+                                    return ''
+                                })
+                                .join('')}
+                        </presets>
+                    </preset>
+                    <buzzerSwitch>${rowData.beeper}</buzzerSwitch>
+                    <popVideo>
+                        <switch>${rowData.videoPopupInfo.chl.value == ' ' ? 'false' : 'true'}</switch>
+                        <chl id="${rowData.videoPopupInfo.chl.value == ' ' ? '' : rowData.videoPopupInfo.chl.value}"></chl>
+                    </popVideo>
+                    <popMsgSwitch>${rowData.msgBoxPopup}</popMsgSwitch>
+                    <emailSwitch>${rowData.email}</emailSwitch>
+                    <msgPushSwitch>${rowData.msgPush}</msgPushSwitch>
+                    <sysAudio id='${rowData.sysAudio}'></sysAudio>
+                </content>
+            `
             // ftpSnap无效
             // sendXml += `
             //             <buzzerSwitch>${rowData.beeper}</buzzerSwitch>
@@ -621,7 +617,7 @@ export default defineComponent({
             chosedList,
             pageData,
             tableData,
-            openMessageTipBox,
+            openMessageBox,
             getAlarmOutListSingle,
             getSnapListSingle,
             snapConfirmAll,

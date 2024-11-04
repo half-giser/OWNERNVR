@@ -17,7 +17,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
 
         const raidStatusTimer = useRefreshTimer(() => {
@@ -118,7 +118,7 @@ export default defineComponent({
          * @param {number} index
          */
         const deleteRaid = (row: DiskRaidList, index: number) => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_NOTE_DELETE_RAID').formatForLang(row.name),
             }).then(async () => {
@@ -169,7 +169,7 @@ export default defineComponent({
                         errorInfo = Translate('IDCS_DELETE_RAID_ERROR')
                 }
 
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: errorInfo,
                 })

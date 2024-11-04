@@ -28,7 +28,6 @@
             :style="{
                 '--form-input-width': '200px',
             }"
-            class="narrow"
         >
             <el-form-item>
                 <el-input

@@ -12,11 +12,35 @@
     --el-disabled-text-color: var(--input-text-disabled);
     --el-text-color-primary: var(--input-text);
     --el-text-color-secondary: var(--main-text-light);
+    --el-mask-color: var(--loading-bg);
+    --el-border-radius-base: 0;
+    --el-checkbox-border-radius: 0;
+    --el-popper-border-radius: 0;
+    --el-font-size-base: 14px;
+    --el-component-size: 26px;
+    --el-border-radius-small: 0;
+    --el-checkbox-height: 26px;
 }
 
 #n9web {
     .el-text {
         --el-text-color: var(--main-text);
+    }
+
+    .el-button {
+        min-width: 80px;
+        height: 26px;
+
+        &.is-link {
+            min-width: unset;
+        }
+    }
+
+    .el-select {
+        &__wrapper {
+            min-height: 26px;
+            padding-block: 0;
+        }
     }
 
     .el-input,
@@ -31,6 +55,17 @@
     .el-textarea {
         --el-color-primary: var(--primary);
         --el-color-primary-light-3: var(--primary);
+    }
+
+    .el-slider {
+        --el-slider-border-radius: 0;
+        --el-slider-height: 4px;
+        --el-slider-button-wrapper-offset: -16px;
+        --el-slider-runway-bg-color: var(--slider-btn-border);
+
+        &__button {
+            border-width: 4px;
+        }
     }
 
     .el-dialog {
@@ -53,6 +88,7 @@
             width: var(--form-radio-button-width);
             background-color: var(--radio-btn-bg);
             color: var(--radio-btn-text);
+            padding-block: 6px;
 
             &:hover {
                 background-color: var(--radio-btn-bg-hover);
@@ -151,13 +187,13 @@
         --el-checkbox-disabled-checked-input-border-color: var(--input-border-disabled);
         --el-checkbox-disabled-input-fill: var(--input-bg-disabled);
         --el-checkbox-disabled-checked-input-fill: var(--input-bg-disabled);
-        .el-checkbox__input {
-            &.is-disabled {
-                .el-checkbox__inner {
-                    box-shadow: 0 0 1px;
-                }
-            }
-        }
+        // .el-checkbox__input {
+        //     &.is-disabled {
+        //         .el-checkbox__inner {
+        //             box-shadow: 0 0 1px;
+        //         }
+        //     }
+        // }
     }
 
     .el-radio {
@@ -377,28 +413,39 @@
     }
 
     .el-popper {
+        --el-popover-border-radius: 0;
+
         .highlight {
             color: var(--color-error);
             &:hover {
                 color: var(--primary);
             }
         }
+    }
+
+    .el-popover {
+        background-color: var(--popover-bg);
+        border-color: var(--content-border);
+        width: fit-content;
+
+        &>.el-popper__arrow:before {
+            background-color: var(--popover-bg);
+            border-color: var(--content-border);
+        }
 
         &.no-padding {
             padding: 0;
         }
-    }
 
-    .el-popover.el-popper {
-        background-color: var(--popover-bg);
-        border-color: var(--content-border);
+        &.selector {
+            background-color: var(--main-bg);
 
-        .el-popper__arrow:before {
-            background-color: var(--popover-bg);
-            border-color: var(--content-border);
+            &>.el-popper__arrow:before {
+                background-color: var(--main-bg);
+            }
         }
     }
-    
+
     .el-row {
         align-items: center;
     }
@@ -502,6 +549,9 @@
     .el-transfer {
         --el-transfer-border-color: var(--table-border);
         --el-transfer-panel-header-bg-color: var(--transfer-title-bg);
+        --el-transfer-panel-width: 100%;
+
+        display: flex;
 
         &-panel {
             --el-bg-color-overlay: var(--main-bg);
@@ -523,6 +573,10 @@
             }
         }
 
+        &-panel__list {
+            padding: 0;
+        }
+
         &-panel__item {
             --el-checkbox-font-size: 13px;
             font-size: 13px;
@@ -530,5 +584,29 @@
                 color: var(--transfer-text);
             }
         }
+
+        &__buttons {
+            padding: 0 5px;
+            flex-shrink: 0;
+            display: flex;
+            justify-content: center;
+            flex-direction: column-reverse;
+        }
+
+        &__button {
+            min-width: 60px;
+        }
+
+        &__button:nth-child(2) {
+            margin: 0 0 5px 0;
+        }
+    }
+
+    .el-loading-mask {
+        transition: none;
+    }
+
+    .el-message-box {
+        --el-messagebox-border-radius: 0;
     }
 }

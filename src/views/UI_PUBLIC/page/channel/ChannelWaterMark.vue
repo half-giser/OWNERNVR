@@ -78,7 +78,7 @@
                         width="50"
                     >
                         <template #default="scope">
-                            <BaseTableRowStatus :icon="scope.row.status"></BaseTableRowStatus>
+                            <BaseTableRowStatus :icon="scope.row.status" />
                         </template>
                     </el-table-column>
                     <!-- 通道名 -->

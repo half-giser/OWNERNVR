@@ -13,7 +13,6 @@
     >
         <el-form
             ref="formRef"
-            class="narrow"
             :style="{
                 '--form-label-width': '180px',
             }"
@@ -24,7 +23,6 @@
             >
                 <el-time-picker
                     v-model="pageData.addTimeData"
-                    size="small"
                     value-format="HH:mm:ss"
                 />
             </el-form-item>
@@ -60,12 +58,12 @@
                 prop="chlNum"
                 :label="Translate('IDCS_CHANNEL_NUMBER')"
                 width="90"
-            ></el-table-column>
+            />
             <el-table-column
                 prop="name"
                 :label="Translate('IDCS_CHANNEL_NAME')"
                 width="308"
-            ></el-table-column>
+            />
         </el-table>
         <template #footer>
             <el-row>

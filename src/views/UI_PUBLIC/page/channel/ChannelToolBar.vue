@@ -6,7 +6,6 @@
 <template>
     <el-input
         v-model="msg"
-        size="small"
         class="base-toolbar-input"
         :placeholder="Translate('IDCS_SEARCH_CHANNEL')"
         @keydown.enter="search"
@@ -16,11 +15,7 @@
         class="base-toolbar-btn"
         @click="search"
     />
-    <el-button
-        size="small"
-        @click="addChl"
-        >{{ Translate('IDCS_ADD_CHANNEL') }}</el-button
-    >
+    <el-button @click="addChl">{{ Translate('IDCS_ADD_CHANNEL') }}</el-button>
 </template>
 
 <script lang="ts">

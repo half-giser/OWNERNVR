@@ -3,7 +3,7 @@
  * @Date: 2024-06-17 20:25:35
  * @Description: 编辑权限组弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 09:44:26
+ * @LastEditTime: 2024-11-04 15:41:45
 -->
 <template>
     <el-dialog
@@ -11,7 +11,7 @@
         width="1000"
         @open="handleOpen"
     >
-        <div class="PermGroupEdit">
+        <div>
             <el-form
                 :model="formData"
                 :style="{
@@ -24,19 +24,19 @@
                         v-model.trim="formData.name"
                         disabled
                         :formatter="displayAuthGroup"
-                    >
-                    </el-input>
+                    />
                 </el-form-item>
             </el-form>
-            <div class="system">
+            <div class="base-user-auth-box">
                 <div
                     v-for="auth in systemAuthList"
                     :key="auth.key"
+                    class="base-user-auth"
                 >
-                    <div class="title">
+                    <div class="base-user-auth-title">
                         {{ Translate(auth.key) }}
                     </div>
-                    <ul class="list">
+                    <ul class="base-user-auth-list">
                         <li
                             v-for="authItem in auth.value"
                             v-show="!authItem.hidden"
@@ -50,7 +50,7 @@
                     </ul>
                 </div>
             </div>
-            <div class="channel">
+            <div class="base-user-chl">
                 <ul>
                     <el-radio-group v-model="pageData.activeChannelTab">
                         <el-radio-button
@@ -61,13 +61,19 @@
                         />
                     </el-radio-group>
                 </ul>
-                <div class="list">
+                <div
+                    class="base-user-chl-list"
+                    :style="{
+                        '--list-height': '200px',
+                    }"
+                >
                     <div :class="{ active: pageData.activeChannelTab === 'IDCS_LOCAL_RIGHT' }">
                         <el-table
                             :data="channelAuthList"
                             border
                             stripe
                             scrollbar-always-on
+                            height="200"
                         >
                             <el-table-column
                                 prop="name"
@@ -120,6 +126,7 @@
                             border
                             stripe
                             scrollbar-always-on
+                            height="200"
                         >
                             <el-table-column
                                 prop="name"
@@ -191,6 +198,10 @@
 </template>
 
 <script lang="ts" src="./PermissionGroupEditPop.v.ts"></script>
+
+<style>
+@import '@/views/UI_PUBLIC/publicStyle/userAndSecurity.scss';
+</style>
 
 <style lang="scss" scoped>
 .PermGroupEdit {

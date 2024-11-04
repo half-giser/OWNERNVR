@@ -28,7 +28,7 @@
                         />
                     </el-select>
                 </el-form-item>
-                <el-form-item></el-form-item>
+                <el-form-item />
             </el-form-item>
             <el-form-item>
                 <el-form-item :label="Translate('IDCS_STATE')">

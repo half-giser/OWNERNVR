@@ -2,13 +2,13 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-10 17:50:24
  * @Description: 更多功能页面的框架
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-12 13:49:17
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-11-01 14:58:04
 -->
 <template>
     <div>
         <el-form
-            class="stripe narrow"
+            class="stripe"
             :style="{
                 '--form-input-width': '430px',
             }"

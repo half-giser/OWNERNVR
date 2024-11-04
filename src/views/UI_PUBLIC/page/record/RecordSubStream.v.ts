@@ -12,7 +12,7 @@ import { uniq } from 'lodash-es'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
         // “RecordSubResAdaptive” 为true时:录像子码流界面仅显示不可编辑，为false时录像子码流可以编辑
@@ -471,14 +471,14 @@ export default defineComponent({
             })
             if (smartEncodeFlag) {
                 if (count == 1) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_SIMPLE_SMART_ENCODE_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + chlName, Translate('IDCS_FACE_DETECTION')),
                     }).then(() => {
                         setRecSubStreamData()
                     })
                 } else {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_SIMPLE_SMART_ENCODE_TIPS').formatForLang(null, Translate('IDCS_FACE_DETECTION')),
                     }).then(() => {

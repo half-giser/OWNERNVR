@@ -3,7 +3,7 @@
  * @Date: 2024-08-30 18:46:48
  * @Description: 人脸库
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 11:34:23
+ * @LastEditTime: 2024-11-04 17:58:21
  */
 import { cloneDeep } from 'lodash-es'
 import { IntelFaceDBGroupList, IntelFaceDBFaceInfo } from '@/types/apiType/intelligentAnalysis'
@@ -24,7 +24,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
         const userSession = useUserSessionStore()
         const dateTime = useDateTimeStore()
@@ -134,7 +134,7 @@ export default defineComponent({
          */
         const checkPermission = () => {
             if (!userSession.facePersonnalInfoMgr) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_NO_PERMISSION'),
                 })
@@ -195,7 +195,7 @@ export default defineComponent({
             if (!checkPermission()) {
                 return
             }
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_NOTE_DELETE_ALL_FACE'),
             }).then(async () => {
@@ -230,7 +230,7 @@ export default defineComponent({
             closeLoading()
 
             if ($('//status').text() === 'success') {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 }).finally(async () => {
@@ -258,7 +258,7 @@ export default defineComponent({
                     default:
                         errorInfo = Translate('IDCS_SAVE_FAIL')
                 }
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: errorInfo,
                 })
@@ -282,7 +282,7 @@ export default defineComponent({
                 return a + b.count
             }, 0)
             if (!totalTask) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_EXPORT_FAIL'),
                 })
@@ -552,7 +552,7 @@ export default defineComponent({
             if (!checkPermission()) {
                 return
             }
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_S'),
             }).then(async () => {
@@ -607,7 +607,7 @@ export default defineComponent({
                         default:
                             errorInfo = Translate('IDCS_SAVE_FAIL')
                     }
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: errorInfo,
                     })
@@ -623,7 +623,7 @@ export default defineComponent({
                 return
             }
 
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_NOTE_CLEAR_ALL_FACE'),
             }).then(async () => {
@@ -680,7 +680,7 @@ export default defineComponent({
                     default:
                         errorInfo = Translate('IDCS_SAVE_FAIL')
                 }
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: errorInfo,
                 })
@@ -723,14 +723,13 @@ export default defineComponent({
          */
         const handleFaceRecognition = async () => {
             if (!userSession.hasAuth('alarmMgr')) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_NO_AUTH'),
                 })
             }
 
             if (history.state.backChlId) {
-                // $.webSession("ignoreAIJudge", true)
                 router.push({
                     path: '/config/alarm/faceRecognition',
                     state: {
@@ -738,17 +737,9 @@ export default defineComponent({
                     },
                 })
             } else {
-                const flag = await checkChlListCaps('faceRecognition')
-                if (flag) {
-                    router.push({
-                        path: '/config/alarm/faceRecognition',
-                    })
-                } else {
-                    openMessageTipBox({
-                        type: 'info',
-                        message: Translate('IDCS_ADD_INTEL_CHANNEL_TIP'),
-                    })
-                }
+                router.push({
+                    path: '/config/alarm/faceRecognition',
+                })
             }
         }
 

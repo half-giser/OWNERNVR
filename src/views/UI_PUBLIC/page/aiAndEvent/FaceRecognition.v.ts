@@ -20,7 +20,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
         const router = useRouter()
         const pluginStore = usePluginStore()
@@ -280,7 +280,7 @@ export default defineComponent({
 
         // 获取AI资源列表数据
         const getAIResourceData = async (isEdit: boolean) => {
-            let sendXml = rawXml``
+            let sendXml = ''
             if (isEdit) {
                 let eventType = ''
                 let enabledSwitch = ''
@@ -341,7 +341,7 @@ export default defineComponent({
                         })
                     })
                 } else {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_NO_RESOURCE'),
                     })
@@ -893,7 +893,7 @@ export default defineComponent({
 
         // 删除AI资源行数据
         const handleDelAIResource = async (row: AIResource) => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_S'),
             }).then(async () => {
@@ -1014,10 +1014,10 @@ export default defineComponent({
             if (!row.isGetPresetList) {
                 row.presetList.splice(1)
                 const sendXml = rawXml`
-                <condition>
-                    <chlId>${row.id}</chlId>
-                </condition>
-            `
+                    <condition>
+                        <chlId>${row.id}</chlId>
+                    </condition>
+                `
                 const result = await queryChlPresetList(sendXml)
                 commLoadResponseHandler(result, ($) => {
                     $('//content/presets/item').forEach((item) => {
@@ -1049,7 +1049,7 @@ export default defineComponent({
             }
 
             if (faceDetectionData.value.preset.length > MAX_TRIGGER_PRESET_COUNT) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_PRESET_LIMIT'),
                 })
@@ -1107,7 +1107,7 @@ export default defineComponent({
             })
             if (isSwitchChange && switchChangeTypeArr.length > 0) {
                 const switchChangeType = switchChangeTypeArr.join(',')
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_SIMPLE_FACE_DETECT_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + chlList[pageData.value.curChl].name, switchChangeType),
                 }).then(() => {
@@ -1261,7 +1261,7 @@ export default defineComponent({
         const addTask = () => {
             // 默认有识别成功、陌生人两项，添加的最多为3项
             if (taskTabs.value.length === 5) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_OVER_MAX_NUMBER_LIMIT'),
                 })
@@ -1299,7 +1299,7 @@ export default defineComponent({
             if (comparePageData.value.removeDisabled) {
                 return false
             }
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_S'),
             }).then(() => {
@@ -1451,12 +1451,12 @@ export default defineComponent({
             if ($('//status').text() !== 'success') {
                 const errorCode = Number($('//errorCode').text())
                 if (errorCode == ErrorCode.USER_ERROR_LIMITED_PLATFORM_VERSION_MISMATCH) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_MAX_CHANNEL_LIMIT').formatForLang(faceMatchLimitMaxChlNum),
                     })
                 } else if (errorCode === ErrorCode.USER_ERROR_PC_LICENSE_MISMATCH) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_MAX_CHANNEL_LIMIT').formatForLang(faceMatchLimitMaxChlNum) + Translate('IDCS_REBOOT_DEVICE').formatForLang(Translate('IDCS_ENABLE') + 'AI'),
                     }).then(async () => {
@@ -1478,7 +1478,9 @@ export default defineComponent({
             taskTabs.value = []
             faceCompareData.value.task = []
             const sendXml = rawXml`
-            <condition><chlId>${pageData.value.curChl}</chlId></condition>
+                <condition>
+                    <chlId>${pageData.value.curChl}</chlId>
+                </condition>
             `
             const result = await queryFaceMatchAlarmParam(sendXml)
             commLoadResponseHandler(result, ($) => {
@@ -1586,73 +1588,76 @@ export default defineComponent({
         }
 
         const getFaceCompareSaveData = () => {
-            let sendXml = rawXml`
+            const sendXml = rawXml`
                 <content>
                     <chl id='${pageData.value.curChl}'>
-                    <task>
+                        <task>
+                            ${faceCompareData.value.task
+                                .map((item) => {
+                                    return rawXml`
+                                        <item guid='${item.guid}' id='${item.id}'>
+                                            <param>
+                                                <ruleType>${item.ruleType}</ruleType>
+                                                <pluseSwitch>${String(item.pluseSwitch)}</pluseSwitch>
+                                                <nameId>${String(item.nameId)}</nameId>
+                                                <groupId>
+                                                    ${item.groupId.map((ele) => `<item guid='${ele}'></item>`).join('')}
+                                                </groupId>
+                                                <hint>
+                                                    <word>${item.hintword}</word>
+                                                </hint>
+                                            </param>
+                                            <schedule id='${item.schedule}'></schedule>
+                                            <trigger>
+                                                <sysAudio id='${item.sysAudio}'></sysAudio>
+                                                <buzzerSwitch>${String(item.buzzerSwitch)}</buzzerSwitch>
+                                                <popMsgSwitch>${String(item.popMsgSwitch)}</popMsgSwitch>
+                                                <emailSwitch>${String(item.emailSwitch)}</emailSwitch>
+                                                <msgPushSwitch>${String(item.msgPushSwitch)}</msgPushSwitch>
+                                                <popVideo><switch>${String(item.popVideoSwitch)}</switch><chls><item id='${pageData.value.curChl}'></item></chls></popVideo>
+                                                <alarmOut>
+                                                    <switch>true</switch>
+                                                    <alarmOuts type='list'>
+                                                        ${item.alarmOut.map((ele) => `<item id='${ele.value}'></item>`).join('')}
+                                                    </alarmOuts>
+                                                </alarmOut>
+                                                <preset>
+                                                    <switch>${item.preset.length == 0 ? 'false' : 'true'}</switch>
+                                                    <presets type='list'>
+                                                        ${item.preset
+                                                            .map((ele) => {
+                                                                return rawXml`
+                                                                    <item>
+                                                                        <index>${ele.index}</index>
+                                                                        <name><![CDATA[${ele.name}]]></name>
+                                                                        <chl id='${ele.chl.value}'><![CDATA[${ele.chl.label}]]></chl>
+                                                                    </item>
+                                                                `
+                                                            })
+                                                            .join('')}
+                                                    </presets>
+                                                </preset>
+                                                <sysRec>
+                                                    <switch>true</switch>
+                                                    <chls type='list'>
+                                                        ${item.record.map((ele) => `<item id='${ele.value}'></item>`).join('')}
+                                                    </chls>
+                                                </sysRec>
+                                                <sysSnap>
+                                                    <switch>true</switch>
+                                                    <chls type='list'>
+                                                        ${item.snap.map((ele) => `<item id='${ele.value}'></item>`).join('')}
+                                                    </chls>
+                                                </sysSnap>
+                                            </trigger>
+                                        </item>
+                                    `
+                                })
+                                .join('')}
+                        </task>
+                    </chl>
+                </content>
             `
-            faceCompareData.value.task.forEach((item) => {
-                sendXml += rawXml`<item guid='${item.guid}' id='${item.id}'>
-                    <param>
-                        <ruleType>${item.ruleType}</ruleType>
-                        <pluseSwitch>${String(item.pluseSwitch)}</pluseSwitch>
-                        <nameId>${String(item.nameId)}</nameId>
-                        <groupId>
-                `
-                item.groupId.forEach((ele) => {
-                    sendXml += `<item guid='${ele}'></item>`
-                })
-                sendXml += rawXml`</groupId>
-                    <hint>
-                        <word>${item.hintword}</word>
-                    </hint></param>
-                    <schedule id='${item.schedule}'></schedule>
-                    <trigger>
-                        <sysAudio id='${item.sysAudio}'></sysAudio>
-                        <buzzerSwitch>${String(item.buzzerSwitch)}</buzzerSwitch>
-                        <popMsgSwitch>${String(item.popMsgSwitch)}</popMsgSwitch>
-                        <emailSwitch>${String(item.emailSwitch)}</emailSwitch>
-                        <msgPushSwitch>${String(item.msgPushSwitch)}</msgPushSwitch>
-                        <popVideo><switch>${String(item.popVideoSwitch)}</switch><chls><item id='${pageData.value.curChl}'></item></chls></popVideo>
-                        <alarmOut><switch>true</switch><alarmOuts type='list'>
-                `
-                item.alarmOut.forEach((ele) => {
-                    sendXml += `<item id='${ele.value}'></item>`
-                })
-                sendXml += rawXml`
-                </alarmOuts></alarmOut>
-                <preset><switch>${item.preset.length == 0 ? 'false' : 'true'}</switch>
-                <presets type='list'>
-                `
-                item.preset.forEach((ele) => {
-                    sendXml += rawXml`
-                    <item>
-                        <index>${ele.index}</index>
-                        <name><![CDATA[${ele.name}]]></name>
-                        <chl id='${ele.chl.value}'><![CDATA[${ele.chl.label}]]></chl>
-                    </item>
-                `
-                })
-                sendXml += rawXml`
-                    </presets></preset>
-                    <sysRec><switch>true</switch><chls type='list'>
-                `
-                item.record.forEach((ele) => {
-                    sendXml += `<item id='${ele.value}'></item>`
-                })
-                sendXml += rawXml`
-                    </chls></sysRec>
-                    <sysSnap><switch>true</switch><chls type='list'>
-                `
-                item.snap.forEach((ele) => {
-                    sendXml += `<item id='${ele.value}'></item>`
-                })
-                sendXml += rawXml`
-                    </chls></sysSnap></trigger>
-                    </item>
-                `
-            })
-            sendXml += `</task></chl></content>`
             return sendXml
         }
 

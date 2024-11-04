@@ -127,8 +127,7 @@
                                     :label="Translate('IDCS_SERIAL_NUMBER')"
                                     type="index"
                                     width="60"
-                                >
-                                </el-table-column>
+                                />
                                 <el-table-column
                                     :label="Translate('IDCS_ENABLE')"
                                     prop="enable"

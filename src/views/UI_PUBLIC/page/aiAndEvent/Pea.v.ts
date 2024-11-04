@@ -41,7 +41,7 @@ export default defineComponent({
     setup(props) {
         type CanvasPolygonAreaType = 'detectionArea' | 'maskArea' | 'regionArea' // 侦测-"detectionArea"/屏蔽-"maskArea"/矩形-"regionArea"
         const { openLoading, closeLoading } = useLoading()
-        const openMessageTipBox = useMessageBox().openMessageTipBox
+        const openMessageBox = useMessageBox().openMessageBox
         const systemCaps = useCababilityStore()
         const { Translate } = useLangStore()
         const pluginStore = usePluginStore()
@@ -305,7 +305,7 @@ export default defineComponent({
                         })
                     })
                 } else {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_NO_RESOURCE'),
                     })
@@ -317,15 +317,15 @@ export default defineComponent({
 
         // 删除AI资源请求
         const deleteAIResource = async (row: aiResourceRow) => {
-            let sendXml = rawXml`<content>
-                                    <chl id="${row.id}">
-                                        <param>`
-            row.eventType.forEach((item) => {
-                sendXml += rawXml`<item>${item}</item>`
-            })
-            sendXml += rawXml`</param>
-                            </chl>
-                        </content>`
+            const sendXml = rawXml`
+                <content>
+                    <chl id="${row.id}">
+                        <param>
+                            ${row.eventType.map((item) => `<item>${item}</item>`).join('')}
+                        </param>
+                    </chl>
+                </content>
+            `
             openLoading()
             const res = await freeAIOccupyResource(sendXml)
             closeLoading()
@@ -337,7 +337,7 @@ export default defineComponent({
 
         // 点击释放AI资源
         const handleAIResourceDel = async (row: aiResourceRow) => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_S'),
             }).then(() => {
@@ -573,143 +573,128 @@ export default defineComponent({
 
         // 保存区域入侵检测数据
         const savePeaData = async () => {
-            let sendXml = rawXml`<content>
-                                        <chl id="${peaData.value.currChlId}" scheduleGuid="${peaData.value.pea_schedule}">
-                                    `
-            peaData.value.supportList.forEach((type: string) => {
-                if (type != peaData.value.activity_type) {
-                    peaData.value.areaCfgData[type].detectionEnable = false
-                }
-                sendXml += rawXml`
-                            <${type}>
-                                <param>
-                                    <switch>${peaData.value.areaCfgData[type].detectionEnable.toString()}</switch>
-                                    <alarmHoldTime unit="s">${peaData.value.areaCfgData[type].holdTime.toString()}</alarmHoldTime>
-                                    <boundary type="list" count="${peaData.value.areaCfgData[type].boundaryInfo.length.toString()}">
-                                        <itemType>
-                                            <point type="list"/>
-                                        </itemType>
-                        `
-                peaData.value.areaCfgData[type].boundaryInfo.forEach((element: { point: { X: number; Y: number; isClosed?: boolean }[]; maxCount: number; configured: boolean }) => {
-                    sendXml += rawXml`<item>
-                                        <point type="list" maxCount="${element.maxCount.toString()}" count="${element.point.length.toString()}">`
-                    element.point.forEach((point: { X: number; Y: number; isClosed?: boolean }) => {
-                        sendXml += rawXml`
-                                            <item>
-                                                <X>${Math.round(point.X).toString()}</X>
-                                                <Y>${Math.round(point.Y).toString()}</Y>
-                                            </item>s
-                                        `
-                    })
-                    sendXml += rawXml`</point>
-                                    </item>`
-                })
-                sendXml += rawXml`</boundary>`
-                if (peaData.value.areaCfgData[type].audioSuport && peaData.value.chlData.supportAudio) {
-                    sendXml += rawXml`<triggerAudio>${peaData.value.areaCfgData[type].triggerAudio.toString()}</triggerAudio>`
-                }
-
-                if (peaData.value.areaCfgData[type].lightSuport && peaData.value.chlData.supportWhiteLight) {
-                    sendXml += rawXml`<triggerWhiteLight>${peaData.value.areaCfgData[type].triggerWhiteLight.toString()}</triggerWhiteLight>`
-                }
-
-                if (peaData.value.areaCfgData[type].pictureAvailable) {
-                    sendXml += rawXml`
-                        <saveSourcePicture>${peaData.value.areaCfgData[type].saveSourcePicture.toString()}</saveSourcePicture>
-                        <saveTargetPicture>${peaData.value.areaCfgData[type].saveTargetPicture.toString()}</saveTargetPicture>
-                    `
-                }
-
-                if (peaData.value.areaCfgData[type].hasAutoTrack) {
-                    sendXml += rawXml`<autoTrack>${peaData.value.areaCfgData[type].autoTrack.toString()}</autoTrack>`
-                }
-
-                if (peaData.value.areaCfgData[type].pea_onlyPreson) {
-                    sendXml += rawXml`<sensitivity>${peaData.value.areaCfgData[type].onlyPersonSensitivity.toString()}</sensitivity>`
-                }
-
-                if (peaData.value.areaCfgData[type].hasObj) {
-                    sendXml += rawXml`
-                                        <objectFilter>
-                                            <car>
-                                                <switch>${peaData.value.areaCfgData[type].car.toString()}</switch>
-                                                <sensitivity>${peaData.value.areaCfgData[type].carSensitivity.toString()}</sensitivity>
-                                            </car>
-                                            <person>
-                                                <switch>${peaData.value.areaCfgData[type].person.toString()}</switch>
-                                                <sensitivity>${peaData.value.areaCfgData[type].personSensitivity.toString()}</sensitivity>
-                                            </person>
+            const sendXml = rawXml`
+                <content>
+                    <chl id="${peaData.value.currChlId}" scheduleGuid="${peaData.value.pea_schedule}">
+                        ${peaData.value.supportList
+                            .map((type) => {
+                                if (type != peaData.value.activity_type) {
+                                    peaData.value.areaCfgData[type].detectionEnable = false
+                                }
+                                return rawXml`
+                                    <${type}>
+                                        <param>
+                                            <switch>${peaData.value.areaCfgData[type].detectionEnable.toString()}</switch>
+                                            <alarmHoldTime unit="s">${peaData.value.areaCfgData[type].holdTime.toString()}</alarmHoldTime>
+                                            <boundary type="list" count="${peaData.value.areaCfgData[type].boundaryInfo.length.toString()}">
+                                                <itemType>
+                                                    <point type="list"/>
+                                                </itemType>
+                                                ${peaData.value.areaCfgData[type].boundaryInfo
+                                                    .map((element) => {
+                                                        return rawXml`
+                                                            <item>
+                                                                <point type="list" maxCount="${element.maxCount.toString()}" count="${element.point.length.toString()}">
+                                                                    ${element.point
+                                                                        .map((point) => {
+                                                                            return rawXml`
+                                                                            <item>
+                                                                                <X>${Math.round(point.X).toString()}</X>
+                                                                                <Y>${Math.round(point.Y).toString()}</Y>
+                                                                            </item>
+                                                                        `
+                                                                        })
+                                                                        .join('')}
+                                                                </point>
+                                                            </item>
+                                                        `
+                                                    })
+                                                    .join('')}
+                                            </boundary>
+                                            ${peaData.value.areaCfgData[type].audioSuport && peaData.value.chlData.supportAudio ? `<triggerAudio>${peaData.value.areaCfgData[type].triggerAudio.toString()}</triggerAudio>` : ''}
+                                            ${peaData.value.areaCfgData[type].lightSuport && peaData.value.chlData.supportWhiteLight ? `<triggerWhiteLight>${peaData.value.areaCfgData[type].triggerWhiteLight.toString()}</triggerWhiteLight>` : ''}
                                             ${
-                                                peaData.value.chlData.accessType == '0'
+                                                peaData.value.areaCfgData[type].pictureAvailable
                                                     ? rawXml`
-                                            <motor>
-                                                <switch>${peaData.value.areaCfgData[type].motorcycle.toString()}</switch>
-                                                <sensitivity>${peaData.value.areaCfgData[type].motorSensitivity.toString()}</sensitivity>
-                                            </motor>
-                                            `
+                                                        <saveSourcePicture>${peaData.value.areaCfgData[type].saveSourcePicture.toString()}</saveSourcePicture>
+                                                        <saveTargetPicture>${peaData.value.areaCfgData[type].saveTargetPicture.toString()}</saveTargetPicture>
+                                                    `
                                                     : ''
                                             }
-                                        </objectFilter>
-                                    `
-                }
-                sendXml += rawXml`</param>
-                            <trigger>
-                                <sysRec>
-                                    <chls type="list">`
-                sendXml += peaData.value.areaCfgData[type].recordChls
-                    .map(
-                        (element: { value: string; label: string }) => rawXml`
-                                            <item id="${element.value}">
-                                                <![CDATA[${element.label}]]>
-                                            </item>
-                                        `,
-                    )
-                    .join('')
-                sendXml += rawXml`</chls>
-                                </sysRec>
-                                <alarmOut>
-                                    <alarmOuts type="list">`
-                sendXml += peaData.value.areaCfgData[type].alarmOutChls
-                    .map(
-                        (element: { value: string; label: string }) => rawXml`
-                                            <item id="${element.value}">
-                                                <![CDATA[${element.label}]]>
-                                            </item>
-                                        `,
-                    )
-                    .join('')
-                sendXml += rawXml`</alarmOuts>
-                                </alarmOut>
-                                <preset>
-                                    <presets type="list">`
-                peaData.value.areaCfgData[type].presetSource.forEach((element: PresetList) => {
-                    if (element.preset.value) {
-                        sendXml += rawXml`
-                                            <item>
-                                                <index>${element.preset.value}</index>
-                                                <name><![CDATA[${element.preset.label}]]></name>
-                                                <chl id="${element.id}">
-                                                    <![CDATA[${element.name}]]>
-                                                </chl>
-                                            </item>
-                                        `
-                    }
-                })
-                sendXml += rawXml`</presets>
-                                </preset>
-                                <snapSwitch>${peaData.value.areaCfgData[type].snapSwitch.toString()}</snapSwitch>
-                                <msgPushSwitch>${peaData.value.areaCfgData[type].msgPushSwitch.toString()}</msgPushSwitch>
-                                <buzzerSwitch>${peaData.value.areaCfgData[type].buzzerSwitch.toString()}</buzzerSwitch>
-                                <popVideoSwitch>${peaData.value.areaCfgData[type].popVideoSwitch.toString()}</popVideoSwitch>
-                                <emailSwitch>${peaData.value.areaCfgData[type].emailSwitch.toString()}</emailSwitch>
-                                <sysAudio id='${peaData.value.areaCfgData[type].sysAudio}'></sysAudio>
-                            </trigger>
-                        </${type}>
-                    `
-            })
-            sendXml += rawXml`
-                            </chl>
-                        </content>`
+                                            ${peaData.value.areaCfgData[type].hasAutoTrack ? `<autoTrack>${peaData.value.areaCfgData[type].autoTrack.toString()}</autoTrack>` : ''}
+                                            ${peaData.value.areaCfgData[type].pea_onlyPreson ? `<sensitivity>${peaData.value.areaCfgData[type].onlyPersonSensitivity.toString()}</sensitivity>` : ''}
+                                            ${
+                                                peaData.value.areaCfgData[type].hasObj
+                                                    ? rawXml`
+                                                        <objectFilter>
+                                                            <car>
+                                                                <switch>${peaData.value.areaCfgData[type].car.toString()}</switch>
+                                                                <sensitivity>${peaData.value.areaCfgData[type].carSensitivity.toString()}</sensitivity>
+                                                            </car>
+                                                            <person>
+                                                                <switch>${peaData.value.areaCfgData[type].person.toString()}</switch>
+                                                                <sensitivity>${peaData.value.areaCfgData[type].personSensitivity.toString()}</sensitivity>
+                                                            </person>
+                                                            ${
+                                                                peaData.value.chlData.accessType == '0'
+                                                                    ? rawXml`
+                                                                        <motor>
+                                                                            <switch>${peaData.value.areaCfgData[type].motorcycle.toString()}</switch>
+                                                                            <sensitivity>${peaData.value.areaCfgData[type].motorSensitivity.toString()}</sensitivity>
+                                                                        </motor>
+                                                                    `
+                                                                    : ''
+                                                            }
+                                                        </objectFilter>
+                                                    `
+                                                    : ''
+                                            }
+                                        </param>
+                                        <trigger>
+                                            <sysRec>
+                                                <chls type="list">
+                                                    ${peaData.value.areaCfgData[type].recordChls.map((element) => `<item id="${element.value}"><![CDATA[${element.label}]]></item>`).join('')}
+                                                </chls>
+                                            </sysRec>
+                                            <alarmOut>
+                                                <alarmOuts type="list">
+                                                    ${peaData.value.areaCfgData[type].alarmOutChls.map((element) => `<item id="${element.value}"><![CDATA[${element.label}]]></item>`).join('')}
+                                                </alarmOuts>
+                                            </alarmOut>
+                                            <preset>
+                                                <presets type="list">
+                                                    ${peaData.value.areaCfgData[type].presetSource
+                                                        .map((element) => {
+                                                            if (element.preset.value) {
+                                                                return rawXml`
+                                                                    <item>
+                                                                        <index>${element.preset.value}</index>
+                                                                        <name><![CDATA[${element.preset.label}]]></name>
+                                                                        <chl id="${element.id}">
+                                                                            <![CDATA[${element.name}]]>
+                                                                        </chl>
+                                                                    </item>
+                                                                `
+                                                            }
+                                                            return ''
+                                                        })
+                                                        .join('')}
+                                                </presets>
+                                            </preset>
+                                            <snapSwitch>${peaData.value.areaCfgData[type].snapSwitch.toString()}</snapSwitch>
+                                            <msgPushSwitch>${peaData.value.areaCfgData[type].msgPushSwitch.toString()}</msgPushSwitch>
+                                            <buzzerSwitch>${peaData.value.areaCfgData[type].buzzerSwitch.toString()}</buzzerSwitch>
+                                            <popVideoSwitch>${peaData.value.areaCfgData[type].popVideoSwitch.toString()}</popVideoSwitch>
+                                            <emailSwitch>${peaData.value.areaCfgData[type].emailSwitch.toString()}</emailSwitch>
+                                            <sysAudio id='${peaData.value.areaCfgData[type].sysAudio}'></sysAudio>
+                                        </trigger>
+                                    </${type}>
+                                `
+                            })
+                            .join('')}
+                    </chl>
+                </content>
+            `
             openLoading()
             const $ = await editIntelAreaConfig(sendXml)
             const res = queryXml($)
@@ -727,7 +712,7 @@ export default defineComponent({
             } else {
                 const errorCode = Number(res('errorCode').text())
                 if (errorCode === 536871053) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_INPUT_LIMIT_FOUR_POIONT'),
                     })
@@ -761,7 +746,7 @@ export default defineComponent({
             })
             if (isSwitchChange && switchChangeTypeArr.length > 0) {
                 const switchChangeType = switchChangeTypeArr.join(',')
-                openMessageTipBox({
+                openMessageBox({
                     type: 'question',
                     message: Translate('IDCS_SIMPLE_INVADE_DETECT_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + peaData.value.chlData.name, switchChangeType),
                 }).then(async () => {
@@ -910,13 +895,13 @@ export default defineComponent({
                 for (const i in allRegionList) {
                     const count = allRegionList[i].length
                     if (count > 0 && count < 4) {
-                        openMessageTipBox({
+                        openMessageBox({
                             type: 'info',
                             message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_INPUT_LIMIT_FOUR_POIONT'),
                         })
                         return false
                     } else if (count > 0 && !judgeAreaCanBeClosed(allRegionList[i])) {
-                        openMessageTipBox({
+                        openMessageBox({
                             type: 'info',
                             message: Translate('IDCS_INTERSECT'),
                         })
@@ -1115,13 +1100,15 @@ export default defineComponent({
 
         // 通用修改云台锁定状态
         const editLockStatus = () => {
-            const sendXML = rawXml`<content>
-                                        <chl id='${peaData.value.currChlId}'>
-                                            <param>
-                                                <PTZLock>${(!peaData.value.lockStatus).toString()}</PTZLock>
-                                            </param>
-                                        </chl>
-                                    </content>`
+            const sendXML = rawXml`
+                <content>
+                    <chl id='${peaData.value.currChlId}'>
+                        <param>
+                            <PTZLock>${(!peaData.value.lockStatus).toString()}</PTZLock>
+                        </param>
+                    </chl>
+                </content>
+            `
             openLoading()
             editBallIPCPTZLockCfg(sendXML).then((res) => {
                 const $ = queryXml(res)
@@ -1354,7 +1341,7 @@ export default defineComponent({
         // 提示区域关闭
         const peaForceClosePath = (canBeClosed: boolean) => {
             if (!canBeClosed) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_INTERSECT'),
                 })
@@ -1367,7 +1354,7 @@ export default defineComponent({
             const area = peaData.value.chosenWarnAreaIndex
             // const length = cloneDeep(peaData.value.areaCfgData[currType]['boundaryInfo'][area]['point'].length)
             // if (length == 6) {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DRAW_CLEAR_TIP'),
             }).then(() => {
@@ -1496,7 +1483,7 @@ export default defineComponent({
                 peaClearCurrentArea()
             } else if (errorCode == '515') {
                 // 515-区域有相交直线，不可闭合
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_INTERSECT'),
                 })

@@ -5,7 +5,7 @@
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
  * @LastEditTime: 2024-10-30 17:27:18
  */
-import { ElDialog, ElInputNumber, ElPagination, ElForm, ElTooltip, ElSelect, ElTable, ElDropdown, ElPopover, ElDatePicker } from 'element-plus'
+import { ElDialog, ElInputNumber, ElPagination, ElForm, ElTooltip, ElSelect, ElTable, ElDropdown, ElPopover, ElDatePicker, ElSlider } from 'element-plus'
 import { type PropType } from 'vue'
 
 ElPagination.props.layout = {
@@ -113,6 +113,11 @@ ElDatePicker.props.cellClassName = {
 }
 
 ElDatePicker.props.clearable = {
+    type: Boolean,
+    default: false,
+}
+
+ElSlider.props.showInputControls = {
     type: Boolean,
     default: false,
 }

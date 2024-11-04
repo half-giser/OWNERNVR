@@ -11,7 +11,7 @@ import { type FormInstance, type FormRules } from 'element-plus'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const userSession = useUserSessionStore()
 
@@ -287,12 +287,12 @@ export default defineComponent({
                 const $ = queryXml(result)
 
                 if ($('//status').text() === 'success') {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'success',
                         message: current.value.isRegisterBtn ? Translate('IDCS_REGISTER_SUCCESS') : Translate('IDCS_TEST_SUCCESS'),
                     })
                 } else {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate($('//errorDescription').text()),
                     })

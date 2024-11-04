@@ -66,14 +66,12 @@
                         :max="tableData[pageData.tableIndex].maxOpacity"
                         :disabled="tableData[pageData.tableIndex].disabled"
                         show-input
-                        :show-input-controls="false"
                         @change="addEditRow(pageData.tableIndex)"
                     />
                     <el-slider
                         v-else
                         disabled
                         show-input
-                        :show-input-controls="false"
                     />
                 </el-form-item>
             </el-form>
@@ -95,7 +93,7 @@
                         width="50"
                     >
                         <template #default="scope">
-                            <BaseTableRowStatus :icon="scope.row.status"></BaseTableRowStatus>
+                            <BaseTableRowStatus :icon="scope.row.status" />
                         </template>
                     </el-table-column>
                     <!-- 通道名 -->
@@ -138,8 +136,7 @@
                                     :key="item.value"
                                     :value="item.value"
                                     :label="item.label"
-                                >
-                                </el-option>
+                                />
                             </el-select>
                         </template>
                     </el-table-column>

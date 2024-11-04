@@ -25,7 +25,7 @@
                 <span class="text">{{ item }}</span>
             </div>
         </div>
-        <canvas ref="$canvas" />
+        <canvas ref="$canvas"></canvas>
         <div
             v-show="needPagination"
             class="pagination"

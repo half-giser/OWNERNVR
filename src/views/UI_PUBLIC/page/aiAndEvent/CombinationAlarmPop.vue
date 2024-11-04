@@ -2,8 +2,8 @@
  * @Description: 普通事件——组合报警弹窗
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-23 15:02:52
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-28 10:43:54
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-11-01 14:48:23
 -->
 <template>
     <el-dialog
@@ -18,7 +18,7 @@
             border
             :data="tableData"
             highlight-current-row
-            :style="{ height: '240px' }"
+            height="240"
             @current-change="rowChange"
         >
             <!-- 序号 -->
@@ -35,7 +35,6 @@
                 <template #default="scope">
                     <el-select
                         v-model="scope.row.alarmSourceType"
-                        size="small"
                         @change="typeChange(scope.row, scope.$index)"
                     >
                         <el-option
@@ -55,7 +54,6 @@
                 <template #default="scope">
                     <el-select
                         v-model="scope.row.alarmSourceEntity.value"
-                        size="small"
                         :empty-values="[undefined, null]"
                         @change="entityChange(scope.row)"
                     >
@@ -92,11 +90,7 @@
                 class="detect"
             >
                 <span class="detectText">{{ `${pageData.detectEntity} ${pageData.detectType} ${Translate('IDCS_DISABLE')}` }}</span>
-                <el-button
-                    size="small"
-                    @click="clickChangeDetect"
-                    >{{ pageData.detectBtn.label }}</el-button
-                >
+                <el-button @click="clickChangeDetect">{{ pageData.detectBtn.label }}</el-button>
             </div>
             <span>{{ Translate('IDCS_CONDITION_TIP') }}</span>
             <div class="description">
@@ -127,7 +121,7 @@
             :linked-obj="pageData.linkedObj"
             @confirm="handleFaceMatchLinkedObj"
             @close="pageData.isFaceMatchPopShow = false"
-        ></FaceMatchPop>
+        />
     </el-dialog>
 </template>
 

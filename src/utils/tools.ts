@@ -3,7 +3,7 @@
  * @Date: 2023-04-28 17:57:48
  * @Description: 工具方法
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-31 13:41:50
+ * @LastEditTime: 2024-11-04 17:00:08
  */
 
 import { type QueryNodeListDto } from '@/types/apiType/channel'
@@ -490,7 +490,7 @@ export const getChlList = (options: Partial<QueryNodeListDto>) => {
 }
 
 /**
- * @description 传入当前页的路由 检测通道能力集
+ * @description 传入当前页的路由 检测通道能力集. AI智能事件跳转时,若当前没有通道支持则提示添加通道不进行页面跳转
  * @param {string} route
  * @returns {Promise<Boolean>}
  */
@@ -594,13 +594,13 @@ export const checkChlListCaps = async (route: string) => {
 export const commLoadResponseHandler = ($response: any, successHandler?: (result: (path: string) => XmlResult) => void, failedHandler?: (result: (path: string) => XmlResult) => void) => {
     return new Promise((resolve: ($: (path: string) => XmlResult) => void, reject: ($: (path: string) => XmlResult) => void) => {
         const Translate = useLangStore().Translate
-        const openMessageTipBox = useMessageBox().openMessageTipBox
+        const openMessageBox = useMessageBox().openMessageBox
         const $ = queryXml($response)
         if ($('status').text() == 'success') {
             successHandler && successHandler($)
             resolve($)
         } else {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'info',
                 message: Translate('IDCS_QUERY_DATA_FAIL'),
             }).then(() => {
@@ -620,10 +620,10 @@ export const commLoadResponseHandler = ($response: any, successHandler?: (result
 export const commSaveResponseHadler = ($response: ApiResult, successHandler?: (result: (path: string) => XmlResult) => void, failedHandler?: (result: (path: string) => XmlResult) => void) => {
     return new Promise((resolve: ($: (path: string) => XmlResult) => void, reject: ($: (path: string) => XmlResult) => void) => {
         const Translate = useLangStore().Translate
-        const openMessageTipBox = useMessageBox().openMessageTipBox
+        const openMessageBox = useMessageBox().openMessageBox
         const $ = queryXml($response)
         if ($('//status').text() == 'success') {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'success',
                 message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 showCancelButton: false,
@@ -632,7 +632,7 @@ export const commSaveResponseHadler = ($response: ApiResult, successHandler?: (r
                 resolve($)
             })
         } else {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'info',
                 message: Translate('IDCS_SAVE_DATA_FAIL'),
                 showCancelButton: false,
@@ -667,11 +667,11 @@ export const commMutiSaveResponseHadler = (
         }
     })
     const Translate = useLangStore().Translate
-    const openMessageTipBox = useMessageBox().openMessageTipBox
+    const openMessageBox = useMessageBox().openMessageBox
 
     return new Promise((resolve: (responseXmlList: ((path: string) => XmlResult)[]) => void, reject: (responseXmlList: ((path: string) => XmlResult)[]) => void) => {
         if (allSuccess) {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'success',
                 message: Translate('IDCS_SAVE_DATA_SUCCESS'),
             }).then(() => {
@@ -679,7 +679,7 @@ export const commMutiSaveResponseHadler = (
                 resolve(responseXmlList)
             })
         } else {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'info',
                 message: Translate('IDCS_SAVE_DATA_FAIL'),
             }).then(() => {
@@ -896,7 +896,7 @@ export const getIpNumber = (ip: string) => {
  * @returns {NodeJS.Timeout}
  */
 export const reconnect = () => {
-    const { openMessageTipBox } = useMessageBox()
+    const { openMessageBox } = useMessageBox()
     const { Translate } = useLangStore()
     const pluginStore = usePluginStore()
     const { closeLoading } = useLoading()
@@ -904,7 +904,7 @@ export const reconnect = () => {
     if (import.meta.env.VITE_APP_TYPE === 'STANDARD') {
         return setTimeout(() => {
             reconnectStandard(() => {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_LOGIN_OVERTIME'),
                 }).then(() => {
@@ -1160,11 +1160,11 @@ export const getAlarmEventList = () => {
  */
 export const showMaxSearchLimitTips = ($: XMLQuery) => {
     const isMaxSearchResultNum = $('//content/IsMaxSearchResultNum').text().toBoolean()
-    const { openMessageTipBox } = useMessageBox()
+    const { openMessageBox } = useMessageBox()
     const { Translate } = useLangStore()
 
     if (isMaxSearchResultNum) {
-        openMessageTipBox({
+        openMessageBox({
             type: 'info',
             message: Translate('IDCS_SEARCH_RESULT_LIMIT_TIPS'),
         })

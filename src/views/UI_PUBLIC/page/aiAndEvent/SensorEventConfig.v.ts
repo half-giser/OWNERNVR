@@ -17,7 +17,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
@@ -204,10 +204,10 @@ export default defineComponent({
 
         const getDataById = async (rowData: SensorEvent) => {
             const sendXml = rawXml`
-                    <condition>
-                        <alarmInId>${rowData.id}</alarmInId>
-                    </condition>
-                    `
+                <condition>
+                    <alarmInId>${rowData.id}</alarmInId>
+                </condition>
+            `
             const result = await queryAlarmIn(sendXml)
             rowData.status = '' // 请求完成，取消loading状态
             commLoadResponseHandler(result, ($) => {
@@ -337,14 +337,14 @@ export default defineComponent({
         const nameBlur = (row: SensorEvent) => {
             const name = row.name
             if (!checkChlName(name)) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS'),
                 })
                 row.name = originalName.value
             } else {
                 if (!name) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_PROMPT_NAME_EMPTY'),
                     })
@@ -353,7 +353,7 @@ export default defineComponent({
 
                 for (const item of tableData.value) {
                     if (item.id != row.id && name == item.name) {
-                        openMessageTipBox({
+                        openMessageBox({
                             type: 'info',
                             message: Translate('IDCS_NAME_SAME'),
                         })
@@ -640,7 +640,7 @@ export default defineComponent({
         }
 
         const getSavaData = (row: SensorEvent) => {
-            let sendXml = rawXml`
+            const sendXml = rawXml`
                 <types>
                     <alarmInVoltage>
                         <enum>NO</enum>
@@ -654,73 +654,55 @@ export default defineComponent({
                         <switch>${row.switch}</switch>
                         <holdTime unit='s'>${row.holdTime}</holdTime>
                     </param>
-                `
-            //sysRec通道遍历
-            sendXml += rawXml`
                     <trigger>
                         <sysRec>
                             <switch>${String(row.sysRec.switch)}</switch>
                             <chls type='list'>
-                `
-            row.sysRec.chls.forEach((item) => {
-                sendXml += rawXml`<item id='${item.value}'>
-                    <![CDATA[${item.label}]]></item>
-                `
-            })
-            //sysSnap通道遍历
-            sendXml += rawXml`</chls>
-                </sysRec>
-                <sysSnap>
-                    <switch>${String(row.sysSnap.switch)}</switch>
-                    <chls type='list'>
-                `
-            row.sysSnap.chls.forEach((item) => {
-                sendXml += rawXml`<item id='${item.value}'>
-                    <![CDATA[${item.label}]]></item>
-                `
-            })
-            //alarmOut通道遍历
-            sendXml += rawXml`</chls>
-                </sysSnap>
-                <alarmOut>
-                    <switch>${String(row.alarmOut.switch)}</switch>
-                        <alarmOuts type='list'>
-                `
-            row.alarmOut.alarmOuts.forEach((item) => {
-                sendXml += rawXml`<item id='${item.value}'>
-                    <![CDATA[${item.label}]]></item>
-                `
-            })
-            sendXml += rawXml`</alarmOuts>
-                </alarmOut>
-                    <preset>
-                        <switch>${String(row.preset.switch)}</switch>
-                        <presets type='list'>
-                `
-            row.preset.presets.forEach((item) => {
-                sendXml += rawXml`<item>
-                    <index>${item.index}</index>
-                        <name><![CDATA[${item.index}]]></name>
-                        <chl id='${item.chl.value}'>
-                        <![CDATA[${item.chl.label}]]></chl>
-                    </item>
-                `
-            })
-            sendXml += rawXml`</presets>
-                </preset>
-                <buzzerSwitch>${row.buzzerSwitch}</buzzerSwitch>
-                <popVideo>
-                    <switch>${row.popVideo.switch}</switch>
-                    <chl id='${row.popVideo.chl.id}'></chl>
-                </popVideo>
-                <popMsgSwitch>${row.popMsgSwitch}</popMsgSwitch>
-                <sysAudio id='${row.sysAudio}'></sysAudio>
-                <triggerSchedule><switch>${row.schedule ? 'true' : 'flase'}</switch><schedule id='${row.schedule.value}'></schedule></triggerSchedule>
-                <emailSwitch>${row.emailSwitch}</emailSwitch>
-                <msgPushSwitch>${row.msgPushSwitch}</msgPushSwitch>
-            </trigger>
-            </content>
-                `
+                                ${row.sysRec.chls.map((item) => `<item id='${item.value}'><![CDATA[${item.label}]]></item>`).join('')}
+                            </chls>
+                        </sysRec>
+                        <sysSnap>
+                            <switch>${String(row.sysSnap.switch)}</switch>
+                            <chls type='list'>
+                                ${row.sysSnap.chls.map((item) => `<item id='${item.value}'><![CDATA[${item.label}]]></item>`).join('')}
+                            </chls>
+                        </sysSnap>
+                        <alarmOut>
+                            <switch>${String(row.alarmOut.switch)}</switch>
+                            <alarmOuts type='list'>
+                                ${row.alarmOut.alarmOuts.map((item) => `<item id='${item.value}'><![CDATA[${item.label}]]></item>`).join('')}
+                            </alarmOuts>
+                        </alarmOut>
+                        <preset>
+                            <switch>${String(row.preset.switch)}</switch>
+                            <presets type='list'>
+                                ${row.preset.presets
+                                    .map((item) => {
+                                        return rawXml`
+                                            <item>
+                                                <index>${item.index}</index>
+                                                <name><![CDATA[${item.index}]]></name>
+                                                <chl id='${item.chl.value}'>
+                                                <![CDATA[${item.chl.label}]]></chl>
+                                            </item>
+                                        `
+                                    })
+                                    .join('')}
+                            </presets>
+                        </preset>
+                        <buzzerSwitch>${row.buzzerSwitch}</buzzerSwitch>
+                        <popVideo>
+                            <switch>${row.popVideo.switch}</switch>
+                            <chl id='${row.popVideo.chl.id}'></chl>
+                        </popVideo>
+                        <popMsgSwitch>${row.popMsgSwitch}</popMsgSwitch>
+                        <sysAudio id='${row.sysAudio}'></sysAudio>
+                        <triggerSchedule><switch>${row.schedule ? 'true' : 'flase'}</switch><schedule id='${row.schedule.value}'></schedule></triggerSchedule>
+                        <emailSwitch>${row.emailSwitch}</emailSwitch>
+                        <msgPushSwitch>${row.msgPushSwitch}</msgPushSwitch>
+                    </trigger>
+                </content>
+            `
             return sendXml
         }
 

@@ -3,7 +3,7 @@
  * @Date: 2024-09-09 19:24:00
  * @Description: 智能分析 - 抓拍详情弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-29 15:13:18
+ * @LastEditTime: 2024-10-31 19:51:03
  */
 import CanvasBase from '@/utils/canvas/canvasBase'
 import { IntelSnapPopList } from '@/types/apiType/intelligentAnalysis'
@@ -194,13 +194,13 @@ export default defineComponent({
                         const clothPropertyName = item === 'upper' ? 'upper_length' : 'lower_length'
                         const colorPropertyName = item === 'upper' ? 'upper_color' : 'lower_color'
 
-                        let clothName = UNKNOWN
+                        let clothName = ''
                         if (typeof attribute[clothPropertyName] !== 'undefined') {
                             const value = BODY_STRUCT_MAPPING[clothPropertyName].map[Number(attribute[clothPropertyName])]
                             clothName = value === '--' ? UNKNOWN : Translate(value)
                         }
 
-                        let clothColor = UNKNOWN
+                        let clothColor = ''
                         if (typeof attribute[colorPropertyName] !== 'undefined') {
                             const value = BODY_STRUCT_MAPPING[colorPropertyName].map[Number(attribute[colorPropertyName])]
                             clothColor = value === '--' ? UNKNOWN : Translate(value)
@@ -208,7 +208,12 @@ export default defineComponent({
 
                         const name = BODY_STRUCT_MAPPING[clothPropertyName].name
 
-                        if (clothName === UNKNOWN && clothColor === UNKNOWN) {
+                        if (clothName === '' && clothColor === '') {
+                            return {
+                                label: '',
+                                value: '',
+                            }
+                        } else if (clothName === UNKNOWN && clothColor === UNKNOWN) {
                             return {
                                 label: name,
                                 value: Translate('IDCS_UNCONTRAST'),

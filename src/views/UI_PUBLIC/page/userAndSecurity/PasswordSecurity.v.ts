@@ -11,7 +11,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { closeLoading, openLoading } = useLoading()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
 
         const formData = ref(new UserPasswordSecurityForm())
 
@@ -91,7 +91,7 @@ export default defineComponent({
             closeLoading()
 
             if ($('//status').text() === 'success') {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })

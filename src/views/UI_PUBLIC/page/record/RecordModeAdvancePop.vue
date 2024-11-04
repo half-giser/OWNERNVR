@@ -2,8 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-07-29 14:15:40
  * @Description: 新建录像模式
- * @LastEditors: tengxiang tengxiang@tvt.net.cn
- * @LastEditTime: 2024-08-02 14:37:24
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-11-01 18:42:43
 -->
 <template>
     <el-dialog
@@ -12,7 +12,10 @@
         :destroy-on-close="true"
     >
         <div class="recModeList">
-            <el-checkbox-group v-model="selectedEvents">
+            <el-checkbox-group
+                v-model="selectedEvents"
+                class="line-break stripe"
+            >
                 <template
                     v-for="item in advanceRecModes"
                     :key="item.id"
@@ -46,24 +49,3 @@
 </template>
 
 <script lang="ts" src="./RecordModeAdvancePop.v.ts"></script>
-
-<style lang="scss" scoped>
-.el-checkbox-group {
-    flex-direction: column;
-    align-items: flex-start;
-    width: 100%;
-    label {
-        box-sizing: border-box;
-        width: 100%;
-        padding: 3px 0px 3px 30px;
-    }
-
-    label.el-checkbox:nth-child(odd) {
-        background-color: unset;
-    }
-
-    label.el-checkbox:nth-child(even) {
-        background-color: var(--table-stripe);
-    }
-}
-</style>

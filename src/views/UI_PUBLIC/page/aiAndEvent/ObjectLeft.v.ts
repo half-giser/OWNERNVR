@@ -35,7 +35,7 @@ export default defineComponent({
     },
     setup(prop) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
         const pluginStore = usePluginStore()
         const systemCaps = useCababilityStore()
@@ -178,7 +178,7 @@ export default defineComponent({
 
         const forceClosePath = (canBeClosed: boolean) => {
             if (!canBeClosed) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_INTERSECT'),
                 })
@@ -186,7 +186,7 @@ export default defineComponent({
         }
 
         const clearCurrentArea = () => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DRAW_CLEAR_TIP'),
             }).then(() => {
@@ -586,10 +586,10 @@ export default defineComponent({
             if (!row.isGetPresetList) {
                 row.presetList.splice(1)
                 const sendXml = rawXml`
-                <condition>
-                    <chlId>${row.id}</chlId>
-                </condition>
-            `
+                    <condition>
+                        <chlId>${row.id}</chlId>
+                    </condition>
+                `
                 const result = await queryChlPresetList(sendXml)
                 commLoadResponseHandler(result, ($) => {
                     $('//content/presets/item').forEach((item) => {
@@ -621,7 +621,7 @@ export default defineComponent({
             }
 
             if (objectLeftData.value.preset.length > MAX_TRIGGER_PRESET_COUNT) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_PRESET_LIMIT'),
                 })
@@ -633,13 +633,13 @@ export default defineComponent({
             for (const item of objectLeftData.value.boundary) {
                 const count = item.points.length
                 if (count > 0 && count < 4) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_INPUT_LIMIT_FOUR_POIONT'),
                     })
                     return false
                 } else if (count > 0 && !judgeAreaCanBeClosed(item.points)) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_INTERSECT'),
                     })
@@ -761,7 +761,7 @@ export default defineComponent({
             })
             if (isSwitchChange && switchChangeTypeArr.length > 0) {
                 const switchChangeType = switchChangeTypeArr.join(',')
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_SIMPLE_WATCH_DETECT_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + prop.chlData.name, switchChangeType),
                 }).then(() => {
@@ -800,7 +800,7 @@ export default defineComponent({
                 clearCurrentArea()
             } else if (errorCode == '515') {
                 // 515-区域有相交直线，不可闭合
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_INTERSECT'),
                 })

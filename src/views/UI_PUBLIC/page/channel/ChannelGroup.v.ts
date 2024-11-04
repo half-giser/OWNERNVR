@@ -20,7 +20,7 @@ export default defineComponent({
         const router = useRouter()
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
 
         const tableData = ref<ChlGroup[]>()
         const pageIndex = ref(1)
@@ -66,7 +66,7 @@ export default defineComponent({
         }
 
         const handleDelChlGroup = (rowData: ChlGroup) => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_GROUP_S').formatForLang(getShortString(rowData.name, 10)),
             }).then(() => {
@@ -82,7 +82,7 @@ export default defineComponent({
                     closeLoading()
                     const $ = queryXml(res)
                     if ($('status').text() == 'success') {
-                        openMessageTipBox({
+                        openMessageBox({
                             type: 'success',
                             message: Translate('IDCS_DELETE_SUCCESS'),
                         }).then(() => {
@@ -90,7 +90,7 @@ export default defineComponent({
                             getData()
                         })
                     } else {
-                        openMessageTipBox({
+                        openMessageBox({
                             type: 'info',
                             message: Translate('IDCS_DELETE_FAIL'),
                         })
@@ -174,7 +174,7 @@ export default defineComponent({
 
         const handleDelChl = (rowData: ChlGroup, chlId: string) => {
             if (rowData.chlCount <= 1) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_PROMPT_CHANNEL_GROUP_DELETE_CHANNEL_ERROR'),
                 })
@@ -202,7 +202,7 @@ export default defineComponent({
                 closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'success',
                         message: Translate('IDCS_DELETE_SUCCESS'),
                     }).then(() => {
@@ -210,7 +210,7 @@ export default defineComponent({
                         rowData.chlCount = rowData.chls.length
                     })
                 } else {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_DELETE_FAIL'),
                     })

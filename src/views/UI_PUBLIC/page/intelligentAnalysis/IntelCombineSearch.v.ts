@@ -41,7 +41,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
         const dateTime = useDateTimeStore()
         const auth = useUserChlAuth()
@@ -531,7 +531,7 @@ export default defineComponent({
             }
 
             if (!tableData.value.length) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_NO_RECORD_DATA'),
                 })
@@ -650,7 +650,7 @@ export default defineComponent({
                 return !auth.value.bk[item.chlId]
             })
             if (find) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_CHANNEL_BACUP_NO_PERMISSION').formatForLang(find.chlName),
                 })
@@ -753,7 +753,7 @@ export default defineComponent({
             if (downloadData.length) {
                 createZip()
             } else {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_NO_RECORD_DATA'),
                 })
@@ -791,7 +791,7 @@ export default defineComponent({
             })
                 .then(() => {
                     closeLoading()
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'success',
                         message: Translate('IDCS_BACKUP_SUCCESS'),
                     })

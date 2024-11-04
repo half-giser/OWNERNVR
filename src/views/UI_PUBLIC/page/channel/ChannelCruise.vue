@@ -19,7 +19,7 @@
                 :style="{
                     '--form-label-width': '100px',
                 }"
-                class="narrow inline-message"
+                class="inline-message"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
                     <el-select
@@ -105,8 +105,7 @@
                     <el-table-column
                         :label="Translate('IDCS_PRESET_NAME')"
                         prop="name"
-                    >
-                    </el-table-column>
+                    />
                     <el-table-column
                         :label="Translate('IDCS_SPEED')"
                         prop="speed"

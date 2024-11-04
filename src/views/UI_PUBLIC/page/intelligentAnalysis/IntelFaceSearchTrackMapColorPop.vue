@@ -26,7 +26,7 @@
                         }"
                         @click="pageData.fontColor = item"
                     >
-                        <div :style="{ background: item }" />
+                        <div :style="{ background: item }"></div>
                     </div>
                 </div>
             </div>
@@ -44,7 +44,7 @@
                         }"
                         @click="pageData.lineColor = item"
                     >
-                        <div :style="{ background: item }" />
+                        <div :style="{ background: item }"></div>
                     </div>
                 </div>
             </div>

@@ -3,7 +3,7 @@
  * @Date: 2024-08-16 18:13:56
  * @Description: 移动侦测
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-28 09:30:51
+ * @LastEditTime: 2024-11-04 15:51:43
  */
 import { cloneDeep } from 'lodash-es'
 import { MotionEventConfig, type PresetItem } from '@/types/apiType/aiAndEvent'
@@ -27,7 +27,7 @@ export default defineComponent({
         const systemCaps = useCababilityStore()
         const userSession = useUserSessionStore()
         const router = useRouter()
-        const openMessageTipBox = useMessageBox().openMessageTipBox
+        const openMessageBox = useMessageBox().openMessageBox
         const pageData = ref({
             pageIndex: 1,
             pageSize: 10,
@@ -47,7 +47,6 @@ export default defineComponent({
             // 表头选中的数据
             recordChosedListAll: [] as SelectOption<string, string>[],
             recordIsShow: false,
-            recordType: 'record',
 
             // snap穿梭框数据源
             snapList: [] as SelectOption<string, string>[],
@@ -56,7 +55,6 @@ export default defineComponent({
             // 表头选中的数据
             snapChosedListAll: [] as SelectOption<string, string>[],
             snapIsShow: false,
-            snapType: 'snap',
 
             // alarmOut穿梭框数据源
             alarmOutList: [] as SelectOption<string, string>[],
@@ -65,7 +63,6 @@ export default defineComponent({
             // 表头选中的数据
             alarmOutChosedListAll: [] as SelectOption<string, string>[],
             alarmOutIsShow: false,
-            alarmOutType: 'alarmOut',
 
             isPresetPopOpen: false,
             presetChlId: '',
@@ -564,7 +561,7 @@ export default defineComponent({
             if (userSession.hasAuth('remoteChlMgr')) {
                 router.push('/config/channel/settings/motion')
             } else {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_NO_AUTH'),
                 })
@@ -585,40 +582,15 @@ export default defineComponent({
             const snapSwitch = rowData.snap.switch
             const alarmOutSwitch = rowData.alarmOut.switch
             const presetSwitch = rowData.preset.switch
-            let sendXml = rawXml`<content>
-                                <chl id="${rowData.id}">
-                                <trigger>`
-            sendXml += rawXml`<sysRec>
-                            <switch>${recordSwitch.toString()}</switch>
-                            <chls type="list">`
+
             if (!recordSwitch) {
                 rowData.record = { switch: false, chls: [] }
             }
-            const recordChls = rowData.record.chls
-            recordChls.forEach((item) => {
-                sendXml += rawXml` <item id="${item.value}">
-                                <![CDATA[${item.label}]]>
-                            </item>`
-            })
-            sendXml += rawXml`</chls>
-                    </sysRec>`
-            sendXml += rawXml`<alarmOut>
-                            <switch>${alarmOutSwitch.toString()}</switch>
-                            <alarmOuts type="list">`
+
             if (!alarmOutSwitch) {
                 rowData.alarmOut = { switch: false, chls: [] }
             }
-            const alarmOutChls = rowData.alarmOut.chls
-            alarmOutChls.forEach((item) => {
-                sendXml += rawXml` <item id="${item.value}">
-                                <![CDATA[${item.label}]]>
-                            </item>`
-            })
-            sendXml += rawXml`</alarmOuts>
-                    </alarmOut>`
-            sendXml += rawXml`<preset>
-                            <switch>${presetSwitch.toString()}</switch>
-                            <presets type="list">`
+
             if (!presetSwitch) {
                 rowData.preset = { switch: false, presets: [] }
             }
@@ -630,46 +602,64 @@ export default defineComponent({
             if (!(presets instanceof Array)) {
                 presets = [presets]
             }
-            presets.forEach((item) => {
-                if (item.index) {
-                    sendXml += rawXml`
-                        <item>
-                            <index>${item.index}</index>
-                            <name><![CDATA[${item.name}]]></name>
-                            <chl id="${item.chl.value}"><![CDATA[${item.chl.label}]]></chl>
-                        </item>`
-                }
-            })
-            sendXml += rawXml`</presets>
-                    </preset>`
-            sendXml += rawXml`<sysSnap>
-                            <switch>${snapSwitch.toString()}</switch>
-                            <chls type="list">`
+
             if (!snapSwitch) {
                 rowData.snap = { switch: false, chls: [] }
             }
-            const snapChls = rowData.snap.chls
-            snapChls.forEach((item) => {
-                sendXml += rawXml` <item id="${item.value}">
-                                <![CDATA[${item.label}]]>
-                            </item>`
-            })
-            sendXml += rawXml`</chls>
-                    </sysSnap>`
-            const schedule = rowData.schedule.value == ' ' ? true : false
-            sendXml += rawXml`
-                        <buzzerSwitch>${rowData.beeper}</buzzerSwitch>
-                        <msgPushSwitch>${rowData.msgPush}</msgPushSwitch>
-                        <sysAudio id='${rowData.sysAudio}'></sysAudio>
-                        <triggerSchedule>
-                            <switch>${schedule.toString()}</switch>
-                            <schedule id="${rowData.schedule.value == ' ' ? '' : rowData.schedule.value}"></schedule>
-                        </triggerSchedule>
-                        <popVideoSwitch>${rowData.videoPopup}</popVideoSwitch>
-                        <emailSwitch>${rowData.email}</emailSwitch>
+
+            const sendXml = rawXml`
+                <content>
+                    <chl id="${rowData.id}">
+                        <trigger>
+                            <sysRec>
+                                <switch>${recordSwitch.toString()}</switch>
+                                <chls type="list">
+                                    ${rowData.record.chls.map((item) => `<item id="${item.value}"><![CDATA[${item.label}]]></item>`).join('')}
+                                </chls>
+                            </sysRec>
+                            <alarmOut>
+                                <switch>${alarmOutSwitch.toString()}</switch>
+                                <alarmOuts type="list">
+                                    ${rowData.alarmOut.chls.map((item) => `<item id="${item.value}"><![CDATA[${item.label}]]></item>`).join('')}
+                                </alarmOuts>
+                            </alarmOut>
+                            <preset>
+                                <switch>${presetSwitch.toString()}</switch>
+                                <presets type="list">
+                                    ${presets
+                                        .map((item) => {
+                                            if (item.index) {
+                                                return rawXml`
+                                                    <item>
+                                                        <index>${item.index}</index>
+                                                        <name><![CDATA[${item.name}]]></name>
+                                                        <chl id="${item.chl.value}"><![CDATA[${item.chl.label}]]></chl>
+                                                    </item>`
+                                            }
+                                            return ''
+                                        })
+                                        .join('')}
+                                </presets>
+                            </preset>
+                            <sysSnap>
+                                <switch>${snapSwitch.toString()}</switch>
+                                <chls type="list">
+                                    ${rowData.snap.chls.map((item) => `<item id="${item.value}"><![CDATA[${item.label}]]></item>`).join('')}
+                                </chls>
+                            </sysSnap>
+                            <buzzerSwitch>${rowData.beeper}</buzzerSwitch>
+                            <msgPushSwitch>${rowData.msgPush}</msgPushSwitch>
+                            <sysAudio id='${rowData.sysAudio}'></sysAudio>
+                            <triggerSchedule>
+                                <switch>${rowData.schedule.value == ' ' ? 'true' : 'false'}</switch>
+                                <schedule id="${rowData.schedule.value == ' ' ? '' : rowData.schedule.value}"></schedule>
+                            </triggerSchedule>
+                            <popVideoSwitch>${rowData.videoPopup}</popVideoSwitch>
+                            <emailSwitch>${rowData.email}</emailSwitch>
                         </trigger>
                     </chl>
-                </content>`
+                </content>
+            `
             return sendXml
         }
 
@@ -712,7 +702,7 @@ export default defineComponent({
             chosedList,
             pageData,
             tableData,
-            openMessageTipBox,
+            openMessageBox,
             handleScheduleChangeAll,
             handleScheduleChangeSingle,
             handleSchedulePopClose,

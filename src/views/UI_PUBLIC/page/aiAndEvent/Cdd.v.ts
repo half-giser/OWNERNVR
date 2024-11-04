@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 17:51:22
  * @Description: 人群密度检测
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-28 14:24:35
+ * @LastEditTime: 2024-11-04 15:56:57
  */
 import { type chlCaps, type PresetList, type PresetItem } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
@@ -38,7 +38,7 @@ export default defineComponent({
     },
     setup(props) {
         const { openLoading, closeLoading } = useLoading()
-        const openMessageTipBox = useMessageBox().openMessageTipBox
+        const openMessageBox = useMessageBox().openMessageBox
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
         const playerRef = ref<PlayerInstance>()
@@ -110,7 +110,6 @@ export default defineComponent({
             // 选中的record id
             recordList: [] as string[],
             recordIsShow: false,
-            recordType: 'record',
 
             alarmOut: {
                 switch: false,
@@ -119,7 +118,6 @@ export default defineComponent({
             // 选中的alarmOut id
             alarmOutList: [] as string[],
             alarmOutIsShow: false,
-            alarmOutType: 'alarmOut',
 
             preset: {
                 switch: false,
@@ -546,11 +544,11 @@ export default defineComponent({
                                 <chls type="list">
                                     ${pageData.value.record.chls
                                         .map(
-                                            (element: { value: string; label: string }) => rawXml`
-                                        <item id="${element.value}">
-                                            <![CDATA[${element.label}]]>
-                                        </item>
-                                    `,
+                                            (element) => rawXml`
+                                                <item id="${element.value}">
+                                                    <![CDATA[${element.label}]]>
+                                                </item>
+                                            `,
                                         )
                                         .join('')}
                                 </chls>
@@ -559,11 +557,11 @@ export default defineComponent({
                                 <alarmOuts type="list">
                                     ${pageData.value.alarmOut.chls
                                         .map(
-                                            (element: { value: string; label: string }) => rawXml`
-                                        <item id="${element.value}">
-                                            <![CDATA[${element.label}]]>
-                                        </item>
-                                    `,
+                                            (element) => rawXml`
+                                                <item id="${element.value}">
+                                                    <![CDATA[${element.label}]]>
+                                                </item>
+                                            `,
                                         )
                                         .join('')}
                                 </alarmOuts>
@@ -574,14 +572,14 @@ export default defineComponent({
                                         .map((element: PresetList) =>
                                             element.preset.value
                                                 ? rawXml`
-                                        <item>
-                                            <index>${element.preset.value}</index>
-                                            <name><![CDATA[${element.preset.label}]]></name>
-                                            <chl id="${element.id}">
-                                                <![CDATA[${element.name}]]>
-                                            </chl>
-                                        </item>
-                                    `
+                                                    <item>
+                                                        <index>${element.preset.value}</index>
+                                                        <name><![CDATA[${element.preset.label}]]></name>
+                                                        <chl id="${element.id}">
+                                                            <![CDATA[${element.name}]]>
+                                                        </chl>
+                                                    </item>
+                                                `
                                                 : '',
                                         )
                                         .join('')}
@@ -622,7 +620,7 @@ export default defineComponent({
                 }
             })
             if (isSwitchChange && switchChangeType) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'question',
                     message: Translate('IDCS_SIMPLE_CROWD_DETECT_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + pageData.value.chlData.name, closeTip[switchChangeType]),
                 }).then(() => {

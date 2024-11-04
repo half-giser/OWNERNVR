@@ -10,7 +10,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
@@ -271,40 +271,40 @@ export default defineComponent({
                         })
                     })
 
-                    $trigger('sysRec/chls/item').forEach((element) => {
-                        row.sysRec.chls.push({
+                    row.sysRec.chls = $trigger('sysRec/chls/item').map((element) => {
+                        return {
                             value: element.attr('id')!,
                             label: element.text(),
-                        })
+                        }
                     })
                     row.recordList = row.sysRec.chls.map((item) => item.value)
 
-                    $trigger('sysSnap/chls/item').forEach((element) => {
-                        row.sysSnap.chls.push({
+                    row.sysSnap.chls = $trigger('sysSnap/chls/item').map((element) => {
+                        return {
                             value: element.attr('id')!,
                             label: element.text(),
-                        })
+                        }
                     })
                     row.snapList = row.sysSnap.chls.map((item) => item.value)
 
-                    $trigger('alarmOut/alarmOuts/item').forEach((element) => {
-                        row.alarmOut.alarmOuts.push({
+                    row.alarmOut.alarmOuts = $trigger('alarmOut/alarmOuts/item').map((element) => {
+                        return {
                             value: element.attr('id')!,
                             label: element.text(),
-                        })
+                        }
                     })
                     row.alarmOutList = row.alarmOut.alarmOuts.map((item) => item.value)
 
-                    $trigger('preset/presets/item').forEach((element) => {
+                    row.preset.presets = $trigger('preset/presets/item').map((element) => {
                         const $element = queryXml(element.element)
-                        row.preset.presets.push({
+                        return {
                             index: $element('index').text(),
                             name: $element('name').text(),
                             chl: {
                                 value: $element('chl').attr('id'),
                                 label: $element('chl').text(),
                             },
-                        })
+                        }
                     })
                     tableData.value.push(row)
                     tableDataInit.push(cloneDeep(row))
@@ -320,14 +320,14 @@ export default defineComponent({
         const nameBlur = (row: CombinedAlarm) => {
             const name = row.name
             if (!checkChlName(name)) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS'),
                 })
                 row.name = originalName.value
             } else {
                 if (!name) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_PROMPT_NAME_EMPTY'),
                     })
@@ -336,7 +336,7 @@ export default defineComponent({
 
                 for (const item of tableData.value) {
                     if (item.id != row.id && name == item.name) {
-                        openMessageTipBox({
+                        openMessageBox({
                             type: 'info',
                             message: Translate('IDCS_NAME_SAME'),
                         })
@@ -647,84 +647,84 @@ export default defineComponent({
         }
 
         const getSavaData = (row: CombinedAlarm) => {
-            let sendXml = rawXml`
-            <content type='list'>
-                <item id='${row.id}'>
-                    <param><name><![CDATA[${row.name}]]></name>
-                    <switch>${String(row.combinedAlarm.switch)}</switch>
-                    <alarmSource>
-            `
-            // 组合报警
-            row.combinedAlarm.item.forEach((item) => {
-                sendXml += rawXml`
-                <item>
-                    <alarmSourceType>${item.alarmSourceType}</alarmSourceType>
-                        <alarmSourceEntity id='${item.alarmSourceEntity.value}'><![CDATA[${item.alarmSourceEntity.label}]]></alarmSourceEntity>
-                </item>
-                `
-            })
-            sendXml += rawXml`</alarmSource></param>`
-            //sysRec通道遍历
-            sendXml += rawXml`
-                    <trigger>
-                        <sysRec>
-                            <switch>${String(row.sysRec.switch)}</switch>
-                            <chls>
-            `
-            row.sysRec.chls.forEach((item) => {
-                sendXml += rawXml`<item id='${item.value}'>${item.label}</item>
-                `
-            })
-            //sysSnap通道遍历
-            sendXml += rawXml`</chls>
-                </sysRec>
-                <sysSnap>
-                    <switch>${String(row.sysSnap.switch)}</switch>
-                    <chls>
-            `
-            row.sysSnap.chls.forEach((item) => {
-                sendXml += rawXml`<item id='${item.value}'>${item.label}</item>
-                `
-            })
-            //alarmOut通道遍历
-            sendXml += rawXml`</chls>
-                </sysSnap>
-                <alarmOut>
-                    <switch>${String(row.alarmOut.switch)}</switch>
-                        <alarmOuts>
-            `
-            row.alarmOut.alarmOuts.forEach((item) => {
-                sendXml += rawXml`<item id='${item.value}'>${item.label}</item>
-                `
-            })
-            sendXml += rawXml`</alarmOuts>
-                </alarmOut>
-                <popVideo>
-                    <switch>${row.popVideo.switch}</switch>
-                    <chl id='${row.popVideo.chl.value}'></chl>
-                </popVideo>
-                    <preset>
-                        <switch>${String(row.preset.switch)}</switch>
-                        <presets>
-            `
-            row.preset.presets.forEach((item) => {
-                sendXml += rawXml`<item>
-                    <index>${item.index}</index>
-                        <name><![CDATA[${item.index}]]></name>
-                        <chl id='${item.chl.value}'>${item.chl.label}</chl>
+            const sendXml = rawXml`
+                <content type='list'>
+                    <item id='${row.id}'>
+                        <param>
+                            <name><![CDATA[${row.name}]]></name>
+                            <switch>${String(row.combinedAlarm.switch)}</switch>
+                            <alarmSource>
+                                ${row.combinedAlarm.item
+                                    .map((item) => {
+                                        return rawXml`
+                                            <item>
+                                                <alarmSourceType>${item.alarmSourceType}</alarmSourceType>
+                                                <alarmSourceEntity id='${item.alarmSourceEntity.value}'><![CDATA[${item.alarmSourceEntity.label}]]></alarmSourceEntity>
+                                            </item>
+                                        `
+                                    })
+                                    .join('')}
+                            </alarmSource>
+                        </param>
+                        <trigger>
+                            <sysRec>
+                                <switch>${String(row.sysRec.switch)}</switch>
+                                <chls>
+                                    ${row.sysRec.chls
+                                        .map((item) => {
+                                            return `<item id='${item.value}'>${item.label}</item>`
+                                        })
+                                        .join('')}
+                                </chls>
+                            </sysRec>
+                            <sysSnap>
+                                <switch>${String(row.sysSnap.switch)}</switch>
+                                <chls>
+                                    ${row.sysSnap.chls
+                                        .map((item) => {
+                                            return `<item id='${item.value}'>${item.label}</item>`
+                                        })
+                                        .join('')}
+                                </chls>
+                            </sysSnap>
+                            <alarmOut>
+                                <switch>${String(row.alarmOut.switch)}</switch>
+                                <alarmOuts>
+                                    ${row.alarmOut.alarmOuts
+                                        .map((item) => {
+                                            return `<item id='${item.value}'>${item.label}</item>`
+                                        })
+                                        .join('')}
+                                </alarmOuts>
+                            </alarmOut>
+                            <popVideo>
+                                <switch>${row.popVideo.switch}</switch>
+                                <chl id='${row.popVideo.chl.value}'></chl>
+                            </popVideo>
+                            <preset>
+                                <switch>${String(row.preset.switch)}</switch>
+                                <presets>
+                                    ${row.preset.presets
+                                        .map((item) => {
+                                            return rawXml`
+                                                <item>
+                                                    <index>${item.index}</index>
+                                                    <name><![CDATA[${item.index}]]></name>
+                                                    <chl id='${item.chl.value}'>${item.chl.label}</chl>
+                                                </item>
+                                            `
+                                        })
+                                        .join('')}
+                                </presets>
+                            </preset>
+                            <msgPushSwitch>${row.msgPush}</msgPushSwitch>
+                            <buzzerSwitch>${row.beeper}</buzzerSwitch>
+                            <popMsgSwitch>${row.msgBoxPopup}</popMsgSwitch>
+                            <emailSwitch>${row.email}</emailSwitch>
+                            <sysAudio id='${row.sysAudio}'></sysAudio>
+                        </trigger>
                     </item>
-                `
-            })
-            sendXml += rawXml`</presets>
-                </preset>
-                <msgPushSwitch>${row.msgPush}</msgPushSwitch>
-                <buzzerSwitch>${row.beeper}</buzzerSwitch>
-                <popMsgSwitch>${row.msgBoxPopup}</popMsgSwitch>
-                <emailSwitch>${row.email}</emailSwitch>
-                <sysAudio id='${row.sysAudio}'></sysAudio>
-            </trigger>
-            </item>
-            </content>
+                </content>              
             `
             return sendXml
         }

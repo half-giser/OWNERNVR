@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 18:39:25
  * @Description: 实时过车记录
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-23 20:50:22
+ * @LastEditTime: 2024-11-01 14:57:20
 -->
 <template>
     <div class="lot">
@@ -70,7 +70,7 @@
                     <img src="" />
                 </div>
                 <div class="data">
-                    <el-form class="inline-message narrow">
+                    <el-form class="inline-message">
                         <el-form-item>
                             <el-input
                                 v-model="formData.plateNum"

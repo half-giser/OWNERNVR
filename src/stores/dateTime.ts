@@ -3,7 +3,7 @@
  * @Date: 2024-09-04 16:37:01
  * @Description: 时间日期格式化
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 10:02:55
+ * @LastEditTime: 2024-11-01 18:34:06
  */
 export const useDateTimeStore = defineStore('dateTime', () => {
     const YMD_MAPPING: Record<string, string> = {
@@ -58,7 +58,7 @@ export const useDateTimeStore = defineStore('dateTime', () => {
             return true
         }
         // try {
-        const result = await queryTimeCfg(false)
+        const result = await queryTimeCfg()
         const $ = queryXml(result)
         if ($('//status').text() === 'success') {
             const time = $('//content/formatInfo/time').text()

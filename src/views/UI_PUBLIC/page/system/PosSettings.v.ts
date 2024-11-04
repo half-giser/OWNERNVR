@@ -22,7 +22,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
 
         // 连接类型与显示文本的映射
@@ -221,91 +221,97 @@ export default defineComponent({
 
             openLoading()
 
-            const listXml = tableData.value
-                .map((item) => {
-                    const chls = item.triggerChl.chls
-                        .map((chl) => {
-                            return `<item id="${chl.value}" ${chl.till && Number(chl.till) > 0 ? `till="${chl.till}"` : ''}>${wrapCDATA(chl.label)}</item>`
-                        })
-                        .join('')
-                    const startEndChar = item.displaySetting.common.startEndChar
-                        .filter((child) => child.startChar && child.endChar)
-                        .map((child) => {
+            const sendXml = rawXml`
+                <content>
+                    ${tableData.value
+                        .map((item) => {
                             return rawXml`
-                                <item>
-                                    <startChar>${wrapCDATA(child.startChar)}</startChar>
-                                    <endChar>${wrapCDATA(child.endChar)}</endChar>
+                                <item id="${item.id}">
+                                    <trigger>
+                                        <triggerChl>
+                                            <switch>${String(item.triggerChl.switch)}</switch>
+                                            <chls>
+                                                ${ternary(
+                                                    item.triggerChl.switch,
+                                                    item.triggerChl.chls
+                                                        .map((chl) => {
+                                                            return `<item id="${chl.value}" ${chl.till && Number(chl.till) > 0 ? `till="${chl.till}"` : ''}>${wrapCDATA(chl.label)}</item>`
+                                                        })
+                                                        .join(''),
+                                                )}
+                                            </chls>
+                                        </triggerChl>
+                                    </trigger>
+                                    <param>
+                                        <name>${wrapCDATA(item.name)}</name>
+                                        <switch>${item.switch}</switch>
+                                        <connectionType>${item.connectionType}</connectionType>
+                                        <manufacturers>${item.manufacturers}</manufacturers>
+                                        <encodeFormat>${item.encodeFormat}</encodeFormat>
+                                        <connectionSetting>
+                                            <posIp>${item.connectionSetting.posIp}</posIp>
+                                            <filterDstIpSwitch>${String(item.connectionSetting.filterDstIpSwitch)}</filterDstIpSwitch>
+                                            <dstIp>${item.connectionSetting.dstIp}</dstIp>
+                                            <filterPostPortSwitch>${String(item.connectionSetting.filterPostPortSwitch)}</filterPostPortSwitch>
+                                            <posPort>${String(item.connectionSetting.posPort)}</posPort>
+                                            <filterDstPortSwitch>${String(item.connectionSetting.filterDstPortSwitch)}</filterDstPortSwitch>
+                                        </connectionSetting>
+                                        <displaySetting>
+                                            <common>
+                                                <startAndEndList>
+                                                    ${item.displaySetting.common.startEndChar
+                                                        .filter((child) => child.startChar && child.endChar)
+                                                        .map((child) => {
+                                                            return rawXml`
+                                                                <item>
+                                                                    <startChar>${wrapCDATA(child.startChar)}</startChar>
+                                                                    <endChar>${wrapCDATA(child.endChar)}</endChar>
+                                                                </item>
+                                                            `
+                                                        })
+                                                        .join('')}
+                                                </startAndEndList>
+                                                <lineBreak>
+                                                    ${item.displaySetting.common.lineBreak
+                                                        .filter((child) => !!child)
+                                                        .map((child) => `<item>${wrapCDATA(child)}</item>`)
+                                                        .join('')}
+                                                </lineBreak>
+                                                <ignoreChar>
+                                                    ${item.displaySetting.common.ignoreChar
+                                                        .filter((child) => !!child)
+                                                        .map((child) => `<item>${wrapCDATA(child)}</item>`)
+                                                        .join('')}
+                                                </ignoreChar>
+                                                <ignoreCase>${String(item.displaySetting.common.ignoreCase)}</ignoreCase>
+                                                <timeOut unit="s">${String(item.displaySetting.common.timeOut)}</timeOut>
+                                            </common>
+                                            <displayPosition>
+                                                <width>${String(item.displaySetting.displayPosition.width)}</width>
+                                                <height>${String(item.displaySetting.displayPosition.height)}</height>
+                                                <X>${String(item.displaySetting.displayPosition.X)}</X>
+                                                <Y>${String(item.displaySetting.displayPosition.Y)}</Y>
+                                            </displayPosition>
+                                        </displaySetting>
+                                    </param>
                                 </item>
                             `
                         })
-                        .join('')
-                    const lineBreak = item.displaySetting.common.lineBreak
-                        .filter((child) => !!child)
-                        .map((child) => `<item>${wrapCDATA(child)}</item>`)
-                        .join('')
-                    const ignoreChar = item.displaySetting.common.ignoreChar
-                        .filter((child) => !!child)
-                        .map((child) => `<item>${wrapCDATA(child)}</item>`)
-                        .join('')
-
-                    return rawXml`
-                        <item id="${item.id}">
-                            <trigger>
-                                <triggerChl>
-                                    <switch>${String(item.triggerChl.switch)}</switch>
-                                    <chls>${item.triggerChl.switch ? chls : ''}</chls>
-                                </triggerChl>
-                            </trigger>
-                            <param>
-                                <name>${wrapCDATA(item.name)}</name>
-                                <switch>${item.switch}</switch>
-                                <connectionType>${item.connectionType}</connectionType>
-                                <manufacturers>${item.manufacturers}</manufacturers>
-                                <encodeFormat>${item.encodeFormat}</encodeFormat>
-                                <connectionSetting>
-                                    <posIp>${item.connectionSetting.posIp}</posIp>
-                                    <filterDstIpSwitch>${String(item.connectionSetting.filterDstIpSwitch)}</filterDstIpSwitch>
-                                    <dstIp>${item.connectionSetting.dstIp}</dstIp>
-                                    <filterPostPortSwitch>${String(item.connectionSetting.filterPostPortSwitch)}</filterPostPortSwitch>
-                                    <posPort>${String(item.connectionSetting.posPort)}</posPort>
-                                    <filterDstPortSwitch>${String(item.connectionSetting.filterDstPortSwitch)}</filterDstPortSwitch>
-                                </connectionSetting>
-                                <displaySetting>
-                                    <common>
-                                        <startAndEndList>${startEndChar}</startAndEndList>
-                                        <lineBreak>${lineBreak}</lineBreak>
-                                        <ignoreChar>${ignoreChar}</ignoreChar>
-                                        <ignoreCase>${String(item.displaySetting.common.ignoreCase)}</ignoreCase>
-                                        <timeOut unit="s">${String(item.displaySetting.common.timeOut)}</timeOut>
-                                    </common>
-                                    <displayPosition>
-                                        <width>${String(item.displaySetting.displayPosition.width)}</width>
-                                        <height>${String(item.displaySetting.displayPosition.height)}</height>
-                                        <X>${String(item.displaySetting.displayPosition.X)}</X>
-                                        <Y>${String(item.displaySetting.displayPosition.Y)}</Y>
-                                    </displayPosition>
-                                </displaySetting>
-                            </param>
-                        </item>
-                    `
-                })
-                .join('')
-
-            const channelXml = pageData.value.colorData
-                .map((item) => {
-                    return rawXml`
-                        <chl id="${item.chlId}">
-                            <color>${item.colorList.map((color) => `<item>${color}</item>`).join('')}</color>
-                            <printMode>${item.printMode}</printMode>
-                            <previewDisplay>${String(item.previewDisplay)}</previewDisplay>
-                        </chl>
-                    `
-                })
-                .join('')
-
-            const sendXml = rawXml`
-                <content>${listXml}</content>
-                <channel>${channelXml}</channel>
+                        .join('')}
+                </content>
+                <channel>
+                    ${pageData.value.colorData
+                        .map((item) => {
+                            return rawXml`
+                                <chl id="${item.chlId}">
+                                    <color>${item.colorList.map((color) => `<item>${color}</item>`).join('')}</color>
+                                    <printMode>${item.printMode}</printMode>
+                                    <previewDisplay>${String(item.previewDisplay)}</previewDisplay>
+                                </chl>
+                            `
+                        })
+                        .join('')}
+                </channel>
             `
 
             const result = await editPosList(sendXml)
@@ -314,12 +320,12 @@ export default defineComponent({
             closeLoading()
 
             if ($('//status').text() === 'success') {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
             } else {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_SAVE_DATA_FAIL'),
                 })
@@ -347,7 +353,7 @@ export default defineComponent({
                 return true
             })
             if (!isValidAddress) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_PROMPT_IPADDRESS_INVALID'),
                 })
@@ -363,7 +369,7 @@ export default defineComponent({
                 return true
             })
             if (!isNoEmptyIp) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_POS_IP_EMPTY'),
                 })
@@ -381,7 +387,7 @@ export default defineComponent({
                 return true
             })
             if (!isNoEmptyPort) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_POS_PORT_EMPTY'),
                 })
@@ -403,7 +409,7 @@ export default defineComponent({
                 })
             const isSameIPAndPort = useIPAndPort.length && useIPAndPort.length !== Array.from(new Set(useIPAndPort)).length
             if (isSameIPAndPort) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_POS_IP_SAME'),
                 })

@@ -17,7 +17,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
 
         // 类型与文本的映射
@@ -95,7 +95,7 @@ export default defineComponent({
             if (row.type === 'array') {
                 return
             }
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: row.type === 'normal' ? Translate('IDCS_NOTE_SET_TO_SPARE') : Translate('IDCS_NOTE_SET_TO_FREE'),
             }).then(() => {
@@ -152,7 +152,7 @@ export default defineComponent({
                     default:
                         errorInfo = item.type === 'normal' ? Translate('IDCS_CONFIG_HOT_DISK_ERROR') : Translate('IDCS_CONFIG_NORMAL_DISK_ERROR')
                 }
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: errorInfo,
                 })

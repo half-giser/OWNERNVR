@@ -12,7 +12,7 @@ import { NetNatForm } from '@/types/apiType/net'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
@@ -146,7 +146,7 @@ export default defineComponent({
          */
         const apply = () => {
             if (!formData.value.natSwitch && pageData.value.cloudSwitch && systemCaps.showCloudUpgrade) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'question',
                     message: Translate('IDCS_CLOSE_NAT2_TIP'),
                 })
@@ -161,7 +161,7 @@ export default defineComponent({
 
             // 启用了云升级和nat2.0
             if (formData.value.index === '0' && formData.value.natSwitch && pageData.value.cloudSwitch && systemCaps.showCloudUpgrade) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'question',
                     message: Translate('IDCS_NAT2_CLOSE_TIP'),
                 })

@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-13 09:23:25
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 15:48:12
+ * @LastEditTime: 2024-11-01 10:08:34
  */
 import { ipcAudioForm, type AudioAlarmOut, type AudioDevice, type LocalTableRow } from '@/types/apiType/aiAndEvent'
 import UploadAudioPop from './UploadAudioPop.vue'
@@ -17,7 +17,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
@@ -371,7 +371,7 @@ export default defineComponent({
 
         const handleClickAddAudio = () => {
             if (isSupportH5 && isHttpsLogin()) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_NOT_SUPPORTED').formatForLang('https', Translate('IDCS_UPLOAD_VOICE')) + '!',
                 })
@@ -387,15 +387,15 @@ export default defineComponent({
 
         const deleteAudio = async () => {
             const sendXml = rawXml`
-            <content>
-                <chl id='${ipcAudioFormData.value.audioChl}'>
-                <param>
-                    <deleteAudioAlarm>
-                    <id>${String(ipcAudioFormData.value.voice)}</id>
-                    </deleteAudioAlarm>
-                </param>
-                </chl>
-            </content>
+                <content>
+                    <chl id='${ipcAudioFormData.value.audioChl}'>
+                    <param>
+                        <deleteAudioAlarm>
+                        <id>${String(ipcAudioFormData.value.voice)}</id>
+                        </deleteAudioAlarm>
+                    </param>
+                    </chl>
+                </content>
             `
             const result = await deleteCustomizeAudioAlarm(sendXml)
             const $ = queryXml(result)
@@ -414,7 +414,7 @@ export default defineComponent({
 
                 pageData.value.btnApplyDisabled = false
             } else {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'error',
                     message: Translate('IDCS_DELETE_FAIL'),
                 })
@@ -423,15 +423,15 @@ export default defineComponent({
 
         const listenAudio = async () => {
             const sendXml = rawXml`
-            <content>
-                <chl id='${ipcAudioFormData.value.audioChl}'>
-                <param>
-                    <auditionAudioAlarm>
-                    <audioType>${String(ipcAudioFormData.value.voice)}</audioType>
-                    </auditionAudioAlarm>
-                </param>
-                </chl>
-            </content>
+                <content>
+                    <chl id='${ipcAudioFormData.value.audioChl}'>
+                    <param>
+                        <auditionAudioAlarm>
+                        <audioType>${String(ipcAudioFormData.value.voice)}</audioType>
+                        </auditionAudioAlarm>
+                    </param>
+                    </chl>
+                </content>
             `
             const result = await auditionCustomizeAudioAlarm(sendXml)
             const $ = queryXml(result)
@@ -440,7 +440,7 @@ export default defineComponent({
                 const errorCode = Number($('//errorCode').text())
                 let msg = audioAlarmOutData[ipcAudioFormData.value.audioChl].name + Translate('IDCS_AUDITION_FAILED')
                 if (errorCode === ErrorCode.USER_ERROR_GET_CONFIG_INFO_FAIL) msg += Translate('IDCS_GET_CFG_FAIL')
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: msg,
                 })
@@ -458,18 +458,18 @@ export default defineComponent({
         const setAudioAlarmData = async () => {
             if (audioAlarmOutData[ipcAudioFormData.value.audioChl].successFlag && audioAlarmOutData[ipcAudioFormData.value.audioChl].editFlag) {
                 const sendXml = rawXml`
-                <content>
-                    <chl id='${ipcAudioFormData.value.audioChl}'>
-                    <param>
-                        <name><![CDATA[${audioAlarmOutData[ipcAudioFormData.value.audioChl].name}]]></name>
-                        <switch>${String(ipcAudioFormData.value.audioChecked)}</switch>
-                        <audioType>${ipcAudioFormData.value.voice}</audioType>
-                        <alarmTimes>${String(ipcAudioFormData.value.number)}</alarmTimes>
-                        <audioVolume>${String(ipcAudioFormData.value.volume)}</audioVolume>
-                        <languageType>${Number(ipcAudioFormData.value.voice) >= 100 ? 'customize' : ipcAudioFormData.value.language}</languageType>
-                    </param>
-                    </chl>
-                </content>
+                    <content>
+                        <chl id='${ipcAudioFormData.value.audioChl}'>
+                        <param>
+                            <name><![CDATA[${audioAlarmOutData[ipcAudioFormData.value.audioChl].name}]]></name>
+                            <switch>${String(ipcAudioFormData.value.audioChecked)}</switch>
+                            <audioType>${ipcAudioFormData.value.voice}</audioType>
+                            <alarmTimes>${String(ipcAudioFormData.value.number)}</alarmTimes>
+                            <audioVolume>${String(ipcAudioFormData.value.volume)}</audioVolume>
+                            <languageType>${Number(ipcAudioFormData.value.voice) >= 100 ? 'customize' : ipcAudioFormData.value.language}</languageType>
+                        </param>
+                        </chl>
+                    </content>
                 `
                 await editAudioAlarmOutCfg(sendXml)
                 audioAlarmOutData[ipcAudioFormData.value.audioChl].editFlag = false
@@ -511,7 +511,7 @@ export default defineComponent({
             const result = await queryAudioStreamConfig(sendXml)
             const $ = queryXml(result)
             const volume = $('//content/chl/param/volume')
-            const $volume = queryXml(volume[0]?.element)
+            const $volume = volume.length ? queryXml(volume[0].element) : $
 
             const success = $('//status').text() == 'success'
 
@@ -552,14 +552,14 @@ export default defineComponent({
                 audioInput: success ? $('//content/chl/param/audioInput').text() : '',
                 loudSpeaker: success ? $('//content/chl/param/loudSpeaker').text() : '',
                 audioOutput: success ? $('//content/chl/param/audioOutput').text() : '',
-                micInVolume: success ? Number($volume('micInVolume').text()) : 0,
-                linInVolume: success ? Number($volume('linInVolume').text()) : 0,
-                audioOutVolume: success ? Number($volume('audioOutVolume').text()) : 0,
-                micMaxValue: success ? ($volume('micInVolume').attr('max') ? Number($volume('micInVolume').attr('max')) : 100) : 100,
-                linMaxValue: success ? ($volume('linInVolume').attr('max') ? Number($volume('linInVolume').attr('max')) : 100) : 100,
-                audioOutMaxValue: success ? ($volume('audioOutVolume').attr('max') ? Number($volume('audioOutVolume').attr('max')) : 100) : 100,
-                micOrLinEnabled: success ? $volume('micInVolume').length > 0 || $volume('linInVolume').length > 0 || false : false,
-                audioOutEnabled: success ? $volume('audioOutVolume').length > 0 || false : false,
+                micInVolume: volume.length ? Number($volume('micInVolume').text()) : 0,
+                linInVolume: volume.length ? Number($volume('linInVolume').text()) : 0,
+                audioOutVolume: volume.length ? Number($volume('audioOutVolume').text()) : 0,
+                micMaxValue: volume.length ? ($volume('micInVolume').attr('max') ? Number($volume('micInVolume').attr('max')) : 100) : 100,
+                linMaxValue: volume.length ? ($volume('linInVolume').attr('max') ? Number($volume('linInVolume').attr('max')) : 100) : 100,
+                audioOutMaxValue: volume.length ? ($volume('audioOutVolume').attr('max') ? Number($volume('audioOutVolume').attr('max')) : 100) : 100,
+                micOrLinEnabled: volume.length ? $volume('micInVolume').length > 0 || $volume('volume/linInVolume').length > 0 || false : false,
+                audioOutEnabled: volume.length ? $volume('audioOutVolume').length > 0 || false : false,
             }
 
             if (audioDevicePageData.value.firstId == id) {
@@ -686,28 +686,23 @@ export default defineComponent({
         const setAudiDeviceData = async () => {
             if (audioDeviceData[ipcAudioFormData.value.deviceChl].successFlag && audioDeviceData[ipcAudioFormData.value.deviceChl].editFlag) {
                 openLoading()
-                let sendXml = rawXml`
-                <content>
-                <chl id='${ipcAudioFormData.value.deviceChl}'>
-                    <param>
-                `
-                if (ipcAudioFormData.value.deviceEnable) sendXml += `<audioInSwitch>${String(ipcAudioFormData.value.deviceEnable)}</audioInSwitch>`
-                if (ipcAudioFormData.value.deviceAudioInput) sendXml += `<audioInput>${String(ipcAudioFormData.value.deviceAudioInput)}</audioInput>`
-                if (ipcAudioFormData.value.deviceAudioOutput) sendXml += `<audioOutput>${String(ipcAudioFormData.value.deviceAudioOutput)}</audioOutput>`
-                if (ipcAudioFormData.value.loudSpeaker) sendXml += `<loudSpeaker>${String(ipcAudioFormData.value.loudSpeaker)}</loudSpeaker>`
-                if (ipcAudioFormData.value.audioEncode) sendXml += `<audioEncode>${String(ipcAudioFormData.value.audioEncode)}</audioEncode>`
-
-                sendXml += rawXml`<volume>`
-
-                if (audioDeviceData[ipcAudioFormData.value.deviceChl].micInVolume >= 0) sendXml += `<micInVolume>${String(audioDeviceData[ipcAudioFormData.value.deviceChl].micInVolume)}</micInVolume>`
-                if (audioDeviceData[ipcAudioFormData.value.deviceChl].linInVolume >= 0) sendXml += `<linInVolume>${String(audioDeviceData[ipcAudioFormData.value.deviceChl].linInVolume)}</linInVolume>`
-                if (ipcAudioFormData.value.outputVolume >= 0) sendXml += `<audioOutVolume>${String(ipcAudioFormData.value.outputVolume)}</audioOutVolume>`
-
-                sendXml += rawXml`
-                      </volume>
-                    </param>
-                    </chl>
-                </content>
+                const sendXml = rawXml`
+                    <content>
+                        <chl id='${ipcAudioFormData.value.deviceChl}'>
+                            <param>
+                                ${ternary(ipcAudioFormData.value.deviceEnable, `<audioInSwitch>${String(ipcAudioFormData.value.deviceEnable)}</audioInSwitch>`)}
+                                ${ternary(ipcAudioFormData.value.deviceAudioInput, `<audioInput>${String(ipcAudioFormData.value.deviceAudioInput)}</audioInput>`)}
+                                ${ternary(ipcAudioFormData.value.deviceAudioOutput, `<audioOutput>${String(ipcAudioFormData.value.deviceAudioOutput)}</audioOutput>`)}
+                                ${ternary(ipcAudioFormData.value.loudSpeaker, `<loudSpeaker>${String(ipcAudioFormData.value.loudSpeaker)}</loudSpeaker>`)}
+                                ${ternary(ipcAudioFormData.value.audioEncode, `<audioEncode>${String(ipcAudioFormData.value.audioEncode)}</audioEncode>`)}
+                                <volume>
+                                    ${ternary(audioDeviceData[ipcAudioFormData.value.deviceChl].micInVolume >= 0, `<micInVolume>${String(audioDeviceData[ipcAudioFormData.value.deviceChl].micInVolume)}</micInVolume>`)}
+                                    ${ternary(audioDeviceData[ipcAudioFormData.value.deviceChl].linInVolume >= 0, `<linInVolume>${String(audioDeviceData[ipcAudioFormData.value.deviceChl].linInVolume)}</linInVolume>`)}
+                                    ${ternary(ipcAudioFormData.value.outputVolume >= 0, `<audioOutVolume>${String(ipcAudioFormData.value.outputVolume)}</audioOutVolume>`)}
+                                </volume>
+                            </param>
+                        </chl>
+                    </content>
                 `
                 await editAudioStreamConfig(sendXml)
                 closeLoading()

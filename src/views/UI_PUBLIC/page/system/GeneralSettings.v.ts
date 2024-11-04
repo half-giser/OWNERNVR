@@ -11,7 +11,7 @@ import { SystemGeneralSettingForm } from '@/types/apiType/system'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
@@ -93,7 +93,7 @@ export default defineComponent({
          * @description 视频制式改变，提示重启
          */
         const hanelChangeVideoFormat = () => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_VIDEO_FORMAT_EDIT_AFTER_REBOOT'),
             })
@@ -109,7 +109,7 @@ export default defineComponent({
          * @description 输出配置改变，提示重启
          */
         const handleChangeOutputConfig = () => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_EDIT_AFTER_REBOOT').formatForLang(Translate('IDCS_OUTPUT_CONFIG')),
             })

@@ -3,30 +3,30 @@
  * @Date: 2024-05-04 12:58:39
  * @Description: 查看或更改用户
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 18:12:13
+ * @LastEditTime: 2024-11-04 15:28:06
 -->
 <template>
-    <div class="User">
-        <div class="User-left">
+    <div class="base-user-box">
+        <div class="base-user-box-left">
             <div class="base-subheading-box">{{ Translate('IDCS_USER') }}: {{ userName }}</div>
             <div
                 v-show="!authEffective"
-                class="no-auth"
+                class="base-user-auth-none"
             >
                 {{ Translate('IDCS_CLOSE_PERMISSION_CONTROL') }}
             </div>
             <div
                 v-show="authEffective"
-                class="system"
+                class="base-user-auth"
             >
                 <template
                     v-for="auth in systemAuthList"
                     :key="auth.key"
                 >
-                    <div class="title">
+                    <div class="base-user-auth-title">
                         {{ Translate(auth.key) }}
                     </div>
-                    <ul class="list">
+                    <ul class="base-user-auth-list">
                         <li
                             v-for="authItem in auth.value"
                             v-show="!authItem.hidden"
@@ -45,7 +45,7 @@
             </div>
             <div
                 v-show="authEffective"
-                class="channel"
+                class="base-user-chl"
             >
                 <ul>
                     <el-radio-group v-model="pageData.activeChannelTab">
@@ -57,8 +57,11 @@
                         />
                     </el-radio-group>
                 </ul>
-                <div class="base-table-box">
-                    <div v-show="pageData.activeChannelTab === 'IDCS_LOCAL_RIGHT'">
+                <div class="base-user-chl-list">
+                    <div
+                        :class="{ active: pageData.activeChannelTab === 'IDCS_LOCAL_RIGHT' }"
+                        class="base-table-box"
+                    >
                         <el-table
                             :data="channelAuthList"
                             border
@@ -82,7 +85,10 @@
                             </el-table-column>
                         </el-table>
                     </div>
-                    <div v-show="pageData.activeChannelTab === 'IDCS_REMOTE_RIGHT'">
+                    <div
+                        :class="{ active: pageData.activeChannelTab === 'IDCS_REMOTE_RIGHT' }"
+                        class="base-table-box"
+                    >
                         <el-table
                             :data="channelAuthList"
                             border
@@ -109,7 +115,7 @@
                 </div>
             </div>
         </div>
-        <div class="User-right">
+        <div class="base-user-box-right">
             <el-table
                 ref="tableRef"
                 :data="userList"
@@ -127,8 +133,7 @@
                     prop="userName"
                     :label="Translate('IDCS_USERNAME')"
                     min-width="150"
-                >
-                </el-table-column>
+                />
                 <el-table-column
                     :label="Translate('IDCS_RIGHT_GROUP')"
                     min-width="150"
@@ -180,105 +185,6 @@
 
 <script lang="ts" src="./User.v.ts"></script>
 
-<style lang="scss" scoped>
-.User {
-    width: 100%;
-    height: var(--content-height);
-    display: flex;
-
-    &-left {
-        width: 550px;
-        height: 100%;
-        flex-shrink: 0;
-        display: flex;
-        flex-direction: column;
-        margin-right: 5px;
-        overflow: hidden;
-    }
-
-    .ellipsis {
-        width: 100%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    .system {
-        width: 100%;
-        flex-shrink: 0;
-        margin-top: 12px;
-
-        .title {
-            border-left: 3px solid var(--content-border);
-            height: 30px;
-            line-height: 30px;
-            padding-left: 15px;
-            margin-left: 15px;
-        }
-
-        .list {
-            width: 100%;
-            display: flex;
-            flex-wrap: wrap;
-            margin: 0;
-
-            li {
-                width: 50%;
-                height: 35px;
-                line-height: 35px;
-                display: flex;
-                align-items: center;
-                // padding-left: 20px;
-                box-sizing: border-box;
-            }
-        }
-    }
-
-    .channel {
-        height: 100%;
-        margin-top: 10px;
-        display: flex;
-        flex-direction: column;
-
-        ul {
-            display: flex;
-            justify-content: center;
-            border: 1px solid var(--table-border);
-            margin: 0;
-            padding: 5px;
-            flex-shrink: 0;
-        }
-
-        .list {
-            height: 100%;
-            position: relative;
-        }
-
-        :deep(.el-table) {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-        }
-    }
-
-    .no-auth {
-        font-size: 30px;
-        font-weight: bold;
-        padding-top: 50px;
-        text-align: center;
-    }
-
-    &-right {
-        width: 100%;
-
-        :deep(.el-table) {
-            width: 100%;
-            height: var(--content-height);
-
-            tbody {
-                cursor: pointer;
-            }
-        }
-    }
-}
+<style>
+@import '@/views/UI_PUBLIC/publicStyle/userAndSecurity.scss';
 </style>

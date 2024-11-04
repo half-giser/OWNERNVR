@@ -28,7 +28,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
         const userSessionStore = useUserSessionStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const formRef = ref<FormInstance>()
         const formData = ref(new ChannelAddEditIPCIpDto())
         const maskDisabled = ref(false)
@@ -133,7 +133,7 @@ export default defineComponent({
         }
 
         const showMsg = (msg: string) => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'info',
                 message: msg,
             })

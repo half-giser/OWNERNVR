@@ -32,7 +32,7 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
 
         const listData = ref<IntelSearchCollectList[]>([])
 
@@ -94,7 +94,7 @@ export default defineComponent({
             formRef.value!.validate((valid) => {
                 if (valid) {
                     if (listData.value.length >= MAX_STORAGE_LIMIT) {
-                        openMessageTipBox({
+                        openMessageBox({
                             type: 'question',
                             title: Translate('IDCS_QUESTION_MSG'),
                             message: Translate('IDCS_MAX_COLLECT_QUESTION'),
@@ -128,7 +128,7 @@ export default defineComponent({
          * @param {number} index
          */
         const deleteCollect = (index: number) => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 title: Translate('IDCS_DELETE'),
                 message: Translate('IDCS_DELETE_MP_S'),

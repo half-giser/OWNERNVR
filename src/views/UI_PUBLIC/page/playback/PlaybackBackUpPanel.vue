@@ -3,7 +3,7 @@
  * @Date: 2024-07-30 18:30:11
  * @Description: 回放-备份任务列表
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 09:25:19
+ * @LastEditTime: 2024-11-01 17:56:54
 -->
 <template>
     <div class="backup">
@@ -11,7 +11,7 @@
             :visible="pageData.visible"
             :width="1000"
             placement="top-end"
-            popper-class="playback-backup-panel"
+            popper-class="no-padding"
             @update:visible="$emit('update:visible', $event)"
         >
             <template #reference>
@@ -32,10 +32,12 @@
                 border
                 stripe
                 height="400"
+                show-overflow-tooltip
             >
                 <el-table-column
                     :label="Translate('IDCS_SERIAL_NUMBER')"
                     type="index"
+                    width="50"
                 />
                 <el-table-column
                     :label="Translate('IDCS_TIME_SEGMENT')"
@@ -128,7 +130,7 @@
     margin: 0 5px;
 
     &-tip {
-        margin-top: 5px;
+        margin: 5px;
         display: flex;
         align-items: center;
         span:last-child {

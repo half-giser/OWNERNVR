@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 18:39:25
  * @Description: 通道 - OSD配置
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 09:08:57
+ * @LastEditTime: 2024-10-31 19:33:46
 -->
 <template>
     <div class="base-chl-box">
@@ -19,7 +19,6 @@
             <el-form
                 ref="formRef"
                 :model="formData"
-                class="narrow"
                 :style="{
                     '--form-label-width': '160px',
                 }"
@@ -48,8 +47,7 @@
                             :key="index"
                             :value="item.id"
                             :label="item.name || ' '"
-                        >
-                        </el-option>
+                        />
                     </el-select>
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_CHANNEL_NAME')">
@@ -124,7 +122,6 @@
                         <template #default="scope">
                             <el-input
                                 v-model="scope.row.name"
-                                size="small"
                                 maxlength="63"
                                 :disabled="scope.row.disabled"
                                 @focus="tempName = scope.row.name"
@@ -157,7 +154,6 @@
                             <el-select
                                 v-show="!scope.row.isSpeco"
                                 v-model="scope.row.displayName"
-                                size="small"
                                 :disabled="scope.row.disabled"
                                 @focus="handleRowClick(scope.row)"
                                 @change="handleChangeSwitch(scope.row.displayName, scope.row.id, 'displayName')"
@@ -195,7 +191,6 @@
                             <el-select
                                 v-show="!scope.row.isSpeco"
                                 v-model="scope.row.displayTime"
-                                size="small"
                                 :disabled="scope.row.disabled"
                                 @focus="handleRowClick(scope.row)"
                                 @change="handleChangeSwitch(scope.row.displayTime, scope.row.id, 'displayTime')"
@@ -290,7 +285,6 @@
                             <el-select
                                 v-model="scope.row.remarkSwitch"
                                 :disabled="scope.row.remarkDisabled"
-                                size="small"
                                 @focus="handleRowClick(scope.row)"
                                 @change="handleChangeSwitch(scope.row.remarkSwitch, scope.row.id, 'remarkSwitch')"
                             >
@@ -312,7 +306,6 @@
                                 v-model="scope.row.remarkNote"
                                 :disabled="scope.row.remarkDisabled"
                                 maxlength="15"
-                                size="small"
                                 :formatter="handleRemarkNoteInput"
                                 :parser="handleRemarkNoteInput"
                                 @blur="handleRemarkNoteBlur(scope.row.remarkNote, scope.row.id)"

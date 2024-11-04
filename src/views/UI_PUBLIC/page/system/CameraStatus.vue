@@ -17,8 +17,7 @@
             <el-table-column
                 :label="Translate('IDCS_CHANNEL_NAME')"
                 prop="name"
-            >
-            </el-table-column>
+            />
             <el-table-column :label="Translate('IDCS_CONNECT_STATUS')">
                 <template #default="scope">
                     <span :class="{ 'text-error': !scope.row.online }">{{ scope.row.online ? Translate('IDCS_ONLINE') : Translate('IDCS_OFFLINE') }}</span>

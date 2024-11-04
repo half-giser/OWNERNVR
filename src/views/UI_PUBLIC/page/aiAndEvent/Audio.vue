@@ -2,8 +2,8 @@
  * @Description: AI/事件——事件通知——声音
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-13 09:23:15
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-28 10:13:38
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-11-04 16:14:24
 -->
 <template>
     <el-tabs
@@ -18,7 +18,7 @@
             <el-form
                 ref="ipcAudioRef"
                 :model="ipcAudioFormData"
-                class="stripe narrow"
+                class="stripe"
                 :style="{
                     '--form-input-width': '215px',
                     '--form-label-width': '220px',
@@ -51,8 +51,7 @@
                                 :key="item.value"
                                 :value="item.value"
                                 :label="item.label"
-                            >
-                            </el-option>
+                            />
                         </el-select>
                         <span
                             v-show="audioAlarmPageData.queryFailTipsShow"
@@ -81,9 +80,7 @@
                                 :key="item.value"
                                 :value="item.value"
                                 :label="item.label"
-                            >
-                            </el-option
-                        ></el-select>
+                        /></el-select>
                         <div :style="{ marginLeft: '80px' }">
                             <el-button
                                 :disabled="audioAlarmPageData.addAudioDisabled"
@@ -122,7 +119,7 @@
                             :max="100"
                             :value-on-clear="!audioAlarmPageData.volumeDisabled ? 'min' : null"
                             @blur="blurVolume"
-                        ></BaseNumberInput>
+                        />
                     </el-form-item>
                     <!-- 语言 -->
                     <el-form-item :label="Translate('IDCS_LANGUAGE')">
@@ -136,9 +133,7 @@
                                 :key="item.value"
                                 :value="item.value"
                                 :label="item.label"
-                            >
-                            </el-option
-                        ></el-select>
+                        /></el-select>
                     </el-form-item>
                 </template>
                 <!-- 声音设备 -->
@@ -154,7 +149,7 @@
                                 :key="item.value"
                                 :value="item.value"
                                 :label="item.label"
-                            ></el-option>
+                            />
                         </el-select>
                         <span
                             v-show="audioDevicePageData.resFailShow"
@@ -183,7 +178,7 @@
                                 :key="item.value"
                                 :value="item.value"
                                 :label="item.label"
-                            ></el-option>
+                            />
                         </el-select>
                     </el-form-item>
                     <!-- 音频输入音量 -->
@@ -191,14 +186,9 @@
                         <el-slider
                             v-model="ipcAudioFormData.micOrLinVolume"
                             :disabled="audioDevicePageData.micOrLinVolumeDisabled"
-                            :min="0"
+                            show-input
                             @change="changeMicOrLinVolume"
-                        ></el-slider
-                        ><span
-                            v-show="!audioDevicePageData.micOrLinVolumeDisabled"
-                            :style="{ marginLeft: '20px' }"
-                            >{{ ipcAudioFormData.micOrLinVolume }}</span
-                        >
+                        />
                     </el-form-item>
                     <!-- 扬声器（内置） -->
                     <el-form-item :label="Translate('IDCS_DEVICE_SPEAKER_BUILT_IN')">
@@ -212,7 +202,7 @@
                                 :key="item.value"
                                 :value="item.value"
                                 :label="item.label"
-                            ></el-option>
+                            />
                         </el-select>
                     </el-form-item>
                     <!-- LOUT（外置） -->
@@ -227,7 +217,7 @@
                                 :key="item.value"
                                 :value="item.value"
                                 :label="item.label"
-                            ></el-option>
+                            />
                         </el-select>
                     </el-form-item>
                     <!-- 音频输出音量 -->
@@ -235,15 +225,9 @@
                         <el-slider
                             v-model="ipcAudioFormData.outputVolume"
                             :disabled="audioDevicePageData.outputVolumeDisabled"
-                            :min="0"
+                            show-input
                             @change="changeOutputVolume"
-                        >
-                        </el-slider
-                        ><span
-                            v-show="!audioDevicePageData.outputVolumeDisabled"
-                            :style="{ marginLeft: '20px' }"
-                            >{{ ipcAudioFormData.outputVolume }}</span
-                        >
+                        />
                     </el-form-item>
                     <!-- 音频输入编码 -->
                     <el-form-item :label="Translate('IDCS_ENCODE_AUDIO_IN')">
@@ -257,14 +241,13 @@
                                 :key="item.value"
                                 :value="item.value"
                                 :label="item.label"
-                            ></el-option>
+                            />
                         </el-select>
                     </el-form-item>
                 </template>
             </el-form>
             <el-form
                 ref="popMsgRef"
-                class="narrow"
                 :style="{
                     '--form-input-width': '215px',
                     '--form-label-width': '220px',
@@ -284,8 +267,7 @@
                             :key="item.value"
                             :value="item.value"
                             :label="item.label"
-                        >
-                        </el-option>
+                        />
                     </el-select>
                     <el-button @click="pageData.scheduleManagPopOpen = true">{{ Translate('IDCS_MANAGE') }}</el-button>
                 </el-form-item>
@@ -329,7 +311,7 @@
                         prop="name"
                         :label="Translate('IDCS_FILE_NAME')"
                         width="395"
-                    ></el-table-column>
+                    />
                 </el-table>
                 <el-button
                     class="localBtn"

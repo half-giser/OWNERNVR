@@ -16,25 +16,21 @@
             <el-table-column
                 prop="userName"
                 :label="Translate('IDCS_USER_NAME')"
-            >
-            </el-table-column>
+            />
             <el-table-column
                 prop="loginType"
                 :label="Translate('IDCS_LOGIN_TYPE')"
-            >
-            </el-table-column>
+            />
             <el-table-column
                 prop="ip"
                 :label="Translate('IDCS_IP')"
                 width="180"
-            >
-            </el-table-column>
+            />
             <el-table-column
                 prop="time"
                 :label="Translate('IDCS_LOGIN_TIME')"
                 width="250"
-            >
-            </el-table-column>
+            />
             <el-table-column :label="Translate('IDCS_DETAIL_INFO')">
                 <template #default="scope">
                     <BaseImgSprite

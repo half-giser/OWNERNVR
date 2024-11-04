@@ -11,7 +11,7 @@ import { type FormInstance, type FormRules } from 'element-plus'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
@@ -188,12 +188,12 @@ export default defineComponent({
             closeLoading()
 
             if (res1 && res2 && res3 && res4) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
             } else {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_SAVE_DATA_FAIL'),
                 })
@@ -436,7 +436,7 @@ export default defineComponent({
          */
         const changeApiServerSwitch = () => {
             if (apiServerFormData.value.apiserverSwitch && !rtspServerFormData.value.rtspServerSwitch) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'question',
                     message: Translate('IDCS_ENABLE_API_AFTER_RTSP_TIP'),
                 }).then(() => {
@@ -493,7 +493,7 @@ export default defineComponent({
          */
         const changeRtspServerSwitch = () => {
             if (rtspServerFormData.value.rtspServerSwitch) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_RTSP_OR_FTP_ENABLE_REMIND'),
                 })
@@ -505,7 +505,7 @@ export default defineComponent({
          */
         const changeAnonymous = () => {
             if (rtspServerFormData.value.anonymousAccess) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_ANONYMOUS_LOGIN_REMIND'),
                 })

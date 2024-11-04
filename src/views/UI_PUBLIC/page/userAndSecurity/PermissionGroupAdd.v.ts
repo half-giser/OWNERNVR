@@ -18,7 +18,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const userSession = useUserSessionStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { closeLoading, openLoading } = useLoading()
         const router = useRouter()
         const systemCaps = useCababilityStore()
@@ -260,7 +260,7 @@ export default defineComponent({
                         errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
                         break
                 }
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: errorInfo,
                 })

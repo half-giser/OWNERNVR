@@ -22,8 +22,7 @@
                     :key="item.value"
                     :value="item.value"
                     :label="item.label"
-                >
-                </el-option>
+                />
             </el-select>
         </el-form-item>
         <el-form-item
@@ -36,8 +35,7 @@
                     :key="item.value"
                     :value="item.value"
                     :label="item.label"
-                >
-                </el-option>
+                />
             </el-select>
         </el-form-item>
     </el-form>
@@ -64,8 +62,7 @@
                     :key="item.value"
                     :value="item.value"
                     :label="item.label"
-                >
-                </el-option>
+                />
             </el-select>
         </el-form-item>
         <div

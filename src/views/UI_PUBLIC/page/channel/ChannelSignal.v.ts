@@ -10,7 +10,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const cababilityStore = useCababilityStore()
 
         const tableData = ref<ChlSignal[]>([])
@@ -51,7 +51,7 @@ export default defineComponent({
             const count = tableData.value.filter((item) => item.signal == 'D').length
             if (rowData.analogIp == 'IP') {
                 if ((switchIpChlRange[0] && rowData.id < switchIpChlRange[0] - 1) || (switchIpChlRange[1] && rowData.id > switchIpChlRange[1] - 1)) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_ANALOG_SWITCH_RANGE_ERROR').formatForLang(switchIpChlRange[0], switchIpChlRange[1]),
                     })
@@ -60,7 +60,7 @@ export default defineComponent({
                 }
 
                 if (count >= switchableIpChlMaxCount) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_IP_CAN_NOT_ALL_SWITCH').formatForLang(switchableIpChlMaxCount),
                     })
@@ -74,7 +74,7 @@ export default defineComponent({
             } else {
                 const name = rowData.name.slice(2, 4).indexOf('0') == 0 ? rowData.name.slice(3, 4) : rowData.name.slice(2, 4)
                 if (chls.includes(Number(name))) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_SIGNAL_IP_TO_ANALOG_TIP'),
                     })
@@ -107,7 +107,7 @@ export default defineComponent({
                         changeIpCount++
                     }
                 })
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_IP_CAN_NOT_ALL_SWITCH').formatForLang(switchableIpChlMaxCount),
                 })
@@ -118,14 +118,14 @@ export default defineComponent({
                 tableData.value.forEach((ele) => {
                     if (ele.id > switchIpChlRange[0] && ele.id < switchIpChlRange[1]) changeIpRowData.push(ele)
                 })
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_ANALOG_SWITCH_RANGE_ERROR').formatForLang(switchIpChlRange[0], switchIpChlRange[1]),
                 })
             }
 
             if (guidAnalog && val == 'Analog') {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_SIGNAL_IP_TO_ANALOG_TIP'),
                 })
@@ -259,7 +259,7 @@ export default defineComponent({
             })
 
             if (changeAnalogIp) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'question',
                     message: Translate('IDCS_SIGNAL_SWITCH_AFTER_REBOOT'),
                 }).then(async () => {

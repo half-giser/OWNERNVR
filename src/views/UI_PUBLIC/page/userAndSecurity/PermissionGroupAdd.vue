@@ -3,7 +3,7 @@
  * @Date: 2024-06-17 20:25:35
  * @Description: 添加权限组
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 09:42:57
+ * @LastEditTime: 2024-11-04 15:34:52
 -->
 <template>
     <div class="base-flex-box">
@@ -26,19 +26,19 @@
                     :formatter="formatInputMaxLength"
                     :parser="formatInputMaxLength"
                     :maxlength="nameByteMaxLen"
-                >
-                </el-input>
+                />
             </el-form-item>
         </el-form>
-        <div class="system">
+        <div class="base-user-auth-box">
             <div
                 v-for="auth in systemAuthList"
                 :key="auth.key"
+                class="base-user-auth"
             >
-                <div class="title">
+                <div class="base-user-auth-title">
                     {{ Translate(auth.key) }}
                 </div>
-                <ul class="list">
+                <ul class="base-user-auth-list">
                     <li
                         v-for="authItem in auth.value"
                         v-show="!authItem.hidden"
@@ -52,7 +52,7 @@
                 </ul>
             </div>
         </div>
-        <div class="channel">
+        <div class="base-user-chl">
             <ul>
                 <el-radio-group v-model="pageData.activeChannelTab">
                     <el-radio-button
@@ -63,7 +63,7 @@
                     />
                 </el-radio-group>
             </ul>
-            <div class="list">
+            <div class="base-user-chl-list">
                 <div
                     class="base-table-box"
                     :class="{
@@ -194,70 +194,6 @@
 
 <script lang="ts" src="./PermissionGroupAdd.v.ts"></script>
 
-<style lang="scss" scoped>
-.system {
-    display: flex;
-    width: 100%;
-    flex-shrink: 0;
-
-    & > div {
-        width: 50%;
-    }
-
-    .title {
-        border-left: 3px solid var(--content-border);
-        height: 30px;
-        line-height: 30px;
-        padding-left: 15px;
-        margin-left: 15px;
-    }
-
-    .list {
-        display: flex;
-        flex-wrap: wrap;
-        padding-left: 30px;
-        margin: 0;
-
-        & > li {
-            list-style: none;
-            width: 50%;
-        }
-    }
-}
-
-.channel {
-    height: 100%;
-    margin-top: 10px;
-    display: flex;
-    flex-direction: column;
-
-    ul {
-        display: flex;
-        justify-content: center;
-        margin: 0;
-        padding: 5px;
-        flex-shrink: 0;
-    }
-
-    .list {
-        position: relative;
-        width: 100%;
-        height: 100%;
-
-        & > div {
-            position: absolute;
-            top: 0;
-            left: 0;
-            opacity: 0;
-            pointer-events: none;
-            width: 100%;
-            height: 100%;
-
-            &.active {
-                opacity: 1;
-                pointer-events: unset;
-            }
-        }
-    }
-}
+<style>
+@import '@/views/UI_PUBLIC/publicStyle/userAndSecurity.scss';
 </style>

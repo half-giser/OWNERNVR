@@ -9,7 +9,7 @@
     <div class="Setting">
         <el-form
             ref="formRef"
-            class="stripe narrow"
+            class="stripe"
             :rules
             :model="formData"
             :style="{
@@ -50,8 +50,7 @@
                         :key="value"
                         :value
                         :label="value"
-                    >
-                    </el-option>
+                    />
                 </el-select>
             </el-form-item>
             <el-form-item :label="Translate('IDCS_OUTPUT_ADAPT')">
@@ -73,8 +72,7 @@
                             :key="optionKey"
                             :value
                             :label="value"
-                        >
-                        </el-option>
+                        />
                     </el-select>
                 </el-form-item>
                 <el-form-item v-if="key === 0 && pageData.resolutionTip">{{ pageData.resolutionTip }}</el-form-item>
@@ -95,8 +93,7 @@
                             :key="optionKey"
                             :value
                             :label="value"
-                        >
-                        </el-option>
+                        />
                     </el-select>
                 </el-form-item>
             </template>
@@ -113,7 +110,7 @@
                         :key="item.value"
                         :value="item.value"
                         :label="item.label"
-                    ></el-option>
+                    />
                 </el-select>
             </el-form-item>
             <el-form-item>
@@ -144,8 +141,7 @@
                         :key="value"
                         :value="value"
                         :label="displayWaitTimeOption(value)"
-                    >
-                    </el-option>
+                    />
                 </el-select>
             </el-form-item>
             <el-form-item v-if="pageData.isZeroOrAddIpc">

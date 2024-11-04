@@ -9,7 +9,7 @@
     <div class="base-flex-box">
         <div class="form">
             <el-form
-                class="inline-message narrow"
+                class="inline-message"
                 :style="{
                     '--form-input-width': '200px',
                     '--form-label-width': '150px',
@@ -85,7 +85,7 @@
                             />
                         </el-form-item>
                     </el-form-item>
-                    <el-form-item></el-form-item>
+                    <el-form-item />
                 </el-form-item>
                 <el-form-item>
                     <template #label>

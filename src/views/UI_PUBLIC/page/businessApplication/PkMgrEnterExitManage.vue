@@ -32,7 +32,6 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.direction"
-                            size="small"
                             collapse-tags-tooltip
                         >
                             <el-option
@@ -64,7 +63,6 @@
                     <template #default="scope">
                         <el-checkbox
                             v-model="scope.row.enableLEDScreen"
-                            size="small"
                             :disabled="!scope.row.enableLEDScreenValid"
                         />
                     </template>
@@ -76,7 +74,6 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.LEDScreenType"
-                            size="small"
                             collapse-tags-tooltip
                             :disabled="!scope.row.LEDScreenTypeValid"
                         >

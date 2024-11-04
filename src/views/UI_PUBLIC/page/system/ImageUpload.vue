@@ -2,8 +2,8 @@
  * @Description: 系统——上海地标平台——定时图像上传
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-10-23 11:43:06
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-24 14:26:19
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-10-31 20:06:36
 -->
 <template>
     <div class="base-flex-box">
@@ -101,7 +101,6 @@
     >
         <el-form
             ref="formRef"
-            class="narrow"
             :style="{
                 '--form-label-width': '150px',
             }"
@@ -118,7 +117,6 @@
             >
                 <el-time-picker
                     v-model="pageData.addTimeData"
-                    size="small"
                     value-format="HH:mm:ss"
                 />
             </el-form-item>
@@ -137,8 +135,7 @@
         :table-data="tableData"
         @confirm="addUploadTime"
         @close="pageData.addUploadTimePopOpen = false"
-    >
-    </AddUploadTimePop>
+    />
 </template>
 
 <script lang="ts" src="./ImageUpload.v.ts"></script>

@@ -8,7 +8,7 @@
 <template>
     <div class="base-flex-box">
         <el-form
-            class="form narrow"
+            class="form"
             inline-message
             label-width="250"
             :style="{

@@ -3,7 +3,7 @@
  * @Date: 2024-05-30 08:58:30
  * @Description: Loading
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-28 16:32:33
+ * @LastEditTime: 2024-10-31 17:56:41
  */
 interface LoadingItem {
     inst: any
@@ -57,7 +57,6 @@ const useLoading = () => {
                 fullscreen: true,
                 target: getTarget(target),
                 lock: true,
-                background: 'rgba(255, 255, 255, 0.8)',
                 text: text,
             })
             layoutStore.loadingCount = 1
@@ -76,7 +75,6 @@ const useLoading = () => {
             const inst = ElLoading.service({
                 target: getTarget(target),
                 lock: true,
-                background: 'rgba(255, 255, 255, 0.8)',
                 text: text,
             })
             loadingInstMap.set(target, { inst, count: 1 })

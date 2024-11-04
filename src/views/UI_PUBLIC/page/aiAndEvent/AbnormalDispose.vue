@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-19 09:27:27
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-23 20:14:32
+ * @LastEditTime: 2024-11-01 14:43:06
 -->
 <template>
     <div>
@@ -30,7 +30,6 @@
                     </div>
                     <div class="base-ai-param-box-right">
                         <el-form
-                            class="narrow"
                             :style="{
                                 '--form-input-width': '215px',
                             }"
@@ -40,24 +39,19 @@
                             <div class="base-ai-subheading">{{ Translate('IDCD_RULE') }}</div>
                             <!-- 持续时间 -->
                             <el-form-item :label="Translate('IDCS_DURATION')">
-                                <el-select
-                                    v-model="abnormalDisposeData.holdTime"
-                                    size="small"
-                                >
+                                <el-select v-model="abnormalDisposeData.holdTime">
                                     <el-option
                                         v-for="item in abnormalDisposeData.holdTimeList"
                                         :key="item.value"
                                         :value="item.value"
                                         :label="item.label"
-                                    >
-                                    </el-option>
+                                    />
                                 </el-select>
                             </el-form-item>
                             <!-- 场景变更 -->
                             <el-form-item :label="Translate('IDCS_SCENE_CHANGE')">
                                 <el-select
                                     v-model="abnormalDisposeData.sceneChangeSwitch"
-                                    size="small"
                                     :disabled="abnormalDisposeData.sceneChangeSwitch === ''"
                                 >
                                     <el-option
@@ -65,15 +59,13 @@
                                         :key="item.value"
                                         :value="item.value"
                                         :label="item.label"
-                                    >
-                                    </el-option>
+                                    />
                                 </el-select>
                             </el-form-item>
                             <!-- 视频模糊 -->
                             <el-form-item :label="Translate('IDCS_VIDEO_BLUR')">
                                 <el-select
                                     v-model="abnormalDisposeData.clarityAbnormalSwitch"
-                                    size="small"
                                     :disabled="abnormalDisposeData.clarityAbnormalSwitch === ''"
                                 >
                                     <el-option
@@ -81,15 +73,13 @@
                                         :key="item.value"
                                         :value="item.value"
                                         :label="item.label"
-                                    >
-                                    </el-option>
+                                    />
                                 </el-select>
                             </el-form-item>
                             <!-- 视频偏色 -->
                             <el-form-item :label="Translate('IDCS_VIDEO_COLOR')">
                                 <el-select
                                     v-model="abnormalDisposeData.colorAbnormalSwitch"
-                                    size="small"
                                     :disabled="abnormalDisposeData.colorAbnormalSwitch === ''"
                                 >
                                     <el-option
@@ -97,8 +87,7 @@
                                         :key="item.value"
                                         :value="item.value"
                                         :label="item.label"
-                                    >
-                                    </el-option>
+                                    />
                                 </el-select>
                             </el-form-item>
                             <!-- 灵敏度 -->
@@ -108,8 +97,6 @@
                                     :show-tooltip="false"
                                     :min="1"
                                     :max="100"
-                                    size="small"
-                                    :show-input-controls="false"
                                     show-input
                                 />
                             </el-form-item>
@@ -123,7 +110,6 @@
                 >
                     <el-form
                         v-if="supportAlarmAudioConfig"
-                        class="narrow"
                         :style="{
                             '--form-input-width': '215px',
                         }"
@@ -135,8 +121,7 @@
                                     :key="item.value"
                                     :label="item.label"
                                     :value="item.value"
-                                >
-                                </el-option>
+                                />
                             </el-select>
                         </el-form-item>
                     </el-form>
@@ -158,19 +143,14 @@
                                     :key="item.value"
                                     :label="item.label"
                                     :value="item.value"
-                                >
-                                </el-checkbox>
+                                />
                             </el-checkbox-group>
                         </div>
                         <!-- 录像 -->
                         <div class="base-ai-linkage-box">
                             <div class="base-ai-linkage-title">
                                 <span>{{ Translate('IDCS_RECORD') }}</span>
-                                <el-button
-                                    size="small"
-                                    @click="pageData.recordIsShow = true"
-                                    >{{ Translate('IDCS_CONFIG') }}</el-button
-                                >
+                                <el-button @click="pageData.recordIsShow = true">{{ Translate('IDCS_CONFIG') }}</el-button>
                             </div>
                             <el-table
                                 :data="abnormalDisposeData.record"
@@ -183,11 +163,7 @@
                         <div class="base-ai-linkage-box">
                             <div class="base-ai-linkage-title">
                                 <span>{{ Translate('IDCS_ALARM_OUT') }}</span>
-                                <el-button
-                                    size="small"
-                                    @click="pageData.alarmOutIsShow = true"
-                                    >{{ Translate('IDCS_CONFIG') }}</el-button
-                                >
+                                <el-button @click="pageData.alarmOutIsShow = true">{{ Translate('IDCS_CONFIG') }}</el-button>
                             </div>
                             <el-table
                                 :data="abnormalDisposeData.alarmOut"
@@ -197,12 +173,7 @@
                             </el-table>
                         </div>
                         <!-- 联动预置点 -->
-                        <div
-                            class="base-ai-linkage-box"
-                            :style="{
-                                width: '350px',
-                            }"
-                        >
+                        <div class="base-ai-linkage-box preset-box">
                             <div class="base-ai-linkage-title">
                                 <span>{{ Translate('IDCS_TRIGGER_ALARM_PRESET') }}</span>
                             </div>
@@ -215,8 +186,7 @@
                                     prop="name"
                                     width="180"
                                     :label="Translate('IDCS_CHANNEL_NAME')"
-                                >
-                                </el-table-column>
+                                />
                                 <el-table-column
                                     width="170"
                                     :label="Translate('IDCS_PRESET_NAME')"
@@ -224,7 +194,6 @@
                                     <template #default="scope">
                                         <el-select
                                             v-model="scope.row.preset.value"
-                                            size="small"
                                             :empty-values="[undefined, null]"
                                             @visible-change="getPresetById(scope.row)"
                                             @change="presetChange(scope.row)"
@@ -260,11 +229,10 @@
         target-title="IDCS_CHANNEL_TRGGER"
         :source-data="pageData.recordList"
         :linked-list="abnormalDisposeData.record?.map((item) => item.value) || []"
-        type="record"
+        limit-tip="IDCS_RECORD_CHANNEL_LIMIT"
         @confirm="recordConfirm"
         @close="recordClose"
-    >
-    </BaseTransferDialog>
+    />
     <BaseTransferDialog
         v-model="pageData.alarmOutIsShow"
         header-title="IDCS_TRIGGER_ALARM_OUT"
@@ -272,11 +240,10 @@
         target-title="IDCS_TRIGGER_ALARM_OUT"
         :source-data="pageData.alarmOutList"
         :linked-list="abnormalDisposeData.alarmOut?.map((item) => item.value) || []"
-        type="alarmOut"
+        limit-tip="IDCS_ALARMOUT_LIMIT"
         @confirm="alarmOutConfirm"
         @close="alarmOutClose"
-    >
-    </BaseTransferDialog>
+    />
 </template>
 
 <script lang="ts" src="./AbnormalDispose.v.ts"></script>

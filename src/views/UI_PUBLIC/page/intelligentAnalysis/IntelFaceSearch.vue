@@ -116,7 +116,7 @@
                         </div>
                     </div>
                     <el-form
-                        class="inline-message narrow"
+                        class="inline-message"
                         inline-message
                         :style="{
                             '--form-label-width': 'auto',
@@ -306,8 +306,7 @@
                         :label="Translate('IDCS_SERIAL_NUMBER')"
                         type="index"
                         width="60"
-                    >
-                    </el-table-column>
+                    />
                     <el-table-column
                         type="selection"
                         :selectable="getTableSelectable"
@@ -343,8 +342,7 @@
                     <el-table-column
                         :label="Translate('IDCS_CHANNEL')"
                         prop="chlName"
-                    >
-                    </el-table-column>
+                    />
                     <el-table-column
                         width="100"
                         :label="Translate('IDCS_DETAIL_INFO')"

@@ -23,7 +23,7 @@ export default defineComponent({
     setup(props, { emit }) {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
 
         let tmpEditItem: ChlGroup
         const tableRef = ref<TableInstance>()
@@ -87,7 +87,7 @@ export default defineComponent({
 
         const verification = () => {
             if (!selNum.value) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_PROMPT_CHANNEL_GROUP_EMPTY'),
                 })
@@ -131,12 +131,12 @@ export default defineComponent({
                 } else {
                     const errorCdoe = $('errorCode').text()
                     if (Number(errorCdoe) == ErrorCode.USER_ERROR_OVER_LIMIT) {
-                        openMessageTipBox({
+                        openMessageBox({
                             type: 'info',
                             message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT'),
                         })
                     } else {
-                        openMessageTipBox({
+                        openMessageBox({
                             type: 'info',
                             message: Translate('IDCS_SAVE_DATA_FAIL'),
                         })

@@ -5,7 +5,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
 
         const router = useRouter()
         const tableRef = ref<TableInstance>()
@@ -236,24 +236,28 @@ export default defineComponent({
 
         // 测试抓图上传数据
         const getTestScreenshotSaveData = () => {
-            const selection = tableRef.value!.getSelectionRows()
-            let sendXml = rawXml`<content>
-            <item id='testerUploadImage'><chlList type='list'>`
-            selection.forEach((item: chlDataItem) => {
-                sendXml += rawXml`<item>${item.chlId}</item>`
-            })
-            sendXml += `</chlList></item></content>`
+            const selection = tableRef.value!.getSelectionRows() as chlDataItem[]
+            const sendXml = rawXml`
+                <content>
+                    <item id='testerUploadImage'>
+                        <chlList type='list'>
+                            ${selection.map((item) => `<item>${item.chlId}</item>`).join('')}
+                        </chlList>
+                    </item>
+                </content>
+            `
             return sendXml
         }
 
         // 故障报修上传数据
         const getFaultRepairSaveData = () => {
-            const sendXml = rawXml`<content>
-                <item id='errorRepair'>
-                    <errorType>${pageData.value.faultType}</errorType>
-                    <errorParts>${pageData.value.chooseFaultType.join(',')}</errorParts>
-                    <comment><![CDATA[${pageData.value.faultRecord}]]></comment>
-                </item>
+            const sendXml = rawXml`
+                <content>
+                    <item id='errorRepair'>
+                        <errorType>${pageData.value.faultType}</errorType>
+                        <errorParts>${pageData.value.chooseFaultType.join(',')}</errorParts>
+                        <comment><![CDATA[${pageData.value.faultRecord}]]></comment>
+                    </item>
                 </content>
             `
             return sendXml
@@ -261,24 +265,28 @@ export default defineComponent({
 
         // 维保抓图上传数据
         const getMaintenanceScreenshotSaveData = () => {
-            const selection = tableRef.value!.getSelectionRows()
-            let sendXml = rawXml`<content>
-            <item id='keeperUploadImage'><chlList type='list'>`
-            selection.forEach((item: chlDataItem) => {
-                sendXml += rawXml`<item>${item.chlId}</item>`
-            })
-            sendXml += `</chlList></item></content>`
+            const selection = tableRef.value!.getSelectionRows() as chlDataItem[]
+            const sendXml = rawXml`
+                <content>
+                    <item id='keeperUploadImage'>
+                        <chlList type='list'>
+                            ${selection.map((item) => `<item>${item.chlId}</item>`).join('')}
+                        </chlList>
+                    </item>
+                </content>
+            `
             return sendXml
         }
 
         // 维保签到上传数据
         const getMaintenanceSignSaveData = () => {
-            const sendXml = rawXml`<content>
-                <item id='keeperAssign'>
-                    <keepType>${pageData.value.maintenance}</keepType>
-                    <operationItem>${pageData.value.chooseMaintenanceType.join(',')}</operationItem>
-                    <comment><![CDATA[${pageData.value.maintenanceRecord}]]></comment>
-                </item>
+            const sendXml = rawXml`
+                <content>
+                    <item id='keeperAssign'>
+                        <keepType>${pageData.value.maintenance}</keepType>
+                        <operationItem>${pageData.value.chooseMaintenanceType.join(',')}</operationItem>
+                        <comment><![CDATA[${pageData.value.maintenanceRecord}]]></comment>
+                    </item>
                 </content>
             `
             return sendXml
@@ -286,12 +294,13 @@ export default defineComponent({
 
         // 维修签到上传数据
         const getRepairSignSaveData = () => {
-            const sendXml = rawXml`<content>
-                <item id='repairAssign'>
-                    <repairResult>${pageData.value.repair}</repairResult>
-                    <operationItem>${pageData.value.chooseRepairType.join(',')}</operationItem>
-                    <comment><![CDATA[${pageData.value.repairRecord}]]></comment>
-                </item>
+            const sendXml = rawXml`
+                <content>
+                    <item id='repairAssign'>
+                        <repairResult>${pageData.value.repair}</repairResult>
+                        <operationItem>${pageData.value.chooseRepairType.join(',')}</operationItem>
+                        <comment><![CDATA[${pageData.value.repairRecord}]]></comment>
+                    </item>
                 </content>
             `
             return sendXml
@@ -299,15 +308,17 @@ export default defineComponent({
 
         // 验收抓图上传数据
         const getAcceptScreenshotSaveData = () => {
-            const selection = tableRef.value!.getSelectionRows()
-            let sendXml = rawXml`<content>
-            <item id='checkUploadImage'><chlList type='list'>`
-            selection.forEach((item: chlDataItem) => {
-                sendXml += rawXml`<item>${item.chlId}</item>`
-            })
-            sendXml += rawXml`</chlList>
-            <alarmNum>${pageData.value.alarmNum}</alarmNum>
-            </item></content>`
+            const selection = tableRef.value!.getSelectionRows() as chlDataItem[]
+            const sendXml = rawXml`
+                <content>
+                    <item id='checkUploadImage'>
+                        <chlList type='list'>
+                            ${selection.map((item) => `<item>${item.chlId}</item>`).join('')}
+                        </chlList>
+                        <alarmNum>${pageData.value.alarmNum}</alarmNum>
+                    </item>
+                </content>
+            `
             return sendXml
         }
 
@@ -338,7 +349,7 @@ export default defineComponent({
             const result = await editSHDBOperationCfg(sendXml)
             const $ = queryXml(result)
             if ($('//status').text() == 'success') {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_PLATFORM_OPERATE_UPLOAD_MSG'),
                 })

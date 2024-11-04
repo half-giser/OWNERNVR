@@ -6,7 +6,6 @@
 <template>
     <el-input
         v-model="msg"
-        size="small"
         class="base-toolbar-input"
         :placeholder="Translate('IDCS_SEARCH_CHANNEL')"
         @keydown.enter="search"

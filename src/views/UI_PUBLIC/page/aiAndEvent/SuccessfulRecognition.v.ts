@@ -8,7 +8,7 @@
 import { cloneDeep } from 'lodash-es'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import { type PresetList, type CompareTask } from '@/types/apiType/aiAndEvent'
-import { type CheckboxValueType, type ElTable } from 'element-plus'
+import { type TableInstance, type CheckboxValueType } from 'element-plus'
 
 export default defineComponent({
     components: {
@@ -47,7 +47,7 @@ export default defineComponent({
     },
     setup(prop) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const systemCaps = useCababilityStore()
 
         const taskData = prop.currTaskData || {
@@ -78,7 +78,7 @@ export default defineComponent({
             { value: 'popMsgSwitch', label: Translate('IDCS_MESSAGEBOX_POPUP') },
         ])
 
-        const groupTableRef = ref<InstanceType<typeof ElTable>>()
+        const groupTableRef = ref<TableInstance>()
         // 常规联动
         const normalParamCheckAll = ref(false)
         const normalParamCheckList = ref([] as string[])
@@ -263,10 +263,10 @@ export default defineComponent({
                 // 初始化时将当前预置点数据添加到了列表中用于数据展示，这里获取列表需要清除掉
                 row.presetList.splice(1)
                 const sendXml = rawXml`
-                <condition>
-                    <chlId>${row.id}</chlId>
-                </condition>
-            `
+                    <condition>
+                        <chlId>${row.id}</chlId>
+                    </condition>
+                `
                 const result = await queryChlPresetList(sendXml)
                 commLoadResponseHandler(result, ($) => {
                     $('//content/presets/item').forEach((item) => {
@@ -298,7 +298,7 @@ export default defineComponent({
             }
 
             if (taskData.preset.length > MAX_TRIGGER_PRESET_COUNT) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_PRESET_LIMIT'),
                 })

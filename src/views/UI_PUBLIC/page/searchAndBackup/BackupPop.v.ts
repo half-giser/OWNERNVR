@@ -39,7 +39,7 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const Plugin = inject('Plugin') as PluginType
 
         const pageData = ref({
@@ -142,7 +142,7 @@ export default defineComponent({
                     formData.value.localPath = $('//recBackUpPath').text()
                 })
             } catch {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_QUERY_DATA_FAIL'),
                 })
@@ -175,27 +175,28 @@ export default defineComponent({
          * @param {String} password
          */
         const confirmCreateRecBackupTask = async (password = '') => {
-            const recXml = prop.backupList
-                .map((item) => {
-                    // if (!item.records.length) return ''
-                    return rawXml`
-                        <item>
-                            <chls>
-                                <item id="${item.chlId}"></item>
-                            </chls>
-                            <eventType>${item.events.join(',')}</eventType>
-                            <startTime>${localToUtc(item.startTime)}</startTime>
-                            <endTime>${localToUtc(item.endTime)}</endTime>
-                            <backupFileFormat>${formData.value.remoteFormat}</backupFileFormat>
-                            <backupPath>${formData.value.remoteDeviceName}</backupPath>
-                            <IsMainStream>${item.streamType === 0 ? 'true' : 'false'}</IsMainStream>
-                            ${ternary(password, `<encryptPassword>${password}</encryptPassword>`)}
-                        </item>
-                    `
-                })
-                .join('')
             const sendXml = rawXml`
-                <content>${recXml}</content>
+                <content>
+                    ${prop.backupList
+                        .map((item) => {
+                            // if (!item.records.length) return ''
+                            return rawXml`
+                                <item>
+                                    <chls>
+                                        <item id="${item.chlId}"></item>
+                                    </chls>
+                                    <eventType>${item.events.join(',')}</eventType>
+                                    <startTime>${localToUtc(item.startTime)}</startTime>
+                                    <endTime>${localToUtc(item.endTime)}</endTime>
+                                    <backupFileFormat>${formData.value.remoteFormat}</backupFileFormat>
+                                    <backupPath>${formData.value.remoteDeviceName}</backupPath>
+                                    <IsMainStream>${item.streamType === 0 ? 'true' : 'false'}</IsMainStream>
+                                    ${ternary(password, `<encryptPassword>${password}</encryptPassword>`)}
+                                </item>
+                            `
+                        })
+                        .join('')}
+                </content>
             `
             const result = await createRecBackupTask(sendXml)
             const $ = queryXml(result)
@@ -220,7 +221,7 @@ export default defineComponent({
                 }
 
                 if (errorInfo) {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: errorInfo,
                     })

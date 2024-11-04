@@ -59,8 +59,7 @@
                             show-password
                             @paste.capture.prevent=""
                             @copy.capture.prevent=""
-                        >
-                        </el-input>
+                        />
                     </el-form-item>
                     <el-form-item>
                         <el-button

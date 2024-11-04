@@ -22,7 +22,7 @@ export default defineComponent({
     setup() {
         const Plugin = inject('Plugin') as PluginType
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
         const router = useRouter()
         const systemCaps = useCababilityStore()
@@ -267,7 +267,7 @@ export default defineComponent({
             const selection = tableRef.value!.getSelectionRows() as PlaybackRecLogList[]
 
             if ((mode.value === 'ocx' && Plugin.BackUpTask.isExeed(selection.length)) || selection.length > 100) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_BACKUP_TASK_NUM_LIMIT').formatForLang(Plugin.BackUpTask.limit),
                 })
@@ -352,7 +352,7 @@ export default defineComponent({
             const startTime = dayjs(formData.value.startTime, dateTime.dateTimeFormat).valueOf()
             const endTime = dayjs(formData.value.endTime, dateTime.dateTimeFormat).valueOf()
             if (endTime <= startTime) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_END_TIME_GREATER_THAN_START'),
                 })
@@ -457,7 +457,7 @@ export default defineComponent({
             })
 
             if (!tableData.value.length) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_NO_RECORD_DATA'),
                 })

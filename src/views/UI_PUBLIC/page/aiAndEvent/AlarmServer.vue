@@ -3,15 +3,14 @@
  * @Date: 2024-08-14 17:06:01
  * @Description: 报警服务器
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-23 20:36:54
+ * @LastEditTime: 2024-11-04 10:21:59
 -->
 <template>
     <div class="base-flex-box">
         <ScheduleManagPop
             v-model="pageData.scheduleManagePopOpen"
             @close="handleSchedulePopClose"
-        >
-        </ScheduleManagPop>
+        />
         <el-dialog
             v-model="pageData.showAlarmTransfer"
             :title="Translate('IDCS_ALARM_TYPE')"
@@ -45,7 +44,7 @@
             ref="formRef"
             :model="formData"
             :rules="rules"
-            class="form narrow inline-message"
+            class="form inline-message"
             label-width="172"
             :style="{
                 '--form-input-width': '250px',
@@ -58,7 +57,6 @@
                 />
             </el-form-item>
             <!-- 多UI -->
-            <!-- deviceId -->
             <el-form-item
                 v-if="pageData.isAnothorUI || pageData.deviceIdShow"
                 prop="deviceId"
@@ -66,11 +64,11 @@
             >
                 <el-input
                     v-model="formData.deviceId"
-                    maxlength="6"
+                    :maxlength="pageData.isAnothorUI ? 16 : 6"
                     :disabled="!formData.enable"
                 />
             </el-form-item>
-            <!-- Token -->
+            <!-- Token  -->
             <el-form-item
                 v-if="pageData.isAnothorUI"
                 prop="Token"

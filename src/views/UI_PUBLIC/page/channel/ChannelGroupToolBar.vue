@@ -6,7 +6,6 @@
 <template>
     <el-button
         v-if="isAddGroupBtn"
-        size="small"
         @click="addChlGroup"
         >{{ Translate('IDCS_ADD_GROUP') }}</el-button
     >

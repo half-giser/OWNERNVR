@@ -2,13 +2,13 @@
  * @Description: AI 事件——车牌识别
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-09 09:56:14
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-28 15:40:05
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-11-01 14:25:41
 -->
 <template>
     <!-- 通道名称及选择器 -->
     <el-form
-        class="stripe narrow"
+        class="stripe"
         :style="{
             '--form-input-width': '430px',
         }"
@@ -29,8 +29,7 @@
                     :key="item.value"
                     :label="item.label"
                     :value="item.value"
-                >
-                </el-option>
+                />
             </el-select>
         </el-form-item>
     </el-form>
@@ -88,23 +87,14 @@
                                             :label="Translate('IDCS_DISPLAY_ALL_AREA')"
                                             @change="showAllArea"
                                         />
-                                        <el-button
-                                            size="small"
-                                            @click="clearArea"
-                                            >{{ Translate('IDCS_CLEAR') }}</el-button
-                                        >
-                                        <el-button
-                                            size="small"
-                                            @click="clearAllArea"
-                                            >{{ Translate('IDCS_FACE_CLEAR_ALL') }}</el-button
-                                        >
+                                        <el-button @click="clearArea">{{ Translate('IDCS_CLEAR') }}</el-button>
+                                        <el-button @click="clearAllArea">{{ Translate('IDCS_FACE_CLEAR_ALL') }}</el-button>
                                     </div>
                                     <span class="base-ai-tip">{{ detectionPageData.drawAreaTip }}</span>
                                 </div>
                             </div>
                             <div class="base-ai-param-box-right">
                                 <el-form
-                                    class="narrow"
                                     :style="{
                                         '--form-input-width': '215px',
                                     }"
@@ -114,30 +104,21 @@
                                     <div class="base-ai-subheading">{{ Translate('IDCS_SCHEDULE') }}</div>
                                     <!-- 排程配置 -->
                                     <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
-                                        <el-select
-                                            v-model="vehicleDetectionData.schedule"
-                                            size="small"
-                                        >
+                                        <el-select v-model="vehicleDetectionData.schedule">
                                             <el-option
                                                 v-for="item in pageData.scheduleList"
                                                 :key="item.value"
                                                 :value="item.value"
                                                 :label="item.label"
-                                            >
-                                            </el-option>
+                                            />
                                         </el-select>
-                                        <el-button
-                                            size="small"
-                                            @click="pageData.scheduleManagPopOpen = true"
-                                            >{{ Translate('IDCS_MANAGE') }}</el-button
-                                        >
+                                        <el-button @click="pageData.scheduleManagPopOpen = true">{{ Translate('IDCS_MANAGE') }}</el-button>
                                     </el-form-item>
                                     <!-- 区域 -->
                                     <div class="base-ai-subheading">{{ Translate('IDCS_AREA') }}</div>
                                     <el-form-item :label="Translate('IDCS_DETECTION_AREA')">
                                         <el-radio-group
                                             v-model="detectionPageData.regionArea"
-                                            size="small"
                                             class="small-btn"
                                             @change="regionAreaChange"
                                         >
@@ -154,7 +135,6 @@
                                         <el-radio-group
                                             v-model="detectionPageData.maskArea"
                                             class="small-btn"
-                                            size="small"
                                             @change="maskAreaChange"
                                         >
                                             <el-radio-button
@@ -168,12 +148,15 @@
                                     </el-form-item>
                                     <!-- 规则 -->
                                     <div class="base-ai-subheading">{{ Translate('IDCD_RULE') }}</div>
-                                    <el-form-item :label="Translate('IDCS_PLATE_DETECTION_AREA')">
+                                    <el-form-item
+                                        :label="Translate('IDCS_PLATE_DETECTION_AREA')"
+                                        :style="{
+                                            '--form-input-width': '130px',
+                                        }"
+                                    >
                                         <el-select
                                             v-model="detectionPageData.continentValue"
                                             :disabled="detectionPageData.continentDisabled"
-                                            size="small"
-                                            :style="{ width: '130px' }"
                                             @change="refreshArea"
                                         >
                                             <el-option
@@ -181,22 +164,18 @@
                                                 :key="item.value"
                                                 :value="item.value"
                                                 :label="item.label"
-                                            >
-                                            </el-option>
+                                            />
                                         </el-select>
                                         <el-select
                                             v-model="vehicleDetectionData.plateSupportArea"
                                             :disabled="detectionPageData.plateAreaDisabled"
-                                            size="small"
-                                            :style="{ width: '130px' }"
                                         >
                                             <el-option
                                                 v-for="item in detectionPageData.plateAreaOption"
                                                 :key="item.value"
                                                 :value="item.value"
                                                 :label="item.label"
-                                            >
-                                            </el-option>
+                                            />
                                         </el-select>
                                     </el-form-item>
                                     <el-form-item :label="Translate('IDCS_LICENSE_PLATE_EXPOSURE')">
@@ -204,9 +183,7 @@
                                         <el-slider
                                             v-model="vehicleDetectionData.exposureValue"
                                             :show-tooltip="false"
-                                            :show-input-controls="false"
                                             show-input
-                                            size="small"
                                             :min="detectionPageData.exposureMin"
                                             :max="detectionPageData.exposureMax"
                                             :disabled="!vehicleDetectionData.exposureChecked"
@@ -224,7 +201,6 @@
                                     <el-form-item :label="Translate('IDCS_MIN')">
                                         <BaseNumberInput
                                             v-model="vehicleDetectionData.plateSize.minWidth"
-                                            size="small"
                                             :min="vehicleDetectionData.plateSize.min"
                                             :max="vehicleDetectionData.plateSize.max"
                                             @blur="minVehicleBlur"
@@ -234,11 +210,10 @@
                                     <el-form-item :label="Translate('IDCS_MAX')">
                                         <BaseNumberInput
                                             v-model="vehicleDetectionData.plateSize.maxWidth"
-                                            size="small"
                                             :min="vehicleDetectionData.plateSize.min"
                                             :max="vehicleDetectionData.plateSize.max"
                                             @blur="maxVehicleBlur"
-                                        ></BaseNumberInput>
+                                        />
                                         <el-text>%</el-text>
                                     </el-form-item>
                                     <el-form-item>
@@ -273,7 +248,7 @@
                         </template>
                         <div class="advanced_box">
                             <el-form
-                                class="stripe narrow"
+                                class="stripe"
                                 :style="{
                                     '--form-input-width': '170px',
                                 }"
@@ -284,17 +259,13 @@
                                     :label="Translate('IDCS_RECOGNITION_MODE')"
                                     :style="{ padding: '20px 0' }"
                                 >
-                                    <el-select
-                                        v-model="vehicleDetectionData.direction"
-                                        size="small"
-                                    >
+                                    <el-select v-model="vehicleDetectionData.direction">
                                         <el-option
                                             v-for="item in detectionPageData.directionOption"
                                             :key="item.value"
                                             :label="item.label"
                                             :value="item.value"
-                                        >
-                                        </el-option>
+                                        />
                                     </el-select>
                                 </el-form-item>
                             </el-form>
@@ -321,7 +292,6 @@
         >
             <div>
                 <el-form
-                    class="narrow"
                     :style="{
                         '--form-label-width': 'auto',
                     }"
@@ -358,7 +328,7 @@
                                     :record-list="pageData.recordList"
                                     :alarm-out-list="pageData.alarmOutList"
                                     :snap-list="pageData.snapList"
-                                ></SuccessfulRecognition>
+                                />
                             </template>
                         </el-tab-pane>
                     </el-tabs>
@@ -433,7 +403,7 @@
     right: 20px;
     top: 3px;
     span {
-        font-size: 30px;
+        font-size: 20px;
         padding: 0 5px;
         cursor: pointer;
     }

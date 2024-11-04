@@ -3,21 +3,20 @@
  * @Date: 2024-09-12 15:00:13
  * @Description: 过线检测
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-28 15:49:10
+ * @LastEditTime: 2024-10-31 19:28:52
 -->
 <template>
     <div>
         <ScheduleManagPop
             v-model="pageData.scheduleManagePopOpen"
             @close="handleSchedulePopClose"
-        >
-        </ScheduleManagPop>
+        />
         <PassLineEmailPop
             v-model="pageData.morePopOpen"
             :schedule-list="pageData.scheduleList"
             :email-data="pageData.emailData"
             @close="handleMorePopClose"
-        ></PassLineEmailPop>
+        />
         <BaseNotification v-model:notifications="pageData.notification" />
         <!-- <div
             v-if="pageData.notSupportTipShow"
@@ -90,14 +89,9 @@
                             />
                         </div>
                         <div>
-                            <el-button
-                                size="small"
-                                @click="passLineClearArea"
-                                >{{ Translate('IDCS_CLEAR') }}</el-button
-                            >
+                            <el-button @click="passLineClearArea">{{ Translate('IDCS_CLEAR') }}</el-button>
                             <el-button
                                 v-if="pageData.clearAllVisible"
-                                size="small"
                                 @click="passLineClearAllArea"
                                 >{{ Translate('IDCS_FACE_CLEAR_ALL') }}</el-button
                             >
@@ -120,11 +114,7 @@
                             /> -->
                         </div>
                         <div>
-                            <el-button
-                                size="small"
-                                @click="clearCpcArea"
-                                >{{ Translate('IDCS_CLEAR') }}</el-button
-                            >
+                            <el-button @click="clearCpcArea">{{ Translate('IDCS_CLEAR') }}</el-button>
                         </div>
                     </div>
                     <span class="base-ai-tip">{{ Translate('IDCS_DRAW_RECT_TIP') }}</span>
@@ -150,7 +140,6 @@
                         >
                             <el-form
                                 :model="pageData"
-                                class="narrow"
                                 :style="{
                                     '--form-input-width': '215px',
                                 }"
@@ -160,7 +149,6 @@
                                 <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
                                     <el-select
                                         v-model="pageData.passLineSchedule"
-                                        size="small"
                                         @change="pageData.applyDisable = false"
                                     >
                                         <el-option
@@ -168,12 +156,9 @@
                                             :key="item.value"
                                             :label="item.label"
                                             :value="item.value"
-                                        ></el-option>
+                                        />
                                     </el-select>
-                                    <el-button
-                                        size="small"
-                                        @click="pageData.scheduleManagePopOpen = true"
-                                    >
+                                    <el-button @click="pageData.scheduleManagePopOpen = true">
                                         {{ Translate('IDCS_MANAGE') }}
                                     </el-button>
                                 </el-form-item>
@@ -184,7 +169,6 @@
                                 <el-form-item :label="Translate('IDCS_ALARM_LINE')">
                                     <el-radio-group
                                         v-model="pageData.chosenSurfaceIndex"
-                                        size="small"
                                         class="small-btn"
                                         @change="handleLineChange"
                                     >
@@ -200,7 +184,6 @@
                                 <el-form-item :label="Translate('IDCS_DIRECTION')">
                                     <el-select
                                         v-model="pageData.direction"
-                                        size="small"
                                         @change="handleDirectionChange"
                                     >
                                         <el-option
@@ -208,7 +191,7 @@
                                             :key="item.value"
                                             :label="item.label"
                                             :value="item.value"
-                                        ></el-option>
+                                        />
                                     </el-select>
                                 </el-form-item>
                                 <div class="base-ai-subheading">
@@ -240,7 +223,6 @@
                                     <el-select
                                         v-model="pageData.countTimeType"
                                         :disabled="!pageData.autoReset"
-                                        size="small"
                                         @change="pageData.applyDisable = false"
                                     >
                                         <el-option
@@ -248,7 +230,7 @@
                                             :key="item.value"
                                             :label="item.label"
                                             :value="item.value"
-                                        ></el-option>
+                                        />
                                     </el-select>
                                 </el-form-item>
                                 <!-- 时间 -->
@@ -262,7 +244,6 @@
                                         v-if="pageData.countTimeType === 'week'"
                                         v-model="pageData.countPeriod['week'].date"
                                         :disabled="!pageData.autoReset"
-                                        size="small"
                                         @change="pageData.applyDisable = false"
                                     >
                                         <el-option
@@ -270,13 +251,12 @@
                                             :key="item.value"
                                             :label="item.label"
                                             :value="item.value"
-                                        ></el-option>
+                                        />
                                     </el-select>
                                     <el-select
                                         v-if="pageData.countTimeType === 'month'"
                                         v-model="pageData.countPeriod['month'].date"
                                         :disabled="!pageData.autoReset"
-                                        size="small"
                                         @change="pageData.applyDisable = false"
                                     >
                                         <el-option
@@ -284,19 +264,17 @@
                                             :key="item.value"
                                             :label="item.label"
                                             :value="item.value"
-                                        ></el-option>
+                                        />
                                     </el-select>
                                     <el-time-picker
                                         v-if="pageData.countTimeType === 'off'"
                                         :disabled="pageData.countTimeType === 'off'"
-                                        size="small"
                                         value-format="HH:mm:ss"
                                     />
                                     <el-time-picker
                                         v-if="pageData.countTimeType === 'day'"
                                         v-model="pageData.countPeriod['day']['dateTime']"
                                         :disabled="!pageData.autoReset"
-                                        size="small"
                                         value-format="HH:mm:ss"
                                         @change="pageData.applyDisable = false"
                                     />
@@ -304,7 +282,6 @@
                                         v-if="pageData.countTimeType === 'week'"
                                         v-model="pageData.countPeriod['week']['dateTime']"
                                         :disabled="!pageData.autoReset"
-                                        size="small"
                                         value-format="HH:mm:ss"
                                         @change="pageData.applyDisable = false"
                                     />
@@ -312,17 +289,13 @@
                                         v-if="pageData.countTimeType === 'month'"
                                         v-model="pageData.countPeriod['month']['dateTime']"
                                         :disabled="!pageData.autoReset"
-                                        size="small"
                                         value-format="HH:mm:ss"
                                         @change="pageData.applyDisable = false"
                                     />
                                 </el-form-item>
                                 <!-- 手动重置 -->
                                 <el-form-item :label="Translate('IDCS_MANUAL_RESET')">
-                                    <el-button
-                                        size="small"
-                                        @click="handleReset"
-                                    >
+                                    <el-button @click="handleReset">
                                         {{ Translate('IDCS_RESET') }}
                                     </el-button>
                                 </el-form-item>
@@ -347,7 +320,6 @@
                                 <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
                                     <el-select
                                         v-model="pageData.cpcSchedule"
-                                        size="small"
                                         @change="pageData.applyDisable = false"
                                     >
                                         <el-option
@@ -355,12 +327,9 @@
                                             :key="item.value"
                                             :label="item.label"
                                             :value="item.value"
-                                        ></el-option>
+                                        />
                                     </el-select>
-                                    <el-button
-                                        size="small"
-                                        @click="pageData.scheduleManagePopOpen = true"
-                                    >
+                                    <el-button @click="pageData.scheduleManagePopOpen = true">
                                         {{ Translate('IDCS_MANAGE') }}
                                     </el-button>
                                 </el-form-item>
@@ -371,7 +340,6 @@
                                 <el-form-item :label="Translate('IDCS_DURATION')">
                                     <el-select
                                         v-model="pageData.holdTime"
-                                        size="small"
                                         @change="pageData.applyDisable = false"
                                     >
                                         <el-option
@@ -379,14 +347,13 @@
                                             :key="item.value"
                                             :label="item.label"
                                             :value="item.value"
-                                        ></el-option>
+                                        />
                                     </el-select>
                                 </el-form-item>
                                 <!-- 灵敏度 -->
                                 <el-form-item :label="Translate('IDCS_SENSITIVITY')">
                                     <el-select
                                         v-model="pageData.detectSensitivity"
-                                        size="small"
                                         @change="pageData.applyDisable = false"
                                     >
                                         <el-option
@@ -394,14 +361,13 @@
                                             :key="item.value"
                                             :label="item.label"
                                             :value="item.value"
-                                        ></el-option>
+                                        />
                                     </el-select>
                                 </el-form-item>
                                 <!-- 统计周期 -->
                                 <el-form-item :label="Translate('IDCS_STATISTICALCYCLE')">
                                     <el-select
                                         v-model="pageData.statisticalPeriod"
-                                        size="small"
                                         @change="pageData.applyDisable = false"
                                     >
                                         <el-option
@@ -409,39 +375,27 @@
                                             :key="item.value"
                                             :label="item.label"
                                             :value="item.value"
-                                        ></el-option>
+                                        />
                                     </el-select>
                                 </el-form-item>
                                 <!-- 进入阈值 -->
                                 <el-form-item :label="Translate('IDCS_ENTER_NUMBER')">
-                                    <el-input
-                                        v-model="pageData.crossInAlarmNumValue"
-                                        size="small"
-                                    ></el-input>
+                                    <el-input v-model="pageData.crossInAlarmNumValue" />
                                 </el-form-item>
                                 <!-- 离开阈值 -->
                                 <el-form-item :label="Translate('IDCS_LEAVE_NUMBER')">
-                                    <el-input
-                                        v-model="pageData.crossOutAlarmNumValue"
-                                        size="small"
-                                    ></el-input>
+                                    <el-input v-model="pageData.crossOutAlarmNumValue" />
                                 </el-form-item>
                                 <!-- 滞留阈值 -->
                                 <el-form-item :label="Translate('IDCS_STRANDED_NUMBER')">
-                                    <el-input
-                                        v-model="pageData.twoWayDiffAlarmNumValue"
-                                        size="small"
-                                    ></el-input>
+                                    <el-input v-model="pageData.twoWayDiffAlarmNumValue" />
                                 </el-form-item>
                                 <div class="base-ai-subheading">
                                     {{ Translate('IDCS_RESET_INFO') }}
                                 </div>
                                 <!-- 手动重置 -->
                                 <el-form-item :label="Translate('IDCS_MANUAL_RESET')">
-                                    <el-button
-                                        size="small"
-                                        @click="handleReset"
-                                    >
+                                    <el-button @click="handleReset">
                                         {{ Translate('IDCS_RESET') }}
                                     </el-button>
                                 </el-form-item>
@@ -491,8 +445,6 @@
                                         <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
                                         <el-slider
                                             v-model="pageData.objectFilter.personSensitivity"
-                                            size="small"
-                                            :show-input-controls="false"
                                             show-input
                                             @change="pageData.applyDisable = false"
                                         />
@@ -513,8 +465,6 @@
                                         <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
                                         <el-slider
                                             v-model="pageData.objectFilter.carSensitivity"
-                                            size="small"
-                                            :show-input-controls="false"
                                             show-input
                                             @change="pageData.applyDisable = false"
                                         />
@@ -535,8 +485,6 @@
                                         <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
                                         <el-slider
                                             v-model="pageData.objectFilter.motorSensitivity"
-                                            size="small"
-                                            :show-input-controls="false"
                                             show-input
                                             class="slider"
                                             @change="pageData.applyDisable = false"

@@ -3,7 +3,7 @@
  * @Date: 2024-08-21 15:34:24
  * @Description: 前端掉线
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-28 09:36:54
+ * @LastEditTime: 2024-11-04 15:51:00
 -->
 <template>
     <div class="base-flex-box">
@@ -14,11 +14,10 @@
             target-title="IDCS_CHANNEL_TRGGER"
             :source-data="getSnapListSingle(tableData[pageData.triggerDialogIndex] || [])"
             :linked-list="tableData[pageData.triggerDialogIndex]?.snapList || []"
-            :type="pageData.snapType"
+            limit-tip="IDCS_SNAP_CHANNEL_LIMIT"
             @confirm="snapConfirm"
             @close="snapClose"
-        >
-        </BaseTransferDialog>
+        />
         <BaseTransferDialog
             v-model="pageData.alarmOutIsShow"
             header-title="IDCS_TRIGGER_ALARM_OUT"
@@ -26,11 +25,10 @@
             target-title="IDCS_TRIGGER_ALARM_OUT"
             :source-data="getAlarmOutListSingle(tableData[pageData.triggerDialogIndex] || [])"
             :linked-list="tableData[pageData.triggerDialogIndex]?.alarmOutList || []"
-            :type="pageData.alarmOutType"
+            limit-tip="IDCS_ALARMOUT_LIMIT"
             @confirm="alarmOutConfirm"
             @close="alarmOutClose"
-        >
-        </BaseTransferDialog>
+        />
         <SetPresetPop
             v-model="pageData.isPresetPopOpen"
             :filter-chl-id="pageData.presetChlId"
@@ -52,7 +50,7 @@
                     width="50"
                 >
                     <template #default="scope">
-                        <BaseTableRowStatus :icon="scope.row.status"></BaseTableRowStatus>
+                        <BaseTableRowStatus :icon="scope.row.status" />
                     </template>
                 </el-table-column>
                 <!-- 通道名 -->
@@ -80,11 +78,10 @@
                                 target-title="IDCS_CHANNEL_TRGGER"
                                 :source-data="pageData.snapList"
                                 :linked-list="pageData.snapChosedIdsAll"
-                                :type="pageData.snapType"
+                                limit-tip="IDCS_SNAP_CHANNEL_LIMIT"
                                 @confirm="snapConfirmAll"
                                 @close="snapCloseAll"
-                            >
-                            </BaseTransferPop>
+                            />
                         </el-popover>
                     </template>
                     <template #default="scope">
@@ -132,7 +129,6 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.sysAudio"
-                            size="small"
                             :disabled="scope.row.rowDisable"
                             @change="addEditRow(scope.row)"
                         >
@@ -141,8 +137,7 @@
                                 :key="item.value"
                                 :value="item.value"
                                 :label="item.label"
-                            >
-                            </el-option>
+                            />
                         </el-select>
                     </template>
                 </el-table-column>
@@ -171,7 +166,6 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.msgPush"
-                            size="small"
                             :disabled="scope.row.rowDisable"
                             @change="addEditRow(scope.row)"
                         >
@@ -180,8 +174,7 @@
                                 :key="item.value"
                                 :value="item.value"
                                 :label="item.label"
-                            >
-                            </el-option>
+                            />
                         </el-select>
                     </template>
                 </el-table-column>
@@ -204,11 +197,10 @@
                                 target-title="IDCS_TRIGGER_ALARM_OUT"
                                 :source-data="pageData.alarmOutList"
                                 :linked-list="pageData.alarmOutChosedIdsAll"
-                                :type="pageData.alarmOutType"
+                                limit-tip="IDCS_ALARMOUT_LIMIT"
                                 @confirm="alarmOutConfirmAll"
                                 @close="alarmOutCloseAll"
-                            >
-                            </BaseTransferPop>
+                            />
                         </el-popover>
                     </template>
                     <template #default="scope">
@@ -279,7 +271,7 @@
                 <template #default="scope">
                     <el-select
                         v-model="scope.row.ftpSnap"
-                        size="small"
+                        
                         :disabled="scope.row.rowDisable"
                         @change="addEditRow(scope.row)"
                     >
@@ -318,7 +310,6 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.beeper"
-                            size="small"
                             :disabled="scope.row.rowDisable"
                             @change="addEditRow(scope.row)"
                         >
@@ -327,8 +318,7 @@
                                 :key="item.value"
                                 :value="item.value"
                                 :label="item.label"
-                            >
-                            </el-option>
+                            />
                         </el-select>
                     </template>
                 </el-table-column>
@@ -357,7 +347,6 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.videoPopupInfo.chl.value"
-                            size="small"
                             :disabled="scope.row.rowDisable"
                             @change="addEditRow(scope.row)"
                         >
@@ -366,8 +355,7 @@
                                 :key="item.value"
                                 :value="item.value"
                                 :label="item.label"
-                            >
-                            </el-option>
+                            />
                         </el-select>
                     </template>
                 </el-table-column>
@@ -396,7 +384,6 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.msgBoxPopup"
-                            size="small"
                             :disabled="scope.row.rowDisable"
                             @change="addEditRow(scope.row)"
                         >
@@ -405,8 +392,7 @@
                                 :key="item.value"
                                 :value="item.value"
                                 :label="item.label"
-                            >
-                            </el-option>
+                            />
                         </el-select>
                     </template>
                 </el-table-column>
@@ -433,7 +419,6 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.email"
-                            size="small"
                             :disabled="scope.row.rowDisable"
                             @change="addEditRow(scope.row)"
                         >
@@ -442,8 +427,7 @@
                                 :key="item.value"
                                 :value="item.value"
                                 :label="item.label"
-                            >
-                            </el-option>
+                            />
                         </el-select>
                     </template>
                 </el-table-column>

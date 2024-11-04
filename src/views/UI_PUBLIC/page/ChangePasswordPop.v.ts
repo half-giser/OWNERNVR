@@ -37,7 +37,7 @@ export default defineComponent({
         const noticeMsg = ref('')
         const strength = computed(() => getPwdSaftyStrength(formData.value.newPassword))
         const userSession = useUserSessionStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
 
         const rules = ref<FormRules>({
             currentPassword: [
@@ -141,7 +141,7 @@ export default defineComponent({
                 userSession.defaultPwd = false
                 userSession.isChangedPwd = true
                 userSession.pwdExpired = false
-                openMessageTipBox({
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 }).then(() => {
@@ -165,7 +165,7 @@ export default defineComponent({
                         })
                         break
                     case ErrorCode.USER_ERROR_NO_USER:
-                        openMessageTipBox({
+                        openMessageBox({
                             type: 'info',
                             message: Translate('IDCS_DEVICE_USER_NOTEXIST'),
                         }).then(() => {
@@ -204,7 +204,7 @@ export default defineComponent({
          */
         const close = () => {
             if (prop.forced) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'question',
                     message: Translate('IDCS_PWD_STRONG_ERROR_TIPS'),
                 }).then(() => {

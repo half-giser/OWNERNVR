@@ -26,7 +26,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
         const userSessionStore = useUserSessionStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const formRef = ref<FormInstance>()
         const formData = ref({
             params: [] as Array<DefaultPwdDto>,
@@ -132,13 +132,13 @@ export default defineComponent({
                     const errorCode = Number($('errorCode').text())
                     if (errorCode == ErrorCode.USER_ERROR_PWD_ERR || errorCode == ErrorCode.USER_ERROR_NO_USER) {
                         // 用户名/密码错误
-                        openMessageTipBox({
+                        openMessageBox({
                             type: 'info',
                             message: Translate('IDCS_DEVICE_PWD_ERROR'),
                         })
                     } else if (errorCode == ErrorCode.USER_ERROR_NO_AUTH) {
                         // 鉴权账号无相关权限
-                        openMessageTipBox({
+                        openMessageBox({
                             type: 'info',
                             message: Translate('IDCS_NO_AUTH'),
                         })

@@ -25,7 +25,7 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const userSession = useUserSessionStore()
 
@@ -196,14 +196,14 @@ export default defineComponent({
                 const $ = queryXml(result)
 
                 if ($('//status').text() == 'success') {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'success',
                         message: Translate('IDCS_TEST_SUCCESS'),
                     }).finally(() => {
                         close()
                     })
                 } else {
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_TEST_FAIL'),
                     })

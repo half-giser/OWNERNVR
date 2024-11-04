@@ -42,7 +42,7 @@ export default defineComponent({
     setup(props) {
         type CanvasPasslineDirection = 'none' | 'rightortop' | 'leftorbotton'
         const { openLoading, closeLoading } = useLoading()
-        const openMessageTipBox = useMessageBox().openMessageTipBox
+        const openMessageBox = useMessageBox().openMessageBox
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
         const playerRef = ref<PlayerInstance>()
@@ -976,7 +976,7 @@ export default defineComponent({
 
                 if (isSwitchChange && switchChangeTypeArr.length > 0) {
                     const switchChangeType = switchChangeTypeArr.join(',')
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'question',
                         message: Translate('IDCS_SIMPLE_PASSLINE_DETECT_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + pageData.value.chlData.name, switchChangeType),
                     }).then(() => {
@@ -1013,7 +1013,7 @@ export default defineComponent({
 
                 if (isSwitchChange && switchChangeTypeArr.length > 0) {
                     const switchChangeType = switchChangeTypeArr.join(',')
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'question',
                         message: Translate('IDCS_SIMPLE_PASSLINE_DETECT_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + pageData.value.chlData.name, switchChangeType),
                     }).then(() => {
@@ -1038,12 +1038,12 @@ export default defineComponent({
             const res = await editPls(sendXml)
             const $ = queryXml(res)
             if ($('status').text() == 'success') {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_RESET_SUCCESSED'),
                 })
             } else {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_SAVE_DATA_FAIL'),
                 })
@@ -1055,16 +1055,19 @@ export default defineComponent({
 
         // cpc手动重置请求
         const cpcManualResetData = async () => {
-            const sendXml = rawXml`<content><chl id="${pageData.value.currChlId}"></chl></content>`
+            const sendXml = rawXml`
+                <content>
+                    <chl id="${pageData.value.currChlId}"></chl>
+                </content>`
             const res = await forceResetCpc(sendXml)
             const $ = queryXml(res)
             if ($('status').text() == 'success') {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_RESET_SUCCESSED'),
                 })
             } else {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_SAVE_DATA_FAIL'),
                 })
@@ -1074,14 +1077,14 @@ export default defineComponent({
         // 执行手动重置
         const handleReset = () => {
             if (pageData.value.chlData.supportPassLine) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'question',
                     message: Translate('IDCS_RESET_TIP'),
                 }).then(() => {
                     passLineManualResetData()
                 })
             } else if (pageData.value.chlData.supportCpc) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'question',
                     message: Translate('IDCS_RESET_TIP'),
                 }).then(() => {

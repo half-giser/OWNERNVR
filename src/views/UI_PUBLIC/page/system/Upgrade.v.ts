@@ -24,7 +24,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading, closeAllLoading, LoadingTarget } = useLoading()
         const systemCaps = useCababilityStore()
         const Plugin = inject('Plugin') as PluginType
@@ -202,7 +202,7 @@ export default defineComponent({
                 if (systemCaps.devSystemType === 1) {
                     // 只能选择.pkg后缀的文件
                     if (name.indexOf('.pkg') === -1) {
-                        openMessageTipBox({
+                        openMessageBox({
                             type: 'info',
                             message: Translate('IDCS_NO_CHOOSE_TDB_FILE').formatForLang('.pkg'),
                         })
@@ -211,7 +211,7 @@ export default defineComponent({
                 } else {
                     // 只能选择.fls后缀的文件
                     if (name.indexOf('.fls') === -1) {
-                        openMessageTipBox({
+                        openMessageBox({
                             type: 'info',
                             message: Translate('IDCS_NO_CHOOSE_TDB_FILE').formatForLang('.fls'),
                         })
@@ -403,7 +403,7 @@ export default defineComponent({
          * @param {string} message
          */
         const showMessage = (message: string) => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'info',
                 message,
             })
@@ -448,7 +448,7 @@ export default defineComponent({
                     showMessage(Translate('IDCS_DEVICE_BUSY'))
                     break
                 case ErrorCode.USER_ERROR_SERVER_NO_EXISTS:
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_LOGIN_OVERTIME'),
                     }).finally(() => {
@@ -458,7 +458,7 @@ export default defineComponent({
                 // 原项目中 536871017 这个errorcode出现了两次，此处不会执行到
                 // case ErrorCode.USER_ERROR_NO_PARENT_AREA_AUTH:
                 //     // 校验升级包是低版本
-                //     openMessageTipBox({
+                //     openMessageBox({
                 //         type: 'question',
                 //         message: Translate('IDCS_UPGRADE_INCOMPATIBLE_VERSION_CONFIRM'),
                 //     }).then(() => {

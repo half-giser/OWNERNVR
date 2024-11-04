@@ -29,7 +29,7 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
 
         const week = [
             { value: 1, label: Translate('IDCS_MONDAY') },
@@ -107,7 +107,7 @@ export default defineComponent({
         // 提交数据
         const apply = () => {
             if (!pageData.value.expireTime) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_EXPIRE_TIME_EMPTY'),
                 })
@@ -115,7 +115,7 @@ export default defineComponent({
             }
 
             if (pageData.value.expireTime < 1 || pageData.value.expireTime > 8760) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_EXPIRE_TIME_INVALID'),
                 })
@@ -123,7 +123,7 @@ export default defineComponent({
             }
 
             if (pageData.value.weekArr.length == 7) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_KEEPVIDEO_WEEK_ALL'),
                 })
@@ -136,7 +136,7 @@ export default defineComponent({
             const expiration = pageData.value.expireTime
 
             close()
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_CHANGE_EXPIRE_TIME_WARNING_D').formatForLang(tips),
             }).then(() => {

@@ -31,8 +31,7 @@
                             :key="index"
                             :value="item.id"
                             :label="item.name || ' '"
-                        >
-                        </el-option>
+                        />
                     </el-select>
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_FISHEYE_STREAM_MODE')">
@@ -106,8 +105,7 @@
                         prop="name"
                         :label="Translate('IDCS_CHANNEL_NAME')"
                         min-width="180"
-                    >
-                    </el-table-column>
+                    />
                     <el-table-column
                         :label="Translate('IDCS_FISHEYE_STREAM_MODE')"
                         min-width="180"
@@ -134,7 +132,6 @@
                             <el-select
                                 v-model="scope.row.fishEyeMode"
                                 :disabled="scope.row.disabled || scope.row.reqCfgFail || scope.row.HIKVISION"
-                                size="small"
                                 @focus="handleRowClick(scope.row)"
                                 @change="handleChangeVal()"
                             >
@@ -173,7 +170,6 @@
                             <el-select
                                 v-model="scope.row.installType"
                                 :disabled="scope.row.disabled || scope.row.reqCfgFail || scope.row.HIKVISION"
-                                size="small"
                                 @focus="handleRowClick(scope.row)"
                                 @change="handleChangeVal()"
                             >
@@ -212,7 +208,6 @@
                             <el-select
                                 v-model="scope.row.fishEyeEnable"
                                 :disabled="!scope.row.reqCfgFail || scope.row.privateProtocol"
-                                size="small"
                                 @focus="handleRowClick(scope.row)"
                                 @change="handleChangeVal(true)"
                             >

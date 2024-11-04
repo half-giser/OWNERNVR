@@ -3,12 +3,12 @@
  * @Date: 2024-07-01 11:01:04
  * @Description: 查看日志
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 17:39:34
+ * @LastEditTime: 2024-11-01 18:12:25
 -->
 <template>
     <div class="base-flex-box">
         <el-form
-            class="stripe narrow"
+            class="stripe"
             :style="{
                 '--form-input-width': '250px',
             }"
@@ -38,7 +38,7 @@
                         :format="dateTime.dateTimeFormat"
                         type="datetime"
                         @change="changeStartTime"
-                    ></el-date-picker>
+                    />
                     <label>{{ Translate('IDCS_END_TIME') }}</label>
                     <el-date-picker
                         v-model="pageData.endTime"
@@ -46,7 +46,7 @@
                         :format="dateTime.dateTimeFormat"
                         type="datetime"
                         @change="changeEndTime"
-                    ></el-date-picker>
+                    />
                     <label></label>
                     <el-button @click="search">{{ Translate('IDCS_SEARCH') }}</el-button>
                     <el-button @click="handleExport">{{ Translate('IDCS_EXPORT') }}</el-button>
@@ -84,7 +84,7 @@
                 >
                     <template #header>
                         <el-popover
-                            popper-class="popper no-padding"
+                            popper-class="no-padding"
                             width="fit-content"
                         >
                             <template #reference>
@@ -95,6 +95,7 @@
                             <el-scrollbar max-height="300">
                                 <el-checkbox-group
                                     v-model="formData.subType"
+                                    class="line-break inline"
                                     @change="changeSubType"
                                 >
                                     <el-checkbox
@@ -205,13 +206,6 @@
 
     span {
         flex-shrink: 0;
-    }
-}
-
-.el-checkbox-group {
-    :deep(.el-checkbox) {
-        display: flex;
-        padding-left: 10px;
     }
 }
 </style>

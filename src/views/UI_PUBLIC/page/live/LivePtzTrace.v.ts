@@ -44,7 +44,7 @@ export default defineComponent({
     },
     setup(prop) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const systemCaps = useCababilityStore()
 
         // 最大的巡航线数量
@@ -103,7 +103,7 @@ export default defineComponent({
             }
 
             if (listData.value.length >= pageData.value.maxCount) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_OVER_MAX_NUMBER_LIMIT'),
                 })
@@ -135,7 +135,7 @@ export default defineComponent({
         const playTrace = async () => {
             const item = listData.value[pageData.value.active]
             if (!item) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_PROMPT_CHANNEL_TRACE_EMPTY'),
                 })
@@ -179,7 +179,7 @@ export default defineComponent({
                 return
             }
 
-            openMessageTipBox({
+            openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_TRACE_S').formatForLang(Translate('IDCS_CHANNEL'), getShortString(name, 10)),
             }).then(async () => {
@@ -207,7 +207,7 @@ export default defineComponent({
                     const $ = queryXml(result)
 
                     if ($('//status').text() === 'success') {
-                        openMessageTipBox({
+                        openMessageBox({
                             type: 'success',
                             message: Translate('IDCS_DELETE_SUCCESS'),
                         }).then(() => getList())
@@ -242,7 +242,7 @@ export default defineComponent({
             const index = pageData.value.active
             const item = listData.value[pageData.value.active]
             if (!item) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_PROMPT_CHANNEL_TRACE_EMPTY'),
                 })

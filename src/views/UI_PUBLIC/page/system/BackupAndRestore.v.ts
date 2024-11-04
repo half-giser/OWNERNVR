@@ -20,7 +20,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const userSession = useUserSessionStore()
         const Plugin = inject('Plugin') as PluginType
@@ -294,7 +294,7 @@ export default defineComponent({
          * @param {string} message
          */
         const showMsg = (message: string) => {
-            openMessageTipBox({
+            openMessageBox({
                 type: 'info',
                 message,
             })
@@ -328,7 +328,7 @@ export default defineComponent({
                     showMsg(Translate('IDCS_DEVICE_BUSY'))
                     break
                 case ErrorCode.USER_ERROR_SERVER_NO_EXISTS:
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_LOGIN_OVERTIME'),
                     }).finally(() => {

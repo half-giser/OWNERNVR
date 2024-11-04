@@ -26,7 +26,7 @@
                 <el-table-column
                     :label="Translate('IDCS_GATEWAY')"
                     prop="gateway"
-                ></el-table-column>
+                />
                 <el-table-column
                     :label="Translate('IDCS_AUTO_GATEWAY_MAC')"
                     width="250"

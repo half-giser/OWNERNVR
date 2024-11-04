@@ -24,7 +24,7 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         // const { openLoading, closeLoading } = useLoading()
 
         const MAX_ZIP_FILE_LENGTH = 5000 // 一个压缩包最大图片文件数量
@@ -90,7 +90,7 @@ export default defineComponent({
                                 zipName: getZipName(),
                                 files: exportData,
                             }).then(() => {
-                                openMessageTipBox({
+                                openMessageBox({
                                     type: 'success',
                                     title: Translate('IDCS_INFORMATION_MSG'),
                                     message: Translate('IDCS_EXPORT_SUCCESS'),
@@ -149,7 +149,7 @@ export default defineComponent({
                             errorInfo = Translate('IDCS_EXPORT_FACE_DATABASE_TASK_TIP')
                             break
                     }
-                    openMessageTipBox({
+                    openMessageBox({
                         type: 'info',
                         message: errorInfo,
                     }).then(() => {
