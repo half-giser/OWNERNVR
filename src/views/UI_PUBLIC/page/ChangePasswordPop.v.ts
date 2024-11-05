@@ -97,19 +97,7 @@ export default defineComponent({
          * @description 获取密码强度提示文本
          */
         const getNoticeMsg = () => {
-            switch (prop.passwordStrength) {
-                case 'medium':
-                    noticeMsg.value = Translate('IDCS_PASSWORD_STRONG_MIDDLE').formatForLang(8, 16)
-                    break
-                case 'strong':
-                    noticeMsg.value = Translate('IDCS_PASSWORD_STRONG_HEIGHT').formatForLang(8, 16)
-                    break
-                case 'stronger':
-                    noticeMsg.value = Translate('IDCS_PASSWORD_STRONG_HEIGHEST').formatForLang(8, 16)
-                    break
-                default:
-                    break
-            }
+            return getTranslateForPasswordStrength(prop.passwordStrength)
         }
 
         /**

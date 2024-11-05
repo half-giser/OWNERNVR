@@ -3,7 +3,7 @@
  * @Date: 2024-09-18 09:33:12
  * @Description: 开机向导
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-04 11:48:18
+ * @LastEditTime: 2024-11-05 13:56:43
  */
 import { SystemGuideLangForm, SysmteGuidePrivacyForm, SystemGuideUserForm, SystemGuideDateTimeForm, SystemGuideQuestionForm, type SystemGuideDiskList } from '@/types/apiType/system'
 import dayjs from 'dayjs'
@@ -590,19 +590,7 @@ export default defineComponent({
          * @description 密码强度提示
          */
         const getPasswordNoticeMsg = () => {
-            switch (pageData.value.passwordStrength) {
-                case 'medium':
-                    pageData.value.passwordNoticeMsg = Translate('IDCS_PASSWORD_STRONG_MIDDLE').formatForLang(8, 16)
-                    break
-                case 'strong':
-                    pageData.value.passwordNoticeMsg = Translate('IDCS_PASSWORD_STRONG_HEIGHT').formatForLang(8, 16)
-                    break
-                case 'stronger':
-                    pageData.value.passwordNoticeMsg = Translate('IDCS_PASSWORD_STRONG_HEIGHEST').formatForLang(8, 16)
-                    break
-                default:
-                    break
-            }
+            return getTranslateForPasswordStrength(pageData.value.passwordStrength)
         }
 
         /**
