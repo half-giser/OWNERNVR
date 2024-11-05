@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 顶层布局页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 13:55:16
+ * @LastEditTime: 2024-11-04 10:10:28
 -->
 <template>
     <el-container id="layoutMain">
@@ -12,12 +12,7 @@
                 <div
                     v-show="pageData.logoShow"
                     id="logo"
-                    :style="{
-                        backgroundImage: pageData.logoProductModel ? 'none' : 'var(--img-logo)',
-                        marginLeft: pageData.logoProductModel ? '295px' : '14px',
-                    }"
                 >
-                    &nbsp;
                     <div v-text="pageData.logoProductModel"></div>
                 </div>
                 <div id="topRight">
@@ -164,7 +159,8 @@
 
 #logo {
     margin-left: 14px;
-    width: 350px;
+    width: 50%;
+    // width: 350px;
     height: 65px;
     background-position: center left;
     background-repeat: no-repeat;
@@ -178,7 +174,11 @@
 
     div {
         overflow: hidden;
-        margin: 12px 0px 0px 0px;
+        padding: 42px 0px 0px 295px;
+        font-weight: bold;
+        font-size: 16px;
+        color: var(--header-menu-text);
+        text-align: left;
     }
 }
 

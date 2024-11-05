@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 顶层布局页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-31 13:47:15
+ * @LastEditTime: 2024-11-04 18:38:18
  */
 
 import { type RouteLocationMatched } from 'vue-router'
@@ -19,7 +19,7 @@ export default defineComponent({
         const router = useRouter()
         const userSession = useUserSessionStore()
         const systemCaps = useCababilityStore()
-        const { openMessageTipBox } = useMessageBox()
+        const { openMessageBox } = useMessageBox()
         const { Translate } = useLangStore()
         const Plugin = inject('Plugin') as PluginType
         const systemInfo = getSystemInfo()
@@ -192,7 +192,7 @@ export default defineComponent({
          */
         const isCorrectUI = ($basicXml: XMLDocument | Element) => {
             const devVersion = queryXml($basicXml)('//content/softwareVersion').text()
-            const inputUI = getUiAndTheme().name.toLowerCase().replace(/i|-/g, '') // 输入栏UI
+            const inputUI = import.meta.env.VITE_UI_TYPE.toLowerCase().replace(/i|-/g, '') // 输入栏UI
             let targetUI = '' // 设备UI
 
             if (devVersion) {
@@ -221,7 +221,7 @@ export default defineComponent({
             const $ = queryXml(result)
             const diskNum = Number($('//content/item').text())
             if (diskNum == 0) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_NO_DISK'),
                 })
@@ -236,7 +236,7 @@ export default defineComponent({
                 }
             })
             if (diskDamage) {
-                openMessageTipBox({
+                openMessageBox({
                     type: 'question',
                     message: Translate('IDCS_QUESTION_JUMP_DISK_MANAGEMENT'),
                 }).then(() => {
@@ -251,7 +251,7 @@ export default defineComponent({
                             router.push('/config/disk/management')
                         }
                     } else {
-                        openMessageTipBox({
+                        openMessageBox({
                             type: 'info',
                             message: Translate('IDCS_NO_PERMISSION'),
                         })

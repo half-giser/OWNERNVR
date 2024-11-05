@@ -3,7 +3,7 @@
  * @Date: 2024-09-24 15:16:31
  * @Description: UI1-D 客制化 顶层布局页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 13:50:15
+ * @LastEditTime: 2024-11-04 18:40:29
 -->
 <template>
     <el-container id="layoutMain">
@@ -12,12 +12,7 @@
                 <div
                     v-show="pageData.logoShow"
                     id="logo"
-                    :style="{
-                        backgroundImage: pageData.logoProductModel ? 'none' : 'var(--img-logo)',
-                        marginLeft: pageData.logoProductModel ? '295px' : '14px',
-                    }"
                 >
-                    &nbsp;
                     <div v-text="pageData.logoProductModel"></div>
                 </div>
                 <div id="topRight">
@@ -200,14 +195,18 @@
 
 #logo {
     margin: 8px 0px 0px 14px;
-    width: 350px;
+    width: 50%;
     height: 90px;
     background: var(--img-logo) no-repeat;
     text-align: right;
 
     div {
         overflow: hidden;
-        margin: 12px 0px 0px 0px;
+        padding: 42px 0px 0px 295px;
+        font-weight: bold;
+        font-size: 16px;
+        color: var(--main-text);
+        text-align: left;
     }
 }
 

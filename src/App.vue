@@ -2,8 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-05-24 17:12:55
  * @Description: 
- * @LastEditors: tengxiang tengxiang@tvt.net.cn
- * @LastEditTime: 2024-11-01 16:23:14
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-11-01 18:26:37
 -->
 <template>
     <div>
@@ -28,6 +28,7 @@ const router = useRouter()
 const layoutStore = useLayoutStore()
 const langStore = useLangStore()
 const session = useUserSessionStore()
+const dateTime = useDateTimeStore()
 
 const Plugin = usePlugin()
 provide('Plugin', Plugin)
@@ -48,6 +49,7 @@ const hanedleActivationStatus = async (checkActivationStatus: boolean) => {
                 return
             } else {
                 generateAsyncRoutes()
+                await dateTime.getTimeConfig(false)
                 if (route.name === 'login') {
                     router.replace('/live')
                 } else {

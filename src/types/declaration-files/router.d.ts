@@ -3,7 +3,7 @@
  * @Date: 2023-04-27 14:59:23
  * @Description: 路由相关全局类型定义
  */
-import { type RouteRecordName } from 'vue-router'
+import { type RouteRecordName, type RouteRecordRaw } from 'vue-router'
 
 export {}
 
@@ -103,6 +103,8 @@ declare global {
         }
         /** 子路由配置项 */
         children?: FeatureTree
+        /** 路由独享守卫 */
+        beforeEnter?: RouteRecordRaw['beforeEnter']
     }
 
     // interface RouteRecordRawFeatureTree {
