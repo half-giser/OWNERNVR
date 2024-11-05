@@ -2,8 +2,8 @@
  * @Description: AI 事件——人脸识别
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-28 13:42:09
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-29 17:29:56
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-11-05 09:29:21
  */
 import { cloneDeep } from 'lodash-es'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
@@ -476,11 +476,13 @@ export default defineComponent({
         const handleCurrChlData = (data: FaceChlItem) => {
             pageData.value.faceDetectionDisabled = !(data.supportVfd || data.supportBackVfd)
             pageData.value.faceCompareDisabled = !(data.supportVfd || (data.supportBackVfd && supportFaceMatch))
-            if (AISwitch) {
+            // TSSR-20367, 仅TD-3332B2-A1型号才会返回AISwitch字段, 此时人像库固定显示, 仅可选/置灰
+            if (typeof AISwitch === 'boolean') {
                 pageData.value.faceCompareDisabled = false
-                pageData.value.faceLibraryDisabled = false
+                pageData.value.faceLibraryDisabled = AISwitch ? true : false
             } else if (!supportFaceMatch) {
                 pageData.value.isFaceCompareShow = false
+                // NLYH-64：非AI模式下，不支持人脸比对，可根据是否支持人脸比对supportFaceMatch来隐藏人脸识别和人脸库
                 pageData.value.isFaceLibraryShow = false
             }
 

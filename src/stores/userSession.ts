@@ -172,7 +172,7 @@ export const useUserSessionStore = defineStore(
                 csvDeviceName.value = $('content/name').text()
                 const CustomerID = $('content/CustomerID').text()
                 cababilityStore.CustomerID = Number(CustomerID)
-                cababilityStore.AISwitch = $('content/AISwitch').text().toBoolean()
+                cababilityStore.AISwitch = $('content/AISwitch').text() ? $('content/AISwitch').text().toBoolean() : undefined
                 cababilityStore.productModel = $('content/productModel').text()
             })
 
