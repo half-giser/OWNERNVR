@@ -3,7 +3,7 @@
  * @Date: 2024-05-24 17:12:55
  * @Description: 
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-05 15:46:25
+ * @LastEditTime: 2024-11-05 17:27:08
 -->
 <template>
     <div>
@@ -94,7 +94,7 @@ body {
 }
 
 #InitialView {
-    background: #fff var(--img-initview) center no-repeat;
+    background: var(--color-white) var(--img-initview) center no-repeat;
     position: absolute;
     width: 100%;
     height: 100%;

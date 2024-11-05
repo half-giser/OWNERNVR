@@ -45,7 +45,7 @@ export default defineConfig(({ mode }) => {
             'import.meta.env.VITE_BASE_URL': JSON.stringify(env.VITE_BASE_URL),
             'import.meta.env.VITE_APP_IP': JSON.stringify(env.VITE_APP_IP || ''),
         },
-        // base: env.VITE_DEPLOY_BASE_URL,
+        base: './',
         server: {
             port: 9000,
             proxy: {
@@ -181,8 +181,8 @@ export default defineConfig(({ mode }) => {
             chunkSizeWarningLimit: 1024,
             rollupOptions: {
                 output: {
-                    chunkFileNames: '[hash:6].js',
-                    entryFileNames: '[hash:6].js',
+                    chunkFileNames: '[hash].js',
+                    entryFileNames: '[hash].js',
                     assetFileNames: '[name].[ext]',
                     manualChunks,
                 },
