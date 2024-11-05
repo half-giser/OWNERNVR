@@ -3,7 +3,7 @@
  * @Date: 2024-08-26 10:56:10
  * @Description: 日期切换按钮
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 17:24:54
+ * @LastEditTime: 2024-11-05 17:51:29
 -->
 <template>
     <div class="date-tab">
@@ -213,7 +213,12 @@ const changeType = (type: string | number | boolean | undefined) => {
                 current = [date.date(1).hour(0).minute(0).second(0).valueOf(), date.date(days).hour(23).minute(59).second(59).valueOf()]
                 break
             case 'week':
-                current = [date.day(0).hour(0).minute(0).second(0).valueOf(), date.day(6).hour(23).minute(59).second(59).valueOf()]
+                const day = date.day()
+                if (day === 0) {
+                    current = [date.day(-6).hour(0).minute(0).second(0).valueOf(), date.day(0).hour(23).minute(59).second(59).valueOf()]
+                } else {
+                    current = [date.day(1).hour(0).minute(0).second(0).valueOf(), date.day(7).hour(23).minute(59).second(59).valueOf()]
+                }
                 break
             case 'quarter':
                 const quarter = Math.floor(date.month() / 4)
