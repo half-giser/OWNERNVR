@@ -4,10 +4,10 @@
  * @Description: OCX插件模块
  * 原项目中MAC插件和TimeSliderPlugin相关逻辑不保留
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-31 11:55:51
+ * @LastEditTime: 2024-11-05 14:54:45
  */
 import WebsocketPlugin from '@/utils/websocket/websocketPlugin'
-import { ClientPort, P2PClientPort, P2PACCESSTYPE, SERVER_IP, getPluginPath, PluginSizeModeMapping, type OCX_Plugin_Notice_Map } from '@/utils/ocx/ocxUtil'
+import { ClientPort, P2PClientPort, P2PACCESSTYPE, getPluginPath, PluginSizeModeMapping, type OCX_Plugin_Notice_Map } from '@/utils/ocx/ocxUtil'
 
 type PluginStatus = 'Unloaded' | 'Loaded' | 'InitialComplete' | 'Connected' | 'Disconnected' | 'Reconnecting'
 
@@ -413,7 +413,7 @@ const useOCXPlugin = () => {
         // const username = userInfoArr[0]
         // const password = userInfoArr[1]
         const id = ''
-        const sendXML = OCX_XML_SetLoginInfo(SERVER_IP, pluginStore.pluginPort, id)
+        const sendXML = OCX_XML_SetLoginInfo(import.meta.env.VITE_APP_IP, pluginStore.pluginPort, id)
         getVideoPlugin().ExecuteCmd(sendXML)
     }
 
@@ -505,7 +505,7 @@ const useOCXPlugin = () => {
         } as CmdQueue,
         queue: [] as CmdQueue[], // { cmd: string }
         lock: false, //锁定标识：当前命令没有返回时，不能发送新的命令
-        timeout: 60000, //命令超时时长，如果一个命令发出后，在_timeout时间内没返回，就认为超时
+        timeout: 300000, //命令超时时长，如果一个命令发出后，在_timeout时间内没返回，就认为超时
         timeoutId: 0 as NodeJS.Timeout | number,
         add(cmd: CmdQueue) {
             if (this.queue.length > 10000) {

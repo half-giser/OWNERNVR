@@ -3,7 +3,7 @@
  * @Date: 2024-07-05 13:42:37
  * @Description: 磁盘管理
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-18 09:47:05
+ * @LastEditTime: 2024-11-05 14:53:44
  */
 import { type DiskManagememtList } from '@/types/apiType/disk'
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
@@ -236,37 +236,41 @@ export default defineComponent({
                     <password>${e.hexHash}</password>
                 </auth>
             `
-            const result = await formatDisk(sendXml)
-            const $ = queryXml(result)
+            try {
+                const result = await formatDisk(sendXml)
+                const $ = queryXml(result)
 
-            closeLoading()
+                closeLoading()
 
-            if ($('//status').text() === 'success') {
-                pageData.value.isCheckAuth = false
-                getData()
-            } else {
-                const errorCode = Number($('//errorCode').text())
-                let errorInfo = ''
+                if ($('//status').text() === 'success') {
+                    pageData.value.isCheckAuth = false
+                    getData()
+                } else {
+                    const errorCode = Number($('//errorCode').text())
+                    let errorInfo = ''
 
-                switch (errorCode) {
-                    case ErrorCode.USER_ERROR_PWD_ERR:
-                        errorInfo = Translate('IDCS_USER_OR_PASSWORD_ERROR')
-                        break
-                    case ErrorCode.USER_ERROR__CANNOT_FIND_NODE_ERROR:
-                        errorInfo = Translate('IDCS_USER_OR_PASSWORD_ERROR')
-                        break
-                    case ErrorCode.USER_ERROR_NO_AUTH:
-                        errorInfo = Translate('IDCS_NO_AUTH')
-                        break
-                    default:
-                        errorInfo = Translate('IDCS_USER_OR_PASSWORD_ERROR')
-                        break
+                    switch (errorCode) {
+                        case ErrorCode.USER_ERROR_PWD_ERR:
+                            errorInfo = Translate('IDCS_USER_OR_PASSWORD_ERROR')
+                            break
+                        case ErrorCode.USER_ERROR__CANNOT_FIND_NODE_ERROR:
+                            errorInfo = Translate('IDCS_USER_OR_PASSWORD_ERROR')
+                            break
+                        case ErrorCode.USER_ERROR_NO_AUTH:
+                            errorInfo = Translate('IDCS_NO_AUTH')
+                            break
+                        default:
+                            errorInfo = Translate('IDCS_USER_OR_PASSWORD_ERROR')
+                            break
+                    }
+
+                    openMessageBox({
+                        type: 'info',
+                        message: errorInfo,
+                    })
                 }
-
-                openMessageBox({
-                    type: 'info',
-                    message: errorInfo,
-                })
+            } catch {
+                closeLoading()
             }
         }
 
