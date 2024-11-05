@@ -51,7 +51,7 @@ export default defineComponent({
             // 选中的行
             tableIndex: 0,
             // 导出按钮不显示
-            isExportDisabled: import.meta.env.VITE_APP_TYPE === 'P2P',
+            isExportDisabled: userSession.appType === 'P2P',
             // 是否显示导出提示弹窗
             isExportTipPop: false,
             // 是否显示导出弹窗

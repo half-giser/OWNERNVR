@@ -3,7 +3,7 @@
  * @Date: 2024-04-16 13:47:54
  * @Description: 项目入口
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-01 18:25:03
+ * @LastEditTime: 2024-11-05 16:27:10
  */
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
@@ -37,9 +37,10 @@ pinia.use(
 app.use(pinia) // 启用Pinia
 
 const lang = useLangStore()
+const session = useUserSessionStore()
 
 // 标准登录此处请求语言翻译和时间日期配置，P2P登录则延后至插件连接成功后请求
-if (import.meta.env.VITE_APP_TYPE === 'STANDARD') {
+if (session.appType === 'STANDARD') {
     await lang.getLangTypes()
     await lang.getLangItems()
 }
@@ -52,7 +53,7 @@ app.use(datePlugin)
 app.use(typeEnhance)
 app.use(router)
 
-app.config.globalProperties.serverIp = import.meta.env.VITE_APP_IP || window.location.hostname
+app.config.globalProperties.serverIp = session.serverIp
 app.config.globalProperties.browserInfo = getBrowserInfo()
 app.provide('appGlobalProp', app.config.globalProperties)
 

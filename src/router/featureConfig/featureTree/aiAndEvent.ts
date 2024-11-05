@@ -356,26 +356,6 @@ export default {
                     return !!systemCaps.ipChlMaxCount
                 },
             },
-            async beforeEnter(to, from, next) {
-                const { openMessageBox } = useMessageBox()
-                const { Translate } = useLangStore()
-                const result = await querySystemDisArmParam()
-                const $ = queryXml(result)
-                const remoteSwitch = $('//content/remoteSwitch').text().toBoolean()
-                if (remoteSwitch) {
-                    next()
-                } else {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_DISARM_AUTH_TIP'),
-                    })
-                    if (from.fullPath === to.fullPath) {
-                        next('/live')
-                    } else {
-                        next(from)
-                    }
-                }
-            },
         },
         exceptionAlarm: {
             //异常报警
@@ -414,6 +394,26 @@ export default {
                 default: true,
             },
             // 撤防布防界面，若没有开启远程权限，提示开启权限，页面不跳转
+            async beforeEnter(to, from, next) {
+                const { openMessageBox } = useMessageBox()
+                const { Translate } = useLangStore()
+                const result = await querySystemDisArmParam()
+                const $ = queryXml(result)
+                const remoteSwitch = $('//content/remoteSwitch').text().toBoolean()
+                if (remoteSwitch) {
+                    next()
+                } else {
+                    openMessageBox({
+                        type: 'info',
+                        message: Translate('IDCS_DISARM_AUTH_TIP'),
+                    })
+                    if (from.fullPath === to.fullPath) {
+                        next('/live')
+                    } else {
+                        next(from)
+                    }
+                }
+            },
         },
         alarmsStatus: {
             //报警状态

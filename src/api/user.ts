@@ -41,7 +41,7 @@ export const Logout = async () => {
     const pluginStore = usePluginStore()
     if (router.currentRoute.value.name === 'login') return
 
-    if (import.meta.env.VITE_APP_TYPE === 'STANDARD') {
+    if (userSession.appType === 'STANDARD') {
         await doLogout()
         userSession.clearSession()
         pluginStore.showPluginNoResponse = false

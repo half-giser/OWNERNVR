@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 16:04:39
  * @Description: 顶层布局页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-04 10:10:28
+ * @LastEditTime: 2024-11-05 16:38:04
 -->
 <template>
     <el-container id="layoutMain">
@@ -12,6 +12,9 @@
                 <div
                     v-show="pageData.logoShow"
                     id="logo"
+                    :style="{
+                        backgroundImage: userSession.appType === 'STANDARD' ? 'var(--img-logo)' : 'var(--img-authcodelogin-logo)',
+                    }"
                 >
                     <div v-text="pageData.logoProductModel"></div>
                 </div>
@@ -165,12 +168,6 @@
     background-position: center left;
     background-repeat: no-repeat;
     text-align: right;
-
-    @if $GLOBAL_APP_TYPE == P2P {
-        background-image: var(--img-authcodelogin-logo);
-    } @else {
-        background-image: var(--img-logo);
-    }
 
     div {
         overflow: hidden;

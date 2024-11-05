@@ -40,8 +40,8 @@ export default defineComponent({
             return true
         },
     },
-    setup(prop, ctx) {
-        const { Translate } = inject('appGlobalProp') as appGlobalProp
+    setup(_prop, ctx) {
+        const { Translate } = useLangStore()
         const formRef = ref<FormInstance>()
         const formData = ref(new UserCheckAuthForm())
         const userSession = useUserSessionStore()

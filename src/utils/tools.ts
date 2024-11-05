@@ -3,7 +3,7 @@
  * @Date: 2023-04-28 17:57:48
  * @Description: 工具方法
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-05 13:53:48
+ * @LastEditTime: 2024-11-05 15:49:10
  */
 
 import { type QueryNodeListDto } from '@/types/apiType/channel'
@@ -189,7 +189,8 @@ export const isHttpsLogin = () => {
 
 // 判断浏览器是否支持webAssembly
 export const isBrowserSupportWasm = () => {
-    return 'WebAssembly' in window && import.meta.env.VITE_APP_TYPE == 'STANDARD'
+    const userSession = useUserSessionStore()
+    return 'WebAssembly' in window && userSession.appType === 'STANDARD'
 }
 
 /**
@@ -899,9 +900,10 @@ export const reconnect = () => {
     const { openMessageBox } = useMessageBox()
     const { Translate } = useLangStore()
     const pluginStore = usePluginStore()
+    const userSession = useUserSessionStore()
     const { closeLoading } = useLoading()
 
-    if (import.meta.env.VITE_APP_TYPE === 'STANDARD') {
+    if (userSession.appType === 'STANDARD') {
         return setTimeout(() => {
             reconnectStandard(() => {
                 openMessageBox({

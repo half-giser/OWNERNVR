@@ -3,7 +3,7 @@
  * @Date: 2024-09-24 15:16:31
  * @Description: UI1-D 客制化 顶层布局页
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-04 18:40:29
+ * @LastEditTime: 2024-11-05 16:38:52
 -->
 <template>
     <el-container id="layoutMain">
@@ -12,6 +12,9 @@
                 <div
                     v-show="pageData.logoShow"
                     id="logo"
+                    :style="{
+                        backgroundImage: userSession.appType === 'STANDARD' ? 'var(--img-logo)' : 'var(--img-authcodelogin-logo)',
+                    }"
                 >
                     <div v-text="pageData.logoProductModel"></div>
                 </div>

@@ -3,7 +3,7 @@
  * @Date: 2024-05-24 17:12:55
  * @Description: 
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-01 18:26:37
+ * @LastEditTime: 2024-11-05 15:46:25
 -->
 <template>
     <div>
@@ -62,7 +62,7 @@ const hanedleActivationStatus = async (checkActivationStatus: boolean) => {
     }
 }
 
-if (import.meta.env.VITE_APP_TYPE === 'STANDARD') {
+if (session.appType === 'STANDARD') {
     queryActivationStatus().then((result) => {
         const checkActivationStatus = queryXml(result)('//content/activated').text().toBoolean()
         hanedleActivationStatus(checkActivationStatus)

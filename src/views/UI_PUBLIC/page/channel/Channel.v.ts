@@ -19,8 +19,9 @@ export default defineComponent({
         const mute = ref(false)
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
-        const { browserInfo, serverIp } = inject('appGlobalProp') as appGlobalProp
+        const browserInfo = getBrowserInfo()
         const cababilityStore = useCababilityStore()
+        const userSession = useUserSessionStore()
         const router = useRouter()
         const { openMessageBox } = useMessageBox()
         const Plugin = inject('Plugin') as PluginType
@@ -151,7 +152,7 @@ export default defineComponent({
         const handleSettingChannel = (rowData: ChannelInfoDto) => {
             const linkWinMode = browserInfo.type === 'ie' ? '_self' : '_blank'
             if (rowData.poePort && rowData.poePort != '') {
-                const ip = checkIpV6(serverIp) ? `[${serverIp}]` : serverIp
+                const ip = checkIpV6(userSession.serverIp) ? `[${userSession.serverIp}]` : userSession.serverIp
                 browserInfo.type === 'ie' && (pluginStore.showPluginNoResponse = false)
                 window.open(`http://${ip}:${rowData.poePort}`, linkWinMode, '')
             } else {
