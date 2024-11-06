@@ -461,7 +461,7 @@ export default defineComponent({
                 return true
             }
 
-            if (mode.value === 'ocx' && import.meta.env.VITE_APP_TYPE === 'STANDARD') {
+            if (mode.value === 'ocx' && userSession.appType === 'STANDARD') {
                 return true
             }
             return false
@@ -469,7 +469,7 @@ export default defineComponent({
 
         // 鱼眼视图是否显示
         const isFishEyePanel = computed(() => {
-            return mode.value === 'ocx' && import.meta.env.VITE_APP_TYPE === 'STANDARD'
+            return mode.value === 'ocx' && userSession.appType === 'STANDARD'
         })
 
         let player: PlayerInstance['player']
@@ -503,7 +503,7 @@ export default defineComponent({
                     plugin.ShowPluginNoResponse()
                 }
 
-                if (import.meta.env.VITE_APP_TYPE === 'STANDARD' && isHttpsLogin()) {
+                if (userSession.appType === 'STANDARD' && isHttpsLogin()) {
                     // 本地https访问时，提示不支持目标检测（依赖websocket与设备端的通信，仅支持http）
                     pageData.value.notification = [formatHttpsTips(Translate('IDCS_TARGET_DETECTION'))]
                 }

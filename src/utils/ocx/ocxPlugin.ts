@@ -4,10 +4,10 @@
  * @Description: OCX插件模块
  * 原项目中MAC插件和TimeSliderPlugin相关逻辑不保留
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-31 11:55:51
+ * @LastEditTime: 2024-11-05 15:49:46
  */
 import WebsocketPlugin from '@/utils/websocket/websocketPlugin'
-import { ClientPort, P2PClientPort, P2PACCESSTYPE, SERVER_IP, getPluginPath, PluginSizeModeMapping, type OCX_Plugin_Notice_Map } from '@/utils/ocx/ocxUtil'
+import { ClientPort, P2PClientPort, P2PACCESSTYPE, getPluginPath, PluginSizeModeMapping, type OCX_Plugin_Notice_Map } from '@/utils/ocx/ocxUtil'
 
 type PluginStatus = 'Unloaded' | 'Loaded' | 'InitialComplete' | 'Connected' | 'Disconnected' | 'Reconnecting'
 
@@ -226,7 +226,7 @@ const useOCXPlugin = () => {
                     setIsReconn(false)
                     setReconnCallBack(() => {})
                 } else {
-                    if (import.meta.env.VITE_APP_TYPE === 'P2P') {
+                    if (userSession.appType === 'P2P') {
                         closeLoading()
                         if (VideoPluginReconnectTimeoutId !== null) {
                             // 重新连接成功，隐藏“加载中”状态
@@ -266,7 +266,7 @@ const useOCXPlugin = () => {
                     }
                 }
             } else {
-                if (import.meta.env.VITE_APP_TYPE === 'P2P') {
+                if (userSession.appType === 'P2P') {
                     const errorCode = Number($('/statenotify/errorCode').text())
                     const errorDescription = $('/statenotify/errorDescription').text() || ''
                     const curRoutUrl = route.path
@@ -413,7 +413,7 @@ const useOCXPlugin = () => {
         // const username = userInfoArr[0]
         // const password = userInfoArr[1]
         const id = ''
-        const sendXML = OCX_XML_SetLoginInfo(SERVER_IP, pluginStore.pluginPort, id)
+        const sendXML = OCX_XML_SetLoginInfo(userSession.serverIp, pluginStore.pluginPort, id)
         getVideoPlugin().ExecuteCmd(sendXML)
     }
 
@@ -464,7 +464,7 @@ const useOCXPlugin = () => {
      * @description videoPluginLogin 登录
      */
     const videoPluginLogin = () => {
-        if (import.meta.env.VITE_APP_TYPE === 'P2P') {
+        if (userSession.appType === 'P2P') {
             if (userSession.p2pSessionId) {
                 p2pSessionIdLogin()
             } else {
@@ -505,7 +505,7 @@ const useOCXPlugin = () => {
         } as CmdQueue,
         queue: [] as CmdQueue[], // { cmd: string }
         lock: false, //锁定标识：当前命令没有返回时，不能发送新的命令
-        timeout: 60000, //命令超时时长，如果一个命令发出后，在_timeout时间内没返回，就认为超时
+        timeout: 300000, //命令超时时长，如果一个命令发出后，在_timeout时间内没返回，就认为超时
         timeoutId: 0 as NodeJS.Timeout | number,
         add(cmd: CmdQueue) {
             if (this.queue.length > 10000) {
@@ -595,7 +595,7 @@ const useOCXPlugin = () => {
         }
         const connPlugin = new WebsocketPlugin({
             wsType: 'pluginMainProcess',
-            port: import.meta.env.VITE_APP_TYPE === 'STANDARD' ? ClientPort : P2PClientPort,
+            port: userSession.appType === 'STANDARD' ? ClientPort : P2PClientPort,
             onopen: () => {
                 isInstallPlugin.value = true
             },
@@ -676,7 +676,7 @@ const useOCXPlugin = () => {
      */
     const loadWinPlugin = () => {
         const path = getPluginPath()
-        const downLoadUrl = import.meta.env.VITE_APP_TYPE === 'STANDARD' ? path.ClientPluDownLoadPath : path.P2PClientPluDownLoadPath
+        const downLoadUrl = userSession.appType === 'STANDARD' ? path.ClientPluDownLoadPath : path.P2PClientPluDownLoadPath
         let needUpate = true
         const sendXML = OCX_XML_GetOcxVersion()
         getVideoPlugin().QueryInfo(sendXML, (strXMLFormat) => {
@@ -699,7 +699,7 @@ const useOCXPlugin = () => {
                 isInstallPlugin.value = false
                 // 将showPluginNoResponse置为空，避免更新插件并安装后页面弹出：插件无响应
                 pluginStore.showPluginNoResponse = false
-                import.meta.env.VITE_APP_TYPE == 'P2P' && setPluginNotice('body')
+                userSession.appType == 'P2P' && setPluginNotice('body')
                 return
             } else {
                 isPluginAvailable.value = true
@@ -708,7 +708,7 @@ const useOCXPlugin = () => {
 
             //设置OCX模式
             try {
-                if (import.meta.env.VITE_APP_TYPE === 'P2P') {
+                if (userSession.appType === 'P2P') {
                     const sendXML = OCX_XML_Initial_P2P('Interactive', 'VideoPluginNotify', 'Live', 1)
                     getVideoPlugin().ExecuteCmd(sendXML)
                 } else {
@@ -728,7 +728,7 @@ const useOCXPlugin = () => {
     const togglePageByPlugin = () => {
         let currPluginMode = pluginStore.currPluginMode
         // 如果当前浏览器不支持H5，获取的插件模式为'h5'时，需要进行转换为'ocx'
-        if (import.meta.env.VITE_APP_TYPE == 'STANDARD' && 'WebAssembly' in window) {
+        if (userSession.appType == 'STANDARD' && 'WebAssembly' in window) {
             // currPluginMode = currPluginMode // || 'h5'
         } else {
             currPluginMode = 'ocx'
@@ -857,7 +857,7 @@ const useOCXPlugin = () => {
             pluginStore.currPluginMode = 'ocx'
         }
         const path = getPluginPath()
-        if (import.meta.env.VITE_APP_TYPE == 'P2P') {
+        if (userSession.appType == 'P2P') {
             getPluginNotice(path.P2PClientPluDownLoadPath)
             // 与插件建链成功后，发生了错误，禁止跳转到插件下载页面,保留当前页面状态
             if (pluginStore.showPluginNoResponse) return
@@ -992,7 +992,7 @@ const useOCXPlugin = () => {
         // 检查浏览器当前标签页是否为可见。若不可见,则不显示视频插件窗口
         if (isShow && document.visibilityState == 'hidden') return
         if (!getIsPluginAvailable()) return
-        // if (systemInfo.platform === 'mac' && import.meta.env.VITE_APP_TYPE === 'P2P') {
+        // if (systemInfo.platform === 'mac' && userSession.appType === 'P2P') {
         //     // effect
         //     // if ($('.tvt_dialog').length > 0 && isShow && $('#popRec_content').length == 0) {
         //     //     return
@@ -1029,7 +1029,7 @@ const useOCXPlugin = () => {
     const setPluginSize = (pluginRefDiv: HTMLElement | null, pluginObj?: ReturnType<typeof getVideoPlugin>, shouldAdjust = false) => {
         // if (!context) context = document.body // $('body')
         if (!pluginObj) pluginObj = getVideoPlugin()
-        // if (systemInfo.platform === 'mac' && import.meta.env.VITE_APP_TYPE === 'P2P') {
+        // if (systemInfo.platform === 'mac' && userSession.appType === 'P2P') {
         //     setPluginSizeForP2PMac(pluginRefDiv, pluginObj as EmbedPlugin)
         //     return
         // }
@@ -1423,7 +1423,7 @@ const useOCXPlugin = () => {
 
     onMounted(() => {
         disposePlugin()
-        if (import.meta.env.VITE_APP_TYPE === 'STANDARD') {
+        if (userSession.appType === 'STANDARD') {
             startV2Process()
         } else {
             if (userSession.refreshLoginPage) {

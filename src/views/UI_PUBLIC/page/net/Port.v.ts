@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 18:47:07
  * @Description: 网络端口
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 12:02:54
+ * @LastEditTime: 2024-11-05 16:25:47
  */
 import { NetPortForm, NetPortUPnPDto, NetPortApiServerForm, NetPortRtspServerForm } from '@/types/apiType/net'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -14,6 +14,7 @@ export default defineComponent({
         const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
+        const userSession = useUserSessionStore()
 
         // 认证方式与显示文本的映射
         const VERIFICATION_MAPPING: Record<string, string> = {
@@ -310,7 +311,7 @@ export default defineComponent({
          * @description P2P获取无线网络数据
          */
         const getWirelessNetworkData = async () => {
-            if (import.meta.env.VITE_APP_TYPE === 'P2P') {
+            if (userSession.appType === 'P2P') {
                 const result = await queryWirelessNetworkCfg()
                 const $ = queryXml(result)
                 pageData.value.wirelessSwitch = $('//content/switch').text().toBoolean()

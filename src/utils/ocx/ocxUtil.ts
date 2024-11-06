@@ -3,7 +3,7 @@
  * @Date: 2024-06-03 11:57:44
  * @Description: OCX公共模块
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 18:49:24
+ * @LastEditTime: 2024-11-05 15:09:46
  */
 
 // 测试环境
@@ -914,12 +914,8 @@ export const OCX_Plugin_Notice_Map = {
     },
 }
 
-export const P2P_V: '1.0' | '2.0' = '2.0' // 1.0, 2.0
-
 export const TIMESLIDER_PLUGIN = 'TimeSlider'
 export const VIDEO_PLUGIN = 'VideoPlugin'
-
-export const SERVER_IP = '10.20.50.13'
 
 export const P2PACCESSTYPE = {
     P2P_SMALL_PLUGIN: 'p2pSmallPlugin', // 区分由P2P登录页跳转小插件查询版本号后再进行跳转登录

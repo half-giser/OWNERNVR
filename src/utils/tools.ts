@@ -3,7 +3,7 @@
  * @Date: 2023-04-28 17:57:48
  * @Description: 工具方法
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-04 17:00:08
+ * @LastEditTime: 2024-11-05 15:49:10
  */
 
 import { type QueryNodeListDto } from '@/types/apiType/channel'
@@ -24,26 +24,26 @@ export * from './date'
  * @param {any} obj
  * @return {*}
  */
-export const getObjFirstKV = (obj: any): [string, any] | undefined => {
-    for (const key in obj) {
-        return [key, obj[key]]
-    }
-}
+// export const getObjFirstKV = (obj: any): [string, any] | undefined => {
+//     for (const key in obj) {
+//         return [key, obj[key]]
+//     }
+// }
 
 /**
  * @description: 获取当前网站的UI和主题
  * @return {UiAndTheme}
  */
-export const getUiAndTheme = (): UiAndTheme => {
-    const uiArr = import.meta.env.VITE_UI_TYPE.split('-')
-    const ui = uiArr[0] as UiName
-    const theme = uiArr[1]
-    return {
-        ui,
-        theme,
-        name: import.meta.env.VITE_UI_TYPE,
-    }
-}
+// export const getUiAndTheme = (): UiAndTheme => {
+//     const uiArr = import.meta.env.VITE_UI_TYPE.split('-')
+//     const ui = uiArr[0] as UiName
+//     const theme = uiArr[1]
+//     return {
+//         ui,
+//         theme,
+//         name: import.meta.env.VITE_UI_TYPE,
+//     }
+// }
 
 /**
  * @description: 获取客户端操作系统
@@ -189,7 +189,8 @@ export const isHttpsLogin = () => {
 
 // 判断浏览器是否支持webAssembly
 export const isBrowserSupportWasm = () => {
-    return 'WebAssembly' in window && import.meta.env.VITE_APP_TYPE == 'STANDARD'
+    const userSession = useUserSessionStore()
+    return 'WebAssembly' in window && userSession.appType === 'STANDARD'
 }
 
 /**
@@ -899,9 +900,10 @@ export const reconnect = () => {
     const { openMessageBox } = useMessageBox()
     const { Translate } = useLangStore()
     const pluginStore = usePluginStore()
+    const userSession = useUserSessionStore()
     const { closeLoading } = useLoading()
 
-    if (import.meta.env.VITE_APP_TYPE === 'STANDARD') {
+    if (userSession.appType === 'STANDARD') {
         return setTimeout(() => {
             reconnectStandard(() => {
                 openMessageBox({
@@ -1101,6 +1103,25 @@ const getTranslateForTime = (value: number, unit1: string, unit1s: string, unit2
         label += (t1 > 0 ? ' ' : '') + `${t2} ${t2 === 1 ? unit2 : unit2s}`
     }
     return label
+}
+
+/**
+ * @description 获取密码强度提示文本
+ */
+export const getTranslateForPasswordStrength = (key: keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING) => {
+    const Translate = useLangStore().Translate
+    switch (key) {
+        case 'weak':
+            return Translate('IDCS_PASSWORD_STRONG_WEAK').formatForLang(1, 16)
+        case 'medium':
+            return Translate('IDCS_PASSWORD_STRONG_MIDDLE').formatForLang(8, 16)
+        case 'strong':
+            return Translate('IDCS_PASSWORD_STRONG_HEIGHT').formatForLang(8, 16)
+        case 'stronger':
+            return Translate('IDCS_PASSWORD_STRONG_HEIGHEST').formatForLang(9, 16)
+        default:
+            return ''
+    }
 }
 
 /**

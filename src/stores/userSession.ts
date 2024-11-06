@@ -43,6 +43,22 @@ export const useUserSessionStore = defineStore(
         const authCodeIndex = ref('')
         const refreshLoginPage = ref(false)
 
+        let hostname = window.location.hostname
+        // ie8以上的版本ipv6的ip带括号，导致请求不到视频
+        if (hostname.indexOf('[') !== -1) {
+            hostname = hostname.substring(1, hostname.length - 1)
+        }
+
+        const serverIp = ref(import.meta.env.VITE_APP_IP || hostname)
+
+        /**
+         * 为了P2P仅部署一套代码减少发布件，将P2P版本、设备登录方式通过动态方式进行获取
+         * P2P公共代码逻辑里存储了相关信息到sessionStorage中，若没有这些信息则采取默认的值
+         */
+        const appType = ref<'P2P' | 'STANDARD'>(Number(getCookie(LocalCacheKey.KEY_IS_P2P)) === 1 ? 'P2P' : 'STANDARD')
+
+        const p2pVersion = ref<'1.0' | '2.0'>(sessionStorage.getItem(LocalCacheKey.KEY_P2P_VERSION) === '1.0' ? '1.0' : '2.0')
+
         /**
          * @description 加密本地存储用户信息
          * @param authInfo
@@ -172,7 +188,7 @@ export const useUserSessionStore = defineStore(
                 csvDeviceName.value = $('content/name').text()
                 const CustomerID = $('content/CustomerID').text()
                 cababilityStore.CustomerID = Number(CustomerID)
-                cababilityStore.AISwitch = $('content/AISwitch').text().toBoolean()
+                cababilityStore.AISwitch = $('content/AISwitch').text() ? $('content/AISwitch').text().toBoolean() : undefined
                 cababilityStore.productModel = $('content/productModel').text()
             })
 
@@ -238,6 +254,9 @@ export const useUserSessionStore = defineStore(
             isChangedPwd,
             pwdSaftyStrength,
             pwdExpired,
+            serverIp,
+            appType,
+            p2pVersion,
             calendarType,
             csvDeviceName,
             hasAuth,

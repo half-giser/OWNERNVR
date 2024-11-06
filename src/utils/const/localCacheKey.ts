@@ -3,7 +3,7 @@
  * @Date: 2024-09-20 09:44:20
  * @Description: 维护本地缓存Key（localStorage， sessionStorage）, 确保key值唯一
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 20:13:13
+ * @LastEditTime: 2024-11-05 15:56:02
  */
 
 export const KEY_LANG_TYPE = 'langType'
@@ -37,3 +37,7 @@ export const KEY_SN = 'sn'
 export const KEY_REQUEST_BASIC_ID = 'requestBasicId'
 
 export const KEY_BACKUP_PIC_MSG = 'backUpPicMsg'
+
+export const KEY_P2P_VERSION = 'p2pVersion'
+
+export const KEY_IS_P2P = 'isp2p'

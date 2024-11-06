@@ -3,7 +3,7 @@
  * @Date: 2024-09-03 09:09:06
  * @Description: 新增车牌弹窗
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 15:36:02
+ * @LastEditTime: 2024-11-05 16:29:30
  */
 import { IntelPlateDBAddPlateForm, IntelPlateDBPlateInfo } from '@/types/apiType/intelligentAnalysis'
 import IntelLicenceDBEditPop from './IntelLicencePlateDBEditPop.vue'
@@ -44,6 +44,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const userSession = useUserSessionStore()
 
         const mode = computed(() => {
             return Plugin.IsSupportH5() ? 'h5' : 'ocx'
@@ -71,7 +72,7 @@ export default defineComponent({
             tab: 'form',
             csvTitle: ['(B1)' + Translate('IDCS_LICENSE_PLATE_NUM'), '(B2)' + Translate('IDCS_VEHICLE_OWNER'), '(B3)' + Translate('IDCS_PHONE_NUMBER'), '(N1)' + Translate('IDCS_VEHICLE_TYPE')],
             // 是否禁用Tab
-            disabledTab: import.meta.env.VITE_APP_TYPE === 'P2P' || isHttpsLogin(),
+            disabledTab: userSession.appType === 'P2P' || isHttpsLogin(),
             // 导入框是否drag状态
             isDrag: false,
             // 导入的文件名

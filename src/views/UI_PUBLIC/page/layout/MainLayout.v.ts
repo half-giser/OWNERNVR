@@ -96,7 +96,7 @@ export default defineComponent({
             const result = await queryBasicCfg()
             const $ = queryXml(result)
             if ($('//status').text() === 'success') {
-                if (import.meta.env.VITE_APP_TYPE === 'P2P' && !isCorrectUI(result)) return
+                if (userSession.appType === 'P2P' && !isCorrectUI(result)) return
                 cbk && cbk()
                 if (![5].includes(systemCaps.CustomerID)) {
                     return
@@ -333,6 +333,7 @@ export default defineComponent({
             menu1Item, // 当前进入的一级菜单项的二级菜单列表
             allMenu1Items,
             systemCaps,
+            userSession,
             userName,
             goToPath,
             showLocalConfig,

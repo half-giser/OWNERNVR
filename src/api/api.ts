@@ -3,7 +3,7 @@
  * @Date: 2023-05-04 22:08:40
  * @Description: HTTP请求工具类
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-04 11:53:19
+ * @LastEditTime: 2024-11-05 16:22:14
  */
 
 /* axios配置入口文件 */
@@ -34,7 +34,7 @@ export const getXmlWrapData = (data: string, url = '', refresh = false) => {
         tokenXml = `<token>${userSessionStore.token}</token>`
     }
 
-    if (import.meta.env.VITE_APP_TYPE === 'P2P') {
+    if (userSessionStore.appType === 'P2P') {
         return rawXml`${xmlHeader}
             <cmd type="NVMS_NAT_CMD">
                 <request version="1.0" systemType="NVMS-9000" clientType="WEB-NAT" url="${url}" flag="1" ${refresh ? `refresh="true"` : ''}>
@@ -98,7 +98,8 @@ class Request {
 
     fetch(url: string, data: string, config?: AxiosRequestConfig, checkCommonErrorSwitch = true) {
         return new Promise((resolve: (data: ApiResult) => void, reject: (error: any) => void) => {
-            if (import.meta.env.VITE_APP_TYPE === 'STANDARD') {
+            const appType = useUserSessionStore().appType
+            if (appType === 'STANDARD') {
                 return axios({
                     ...this.config,
                     ...config,

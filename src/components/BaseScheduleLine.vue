@@ -107,7 +107,7 @@ let scaleColor = '#000'
 let timeSpanColor = '#18C0DD'
 let timeSpanSelectingColor = '#89E9F9'
 
-const { Translate } = inject('appGlobalProp') as appGlobalProp
+const { Translate } = useLangStore()
 
 //时间段显示风格符号，精度到分钟，如 02:30-05:10
 const timeSpanSplit = '-'

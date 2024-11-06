@@ -70,7 +70,7 @@
             </el-form-item>
             <el-form-item>
                 <template #label>
-                    {{ Translate('IDCS_CHANGE_PWD') }}
+                    {{ Translate('IDCS_PASSWORD') }}
                     <el-checkbox
                         v-model="editPwdSwitch"
                         :disabled="inputDisabled"

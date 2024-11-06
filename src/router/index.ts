@@ -2,10 +2,10 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-04-16 13:47:54
  * @Description: 路由构建入口文件
- * @LastEditors: tengxiang tengxiang@tvt.net.cn
- * @LastEditTime: 2024-11-01 12:00:26
+ * @LastEditors: yejiahao yejiahao@tvt.net.cn
+ * @LastEditTime: 2024-11-05 17:17:46
  */
-import { createRouter, createWebHistory, type RouteLocationNormalized } from 'vue-router'
+import { createRouter, createWebHashHistory, type RouteLocationNormalized } from 'vue-router'
 import { buildRouter } from './featureConfig/RouteUtil'
 import progress from '@bassist/progress'
 import { type RouteLocationNormalizedLoaded } from 'vue-router'
@@ -17,7 +17,7 @@ progress.setColor('var(--primary)')
 const routes = buildRouter()
 
 const router = createRouter({
-    history: createWebHistory(import.meta.env.BASE_URL),
+    history: createWebHashHistory(),
     routes: routes.filter((item) => item.meta?.noToken),
     scrollBehavior: (_to, _from, savedPosition) => {
         return savedPosition ? savedPosition : { top: 0, left: 0 }

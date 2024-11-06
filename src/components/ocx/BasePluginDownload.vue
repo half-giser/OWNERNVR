@@ -3,7 +3,7 @@
  * @Date: 2024-06-07 10:40:47
  * @Description: 插件下载按钮
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-27 10:57:55
+ * @LastEditTime: 2024-11-05 16:26:49
 -->
 <template>
     <div
@@ -31,12 +31,13 @@ import { getPluginPath } from '@/utils/ocx/ocxUtil'
 
 const osType = getSystemInfo().platform
 const path = getPluginPath()
+const userSession = useUserSessionStore()
 
 // UI1-E定制版本的插件与中性版本的插件不同
 const pluginLink = ref(path.ClientPluDownLoadPath)
 
 // MAC系统本地访问进入登录页面时，不显示插件下载链接
-const isPluginIconHide = ref(import.meta.env.VITE_APP_TYPE === 'STANDARD' && osType === 'mac') // ref(osType === 'mac')
+const isPluginIconHide = ref(userSession.appType === 'STANDARD' && osType === 'mac') // ref(osType === 'mac')
 </script>
 
 <style lang="scss" scoped>

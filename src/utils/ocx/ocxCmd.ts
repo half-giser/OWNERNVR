@@ -3,7 +3,7 @@
  * @Date: 2024-06-03 11:56:43
  * @Description: 插件命令集合
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-21 11:43:28
+ * @LastEditTime: 2024-11-05 15:53:26
  */
 const wrapXml = (xml: string) => `${xmlHeader}${xml}`
 
@@ -1363,7 +1363,8 @@ interface OcxXmlPreview {
  */
 export const OCX_XML_Preview = ({ chlIdList, chlNameList, streamType, chlIndexList, chlTypeList, poe, winIndexList }: OcxXmlPreview) => {
     const { pluginPort } = usePluginStore()
-    const url = `tvt://${import.meta.env.VITE_APP_IP}:${pluginPort}/`
+    const serverIp = useUserSessionStore().serverIp
+    const url = `tvt://${serverIp}:${pluginPort}/`
 
     return wrapXml(rawXml`
         <cmd type="Preview">
@@ -1478,13 +1479,14 @@ interface OcxXmlRequestRecStream {
  */
 export const OCX_XML_RequestRecStream = (option: OcxXmlRequestRecStream) => {
     const { pluginPort } = usePluginStore()
+    const serverIp = useUserSessionStore()
 
     return wrapXml(rawXml`
         <cmd type="${option.cmdType}">
             ${option.modeType ? `<modeType>${option.modeType}</modeType>` : ''}
             ${option.winIndexList
                 .map((item, i) => {
-                    const url = `tvt://${import.meta.env.VITE_APP_IP}:${pluginPort}/`
+                    const url = `tvt://${serverIp}:${pluginPort}/`
                     const param = getURLSearchParams({
                         chlId: option.chlIdList[i],
                         chlIndex: option.chlIndexList ? option.chlIndexList[i] || '0' : null,
@@ -1513,7 +1515,8 @@ export const OCX_XML_RequestRecStream = (option: OcxXmlRequestRecStream) => {
  */
 export const OCX_XML_RecSearch = (chlIdList: number[], chlNameList: string[], startTime: number, endTime: number, eventList: string[]) => {
     const { pluginPort } = usePluginStore()
-    const url = `tvt://${import.meta.env.VITE_APP_IP}:${pluginPort}/`
+    const serverIp = useUserSessionStore()
+    const url = `tvt://${serverIp}:${pluginPort}/`
     return wrapXml(rawXml`
         <cmd type="RecSearchNotBindWin">
             ${chlIdList

@@ -3,7 +3,7 @@
  * @Date: 2024-07-10 09:13:17
  * @Description: DDNS
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 19:09:30
+ * @LastEditTime: 2024-11-05 11:44:13
  */
 import { NetDDNSForm, NetDDNSServerTypeList } from '@/types/apiType/net'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -174,6 +174,7 @@ export default defineComponent({
                         case 'specoddns.net':
                             hideParam.push('userName', 'password', 'heartbeat')
                             defaultDomainName = 'speco' + pageData.value.mac
+                            isTestBtn = false
                             break
                         case 'innektdvr.com':
                             hideParam.push('userName', 'password')
@@ -184,6 +185,9 @@ export default defineComponent({
                             defaultServerAddr = 'hifocuslive.com'
                             break
                         case 'members.grasphere.net':
+                            isTestBtn = false
+                            break
+                        case 'www.no-ip.com':
                             isTestBtn = false
                             break
                         default:
@@ -257,25 +261,48 @@ export default defineComponent({
         /**
          * @description 更新数据
          */
-        const setData = async () => {
+        const setData = () => {
             formRef.value!.validate(async (valid) => {
                 if (!valid) {
                     return
                 }
 
-                openLoading()
+                if (formData.value.switch && ['specoddns.net', 'www.no-ip.com'].includes(current.value.serverType)) {
+                    openLoading(LoadingTarget.FullScreen, current.value.isRegisterBtn ? Translate('IDCS_REGISTER_HOLD_ON') : undefined)
+                    const result = await testDDNSCfg(getSetDataXml())
+                    const $ = queryXml(result)
 
-                const result = await editDDNSCfg(getSetDataXml())
-
-                commSaveResponseHadler(result)
-                closeLoading()
+                    if ($('//status').text() === 'success') {
+                        await confirmSetData()
+                    } else {
+                        openMessageBox({
+                            type: 'info',
+                            message: Translate('IDCS_SAVE_FAIL') + ', ' + Translate($('//errorDescription').text()),
+                        })
+                    }
+                } else {
+                    openLoading()
+                    await confirmSetData()
+                }
             })
+        }
+
+        const confirmSetData = async () => {
+            const result = await editDDNSCfg(getSetDataXml())
+
+            closeLoading()
+            commSaveResponseHadler(result)
+
+            const findIndex = pageData.value.serverTypeOptions.findIndex((item) => item.serverType === formData.value.serverType)
+            if (findIndex >= 0) {
+                pageData.value.serverTypeOptions[findIndex].password = formData.value.password
+            }
         }
 
         /**
          * @description 测试
          */
-        const test = async () => {
+        const test = () => {
             formRef.value!.validate(async (valid) => {
                 if (!valid) {
                     return

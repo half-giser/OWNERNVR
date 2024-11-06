@@ -23,9 +23,9 @@ export default defineConfig(({ mode }) => {
     const env = loadEnv(split[0], envDir)
 
     env.VITE_UI_TYPE = split[1] || env.VITE_UI_TYPE
-    console.log(env.VITE_UI_TYPE, env.VITE_DEPLOY_BASE_URL)
+    console.log(env.VITE_UI_TYPE)
 
-    const { VITE_APP_IP, VITE_UI_TYPE, VITE_APP_TYPE } = env
+    const { VITE_APP_IP, VITE_UI_TYPE } = env
 
     const devPlugin: PluginOption[] = [
         visualizer({
@@ -44,13 +44,8 @@ export default defineConfig(({ mode }) => {
             'import.meta.env.VITE_UI_TYPE': JSON.stringify(env.VITE_UI_TYPE),
             'import.meta.env.VITE_BASE_URL': JSON.stringify(env.VITE_BASE_URL),
             'import.meta.env.VITE_APP_IP': JSON.stringify(env.VITE_APP_IP || ''),
-            'import.meta.env.VITE_APP_NAME': JSON.stringify(env.VITE_APP_NAME),
-            'import.meta.env.VITE_APP_TITLE': JSON.stringify(env.VITE_APP_TITLE),
-            'import.meta.env.VITE_APP_DESC': JSON.stringify(env.VITE_APP_DESC),
-            'import.meta.env.VITE_APP_KEYWORDS': JSON.stringify(env.VITE_APP_KEYWORDS),
-            'import.meta.env.VITE_APP_TYPE': JSON.stringify(env.VITE_APP_TYPE),
         },
-        base: env.VITE_DEPLOY_BASE_URL,
+        base: './',
         server: {
             port: 9000,
             proxy: {
@@ -84,7 +79,6 @@ export default defineConfig(({ mode }) => {
                 scss: {
                     additionalData: `
                         $GLOBAL_UI_TYPE: ${VITE_UI_TYPE};
-                        $GLOBAL_APP_TYPE: ${VITE_APP_TYPE};
                     `,
                 },
             },

@@ -3,7 +3,7 @@
  * @Date: 2024-08-27 14:27:13
  * @Description: 业务应用-人脸签到
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 12:00:52
+ * @LastEditTime: 2024-11-05 10:59:16
  */
 import { cloneDeep } from 'lodash-es'
 import dayjs from 'dayjs'
@@ -302,13 +302,11 @@ export default defineComponent({
                     message: Translate('IDCS_SELECT_GROUP_NOT_EMPTY'),
                 })
             }
-            const startTime = dayjs(formData.value.dateRange[0]).calendar('gregory').format('YYYY-MM-DD HH:mm:ss')
-            const endTime = dayjs(formData.value.dateRange[1]).calendar('gregory').format('YYYY-MM-DD HH:mm:ss')
 
             const sendXml = rawXml`
                 <condition>
-                    <startTime>${startTime}</startTime>
-                    <endTime>${endTime}</endTime>
+                    <startTime>${localToUtc(formData.value.dateRange[0])}</startTime>
+                    <endTime>${localToUtc(formData.value.dateRange[1])}</endTime>
                     <chls type="list">${formData.value.chls.map((item) => `<item id="${item.value}" />`).join('')}</chls>
                     <event>
                         <eventType>byWhiteList</eventType>

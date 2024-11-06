@@ -3,7 +3,7 @@
  * @Date: 2024-05-31 10:35:00
  * @Description: 基于webAssembly + canvas的视频播放器
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-06 16:38:35
+ * @LastEditTime: 2024-11-05 11:09:33
  */
 import WebGLPlayer from './webglPlayer'
 import PCMPlayer, { type PCMPlayerOptionEncoding } from './pcmPlayer'
@@ -117,6 +117,7 @@ export default class WasmPlayer {
     private seeking = false
     cmdParams: any
     private frameIndex = 0
+    private lastRenderTime = 0
     // private pageVisibleChangeHandle = null // 网页可见性变化处理函数
     private webPageVisible = true // 当前网页是否可见
     private isEndPlay = false // 设备已传输完数据，准备停止播放（先播放完缓存的帧数据）
@@ -829,6 +830,14 @@ export default class WasmPlayer {
             }
             return false
         } else {
+            // 节流控制, 若解码和渲染性能较高时, 仍保持最高30帧/s的刷新速率, 避免视频加速
+            if (currentRealTime - this.lastRenderTime < 1000 / 30) {
+                return true
+            } else {
+                this.lastRenderTime = currentRealTime
+            }
+
+            // 渲染画面
             if (!this.cmdParams.hasOwnProperty('isPlayback') || (this.cmdParams.hasOwnProperty('isPlayback') && this.cmdParams.isPlayback)) {
                 this.renderVideoFrame(frame)
             }

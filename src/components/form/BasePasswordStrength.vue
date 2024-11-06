@@ -26,7 +26,7 @@ const prop = defineProps<{
 }>()
 
 // 密码强度的颜色值映射
-const strengthColors = ['grey', 'red', 'yellow', 'green', 'green']
+const strengthColors = ['var(--color-grey)', 'var(--color-error)', 'var(--color-yellow)', 'var(--color-green)', 'var(--color-green)']
 </script>
 
 <style lang="scss">
@@ -41,7 +41,7 @@ const strengthColors = ['grey', 'red', 'yellow', 'green', 'green']
         margin-left: 3px;
         width: 40px;
         height: 10px;
-        background-color: grey;
+        background-color: var(--color-grey);
         list-style: none;
     }
 }

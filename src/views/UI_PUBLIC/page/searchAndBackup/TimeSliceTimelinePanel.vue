@@ -3,7 +3,7 @@
  * @Date: 2024-08-13 09:09:24
  * @Description: 时间切片-时间线界面
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 17:25:25
+ * @LastEditTime: 2024-11-05 14:22:08
 -->
 <template>
     <div class="content">
@@ -203,7 +203,7 @@
 
 .left {
     box-sizing: border-box;
-    width: 450px;
+    width: 438px;
     height: 100%;
     flex-shrink: 0;
     padding: 20px;
@@ -237,6 +237,10 @@
     flex-shrink: 0;
     text-align: left;
     line-height: 1;
+}
+
+.end-time {
+    text-align: right;
 }
 
 .current-time {
