@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-29 18:07:29
  * @Description: 现场预览
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 09:20:46
  */
 import { cloneDeep } from 'lodash-es'
 import { type LiveChannelList, type LiveCustomViewChlList, LiveSharedWinData } from '@/types/apiType/live'
@@ -911,14 +909,23 @@ export default defineComponent({
 
         // UI1-D UI1-G 选择高画质登录
         if (import.meta.env.VITE_UI_TYPE === 'UI1-D' || import.meta.env.VITE_UI_TYPE === 'UI1-G') {
-            if (userSession.defaultStreamType === 'main') {
-                const stopFirstLoadStream = watchEffect(() => {
-                    if (pageData.value.split === 1 && pageData.value.playingList.length) {
-                        changeStreamType(1)
-                        stopFirstLoadStream()
+            const stopFirstLoadStream = watchEffect(() => {
+                if (userSession.defaultStreamType === 'main') {
+                    if (mode.value === 'h5') {
+                        if (pageData.value.split === 1) {
+                            changeStreamType(1)
+                        }
                     }
-                })
-            }
+
+                    if (mode.value === 'ocx') {
+                        changeStreamType(1)
+                    }
+
+                    userSession.defaultStreamType = 'sub'
+                }
+
+                stopFirstLoadStream()
+            })
         }
 
         /**

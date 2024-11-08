@@ -114,15 +114,12 @@ export const OCX_XML_Initial = (model: string, notifyFunName: string, viewType: 
  * @return {string}
  */
 export const OCX_XML_Initial_P2P = (model?: string, notifyFunName?: string, viewType?: string, screenNum?: number) => {
-    // const natIp = ''
-    // const natPort = ''
-    // const natIp_2_0 = ''
-    // const natPort_2_0 = ''
+    const p2pVersion = useUserSessionStore().p2pVersion
     return wrapXml(rawXml`
         ${viewType == TIMESLIDER_PLUGIN ? '<cmd type="Initial" target="dateCtrl">' : '<cmd type="Initial">' + viewType ? `<viewType>${viewType}</viewType>` : ''}
             ${model ? `<setModel>${model}</setModel>` : ''}
             <natSvc>
-                ${P2P_V === '1.0' ? `<item ver="${P2P_V}" ip="${natIp}" port="${natPort}" />` : `<item ver="${P2P_V}" ip="${natIp_2_0}" port="${natPort_2_0}" />`}
+                ${p2pVersion === '1.0' ? `<item ver="${p2pVersion}" ip="${natIp}" port="${natPort}" />` : `<item ver="${p2pVersion}" ip="${natIp_2_0}" port="${natPort_2_0}" />`}
             </natSvc>
             ${notifyFunName ? `<NotifyFunName>${notifyFunName}</NotifyFunName>` : ''}
             <systemType>NVMS-9000</systemType>
