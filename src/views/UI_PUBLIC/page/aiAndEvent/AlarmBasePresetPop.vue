@@ -1,9 +1,7 @@
 <!--
- * @Description: 预置点名称配置
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-20 17:19:44
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-16 10:08:16
+ * @Description: 预置点配置弹窗
 -->
 <template>
     <el-dialog
@@ -11,16 +9,15 @@
         width="400"
         hight="450"
         @open="open"
-        @close="close"
     >
         <el-table
             stripe
             border
-            :data="tableData"
-            :style="{ height: '350px' }"
+            height="350px"
+            :data="chlList"
         >
             <el-table-column
-                prop="name"
+                prop="label"
                 width="180"
                 :label="Translate('IDCS_CHANNEL_NAME')"
             />
@@ -30,12 +27,12 @@
             >
                 <template #default="scope">
                     <el-select
-                        v-model="scope.row.preset.value"
-                        :empty-values="[undefined, null]"
-                        @visible-change="getPresetById(scope.row)"
+                        :model-value="selected[scope.row.value]"
+                        @visible-change="getPresetList(scope.row)"
+                        @update:model-value="change(scope.row, $event)"
                     >
                         <el-option
-                            v-for="item in scope.row.presetList"
+                            v-for="item in pageData.presetList[scope.row.value]"
                             :key="item.value"
                             :label="item.label"
                             :value="item.value"
@@ -46,11 +43,11 @@
         </el-table>
         <template #footer>
             <el-col class="el-col-flex-end">
-                <el-button @click="save">{{ Translate('IDCS_OK') }}</el-button>
+                <el-button @click="confirm">{{ Translate('IDCS_OK') }}</el-button>
                 <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
             </el-col>
         </template>
     </el-dialog>
 </template>
 
-<script lang="ts" src="./SetPresetPop.v.ts"></script>
+<script lang="ts" src="./AlarmBasePresetPop.v.ts"></script>

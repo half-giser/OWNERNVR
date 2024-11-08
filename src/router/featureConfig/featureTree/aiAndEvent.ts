@@ -378,9 +378,9 @@ export default {
                 sort: 180,
                 lk: 'IDCS_VIDEO_LOSE_SET',
                 group: 'generalEvent',
-                hasCap(systemCaps) {
-                    return !!systemCaps.analogChlCount
-                },
+                // hasCap(systemCaps) {
+                //     return !!systemCaps.analogChlCount
+                // },
             },
         },
         systemDisarm: {

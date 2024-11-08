@@ -1,9 +1,7 @@
 <!--
- * @Description: 普通事件——传感器
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-23 10:58:27
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-04 16:02:29
+ * @Description: 普通事件——传感器
 -->
 <template>
     <div class="base-flex-box">
@@ -188,38 +186,23 @@
                 <!-- 录像 -->
                 <el-table-column width="180">
                     <template #header>
-                        <el-popover
-                            v-model:visible="pageData.recordIsShowAll"
-                            width="fit-content"
-                            popper-class="no-padding"
-                        >
-                            <template #reference>
-                                <BaseTableDropdownLink>
-                                    {{ Translate('IDCS_RECORD') }}
-                                </BaseTableDropdownLink>
-                            </template>
-                            <BaseTransferPop
-                                v-if="pageData.recordIsShowAll"
-                                source-title="IDCS_CHANNEL"
-                                target-title="IDCS_CHANNEL_TRGGER"
-                                :source-data="pageData.recordList"
-                                limit-tip="IDCS_RECORD_CHANNEL_LIMIT"
-                                :linked-list="pageData.recordChosedIdsAll"
-                                @confirm="recordConfirmAll"
-                                @close="recordCloseAll"
-                            />
-                        </el-popover>
+                        <AlarmBaseRecordPop
+                            :visible="pageData.recordIsShow"
+                            :data="tableData"
+                            :index="pageData.triggerDialogIndex"
+                            @confirm="changeRecord"
+                        />
                     </template>
                     <template #default="scope">
                         <el-row class="row-together">
                             <el-checkbox
-                                v-model="scope.row.sysRec.switch"
-                                @change="checkChange(scope.$index, 'record')"
+                                v-model="scope.row.record.switch"
+                                @change="switchRecord(scope.$index)"
                             />
                             <el-button
-                                :disabled="!scope.row.sysRec.switch"
+                                :disabled="!scope.row.record.switch"
                                 class="table_btn"
-                                @click="setRecord(scope.$index)"
+                                @click="openRecord(scope.$index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
@@ -230,38 +213,23 @@
                 <!-- 抓图 -->
                 <el-table-column width="180">
                     <template #header>
-                        <el-popover
-                            v-model:visible="pageData.snapIsShowAll"
-                            width="fit-content"
-                            popper-class="no-padding"
-                        >
-                            <template #reference>
-                                <BaseTableDropdownLink>
-                                    {{ Translate('IDCS_SNAP') }}
-                                </BaseTableDropdownLink>
-                            </template>
-                            <BaseTransferPop
-                                v-if="pageData.snapIsShowAll"
-                                source-title="IDCS_CHANNEL"
-                                target-title="IDCS_CHANNEL_TRGGER"
-                                :source-data="pageData.snapList"
-                                :linked-list="pageData.snapChosedIdsAll"
-                                limit-tip="IDCS_SNAP_CHANNEL_LIMIT"
-                                @confirm="snapConfirmAll"
-                                @close="snapCloseAll"
-                            />
-                        </el-popover>
+                        <AlarmBaseSnapPop
+                            :visible="pageData.snapIsShow"
+                            :data="tableData"
+                            :index="pageData.triggerDialogIndex"
+                            @confirm="changeSnap"
+                        />
                     </template>
                     <template #default="scope">
                         <el-row class="row-together">
                             <el-checkbox
-                                v-model="scope.row.sysSnap.switch"
-                                @change="checkChange(scope.$index, 'snap')"
+                                v-model="scope.row.snap.switch"
+                                @change="switchSnap(scope.$index)"
                             />
                             <el-button
-                                :disabled="!scope.row.sysSnap.switch"
+                                :disabled="!scope.row.snap.switch"
                                 class="table_btn"
-                                @click="setSnap(scope.$index)"
+                                @click="openSnap(scope.$index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
@@ -339,38 +307,23 @@
                 <!-- 报警输出 -->
                 <el-table-column width="180">
                     <template #header>
-                        <el-popover
-                            v-model:visible="pageData.alarmOutIsShowAll"
-                            width="fit-content"
-                            popper-class="no-padding"
-                        >
-                            <template #reference>
-                                <BaseTableDropdownLink>
-                                    {{ Translate('IDCS_ALARM_OUT') }}
-                                </BaseTableDropdownLink>
-                            </template>
-                            <BaseTransferPop
-                                v-if="pageData.alarmOutIsShowAll"
-                                source-title="IDCS_ALARM_OUT"
-                                target-title="IDCS_TRIGGER_ALARM_OUT"
-                                :source-data="pageData.alarmOutList"
-                                :linked-list="pageData.alarmOutChosedIdsAll"
-                                limit-tip="IDCS_ALARMOUT_LIMIT"
-                                @confirm="alarmOutConfirmAll"
-                                @close="alarmOutCloseAll"
-                            />
-                        </el-popover>
+                        <AlarmBaseAlarmOutPop
+                            :visible="pageData.alarmOutIsShow"
+                            :data="tableData"
+                            :index="pageData.triggerDialogIndex"
+                            @confirm="changeAlarmOut"
+                        />
                     </template>
                     <template #default="scope">
                         <el-row class="row-together">
                             <el-checkbox
                                 v-model="scope.row.alarmOut.switch"
-                                @change="checkChange(scope.$index, 'alarmOut')"
+                                @change="switchAlarmOut(scope.$index)"
                             />
                             <el-button
                                 :disabled="!scope.row.alarmOut.switch"
                                 class="table_btn"
-                                @click="setAlarmOut(scope.$index)"
+                                @click="openAlarmOut(scope.$index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
@@ -387,12 +340,12 @@
                         <el-row class="row-together">
                             <el-checkbox
                                 v-model="scope.row.preset.switch"
-                                @change="presetCheckChange(scope.row)"
+                                @change="switchPreset(scope.$index)"
                             />
                             <el-button
                                 :disabled="!scope.row.preset.switch"
                                 class="table_btn"
-                                @click="openPresetPop(scope.row)"
+                                @click="openPreset(scope.$index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
@@ -545,46 +498,12 @@
                 >{{ Translate('IDCS_APPLY') }}</el-button
             >
         </div>
-        <BaseTransferDialog
-            v-model="pageData.recordIsShow"
-            header-title="IDCS_TRIGGER_CHANNEL_RECORD"
-            source-title="IDCS_CHANNEL"
-            target-title="IDCS_CHANNEL_TRGGER"
-            :source-data="pageData.recordList"
-            :linked-list="tableData[pageData.triggerDialogIndex]?.recordList || []"
-            limit-tip="IDCS_RECORD_CHANNEL_LIMIT"
-            @confirm="recordConfirm"
-            @close="recordClose"
-        />
-        <BaseTransferDialog
-            v-model="pageData.snapIsShow"
-            header-title="IDCS_TRIGGER_CHANNEL_SNAP"
-            source-title="IDCS_CHANNEL"
-            target-title="IDCS_CHANNEL_TRGGER"
-            :source-data="pageData.snapList"
-            :linked-list="tableData[pageData.triggerDialogIndex]?.snapList || []"
-            limit-tip="IDCS_SNAP_CHANNEL_LIMIT"
-            @confirm="snapConfirm"
-            @close="snapClose"
-        />
-        <BaseTransferDialog
-            v-model="pageData.alarmOutIsShow"
-            header-title="IDCS_TRIGGER_ALARM_OUT"
-            source-title="IDCS_ALARM_OUT"
-            target-title="IDCS_TRIGGER_ALARM_OUT"
-            :source-data="pageData.alarmOutList"
-            :linked-list="tableData[pageData.triggerDialogIndex]?.alarmOutList || []"
-            limit-tip="IDCS_ALARMOUT_LIMIT"
-            @confirm="alarmOutConfirm"
-            @close="alarmOutClose"
-        />
         <!-- 预置点名称 -->
-        <SetPresetPop
+        <AlarmBasePresetPop
             v-model="pageData.isPresetPopOpen"
-            :filter-chl-id="pageData.presetChlId"
-            :linked-list="pageData.presetLinkedList"
-            @confirm="handlePresetLinkedList"
-            @close="presetClose"
+            :data="tableData"
+            :index="pageData.triggerDialogIndex"
+            @confirm="changePreset"
         />
         <!-- 排程管理弹窗 -->
         <ScheduleManagPop

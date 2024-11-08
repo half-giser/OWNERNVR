@@ -1,11 +1,9 @@
 /*
- * @Description: AI 事件——车牌识别
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-09 09:56:33
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 16:26:32
+ * @Description: AI 事件——车牌识别
  */
-import { type CompareTask, VehicleDetection, type VehicleChlItem, VehicleCompare } from '@/types/apiType/aiAndEvent'
+import { type AlarmRecognitionTaskDto, AlarmVehicleDetectionDto, type AlarmVehicleChlDto, AlarmVehicleRecognitionDto } from '@/types/apiType/aiAndEvent'
 import CanvasPolygon from '@/utils/canvas/canvasPolygon'
 import { type TabPaneName } from 'element-plus'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
@@ -32,7 +30,7 @@ export default defineComponent({
         const supportPlateMatch = systemCaps.supportPlateMatch
 
         // 通道列表，存储通道的相关数据
-        const chlList: Record<string, VehicleChlItem> = {}
+        const chlList: Record<string, AlarmVehicleChlDto> = {}
 
         // 高级设置box
         const advancedVisible = ref(false)
@@ -40,7 +38,7 @@ export default defineComponent({
         const playerRef = ref<PlayerInstance>()
 
         // 侦测页的数据
-        const vehicleDetectionData = ref(new VehicleDetection())
+        const vehicleDetectionData = ref(new AlarmVehicleDetectionDto())
         let currentRegulation = true // 当前画点规则 regulation==1：画矩形，regulation==0或空：画点 - (regulation=='1'则currentRegulation为true：画矩形，否则currentRegulation为false：画点)
         let currAreaType = 'regionArea' as CanvasAreaType // maskArea屏蔽区域 regionArea矩形侦测区域
         const continentArea = {} as Record<string, string[]> // 各个洲对应的区域
@@ -98,6 +96,7 @@ export default defineComponent({
             Korea: Translate('IDCS_LOCALITY_SOUTHKOREA'),
             Mauritius: Translate('IDCS_LOCALITY_MAURITIUS'),
         }
+
         const directionType: Record<string, string> = {
             noLimit: Translate('IDCS_OVERALL_RECOGNITION'),
             approach: Translate('IDCS_RECOGNITION_APPROACHING'),
@@ -117,7 +116,7 @@ export default defineComponent({
         const vehicleGroupNameMap = {} as Record<string, string>
         const vehicleGroupData = [] as { guid: string; name: string }[]
         // 车牌识别数据
-        const vehicleCompareData = ref(new VehicleCompare())
+        const vehicleCompareData = ref(new AlarmVehicleRecognitionDto())
 
         // 侦测tab项下的界面数据
         const detectionPageData = ref({
@@ -164,17 +163,19 @@ export default defineComponent({
             initComplated: false,
             applyDisabled: true,
         })
+
         // 识别tab项下的界面数据
         const comparePageData = ref({
             // 默认进入参数配置tab项
             compareTab: 'whitelist',
             removeDisabled: true,
             // 当前选中tab的任务数据
-            taskData: {} as CompareTask,
+            taskData: {} as AlarmRecognitionTaskDto,
             // 初始化，后判断应用是否可用
             initComplated: false,
             applyDisabled: true,
         })
+
         // 整体的通用界面数据
         const pageData = ref({
             curChl: '',
@@ -190,12 +191,6 @@ export default defineComponent({
             notification: [] as string[],
             // 声音列表
             voiceList: [] as SelectOption<string, string>[],
-            // record数据
-            recordList: [] as SelectOption<string, string>[],
-            // alarmOut数据
-            alarmOutList: [] as SelectOption<string, string>[],
-            // snap数据
-            snapList: [] as SelectOption<string, string>[],
             notChlSupport: false,
             notSupportTip: '',
         })
@@ -203,21 +198,6 @@ export default defineComponent({
         // 获取声音列表数据
         const getVoiceList = async () => {
             pageData.value.voiceList = await buildAudioList()
-        }
-
-        // 获取录像数据
-        const getRecordList = async () => {
-            pageData.value.recordList = await buildRecordChlList()
-        }
-
-        // 获取报警输出数据
-        const getAlarmOutData = async () => {
-            pageData.value.alarmOutList = await buildAlarmOutChlList()
-        }
-
-        // 获取抓图数据
-        const getSnapList = async () => {
-            pageData.value.snapList = await buildSnapChlList()
         }
 
         // 获取通道及相关配置数据
@@ -275,7 +255,7 @@ export default defineComponent({
         }
 
         // 处理通道数据
-        const handleCurrChlData = async (data: VehicleChlItem) => {
+        const handleCurrChlData = async (data: AlarmVehicleChlDto) => {
             pageData.value.vehicleDetectionDisabled = !data.supportVehiclePlate
             pageData.value.vehicleCompareDisabled = !data.supportVehiclePlate
 
@@ -310,13 +290,16 @@ export default defineComponent({
             }
             return playerRef.value.mode
         })
+
         const ready = computed(() => {
             return playerRef.value?.ready || false
         })
+
         let player: PlayerInstance['player']
         let plugin: PlayerInstance['plugin']
         // 车牌侦测绘制的Canvas
         let vehicleDrawer: CanvasPolygon
+
         /**
          * @description 播放器就绪时回调
          */
@@ -954,12 +937,13 @@ export default defineComponent({
                     setAreaView('vehicleMax')
                     setAreaView('vehicleMin')
                 } else {
-                    const sendXMLMAX = OCX_XML_GetMaxMinXml(vehicleDetectionData.value.maxRegionInfo[0], 'faceMax')
-                    const sendXMLMIN = OCX_XML_GetMaxMinXml(vehicleDetectionData.value.minRegionInfo[0], 'faceMin')
-                    let sendMaxMinXml = `<AreaRangeInfo>`
-                    sendMaxMinXml += `<LineColor>green</LineColor>`
-                    sendMaxMinXml += sendXMLMAX + sendXMLMIN
-                    sendMaxMinXml += `</AreaRangeInfo>`
+                    const sendMaxMinXml = rawXml`
+                        <AreaRangeInfo>
+                            <LineColor>green</LineColor>
+                            ${OCX_XML_GetMaxMinXml(vehicleDetectionData.value.maxRegionInfo[0], 'faceMax')}
+                            ${OCX_XML_GetMaxMinXml(vehicleDetectionData.value.minRegionInfo[0], 'faceMin')}
+                        </AreaRangeInfo>
+                    `
                     if (detectionPageData.value.isShowAllArea) {
                         const sendXML = OCX_XML_SetAllArea(
                             { detectAreaInfo: Object.values(detectAreaInfo), maskAreaInfo: Object.values(vehicleDetectionData.value.maskAreaInfo) },
@@ -968,10 +952,10 @@ export default defineComponent({
                             sendMaxMinXml,
                             true,
                         )
-                        plugin.GetVideoPlugin().ExecuteCmd(sendXML!)
+                        plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                     } else {
                         const sendXML = OCX_XML_SetAllArea({ detectAreaInfo: [], maskAreaInfo: [] }, 'IrregularPolygon', 'TYPE_PLATE_DETECTION', sendMaxMinXml, false)
-                        plugin.GetVideoPlugin().ExecuteCmd(sendXML!)
+                        plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                     }
                 }
             } else {
@@ -1043,13 +1027,13 @@ export default defineComponent({
                 <content>
                     <chl id='${pageData.value.curChl}' scheduleGuid='${vehicleDetectionData.value.schedule}'>
                         <param>
-                            <switch>${String(vehicleDetectionData.value.enabledSwitch)}</switch>
+                            <switch>${vehicleDetectionData.value.enabledSwitch}</switch>
                             <plateSize type='list'>
                                 <item>
-                                    <MinWidth>${String(vehicleDetectionData.value.plateSize.minWidth * 100)}</MinWidth>
-                                    <MinHeight>${String(vehicleDetectionData.value.plateSize.minWidth * 100)}</MinHeight>
-                                    <MaxWidth>${String(vehicleDetectionData.value.plateSize.maxWidth * 100)}</MaxWidth>
-                                    <MaxHeight>${String(vehicleDetectionData.value.plateSize.maxWidth * 100)}</MaxHeight>
+                                    <MinWidth>${vehicleDetectionData.value.plateSize.minWidth * 100}</MinWidth>
+                                    <MinHeight>${vehicleDetectionData.value.plateSize.minWidth * 100}</MinHeight>
+                                    <MaxWidth>${vehicleDetectionData.value.plateSize.maxWidth * 100}</MaxWidth>
+                                    <MaxHeight>${vehicleDetectionData.value.plateSize.maxWidth * 100}</MaxHeight>
                                 </item>
                             </plateSize>
                             <regionInfo type='list'>
@@ -1057,21 +1041,21 @@ export default defineComponent({
                                     .map((item) => {
                                         return rawXml`
                                             <item>
-                                                <X1>${String(item.X1)}</X1>
-                                                <Y1>${String(item.Y1)}</Y1>
-                                                <X2>${String(item.X2)}</X2>
-                                                <Y2>${String(item.Y2)}</Y2>
+                                                <X1>${item.X1}</X1>
+                                                <Y1>${item.Y1}</Y1>
+                                                <X2>${item.X2}</X2>
+                                                <Y2>${item.Y2}</Y2>
                                             </item>
                                         `
                                     })
                                     .join('')}
                             </regionInfo>
                             <plateSupportArea>${vehicleDetectionData.value.plateSupportArea}</plateSupportArea>
-                            <capturePlateAbsenceVehicle>${String(vehicleDetectionData.value.plateAbsenceCheceked)}</capturePlateAbsenceVehicle>
+                            <capturePlateAbsenceVehicle>${vehicleDetectionData.value.plateAbsenceCheceked}</capturePlateAbsenceVehicle>
                             ${detectionPageData.value.isShowDirection ? `<vehicleDirection>${vehicleDetectionData.value.direction}</vehicleDirection>` : ''}
                             <plateExposure>
-                                <switch>${String(vehicleDetectionData.value.exposureChecked)}</switch>
-                                <exposureValue>${String(vehicleDetectionData.value.exposureValue)}</exposureValue>
+                                <switch>${vehicleDetectionData.value.exposureChecked}</switch>
+                                <exposureValue>${vehicleDetectionData.value.exposureValue}</exposureValue>
                             </plateExposure>
                             <maskArea>
                                 ${Object.keys(vehicleDetectionData.value.maskAreaInfo)
@@ -1079,13 +1063,13 @@ export default defineComponent({
                                         const item = vehicleDetectionData.value.maskAreaInfo[Number(key)]
                                         return rawXml`
                                             <item>
-                                                <point type='list' maxCount='8' count='${String(item.length)}'>
+                                                <point type='list' maxCount='8' count='${item.length}'>
                                                     ${item
                                                         .map((ele) => {
                                                             return rawXml`
                                                             <item>
-                                                                <X>${String(ele.X)}</X>
-                                                                <Y>${String(ele.Y)}</Y>
+                                                                <X>${ele.X}</X>
+                                                                <Y>${ele.Y}</Y>
                                                             </item>
                                                         `
                                                         })
@@ -1190,11 +1174,7 @@ export default defineComponent({
                 alarmOut: [],
                 snap: [],
                 preset: [],
-                msgPushSwitch: true,
-                buzzerSwitch: false,
-                popVideoSwitch: false,
-                emailSwitch: false,
-                popMsgSwitch: false,
+                trigger: ['msgPushSwitch'],
             })
         }
 
@@ -1267,54 +1247,47 @@ export default defineComponent({
                     const $item = queryXml(item.element)
                     const nameId = Number($item('param/nameId').text())
                     haveUseNameId.push(nameId)
-                    const groupId = $item('param/groupId/item').map((item) => item.attr('guid')!)
-                    const record = $item('trigger/sysRec/chls/item').map((item) => {
-                        return {
-                            value: item.attr('id')!,
-                            label: item.text(),
-                        }
-                    })
-                    const alarmOut = $item('trigger/alarmOut/alarmOuts/item').map((item) => {
-                        return {
-                            value: item.attr('id')!,
-                            label: item.text(),
-                        }
-                    })
-                    const snap = $item('trigger/sysSnap/chls/item').map((item) => {
-                        return {
-                            value: item.attr('id')!,
-                            label: item.text(),
-                        }
-                    })
-                    const preset = $item('trigger/preset/presets/item').map((item) => {
-                        const $item = queryXml(item.element)
-                        return {
-                            index: $item('index').text(),
-                            name: $item('name').text(),
-                            chl: {
-                                value: $item('chl').attr('id')!,
-                                label: $item('chl').text(),
-                            },
-                        }
-                    })
                     vehicleCompareData.value.task.push({
                         guid: item.attr('guid')!,
                         id: item.attr('id')!,
                         ruleType: $item('param/ruleType').text(),
                         nameId,
                         pluseSwitch: $item('param/pluseSwitch').text() == 'true',
-                        groupId,
+                        groupId: $item('param/groupId/item').map((item) => item.attr('guid')!),
                         hintword: $item('param/hint/word').text(),
                         schedule: $item('schedule').attr('id'),
-                        record,
-                        alarmOut,
-                        snap,
-                        preset,
-                        msgPushSwitch: $item('trigger/msgPushSwitch').text() == 'true',
-                        buzzerSwitch: $item('trigger/buzzerSwitch').text() == 'true',
-                        popVideoSwitch: $item('trigger/popVideoSwitch').text() == 'true',
-                        emailSwitch: $item('trigger/emailSwitch').text() == 'true',
-                        popMsgSwitch: $item('trigger/popMsgSwitch').text() == 'true',
+                        record: $item('trigger/sysRec/chls/item').map((item) => {
+                            return {
+                                value: item.attr('id')!,
+                                label: item.text(),
+                            }
+                        }),
+                        alarmOut: $item('trigger/alarmOut/alarmOuts/item').map((item) => {
+                            return {
+                                value: item.attr('id')!,
+                                label: item.text(),
+                            }
+                        }),
+                        snap: $item('trigger/sysSnap/chls/item').map((item) => {
+                            return {
+                                value: item.attr('id')!,
+                                label: item.text(),
+                            }
+                        }),
+                        preset: $item('trigger/preset/presets/item').map((item) => {
+                            const $item = queryXml(item.element)
+                            return {
+                                index: $item('index').text(),
+                                name: $item('name').text(),
+                                chl: {
+                                    value: $item('chl').attr('id')!,
+                                    label: $item('chl').text(),
+                                },
+                            }
+                        }),
+                        trigger: ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'popMsgSwitch'].filter((item) => {
+                            return $item(item).text().toBoolean()
+                        }),
                         sysAudio: $item('trigger/sysAudio').attr('id'),
                     })
                 })
@@ -1343,7 +1316,7 @@ export default defineComponent({
 
         // tab项对应的识别数据
         const compareLinkData = (value: string) => {
-            let taskData = {} as CompareTask
+            let taskData = {} as AlarmRecognitionTaskDto
             if (value == 'whitelist') {
                 taskData = vehicleCompareData.value.task?.[0]
             } else if (value == 'stranger') {
@@ -1370,8 +1343,8 @@ export default defineComponent({
                                         <item guid='${item.guid}' id='${item.id}'>
                                             <param>
                                                 <ruleType>${item.ruleType}</ruleType>
-                                                <pluseSwitch>${String(item.pluseSwitch)}</pluseSwitch>
-                                                <nameId>${String(item.nameId)}</nameId>
+                                                <pluseSwitch>${item.pluseSwitch}</pluseSwitch>
+                                                <nameId>${item.nameId}</nameId>
                                                 <groupId>
                                                     ${item.groupId.map((ele) => `<item guid='${ele}'></item>`).join('')}
                                                 </groupId>
@@ -1382,11 +1355,16 @@ export default defineComponent({
                                             <schedule id='${item.schedule}'></schedule>
                                             <trigger>
                                                 <sysAudio id='${item.sysAudio}'></sysAudio>
-                                                <buzzerSwitch>${String(item.buzzerSwitch)}</buzzerSwitch>
-                                                <popMsgSwitch>${String(item.popMsgSwitch)}</popMsgSwitch>
-                                                <emailSwitch>${String(item.emailSwitch)}</emailSwitch>
-                                                <msgPushSwitch>${String(item.msgPushSwitch)}</msgPushSwitch>
-                                                <popVideo><switch>${String(item.popVideoSwitch)}</switch><chls><item id='${pageData.value.curChl}'></item></chls></popVideo>
+                                                <buzzerSwitch>${item.trigger.includes('buzzerSwitch')}</buzzerSwitch>
+                                                <popMsgSwitch>${item.trigger.includes('popMsgSwitch')}</popMsgSwitch>
+                                                <emailSwitch>${item.trigger.includes('emailSwitch')}</emailSwitch>
+                                                <msgPushSwitch>${item.trigger.includes('msgPushSwitch')}</msgPushSwitch>
+                                                <popVideo>
+                                                    <switch>${item.trigger.includes('popVideoSwitch')}</switch>
+                                                    <chls>
+                                                        <item id='${pageData.value.curChl}'></item>
+                                                    </chls>
+                                                </popVideo>
                                                 <alarmOut>
                                                     <switch>true</switch>
                                                     <alarmOuts type='list'>
@@ -1394,7 +1372,7 @@ export default defineComponent({
                                                     </alarmOuts>
                                                 </alarmOut>
                                                 <preset>
-                                                    <switch>${item.preset.length == 0 ? 'false' : 'true'}</switch>
+                                                    <switch>${!!item.preset.length}</switch>
                                                     <presets type='list'>
                                                         ${item.preset
                                                             .map((ele) => {
@@ -1444,7 +1422,7 @@ export default defineComponent({
         }
 
         // 删除车牌识别任务项
-        const deleteVehicleCompareData = async (data: CompareTask) => {
+        const deleteVehicleCompareData = async (data: AlarmRecognitionTaskDto) => {
             const sendXml = rawXml`
                 <condition>
                     <chl id='${pageData.value.curChl}'>
@@ -1464,7 +1442,6 @@ export default defineComponent({
         }
 
         const LiveNotify2Js = ($: (path: string) => XmlResult) => {
-            // todo，未测试
             // 侦测区域
             const xmlNote = $("statenotify[@type='VfdArea']")
             if (xmlNote.length > 0) {
@@ -1508,9 +1485,6 @@ export default defineComponent({
             openLoading()
             pageData.value.scheduleList = await buildScheduleList()
             await getVoiceList()
-            await getRecordList()
-            await getAlarmOutData()
-            await getSnapList()
             await getChlData()
             closeLoading()
         })
@@ -1543,6 +1517,7 @@ export default defineComponent({
                 deep: true,
             },
         )
+
         watch(
             vehicleCompareData,
             () => {

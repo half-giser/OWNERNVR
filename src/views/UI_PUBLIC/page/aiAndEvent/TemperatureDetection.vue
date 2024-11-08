@@ -2,8 +2,6 @@
  * @Description: AI 事件——更多——温度检测
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-13 09:18:25
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-04 16:03:38
 -->
 <template>
     <div>
@@ -244,113 +242,18 @@
                     </el-form>
                     <div class="base-ai-linkage-content">
                         <!-- 常规联动 -->
-                        <div class="base-ai-linkage-box">
-                            <el-checkbox
-                                v-model="normalParamCheckAll"
-                                class="base-ai-linkage-title base-ai-linkage-title-checkbox-input"
-                                :label="Translate('IDCS_TRIGGER_NOMAL')"
-                                @change="handleNormalParamCheckAll"
-                            />
-                            <el-checkbox-group
-                                v-model="normalParamCheckList"
-                                @change="handleNormalParamCheck"
-                            >
-                                <el-checkbox
-                                    v-for="item in normalParamList"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value"
-                                />
-                            </el-checkbox-group>
-                        </div>
+                        <AlarmBaseTriggerSelector
+                            v-model="tempDetectionData.trigger"
+                            :include="pageData.triggerList"
+                        />
                         <!-- 录像 -->
-                        <div class="base-ai-linkage-box">
-                            <div class="base-ai-linkage-title">
-                                <span>{{ Translate('IDCS_RECORD') }}</span>
-                                <el-button
-                                    class="form_btn"
-                                    @click="pageData.recordIsShow = true"
-                                    >{{ Translate('IDCS_CONFIG') }}</el-button
-                                >
-                            </div>
-                            <el-table
-                                :data="tempDetectionData.record"
-                                :show-header="false"
-                            >
-                                <el-table-column prop="label" />
-                            </el-table>
-                        </div>
+                        <AlarmBaseRecordSelector v-model="tempDetectionData.record" />
                         <!-- 报警输出 -->
-                        <div class="base-ai-linkage-box">
-                            <div class="base-ai-linkage-title">
-                                <span>{{ Translate('IDCS_ALARM_OUT') }}</span>
-                                <el-button
-                                    class="form_btn"
-                                    @click="pageData.alarmOutIsShow = true"
-                                    >{{ Translate('IDCS_CONFIG') }}</el-button
-                                >
-                            </div>
-                            <el-table
-                                :data="tempDetectionData.alarmOut"
-                                :show-header="false"
-                            >
-                                <el-table-column prop="label" />
-                            </el-table>
-                        </div>
+                        <AlarmBaseAlarmOutSelector v-model="tempDetectionData.alarmOut" />
                         <!-- 抓图 -->
-                        <div class="base-ai-linkage-box">
-                            <div class="base-ai-linkage-title">
-                                <span>{{ Translate('IDCS_SNAP') }}</span>
-                                <el-button
-                                    class="form_btn"
-                                    @click="pageData.snapIsShow = true"
-                                    >{{ Translate('IDCS_CONFIG') }}</el-button
-                                >
-                            </div>
-                            <el-table
-                                :data="tempDetectionData.snap"
-                                :show-header="false"
-                            >
-                                <el-table-column prop="label" />
-                            </el-table>
-                        </div>
+                        <AlarmBaseSnapSelector v-model="tempDetectionData.snap" />
                         <!-- 联动预置点 -->
-                        <div class="base-ai-linkage-box preset-box">
-                            <div class="base-ai-linkage-title">
-                                <span>{{ Translate('IDCS_TRIGGER_ALARM_PRESET') }}</span>
-                            </div>
-                            <el-table
-                                stripe
-                                border
-                                :data="PresetTableData"
-                            >
-                                <el-table-column
-                                    prop="name"
-                                    width="180"
-                                    :label="Translate('IDCS_CHANNEL_NAME')"
-                                />
-                                <el-table-column
-                                    width="170"
-                                    :label="Translate('IDCS_PRESET_NAME')"
-                                >
-                                    <template #default="scope">
-                                        <el-select
-                                            v-model="scope.row.preset.value"
-                                            :empty-values="[undefined, null]"
-                                            @visible-change="getPresetById(scope.row)"
-                                            @change="presetChange(scope.row)"
-                                        >
-                                            <el-option
-                                                v-for="item in scope.row.presetList"
-                                                :key="item.value"
-                                                :label="item.label"
-                                                :value="item.value"
-                                            />
-                                        </el-select>
-                                    </template>
-                                </el-table-column>
-                            </el-table>
-                        </div>
+                        <AlarmBasePresetSelector v-model="tempDetectionData.preset" />
                     </div>
                 </el-tab-pane>
             </el-tabs>
@@ -364,45 +267,12 @@
         </div>
         <BaseNotification v-model:notifications="pageData.notification" />
         <BaseFloatError ref="baseFloatErrorRef" />
+        <!-- 排程管理弹窗 -->
+        <ScheduleManagPop
+            v-model="pageData.scheduleManagPopOpen"
+            @close="pageData.scheduleManagPopOpen = false"
+        />
     </div>
-    <!-- 排程管理弹窗 -->
-    <ScheduleManagPop
-        v-model="pageData.scheduleManagPopOpen"
-        @close="pageData.scheduleManagPopOpen = false"
-    />
-    <BaseTransferDialog
-        v-model="pageData.recordIsShow"
-        header-title="IDCS_TRIGGER_CHANNEL_RECORD"
-        source-title="IDCS_CHANNEL"
-        target-title="IDCS_CHANNEL_TRGGER"
-        :source-data="pageData.recordList"
-        :linked-list="tempDetectionData.record?.map((item) => item.value) || []"
-        limit-tip="IDCS_RECORD_CHANNEL_LIMIT"
-        @confirm="recordConfirm"
-        @close="recordClose"
-    />
-    <BaseTransferDialog
-        v-model="pageData.alarmOutIsShow"
-        header-title="IDCS_TRIGGER_ALARM_OUT"
-        source-title="IDCS_ALARM_OUT"
-        target-title="IDCS_TRIGGER_ALARM_OUT"
-        :source-data="pageData.alarmOutList"
-        :linked-list="tempDetectionData.alarmOut?.map((item) => item.value) || []"
-        limit-tip="IDCS_ALARMOUT_LIMIT"
-        @confirm="alarmOutConfirm"
-        @close="alarmOutClose"
-    />
-    <BaseTransferDialog
-        v-model="pageData.snapIsShow"
-        header-title="IDCS_TRIGGER_CHANNEL_SNAP"
-        source-title="IDCS_CHANNEL"
-        target-title="IDCS_CHANNEL_TRGGER"
-        :source-data="pageData.snapList"
-        :linked-list="tempDetectionData.snap?.map((item) => item.value) || []"
-        limit-tip="IDCS_SNAP_CHANNEL_LIMIT"
-        @confirm="snapConfirm"
-        @close="snapClose"
-    />
 </template>
 
 <script lang="ts" src="./TemperatureDetection.v.ts"></script>

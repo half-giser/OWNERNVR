@@ -1,3 +1,8 @@
+<!--
+ * @Description: AI 事件——更多——视频结构化
+ * @Author: luoyiming luoyiming@tvt.net.cn
+ * @Date: 2024-09-20 10:15:52
+-->
 <template>
     <div>
         <div class="base-ai-param-box-left fixed">
@@ -387,7 +392,7 @@
             <el-popover
                 v-model:visible="advancedVisible"
                 width="400"
-                popper-class="no-padding"
+                popper-class="no-padding popper"
             >
                 <template #reference>
                     <div class="more_wrap">

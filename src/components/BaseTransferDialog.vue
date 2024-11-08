@@ -2,8 +2,6 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-16 17:19:02
  * @Description: 穿梭框弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-04 15:55:25
 -->
 <template>
     <el-dialog

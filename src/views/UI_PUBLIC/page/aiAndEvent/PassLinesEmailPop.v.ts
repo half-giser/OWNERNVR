@@ -1,11 +1,9 @@
 /*
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-13 11:32:17
- * @Description:过线检测邮件设置弹窗
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-22 09:59:20
+ * @Description: 过线检测邮件设置弹窗
  */
-import { type emailData } from '@/types/apiType/aiAndEvent'
+import { type AlarmPassLinesEmailDto } from '@/types/apiType/aiAndEvent'
 import { type FormInstance, type FormRules } from 'element-plus'
 export default defineComponent({
     props: {
@@ -14,12 +12,12 @@ export default defineComponent({
             required: true,
         },
         emailData: {
-            type: Object as PropType<emailData>,
+            type: Object as PropType<AlarmPassLinesEmailDto>,
             required: true,
         },
     },
     emits: {
-        close(e: emailData) {
+        close(e: AlarmPassLinesEmailDto) {
             return e
         },
     },
@@ -61,6 +59,7 @@ export default defineComponent({
                 },
             ],
         })
+
         const pageData = ref({
             data: {
                 saveTargetPicture: false,
@@ -77,16 +76,37 @@ export default defineComponent({
                     reportMin: 0,
                 },
                 receiverData: [] as { address: string; schedule: string; rowClicked: boolean }[],
-            } as emailData,
+            } as AlarmPassLinesEmailDto,
             time: '00:00',
             weekOption: [
-                { value: '1', label: Translate('IDCS_WEEK_DAY_ONE') },
-                { value: '2', label: Translate('IDCS_WEEK_DAY_TWO') },
-                { value: '3', label: Translate('IDCS_WEEK_DAY_THREE') },
-                { value: '4', label: Translate('IDCS_WEEK_DAY_FOUR') },
-                { value: '5', label: Translate('IDCS_WEEK_DAY_FIVE') },
-                { value: '6', label: Translate('IDCS_WEEK_DAY_SIX') },
-                { value: '7', label: Translate('IDCS_WEEK_DAY_SEVEN') },
+                {
+                    value: '1',
+                    label: Translate('IDCS_WEEK_DAY_ONE'),
+                },
+                {
+                    value: '2',
+                    label: Translate('IDCS_WEEK_DAY_TWO'),
+                },
+                {
+                    value: '3',
+                    label: Translate('IDCS_WEEK_DAY_THREE'),
+                },
+                {
+                    value: '4',
+                    label: Translate('IDCS_WEEK_DAY_FOUR'),
+                },
+                {
+                    value: '5',
+                    label: Translate('IDCS_WEEK_DAY_FIVE'),
+                },
+                {
+                    value: '6',
+                    label: Translate('IDCS_WEEK_DAY_SIX'),
+                },
+                {
+                    value: '7',
+                    label: Translate('IDCS_WEEK_DAY_SEVEN'),
+                },
             ] as SelectOption<string, string>[],
             monthOption: [] as SelectOption<string, string>[],
             scheduleList: [] as SelectOption<string, string>[],
@@ -173,12 +193,14 @@ export default defineComponent({
         const close = () => {
             ctx.emit('close', pageData.value.data)
         }
+
         onMounted(() => {
             for (let i = 1; i <= 31; i++) {
                 // TODO 只能翻译成中文
                 pageData.value.monthOption.push({ value: i.toString(), label: i.toString() + Translate('IDCS_TIMING_SEND_EMAIL_DAY') })
             }
         })
+
         return {
             formRef,
             formData,

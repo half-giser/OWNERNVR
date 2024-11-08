@@ -1,11 +1,9 @@
 /*
- * @Description: 事件通知——声音——ipc/local添加语音文件弹窗
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-14 15:48:05
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-21 14:54:12
+ * @Description: 事件通知——声音——ipc/local添加语音文件弹窗
  */
-import { type AudioAlarmOut } from '@/types/apiType/aiAndEvent'
+import { type AlarmAudioAlarmOutDto } from '@/types/apiType/aiAndEvent'
 import { type UploadFile } from 'element-plus'
 
 export default defineComponent({
@@ -13,8 +11,8 @@ export default defineComponent({
         type: String,
         ipcAudioChl: String,
         ipcRowData: {
-            type: Object as PropType<AudioAlarmOut>,
-            require: true,
+            type: Object as PropType<AlarmAudioAlarmOutDto>,
+            required: true,
         },
     },
     emits: {
@@ -49,7 +47,7 @@ export default defineComponent({
             pageData.value.uploadFileName = ''
             pageData.value.btnApplyDisabled = true
 
-            const data = prop.ipcRowData as AudioAlarmOut
+            const data = prop.ipcRowData as AlarmAudioAlarmOutDto
             if (prop.type == 'ipcAudio') {
                 pageData.value.isIpcTipsShow = true
                 pageData.value.isLocalTipsShow = false

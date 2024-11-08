@@ -2,11 +2,9 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-13 15:58:57
  * @Description:闪灯
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 10:29:43
  */
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
-import { whiteLightInfo } from '@/types/apiType/aiAndEvent'
+import { AlarmWhiteLightDto } from '@/types/apiType/aiAndEvent'
 export default defineComponent({
     components: {
         ScheduleManagPop,
@@ -14,7 +12,9 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
-        const tableData = ref<whiteLightInfo[]>([])
+
+        const tableData = ref<AlarmWhiteLightDto[]>([])
+
         const pageData = ref({
             pageIndex: 1,
             pageSize: 10,
@@ -28,8 +28,9 @@ export default defineComponent({
             lightFrequencyList: [] as SelectOption<string, string>[],
             applyDisable: true,
             initComplated: false,
-            editRows: [] as whiteLightInfo[],
+            editRows: [] as AlarmWhiteLightDto[],
         })
+
         const buildTableData = () => {
             pageData.value.initComplated = false
             tableData.value.length = 0
@@ -42,7 +43,7 @@ export default defineComponent({
                 const $chl = queryXml(res)
                 pageData.value.totalCount = Number($chl('//content').attr('total'))
                 $chl('//content/item').forEach(async (item) => {
-                    const row = new whiteLightInfo()
+                    const row = new AlarmWhiteLightDto()
                     row.id = item.attr('id')!
                     row.name = xmlParse('./name', item.element).text()
                     row.status = 'loading'
@@ -51,12 +52,14 @@ export default defineComponent({
                 let completeCount = 0
                 for (let i = 0; i < tableData.value.length; i++) {
                     const row = tableData.value[i]
-                    const sendXml = rawXml`<condition>
-                                        <chlId>${row.id}</chlId>
-                                    </condition>
-                                    <requireField>
-                                        <param></param>
-                                    </requireField>`
+                    const sendXml = rawXml`
+                        <condition>
+                            <chlId>${row.id}</chlId>
+                        </condition>
+                        <requireField>
+                            <param></param>
+                        </requireField>
+                    `
                     const whiteLightInfo = await queryWhiteLightAlarmOutCfg(sendXml)
                     const res = queryXml(whiteLightInfo)
                     row.status = ''
@@ -89,7 +92,7 @@ export default defineComponent({
             })
         }
 
-        const getSaveData = (rowData: whiteLightInfo) => {
+        const getSaveData = (rowData: AlarmWhiteLightDto) => {
             if (rowData.durationTime) {
                 const sendXml = rawXml`
                     <content>
@@ -97,7 +100,7 @@ export default defineComponent({
                             <param>
                                 <name>${rowData.name}</name>
                                 <lightSwitch>${rowData.enable}</lightSwitch>
-                                <durationTime>${rowData.durationTime.toString()}</durationTime>
+                                <durationTime>${rowData.durationTime}</durationTime>
                                 <frequency>${rowData.frequencyType}</frequency>
                             </param>
                         </chl>
@@ -186,7 +189,7 @@ export default defineComponent({
             }
         }
 
-        const handleEnabelChange = (row: whiteLightInfo) => {
+        const handleEnabelChange = (row: AlarmWhiteLightDto) => {
             setRowDisable(row)
             addEditRows(row)
             pageData.value.applyDisable = false
@@ -203,12 +206,12 @@ export default defineComponent({
             })
         }
 
-        const handleDurationTimeChange = (row: whiteLightInfo) => {
+        const handleDurationTimeChange = (row: AlarmWhiteLightDto) => {
             addEditRows(row)
             if (!row.rowDisable) pageData.value.applyDisable = false
         }
 
-        const handleFrequencyTypeChange = (row: whiteLightInfo) => {
+        const handleFrequencyTypeChange = (row: AlarmWhiteLightDto) => {
             addEditRows(row)
             if (!row.rowDisable) pageData.value.applyDisable = false
         }
@@ -223,7 +226,7 @@ export default defineComponent({
             })
         }
 
-        const handleDurationTimeFocus = (row: whiteLightInfo) => {
+        const handleDurationTimeFocus = (row: AlarmWhiteLightDto) => {
             if (row.durationTime) {
                 if (row.durationTime <= 1) {
                     row.durationTime = 1
@@ -233,7 +236,7 @@ export default defineComponent({
             }
         }
 
-        const handleDurationTimeBlur = (row: whiteLightInfo) => {
+        const handleDurationTimeBlur = (row: AlarmWhiteLightDto) => {
             if (!row.durationTime) {
                 row.durationTime = 1
             }
@@ -245,7 +248,7 @@ export default defineComponent({
             }
         }
 
-        const handleDurationTimeKeydown = (row: whiteLightInfo) => {
+        const handleDurationTimeKeydown = (row: AlarmWhiteLightDto) => {
             handleDurationTimeBlur(row)
         }
 
@@ -255,7 +258,7 @@ export default defineComponent({
             pageData.value.scheduleName = pageData.value.schedule === DEFAULT_EMPTY_ID ? '' : pageData.value.scheduleList.find((item) => item.value == pageData.value.schedule)!.label
         }
 
-        const addEditRows = (row: whiteLightInfo) => {
+        const addEditRows = (row: AlarmWhiteLightDto) => {
             if (!row.rowDisable) {
                 if (!pageData.value.editRows.some((item) => item.id == row.id)) {
                     pageData.value.editRows.push(row)
@@ -263,7 +266,7 @@ export default defineComponent({
             }
         }
 
-        const setRowDisable = (rowData: whiteLightInfo) => {
+        const setRowDisable = (rowData: AlarmWhiteLightDto) => {
             const disabled = rowData.enable == 'false'
             if (rowData.enable == '') {
                 rowData.rowDisable = true
@@ -291,10 +294,12 @@ export default defineComponent({
             pageData.value.scheduleManagePopOpen = false
             await getScheduleList()
         }
+
         onMounted(async () => {
             await getSchedule()
             buildTableData()
         })
+
         return {
             pageData,
             tableData,

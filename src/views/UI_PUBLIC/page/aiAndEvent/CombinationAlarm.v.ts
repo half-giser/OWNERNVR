@@ -1,11 +1,22 @@
-import { type CombinedAlarm, type CombinedAlarmItem, type faceMatchObj, type PresetItem } from '@/types/apiType/aiAndEvent'
+/*
+ * @Description: 普通事件——组合报警
+ * @Author: luoyiming luoyiming@tvt.net.cn
+ * @Date: 2024-08-22 16:04:47
+ */
+import { type AlarmCombinedDto, type AlarmCombinedItemDto, type AlarmCombinedFaceMatchDto, type AlarmPresetItem } from '@/types/apiType/aiAndEvent'
 import { cloneDeep, isEqual } from 'lodash-es'
-import SetPresetPop from './SetPresetPop.vue'
+import AlarmBasePresetPop from './AlarmBasePresetPop.vue'
+import AlarmBaseSnapPop from './AlarmBaseSnapPop.vue'
+import AlarmBaseRecordPop from './AlarmBaseRecordPop.vue'
+import AlarmBaseAlarmOutPop from './AlarmBaseAlarmOutPop.vue'
 import CombinationAlarmPop from './CombinationAlarmPop.vue'
 
 export default defineComponent({
     components: {
-        SetPresetPop,
+        AlarmBasePresetPop,
+        AlarmBaseSnapPop,
+        AlarmBaseRecordPop,
+        AlarmBaseAlarmOutPop,
         CombinationAlarmPop,
     },
     setup() {
@@ -46,31 +57,8 @@ export default defineComponent({
             initComplated: false,
             CombinedALarmInfo: '',
 
-            // record穿梭框数据源
-            recordList: [] as SelectOption<string, string>[],
-            // 表头选中id
-            recordChosedIdsAll: [] as string[],
-            // 表头选中的数据
-            recordChosedListAll: [] as SelectOption<string, string>[],
-            recordIsShowAll: false,
             recordIsShow: false,
-
-            // snap穿梭框数据源
-            snapList: [] as SelectOption<string, string>[],
-            // 表头选中id
-            snapChosedIdsAll: [] as string[],
-            // 表头选中的数据
-            snapChosedListAll: [] as SelectOption<string, string>[],
-            snapIsShowAll: false,
             snapIsShow: false,
-
-            // alarmOut穿梭框数据源
-            alarmOutList: [] as SelectOption<string, string>[],
-            // 表头选中id
-            alarmOutChosedIdsAll: [] as string[],
-            // 表头选中的数据
-            alarmOutChosedListAll: [] as SelectOption<string, string>[],
-            alarmOutIsShowAll: false,
             alarmOutIsShow: false,
 
             // 当前打开dialog行的index
@@ -78,22 +66,20 @@ export default defineComponent({
 
             // 预置点名称配置
             isPresetPopOpen: false,
-            presetChlId: '',
-            presetLinkedList: [] as PresetItem[],
 
             isCombinedAlarmPopOpen: false,
             combinedAlarmLinkedId: '',
-            combinedAlarmLinkedList: [] as CombinedAlarmItem[],
-            currRowFaceObj: {} as Record<string, Record<string, faceMatchObj>>,
+            combinedAlarmLinkedList: [] as AlarmCombinedItemDto[],
+            currRowFaceObj: {} as Record<string, Record<string, AlarmCombinedFaceMatchDto>>,
 
             // 人脸对象，层级依次为combinedID，chlID，obj
-            faceObj: {} as Record<string, Record<string, Record<string, faceMatchObj>>>,
+            faceObj: {} as Record<string, Record<string, Record<string, AlarmCombinedFaceMatchDto>>>,
         })
 
         // 表格数据
-        const tableData = ref<CombinedAlarm[]>([])
+        const tableData = ref<AlarmCombinedDto[]>([])
         // 缓存表格初始数据，保存时对比变化了的行
-        let tableDataInit = [] as CombinedAlarm[]
+        let tableDataInit = [] as AlarmCombinedDto[]
 
         // 获取系统配置和基本信息，部分系统配置可用项
         const getSystemCaps = async () => {
@@ -129,18 +115,6 @@ export default defineComponent({
             })
         }
 
-        const getRecordList = async () => {
-            pageData.value.recordList = await buildRecordChlList()
-        }
-
-        const getSnapList = async () => {
-            pageData.value.snapList = await buildSnapChlList()
-        }
-
-        const getAlarmOutData = async () => {
-            pageData.value.alarmOutList = await buildAlarmOutChlList()
-        }
-
         // 获取人脸库列表
         const getFaceGroupData = async () => {
             const result = await queryFacePersonnalInfoGroupList()
@@ -158,12 +132,14 @@ export default defineComponent({
         }
 
         const getData = async () => {
+            openLoading()
             pageData.value.initComplated = false
             const $faceGroup = await getFaceGroupData()
             const $faceMatch = await getFaceMatchData()
 
             const result = await queryCombinedAlarm()
             commLoadResponseHandler(result, ($) => {
+                closeLoading()
                 pageData.value.totalCount = $('//content/item').length
                 $('//content/item').forEach((item) => {
                     const $item = queryXml(item.element)
@@ -178,21 +154,33 @@ export default defineComponent({
                             switch: $item('param/switch').text() == 'true',
                             item: [],
                         },
-                        sysRec: {
+                        record: {
                             switch: $trigger('sysRec/switch').text() == 'true',
-                            chls: [],
+                            chls: $trigger('sysRec/chls/item').map((element) => {
+                                return {
+                                    value: element.attr('id')!,
+                                    label: element.text(),
+                                }
+                            }),
                         },
-                        recordList: [],
-                        sysSnap: {
+                        snap: {
                             switch: $trigger('sysSnap/switch').text() == 'true',
-                            chls: [],
+                            chls: $trigger('sysSnap/chls/item').map((element) => {
+                                return {
+                                    value: element.attr('id')!,
+                                    label: element.text(),
+                                }
+                            }),
                         },
-                        snapList: [],
                         alarmOut: {
                             switch: $trigger('alarmOut/switch').text() == 'true',
-                            alarmOuts: [],
+                            alarmOuts: $trigger('alarmOut/alarmOuts/item').map((element) => {
+                                return {
+                                    value: element.attr('id')!,
+                                    label: element.text(),
+                                }
+                            }),
                         },
-                        alarmOutList: [],
                         popVideo: {
                             switch: $trigger('popVideo/switch').text(),
                             chl: {
@@ -210,7 +198,7 @@ export default defineComponent({
                         email: $trigger('emailSwitch').text(),
                         msgBoxPopup: $trigger('popMsgSwitch').text(),
                         videoPopup: $trigger('popVideo/switch').text() == 'false' ? '' : $trigger('popVideo/chl').attr('id'),
-                    } as CombinedAlarm
+                    } as AlarmCombinedDto
 
                     const audioData = pageData.value.audioList.filter((item) => {
                         return item.value === row.sysAudio
@@ -271,30 +259,6 @@ export default defineComponent({
                         })
                     })
 
-                    row.sysRec.chls = $trigger('sysRec/chls/item').map((element) => {
-                        return {
-                            value: element.attr('id')!,
-                            label: element.text(),
-                        }
-                    })
-                    row.recordList = row.sysRec.chls.map((item) => item.value)
-
-                    row.sysSnap.chls = $trigger('sysSnap/chls/item').map((element) => {
-                        return {
-                            value: element.attr('id')!,
-                            label: element.text(),
-                        }
-                    })
-                    row.snapList = row.sysSnap.chls.map((item) => item.value)
-
-                    row.alarmOut.alarmOuts = $trigger('alarmOut/alarmOuts/item').map((element) => {
-                        return {
-                            value: element.attr('id')!,
-                            label: element.text(),
-                        }
-                    })
-                    row.alarmOutList = row.alarmOut.alarmOuts.map((item) => item.value)
-
                     row.preset.presets = $trigger('preset/presets/item').map((element) => {
                         const $element = queryXml(element.element)
                         return {
@@ -317,7 +281,7 @@ export default defineComponent({
             originalName.value = name
         }
 
-        const nameBlur = (row: CombinedAlarm) => {
+        const nameBlur = (row: AlarmCombinedDto) => {
             const name = row.name
             if (!checkChlName(name)) {
                 openMessageBox({
@@ -353,14 +317,14 @@ export default defineComponent({
         }
 
         // 组合报警弹窗打开
-        const openCombinedAlarmPop = (row: CombinedAlarm) => {
+        const openCombinedAlarmPop = (row: AlarmCombinedDto) => {
             pageData.value.combinedAlarmLinkedId = row.id
             pageData.value.combinedAlarmLinkedList = row.combinedAlarm.item
             pageData.value.currRowFaceObj = pageData.value.faceObj[row.id]
             pageData.value.isCombinedAlarmPopOpen = true
         }
 
-        const handleCombinedAlarmLinkedList = (currId: string, combinedAlarmItems: CombinedAlarmItem[], entity: string, obj: faceMatchObj) => {
+        const handleCombinedAlarmLinkedList = (currId: string, combinedAlarmItems: AlarmCombinedItemDto[], entity: string, obj: AlarmCombinedFaceMatchDto) => {
             tableData.value.some((item) => {
                 if (item.id == currId) {
                     item.combinedAlarm.item = combinedAlarmItems
@@ -383,7 +347,7 @@ export default defineComponent({
             })
         }
 
-        const combinedAlarmCheckChange = (row: CombinedAlarm) => {
+        const combinedAlarmCheckChange = (row: AlarmCombinedDto) => {
             if (row.combinedAlarm.switch) {
                 openCombinedAlarmPop(row)
             } else {
@@ -392,220 +356,99 @@ export default defineComponent({
             changeCombinedALarmInfo(row)
         }
 
-        // 录像配置相关处理
-        const recordConfirmAll = (e: any[]) => {
-            if (e.length !== 0) {
-                pageData.value.recordChosedListAll = cloneDeep(e)
-                pageData.value.recordChosedIdsAll = e.map((item) => item.value)
-                tableData.value.forEach((item) => {
-                    item.sysRec.switch = true
-                    item.sysRec.chls = pageData.value.recordChosedListAll
-                    item.recordList = pageData.value.recordChosedListAll.map((item) => item.value)
-                })
+        const switchRecord = (index: number) => {
+            const row = tableData.value[index].record
+            if (row.switch) {
+                openRecord(index)
+            } else {
+                row.chls = []
             }
-            pageData.value.recordChosedListAll = []
-            pageData.value.recordChosedIdsAll = []
-            pageData.value.recordIsShowAll = false
         }
 
-        const recordCloseAll = () => {
-            pageData.value.recordChosedListAll = []
-            pageData.value.recordChosedIdsAll = []
-            pageData.value.recordIsShowAll = false
-        }
-
-        // 打开录像dialog
-        const setRecord = (index: number) => {
+        const openRecord = (index: number) => {
+            tableData.value[index].record.switch = true
             pageData.value.triggerDialogIndex = index
             pageData.value.recordIsShow = true
         }
 
-        const recordConfirm = (e: SelectOption<string, string>[]) => {
-            const index = pageData.value.triggerDialogIndex
-            if (e.length !== 0) {
-                tableData.value[index].sysRec.chls = cloneDeep(e)
-                tableData.value[index].recordList = e.map((item) => item.value)
+        const changeRecord = (index: number, data: SelectOption<string, string>[]) => {
+            pageData.value.recordIsShow = false
+            tableData.value[index].record = {
+                switch: !!data.length,
+                chls: cloneDeep(data),
+            }
+        }
+
+        const switchSnap = (index: number) => {
+            const row = tableData.value[index].snap
+            if (row.switch) {
+                openSnap(index)
             } else {
-                tableData.value[index].sysRec.chls = []
-                tableData.value[index].recordList = []
-                tableData.value[index].sysRec.switch = false
+                row.chls = []
             }
-            pageData.value.recordIsShow = false
         }
 
-        const recordClose = () => {
-            if (!tableData.value[pageData.value.triggerDialogIndex].sysRec.chls.length) {
-                tableData.value[pageData.value.triggerDialogIndex].sysRec.switch = false
-                tableData.value[pageData.value.triggerDialogIndex].recordList = []
-                tableData.value[pageData.value.triggerDialogIndex].sysRec.chls = []
-            }
-            pageData.value.recordIsShow = false
-        }
-
-        // 抓图配置相关处理
-        const snapConfirmAll = (e: any[]) => {
-            if (e.length !== 0) {
-                pageData.value.snapChosedListAll = cloneDeep(e)
-                pageData.value.snapChosedIdsAll = e.map((item) => item.value)
-                tableData.value.forEach((item) => {
-                    item.sysSnap.switch = true
-                    item.sysSnap.chls = pageData.value.snapChosedListAll
-                    item.snapList = e.map((item) => item.value)
-                })
-            }
-            pageData.value.snapChosedListAll = []
-            pageData.value.snapChosedIdsAll = []
-            pageData.value.snapIsShowAll = false
-        }
-
-        const snapCloseAll = () => {
-            pageData.value.snapChosedListAll = []
-            pageData.value.snapChosedIdsAll = []
-            pageData.value.snapIsShowAll = false
-        }
-
-        // 打开抓图dialog
-        const setSnap = (index: number) => {
+        const openSnap = (index: number) => {
+            tableData.value[index].snap.switch = true
             pageData.value.triggerDialogIndex = index
             pageData.value.snapIsShow = true
         }
 
-        const snapConfirm = (e: SelectOption<string, string>[]) => {
-            const index = pageData.value.triggerDialogIndex
-            if (e.length !== 0) {
-                tableData.value[index].sysSnap.chls = cloneDeep(e)
-                tableData.value[index].snapList = e.map((item) => item.value)
+        const changeSnap = (index: number, data: SelectOption<string, string>[]) => {
+            pageData.value.snapIsShow = false
+            tableData.value[index].snap = {
+                switch: !!data.length,
+                chls: cloneDeep(data),
+            }
+        }
+
+        const switchAlarmOut = (index: number) => {
+            const row = tableData.value[index].alarmOut
+            if (row.switch) {
+                openAlarmOut(index)
             } else {
-                tableData.value[index].sysSnap.chls = []
-                tableData.value[index].snapList = []
-                tableData.value[index].sysSnap.switch = false
+                row.alarmOuts = []
             }
-            pageData.value.snapIsShow = false
         }
 
-        const snapClose = () => {
-            if (!tableData.value[pageData.value.triggerDialogIndex].sysSnap.chls.length) {
-                tableData.value[pageData.value.triggerDialogIndex].sysSnap.switch = false
-                tableData.value[pageData.value.triggerDialogIndex].snapList = []
-                tableData.value[pageData.value.triggerDialogIndex].sysSnap.chls = []
-            }
-            pageData.value.snapIsShow = false
-        }
-
-        // 报警输出相关处理
-        const alarmOutConfirmAll = (e: any[]) => {
-            if (e.length !== 0) {
-                pageData.value.alarmOutChosedListAll = cloneDeep(e)
-                pageData.value.alarmOutChosedIdsAll = e.map((item) => item.value)
-                tableData.value.forEach((item) => {
-                    item.alarmOut.switch = true
-                    item.alarmOut.alarmOuts = pageData.value.alarmOutChosedListAll
-                    item.alarmOutList = e.map((item) => item.value)
-                })
-            }
-            pageData.value.alarmOutChosedListAll = []
-            pageData.value.alarmOutChosedIdsAll = []
-            pageData.value.alarmOutIsShowAll = false
-        }
-
-        const alarmOutCloseAll = () => {
-            pageData.value.alarmOutChosedListAll = []
-            pageData.value.alarmOutChosedIdsAll = []
-            pageData.value.alarmOutIsShowAll = false
-        }
-
-        // 打开报警输出dialog
-        const setAlarmOut = (index: number) => {
+        const openAlarmOut = (index: number) => {
+            tableData.value[index].alarmOut.switch = true
             pageData.value.triggerDialogIndex = index
             pageData.value.alarmOutIsShow = true
         }
 
-        const alarmOutConfirm = (e: SelectOption<string, string>[]) => {
-            const index = pageData.value.triggerDialogIndex
-            if (e.length !== 0) {
-                tableData.value[index].alarmOut.alarmOuts = cloneDeep(e)
-                tableData.value[index].alarmOutList = e.map((item) => item.value)
+        const changeAlarmOut = (index: number, data: SelectOption<string, string>[]) => {
+            pageData.value.alarmOutIsShow = false
+            tableData.value[index].alarmOut = {
+                switch: !!data.length,
+                alarmOuts: cloneDeep(data),
+            }
+        }
+
+        const switchPreset = (index: number) => {
+            const row = tableData.value[index].preset
+            if (row.switch) {
+                openPreset(index)
             } else {
-                tableData.value[index].alarmOut.alarmOuts = []
-                tableData.value[index].alarmOutList = []
-                tableData.value[index].alarmOut.switch = false
+                row.presets = []
             }
-            pageData.value.alarmOutIsShow = false
         }
 
-        const alarmOutClose = () => {
-            if (!tableData.value[pageData.value.triggerDialogIndex].alarmOut.alarmOuts.length) {
-                tableData.value[pageData.value.triggerDialogIndex].alarmOut.switch = false
-                tableData.value[pageData.value.triggerDialogIndex].alarmOutList = []
-                tableData.value[pageData.value.triggerDialogIndex].alarmOut.alarmOuts = []
-            }
-            pageData.value.alarmOutIsShow = false
-        }
-
-        // 预置点名称配置处理
-        const openPresetPop = (row: CombinedAlarm) => {
-            pageData.value.presetChlId = row.id
-            pageData.value.presetLinkedList = row.preset.presets
+        const openPreset = (index: number) => {
+            tableData.value[index].alarmOut.switch = true
+            pageData.value.triggerDialogIndex = index
             pageData.value.isPresetPopOpen = true
         }
 
-        const handlePresetLinkedList = (id: string, linkedList: PresetItem[]) => {
-            tableData.value.forEach((item) => {
-                if (item.id == id) {
-                    item.preset.presets = linkedList
-                }
-            })
-        }
-
-        const presetClose = (id: string) => {
+        const changePreset = (index: number, data: AlarmPresetItem[]) => {
             pageData.value.isPresetPopOpen = false
-            tableData.value.forEach((item) => {
-                if (item.id == id && item.preset.presets.length == 0) {
-                    item.preset.switch = false
-                }
-            })
-        }
-
-        const presetCheckChange = (row: CombinedAlarm) => {
-            if (row.preset.switch) {
-                openPresetPop(row)
-            } else {
-                row.preset.presets = []
+            tableData.value[index].preset = {
+                switch: !!data.length,
+                presets: cloneDeep(data),
             }
         }
 
-        const checkChange = (index: number, type: string) => {
-            switch (type) {
-                case 'record':
-                    if (tableData.value[index].sysRec.switch) {
-                        setRecord(index)
-                    } else {
-                        tableData.value[index].sysRec.chls = []
-                        tableData.value[index].recordList = []
-                    }
-                    break
-                case 'snap':
-                    if (tableData.value[index].sysSnap.switch) {
-                        setSnap(index)
-                    } else {
-                        tableData.value[index].sysSnap.chls = []
-                        tableData.value[index].snapList = []
-                    }
-                    break
-                case 'alarmOut':
-                    if (tableData.value[index].alarmOut.switch) {
-                        setAlarmOut(index)
-                    } else {
-                        tableData.value[index].alarmOut.alarmOuts = []
-                        tableData.value[index].alarmOutList = []
-                    }
-                    break
-                default:
-                    break
-            }
-        }
-
-        const changeCombinedALarmInfo = (row: CombinedAlarm) => {
+        const changeCombinedALarmInfo = (row: AlarmCombinedDto) => {
             let info = ''
             row.combinedAlarm.item.forEach((item, index) => {
                 if (index == 0) {
@@ -636,8 +479,8 @@ export default defineComponent({
             })
         }
 
-        const getEditedRows = (table: CombinedAlarm[], tableInit: CombinedAlarm[]) => {
-            const editedRows = [] as CombinedAlarm[]
+        const getEditedRows = (table: AlarmCombinedDto[], tableInit: AlarmCombinedDto[]) => {
+            const editedRows = [] as AlarmCombinedDto[]
             table.forEach((item, index) => {
                 if (!isEqual(item, tableInit[index])) {
                     editedRows.push(item)
@@ -646,13 +489,13 @@ export default defineComponent({
             return editedRows
         }
 
-        const getSavaData = (row: CombinedAlarm) => {
+        const getSavaData = (row: AlarmCombinedDto) => {
             const sendXml = rawXml`
                 <content type='list'>
                     <item id='${row.id}'>
                         <param>
                             <name><![CDATA[${row.name}]]></name>
-                            <switch>${String(row.combinedAlarm.switch)}</switch>
+                            <switch>${row.combinedAlarm.switch}</switch>
                             <alarmSource>
                                 ${row.combinedAlarm.item
                                     .map((item) => {
@@ -668,9 +511,9 @@ export default defineComponent({
                         </param>
                         <trigger>
                             <sysRec>
-                                <switch>${String(row.sysRec.switch)}</switch>
+                                <switch>${row.record.switch}</switch>
                                 <chls>
-                                    ${row.sysRec.chls
+                                    ${row.record.chls
                                         .map((item) => {
                                             return `<item id='${item.value}'>${item.label}</item>`
                                         })
@@ -678,9 +521,9 @@ export default defineComponent({
                                 </chls>
                             </sysRec>
                             <sysSnap>
-                                <switch>${String(row.sysSnap.switch)}</switch>
+                                <switch>${row.snap.switch}</switch>
                                 <chls>
-                                    ${row.sysSnap.chls
+                                    ${row.snap.chls
                                         .map((item) => {
                                             return `<item id='${item.value}'>${item.label}</item>`
                                         })
@@ -688,7 +531,7 @@ export default defineComponent({
                                 </chls>
                             </sysSnap>
                             <alarmOut>
-                                <switch>${String(row.alarmOut.switch)}</switch>
+                                <switch>${row.alarmOut.switch}</switch>
                                 <alarmOuts>
                                     ${row.alarmOut.alarmOuts
                                         .map((item) => {
@@ -702,7 +545,7 @@ export default defineComponent({
                                 <chl id='${row.popVideo.chl.value}'></chl>
                             </popVideo>
                             <preset>
-                                <switch>${String(row.preset.switch)}</switch>
+                                <switch>${row.preset.switch}</switch>
                                 <presets>
                                     ${row.preset.presets
                                         .map((item) => {
@@ -779,49 +622,64 @@ export default defineComponent({
                     })
                 }
             })
-            let sendXml = rawXml`<content>`
 
-            combinedId.forEach((item, index) => {
-                let obj = pageData.value.faceObj[item] && pageData.value.faceObj[item][groupId[index]] && pageData.value.faceObj[item][groupId[index]].obj
-                if (!obj) {
-                    obj = {
-                        rule: '1',
-                        duration: -5,
-                        delay: 5,
-                        noShowDisplay: 'false',
-                        displayText: '',
-                        groupId: [],
-                        faceDataBase: [],
-                    }
-                }
-                sendXml += rawXml`<item id='${item}' alarmSourceType='FaceMatch'>`
-                sendXml += rawXml`<chlID id='${groupId[index]}'></chlID>
-                        <matchRule>${obj.rule}</matchRule>
-                        <startTime>${String(obj.duration)}</startTime>
-                        <endTime>${String(obj.delay)}</endTime>
-                        <noShowDisplay>${obj.noShowDisplay}</noShowDisplay>
-                        <displayText>${obj.displayText}</displayText>
-                        <groupId>`
-                obj.groupId.forEach((element) => {
-                    sendXml += rawXml`'<item id='${element}'></item>`
-                })
-                sendXml += rawXml`</groupId></item>`
-            })
+            const sendXml = rawXml`
+                <content>
+                    ${combinedId
+                        .map((item, index) => {
+                            let obj = pageData.value.faceObj[item] && pageData.value.faceObj[item][groupId[index]] && pageData.value.faceObj[item][groupId[index]].obj
+                            if (!obj) {
+                                obj = {
+                                    rule: '1',
+                                    duration: -5,
+                                    delay: 5,
+                                    noShowDisplay: 'false',
+                                    displayText: '',
+                                    groupId: [],
+                                    faceDataBase: [],
+                                }
+                            }
 
-            // 区域入侵xml
-            peaCombinedId.forEach((item, index) => {
-                sendXml += rawXml`'<item id='${item}' alarmSourceType='InvadeDetect'>`
-                sendXml += rawXml`<chlID id='${peaGroupId[index]}'></chlID>`
-                sendXml += rawXml`</item>`
-            })
-            // 越界
-            tripwireCombinedId.forEach((item, index) => {
-                sendXml += rawXml`<item id='${item}' alarmSourceType='Tripwire'>`
-                sendXml += rawXml`<chlID id='${tripwireGroupId[index]}'></chlID>`
-                sendXml += rawXml`</item>`
-            })
+                            return rawXml`
+                                <item id='${item}' alarmSourceType='FaceMatch'>
+                                    <chlID id='${groupId[index]}'></chlID>
+                                    <matchRule>${obj.rule}</matchRule>
+                                    <startTime>${obj.duration}</startTime>
+                                    <endTime>${obj.delay}</endTime>
+                                    <noShowDisplay>${obj.noShowDisplay}</noShowDisplay>
+                                    <displayText>${obj.displayText}</displayText>
+                                    <groupId>
+                                        ${obj.groupId
+                                            .map((element) => {
+                                                return `<item id='${element}'></item>`
+                                            })
+                                            .join('')}
+                                    </groupId>
+                                </item>
+                            `
+                        })
+                        .join('')}
+                    ${peaCombinedId
+                        .map((item, index) => {
+                            return rawXml`
+                                <item id='${item}' alarmSourceType='InvadeDetect'>
+                                    <chlID id='${peaGroupId[index]}'></chlID>
+                                </item>
+                            `
+                        })
+                        .join('')}
+                    ${tripwireCombinedId
+                        .map((item, index) => {
+                            return rawXml`
+                                <item id='${item}' alarmSourceType='Tripwire'>
+                                    <chlID id='${tripwireGroupId[index]}'></chlID>
+                                </item>
+                            `
+                        })
+                        .join('')}
+                </content>
+            `
 
-            sendXml += `</content>`
             return sendXml
         }
 
@@ -829,10 +687,6 @@ export default defineComponent({
             // 相关请求，获取前置数据
             await getSystemCaps() // 系统配置
             await getChlData() // 通道数据
-            await getRecordList()
-            await getSnapList()
-            await getAlarmOutData() // 报警输出
-
             await getData()
 
             // 在tabledata初始化完成后开始监听tabledata的数据变化
@@ -854,7 +708,10 @@ export default defineComponent({
         )
 
         return {
-            SetPresetPop,
+            AlarmBasePresetPop,
+            AlarmBaseSnapPop,
+            AlarmBaseRecordPop,
+            AlarmBaseAlarmOutPop,
             CombinationAlarmPop,
             pageData,
             tableData,
@@ -864,35 +721,23 @@ export default defineComponent({
             nameFocus,
             nameBlur,
             enterBlur,
-            checkChange,
             // 组合报警
             openCombinedAlarmPop,
             handleCombinedAlarmLinkedList,
             combinedAlarmClose,
             combinedAlarmCheckChange,
-            // 录像
-            recordConfirmAll,
-            recordCloseAll,
-            setRecord,
-            recordConfirm,
-            recordClose,
-            // 抓图
-            snapConfirmAll,
-            snapCloseAll,
-            setSnap,
-            snapConfirm,
-            snapClose,
-            // 报警输出
-            alarmOutConfirmAll,
-            alarmOutCloseAll,
-            setAlarmOut,
-            alarmOutConfirm,
-            alarmOutClose,
-            // 预置点名称
-            openPresetPop,
-            handlePresetLinkedList,
-            presetClose,
-            presetCheckChange,
+            switchRecord,
+            openRecord,
+            changeRecord,
+            switchAlarmOut,
+            openAlarmOut,
+            changeAlarmOut,
+            switchSnap,
+            openSnap,
+            changeSnap,
+            switchPreset,
+            openPreset,
+            changePreset,
             // 表头改变属性
             changeAllValue,
             setData,

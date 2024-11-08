@@ -2,8 +2,6 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-12 15:34:24
  * @Description: email通知
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 10:24:06
 -->
 <template>
     <div>
@@ -76,8 +74,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.scheduleList"
                                         :key="item.value"
-                                        :value="item.value"
-                                        :label="item.label"
                                         @click="handleScheduleChangeAll(item.value)"
                                     >
                                         {{ item.label }}

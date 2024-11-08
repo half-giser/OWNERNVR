@@ -2,8 +2,6 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-27 15:43:26
  * @Description:  周界防范/人车检测
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 10:41:04
 -->
 <template>
     <div>

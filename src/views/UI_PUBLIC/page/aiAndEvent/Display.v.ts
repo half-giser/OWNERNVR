@@ -2,18 +2,16 @@
  * @Description: AI/事件——事件通知——显示
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-07-30 09:23:37
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-18 15:35:12
  */
-import { PopVideoForm, PopMsgForm } from '@/types/apiType/aiAndEvent'
+import { AlarmDisplayPopVideoForm, AlarmDisplayPopMsgForm } from '@/types/apiType/aiAndEvent'
 
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
 
-        const videoFormData = ref(new PopVideoForm())
-        const msgFormData = ref(new PopMsgForm())
+        const videoFormData = ref(new AlarmDisplayPopVideoForm())
+        const msgFormData = ref(new AlarmDisplayPopMsgForm())
 
         const pageData = ref({
             // 弹出视频持续时间选项
@@ -79,10 +77,10 @@ export default defineComponent({
             openLoading()
             const sendXml = rawXml`
                 <content>
-                    <popVideoDuration>${String(videoFormData.value.popVideoDuration)}</popVideoDuration>
-                    <popMsgDuration>${String(msgFormData.value.popMsgDuration)}</popMsgDuration>
-                    <popMsgShow>${String(!msgFormData.value.popMsgShow)}</popMsgShow>
-                    <popVideoOutput>${String(videoFormData.value.popVideoOutput)}</popVideoOutput>
+                    <popVideoDuration>${videoFormData.value.popVideoDuration}</popVideoDuration>
+                    <popMsgDuration>${msgFormData.value.popMsgDuration}</popMsgDuration>
+                    <popMsgShow>${!msgFormData.value.popMsgShow}</popMsgShow>
+                    <popVideoOutput>${videoFormData.value.popVideoOutput}</popVideoOutput>
                 </content>
             `
             const result = await editEventNotifyParam(sendXml)

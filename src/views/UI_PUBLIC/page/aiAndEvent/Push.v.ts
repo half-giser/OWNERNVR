@@ -1,11 +1,9 @@
 /*
- * @Description: AI/事件——事件通知——推送
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-12 15:28:16
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 11:47:18
+ * @Description: AI/事件——事件通知——推送
  */
-import { pushForm } from '@/types/apiType/aiAndEvent'
+import { AlarmPushForm } from '@/types/apiType/aiAndEvent'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 
 export default defineComponent({
@@ -16,7 +14,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
-        const pushFormData = ref(new pushForm())
+        const pushFormData = ref(new AlarmPushForm())
 
         const pageData = ref({
             scheduleOption: [] as SelectOption<string, string>[],
@@ -70,7 +68,7 @@ export default defineComponent({
         const setData = async () => {
             const sendXml = rawXml`
                 <content>
-                    <mobilePushSwitch>${String(pushFormData.value.chkEnable)}</mobilePushSwitch>
+                    <mobilePushSwitch>${pushFormData.value.chkEnable}</mobilePushSwitch>
                     <pushSchedule id='${pushFormData.value.pushSchedule}'></pushSchedule>
                 </content>
             `

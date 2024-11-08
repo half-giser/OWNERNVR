@@ -2,16 +2,12 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-08-10 12:08:57
  * @Description: AI/事件
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-28 09:34:17
  */
-const { Translate } = useLangStore()
 
 /**
- * @description: 报警输出
- * @return {*}
+ * @description 报警输出
  */
-export class AlarmOut {
+export class AlarmOutDto {
     id = '' //告警输出ID
     name = '' //告警输出名称
     index = '' //告警输出在设备上的序号
@@ -24,17 +20,12 @@ export class AlarmOut {
     type = '' //常开常闭类型--本机报警输出在有效
     status = '' //行状态: loading, success, error
     disabled = true //是否禁用
-    // 表格中显示的序号，是devDesc-index
-    get serialNum() {
-        return `${this.devDesc ? this.devDesc : Translate('IDCS_LOCAL')}-${this.index}`
-    }
 }
 
 /**
- * @description: email接收人
- * @return {*}
+ * @description email接收人
  */
-export class EmailReceiver {
+export class AlarmEmailReceiverDto {
     address = ''
     addressShow = ''
     schedule = ''
@@ -43,32 +34,42 @@ export class EmailReceiver {
     rowClicked = false
 }
 
-// 事件通知——显示——弹出视频
-export class PopVideoForm {
+/**
+ * @description 事件通知——显示——弹出视频
+ */
+export class AlarmDisplayPopVideoForm {
     popVideoDuration = 0 // 弹出视频持续时间
     popVideoOutputShow = false // 是否显示
     popVideoOutput = '' // 弹出视频输出
 }
 
-// 事件通知——显示——弹出消息框
-export class PopMsgForm {
+/**
+ * @description 事件通知——显示——弹出消息框
+ */
+export class AlarmDisplayPopMsgForm {
     popMsgDuration = 0
     popMsgShow = false
 }
 
-// 事件通知——蜂鸣器
-export class buzzerForm {
+/**
+ * @description 事件通知——蜂鸣器
+ */
+export class AlarmBuzzerForm {
     buzzerDuration = 0
 }
 
-// 事件通知——推送
-export class pushForm {
+/**
+ * @description 事件通知——推送
+ */
+export class AlarmPushForm {
     chkEnable = false // 是否启用
     pushSchedule = ''
 }
 
-// 事件通知——闪灯
-export class whiteLightInfo {
+/**
+ * @description 事件通知——闪灯
+ */
+export class AlarmWhiteLightDto {
     id = ''
     name = ''
     enable = ''
@@ -81,14 +82,34 @@ export class whiteLightInfo {
     status = '' //行状态: loading, success, error
 }
 
-// 事件通知——报警类型
-export class AlarmTypeInfo {
+/**
+ * @description 报警服务器表单
+ */
+export class AlarmServerForm {
+    enable = false
+    address = ''
+    url = ''
+    port = 0
+    heartEnable = false
+    protocol = ''
+    interval = 0
+    schedule = ''
+    deviceId = ''
+    token = ''
+}
+
+/**
+ * @description 事件通知——报警服务器-报警类型
+ */
+export class AlarmTypeInfoDto {
     id = ''
     value = ''
 }
 
-// 移动侦测、前端掉线、视频丢失的通用表格数据类型
-export class MotionEventConfig {
+/**
+ * @description 移动侦测、前端掉线、视频丢失的通用表格数据类型
+ */
+export class AlarmEventDto {
     id = ''
     addType = ''
     chlType = ''
@@ -107,20 +128,17 @@ export class MotionEventConfig {
         switch: false,
         chls: [] as SelectOption<string, string>[],
     }
-    recordList = [] as string[]
     snap = {
         switch: false,
         chls: [] as SelectOption<string, string>[],
     }
-    snapList = [] as string[]
     sysAudio = ''
     msgPush = ''
     ftpSnap = '' //抓图到FTP，暂时无用
     alarmOut = {
         switch: false,
-        chls: [] as SelectOption<string, string>[],
+        alarmOuts: [] as SelectOption<string, string>[],
     }
-    alarmOutList = [] as string[]
     preset = {
         switch: false,
         presets: [] as { index: string; name: string; chl: { value: string; label: string } }[],
@@ -139,7 +157,10 @@ export class MotionEventConfig {
     rowDisable = true
 }
 
-export class ipcAudioForm {
+/**
+ * @description IPC声音表单
+ */
+export class AlarmIpcAudioForm {
     ipcRadio = 'audioAlarm' // 摄像机选择项——语音播报/声音设备
 
     // 语音播报
@@ -161,7 +182,10 @@ export class ipcAudioForm {
     audioEncode = '' // 音频输入编码
 }
 
-export class AudioAlarmOut {
+/**
+ * @description IPC声音报警输出项
+ */
+export class AlarmAudioAlarmOutDto {
     successFlag = false
     editFlag = false
     id = ''
@@ -181,7 +205,10 @@ export class AudioAlarmOut {
     audioFileLimitSize = ''
 }
 
-export class AudioDevice {
+/**
+ * @description IPC声音设备项
+ */
+export class AlarmAudioDevice {
     successFlag = false
     editFlag = false
     id = ''
@@ -204,7 +231,10 @@ export class AudioDevice {
     audioOutEnabled = false
 }
 
-export class LocalTableRow {
+/**
+ * @description 本地声音表格项
+ */
+export class AlarmLocalAudioDto {
     id = ''
     index = ''
     name = ''
@@ -212,7 +242,10 @@ export class LocalTableRow {
     fileValid = ''
 }
 
-export class ExceptionAlarmRow {
+/**
+ * @description 异常报警表格项
+ */
+export class AlarmExceptionDto {
     id = ''
     eventType = ''
     sysAudio = ''
@@ -229,7 +262,10 @@ export class ExceptionAlarmRow {
     emailDisable = true
 }
 
-export class SystemDisarm {
+/**
+ * @description 系统撤防
+ */
+export class AlarmSystemDisarmDto {
     id = ''
     chlName = ''
     // 已选择的撤防联动项列表
@@ -246,8 +282,10 @@ export class ChlList {
     name = ''
 }
 
-// 传感器的table项
-export class SensorEvent {
+/**
+ * @description 传感器的table项
+ */
+export class AlarmSensorEventDto {
     id = ''
     status = '' //行状态: loading, success, error
     alarmInType = ''
@@ -272,25 +310,22 @@ export class SensorEvent {
     // 打开排程管理时将原本的排程填入
     oldSchedule = ''
     // record录像
-    sysRec = {
+    record = {
         switch: false,
         chls: [] as SelectOption<string, string>[],
     }
-    recordList = [] as string[]
     // audio声音
     sysAudio = ''
     // snap抓图
-    sysSnap = {
+    snap = {
         switch: false,
         chls: [] as SelectOption<string, string>[],
     }
-    snapList = [] as string[]
     // 报警输出
     alarmOut = {
         switch: false,
         alarmOuts: [] as SelectOption<string, string>[],
     }
-    alarmOutList = [] as string[]
     // 视频弹出
     popVideo = {
         switch: '',
@@ -302,7 +337,7 @@ export class SensorEvent {
     // 预置点名称
     preset = {
         switch: false,
-        presets: [] as PresetItem[],
+        presets: [] as AlarmPresetItem[],
     }
     msgPushSwitch = '' // 推送
     buzzerSwitch = '' // 蜂鸣器
@@ -310,7 +345,10 @@ export class SensorEvent {
     popMsgSwitch = '' // 消息框弹出
 }
 
-export class PresetItem {
+/**
+ * @description 预置点
+ */
+export class AlarmPresetItem {
     index = ''
     name = ''
     chl = {
@@ -319,7 +357,7 @@ export class PresetItem {
     }
 }
 
-export class PresetList {
+export class AlarmPresetList {
     id = ''
     name = ''
     chlType = ''
@@ -334,31 +372,27 @@ export class PresetList {
 
 /**
  * @description: 组合报警
- * @return {*}
  */
-export class CombinedAlarm {
+export class AlarmCombinedDto {
     id = ''
     name = ''
     status = '' //行状态: loading, success, error
     combinedAlarm = {
         switch: false,
-        item: [] as CombinedAlarmItem[],
+        item: [] as AlarmCombinedItemDto[],
     }
-    sysRec = {
+    record = {
         switch: false,
         chls: [] as SelectOption<string, string>[],
     }
-    recordList = [] as string[]
-    sysSnap = {
+    snap = {
         switch: false,
         chls: [] as SelectOption<string, string>[],
     }
-    snapList = [] as string[]
     alarmOut = {
         switch: false,
         alarmOuts: [] as SelectOption<string, string>[],
     }
-    alarmOutList = [] as string[]
     popVideo = {
         switch: '',
         chl: {
@@ -368,7 +402,7 @@ export class CombinedAlarm {
     }
     preset = {
         switch: false,
-        presets: [] as PresetItem[],
+        presets: [] as AlarmPresetItem[],
     }
     sysAudio = ''
     msgPush = ''
@@ -378,7 +412,7 @@ export class CombinedAlarm {
     videoPopup = ''
 }
 
-export class CombinedAlarmItem {
+export class AlarmCombinedItemDto {
     alarmSourceType = ''
     alarmSourceEntity = {
         value: '',
@@ -386,7 +420,7 @@ export class CombinedAlarmItem {
     }
 }
 
-export class faceMatchObj {
+export class AlarmCombinedFaceMatchDto {
     rule = ''
     duration = 5
     delay = 5
@@ -397,11 +431,9 @@ export class faceMatchObj {
 }
 
 /**
- * @description: AI事件——人脸识别相关类型
- * @return {*}
+ * @description: AI事件——人脸识别通道
  */
-// 人脸识别通道
-export class FaceChlItem {
+export class AlarmFaceChlDto {
     id = ''
     name = ''
     ip = ''
@@ -415,19 +447,10 @@ export class FaceChlItem {
     faceMatchLimitMaxChlNum = 0
 }
 
-// AI资源table项
-export class AIResource {
-    id = ''
-    name = ''
-    eventType = [] as string[]
-    eventTypeText = ''
-    percent = ''
-    decodeResource = ''
-    decodeResourceText = ''
-}
-
-// 侦测——参数配置表单项
-export class FaceDetection {
+/**
+ * @description 人脸侦测——参数配置表单项
+ */
+export class AlarmFaceDetectionDto {
     enabledSwitch = false
     originalSwitch = false
     holdTime = ''
@@ -450,12 +473,8 @@ export class FaceDetection {
     schedule = ''
     record = [] as SelectOption<string, string>[]
     alarmOut = [] as SelectOption<string, string>[]
-    preset = [] as PresetItem[]
-    msgPushSwitch = false
-    buzzerSwitch = false
-    popVideoSwitch = false
-    emailSwitch = false
-    catchSnapSwitch = false
+    preset = [] as AlarmPresetItem[]
+    trigger = [] as string[]
     sysAudio = ''
 }
 
@@ -466,23 +485,30 @@ export class Region {
     Y2 = 0
 }
 
-// 识别——参数配置表单项（人脸匹配）
-export class FaceMatch {
+/**
+ * @description 人脸识别——参数配置表单项（人脸匹配）
+ */
+export class AlarmFaceMatchDto {
     hitEnable = false
     notHitEnable = false
     liveDisplaySwitch = false
-    groupInfo = [] as FaceGroupTableItem[]
+    groupInfo = [] as AlarmFaceGroupDto[]
     editFlag = false
 }
 
-// 识别——参数配置——人脸分组表格
-export class FaceGroupTableItem {
+/**
+ * @description 人脸识别——参数配置——人脸分组表格
+ */
+export class AlarmFaceGroupDto {
     guid = ''
     name = ''
     similarity = 75
 }
 
-export class chlCaps {
+/**
+ * @description 通道项
+ */
+export class AlarmChlDto {
     id = ''
     ip = ''
     name = ''
@@ -516,7 +542,10 @@ export class chlCaps {
     faceMatchLimitMaxChlNum = 0
 }
 
-export class aiResourceRow {
+/**
+ * @description AI资源表格项
+ */
+export class AlarmAIResourceDto {
     id = ''
     name = ''
     eventType = [] as string[]
@@ -525,9 +554,10 @@ export class aiResourceRow {
     decodeResource = '--'
 }
 
-// 区域入侵不同区域类型的公用页面数据。
-export class peaPageData {
-    [key: string]: any
+/**
+ * @description 区域入侵不同区域类型的公用页面数据。
+ */
+export class AlarmPeaDto {
     // 是否启用侦测
     detectionEnable = false
     // 用于对比
@@ -538,12 +568,10 @@ export class peaPageData {
     saveTargetPicture = false
     // SD卡目标图存储
     saveSourcePicture = false
-
     // 联动追踪是否支持
     hasAutoTrack = false
     // 联动追踪
     autoTrack = false
-
     // 持续时间
     holdTime = 0
     // 持续时间列表
@@ -569,40 +597,172 @@ export class peaPageData {
     motorSensitivity = 0
     // 联动
     triggerSwitch = false
-    snapSwitch = false
-    msgPushSwitch = false
-    buzzerSwitch = false
-    popVideoSwitch = false
-    emailSwitch = false
     // 音频联动
     audioSuport = false
+    // 白光联动
+    lightSuport = false
+    sysAudio = ''
+    recordSwitch = false
+    recordChls = [] as SelectOption<string, string>[]
+    alarmOutSwitch = false
+    alarmOutChls = [] as SelectOption<string, string>[]
+    presetSwitch = false
+    presets = [] as AlarmPresetItem[]
+    trigger = [] as string[]
+    triggerList = [] as string[]
+}
+
+export type CanvasPasslineDirection = 'none' | 'rightortop' | 'leftorbotton'
+
+/**
+ * @description 越界
+ */
+export class AlarmTripwireDto {
+    lineInfo = [] as { direction: CanvasPasslineDirection; startPoint: { X: number; Y: number }; endPoint: { X: number; Y: number }; configured: boolean }[]
+    // 方向
+    direction = '' as CanvasPasslineDirection
+    // 方向列表
+    directionList = [] as SelectOption<string, string>[]
+    // 排程
+    tripwire_schedule = ''
+    // 持续时间
+    holdTime = 0
+    holdTimeList = [] as SelectOption<number, string>[]
+    // mutex
+    mutexList = [] as { object: string; status: boolean }[]
+    mutexListEx = [] as { object: string; status: boolean }[]
+    // 目标类型只支持人
+    tripwire_onlyPreson = false
+    // 只支持人的灵敏度
+    onlyPersonSensitivity = 0
+    // 是否支持SD卡存储
+    pictureAvailable = false
+    // SD卡原图存储
+    saveTargetPicture = false
+    // SD卡目标图存储
+    saveSourcePicture = false
+    // 联动追踪
+    hasAutoTrack = false
+    autoTrack = false
+    // 检测目标
+    hasObj = false
+    // 是否启用侦测
+    detectionEnable = false
+    // 用于对比
+    originalEnable = false
+    objectFilter = {
+        person: false,
+        car: false,
+        motorcycle: false,
+        personSensitivity: 0,
+        carSensitivity: 0,
+        motorSensitivity: 0,
+    }
+    triggerSwitch = false
+    // 音频联动
+    audioSuport = false
+    // 白光联动
+    lightSuport = false
+    sysAudio = ''
+    record = [] as SelectOption<string, string>[]
+    trigger = [] as string[]
+    triggerList = ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'snapSwitch']
+    alarmOut = [] as SelectOption<string, string>[]
+    preset = [] as AlarmPresetItem[]
+}
+
+/**
+ * @description 过线统计
+ */
+export class AlarmPassLinesDto {
+    // 三种模式的时间
+    countPeriod = {
+        day: {
+            date: '0',
+            dateTime: '00:00:00',
+        } as { date: string; dateTime: string },
+        week: {
+            date: '0',
+            dateTime: '00:00:00',
+        } as { date: string; dateTime: string },
+        month: {
+            date: '1',
+            dateTime: '00:00:00',
+        } as { date: string; dateTime: string },
+    } as Record<string, { date: string; dateTime: string }>
+    // 是否启用侦测
+    passLineDetectionEnable = false
+    // 用于对比
+    passLineOriginalEnable = false
+    // mutex
+    passLineMutexList = [] as { object: string; status: boolean }[]
+    passLineMutexListEx = [] as { object: string; status: boolean }[]
+    // 排程
+    passLineSchedule = ''
+    // 持续时间
+    passLineholdTime = 0
+    lineInfo = [] as { direction: CanvasPasslineDirection; startPoint: { X: number; Y: number }; endPoint: { X: number; Y: number }; configured: boolean }[]
+    // OSD
+    countOSD = {
+        switch: false,
+        X: 0,
+        Y: 0,
+        osdFormat: '',
+    }
+    // 是否启用自动重置
+    autoReset = true
+    // 重置时间模式 day/week/month
+    countTimeType = 'day'
+    // 重置模式列表
+    countCycleTypeList = [] as SelectOption<string, string>[]
+    // SD卡原图存储
+    saveTargetPicture = false
+    // SD卡目标图存储
+    saveSourcePicture = false
+    // cpc TODO现无支持设备，无法测试
+    // 是否启用侦测
+    cpcDetectionEnable = false
+    // 用于对比
+    cpcOriginalEnable = false
+    cpcMutexList = [] as { object: string; status: boolean }[]
+    cpcMutexListEx = [] as { object: string; status: boolean }[]
+    cpcLineInfo = new AlarmPassLinesRegion()
+    regionInfo = new AlarmPassLinesRegion()
+    // 排程
+    cpcSchedule = ''
+    // 持续时间
+    holdTime = 0
+    holdTimeList = [] as SelectOption<number, string>[]
+    // 灵敏度
+    detectSensitivity = 0
+    detectSensitivityList = [] as SelectOption<number, string>[]
+    // 统计周期
+    statisticalPeriod = ' '
+    statisticalPeriodList = [] as SelectOption<string, string>[]
+    // 进入阈值
+    crossInAlarmNumValue = 0
+    // 离开阈值
+    crossOutAlarmNumValue = 0
+    // 滞留阈值
+    twoWayDiffAlarmNumValue = 0
+    objectFilter = {
+        person: false,
+        car: false,
+        motorcycle: false,
+        personSensitivity: 0,
+        carSensitivity: 0,
+        motorSensitivity: 0,
+    }
     triggerAudio = false
     // 白光联动
     lightSuport = false
     triggerWhiteLight = false
-    // 用于显示在页面上
-    peaTriggerData = [] as { value: boolean; label: string; property: string }[]
-    sysAudio = ''
-    recordSwitch = false
-    recordChls = [] as SelectOption<string, string>[]
-    // 选中的record id
-    recordList = [] as string[]
-    recordIsShow = false
-    // recordSource = [] as SelectOption<string, string>[]
-
-    alarmOutSwitch = false
-    alarmOutChls = [] as SelectOption<string, string>[]
-    // 选中的alarmOut id
-    alarmOutList = [] as string[]
-    alarmOutIsShow = false
-    // alarmOutSource = [] as { value: string; label: string; device: { value: string; label: string } }[]
-
-    presetSwitch = false
-    presets = [] as PresetItem[]
-    presetSource = [] as PresetList[]
 }
 
-export class emailData {
+/**
+ * @description 过线统计 Email
+ */
+export class AlarmPassLinesEmailDto {
     saveTargetPicture = false
     saveSourcePicture = false
     sendEmailData = {
@@ -619,21 +779,26 @@ export class emailData {
     receiverData = [] as { address: string; schedule: string; rowClicked: boolean }[]
 }
 
-export class regionData {
+export class AlarmPassLinesRegion {
     X1 = 0
     Y1 = 0
     X2 = 0
     Y2 = 0
 }
 
-// 识别——识别成功/陌生人
-export class FaceCompare {
+/**
+ * @description 人脸识别——识别成功/陌生人
+ */
+export class AlarmFaceRecognitionDto {
     voiceList = [] as SelectOption<string, string>[]
-    task = [] as CompareTask[]
+    task = [] as AlarmRecognitionTaskDto[]
     editFlag = false
 }
 
-export class CompareTask {
+/**
+ * @description 识别成功
+ */
+export class AlarmRecognitionTaskDto {
     guid = ''
     id = ''
     ruleType = ''
@@ -645,29 +810,29 @@ export class CompareTask {
     record = [] as SelectOption<string, string>[]
     alarmOut = [] as SelectOption<string, string>[]
     snap = [] as SelectOption<string, string>[]
-    preset = [] as PresetItem[]
-    msgPushSwitch = false
-    buzzerSwitch = false
-    popVideoSwitch = false
-    emailSwitch = false
-    popMsgSwitch = false
+    preset = [] as AlarmPresetItem[]
+    trigger = [] as string[]
     sysAudio = ''
 }
+
 /**
  * @description: AI事件——车牌识别相关类型
- * @return {*}
  */
 
-// 人脸识别通道
-export class VehicleChlItem {
+/**
+ * @description 车牌识别通道
+ */
+export class AlarmVehicleChlDto {
     id = ''
     name = ''
     chlType = ''
     supportVehiclePlate = false
 }
 
-// 侦测——参数配置表单项
-export class VehicleDetection {
+/**
+ * @description 车牌侦测——参数配置表单项
+ */
+export class AlarmVehicleDetectionDto {
     enabledSwitch = false
     originalSwitch = false
     schedule = ''
@@ -689,16 +854,20 @@ export class VehicleDetection {
     maxRegionInfo = [] as Region[]
 }
 
-// 识别——识别成功/陌生车牌
-export class VehicleCompare {
+/**
+ * @description 车牌识别——识别成功/陌生车牌
+ */
+export class AlarmVehicleRecognitionDto {
     hitEnable = false
     notHitEnable = false
-    task = [] as CompareTask[]
+    task = [] as AlarmRecognitionTaskDto[]
     editFlag = false
 }
 
-/* AI事件——更多——温度检测 */
-export class TempDetection {
+/**
+ * @description AI事件——更多——温度检测
+ */
+export class AlarmTemperatureDetectionDto {
     enabledSwitch = false
     holdTime = ''
     holdTimeList = [] as SelectOption<string, string>[]
@@ -708,19 +877,16 @@ export class TempDetection {
     record = [] as SelectOption<string, string>[]
     alarmOut = [] as SelectOption<string, string>[]
     snap = [] as SelectOption<string, string>[]
-    preset = [] as PresetItem[]
-    msgPushSwitch = false
-    buzzerSwitch = false
-    popVideoSwitch = false
-    emailSwitch = false
-    popMsgSwitch = false
-    catchSnapSwitch = false
+    preset = [] as AlarmPresetItem[]
+    trigger = [] as string[]
     sysAudio = ''
-    boundaryData = [] as BoundaryTableDataItem[]
+    boundaryData = [] as AlarmTemperatureDetectionBoundryDto[]
 }
 
-// 检测界限数据（区域）
-export class BoundaryTableDataItem {
+/**
+ * @description 检测界限数据（区域）
+ */
+export class AlarmTemperatureDetectionBoundryDto {
     id = ''
     ruleId = 0
     switch = false
@@ -739,8 +905,10 @@ export class BoundaryTableDataItem {
     points = [] as { X: number; Y: number; isClosed: boolean }[]
 }
 
-/* AI事件——更多——物品遗留与看护 */
-export class ObjectLeft {
+/**
+ * @description AI事件——更多——物品遗留与看护
+ */
+export class AlarmObjectLeftDto {
     enabledSwitch = false
     originalSwitch = false
     holdTime = ''
@@ -750,27 +918,25 @@ export class ObjectLeft {
     oscType = ''
     areaMaxCount = 0
     regulation = false
-    boundary = [] as BoundaryItem[]
+    boundary = [] as AlarmObjectLeftBoundaryDto[]
     mutexList = [] as { object: string; status: boolean }[]
     maxNameLength = 0
     record = [] as SelectOption<string, string>[]
     alarmOut = [] as SelectOption<string, string>[]
-    preset = [] as PresetItem[]
-    msgPushSwitch = false
-    buzzerSwitch = false
-    popVideoSwitch = false
-    emailSwitch = false
-    catchSnapSwitch = false
+    preset = [] as AlarmPresetItem[]
+    trigger = [] as string[]
     sysAudio = ''
 }
 
-export class BoundaryItem {
+export class AlarmObjectLeftBoundaryDto {
     areaName = ''
     points = [] as { X: number; Y: number; isClosed: boolean }[]
 }
 
-/* AI事件——更多——异常侦测 */
-export class AbnormalDispose {
+/**
+ * @description AI事件——更多——异常侦测
+ **/
+export class AlarmAbnormalDisposeDto {
     holdTime = ''
     holdTimeList = [] as SelectOption<string, string>[]
     sceneChangeSwitch = ''
@@ -779,17 +945,15 @@ export class AbnormalDispose {
     sensitivity = 0
     record = [] as SelectOption<string, string>[]
     alarmOut = [] as SelectOption<string, string>[]
-    preset = [] as PresetItem[]
-    msgPushSwitch = false
-    buzzerSwitch = false
-    popVideoSwitch = false
-    emailSwitch = false
-    catchSnapSwitch = false
+    preset = [] as AlarmPresetItem[]
+    trigger = [] as string[]
     sysAudio = ''
 }
 
-/* AI事件——更多——视频结构化 */
-export class VideoStructureData {
+/**
+ * @description AI事件——更多——视频结构化
+ **/
+export class AlarmVideoStructureDto {
     enabledSwitch = false
     originalSwitch = false
     schedule = ''
@@ -843,4 +1007,93 @@ export class VideoStructureData {
     osdPersonCfgList = [] as { index: string; value: string; tagName: string }[]
     osdCarCfgList = [] as { index: string; value: string; tagName: string }[]
     osdBikeCfgList = [] as { index: string; value: string; tagName: string }[]
+}
+
+/**
+ * @description 人群密度检测表单数据
+ */
+export class AlarmCddDto {
+    // 是否启用侦测
+    detectionEnable = false
+    originalEnable = false
+    // 排程管理
+    schedule = ''
+    // 持续时间
+    holdTime = 0
+    holdTimeList = [] as SelectOption<number, string>[]
+    // 刷新频率
+    refreshFrequency = 0
+    refreshFrequencyList = [] as SelectOption<number, string>[]
+    regionInfo = [] as { X1: number; X2: number; Y1: number; Y2: number }[]
+    // 常规联动选项
+    trigger = [] as string[]
+    sysAudio = ''
+    record = [] as SelectOption<string, string>[]
+    alarmOut = [] as SelectOption<string, string>[]
+    preset = [] as AlarmPresetItem[]
+    // 报警阈值
+    triggerAlarmLevel = 0
+    // mutex
+    mutexList = [] as { object: string; status: boolean }[]
+}
+
+/**
+ * @description 火点检测表单
+ */
+export class AlarmFireDetectionDto {
+    // 排程管理
+    schedule = ''
+    // 持续时间
+    holdTime = 0
+    holdTimeList = [] as SelectOption<number, string>[]
+    // mutex
+    mutexList = [] as { object: string; status: boolean }[]
+    mutexListEx = [] as { object: string; status: boolean }[]
+    trigger = [] as string[]
+    triggerList = [] as string[]
+    // 音频联动
+    audioSuport = false
+    // 白光联动
+    lightSuport = false
+    // 是否启用侦测
+    detectionEnable = false
+    // 用于对比
+    originalEnable = false
+    sysAudio = ''
+    record = [] as SelectOption<string, string>[]
+    alarmOut = [] as SelectOption<string, string>[]
+    snap = [] as SelectOption<string, string>[]
+    preset = [] as AlarmPresetItem[]
+}
+
+export class AlarmSnapPopDto {
+    id = ''
+    snap = {
+        switch: false,
+        chls: [] as SelectOption<string, string>[],
+    }
+}
+
+export class AlarmOutPopDto {
+    id = ''
+    alarmOut = {
+        switch: false,
+        alarmOuts: [] as SelectOption<string, string>[],
+    }
+}
+
+export class AlarmRecordPopDto {
+    id = ''
+    record = {
+        switch: false,
+        chls: [] as SelectOption<string, string>[],
+    }
+}
+
+export class AlarmPresetPopDto {
+    id = ''
+    preset = {
+        switch: false,
+        presets: [] as AlarmPresetItem[],
+    }
 }

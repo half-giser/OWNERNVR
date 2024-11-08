@@ -1,20 +1,28 @@
 /*
- * @Description: AI 事件——更多——温度检测
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-13 09:18:41
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 18:18:40
+ * @Description: AI 事件——更多——温度检测
  */
 import { cloneDeep } from 'lodash-es'
-import { type BoundaryTableDataItem, type chlCaps, type PresetList, TempDetection } from '@/types/apiType/aiAndEvent'
+import { type AlarmTemperatureDetectionBoundryDto, type AlarmChlDto, AlarmTemperatureDetectionDto } from '@/types/apiType/aiAndEvent'
 import CanvasPolygon from '@/utils/canvas/canvasTemperature'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
-import { type TabPaneName, type CheckboxValueType } from 'element-plus'
+import { type TabPaneName } from 'element-plus'
 import { type XmlResult } from '@/utils/xmlParse'
+import AlarmBaseRecordSelector from './AlarmBaseRecordSelector.vue'
+import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
+import AlarmBaseTriggerSelector from './AlarmBaseTriggerSelector.vue'
+import AlarmBasePresetSelector from './AlarmBasePresetSelector.vue'
+import AlarmBaseSnapSelector from './AlarmBaseSnapSelector.vue'
 
 export default defineComponent({
     components: {
         ScheduleManagPop,
+        AlarmBaseRecordSelector,
+        AlarmBaseAlarmOutSelector,
+        AlarmBaseTriggerSelector,
+        AlarmBasePresetSelector,
+        AlarmBaseSnapSelector,
     },
     props: {
         /**
@@ -25,7 +33,7 @@ export default defineComponent({
             required: true,
         },
         chlData: {
-            type: Object as PropType<chlCaps>,
+            type: Object as PropType<AlarmChlDto>,
             required: true,
         },
         voiceList: {
@@ -45,7 +53,7 @@ export default defineComponent({
         // 系统配置
         const supportAlarmAudioConfig = systemCaps.supportAlarmAudioConfig
         // 温度检测数据
-        const tempDetectionData = ref(new TempDetection())
+        const tempDetectionData = ref(new AlarmTemperatureDetectionDto())
 
         // 播放器
         const playerRef = ref<PlayerInstance>()
@@ -80,43 +88,55 @@ export default defineComponent({
 
         // 报警规则类型
         const alarmRuleTypeList1 = [
-            { value: 'maxtemperabove', label: Translate('IDCS_MAX_TEMPER_ABOVE') },
-            { value: 'maxtemperbelow', label: Translate('IDCS_MAX_TEMPER_BELOW') },
-            { value: 'mintemperabove', label: Translate('IDCS_MIN_TEMPER_ABOVE') },
-            { value: 'mintemperbelow', label: Translate('IDCS_MIN_TEMPER_BELOW') },
-            { value: 'avgtemperabove', label: Translate('IDCS_AVG_TEMPER_ABOVE') },
-            { value: 'avgtemperbelow', label: Translate('IDCS_AVG_TEMPER_BELOW') },
-            { value: 'difftemperabove', label: Translate('IDCS_DIFF_TEMPER_ABOVE') },
-            { value: 'difftemperbelow', label: Translate('IDCS_DIFF_TEMPER_BELOW') },
+            {
+                value: 'maxtemperabove',
+                label: Translate('IDCS_MAX_TEMPER_ABOVE'),
+            },
+            {
+                value: 'maxtemperbelow',
+                label: Translate('IDCS_MAX_TEMPER_BELOW'),
+            },
+            {
+                value: 'mintemperabove',
+                label: Translate('IDCS_MIN_TEMPER_ABOVE'),
+            },
+            {
+                value: 'mintemperbelow',
+                label: Translate('IDCS_MIN_TEMPER_BELOW'),
+            },
+            {
+                value: 'avgtemperabove',
+                label: Translate('IDCS_AVG_TEMPER_ABOVE'),
+            },
+            {
+                value: 'avgtemperbelow',
+                label: Translate('IDCS_AVG_TEMPER_BELOW'),
+            },
+            {
+                value: 'difftemperabove',
+                label: Translate('IDCS_DIFF_TEMPER_ABOVE'),
+            },
+            {
+                value: 'difftemperbelow',
+                label: Translate('IDCS_DIFF_TEMPER_BELOW'),
+            },
         ]
 
         const alarmRuleTypeList2 = [
-            { value: 'avgtemperabove', label: Translate('IDCS_AVG_TEMPER_ABOVE') },
-            { value: 'avgtemperbelow', label: Translate('IDCS_AVG_TEMPER_BELOW') },
+            {
+                value: 'avgtemperabove',
+                label: Translate('IDCS_AVG_TEMPER_ABOVE'),
+            },
+            {
+                value: 'avgtemperbelow',
+                label: Translate('IDCS_AVG_TEMPER_BELOW'),
+            },
         ]
-
-        // 常规联动
-        const normalParamCheckAll = ref(false)
-        const normalParamCheckList = ref([] as string[])
-        // 常规联动多选数据项
-        const normalParamList = ref([
-            { value: 'msgPushSwitch', label: Translate('IDCS_PUSH') },
-            { value: 'buzzerSwitch', label: Translate('IDCS_BUZZER') },
-            { value: 'popVideoSwitch', label: Translate('IDCS_VIDEO_POPUP') },
-            { value: 'emailSwitch', label: Translate('IDCS_EMAIL') },
-            { value: 'popMsgSwitch', label: Translate('IDCS_MESSAGEBOX_POPUP') },
-            // 在满足条件后添加到列表中
-            // { value: 'triggerAudio', label: 'IPC_' + Translate('IDCS_AUDIO') },
-            // { value: 'triggerWhiteLight', label: 'IPC_' + Translate('IDCS_LIGHT') },
-        ])
-        // 联动预置点
-        const MAX_TRIGGER_PRESET_COUNT = 16
-        const PresetTableData = ref<PresetList[]>([])
 
         // 页面数据
         const pageData = ref({
             tab: 'param',
-            currRowData: {} as BoundaryTableDataItem,
+            currRowData: {} as AlarmTemperatureDetectionBoundryDto,
             // 是否显示全部区域
             isShowAllArea: false,
             // 绘图区域下提示信息
@@ -126,35 +146,12 @@ export default defineComponent({
             alarmRuleTypeList: [] as SelectOption<string, string>[][],
             // 声音列表
             voiceList: prop.voiceList,
-            // record穿梭框数据源
-            recordList: [] as SelectOption<string, string>[],
-            recordIsShow: false,
-            // alarmOut穿梭框数据源
-            alarmOutList: [] as SelectOption<string, string>[],
-            alarmOutIsShow: false,
-            // snap穿梭框数据源
-            snapList: [] as SelectOption<string, string>[],
-            snapIsShow: false,
+            triggerList: ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'snapSwitch', 'popMsgSwitch'],
             // 初始化，后判断应用是否可用
             initComplated: false,
             applyDisabled: true,
             notification: [] as string[],
         })
-
-        // 获取录像数据
-        const getRecordList = async () => {
-            pageData.value.recordList = await buildRecordChlList()
-        }
-
-        // 获取报警输出数据
-        const getAlarmOutData = async () => {
-            pageData.value.alarmOutList = await buildAlarmOutChlList()
-        }
-
-        // 获取抓图数据
-        const getSnapList = async () => {
-            pageData.value.snapList = await buildSnapChlList()
-        }
 
         // 播放模式
         const mode = computed(() => {
@@ -171,7 +168,9 @@ export default defineComponent({
         let player: PlayerInstance['player']
         let plugin: PlayerInstance['plugin']
         // 车牌侦测绘制的Canvas
-        let tempDrawer: CanvasPolygon
+        let tempDrawer = new CanvasPolygon({
+            el: document.createElement('canvas'),
+        })
 
         /**
          * @description 播放器就绪时回调
@@ -328,7 +327,7 @@ export default defineComponent({
                         label,
                     }
                 })
-                const boundaryData = [] as BoundaryTableDataItem[]
+                const boundaryData = [] as AlarmTemperatureDetectionBoundryDto[]
                 $('//content/chl/param/boundary/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     const points = $item('point/item').map((ele) => {
@@ -400,14 +399,25 @@ export default defineComponent({
                     alarmOut,
                     snap,
                     preset,
-                    msgPushSwitch: $trigger('msgPushSwitch').text() == 'true',
-                    buzzerSwitch: $trigger('buzzerSwitch').text() == 'true',
-                    popVideoSwitch: $trigger('popVideoSwitch').text() == 'true',
-                    emailSwitch: $trigger('emailSwitch').text() == 'true',
-                    popMsgSwitch: $trigger('popMsgSwitch').text() == 'true',
-                    catchSnapSwitch: $trigger('snapSwitch').text() == 'true',
+                    trigger: ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'snapSwitch', 'popMsgSwitch'].filter((item) => {
+                        return $trigger(item).text().toBoolean()
+                    }),
                     sysAudio: $('sysAudio').attr('id'),
                     boundaryData,
+                }
+
+                if (prop.chlData.supportAudio && tempDetectionData.value.triggerAudio) {
+                    pageData.value.triggerList.push('triggerAudio')
+                    if (tempDetectionData.value.triggerAudio === 'true') {
+                        tempDetectionData.value.trigger.push('triggerAudio')
+                    }
+                }
+
+                if (prop.chlData.supportWhiteLight && tempDetectionData.value.triggerWhiteLight) {
+                    pageData.value.triggerList.push('triggerWhiteLight')
+                    if (tempDetectionData.value.triggerWhiteLight === 'true') {
+                        tempDetectionData.value.trigger.push('triggerWhiteLight')
+                    }
                 }
             }).then(() => {
                 pageData.value.initComplated = true
@@ -426,26 +436,6 @@ export default defineComponent({
                 }
                 pageData.value.alarmRuleTypeList[index] = item.ruleType == 'point' ? alarmRuleTypeList2 : alarmRuleTypeList1
             })
-            // 常规联动相关选项
-            if (tempDetectionData.value.triggerAudio && prop.chlData.supportAudio && normalParamList.value.findIndex((item) => item.value == 'triggerAudio') == -1) {
-                normalParamList.value.push({ value: 'triggerAudio', label: 'IPC_' + Translate('IDCS_AUDIO') })
-                if (tempDetectionData.value.triggerAudio == 'true') normalParamCheckList.value.push('triggerAudio')
-            }
-
-            if (tempDetectionData.value.triggerWhiteLight && prop.chlData.supportWhiteLight && normalParamList.value.findIndex((item) => item.value == 'triggerWhiteLight') == -1) {
-                normalParamList.value.push({ value: 'triggerWhiteLight', label: 'IPC_' + Translate('IDCS_LIGHT') })
-                if (tempDetectionData.value.triggerWhiteLight == 'true') normalParamCheckList.value.push('triggerWhiteLight')
-            }
-            // 在数据中有此项，在原页面中没有对于组件
-            // if (tempDetectionData.value.catchSnapSwitch) normalParamCheckList.value.push('catchSnapSwitch')
-            if (tempDetectionData.value.msgPushSwitch) normalParamCheckList.value.push('msgPushSwitch')
-            if (tempDetectionData.value.buzzerSwitch) normalParamCheckList.value.push('buzzerSwitch')
-            if (tempDetectionData.value.popVideoSwitch) normalParamCheckList.value.push('popVideoSwitch')
-            if (tempDetectionData.value.emailSwitch) normalParamCheckList.value.push('emailSwitch')
-            if (tempDetectionData.value.popMsgSwitch) normalParamCheckList.value.push('popMsgSwitch')
-            if (normalParamCheckList.value.length == normalParamList.value.length) {
-                normalParamCheckAll.value = true
-            }
             setPaintType()
             setAreaView()
         }
@@ -458,7 +448,7 @@ export default defineComponent({
         }
 
         // 切换行
-        const boundaryRowClick = (row: BoundaryTableDataItem) => {
+        const boundaryRowClick = (row: AlarmTemperatureDetectionBoundryDto) => {
             pageData.value.currRowData = row
             // 切换另一个区域前先封闭其他可闭合的区域（“area”）
             setOtherAreaClosed()
@@ -563,7 +553,7 @@ export default defineComponent({
         }
 
         // 类型改变
-        const ruleTypeChange = (value: string, row: BoundaryTableDataItem, index: number) => {
+        const ruleTypeChange = (value: string, row: AlarmTemperatureDetectionBoundryDto, index: number) => {
             pageData.value.alarmRuleTypeList[index] = value == 'point' ? alarmRuleTypeList2 : alarmRuleTypeList1
             pageData.value.currRowData = row
             boundaryTableRef.value.setCurrentRow(row, true)
@@ -603,7 +593,7 @@ export default defineComponent({
             tempDetectionData.value.boundaryData[index].emissivity = value != '' ? String(res) : ''
         }
 
-        const emissivityBlur = (row: BoundaryTableDataItem) => {
+        const emissivityBlur = (row: AlarmTemperatureDetectionBoundryDto) => {
             const value = Number(row.emissivity)
             if (!value || value < 0.01 || value > 1) {
                 // 数字默认为0.01
@@ -623,7 +613,7 @@ export default defineComponent({
             tempDetectionData.value.boundaryData[index].distance = value
         }
 
-        const distanceBlur = (row: BoundaryTableDataItem) => {
+        const distanceBlur = (row: AlarmTemperatureDetectionBoundryDto) => {
             if (!row.distance) row.distance = '0'
             row.distance = parseFloat(row.distance).toFixed(2)
         }
@@ -654,7 +644,7 @@ export default defineComponent({
             tempDetectionData.value.boundaryData[index].reflectTemper = value
         }
 
-        const reflectTemperBlur = (row: BoundaryTableDataItem) => {
+        const reflectTemperBlur = (row: AlarmTemperatureDetectionBoundryDto) => {
             if (!row.reflectTemper) row.reflectTemper = '-30'
             row.reflectTemper = parseFloat(row.reflectTemper).toFixed(2)
         }
@@ -685,7 +675,7 @@ export default defineComponent({
             tempDetectionData.value.boundaryData[index].alarmTemper = value
         }
 
-        const alarmTemperBlur = (row: BoundaryTableDataItem) => {
+        const alarmTemperBlur = (row: AlarmTemperatureDetectionBoundryDto) => {
             if (!row.alarmTemper) row.alarmTemper = '-30'
             row.alarmTemper = parseFloat(row.alarmTemper).toFixed(2)
         }
@@ -730,161 +720,11 @@ export default defineComponent({
             }
         }
 
-        // 常规联动多选
-        const handleNormalParamCheckAll = (value: CheckboxValueType) => {
-            normalParamCheckList.value = value ? normalParamList.value.map((item) => item.value) : []
-            if (value) {
-                tempDetectionData.value.msgPushSwitch = true
-                tempDetectionData.value.buzzerSwitch = true
-                tempDetectionData.value.popVideoSwitch = true
-                tempDetectionData.value.emailSwitch = true
-                tempDetectionData.value.popMsgSwitch = true
-                normalParamList.value.forEach((item) => {
-                    if (item.value == 'triggerAudio') {
-                        tempDetectionData.value.triggerAudio = 'true'
-                    } else if (item.value == 'triggerWhiteLight') {
-                        tempDetectionData.value.triggerWhiteLight = 'true'
-                    }
-                })
-            }
-        }
-
-        const handleNormalParamCheck = (value: CheckboxValueType[]) => {
-            normalParamCheckAll.value = value.length === normalParamList.value.length
-            tempDetectionData.value.msgPushSwitch = value.includes('msgPushSwitch')
-            tempDetectionData.value.buzzerSwitch = value.includes('buzzerSwitch')
-            tempDetectionData.value.popVideoSwitch = value.includes('popVideoSwitch')
-            tempDetectionData.value.emailSwitch = value.includes('emailSwitch')
-            tempDetectionData.value.popMsgSwitch = value.includes('popMsgSwitch')
-            normalParamList.value.forEach((item) => {
-                if (item.value == 'triggerAudio') {
-                    tempDetectionData.value.triggerAudio = value.includes('triggerAudio') ? 'true' : 'false'
-                } else if (item.value == 'triggerWhiteLight') {
-                    tempDetectionData.value.triggerWhiteLight = value.includes('triggerWhiteLight') ? 'true' : 'false'
-                }
-            })
-        }
-
-        // 录像配置相关处理
-        const recordConfirm = (e: SelectOption<string, string>[]) => {
-            tempDetectionData.value.record = cloneDeep(e)
-            pageData.value.recordIsShow = false
-        }
-
-        const recordClose = () => {
-            pageData.value.recordIsShow = false
-        }
-
-        // 报警输出相关处理
-        const alarmOutConfirm = (e: SelectOption<string, string>[]) => {
-            tempDetectionData.value.alarmOut = cloneDeep(e)
-            pageData.value.alarmOutIsShow = false
-        }
-
-        const alarmOutClose = () => {
-            pageData.value.alarmOutIsShow = false
-        }
-
-        // 抓图配置相关处理
-        const snapConfirm = (e: SelectOption<string, string>[]) => {
-            tempDetectionData.value.snap = cloneDeep(e)
-            pageData.value.snapIsShow = false
-        }
-
-        const snapClose = () => {
-            pageData.value.snapIsShow = false
-        }
-
-        // 获取联动预置点数据
-        const getPresetData = async () => {
-            const result = await getChlList({
-                isSupportPtz: true,
-            })
-            let rowData = [] as PresetList[]
-            commLoadResponseHandler(result, async ($) => {
-                rowData = $('//content/item').map((item) => {
-                    const $item = queryXml(item.element)
-                    return {
-                        id: item.attr('id')!,
-                        name: $item('name').text(),
-                        chlType: $item('chlType').text(),
-                        preset: { value: '', label: Translate('IDCS_NULL') },
-                        presetList: [{ value: '', label: Translate('IDCS_NULL') }],
-                        isGetPresetList: false,
-                    }
-                })
-                rowData.forEach((row) => {
-                    tempDetectionData.value.preset?.forEach((item) => {
-                        if (row.id == item.chl.value) {
-                            row.preset = { value: item.index, label: item.name }
-                            row.presetList.push({ value: item.index, label: item.name })
-                        }
-                    })
-                })
-                for (let i = rowData.length - 1; i >= 0; i--) {
-                    //预置点里过滤掉recorder通道
-                    if (rowData[i].chlType == 'recorder') {
-                        rowData.splice(i, 1)
-                    }
-                }
-                PresetTableData.value = rowData
-            })
-        }
-
-        // 预置点选择框下拉时获取预置点列表数据
-        const getPresetById = async (row: PresetList) => {
-            if (!row.isGetPresetList) {
-                row.presetList.splice(1)
-                const sendXml = rawXml`
-                    <condition>
-                        <chlId>${row.id}</chlId>
-                    </condition>
-                `
-                const result = await queryChlPresetList(sendXml)
-                commLoadResponseHandler(result, ($) => {
-                    $('//content/presets/item').forEach((item) => {
-                        row.presetList.push({
-                            value: item.attr('index')!,
-                            label: item.text(),
-                        })
-                    })
-                })
-                row.isGetPresetList = true
-            }
-        }
-
-        const presetChange = (row: PresetList) => {
-            const ids = tempDetectionData.value.preset.map((item) => item.chl.value)
-            if (ids.includes(row.id)) {
-                tempDetectionData.value.preset = tempDetectionData.value.preset.filter((item) => row.id != item.chl.value)
-            }
-
-            if (row.preset.value !== '') {
-                tempDetectionData.value.preset.push({
-                    index: row.preset.value,
-                    name: row.preset.label,
-                    chl: {
-                        value: row.id,
-                        label: row.name,
-                    },
-                })
-            }
-
-            if (tempDetectionData.value.preset.length > MAX_TRIGGER_PRESET_COUNT) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_PRESET_LIMIT'),
-                })
-                row.preset.value = ''
-                tempDetectionData.value.preset = tempDetectionData.value.preset.filter((item) => row.id != item.chl.value)
-            }
-        }
-
         // 区域为多边形时，检测区域合法性(温度检测页面一个点为画点，两个点为画线，大于两个小于8个为区域，只需要检测区域的合法性)
         const verification = () => {
             const count = tempDetectionData.value.boundaryData.length
             for (const item of tempDetectionData.value.boundaryData) {
-                if (count > 2 && !judgeAreaCanBeClosed(item.points)) {
+                if (count > 2 && !tempDrawer.judgeAreaCanBeClosed(item.points)) {
                     openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_INTERSECT'),
@@ -900,17 +740,17 @@ export default defineComponent({
                 <content>
                     <chl id='${prop.currChlId}' scheduleGuid='${tempDetectionData.value.schedule}'>
                         <param>
-                            <switch>${String(tempDetectionData.value.enabledSwitch)}</switch>
+                            <switch>${tempDetectionData.value.enabledSwitch}</switch>
                             <alarmHoldTime>${tempDetectionData.value.holdTime}</alarmHoldTime>
-                            ${ternary(tempDetectionData.value.triggerAudio && prop.chlData.supportAudio, `<triggerAudio>${tempDetectionData.value.triggerAudio}</triggerAudio>`)}
-                            ${ternary(tempDetectionData.value.triggerWhiteLight && prop.chlData.supportWhiteLight, `<triggerWhiteLight>${tempDetectionData.value.triggerWhiteLight}</triggerWhiteLight>`)}
+                            ${ternary(tempDetectionData.value.triggerAudio && prop.chlData.supportAudio, `<triggerAudio>${tempDetectionData.value.trigger.includes('triggerAudio')}</triggerAudio>`)}
+                            ${ternary(tempDetectionData.value.triggerWhiteLight && prop.chlData.supportWhiteLight, `<triggerWhiteLight>${tempDetectionData.value.trigger.includes('triggerWhiteLight')}</triggerWhiteLight>`)}
                             <boundary type='list' count='10' maxCount='10'>
                                 ${tempDetectionData.value.boundaryData
                                     .map((item) => {
                                         return rawXml`
                                             <item>
-                                                <switch>${String(item.switch)}</switch>
-                                                <ruleId>${String(item.ruleId)}</ruleId>
+                                                <switch>${item.switch}</switch>
+                                                <ruleId>${item.ruleId}</ruleId>
                                                 <ruleName>${item.ruleName}</ruleName>
                                                 <ruleType>${item.ruleType}</ruleType>
                                                 <emissivity min='0' max='10000' default='9600'>${getScaleValueByRatio(item.emissivity)}</emissivity>
@@ -918,7 +758,7 @@ export default defineComponent({
                                                 <reflectTemper min='4294667296' max='600000' default='250000'>${getScaleValueByRatio(item.reflectTemper)}</reflectTemper>
                                                 <alarmRule>${item.alarmRule}</alarmRule>
                                                 <alarmTemper min='4294667296' max='600000' default='250000'>${getScaleValueByRatio(item.alarmTemper)}</alarmTemper>
-                                                <point type='list' count='${String(item.points.length)}' maxCount='${String(item.maxCount)}'>
+                                                <point type='list' count='${item.points.length}' maxCount='${item.maxCount}'>
                                                     ${item.points.map((ele) => `<item><X>${Number(ele.X).toFixed(0)}</X><Y>${Number(ele.Y).toFixed(0)}</Y></item>`).join('')}
                                                 </point>
                                             </item>
@@ -957,12 +797,12 @@ export default defineComponent({
                                         .join('')}
                                 </presets>
                             </preset>
-                            <snapSwitch>${String(tempDetectionData.value.catchSnapSwitch)}</snapSwitch>
-                            <msgPushSwitch>${String(tempDetectionData.value.msgPushSwitch)}</msgPushSwitch>
-                            <buzzerSwitch>${String(tempDetectionData.value.buzzerSwitch)}</buzzerSwitch>
-                            <popVideoSwitch>${String(tempDetectionData.value.popVideoSwitch)}</popVideoSwitch>
-                            <emailSwitch>${String(tempDetectionData.value.emailSwitch)}</emailSwitch>
-                            <popMsgSwitch>${String(tempDetectionData.value.popMsgSwitch)}</popMsgSwitch>
+                            <snapSwitch>${tempDetectionData.value.trigger.includes('snapSwitch')}</snapSwitch>
+                            <msgPushSwitch>${tempDetectionData.value.trigger.includes('msgPushSwitch')}</msgPushSwitch>
+                            <buzzerSwitch>${tempDetectionData.value.trigger.includes('buzzerSwitch')}</buzzerSwitch>
+                            <popVideoSwitch>${tempDetectionData.value.trigger.includes('popVideoSwitch')}</popVideoSwitch>
+                            <emailSwitch>${tempDetectionData.value.trigger.includes('emailSwitch')}</emailSwitch>
+                            <popMsgSwitch>${tempDetectionData.value.trigger.includes('popMsgSwitch')}</popMsgSwitch>
                             <sysAudio id='${tempDetectionData.value.sysAudio}'></sysAudio>
                         </trigger>
                     </chl>
@@ -1041,11 +881,7 @@ export default defineComponent({
                 Plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
             }
             pageData.value.scheduleList = await buildScheduleList()
-            await getRecordList()
-            await getAlarmOutData()
-            await getSnapList()
             await getTemperatureDetectionData()
-            await getPresetData()
         })
 
         onBeforeUnmount(() => {
@@ -1088,12 +924,8 @@ export default defineComponent({
             // 报警规则类型
             alarmRuleTypeList1,
             alarmRuleTypeList2,
-            // 常规联动
-            normalParamCheckAll,
-            normalParamCheckList,
-            normalParamList,
             // 联动预置点
-            PresetTableData,
+            // PresetTableData,
             pageData,
             // 播放器就绪
             handlePlayerReady,
@@ -1123,19 +955,13 @@ export default defineComponent({
             // 报警温度(℃)
             alarmTemperInput,
             alarmTemperBlur,
-            // 联动方式
-            handleNormalParamCheckAll,
-            handleNormalParamCheck,
-            recordConfirm,
-            recordClose,
-            alarmOutConfirm,
-            alarmOutClose,
-            snapConfirm,
-            snapClose,
-            presetChange,
-            getPresetById,
             // 提交温度检测数据
             applyTempDetectionData,
+            AlarmBaseRecordSelector,
+            AlarmBaseAlarmOutSelector,
+            AlarmBaseTriggerSelector,
+            AlarmBasePresetSelector,
+            AlarmBaseSnapSelector,
         }
     },
 })

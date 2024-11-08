@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-03 11:56:43
  * @Description: 插件命令集合
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-05 15:53:26
  */
 const wrapXml = (xml: string) => `${xmlHeader}${xml}`
 
@@ -102,7 +100,7 @@ export const OCX_XML_Initial = (model: string, notifyFunName: string, viewType: 
             <setLang></setLang>
             ${notifyFunName ? `<NotifyFunName>${notifyFunName}</NotifyFunName>` : ''}
             <systemType>NVMS-9000</systemType>
-            <screenNum>${String(screenNum ? screenNum : 1)}</screenNum>
+            <screenNum>${screenNum ? screenNum : 1}</screenNum>
             <uiName>${import.meta.env.VITE_UI_TYPE}</uiName>
         </cmd>`)
 }
@@ -128,7 +126,7 @@ export const OCX_XML_Initial_P2P = (model?: string, notifyFunName?: string, view
             </natSvc>
             ${notifyFunName ? `<NotifyFunName>${notifyFunName}</NotifyFunName>` : ''}
             <systemType>NVMS-9000</systemType>
-            <screenNum>${String(screenNum ? screenNum : 1)}</screenNum>
+            <screenNum>${screenNum ? screenNum : 1}</screenNum>
             <uiName>${import.meta.env.VITE_UI_TYPE}</uiName>
         </cmd>
     `)
@@ -170,10 +168,10 @@ export const OCX_XML_SetPluginSize = (
 ) => {
     return wrapXml(rawXml`
         <cmd type="SetPluginSize">
-            <winLeft>${String(winLeft)}</winLeft>
-            <winTop>${String(winTop)}</winTop>
-            <winWidth>${String(winWidth)}</winWidth>
-            <winHeight>${String(winHeight)}</winHeight>
+            <winLeft>${winLeft}</winLeft>
+            <winTop>${winTop}</winTop>
+            <winWidth>${winWidth}</winWidth>
+            <winHeight>${winHeight}</winHeight>
             <winPosType>${winPosType || 'absolute'}</winPosType>
             ${domWidth && domWidth > 0 ? `<domWidth>${domWidth}</domWidth>` : ''}
             ${domHeight && domHeight > 0 ? `<domHeight>${domHeight}</domHeight>` : ''}
@@ -189,7 +187,7 @@ export const OCX_XML_SetPluginSize = (
 export const OCX_XML_DisplayPlugin = (isShow: boolean) => {
     return wrapXml(rawXml`
         <cmd type="DisplayPlugin">
-            <displayPlugin>${Boolean(isShow).toString()}</displayPlugin>
+            <displayPlugin>${Boolean(isShow)}</displayPlugin>
         </cmd>
     `)
 }
@@ -221,9 +219,9 @@ export const OCX_XML_SetPropertyOSD = (nameSwitch: boolean, iconSwitch: boolean,
     return wrapXml(rawXml`
         <cmd type="SetProperty">
             <devOsdDisplay>
-                <nameSwitch>${nameSwitch.toString()}</nameSwitch>
-                <iconSwitch>${iconSwitch.toString()}</iconSwitch>
-                <addressSwitch>${addressSwitch.toString()}</addressSwitch>
+                <nameSwitch>${nameSwitch}</nameSwitch>
+                <iconSwitch>${iconSwitch}</iconSwitch>
+                <addressSwitch>${addressSwitch}</addressSwitch>
             </devOsdDisplay>
         </cmd>
     `)
@@ -263,7 +261,7 @@ export const OCX_XML_SetLoginInfo = (ip: string, port: number, id: string) => {
             <username>${userSession.sessionId}</username>
             <password>${userSession.token}</password>
             <ip>${ip}</ip>
-            <port>${String(port)}</port>
+            <port>${port}</port>
             <id>${id}</id>
         </cmd>
     `)
@@ -327,7 +325,7 @@ export const OCX_XML_SetSessionIdLogin_P2P = (sessionId: string, sn: string) => 
  */
 export const OCX_XML_SetScreenMode = (screenNum: number, layoutType?: number, viewType?: string) => {
     return wrapXml(rawXml`
-        <cmd type="SetScreenMode" ${viewType === TIMESLIDER_PLUGIN ? 'target="dateCtrl"' : ''} layoutType="${String(layoutType || 1)}">${String(screenNum)}</cmd>
+        <cmd type="SetScreenMode" ${viewType === TIMESLIDER_PLUGIN ? 'target="dateCtrl"' : ''} layoutType="${layoutType || 1}">${screenNum}</cmd>
     `)
 }
 
@@ -337,7 +335,7 @@ export const OCX_XML_SetScreenMode = (screenNum: number, layoutType?: number, vi
  * @returns {string}
  */
 export const OCX_XML_SelectScreen = (screenIndex: number) => {
-    return wrapXml(rawXml`<cmd type="SelectScreen">${String(screenIndex)}</cmd>`)
+    return wrapXml(rawXml`<cmd type="SelectScreen">${screenIndex}</cmd>`)
 }
 
 /**
@@ -350,7 +348,7 @@ export const OCX_XML_SelectScreen = (screenIndex: number) => {
 export const OCX_XML_SetViewChannelID = (chlId: string, chlName: string, chlPoe?: { chlIp?: string; poeSwitch?: boolean }) => {
     return wrapXml(rawXml`
         <cmd type="SetViewChannelId">
-            <item id="${chlId}" chlIp="${chlPoe?.chlIp || ' '}" poe="${String(chlPoe?.poeSwitch || false)}">${chlName}</item>
+            <item id="${chlId}" chlIp="${chlPoe?.chlIp || ' '}" poe="${chlPoe?.poeSwitch || false}">${chlName}</item>
         </cmd>
     `)
 }
@@ -384,7 +382,7 @@ export const OCX_XML_CallChlGroup = (chlIds: { id: string; value: string }[], ch
     return wrapXml(rawXml`
         <cmd type="CallChlGroup">
             <groupId>${chlGroupId}</groupId>
-            <switchTime>${dwellTime.toString()}</switchTime>
+            <switchTime>${dwellTime}</switchTime>
             <chls>
                 ${chlIds.map((item) => `<item id="${item.id}">${item.value}</item>`).join('')}
             </chls>
@@ -400,7 +398,7 @@ export const OCX_XML_CallChlGroup = (chlIds: { id: string; value: string }[], ch
 export const OCX_XML_SetViewEquipmentID = (equId: number) => {
     return wrapXml(rawXml`
         <cmd type="SetViewEquipmentId">
-            <item>${String(equId)}</item>
+            <item>${equId}</item>
         </cmd>
     `)
 }
@@ -412,7 +410,7 @@ export const OCX_XML_SetViewEquipmentID = (equId: number) => {
  */
 export const OCX_XML_StopPreview = (screenIndex: number | 'ALL' | 'CURRENT') => {
     return wrapXml(rawXml`
-        <cmd type="StopPreview">${String(screenIndex)}</cmd>
+        <cmd type="StopPreview">${screenIndex}</cmd>
     `)
 }
 
@@ -486,7 +484,7 @@ export const OCX_XML_SearchRec = (
 export const OCX_XML_PlayRecItem = (chlId: string, chlName: string, event: string, startTime: number, endTime: number) => {
     return wrapXml(rawXml`
         <cmd type="PlayRecItem">
-            <recItem chlId="${chlId}" chlName="${chlName}" event="${event}" startTime="${String(startTime)}" endTime="${String(endTime)}" />
+            <recItem chlId="${chlId}" chlName="${chlName}" event="${event}" startTime="${startTime}" endTime="${endTime}" />
         </cmd>
     `)
 }
@@ -513,7 +511,7 @@ export const OCX_XML_TakePhoto = (chlIdList: number[]) => {
  */
 export const OCX_XML_TakePhotoByWinIndex = (winIndex: number) => {
     return wrapXml(rawXml`
-        <cmd type="TakePhotoByWinIndex">${String(winIndex)}</cmd>
+        <cmd type="TakePhotoByWinIndex">${winIndex}</cmd>
     `)
 }
 
@@ -538,7 +536,7 @@ export const OCX_XML_TalkSwitch = (status: 'ON' | 'OFF', chlId?: string) => {
 export const OCX_XML_OriginalDisplaySwitch = (win: number, status: 'true' | 'false') => {
     return wrapXml(rawXml`
         <cmd type="OriginalDisplaySwitch">
-            <win>${String(win)}</win>
+            <win>${win}</win>
             <switch>${status}</switch>
         </cmd>
     `)
@@ -565,8 +563,8 @@ export const OCX_XML_OSDSwitch = (status: 'ON' | 'OFF') => {
 export const OCX_XML_SetStreamType = (winIndex: number | 'ALL' | 'CURRENT', streamIndex: number, mainResolution?: string) => {
     return wrapXml(rawXml`
         <cmd type="SetStreamType">
-            <win>${String(winIndex)}</win>
-            <streamType>${String(streamIndex)}</streamType>
+            <win>${winIndex}</win>
+            <streamType>${streamIndex}</streamType>
             ${mainResolution ? `<resolution>${mainResolution}</resolution>` : ''}
         </cmd>
     `)
@@ -601,7 +599,7 @@ export const OCX_XML_AllRecSwitch = (status: 'ON' | 'OFF') => {
  */
 export const OCX_XML_SetVolume = (value: number) => {
     return wrapXml(rawXml`
-        <cmd type="SetVolume">${String(value)}</cmd>
+        <cmd type="SetVolume">${value}</cmd>
     `)
 }
 
@@ -684,7 +682,7 @@ export const OCX_XML_SetPlayStatus = (status: 'ON' | 'OFF' | 'STOP' | 'FORWARDS_
  */
 export const OCX_XML_SetPlaySpeed = (speed: number) => {
     return wrapXml(rawXml`
-        <cmd type="RecPlaySpeed">${String(speed)}</cmd>
+        <cmd type="RecPlaySpeed">${speed}</cmd>
     `)
 }
 
@@ -721,8 +719,8 @@ export const OCX_XML_BackUpRecCondition = () => {
 export const OCX_XML_BackUpRec = (startTime: number, endTime: number) => {
     return wrapXml(rawXml`
         <cmd type="BackUpRec">
-            <startTime>${String(startTime)}</startTime>
-            <endTime>${String(endTime)}</endTime>
+            <startTime>${startTime}</startTime>
+            <endTime>${endTime}</endTime>
         </cmd>
     `)
 }
@@ -767,8 +765,8 @@ export const OCX_XML_BackUpRecInRecPlay = (format: string, path: string, startTi
         <cmd type="BackUpRecInRecPlay">
             <format>${format}</format>
             <path><![CDATA[${path}]</path>
-            <startTime>${String(startTime)}</startTime>
-            <endTime>${String(endTime)}</endTime>
+            <startTime>${startTime}</startTime>
+            <endTime>${endTime}</endTime>
             <recType>
                 ${eventList.map((item) => `<item>${item}</item>`).join('')}
             </recType>
@@ -798,7 +796,7 @@ export const OCX_XML_BackUpRecOperate = (operate: string, taskIds: string[]) => 
  * @returns {string}
  */
 export const OCX_XML_Skip = (time: number) => {
-    return wrapXml(rawXml`<cmd type="Skip">${String(time)}</cmd>`)
+    return wrapXml(rawXml`<cmd type="Skip">${time}</cmd>`)
 }
 
 /**
@@ -846,7 +844,7 @@ export const OCX_XML_RecPreFrame = () => {
  * @returns {string}
  */
 export const OCX_XML_SetPlayTime = (seconds: number) => {
-    return wrapXml(rawXml`<cmd type="RecCurPlayTime">${String(seconds)}</cmd>`)
+    return wrapXml(rawXml`<cmd type="RecCurPlayTime">${seconds}</cmd>`)
 }
 
 /**
@@ -908,8 +906,8 @@ export const OCX_XML_SetMotionAreaAction = (action: 'ADD' | 'DEL' | 'ALL' | 'NON
 export const OCX_XML_SetMotionArea = (motion: { column: number; row: number; areaInfo: string[] }) => {
     return wrapXml(rawXml`
         <cmd type="SetMotionArea">
-            <column>${String(motion.column)}</column>
-            <row>${String(motion.row)}</row>
+            <column>${motion.column}</column>
+            <row>${motion.row}</row>
             <areaInfo>
                 ${motion.areaInfo.map((item) => `<item>${item}</item>`).join('')}
             </areaInfo>
@@ -1008,9 +1006,9 @@ export const OCX_XML_SetLogoInfo = (opts: OcxXmlSetLogoInfo) => {
     return wrapXml(rawXml`
         <cmd type="SetLogoInfo">
             <switch>${opts.switch}</switch>
-            <opacity min="${String(opts.minOpacity)}" max="${String(opts.maxOpacity)}" >${String(opts.opacity)}</opacity>
-            <X min="${String(opts.minX)}" max="${String(opts.maxX)}">${String(opts.x)}</X>
-            <Y min="${String(opts.minY)}" max="${String(opts.maxY)}">${String(opts.y)}</Y>
+            <opacity min="${opts.minOpacity}" max="${opts.maxOpacity}" >${opts.opacity}</opacity>
+            <X min="${opts.minX}" max="${opts.maxX}">${opts.x}</X>
+            <Y min="${opts.minY}" max="${opts.maxY}">${opts.y}</Y>
         </cmd>
     `)
 }
@@ -1048,12 +1046,12 @@ export const OCX_XML_SetMaskArea = (masks: { X: number; Y: number; width: number
         <cmd type="SetMaskArea">
             ${masks
                 .map(
-                    (item, index) => rawXml`<item id="${index.toString()}">
+                    (item, index) => rawXml`<item id="${index}">
                         <rectangle>
-                            <X>${item.X.toString()}</X>
-                            <Y>${item.Y.toString()}</Y>
-                            <width>${item.width.toString()}</width>
-                            <height>${item.height.toString()}</height>
+                            <X>${item.X}</X>
+                            <Y>${item.Y}</Y>
+                            <width>${item.width}</width>
+                            <height>${item.height}</height>
                         </rectangle>
                     </item>`,
                 )
@@ -1092,7 +1090,7 @@ export const OCX_XML_OpenFileBrowser = (mode: string, extension?: string, defaul
         <request type="OpenFileBrowser">
             <extension>${extension || '*'}</extension>
             <defaultFileName>${defaultFileName || ''}</defaultFileName>
-            <multiSelect>${String(multiSelect || false)}</multiSelect>
+            <multiSelect>${multiSelect || false}</multiSelect>
             ${multiExtension ? `<multiExtension>${multiExtension}</multiExtension>` : ''}
             <mode>${mode}</mode>
         </request>
@@ -1131,9 +1129,9 @@ export const OCX_XML_FileNetTransport = (action: 'UpgradeIPC' | 'ExportCert' | '
             <filePath>${obj.filePath}</filePath>
             <version>${obj.version}</version>
             ${obj.taskGUID ? `<taskGUID>${obj.taskGUID}</taskGUID>` : ''}
-            <userName>${String(obj.authName)}</userName>
-            <password>${String(obj.authPwd)}</password>
-            <progressInterval>${String(obj.progressInterval || 1000)}</progressInterval>
+            <userName>${obj.authName || ''}</userName>
+            <password>${obj.authPwd || ''}</password>
+            <progressInterval>${obj.progressInterval || 1000}</progressInterval>
             ${obj.checkPassword ? `<checkPassword>${obj.checkPassword}</checkPassword>` : ''}
             ${obj.secPassword ? `<secPassword>${obj.secPassword}</secPassword>` : ''}
             ${obj.chlIds ? `<destID>${obj.chlIds.map((item) => `<item>${item}</item>`)}</destID>` : ''}
@@ -1157,7 +1155,7 @@ export const OCX_XML_AudioFileNetTransport = (action: 'ImportAudio', obj: { file
             <filePath>${obj.filePath}</filePath>
             <id>${obj.id}</id>
             <version>${obj.version}</version>
-            <progressInterval>${String(obj.progressInterval || 1000)}</progressInterval>
+            <progressInterval>${obj.progressInterval || 1000}</progressInterval>
         </cmd>
     `)
 }
@@ -1186,7 +1184,7 @@ export const OCX_XML_CheckUpgradeFile = (action: string, fileLength: number, fil
     return wrapXml(rawXml`
         <cmd type="UploadUpgradeCheckFileBase64">
             <action>${action}</action>
-            <fileLength>${String(fileLength)}</fileLength>
+            <fileLength>${fileLength}</fileLength>
             <filePath>${filePath}</filePath>
         </cmd>
     `)
@@ -1282,7 +1280,7 @@ export const OCX_XML_SetRecList = (chlId: string, winIndex: number, list: OcxXml
         <cmd type='SetRecList' compatibilityMode='true'>
             <status>success</status>
             <chlId>${chlId}</chlId>
-            <winIndex>${winIndex.toString()}</winIndex>
+            <winIndex>${winIndex}</winIndex>
             <recList timeZone="${timeZone}">
                 ${list
                     .map(
@@ -1304,7 +1302,7 @@ export const OCX_XML_ClearRecList = (winIndex: number) => {
     return wrapXml(rawXml`
         <cmd type='SetRecList'>
             <status>success</status>
-            <winIndex>${winIndex.toString()}</winIndex>
+            <winIndex>${winIndex}</winIndex>
             <recList></recList>
         </cmd>
     `)
@@ -1326,12 +1324,12 @@ export const OCX_XML_BackUpRecList = (format: string, path: string, groupby = 'c
         <cmd type='BackUpRecList'>
             <format>${format}</format>
             <path>${wrapCDATA(path)}</path>
-            <isMainStream>${isMainStream.toString()}</isMainStream>
+            <isMainStream>${isMainStream}</isMainStream>
             <backupRecList groupby='${groupby}'>
                 ${list
                     .map(
                         (item) =>
-                            `<item chlId="${item.chlId}" chlName="${item.chlName}" chlIndex="${item.chlIndex.toString()}" event="${item.event}" startTime="${item.startTime}" startTimeEx="${item.startTimeEx}" endTime="${item.endTime}" endTimeEx="${item.endTimeEx}" duration="${item.duration}" />`,
+                            `<item chlId="${item.chlId}" chlName="${item.chlName}" chlIndex="${item.chlIndex}" event="${item.event}" startTime="${item.startTime}" startTimeEx="${item.startTimeEx}" endTime="${item.endTime}" endTimeEx="${item.endTimeEx}" duration="${item.duration}" />`,
                     )
                     .join('')}
             </backupRecList>
@@ -1376,7 +1374,7 @@ export const OCX_XML_Preview = ({ chlIdList, chlNameList, streamType, chlIndexLi
                         chlName: chlNameList[i],
                         stream: streamType,
                         chlTypeList: chlTypeList ? chlTypeList[i] : null,
-                        poe: poe ? String(poe[i]?.poeSwitch || false) : false,
+                        poe: poe ? poe[i]?.poeSwitch || false : false,
                         chlIp: poe ? poe[i]?.chlIp || ' ' : ' ',
                     })
                     return `<streamUrl winIndex="${item}">${url}${params}</streamUrl>`
@@ -1406,14 +1404,14 @@ export const OCX_XML_SetOSD = (edit: string, osdList: OcxXmlSetOsdListDatum[] = 
         .map(
             (item) => rawXml`
                 <item
-                    winIndex="${item.winIndex.toString()}"
+                    winIndex="${item.winIndex}"
                     ${item.osd ? `osd="${item.osd}"` : `dateFormat="${item.dateFormat}" timeFormat="${item.timeFormat}" `}
-                    x="${item.x.toString()}"
-                    xMin="${String(item.xMin || 0)}"
-                    xMax="${String(item.xMax || 1920)}"
-                    y="${item.y.toString()}"
-                    yMin="${String(item.yMin || 0)}"
-                    yMax="${String(item.yMax || 1080)}"
+                    x="${item.x}"
+                    xMin="${item.xMin || 0}"
+                    xMax="${item.xMax || 1920}"
+                    y="${item.y}"
+                    yMin="${item.yMin || 0}"
+                    yMax="${item.yMax || 1080}"
                     status="${item.status || 'OFF'}" />
             `,
         )
@@ -1441,7 +1439,7 @@ export const OCX_XML_SetPlayMode = (mode: string) => {
  * @returns {string}
  */
 export const OCX_XML_PlaySpeed = (speed: number) => {
-    return wrapXml(rawXml`<cmd type="PlaySpeed">${String(speed)}</cmd>`)
+    return wrapXml(rawXml`<cmd type="PlaySpeed">${speed}</cmd>`)
 }
 
 /**
@@ -1606,7 +1604,7 @@ export const OCX_XML_SetOscArea = (points: { X: number; Y: number }[], regulatio
     return wrapXml(rawXml`
         <cmd type="SetOscArea">
             <points>
-                ${points.map((item) => `<item X="${String(item.X)}" Y="${String(item.Y)}" />`).join('')}
+                ${points.map((item) => `<item X="${item.X}" Y="${item.Y}" />`).join('')}
             </points>
             ${regulation ? '<type>regulation</type>' : ''}
         </cmd>
@@ -1662,10 +1660,10 @@ export const OCX_XML_SetVfdArea = (points: { X1: number; X2: number; Y1: number;
             ${lineColor ? `<LineColor>${lineColor}</LineColor>` : ''}
             ${eventType ? `<EventType>${AIEventTypeMap[eventType]}</EventType>` : ''}
             <item type="${type}">
-                <X1>${String(points.X1)}</X1>
-                <X2>${String(points.X2)}</X2>
-                <Y1>${String(points.Y1)}</Y1>
-                <Y2>${String(points.Y2)}</Y2>
+                <X1>${points.X1}</X1>
+                <X2>${points.X2}</X2>
+                <Y1>${points.Y1}</Y1>
+                <Y2>${points.Y2}</Y2>
             </item>
         </cmd>
     `)
@@ -1681,10 +1679,10 @@ export const OCX_XML_SetCddArea = (points: { X1: number; X2: number; Y1: number;
         <cmd type="SetCddParam">
             <regionInfo>
                 <item>
-                    <X1>${String(points.X1)}</X1>
-                    <X2>${String(points.X2)}</X2>
-                    <Y1>${String(points.Y1)}</Y1>
-                    <Y2>${String(points.Y2)}</Y2>
+                    <X1>${points.X1}</X1>
+                    <X2>${points.X2}</X2>
+                    <Y1>${points.Y1}</Y1>
+                    <Y2>${points.Y2}</Y2>
                 </item>
             </regionInfo>
         </cmd>
@@ -1710,18 +1708,18 @@ export const OCX_XML_SetCpcArea = (points: { X1: number; X2: number; Y1: number;
         <cmd type="SetCpcParam">
             <regionInfo>
                 <item>
-                    <X1>${String(points.X1)}</X1>
-                    <X2>${String(points.X2)}</X2>
-                    <Y1>${String(points.Y1)}</Y1>
-                    <Y2>${String(points.Y2)}</Y2>
+                    <X1>${points.X1}</X1>
+                    <X2>${points.X2}</X2>
+                    <Y1>${points.Y1}</Y1>
+                    <Y2>${points.Y2}</Y2>
                 </item>
             </regionInfo>
             <lineInfo>
                 <item>
-                    <X1>${String(line.X1)}</X1>
-                    <X2>${String(line.X2)}</X2>
-                    <Y1>${String(line.Y1)}</Y1>
-                    <Y2>${String(line.Y2)}</Y2>
+                    <X1>${line.X1}</X1>
+                    <X2>${line.X2}</X2>
+                    <Y1>${line.Y1}</Y1>
+                    <Y2>${line.Y2}</Y2>
                 </item>
             </lineInfo>
         </cmd>
@@ -1784,10 +1782,10 @@ export const OCX_XML_GetPeaArea = () => {
 export const OCX_XML_SetVsdAreaInfo = (data: { switch: boolean; osdFormat: string; X: number; Y: number }, type: string) => {
     return wrapXml(rawXml`
         <cmd type="SetTripwireLineInfo">
-            <switch>${String(data.switch)}</switch>
+            <switch>${data.switch}</switch>
             <info>${data.osdFormat}</info>
-            <X>${String(data.X)}</X>
-            <Y>${String(data.Y)}</Y>
+            <X>${data.X}</X>
+            <Y>${data.Y}</Y>
             <aiEventType>${type}</aiEventType>
         </cmd>
     `)
@@ -1815,7 +1813,7 @@ export const OCX_XML_SetVsdArea = (points: { X: number; Y: number }[], regulatio
         <cmd type="SetVsdArea">
             <points>
                 ${points.map((item) => `<item X="${item.X}" Y="${item.Y}" />`).join('')}
-                <Area>${String(areaIndex)}</Area>
+                <Area>${areaIndex}</Area>
                 <LineColor>${lineColor}</LineColor>
             </points>
             ${regulation ? '<type>regulation</type>' : ''}
@@ -1842,8 +1840,8 @@ export const OCX_XML_SetAllVsdArea = (regulation: boolean, regionInfo: { X: numb
         ? maskAreaInfo
               .map(
                   (item, index) => rawXml`<points>
-                        <item X="${item.X.toString()}" Y="${item.Y.toString()}" />
-                        <Area>${index.toString()}</Area>
+                        <item X="${item.X}" Y="${item.Y}" />
+                        <Area>${index}</Area>
                         <LineColor>red</LineColor>
                     </points>`,
               )
@@ -1897,7 +1895,7 @@ export const OCX_XML_SetAllArea = (
 ) => {
     const cmd = rawXml`<cmd type="SetAllArea">
         <AreaType>${areaType}</AreaType>
-        <EventType>${AIEventTypeMap[eventType].toString()}</EventType>
+        <EventType>${AIEventTypeMap[eventType]}</EventType>
         ${isShowAll ? `<IsShowAllArea>${isShowAll}</IsShowAllArea>` : ''}
         ${maxMinXml ?? ''}
     `
@@ -1916,7 +1914,7 @@ export const OCX_XML_SetAllArea = (
                         ? rawXml`
                         <points>
                             ${item.map((point) => `<item X="${point.X}" Y="${point.Y}" />`).join('')}
-                            <Area>${(++index).toString()}</Area>
+                            <Area>${++index}</Area>
                             <LineColor>green</LineColor>
                         </points>
                 `
@@ -1929,7 +1927,7 @@ export const OCX_XML_SetAllArea = (
                         ? rawXml`
                         <points>
                             ${item.map((point) => `<item X="${point.X}" Y="${point.Y}" />`).join('')}
-                            <Area>${(++index).toString()}</Area>
+                            <Area>${++index}</Area>
                             <LineColor>red</LineColor>
                         </points>
                 `
@@ -1947,12 +1945,12 @@ export const OCX_XML_SetAllArea = (
                     (item, index) => rawXml`
                         <points>
                             <item>
-                                <X1>${item.X1.toString()}</X1>
-                                <Y1>${item.Y1.toString()}</Y1>
-                                <X2>${item.X2.toString()}</X2>
-                                <Y2>${item.Y2.toString()}</Y2>
+                                <X1>${item.X1}</X1>
+                                <Y1>${item.Y1}</Y1>
+                                <X2>${item.X2}</X2>
+                                <Y2>${item.Y2}</Y2>
                             </item>
-                            <Area>${(index + 1).toString()}</Area>
+                            <Area>${index + 1}</Area>
                             <LineColor>green</LineColor>
                         </points>
                 `,
@@ -1975,9 +1973,9 @@ export const OCX_XML_SetAllArea = (
                     (item, index) => rawXml`
                         <points>
                             <direction>${directionType[item.direction]}</direction>
-                            <startPoint X="${item.startPoint.X.toString()}" Y="${item.startPoint.Y.toString()}" />
-                            <endPoint X="${item.endPoint.X.toString()}" Y="${item.endPoint.Y.toString()}" />
-                            <Area>${(index + 1).toString()}</Area>
+                            <startPoint X="${item.startPoint.X}" Y="${item.startPoint.Y}" />
+                            <endPoint X="${item.endPoint.X}" Y="${item.endPoint.Y}" />
+                            <Area>${index + 1}</Area>
                             <LineColor>green</LineColor>
                         </points>
                 `,
@@ -1986,6 +1984,7 @@ export const OCX_XML_SetAllArea = (
             </cmd>
         `)
     }
+    return ''
 }
 
 /**
@@ -1996,10 +1995,10 @@ export const OCX_XML_SetAllArea = (
 export const OCX_XML_SetTripwireLineInfo = (data: { switch: boolean; osdFormat: string; X: number; Y: number }) => {
     return wrapXml(rawXml`
         <cmd type="SetTripwireLineInfo">
-            <switch>${String(data.switch)}</switch>
+            <switch>${data.switch}</switch>
             <info>${data.osdFormat}</info>
-            <X>${String(data.X)}</X>
-            <Y>${String(data.Y)}</Y>
+            <X>${data.X}</X>
+            <Y>${data.Y}</Y>
         </cmd>
     `)
 }
@@ -2027,8 +2026,8 @@ export const OCX_XML_SetTripwireLine = (line: { direction: 'none' | 'rightortop'
     return wrapXml(rawXml`
         <cmd type="SetTripwireLine">
             <direction>${directionType[line.direction]}</direction>
-            <startPoint X="${String(line.startPoint.X)}" Y="${String(line.startPoint.Y)}" />
-            <endPoint X="${String(line.endPoint.X)}" Y="${String(line.endPoint.Y)}" />
+            <startPoint X="${line.startPoint.X}" Y="${line.startPoint.Y}" />
+            <endPoint X="${line.endPoint.X}" Y="${line.endPoint.Y}" />
         </cmd>
     `)
 }
@@ -2077,14 +2076,14 @@ export const parseStreamUrl = (url: string) => {
 export const OCX_XML_SetPOSDisplayArea = (switchbool: boolean, winIndex: number, x: number, y: number, width: number, height: number, printMode?: string) => {
     return wrapXml(rawXml`
         <cmd type="SetPOSDisplayArea">
-            <switch>${String(switchbool)}</switch>
-            <winIndex>${String(winIndex)}</winIndex>
+            <switch>${switchbool}</switch>
+            <winIndex>${winIndex}</winIndex>
             <printMode>${printMode || 'page'}</printMode>
             <rectangle>
-                <X>${String(x)}</X>
-                <Y>${String(y)}</Y>
-                <width>${String(width)}</width>
-                <height>${String(height)}</height>
+                <X>${x}</X>
+                <Y>${y}</Y>
+                <width>${width}</width>
+                <height>${height}</height>
             </rectangle>
         </cmd>
     `)

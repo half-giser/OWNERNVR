@@ -2,22 +2,9 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-21 15:34:24
  * @Description: 异常报警
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-04 15:49:15
 -->
 <template>
     <div class="base-flex-box">
-        <BaseTransferDialog
-            v-model="pageData.alarmOutIsShow"
-            header-title="IDCS_TRIGGER_ALARM_OUT"
-            source-title="IDCS_ALARM_OUT"
-            target-title="IDCS_TRIGGER_ALARM_OUT"
-            :source-data="pageData.alarmOutList"
-            :linked-list="tableData[pageData.triggerDialogIndex]?.alarmOutList || []"
-            limit-tip="IDCS_ALARMOUT_LIMIT"
-            @confirm="alarmOutConfirm"
-            @close="alarmOutClose"
-        />
         <div class="base-table-box">
             <el-table
                 :data="tableData"
@@ -50,8 +37,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.audioList"
                                         :key="item.value"
-                                        :value="item.value"
-                                        :label="item.label"
                                         @click="handleSysAudioChangeAll(item.value)"
                                     >
                                         {{ item.label }}
@@ -87,8 +72,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.enableList"
                                         :key="item.value"
-                                        :value="item.value"
-                                        :label="item.label"
                                         @click="handleMsgPushChangeAll(item.value)"
                                     >
                                         {{ item.label }}
@@ -115,39 +98,24 @@
                 <!-- 报警输出   -->
                 <el-table-column width="215">
                     <template #header>
-                        <el-popover
-                            v-model:visible="pageData.alarmOutPopoverVisible"
-                            width="fit-content"
-                            popper-class="no-padding"
-                        >
-                            <template #reference>
-                                <BaseTableDropdownLink>
-                                    {{ Translate('IDCS_ALARM_OUT') }}
-                                </BaseTableDropdownLink>
-                            </template>
-                            <BaseTransferPop
-                                v-if="pageData.alarmOutPopoverVisible"
-                                source-title="IDCS_ALARM_OUT"
-                                target-title="IDCS_ALARM_OUT"
-                                :source-data="pageData.alarmOutList"
-                                :linked-list="pageData.alarmOutChosedIdsAll"
-                                limit-tip="IDCS_ALARMOUT_LIMIT"
-                                @confirm="alarmOutConfirmAll"
-                                @close="alarmOutCloseAll"
-                            />
-                        </el-popover>
+                        <AlarmBaseAlarmOutPop
+                            :visible="pageData.alarmOutIsShow"
+                            :data="tableData"
+                            :index="pageData.triggerDialogIndex"
+                            @confirm="changeAlarmOut"
+                        />
                     </template>
                     <template #default="scope">
                         <el-row class="row-together">
                             <el-checkbox
                                 v-model="scope.row.alarmOut.switch"
                                 :disabled="scope.row.rowDisable"
-                                @change="alarmOutSwitchChange(scope.row)"
+                                @change="switchAlarmOut(scope.$index)"
                             />
                             <el-button
                                 :disabled="!scope.row.alarmOut.switch || scope.row.rowDisable"
                                 class="table_btn"
-                                @click="setAlarmOut(scope.$index)"
+                                @click="openAlarmOut(scope.$index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
@@ -166,8 +134,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.enableList"
                                         :key="item.value"
-                                        :value="item.value"
-                                        :label="item.label"
                                         @click="handleBeeperChangeAll(item.value)"
                                     >
                                         {{ item.label }}
@@ -203,8 +169,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.enableList"
                                         :key="item.value"
-                                        :value="item.value"
-                                        :label="item.label"
                                         @click="handleMsgBoxPopupChangeAll(item.value)"
                                     >
                                         {{ item.label }}
@@ -238,8 +202,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.enableList"
                                         :key="item.value"
-                                        :value="item.value"
-                                        :label="item.label"
                                         @click="handleEmailChangeAll(item.value)"
                                     >
                                         {{ item.label }}

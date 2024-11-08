@@ -2,12 +2,10 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-14 17:06:11
  * @Description: 报警服务器
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-04 10:15:59
  */
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import { type FormInstance, type FormRules } from 'element-plus'
-import { type AlarmTypeInfo } from '@/types/apiType/aiAndEvent'
+import { AlarmServerForm, type AlarmTypeInfoDto } from '@/types/apiType/aiAndEvent'
 export default defineComponent({
     components: {
         ScheduleManagPop,
@@ -17,20 +15,10 @@ export default defineComponent({
         const systemCaps = useCababilityStore()
         const openMessageBox = useMessageBox().openMessageBox
         const { openLoading, closeLoading } = useLoading()
-        const formRef = ref<FormInstance>()
-        const formData = ref({
-            enable: false,
-            address: '',
-            url: '',
-            port: 0,
-            heartEnable: false,
-            protocol: '',
-            interval: 0,
-            schedule: '',
 
-            deviceId: '',
-            token: '',
-        })
+        const formRef = ref<FormInstance>()
+        const formData = ref(new AlarmServerForm())
+
         const pageData = ref({
             protocolOptions: [] as SelectOption<string, string>[],
             scheduleManagePopOpen: false,
@@ -54,6 +42,7 @@ export default defineComponent({
             // 将进行的事件
             isTestAlarmServer: false,
         })
+
         const rules = reactive<FormRules>({
             address: [
                 {
@@ -142,7 +131,9 @@ export default defineComponent({
                 },
             ],
         })
-        const tableData = ref<AlarmTypeInfo[]>([])
+
+        const tableData = ref<AlarmTypeInfoDto[]>([])
+
         const ALARM_SERVER_TYPE: Record<string, string> = {
             1: Translate('IDCS_MOTION_DETECT_ALARM'), // 移动侦测报警输入
             2: Translate('IDCS_SENSOR_ALARM'), // 传感器报警输入
@@ -176,6 +167,7 @@ export default defineComponent({
             130: Translate('IDCS_FACE_MATCH'), // 人脸识别
             140: Translate('IDCS_PLATE_MATCH'), // 车牌比对
         }
+
         const genAlarmList = () => {
             // 排除阵列报警类型
             const supportRaidArr = [69, 70, 77, 78]
@@ -311,17 +303,17 @@ export default defineComponent({
                 <content>
                     <address>${formData.value.address}</address>
                     <url>${formData.value.url}</url>
-                    <switch>${formData.value.enable.toString()}</switch>
+                    <switch>${formData.value.enable}</switch>
                     <dataFormat>${formData.value.protocol}</dataFormat>
-                    <port>${formData.value.port.toString()}</port>
+                    <port>${formData.value.port}</port>
                     <alarmServerSchedule>${scheduleLabel}</alarmServerSchedule>
                     ${pageData.value.isProtocolXML ? `<alarmServerAlarmTypes>${pageData.value.linkedAlarmList.join(',')} </alarmServerAlarmTypes>` : ''}
                     ${
                         url === 'editAlarmServerParam'
                             ? rawXml`
                                 <heartbeat>
-                                    <switch>${formData.value.heartEnable.toString()}</switch>
-                                    <interval>${formData.value.interval.toString()}</interval>
+                                    <switch>${formData.value.heartEnable}</switch>
+                                    <interval>${formData.value.interval}</interval>
                                 </heartbeat>
                                 `
                             : ''
@@ -416,10 +408,12 @@ export default defineComponent({
             pageData.value.scheduleManagePopOpen = false
             await getScheduleList()
         }
+
         onMounted(async () => {
             await getBasicCfg()
             await getData()
         })
+
         watch(
             () => formData.value.enable,
             (newValue) => {
@@ -429,6 +423,7 @@ export default defineComponent({
                 }
             },
         )
+
         return {
             formData,
             pageData,

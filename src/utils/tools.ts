@@ -3,14 +3,13 @@
  * @Date: 2023-04-28 17:57:48
  * @Description: 工具方法
  * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-05 15:49:10
+ * @LastEditTime: 2024-11-07 18:55:12
  */
 
 import { type QueryNodeListDto } from '@/types/apiType/channel'
 import { type ApiResult } from '@/api/api'
 import { type XMLQuery, type XmlResult } from './xmlParse'
 import JSZip from 'jszip'
-import { type CanvasBasePoint } from './canvas/canvasBase'
 
 export * from './transformers'
 export * from './validates'
@@ -18,32 +17,6 @@ export * from './formats'
 export * from './xmlParse'
 export * from './encrypt'
 export * from './date'
-
-/**
- * @description: 获取对象的第一个属性的key和value
- * @param {any} obj
- * @return {*}
- */
-// export const getObjFirstKV = (obj: any): [string, any] | undefined => {
-//     for (const key in obj) {
-//         return [key, obj[key]]
-//     }
-// }
-
-/**
- * @description: 获取当前网站的UI和主题
- * @return {UiAndTheme}
- */
-// export const getUiAndTheme = (): UiAndTheme => {
-//     const uiArr = import.meta.env.VITE_UI_TYPE.split('-')
-//     const ui = uiArr[0] as UiName
-//     const theme = uiArr[1]
-//     return {
-//         ui,
-//         theme,
-//         name: import.meta.env.VITE_UI_TYPE,
-//     }
-// }
 
 /**
  * @description: 获取客户端操作系统
@@ -1328,43 +1301,4 @@ export const joinSpaceForLang = (str: string) => {
     const isInclude = langTypeList.includes(currLangType)
     str = isInclude ? str : str + ' '
     return str
-}
-
-/**
- * 判断线段AB和线段CD是否相交（不包含共端点）
- * 原理：如果线段CD的两个端点C和D，与另一条线段的一个端点（A或B，只能是其中一个）连成的向量，与向量AB做叉乘，
- *       若结果异号，表示C和D分别在直线AB的两边，
- *       若结果同号，则表示CD两点都在AB的一边，则肯定不相交。
- *       即判断CD是否在AB的两边、和AB是否在CD的两边，两者同时满足则证明线段相交
- * @see https://www.cnblogs.com/tuyang1129/p/9390376.html
- * @returns {Boolean} true:相交; false:不相交
- */
-const IsIntersect = (pointA: CanvasBasePoint, pointB: CanvasBasePoint, pointC: CanvasBasePoint, pointD: CanvasBasePoint) => {
-    const vectorAC = { X: pointC.X - pointA.X, Y: pointC.Y - pointA.Y }
-    const vectorAD = { X: pointD.X - pointA.X, Y: pointD.Y - pointA.Y }
-    const vectorAB = { X: pointB.X - pointA.X, Y: pointB.Y - pointA.Y }
-    const vectorCA = { X: pointA.X - pointC.X, Y: pointA.Y - pointC.Y }
-    const vectorCB = { X: pointB.X - pointC.X, Y: pointB.Y - pointC.Y }
-    const vectorCD = { X: pointD.X - pointC.X, Y: pointD.Y - pointC.Y }
-    const isBothSideCD = (vectorAC.X * vectorAB.Y - vectorAC.Y * vectorAB.X) * (vectorAD.X * vectorAB.Y - vectorAD.Y * vectorAB.X) < 0
-    const isBothSideAB = (vectorCA.X * vectorCD.Y - vectorCA.Y * vectorCD.X) * (vectorCB.X * vectorCD.Y - vectorCB.Y * vectorCD.X) < 0
-    return isBothSideCD && isBothSideAB
-}
-
-// 判断画点多边形区域是否可闭合（通过判断区域中的第一个点和最后一个点的连线是否与其他线相交）- true:可闭合; false:不可闭合
-export const judgeAreaCanBeClosed = (pointList: CanvasBasePoint[]) => {
-    let flag = true
-    const startPoint = pointList[0]
-    const lastPoint = pointList[pointList.length - 1]
-    for (let i = 0; i < pointList.length; i++) {
-        if (i < pointList.length - 1) {
-            const item = pointList[i]
-            const itemNext = pointList[i + 1]
-            if (IsIntersect(item, itemNext, startPoint, lastPoint)) {
-                flag = false
-                break
-            }
-        }
-    }
-    return flag
 }

@@ -2,11 +2,9 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-12 14:21:22
  * @Description: email通知
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-04 11:36:25
  */
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
-import { EmailReceiver } from '@/types/apiType/aiAndEvent'
+import { AlarmEmailReceiverDto } from '@/types/apiType/aiAndEvent'
 import { type FormInstance, type FormRules, type TableInstance } from 'element-plus'
 
 export default defineComponent({
@@ -19,7 +17,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
         const openMessageBox = useMessageBox().openMessageBox
-        const tableData = ref<EmailReceiver[]>([])
+        const tableData = ref<AlarmEmailReceiverDto[]>([])
         const tableRef = ref<TableInstance>()
         const maxEmailCount = ref(16)
         const rules = reactive<FormRules>({
@@ -90,7 +88,7 @@ export default defineComponent({
             return hideEmailAddress(sender)
         }
 
-        const formatAddress = (rowData: EmailReceiver) => {
+        const formatAddress = (rowData: AlarmEmailReceiverDto) => {
             if (rowData.rowClicked) {
                 return rowData.address
             }
@@ -112,7 +110,7 @@ export default defineComponent({
                     pageData.value.sender = res('//content/sender/address').text()
                     res('//content/receiver/item').forEach((ele) => {
                         const eleXml = queryXml(ele.element)
-                        const emailReceiver = new EmailReceiver()
+                        const emailReceiver = new AlarmEmailReceiverDto()
                         if (typeof eleXml('schedule').attr('id') == undefined) {
                             emailReceiver.address = eleXml('address').text()
                             emailReceiver.schedule = ''
@@ -130,7 +128,7 @@ export default defineComponent({
         }
 
         // 原代码中显示了地址后无法隐藏，这里改为再次点击隐藏
-        const handleRowClick = (row: EmailReceiver) => {
+        const handleRowClick = (row: AlarmEmailReceiverDto) => {
             row.rowClicked = !row.rowClicked
             // // 原代码逻辑：若未被点击，则显示
             // if (!row.rowClicked) {
@@ -143,7 +141,7 @@ export default defineComponent({
             })
         }
 
-        const handleScheduleChange = (row: EmailReceiver) => {
+        const handleScheduleChange = (row: AlarmEmailReceiverDto) => {
             tableRef.value?.setCurrentRow(row)
             row.rowClicked = true
             tableData.value.forEach((item) => {
@@ -159,7 +157,7 @@ export default defineComponent({
             })
         }
 
-        const handleDelReceiver = (row: EmailReceiver) => {
+        const handleDelReceiver = (row: AlarmEmailReceiverDto) => {
             openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_EMAIL_RECEIVER_S').formatForLang(row.address),
@@ -183,7 +181,7 @@ export default defineComponent({
             if (!formRef.value) return
             formRef.value.validate((valid) => {
                 if (valid) {
-                    const emailReceiver = new EmailReceiver()
+                    const emailReceiver = new AlarmEmailReceiverDto()
                     emailReceiver.address = pageData.value.form.recipient
                     emailReceiver.schedule = pageData.value.schedule
                     emailReceiver.addressShow = hideEmailAddress(emailReceiver.address)

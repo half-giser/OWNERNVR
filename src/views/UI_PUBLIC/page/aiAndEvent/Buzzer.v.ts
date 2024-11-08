@@ -2,16 +2,14 @@
  * @Description: AI/事件——事件通知——蜂鸣器
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-07-30 15:55:38
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-18 15:52:00
  */
-import { buzzerForm } from '@/types/apiType/aiAndEvent'
+import { AlarmBuzzerForm } from '@/types/apiType/aiAndEvent'
 
 export default defineComponent({
     setup() {
         const { openLoading, closeLoading } = useLoading()
 
-        const formData = ref(new buzzerForm())
+        const formData = ref(new AlarmBuzzerForm())
 
         const pageData = ref({
             buzzerDurationOption: [] as SelectOption<number, string>[],
@@ -38,7 +36,7 @@ export default defineComponent({
             openLoading()
             const sendXml = rawXml`
                 <content>
-                    <buzzerDuration>${String(formData.value.buzzerDuration)}</buzzerDuration>
+                    <buzzerDuration>${formData.value.buzzerDuration}</buzzerDuration>
                 </content>
             `
             const result = await editEventNotifyParam(sendXml)

@@ -2,8 +2,6 @@
  * @Description: 普通事件——组合报警弹窗
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-23 15:02:52
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-01 14:48:23
 -->
 <template>
     <el-dialog
@@ -115,7 +113,7 @@
                 </el-col>
             </el-row>
         </template>
-        <FaceMatchPop
+        <CombinationAlarmFaceMatchPop
             v-model="pageData.isFaceMatchPopShow"
             :linked-entity="pageData.linkedEntity"
             :linked-obj="pageData.linkedObj"

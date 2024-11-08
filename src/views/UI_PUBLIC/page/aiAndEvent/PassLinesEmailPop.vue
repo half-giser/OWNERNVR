@@ -2,8 +2,6 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-13 11:31:56
  * @Description: 过线检测邮件设置弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-31 19:33:35
 -->
 <template>
     <el-dialog

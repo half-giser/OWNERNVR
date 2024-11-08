@@ -2,11 +2,9 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-27 15:43:32
  * @Description: 周界防范/人车检测
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-29 16:07:08
  */
 import { type TabsPaneContext } from 'element-plus'
-import { type chlCaps } from '@/types/apiType/aiAndEvent'
+import { type AlarmChlDto } from '@/types/apiType/aiAndEvent'
 import Tripwire from './Tripwire.vue'
 import Pea from './Pea.vue'
 export default defineComponent({
@@ -25,9 +23,9 @@ export default defineComponent({
             // 在线通道列表
             onlineChannelList: [] as { id: string; ip: string; name: string; accessType: string }[],
             // 当前选择通道数据
-            chlData: {} as chlCaps,
+            chlData: {} as AlarmChlDto,
             // 通道能力集
-            chlCaps: {} as Record<string, chlCaps>,
+            chlCaps: {} as Record<string, AlarmChlDto>,
             // 当前选择的功能
             chosenFunction: 'Tripwire',
             tabKey: 0,
@@ -83,6 +81,7 @@ export default defineComponent({
             // alarmOut数据源
             alarmOutSource: [] as { value: string; label: string; device: { value: string; label: string } }[],
         })
+
         // 获取在线通道
         const getOnlineChannel = async () => {
             const res = await queryOnlineChlList()
@@ -335,12 +334,14 @@ export default defineComponent({
             isTabDisabled()
             pageData.value.tabKey += 1
         }
+
         onMounted(async () => {
             await getOnlineChannel()
             await getChannelData()
             await getVoiceList()
             await initPageData()
         })
+
         return {
             pageData,
             handleChangeChannel,

@@ -2,8 +2,6 @@
  * @Description: AI 事件——车牌识别
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-09 09:56:14
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-01 14:25:41
 -->
 <template>
     <!-- 通道名称及选择器 -->
@@ -231,7 +229,7 @@
                     <el-popover
                         v-model:visible="advancedVisible"
                         width="300"
-                        popper-class="no-padding"
+                        popper-class="no-padding popper"
                     >
                         <template #reference>
                             <div
@@ -314,20 +312,18 @@
                         @tab-change="compareTabChange"
                     >
                         <el-tab-pane
-                            v-for="item in taskTabs"
+                            v-for="(item, index) in taskTabs"
                             :key="item.value"
                             :label="item.label"
                             :name="item.value"
                         >
                             <template #default>
                                 <SuccessfulRecognition
-                                    :curr-task-data="compareLinkData(item.value)"
+                                    :curr-task-data="vehicleCompareData.task[index]"
                                     :group-data="vehicleGroupData"
                                     :schedule-list="pageData.scheduleList"
                                     :voice-list="pageData.voiceList"
-                                    :record-list="pageData.recordList"
-                                    :alarm-out-list="pageData.alarmOutList"
-                                    :snap-list="pageData.snapList"
+                                    @change="vehicleCompareData.task[index] = $event"
                                 />
                             </template>
                         </el-tab-pane>

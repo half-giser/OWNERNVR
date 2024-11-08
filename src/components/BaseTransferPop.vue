@@ -2,14 +2,12 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-16 17:19:02
  * @Description: 穿梭下拉框内容
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-04 15:55:46
 -->
 <template>
     <div class="Transfer">
         <el-transfer
             v-model="chosedList"
-            :data="data"
+            :data="sourceData"
             :props="{
                 key: 'value',
                 label: 'label',
@@ -28,6 +26,7 @@
 <script lang="ts" setup>
 const props = withDefaults(
     defineProps<{
+        visible?: boolean
         headerTitle?: string
         sourceTitle?: string
         targetTitle?: string
@@ -37,6 +36,7 @@ const props = withDefaults(
         limitTip?: string
     }>(),
     {
+        visible: false,
         headerTitle: '',
         sourceTitle: '',
         targetTitle: '',
@@ -50,7 +50,6 @@ const emits = defineEmits<{
     (e: 'close'): void
 }>()
 
-const data = ref<SelectOption<string, string>[]>([])
 const chosedList = ref<string[]>([])
 
 const { openMessageBox } = useMessageBox()
@@ -67,7 +66,6 @@ const { Translate } = useLangStore()
  * @description 打开弹窗回调
  */
 const open = () => {
-    data.value = props.sourceData
     chosedList.value = props.linkedList
 }
 
@@ -88,7 +86,7 @@ const change = () => {
  * @description 保存数据
  */
 const verify = () => {
-    const filterList = data.value.filter((item) => chosedList.value.includes(item.value))
+    const filterList = props.sourceData.filter((item) => chosedList.value.includes(item.value))
     emits('confirm', filterList)
 }
 
@@ -102,6 +100,15 @@ const close = () => {
 onMounted(() => {
     open()
 })
+
+watch(
+    () => props.visible,
+    (visible) => {
+        if (visible) {
+            open()
+        }
+    },
+)
 </script>
 
 <style lang="scss" scoped>
