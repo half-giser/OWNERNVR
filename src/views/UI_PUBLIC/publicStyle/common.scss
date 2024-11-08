@@ -271,15 +271,22 @@ input[type='number'] {
                     background: var(--primary);
                 }
             }
-            .el-table-column--selection {
-                .el-checkbox {
-                    &.is-checked {
-                        .el-checkbox__inner {
-                            border: var(--el-border-width) var(--el-border-style) var(--table-checkbox-border-checked);
-                        }
+            .el-checkbox {
+                &.is-checked {
+                    .el-checkbox__inner {
+                        border: var(--el-border-width) var(--el-border-style) var(--table-checkbox-border-checked);
                     }
                 }
             }
+            // .el-table-column--selection {
+            //     .el-checkbox {
+            //         &.is-checked {
+            //             .el-checkbox__inner {
+            //                 border: var(--el-border-width) var(--el-border-style) var(--table-checkbox-border-checked);
+            //             }
+            //         }
+            //     }
+            // }
         }
 
         .el-input,

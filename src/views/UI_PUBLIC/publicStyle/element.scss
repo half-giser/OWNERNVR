@@ -555,6 +555,10 @@
 
         &-panel {
             --el-bg-color-overlay: var(--main-bg);
+
+            .el-checkbox__inner {
+                border-radius: var(--el-checkbox-border-radius);
+            }
         }
 
         &-panel .el-transfer-panel__header .el-checkbox .el-checkbox__label {
