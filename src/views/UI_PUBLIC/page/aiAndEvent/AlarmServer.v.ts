@@ -48,39 +48,17 @@ export default defineComponent({
                 {
                     validator: (_rule, value, callback) => {
                         if (pageData.value.isTestAlarmServer == true && !value) {
-                            ElMessage({
-                                message: Translate('IDCS_DDNS_SERVER_ADDR_EMPTY'),
-                                type: 'error',
-                                customClass: 'errorMsg',
-                                duration: 2000,
-                                grouping: true,
-                            })
-                            // callback(new Error(Translate('IDCS_DDNS_SERVER_ADDR_EMPTY')))
+                            callback(new Error(Translate('IDCS_DDNS_SERVER_ADDR_EMPTY')))
                             return
                         }
-                        callback()
-                    },
-                    trigger: 'manual',
-                },
-                {
-                    validator: (_rule, value, callback) => {
-                        const reg = /(^$|[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+.?$)/g
-                        // formData.value.address = checkRule(formData.value.address, /([\u4e00-\u9fa5]|[^a-zA-Z\d\.\-:\\/])/g)
-                        // value = formData.value.address
-                        if (value && value.length > 0) {
-                            if (!value.trim().match(reg)) {
-                                ElMessage({
-                                    message: Translate('IDCS_PROMPT_INVALID_SERVER'),
-                                    type: 'error',
-                                    customClass: 'errorMsg',
-                                    duration: 2000,
-                                    grouping: true,
-                                })
-                                // callback(new Error(Translate('IDCS_PROMPT_INVALID_SERVER')))
+
+                        if (value.trim().length) {
+                            if (!value.trim().match(/(^$|[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+.?$)/g)) {
+                                callback(new Error(Translate('IDCS_PROMPT_INVALID_SERVER')))
                                 return
                             }
-                            callback()
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -90,18 +68,10 @@ export default defineComponent({
                 {
                     validator: (_rule, value, callback) => {
                         if ((pageData.value.isAnothorUI || pageData.value.deviceIdShow) && formData.value.enable && !formData.value.deviceId.trim()) {
-                            if (value.length == 0) {
-                                ElMessage({
-                                    message: Translate('IDCS_PROMPT_ID_OR_TOKEN_EMPTY'),
-                                    type: 'error',
-                                    customClass: 'errorMsg',
-                                    duration: 2000,
-                                    grouping: true,
-                                })
-                                // callback(new Error(Translate('IDCS_PROMPT_ID_OR_TOKEN_EMPTY')))
+                            if (!value.trim().length) {
+                                callback(new Error(Translate('IDCS_PROMPT_ID_OR_TOKEN_EMPTY')))
                                 return
                             }
-                            callback()
                         }
                         callback()
                     },
@@ -112,18 +82,10 @@ export default defineComponent({
                 {
                     validator: (_rule, value, callback) => {
                         if (pageData.value.isAnothorUI && formData.value.enable && !formData.value.token.trim()) {
-                            if (value.length == 0) {
-                                ElMessage({
-                                    message: Translate('IDCS_PROMPT_ID_OR_TOKEN_EMPTY'),
-                                    type: 'error',
-                                    customClass: 'errorMsg',
-                                    duration: 2000,
-                                    grouping: true,
-                                })
-                                // callback(new Error(Translate('IDCS_PROMPT_ID_OR_TOKEN_EMPTY')))
+                            if (!value.trim().length) {
+                                callback(new Error(Translate('IDCS_PROMPT_ID_OR_TOKEN_EMPTY')))
                                 return
                             }
-                            callback()
                         }
                         callback()
                     },
