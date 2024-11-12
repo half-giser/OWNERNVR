@@ -2,14 +2,12 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-23 10:36:12
  * @Description: 云台-协议
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 18:31:12
  */
 import { type TableInstance } from 'element-plus'
 import { ChannelPtzProtocolDto } from '@/types/apiType/channel'
 
 export default defineComponent({
-    setup() {
+    setup(_prop, ctx) {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
         const playerRef = ref<PlayerInstance>()
@@ -139,8 +137,8 @@ export default defineComponent({
                             <chl id="${item.chlId}">
                                 <baudRate type="baudRate">${item.baudRate}</baudRate>
                                 <protocol type="protocol">${item.protocol}</protocol>
-                                <address min="${item.addressMin.toString()}" max="${item.addressMax.toString()}">${item.address.toString()}</address>
-                                <ptz>${item.ptz.toString()}</ptz>
+                                <address min="${item.addressMin}" max="${item.addressMax}">${item.address}</address>
+                                <ptz>${item.ptz}</ptz>
                             </chl>
                         </content>
                     `
@@ -315,6 +313,10 @@ export default defineComponent({
             getData()
         })
 
+        ctx.expose({
+            handleToolBarEvent,
+        })
+
         return {
             playerRef,
             handlePlayerReady,
@@ -325,7 +327,6 @@ export default defineComponent({
             getData,
             handleRowClick,
             changeAllPtz,
-            handleToolBarEvent,
             editRows,
             addEditRow,
         }

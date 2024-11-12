@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-19 13:37:26
  * @Description: 现场预览-目标检测视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 16:10:45
 -->
 <template>
     <div class="snap">

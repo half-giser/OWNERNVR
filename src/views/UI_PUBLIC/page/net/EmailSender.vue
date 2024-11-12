@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-10 15:00:04
  * @Description: E-mail发送
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-17 14:11:40
 -->
 <template>
     <div>

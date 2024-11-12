@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-04 16:47:04
  * @Description: 健康状态检测
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-18 10:56:30
 -->
 <template>
     <div>
@@ -225,7 +223,7 @@
         flex-shrink: 0;
         background-color: var(--primary);
         text-align: center;
-        color: #fff;
+        color: var(--main-text-active);
         font-size: 16px;
         margin-right: 20px;
         border-radius: 100%;

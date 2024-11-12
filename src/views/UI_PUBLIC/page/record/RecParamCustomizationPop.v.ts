@@ -2,8 +2,6 @@
  * @Description: 录像——参数配置——通道录像参数——过期时间自定义
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-05 16:26:27
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-31 10:51:31
  */
 import dayjs from 'dayjs'
 import { type ChlRecParamList } from '@/types/apiType/record'
@@ -12,11 +10,11 @@ export default defineComponent({
     props: {
         expirationType: {
             type: String,
-            require: true,
+            required: true,
         },
         expirationData: {
             type: Object as PropType<ChlRecParamList>,
-            require: true,
+            required: true,
         },
     },
     emits: {

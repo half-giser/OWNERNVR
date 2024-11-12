@@ -38,7 +38,3 @@
 </template>
 
 <script lang="ts" src="./AlarmBaseRecordSelector.v.ts"></script>
-
-<style>
-@import '@/views/UI_PUBLIC/publicStyle/aiAndEvent.scss';
-</style>

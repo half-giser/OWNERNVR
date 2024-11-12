@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-02 13:36:25
  * @Description: POS连接设置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-21 17:33:21
  */
 import { type FormInstance, type FormRules } from 'element-plus'
 import { SystemPosList, SystemPosConnectionForm } from '@/types/apiType/system'

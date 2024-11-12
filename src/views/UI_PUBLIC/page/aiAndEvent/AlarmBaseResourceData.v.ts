@@ -7,14 +7,23 @@ import { type AlarmAIResourceDto } from '@/types/apiType/aiAndEvent'
 
 export default defineComponent({
     props: {
+        /**
+         * @property {string} 事件类型
+         */
         event: {
             type: String,
             required: true,
         },
+        /**
+         * @property {boolean} 是否开启
+         */
         enable: {
             type: Boolean,
             required: true,
         },
+        /**
+         * @property {string} 通道ID
+         */
         chlId: {
             type: String,
             required: true,
@@ -35,9 +44,11 @@ export default defineComponent({
 
         const pageData = ref({
             isPop: false,
+            // 当前资源百分比
             totalResourceOccupancy: 0,
         })
 
+        // 事件类型与显示文本的映射
         const eventTypeMapping: Record<string, string> = {
             faceDetect: Translate('IDCS_FACE_DETECTION') + '+' + Translate('IDCS_FACE_RECOGNITION'),
             faceMatch: Translate('IDCS_FACE_RECOGNITION'),
@@ -47,6 +58,9 @@ export default defineComponent({
 
         const tableData = ref<AlarmAIResourceDto[]>([])
 
+        /**
+         * @description 获取AI资源列表
+         */
         const getData = async () => {
             const sendXml = prop.enable
                 ? rawXml`
@@ -115,6 +129,10 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 删除AI资源
+         * @param {AlarmAIResourceDto} row
+         */
         const deleteResource = async (row: AlarmAIResourceDto) => {
             openMessageBox({
                 type: 'question',

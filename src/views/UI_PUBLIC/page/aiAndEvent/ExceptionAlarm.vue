@@ -248,16 +248,13 @@
 
 <script lang="ts" src="./ExceptionAlarm.v.ts"></script>
 
-<style>
-@import '@/views/UI_PUBLIC/publicStyle/aiAndEvent.scss';
-</style>
-
 <style lang="scss" scoped>
 :deep(.el-table .cell) {
     display: flex;
     align-items: center;
     justify-content: center;
 }
+
 .tips_text {
     font-size: 14px;
 }

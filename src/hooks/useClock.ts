@@ -3,8 +3,6 @@
  * @Date: 2024-10-31 09:08:29
  * @Description: 实现setInterval的效果，但定时更精准
  * 使用此hook，可避免定时器在组件注销时没有清除、或没有正确清除定时器而导致内存溢出的问题
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-31 09:44:05
  */
 export const useClock = (callback = () => {}, delay = 1000) => {
     let past = 0

@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-22 10:15:06
  * @Description: 巡航线组
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 15:36:04
  */
 import { type TableInstance } from 'element-plus'
 import { type ChannelPtzCruiseGroupChlDto, ChannelPtzCruiseGroupCruiseDto } from '@/types/apiType/channel'
@@ -202,7 +200,7 @@ export default defineComponent({
                         <cruises type="list">
                             ${tableData.value[chlIndex].cruise
                                 .filter((item) => item.index !== cruise.index)
-                                .map((item) => `<item index="${item.index.toString()}">${wrapCDATA(item.name)}</item>`)
+                                .map((item) => `<item index="${item.index}">${wrapCDATA(item.name)}</item>`)
                                 .join('')}
                         </cruises>
                     </condition>
@@ -263,7 +261,7 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <chlId>${tableData.value[pageData.value.tableIndex].chlId}</chlId>
-                    <index>${currentCruise.value.index.toString()}</index>
+                    <index>${currentCruise.value.index}</index>
                 </content>
             `
             runChlPtzGroup(sendXml)

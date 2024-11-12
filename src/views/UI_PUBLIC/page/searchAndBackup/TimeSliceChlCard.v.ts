@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-14 16:50:41
  * @Description: 按时间切片 缩略图卡片
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-14 16:57:59
  */
 export default defineComponent({
     props: {

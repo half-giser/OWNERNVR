@@ -530,7 +530,7 @@ export const OCX_XML_TalkSwitch = (status: 'ON' | 'OFF', chlId?: string) => {
  * @param status
  * @returns {string}
  */
-export const OCX_XML_OriginalDisplaySwitch = (win: number, status: 'true' | 'false') => {
+export const OCX_XML_OriginalDisplaySwitch = (win: number, status: boolean) => {
     return wrapXml(rawXml`
         <cmd type="OriginalDisplaySwitch">
             <win>${win}</win>
@@ -1400,16 +1400,7 @@ export const OCX_XML_SetOSD = (edit: string, osdList: OcxXmlSetOsdListDatum[] = 
     const osd = osdList
         .map(
             (item) => rawXml`
-                <item
-                    winIndex="${item.winIndex}"
-                    ${item.osd ? `osd="${item.osd}"` : `dateFormat="${item.dateFormat}" timeFormat="${item.timeFormat}" `}
-                    x="${item.x}"
-                    xMin="${item.xMin || 0}"
-                    xMax="${item.xMax || 1920}"
-                    y="${item.y}"
-                    yMin="${item.yMin || 0}"
-                    yMax="${item.yMax || 1080}"
-                    status="${item.status || 'OFF'}" />
+                <item winIndex="${item.winIndex}" ${item.osd ? `osd="${item.osd}"` : `dateFormat="${item.dateFormat}" timeFormat="${item.timeFormat}" `} x="${item.x}" xMin="${item.xMin || 0}" xMax="${item.xMax || 1920}" y="${item.y}" yMin="${item.yMin || 0}" yMax="${item.yMax || 1080}" status="${item.status || 'OFF'}" />
             `,
         )
         .join('')

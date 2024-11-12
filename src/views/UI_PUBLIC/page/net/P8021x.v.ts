@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-11 08:56:40
  * @Description: 802.1x配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 16:37:52
  */
 import { type FormInstance, type FormRules } from 'element-plus'
 import { Net8021xForm } from '@/types/apiType/net'
@@ -79,7 +77,7 @@ export default defineComponent({
                 const password = AES_encrypt(formData.value.password, userSession.sesionKey)
                 const sendXml = rawXml`
                     <content>
-                        <Switch>${formData.value.switch.toString()}</Switch>
+                        <Switch>${formData.value.switch}</Switch>
                         <Protocol>${formData.value.protocal}</Protocol>
                         <Version>${formData.value.version}</Version>
                         <Username>${wrapCDATA(formData.value.userName)}</Username>

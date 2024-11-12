@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-08 17:43:50
  * @Description: OCX备份列表模块
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-29 18:04:43
  */
 import { type PlaybackBackUpTaskList, type PlaybackBackUpRecList } from '@/types/apiType/playback'
 import { type XMLQuery } from '@/utils/xmlParse'

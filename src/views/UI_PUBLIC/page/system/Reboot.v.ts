@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-20 15:59:54
  * @Description: 系统重启
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-22 19:46:36
  */
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import type { UserCheckAuthForm } from '@/types/apiType/user'

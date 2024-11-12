@@ -2,13 +2,11 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-21 16:31:50
  * @Description: 网络状态
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-29 18:21:20
  */
 import { type SystemNetStatusList } from '@/types/apiType/system'
 
 export default defineComponent({
-    setup() {
+    setup(_prop, ctx) {
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
 
@@ -410,8 +408,11 @@ export default defineComponent({
             getData()
         })
 
-        return {
+        ctx.expose({
             handleToolBarEvent,
+        })
+
+        return {
             tableData,
         }
     },

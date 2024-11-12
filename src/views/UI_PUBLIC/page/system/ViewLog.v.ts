@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-01 11:01:12
  * @Description: 查看日志
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-04 14:54:18
  */
 import { SystemLogForm, type SystemLogList } from '@/types/apiType/system'
 import dayjs from 'dayjs'
@@ -367,8 +365,8 @@ export default defineComponent({
             const mainType = `<item>${wrapCDATA(formData.value.type)}</item>`
             const subType = formData.value.subType.map((item) => `<item>${wrapCDATA(item)}</item>`).join('')
             const sendXML = rawXml`
-                ${!isExport ? `<pageIndex>${String(formData.value.currentPage)}</pageIndex>` : ''}
-                ${!isExport ? `<pageSize>${String(formData.value.pageSize)}</pageSize>` : ''}
+                ${!isExport ? `<pageIndex>${formData.value.currentPage}</pageIndex>` : ''}
+                ${!isExport ? `<pageSize>${formData.value.pageSize}</pageSize>` : ''}
                 <types>
                     <logType>${wrapEnums(LOG_ENUMS)}</logType>
                 </types>

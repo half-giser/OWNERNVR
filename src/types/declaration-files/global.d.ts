@@ -140,6 +140,10 @@ declare global {
         searchText: string
     }
 
+    interface ConfigComponentInstance {
+        handleToolBarEvent?: (e: ConfigToolBarEvent<T>) => void
+    }
+
     /**
      * 消息提示框配置参数类型
      */
@@ -186,13 +190,6 @@ declare global {
         label: K
     }
 
-    interface ImageSpriteCoordinatesItem {
-        x: number
-        y: number
-        width: number
-        height: number
-    }
-
     interface ImageSpriteProperties {
         width: number
         height: number
@@ -200,7 +197,7 @@ declare global {
 
     interface ImageSprite {
         properties: ImageSpriteProperties
-        coordinates: Record<string, ImageSpriteCoordinatesItem>
+        coordinates: Record<string, number[]> // x y width height
     }
 
     interface PlayerInstance {
@@ -247,6 +244,26 @@ declare global {
         drawTimeRangeMask: (startTime: number, endTime: number) => void
         setMode: (modeConfig: { mode?: string; startDate?: string; monthNum?: number }, newPointerTime?: number) => void
     }
+
+    interface ScheduleWeekInstance {
+        weekdayLang: string[]
+        getValue: () => [string, string][][]
+        resetValue: (value: [string, string][][]) => void
+        resetSameValue: (value: [string, string][]) => void
+        addTimeSpan: (timeSpan: [string, string] | [number, number], days: number[]) => void
+        invert: () => void
+    }
+
+    interface ScheduleLineInstance {
+        getValue: () => [string, string][]
+        resetValue: (newValue: Array<[string, string]> | Array<[number, number]>) => void
+        addTimeSpan: (timeSpan: [string, string] | [number, number]) => void
+        invert: () => void
+    }
+
+    // interface FloatErrorInstance {
+    //     show: (opt: { container?: string; message?: string; type?: string }) => void
+    // }
 
     type UserChlAuth = _UserChlAuth
 

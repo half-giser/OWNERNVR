@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-20 10:41:09
  * @Description: TCP/IP高级配置弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:06:45
  */
 import { type NetTcpIpForm, NetTcpIpAdvanceForm } from '@/types/apiType/net'
 import type { FormInstance, FormRules } from 'element-plus'

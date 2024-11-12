@@ -2,8 +2,6 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2023-04-28 17:57:48
  * @Description: 工具方法
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-07 18:55:12
  */
 
 import { type QueryNodeListDto } from '@/types/apiType/channel'
@@ -600,7 +598,6 @@ export const commSaveResponseHadler = ($response: ApiResult, successHandler?: (r
             openMessageBox({
                 type: 'success',
                 message: Translate('IDCS_SAVE_DATA_SUCCESS'),
-                showCancelButton: false,
             }).then(() => {
                 successHandler && successHandler($)
                 resolve($)
@@ -609,7 +606,6 @@ export const commSaveResponseHadler = ($response: ApiResult, successHandler?: (r
             openMessageBox({
                 type: 'info',
                 message: Translate('IDCS_SAVE_DATA_FAIL'),
-                showCancelButton: false,
             }).then(() => {
                 failedHandler && failedHandler($)
                 reject($)

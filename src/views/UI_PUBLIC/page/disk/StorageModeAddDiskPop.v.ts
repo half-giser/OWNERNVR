@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-08 18:02:05
  * @Description: 存储模式新增磁盘弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-18 10:28:14
  */
 import { StorageModeDiskGroupList, type StorageModeDiskList } from '@/types/apiType/disk'
 

@@ -5,12 +5,13 @@
 -->
 <template>
     <div class="base-ai-linkage-box">
-        <el-checkbox
-            :model-value="isCheckAll"
-            class="base-ai-linkage-title base-ai-linkage-title-checkbox-input"
-            :label="Translate('IDCS_TRIGGER_NOMAL')"
-            @change="toggleCheckAll"
-        />
+        <div class="base-ai-linkage-title base-ai-linkage-title-checkbox">
+            <el-checkbox
+                :model-value="isCheckAll"
+                :label="Translate('IDCS_TRIGGER_NOMAL')"
+                @change="toggleCheckAll"
+            />
+        </div>
         <el-checkbox-group
             :model-value="modelValue"
             @update:model-value="change"
@@ -26,7 +27,3 @@
 </template>
 
 <script lang="ts" src="./AlarmBaseTriggerSelector.v.ts"></script>
-
-<style>
-@import '@/views/UI_PUBLIC/publicStyle/aiAndEvent.scss';
-</style>

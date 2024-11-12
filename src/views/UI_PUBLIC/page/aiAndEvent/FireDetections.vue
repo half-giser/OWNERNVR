@@ -45,7 +45,6 @@
                         <div class="base-ai-param-box-left">
                             <div class="player">
                                 <BaseVideoPlayer
-                                    id="player"
                                     ref="playerRef"
                                     type="live"
                                     @onready="handlePlayerReady"
@@ -157,7 +156,3 @@
 </template>
 
 <script lang="ts" src="./FireDetections.v.ts"></script>
-
-<style>
-@import '@/views/UI_PUBLIC/publicStyle/aiAndEvent.scss';
-</style>

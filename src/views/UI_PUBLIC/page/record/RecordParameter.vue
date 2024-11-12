@@ -2,8 +2,6 @@
  * @Description: 录像——参数配置
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-02 16:12:01
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-31 14:32:45
 -->
 <template>
     <div class="base-flex-box">
@@ -75,8 +73,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.perList"
                                         :key="item.value"
-                                        :label="item.label"
-                                        :value="item.value"
                                         @click="changeAllPerList(item.value)"
                                     >
                                         {{ item.label }}
@@ -111,8 +107,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.postList"
                                         :key="item.value"
-                                        :label="item.label"
-                                        :value="item.value"
                                         @click="changeAllPostList(item.value)"
                                     >
                                         {{ item.label }}
@@ -148,8 +142,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.switchOption"
                                         :key="item.value"
-                                        :label="item.label"
-                                        :value="item.value"
                                         @click="changeAllANRSwitchList(item.value)"
                                     >
                                         {{ item.label }}
@@ -188,8 +180,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.expirationList"
                                         :key="item.value"
-                                        :label="item.label"
-                                        :value="item.value"
                                         @click="changeAllExpirationList(item.value)"
                                     >
                                         {{ item.label }}
@@ -239,6 +229,6 @@
 
 <style scoped>
 .msgbox {
-    margin: 10px 0 10px 0;
+    margin: 10px 0;
 }
 </style>

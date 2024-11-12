@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-08 18:01:51
  * @Description: 存储模式新增通道弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 17:44:26
  */
 import { StorageModeDiskGroupList, type StorageModeChlList } from '@/types/apiType/disk'
 

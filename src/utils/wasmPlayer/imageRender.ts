@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-05-30 18:07:24
  * @Description: 基于wasm的单帧图片渲染(串行处理，即一次只处理一张渲染)
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-09 11:52:40
  */
 import WebGLPlayer from './webglPlayer'
 

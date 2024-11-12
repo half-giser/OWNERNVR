@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-22 20:03:07
  * @Description: 抓拍相关常量
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-29 11:33:46
  */
 export const GENDER_MAP: Record<number, string> = {
     0: '--',

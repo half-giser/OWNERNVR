@@ -354,38 +354,38 @@
                                     />
                                     <el-table-column>
                                         <template #header>
-                                            <el-dropdown
+                                            <el-popover
                                                 ref="similarityRef"
                                                 :hide-on-click="false"
                                                 placement="bottom-start"
                                             >
-                                                <BaseTableDropdownLink> {{ Translate('IDCS_SIMILARITY') }}(%) </BaseTableDropdownLink>
-                                                <template #dropdown>
-                                                    <div class="dropdownBox">
-                                                        <el-form
-                                                            class="stripe"
-                                                            :style="{
-                                                                '--form-input-width': '100px',
-                                                            }"
-                                                            label-width="100"
-                                                            inline-message
-                                                        >
-                                                            <el-form-item :label="Translate('IDCS_SIMILARITY')">
-                                                                <BaseNumberInput
-                                                                    v-model="comparePageData.similarityNumber"
-                                                                    :min="1"
-                                                                    :max="100"
-                                                                />
-                                                                <span>%</span>
-                                                            </el-form-item>
-                                                        </el-form>
-                                                        <div class="base-btn-box">
-                                                            <el-button @click="similarityChangeAll">{{ Translate('IDCS_OK') }}</el-button>
-                                                            <el-button @click="similarityRef.handleClose()">{{ Translate('IDCS_CANCEL') }}</el-button>
-                                                        </div>
-                                                    </div>
+                                                <template #reference>
+                                                    <BaseTableDropdownLink> {{ Translate('IDCS_SIMILARITY') }}(%) </BaseTableDropdownLink>
                                                 </template>
-                                            </el-dropdown>
+                                                <div class="dropdownBox">
+                                                    <el-form
+                                                        class="stripe"
+                                                        :style="{
+                                                            '--form-input-width': '100px',
+                                                        }"
+                                                        label-width="100"
+                                                        inline-message
+                                                    >
+                                                        <el-form-item :label="Translate('IDCS_SIMILARITY')">
+                                                            <BaseNumberInput
+                                                                v-model="comparePageData.similarityNumber"
+                                                                :min="1"
+                                                                :max="100"
+                                                            />
+                                                            <span>%</span>
+                                                        </el-form-item>
+                                                    </el-form>
+                                                    <div class="base-btn-box">
+                                                        <el-button @click="similarityChangeAll">{{ Translate('IDCS_OK') }}</el-button>
+                                                        <el-button @click="comparePageData.isSimilarityPop = false">{{ Translate('IDCS_CANCEL') }}</el-button>
+                                                    </div>
+                                                </div>
+                                            </el-popover>
                                         </template>
                                         <template #default="scope">
                                             <BaseNumberInput
@@ -470,10 +470,6 @@
 
 <script lang="ts" src="./FaceRecognition.v.ts"></script>
 
-<style>
-@import '@/views/UI_PUBLIC/publicStyle/aiAndEvent.scss';
-</style>
-
 <style lang="scss" scoped>
 .table-box {
     width: 500px;
@@ -501,15 +497,18 @@
         padding: 5px 15px;
     }
 }
+
 .taskBtn {
     position: absolute;
     right: 20px;
     top: 35px;
+
     span {
         font-size: 20px;
         padding: 0 5px;
         cursor: pointer;
     }
+
     .removeDisabled {
         color: var(--main-text-light);
     }

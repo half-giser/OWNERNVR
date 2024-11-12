@@ -2,10 +2,7 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-07-31 16:36:16
  * @Description: 排程管理弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 12:00:03
  */
-import type BaseScheduleWeek from '@/components/BaseScheduleWeek.vue'
 import ScheduleEditPop from './ScheduleEditPop.vue'
 import { ScheduleInfo, type NameValueItem } from '@/types/apiType/schedule'
 import { type TableInstance } from 'element-plus'
@@ -25,7 +22,7 @@ export default defineComponent({
         const { openLoading, closeLoading } = useLoading()
 
         // 周排程组件引用
-        const scheduleWeekRef: Ref<InstanceType<typeof BaseScheduleWeek> | null> = ref(null)
+        const scheduleWeekRef = ref<ScheduleWeekInstance>()
         // 排程表格引用
         const scheduleTable = ref<TableInstance>()
 

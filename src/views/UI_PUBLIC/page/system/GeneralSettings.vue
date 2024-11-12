@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-24 09:19:04
  * @Description: 基本配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-29 18:21:42
 -->
 <template>
     <div class="Setting">

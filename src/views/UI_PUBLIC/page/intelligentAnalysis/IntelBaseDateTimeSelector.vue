@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-05 17:02:01
  * @Description: 智能分析 - 时间日期选择器
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-01 18:21:33
 -->
 <template>
     <div>
@@ -69,10 +67,6 @@
 </template>
 
 <script lang="ts" src="./IntelBaseDateTimeSelector.v.ts"></script>
-
-<style lang="scss">
-@import '@/views/UI_PUBLIC/publicStyle/intelligentAnalysis.scss';
-</style>
 
 <style lang="scss" scoped>
 .btns {

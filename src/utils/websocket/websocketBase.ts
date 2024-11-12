@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-05-30 09:55:33
  * @Description: websocket基础类
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 16:25:55
  */
 export interface WebsocketBaseOption {
     onopen?: (param: string) => void

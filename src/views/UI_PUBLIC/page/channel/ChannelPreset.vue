@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-20 13:57:01
  * @Description: 云台-预置点
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 14:06:38
 -->
 <template>
     <div class="base-chl-box">
@@ -138,7 +136,3 @@
 </template>
 
 <script lang="ts" src="./ChannelPreset.v.ts"></script>
-
-<style lang="scss">
-@import '@/views/UI_PUBLIC/publicStyle/channel.scss';
-</style>

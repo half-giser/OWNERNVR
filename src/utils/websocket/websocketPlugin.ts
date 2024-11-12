@@ -2,8 +2,6 @@
  * @Author: xujp xujp@tvt.net.cn
  * @Date: 2023-05-26 17:27:29
  * @Description: websocket开启视频插件播放视频功能 插件2.0基础类
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-06 16:56:15
  */
 const logInfoMapping = {
     pluginMainProcess: {

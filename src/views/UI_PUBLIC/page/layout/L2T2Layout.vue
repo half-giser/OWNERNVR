@@ -2,10 +2,7 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-04-20 16:04:39
  * @Description: 二级类型2布局页--适用于“搜索和备份”、“智能分析”、“业务应用”等
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 14:22:45
 -->
-
 <template>
     <el-container id="layout2">
         <el-header id="layout2Header">
@@ -41,14 +38,14 @@
 
 #layout2Header {
     background-color: var(--main-bg);
-    padding: 0px;
+    padding: 0;
     height: 38px;
     border-bottom: solid 1px var(--content-border);
 }
 
 #layout2Main {
     flex: auto 1 1;
-    padding: 0px;
+    padding: 0;
     background-color: var(--main-bg);
     display: flex;
 }
@@ -65,20 +62,24 @@
         --el-menu-active-color: var(--tabbar-text);
         --el-menu-text-color: var(--tabbar-text);
         --el-menu-hover-bg-color: var(--tabbar-bg);
+
         border-top: solid 1px var(--content-border);
         border-bottom: solid 1px var(--content-border);
         border-right: solid 1px var(--content-border);
-        margin: 0px;
+        margin: 0;
         line-height: 28px;
         height: 28px;
         background-color: var(--tabbar-bg);
+
         &:first-of-type {
             border-left: solid 1px var(--content-border);
         }
+
         &:hover {
             color: var(--tabbar-text-hover);
             background-color: var(--tabbar-bg-hover, var(--primary-light));
         }
+
         &.active {
             background-color: var(--tabbar-bg-active);
             color: var(--tabbar-text-active) !important;

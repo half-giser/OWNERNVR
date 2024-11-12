@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-22 16:42:37
  * @Description: 现场预览-目标检测视图-人脸比对项组件
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-27 13:34:48
 -->
 <template>
     <div

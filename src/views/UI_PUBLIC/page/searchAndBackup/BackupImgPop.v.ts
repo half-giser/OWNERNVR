@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-12 13:46:24
  * @Description: 备份图像弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:23:02
  */
 import { type FormInstance } from 'element-plus'
 import { type PlaybackSearchImgList } from '@/types/apiType/playback'
@@ -100,7 +98,7 @@ export default defineComponent({
                                 return rawXml`
                                     <item>
                                         <chl id="${row.chlId}">${row.chlName}</chl>
-                                        <captureMode>${row.captureMode.toString()}</captureMode>
+                                        <captureMode>${row.captureMode}</captureMode>
                                         <captureTime>${row.captureTime}</captureTime>
                                     </item>
                                 `

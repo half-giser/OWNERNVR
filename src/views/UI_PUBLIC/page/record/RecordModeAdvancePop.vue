@@ -2,8 +2,6 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-07-29 14:15:40
  * @Description: 新建录像模式
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-01 18:42:43
 -->
 <template>
     <el-dialog

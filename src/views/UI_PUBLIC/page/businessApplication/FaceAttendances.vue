@@ -2,8 +2,6 @@
  * @Author: zhangdongming zhangdongming@tvt.net.cn
  * @Date: 2024-06-05 18:18:24
  * @Description: 业务应用-人脸考勤
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 14:23:28
 -->
 <template>
     <div class="base-flex-box">
@@ -254,6 +252,7 @@
                     width: 550px !important;
                     flex-shrink: 0;
                 }
+
                 & > .el-form-item:last-child {
                     width: calc(100% - 550px) !important;
                 }

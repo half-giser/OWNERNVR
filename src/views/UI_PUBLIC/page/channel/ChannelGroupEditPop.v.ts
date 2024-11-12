@@ -4,14 +4,14 @@
  * @Description: 通道组 - 编辑弹窗
  */
 
-import { ChlGroup } from '@/types/apiType/channel'
+import { ChannelGroupDto } from '@/types/apiType/channel'
 import { cloneDeep } from 'lodash-es'
 import { type FormRules, type FormInstance } from 'element-plus'
 
 export default defineComponent({
     props: {
         editItem: {
-            type: Object as PropType<ChlGroup>,
+            type: Object as PropType<ChannelGroupDto>,
             required: true,
         },
     },
@@ -19,7 +19,7 @@ export default defineComponent({
         close() {
             return true
         },
-        callBack(data: ChlGroup) {
+        callBack(data: ChannelGroupDto) {
             return !!data
         },
     },
@@ -28,7 +28,7 @@ export default defineComponent({
         const { openLoading, closeLoading } = useLoading()
         const { openMessageBox } = useMessageBox()
         const formRef = ref<FormInstance>()
-        const formData = ref(new ChlGroup())
+        const formData = ref(new ChannelGroupDto())
         const timeList = [5, 10, 20, 30, 60, 120, 300, 600]
 
         const rules = ref<FormRules>({
@@ -70,7 +70,7 @@ export default defineComponent({
                 <content>
                     <id>${formData.value.id}</id>
                     <name maxByteLen="63">${wrapCDATA(formData.value.name)}</name>
-                    <dwellTime unit='s'>${formData.value.dwellTime.toString()}</dwellTime>
+                    <dwellTime unit='s'>${formData.value.dwellTime}</dwellTime>
                 </content>`
             openLoading()
             editChlGroup(sendXml).then((res) => {

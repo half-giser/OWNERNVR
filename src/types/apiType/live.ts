@@ -2,8 +2,10 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-17 11:31:57
  * @Description: 现场预览
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-25 18:23:08
+ */
+
+/**
+ * @description 现场预览 通道列表项
  */
 export class LiveChannelList {
     id = ''
@@ -18,22 +20,34 @@ export class LiveChannelList {
     poeSwitch = false
 }
 
+/**
+ * @description 现场预览 通道组列表项
+ */
 export class LiveChannelGroupList {
     id = ''
     value = ''
     dwellTime = 0
 }
 
+/**
+ * @description 现场预览 通道组通道列表项
+ */
 export class LiveChlOfChannelGroupList {
     id = ''
     value = ''
 }
 
+/**
+ * @description 现场预览 自定义视图通道列表项
+ */
 export class LiveCustomViewChlList {
     chlId = ''
     chlIndex = 0
 }
 
+/**
+ * @description 现场预览 自定义视图列表项
+ */
 export class LiveCustomViewList {
     chlArr = [] as LiveCustomViewChlList[]
     historyPlay = ''
@@ -42,6 +56,9 @@ export class LiveCustomViewList {
     id = 0
 }
 
+/**
+ * @description 现场预览 报警列表项
+ */
 export class LiveAlarmList {
     id = ''
     name = ''
@@ -49,12 +66,18 @@ export class LiveAlarmList {
     delay = 0
 }
 
+/**
+ * @description 现场预览 分辨率选项
+ */
 export class LiveResolutionOptions {
     value = ''
     label = ''
     maxFps = 0
 }
 
+/**
+ * @description 现场预览 质量选项
+ */
 export class LiveQualityOptions {
     value = ''
     enct = ''
@@ -62,18 +85,27 @@ export class LiveQualityOptions {
     chlType = ''
 }
 
+/**
+ * @description 现场预览 码流表单
+ */
 export class LiveStreamForm {
     resolution = ''
     frameRate = 0
     quality = ''
 }
 
+/**
+ * @description 现场预览 镜头 表单
+ */
 export class LiveLensForm {
     focusType = ''
     focusTime = 0
     irchangeFocus = false
 }
 
+/**
+ * @description 现场预览 窗口数据
+ */
 export class LiveSharedWinData {
     PLAY_STATUS = 'stop' as 'play' | 'stop' | 'error'
     winIndex = 0

@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-07 09:15:58
  * @Description: 用户通道权限
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:20:13
  */
 export class UserChlAuth {
     // 是否拥有全部权限

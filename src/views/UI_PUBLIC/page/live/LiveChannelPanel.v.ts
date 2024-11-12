@@ -2,13 +2,11 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-26 17:03:07
  * @Description: 现场预览-通道视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-21 11:54:08
  */
 import ChannelGroupEditPop from '../channel/ChannelGroupEditPop.vue'
 import ChannelGroupAddPop from '../channel/ChannelGroupAddPop.vue'
 import { type LiveChannelList, type LiveChannelGroupList, type LiveChlOfChannelGroupList, type LiveCustomViewList, type LiveCustomViewChlList } from '@/types/apiType/live'
-import { ChlGroup } from '@/types/apiType/channel'
+import { ChannelGroupDto } from '@/types/apiType/channel'
 
 export interface ChannelPanelExpose {
     getOnlineChlList: () => string[]
@@ -118,7 +116,7 @@ export default defineComponent({
             // 打开编辑通道组弹窗
             isEditChlGroup: false,
             // 编辑数据
-            editChlGroup: new ChlGroup(),
+            editChlGroup: new ChannelGroupDto(),
             // 通道视图是否显示
             isOpen: true,
         })

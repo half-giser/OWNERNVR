@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-10 09:13:17
  * @Description: DDNS
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-05 11:44:13
  */
 import { NetDDNSForm, NetDDNSServerTypeList } from '@/types/apiType/net'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -250,7 +248,7 @@ export default defineComponent({
                 : ''
             const sendXml = rawXml`
                 <content>
-                    <switch>${formData.value.switch.toString()}</switch>
+                    <switch>${formData.value.switch}</switch>
                     ${enableXml}
                     ${formData.value.heartbeatTime ? `<heartbeatTime>${formData.value.heartbeatTime}</heartbeatTime>` : ''}
                 </content>
@@ -259,7 +257,7 @@ export default defineComponent({
         }
 
         /**
-         * @description 更新数据
+         * @description 符合条件后，更新数据
          */
         const setData = () => {
             formRef.value!.validate(async (valid) => {
@@ -287,6 +285,9 @@ export default defineComponent({
             })
         }
 
+        /**
+         * @description 更新数据
+         */
         const confirmSetData = async () => {
             const result = await editDDNSCfg(getSetDataXml())
 

@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-07 15:00:44
  * @Description: 加密密码弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-12 09:47:41
  */
 import { type FormInstance, type FormRules } from 'element-plus'
 import { UserInputEncryptPwdForm } from '@/types/apiType/user'

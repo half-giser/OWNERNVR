@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-05 08:54:10
  * @Description: 生成雪碧图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-02 09:01:52
  */
 import { type Plugin } from 'vite'
 
@@ -34,17 +32,17 @@ function generateSprite(option: GenerateSpriteOption) {
                 console.log(Chalk.red.bold('ERROR'), Chalk.white(`GenerateSprite Error: ${err}`))
                 reject(err)
             }
-            const coordinates: typeof result.coordinates = {}
+            const coordinates: Record<string, number[]> = {}
             Object.keys(result.coordinates).forEach((key) => {
                 const split = key.split('/')
                 const keyName = split[split.length - 1].split('.')[0]
-                coordinates[keyName] = result.coordinates[key]
+                const { x, y, width, height } = result.coordinates[key]
+                coordinates[keyName] = [x, y, width, height]
             })
             const data = {
                 properties: result.properties,
                 coordinates,
             }
-            // const text = `const sprite:ImageSprite={properties:${JSON.stringify(result.properties)},coordinates:${JSON.stringify(coordinates)}};export default sprite`
             const ms = new MagicString(JSON.stringify(data))
             ms.prepend(`const sprite:ImageSprite=`)
             ms.append(`;export default sprite`)

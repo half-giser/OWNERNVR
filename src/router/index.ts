@@ -2,8 +2,6 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-04-16 13:47:54
  * @Description: 路由构建入口文件
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-05 17:17:46
  */
 import { createRouter, createWebHashHistory, type RouteLocationNormalized } from 'vue-router'
 import { buildRouter } from './featureConfig/RouteUtil'

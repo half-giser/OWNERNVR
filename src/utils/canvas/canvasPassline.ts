@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-05-31 17:08:25
  * @Description: 支持业务：越界、过线统计画线；三种模式：A->B、A<->B、A<-B
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-05-31 18:02:20
  */
 import CanvasBase, { type CanvasBaseLineStyleOption } from './canvasBase'
 

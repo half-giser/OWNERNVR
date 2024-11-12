@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-05-31 17:14:06
  * @Description: 打点绘制闭合多边形, 绘制矩形；支持业务：区域入侵、车牌侦测，视频结构化，物品遗留与看护
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-05-31 19:04:47
  */
 
 import CanvasBase, { type CanvasBaseLineStyleOption, type CanvasBasePoint } from './canvasBase'

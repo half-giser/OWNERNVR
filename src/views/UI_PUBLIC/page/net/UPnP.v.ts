@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-11 08:56:08
  * @Description: UPnP配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 12:01:34
  */
 import { NetUPnPForm, type NetUPnPPortDto } from '@/types/apiType/net'
 
@@ -12,7 +10,6 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
-        // const theme = import.meta.env.VITE_UI_TYPE
 
         // 显示文本映射
         const TRANS_MAPPING: Record<string, string> = {
@@ -155,7 +152,7 @@ export default defineComponent({
                     <statusType>${wrapEnums(['effective', 'ineffective'])}</statusType>
                 </types>
                 <content>
-                    <switch>${formData.value.switch.toString()}</switch>
+                    <switch>${formData.value.switch}</switch>
                     <mappingType>${formData.value.mappingType}</mappingType>
                     <ports type="list">
                         ${tableData.value
@@ -163,7 +160,7 @@ export default defineComponent({
                                 return rawXml`
                                     <item>
                                         <portType>${item.portType}</portType>
-                                        <externalPort>${item.externalPort.toString()}</externalPort>
+                                        <externalPort>${item.externalPort}</externalPort>
                                     </item>
                                 `
                             })

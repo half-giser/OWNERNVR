@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-03 09:08:22
  * @Description: 新增车牌弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-27 16:16:28
 -->
 <template>
     <el-dialog

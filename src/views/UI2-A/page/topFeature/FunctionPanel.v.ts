@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-26 15:32:02
  * @Description: UI2-A 客制化功能面板
- * @LastEditors: tengxiang tengxiang@tvt.net.cn
- * @LastEditTime: 2024-11-01 15:25:16
  */
 import { getMenuItems } from '@/router'
 

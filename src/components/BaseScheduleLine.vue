@@ -582,7 +582,7 @@ defineExpose({
     .selectTip {
         flex: 0 0 auto;
         font-size: 12px;
-        padding: 0px 2px;
+        padding: 0 2px;
         height: 16px;
         background-color: var(--primary-light);
     }

@@ -125,7 +125,6 @@
                                                 :key="index"
                                                 :label="index + 1"
                                                 :value="index"
-                                                :class="{ configured_area: detectionPageData.reginConfiguredArea[index] }"
                                             />
                                         </el-radio-group>
                                     </el-form-item>
@@ -140,7 +139,6 @@
                                                 :key="index"
                                                 :label="index + 1"
                                                 :value="index"
-                                                :class="{ configured_area: detectionPageData.maskConfiguredArea[index] }"
                                             />
                                         </el-radio-group>
                                     </el-form-item>
@@ -371,10 +369,6 @@
 
 <script lang="ts" src="./LPR.v.ts"></script>
 
-<style>
-@import '@/views/UI_PUBLIC/publicStyle/aiAndEvent.scss';
-</style>
-
 <style lang="scss" scoped>
 // 高级设置
 .more_wrap {
@@ -398,19 +392,15 @@
     position: absolute;
     right: 20px;
     top: 3px;
+
     span {
         font-size: 20px;
         padding: 0 5px;
         cursor: pointer;
     }
+
     .removeDisabled {
         color: var(--main-text-light);
-    }
-}
-.configured_area {
-    :deep(.el-radio-button__inner) {
-        border: 1px solid --primary !important;
-        color: --primary;
     }
 }
 </style>

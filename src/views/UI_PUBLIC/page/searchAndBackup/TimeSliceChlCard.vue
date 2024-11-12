@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-12 17:41:35
  * @Description: 按时间切片 缩略图卡片
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-14 16:36:14
 -->
 <template>
     <div
@@ -53,6 +51,7 @@
         .item-thumbnail {
             border-color: var(--primary);
         }
+
         .item-time {
             border-color: var(--primary);
             background-color: var(--primary);

@@ -394,10 +394,6 @@
 
 <script lang="ts" src="./CombinationAlarm.v.ts"></script>
 
-<style>
-@import '@/views/UI_PUBLIC/publicStyle/aiAndEvent.scss';
-</style>
-
 <style lang="scss" scoped>
 :deep(.el-table .cell) {
     display: flex;

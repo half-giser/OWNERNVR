@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-30 09:26:01
  * @Description: 人脸库 - 添加人脸
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 17:29:49
 -->
 <template>
     <el-dialog
@@ -134,7 +132,7 @@
             <IntelFaceDBChooseFacePop
                 v-model="pageData.isChooseFacePop"
                 @choose="confirmChooseFace"
-                @import-files="confirmImportFace"
+                @use-files="confirmImportFace"
                 @close="pageData.isChooseFacePop = false"
             />
         </div>

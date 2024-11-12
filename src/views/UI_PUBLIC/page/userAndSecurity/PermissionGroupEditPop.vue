@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-17 20:25:35
  * @Description: 编辑权限组弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-04 15:41:45
 -->
 <template>
     <el-dialog
@@ -198,80 +196,3 @@
 </template>
 
 <script lang="ts" src="./PermissionGroupEditPop.v.ts"></script>
-
-<style>
-@import '@/views/UI_PUBLIC/publicStyle/userAndSecurity.scss';
-</style>
-
-<style lang="scss" scoped>
-.PermGroupEdit {
-    .system {
-        display: flex;
-        width: 100%;
-
-        & > div {
-            width: 50%;
-        }
-
-        .title {
-            border-left: 3px solid var(--content-border);
-            height: 30px;
-            line-height: 30px;
-            padding-left: 15px;
-            margin-left: 15px;
-        }
-
-        .list {
-            display: flex;
-            flex-wrap: wrap;
-            padding-left: 30px;
-            margin: 0;
-
-            & > li {
-                list-style: none;
-                width: 50%;
-            }
-        }
-    }
-
-    .channel {
-        height: 100%;
-        margin-top: 10px;
-        display: flex;
-        flex-direction: column;
-
-        ul {
-            display: flex;
-            justify-content: center;
-            margin: 0;
-            padding: 5px;
-            flex-shrink: 0;
-        }
-
-        :deep(.el-table) {
-            height: 200px;
-        }
-
-        .list {
-            position: relative;
-            height: 200px;
-            width: 100%;
-
-            & > div {
-                position: absolute;
-                top: 0;
-                left: 0;
-                opacity: 0;
-                pointer-events: none;
-                width: 100%;
-                height: 200px;
-
-                &.active {
-                    opacity: 1;
-                    pointer-events: unset;
-                }
-            }
-        }
-    }
-}
-</style>

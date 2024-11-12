@@ -73,7 +73,6 @@ export default defineComponent({
 
         const tableData = ref([] as AlarmSystemDisarmDto[])
         const cfgTableData = ref([] as { id: string; value: string; selected: boolean }[])
-        // const dropDownRef = ref<InstanceType<typeof ElDropdown>>()
         // 获取在线的通道列表
         const getOnlineChlList = async () => {
             const onlineChls = await queryOnlineChlList()

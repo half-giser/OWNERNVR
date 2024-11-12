@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-05 17:42:11
  * @Description: 智能分析 - 人体搜索
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 14:58:58
 -->
 <template>
     <div class="base-intel-box">
@@ -249,7 +247,3 @@
 </template>
 
 <script lang="ts" src="./IntelBodySearch.v.ts"></script>
-
-<style lang="scss">
-@import '@/views/UI_PUBLIC/publicStyle/intelligentAnalysis.scss';
-</style>

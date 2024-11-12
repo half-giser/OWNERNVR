@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-04 11:34:14
  * @Description: 回放弹窗（OCX+H5）
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-29 18:03:48
 -->
 <template>
     <el-dialog
@@ -578,7 +576,7 @@ export class PlaybackPopList {
 
     .start-time,
     .end-time {
-        padding: 5px 5px;
+        padding: 5px;
         font-size: 12px;
         width: 80px;
         flex-shrink: 0;

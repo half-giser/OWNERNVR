@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-05-30 15:59:38
  * @Description: websocket 订阅实时抓拍
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-29 14:40:56
  */
 
 import WebsocketBase from './websocketBase'

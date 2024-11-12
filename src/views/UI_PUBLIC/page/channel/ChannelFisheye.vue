@@ -243,7 +243,3 @@
 </template>
 
 <script lang="ts" src="./ChannelFisheye.v.ts"></script>
-
-<style lang="scss">
-@import '@/views/UI_PUBLIC/publicStyle/channel.scss';
-</style>

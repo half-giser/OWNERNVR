@@ -7,10 +7,16 @@ import { type AlarmPresetPopDto, type AlarmPresetItem } from '@/types/apiType/ai
 
 export default defineComponent({
     props: {
+        /**
+         * @property {Array} 通道列表
+         */
         data: {
             type: Array as PropType<AlarmPresetPopDto[]>,
             required: true,
         },
+        /**
+         * @property {number} 通道索引
+         */
         index: {
             type: Number,
             required: true,
@@ -34,6 +40,7 @@ export default defineComponent({
 
         const reqMap: Record<string, boolean> = {}
 
+        // 选中的预置点
         const selected = computed(() => {
             const selectedData: Record<string, string> = {}
             pageData.value.currentValue.forEach((item) => {
@@ -55,6 +62,9 @@ export default defineComponent({
             return selectedData
         })
 
+        /**
+         * @description 获取通道列表
+         */
         const getChannelList = async () => {
             const result = await getChlList({
                 isSupportPtz: true,
@@ -83,6 +93,10 @@ export default defineComponent({
             })
         }
 
+        /**
+         * @description 获取预置点列表
+         * @param {SelectOption<string, string>} chl
+         */
         const getPresetList = async (chl: SelectOption<string, string>) => {
             if (reqMap[chl.value]) {
                 return
@@ -112,6 +126,11 @@ export default defineComponent({
             })
         }
 
+        /**
+         * @description 更改选项
+         * @param {SelectOption<string, string>} chl
+         * @param {number} presetIndex
+         */
         const change = (chl: SelectOption<string, string>, presetIndex: string) => {
             const presetItems = [...pageData.value.currentValue]
             const preset = pageData.value.presetList[chl.value].find((item) => item.value === presetIndex)!
@@ -140,6 +159,9 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 回显的通道列表
+         */
         const chlList = computed(() => {
             const find = prop.data[prop.index]
             if (find) {
@@ -148,14 +170,23 @@ export default defineComponent({
             return pageData.value.chlList
         })
 
+        /**
+         * @description 打开弹窗时 更新弹窗回显的数据
+         */
         const open = () => {
             pageData.value.currentValue = prop.data[prop.index].preset.presets
         }
 
+        /**
+         * @description 确认
+         */
         const confirm = () => {
             ctx.emit('confirm', prop.index, pageData.value.currentValue)
         }
 
+        /**
+         * @description 取消
+         */
         const close = () => {
             ctx.emit('confirm', prop.index, prop.data[prop.index].preset.presets)
         }

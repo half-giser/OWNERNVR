@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-12 09:22:23
  * @Description: 智能分析 - 人脸比对结果弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-14 11:47:07
  */
 import { IntelFaceMatchPopList } from '@/types/apiType/intelligentAnalysis'
 import IntelBasePanoramaPop from './IntelBasePanoramaPop.vue'

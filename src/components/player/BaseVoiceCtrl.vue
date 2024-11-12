@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-05 10:57:42
  * @Description: 音量控件
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-23 13:57:17
 -->
 <template>
     <div class="VoiceCtrl">
@@ -101,10 +99,12 @@ watch(
 .VoiceCtrl {
     display: flex;
     align-items: center;
+
     .icon {
         cursor: pointer;
         flex-shrink: 0;
     }
+
     .bar {
         margin-left: 20px;
         width: 100%;

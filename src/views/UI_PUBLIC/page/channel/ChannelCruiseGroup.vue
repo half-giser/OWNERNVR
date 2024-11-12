@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-20 13:57:26
  * @Description: 巡航线组
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 14:39:34
 -->
 <template>
     <div class="base-chl-box">
@@ -137,7 +135,3 @@
 </template>
 
 <script lang="ts" src="./ChannelCruiseGroup.v.ts"></script>
-
-<style lang="scss">
-@import '@/views/UI_PUBLIC/publicStyle/channel.scss';
-</style>

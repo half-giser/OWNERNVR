@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-21 18:46:16
  * @Description: 磁盘状态
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 17:48:42
 -->
 <template>
     <div class="base-flex-box">

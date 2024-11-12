@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-11-08 10:15:46
  * @Description: 普通事件-联动-报警输出
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-08 13:39:31
 -->
 <template>
     <div>

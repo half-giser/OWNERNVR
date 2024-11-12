@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-06 16:42:13
  * @Description: 智能分析 属性选择器
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-14 13:44:59
  */
 import {
     GENDER_MAP,

@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-10-23 10:36:10
  * @Description: LOGO设置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 18:35:57
 -->
 <template>
     <div class="base-chl-box">
@@ -114,8 +112,6 @@
                                         <el-dropdown-item
                                             v-for="item in pageData.switchOptions"
                                             :key="item.value"
-                                            :value="item.value"
-                                            :label="item.label"
                                             @click="changeAllSwitch(item.value)"
                                         >
                                             {{ item.label }}
@@ -177,7 +173,3 @@
 </template>
 
 <script lang="ts" src="./ChannelLogo.v.ts"></script>
-
-<style lang="scss">
-@import '@/views/UI_PUBLIC/publicStyle/channel.scss';
-</style>

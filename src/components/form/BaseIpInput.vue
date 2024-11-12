@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-04 10:26:32
  * @Description: IPv4地址输入框
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-31 18:32:49
 -->
 <template>
     <div
@@ -254,8 +252,6 @@ const handleBlur = () => {
     }
 
     input {
-        height: 100%;
-        border: none;
         max-width: 25%;
         font-size: inherit;
         line-height: calc(var(--el-component-size) - 4px);

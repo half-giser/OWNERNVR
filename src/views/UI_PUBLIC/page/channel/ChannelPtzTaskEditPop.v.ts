@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-22 15:16:17
  * @Description: 云台-任务-编辑弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 15:02:44
  */
 import { type ChannelPtzTaskDto, ChannelPtzTaskForm } from '@/types/apiType/channel'
 import { type FormInstance, type FormRules } from 'element-plus'

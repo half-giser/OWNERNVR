@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-12 10:39:32
  * @Description: 智能分析 - 人脸搜索 - 选择人脸弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 14:27:33
 -->
 <template>
     <el-dialog
@@ -174,6 +172,7 @@
             }
         }
     }
+
     &-right {
         height: 460px;
     }

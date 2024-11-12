@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-06 20:38:08
  * @Description: 回放-底部控制视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-22 17:31:33
  */
 import { type LiveSharedWinData } from '@/types/apiType/live'
 

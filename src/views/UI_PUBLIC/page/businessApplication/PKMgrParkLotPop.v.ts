@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-28 14:12:55
  * @Description: 实时过车记录 - 详情弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-04 17:15:20
  */
 import { BusinessParkingLotList, type BusinessParkingLotRelevantList } from '@/types/apiType/business'
 import dayjs from 'dayjs'

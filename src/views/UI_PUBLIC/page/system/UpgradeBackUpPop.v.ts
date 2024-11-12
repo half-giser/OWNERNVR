@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-27 16:34:38
  * @Description: 系统升级-备份弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 15:29:57
  */
 import type { FormInstance, FormRules } from 'element-plus'
 import { SystemUpgradeBackUpForm } from '@/types/apiType/system'

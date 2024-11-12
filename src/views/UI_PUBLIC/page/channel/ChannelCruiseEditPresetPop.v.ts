@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-21 17:52:33
  * @Description: 云台-巡航线-新增/编辑预置点弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 11:51:20
  */
 import type { FormInstance, FormRules } from 'element-plus'
 import { ChannelPtzCruisePresetDto, ChannelPtzCruisePresetForm } from '@/types/apiType/channel'

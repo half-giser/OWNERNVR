@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-30 18:47:52
  * @Description: 智能分析 - 选择人脸 - 从抓拍库选择
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-12 10:32:06
  */
 import { cloneDeep } from 'lodash-es'
 import { type IntelFaceDBSnapFaceList } from '@/types/apiType/intelligentAnalysis'
@@ -210,7 +208,7 @@ export default defineComponent({
             }
             const sendXml = rawXml`
                 <condition>
-                    <imgId>${item.imgId.toString()}</imgId>
+                    <imgId>${item.imgId}</imgId>
                     <chlId>${item.chlId}</chlId>
                     <frameTime>${item.frameTime}</frameTime>
                     <featureStatus>true</featureStatus>

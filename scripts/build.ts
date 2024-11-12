@@ -2,7 +2,7 @@ import { resolve } from 'path'
 import { cwd } from 'process'
 import pkg from '../package.json'
 
-const whitelist = ['vue']
+const whitelist = ['vue', '@bassist/utils', 'js-md5']
 
 type ChunkKey = keyof typeof pkg.dependencies
 

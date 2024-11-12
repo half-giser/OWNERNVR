@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-12 17:39:00
  * @Description: 时间切片-概览界面(按通道/按时间)
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 17:40:03
 -->
 <template>
     <div class="top">
@@ -117,7 +115,7 @@
         position: relative;
         line-height: 32px;
 
-        &:after {
+        &::after {
             width: calc(100% - 100px);
             right: 100px;
             height: 1px;

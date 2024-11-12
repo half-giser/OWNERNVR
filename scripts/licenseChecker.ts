@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-07 15:12:23
  * @Description: 生成license列表文件
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-02 09:03:11
  */
 import * as checker from 'license-checker-rseidelsohn'
 import * as fs from 'node:fs'
@@ -41,10 +39,10 @@ const MAIN_DEPENDENCY: Record<string, { licensePath: string; target: string }> =
         licensePath: 'https://github.com/chengpeiquan/chengpeiquan.com/blob/main/LICENSE',
         target: '用于进度条组件显示',
     },
-    '@bassist/utils': {
-        licensePath: 'https://github.com/chengpeiquan/chengpeiquan.com/blob/main/LICENSE',
-        target: '用于进度条组件显示',
-    },
+    // '@bassist/utils': {
+    //     licensePath: 'https://github.com/chengpeiquan/chengpeiquan.com/blob/main/LICENSE',
+    //     target: '用于进度条组件显示',
+    // },
     'crypto-js': {
         licensePath: 'https://github.com/brix/crypto-js/blob/develop/LICENSE',
         target: '用于数据加密、哈希',
@@ -53,10 +51,10 @@ const MAIN_DEPENDENCY: Record<string, { licensePath: string; target: string }> =
         licensePath: 'https://github.com/dankogai/js-base64/blob/main/LICENSE.md',
         target: '用于Base64编解码',
     },
-    'js-md5': {
-        licensePath: 'https://github.com/emn178/js-md5/blob/master/LICENSE.txt',
-        target: '用于MD5哈希',
-    },
+    // 'js-md5': {
+    //     licensePath: 'https://github.com/emn178/js-md5/blob/master/LICENSE.txt',
+    //     target: '用于MD5哈希',
+    // },
     jsencrypt: {
         licensePath: 'https://github.com/travist/jsencrypt/blob/master/LICENSE.txt',
         target: '用于数据加密',

@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-15 18:18:50
  * @Description: OVNIF
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:00:34
  */
 import { NetOnvifForm, NetOnvifUserList } from '@/types/apiType/net'
 import ONVIFUserAddPop from './ONVIFUserAddPop.vue'
@@ -167,7 +165,7 @@ export default defineComponent({
 
             const sendXml = rawXml`
                 <content>
-                    <switch>${formData.value.switch.toString()}</switch>
+                    <switch>${formData.value.switch}</switch>
                     ${ternary(isAutoOpenRtsp, `<autoOpenRtsp>true</autoOpenRtsp>`, '')}
                 </content>
             `

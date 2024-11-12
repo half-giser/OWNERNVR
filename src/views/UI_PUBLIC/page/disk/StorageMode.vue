@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-05 10:10:29
  * @Description: 存储模式配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-18 10:30:05
 -->
 <template>
     <div>
@@ -227,6 +225,7 @@
 .chl-list,
 .chl-title {
     --h: 1;
+
     height: calc(var(--h) * 107px);
     min-height: 107px;
 }

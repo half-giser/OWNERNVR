@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-25 13:42:29
  * @Description: 现场预览-鱼眼视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-25 16:10:55
 -->
 <template>
     <div class="fisheye">
@@ -67,7 +65,7 @@
         padding-top: 20px;
         border-bottom: 1px solid var(--content-border);
         color: var(--dialog-title);
-        margin: 5px 5px;
+        margin: 5px;
     }
 
     &-btns {

@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-05-30 14:08:47
  * @Description: websocket 导入车牌库
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-03 11:21:01
  */
 import WebsocketBase from './websocketBase'
 import { type CmdPlateLibImportDataList } from './websocketCmd'

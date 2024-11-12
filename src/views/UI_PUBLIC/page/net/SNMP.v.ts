@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-12 18:21:09
  * @Description: SNMP配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:05:31
  */
 import { NetSNMPForm } from '@/types/apiType/net'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -116,13 +114,13 @@ export default defineComponent({
 
                 const sendXml = rawXml`
                     <content>
-                        <snmpv1Switch>${formData.value.snmpv1Switch.toString()}</snmpv1Switch>
-                        <snmpv2Switch>${formData.value.snmpv2Switch.toString()}</snmpv2Switch>
-                        <snmpPort>${formData.value.snmpPort.toString()}</snmpPort>
+                        <snmpv1Switch>${formData.value.snmpv1Switch}</snmpv1Switch>
+                        <snmpv2Switch>${formData.value.snmpv2Switch}</snmpv2Switch>
+                        <snmpPort>${formData.value.snmpPort}</snmpPort>
                         <readCommunity>${formData.value.readCommunity}</readCommunity>
                         <writeCommunity>${formData.value.writeCommunity}</writeCommunity>
                         <trapAddress>${formData.value.trapAddress}</trapAddress>
-                        <trapPort>${formData.value.trapPort.toString()}</trapPort>
+                        <trapPort>${formData.value.trapPort}</trapPort>
                     </content>
                 `
                 const result = await editSNMPCfg(sendXml)

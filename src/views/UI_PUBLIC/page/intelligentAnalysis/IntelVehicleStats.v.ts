@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-04 14:57:50
  * @Description: 智能分析-车辆统计
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:18:20
  */
 import IntelBaseChannelSelector from './IntelBaseChannelSelector.vue'
 import IntelBaseEventSelector from './IntelBaseEventSelector.vue'
@@ -120,8 +118,8 @@ export default defineComponent({
                 <condition>
                     <startTime>${formatDate(formData.value.dateRange[0], 'YYYY-MM-DD HH:mm:ss')}</startTime>
                     <endTime>${formatDate(formData.value.dateRange[1], 'YYYY-MM-DD HH:mm:ss')}</endTime>
-                    <timeQuantum>${stats.getTimeQuantum().toString()}</timeQuantum>
-                    <deduplicate>${formData.value.deduplicate.toString()}</deduplicate>
+                    <timeQuantum>${stats.getTimeQuantum()}</timeQuantum>
+                    <deduplicate>${formData.value.deduplicate}</deduplicate>
                     <chls type="list">${formData.value.chl.map((item) => `<item id="${item}"></item>`).join('')}</chls>
                     <events type="list">${formData.value.event.map((item) => `<item>${item}</item>`).join('')}</events>
                     <vehicle type="list">${formData.value.attribute.map((item) => `<item>${item}</item>`).join('')}</vehicle>

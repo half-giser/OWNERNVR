@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-30 11:57:52
  * @Description: 智能分析 - 选择人脸 - 从人脸库选择
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 10:54:50
 -->
 <template>
     <div class="feature">

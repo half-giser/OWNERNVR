@@ -3,7 +3,6 @@
  * @Date: 2024-07-17 15:44:13
  * @Description: 录像-模式配置
 -->
-
 <template>
     <div>
         <div class="base-subheading-box">{{ Translate('IDCS_RECORD_MODE') }}</div>
@@ -314,7 +313,7 @@
 
 <style lang="scss" scoped>
 .subcontent-box {
-    padding: 0 0px 30px 15px;
+    padding: 0 0 30px 15px;
     font-size: 15px;
 
     .base-btn-box {

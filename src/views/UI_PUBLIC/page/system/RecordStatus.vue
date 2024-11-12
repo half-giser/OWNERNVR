@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-21 14:31:21
  * @Description: 录像状态
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-16 13:55:56
 -->
 <template>
     <div class="base-flex-box">

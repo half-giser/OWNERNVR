@@ -7,10 +7,16 @@ import { type CheckboxGroupValueType } from 'element-plus'
 
 export default defineComponent({
     props: {
+        /**
+         * @property {Array} 选中值
+         */
         modelValue: {
             type: Array as PropType<string[]>,
             required: true,
         },
+        /**
+         * @property {Array} 包含的选项
+         */
         include: {
             type: Array as PropType<string[]>,
             default: () => ['snapSwitch', 'msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch'],
@@ -24,6 +30,7 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
 
+        // 联动类型与文本的映射
         const TRIGGER_MAPPING: Record<string, string> = {
             snapSwitch: Translate('IDCS_SNAP'),
             msgPushSwitch: Translate('IDCS_PUSH'),
@@ -35,6 +42,7 @@ export default defineComponent({
             triggerWhiteLight: 'IPC_' + Translate('IDCS_LIGHT'),
         }
 
+        // 联动选项
         const triggerList = computed(() => {
             return prop.include.map((value) => {
                 return {
@@ -44,10 +52,14 @@ export default defineComponent({
             })
         })
 
+        // 是否全选
         const isCheckAll = computed(() => {
             return triggerList.value.length <= prop.modelValue.length
         })
 
+        /**
+         * @description 全选 / 取消全选
+         */
         const toggleCheckAll = () => {
             if (isCheckAll.value) {
                 ctx.emit('update:modelValue', [])
@@ -59,6 +71,10 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 修改选项
+         * @param {string[]} val
+         */
         const change = (val: CheckboxGroupValueType) => {
             ctx.emit('update:modelValue', val as string[])
         }

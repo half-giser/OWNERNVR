@@ -2,10 +2,7 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-07-31 16:36:16
  * @Description: 排程编辑弹框
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-01 16:57:55
  */
-import type BaseScheduleWeek from '@/components/BaseScheduleWeek.vue'
 import { ScheduleInfo } from '@/types/apiType/schedule'
 import { type FormInstance, type FormRules } from 'element-plus'
 
@@ -26,7 +23,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const openMessageBox = useMessageBox().openMessageBox
         const { openLoading, closeLoading } = useLoading()
-        const scheduleWeekRef: Ref<InstanceType<typeof BaseScheduleWeek> | null> = ref(null)
+        const scheduleWeekRef = ref<ScheduleWeekInstance>()
 
         const pageData = ref({
             dragAction: 'add',

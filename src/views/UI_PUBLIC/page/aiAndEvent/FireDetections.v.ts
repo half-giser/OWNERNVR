@@ -29,14 +29,23 @@ export default defineComponent({
             type: String,
             required: true,
         },
+        /**
+         * @property {AlarmChlDto} 通道数据
+         */
         chlData: {
             type: Object as PropType<AlarmChlDto>,
             required: true,
         },
+        /**
+         * @property {Array} 声音选项
+         */
         voiceList: {
             type: Array as PropType<SelectOption<string, string>[]>,
             required: true,
         },
+        /**
+         * @property {Array} 在线通道列表
+         */
         onlineChannelList: {
             type: Array as PropType<{ id: string; ip: string; name: string; accessType: string }[]>,
             required: true,

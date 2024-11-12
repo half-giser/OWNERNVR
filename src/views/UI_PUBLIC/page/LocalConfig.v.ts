@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-19 14:43:09
  * @Description: 本地配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-19 16:26:10
  */
 import type { FormInstance, FormRules } from 'element-plus'
 import { SystemLocalConfig } from '@/types/apiType/system'

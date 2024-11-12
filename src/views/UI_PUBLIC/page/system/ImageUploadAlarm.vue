@@ -2,8 +2,6 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-10-23 15:46:35
  * @Description: 报警图像上传
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 09:33:40
 -->
 <template>
     <div class="base-flex-box">
@@ -57,8 +55,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.pretimeList"
                                         :key="item.value"
-                                        :value="item.value"
-                                        :label="item.label"
                                         @click="handlePreTimeChangeAll(item.value)"
                                     >
                                         {{ item.label }}
@@ -93,8 +89,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.saveTimeList"
                                         :key="item.value"
-                                        :value="item.value"
-                                        :label="item.label"
                                         @click="handleSaveTimeChangeAll(item.value)"
                                     >
                                         {{ item.label }}

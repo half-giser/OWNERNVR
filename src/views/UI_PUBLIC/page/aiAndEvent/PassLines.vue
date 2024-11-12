@@ -64,7 +64,6 @@
             <div class="base-ai-param-box-left fixed">
                 <div class="player">
                     <BaseVideoPlayer
-                        id="player"
                         ref="playerRef"
                         type="live"
                         @onready="handlePlayerReady"
@@ -228,7 +227,7 @@
                                 <el-form-item
                                     :label="Translate('IDCS_TIME')"
                                     :style="{
-                                        '--form-input-width': '105px',
+                                        '--form-input-width': '102.5px',
                                     }"
                                 >
                                     <el-select
@@ -406,12 +405,10 @@
                                 <!-- 人灵敏度 -->
                                 <el-form-item>
                                     <template #label>
-                                        <el-row>
-                                            <el-checkbox
-                                                v-model="formData.objectFilter.person"
-                                                :label="Translate('IDCS_DETECTION_PERSON')"
-                                            />
-                                        </el-row>
+                                        <el-checkbox
+                                            v-model="formData.objectFilter.person"
+                                            :label="Translate('IDCS_DETECTION_PERSON')"
+                                        />
                                     </template>
                                     <template #default>
                                         <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
@@ -424,12 +421,10 @@
                                 <!-- 汽车灵敏度 -->
                                 <el-form-item>
                                     <template #label>
-                                        <div class="sensitivity_box">
-                                            <el-checkbox
-                                                v-model="formData.objectFilter.car"
-                                                :label="Translate('IDCS_DETECTION_VEHICLE')"
-                                            />
-                                        </div>
+                                        <el-checkbox
+                                            v-model="formData.objectFilter.car"
+                                            :label="Translate('IDCS_DETECTION_VEHICLE')"
+                                        />
                                     </template>
                                     <template #default>
                                         <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
@@ -442,19 +437,16 @@
                                 <!-- 摩托车灵敏度 -->
                                 <el-form-item>
                                     <template #label>
-                                        <div class="sensitivity_box">
-                                            <el-checkbox
-                                                v-model="formData.objectFilter.motorcycle"
-                                                :label="Translate('IDCS_NON_VEHICLE')"
-                                            />
-                                        </div>
+                                        <el-checkbox
+                                            v-model="formData.objectFilter.motorcycle"
+                                            :label="Translate('IDCS_NON_VEHICLE')"
+                                        />
                                     </template>
                                     <template #default>
                                         <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
                                         <el-slider
                                             v-model="formData.objectFilter.motorSensitivity"
                                             show-input
-                                            class="slider"
                                         />
                                     </template>
                                 </el-form-item>
@@ -477,16 +469,11 @@
 
 <script lang="ts" src="./PassLines.v.ts"></script>
 
-<style>
-@import '@/views/UI_PUBLIC/publicStyle/aiAndEvent.scss';
-</style>
-
 <style lang="scss" scoped>
 .more_wrap {
     position: absolute;
     top: 42px;
     right: 13px;
-    z-index: 1;
     cursor: pointer;
     z-index: 1;
     display: flex;

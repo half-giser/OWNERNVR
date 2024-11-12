@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-09 18:47:07
  * @Description: 网络端口
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-05 16:25:47
  */
 import { NetPortForm, NetPortUPnPDto, NetPortApiServerForm, NetPortRtspServerForm } from '@/types/apiType/net'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -294,11 +292,11 @@ export default defineComponent({
             }
             const sendXml = rawXml`
                 <content>
-                    <httpPort>${String(portFormData.value.httpPort)}</httpPort>
-                    <httpsPort>${String(portFormData.value.httpsPort)}</httpsPort>
-                    <netPort>${String(portFormData.value.netPort)}</netPort>
-                    <posPort>${String(portFormData.value.posPort)}</posPort>
-                    <virtualHostEnabled>${String(portFormData.value.virtualHostEnabled)}</virtualHostEnabled>
+                    <httpPort>${portFormData.value.httpPort}</httpPort>
+                    <httpsPort>${portFormData.value.httpsPort}</httpsPort>
+                    <netPort>${portFormData.value.netPort}</netPort>
+                    <posPort>${portFormData.value.posPort}</posPort>
+                    <virtualHostEnabled>${portFormData.value.virtualHostEnabled}</virtualHostEnabled>
                 </content>
             `
             const result = await editNetPortCfg(sendXml)
@@ -372,7 +370,7 @@ export default defineComponent({
                         </itemType>
                         ${pageData.value.upnp.ports
                             .map((item) => {
-                                const externalPort = pageData.value.upnp.mappingType === 'auto' ? String(portTypeMapping[item.portType]) : item.externalPort
+                                const externalPort = pageData.value.upnp.mappingType === 'auto' ? portTypeMapping[item.portType] : item.externalPort
                                 return rawXml`
                                     <item>
                                         <portType>${item.portType}</portType>
@@ -422,7 +420,7 @@ export default defineComponent({
 
             const sendXml = rawXml`
                 <content>
-                    <apiserverSwitch>${String(apiServerFormData.value.apiserverSwitch)}</apiserverSwitch>
+                    <apiserverSwitch>${apiServerFormData.value.apiserverSwitch}</apiserverSwitch>
                     <authenticationType>${apiServerFormData.value.authenticationType}</authenticationType>
                 </content>
             `
@@ -477,10 +475,10 @@ export default defineComponent({
 
             const sendXml = rawXml`
                 <content>
-                    <rtspServerSwitch>${String(rtspServerFormData.value.rtspServerSwitch)}</rtspServerSwitch>
+                    <rtspServerSwitch>${rtspServerFormData.value.rtspServerSwitch}</rtspServerSwitch>
                     <rtspAuthType>${rtspServerFormData.value.rtspAuthType}</rtspAuthType>
-                    <rtspPort>${String(rtspServerFormData.value.rtspPort)}</rtspPort>
-                    <anonymousAccess>${String(rtspServerFormData.value.anonymousAccess)}</anonymousAccess>
+                    <rtspPort>${rtspServerFormData.value.rtspPort}</rtspPort>
+                    <anonymousAccess>${rtspServerFormData.value.anonymousAccess}</anonymousAccess>
                 </content>
             `
             const result = await editRTSPServer(sendXml)

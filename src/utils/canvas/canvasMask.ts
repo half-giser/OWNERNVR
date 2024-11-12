@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-05-31 15:34:27
  * @Description: canvas视频遮挡配置（透明矩形区域×4）
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-05-31 16:03:07
  */
 
 import CanvasBase from './canvasBase'

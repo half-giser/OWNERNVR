@@ -2,8 +2,6 @@
  * @Author: xujp xujp@tvt.net.cn
  * @Date: 2023-04-28 14:36:40
  * @Description:解析xml下指定路径的标签文本和属性
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-07 14:12:45
  */
 
 /*

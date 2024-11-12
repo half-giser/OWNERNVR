@@ -3,8 +3,6 @@
  * @Date: 2024-10-30 14:22:16
  * @Description: 刷新定时器. 用于下发协议返回结果后，定时重新下发的情况
  * 使用此hook，是为了解决定时器在组件注销时没有清除、或没有正确清除定时器而导致内存溢出的问题
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-31 09:10:48
  */
 export const useRefreshTimer = (callback: () => any, delayTime = 5000, timerType = 'timeout') => {
     let destroyed = false

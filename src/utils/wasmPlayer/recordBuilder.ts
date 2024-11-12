@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-05-30 14:46:09
  * @Description: 生成视频文件 (串行处理，即一次只处理一个输出任务)
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-09 11:49:47
  */
 import { appendBuffer } from '../tools'
 

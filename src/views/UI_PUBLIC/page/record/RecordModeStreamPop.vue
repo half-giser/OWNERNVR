@@ -2,8 +2,6 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-07-29 14:15:40
  * @Description: 自动模式通道码流参数配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-23 19:51:20
 -->
 <template>
     <el-dialog
@@ -46,18 +44,15 @@
                         class="row_bandwidth"
                         >{{ pageData.txtBandwidth }}</span
                     >
-                    <span
-                        id="bandwidthDetail"
-                        class="detailBtn"
-                    ></span>
+                    <span class="detailBtn"></span>
                     <span
                         v-if="pageData.PredictVisible"
-                        id="txRecTime"
+                        class="txRecTime"
                         >{{ pageData.recTime }}</span
                     >
                     <el-button
                         v-if="pageData.CalculateVisible"
-                        id="btnActivate"
+                        class="btnActivate"
                         @click="handleCalculate"
                         >{{ Translate('IDCS_CALCULATE') }}</el-button
                     >
@@ -77,24 +72,28 @@
 .el-menu {
     --el-menu-horizontal-height: 30px;
 }
+
 .streamTable {
     max-height: 500px;
-    overflow-y: auto;
-    overflow-x: auto;
+    overflow: auto;
 }
+
 .bottom_row {
     margin-top: 10px;
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
 }
-#txRecTime {
+
+.txRecTime {
     margin-left: 20px;
     margin-top: 10px;
 }
-#btnActivate {
+
+.btnActivate {
     margin-left: 20px;
 }
+
 .row_bandwidth {
     margin-top: 10px;
 }

@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-30 18:46:48
  * @Description: 人脸库
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-04 17:58:21
  */
 import { cloneDeep } from 'lodash-es'
 import { IntelFaceDBGroupList, IntelFaceDBFaceInfo } from '@/types/apiType/intelligentAnalysis'
@@ -357,7 +355,7 @@ export default defineComponent({
         const getGroupFaceFeatureCount = async (item: IntelFaceDBGroupList, index: number) => {
             const sendXml = rawXml`
                 <pageIndex>1</pageIndex>
-                <pageSize>${pageData.value.pageSize.toString()}</pageSize>
+                <pageSize>${pageData.value.pageSize}</pageSize>
                 <condition>
                     <faceFeatureGroups type="list">
                         <item id="${item.groupId}"></item>
@@ -409,8 +407,8 @@ export default defineComponent({
                 allGroupTableData.value = []
 
                 const sendXml = rawXml`
-                    <pageIndex>${pageIndex.toString()}</pageIndex>
-                    <pageSize>${pageData.value.pageSize.toString()}</pageSize>
+                    <pageIndex>${pageIndex}</pageIndex>
+                    <pageSize>${pageData.value.pageSize}</pageSize>
                     <condition>
                         <faceFeatureGroups type="list">
                             <item id="${groupId}"></item>
@@ -498,7 +496,7 @@ export default defineComponent({
             const sendXml = rawXml`
                 <condition>
                     <id>${id}</id>
-                    <index>${index.toString()}</index>
+                    <index>${index}</index>
                 </condition>
             `
             const result = await requestFacePersonnalInfoImage(sendXml)

@@ -2,8 +2,6 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-04-20 16:04:39
  * @Description: 二级类型1布局页--适用于所有配置页
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-16 09:51:41
 -->
 <template>
     <el-container id="layout2">
@@ -100,9 +98,9 @@
     width: 237px;
     min-height: 100%;
     position: relative;
-    top: 0px;
-    left: 0px;
-    margin: -1px 0px -1px -1px;
+    top: 0;
+    left: 0;
+    margin: -1px 0 -1px -1px;
     overflow: hidden;
     z-index: 1;
     display: flex;
@@ -114,7 +112,7 @@
     width: 237px;
     border: solid 1px var(--content-border);
     padding: 16px 10px 16px 15px;
-    margin: 0px 0px -1px 0px;
+    margin: 0 0 -1px;
     position: relative;
     flex-shrink: 0;
     background-color: var(--config-aside-item-bg);
@@ -124,6 +122,7 @@
 
         .main-menu span {
             color: var(--config-aside-text-active);
+
             &:hover {
                 color: var(--config-aside-text-active);
             }
@@ -131,9 +130,11 @@
 
         .sub-menus span {
             color: var(--config-aside-text-active);
-            &:not(:last-of-type):after {
+
+            &:not(:last-of-type)::after {
                 background-color: var(--config-aside-text-active);
             }
+
             &:hover {
                 color: var(--config-aside-text-active);
             }
@@ -146,7 +147,7 @@
     }
 
     &:last-of-type {
-        margin: 0px 0px 0px 0px;
+        margin: 0;
     }
 
     &.disabled,
@@ -165,7 +166,7 @@
         .sub-menu span:hover {
             color: var(--config-aside-text-disabled);
 
-            &:not(:last-of-type):after {
+            &:not(:last-of-type)::after {
                 background-color: var(--config-aside-text-disabled);
             }
         }
@@ -203,7 +204,7 @@
 
     span {
         display: inline-block;
-        padding: 2px 0px 0px 0px;
+        padding: 2px 0 0;
         font-size: 13px;
         text-decoration: none;
         cursor: pointer;
@@ -221,10 +222,10 @@
             cursor: default;
         }
 
-        &:not(:last-of-type):after {
+        &:not(:last-of-type)::after {
             content: '';
             display: inline-block;
-            margin: 0px 3px;
+            margin: 0 3px;
             position: relative;
             top: 2px;
             width: 1px;
@@ -242,14 +243,14 @@
 
     .el-menu-item {
         display: inline-block;
-        padding: 0px !important;
+        padding: 0 !important;
         height: auto !important;
     }
 }
 
 #layout2Right {
     position: relative;
-    padding: 0px;
+    padding: 0;
     background-color: var(--main-bg);
 }
 
@@ -272,7 +273,7 @@
     a {
         font-size: 15px;
         text-decoration: none;
-        margin: 0 3px 0 3px;
+        margin: 0 3px;
         display: inline-block;
         color: var(--breadcrumb-text);
 

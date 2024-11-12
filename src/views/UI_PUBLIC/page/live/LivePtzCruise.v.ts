@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-29 15:50:48
  * @Description: 现场预览-云台视图-巡航线
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 18:33:44
  */
 import ChannelCruiseAddPop from '../channel/ChannelCruiseAddPop.vue'
 import { type ChannelPtzCruiseDto } from '@/types/apiType/channel'
@@ -100,7 +98,7 @@ export default defineComponent({
                     <condition>
                         <chlId>${prop.chlId}</chlId>
                         <cruiseIndexes>
-                            <item index="${index.toString()}">${wrapCDATA(cruiseName)}</item>
+                            <item index="${index}">${wrapCDATA(cruiseName)}</item>
                         </cruiseIndexes>
                     </condition>
                 `
@@ -167,8 +165,8 @@ export default defineComponent({
                 const sendXml = rawXml`
                     <content>
                         <chlId>${prop.chlId}</chlId>
-                        <index>${item.index.toString()}</index>
-                        <speed>${prop.speed.toString()}</speed>
+                        <index>${item.index}</index>
+                        <speed>${prop.speed}</speed>
                     </content>
                 `
                 runPtzCruise(sendXml)

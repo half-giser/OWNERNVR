@@ -56,8 +56,6 @@ export default defineComponent({
         const faceGroupTable = ref<AlarmFaceGroupDto[]>([])
         // 人脸识别数据
         const faceCompareData = ref(new AlarmFaceRecognitionDto())
-        // 相似度下拉框
-        const similarityRef = ref()
 
         // 需要用到的系统配置
         const supportFaceMatch = systemCaps.supportFaceMatch
@@ -115,6 +113,8 @@ export default defineComponent({
             compareTab: 'hit',
             // tab项‘param’，‘hit’，‘miss’不可被移除，移除btn不可用
             removeDisabled: true,
+            // 相似度下拉框
+            isSimilarityPop: false,
             // 相似度默认值
             similarityNumber: 75,
             // 当前选中tab的任务数据
@@ -1108,7 +1108,7 @@ export default defineComponent({
             faceMatchData.value.groupInfo.forEach((item) => {
                 item.similarity = comparePageData.value.similarityNumber
             })
-            similarityRef.value.handleClose()
+            comparePageData.value.isSimilarityPop = false
         }
 
         const similarityInputBlur = (e: any, index: number) => {
@@ -1514,8 +1514,6 @@ export default defineComponent({
 
             /* 人脸识别——识别 */
             taskTabs,
-            // 相似度下拉框
-            similarityRef,
             // 人脸匹配
             faceMatchData,
             // 人脸分组数据

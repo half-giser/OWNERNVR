@@ -2,10 +2,8 @@
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-07-09 18:39:25
  * @Description: 添加通道 - 设置通道默认密码弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 16:48:16
  */
-import { type DefaultPwdDto } from '@/types/apiType/channel'
+import { type ChannelDefaultPwdDto } from '@/types/apiType/channel'
 import { type FormRules, type FormInstance } from 'element-plus'
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import type { UserCheckAuthForm } from '@/types/apiType/user'
@@ -15,7 +13,7 @@ export default defineComponent({
         BaseCheckAuthPop,
     },
     emits: {
-        change(data: DefaultPwdDto[]) {
+        change(data: ChannelDefaultPwdDto[]) {
             return !!data
         },
         close() {
@@ -29,7 +27,7 @@ export default defineComponent({
         const { openMessageBox } = useMessageBox()
         const formRef = ref<FormInstance>()
         const formData = ref({
-            params: [] as Array<DefaultPwdDto>,
+            params: [] as Array<ChannelDefaultPwdDto>,
         })
         const passwordInputRef = ref<Array<Element | globalThis.ComponentPublicInstance | null>>([])
 
@@ -59,7 +57,7 @@ export default defineComponent({
             })
         }
 
-        const handlePwdViewChange = (index: number, rowData: DefaultPwdDto) => {
+        const handlePwdViewChange = (index: number, rowData: ChannelDefaultPwdDto) => {
             const flag = rowData.showInput
             rowData.showInput = !rowData.showInput
             if (!flag) {
@@ -114,7 +112,7 @@ export default defineComponent({
             editDevDefaultPwd(sendXml).then((res) => {
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
-                    const defaultPwdData: DefaultPwdDto[] = $('//content/item').map((ele) => {
+                    const defaultPwdData: ChannelDefaultPwdDto[] = $('//content/item').map((ele) => {
                         const eleXml = queryXml(ele.element)
                         return {
                             id: ele.attr('id')!,

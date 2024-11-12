@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-19 17:29:22
  * @Description: POE电源管理
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-20 17:57:09
 -->
 <template>
     <div class="base-flex-box">
@@ -83,6 +81,7 @@
 <style lang="scss" scoped>
 .sum {
     display: flex;
+
     & > div {
         margin-right: 10px;
     }

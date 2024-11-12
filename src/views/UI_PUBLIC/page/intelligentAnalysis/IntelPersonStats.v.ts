@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-03 14:44:19
  * @Description: 智能分析-人员统计
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 11:00:29
  */
 import IntelBaseChannelSelector from './IntelBaseChannelSelector.vue'
 import IntelBaseEventSelector from './IntelBaseEventSelector.vue'
@@ -144,7 +142,7 @@ export default defineComponent({
                 <condition>
                     <startTime>${formatDate(formData.value.dateRange[0], 'YYYY-MM-DD HH:mm:ss')}</startTime>
                     <endTime>${formatDate(formData.value.dateRange[1], 'YYYY-MM-DD HH:mm:ss')}</endTime>
-                    <timeQuantum>${stats.getTimeQuantum().toString()}</timeQuantum>
+                    <timeQuantum>${stats.getTimeQuantum()}</timeQuantum>
                     <chls type="list">${formData.value.chl.map((item) => `<item id="${item}"></item>`).join('')}</chls>
                     <events type="list">${formData.value.event.map((item) => `<item>${item}</item>`).join('')}</events>
                     <person type="list">

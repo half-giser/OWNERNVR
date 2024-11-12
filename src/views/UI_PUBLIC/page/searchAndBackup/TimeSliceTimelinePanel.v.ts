@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-14 16:50:21
  * @Description: 时间切片-时间线界面
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-31 09:11:47
  */
 import dayjs from 'dayjs'
 import TimeSliceChlCard from './TimeSliceChlCard.vue'
@@ -295,8 +293,8 @@ export default defineComponent({
             const sendXml = rawXml`
                 <condition>
                     <chlId>${prop.chlId}</chlId>
-                    <startTime>${Math.floor(formData.value.startTime / 1000).toString()}</startTime>
-                    <endTime>${Math.floor(formData.value.endTime / 1000).toString()}</endTime>
+                    <startTime>${Math.floor(formData.value.startTime / 1000)}</startTime>
+                    <endTime>${Math.floor(formData.value.endTime / 1000)}</endTime>
                     <eventType>all</eventType>
                 </condition>
             `

@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-29 10:06:12
  * @Description: 人脸库
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 10:56:31
 -->
 <template>
     <div class="base-flex-box">

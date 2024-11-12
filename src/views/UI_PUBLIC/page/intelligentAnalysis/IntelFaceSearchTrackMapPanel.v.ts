@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-13 09:25:37
  * @Description: 智能分析 - 人脸搜索 - 轨迹
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 16:17:52
  */
 import { cloneDeep } from 'lodash-es'
 import IntelFaceSearchTrackMapColorPop from './IntelFaceSearchTrackMapColorPop.vue'
@@ -457,8 +455,8 @@ export default defineComponent({
                     return rawXml`
                         <item hotPointId="${item.hotPointId}">
                             <hotPointType>channel</hotPointType>
-                            <X>${Math.floor((item.X / pageData.value.width) * 10000).toString()}</X>
-                            <Y>${Math.floor((item.Y / pageData.value.height) * 10000).toString()}</Y>
+                            <X>${Math.floor((item.X / pageData.value.width) * 10000)}</X>
+                            <Y>${Math.floor((item.Y / pageData.value.height) * 10000)}</Y>
                         </item>
                     `
                 })

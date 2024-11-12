@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-21 10:57:01
  * @Description: 设备基本信息
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 09:37:20
 -->
 <template>
     <div class="SystemBasic">
@@ -212,7 +210,7 @@
     &-text {
         margin-top: 10px;
         text-align: center;
-        font-family: Consolas, Menlo, 'Microsoft YaHei', Arial, Helvetica, sans-serif;
+        font-family: Consolas, Menlo, monospace;
     }
 }
 </style>

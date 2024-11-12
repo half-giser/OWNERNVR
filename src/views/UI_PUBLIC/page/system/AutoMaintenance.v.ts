@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-20 17:25:20
  * @Description: 自动维护
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 09:32:09
  */
 import { type FormInstance, type FormRules } from 'element-plus'
 import { SystemAutoMaintenanceForm } from '@/types/apiType/system'
@@ -90,8 +88,8 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <autoMaintenanceCfg>
-                        <switch>${formData.value.switch.toString()}</switch>
-                        <interval>${formData.value.interval?.toString() || ''}</interval>
+                        <switch>${formData.value.switch}</switch>
+                        <interval>${formData.value.interval || ''}</interval>
                         <time>${formatDate(formData.value.time, 'HH:mm')}</time>
                     </autoMaintenanceCfg>
                 </content>

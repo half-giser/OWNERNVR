@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-07 15:00:44
  * @Description: 账号密码权限认证弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-12 09:47:34
  */
 import { type FormInstance, type FormRules } from 'element-plus'
 import { UserCheckAuthForm } from '@/types/apiType/user'

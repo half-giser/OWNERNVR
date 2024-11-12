@@ -2,13 +2,11 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-21 18:46:23
  * @Description: 磁盘状态
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-16 15:04:20
  */
 import { type SystemDiskStatusList } from '@/types/apiType/system'
 
 export default defineComponent({
-    setup() {
+    setup(_prop, ctx) {
         const { openLoading, closeLoading } = useLoading()
         const { Translate } = useLangStore()
         const dateTime = useDateTimeStore()
@@ -275,8 +273,11 @@ export default defineComponent({
             getData()
         })
 
-        return {
+        ctx.expose({
             handleToolBarEvent,
+        })
+
+        return {
             tableData,
             formatDiskType,
             formatSizeAndFreeSpace,

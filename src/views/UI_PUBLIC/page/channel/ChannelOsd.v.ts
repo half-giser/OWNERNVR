@@ -3,9 +3,8 @@
  * @Date: 2024-06-24 10:38:27
  * @Description: 通道 - OSD配置
  */
-
 import { type XMLQuery } from '@/utils/xmlParse'
-import { ChannelOsd } from '@/types/apiType/channel'
+import { ChannelOsdDto } from '@/types/apiType/channel'
 import { cloneDeep } from 'lodash-es'
 import CanvasOSD, { type CanvasOSDOptionNameConfig, type CanvasOSDOptionTimeConfig } from '@/utils/canvas/canvasOsd'
 import { type TVTPlayerWinDataListItem } from '@/utils/wasmPlayer/tvtPlayer'
@@ -21,16 +20,16 @@ export default defineComponent({
         const dateTime = useDateTimeStore()
 
         const playerRef = ref<PlayerInstance>()
-        const formData = ref(new ChannelOsd())
+        const formData = ref(new ChannelOsdDto())
         const tableRef = ref<TableInstance>()
-        const tableData = ref([] as ChannelOsd[])
+        const tableData = ref([] as ChannelOsdDto[])
         const nameDisabled = ref(true)
         const btnOKDisabled = ref(true)
         const pageIndex = ref(1)
         const pageSize = ref(10)
         const pageTotal = ref(0)
         const selectedChlId = ref('')
-        const chlList = ref<ChannelOsd[]>([]) // 作为下拉列表选项来源，只需保证name为最新值即可
+        const chlList = ref<ChannelOsdDto[]>([]) // 作为下拉列表选项来源，只需保证name为最新值即可
         const { supportSHDB } = useCababilityStore() // 是否支持上海地标
         const tempName = ref('')
         const switchOptions = getBoolSwitchOptions()
@@ -70,7 +69,7 @@ export default defineComponent({
 
         let nameMapping: Record<string, string> = {}
         let osdDrawer: CanvasOSD | undefined = undefined
-        const editRows = new Set<ChannelOsd>()
+        const editRows = new Set<ChannelOsdDto>()
 
         const handleChlSel = (chlId: string) => {
             const rowData = getRowById(chlId)!
@@ -127,9 +126,9 @@ export default defineComponent({
 
         /**
          * @description 行未被禁用时，点击行，切换该行
-         * @param {ChannelOsd} rowData
+         * @param {ChannelOsdDto} rowData
          */
-        const handleRowClick = (rowData: ChannelOsd) => {
+        const handleRowClick = (rowData: ChannelOsdDto) => {
             if (!rowData.disabled) {
                 selectedChlId.value = rowData.id
                 formData.value = cloneDeep(rowData)
@@ -385,7 +384,7 @@ export default defineComponent({
             if ($('status').text() == 'success') {
                 tableData.value = $('content/item').map((ele) => {
                     const eleXml = queryXml(ele.element)
-                    const newData = new ChannelOsd()
+                    const newData = new ChannelOsdDto()
                     newData.id = ele.attr('id')!
                     newData.name = eleXml('name').text()
                     newData.ip = eleXml('ip').text()
@@ -482,7 +481,7 @@ export default defineComponent({
             }
         }
 
-        const setDevice = async (rowData: ChannelOsd) => {
+        const setDevice = async (rowData: ChannelOsdDto) => {
             const sendXml = rawXml`
                 <content>
                     <id>${rowData.id}</id>
@@ -504,13 +503,13 @@ export default defineComponent({
             }
         }
 
-        const setChlWaterMark = async (rowData: ChannelOsd) => {
+        const setChlWaterMark = async (rowData: ChannelOsdDto) => {
             const sendXml = rawXml`
                 <content>
                     <chl id='${rowData.id}'>
                         <watermark>
                             <value>${rowData.remarkNote}</value>
-                            <switch>${rowData.remarkSwitch.toString()}</switch>
+                            <switch>${rowData.remarkSwitch}</switch>
                         </watermark>
                     </chl>
                 </content>
@@ -518,7 +517,7 @@ export default defineComponent({
             await editChlWaterMark(sendXml)
         }
 
-        const setIPChlORChlOSD = async (rowData: ChannelOsd) => {
+        const setIPChlORChlOSD = async (rowData: ChannelOsdDto) => {
             const sendXml = rawXml`
                 <types>
                     ${ternary(rowData.supportDateFormat, `<dateFormat>${wrapEnums(rowData.dateEnum)}</dateFormat>`)}
@@ -527,16 +526,16 @@ export default defineComponent({
                 <content>
                     <chl id='${rowData.id}'>
                         <time>
-                            <switch>${rowData.displayTime.toString()}</switch>
-                            <X>${rowData.timeX.toString()}</X>
-                            <Y>${rowData.timeY.toString()}</Y>
+                            <switch>${rowData.displayTime}</switch>
+                            <X>${rowData.timeX}</X>
+                            <Y>${rowData.timeY}</Y>
                             ${rowData.supportDateFormat ? '<dateFormat type="dateFormat">' + rowData.dateFormat + '</dateFormat>' : ''}
                             ${rowData.supportTimeFormat ? '<timeFormat type="timeFormat">' + rowData.timeFormat + '</timeFormat>' : ''}
                         </time>
                         <chlName>
-                            <switch>${rowData.displayName.toString()}</switch>
-                            <X>${rowData.nameX.toString()}</X>
-                            <Y>${rowData.nameY.toString()}</Y>
+                            <switch>${rowData.displayName}</switch>
+                            <X>${rowData.nameX}</X>
+                            <Y>${rowData.nameY}</Y>
                             <name>${rowData.name}</name>
                         </chlName>
                     </chl>
@@ -666,7 +665,7 @@ export default defineComponent({
             }
         })
 
-        const setOcxData = (rowData: ChannelOsd) => {
+        const setOcxData = (rowData: ChannelOsdDto) => {
             if (supportSHDB) return
             if (mode.value === 'h5') {
                 setCanvasDrawerData(rowData)
@@ -704,7 +703,7 @@ export default defineComponent({
             }
         }
 
-        const setCanvasDrawerData = (rowData: ChannelOsd) => {
+        const setCanvasDrawerData = (rowData: ChannelOsdDto) => {
             osdDrawer?.setCfg({
                 nameCfg: {
                     value: rowData.name,

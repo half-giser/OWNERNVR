@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-10 09:12:25
  * @Description: PPPoE
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 17:12:27
  */
 import { NetPPPoEForm } from '@/types/apiType/net'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -79,7 +77,7 @@ export default defineComponent({
 
                 const sendXml = rawXml`
                     <content>
-                        <switch>${String(formData.value.switch)}</switch>
+                        <switch>${formData.value.switch}</switch>
                         ${formData.value.switch ? `<userName maxByteLen="63">${wrapCDATA(formData.value.userName)}</userName>` : ''}
                         ${formData.value.switch && formData.value.password ? `<password ${getSecurityVer()}>${wrapCDATA(formData.value.password)}</password>` : ''}
                     </content>

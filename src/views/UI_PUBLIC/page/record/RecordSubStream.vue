@@ -2,8 +2,6 @@
  * @Description: 录像——录像子码流
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-07-31 10:12:26
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-01 10:44:19
 -->
 <template>
     <div class="base-flex-box">
@@ -48,8 +46,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.videoEncodeTypeUnionList"
                                         :key="item.value"
-                                        :label="item.label"
-                                        :value="item.value"
                                         @click="changeAllVideoEncodeType(item.value)"
                                     >
                                         {{ item.label }}
@@ -94,7 +90,7 @@
                                     {{ Translate('IDCS_RESOLUTION_RATE') }}
                                 </BaseTableDropdownLink>
                             </template>
-                            <div id="resolutionContainer">
+                            <div>
                                 <el-table
                                     ref="resolutionTableRef"
                                     max-height="400"
@@ -194,8 +190,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.frameRateUnionList"
                                         :key="item"
-                                        :label="item"
-                                        :value="item"
                                         @click="changeAllFrameRate(item)"
                                     >
                                         {{ item }}
@@ -238,8 +232,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.videoQualityList"
                                         :key="item.value"
-                                        :label="item.label"
-                                        :value="item.value"
                                         @click="changeAllVideoQuality(item.value)"
                                     >
                                         {{ item.label }}
@@ -289,9 +281,11 @@
 .device-item {
     margin: 5px;
 }
+
 :deep(.cell) {
     overflow: visible;
 }
+
 :deep(.el-table__cell) {
     z-index: auto;
 }

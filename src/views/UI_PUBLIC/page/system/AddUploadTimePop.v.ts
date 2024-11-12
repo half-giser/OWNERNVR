@@ -2,8 +2,6 @@
  * @Description: 系统——上海地标平台——添加上传时间弹窗
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-10-24 10:03:25
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-25 15:58:19
  */
 import { type ImageUploadDto } from '@/types/apiType/system'
 import { type TableInstance } from 'element-plus'

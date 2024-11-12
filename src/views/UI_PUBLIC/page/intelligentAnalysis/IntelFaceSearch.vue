@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-29 09:54:18
  * @Description: 智能分析-人脸搜索
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 16:15:47
 -->
 <template>
     <div class="base-intel-box">
@@ -434,7 +432,7 @@
             @choose-snap="changeSnap"
             @choose-group="changeFaceGroup"
             @choose-face="changeFace"
-            @import-files="changeImportFace"
+            @use-files="changeImportFace"
         />
         <BasePlaybackPop
             v-model="pageData.isPlaybackPop"
@@ -480,10 +478,6 @@
 </template>
 
 <script lang="ts" src="./IntelFaceSearch.v.ts"></script>
-
-<style lang="scss">
-@import '@/views/UI_PUBLIC/publicStyle/intelligentAnalysis.scss';
-</style>
 
 <style lang="scss" scoped>
 .base-intel-left {
@@ -577,7 +571,7 @@
     margin-left: 10px;
     line-height: 1.8;
 
-    span:first-child:after {
+    span:first-child::after {
         content: ': ';
     }
 }

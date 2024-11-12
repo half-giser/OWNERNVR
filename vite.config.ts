@@ -14,8 +14,10 @@ import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import GenerateSprite from './scripts/generateSprite'
 import MinifyXmlTemplateStrings from './scripts/minifyXmlTemplateStrings'
+import MinifyWorkers from './scripts/minifyWorkers'
 import PostCssVariableCompress from 'postcss-variable-compress'
-import { visualizer } from 'rollup-plugin-visualizer'
+import { visualizer as Visualizer } from 'rollup-plugin-visualizer'
+import optimizeDepsIncludes from './scripts/optimizeDeps'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -28,14 +30,18 @@ export default defineConfig(({ mode }) => {
     const { VITE_APP_IP, VITE_UI_TYPE } = env
 
     const devPlugin: PluginOption[] = [
-        visualizer({
+        Visualizer({
             open: false,
             gzipSize: true,
             brotliSize: true,
         }),
     ]
 
-    const buildPlugin: PluginOption[] = []
+    const buildPlugin: PluginOption[] = [
+        MinifyWorkers({
+            src: `dist/${VITE_UI_TYPE}/workers/*.js`,
+        }),
+    ]
 
     return {
         // envDir,
@@ -189,9 +195,7 @@ export default defineConfig(({ mode }) => {
             },
         },
         optimizeDeps: {
-            esbuildOptions: {
-                plugins: [],
-            },
+            include: optimizeDepsIncludes,
         },
     }
 })

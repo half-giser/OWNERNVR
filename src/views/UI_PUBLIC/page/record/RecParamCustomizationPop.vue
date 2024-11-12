@@ -2,8 +2,6 @@
  * @Description: 录像——参数配置——通道录像参数——过期时间自定义
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-05 16:26:27
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-31 14:33:03
 -->
 <template>
     <el-dialog
@@ -126,7 +124,7 @@
 
 <style lang="scss" scoped>
 .middleBox {
-    border: solid #5f5f5f 1px;
+    border: 1px solid var(--content-border);
     padding: 10px 5px 10px 6px;
     margin-top: 30px;
 }

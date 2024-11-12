@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-24 15:09:06
  * @Description: 日期与时间
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 15:25:43
  */
 import { SystemDateTimeForm } from '@/types/apiType/system'
 import dayjs from 'dayjs'
@@ -198,7 +196,7 @@ export default defineComponent({
                 <content>
                     <timezoneInfo>
                         <timeZone>${wrapCDATA(formData.value.timeZone)}</timeZone>
-                        <daylightSwitch>${String(formData.value.enableDST)}</daylightSwitch>
+                        <daylightSwitch>${formData.value.enableDST}</daylightSwitch>
                     </timezoneInfo>
                     <synchronizeInfo>
                         <type type="synchronizeType">${formData.value.syncType}</type>

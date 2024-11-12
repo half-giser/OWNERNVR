@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-04 10:26:32
  * @Description: MAC地址输入框
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-04 09:11:55
 -->
 <template>
     <div
@@ -251,8 +249,6 @@ const handleBlur = (index: number) => {
     }
 
     input {
-        height: 100%;
-        border: none;
         max-width: 25%;
         width: 25px;
         font-size: inherit;

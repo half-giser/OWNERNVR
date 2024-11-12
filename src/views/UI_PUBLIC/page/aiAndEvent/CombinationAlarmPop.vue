@@ -129,13 +129,16 @@
 .detect-box {
     margin-top: 10px;
 }
+
 .detect {
     margin: 5px 0;
 }
+
 .detectText {
     margin-right: 15px;
     color: var(--color-error);
 }
+
 .descTip {
     display: inline-block;
     width: 440px;
@@ -143,6 +146,7 @@
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
 .description {
     margin-top: 10px;
     height: 115px;

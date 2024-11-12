@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-11-08 11:23:39
  * @Description: 普通事件-联动-抓图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-08 13:39:08
 -->
 <template>
     <div>

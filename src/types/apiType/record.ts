@@ -2,12 +2,10 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-03 16:14:27
  * @Description: 录像与回放
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 20:30:36
  */
 
 /**
- * 录像-模式配置
+ * @description 录像-模式配置
  */
 export class RecordDistributeInfo {
     mode = '' // 录像模式类型
@@ -19,7 +17,7 @@ export class RecordDistributeInfo {
 }
 
 /**
- * 通道的录像排程配置
+ * @description 通道的录像排程配置
  */
 export class RecordSchedule {
     id = '' //通道ID
@@ -32,7 +30,7 @@ export class RecordSchedule {
 }
 
 /**
- * 录像模式
+ * @description 录像模式
  */
 export interface RecMode {
     id: string
@@ -42,7 +40,9 @@ export interface RecMode {
     index: number //用于指定在自定义组合模式中出现的顺序
 }
 
-// 通道录像参数列表
+/**
+ * @description 通道录像参数列表
+ */
 export class ChlRecParamList {
     id = ''
     index = 0
@@ -62,12 +62,17 @@ export class ChlRecParamList {
     singleExpirationUnit? = ''
 }
 
-// 页面选择项
+/**
+ * @description 页面选择项
+ */
 export class ItemList {
     value = ''
     label = ''
 }
 
+/**
+ * @description
+ */
 export class RecordSubStreamQualityCaps {
     enct = ''
     res = ''
@@ -76,7 +81,9 @@ export class RecordSubStreamQualityCaps {
     value = [] as string[]
 }
 
-// 录像子码流列表
+/**
+ * @description 录像子码流列表
+ */
 export class RecordSubStreamList {
     id = ''
     index = 0
@@ -100,14 +107,18 @@ export class RecordSubStreamList {
     qualitys = [] as string[]
 }
 
-// 分辨率数据项
+/**
+ * @description 分辨率数据项
+ */
 export class ResolutionRow {
     res = ''
     resGroup = [] as string[]
     chls = { expand: false, data: [] as SelectOption<string, string>[] }
 }
 
-// 录像子码流页面，表格行中不存在的属性
+/**
+ * @description 录像子码流页面，表格行中不存在的属性
+ */
 export class rowNonExistent {
     videoEncodeType = ''
     videoQuality = ''
@@ -115,7 +126,9 @@ export class rowNonExistent {
     resolution = ''
 }
 
-// 录像码流信息
+/**
+ * @description 录像码流信息
+ */
 export class RecordStreamInfoDto {
     '@id' = ''
     name = ''
@@ -129,7 +142,7 @@ export class RecordStreamInfoDto {
     bitRange: { min: number; max: number } | null = { min: 0, max: 0 }
     audio = ''
     recordStream = ''
-    GOP = ''
+    GOP = undefined as number | undefined
     chlType = ''
     mainCaps = {
         // 可选的编码类型
@@ -203,4 +216,9 @@ export class RecordStreamInfoDto {
     recordStreamDisable = false
 
     bitTypeVisible = true
+}
+
+export interface RecordStreamTableExpose {
+    setData: () => void
+    queryRemainRecTimeF: () => void
 }

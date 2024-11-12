@@ -7,18 +7,30 @@ import { type AlarmSnapPopDto } from '@/types/apiType/aiAndEvent'
 
 export default defineComponent({
     props: {
+        /**
+         * @property {Array} 通道列表
+         */
         data: {
             type: Array as PropType<AlarmSnapPopDto[]>,
             required: true,
         },
+        /**
+         * @property {number} 通道索引
+         */
         index: {
             type: Number,
             required: true,
         },
+        /**
+         * @property {boolean} 打开弹窗
+         */
         visible: {
             type: Boolean,
             default: false,
         },
+        /**
+         * @property {boolean} 选项是否排除当前通道
+         */
         exclude: {
             type: Boolean,
             default: false,
@@ -50,6 +62,10 @@ export default defineComponent({
             return find ? find.snap.chls.map((item) => item.value) : []
         })
 
+        /**
+         * @description 确认修改所有通道
+         * @param {SelectOption<string, string>[]} event
+         */
         const confirmAll = (event: SelectOption<string, string>[]) => {
             prop.data.forEach((item, index) => {
                 ctx.emit('confirm', index, prop.exclude ? event.filter((chl) => chl.value !== item.id) : event)
@@ -57,18 +73,31 @@ export default defineComponent({
             pageData.value.isDropdown = false
         }
 
+        /**
+         * @description 取消所有修改
+         */
         const closeAll = () => {
             pageData.value.isDropdown = false
         }
 
+        /**
+         * @description 确认修改当前通道
+         * @param {SelectOption<string, string>[]} event
+         */
         const confirm = (event: SelectOption<string, string>[]) => {
             ctx.emit('confirm', prop.index, event)
         }
 
+        /**
+         * @description 取消修改当前通道
+         */
         const close = () => {
             ctx.emit('confirm', prop.index, prop.data[prop.index].snap.chls)
         }
 
+        /**
+         * @description 获取抓图通道列表
+         */
         const getSnapList = async () => {
             pageData.value.snapList = await buildSnapChlList()
         }

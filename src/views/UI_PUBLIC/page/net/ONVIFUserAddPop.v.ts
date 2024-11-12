@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-15 20:09:41
  * @Description: OVNIF 新增/编辑用户弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-17 18:16:56
  */
 import type { FormInstance, FormRules } from 'element-plus'
 import { NetOnvifUserForm, NetOnvifUserList } from '@/types/apiType/net'

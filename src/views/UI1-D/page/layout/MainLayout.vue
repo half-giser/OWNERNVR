@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-24 15:16:31
  * @Description: UI1-D 客制化 顶层布局页
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-05 16:38:52
 -->
 <template>
     <el-container id="layoutMain">
@@ -140,11 +138,11 @@
 }
 
 #layoutMainHeader {
-    padding: 0px;
+    padding: 0;
     height: auto;
     flex: auto 0 0;
     position: relative;
-    border-bottom: 1px solid #fff;
+    border-bottom: 1px solid var(--content-border);
 }
 
 #MainHeaderLine1 {
@@ -165,10 +163,8 @@
         --el-menu-active-color: var(--header-menu-text-active);
 
         & > .el-menu-item {
-            margin: 0px 2px;
+            margin: 0 2px;
             padding: 0 10px;
-            font-family: 'Microsoft YaHei', Arial, Helvetica, sans-serif;
-            font-style: normal;
             font-weight: bold;
             font-size: 16px;
             color: var(--header-menu-text);
@@ -197,7 +193,7 @@
 }
 
 #logo {
-    margin: 8px 0px 0px 14px;
+    margin: 8px 0 0 14px;
     width: 50%;
     height: 90px;
     background: var(--img-logo) no-repeat;
@@ -205,7 +201,7 @@
 
     div {
         overflow: hidden;
-        padding: 42px 0px 0px 295px;
+        padding: 42px 0 0 295px;
         font-weight: bold;
         font-size: 16px;
         color: var(--main-text);
@@ -215,7 +211,7 @@
 
 #topRight {
     font-size: 14px;
-    margin: 0 60px 0px 0px;
+    margin: 0 60px 0 0;
     display: flex;
 
     .icon_aq {
@@ -240,8 +236,8 @@
     }
 
     .nav-item {
-        // margin: 0 20px;
         display: flex;
+        padding-top: 12px;
 
         &:not(:first-child)::before {
             content: '|';
@@ -261,7 +257,7 @@
 }
 
 #layoutMainBody {
-    padding: 0px;
+    padding: 0;
     flex: auto 1 1;
     overflow-y: auto;
     margin-block: 25px;
@@ -280,7 +276,7 @@
 #divCopyRight {
     text-align: center;
     font-size: 11px;
-    padding: 1px 0px 1px 0px;
+    padding: 1px 0;
     height: 18px;
     width: 100%;
     color: var(--footer-text);

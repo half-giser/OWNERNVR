@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-05-31 17:19:50
  * @Description: 支持业务：人脸识别侦测: 警戒区域 + 最大值&最小值;车牌识别侦测: 警戒区域 + 最大值&最小值;人群密度检测: 警戒区域
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-03 09:59:31
  */
 import CanvasBase, { type CanvasBaseLineStyleOption } from './canvasBase'
 

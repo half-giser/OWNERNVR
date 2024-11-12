@@ -19,7 +19,6 @@
                 <el-select
                     v-model="pageData.currChlId"
                     class="base-ai-chl-select"
-                    value-key="id"
                     :popper-class="pageData.chosenFunction === 'avd' ? 'base-ai-chl-option narrow' : 'base-ai-chl-option'"
                     @change="handleChangeChannel"
                 >
@@ -149,7 +148,3 @@
 </template>
 
 <script lang="ts" src="./More.v.ts"></script>
-
-<style>
-@import '@/views/UI_PUBLIC/publicStyle/aiAndEvent.scss';
-</style>

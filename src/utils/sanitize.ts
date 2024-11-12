@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-13 13:41:01
  * @Description: 防XSS攻击html过滤器
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-13 13:42:41
  */
 
 const parser = new DOMParser()

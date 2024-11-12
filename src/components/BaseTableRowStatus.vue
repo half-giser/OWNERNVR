@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-14 15:36:11
  * @Description: 表格行的状态图标
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-14 16:06:40
 -->
 <template>
     <div>
@@ -14,7 +12,7 @@
         >
             <div
                 v-if="icon === 'loading'"
-                class="table_status_col_loading"
+                class="loading"
             ></div>
             <BaseImgSprite
                 v-else-if="icon === 'success'"
@@ -59,3 +57,13 @@ const content = computed(() => {
     return ''
 })
 </script>
+
+<style lang="scss" scoped>
+.loading {
+    width: 20px;
+    height: 20px;
+    background-image: var(--img-loading);
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+</style>

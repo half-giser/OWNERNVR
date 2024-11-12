@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-23 09:01:11
  * @Description: 云台-智能追踪
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 18:15:00
  */
 import { type TableInstance } from 'element-plus'
 import { ChannelPtzSmartTrackDto } from '@/types/apiType/channel'
@@ -164,8 +162,8 @@ export default defineComponent({
                             <chl id="${item.chlId}">
                                 <param>
                                     <backTime>
-                                        <switch>${item.autoBackSwitch.toString()}</switch>
-                                        <timeValue>${item.autoBackTime.toString()}</timeValue>
+                                        <switch>${item.autoBackSwitch}</switch>
+                                        <timeValue>${item.autoBackTime}</timeValue>
                                     </backTime>
                                     <ptzControlMode>${item.ptzControlMode}</ptzControlMode>
                                 </param>

@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-30 18:47:04
  * @Description: 人脸库 - 添加人脸
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 17:30:01
  */
 import { IntelFaceDBFaceForm, type IntelFaceDBGroupDto, type IntelFaceDBSnapFaceList, type IntelFaceDBImportFaceDto } from '@/types/apiType/intelligentAnalysis'
 import { type FormInstance } from 'element-plus'
@@ -281,15 +279,15 @@ export default defineComponent({
 
             const sendXml = rawXml`
                 <content>
-                    <force>${force.toString()}</force>
+                    <force>${force}</force>
                     <name>${item.name}</name>
                     <sex>${item.sex}</sex>
                     <birthday>${formatDate(item.birthday, 'YYYY-MM-DD', dateTime.dateFormat)}</birthday>
                     <nativePlace>${item.nativePlace}</nativePlace>
                     <certificateType>${item.certificateType}</certificateType>
                     <certificateNum>${item.certificateNum}</certificateNum>
-                    <mobile>${item.mobile.toString()}</mobile>
-                    <number>${item.number.toString()}</number>
+                    <mobile>${item.mobile}</mobile>
+                    <number>${item.number}</number>
                     <note>${item.note}</note>
                     <groups>
                         <item id="${group.id}">
@@ -299,8 +297,8 @@ export default defineComponent({
                     </groups>
                     <faceImg>
                         <imgData>${wrapCDATA(item.pic.split(',')[1])}</imgData>
-                        <imgWidth>${importItem.width.toString()}</imgWidth>
-                        <imgHeight>${importItem.height.toString()}</imgHeight>
+                        <imgWidth>${importItem.width}</imgWidth>
+                        <imgHeight>${importItem.height}</imgHeight>
                     </faceImg>
                 </content>
             `
@@ -372,8 +370,8 @@ export default defineComponent({
                     <nativePlace>${item.nativePlace}</nativePlace>
                     <certificateType type="certificateType">${item.certificateType}</certificateType>
                     <certificateNum>${item.certificateNum}</certificateNum>
-                    <mobile>${item.mobile?.toString() || ''}</mobile>
-                    <number>${item.number?.toString() || ''}</number>
+                    <mobile>${item.mobile}</mobile>
+                    <number>${item.number}</number>
                     <note>${item.note}</note>
                     <groups>
                         <item id="${group.id}">
@@ -384,7 +382,7 @@ export default defineComponent({
                     <faceImgs type="list" maxCount="5">
                         <item>
                             <frameTime>${snapItem.frameTime}</frameTime>
-                            <img id="${snapItem.imgId.toString()}" />
+                            <img id="${snapItem.imgId}" />
                             <chl id="${snapItem.chlId}" />
                         </item>
                     </faceImgs>

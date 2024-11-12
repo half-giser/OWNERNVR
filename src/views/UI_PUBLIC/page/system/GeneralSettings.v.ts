@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-24 15:06:48
  * @Description: 基本配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 11:46:58
  */
 import { type FormInstance, type FormRules } from 'element-plus'
 import { SystemGeneralSettingForm } from '@/types/apiType/system'
@@ -370,15 +368,15 @@ export default defineComponent({
                 </types>
                 <content>
                     <name maxByteLen="63">${wrapCDATA(formData.value.deviceName)}</name>
-                    <deviceNumber>${formData.value.deviceNumber.toString()}</deviceNumber>
+                    <deviceNumber>${formData.value.deviceNumber}</deviceNumber>
                     <videoType type="videoType">${formData.value.videoFormat}</videoType>
                     <hdmivgaParam type="hdmivgaParam">${formData.value.outputConfig}</hdmivgaParam>
                     <resolution>
                         ${formData.value.resolution.map((item, index) => `<item index="${index}" set="${formData.value.outputAdapt}">${item}</item>`).join('')}
                     </resolution>
-                    <bootWizardSwitch>${formData.value.enableGuide.toString()}</bootWizardSwitch>
-                    <mobileStreamAdaption>${formData.value.mobileStreamAdaption.toString()}</mobileStreamAdaption>
-                    ${pageData.value.isZeroOrAddIpc ? `<bootZeroCfgAddSwitch>${formData.value.zeroOrAddIpc.toString()}</bootZeroCfgAddSwitch>` : ''}
+                    <bootWizardSwitch>${formData.value.enableGuide}</bootWizardSwitch>
+                    <mobileStreamAdaption>${formData.value.mobileStreamAdaption}</mobileStreamAdaption>
+                    ${pageData.value.isZeroOrAddIpc ? `<bootZeroCfgAddSwitch>${formData.value.zeroOrAddIpc}</bootZeroCfgAddSwitch>` : ''}
                     <decoderResolution>
                         ${Object.keys(formData.value.decoder)
                             .map((key) => {
@@ -386,8 +384,8 @@ export default defineComponent({
                             })
                             .join('')}
                     </decoderResolution>
-                    <autoDwell>${formData.value.enableAutoDwell.toString()}</autoDwell>
-                    <autoDwellWaitTime>${formData.value.waitTime.toString()}</autoDwellWaitTime>
+                    <autoDwell>${formData.value.enableAutoDwell}</autoDwell>
+                    <autoDwellWaitTime>${formData.value.waitTime}</autoDwellWaitTime>
                 </content>
             `
             const result = await editBasicCfg(sendXml)

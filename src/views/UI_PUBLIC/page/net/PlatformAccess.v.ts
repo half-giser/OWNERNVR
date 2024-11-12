@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-15 18:19:00
  * @Description: 平台接入
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 16:58:11
  */
 import { NetPlatformAccessForm, type NetPlatformSipList, NetPlatformSipCodeList } from '@/types/apiType/net'
 import PlatformAccessCodeIdPop from './PlatformAccessCodeIdPop.vue'
@@ -404,16 +402,16 @@ export default defineComponent({
                                     `
                                 })
                                 .join('')}
-                            <switch>${formData.value.gb28181Switch.toString()}</switch>
+                            <switch>${formData.value.gb28181Switch}</switch>
                             <sipServerInfo id="${formData.value.sipId}">
                                 <relm>${formData.value.sipRelm}</relm>
                                 <addr>${formData.value.sipAddr}</addr>
-                                <localPort>${formData.value.sipLocalPort.toString()}</localPort>
-                                <port>${formData.value.sipPort.toString()}</port>
+                                <localPort>${formData.value.sipLocalPort}</localPort>
+                                <port>${formData.value.sipPort}</port>
                                 <deviceId>${formData.value.sipDeviceId}</deviceId>
                                 <username>${formData.value.sipUserName}</username>
                                 ${ternary(formData.value.sipPassword === '******' || !formData.value.sipPassword, '', `<password${getSecurityVer()}>${wrapCDATA(AES_encrypt(formData.value.sipPassword, userSession.sesionKey))}</password>`)}
-                                <expireTime>${formData.value.sipExpireTime.toString()}</expireTime>
+                                <expireTime>${formData.value.sipExpireTime}</expireTime>
                             </sipServerInfo>
                         </item>
                     </content>
@@ -423,9 +421,9 @@ export default defineComponent({
                     <content current="${formData.value.accessType}">
                         <item id="${formData.value.accessType}">
                             <serverAddr>${formData.value.serverAddr}</serverAddr>
-                            <reportId>${formData.value.reportId.toString()}</reportId>
-                            <port>${formData.value.port.toString()}</port>
-                            <switch>${formData.value.nwms5000Switch.toString()}</switch>
+                            <reportId>${formData.value.reportId}</reportId>
+                            <port>${formData.value.port}</port>
+                            <switch>${formData.value.nwms5000Switch}</switch>
                         </item>
                     </content> 
                 `

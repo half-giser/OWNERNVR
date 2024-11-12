@@ -26,18 +26,37 @@
 <script lang="ts" setup>
 const props = withDefaults(
     defineProps<{
+        /**
+         * @property {boolean} 是否显示
+         */
         visible?: boolean
-        headerTitle?: string
+        /**
+         * @property {string} ELTransfer 的 props.tities[0]
+         */
         sourceTitle?: string
+        /**
+         * @property {string} ELTransfer 的 props.tities[1]
+         */
         targetTitle?: string
+        /**
+         * @property {string} ELTransfer 的 props.data
+         */
         sourceData: { label: string; value: string; disabled?: boolean }[]
+        /**
+         * @property {string[]} ELTransfer 的 props.modelValue
+         */
         linkedList: string[]
+        /**
+         * @property {number} 数量限制
+         */
         limit?: number
+        /**
+         * @property {string} 超出数量限制时的文本提示
+         */
         limitTip?: string
     }>(),
     {
         visible: false,
-        headerTitle: '',
         sourceTitle: '',
         targetTitle: '',
         limit: 16,
@@ -54,13 +73,6 @@ const chosedList = ref<string[]>([])
 
 const { openMessageBox } = useMessageBox()
 const { Translate } = useLangStore()
-// const typeMapping: Record<string, string> = {
-//     record: 'IDCS_RECORD_CHANNEL_LIMIT',
-//     ftpRec: 'IDCS_FTP_RECORD_CHANNEL_LIMIT',
-//     snap: 'IDCS_SNAP_CHANNEL_LIMIT',
-//     ftpSnap: 'IDCS_FTP_SNAP_CHANNEL_LIMIT',
-//     alarmOut: 'IDCS_ALARMOUT_LIMIT',
-// }
 
 /**
  * @description 打开弹窗回调

@@ -82,7 +82,12 @@
                                         :empty-values="[undefined, null]"
                                     />
                                 </el-select>
-                                <div id="divTip"></div>
+                                <div class="divTip">
+                                    <BaseFloatError
+                                        v-model:message="pageData.errorMessage"
+                                        :teleported="false"
+                                    />
+                                </div>
                             </el-form-item>
                         </el-form>
 
@@ -266,7 +271,6 @@
             >
         </div>
         <BaseNotification v-model:notifications="pageData.notification" />
-        <BaseFloatError ref="baseFloatErrorRef" />
         <!-- 排程管理弹窗 -->
         <ScheduleManagPop
             v-model="pageData.scheduleManagPopOpen"
@@ -277,12 +281,8 @@
 
 <script lang="ts" src="./TemperatureDetection.v.ts"></script>
 
-<style>
-@import '@/views/UI_PUBLIC/publicStyle/aiAndEvent.scss';
-</style>
-
 <style scoped>
-#divTip {
+.divTip {
     line-height: normal;
 }
 </style>

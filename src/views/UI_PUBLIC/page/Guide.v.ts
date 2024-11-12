@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-18 09:33:12
  * @Description: 开机向导
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-05 13:56:43
  */
 import { SystemGuideLangForm, SysmteGuidePrivacyForm, SystemGuideUserForm, SystemGuideDateTimeForm, SystemGuideQuestionForm, type SystemGuideDiskList } from '@/types/apiType/system'
 import dayjs from 'dayjs'
@@ -245,7 +243,7 @@ export default defineComponent({
                     <timeCfg>
                         <timezoneInfo>
                             <timeZone>${dateTimeFormData.value.timeZone}</timeZone>
-                            <daylightSwitch>${isDSTDisabled.value ? dateTimeFormData.value.enableDST.toString() : 'false'}</daylightSwitch>
+                            <daylightSwitch>${isDSTDisabled.value ? dateTimeFormData.value.enableDST : false}</daylightSwitch>
                         </timezoneInfo>
                         <synchronizeInfo>
                             <type>${dateTimeFormData.value.syncType}</type>
@@ -283,7 +281,7 @@ export default defineComponent({
                 questionXml = qaTableData.value
                     .map((item, index) => {
                         return rawXml`
-                            <item id="${(index + 1).toString()}">
+                            <item id="${index + 1}">
                                 <question>${wrapCDATA(item.question)}</question>
                                 <answer>${wrapCDATA(item.answer)}</answer>
                             </item>

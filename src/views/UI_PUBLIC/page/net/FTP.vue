@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-12 18:20:28
  * @Description: FTP
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-17 17:09:16
 -->
 <template>
     <div class="base-flex-box">
@@ -156,7 +154,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.scheduleOptions"
                                         :key="item.value"
-                                        :value="item.value"
                                         @click="changeAllSwitch('schedule', item.value)"
                                         >{{ item.label }}</el-dropdown-item
                                     >
@@ -192,7 +189,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.switchOptions"
                                         :key="item.value"
-                                        :value="item.value"
                                         @click="changeAllSwitch('motion', item.value)"
                                     >
                                         {{ item.label }}
@@ -227,7 +223,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.switchOptions"
                                         :key="item.value"
-                                        :value="item.value"
                                         @click="changeAllSwitch('inteligence', item.value)"
                                     >
                                         {{ item.label }}
@@ -262,7 +257,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.switchOptions"
                                         :key="item.value"
-                                        :value="item.value"
                                         @click="changeAllSwitch('sensor', item.value)"
                                     >
                                         {{ item.label }}
@@ -297,7 +291,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.streamTypeOptions"
                                         :key="item.value"
-                                        :value="item.value"
                                         @click="changeAllSwitch('streamType', item.value)"
                                     >
                                         {{ item.label }}
@@ -334,7 +327,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.switchOptions"
                                         :key="item.value"
-                                        :value="item.value"
                                         @click="changeAllSwitch('ftpSnapSwitch', item.value)"
                                     >
                                         {{ item.label }}
@@ -371,7 +363,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.switchOptions"
                                         :key="item.value"
-                                        :value="item.value"
                                         @click="changeAllSwitch('ftpAlarmInfoSwitch', item.value)"
                                     >
                                         {{ item.label }}

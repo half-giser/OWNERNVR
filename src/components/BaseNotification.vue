@@ -121,9 +121,11 @@ onBeforeUnmount(() => {
         padding: 3px 8px;
         font-size: 13px;
         word-wrap: break-word;
+
         &:hover {
             background-color: var(--primary-light);
         }
+
         &.selected {
             background-color: var(--primary);
         }
@@ -142,8 +144,7 @@ onBeforeUnmount(() => {
     &-content {
         height: 230px;
         min-height: 70px;
-        overflow-y: hidden;
-        overflow-x: hidden;
+        overflow: hidden;
         padding: 15px;
     }
 }

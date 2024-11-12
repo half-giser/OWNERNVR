@@ -189,7 +189,3 @@
 </template>
 
 <script lang="ts" src="./Cdd.v.ts"></script>
-
-<style lang="scss">
-@import '@/views/UI_PUBLIC/publicStyle/aiAndEvent.scss';
-</style>

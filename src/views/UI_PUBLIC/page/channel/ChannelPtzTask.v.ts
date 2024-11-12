@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-22 15:15:52
  * @Description: 云台-任务
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 18:36:06
  */
 import { cloneDeep } from 'lodash-es'
 import { ChannelPtzTaskDto, type ChannelPtzTaskChlDto, ChannelPtzTaskForm } from '@/types/apiType/channel'
@@ -367,8 +365,8 @@ export default defineComponent({
                     return rawXml`
                         <item index="${item.editIndex}">
                             <type>${item.type}</type>
-                            <startTime>${getSeconds(item.startTime).toString()}</startTime>
-                            <endTime>${getSeconds(item.endTime).toString()}</endTime>
+                            <startTime>${getSeconds(item.startTime)}</startTime>
+                            <endTime>${getSeconds(item.endTime)}</endTime>
                         </item>
                     `
                 })
@@ -378,7 +376,7 @@ export default defineComponent({
                     <chlId id="${chlId}"></chlId>
                     <index>1</index>
                     <name>task1</name>
-                    <status>${status.toString()}</status>
+                    <status>${status}</status>
                     <childs type="list">${taskXml}</childs>
                 </content>
             `
@@ -399,7 +397,7 @@ export default defineComponent({
                 <content>
                     <chlId>${chlId}</chlId>
                     <index>1</index>
-                    <status>${status.toString()}</status>
+                    <status>${status}</status>
                 </content>
             `
             await setChlPtzTaskStatus(sendXml)

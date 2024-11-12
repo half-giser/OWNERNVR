@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-24 14:37:52
  * @Description: UI-D客制化 登录
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-29 13:32:19
 -->
 <template>
     <div class="login">
@@ -136,9 +134,9 @@
         }
 
         :deep(.el-form-item) {
-            margin: 0 0px 0px 419px;
+            margin: 0 0 0 419px;
             font-size: 16px;
-            padding: 0 0 22px 0;
+            padding: 0 0 22px;
         }
 
         :deep(.el-radio-group) {
@@ -173,8 +171,6 @@
 }
 
 .login-btns {
-    width: 313px;
-    display: flex;
     padding-left: 367px;
     width: 365px;
     display: flex;
@@ -194,7 +190,7 @@
 
 .login-error {
     position: relative;
-    margin: 30px 0px 0px 10px;
+    margin: 30px 0 0 10px;
     color: var(--color-error);
 }
 </style>

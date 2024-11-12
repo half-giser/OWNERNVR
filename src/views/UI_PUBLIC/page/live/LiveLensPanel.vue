@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-19 13:37:47
  * @Description: 现场预览-镜头控制视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 13:35:56
 -->
 <template>
     <div class="lens">

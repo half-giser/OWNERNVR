@@ -183,7 +183,3 @@
 </template>
 
 <script lang="ts" src="./ObjectLeft.v.ts"></script>
-
-<style>
-@import '@/views/UI_PUBLIC/publicStyle/aiAndEvent.scss';
-</style>

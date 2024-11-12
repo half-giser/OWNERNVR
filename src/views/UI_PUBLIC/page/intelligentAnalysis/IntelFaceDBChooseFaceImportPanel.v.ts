@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-30 18:47:22
  * @Description: 智能分析 - 选择人脸 - 从外部导入
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-29 18:06:08
  */
 import { type IntelFaceDBImportImgDto, IntelFaceDBImportFaceDto } from '@/types/apiType/intelligentAnalysis'
 import { type XMLQuery } from '@/utils/tools'

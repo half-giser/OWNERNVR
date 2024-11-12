@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-10-23 14:11:24
  * @Description: LOGO设置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 18:35:05
  */
 import { ChannelLogoSetDto } from '@/types/apiType/channel'
 import { type TableInstance } from 'element-plus'
@@ -224,9 +222,9 @@ export default defineComponent({
                                 <name>${item.chlName}</name>
                                 <logo>
                                     <switch>${item.switch}</switch>
-                                    <opacity min="${item.minOpacity.toString()}" max="${item.maxOpacity.toString()}">${item.opacity.toString()}</opacity>
-                                    <X min="${item.minX.toString()}" max="${item.maxX.toString()}">${item.X.toString()}</X>
-                                    <Y min="${item.minY.toString()}" max="${item.maxY.toString()}">${item.Y.toString()}</Y>
+                                    <opacity min="${item.minOpacity}" max="${item.maxOpacity}">${item.opacity}</opacity>
+                                    <X min="${item.minX}" max="${item.maxX}">${item.X}</X>
+                                    <Y min="${item.minY}" max="${item.maxY}">${item.Y}</Y>
                                 </logo>
                             </chl>
                         </content>

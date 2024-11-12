@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-04 16:47:11
  * @Description: 健康状态检测
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 10:58:59
  */
 import { type DiskHealthInfoDiskList, type DiskHealthInfoDiskDetailList } from '@/types/apiType/disk'
 

@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-05 16:00:46
  * @Description: 回放
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-29 17:59:18
  */
 import PlaybackChannelPanel, { type ChannelPanelExpose } from '../playback/PlaybackChannelPanel.vue'
 import PlaybackEventPanel from '../playback/PlaybackEventPanel.vue'
@@ -246,8 +244,8 @@ export default defineComponent({
                 const sendXml = rawXml`
                     <condition>
                         <startTime>${localToUtc(startTime)}</startTime>
-                        <spaceTime>${spaceTime.toString()}</spaceTime>
-                        <spaceNum>${spaceNum.toString()}</spaceNum>
+                        <spaceTime>${spaceTime}</spaceTime>
+                        <spaceNum>${spaceNum}</spaceNum>
                         <chlId type="list">
                             ${chlList.map((item) => `<item>${item}</item>`).join('')}
                         </chlId>
@@ -909,7 +907,7 @@ export default defineComponent({
             if (mode.value === 'h5') {
                 player.displayOriginal(player.getSelectedWinIndex(), bool)
             } else if (mode.value === 'ocx') {
-                const sendXML = OCX_XML_OriginalDisplaySwitch(pageData.value.winData.winIndex, bool.toString() as 'true' | 'false')
+                const sendXML = OCX_XML_OriginalDisplaySwitch(pageData.value.winData.winIndex, bool)
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
         }

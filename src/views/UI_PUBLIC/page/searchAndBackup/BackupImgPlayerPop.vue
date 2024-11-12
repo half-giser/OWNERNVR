@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-09 17:38:29
  * @Description: 图片浏览器
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-12 16:38:29
 -->
 <template>
     <el-dialog
@@ -146,6 +144,7 @@
     justify-content: center;
     align-items: center;
     margin-top: 10px;
+
     & > * {
         margin: 0 5px;
     }

@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-20 09:10:11
  * @Description: P2P授权码登录
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-29 13:33:10
 -->
 <template>
     <div class="authCodeLogin">
@@ -249,7 +247,7 @@
         }
 
         :deep(.el-form-item__error) {
-            margin: 2px 0px 0px 55px;
+            margin: 2px 0 0 55px;
         }
 
         .authCodeLogin-submit {
@@ -293,6 +291,7 @@
         margin-left: 10px;
         font-size: 18px;
         color: var(--primary);
+
         &:hover {
             color: var(--primary);
             opacity: 0.8;

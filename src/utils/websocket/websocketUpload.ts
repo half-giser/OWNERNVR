@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-05-30 17:19:20
  * @Description: websocket上传类
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-27 19:27:49
  */
 
 import WebsocketBase from './websocketBase'

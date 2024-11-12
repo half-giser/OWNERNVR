@@ -2,8 +2,6 @@
  * @Author: xujp xujp@tvt.net.cn
  * @Date: 2023-05-23 17:57:48
  * @Description: 加解密相关方法
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-12 11:20:48
  */
 
 import { encode as Base64Encode, decode as Base64Decode } from 'js-base64'

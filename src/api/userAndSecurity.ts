@@ -2,11 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-14 10:33:32
  * @Description: 用户与安全API
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-18 17:56:42
  */
 
-// import type { AxiosRequestConfig } from 'axios'
 import http from './api'
 
 /**

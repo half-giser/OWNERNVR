@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-30 10:36:43
  * @Description: 回放-操作视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 14:10:04
 -->
 <template>
     <div class="ctrl">

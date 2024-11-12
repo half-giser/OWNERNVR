@@ -79,7 +79,6 @@
             >
                 <div class="player">
                     <BaseVideoPlayer
-                        id="tripwireplayer"
                         ref="tripwireplayerRef"
                         type="live"
                         @onready="tripWirehandlePlayerReady"
@@ -387,10 +386,6 @@
 </template>
 
 <script lang="ts" src="./Tripwire.v.ts"></script>
-
-<style>
-@import '@/views/UI_PUBLIC/publicStyle/aiAndEvent.scss';
-</style>
 
 <style lang="scss" scoped>
 // 高级设置

@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-05-30 18:48:05
  * @Description: websocket导出车牌库
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-02 17:23:03
  */
 import WebsocketBase from './websocketBase'
 

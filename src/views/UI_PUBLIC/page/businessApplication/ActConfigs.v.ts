@@ -2,8 +2,6 @@
  * @Author: zhangdongming zhangdongming@tvt.net.cn
  * @Date: 2024-06-03 10:00:44
  * @Description: 业务应用-门禁管理-门禁配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-01 09:32:21
  */
 
 import { cloneDeep } from 'lodash-es'
@@ -281,9 +279,9 @@ export default defineComponent({
                 .map((item) => {
                     return rawXml`
                         <item>
-                            <id type="uint32">${item.id.toString()}</id>
-                            <OpenDelayTime type="uint8" min="${item.openDelayTimeMin.toString()}" max="${item.openDelayTimeMax.toString()}" default="${item.openDelayTimeDefault.toString()}">${item.openDelayTime.toString()}</OpenDelayTime>
-                            <OpenHoldTime type="uint8" min="${item.openHoldTimeMin.toString()}" max="${item.openHoldTimeMax.toString()}" default="${item.openHoldTimeDefault.toString()}">${item.openHoldTime.toString()}</OpenHoldTime>
+                            <id type="uint32">${item.id}</id>
+                            <OpenDelayTime type="uint8" min="${item.openDelayTimeMin}" max="${item.openDelayTimeMax}" default="${item.openDelayTimeDefault}">${item.openDelayTime}</OpenDelayTime>
+                            <OpenHoldTime type="uint8" min="${item.openHoldTimeMin}" max="${item.openHoldTimeMax}" default="${item.openHoldTimeDefault}">${item.openHoldTime}</OpenHoldTime>
                             ${ternary(!!item.doorLockConfig, `<doorLockConfig type="doorLockType">${item.doorLockConfig}</doorLockConfig>`)}
                             ${ternary(!!item.alarmAction, `<alarmAction type="doorLockAction">${item.alarmAction}</alarmAction>`)}
                         </item>

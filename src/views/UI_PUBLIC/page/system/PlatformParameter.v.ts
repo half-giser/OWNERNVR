@@ -2,14 +2,12 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-10-23 11:22:10
  * @Description: 地标平台参数
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 10:31:27
  */
-
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
+
         const formData = ref({
             enable: false,
             proxyId: '',
@@ -21,6 +19,7 @@ export default defineComponent({
             level: '',
             holdTime: '',
         })
+
         const pageData = ref({
             // 获取到的地址
             defaultServerAddress: '',
@@ -35,6 +34,7 @@ export default defineComponent({
             unit: '',
             holdTimeList: [] as SelectOption<string, string>[],
         })
+
         const getData = async () => {
             openLoading()
             const res = await querySHDBParam()
@@ -126,12 +126,12 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <platformParam>
-                        <switch>${formData.value.enable.toString()}</switch>
+                        <switch>${formData.value.enable}</switch>
                         <proxyId><![CDATA[${formData.value.proxyId}]]></proxyId>
                         <serverAddr default='${pageData.value.defaultServerAddress}'>
                             <![CDATA[${formData.value.isDomain ? formData.value.domain : formData.value.ip}]]>
                         </serverAddr>
-                        <port default='${pageData.value.defaultPort.toString()}'>${formData.value.port.toString()}</port>
+                        <port default='${pageData.value.defaultPort}'>${formData.value.port}</port>
                     </platformParam>
                     <snapParam>
                         <resolution default='${pageData.value.defaultResolution}'>${formData.value.resolution}</resolution>
@@ -209,9 +209,11 @@ export default defineComponent({
         const handleIpChange = (value: string) => {
             formData.value.ip = value
         }
+
         onMounted(() => {
             getData()
         })
+
         return {
             formData,
             pageData,

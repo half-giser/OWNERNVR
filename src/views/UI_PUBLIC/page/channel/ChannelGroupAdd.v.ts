@@ -2,10 +2,8 @@
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-06-19 09:52:27
  * @Description: 新增通道组
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-22 15:38:30
  */
-import { ChannelInfoDto, ChlGroup } from '@/types/apiType/channel'
+import { ChannelInfoDto, ChannelGroupDto } from '@/types/apiType/channel'
 import { type RuleItem } from 'async-validator'
 import type { FormInstance, TableInstance } from 'element-plus'
 
@@ -34,7 +32,7 @@ export default defineComponent({
         const router = useRouter()
 
         const formRef = ref<FormInstance>()
-        const formData = ref(new ChlGroup())
+        const formData = ref(new ChannelGroupDto())
         const tableRef = ref<TableInstance>()
         const baseLivePopRef = ref<LivePopInstance>()
         const tableData = ref<ChannelInfoDto[]>([])
@@ -106,7 +104,7 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <name><![CDATA[${formData.value.name}]]></name>
-                    <dwellTime unit='s'>${formData.value.dwellTime.toString()}</dwellTime>
+                    <dwellTime unit='s'>${formData.value.dwellTime}</dwellTime>
                     <chlIdList type='list'>
                         ${selection.map((ele) => `<item>${ele.id}</item>`).join('')}
                     </chlIdList>
@@ -179,7 +177,7 @@ export default defineComponent({
         }
 
         onMounted(() => {
-            formData.value = new ChlGroup()
+            formData.value = new ChannelGroupDto()
             formData.value.dwellTime = 60
             getData()
         })

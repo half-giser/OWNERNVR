@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-13 09:25:11
  * @Description: 智能分析 - 人脸搜索 - 轨迹
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-14 09:09:38
 -->
 <template>
     <div class="track">

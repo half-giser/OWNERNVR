@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-20 18:26:51
  * @Description: 云台-预置点
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 14:07:25
  */
 import { type TableInstance } from 'element-plus'
 import ChannelPtzCtrlPanel from './ChannelPtzCtrlPanel.vue'
@@ -319,7 +317,7 @@ export default defineComponent({
                     <condition>
                         <chlId>${chlId}</chlId>
                         <presetIndexes type="list">
-                            <item index="${preset.index.toString()}">${wrapCDATA(preset.name)}</item> 
+                            <item index="${preset.index}">${wrapCDATA(preset.name)}</item> 
                         </presetIndexes>
                     </condition>
                 `
@@ -346,7 +344,7 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <chlId>${tableData.value[pageData.value.tableIndex].chlId}</chlId>
-                    <index>${currentPreset.value.index.toString()}</index>
+                    <index>${currentPreset.value.index}</index>
                     <name maxByteLen="63">${wrapCDATA(formData.value.name)}</name>
                 </content>
             `
@@ -387,7 +385,7 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <chlId>${tableData.value[pageData.value.tableIndex].chlId}</chlId>
-                    <index>${currentPreset.value.index.toString()}</index>
+                    <index>${currentPreset.value.index}</index>
                 </content>  
             `
             const result = await editChlPresetPosition(sendXml)
@@ -408,8 +406,8 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <chlId>${tableData.value[pageData.value.tableIndex].chlId}</chlId>
-                    <index>${currentPreset.value.index.toString()}</index>
-                    <speed>${pageData.value.speed.toString()}</speed>
+                    <index>${currentPreset.value.index}</index>
+                    <speed>${pageData.value.speed}</speed>
                 </content>
             `
             goToPtzPreset(sendXml)

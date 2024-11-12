@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-20 18:24:56
  * @Description: 云台-控制台
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-21 10:33:33
  */
 export default defineComponent({
     props: {
@@ -183,7 +181,7 @@ export default defineComponent({
                 <content>
                     <chlId>${prop.chlId}</chlId>
                     <actionType>${cmdItem.actionType}</actionType>
-                    <speed>${pageData.value.speed.toString()}</speed>
+                    <speed>${pageData.value.speed}</speed>
                     <type>${cmdItem.type}</type>
                 </content>
             `

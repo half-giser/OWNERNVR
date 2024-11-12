@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-12 09:40:12
  * @Description: NAT配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-17 15:56:52
 -->
 <template>
     <div>
@@ -90,7 +88,7 @@
         width: 100%;
         height: 100%;
         padding: 10px;
-        background-color: #fff;
+        background-color: var(--qrcode-bg);
 
         img {
             width: 100%;
@@ -104,7 +102,7 @@
         top: 0;
         width: 100%;
         height: 100%;
-        background-color: #fff;
+        background-color: var(--qrcode-bg);
         opacity: 0.95;
     }
 
@@ -117,13 +115,13 @@
         height: 30px;
         line-height: 30px;
         padding: 0 10px;
-        background-color: #8f8d8d;
+        background-color: var(--qrcode-label-bg);
     }
 
     &-text {
         margin-top: 10px;
         text-align: center;
-        font-family: Consolas, Menlo, 'Microsoft YaHei', Arial, Helvetica, sans-serif;
+        font-family: Consolas, Menlo, monospace;
     }
 }
 </style>

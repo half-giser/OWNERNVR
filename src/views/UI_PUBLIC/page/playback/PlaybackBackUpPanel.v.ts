@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-06 20:36:12
  * @Description: 回放-备份任务列表
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 19:14:03
  */
 import { type PlaybackBackUpTaskList } from '@/types/apiType/playback'
 import dayjs from 'dayjs'

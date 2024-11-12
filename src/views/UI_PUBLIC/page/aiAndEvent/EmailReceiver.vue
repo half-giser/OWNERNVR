@@ -166,16 +166,20 @@
 .top {
     width: 700px;
     height: 50px;
+
     :deep(.el-form-item) {
         padding-inline: 0 !important;
     }
+
     :deep(.el-select) {
         --el-color-danger: var(--input-border);
     }
 }
+
 .main {
     width: 700px;
 }
+
 .sender {
     margin-left: 5px;
     margin-right: 5px;

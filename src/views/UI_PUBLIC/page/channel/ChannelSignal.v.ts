@@ -4,7 +4,7 @@
  * @Description: 通道 - 信号接入配置
  */
 
-import { type ChlSignal } from '@/types/apiType/channel'
+import { type ChannelSignalDto } from '@/types/apiType/channel'
 
 export default defineComponent({
     setup() {
@@ -13,7 +13,7 @@ export default defineComponent({
         const { openMessageBox } = useMessageBox()
         const cababilityStore = useCababilityStore()
 
-        const tableData = ref<ChlSignal[]>([])
+        const tableData = ref<ChannelSignalDto[]>([])
         const chlSupSignalTypeList = ref<Record<string, string>[]>([])
         const btnOkDisabled = ref(true)
 
@@ -46,7 +46,7 @@ export default defineComponent({
         ]
         const switchOptions = getBoolSwitchOptions()
 
-        const handleAnalogIpChange = (rowData: ChlSignal) => {
+        const handleAnalogIpChange = (rowData: ChannelSignalDto) => {
             btnOkDisabled.value = false
             const count = tableData.value.filter((item) => item.signal == 'D').length
             if (rowData.analogIp == 'IP') {
@@ -98,7 +98,7 @@ export default defineComponent({
                 if (chls.includes(Number(name))) guidAnalog = true
             })
             let changeIpCount = 0
-            const changeIpRowData: ChlSignal[] = []
+            const changeIpRowData: ChannelSignalDto[] = []
             let hasChangeIP = false
             if (val == 'IP' && tableData.value.length > switchableIpChlMaxCount) {
                 tableData.value.forEach((ele) => {

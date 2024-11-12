@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-29 16:10:28
  * @Description: 现场预览-目标检测视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-29 14:56:02
  */
 import WebsocketSnap, { type WebsocketSnapOnSuccessSnap } from '@/utils/websocket/websocketSnap'
 import LiveSnapFaceMatchItem from './LiveSnapFaceMatchItem.vue'

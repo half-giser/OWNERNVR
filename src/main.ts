@@ -2,8 +2,6 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-04-16 13:47:54
  * @Description: 项目入口
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-05 16:27:10
  */
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'

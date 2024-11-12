@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-02 14:00:27
  * @Description: 车牌库
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-03 14:23:22
 -->
 <template>
     <div class="base-flex-box">

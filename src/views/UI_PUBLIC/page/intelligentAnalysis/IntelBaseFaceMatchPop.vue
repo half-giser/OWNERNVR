@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-12 09:21:59
  * @Description: 智能分析 - 人脸比对结果弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-12 20:38:57
 -->
 <template>
     <el-dialog
@@ -140,7 +138,7 @@
     label {
         width: 15%;
 
-        &:after {
+        &::after {
             content: ' : ';
         }
     }

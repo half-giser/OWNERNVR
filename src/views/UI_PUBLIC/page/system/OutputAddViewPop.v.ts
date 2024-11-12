@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-25 20:56:27
  * @Description: 收藏视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 14:59:09
  */
 import { type FormInstance, type FormRules } from 'element-plus'
 import { SystemOutputSettingAddViewForm } from '@/types/apiType/system'
@@ -77,10 +75,10 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <item>
-                        <segNum>${String(prop.chl.segNum)}</segNum>
+                        <segNum>${prop.chl.segNum}</segNum>
                         <name>${formData.value.name}</name>
                         <chls>
-                            ${prop.chl.chls.map((item) => `<item id="${item.id}">${String(item.winindex)}</item>`).join('')}
+                            ${prop.chl.chls.map((item) => `<item id="${item.id}">${item.winindex}</item>`).join('')}
                         </chls>
                     </item>
                 </content>

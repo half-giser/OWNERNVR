@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-29 16:07:46
  * @Description: 现场预览-云台视图-轨迹
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-31 09:50:11
  */
 import ChannelTraceAddPop from '../channel/ChannelTraceAddPop.vue'
 import { type ChannelPtzTraceDto } from '@/types/apiType/channel'
@@ -146,7 +144,7 @@ export default defineComponent({
                 const sendXml = rawXml`
                     <content>
                         <chlId>${prop.chlId}</chlId>
-                        <index>${item.index.toString()}</index>
+                        <index>${item.index}</index>
                     </content>
                 `
                 await runChlPtzTrace(sendXml)
@@ -189,7 +187,7 @@ export default defineComponent({
                     <condition>
                         <chlId>${prop.chlId}</chlId>
                         <traceIndexes>
-                            <item index="${index.toString()}">${index.toString()}</item>
+                            <item index="${index}">${index}</item>
                         </traceIndexes>
                     </condition>
                 `
@@ -200,7 +198,7 @@ export default defineComponent({
                     const sendXml = rawXml`
                        <content>
                             <chlId>${prop.chlId}</chlId>
-                            <index>${index.toString()}</index>
+                            <index>${index}</index>
                        </content> 
                     `
                     const result = await deleteChlPtzTrace(sendXml)
@@ -255,7 +253,7 @@ export default defineComponent({
                 const sendXml = rawXml`
                     <content>
                         <chlId>${prop.chlId}</chlId>
-                        <index>${item.index.toString()}</index>
+                        <index>${item.index}</index>
                     </content>
                 `
                 await startChlPtzTrace(sendXml)
@@ -282,7 +280,7 @@ export default defineComponent({
                 const sendXml = rawXml`
                     <content>
                         <chlId>${prop.chlId}</chlId>
-                        <index>${item.index.toString()}</index>
+                        <index>${item.index}</index>
                     </content>
                 `
                 await cancelChlPtzTrace(sendXml)
@@ -308,7 +306,7 @@ export default defineComponent({
                 const sendXml = rawXml`
                     <content>
                         <chlId>${prop.chlId}</chlId>
-                        <index>${item.index.toString()}</index>
+                        <index>${item.index}</index>
                     </content>
                 `
                 await saveChlPtzTrace(sendXml)

@@ -2,11 +2,9 @@
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-07-09 18:39:25
  * @Description: 添加通道 - 编辑IPC IP弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 11:35:16
  */
 import { type FormRules, type FormInstance } from 'element-plus'
-import { ChannelAddEditIPCIpDto, type ChannelQuickAddDto, type DefaultPwdDto } from '@/types/apiType/channel'
+import { ChannelAddEditIPCIpDto, type ChannelQuickAddDto, type ChannelDefaultPwdDto } from '@/types/apiType/channel'
 
 export default defineComponent({
     props: {
@@ -15,7 +13,7 @@ export default defineComponent({
             required: true,
         },
         mapping: {
-            type: Object as PropType<Record<string, DefaultPwdDto>>,
+            type: Object as PropType<Record<string, ChannelDefaultPwdDto>>,
             required: true,
         },
     },

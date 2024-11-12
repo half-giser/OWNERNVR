@@ -7,7 +7,7 @@ import { cloneDeep } from 'lodash-es'
 import { type AlarmTemperatureDetectionBoundryDto, type AlarmChlDto, AlarmTemperatureDetectionDto } from '@/types/apiType/aiAndEvent'
 import CanvasPolygon from '@/utils/canvas/canvasTemperature'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
-import { type TabPaneName } from 'element-plus'
+import { type TableInstance, type TabPaneName } from 'element-plus'
 import { type XmlResult } from '@/utils/xmlParse'
 import AlarmBaseRecordSelector from './AlarmBaseRecordSelector.vue'
 import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
@@ -32,10 +32,16 @@ export default defineComponent({
             type: String,
             required: true,
         },
+        /**
+         * @property {AlarmChlDto} 通道数据
+         */
         chlData: {
             type: Object as PropType<AlarmChlDto>,
             required: true,
         },
+        /**
+         * @property {Array} 声音选项
+         */
         voiceList: {
             type: Array as PropType<SelectOption<string, string>[]>,
             required: true,
@@ -58,10 +64,7 @@ export default defineComponent({
         // 播放器
         const playerRef = ref<PlayerInstance>()
         // 区域界限table
-        const boundaryTableRef = ref()
-
-        // 错误提示
-        const baseFloatErrorRef = ref()
+        const boundaryTableRef = ref<TableInstance>()
 
         // 规则类型
         const ruleShapeTypeList = [
@@ -151,6 +154,7 @@ export default defineComponent({
             initComplated: false,
             applyDisabled: true,
             notification: [] as string[],
+            errorMessage: '',
         })
 
         // 播放模式
@@ -431,7 +435,7 @@ export default defineComponent({
             tempDetectionData.value.boundaryData.forEach((item, index) => {
                 if (index == 0) {
                     // 初始化选中第一行并绘制图形
-                    boundaryTableRef.value.setCurrentRow(item, true)
+                    boundaryTableRef.value!.setCurrentRow(item)
                     pageData.value.currRowData = item
                 }
                 pageData.value.alarmRuleTypeList[index] = item.ruleType == 'point' ? alarmRuleTypeList2 : alarmRuleTypeList1
@@ -556,7 +560,7 @@ export default defineComponent({
         const ruleTypeChange = (value: string, row: AlarmTemperatureDetectionBoundryDto, index: number) => {
             pageData.value.alarmRuleTypeList[index] = value == 'point' ? alarmRuleTypeList2 : alarmRuleTypeList1
             pageData.value.currRowData = row
-            boundaryTableRef.value.setCurrentRow(row, true)
+            boundaryTableRef.value!.setCurrentRow(row)
             row.alarmRule = 'avgtemperabove'
             setPaintType()
             clearArea()
@@ -582,13 +586,7 @@ export default defineComponent({
             if (res > 1) {
                 // 数字默认为0.01
                 res = 0.01
-                // ElMessage({
-                //     message: Translate('IDCS_HEARTBEAT_RANGE_TIP').formatForLang(0.01, 1),
-                //     type: 'error',
-                //     customClass: 'errorMsg',
-                //     duration: 2000,
-                // })
-                baseFloatErrorRef.value.show('#divTip', Translate('IDCS_HEARTBEAT_RANGE_TIP').formatForLang(0.01, 1), 'error')
+                pageData.value.errorMessage = Translate('IDCS_HEARTBEAT_RANGE_TIP').formatForLang(0.01, 1)
             }
             tempDetectionData.value.boundaryData[index].emissivity = value != '' ? String(res) : ''
         }
@@ -598,7 +596,7 @@ export default defineComponent({
             if (!value || value < 0.01 || value > 1) {
                 // 数字默认为0.01
                 row.emissivity = '0.01'
-                baseFloatErrorRef.value.show('#divTip', Translate('IDCS_HEARTBEAT_RANGE_TIP').formatForLang(0.01, 1), 'error')
+                pageData.value.errorMessage = Translate('IDCS_HEARTBEAT_RANGE_TIP').formatForLang(0.01, 1)
             }
         }
 
@@ -608,7 +606,7 @@ export default defineComponent({
             if ((value[0] == '0' && value[1] > '0') || value == '00') value = value.slice(1)
             if (Number(value) > 10000) {
                 value = cutStringByByte(value, 4)
-                baseFloatErrorRef.value.show('#divTip', Translate('IDCS_HEARTBEAT_RANGE_TIP').formatForLang(0, 10000), 'error')
+                pageData.value.errorMessage = Translate('IDCS_HEARTBEAT_RANGE_TIP').formatForLang(0, 10000)
             }
             tempDetectionData.value.boundaryData[index].distance = value
         }
@@ -632,13 +630,13 @@ export default defineComponent({
                     .replace('$#$', '-') //把字符'$#$'替换回原来的'-'
                 if (Number(value) < -30) {
                     value = value.slice(0, -1)
-                    baseFloatErrorRef.value.show('#divTip', Translate('IDCS_HEARTBEAT_RANGE_TIP').formatForLang(-30, 60), 'error')
+                    pageData.value.errorMessage = Translate('IDCS_HEARTBEAT_RANGE_TIP').formatForLang(-30, 60)
                 }
             } else {
                 value = value.replace(/\-/g, '') //把字符'-'替换为空字符串(删除)
                 if (Number(value) > 60) {
                     value = value.slice(0, -1)
-                    baseFloatErrorRef.value.show('#divTip', Translate('IDCS_HEARTBEAT_RANGE_TIP').formatForLang(-30, 60), 'error')
+                    pageData.value.errorMessage = Translate('IDCS_HEARTBEAT_RANGE_TIP').formatForLang(-30, 60)
                 }
             }
             tempDetectionData.value.boundaryData[index].reflectTemper = value
@@ -663,13 +661,13 @@ export default defineComponent({
                     .replace('$#$', '-') //把字符'$#$'替换回原来的'-'
                 if (Number(value) < -50) {
                     value = value.slice(0, -1)
-                    baseFloatErrorRef.value.show('#divTip', Translate('IDCS_HEARTBEAT_RANGE_TIP').formatForLang(-50, 500), 'error')
+                    pageData.value.errorMessage = Translate('IDCS_HEARTBEAT_RANGE_TIP').formatForLang(-50, 500)
                 }
             } else {
                 value = value.replace(/\-/g, '') //把字符'-'替换为空字符串(删除)
                 if (Number(value) > 500) {
                     value = value.slice(0, -1)
-                    baseFloatErrorRef.value.show('#divTip', Translate('IDCS_HEARTBEAT_RANGE_TIP').formatForLang(-50, 500), 'error')
+                    pageData.value.errorMessage = Translate('IDCS_HEARTBEAT_RANGE_TIP').formatForLang(-50, 500)
                 }
             }
             tempDetectionData.value.boundaryData[index].alarmTemper = value
@@ -918,7 +916,6 @@ export default defineComponent({
             tempDetectionData,
             playerRef,
             boundaryTableRef,
-            baseFloatErrorRef,
             // 规则类型
             ruleShapeTypeList,
             // 报警规则类型

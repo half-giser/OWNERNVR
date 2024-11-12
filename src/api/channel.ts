@@ -4,90 +4,288 @@
  * @Description: 通道API
  */
 
-// import type { AxiosRequestConfig } from 'axios'
 import http from './api'
 
-// 查询设备列表
+/**
+ * @description 查询设备列表
+ * @param {string} data
+ * @returns
+ */
 export const queryDevList = (data: string) => http.fetch('queryDevList', getXmlWrapData(data))
-// 查询Rtsp协议列表
+
+/**
+ * @description 查询Rtsp协议列表
+ * @returns
+ */
 export const queryRtspProtocolList = () => http.fetch('queryRtspProtocolList', getXmlWrapData(''))
-// 编辑Rtsp协议列表
+
+/**
+ * @description 编辑Rtsp协议列表
+ * @param {string} data
+ * @returns
+ */
 export const editRtspProtocolList = (data: string) => http.fetch('editRtspProtocolList', getXmlWrapData(data))
-// 查询通道信息
+
+/**
+ * @description 查询通道信息
+ * @param {string} data
+ * @returns
+ */
 export const queryDev = (data: string) => http.fetch('queryDev', getXmlWrapData(data))
-// 查询通道信息
+
+/**
+ * @description 查询通道信息
+ * @param {string} data
+ * @returns
+ */
 export const queryIPChlInfo = (data: string) => http.fetch('queryIPChlInfo', getXmlWrapData(data))
-// 查询在线通道列表
+
+/**
+ * @description 查询在线通道列表
+ * @returns
+ */
 export const queryOnlineChlList = () => http.fetch('queryOnlineChlList', getXmlWrapData(''))
-// 删除通道
+
+/**
+ * @description 删除通道
+ * @param {string} data
+ * @returns
+ */
 export const delDevList = (data: string) => http.fetch('delDevList', getXmlWrapData(data))
-// 查询通道端口
+
+/**
+ * @description 查询通道端口
+ * @param {string} data
+ * @returns
+ */
 export const queryChlPort = (data: string) => http.fetch('queryChlPort', getXmlWrapData(data))
-// 编辑通道
+
+/**
+ * @description 编辑通道
+ * @param {string} data
+ * @returns
+ */
 export const editDev = (data: string) => http.fetch('editDev', getXmlWrapData(data))
-// 查询局域网内可添加的通道
+
+/**
+ * @description 查询局域网内可添加的通道
+ * @returns
+ */
 export const queryLanFreeDeviceList = () => http.fetch('queryLanFreeDeviceList', getXmlWrapData(''))
-// 查询通道默认密码
+
+/**
+ * @description 查询通道默认密码
+ * @returns
+ */
 export const queryDevDefaultPwd = () => http.fetch('queryDevDefaultPwd', getXmlWrapData(''))
-// 查询可添加的录像机
+
+/**
+ * @description 查询可添加的录像机
+ * @returns
+ */
 export const queryLanRecorderList = () => http.fetch('queryLanRecorderList', getXmlWrapData(''))
-// 编辑通道密码
+
+/**
+ * @description 编辑通道密码
+ * @param {string} data
+ * @returns
+ */
 export const editIPChlPassword = (data: string) => http.fetch('editIPChlPassword', getXmlWrapData(data))
-// 激活IPC
+
+/**
+ * @description 激活IPC
+ * @param {string} data
+ * @returns
+ */
 export const activateIPC = (data: string) => http.fetch('activateIPC', getXmlWrapData(data))
-// 编辑设备默认密码
+
+/**
+ * @description 编辑设备默认密码
+ * @param {string} data
+ * @returns
+ */
 export const editDevDefaultPwd = (data: string) => http.fetch('editDevDefaultPwd', getXmlWrapData(data))
-// 编辑设备网络配置
+
+/**
+ * @description 编辑设备网络配置
+ * @param {string} data
+ * @returns
+ */
 export const editDevNetworkList = (data: string) => http.fetch('editDevNetworkList', getXmlWrapData(data))
-// 查询录像机
+
+/**
+ * @description 查询录像机
+ * @param {string} data
+ * @returns
+ */
 export const queryRecorder = (data: string) => http.fetch('queryRecorder', getXmlWrapData(data), {}, false)
-// 测试录像机
+
+/**
+ * @description 测试录像机
+ * @param {string} data
+ * @returns
+ */
 export const testRecorder = (data: string) => http.fetch('testRecorder', getXmlWrapData(data), {}, false)
-// 查询录像机
+
+/**
+ * @description 查询录像机
+ * @param {string} data
+ * @returns
+ */
 export const queryNodeList = (data: string) => http.fetch('queryNodeList', getXmlWrapData(data))
-// 新增通道
+
+/**
+ * @description 新增通道
+ * @param {string} data
+ * @returns
+ */
 export const createDevList = (data: string) => http.fetch('createDevList', getXmlWrapData(data))
-// 查询当前设备是否多通道设备
+
+/**
+ * @description 查询当前设备是否多通道设备
+ * @param {string} data
+ * @returns
+ */
 export const queryLanDevice = (data: string) => http.fetch('queryLanDevice', getXmlWrapData(data), {}, false)
-// 查询通道组列表
+
+/**
+ * @description 查询通道组列表
+ * @param {string} data
+ * @returns
+ */
 export const queryChlGroupList = (data: string) => http.fetch('queryChlGroupList', getXmlWrapData(data))
-// 编辑通道组
+
+/**
+ * @description 编辑通道组
+ * @param {string} data
+ * @returns
+ */
 export const editChlGroup = (data: string) => http.fetch('editChlGroup', getXmlWrapData(data))
-// 删除通道组
+
+/**
+ * @description 删除通道组
+ * @param {string} data
+ * @returns
+ */
 export const delChlGroup = (data: string) => http.fetch('delChlGroup', getXmlWrapData(data))
-// 查询通道组
+
+/**
+ * @description 查询通道组
+ * @param {string} data
+ * @returns
+ */
 export const queryChlGroup = (data: string) => http.fetch('queryChlGroup', getXmlWrapData(data))
-// 编辑通道组通道
+
+/**
+ * @description 编辑通道组通道
+ * @param {string} data
+ * @returns
+ */
 export const editSetAndElementRelation = (data: string) => http.fetch('editSetAndElementRelation', getXmlWrapData(data))
-// 新增通道组
+
+/**
+ * @description 新增通道组
+ * @param {string} data
+ * @returns
+ */
 export const createChlGroup = (data: string) => http.fetch('createChlGroup', getXmlWrapData(data))
-// 查询osd通道配置
+
+/**
+ * @description 查询osd通道配置
+ * @param {string} data
+ * @returns
+ */
 export const queryIPChlORChlOSD = (data: string) => http.fetch('queryIPChlORChlOSD', getXmlWrapData(data))
-// 编辑osd通道配置
+
+/**
+ * @description 编辑osd通道配置
+ * @param {string} data
+ * @returns
+ */
 export const editIPChlORChlOSD = (data: string) => http.fetch('editIPChlORChlOSD', getXmlWrapData(data))
-// 查询通道水印配置
+
+/**
+ * @description 查询通道水印配置
+ * @param {string} data
+ * @returns
+ */
 export const queryChlWaterMark = (data: string) => http.fetch('queryChlWaterMark', getXmlWrapData(data))
-// 编辑通道水印配置
+
+/**
+ * @description 编辑通道水印配置
+ * @param {string} data
+ * @returns
+ */
 export const editChlWaterMark = (data: string) => http.fetch('editChlWaterMark', getXmlWrapData(data))
-// 查询通道视频参数
+
+/**
+ * @description 查询通道视频参数
+ * @param {string} data
+ * @returns
+ */
 export const queryChlVideoParam = (data: string) => http.fetch('queryChlVideoParam', getXmlWrapData(data))
-// 编辑通道视频参数
+
+/**
+ * @description 编辑通道视频参数
+ * @param {string} data
+ * @returns
+ */
 export const editChlVideoParam = (data: string) => http.fetch('editChlVideoParam', getXmlWrapData(data))
-// 查询通道镜头控制参数
+
+/**
+ * @description 查询通道镜头控制参数
+ * @param {string} data
+ * @returns
+ */
 export const queryCameraLensCtrlParam = (data: string) => http.fetch('queryCameraLensCtrlParam', getXmlWrapData(data))
-// 编辑通道镜头控制参数
+
+/**
+ * @description 编辑通道镜头控制参数
+ * @param {string} data
+ * @returns
+ */
 export const editCameraLensCtrlParam = (data: string) => http.fetch('editCameraLensCtrlParam', getXmlWrapData(data))
-// 下发镜头控制命令
+
+/**
+ * @description 下发镜头控制命令
+ * @param {string} data
+ * @returns
+ */
 export const cameraLensCtrlCall = (data: string) => http.fetch('cameraLensCtrlCall', getXmlWrapData(data))
-// 查询通道遮挡配置
+
+/**
+ * @description 查询通道遮挡配置
+ * @param {string} data
+ * @returns
+ */
 export const queryPrivacyMask = (data: string) => http.fetch('queryPrivacyMask', getXmlWrapData(data))
-// 编辑通道遮挡配置
+
+/**
+ * @description 编辑通道遮挡配置
+ * @param {string} data
+ * @returns
+ */
 export const editPrivacyMask = (data: string) => http.fetch('editPrivacyMask', getXmlWrapData(data))
-// 编辑鱼眼通道配置
+
+/**
+ * @description 编辑鱼眼通道配置
+ * @param {string} data
+ * @returns
+ */
 export const editIPChlORChlFishEye = (data: string) => http.fetch('editIPChlORChlFishEye', getXmlWrapData(data))
-// 查询鱼眼启用状态
+
+/**
+ * @description 查询鱼眼启用状态
+ * @param {string} data
+ * @returns
+ */
 export const queryFishEyeEnable = (data: string) => http.fetch('queryFishEyeEnable', getXmlWrapData(data))
-// 编辑鱼眼启用状态
+
+/**
+ * @description 编辑鱼眼启用状态
+ * @param {string} data
+ * @returns
+ */
 export const editFishEyeEnable = (data: string) => http.fetch('editFishEyeEnable', getXmlWrapData(data))
 
 /**

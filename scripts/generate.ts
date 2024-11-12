@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-07 15:12:23
  * @Description: 批量打包多UI
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-07 09:10:27
  */
 import { exec } from 'node:child_process'
 import Chalk from 'chalk'

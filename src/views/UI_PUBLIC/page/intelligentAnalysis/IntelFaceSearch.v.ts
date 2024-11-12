@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-29 09:54:23
  * @Description: 智能分析-人脸搜索
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-29 14:38:12
  */
 import {
     IntelFaceImgDto,
@@ -794,7 +792,7 @@ export default defineComponent({
                         <pageIndex>1</pageIndex>
                         <pageSize>1</pageSize>
                         <condition>
-                            <id>${row.faceFeatureId.toString()}</id>
+                            <id>${row.faceFeatureId}</id>
                         </condition>
                     `
                     const result = await queryFacePersonnalInfoList(sendXml)
@@ -845,7 +843,7 @@ export default defineComponent({
             try {
                 const sendXml = rawXml`
                     <condition>
-                        <id>${row.faceFeatureId.toString()}</id>
+                        <id>${row.faceFeatureId}</id>
                         <index>1</index>
                     </condition>
                 `
@@ -941,8 +939,8 @@ export default defineComponent({
                             (item) => rawXml`
                                 <item>
                                     <imgData>${item.pic.split(',')[1]}</imgData>
-                                    <imgWidth>${item.width.toString()}</imgWidth>
-                                    <imgHeight>${item.height.toString()}</imgHeight>
+                                    <imgWidth>${item.width}</imgWidth>
+                                    <imgHeight>${item.height}</imgHeight>
                                 </item>
                             `,
                         )
@@ -952,7 +950,7 @@ export default defineComponent({
                             (item) => rawXml`
                                 <item>
                                     <frameTime>${item.frameTime}</frameTime>
-                                    <img id="${item.imgId.toString()}"></img>
+                                    <img id="${item.imgId}"></img>
                                     <chl id="${item.chlId}"></chl>
                                     <index>0</index>
                                 </item>
@@ -978,7 +976,7 @@ export default defineComponent({
                     <chls type="list">${chlXml}</chls>
                     ${eventXml}
                     ${faceXml}
-                    <similarity>${formData.value.similarity.toString()}</similarity>
+                    <similarity>${formData.value.similarity}</similarity>
                 </condition>
             `
 

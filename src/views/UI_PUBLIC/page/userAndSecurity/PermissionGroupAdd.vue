@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-17 20:25:35
  * @Description: 添加权限组
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-04 15:34:52
 -->
 <template>
     <div class="base-flex-box">
@@ -193,7 +191,3 @@
 </template>
 
 <script lang="ts" src="./PermissionGroupAdd.v.ts"></script>
-
-<style>
-@import '@/views/UI_PUBLIC/publicStyle/userAndSecurity.scss';
-</style>

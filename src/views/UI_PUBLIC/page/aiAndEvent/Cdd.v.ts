@@ -23,16 +23,22 @@ export default defineComponent({
     },
     props: {
         /**
-         * @property 选中的通道
+         * @property {string} 选中的通道
          */
         currChlId: {
             type: String,
             required: true,
         },
+        /**
+         * @property {AlarmChlDto} 通道数据
+         */
         chlData: {
             type: Object as PropType<AlarmChlDto>,
             required: true,
         },
+        /**
+         * @property {Array} 声音选项
+         */
         voiceList: {
             type: Array as PropType<SelectOption<string, string>[]>,
             required: true,
@@ -149,6 +155,7 @@ export default defineComponent({
                 }
             }
         }
+
         // 首次加载成功 播放视频
         const stopWatchFirstPlay = watchEffect(() => {
             if (ready.value && pageData.value.initComplete) {

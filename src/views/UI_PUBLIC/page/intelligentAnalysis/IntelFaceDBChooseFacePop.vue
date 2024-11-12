@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-30 09:26:56
  * @Description: 人脸库 - 选择人脸
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-02 11:11:08
 -->
 <template>
     <el-dialog
@@ -121,6 +119,7 @@
             }
         }
     }
+
     &-right {
         height: 460px;
     }
@@ -128,10 +127,12 @@
 
 .desc {
     line-height: 2.5;
+
     & > div {
         & > div {
             margin-left: 60px;
         }
+
         & > span:last-child {
             margin-left: 60px;
         }

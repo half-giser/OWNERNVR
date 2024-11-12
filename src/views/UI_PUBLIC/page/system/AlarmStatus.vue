@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-28 11:45:24
  * @Description: 报警状态
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 18:17:56
 -->
 <template>
     <div class="base-flex-box">

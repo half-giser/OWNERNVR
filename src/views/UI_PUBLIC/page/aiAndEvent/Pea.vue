@@ -79,7 +79,6 @@
             >
                 <div class="player">
                     <BaseVideoPlayer
-                        id="peaplayer"
                         ref="peaplayerRef"
                         type="live"
                         @onready="peahandlePlayerReady"
@@ -404,10 +403,6 @@
 </template>
 
 <script lang="ts" src="./Pea.v.ts"></script>
-
-<style>
-@import '@/views/UI_PUBLIC/publicStyle/aiAndEvent.scss';
-</style>
 
 <style lang="scss" scoped>
 // 高级设置

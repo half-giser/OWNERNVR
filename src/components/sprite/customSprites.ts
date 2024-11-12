@@ -2,79 +2,32 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-13 16:21:55
  * @Description: 需要特殊计算位置的雪碧图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-13 17:26:20
  */
-const customSprites: Record<string, (index: number) => ImageSpriteCoordinatesItem> = {
+const customSprites: Record<string, (index: number) => number[]> = {
     datePicker_white: (index: number) => {
         if (index <= 3) {
-            return {
-                width: 16,
-                height: 16,
-                x: index * 16,
-                y: 0,
-            }
+            return [index * 16, 0, 16, 16]
         } else if (index === 4) {
-            return {
-                width: 20,
-                height: 20,
-                x: 0,
-                y: 16,
-            }
+            return [0, 16, 20, 20]
         } else if (index === 5) {
-            return {
-                width: 13,
-                height: 12,
-                x: 32,
-                y: 16,
-            }
+            return [32, 16, 13, 12]
         } else {
-            return {
-                width: 13,
-                height: 12,
-                x: 48,
-                y: 16,
-            }
+            return [48, 16, 13, 12]
         }
     },
     datePicker: (index: number) => {
         if (index <= 3) {
-            return {
-                width: 16,
-                height: 16,
-                x: index * 16,
-                y: 0,
-            }
+            return [index * 16, 0, 16, 16]
         } else if (index === 4) {
-            return {
-                width: 20,
-                height: 20,
-                x: 0,
-                y: 16,
-            }
+            return [0, 16, 20, 20]
         } else if (index === 5) {
-            return {
-                width: 13,
-                height: 12,
-                x: 32,
-                y: 16,
-            }
+            return [32, 16, 13, 12]
         } else {
-            return {
-                width: 13,
-                height: 12,
-                x: 48,
-                y: 16,
-            }
+            return [48, 16, 13, 12]
         }
     },
     pageBtn: (index: number) => {
-        return {
-            width: 40,
-            height: 40,
-            x: (index % 4) * 40,
-            y: Math.floor(index / 4) * 40,
-        }
+        return [(index % 4) * 40, Math.floor(index / 4) * 40, 40, 40]
     },
 }
 

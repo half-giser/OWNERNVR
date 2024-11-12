@@ -249,10 +249,6 @@
 
 <script lang="ts" src="./SystemDisarm.v.ts"></script>
 
-<style>
-@import '@/views/UI_PUBLIC/publicStyle/aiAndEvent.scss';
-</style>
-
 <style lang="scss" scoped>
 .guard_text {
     font-size: 15px;

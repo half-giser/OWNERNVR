@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-29 16:08:14
  * @Description: 现场预览-底部菜单栏视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-26 09:43:54
  */
 import LiveScreenAlarmOut from './LiveScreenAlarmOut.vue'
 import { type LiveSharedWinData } from '@/types/apiType/live'
@@ -162,7 +160,7 @@ export default defineComponent({
             }
             const sendXml = rawXml`
                 <content>
-                    <switch>${bool.toString()}</switch>
+                    <switch>${bool}</switch>
                 </content>
             `
             await editManualRecord(sendXml)

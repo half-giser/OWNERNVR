@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-16 16:18:16
  * @Description: 云升级
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-17 17:44:25
 -->
 <template>
     <div>
@@ -86,6 +84,7 @@
     display: flex;
     align-items: center;
     line-height: 1.4;
+
     span:first-child {
         flex-shrink: 0;
     }

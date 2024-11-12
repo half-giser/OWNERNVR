@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-06 20:35:59
  * @Description: 本地备份任务 进度弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 10:25:06
  */
 import type { PlaybackBackUpRecList } from '@/types/apiType/playback'
 import WebsocketRecordBackup, { type WebsocketRecordBackupOnMessageParam } from '@/utils/websocket/websocketRecordBackup'

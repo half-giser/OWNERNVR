@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-06 16:33:02
  * @Description: 智能分析 - 抓拍选项框
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-12 09:10:09
 -->
 <template>
     <div
@@ -78,6 +76,7 @@
         img {
             width: 114px;
             object-fit: cover;
+
             &:nth-of-type(2) {
                 left: unset;
                 right: 0;
@@ -91,10 +90,6 @@
 
         .snap-pic {
             height: 130px;
-        }
-
-        .snap-404 {
-            line-height: 130px;
         }
     }
 

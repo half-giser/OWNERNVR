@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-29 16:10:39
  * @Description: 抓拍注册弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 17:31:21
  */
 import type { FormInstance, FormRules } from 'element-plus'
 import IntelFaceDBEditPop from './IntelFaceDBEditPop.vue'
@@ -157,8 +155,8 @@ export default defineComponent({
                     </groups>
                     <faceImg>
                         <imgData>${wrapCDATA(prop.pic.split(',')[1])}</imgData>
-                        <imgWidth>${pageData.value.imgWidth.toString()}</imgWidth>
-                        <imgHeight>${pageData.value.imgHeight.toString()}</imgHeight>
+                        <imgWidth>${pageData.value.imgWidth}</imgWidth>
+                        <imgHeight>${pageData.value.imgHeight}</imgHeight>
                     </faceImg>
                 </content>
             `

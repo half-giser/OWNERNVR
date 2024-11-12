@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-19 17:29:31
  * @Description: POE电源管理
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 19:18:07
  */
 import type { SystemPoeList } from '@/types/apiType/system'
 

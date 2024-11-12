@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-18 18:43:21
  * @Description: 登出后预览
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 13:39:31
 -->
 <template>
     <div class="base-flex-box">

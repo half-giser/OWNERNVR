@@ -7,6 +7,9 @@ import { type AlarmPresetItem } from '@/types/apiType/aiAndEvent'
 
 export default defineComponent({
     props: {
+        /**
+         * @property {Array} 选中值
+         */
         modelValue: {
             type: Array as PropType<AlarmPresetItem[]>,
             required: true,
@@ -29,6 +32,7 @@ export default defineComponent({
 
         const reqMap: Record<string, boolean> = {}
 
+        // 选中的预置点
         const selected = computed(() => {
             const selectedData: Record<string, string> = {}
             prop.modelValue.forEach((item) => {
@@ -50,6 +54,9 @@ export default defineComponent({
             return selectedData
         })
 
+        /**
+         * @description 获取通道列表
+         */
         const getChannelList = async () => {
             const result = await getChlList({
                 isSupportPtz: true,
@@ -78,6 +85,10 @@ export default defineComponent({
             })
         }
 
+        /**
+         * @description 获取预置点列表
+         * @param {SelectOption<string, string>} chl
+         */
         const getPresetList = async (chl: SelectOption<string, string>) => {
             if (reqMap[chl.value]) {
                 return
@@ -107,6 +118,11 @@ export default defineComponent({
             })
         }
 
+        /**
+         * @description 更改选项
+         * @param {SelectOption<string, string>} chl
+         * @param {number} presetIndex
+         */
         const change = (chl: SelectOption<string, string>, presetIndex: string) => {
             const presetItems = [...prop.modelValue]
             const preset = pageData.value.presetList[chl.value].find((item) => item.value === presetIndex)!

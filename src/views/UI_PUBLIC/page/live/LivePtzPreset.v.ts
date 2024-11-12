@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-29 16:07:38
  * @Description: 现场预览-云台视图-预置点
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 18:34:25
  */
 import ChannelPresetAddPop from '../channel/ChannelPresetAddPop.vue'
 import { type ChannelPtzPresetDto } from '@/types/apiType/channel'
@@ -132,7 +130,7 @@ export default defineComponent({
                     <condition>
                         <chlId>${prop.chlId}</chlId>
                         <presetIndexes>
-                            <item index="${item.index.toString()}">${wrapCDATA(item.name)}</item>
+                            <item index="${item.index}">${wrapCDATA(item.name)}</item>
                         </presetIndexes>
                     </condition>
                 `
@@ -175,7 +173,7 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <chlId>${prop.chlId}</chlId>
-                    <index>${item.index.toString()}</index>
+                    <index>${item.index}</index>
                 </content>
             `
             const result = await editChlPresetPosition(sendXml)
@@ -195,8 +193,8 @@ export default defineComponent({
                 const sendXml = rawXml`
                     <content>
                         <chlId>${prop.chlId}</chlId>
-                        <index>${value.toString()}</index>
-                        <speed>${prop.speed.toString()}</speed>
+                        <index>${value}</index>
+                        <speed>${prop.speed}</speed>
                     </content>
                 `
                 goToPtzPreset(sendXml)

@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-29 16:07:26
  * @Description: 现场预览-云台视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 14:32:14
  */
 import { type LiveSharedWinData, type LiveChannelList } from '@/types/apiType/live'
 import LivePtzCruise from './LivePtzCruise.vue'
@@ -243,7 +241,7 @@ export default defineComponent({
                 <content>
                     <chlId>${chlId.value}</chlId>
                     <actionType>${cmdItem.actionType}</actionType>
-                    <speed>${pageData.value.speed.toString()}</speed>
+                    <speed>${pageData.value.speed}</speed>
                     <type>${cmdItem.type}</type>
                 </content>
             `

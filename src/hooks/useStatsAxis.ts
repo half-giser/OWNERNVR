@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-04 11:33:23
  * @Description: 统计界面的一些通用方法
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 09:56:42
  */
 import dayjs from 'dayjs'
 import { type BarChartXValueOptionItem } from '@/components/chart/BaseBarChart.vue'

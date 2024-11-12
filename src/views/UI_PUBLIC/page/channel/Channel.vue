@@ -249,6 +249,7 @@
     &.online {
         color: var(--color-online);
     }
+
     &.offline {
         color: var(--color-offline);
     }

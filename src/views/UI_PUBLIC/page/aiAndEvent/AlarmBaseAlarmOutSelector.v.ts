@@ -5,6 +5,9 @@
  */
 export default defineComponent({
     props: {
+        /**
+         * @property {Array} 选中值
+         */
         modelValue: {
             type: Array as PropType<SelectOption<string, string>[]>,
             required: true,
@@ -21,15 +24,25 @@ export default defineComponent({
             alarmOutList: [] as SelectOption<string, string>[],
         })
 
+        /**
+         * @description 获取报警输出通道列表
+         */
         const getAlarmOutList = async () => {
             pageData.value.alarmOutList = await buildAlarmOutChlList()
         }
 
+        /**
+         * @description 确认选项 关闭弹窗
+         * @param {Array} option
+         */
         const confirm = (option: SelectOption<string, string>[]) => {
             ctx.emit('update:modelValue', option)
             pageData.value.isPop = false
         }
 
+        /**
+         * @description 取消 关闭弹窗
+         */
         const close = () => {
             pageData.value.isPop = false
         }

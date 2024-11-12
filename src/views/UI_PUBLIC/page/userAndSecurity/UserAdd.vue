@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-14 09:47:30
  * @Description: 添加用户页面
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 09:47:18
 -->
 <template>
     <div>
@@ -100,7 +98,7 @@
 }
 
 .notice {
-    margin: 15px 15px;
+    margin: 15px;
     font-size: 15px;
 }
 </style>

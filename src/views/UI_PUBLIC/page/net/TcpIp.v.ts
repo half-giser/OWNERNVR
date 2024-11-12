@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-16 18:56:58
  * @Description: TCP/IP配置页
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-22 19:15:34
  */
 import { NetTcpIpForm, NetTcpIpDhcpList, NetTcpIpBondsList, type NetTcpIpNicConfigList, type NetTcpIpAdvanceForm } from '@/types/apiType/net'
 import { type CheckboxValueType } from 'element-plus'
@@ -636,21 +634,21 @@ export default defineComponent({
                         .map((item) => {
                             return rawXml`
                                 <item id="${item.id}">
-                                    <dhcpSwitch>${item.dhcpSwitch.toString()}</dhcpSwitch>
+                                    <dhcpSwitch>${item.dhcpSwitch}</dhcpSwitch>
                                     <primaryNIC>${item.primaryNIC}</primaryNIC>
                                     <NICs>${item.NICs}</NICs>
                                     <ip>${item.ip}</ip>
                                     <gateway>${item.gateway}</gateway>
                                     <mask>${item.mask}</mask>
-                                    <mtu>${item.mtu.toString()}</mtu>
-                                    <ipV6Switch>${item.ipV6Switch.toString()}</ipV6Switch>
+                                    <mtu>${item.mtu}</mtu>
+                                    <ipV6Switch>${item.ipV6Switch}</ipV6Switch>
                                     <ipV6>${item.ipV6}</ipV6>
                                     <gatewayV6>${item.gatewayV6}</gatewayV6>
-                                    <subLengthV6>${item.subLengthV6.toString()}</subLengthV6>
-                                    <ipv4DnsDhcpSwitch>${item.ipv4DnsDhcpSwitch.toString()}</ipv4DnsDhcpSwitch>
+                                    <subLengthV6>${item.subLengthV6}</subLengthV6>
+                                    <ipv4DnsDhcpSwitch>${item.ipv4DnsDhcpSwitch}</ipv4DnsDhcpSwitch>
                                     <dns1>${item.dns1}</dns1>
                                     <dns2>${item.dns2}</dns2>
-                                    <ipv6DnsDhcpSwitch>${item.ipv6DnsDhcpSwitch.toString()}</ipv6DnsDhcpSwitch>
+                                    <ipv6DnsDhcpSwitch>${item.ipv6DnsDhcpSwitch}</ipv6DnsDhcpSwitch>
                                     <ipv6Dns1>${item.ipv6Dns1}</ipv6Dns1>
                                     <ipv6Dns2>${item.ipv6Dns2}</ipv6Dns2>
                                 </item>
@@ -676,20 +674,20 @@ export default defineComponent({
                             }
                             return rawXml`
                                 <item id="${item.id}">
-                                    <dhcpSwitch>${item.dhcpSwitch.toString()}</dhcpSwitch>
+                                    <dhcpSwitch>${item.dhcpSwitch}</dhcpSwitch>
                                     <ip>${item.ip}</ip>
                                     <gateway>${item.gateway}</gateway>
                                     <mask>${item.mask}</mask>
                                     <mac>${item.mac}</mac>
-                                    <mtu>${item.mtu.toString()}</mtu>
-                                    <ipV6Switch>${item.ipV6Switch.toString()}</ipV6Switch>
+                                    <mtu>${item.mtu}</mtu>
+                                    <ipV6Switch>${item.ipV6Switch}</ipV6Switch>
                                     <ipV6>${item.ipV6}</ipV6>
                                     <gatewayV6>${item.gatewayV6}</gatewayV6>
-                                    <subLengthV6>${item.subLengthV6.toString()}</subLengthV6>
-                                    <ipv4DnsDhcpSwitch>${item.ipv4DnsDhcpSwitch.toString()}</ipv4DnsDhcpSwitch>
+                                    <subLengthV6>${item.subLengthV6}</subLengthV6>
+                                    <ipv4DnsDhcpSwitch>${item.ipv4DnsDhcpSwitch}</ipv4DnsDhcpSwitch>
                                     <dns1>${item.dns1}</dns1>
                                     <dns2>${item.dns2}</dns2>
-                                    <ipv6DnsDhcpSwitch>${item.ipv6DnsDhcpSwitch.toString()}</ipv6DnsDhcpSwitch>
+                                    <ipv6DnsDhcpSwitch>${item.ipv6DnsDhcpSwitch}</ipv6DnsDhcpSwitch>
                                     <ipv6Dns1>${item.ipv6Dns1}</ipv6Dns1>
                                     <ipv6Dns2>${item.ipv6Dns2}</ipv6Dns2>
                                 </item>
@@ -706,23 +704,23 @@ export default defineComponent({
                         }
                         return rawXml`
                             <item id="${item.id}">
-                                <dhcpSwitch>${item.dhcpSwitch.toString()}</dhcpSwitch>
+                                <dhcpSwitch>${item.dhcpSwitch}</dhcpSwitch>
                                 <ip>${item.ip}</ip>
                                 <gateway>${item.gateway}</gateway>
                                 <mask>${item.mask}</mask>
                                 <mac>${item.mac}</mac>
-                                <mtu>${item.mtu.toString()}</mtu>
-                                <ipV6Switch>${item.ipV6Switch.toString()}</ipV6Switch>
+                                <mtu>${item.mtu}</mtu>
+                                <ipV6Switch>${item.ipV6Switch}</ipV6Switch>
                                 <ipV6>${item.ipV6}</ipV6>
                                 <gatewayV6>${item.gatewayV6}</gatewayV6>
-                                <subLengthV6>${item.subLengthV6.toString()}</subLengthV6>
-                                <ipv4DnsDhcpSwitch>${item.ipv4DnsDhcpSwitch.toString()}</ipv4DnsDhcpSwitch>
+                                <subLengthV6>${item.subLengthV6}</subLengthV6>
+                                <ipv4DnsDhcpSwitch>${item.ipv4DnsDhcpSwitch}</ipv4DnsDhcpSwitch>
                                 <dns1>${item.dns1}</dns1>
                                 <dns2>${item.dns2 === '0.0.0.0' ? '' : item.dns2}</dns2>
-                                <ipv6DnsDhcpSwitch>${item.ipv6DnsDhcpSwitch.toString()}</ipv6DnsDhcpSwitch>
+                                <ipv6DnsDhcpSwitch>${item.ipv6DnsDhcpSwitch}</ipv6DnsDhcpSwitch>
                                 <ipv6Dns1>${item.ipv6Dns1}</ipv6Dns1>
                                 <ipv6Dns2>${item.ipv6Dns2}</ipv6Dns2>
-                                ${ternary(item.isSupSecondIP, `<secondIpSwitch>${item.dhcpSwitch ? 'false' : item.secondIpSwitch.toString()}</secondIpSwitch>`)}
+                                ${ternary(item.isSupSecondIP, `<secondIpSwitch>${item.dhcpSwitch ? false : item.secondIpSwitch}</secondIpSwitch>`)}
                                 ${ternary(item.isSupSecondIP, `<secondIp>${item.secondIp}</secondIp>`)}
                                 ${ternary(item.isSupSecondIP, `<secondMask>${item.secondMask}</secondMask>`)}
                             </item>

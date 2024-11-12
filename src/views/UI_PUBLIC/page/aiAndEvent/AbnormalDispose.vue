@@ -148,7 +148,3 @@
 </template>
 
 <script lang="ts" src="./AbnormalDispose.v.ts"></script>
-
-<style lang="scss">
-@import '@/views/UI_PUBLIC/publicStyle/aiAndEvent.scss';
-</style>

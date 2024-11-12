@@ -191,7 +191,7 @@ defineExpose({
 
 .day-name {
     flex: 0 0 auto;
-    padding: 3px 0px 0px 0px;
+    padding: 3px 0 0;
     width: 90px;
     font-size: 14px;
     max-height: 60px;

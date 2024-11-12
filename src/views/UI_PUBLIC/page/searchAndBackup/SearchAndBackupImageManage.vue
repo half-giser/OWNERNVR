@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-09 15:02:25
  * @Description: 搜索与备份-图片管理
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 17:34:52
 -->
 <template>
     <div class="img-mgr base-flex-box">

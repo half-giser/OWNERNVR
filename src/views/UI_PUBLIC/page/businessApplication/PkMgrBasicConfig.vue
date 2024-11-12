@@ -2,8 +2,6 @@
  * @Author: zhangdongming zhangdongming@tvt.net.cn
  * @Date: 2024-05-10 16:49:13
  * @Description: 业务应用-停车场管理-基础配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-04 12:01:38
 -->
 <template>
     <div class="manage">
@@ -63,10 +61,6 @@
 </template>
 
 <script lang="ts" src="./PkMgrBasicConfig.v.ts"></script>
-
-<style>
-@import '@/views/UI_PUBLIC/publicStyle/businessApplication.scss';
-</style>
 
 <style lang="scss" scoped>
 .manage {

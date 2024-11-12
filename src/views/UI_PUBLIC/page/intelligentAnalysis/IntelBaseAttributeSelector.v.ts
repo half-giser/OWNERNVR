@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-05 10:13:11
  * @Description: 智能分析 属性选择器
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-12 20:34:34
  */
 export default defineComponent({
     props: {

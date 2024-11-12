@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-06 20:37:55
  * @Description: 回放-事件列表
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-12 18:17:25
  */
 import type { PlaybackRecLogList, PlaybackChlList, PlaybackRecList } from '@/types/apiType/playback'
 import dayjs from 'dayjs'

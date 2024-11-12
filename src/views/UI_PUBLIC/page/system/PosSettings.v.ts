@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-02 09:08:32
  * @Description: POS配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-21 17:36:24
  */
 import { cloneDeep } from 'lodash-es'
 import type { SystemPosList, SystemPosListChls, SystemPostColorData, SystemPosConnectionForm, SystemPosDisplaySetting } from '@/types/apiType/system'
@@ -229,7 +227,7 @@ export default defineComponent({
                                 <item id="${item.id}">
                                     <trigger>
                                         <triggerChl>
-                                            <switch>${String(item.triggerChl.switch)}</switch>
+                                            <switch>${item.triggerChl.switch}</switch>
                                             <chls>
                                                 ${ternary(
                                                     item.triggerChl.switch,
@@ -250,11 +248,11 @@ export default defineComponent({
                                         <encodeFormat>${item.encodeFormat}</encodeFormat>
                                         <connectionSetting>
                                             <posIp>${item.connectionSetting.posIp}</posIp>
-                                            <filterDstIpSwitch>${String(item.connectionSetting.filterDstIpSwitch)}</filterDstIpSwitch>
+                                            <filterDstIpSwitch>${item.connectionSetting.filterDstIpSwitch}</filterDstIpSwitch>
                                             <dstIp>${item.connectionSetting.dstIp}</dstIp>
-                                            <filterPostPortSwitch>${String(item.connectionSetting.filterPostPortSwitch)}</filterPostPortSwitch>
-                                            <posPort>${String(item.connectionSetting.posPort)}</posPort>
-                                            <filterDstPortSwitch>${String(item.connectionSetting.filterDstPortSwitch)}</filterDstPortSwitch>
+                                            <filterPostPortSwitch>${item.connectionSetting.filterPostPortSwitch}</filterPostPortSwitch>
+                                            <posPort>${item.connectionSetting.posPort}</posPort>
+                                            <filterDstPortSwitch>${item.connectionSetting.filterDstPortSwitch}</filterDstPortSwitch>
                                         </connectionSetting>
                                         <displaySetting>
                                             <common>
@@ -283,14 +281,14 @@ export default defineComponent({
                                                         .map((child) => `<item>${wrapCDATA(child)}</item>`)
                                                         .join('')}
                                                 </ignoreChar>
-                                                <ignoreCase>${String(item.displaySetting.common.ignoreCase)}</ignoreCase>
-                                                <timeOut unit="s">${String(item.displaySetting.common.timeOut)}</timeOut>
+                                                <ignoreCase>${item.displaySetting.common.ignoreCase}</ignoreCase>
+                                                <timeOut unit="s">${item.displaySetting.common.timeOut}</timeOut>
                                             </common>
                                             <displayPosition>
-                                                <width>${String(item.displaySetting.displayPosition.width)}</width>
-                                                <height>${String(item.displaySetting.displayPosition.height)}</height>
-                                                <X>${String(item.displaySetting.displayPosition.X)}</X>
-                                                <Y>${String(item.displaySetting.displayPosition.Y)}</Y>
+                                                <width>${item.displaySetting.displayPosition.width}</width>
+                                                <height>${item.displaySetting.displayPosition.height}</height>
+                                                <X>${item.displaySetting.displayPosition.X}</X>
+                                                <Y>${item.displaySetting.displayPosition.Y}</Y>
                                             </displayPosition>
                                         </displaySetting>
                                     </param>
@@ -306,7 +304,7 @@ export default defineComponent({
                                 <chl id="${item.chlId}">
                                     <color>${item.colorList.map((color) => `<item>${color}</item>`).join('')}</color>
                                     <printMode>${item.printMode}</printMode>
-                                    <previewDisplay>${String(item.previewDisplay)}</previewDisplay>
+                                    <previewDisplay>${item.previewDisplay}</previewDisplay>
                                 </chl>
                             `
                         })

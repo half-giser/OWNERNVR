@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-09 19:21:49
  * @Description: 智能分析 - 人体搜索
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-29 14:13:36
  */
 import { type IntelSearchCollectList, type IntelSearchList, IntelSnapImgDto, IntelSearchBodyForm, type IntelSnapPopList } from '@/types/apiType/intelligentAnalysis'
 import IntelBaseChannelSelector from './IntelBaseChannelSelector.vue'
@@ -324,11 +322,11 @@ export default defineComponent({
                             <chlId>${row.chlId}</chlId>
                             <frameTime>${row.frameTime}</frameTime>
                             <pathGUID>${row.pathGUID}</pathGUID>
-                            <sectionNo>${row.sectionNo.toString()}</sectionNo>
-                            <fileIndex>${row.fileIndex.toString()}</fileIndex>
-                            <blockNo>${row.bolckNo.toString()}</blockNo>
-                            <offset>${row.offset.toString()}</offset>
-                            <eventType>${row.eventTypeID.toString()}</eventType>
+                            <sectionNo>${row.sectionNo}</sectionNo>
+                            <fileIndex>${row.fileIndex}</fileIndex>
+                            <blockNo>${row.bolckNo}</blockNo>
+                            <offset>${row.offset}</offset>
+                            <eventType>${row.eventTypeID}</eventType>
                             ${ternary(isPanorama, '<isPanorama />')}
                         </condition>
                     `

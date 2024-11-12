@@ -2,8 +2,6 @@
  * @Author: zhangdongming zhangdongming@tvt.net.cn
  * @Date: 2024-05-23 15:30:05
  * @Description: 消息提示弹框
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-23 13:59:33
  */
 
 import BaseImgSprite from '@/components/sprite/BaseImgSprite.vue'

@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-10 09:15:27
  * @Description: 智能分析 - 车辆搜索
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-29 16:26:42
  */
 import { type IntelSearchCollectList, type IntelSearchList, IntelSnapImgDto, IntelSearchVehicleForm, type IntelSnapPopList } from '@/types/apiType/intelligentAnalysis'
 import IntelBaseChannelSelector from './IntelBaseChannelSelector.vue'
@@ -395,11 +393,11 @@ export default defineComponent({
                             <chlId>${row.chlId}</chlId>
                             <frameTime>${row.frameTime}</frameTime>
                             <pathGUID>${row.pathGUID}</pathGUID>
-                            <sectionNo>${row.sectionNo.toString()}</sectionNo>
-                            <fileIndex>${row.fileIndex.toString()}</fileIndex>
-                            <blockNo>${row.bolckNo.toString()}</blockNo>
-                            <offset>${row.offset.toString()}</offset>
-                            <eventType>${row.eventTypeID.toString()}</eventType>
+                            <sectionNo>${row.sectionNo}</sectionNo>
+                            <fileIndex>${row.fileIndex}</fileIndex>
+                            <blockNo>${row.bolckNo}</blockNo>
+                            <offset>${row.offset}</offset>
+                            <eventType>${row.eventTypeID}</eventType>
                             ${ternary(isPanorama, '<isPanorama />')}
                         </condition>
                     `
@@ -509,7 +507,7 @@ export default defineComponent({
             if (pageData.value.searchType === 'event') {
                 vehicleXml += formData.value.target.map((item) => `<item>${item}</item>`).join('')
             } else {
-                vehicleXml += formData.value.direction.map((item) => `<item directionType="${item.toString()}">plate</item>`).join('')
+                vehicleXml += formData.value.direction.map((item) => `<item directionType="${item}">plate</item>`).join('')
             }
 
             if (formData.value.plateNumber) {

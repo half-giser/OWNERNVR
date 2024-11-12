@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-18 16:37:53
  * @Description: 权限组说明弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-18 17:13:55
 -->
 <template>
     <el-dialog

@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-29 16:07:59
  * @Description: 现场预览-底部视图-手动报警
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 18:51:42
  */
 import { type LiveAlarmList } from '@/types/apiType/live'
 
@@ -120,7 +118,7 @@ export default defineComponent({
             const ids = index === -1 ? tableData.value.map((item) => item.id) : [id]
             const sendXml = rawXml`
                 <content>
-                    <switch>${status.toString()}</switch>
+                    <switch>${status}</switch>
                     <alarmOutIds type="list">
                         ${ids.map((id) => `<item id="${id}"></item>`).join('')}
                     </alarmOutIds>

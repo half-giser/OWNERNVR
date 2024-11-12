@@ -2,8 +2,6 @@
  * @Description: 定时图像上传右上角工具栏
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-10-23 14:09:53
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 17:21:28
 -->
 <template>
     <BaseImgSprite

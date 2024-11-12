@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-06 11:18:03
  * @Description: 智能分析 - 进出口方向 选择框
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-01 18:21:50
 -->
 <template>
     <div>
@@ -42,7 +40,3 @@
 </template>
 
 <script lang="ts" src="./IntelBaseVehicleDirectionSelector.v.ts"></script>
-
-<style lang="scss">
-@import '@/views/UI_PUBLIC/publicStyle/intelligentAnalysis.scss';
-</style>

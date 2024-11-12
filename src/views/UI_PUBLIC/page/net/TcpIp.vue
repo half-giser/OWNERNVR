@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-16 18:56:00
  * @Description: TCP/IP配置页
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-31 18:34:59
 -->
 <template>
     <div class="tcp-ip">

@@ -2,8 +2,6 @@
  * @Author: zhangdongming zhangdongming@tvt.net.cn
  * @Date: 2024-05-10 16:49:52
  * @Description: 业务应用-停车场管理-基础配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-10 11:32:20
  */
 
 import { type FormRules, type FormInstance } from 'element-plus'
@@ -95,8 +93,8 @@ export default defineComponent({
                         <content>
                             <basicInfo>
                                 <name>${wrapCDATA(formData.value.parkName)}</name>
-                                <totalVehicleNum>${formData.value.totalNum.toString()}</totalVehicleNum>
-                                <remainSpaceNum>${formData.value.remainTotalNum.toString()}</remainSpaceNum>
+                                <totalVehicleNum>${formData.value.totalNum}</totalVehicleNum>
+                                <remainSpaceNum>${formData.value.remainTotalNum}</remainSpaceNum>
                             </basicInfo>
                         </content>
                     `
