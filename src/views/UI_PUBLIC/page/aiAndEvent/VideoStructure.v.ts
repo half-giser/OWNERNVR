@@ -20,10 +20,16 @@ export default defineComponent({
             type: String,
             required: true,
         },
+        /**
+         * @property {AlarmChlDto} 通道数据
+         */
         chlData: {
             type: Object as PropType<AlarmChlDto>,
             required: true,
         },
+        /**
+         * @property {Array} 声音选项
+         */
         voiceList: {
             type: Array as PropType<SelectOption<string, string>[]>,
             required: true,
@@ -465,7 +471,7 @@ export default defineComponent({
                         personSensitivity: Number($param('objectFilter/person/sensitivity').text()),
                         motorSensitivity: Number($param('objectFilter/motor/sensitivity').text()),
                     },
-                    osdType: $('osdConfig/osdType').text(),
+                    osdType: $param('osdConfig/osdType').text(),
                     osdPersonCfgList,
                     osdCarCfgList,
                     osdBikeCfgList,
@@ -500,6 +506,7 @@ export default defineComponent({
             } else {
                 pageData.value.algoModelDisabled = true
             }
+
             // 重置信息
             pageData.value.autoReset = vsdData.value.countPeriod.countTimeType !== 'off'
             // 图片叠加(OSD)
@@ -723,8 +730,8 @@ export default defineComponent({
         // 设置区域图形
         const setAreaView = (type: string) => {
             if (type == 'detectionArea') {
-                if (vsdData.value.detectAreaInfo) {
-                    const index = pageData.value.detectArea
+                const index = pageData.value.detectArea
+                if (vsdData.value.detectAreaInfo[index]) {
                     if (mode.value === 'h5') {
                         vsdDrawer.setCurrAreaIndex(index, type)
                         vsdDrawer.setPointList(vsdData.value.detectAreaInfo[index], true)
@@ -738,8 +745,8 @@ export default defineComponent({
                     }
                 }
             } else if (type == 'maskArea') {
-                if (vsdData.value.maskAreaInfo) {
-                    const index = pageData.value.maskArea
+                const index = pageData.value.maskArea
+                if (vsdData.value.maskAreaInfo[index]) {
                     if (mode.value === 'h5') {
                         vsdDrawer.setCurrAreaIndex(index, type)
                         vsdDrawer.setPointList(vsdData.value.maskAreaInfo[index], true)
@@ -1126,15 +1133,15 @@ export default defineComponent({
                             ${
                                 vsdData.value.countOSD.supportCountOSD
                                     ? rawXml`
-                                    <countOSD>
-                                        <switch>${vsdData.value.countOSD.switch}</switch>
-                                        ${vsdData.value.countOSD.supportPoint ? `<X>${vsdData.value.countOSD.X}</X>` : ``}
-                                        ${vsdData.value.countOSD.supportPoint ? `<Y>${vsdData.value.countOSD.Y}</Y>` : ``}
-                                        ${vsdData.value.countOSD.supportOsdPersonName ? `<osdPersonName>${vsdData.value.countOSD.osdPersonName}</osdPersonName>` : ``}
-                                        ${vsdData.value.countOSD.supportOsdCarName ? `<osdCarName>${vsdData.value.countOSD.osdCarName}</osdCarName>` : ``}
-                                        ${vsdData.value.countOSD.supportBikeName ? `<osdBikeName>${vsdData.value.countOSD.osdBikeName}</osdBikeName>` : ``}
-                                    </countOSD>
-                                `
+                                        <countOSD>
+                                            <switch>${vsdData.value.countOSD.switch}</switch>
+                                            ${vsdData.value.countOSD.supportPoint ? `<X>${vsdData.value.countOSD.X}</X>` : ``}
+                                            ${vsdData.value.countOSD.supportPoint ? `<Y>${vsdData.value.countOSD.Y}</Y>` : ``}
+                                            ${vsdData.value.countOSD.supportOsdPersonName ? `<osdPersonName>${vsdData.value.countOSD.osdPersonName}</osdPersonName>` : ``}
+                                            ${vsdData.value.countOSD.supportOsdCarName ? `<osdCarName>${vsdData.value.countOSD.osdCarName}</osdCarName>` : ``}
+                                            ${vsdData.value.countOSD.supportBikeName ? `<osdBikeName>${vsdData.value.countOSD.osdBikeName}</osdBikeName>` : ``}
+                                        </countOSD>
+                                    `
                                     : ''
                             }
                             <osdConfig>

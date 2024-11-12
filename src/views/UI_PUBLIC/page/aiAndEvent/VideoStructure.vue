@@ -111,7 +111,6 @@
                                         :key="index"
                                         :label="index + 1"
                                         :value="index"
-                                        :class="{ configured_area: pageData.detectConfiguredArea[index] }"
                                     />
                                 </el-radio-group>
                             </el-form-item>
@@ -126,7 +125,6 @@
                                         :key="index"
                                         :label="index + 1"
                                         :value="index"
-                                        :class="{ configured_area: pageData.maskConfiguredArea[index] }"
                                     />
                                 </el-radio-group>
                             </el-form-item>
@@ -187,65 +185,51 @@
                             <el-form-item
                                 :label="Translate('IDCS_TIME')"
                                 :style="{
-                                    '--form-input-width': '105px',
+                                    '--form-input-width': '102.5px',
                                 }"
                             >
-                                <el-row>
-                                    <el-col
-                                        :span="11"
-                                        class="timeSet"
-                                    >
-                                        <el-select
-                                            v-if="pageData.timeType === 'week'"
-                                            v-model="vsdData.countPeriod['week'].date"
-                                            :disabled="!pageData.autoReset"
-                                        >
-                                            <el-option
-                                                v-for="item in pageData.weekOption"
-                                                :key="item.value"
-                                                :label="item.label"
-                                                :value="item.value"
-                                            />
-                                        </el-select>
-                                        <el-select
-                                            v-if="pageData.timeType === 'month'"
-                                            v-model="vsdData.countPeriod['month'].date"
-                                            :disabled="!pageData.autoReset"
-                                        >
-                                            <el-option
-                                                v-for="item in pageData.monthOption"
-                                                :key="item.value"
-                                                :label="item.label"
-                                                :value="item.value"
-                                            />
-                                        </el-select>
-                                    </el-col>
-                                    <el-col
-                                        :span="11"
-                                        :style="{
-                                            marginLeft: pageData.timeType === 'day' ? '-33px' : '0',
-                                        }"
-                                    >
-                                        <el-time-picker
-                                            v-if="pageData.timeType === 'day'"
-                                            v-model="vsdData.countPeriod['day']['dateTime']"
-                                            :disabled="!pageData.autoReset"
-                                            value-format="HH:mm:ss"
-                                        />
-                                        <el-time-picker
-                                            v-if="pageData.timeType === 'week'"
-                                            v-model="vsdData.countPeriod['week']['dateTime']"
-                                            :disabled="!pageData.autoReset"
-                                            value-format="HH:mm:ss"
-                                        />
-                                        <el-time-picker
-                                            v-if="pageData.timeType === 'month'"
-                                            v-model="vsdData.countPeriod['month']['dateTime']"
-                                            :disabled="!pageData.autoReset"
-                                            value-format="HH:mm:ss"
-                                        />
-                                    </el-col>
-                                </el-row>
+                                <el-select
+                                    v-if="pageData.timeType === 'week'"
+                                    v-model="vsdData.countPeriod['week'].date"
+                                    :disabled="!pageData.autoReset"
+                                >
+                                    <el-option
+                                        v-for="item in pageData.weekOption"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value"
+                                    />
+                                </el-select>
+                                <el-select
+                                    v-if="pageData.timeType === 'month'"
+                                    v-model="vsdData.countPeriod['month'].date"
+                                    :disabled="!pageData.autoReset"
+                                >
+                                    <el-option
+                                        v-for="item in pageData.monthOption"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value"
+                                    />
+                                </el-select>
+                                <el-time-picker
+                                    v-if="pageData.timeType === 'day'"
+                                    v-model="vsdData.countPeriod['day']['dateTime']"
+                                    :disabled="!pageData.autoReset"
+                                    value-format="HH:mm:ss"
+                                />
+                                <el-time-picker
+                                    v-if="pageData.timeType === 'week'"
+                                    v-model="vsdData.countPeriod['week']['dateTime']"
+                                    :disabled="!pageData.autoReset"
+                                    value-format="HH:mm:ss"
+                                />
+                                <el-time-picker
+                                    v-if="pageData.timeType === 'month'"
+                                    v-model="vsdData.countPeriod['month']['dateTime']"
+                                    :disabled="!pageData.autoReset"
+                                    value-format="HH:mm:ss"
+                                />
                             </el-form-item>
                             <!-- 手动重置 -->
                             <el-form-item :label="Translate('IDCS_MANUAL_RESET')">
@@ -371,6 +355,8 @@
                                     :label="Translate('IDCS_ALL')"
                                     @change="checkAllOsdType"
                                 />
+                            </el-form-item>
+                            <el-form-item>
                                 <el-checkbox-group
                                     v-model="osdCfgCheckedList"
                                     class="osd_checkbox_group"
@@ -478,16 +464,12 @@
 
 <script lang="ts" src="./VideoStructure.v.ts"></script>
 
-<style>
-@import '@/views/UI_PUBLIC/publicStyle/aiAndEvent.scss';
-</style>
-
 <style lang="scss" scoped>
 // 高级设置
 .more_wrap {
     position: absolute;
     right: 20px;
-    top: 48px;
+    top: 40px;
     cursor: pointer;
 }
 
@@ -511,9 +493,10 @@
 .osd_checkbox_group {
     width: 600px;
     margin-left: 0 !important;
+
     :deep(.el-checkbox) {
         width: 200px;
-        margin: 15px 0 !important;
+        margin: 5px 0 !important;
         overflow: hidden;
     }
 }
@@ -522,6 +505,7 @@
     width: 400px;
     height: 120px;
     background-color: var(--color-black);
+
     p {
         display: inline-block;
         width: 90px;
@@ -538,17 +522,12 @@
         overflow: hidden;
     }
 }
+
 .detection_span {
     width: 30px;
     height: 20px;
     line-height: 20px;
     text-align: center;
     border: 1px solid var(--input-border);
-}
-.configured_area {
-    :deep(.el-radio-button__inner) {
-        border: 1px solid --primary !important;
-        color: --primary;
-    }
 }
 </style>
