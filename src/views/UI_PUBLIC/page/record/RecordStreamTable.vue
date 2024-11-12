@@ -2,8 +2,6 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-07-31 10:29:37
  * @Description: 录像码流通用表格组件
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-28 14:59:34
 -->
 <template>
     <div class="base-flex-box">
@@ -21,12 +19,12 @@
                 <el-table-column
                     prop="name"
                     :label="Translate('IDCS_CHANNEL_NAME')"
-                    min-width="10%"
+                    min-width="220"
                 />
                 <!-- 码流类型 -->
                 <el-table-column
                     :label="Translate('IDCS_CODE_STREAM_TYPE')"
-                    min-width="6%"
+                    width="120"
                 >
                     <template #default="scope">
                         <span>{{ formatDisplayStreamType(scope.row) }}</span>
@@ -35,7 +33,7 @@
                 <!-- videoEncodeType -->
                 <el-table-column
                     :label="Translate('IDCS_VIDEO_ENCT')"
-                    min-width="8%"
+                    width="130"
                 >
                     <template #header>
                         <el-dropdown>
@@ -47,7 +45,6 @@
                                     <el-dropdown-item
                                         v-for="(item, index) in pageData.videoEncodeTypeUnionList"
                                         :key="index"
-                                        :value="item"
                                         @click="handleVideoEncodeTypeChangeAll(item)"
                                     >
                                         {{ Translate(streamTypeMapping[item]) }}
@@ -74,7 +71,7 @@
                 <!-- resolution -->
                 <el-table-column
                     :label="Translate('IDCS_RESOLUTION_RATE')"
-                    min-width="11%"
+                    width="145"
                 >
                     <template #header>
                         <el-popover
@@ -167,7 +164,7 @@
                 <!-- frameRate -->
                 <el-table-column
                     :label="Translate('IDCS_FRAME_RATE')"
-                    min-width="6%"
+                    width="95"
                 >
                     <template #header>
                         <el-dropdown max-height="400">
@@ -179,8 +176,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.frameRateList"
                                         :key="item.value"
-                                        :value="item.value"
-                                        :label="item.label"
                                         @click="handleFrameRateChangeAll(item.value)"
                                     >
                                         {{ item.label }}
@@ -208,7 +203,7 @@
                 <!-- bitType -->
                 <el-table-column
                     :label="Translate('IDCS_BITRATE_TYPE')"
-                    min-width="8%"
+                    width="145"
                 >
                     <template #header>
                         <el-dropdown :disabled="pageData.bitTypeDropDisable">
@@ -220,7 +215,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.bitTypeUnionList"
                                         :key="item"
-                                        :value="item"
                                         @click="handleBitTypeChangeAll(item)"
                                     >
                                         {{ item }}
@@ -249,7 +243,7 @@
                 <!-- imageLevel -->
                 <el-table-column
                     :label="Translate('IDCS_IMAGE_QUALITY')"
-                    min-width="8%"
+                    width="145"
                 >
                     <template #header>
                         <el-dropdown :disabled="pageData.levelDropDisable">
@@ -261,7 +255,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.levelList"
                                         :key="item.value"
-                                        :value="item.text"
                                         @click="handleLevelChangeAll(item.value)"
                                     >
                                         {{ item.text }}
@@ -289,7 +282,7 @@
                 <!-- videoQuality -->
                 <el-table-column
                     :label="Translate('IDCS_VIDEO_QUALITY')"
-                    min-width="11%"
+                    width="145"
                 >
                     <template #header>
                         <el-dropdown>
@@ -301,8 +294,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.videoQualityList"
                                         :key="item.value"
-                                        :value="item.value"
-                                        :label="item.label"
                                         @click="handleVideoQualityChangeAll(item)"
                                     >
                                         {{ item.label }}
@@ -329,7 +320,7 @@
                 <!-- bitRange -->
                 <el-table-column
                     :label="Translate('IDCS_RATE_RECOMMEND_RANGE')"
-                    min-width="13%"
+                    width="205"
                 >
                     <template #default="scope">
                         <span :disabled="scope.row.bitRangeDisable">{{ formatDisplayBitRange(scope.row) }}</span>
@@ -338,7 +329,7 @@
                 <!-- audio -->
                 <el-table-column
                     :label="Translate('IDCS_AUDIO_FREQUENCY')"
-                    min-width="7%"
+                    width="100"
                 >
                     <template #header>
                         <el-dropdown>
@@ -350,8 +341,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.audioOptions"
                                         :key="item.value"
-                                        :value="item.value"
-                                        :label="item.label"
                                         @click="handleAudioOptionsChangeAll(item)"
                                     >
                                         {{ item.label }}
@@ -392,8 +381,6 @@
                                     <el-dropdown-item
                                         v-for="item in recordStreams"
                                         :key="item.value"
-                                        :value="item.value"
-                                        :label="item.label"
                                         @click="handleRecordStreamChangeAll(item.value)"
                                     >
                                         {{ item.label }}
@@ -422,7 +409,7 @@
                 <!-- GOP -->
                 <el-table-column
                     :label="Translate('IDCS_GOP')"
-                    min-width="6%"
+                    width="95"
                 >
                     <template #header>
                         <el-popover
@@ -437,26 +424,32 @@
                                 </BaseTableDropdownLink>
                             </template>
                             <div class="GOP_dropDown">
-                                <div class="GOP_input">
-                                    <span>GOP</span>
-                                    <el-input
-                                        v-model="pageData.gopSetAll"
-                                        @input="GOPhandleFocus(pageData.gopSetAll)"
-                                    />
-                                </div>
-
-                                <el-row class="base-btn-box">
-                                    <el-button @click="handleSetGopAll(pageData.gopSetAll)">{{ Translate('IDCS_OK') }}</el-button>
-                                    <el-button @click="handleGopCancel">{{ Translate('IDCS_CANCEL') }}</el-button>
-                                </el-row>
+                                <el-form
+                                    :style="{
+                                        '--form-label-width': 'auto',
+                                    }"
+                                >
+                                    <el-form-item label="GOP">
+                                        <BaseNumberInput
+                                            v-model="pageData.gopSetAll"
+                                            :min="1"
+                                            :max="480"
+                                        />
+                                    </el-form-item>
+                                    <el-row class="base-btn-box">
+                                        <el-button @click="handleSetGopAll(pageData.gopSetAll)">{{ Translate('IDCS_OK') }}</el-button>
+                                        <el-button @click="handleGopCancel">{{ Translate('IDCS_CANCEL') }}</el-button>
+                                    </el-row>
+                                </el-form>
                             </div>
                         </el-popover>
                     </template>
                     <template #default="scope">
-                        <el-input
+                        <BaseNumberInput
                             v-model="scope.row.GOP"
                             :disabled="scope.row.GOPDisable"
-                            @input="GOPhandleFocus(scope.row)"
+                            :min="scope.row.GOPDisable ? 0 : 1"
+                            :max="480"
                             @keydown.enter="GOPhandleKeydown(scope.row)"
                         />
                     </template>
@@ -468,30 +461,24 @@
             class="bottom_row"
         >
             <div>
-                <span
-                    id="txtBandwidth"
-                    class="row_bandwidth"
-                    >{{ pageData.txtBandwidth }}</span
-                >
+                <span class="row_bandwidth">{{ pageData.txtBandwidth }}</span>
                 <!-- 这个按钮老代码中写死不显示，新代码其他页面也没实现 -->
                 <!-- <span
-                    id="bandwidthDetail"
                     class="detailBtn"
                 ></span> -->
                 <span
                     v-if="pageData.PredictVisible"
-                    id="txRecTime"
+                    class="txRecTime"
                     >{{ pageData.recTime }}</span
                 >
                 <el-button
                     v-if="pageData.CalculateVisible"
-                    id="btnActivate"
+                    class="btnActivate"
                     @click="handleCalculate"
                     >{{ Translate('IDCS_CALCULATE') }}</el-button
                 >
             </div>
             <el-button
-                id="btnSetDefaultPwd"
                 :disabled="pageData.applyBtnDisable"
                 @click="setData"
                 >{{ Translate('IDCS_APPLY') }}</el-button
@@ -504,38 +491,37 @@
 
 <style lang="scss" scoped>
 .RecordStreamList {
-    // width: 100%;
-    // height: calc(100vh - 280px);
-
-    .el-dropdown-link {
-        color: var(--el-table-header-text-color);
-    }
-
     .status {
         &.online {
             color: var(--color-online);
         }
+
         &.offline {
             color: var(--color-offline);
         }
     }
 }
+
 .bottom_row {
     margin-top: 10px;
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
 }
-#txRecTime {
+
+.txRecTime {
     margin-left: 20px;
     margin-top: 10px;
 }
-#btnActivate {
+
+.btnActivate {
     margin-left: 20px;
 }
+
 .row_bandwidth {
     margin-top: 10px;
 }
+
 .gop_btn {
     margin: 10px 20px;
 }
@@ -546,48 +532,39 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+
     :deep() {
         .cell {
             overflow: visible;
         }
+
         .el-table__cell {
             z-index: auto;
         }
     }
 }
+
 .device-item {
     margin-left: 15px;
     display: flex;
     align-items: center;
     gap: 3px;
 }
+
 .chl_area {
     min-height: 260px;
 }
+
 .fit-content-height {
     height: 35px;
     display: flex;
     align-items: center;
 }
-// .base-popover-icon {
-//     width: 100%;
-//     height: 100%;
-//     display: flex;
-//     justify-content: center;
-//     align-items: center;
-//     color: var(--el-table-header-text-color);
-//     .el-icon {
-//         cursor: pointer;
-//         &:hover {
-//             color: var(--input-text);
-//         }
-//     }
-// }
+
 .GOP_dropDown {
-    width: 280px;
-    height: 80px;
-    padding: 20px 10px 0px 10px;
+    padding: 10px;
 }
+
 .GOP_input {
     display: flex;
     gap: 20px;
