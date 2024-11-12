@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-05-29 13:48:55
  * @Description: UI1-J 主题样式
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-04 16:30:04
  */
 
 #n9web {
@@ -13,26 +11,24 @@
     // --img-motion-note: url('@ui/publicStyle/img/motionNote.gif');
     // --img-loading: url('@ui/publicStyle/img/loading.gif');
     --img-initview: url('@ui/publicStyle/img/initview.gif');
-}
 
-#n9web {
-    --primary-light: rgb(0, 188, 112);
-    --primary: #00BC70;
+    --primary-light: rgb(0 188 112);
+    --primary: #00bc70;
 
-    --main-text: rgb(28, 31, 43); 
+    --main-text: rgb(28 31 43);
     --main-text-light: #8d8d8d;
-    --main-text-active: #fff; 
-    --main-bg: #FFF;
-    --main-border: rgb(28, 31, 43); 
+    --main-text-active: #fff;
+    --main-bg: #fff;
+    --main-border: rgb(28 31 43);
 
-    --content-border: rgb(28, 31, 43);
+    --content-border: rgb(28 31 43);
 
-    --subheading-text: #1c1f2b;  
-    --subheading-bg: #CBCBCB; 
+    --subheading-text: #1c1f2b;
+    --subheading-bg: #cbcbcb;
 
     --header-bg: var(--main-bg);
     --header-text: var(--main-text);
-    --header-menu-text: rgb(28, 31, 43); 
+    --header-menu-text: rgb(28 31 43);
     --header-menu-text-hover: var(--primary-light);
     --header-menu-text-active: var(--primary);
     --header-menu-bg: transparent;
@@ -41,17 +37,17 @@
     --header-menu-border: transparent;
     --header-menu-border-hover: var(--primary-light);
     --header-menu-border-active: var(--primary);
-     
+
     --footer-text: var(--header-menu-text);
     --footer-bg: unset;
 
-    --input-text: rgb(28, 31, 43);
-    --input-text-disabled: #888; 
-    --input-bg: var(--main-bg); 
-    --input-bg-disabled: #f0f0f0; 
-    --input-border: rgb(28, 31, 43); 
+    --input-text: rgb(28 31 43);
+    --input-text-disabled: #888;
+    --input-bg: var(--main-bg);
+    --input-bg-disabled: #f0f0f0;
+    --input-border: rgb(28 31 43);
     --input-border-disabled: #888;
-    
+
     --form-stripe: var(--table-stripe);
 
     --radio-btn-text: var(--main-text);
@@ -62,62 +58,62 @@
     --radio-btn-bg-active: var(--primary);
 
     --slider-btn-border: #808080;
-    --slider-btn-border-disabled: #DCDCDC;
+    --slider-btn-border-disabled: #dcdcdc;
 
     --upload-bg-text: #000;
     --upload-bg: #eee;
     --upload-bg-hover: #ddd;
 
-    --btn-text: #fff; 
+    --btn-text: #fff;
     --btn-text-hover: var(--main-text-active);
-    --btn-text-disabled: #fff; 
-    --btn-bg: #8f8f8f; 
-    --btn-bg-hover: #aaa; 
-    --btn-bg-disabled: #ccc; 
-    --btn-border: #8f8f8f; 
-    --btn-border-hover: #aaa; 
-    --btn-border-disabled: #ccc; 
+    --btn-text-disabled: #fff;
+    --btn-bg: #8f8f8f;
+    --btn-bg-hover: #aaa;
+    --btn-bg-disabled: #ccc;
+    --btn-border: #8f8f8f;
+    --btn-border-hover: #aaa;
+    --btn-border-disabled: #ccc;
 
-    --table-text-disabled: #888; 
-    --table-border: #F0F0F0; 
+    --table-text-disabled: #888;
+    --table-border: #f0f0f0;
     --table-bg: #fff;
-    --table-bg-hover: #f7f7f7; 
-    --table-stripe: #eee; 
+    --table-bg-hover: #f7f7f7;
+    --table-stripe: #eee;
 
     --table-thead-text: var(--main-text);
-    --table-thead-bg: #e5e5e5; 
-    --table-thead-border: rgb(28, 31, 43);
+    --table-thead-bg: #e5e5e5;
+    --table-thead-border: rgb(28 31 43);
 
-    --dialog-title: #1c1f2b; 
-    --dialog-bg: var(--main-bg); 
+    --dialog-title: #1c1f2b;
+    --dialog-bg: var(--main-bg);
 
-    --popover-bg: #FFF;
+    --popover-bg: #fff;
 
-    --dropdown-bg: #FFF;
+    --dropdown-bg: #fff;
 
-    --transfer-title-bg: #E5E5E5;
+    --transfer-title-bg: #e5e5e5;
     --transfer-bg: transparent;
     --transfer-stripe: transparent;
-    --transfer-border: rgb(28, 31, 43);
+    --transfer-border: rgb(28 31 43);
     --transfer-text: var(--main-text);
 
     --config-menu-text: #1c1f2b;
-    --config-menu-text-hover: var(--primary); 
+    --config-menu-text-hover: var(--primary);
     --config-menu-text-active: var(--primary);
-    --config-menu-text-disabled: #D9D9D9;
+    --config-menu-text-disabled: #d9d9d9;
     --config-menu-bg: unset;
     --config-menu-bg-hover: unset;
     --config-menu-bg-active: unset;
     --config-menu-bg-disabled: unset;
-    --config-menu-border: rgb(28, 31, 43); 
+    --config-menu-border: rgb(28 31 43);
     --config-menu-border-hover: var(--primary);
-    --config-menu-border-disabled: #D9D9D9; 
-    
-    --config-submenu-text: #1c1f2b; 
+    --config-menu-border-disabled: #d9d9d9;
+
+    --config-submenu-text: #1c1f2b;
     --config-submenu-text-hover: var(--primary);
-    --config-submenu-text-disabled: #D9D9D9;
+    --config-submenu-text-disabled: #d9d9d9;
     --config-submenu-bg: unset;
-    
+
     --login-bg: var(--main-bg);
     --login-content-bg: transparent;
     --login-btn-text: #fff;
@@ -130,53 +126,53 @@
     --authcode-input-text-disabled: #454545;
     --authcode-input-bg-disabled: #ccc;
 
-    --config-aside-text: #1c1f2b; 
+    --config-aside-text: #1c1f2b;
     --config-aside-text-hover: #1c1f2b;
     --config-aside-text-active: #fff;
-    --config-aside-text-disabled: #D9D9D9;
-    --config-aside-bg: unset; 
+    --config-aside-text-disabled: #d9d9d9;
+    --config-aside-bg: unset;
     --config-aside-item-bg: unset;
     --config-aside-item-bg-active: var(--primary);
 
-    --breadcrumb-text: #1c1f2b; 
+    --breadcrumb-text: #1c1f2b;
     --breadcrumb-bg: transparent;
 
     --ptz-btn: #fff;
     --ptz-btn-disabled: #fff;
 
     --ai-linkbox-bg: #d0d0d0;
-    --ai-linkbox-border: rgb(28, 31, 43);
-    --ai-advance-bg: #FFF;
+    --ai-linkbox-border: rgb(28 31 43);
+    --ai-advance-bg: #fff;
 
     --output-eth-bg: transparent;
     --output-tab-bg: transparent;
     --output-tab-btn-bg: transparent;
 
-    --disk-group-text-active: #FFF;
-    --disk-group-bg-active: rgb(0, 188, 112);
+    --disk-group-text-active: #fff;
+    --disk-group-bg-active: rgb(0 188 112);
 
     --upgrade-text-active: #23de1a;
 
-    --panel-bg: unset; 
-    --panel-header-bg: unset; 
-    --panel-header-text: rgb(28, 31, 43);
-    --panel-header-text-02: rgb(28, 31, 43);
-    --panel-menu-bg: #f0f2f3; 
-    --panel-menu-bg-active: #fff; 
+    --panel-bg: unset;
+    --panel-header-bg: unset;
+    --panel-header-text: rgb(28 31 43);
+    --panel-header-text-02: rgb(28 31 43);
+    --panel-menu-bg: #f0f2f3;
+    --panel-menu-bg-active: #fff;
     --panel-btn-bg: #777;
-    --panel-btn-bg-disabled: #B7B7B7;
+    --panel-btn-bg-disabled: #b7b7b7;
 
     --panel-snap-border: black;
-    --panel-snap-history-border: #FFCC66;
-    --panel-snap-btn-bg: rgba(0,0,0,.5);
+    --panel-snap-history-border: #fc6;
+    --panel-snap-btn-bg: rgb(0 0 0 / 50%);
 
-    --panel-event-text: #D5D4D4;
+    --panel-event-text: #d5d4d4;
     --panel-event-bg: #454545;
-    --panel-event-bg-hover: #48B67F;
+    --panel-event-bg-hover: #48b67f;
     --panel-event-bg-active: var(--primary-light);
-    --panel-event-title-text: #D5D4D4;
+    --panel-event-title-text: #d5d4d4;
     --panel-event-title-bg: #999;
-    
+
     --tabbar-text: var(--header-menu-text);
     --tabbar-text-hover: var(--header-menu-text);
     --tabbar-text-active: #fff;
@@ -184,38 +180,38 @@
     --tabbar-bg-hover: var(--primary-light);
     --tabbar-bg-active: var(--primary);
 
-    --sidebar-text-hover: #fff; 
+    --sidebar-text: #fff;
     --sidebar-text-hover: var(--header-menu-text);
     --sidebar-text-active: var(--main-text-active);
     --sidebar-bg: transparent;
     --sidebar-bg-hover: var(--primary-light);
     --sidebar-bg-active: var(--primary);
 
-    --backup-snap-bg: #555; 
-    --backup-snap-border: #555; 
-    
-    --intel-snap-border: #000; 
+    --backup-snap-bg: #555;
+    --backup-snap-border: #555;
+
+    --intel-snap-border: #000;
 
     --parklog-label-text: #8d8d8d;
-    --parklog-bg: #f0f2f3; 
-    --parklog-box-bg: #d9d9d9; 
+    --parklog-bg: #f0f2f3;
+    --parklog-box-bg: #d9d9d9;
     --parklog-title-bg: #cbcbcb;
 
-    --player-bg: #4c4c4b; 
-    --player-split-border: #343434; 
+    --player-bg: #4c4c4b;
+    --player-split-border: #343434;
 
     --calendar-bg: var(--main-bg);
     --calendar-header-text: #1c1f2b;
-    --calendar-header-bg: #f5f5f5; 
-    --calendar-thead-bg: #d4d4d4; 
-    --calendar-text-disabled: #666; 
-    --calendar-border: rgb(28, 31, 43);
-    --calendar-bg-hover: #dfdfdf; 
+    --calendar-header-bg: #f5f5f5;
+    --calendar-thead-bg: #d4d4d4;
+    --calendar-text-disabled: #666;
+    --calendar-border: rgb(28 31 43);
+    --calendar-bg-hover: #dfdfdf;
     --calendar-bg-active: var(--primary);
     --calendar-bg-today: var(--primary-light);
-    
-    --loading-bg: rgba(255, 255, 255, 0.2);
-    
+
+    --loading-bg: rgb(255 255 255 / 20%);
+
     --color-online: green;
     --color-offline: red;
     --color-error: red;
@@ -231,16 +227,16 @@
 
     --timeline-legend-bg: #666;
 
-    --timeline-bg-02: rgba(0, 0, 0, 0);
-    --timeline-scale-line-02: rgb(28, 31, 43);
-    --timeline-scale-text-02: rgb(28, 31, 43);
-    --timeline-split-line-color-02: rgb(28, 31, 43);
-    --timeline-pointer-02: rgb(0, 188, 112);
-    --timeline-pointer-time-02: rgb(28, 31, 43);
-    --timeline-moving-pointer-02: rgb(0, 188, 112);
-    --timeline-moving-time-bg-02: rgba(0,0,0,.5);
+    --timeline-bg-02: rgb(0 0 0 / 0%);
+    --timeline-scale-line-02: rgb(28 31 43);
+    --timeline-scale-text-02: rgb(28 31 43);
+    --timeline-split-line-color-02: rgb(28 31 43);
+    --timeline-pointer-02: rgb(0 188 112);
+    --timeline-pointer-time-02: rgb(28 31 43);
+    --timeline-moving-pointer-02: rgb(0 188 112);
+    --timeline-moving-time-bg-02: rgb(0 0 0 / 50%);
     --timeline-moving-time-text-02: #fff;
-    --timeline-range-mask-02: rgba(0, 188, 112, .5);
+    --timeline-range-mask-02: rgb(0 188 112 / 50%);
 
     --barchart-text: black;
     --barchart-line: #ac7e7e;
@@ -249,16 +245,19 @@
 
     --schedule-form-text: var(--main-text);
     --schedule-form-bg: transparent;
-    --schedule-form-btn: #1c1f2b; 
-    --schedule-btn: #1c1f2b; 
+    --schedule-form-btn: #1c1f2b;
+    --schedule-btn: #1c1f2b;
     --schedule-scale: #1c1f2b;
     --schedule-time-span-bg: #fff;
     --schedule-time-span-bg-active: #00bc70;
-    --schedule-time-span-bg-selection: rgb(0, 188, 112);
+    --schedule-time-span-bg-selection: rgb(0 188 112);
 
     --float-ok: #006400;
-    --float-error: #ff0000;
+    --float-error: #f00;
 
     --qrcode-bg: #fff;
     --qrcode-label-bg: #8f8d8d;
+
+    --plugin-link-text: #327eee;
+    --plugin-link-text-hover: rgb(0 188 112);
 }

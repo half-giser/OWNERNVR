@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-07 10:40:47
  * @Description: 插件下载按钮
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-05 16:26:49
 -->
 <template>
     <div
@@ -11,10 +9,7 @@
         class="download"
     >
         <span class="download-text">{{ Translate('IDCS_BS_PLUGIN_DOWNLOAD') }}</span>
-        <a
-            id="dlPlugin"
-            :href="pluginLink"
-        >
+        <a :href="pluginLink">
             <BaseImgSprite
                 file="plugin"
                 :index="0"
@@ -26,7 +21,6 @@
 </template>
 
 <script lang="ts" setup>
-import { getSystemInfo } from '@/utils/tools'
 import { getPluginPath } from '@/utils/ocx/ocxUtil'
 
 const osType = getSystemInfo().platform
@@ -43,7 +37,7 @@ const isPluginIconHide = ref(userSession.appType === 'STANDARD' && osType === 'm
 <style lang="scss" scoped>
 .download {
     position: absolute;
-    left: 0px;
+    left: 0;
     width: 100%;
     bottom: 20px;
     font-size: 18px;
