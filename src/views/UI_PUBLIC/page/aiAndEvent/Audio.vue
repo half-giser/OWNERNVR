@@ -373,6 +373,7 @@
         color: var(--primary);
         opacity: 1;
     }
+
     /* 鼠标悬浮时样式 */
     :deep(.el-tabs__item:hover) {
         color: var(--primary);

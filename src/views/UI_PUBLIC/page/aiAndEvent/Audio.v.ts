@@ -704,8 +704,19 @@ export default defineComponent({
 
             const result = await queryEventNotifyParam()
             commLoadResponseHandler(result, ($) => {
-                pageData.value.audioSchedule = $('//content/triggerChannelAudioSchedule').attr('id')
-                pageData.value.originAudioSchedule = pageData.value.audioSchedule
+                const scheduleId = $('//content/triggerChannelAudioSchedule').attr('id')
+                // 判断返回的排程是否存在，若不存在设为空ID
+                if (scheduleId) {
+                    pageData.value.audioSchedule = scheduleId
+                    pageData.value.originAudioSchedule = scheduleId
+                } else {
+                    const scheduleName = $('//content/triggerChannelAudioSchedule').text()
+                    const find = pageData.value.audioScheduleList.find((item) => item.label === scheduleName)
+                    if (find) {
+                        pageData.value.audioSchedule = find.value
+                        pageData.value.originAudioSchedule = find.value
+                    }
+                }
             })
         }
 

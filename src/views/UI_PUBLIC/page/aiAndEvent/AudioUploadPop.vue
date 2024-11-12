@@ -13,7 +13,7 @@
         <el-form
             :style="{
                 '--form-label-width': '100px',
-                '--form-input-width': '240px',
+                '--form-input-width': '230px',
             }"
         >
             <el-form-item :label="Translate('IDCS_PATH')">
@@ -46,7 +46,6 @@
             >
                 <el-button
                     :disabled="pageData.btnApplyDisabled"
-                    :style="{ marginRight: '20px' }"
                     @click="apply"
                     >{{ Translate('IDCS_APPLY') }}</el-button
                 >
@@ -67,6 +66,6 @@
 
 .tips {
     color: var(--color-error);
-    padding: 20px 0px;
+    padding: 20px 0;
 }
 </style>
