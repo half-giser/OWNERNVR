@@ -44,7 +44,7 @@ export default defineComponent({
             name: [
                 {
                     validator: (_rule, value: string, callback) => {
-                        if (value.length === 0) {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
                             return
                         }

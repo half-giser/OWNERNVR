@@ -3,9 +3,8 @@
  * @Date: 2024-06-05 17:19:32
  * @Description: 添加通道 - 设置协议弹窗
  */
-import { type RuleItem } from 'async-validator'
 import { ChannelProtocolManageDto, ChannelResourcesPathDto } from '@/types/apiType/channel'
-import type { FormInstance, TableInstance } from 'element-plus'
+import type { FormInstance, TableInstance, FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -72,39 +71,40 @@ export default defineComponent({
             })
         }
 
-        const validate: Record<string, RuleItem['validator']> = {
-            validateDisplayName: (_rule, value, callback) => {
-                // if (formData.value.chkDomain) {
-                //     let domain = trim(formData.value.domain)
-                //     if (!domain.length) {
-                //         callback(new Error(Translate('IDCS_DOMAIN_NAME_EMPTY')))
-                //         return
-                //     }
-                // } else {
-                //     let ip = trim(formData.value.ip)
-                //     if (!ip || ip == '0.0.0.0') {
-                //         callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_INVALID')))
-                //         return
-                //     }
-                // }
-                value = value.trim()
-                if (!value) {
-                    callback(new Error(Translate('IDCS_SHOW_NAME_EMPTY')))
-                    currentProtocolLogo.value = tempProtocolLogo
-                    return
-                }
+        const rules = ref<FormRules>({
+            displayName: [
+                {
+                    validator: (_rule, value: string, callback) => {
+                        // if (formData.value.chkDomain) {
+                        //     let domain = trim(formData.value.domain)
+                        //     if (!domain.length) {
+                        //         callback(new Error(Translate('IDCS_DOMAIN_NAME_EMPTY')))
+                        //         return
+                        //     }
+                        // } else {
+                        //     let ip = trim(formData.value.ip)
+                        //     if (!ip || ip == '0.0.0.0') {
+                        //         callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_INVALID')))
+                        //         return
+                        //     }
+                        // }
+                        value = value.trim()
+                        if (!value) {
+                            callback(new Error(Translate('IDCS_SHOW_NAME_EMPTY')))
+                            currentProtocolLogo.value = tempProtocolLogo
+                            return
+                        }
 
-                if (displayNameList.concat(manufacturerArray).includes(value)) {
-                    callback(new Error(Translate('IDCS_SHOW_NAME_SAME')))
-                    currentProtocolLogo.value = tempProtocolLogo
-                    return
-                }
-                callback()
-            },
-        }
-
-        const rules = ref({
-            displayName: [{ validator: validate.validateDisplayName, trigger: 'manual' }],
+                        if (displayNameList.concat(manufacturerArray).includes(value)) {
+                            callback(new Error(Translate('IDCS_SHOW_NAME_SAME')))
+                            currentProtocolLogo.value = tempProtocolLogo
+                            return
+                        }
+                        callback()
+                    },
+                    trigger: 'manual',
+                },
+            ],
         })
 
         const verification = async () => {

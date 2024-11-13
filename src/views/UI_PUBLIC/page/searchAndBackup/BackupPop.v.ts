@@ -93,7 +93,7 @@ export default defineComponent({
         const formRule = ref<FormRules>({
             localPath: [
                 {
-                    validator(_rule, value, callback) {
+                    validator(_rule, value: string, callback) {
                         if (prop.mode !== 'ocx') {
                             callback()
                             return
@@ -103,8 +103,8 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_SELECT_PATH')))
                             return
                         }
+
                         callback()
-                        return
                     },
                     trigger: 'manual',
                 },

@@ -6,7 +6,7 @@
 import { type AlarmChlDto, AlarmCddDto } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
-import { type XmlResult } from '@/utils/xmlParse'
+import { type XMLQuery } from '@/utils/xmlParse'
 import CanvasVfd from '@/utils/canvas/canvasVfd'
 import AlarmBaseRecordSelector from './AlarmBaseRecordSelector.vue'
 import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
@@ -404,7 +404,7 @@ export default defineComponent({
         }
 
         const setOcxData = () => {
-            if (formData.value.regionInfo.length > 0) {
+            if (formData.value.regionInfo.length) {
                 if (mode.value === 'h5') {
                     cddDrawer.setArea(formData.value.regionInfo[0])
                 } else {
@@ -424,15 +424,17 @@ export default defineComponent({
             formData.value.regionInfo[0] = { X1: 0, X2: 0, Y1: 0, Y2: 0 }
         }
 
-        const LiveNotify2Js = ($: (path: string) => XmlResult) => {
-            const $xmlNote = $("statenotify[@type='CddParam']")
-            if ($xmlNote.length > 0) {
-                const points: { X1: number; X2: number; Y1: number; Y2: number }[] = []
-                $('statenotify/item').forEach((element) => {
+        const LiveNotify2Js = ($: XMLQuery) => {
+            if ($("statenotify[@type='CddParam']").length) {
+                formData.value.regionInfo = $('statenotify/item').map((element) => {
                     const $ = queryXml(element.element)
-                    points.push({ X1: Number($('X1').text()), Y1: Number($('Y1').text()), X2: Number($('X2').text()), Y2: Number($('Y2').text()) })
+                    return {
+                        X1: Number($('X1').text()),
+                        Y1: Number($('Y1').text()),
+                        X2: Number($('X2').text()),
+                        Y2: Number($('Y2').text()),
+                    }
                 })
-                formData.value.regionInfo = points
             }
         }
 

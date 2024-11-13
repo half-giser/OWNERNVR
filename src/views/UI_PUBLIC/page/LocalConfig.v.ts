@@ -32,7 +32,7 @@ export default defineComponent({
         const formRule = ref<FormRules>({
             liveSnapSavePath: [
                 {
-                    validator(_rule, value, callback) {
+                    validator: (_rule, value: string, callback) => {
                         if (!value) {
                             callback(new Error(Translate('IDCS_FTP_SAVE_PATH_ISEMPTY')))
                             return
@@ -43,7 +43,7 @@ export default defineComponent({
             ],
             recSavePath: [
                 {
-                    validator(_rule, value, callback) {
+                    validator: (_rule, value: string, callback) => {
                         if (!value) {
                             callback(new Error(Translate('IDCS_FTP_SAVE_PATH_ISEMPTY')))
                             return

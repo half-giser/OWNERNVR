@@ -50,7 +50,7 @@ export default defineComponent({
             email: [
                 {
                     validator: (_rule, value: string, callback) => {
-                        if (value.length && !checkEmail(value)) {
+                        if (!!value && !checkEmail(value)) {
                             callback(new Error(Translate('IDCS_PROMPT_INVALID_EMAIL')))
                             return
                         }

@@ -47,7 +47,7 @@ export default defineComponent({
                             return
                         }
 
-                        if (!value) {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_DDNS_SERVER_ADDR_EMPTY')))
                             return
                         }
@@ -56,6 +56,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_INVALID_CHAR')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -73,6 +74,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_REPORT_ID_EMPTY')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -85,12 +87,14 @@ export default defineComponent({
                             callback()
                             return
                         }
+
                         const index = pageData.value.reservedPort.indexOf(value)
                         if (index > -1) {
                             callback(new Error(Translate('IDCS_SYSTEM_RESERVED_PORT').formatForLang(value)))
+                            return
                         }
+
                         callback()
-                        return
                     },
                     trigger: 'manual',
                 },
@@ -103,10 +107,12 @@ export default defineComponent({
                             return
                         }
 
-                        if (!value) {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_SIP_SERVER_ADDR_EMPTY')))
                             return
                         }
+
+                        callback()
                     },
                     trigger: 'manual',
                 },
@@ -119,10 +125,12 @@ export default defineComponent({
                             return
                         }
 
-                        if (!value) {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_SIP_SERVER_DOMIN_EMPTY')))
                             return
                         }
+
+                        callback()
                     },
                     trigger: 'manual',
                 },
@@ -144,8 +152,8 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_SIP_ID_REPEAT')))
                             return
                         }
+
                         callback()
-                        return
                     },
                     trigger: 'manual',
                 },
@@ -167,8 +175,8 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_SIP_ID_REPEAT')))
                             return
                         }
+
                         callback()
-                        return
                     },
                     trigger: 'manual',
                 },
@@ -185,8 +193,8 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PROMPT_USERNAME_EMPTY')))
                             return
                         }
+
                         callback()
-                        return
                     },
                     trigger: 'manual',
                 },
@@ -203,8 +211,8 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
                         }
+
                         callback()
-                        return
                     },
                     trigger: 'manual',
                 },
@@ -216,12 +224,14 @@ export default defineComponent({
                             callback()
                             return
                         }
+
                         const index = pageData.value.reservedPort.indexOf(value)
                         if (index > -1) {
                             callback(new Error(Translate('IDCS_SYSTEM_RESERVED_PORT').formatForLang(value)))
+                            return
                         }
+
                         callback()
-                        return
                     },
                     trigger: 'manual',
                 },
@@ -233,12 +243,14 @@ export default defineComponent({
                             callback()
                             return
                         }
+
                         const index = pageData.value.reservedPort.indexOf(value)
                         if (index > -1) {
                             callback(new Error(Translate('IDCS_SYSTEM_RESERVED_PORT').formatForLang(value)))
+                            return
                         }
+
                         callback()
-                        return
                     },
                     trigger: 'manual',
                 },

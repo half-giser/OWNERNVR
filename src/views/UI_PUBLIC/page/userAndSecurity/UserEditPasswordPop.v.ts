@@ -53,7 +53,7 @@ export default defineComponent({
             newPassword: [
                 {
                     validator: (_rule, value: string, callback) => {
-                        if (value.length === 0) {
+                        if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
                         }
@@ -62,6 +62,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PWD_STRONG_ERROR')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -70,7 +71,7 @@ export default defineComponent({
             confirmNewPassword: [
                 {
                     validator: (_rule, value: string, callback) => {
-                        if (value.length === 0) {
+                        if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
                         }
@@ -79,6 +80,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PWD_MISMATCH_TIPS')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',

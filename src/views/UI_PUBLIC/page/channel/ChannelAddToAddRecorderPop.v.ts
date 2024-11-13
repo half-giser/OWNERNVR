@@ -149,7 +149,7 @@ export default defineComponent({
         const rules = ref<FormRules>({
             ip: [
                 {
-                    validator: (_rule, value, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (formData.value.chkDomain) {
                             const domain = formData.value.domain.trim()
                             if (!domain.length) {

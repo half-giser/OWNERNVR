@@ -94,7 +94,7 @@ export default defineComponent({
             userName: [
                 {
                     validator: (_rule, value: string, callback) => {
-                        if (!value.length) {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_USERNAME_EMPTY')))
                             return
                         }
@@ -103,6 +103,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -111,7 +112,7 @@ export default defineComponent({
             password: [
                 {
                     validator: (_rule, value: string, callback) => {
-                        if (value.length === 0) {
+                        if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
                         }
@@ -120,6 +121,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PWD_STRONG_ERROR')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -128,7 +130,7 @@ export default defineComponent({
             confirmPassword: [
                 {
                     validator: (_rule, value: string, callback) => {
-                        if (value.length === 0) {
+                        if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
                         }
@@ -137,6 +139,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PWD_MISMATCH_TIPS')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -145,10 +148,11 @@ export default defineComponent({
             email: [
                 {
                     validator: (_rule, value: string, callback) => {
-                        if (value.length && !checkEmail(value)) {
+                        if (!!value && !checkEmail(value)) {
                             callback(new Error(Translate('IDCS_PROMPT_INVALID_EMAIL')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',

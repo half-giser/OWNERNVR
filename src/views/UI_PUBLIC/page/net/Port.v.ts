@@ -25,7 +25,7 @@ export default defineComponent({
         const portFormRule = ref<FormRules>({
             httpPort: [
                 {
-                    validator(_rules, value, callback) {
+                    validator(_rules, value: number, callback) {
                         const error = validatePort('httpPort', Number(value))
                         if (error) {
                             callback(new Error(error))
@@ -38,7 +38,7 @@ export default defineComponent({
             ],
             httpsPort: [
                 {
-                    validator(_rules, value, callback) {
+                    validator(_rules, value: number, callback) {
                         const error = validatePort('httpsPort', Number(value))
                         if (error) {
                             callback(new Error(error))
@@ -51,7 +51,7 @@ export default defineComponent({
             ],
             netPort: [
                 {
-                    validator(_rules, value, callback) {
+                    validator(_rules, value: number, callback) {
                         const error = validatePort('netPort', Number(value))
                         if (error) {
                             callback(new Error(error))
@@ -64,7 +64,7 @@ export default defineComponent({
             ],
             posPort: [
                 {
-                    validator(_rules, value, callback) {
+                    validator(_rules, value: number, callback) {
                         const error = validatePort('posPort', Number(value))
                         if (error) {
                             callback(new Error(error))
@@ -84,7 +84,7 @@ export default defineComponent({
         const rtspServerFormRule = ref<FormRules>({
             rtspPort: [
                 {
-                    validator(_rules, value, callback) {
+                    validator(_rules, value: number, callback) {
                         const error = validatePort('rtspPort', Number(value))
                         if (error) {
                             callback(new Error(error))

@@ -43,6 +43,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_INVALID')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -61,10 +62,9 @@ export default defineComponent({
                                 callback(new Error(Translate('IDCS_PROMPT_PORT_INVALID')))
                                 return
                             }
-                            callback()
-                        } else {
-                            callback()
                         }
+
+                        callback()
                     },
                     trigger: 'manual',
                 },

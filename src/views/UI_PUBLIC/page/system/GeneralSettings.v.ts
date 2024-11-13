@@ -59,7 +59,7 @@ export default defineComponent({
             deviceName: [
                 {
                     validator: (_rule, value: string, callback) => {
-                        if (!value.length) {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_DEVICE_NAME_EMPTY')))
                             return
                         }
@@ -70,8 +70,8 @@ export default defineComponent({
             ],
             deviceNumber: [
                 {
-                    validator: (_rule, value: string, callback) => {
-                        if (!value) {
+                    validator: (_rule, value: number | undefined | null, callback) => {
+                        if (typeof value !== 'number') {
                             callback(new Error(Translate('IDCS_PROMPT_DEVICE_NUMBER_EMPTY')))
                             return
                         }

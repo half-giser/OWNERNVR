@@ -10,7 +10,7 @@
             :model="pageData.form"
             :rules="rules"
             :style="{
-                '--form-label-width': '260px',
+                '--form-label-width': '240px',
                 '--form-input-width': '180px',
             }"
             class="top"

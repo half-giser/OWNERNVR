@@ -34,19 +34,17 @@ export default defineComponent({
         const rules = ref<FormRules>({
             name: [
                 {
-                    validator: (_rule, value, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
                             return
                         }
-                        // else {
-                        //     formData.value.name = value = cutStringByByte(value, nameByteMaxLen)
-                        //     // 应该不可能发生此情况
-                        //     if (value == 0) {
-                        //         callback(new Error(Translate('IDCS_INVALID_CHAR')))
-                        //         return
-                        //     }
-                        // }
+
+                        if (!cutStringByByte(value, nameByteMaxLen)) {
+                            callback(new Error(Translate('IDCS_INVALID_CHAR')))
+                            return
+                        }
+
                         callback()
                     },
                     trigger: 'manual',

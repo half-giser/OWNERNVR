@@ -47,6 +47,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_IP_USED')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -54,7 +55,7 @@ export default defineComponent({
             ],
             secondMask: [
                 {
-                    validator(_rule, value, callback) {
+                    validator(_rule, value: string, callback) {
                         if (pageData.value.secondIpIndex === -1 || !formData.value.secondIpSwitch) {
                             callback()
                             return
@@ -64,6 +65,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PROMPT_SUBNET_MASK_INVALID')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',

@@ -35,7 +35,7 @@ export default defineComponent({
         const rules = ref<FormRules>({
             ip: [
                 {
-                    validator(_, value, callback) {
+                    validator: (_, value: string, callback) => {
                         if (!value || value === '0.0.0.0') {
                             callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_INVALID')))
                             return
@@ -47,7 +47,7 @@ export default defineComponent({
             ],
             mask: [
                 {
-                    validator(_, value, callback) {
+                    validator: (_, value: string, callback) => {
                         if (!maskDisabled.value && (!value || value === '0.0.0.0')) {
                             callback(new Error(Translate('IDCS_PROMPT_SUBNET_MASK_INVALID')))
                             return
@@ -59,7 +59,7 @@ export default defineComponent({
             ],
             gateway: [
                 {
-                    validator(_, value, callback) {
+                    validator: (_, value: string, callback) => {
                         if (!gatewayDisabled.value && (!value || value === '0.0.0.0')) {
                             callback(new Error(Translate('IDCS_PROMPT_GATEWAY_INVALID')))
                             return
@@ -71,7 +71,7 @@ export default defineComponent({
             ],
             password: [
                 {
-                    validator(_, value, callback) {
+                    validator: (_, value: string, callback) => {
                         if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return

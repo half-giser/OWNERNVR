@@ -19,14 +19,19 @@ export default defineComponent({
         const rules = reactive<FormRules>({
             parkName: [
                 {
-                    required: true,
-                    message: Translate('IDCS_PARKING_LOT_NAME_EMPTY_TIPS'),
-                    trigger: 'blur',
+                    validator: (_rule, value: string, callback) => {
+                        if (!value.trim()) {
+                            callback(new Error(Translate('IDCS_PARKING_LOT_NAME_EMPTY_TIPS')))
+                            return
+                        }
+                        callback()
+                    },
+                    trigger: 'manual',
                 },
             ],
             totalNum: [
                 {
-                    validator: (_rule, value, callback) => {
+                    validator: (_rule, value: number, callback) => {
                         if (!value) {
                             callback(new Error(Translate('IDCS_TOTAL_VEHICLE_NOT_CONFIG')))
                             return
@@ -36,6 +41,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_TOTAL_VEHICLE_SPACE_LESS_TIPS')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -43,7 +49,7 @@ export default defineComponent({
             ],
             remainTotalNum: [
                 {
-                    validator: (_rule, value, callback) => {
+                    validator: (_rule, value: number, callback) => {
                         if (formData.value.remainTotalNum > value) {
                             callback(new Error(Translate('IDCS_REMAIN_VEHICLE_NUM_OVER_TIPS')))
                             return
@@ -53,6 +59,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_REMAIN_VEHICLE_SPACE_LESS_TIPS')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',

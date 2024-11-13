@@ -76,7 +76,7 @@ export default defineComponent({
                 }
             })
 
-            if (pageData.value.scheduleList.length === 0) return
+            if (!pageData.value.scheduleList.length) return
 
             let selectRow
             if (pageData.value.currentScheduleId) {
@@ -88,7 +88,7 @@ export default defineComponent({
                 pageData.value.currentScheduleId = selectRow.id
             }
 
-            if (pageData.value.scheduleList.length > 0) scheduleTable.value!.setCurrentRow(selectRow)
+            if (pageData.value.scheduleList.length) scheduleTable.value!.setCurrentRow(selectRow)
         }
 
         /**

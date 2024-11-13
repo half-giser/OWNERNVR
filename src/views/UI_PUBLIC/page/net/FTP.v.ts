@@ -49,7 +49,7 @@ export default defineComponent({
             serverAddr: [
                 {
                     validator: (_rule, value: string, callback) => {
-                        if (!value.length) {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_DDNS_SERVER_ADDR_EMPTY')))
                             return
                         }
@@ -60,7 +60,7 @@ export default defineComponent({
             ],
             port: [
                 {
-                    validator: (_rule, value, callback) => {
+                    validator: (_rule, value: number, callback) => {
                         if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_RTSP_PORT_EMPTY')))
                             return
@@ -73,7 +73,7 @@ export default defineComponent({
             userName: [
                 {
                     validator: (_rule, value: string, callback) => {
-                        if (!formData.value.anonymousSwitch && !value.trim().length) {
+                        if (!formData.value.anonymousSwitch && !value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_USERNAME_EMPTY')))
                             return
                         }

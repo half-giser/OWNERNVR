@@ -84,8 +84,8 @@ export default defineComponent({
         const formRule = ref<FormRules>({
             plateNumber: [
                 {
-                    validator(_rule, value, callback) {
-                        if (!value) {
+                    validator: (_rule, value: string, callback) => {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_VEHICLE_NUMBER_EMPTY')))
                             return
                         }
@@ -96,7 +96,7 @@ export default defineComponent({
             ],
             groupId: [
                 {
-                    validator(_rule, value, callback) {
+                    validator: (_rule, value: string, callback) => {
                         if (!value) {
                             callback(new Error(Translate('IDCS_PLATE_LIBRARY_GROUP_NOT_EXIST')))
                             return

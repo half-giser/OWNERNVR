@@ -25,7 +25,7 @@ export default defineComponent({
             userName: [
                 {
                     validator(_rule, value: string, callback) {
-                        if (formData.value.switch && !value.trim().length) {
+                        if (formData.value.switch && !value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_USERNAME_EMPTY')))
                             return
                         }

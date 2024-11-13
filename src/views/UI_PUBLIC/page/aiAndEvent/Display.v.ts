@@ -44,7 +44,7 @@ export default defineComponent({
                     videoFormData.value.popVideoOutputShow = true
                 }
                 popVideoOutputNote.forEach((item) => {
-                    if (popVideoOutputNote.length == 2) {
+                    if (popVideoOutputNote.length === 2) {
                         pageData.value.popVideoOutputOption.push({
                             value: item,
                             label: Number(item) == 0 ? Translate('IDCS_MAIN_SCREEN') : Translate('IDCS_SECOND_SCREEN'),

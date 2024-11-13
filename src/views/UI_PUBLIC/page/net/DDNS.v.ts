@@ -29,6 +29,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PROMPT_INVALID_SERVER')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -42,7 +43,7 @@ export default defineComponent({
                             return
                         }
 
-                        if (!value.length) {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_DOMAIN_NAME_EMPTY')))
                             return
                         }
@@ -51,6 +52,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_TEST_DDNS_NOHOST')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -68,6 +70,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PROMPT_USERNAME_EMPTY')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -85,6 +88,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',

@@ -59,6 +59,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_SIP_ID_INVALID')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'blur',

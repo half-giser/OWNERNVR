@@ -67,7 +67,7 @@ export default defineComponent({
         const formRule = ref<FormRules>({
             name: [
                 {
-                    validator(_, value: string, callback) {
+                    validator: (_, value: string, callback) => {
                         if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
                             return
@@ -77,6 +77,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PROMPT_CRUISE_NAME_EXIST')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',

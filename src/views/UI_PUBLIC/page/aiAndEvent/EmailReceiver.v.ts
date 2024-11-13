@@ -23,22 +23,27 @@ export default defineComponent({
         const rules = reactive<FormRules>({
             recipient: [
                 {
-                    required: true,
-                    message: Translate('IDCS_PROMPT_EMAIL_ADDRESS_EMPTY'),
-                    trigger: 'manual',
-                },
-                {
                     validator: (_rule, value: string, callback) => {
+                        if (!value.trim()) {
+                            callback(new Error(Translate('IDCS_PROMPT_EMAIL_ADDRESS_EMPTY')))
+                            return
+                        }
+
                         if (!checkEmail(value)) {
                             callback(new Error(Translate('IDCS_PROMPT_INVALID_EMAIL')))
                             return
-                        } else if (checkExist(value)) {
+                        }
+
+                        if (checkExist(value)) {
                             callback(new Error(Translate('IDCS_PROMPT_EMAIL_EXIST')))
                             return
-                        } else if (tableData.value.length >= maxEmailCount.value) {
+                        }
+
+                        if (tableData.value.length >= maxEmailCount.value) {
                             callback(new Error(Translate('IDCS_PROMPT_EMAIL_NUM_LIMIT').formatForLang(maxEmailCount.value)))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',

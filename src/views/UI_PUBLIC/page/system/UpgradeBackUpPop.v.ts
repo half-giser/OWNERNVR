@@ -24,7 +24,7 @@ export default defineComponent({
             filePath: [
                 {
                     validator: (_rule, value: string, callback) => {
-                        if (!value.length) {
+                        if (!value) {
                             callback(new Error(Translate('IDCS_SELECT_PATH')))
                             return
                         }

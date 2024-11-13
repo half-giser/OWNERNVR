@@ -27,7 +27,7 @@ export default defineComponent({
             address: [
                 {
                     validator(_rule, value: string, callback) {
-                        if (!value.length) {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_EMAIL_ADDRESS_EMPTY')))
                             return
                         }
@@ -36,6 +36,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PROMPT_INVALID_EMAIL')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -49,7 +50,7 @@ export default defineComponent({
                             return
                         }
 
-                        if (!value.length) {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_USERNAME_EMPTY')))
                             return
                         }
@@ -58,6 +59,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_INVALID_CHAR')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -74,6 +76,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -87,6 +90,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PROMPT_INVALID_SMTPSERVER')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',

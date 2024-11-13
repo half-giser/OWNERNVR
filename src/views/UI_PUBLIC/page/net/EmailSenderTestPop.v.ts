@@ -43,7 +43,7 @@ export default defineComponent({
             address: [
                 {
                     validator(_rule, value: string, callback) {
-                        if (!value.length) {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_EMAIL_ADDRESS_EMPTY')))
                             return
                         }
@@ -64,6 +64,7 @@ export default defineComponent({
                                 return
                             }
                         }
+
                         callback()
                     },
                     trigger: 'manual',

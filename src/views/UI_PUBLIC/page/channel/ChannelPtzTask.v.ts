@@ -103,8 +103,8 @@ export default defineComponent({
         const formRule = ref<FormRules>({
             name: [
                 {
-                    validator(_rule, value: string, callback) {
-                        if (!value) {
+                    validator: (_rule, value: string, callback) => {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
                             return
                         }
@@ -117,6 +117,7 @@ export default defineComponent({
                             callback(new Error(''))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -124,13 +125,13 @@ export default defineComponent({
             ],
             endTime: [
                 {
-                    validator(_rule, value: string, callback) {
+                    validator: (_rule, value: string, callback) => {
                         if (getSeconds(value) < getSeconds(formData.value.startTime)) {
                             callback(new Error(Translate('IDCS_END_TIME_GREATER_THAN_START')))
                             return
                         }
+
                         callback()
-                        return
                     },
                     trigger: 'manual',
                 },

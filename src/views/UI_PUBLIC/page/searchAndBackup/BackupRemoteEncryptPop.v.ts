@@ -42,10 +42,11 @@ export default defineComponent({
                             return
                         }
 
-                        if (!value.length) {
+                        if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'blur',
@@ -59,7 +60,7 @@ export default defineComponent({
                             return
                         }
 
-                        if (!value.length) {
+                        if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
                         }
@@ -68,6 +69,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PWD_MISMATCH_TIPS')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'blur',

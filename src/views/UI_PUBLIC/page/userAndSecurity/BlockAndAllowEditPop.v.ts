@@ -56,11 +56,13 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_EMPTY')))
                             return
                         }
+
                         const findIndex = prop.tableData.findIndex((item) => item.ip === value)
                         if (findIndex > -1 && findIndex !== prop.index) {
                             callback(new Error(Translate('IDCS_IP_ADDRESS_REPEAT_LIMIT')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -89,6 +91,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_IP_ADDRESS_REPEAT_LIMIT')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -96,7 +99,7 @@ export default defineComponent({
             ],
             endIp: [
                 {
-                    validator: (_rule, _value, callback) => {
+                    validator: (_rule, _value: string, callback) => {
                         if (formData.value.addressType !== 'iprange') {
                             callback()
                             return
@@ -106,6 +109,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_EMPTY')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -123,11 +127,13 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PROMPT_MACADDRESS_INVALID')))
                             return
                         }
+
                         const findIndex = prop.tableData.findIndex((item) => item.mac === value)
                         if (findIndex > -1 && findIndex !== prop.index) {
                             callback(new Error(Translate('IDCS_MAC_ADDRESS_REPEAT_LIMIT')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',

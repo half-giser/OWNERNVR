@@ -812,7 +812,7 @@ export default defineComponent({
         const formatAllDisk = () => {
             return new Promise((resolve: (value: undefined) => void) => {
                 const needFormatDisk = diskTableData.value.filter((item) => item.diskStatus === 'bad')
-                if (needFormatDisk.length > 0) {
+                if (needFormatDisk.length) {
                     openMessageBox({
                         type: 'question',
                         message: '<span>' + Translate('IDCS_QUESTION_FORMAT_DISK') + '</span></br><span style="color: red">' + Translate('IDCS_FORMAT_MP_DISK_RESULT') + '</span>',

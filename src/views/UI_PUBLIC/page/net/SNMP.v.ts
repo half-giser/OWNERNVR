@@ -16,7 +16,7 @@ export default defineComponent({
         const formRule = ref<FormRules>({
             snmpPort: [
                 {
-                    validator(_rule, value, callback) {
+                    validator(_rule, value: number, callback) {
                         if (!disabled.value && !value) {
                             callback(new Error(Translate('IDCS_PROMPT_SNMP_PORT_EMPTY')))
                             return
@@ -28,8 +28,8 @@ export default defineComponent({
             ],
             readCommunity: [
                 {
-                    validator(_rule, value, callback) {
-                        if (!disabled.value && !value.length) {
+                    validator(_rule, value: string, callback) {
+                        if (!disabled.value && !value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_READ_COMMUNITY_EMPTY')))
                             return
                         }
@@ -40,8 +40,8 @@ export default defineComponent({
             ],
             writeCommunity: [
                 {
-                    validator(_rule, value, callback) {
-                        if (!disabled.value && !value.length) {
+                    validator(_rule, value: string, callback) {
+                        if (!disabled.value && !value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_WRITE_COMMUNITY_EMPTY')))
                             return
                         }
@@ -52,9 +52,9 @@ export default defineComponent({
             ],
             trapAddress: [
                 {
-                    validator(_rule, value, callback) {
+                    validator(_rule, value: string, callback) {
                         if (!disabled.value) {
-                            if (!value.length) {
+                            if (!value) {
                                 callback(new Error(Translate('IDCS_PROMPT_TRAP_ADDRESS_EMPTY')))
                                 return
                             }
@@ -71,7 +71,7 @@ export default defineComponent({
             ],
             trapPort: [
                 {
-                    validator(_rule, value, callback) {
+                    validator(_rule, value: number, callback) {
                         if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_TRAP_PORT_EMPTY')))
                             return

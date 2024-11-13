@@ -286,7 +286,7 @@ export default defineComponent({
         const setData = () => {
             const diffRows = getArrayDiffRows(tableData.value, tableDataInit, ['name', 'delayTime', 'scheduleId'])
 
-            if (diffRows.length > 0) {
+            if (diffRows.length) {
                 let completeCount = 0
                 openLoading()
                 diffRows.forEach(async (row) => {

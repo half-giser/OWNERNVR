@@ -147,18 +147,11 @@ export default defineComponent({
         const rules = ref<FormRules>({
             name: [
                 {
-                    validator: (_rule, value, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         value = value.trim()
-                        if (value.length === 0) {
+                        if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
                             return
-                        } else {
-                            editItem.value.name = value = cutStringByByte(value, nameByteMaxLen)
-                            // 应该不可能发生此情况
-                            if (value == 0) {
-                                callback(new Error(Translate('IDCS_INVALID_CHAR')))
-                                return
-                            }
                         }
 
                         if (!checkChlName(value.replace(' ', ''))) {
@@ -180,6 +173,7 @@ export default defineComponent({
                             })
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -187,7 +181,7 @@ export default defineComponent({
             ],
             ip: [
                 {
-                    validator: (_rule, value, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (!isAnolog.value) {
                             value = value.trim()
                             if (isIp && (!value.length || !checkIpV4(value))) {
@@ -215,6 +209,7 @@ export default defineComponent({
                                 return
                             }
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -222,7 +217,7 @@ export default defineComponent({
             ],
             userName: [
                 {
-                    validator: (_rule, value, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (!isAnolog.value) {
                             value = value.trim()
                             if (props.rowData.protocolType != 'RTSP' && !value.length) {
@@ -230,6 +225,7 @@ export default defineComponent({
                                 return
                             }
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -328,6 +324,7 @@ export default defineComponent({
             portDisabled,
             opened,
             save,
+            formatInputMaxLength,
         }
     },
 })

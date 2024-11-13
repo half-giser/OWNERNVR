@@ -35,7 +35,7 @@ export default defineComponent({
             countryName: [
                 {
                     validator(_rule, value: string, callback) {
-                        if (!value.length) {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_HTTPS_EMPTY_TIP')))
                             return
                         }
@@ -44,6 +44,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_HTTPS_COUNTRY_TIP')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -52,7 +53,7 @@ export default defineComponent({
             commonName: [
                 {
                     validator(_rule, value: string, callback) {
-                        if (!value.length) {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_HTTPS_EMPTY_TIP')))
                             return
                         }
@@ -61,6 +62,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_MAX_CHARACTER')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -69,7 +71,7 @@ export default defineComponent({
             validityPeriod: [
                 {
                     validator(_rule, value: string, callback) {
-                        if (prop.type !== 2 && !value) {
+                        if (prop.type !== 2 && !value.trim()) {
                             callback(new Error(Translate('IDCS_HTTPS_EMPTY_TIP')))
                             return
                         }
@@ -81,7 +83,7 @@ export default defineComponent({
             email: [
                 {
                     validator(_rule, value: string, callback) {
-                        if (value.length && !checkEmail(value)) {
+                        if (value.trim() && !checkEmail(value)) {
                             callback(new Error(Translate('IDCS_PROMPT_INVALID_EMAIL')))
                             return
                         }

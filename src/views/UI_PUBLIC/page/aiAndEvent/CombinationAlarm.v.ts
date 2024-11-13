@@ -208,7 +208,7 @@ export default defineComponent({
                     }
 
                     const currCombinedId = item.attr('id')!
-                    $item('param/alarmSource/item').forEach(async (ele) => {
+                    $item('param/alarmSource/item').forEach((ele) => {
                         const $ele = queryXml(ele.element)
                         const APISource = $ele('alarmSourceType').text() // 接口返回报警类型
                         const APIChlId = $ele('alarmSourceEntity').attr('id') // 接口返回报警源
@@ -575,7 +575,7 @@ export default defineComponent({
         const setData = async () => {
             const editedRows = getEditedRows(tableData.value, tableDataInit)
             let count = 0
-            if (editedRows.length != 0) {
+            if (editedRows.length) {
                 openLoading()
                 editedRows.forEach(async (item) => {
                     const sendXml = getSavaData(item)
@@ -690,7 +690,7 @@ export default defineComponent({
             await getData()
 
             // 在tabledata初始化完成后开始监听tabledata的数据变化
-            if (tableData.value.length == pageData.value.totalCount) {
+            if (tableData.value.length === pageData.value.totalCount) {
                 pageData.value.initComplated = true
             }
         })

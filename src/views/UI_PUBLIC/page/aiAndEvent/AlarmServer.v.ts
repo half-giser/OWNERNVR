@@ -46,13 +46,13 @@ export default defineComponent({
         const rules = reactive<FormRules>({
             address: [
                 {
-                    validator: (_rule, value, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (pageData.value.isTestAlarmServer == true && !value) {
                             callback(new Error(Translate('IDCS_DDNS_SERVER_ADDR_EMPTY')))
                             return
                         }
 
-                        if (value.trim().length) {
+                        if (!value.trim()) {
                             if (!value.trim().match(/(^$|[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+.?$)/g)) {
                                 callback(new Error(Translate('IDCS_PROMPT_INVALID_SERVER')))
                                 return
@@ -66,9 +66,9 @@ export default defineComponent({
             ],
             deviceId: [
                 {
-                    validator: (_rule, value, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if ((pageData.value.isAnothorUI || pageData.value.deviceIdShow) && formData.value.enable && !formData.value.deviceId.trim()) {
-                            if (!value.trim().length) {
+                            if (!value.trim()) {
                                 callback(new Error(Translate('IDCS_PROMPT_ID_OR_TOKEN_EMPTY')))
                                 return
                             }
@@ -80,9 +80,9 @@ export default defineComponent({
             ],
             token: [
                 {
-                    validator: (_rule, value, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (pageData.value.isAnothorUI && formData.value.enable && !formData.value.token.trim()) {
-                            if (!value.trim().length) {
+                            if (!value.trim()) {
                                 callback(new Error(Translate('IDCS_PROMPT_ID_OR_TOKEN_EMPTY')))
                                 return
                             }

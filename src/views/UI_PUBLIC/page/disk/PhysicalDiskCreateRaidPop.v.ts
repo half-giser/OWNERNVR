@@ -53,7 +53,7 @@ export default defineComponent({
             name: [
                 {
                     validator: (_rule, value: string, callback) => {
-                        if (!value.length) {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_NOTE_CONFIG_RAID_NAME')))
                             return
                         }

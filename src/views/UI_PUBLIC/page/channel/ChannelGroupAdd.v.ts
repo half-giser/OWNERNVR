@@ -4,8 +4,7 @@
  * @Description: 新增通道组
  */
 import { ChannelInfoDto, ChannelGroupDto } from '@/types/apiType/channel'
-import { type RuleItem } from 'async-validator'
-import type { FormInstance, TableInstance } from 'element-plus'
+import type { FormInstance, TableInstance, FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -53,26 +52,25 @@ export default defineComponent({
             baseLivePopRef.value?.openLiveWin(rowData.id, rowData.name)
         }
 
-        const validate: Record<string, RuleItem['validator']> = {
-            validateName: (_rule, value, callback) => {
-                value = value.trim()
-                if (value.length === 0) {
-                    callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
-                    return
-                } else {
-                    formData.value.name = value = cutStringByByte(value, nameByteMaxLen)
-                    // 应该不可能发生此情况
-                    if (value == 0) {
-                        callback(new Error(Translate('IDCS_INVALID_CHAR')))
-                        return
-                    }
-                }
-                callback()
-            },
-        }
+        const rules = ref<FormRules>({
+            name: [
+                {
+                    validator: (_rule, value, callback) => {
+                        if (!value.trim()) {
+                            callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
+                            return
+                        }
 
-        const rules = ref({
-            name: [{ validator: validate.validateName, trigger: 'manual' }],
+                        if (!cutStringByByte(value, nameByteMaxLen)) {
+                            callback(new Error(Translate('IDCS_INVALID_CHAR')))
+                            return
+                        }
+
+                        callback()
+                    },
+                    trigger: 'manual',
+                },
+            ],
         })
 
         const verification = async () => {
@@ -198,6 +196,7 @@ export default defineComponent({
             handleCancel,
             getTranslateForSecond,
             chlGroupCountLimit,
+            formatInputMaxLength,
         }
     },
 })
